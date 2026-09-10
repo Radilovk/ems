@@ -50,11 +50,26 @@
 
     move-result v0
 
-    if-eqz v0, :cond_true
+    if-eqz v0, :cond_check_name
 
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_check_name
     if-eqz p1, :cond_false
 
-    invoke-virtual {p1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_false
+
+    invoke-virtual {v0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
@@ -62,25 +77,16 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
-    move-result v1
-
-    if-eqz v1, :cond_true
-
-    const-string v1, "nord"
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
     move-result v0
 
-    if-eqz v0, :cond_true
+    if-eqz v0, :cond_false
 
-    :cond_false
-    const/4 v0, 0x0
+    const/4 v0, 0x1
 
     return v0
 
-    :cond_true
-    const/4 v0, 0x1
+    :cond_false
+    const/4 v0, 0x0
 
     return v0
 .end method

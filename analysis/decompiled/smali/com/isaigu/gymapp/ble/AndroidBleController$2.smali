@@ -257,7 +257,7 @@
 
     move-result v8
 
-    if-nez v8, :cond_0
+    if-eqz v8, :cond_0
 
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothDevice;->getAddress()Ljava/lang/String;
 

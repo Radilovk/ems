@@ -77,6 +77,16 @@
 
     new-instance v1, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;
 
+    const-string v2, "X-EMS"
+
+    const-string v3, "0001"
+
+    invoke-direct {v1, v2, v3}, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;-><init>(Ljava/lang/String;Ljava/lang/String;)V
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/ble/AndroidBleController;->addFilterBean(Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;)V
+
+    new-instance v1, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;
+
     const-string v2, "Nord"
 
     const-string v3, "0001"

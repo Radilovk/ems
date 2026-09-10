@@ -16,7 +16,7 @@
 
 .field public static final VERSION_CODE:I = 0x4db27a6
 
-.field public static final VERSION_NAME:Ljava/lang/String; = "1.0.35"
+.field public static final VERSION_NAME:Ljava/lang/String; = "1.0.36"
 
 
 # direct methods

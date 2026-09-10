@@ -676,6 +676,10 @@
 
     .line 386
     :cond_0
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ble/AndroidBleController;->stopScan()V
+
+    const/4 v1, 0x1
+
     iget-object v2, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->activity:Landroid/app/Activity;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->mGattCallback:Landroid/bluetooth/BluetoothGattCallback;
@@ -1600,12 +1604,9 @@
     .local v3, "service":Landroid/bluetooth/BluetoothGattService;
     if-nez v3, :cond_3
 
-    .line 688
-    invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/ble/AndroidBleController;->disconnectByAddress(Ljava/lang/String;)Z
-
+    .line 689
     move v4, v5
 
-    .line 689
     goto :goto_0
 
     .line 691
@@ -1626,12 +1627,9 @@
     .local v2, "readCharacteristic":Landroid/bluetooth/BluetoothGattCharacteristic;
     if-nez v2, :cond_4
 
-    .line 693
-    invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/ble/AndroidBleController;->disconnectByAddress(Ljava/lang/String;)Z
-
+    .line 694
     move v4, v5
 
-    .line 694
     goto :goto_0
 
     .line 696
@@ -1988,12 +1986,9 @@
     .local v2, "service":Landroid/bluetooth/BluetoothGattService;
     if-nez v2, :cond_3
 
-    .line 636
-    invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/ble/AndroidBleController;->disconnectByAddress(Ljava/lang/String;)Z
-
+    .line 637
     move v6, v7
 
-    .line 637
     goto :goto_0
 
     .line 639
@@ -2014,12 +2009,9 @@
     .local v5, "writeCharacteristic":Landroid/bluetooth/BluetoothGattCharacteristic;
     if-nez v5, :cond_4
 
-    .line 642
-    invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/ble/AndroidBleController;->disconnectByAddress(Ljava/lang/String;)Z
-
+    .line 643
     move v6, v7
 
-    .line 643
     goto :goto_0
 
     .line 645

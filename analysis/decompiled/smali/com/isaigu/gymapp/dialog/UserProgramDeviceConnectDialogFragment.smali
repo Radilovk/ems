@@ -620,6 +620,8 @@
     .param p1, "bundle"    # Lcom/isaigu/gymapp/message/DataBundle;
 
     .prologue
+    return-void
+
     const/4 v3, 0x0
 
     .line 627

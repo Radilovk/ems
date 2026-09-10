@@ -85,12 +85,6 @@
 
     .line 493
     :cond_0
-    iget-object v0, p0, Lcom/isaigu/gymapp/fragment/TrainFragment$12;->this$0:Lcom/isaigu/gymapp/fragment/TrainFragment;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/TrainFragment$12;->val$bundle:Lcom/isaigu/gymapp/message/DataBundle;
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/fragment/TrainFragment;->access$400(Lcom/isaigu/gymapp/fragment/TrainFragment;Lcom/isaigu/gymapp/message/DataBundle;)V
-
     .line 494
     return-void
 .end method

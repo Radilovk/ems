@@ -191,6 +191,8 @@
     :cond_1
     if-nez p3, :cond_0
 
+    if-nez p2, :cond_error_reconnect
+
     .line 180
     iget-object v2, p0, Lcom/isaigu/gymapp/ble/AndroidBleController$3;->this$0:Lcom/isaigu/gymapp/ble/AndroidBleController;
 
@@ -403,6 +405,11 @@
     move-result-object v2
 
     invoke-static {v2}, Lcom/isaigu/gymapp/utils/Logger;->logConsole(Ljava/lang/String;)V
+
+    goto/16 :goto_0
+
+    :cond_error_reconnect
+    invoke-virtual {p1}, Landroid/bluetooth/BluetoothGatt;->connect()Z
 
     goto/16 :goto_0
 

@@ -279,6 +279,12 @@
 
     if-eqz v8, :cond_known_accept
 
+    invoke-static {v7}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v8
+
+    if-nez v8, :cond_known_accept
+
     .line 130
     const/4 v0, 0x0
 
@@ -329,13 +335,13 @@
 
     move-result v8
 
-    if-eqz v8, :cond_7
+    if-nez v8, :cond_7
 
     invoke-static {v7}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v8
 
-    if-eqz v8, :cond_uuid_ok
+    if-nez v8, :cond_uuid_ok
 
     iget-object v8, v2, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;->serviceUUID:Ljava/lang/String;
 
@@ -344,9 +350,7 @@
 
     move-result v8
 
-    if-eqz v8, :cond_uuid_ok
-
-    goto :cond_7
+    if-nez v8, :cond_7
 
     :cond_uuid_ok
 

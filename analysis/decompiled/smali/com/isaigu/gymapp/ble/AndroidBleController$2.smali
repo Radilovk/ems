@@ -242,110 +242,26 @@
 
     invoke-static {v8}, Lcom/isaigu/gymapp/utils/Logger;->logConsole(Ljava/lang/String;)V
 
-    .line 126
+    invoke-static {v1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v8
+
+    if-nez v8, :cond_name_ok
+
+    invoke-virtual {p1}, Landroid/bluetooth/BluetoothDevice;->getAddress()Ljava/lang/String;
+
+    move-result-object v1
+
+    :cond_name_ok
     invoke-static {v1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v8
 
     if-nez v8, :cond_0
 
-    .line 130
-    const/4 v0, 0x0
-
-    .line 131
-    .local v0, "accept":Z
-    const/4 v3, 0x0
-
-    .local v3, "i":I
-    :goto_2
-    iget-object v8, p0, Lcom/isaigu/gymapp/ble/AndroidBleController$2;->this$0:Lcom/isaigu/gymapp/ble/AndroidBleController;
-
-    invoke-static {v8}, Lcom/isaigu/gymapp/ble/AndroidBleController;->access$200(Lcom/isaigu/gymapp/ble/AndroidBleController;)Ljava/util/ArrayList;
-
-    move-result-object v8
-
-    invoke-virtual {v8}, Ljava/util/ArrayList;->size()I
-
-    move-result v8
-
-    if-ge v3, v8, :cond_5
-
-    .line 132
-    iget-object v8, p0, Lcom/isaigu/gymapp/ble/AndroidBleController$2;->this$0:Lcom/isaigu/gymapp/ble/AndroidBleController;
-
-    invoke-static {v8}, Lcom/isaigu/gymapp/ble/AndroidBleController;->access$200(Lcom/isaigu/gymapp/ble/AndroidBleController;)Ljava/util/ArrayList;
-
-    move-result-object v8
-
-    invoke-virtual {v8, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;
-
-    .line 133
-    .local v2, "filterBean":Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;
-    invoke-virtual {v1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
-
-    move-result-object v8
-
-    iget-object v9, v2, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;->deviceName:Ljava/lang/String;
-
-    invoke-virtual {v9}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
-
-    move-result-object v9
-
-    invoke-virtual {v8, v9}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v8
-
-    if-eqz v8, :cond_7
-
-    invoke-static {v7}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-
-    move-result v8
-
-    if-eqz v8, :cond_uuid_ok
-
-    iget-object v8, v2, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;->serviceUUID:Ljava/lang/String;
-
-    .line 134
-    invoke-virtual {v7, v8}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v8
-
-    if-eqz v8, :cond_uuid_ok
-
-    goto :cond_7
-
-    :cond_uuid_ok
-
-    iget-object v8, v2, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;->advertiseDataLength:Ljava/lang/Integer;
-
-    if-eqz v8, :cond_4
-
-    iget-object v8, v2, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;->advertiseDataLength:Ljava/lang/Integer;
-
-    if-eqz v8, :cond_7
-
-    array-length v8, v4
-
-    iget-object v9, v2, Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;->advertiseDataLength:Ljava/lang/Integer;
-
-    .line 136
-    invoke-virtual {v9}, Ljava/lang/Integer;->intValue()I
-
-    move-result v9
-
-    if-ne v8, v9, :cond_7
-
-    .line 137
-    :cond_4
     const/4 v0, 0x1
 
-    .line 142
-    .end local v2    # "filterBean":Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;
-    :cond_5
+    .local v0, "accept":Z
     if-eqz v0, :cond_0
 
     .line 146
@@ -585,16 +501,6 @@
     move-object v4, v8
 
     goto/16 :goto_1
-
-    .line 131
-    .restart local v0    # "accept":Z
-    .restart local v2    # "filterBean":Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;
-    .restart local v3    # "i":I
-    .restart local v4    # "manufacturerData":[B
-    :cond_7
-    add-int/lit8 v3, v3, 0x1
-
-    goto/16 :goto_2
 
     .line 161
     .end local v2    # "filterBean":Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;

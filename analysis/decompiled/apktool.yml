@@ -1,0 +1,31 @@
+version: 2.9.3
+apkFileName: XEMS.apk
+isFrameworkApk: false
+usesFramework:
+  ids:
+  - 1
+  tag: null
+sdkInfo:
+  minSdkVersion: 18
+  targetSdkVersion: 28
+packageInfo:
+  forcedPackageId: 127
+  renameManifestPackage: null
+versionInfo:
+  versionCode: 81471399
+  versionName: 1.0.30
+resourcesAreCompressed: false
+sharedLibrary: false
+sparseResources: false
+unknownFiles:
+  mimetypes.default: 8
+  mailcap.default: 8
+  font_metrics.properties: 8
+  org/apache/poi/ss/formula/function/functionMetadata-asGenerated.txt: 8
+  org/apache/poi/ss/formula/function/functionMetadata.txt: 8
+  org/apache/harmony/awt/internal/nls/messages.properties: 8
+  okhttp3/internal/publicsuffix/publicsuffixes.gz: 8
+doNotCompress:
+- resources.arsc
+- png
+- jpg

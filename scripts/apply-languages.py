@@ -129,9 +129,28 @@ def patch_common_utils() -> None:
     print("patched CommonUtils.smali")
 
 
+def patch_app_name() -> None:
+    app_name = "X-EMS PRO"
+    for rel in ("values/strings.xml", "values-en/strings.xml", "values-bg/strings.xml"):
+        path = DECOMPILED / "res" / rel
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        updated, count = re.subn(
+            r'(<string name="app_name">)[^<]*(</string>)',
+            rf"\1{app_name}\2",
+            text,
+            count=1,
+        )
+        if count:
+            path.write_text(updated, encoding="utf-8")
+            print(f"patched app_name in {rel}")
+
+
 def main() -> None:
     patch_get_locale()
     patch_common_utils()
+    patch_app_name()
 
     for rel in (
         "bean/UserData.smali",

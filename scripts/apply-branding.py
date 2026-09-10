@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 ICON_SRC = ROOT / "assets" / "icon.png"
 SPLASH_SRC = ROOT / "assets" / "splash.jpg"
+FLAG_SIZE = (79, 129)
+FLAG_COLORS = ((255, 255, 255), (0, 150, 110), (214, 38, 18))
 
 ICON_SIZES = {
     "mipmap-mdpi": 48,
@@ -44,6 +46,37 @@ def apply_icon(icon: Image.Image) -> None:
                 save_png(target, icon, (px, px))
 
 
+def _make_bulgarian_flag(selected: bool) -> Image.Image:
+    width, height = FLAG_SIZE
+    stripe_h = height // 3
+    img = Image.new("RGBA", FLAG_SIZE, (0, 0, 0, 0))
+    pixels = img.load()
+    for y in range(height):
+        if y < stripe_h:
+            color = FLAG_COLORS[0]
+        elif y < stripe_h * 2:
+            color = FLAG_COLORS[1]
+        else:
+            color = FLAG_COLORS[2]
+        if not selected:
+            color = tuple(int(c * 0.72) for c in color)
+        for x in range(width):
+            pixels[x, y] = color + (255,)
+    return img
+
+
+def apply_bulgarian_flag() -> None:
+    # The Bulgarian language button reuses the legacy "chinese" mipmap IDs.
+    selected = _make_bulgarian_flag(True)
+    unselected = _make_bulgarian_flag(False)
+    for folder in ("mipmap-hdpi", "mipmap-mdpi", "mipmap-xhdpi", "mipmap-xxhdpi", "mipmap-xxxhdpi"):
+        target_dir = DECOMPILED / "res" / folder
+        if not target_dir.exists():
+            continue
+        selected.save(target_dir / "chinese.png", "PNG")
+        unselected.save(target_dir / "chinese1.png", "PNG")
+
+
 def apply_logo(icon: Image.Image) -> None:
     # Logo uses the same X icon asset as the app icon.
     logo = icon.resize((200, 200), Image.Resampling.LANCZOS)
@@ -66,6 +99,7 @@ def main() -> None:
     apply_splash(splash)
     apply_icon(icon)
     apply_logo(icon)
+    apply_bulgarian_flag()
     print("Branding applied.")
 
 

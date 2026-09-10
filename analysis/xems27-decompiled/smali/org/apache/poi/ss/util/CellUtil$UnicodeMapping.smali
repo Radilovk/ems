@@ -1,0 +1,58 @@
+.class final Lorg/apache/poi/ss/util/CellUtil$UnicodeMapping;
+.super Ljava/lang/Object;
+.source "CellUtil.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lorg/apache/poi/ss/util/CellUtil;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x1a
+    name = "UnicodeMapping"
+.end annotation
+
+
+# instance fields
+.field public final entityName:Ljava/lang/String;
+
+.field public final resolvedValue:Ljava/lang/String;
+
+
+# direct methods
+.method public constructor <init>(Ljava/lang/String;Ljava/lang/String;)V
+    .locals 2
+    .param p1, "pEntityName"    # Ljava/lang/String;
+    .param p2, "pResolvedValue"    # Ljava/lang/String;
+
+    .line 70
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 71
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "&"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, ";"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lorg/apache/poi/ss/util/CellUtil$UnicodeMapping;->entityName:Ljava/lang/String;
+
+    .line 72
+    iput-object p2, p0, Lorg/apache/poi/ss/util/CellUtil$UnicodeMapping;->resolvedValue:Ljava/lang/String;
+
+    .line 73
+    return-void
+.end method

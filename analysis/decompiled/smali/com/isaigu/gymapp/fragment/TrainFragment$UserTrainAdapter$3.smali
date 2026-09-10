@@ -115,13 +115,17 @@
 
     iget-object v5, p0, Lcom/isaigu/gymapp/fragment/TrainFragment$UserTrainAdapter$3;->val$macAddress:Ljava/lang/String;
 
-    invoke-virtual {v4, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-static {v4, v5}, Lcom/isaigu/gymapp/utils/MacUtils;->equalsMac(Ljava/lang/String;Ljava/lang/String;)Z
 
     move-result v4
 
     if-eqz v4, :cond_2
 
     .line 1302
+    iget-object v4, p0, Lcom/isaigu/gymapp/fragment/TrainFragment$UserTrainAdapter$3;->val$macAddress:Ljava/lang/String;
+
+    iput-object v4, v3, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
+
     iget-boolean v4, p0, Lcom/isaigu/gymapp/fragment/TrainFragment$UserTrainAdapter$3;->val$connected:Z
 
     iput-boolean v4, v3, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z

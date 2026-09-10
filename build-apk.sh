@@ -30,6 +30,7 @@ fi
 cp "${ROOT}/translations/values-bg/strings.xml" "${DECOMPILED}/res/values-bg/strings.xml"
 cp "${ROOT}"/branding/layouts/*.xml "${DECOMPILED}/res/layout/"
 python3 "${ROOT}/scripts/apply-branding.py"
+python3 "${ROOT}/scripts/apply-languages.py"
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign

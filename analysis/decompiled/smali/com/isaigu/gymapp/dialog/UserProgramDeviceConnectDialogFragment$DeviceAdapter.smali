@@ -301,10 +301,11 @@
 
 
 # virtual methods
-.method public declared-synchronized discoverDevice(Ljava/lang/String;Ljava/lang/String;)V
-    .locals 2
+.method public declared-synchronized discoverDevice(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+    .locals 3
     .param p1, "macAddress"    # Ljava/lang/String;
     .param p2, "connectedSign"    # Ljava/lang/String;
+    .param p3, "bleName"    # Ljava/lang/String;
 
     .prologue
     .line 959
@@ -352,13 +353,15 @@
 
     invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    move-result-object v1
+    move-result-object v2
 
-    check-cast v1, Lcom/isaigu/gymapp/bean/DeviceBean;
+    check-cast v2, Lcom/isaigu/gymapp/bean/DeviceBean;
 
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
+    iget-object v1, v2, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
 
-    invoke-static {v1, p1}, Lcom/isaigu/gymapp/utils/MacUtils;->equalsMac(Ljava/lang/String;Ljava/lang/String;)Z
+    iget-object v2, v2, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
+
+    invoke-static {v1, v2, p1, p3}, Lcom/isaigu/gymapp/utils/MacUtils;->matchesDevice(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
 
     move-result v1
 
@@ -426,6 +429,65 @@
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
+.end method
+
+.method public syncBondedDevices()V
+    .locals 5
+
+    invoke-static {}, Landroid/bluetooth/BluetoothAdapter;->getDefaultAdapter()Landroid/bluetooth/BluetoothAdapter;
+
+    move-result-object v0
+
+    if-nez v0, :cond_0
+
+    return-void
+
+    :cond_0
+    invoke-virtual {v0}, Landroid/bluetooth/BluetoothAdapter;->getBondedDevices()Ljava/util/Set;
+
+    move-result-object v0
+
+    if-nez v0, :cond_1
+
+    return-void
+
+    :cond_1
+    invoke-interface {v0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    :cond_2
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_3
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Landroid/bluetooth/BluetoothDevice;
+
+    invoke-virtual {v0}, Landroid/bluetooth/BluetoothDevice;->getAddress()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0}, Landroid/bluetooth/BluetoothDevice;->getName()Ljava/lang/String;
+
+    move-result-object v3
+
+    if-nez v3, :cond_4
+
+    const-string v3, ""
+
+    :cond_4
+    invoke-virtual {p0, v2, v2, v3}, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter;->discoverDevice(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :cond_2
+
+    :cond_3
+    return-void
 .end method
 
 .method public getItemCount()I

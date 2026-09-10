@@ -259,6 +259,16 @@
 
     if-nez v8, :cond_0
 
+    invoke-virtual {p1}, Landroid/bluetooth/BluetoothDevice;->getAddress()Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-static {v8, v1}, Lcom/isaigu/gymapp/utils/MacUtils;->isKnownServerDevice(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v8
+
+    if-eqz v8, :cond_known_accept
+
     .line 130
     const/4 v0, 0x0
 
@@ -356,6 +366,14 @@
     .line 142
     .end local v2    # "filterBean":Lcom/isaigu/gymapp/ble/BleInterface$FilterBean;
     :cond_5
+    if-eqz v0, :cond_0
+
+    goto :cond_after_accept
+
+    :cond_known_accept
+    const/4 v0, 0x1
+
+    :cond_after_accept
     if-eqz v0, :cond_0
 
     .line 146

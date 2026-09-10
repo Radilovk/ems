@@ -12,6 +12,104 @@
     return-void
 .end method
 
+.method public static formatBleMac(Ljava/lang/String;)Ljava/lang/String;
+    .locals 6
+    .param p0, "mac"    # Ljava/lang/String;
+
+    if-nez p0, :cond_0
+
+    const/4 v0, 0x0
+
+    return-object v0
+
+    :cond_0
+    invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, ":"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+
+    :cond_1
+    invoke-static {p0}, Lcom/isaigu/gymapp/utils/MacUtils;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_2
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    const/16 v2, 0xc
+
+    if-eq v1, v2, :cond_3
+
+    :cond_2
+    invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+
+    :cond_3
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    const/16 v2, 0x11
+
+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(I)V
+
+    const/4 v2, 0x0
+
+    :goto_0
+    const/16 v3, 0xc
+
+    if-ge v2, v3, :cond_5
+
+    if-lez v2, :cond_4
+
+    const-string v3, ":"
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    :cond_4
+    invoke-virtual {v0, v2}, Ljava/lang/String;->charAt(I)C
+
+    move-result v3
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    add-int/lit8 v4, v2, 0x1
+
+    invoke-virtual {v0, v4}, Ljava/lang/String;->charAt(I)C
+
+    move-result v3
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    add-int/lit8 v2, v2, 0x2
+
+    goto :goto_0
+
+    :cond_5
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 .method public static equalsMac(Ljava/lang/String;Ljava/lang/String;)Z
     .locals 2
     .param p0, "a"    # Ljava/lang/String;

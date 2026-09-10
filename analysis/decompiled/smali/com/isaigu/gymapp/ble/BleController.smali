@@ -275,6 +275,10 @@
 
     .line 27
     :cond_1
+    invoke-static {p0}, Lcom/isaigu/gymapp/utils/MacUtils;->formatBleMac(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
     new-instance v0, Lcom/isaigu/gymapp/ble/BleController$WrapperData;
 
     invoke-direct {v0, p0, p1}, Lcom/isaigu/gymapp/ble/BleController$WrapperData;-><init>(Ljava/lang/String;[B)V
@@ -295,9 +299,9 @@
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ble/BleController$1;-><init>()V
 
-    const-wide/16 v2, 0x3e8
+    const-wide/16 v2, 0x64
 
-    const-wide/16 v4, 0x96
+    const-wide/16 v4, 0x64
 
     invoke-static {v1, v2, v3, v4, v5}, Lcom/isaigu/gymapp/utils/TimerUtils;->scheduleTimer(Ljava/lang/Runnable;JJ)Ljava/util/Timer;
 

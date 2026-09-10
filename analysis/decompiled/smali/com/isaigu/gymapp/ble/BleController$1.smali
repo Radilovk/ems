@@ -93,7 +93,7 @@
 
     iget-object v7, v3, Lcom/isaigu/gymapp/ble/BleController$WrapperData;->data:[B
 
-    invoke-virtual {v0, v4, v6, v7}, Lcom/isaigu/gymapp/ble/AndroidBleController;->write(Ljava/lang/String;Ljava/lang/String;[B)Z
+    invoke-virtual {v0, v4, v6, v7}, Lcom/isaigu/gymapp/ble/AndroidBleController;->writeOnUiThread(Ljava/lang/String;Ljava/lang/String;[B)V
 
     .line 40
     const-string/jumbo v4, "write: "

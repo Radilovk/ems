@@ -67,7 +67,7 @@
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ble/BleController$WrapperData;->data:[B
 
-    invoke-virtual {v0, v1, v2, v3}, Lcom/isaigu/gymapp/ble/AndroidBleController;->write(Ljava/lang/String;Ljava/lang/String;[B)Z
+    invoke-virtual {v0, v1, v2, v3}, Lcom/isaigu/gymapp/ble/AndroidBleController;->writeOnUiThread(Ljava/lang/String;Ljava/lang/String;[B)V
 
     .line 113
     new-instance v1, Ljava/lang/StringBuilder;

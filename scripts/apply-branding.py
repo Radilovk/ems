@@ -44,15 +44,14 @@ def apply_icon(icon: Image.Image) -> None:
                 save_png(target, icon, (px, px))
 
 
-def apply_logo(splash: Image.Image) -> None:
-    # Crop the X EMS PRO branding from the horizontal splash art.
-    w, h = splash.size
-    logo = splash.crop((int(w * 0.42), int(h * 0.18), int(w * 0.98), int(h * 0.82)))
-    logo = logo.resize((524, 200), Image.Resampling.LANCZOS)
+def apply_logo(icon: Image.Image) -> None:
+    # Logo uses the same X icon asset as the app icon.
+    logo = icon.resize((200, 200), Image.Resampling.LANCZOS)
 
     targets = [
         DECOMPILED / "res" / "mipmap-hdpi" / "logo2.png",
         DECOMPILED / "res" / "mipmap-hdpi" / "logo22.png",
+        DECOMPILED / "res" / "mipmap-hdpi" / "logo.png",
         DECOMPILED / "assets" / "logo2.png",
         DECOMPILED / "assets" / "logo22.png",
     ]
@@ -66,7 +65,7 @@ def main() -> None:
     splash = Image.open(SPLASH_SRC)
     apply_splash(splash)
     apply_icon(icon)
-    apply_logo(splash)
+    apply_logo(icon)
     print("Branding applied.")
 
 

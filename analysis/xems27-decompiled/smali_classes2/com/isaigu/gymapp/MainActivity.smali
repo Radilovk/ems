@@ -607,6 +607,19 @@
 
     invoke-virtual {v1, v3, v2}, Lme/weyye/hipermission/HiPermission;->checkSinglePermission(Ljava/lang/String;Lme/weyye/hipermission/PermissionCallback;)V
 
+    .line 85
+    invoke-static {p0}, Lme/weyye/hipermission/HiPermission;->create(Landroid/content/Context;)Lme/weyye/hipermission/HiPermission;
+
+    move-result-object v1
+
+    new-instance v2, Lcom/isaigu/gymapp/MainActivity$1;
+
+    invoke-direct {v2, p0}, Lcom/isaigu/gymapp/MainActivity$1;-><init>(Lcom/isaigu/gymapp/MainActivity;)V
+
+    const-string v3, "android.permission.ACCESS_FINE_LOCATION"
+
+    invoke-virtual {v1, v3, v2}, Lme/weyye/hipermission/HiPermission;->checkSinglePermission(Ljava/lang/String;Lme/weyye/hipermission/PermissionCallback;)V
+
     .line 99
     const/4 v1, 0x0
 

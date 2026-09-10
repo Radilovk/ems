@@ -26,15 +26,18 @@ if [[ ! -f /tmp/debug.keystore ]]; then
     -dname "CN=Debug, OU=Debug, O=Debug, L=Debug, S=Debug, C=US" >/dev/null 2>&1
 fi
 
+VERSION_NAME="$(grep 'versionName:' "${DECOMPILED}/apktool.yml" | awk '{print $2}')"
+OUT_APK="${ROOT}/X-EMS-PRO-xems27-v${VERSION_NAME}-aligned-debugSigned.apk"
+
 echo "==> sign"
 apksigner sign \
   --ks /tmp/debug.keystore --ks-pass pass:android --key-pass pass:android \
   --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
   --min-sdk-version 21 \
-  --out "${ROOT}/X-EMS-PRO-xems27-aligned-debugSigned.apk" "${WORK}/aligned.apk"
+  --out "${OUT_APK}" "${WORK}/aligned.apk"
 
 echo "==> verify"
-apksigner verify --verbose "${ROOT}/X-EMS-PRO-xems27-aligned-debugSigned.apk" | head -6
-aapt dump badging "${ROOT}/X-EMS-PRO-xems27-aligned-debugSigned.apk" | head -4
-aapt dump permissions "${ROOT}/X-EMS-PRO-xems27-aligned-debugSigned.apk" | grep -i bluetooth || true
-echo "Built: ${ROOT}/X-EMS-PRO-xems27-aligned-debugSigned.apk"
+apksigner verify --verbose "${OUT_APK}" | head -6
+aapt dump badging "${OUT_APK}" | head -4
+aapt dump permissions "${OUT_APK}" | grep -i bluetooth || true
+echo "Built: ${OUT_APK}"

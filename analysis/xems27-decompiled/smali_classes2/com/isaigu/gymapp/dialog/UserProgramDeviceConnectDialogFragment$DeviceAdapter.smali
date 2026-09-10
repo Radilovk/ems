@@ -574,11 +574,11 @@
     .param p2, "position"    # I
 
     .prologue
-    const v6, 0x7f0d004d
+    const v6, 0x7f060063
 
-    const v5, 0x7f0d0045
+    const v5, 0x7f06005b
 
-    const v4, 0x7f0d0023
+    const v4, 0x7f060037
 
     .line 983
     move-object v1, p1
@@ -698,7 +698,7 @@
 
     move-result-object v3
 
-    const v4, 0x7f0d0096
+    const v4, 0x7f0600ad
 
     invoke-virtual {v3, v4}, Landroid/content/res/Resources;->getColor(I)I
 
@@ -818,7 +818,7 @@
 
     move-result-object v3
 
-    const v4, 0x7f0d00a5
+    const v4, 0x7f0600be
 
     invoke-virtual {v3, v4}, Landroid/content/res/Resources;->getColor(I)I
 
@@ -848,7 +848,7 @@
 
     move-result-object v1
 
-    const v2, 0x7f040031
+    const v2, 0x7f0b0031
 
     const/4 v3, 0x0
 

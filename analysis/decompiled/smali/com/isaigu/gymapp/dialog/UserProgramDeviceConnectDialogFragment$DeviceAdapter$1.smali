@@ -117,6 +117,14 @@
 
     check-cast v1, Lcom/isaigu/gymapp/bean/DeviceBean;
 
+    iget-object v3, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
+
+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_0
+
     const/4 v3, 0x0
 
     iput-object v3, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->connectedSign:Ljava/lang/String;

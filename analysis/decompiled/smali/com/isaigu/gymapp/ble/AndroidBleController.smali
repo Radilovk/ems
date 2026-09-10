@@ -549,28 +549,51 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ble/BleInterface$BluetoothDeviceModel;->address:Ljava/lang/String;
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->notifiedAddresses:Ljava/util/HashSet;
+    invoke-static {v1}, Lcom/isaigu/gymapp/utils/MacUtils;->formatBleMac(Ljava/lang/String;)Ljava/lang/String;
 
-    invoke-virtual {v2, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+    move-result-object v1
 
-    move-result v2
-
-    if-eqz v2, :cond_2
+    if-nez v1, :cond_2
 
     return-void
 
     :cond_2
     iget-object v2, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->notifiedAddresses:Ljava/util/HashSet;
 
-    invoke-virtual {v2, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    invoke-virtual {v2, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->delegate:Lcom/isaigu/gymapp/ble/BleInterface$BluetoothCallback;
+    move-result v2
 
     if-eqz v2, :cond_3
 
-    invoke-interface {v2, v0}, Lcom/isaigu/gymapp/ble/BleInterface$BluetoothCallback;->onDeviceConnected(Lcom/isaigu/gymapp/ble/BleInterface$BluetoothDeviceModel;)V
+    return-void
 
     :cond_3
+    iget-object v2, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->notifiedAddresses:Ljava/util/HashSet;
+
+    invoke-virtual {v2, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->activity:Landroid/app/Activity;
+
+    if-eqz v1, :cond_4
+
+    new-instance v2, Lcom/isaigu/gymapp/ble/AndroidBleController$7;
+
+    invoke-direct {v2, p0, v0}, Lcom/isaigu/gymapp/ble/AndroidBleController$7;-><init>(Lcom/isaigu/gymapp/ble/AndroidBleController;Lcom/isaigu/gymapp/ble/BleInterface$BluetoothDeviceModel;)V
+
+    invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
+
+    goto :goto_0
+
+    :cond_4
+    iget-object v1, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->delegate:Lcom/isaigu/gymapp/ble/BleInterface$BluetoothCallback;
+
+    if-eqz v1, :cond_5
+
+    invoke-interface {v1, v0}, Lcom/isaigu/gymapp/ble/BleInterface$BluetoothCallback;->onDeviceConnected(Lcom/isaigu/gymapp/ble/BleInterface$BluetoothDeviceModel;)V
+
+    :cond_5
+    :goto_0
     return-void
 .end method
 

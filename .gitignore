@@ -1,0 +1,6 @@
+uber-apk-signer.jar
+*-unsigned.apk
+*.idsig
+xems27-base.apk
+xems27/
+tools/

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Wednsday">Сряда</string>
+    <string name="abc_action_bar_home_description">Начало</string>
+    <string name="abc_action_bar_home_description_format">%1$s, %2$s</string>
+    <string name="abc_action_bar_home_subtitle_description_format">%1$s, %2$s, %3$s</string>
+    <string name="abc_action_bar_up_description">Нагоре</string>
+    <string name="abc_action_menu_overflow_description">Още</string>
+    <string name="abc_action_mode_done">Готово</string>
+    <string name="abc_activity_chooser_view_see_all">Всички</string>
+    <string name="abc_activitychooserview_choose_application">Изберете приложение</string>
+    <string name="abc_capital_off">ИЗКЛ.</string>
+    <string name="abc_capital_on">ВКЛ.</string>
+    <string name="abc_search_hint">Търсене…</string>
+    <string name="abc_searchview_description_clear">Изчисти</string>
+    <string name="abc_searchview_description_query">Търсене</string>
+    <string name="abc_searchview_description_search">Търсене</string>
+    <string name="abc_searchview_description_submit">Търси</string>
+    <string name="abc_searchview_description_voice">Гласово търсене</string>
+    <string name="abc_shareactionprovider_share_with">Сподели с</string>
+    <string name="abc_shareactionprovider_share_with_application">Сподели с %s</string>
+    <string name="abc_toolbar_collapse_description">Свий</string>
+    <string name="acceptProtocol">Прочетох и приемам</string>
+    <string name="addplansuccess">Планът е добавен</string>
+    <string name="address">Адрес</string>
+    <string name="adduser">Добавете потребител</string>
+    <string name="age">Възраст:</string>
+    <string name="anmo">Масаж</string>
+    <string name="anmomoshi">Масаж</string>
+    <string name="anmozhouqi">Цикъл</string>
+    <string name="anmozhouqigap">Цикълът: 1–%1$d</string>
+    <string name="app_name">X EMS PRO</string>
+    <string name="autologin">Автовход</string>
+    <string name="avragestrength">Средна интензивност</string>
+    <string name="beibu">Гръб</string>
+    <string name="bibu">Седалище</string>
+    <string name="birthday">Рожден ден</string>
+    <string name="bluetooth_connect_failed">Няма Bluetooth връзка</string>
+    <string name="bluetooth_device">Bluetooth устройство</string>
+    <string name="bodydata">Телесни данни</string>
+    <string name="calendarreject">Без календар няма да има напомняния</string>
+    <string name="camera">Камера</string>
+    <string name="cancel">Отказ</string>
+    <string name="changeLogo">Лого:</string>
+    <string name="changeLogoText">Смени лого</string>
+    <string name="city">Град</string>
+    <string name="communicationfailed">Комуникацията прекъсна</string>
+    <string name="connect_failed">Няма връзка</string>
+    <string name="count">бр.</string>
+    <string name="customerdata">Клиент</string>
+    <string name="customerrecorddata">Тренировки на клиенти</string>
+    <string name="date">Дата</string>
+    <string name="day">ден</string>
+    <string name="defaultLogoText">Лого по подразбиране</string>
+    <string name="delete">Изтрий</string>
+    <string name="denyWriteSetting">Без права за настройки някои функции няма да работят</string>
+    <string name="editmode">Редакция</string>
+    <string name="editparameter">По подразбиране</string>
+    <string name="email">Имейл</string>
+    <string name="exisitprogram">За този час вече има план</string>
+    <string name="existTime">Време</string>
+    <string name="firmwareVersion">Firmware:</string>
+    <string name="format_date_no_year">dd.MM.yyyy</string>
+    <string name="format_date_no_year2">%1$d.%2$d.%3$d</string>
+    <string name="format_date_no_year3">MM.yyyy</string>
+    <string name="format_time_hour_minute">%1$s:%2$s</string>
+    <string name="foundVersion">Нова версия V%1$s. Обновяване?</string>
+    <string name="frequenceerror">Честотата: 1–99 Hz</string>
+    <string name="frequency">Честота</string>
+    <string name="frequencygap">Честотата: 1–%1$d</string>
+    <string name="frequencytext">Честота</string>
+    <string name="friday">Петък</string>
+    <string name="fubu">Корем</string>
+    <string name="hardwareVersion">Хардуер:</string>
+    <string name="height">Височина</string>
+    <string name="height2">Височина (см)</string>
+    <string name="height3">Височина:</string>
+    <string name="heightValue">%1$d см</string>
+    <string name="hint">Внимание</string>
+    <string name="hour">ч</string>
+    <string name="houxiefangji">Трапец</string>
+    <string name="id">ID</string>
+    <string name="inputerror">Грешно въвеждане</string>
+    <string name="inputoutputramperror">Нарастването и спадът заедно трябва да са по-малки от импулса</string>
+    <string name="inputramp">Нарастване</string>
+    <string name="inputramperror">Нарастването: 1–100</string>
+    <string name="inputworktimelengtherror">Времето: 1–99 мин</string>
+    <string name="lightValue">%1$d</string>
+    <string name="listview_header_hint_normal">Дръпнете за опресняване</string>
+    <string name="listview_header_hint_release">Пуснете за опресняване</string>
+    <string name="listview_header_last_time">Обновено:</string>
+    <string name="listview_loading">Зареждане…</string>
+    <string name="loading_default_messsage">Изчакайте…</string>
+    <string name="loading_done">Готово</string>
+    <string name="location_permission_error">Без местоположение Bluetooth няма да работи. Включете го в Настройки.</string>
+    <string name="login">Вход</string>
+    <string name="logout">Изход</string>
+    <string name="maValue">%1$d mA</string>
+    <string name="maikuan">Ширина</string>
+    <string name="maikuangap">Ширината: 1–%1$d</string>
+    <string name="maincontrol">Главен</string>
+    <string name="maxbodystrenth">Макс. по зона</string>
+    <string name="maxlength">Макс. време</string>
+    <string name="minbodystrenth">Мин. по зона</string>
+    <string name="minute">мин</string>
+    <string name="monday">Понеделник</string>
+    <string name="moshi">Режим</string>
+    <string name="multi_mod">Безжичен</string>
+    <string name="muscleexist">Мускули</string>
+    <string name="name">Име</string>
+    <string name="namecannotempty">Въведете име</string>
+    <string name="nan">Мъж</string>
+    <string name="network_error">Няма мрежа</string>
+    <string name="network_error2">Няма мрежа. Качете снимката след свързване.</string>
+    <string name="no_url">Невалиден адрес</string>
+    <string name="nomore_loading">Няма повече</string>
+    <string name="nv">Жена</string>
+    <string name="ok">OK</string>
+    <string name="outputramp">Спад</string>
+    <string name="outputramperror">Спадът: 1–100</string>
+    <string name="password">Парола</string>
+    <string name="password_toggle_content_description">Покажи паролата</string>
+    <string name="passwordnull">Въведете парола</string>
+    <string name="paulsecontinue">Импулс</string>
+    <string name="paulsecontinuegap">Импулсът: 1–%1$d</string>
+    <string name="paulsestop">Пауза</string>
+    <string name="paulsestopgap">Паузата: 1–%1$d</string>
+    <string name="permission_btn_next">Напред</string>
+    <string name="permission_camera">Камера</string>
+    <string name="permission_cancel">Отказ</string>
+    <string name="permission_denied">Нужен е достъп до %1$s, иначе %2$s няма да работи</string>
+    <string name="permission_denied_with_naac">"Без %1$s приложението %2$s не може да работи. Разрешете го в Настройки.\n\nПът: Приложения → %3$s → Разрешения"</string>
+    <string name="permission_dialog_msg">За %s са нужни следните разрешения</string>
+    <string name="permission_dialog_title">Стартиране на %s</string>
+    <string name="permission_ensure">Продължи</string>
+    <string name="permission_go_to_setting">Настройки</string>
+    <string name="permission_location">Местоположение</string>
+    <string name="permission_reject">Откажи</string>
+    <string name="permission_storage">Памет</string>
+    <string name="permission_title">Разрешете достъп до %s</string>
+    <string name="phone">Телефон</string>
+    <string name="photoablum">Галерия</string>
+    <string name="pickerview_cancel">Отказ</string>
+    <string name="pickerview_day">ден</string>
+    <string name="pickerview_hours">ч</string>
+    <string name="pickerview_minutes">мин</string>
+    <string name="pickerview_month">мес</string>
+    <string name="pickerview_seconds">сек</string>
+    <string name="pickerview_submit">OK</string>
+    <string name="pickerview_year">год</string>
+    <string name="plantitle">План</string>
+    <string name="plausecontinueerror">Импулсът: 1–60 сек</string>
+    <string name="plausestoperror">Паузата: 1–60 сек</string>
+    <string name="pleaseTakepicture">Първо направете снимка</string>
+    <string name="pleaseaddress">Въведете адрес</string>
+    <string name="pleasebirthday">Въведете рожден ден</string>
+    <string name="pleasecity">Въведете град</string>
+    <string name="pleaseemail">Въведете имейл</string>
+    <string name="pleaseheight">Въведете височина</string>
+    <string name="pleaseid">Въведете ID</string>
+    <string name="pleaseinputname">Въведете име</string>
+    <string name="pleasephone">Въведете телефон</string>
+    <string name="pleaseprotocol">Приемете споразумението</string>
+    <string name="pleaseselectprogram">Изберете програма</string>
+    <string name="pleasesex">Изберете пол</string>
+    <string name="pleaseusername">Въведете потребител</string>
+    <string name="pleaseweight">Въведете тегло</string>
+    <string name="project">Програма</string>
+    <string name="recycler_swipe_click_load_more">Зареди още</string>
+    <string name="recycler_swipe_data_empty">Няма данни</string>
+    <string name="recycler_swipe_load_error">Грешка. Опитайте отново</string>
+    <string name="recycler_swipe_load_more_message">Зареждане…</string>
+    <string name="recycler_swipe_more_not">Няма повече</string>
+    <string name="refresh_done">Готово</string>
+    <string name="refreshing">Опресняване…</string>
+    <string name="registertime">Регистрация</string>
+    <string name="registprotocol">"\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009Съгласие на клиента
+Преди XEMS тренировка прочетете условията и потвърдете с подпис:
+♡ При неприятност, болка или замаяност в гърдите или сърдечната зона — спрете веднага и уведомете треньора!
+♡ След стартиране не свързвайте и не прекъсвайте кабелите. Първо спрете програмата и изключете устройството. Висок риск!
+♡ Електродите се поставят на правилните места.
+♡ Не ги слагайте на наранена кожа — рани, възпаления, изгаряния, инфекции, екзема.
+♡ При парене или неприятно усещане — уведомете треньора и изключете устройството. Висок риск!
+♡ Стимулираните крайници и тялото трябва да са напрегнати и под надзор на треньор.
+♡ Увеличавайте интензитета постепенно, от ниско към високо.
+♡ Пийте достатъчно вода преди, по време на почивките и след тренировка.
+♡ Без алкохол и лекарства 48 часа преди тренировка.
+♡ Нормално хранене 4 часа преди тренировка.
+♡ Противопоказания (при наличие е нужно лекарско разрешение):
+☞ Епилепсия\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009☞ Шизофрения
+☞ Сърдечни заболявания\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009☞ Пейсмейкър
+☞ Бременност\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009☞ Висока ККФ, хипотиреоидизъм, бъбречна недостатъчност
+☞ Хемофилия\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009☞ Коремна херния
+☞ Рак\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009☞ Тромбоза
+☞ Нервни заболявания\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009☞ Диабет
+☞ Туберкулоза\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009\u0009☞ Температура, инфекция или възпаление
+☞ Лекарства:
+[Важно]
+При неизвестно заболяване поемам отговорност за последствията след тренировка.
+Подписвайки, потвърждавам, че съм прочел текста.
+Декларирам, че нямам противопоказания или имам лекарско разрешение за XEMS тренировки."</string>
+    <string name="rememberpassword">Запомни паролата</string>
+    <string name="replay">Повтори</string>
+    <string name="reset">Нулирай</string>
+    <string name="saturday">Събота</string>
+    <string name="save">Запази</string>
+    <string name="savefailed">Неуспешно запазване</string>
+    <string name="savesuccess">Запазено</string>
+    <string name="screenlight">Яркост:</string>
+    <string name="search_menu_title">Търсене</string>
+    <string name="selectday">Изберете дата</string>
+    <string name="selectprogram">Изберете програма</string>
+    <string name="selectprogram1">Програма</string>
+    <string name="selfdefine">Бележка</string>
+    <string name="setlanguage">Език:</string>
+    <string name="setleft">Лява ръка:</string>
+    <string name="settime">Час:</string>
+    <string name="setting">Настройки</string>
+    <string name="sex">Пол</string>
+    <string name="shoubi">Ръце</string>
+    <string name="single_mod">Кабелен</string>
+    <string name="softwareVersion">Софтуер:</string>
+    <string name="status_bar_notification_info_overflow">999+</string>
+    <string name="strenth">Интензивност</string>
+    <string name="strenthtrain">Сила</string>
+    <string name="sunday">Неделя</string>
+    <string name="sure">OK</string>
+    <string name="suredeletetrainprogram">Изтриване на режима?</string>
+    <string name="sureexitApp">Изход от приложението?</string>
+    <string name="thurday">Четвъртък</string>
+    <string name="time">Време</string>
+    <string name="tips_not_wifi">Мобилна мрежа. Продължаването използва данни</string>
+    <string name="tips_not_wifi_cancel">Спри</string>
+    <string name="tips_not_wifi_confirm">Продължи</string>
+    <string name="tizhishuju">Телесни данни</string>
+    <string name="today">Днес</string>
+    <string name="train">Тренировка</string>
+    <string name="trainValue">%1$d мин – %2$d/%3$d сек – %4$d Hz</string>
+    <string name="train_plan">План</string>
+    <string name="train_program">Програми</string>
+    <string name="tuesday">Вторник</string>
+    <string name="tuiquji">Задно бедро</string>
+    <string name="user">Потребител</string>
+    <string name="username">Потребител</string>
+    <string name="username_password_error">Грешен потребител или парола</string>
+    <string name="usernamenull">Въведете потребител</string>
+    <string name="usetimelength">Използвано:</string>
+    <string name="video">Видео</string>
+    <string name="weight">Тегло</string>
+    <string name="weight2">Тегло:</string>
+    <string name="weight3">Тегло (кг)</string>
+    <string name="weightValue">%1$1.2f кг</string>
+    <string name="worklength">Време</string>
+    <string name="worklengthgap">Времето: 1–%1$d</string>
+    <string name="xiaotui">Прасеци</string>
+    <string name="xiazhishenji">Предно бедро</string>
+    <string name="xiongbu">Гърди</string>
+    <string name="yaobu">Кръст</string>
+    <string name="youyangyundong">Кардио</string>
+</resources>

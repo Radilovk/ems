@@ -1,0 +1,5 @@
+build/
+.build-xems27/
+tools/
+*.idsig
+fixed-aligned-debugSigned.apk

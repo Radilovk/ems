@@ -29,6 +29,7 @@ fi
 
 cp "${ROOT}/translations/values-bg/strings.xml" "${DECOMPILED}/res/values-bg/strings.xml"
 cp "${ROOT}"/branding/layouts/*.xml "${DECOMPILED}/res/layout/"
+python3 "${ROOT}/scripts/reorder-muscles.py" "${DECOMPILED}"
 python3 "${ROOT}/scripts/apply-branding.py"
 python3 "${ROOT}/scripts/apply-languages.py"
 

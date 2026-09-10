@@ -241,7 +241,7 @@
 
     invoke-direct {v1, p0, p1}, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter$1;-><init>(Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter;Ljava/lang/String;)V
 
-    const-wide/16 v2, 0xbb8
+    const-wide/16 v2, 0x7530
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/utils/TimerUtils;->delayCallback(Ljava/lang/Runnable;J)Ljava/util/Timer;
 
@@ -302,7 +302,7 @@
 
 # virtual methods
 .method public declared-synchronized discoverDevice(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-    .locals 3
+    .locals 5
     .param p1, "macAddress"    # Ljava/lang/String;
     .param p2, "connectedSign"    # Ljava/lang/String;
     .param p3, "bleName"    # Ljava/lang/String;
@@ -346,7 +346,7 @@
 
     move-result v1
 
-    if-ge v0, v1, :cond_0
+    if-ge v0, v1, :cond_4
 
     .line 963
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter;->list:Ljava/util/List;
@@ -429,6 +429,58 @@
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
+
+    :cond_4
+    :try_start_3
+    invoke-static {p1, p3}, Lcom/isaigu/gymapp/utils/MacUtils;->isEmsBleDevice(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    new-instance v0, Lcom/isaigu/gymapp/bean/DeviceBean;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/bean/DeviceBean;-><init>()V
+
+    invoke-static {p3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_5
+
+    iput-object p1, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
+
+    goto :cond_6
+
+    :cond_5
+    iput-object p3, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
+
+    :cond_6
+    iput-object p1, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
+
+    iput-object p2, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->connectedSign:Ljava/lang/String;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter;->list:Ljava/util/List;
+
+    invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter;->selects:Ljava/util/List;
+
+    const/4 v2, 0x0
+
+    invoke-static {v2}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v2
+
+    invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    invoke-direct {p0, p1}, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter;->start_mac_address_timer(Ljava/lang/String;)V
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter;->notifyDataSetChanged()V
+    :try_end_3
+    .catchall {:try_start_3 .. :try_end_3} :catchall_0
+
+    goto/16 :goto_0
 .end method
 
 .method public syncBondedDevices()V

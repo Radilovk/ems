@@ -1,0 +1,47 @@
+.class final Lorg/apache/poi/ss/formula/functions/Sumx2my2$1;
+.super Ljava/lang/Object;
+.source "Sumx2my2.java"
+
+# interfaces
+.implements Lorg/apache/poi/ss/formula/functions/XYNumericFunction$Accumulator;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lorg/apache/poi/ss/formula/functions/Sumx2my2;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x8
+    name = null
+.end annotation
+
+
+# direct methods
+.method constructor <init>()V
+    .locals 0
+
+    .prologue
+    .line 34
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public accumulate(DD)D
+    .locals 5
+    .param p1, "x"    # D
+    .param p3, "y"    # D
+
+    .prologue
+    .line 36
+    mul-double v0, p1, p1
+
+    mul-double v2, p3, p3
+
+    sub-double/2addr v0, v2
+
+    return-wide v0
+.end method

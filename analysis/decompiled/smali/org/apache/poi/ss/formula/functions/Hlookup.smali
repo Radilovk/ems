@@ -1,0 +1,181 @@
+.class public final Lorg/apache/poi/ss/formula/functions/Hlookup;
+.super Lorg/apache/poi/ss/formula/functions/Var3or4ArgFunction;
+.source "Hlookup.java"
+
+
+# static fields
+.field private static final DEFAULT_ARG3:Lorg/apache/poi/ss/formula/eval/ValueEval;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .locals 1
+
+    .prologue
+    .line 43
+    sget-object v0, Lorg/apache/poi/ss/formula/eval/BoolEval;->TRUE:Lorg/apache/poi/ss/formula/eval/BoolEval;
+
+    sput-object v0, Lorg/apache/poi/ss/formula/functions/Hlookup;->DEFAULT_ARG3:Lorg/apache/poi/ss/formula/eval/ValueEval;
+
+    return-void
+.end method
+
+.method public constructor <init>()V
+    .locals 0
+
+    .prologue
+    .line 42
+    invoke-direct {p0}, Lorg/apache/poi/ss/formula/functions/Var3or4ArgFunction;-><init>()V
+
+    return-void
+.end method
+
+.method private createResultColumnVector(Lorg/apache/poi/ss/formula/TwoDEval;I)Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;
+    .locals 1
+    .param p1, "tableArray"    # Lorg/apache/poi/ss/formula/TwoDEval;
+    .param p2, "rowIndex"    # I
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Lorg/apache/poi/ss/formula/eval/EvaluationException;
+        }
+    .end annotation
+
+    .prologue
+    .line 75
+    invoke-interface {p1}, Lorg/apache/poi/ss/formula/TwoDEval;->getHeight()I
+
+    move-result v0
+
+    if-lt p2, v0, :cond_0
+
+    .line 76
+    invoke-static {}, Lorg/apache/poi/ss/formula/eval/EvaluationException;->invalidRef()Lorg/apache/poi/ss/formula/eval/EvaluationException;
+
+    move-result-object v0
+
+    throw v0
+
+    .line 78
+    :cond_0
+    invoke-static {p1, p2}, Lorg/apache/poi/ss/formula/functions/LookupUtils;->createRowVector(Lorg/apache/poi/ss/formula/TwoDEval;I)Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+
+# virtual methods
+.method public evaluate(IILorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;)Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .locals 7
+    .param p1, "srcRowIndex"    # I
+    .param p2, "srcColumnIndex"    # I
+    .param p3, "arg0"    # Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .param p4, "arg1"    # Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .param p5, "arg2"    # Lorg/apache/poi/ss/formula/eval/ValueEval;
+
+    .prologue
+    .line 47
+    sget-object v6, Lorg/apache/poi/ss/formula/functions/Hlookup;->DEFAULT_ARG3:Lorg/apache/poi/ss/formula/eval/ValueEval;
+
+    move-object v0, p0
+
+    move v1, p1
+
+    move v2, p2
+
+    move-object v3, p3
+
+    move-object v4, p4
+
+    move-object v5, p5
+
+    invoke-virtual/range {v0 .. v6}, Lorg/apache/poi/ss/formula/functions/Hlookup;->evaluate(IILorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;)Lorg/apache/poi/ss/formula/eval/ValueEval;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public evaluate(IILorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/eval/ValueEval;)Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .locals 8
+    .param p1, "srcRowIndex"    # I
+    .param p2, "srcColumnIndex"    # I
+    .param p3, "arg0"    # Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .param p4, "arg1"    # Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .param p5, "arg2"    # Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .param p6, "arg3"    # Lorg/apache/poi/ss/formula/eval/ValueEval;
+
+    .prologue
+    .line 55
+    :try_start_0
+    invoke-static {p3, p1, p2}, Lorg/apache/poi/ss/formula/eval/OperandResolver;->getSingleValue(Lorg/apache/poi/ss/formula/eval/ValueEval;II)Lorg/apache/poi/ss/formula/eval/ValueEval;
+
+    move-result-object v3
+
+    .line 56
+    .local v3, "lookupValue":Lorg/apache/poi/ss/formula/eval/ValueEval;
+    invoke-static {p4}, Lorg/apache/poi/ss/formula/functions/LookupUtils;->resolveTableArrayArg(Lorg/apache/poi/ss/formula/eval/ValueEval;)Lorg/apache/poi/ss/formula/TwoDEval;
+
+    move-result-object v6
+
+    .line 57
+    .local v6, "tableArray":Lorg/apache/poi/ss/formula/TwoDEval;
+    invoke-static {p6, p1, p2}, Lorg/apache/poi/ss/formula/functions/LookupUtils;->resolveRangeLookupArg(Lorg/apache/poi/ss/formula/eval/ValueEval;II)Z
+
+    move-result v2
+
+    .line 58
+    .local v2, "isRangeLookup":Z
+    const/4 v7, 0x0
+
+    invoke-static {v6, v7}, Lorg/apache/poi/ss/formula/functions/LookupUtils;->createRowVector(Lorg/apache/poi/ss/formula/TwoDEval;I)Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;
+
+    move-result-object v7
+
+    invoke-static {v3, v7, v2}, Lorg/apache/poi/ss/formula/functions/LookupUtils;->lookupIndexOfValue(Lorg/apache/poi/ss/formula/eval/ValueEval;Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;Z)I
+
+    move-result v0
+
+    .line 59
+    .local v0, "colIndex":I
+    invoke-static {p5, p1, p2}, Lorg/apache/poi/ss/formula/functions/LookupUtils;->resolveRowOrColIndexArg(Lorg/apache/poi/ss/formula/eval/ValueEval;II)I
+
+    move-result v5
+
+    .line 60
+    .local v5, "rowIndex":I
+    invoke-direct {p0, v6, v5}, Lorg/apache/poi/ss/formula/functions/Hlookup;->createResultColumnVector(Lorg/apache/poi/ss/formula/TwoDEval;I)Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;
+
+    move-result-object v4
+
+    .line 61
+    .local v4, "resultCol":Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;
+    invoke-interface {v4, v0}, Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;->getItem(I)Lorg/apache/poi/ss/formula/eval/ValueEval;
+    :try_end_0
+    .catch Lorg/apache/poi/ss/formula/eval/EvaluationException; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result-object v7
+
+    .line 63
+    .end local v0    # "colIndex":I
+    .end local v2    # "isRangeLookup":Z
+    .end local v3    # "lookupValue":Lorg/apache/poi/ss/formula/eval/ValueEval;
+    .end local v4    # "resultCol":Lorg/apache/poi/ss/formula/functions/LookupUtils$ValueVector;
+    .end local v5    # "rowIndex":I
+    .end local v6    # "tableArray":Lorg/apache/poi/ss/formula/TwoDEval;
+    :goto_0
+    return-object v7
+
+    .line 62
+    :catch_0
+    move-exception v1
+
+    .line 63
+    .local v1, "e":Lorg/apache/poi/ss/formula/eval/EvaluationException;
+    invoke-virtual {v1}, Lorg/apache/poi/ss/formula/eval/EvaluationException;->getErrorEval()Lorg/apache/poi/ss/formula/eval/ErrorEval;
+
+    move-result-object v7
+
+    goto :goto_0
+.end method

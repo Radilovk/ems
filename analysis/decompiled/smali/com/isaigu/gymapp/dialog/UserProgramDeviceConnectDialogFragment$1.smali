@@ -38,35 +38,16 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .locals 1
 
     .prologue
     .line 179
-    const/4 v0, 0x0
-
-    .local v0, "attempts":I
-    :cond_0
-    const/16 v1, 0x14
-
-    if-ge v0, v1, :cond_2
-
     invoke-static {}, Lcom/isaigu/gymapp/mgr/BleMgr;->getController()Lcom/isaigu/gymapp/ble/AndroidBleController;
 
-    move-result-object v1
+    move-result-object v0
 
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ble/AndroidBleController;->startScan()Z
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/ble/AndroidBleController;->startScan()Z
 
-    move-result v1
-
-    if-nez v1, :cond_1
-
-    return-void
-
-    :cond_1
-    add-int/lit8 v0, v0, 0x1
-
-    goto :cond_0
-
-    :cond_2
+    .line 210
     return-void
 .end method

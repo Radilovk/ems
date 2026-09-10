@@ -1,0 +1,56 @@
+.class public Lcom/sun/mail/handlers/image_jpeg;
+.super Lcom/sun/mail/handlers/image_gif;
+.source "image_jpeg.java"
+
+
+# static fields
+.field private static myDF:Ljavax/activation/ActivationDataFlavor;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .locals 4
+
+    .prologue
+    .line 50
+    new-instance v0, Ljavax/activation/ActivationDataFlavor;
+
+    .line 51
+    const-class v1, Ljava/awt/Image;
+
+    .line 52
+    const-string v2, "image/jpeg"
+
+    .line 53
+    const-string v3, "JPEG Image"
+
+    .line 50
+    invoke-direct {v0, v1, v2, v3}, Ljavax/activation/ActivationDataFlavor;-><init>(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;)V
+
+    sput-object v0, Lcom/sun/mail/handlers/image_jpeg;->myDF:Ljavax/activation/ActivationDataFlavor;
+
+    .line 53
+    return-void
+.end method
+
+.method public constructor <init>()V
+    .locals 0
+
+    .prologue
+    .line 49
+    invoke-direct {p0}, Lcom/sun/mail/handlers/image_gif;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method protected getDF()Ljavax/activation/ActivationDataFlavor;
+    .locals 1
+
+    .prologue
+    .line 56
+    sget-object v0, Lcom/sun/mail/handlers/image_jpeg;->myDF:Ljavax/activation/ActivationDataFlavor;
+
+    return-object v0
+.end method

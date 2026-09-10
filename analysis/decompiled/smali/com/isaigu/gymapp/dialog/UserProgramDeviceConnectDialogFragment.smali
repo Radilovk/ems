@@ -709,12 +709,6 @@
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ble/AndroidBleController;->startScan()Z
 
-    move-result v1
-
-    if-nez v1, :cond_0
-
-    goto :goto_0
-
     .line 655
     :cond_2
     iput v3, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->reconnectCount:I
@@ -738,11 +732,7 @@
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ble/AndroidBleController;->startScan()Z
 
-    move-result v1
-
-    if-nez v1, :cond_0
-
-    goto :goto_1
+    goto/16 :cond_0
 .end method
 
 .method private declared-synchronized handleDeviceDiscover(Lcom/isaigu/gymapp/message/DataBundle;)V

@@ -269,6 +269,16 @@
 
     if-eqz v8, :cond_known_accept
 
+    invoke-virtual {p1}, Landroid/bluetooth/BluetoothDevice;->getAddress()Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-static {v8, v1}, Lcom/isaigu/gymapp/utils/MacUtils;->isEmsBleDevice(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v8
+
+    if-eqz v8, :cond_known_accept
+
     .line 130
     const/4 v0, 0x0
 

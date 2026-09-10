@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <FrameLayout android:id="@id/fl_fragment" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0" />
+    <View android:id="@id/line" android:background="@color/light_gray_line" android:layout_width="fill_parent" android:layout_height="1.0dip" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/ll" android:background="@color/light_gray_background" android:layout_width="fill_parent" android:layout_height="60.0dip" android:layout_alignParentBottom="true">
+        <View android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/ll_tab1" android:background="@drawable/round_circle_drawable_r20" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0">
+            <ImageView android:id="@id/iv1" android:background="@mipmap/unselectexister" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" />
+            <TextView android:textSize="18.0sp" android:textColor="@color/light_black_color" android:gravity="center" android:id="@id/tv1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="20.0dip" android:text="@string/train" />
+        </LinearLayout>
+        <View android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="0.2" />
+        <LinearLayout android:gravity="center_vertical" android:id="@id/ll_tab2" android:background="@drawable/round_circle_drawable_r20" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0">
+            <ImageView android:id="@id/iv2" android:background="@mipmap/unselectuser" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" />
+            <TextView android:textSize="18.0sp" android:textColor="@color/light_black_color" android:gravity="center" android:id="@id/tv2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="20.0dip" android:text="@string/user" />
+        </LinearLayout>
+        <View android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/ll_tab3" android:background="@drawable/round_circle_drawable_r20" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0">
+            <ImageView android:id="@id/iv3" android:background="@mipmap/programset" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" />
+            <TextView android:textSize="18.0sp" android:textColor="@color/light_black_color" android:gravity="center" android:id="@id/tv3" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="20.0dip" android:text="@string/setting" />
+        </LinearLayout>
+        <View android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/ll_tab4" android:background="@drawable/round_circle_drawable_r20" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0">
+            <ImageView android:id="@id/iv4" android:background="@mipmap/video1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" />
+            <TextView android:textSize="18.0sp" android:textColor="@color/light_black_color" android:gravity="center" android:id="@id/tv4" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="20.0dip" android:text="@string/video" />
+        </LinearLayout>
+        <View android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/ll_tab5" android:background="@drawable/round_circle_drawable_r20" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0">
+            <ImageView android:id="@id/iv5" android:background="@mipmap/progranplan" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" />
+            <TextView android:textSize="18.0sp" android:textColor="@color/light_black_color" android:gravity="center" android:id="@id/tv5" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="20.0dip" android:text="@string/train_plan" />
+        </LinearLayout>
+        <View android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2" />
+    </LinearLayout>
+</LinearLayout>

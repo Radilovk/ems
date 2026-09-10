@@ -41,6 +41,50 @@
     return v0
 .end method
 
+.method public static isEmsBleDevice(Ljava/lang/String;Ljava/lang/String;)Z
+    .locals 2
+    .param p0, "bleMac"    # Ljava/lang/String;
+    .param p1, "bleName"    # Ljava/lang/String;
+
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/utils/MacUtils;->isKnownServerDevice(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_true
+
+    if-eqz p1, :cond_false
+
+    invoke-virtual {p1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "ems"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_true
+
+    const-string v1, "nord"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_true
+
+    :cond_false
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_true
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
 .method public static isKnownServerDevice(Ljava/lang/String;Ljava/lang/String;)Z
     .locals 6
     .param p0, "bleMac"    # Ljava/lang/String;

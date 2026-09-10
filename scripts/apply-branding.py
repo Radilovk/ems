@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 ICON_SRC = ROOT / "assets" / "icon.png"
 SPLASH_SRC = ROOT / "assets" / "splash.jpg"
+AVATAR_SRC = ROOT / "assets" / "default-avatar.png"
 FLAG_SIZE = (79, 129)
 FLAG_COLORS = ((255, 255, 255), (0, 150, 110), (214, 38, 18))
 
@@ -77,6 +78,13 @@ def apply_bulgarian_flag() -> None:
         unselected.save(target_dir / "chinese1.png", "PNG")
 
 
+def apply_default_avatar(avatar: Image.Image) -> None:
+    for name in ("icon_sample.png", "icon_sample2.png", "icon_sample3.png"):
+        target = DECOMPILED / "res" / "mipmap-hdpi" / name
+        if target.parent.exists():
+            avatar.save(target, "PNG")
+
+
 def apply_logo(icon: Image.Image) -> None:
     # Logo uses the same X icon asset as the app icon.
     logo = icon.resize((200, 200), Image.Resampling.LANCZOS)
@@ -95,10 +103,12 @@ def apply_logo(icon: Image.Image) -> None:
 
 def main() -> None:
     icon = Image.open(ICON_SRC).convert("RGBA")
+    avatar = Image.open(AVATAR_SRC).convert("RGBA")
     splash = Image.open(SPLASH_SRC)
     apply_splash(splash)
     apply_icon(icon)
     apply_logo(icon)
+    apply_default_avatar(avatar)
     apply_bulgarian_flag()
     print("Branding applied.")
 

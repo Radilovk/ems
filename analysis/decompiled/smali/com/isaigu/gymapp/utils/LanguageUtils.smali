@@ -263,7 +263,7 @@
 
     .prologue
     .line 26
-    const-string/jumbo v0, "zh"
+    const-string v0, "en"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -272,7 +272,7 @@
     if-eqz v0, :cond_0
 
     .line 27
-    sget-object v0, Ljava/util/Locale;->CHINA:Ljava/util/Locale;
+    sget-object v0, Ljava/util/Locale;->ENGLISH:Ljava/util/Locale;
 
     .line 44
     :goto_0
@@ -280,119 +280,6 @@
 
     .line 29
     :cond_0
-    const-string v0, "es"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_1
-
-    .line 30
-    new-instance v0, Ljava/util/Locale;
-
-    const-string v1, "es"
-
-    const-string v2, "ES"
-
-    invoke-direct {v0, v1, v2}, Ljava/util/Locale;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_0
-
-    .line 32
-    :cond_1
-    const-string v0, "ru"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_2
-
-    .line 33
-    new-instance v0, Ljava/util/Locale;
-
-    const-string v1, "ru"
-
-    const-string v2, "RU"
-
-    invoke-direct {v0, v1, v2}, Ljava/util/Locale;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_0
-
-    .line 35
-    :cond_2
-    const-string v0, "pt"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_3
-
-    .line 36
-    new-instance v0, Ljava/util/Locale;
-
-    const-string v1, "pt"
-
-    const-string v2, "PT"
-
-    invoke-direct {v0, v1, v2}, Ljava/util/Locale;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_0
-
-    .line 38
-    :cond_3
-    const-string v0, "fr"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_4
-
-    .line 39
-    new-instance v0, Ljava/util/Locale;
-
-    const-string v1, "fr"
-
-    const-string v2, "FR"
-
-    invoke-direct {v0, v1, v2}, Ljava/util/Locale;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_0
-
-    .line 41
-    :cond_4
-    const-string v0, "pl"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_5
-
-    .line 42
-    new-instance v0, Ljava/util/Locale;
-
-    const-string v1, "pl"
-
-    const-string v2, "PL"
-
-    invoke-direct {v0, v1, v2}, Ljava/util/Locale;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_0
-
-    .line 44
-    :cond_5
-    const-string v0, "bg"
-
-    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_6
-
     new-instance v0, Ljava/util/Locale;
 
     const-string v1, "bg"
@@ -400,11 +287,6 @@
     const-string v2, "BG"
 
     invoke-direct {v0, v1, v2}, Ljava/util/Locale;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_0
-
-    :cond_6
-    sget-object v0, Ljava/util/Locale;->ENGLISH:Ljava/util/Locale;
 
     goto :goto_0
 .end method

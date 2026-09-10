@@ -31,7 +31,7 @@
     <string name="anmomoshi">Режим масаж</string>
     <string name="anmozhouqi">Цикъл</string>
     <string name="anmozhouqigap">Цикълът на масажа трябва да е между 1 и %1$d</string>
-    <string name="app_name">Kems</string>
+    <string name="app_name">X EMS PRO</string>
     <string name="autologin">Автоматичен вход</string>
     <string name="avragestrength">Максимална сила</string>
     <string name="beibu">Гръб</string>
@@ -80,7 +80,7 @@
     <string name="heightValue">%1$d см</string>
     <string name="hint">Подсказка</string>
     <string name="hour">Час</string>
-    <string name="houxiefangji">Задна голяма мускулатура</string>
+    <string name="houxiefangji">Трапец</string>
     <string name="id">ID</string>
     <string name="inputerror">грешка при въвеждане</string>
     <string name="inputoutputramperror">Сумата от входния и изходния рамп трябва да е по-малка от продължителността на импулса</string>
@@ -209,7 +209,7 @@
     <string name="worklength">Време на тренировка</string>
     <string name="worklengthgap">работното време трябва да е между 1 и %1$d</string>
     <string name="xiaotui">Прасец</string>
-    <string name="xiazhishenji">Долен крайник</string>
+    <string name="xiazhishenji">Предно бедро</string>
     <string name="xiongbu">Гърди (мъж)</string>
     <string name="yaobu">Кръст</string>
     <string name="youyangyundong">Аеробна тренировка</string>

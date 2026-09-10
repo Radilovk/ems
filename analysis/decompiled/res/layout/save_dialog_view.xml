@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:background="@drawable/shape_dialog_corner" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="15.0dip" android:layout_marginTop="15.0dip" android:layout_marginRight="15.0dip"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <TextView android:textSize="18.0sp" android:gravity="center" android:id="@id/titleTextView" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="15.0dip" android:text="输入保存的名称" />
-    <android.support.v7.widget.AppCompatEditText android:background="@drawable/bg_hollow_rectangle" android:layout_width="fill_parent" android:layout_height="40.0dip" android:layout_margin="20.0dip" android:drawableRight="@mipmap/ic_launcher" android:drawablePadding="10.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:layout_gravity="center" android:id="@id/sureButton" android:background="@drawable/black_button_drawable_r30" android:layout_width="60.0dip" android:layout_height="60.0dip" android:layout_marginTop="20.0dip" android:text="确定" />
-</LinearLayout>

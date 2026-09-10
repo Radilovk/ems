@@ -1117,10 +1117,10 @@
     .param p1, "view"    # Landroid/view/View;
 
     .prologue
-    const v2, 0x7f0f01b2
+    const v2, 0x7f0900b5
 
     .line 214
-    const v1, 0x7f0f01b6
+    const v1, 0x7f090094
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1131,7 +1131,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->editbutton:Landroid/widget/Button;
 
     .line 215
-    const v1, 0x7f0f01b7
+    const v1, 0x7f090032
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1142,7 +1142,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->addProgram:Landroid/widget/Button;
 
     .line 216
-    const v1, 0x7f0f0119
+    const v1, 0x7f090046
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1153,7 +1153,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->back:Lcom/isaigu/gymapp/widget/MyButton;
 
     .line 217
-    const v1, 0x7f0f01b5
+    const v1, 0x7f0901d8
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1164,7 +1164,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->userListView:Landroid/support/v7/widget/RecyclerView;
 
     .line 218
-    const v1, 0x7f0f01b9
+    const v1, 0x7f09013d
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1175,7 +1175,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->programListView:Lcom/yanzhenjie/recyclerview/swipe/SwipeMenuRecyclerView;
 
     .line 219
-    const v1, 0x7f0f01bc
+    const v1, 0x7f09008c
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1186,7 +1186,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->deviceListView:Landroid/support/v7/widget/RecyclerView;
 
     .line 221
-    const v1, 0x7f0f01b4
+    const v1, 0x7f09016e
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1197,7 +1197,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->searchuserEdittext:Landroid/widget/EditText;
 
     .line 222
-    const v1, 0x7f0f01b8
+    const v1, 0x7f09016c
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1208,7 +1208,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->searchprogramEdittext:Landroid/widget/EditText;
 
     .line 223
-    const v1, 0x7f0f01bb
+    const v1, 0x7f09016b
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1219,7 +1219,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->searchdeviceEdittext:Landroid/widget/EditText;
 
     .line 225
-    const v1, 0x7f0f00b6
+    const v1, 0x7f090112
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1230,7 +1230,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->ok:Landroid/widget/Button;
 
     .line 227
-    const v1, 0x7f0f00b2
+    const v1, 0x7f0901cf
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1241,7 +1241,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->usericon:Landroid/widget/ImageView;
 
     .line 228
-    const v1, 0x7f0f00b3
+    const v1, 0x7f0901d9
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1252,7 +1252,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->username:Landroid/widget/TextView;
 
     .line 229
-    const v1, 0x7f0f01b1
+    const v1, 0x7f090036
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1281,7 +1281,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->weightvalue:Landroid/widget/TextView;
 
     .line 233
-    const v1, 0x7f0f01b3
+    const v1, 0x7f0901fa
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1292,7 +1292,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->weightvalue:Landroid/widget/TextView;
 
     .line 234
-    const v1, 0x7f0f0175
+    const v1, 0x7f09013e
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1303,7 +1303,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->programname:Landroid/widget/TextView;
 
     .line 235
-    const v1, 0x7f0f0176
+    const v1, 0x7f09013f
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1314,7 +1314,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->programvalue:Landroid/widget/TextView;
 
     .line 236
-    const v1, 0x7f0f00c3
+    const v1, 0x7f09008d
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1325,7 +1325,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->devicename:Landroid/widget/TextView;
 
     .line 237
-    const v1, 0x7f0f01ba
+    const v1, 0x7f09008e
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1336,7 +1336,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->devicevalue:Landroid/widget/TextView;
 
     .line 239
-    const v1, 0x7f0f00b0
+    const v1, 0x7f0900f6
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1475,7 +1475,7 @@
     .line 537
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->programvalue:Landroid/widget/TextView;
 
-    const v2, 0x7f0800bf
+    const v2, 0x7f0d00e6
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->getString(I)Ljava/lang/String;
 
@@ -1620,7 +1620,7 @@
 
     move-result-object v1
 
-    const v3, 0x7f03001c
+    const v3, 0x7f0c0020
 
     invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
@@ -1687,7 +1687,7 @@
     .line 520
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->heightvalue:Landroid/widget/TextView;
 
-    const v3, 0x7f08004d
+    const v3, 0x7f0d005a
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->getString(I)Ljava/lang/String;
 
@@ -1712,7 +1712,7 @@
     .line 521
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->weightvalue:Landroid/widget/TextView;
 
-    const v3, 0x7f0800cd
+    const v3, 0x7f0d00f4
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->getString(I)Ljava/lang/String;
 
@@ -1804,7 +1804,7 @@
 
     .prologue
     .line 101
-    const v0, 0x7f04006c
+    const v0, 0x7f0b0070
 
     return v0
 .end method

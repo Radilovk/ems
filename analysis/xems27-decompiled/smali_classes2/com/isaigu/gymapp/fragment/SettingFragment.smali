@@ -645,7 +645,7 @@
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    const v7, 0x7f080057
+    const v7, 0x7f0d0064
 
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getString(I)Ljava/lang/String;
 
@@ -715,7 +715,7 @@
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    const v7, 0x7f080057
+    const v7, 0x7f0d0064
 
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getString(I)Ljava/lang/String;
 
@@ -835,7 +835,7 @@
 
     const/4 v8, 0x0
 
-    const v9, 0x7f080034
+    const v9, 0x7f0d0041
 
     invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getString(I)Ljava/lang/String;
 
@@ -845,7 +845,7 @@
 
     const/4 v8, 0x1
 
-    const v9, 0x7f08004f
+    const v9, 0x7f0d005c
 
     invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getString(I)Ljava/lang/String;
 
@@ -855,7 +855,7 @@
 
     const/4 v8, 0x2
 
-    const v9, 0x7f080067
+    const v9, 0x7f0d0075
 
     invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getString(I)Ljava/lang/String;
 
@@ -907,7 +907,7 @@
     .line 313
     iget-object v5, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->english:Landroid/widget/Button;
 
-    const v6, 0x7f030011
+    const v6, 0x7f0c0011
 
     invoke-virtual {v5, v6}, Landroid/widget/Button;->setBackgroundResource(I)V
 
@@ -1005,7 +1005,7 @@
     .line 323
     iget-object v5, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->english:Landroid/widget/Button;
 
-    const v6, 0x7f030010
+    const v6, 0x7f0c0010
 
     invoke-virtual {v5, v6}, Landroid/widget/Button;->setBackgroundResource(I)V
 
@@ -1123,7 +1123,7 @@
     .line 442
     iget-object v0, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->english:Landroid/widget/Button;
 
-    const v1, 0x7f030011
+    const v1, 0x7f0c0011
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setBackgroundResource(I)V
 
@@ -1195,7 +1195,7 @@
     .line 452
     iget-object v0, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->english:Landroid/widget/Button;
 
-    const v1, 0x7f030010
+    const v1, 0x7f0c0010
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setBackgroundResource(I)V
 
@@ -1536,7 +1536,7 @@
 
     move-result-object v7
 
-    const v8, 0x7f080037
+    const v8, 0x7f0d0044
 
     invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getString(I)Ljava/lang/String;
 
@@ -1581,7 +1581,7 @@
 
     .line 102
     .local v0, "view":Landroid/view/View;
-    const v1, 0x7f0f0187
+    const v1, 0x7f090170
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1592,7 +1592,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->lightSeekBar:Lcom/isaigu/gymapp/widget/RangeSeekBar;
 
     .line 103
-    const v1, 0x7f0f0186
+    const v1, 0x7f090132
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1603,7 +1603,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->range:Landroid/widget/TextView;
 
     .line 105
-    const v1, 0x7f0f0188
+    const v1, 0x7f090071
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1614,7 +1614,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->chinese:Landroid/widget/Button;
 
     .line 106
-    const v1, 0x7f0f0189
+    const v1, 0x7f090098
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1625,7 +1625,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->english:Landroid/widget/Button;
 
     .line 113
-    const v1, 0x7f0f0192
+    const v1, 0x7f090069
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1636,7 +1636,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->changeLogo:Landroid/widget/Button;
 
     .line 114
-    const v1, 0x7f0f00b0
+    const v1, 0x7f0900f6
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1647,7 +1647,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->logoImage:Landroid/widget/ImageView;
 
     .line 115
-    const v1, 0x7f0f0184
+    const v1, 0x7f0900f8
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1718,7 +1718,7 @@
 
     .line 121
     :cond_0
-    const v1, 0x7f0f0190
+    const v1, 0x7f090180
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1742,7 +1742,7 @@
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 126
-    const v1, 0x7f0f015f
+    const v1, 0x7f0901aa
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1753,7 +1753,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->time:Landroid/widget/TextView;
 
     .line 127
-    const v1, 0x7f0f018f
+    const v1, 0x7f0901ac
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1764,7 +1764,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->timelength:Landroid/widget/TextView;
 
     .line 128
-    const v1, 0x7f0f0191
+    const v1, 0x7f090195
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1775,7 +1775,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->switchButton:Lcom/isaigu/gymapp/widget/SwitchButton;
 
     .line 129
-    const v1, 0x7f0f0185
+    const v1, 0x7f0900f9
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1786,7 +1786,7 @@
     iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->logout:Landroid/widget/Button;
 
     .line 131
-    const v1, 0x7f0f0193
+    const v1, 0x7f090083
 
     invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
@@ -1853,7 +1853,7 @@
 
     .prologue
     .line 94
-    const v0, 0x7f040062
+    const v0, 0x7f0b0066
 
     return v0
 .end method

@@ -105,6 +105,12 @@
     .param p1, "model"    # Lcom/isaigu/gymapp/ble/BleInterface$BluetoothDeviceModel;
 
     .prologue
+    invoke-static {}, Lcom/isaigu/gymapp/mgr/BleMgr;->getController()Lcom/isaigu/gymapp/ble/AndroidBleController;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/ble/AndroidBleController;->stopScan()V
+
     .line 64
     new-instance v0, Lcom/isaigu/gymapp/message/DataBundle;
 

@@ -705,7 +705,7 @@
     invoke-static {v7}, Lcom/isaigu/gymapp/utils/Logger;->logConsole(Ljava/lang/String;)V
 
     .line 470
-    if-eqz v4, :cond_0
+    goto/16 :goto_0
 
     .line 472
     iget-object v7, p0, Lcom/isaigu/gymapp/fragment/TrainFragment;->reconnectMap:Ljava/util/HashMap;

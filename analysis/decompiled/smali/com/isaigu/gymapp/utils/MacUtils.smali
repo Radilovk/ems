@@ -155,7 +155,7 @@
     return v0
 
     :cond_check_name
-    if-eqz p1, :cond_false
+    if-eqz p1, :cond_check_mac
 
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -165,7 +165,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_false
+    if-nez v1, :cond_check_mac
 
     invoke-virtual {v0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
@@ -175,10 +175,36 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
+    move-result v1
+
+    if-eqz v1, :cond_true
+
+    const-string v1, "nord"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
     move-result v0
+
+    if-eqz v0, :cond_true
+
+    goto :cond_check_mac
+
+    :cond_check_mac
+    invoke-static {p0}, Lcom/isaigu/gymapp/utils/MacUtils;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     if-eqz v0, :cond_false
 
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    const/16 v1, 0xc
+
+    if-lt v0, v1, :cond_false
+
+    :cond_true
     const/4 v0, 0x1
 
     return v0

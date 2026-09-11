@@ -42,6 +42,9 @@ def copy_theme_resources() -> None:
 def patch_app_theme() -> None:
     path = DECOMPILED / "res" / "values" / "styles.xml"
     text = path.read_text(encoding="utf-8")
+    if "Theme.AppCompat.DayNight" in text and 'name="AppBaseTheme"' in text:
+        print("AppBaseTheme already uses DayNight")
+        return
     updated = text.replace(
         '<style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light" />',
         '<style name="AppBaseTheme" parent="@style/Theme.AppCompat.DayNight" />',
@@ -50,6 +53,22 @@ def patch_app_theme() -> None:
         raise RuntimeError("failed to patch AppBaseTheme to DayNight")
     path.write_text(updated, encoding="utf-8")
     print("patched AppBaseTheme -> Theme.AppCompat.DayNight")
+
+
+def patch_version_name() -> None:
+    """Bump visible version so installs are easy to verify."""
+    apktool_yml = DECOMPILED / "apktool.yml"
+    text = apktool_yml.read_text(encoding="utf-8")
+    updated, count = re.subn(
+        r"versionName: .+",
+        "versionName: 1.0.5-xems-pro",
+        text,
+        count=1,
+    )
+    if count != 1:
+        raise RuntimeError("failed to patch versionName in apktool.yml")
+    apktool_yml.write_text(updated, encoding="utf-8")
+    print("patched versionName -> 1.0.5-xems-pro")
 
 
 def patch_train_layouts() -> None:
@@ -129,6 +148,7 @@ def copy_branding_layouts() -> None:
 def main() -> None:
     copy_theme_resources()
     patch_app_theme()
+    patch_version_name()
     copy_branding_layouts()
     patch_train_layouts()
     patch_user_row_layouts()

@@ -97,7 +97,9 @@ def patch_app_theme() -> None:
         <item name="android:colorBackground">@color/bg_screen</item>
         <item name="android:windowBackground">@color/bg_screen</item>
     </style>"""
-    if "textColorPrimary" not in text:
+    if '@color/text_primary' not in text.split('name="AppTheme"')[1].split("</style>")[0]:
+        if app_theme_old not in text:
+            raise RuntimeError("AppTheme style marker not found for theme patch")
         text = text.replace(app_theme_old, app_theme_new, 1)
         print("patched AppTheme default text/background colors")
 

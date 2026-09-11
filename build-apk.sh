@@ -31,6 +31,7 @@ cp "${ROOT}/translations/values-bg/strings.xml" "${DECOMPILED}/res/values-bg/str
 cp "${ROOT}"/branding/layouts/*.xml "${DECOMPILED}/res/layout/"
 python3 "${ROOT}/scripts/reorder-muscles.py" "${DECOMPILED}"
 python3 "${ROOT}/scripts/apply-branding.py"
+python3 "${ROOT}/scripts/apply-muscle-icons.py"
 python3 "${ROOT}/scripts/apply-languages.py"
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"

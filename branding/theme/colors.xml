@@ -2,8 +2,16 @@
 <resources>
     <color name="bg_screen">#ffeeeeee</color>
     <color name="bg_card">#ffffffff</color>
+    <color name="bg_surface">#ffffffff</color>
+    <color name="bg_elevated">#fff5f5f5</color>
+    <color name="bg_input">#ffffffff</color>
     <color name="text_primary">#ff3a3a3a</color>
     <color name="text_secondary">#ff666666</color>
+    <color name="text_hint">#ff999999</color>
     <color name="card_stroke">#ffc8c8c8</color>
     <color name="divider">#ffd7d7d7</color>
+    <color name="tab_bar_bg">#ffeeeeee</color>
+    <color name="table_cell_bg">#ffe3e3e3</color>
+    <color name="calendar_month_text">#ff4b4b4b</color>
+    <color name="calendar_week_text">#ff9e9e9d</color>
 </resources>

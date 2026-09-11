@@ -1,9 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg_screen">#ff1a1a1a</color>
-    <color name="bg_card">#ff2d2d2d</color>
+    <color name="bg_screen">#ff121212</color>
+    <color name="bg_card">#ff1e1e1e</color>
+    <color name="bg_surface">#ff2a2a2a</color>
+    <color name="bg_elevated">#ff333333</color>
+    <color name="bg_input">#ff2d2d2d</color>
     <color name="text_primary">#ffe8e8e8</color>
     <color name="text_secondary">#ffb0b0b0</color>
+    <color name="text_hint">#ff888888</color>
     <color name="card_stroke">#ff444444</color>
     <color name="divider">#ff3a3a3a</color>
+    <color name="tab_bar_bg">#ff1a1a1a</color>
+    <color name="table_cell_bg">#ff2d2d2d</color>
+    <color name="calendar_month_text">#ffe0e0e0</color>
+    <color name="calendar_week_text">#ffaaaaaa</color>
+
+    <!-- Legacy color overrides so every screen picks up dark values -->
+    <color name="light_gray_1">#ff121212</color>
+    <color name="light_gray_2">#ff1e1e1e</color>
+    <color name="light_gray_3">#ff444444</color>
+    <color name="light_gray_4">#ff555555</color>
+    <color name="light_gray_5">#ff666666</color>
+    <color name="light_gray_6">#ff2d2d2d</color>
+    <color name="light_gray_background">#ff121212</color>
+    <color name="light_gray_line">#ff3a3a3a</color>
+    <color name="light_gray_save">#ff2a2a2a</color>
+    <color name="light_gray_select_text">#ffe0e0e0</color>
+    <color name="light_black_color">#ffe8e8e8</color>
+    <color name="gray_color">#ffb0b0b0</color>
+    <color name="gray_color2">#ff888888</color>
+    <color name="gray_color3">#ffaaaaaa</color>
+    <color name="gray_color4">#ff666666</color>
+    <color name="gray_color5">#ff999999</color>
+    <color name="pickerview_bgColor_default">#ff1e1e1e</color>
+    <color name="pickerview_bg_topbar">#ff252525</color>
+    <color name="pickerview_topbar_title">#ffe8e8e8</color>
+    <color name="pickerview_wheelview_textcolor_center">#ffe8e8e8</color>
+    <color name="pickerview_wheelview_textcolor_out">#ff888888</color>
+    <color name="pickerview_wheelview_textcolor_divider">#ff444444</color>
+    <color name="seekbar_back_gray">#ff444444</color>
+    <color name="indicator_normal">#ff333333</color>
+    <color name="indicator_select">#ffaaaaaa</color>
+    <color name="recycler_swipe_color_text_gray">#ffaaaaaa</color>
+    <color name="select_color_user_device_program">#ff1a3333</color>
+    <color name="select_color_user_device_program_light">#7f1a3333</color>
 </resources>

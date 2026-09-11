@@ -15,13 +15,25 @@ SKIP_LAYOUT_PREFIXES = ("abc_", "design_", "notification_", "select_dialog_")
 LAYOUT_REPLACEMENTS = (
     ('android:background="@color/light_gray_1"', 'android:background="@color/bg_screen"'),
     ('android:background="@color/light_gray_background"', 'android:background="@color/bg_screen"'),
-    ('android:background="@color/white_color"', 'android:background="@color/bg_card"'),
     ('android:background="@color/light_gray_2"', 'android:background="@color/bg_card"'),
     ('android:background="@color/light_gray_6"', 'android:background="@color/table_cell_bg"'),
     ('android:textColor="@color/light_black_color"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="@color/light_gray_select_text"', 'android:textColor="@color/text_primary"'),
+    ('android:textColor="@color/light_gray_3"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="@color/gray_color"', 'android:textColor="@color/text_secondary"'),
     ('android:textColor="#ff000000"', 'android:textColor="@color/text_primary"'),
+)
+
+# Only replace white backgrounds on container views, not button text colors.
+WHITE_BG_REPLACEMENTS = (
+    ('<LinearLayout android:gravity="center" android:orientation="horizontal" android:background="@color/white_color"',
+     '<LinearLayout android:gravity="center" android:orientation="horizontal" android:background="@color/bg_card"'),
+    ('<LinearLayout android:gravity="center" android:orientation="vertical" android:background="@color/white_color"',
+     '<LinearLayout android:gravity="center" android:orientation="vertical" android:background="@color/bg_card"'),
+    ('<LinearLayout android:orientation="horizontal" android:background="@color/white_color"',
+     '<LinearLayout android:orientation="horizontal" android:background="@color/bg_card"'),
+    ('<RelativeLayout android:layout_width="fill_parent" android:layout_height="180.0dip" android:background="@color/white_color"',
+     '<RelativeLayout android:layout_width="fill_parent" android:layout_height="180.0dip" android:background="@color/bg_card"'),
 )
 
 TRAIN_LAYOUTS = (
@@ -48,7 +60,6 @@ def copy_theme_resources() -> None:
         (BRANDING / "theme" / "colors.xml", DECOMPILED / "res" / "values" / "ui_colors.xml"),
         (BRANDING / "theme" / "dimens.xml", DECOMPILED / "res" / "values" / "ui_dimens.xml"),
         (BRANDING / "theme" / "colors-night.xml", DECOMPILED / "res" / "values-night" / "ui_colors.xml"),
-        (BRANDING / "theme" / "ids.xml", DECOMPILED / "res" / "values" / "ui_ids.xml"),
     )
     for src, dest in copies:
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -63,19 +74,34 @@ def copy_theme_resources() -> None:
 
 
 def patch_app_theme() -> None:
-    path = DECOMPILED / "res" / "values" / "styles.xml"
-    text = path.read_text(encoding="utf-8")
-    if "Theme.AppCompat.DayNight" in text and 'name="AppBaseTheme"' in text:
+    styles_path = DECOMPILED / "res" / "values" / "styles.xml"
+    text = styles_path.read_text(encoding="utf-8")
+    if "Theme.AppCompat.DayNight" not in text or 'name="AppBaseTheme"' not in text:
+        updated = text.replace(
+            '<style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light" />',
+            '<style name="AppBaseTheme" parent="@style/Theme.AppCompat.DayNight" />',
+        )
+        if updated == text:
+            raise RuntimeError("failed to patch AppBaseTheme to DayNight")
+        text = updated
+        print("patched AppBaseTheme -> Theme.AppCompat.DayNight")
+    else:
         print("AppBaseTheme already uses DayNight")
-        return
-    updated = text.replace(
-        '<style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light" />',
-        '<style name="AppBaseTheme" parent="@style/Theme.AppCompat.DayNight" />',
-    )
-    if updated == text:
-        raise RuntimeError("failed to patch AppBaseTheme to DayNight")
-    path.write_text(updated, encoding="utf-8")
-    print("patched AppBaseTheme -> Theme.AppCompat.DayNight")
+
+    app_theme_old = '    <style name="AppTheme" parent="@style/AppBaseTheme" />'
+    app_theme_new = """    <style name="AppTheme" parent="@style/AppBaseTheme">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        <item name="android:colorBackground">@color/bg_screen</item>
+        <item name="android:windowBackground">@color/bg_screen</item>
+    </style>"""
+    if "textColorPrimary" not in text:
+        text = text.replace(app_theme_old, app_theme_new, 1)
+        print("patched AppTheme default text/background colors")
+
+    styles_path.write_text(text, encoding="utf-8")
 
 
 def patch_version_name() -> None:
@@ -83,14 +109,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.6-xems-pro",
+        "versionName: 1.0.7-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.6-xems-pro")
+    print("patched versionName -> 1.0.7-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -110,6 +136,8 @@ def patch_all_layouts() -> None:
         text = path.read_text(encoding="utf-8")
         original = text
         for old, new in LAYOUT_REPLACEMENTS:
+            text = text.replace(old, new)
+        for old, new in WHITE_BG_REPLACEMENTS:
             text = text.replace(old, new)
         if text != original:
             path.write_text(text, encoding="utf-8")

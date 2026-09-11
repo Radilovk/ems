@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install theme toggle smali hooks and resource ids."""
+"""Install theme toggle via ThemeUtils (safe resource lookup, no hardcoded ids)."""
 
 import re
 import shutil
@@ -9,46 +9,55 @@ ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 BRANDING = ROOT / "branding"
 SMALI_DIR = DECOMPILED / "smali_classes2" / "com" / "isaigu" / "gymapp"
-THEME_SWITCH_ID = 0x7F090203
+SETTING_FRAGMENT = SMALI_DIR / "fragment" / "SettingFragment.smali"
+
+BIND_CALL = (
+    "    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/SettingFragment;"
+    "->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;\n\n"
+    "    move-result-object v1\n\n"
+    "    invoke-static {v1, v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;"
+    "->bindThemeSwitch(Landroid/app/Activity;Landroid/view/View;)V\n\n"
+)
+
+THEME_INIT_BLOCK_RE = re.compile(
+    r"    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->themeSwitchButton:.*?"
+    r"->setOnCheckedChangeListener\(Lcom/isaigu/gymapp/widget/SwitchButton\$OnCheckedChangeListener;\)V\n\n",
+    re.DOTALL,
+)
+
+THEME_FIND_BLOCK_RE = re.compile(
+    r"    const v1, 0x7f090203\n\n"
+    r"    invoke-virtual \{v0, v1\}, Landroid/view/View;->findViewById\(I\)Landroid/view/View;\n\n"
+    r"    move-result-object v1\n\n"
+    r"    check-cast v1, Lcom/isaigu/gymapp/widget/SwitchButton;\n\n"
+    r"    iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->themeSwitchButton:.*?\n\n",
+    re.DOTALL,
+)
 
 
 def install_smali_files() -> None:
-    for name in ("ThemeUtils.smali",):
-        src = BRANDING / "smali" / name
-        dest = SMALI_DIR / "utils" / name
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, dest)
+    utils_dir = SMALI_DIR / "utils"
+    utils_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("ThemeUtils.smali", "ThemeUtils$ThemeSwitchListener.smali"):
+        shutil.copy2(BRANDING / "smali" / name, utils_dir / name)
         print(f"installed {name}")
 
-    src = BRANDING / "smali" / "SettingFragment$22.smali"
-    dest = SMALI_DIR / "fragment" / "SettingFragment$22.smali"
-    shutil.copy2(src, dest)
-    print("installed SettingFragment$22.smali")
+    stale = SMALI_DIR / "fragment" / "SettingFragment$22.smali"
+    if stale.exists():
+        stale.unlink()
+        print("removed stale SettingFragment$22.smali")
 
 
-def patch_public_xml() -> None:
-    path = DECOMPILED / "res" / "values" / "public.xml"
-    text = path.read_text(encoding="utf-8")
-    if 'name="theme_switch_button"' not in text:
-        text = text.replace(
-            '    <public type="id" name="youyangyundong" id="0x7f090202" />',
-            '    <public type="id" name="youyangyundong" id="0x7f090202" />\n'
-            '    <public type="id" name="theme_switch_button" id="0x7f090203" />',
-        )
-        path.write_text(text, encoding="utf-8")
-        print("patched public.xml theme_switch_button id")
-
-
-def patch_ids_xml() -> None:
-    path = DECOMPILED / "res" / "values" / "ids.xml"
-    text = path.read_text(encoding="utf-8")
-    if 'name="theme_switch_button"' not in text:
-        text = text.replace(
-            "</resources>",
-            '    <item type="id" name="theme_switch_button" />\n</resources>',
-        )
-        path.write_text(text, encoding="utf-8")
-        print("patched ids.xml")
+def cleanup_setting_fragment() -> None:
+    text = SETTING_FRAGMENT.read_text(encoding="utf-8")
+    text = text.replace(
+        ".field private themeSwitchButton:Lcom/isaigu/gymapp/widget/SwitchButton;\n\n",
+        "",
+    )
+    text = THEME_FIND_BLOCK_RE.sub("", text)
+    text = THEME_INIT_BLOCK_RE.sub("", text)
+    SETTING_FRAGMENT.write_text(text, encoding="utf-8")
+    print("cleaned legacy SettingFragment theme patches")
 
 
 def patch_base_activity() -> None:
@@ -67,61 +76,19 @@ def patch_base_activity() -> None:
         print("patched BaseActivity.onCreate")
 
 
-def patch_setting_fragment() -> None:
-    path = SMALI_DIR / "fragment" / "SettingFragment.smali"
-    text = path.read_text(encoding="utf-8")
+def patch_setting_fragment_bind() -> None:
+    text = SETTING_FRAGMENT.read_text(encoding="utf-8")
+    if "ThemeUtils;->bindThemeSwitch" in text:
+        print("SettingFragment already binds theme switch")
+        return
 
-    if "themeSwitchButton" not in text:
-        text = text.replace(
-            ".field private switchButton:Lcom/isaigu/gymapp/widget/SwitchButton;\n",
-            ".field private switchButton:Lcom/isaigu/gymapp/widget/SwitchButton;\n\n"
-            ".field private themeSwitchButton:Lcom/isaigu/gymapp/widget/SwitchButton;\n",
-        )
-
-    find_switch = (
-        "    iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->switchButton:"
-        "Lcom/isaigu/gymapp/widget/SwitchButton;\n"
-    )
-    theme_find = (
-        f"    const v1, {hex(THEME_SWITCH_ID)}\n\n"
-        "    invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;\n\n"
-        "    move-result-object v1\n\n"
-        "    check-cast v1, Lcom/isaigu/gymapp/widget/SwitchButton;\n\n"
-        "    iput-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->themeSwitchButton:"
-        "Lcom/isaigu/gymapp/widget/SwitchButton;\n\n"
-    )
-    if hex(THEME_SWITCH_ID) not in text:
-        text = text.replace(find_switch, find_switch + theme_find, 1)
-
-    init_marker = (
-        "    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/SwitchButton;"
-        "->setOnCheckedChangeListener(Lcom/isaigu/gymapp/widget/SwitchButton$OnCheckedChangeListener;)V\n"
-    )
-    theme_init = (
-        "    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->themeSwitchButton:"
-        "Lcom/isaigu/gymapp/widget/SwitchButton;\n\n"
-        "    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/SettingFragment;"
-        "->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;\n\n"
-        "    move-result-object v2\n\n"
-        "    invoke-static {v2}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z\n\n"
-        "    move-result v2\n\n"
-        "    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/SwitchButton;->setCheck(Z)V\n\n"
-        "    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/SettingFragment;->themeSwitchButton:"
-        "Lcom/isaigu/gymapp/widget/SwitchButton;\n\n"
-        "    new-instance v2, Lcom/isaigu/gymapp/fragment/SettingFragment$22;\n\n"
-        "    invoke-direct {v2, p0}, Lcom/isaigu/gymapp/fragment/SettingFragment$22;-><init>"
-        "(Lcom/isaigu/gymapp/fragment/SettingFragment;)V\n\n"
-        "    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/SwitchButton;"
-        "->setOnCheckedChangeListener(Lcom/isaigu/gymapp/widget/SwitchButton$OnCheckedChangeListener;)V\n\n"
-    )
-
-    if "SettingFragment$22" not in text:
-        if init_marker not in text:
-            raise RuntimeError("SettingFragment switch listener marker not found")
-        text = text.replace(init_marker, init_marker + theme_init, 1)
-
-    path.write_text(text, encoding="utf-8")
-    print("patched SettingFragment theme toggle")
+    marker = "    .line 143\n    return-object v0\n.end method"
+    replacement = f"{BIND_CALL}    .line 143\n    return-object v0\n.end method"
+    if marker not in text:
+        raise RuntimeError("SettingFragment.onCreateView return marker not found")
+    text = text.replace(marker, replacement, 1)
+    SETTING_FRAGMENT.write_text(text, encoding="utf-8")
+    print("patched SettingFragment.bindThemeSwitch")
 
 
 def patch_theme_strings() -> None:
@@ -137,20 +104,16 @@ def patch_theme_strings() -> None:
         text = path.read_text(encoding="utf-8")
         if 'name="setdarktheme"' in text:
             continue
-        text = text.replace(
-            "</resources>",
-            f'    <string name="setdarktheme">{value}</string>\n</resources>',
-        )
+        text = text.replace("</resources>", f'    <string name="setdarktheme">{value}</string>\n</resources>')
         path.write_text(text, encoding="utf-8")
         print(f"added setdarktheme to {rel}")
 
 
 def main() -> None:
     install_smali_files()
-    patch_public_xml()
-    patch_ids_xml()
+    cleanup_setting_fragment()
     patch_base_activity()
-    patch_setting_fragment()
+    patch_setting_fragment_bind()
     patch_theme_strings()
     print("Theme toggle installed.")
 

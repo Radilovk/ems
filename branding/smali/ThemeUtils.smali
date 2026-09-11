@@ -59,6 +59,67 @@
     return-void
 .end method
 
+.method public static bindThemeSwitch(Landroid/app/Activity;Landroid/view/View;)V
+    .locals 4
+    .param p0, "activity"    # Landroid/app/Activity;
+    .param p1, "root"    # Landroid/view/View;
+
+    if-eqz p0, :cond_end
+
+    if-nez p1, :cond_has_root
+
+    goto :goto_end
+
+    :cond_has_root
+    invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    const-string v1, "theme_switch_button"
+
+    const-string v2, "id"
+
+    invoke-virtual {p0}, Landroid/app/Activity;->getPackageName()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v0
+
+    if-nez v0, :cond_has_id
+
+    goto :goto_end
+
+    :cond_has_id
+    invoke-virtual {p1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/widget/SwitchButton;
+
+    if-nez v0, :cond_has_switch
+
+    goto :goto_end
+
+    :cond_has_switch
+    new-instance v1, Lcom/isaigu/gymapp/utils/ThemeUtils$ThemeSwitchListener;
+
+    invoke-direct {v1, p0}, Lcom/isaigu/gymapp/utils/ThemeUtils$ThemeSwitchListener;-><init>(Landroid/app/Activity;)V
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/SwitchButton;->setOnCheckedChangeListener(Lcom/isaigu/gymapp/widget/SwitchButton$OnCheckedChangeListener;)V
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/SwitchButton;->setCheck(Z)V
+
+    :cond_end
+    :goto_end
+    return-void
+.end method
+
 .method public static isDarkMode(Landroid/content/Context;)Z
     .locals 3
     .param p0, "context"    # Landroid/content/Context;

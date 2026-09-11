@@ -9,10 +9,10 @@
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
         <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:gravity="bottom" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="20.0dip" android:layout_marginRight="20.0dip" android:layout_marginBottom="30.0dip" android:text="@string/screenlight" />
         <RelativeLayout android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="3.0">
-            <TextView android:textSize="45.0sp" android:textColor="@color/light_gray_3" android:id="@id/percent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80%" android:layout_centerHorizontal="true" />
+            <TextView android:textSize="45.0sp" android:textColor="@color/text_primary" android:id="@id/percent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80%" android:layout_centerHorizontal="true" />
             <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_below="@id/percent">
                 <ImageView android:background="@mipmap/light2" android:layout_width="40.0dip" android:layout_height="40.0dip" />
-                <com.isaigu.gymapp.widget.RangeSeekBar android:id="@id/seekBar1" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginRight="10.0dip" android:layout_weight="1.0" app:rsb_mode="single" app:rsb_progress_color="@color/light_black_color" app:rsb_progress_height="20.0dip" app:rsb_progress_radius="10.0dip" app:rsb_thumb_size="35.0dip" />
+                <com.isaigu.gymapp.widget.RangeSeekBar android:id="@id/seekBar1" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginRight="10.0dip" android:layout_weight="1.0" app:rsb_mode="single" app:rsb_progress_color="@color/text_primary" app:rsb_progress_height="20.0dip" app:rsb_progress_radius="10.0dip" app:rsb_thumb_size="35.0dip" />
                 <ImageView android:background="@mipmap/light1" android:layout_width="40.0dip" android:layout_height="40.0dip" />
             </LinearLayout>
         </RelativeLayout>
@@ -32,27 +32,27 @@
         <com.isaigu.gymapp.widget.MyButton android:id="@id/turk" android:visibility="gone" android:background="@mipmap/turk" android:layout_width="60.0dip" android:layout_height="70.0dip" android:layout_margin="15.0dip" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
-        <TextView android:textSize="26.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/settime" />
-        <TextView android:textSize="26.0sp" android:id="@id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="2018-11-20 10:08:00" />
-        <TextView android:textSize="26.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/usetimelength" />
-        <TextView android:textSize="26.0sp" android:id="@id/timelength" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="2018-11-20 10:08:00" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/settime" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:id="@id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="2018-11-20 10:08:00" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/usetimelength" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:id="@id/timelength" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="2018-11-20 10:08:00" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
-        <TextView android:textSize="26.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/softwareVersion" />
-        <TextView android:textSize="26.0sp" android:id="@id/softwareVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="1.0.24" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/softwareVersion" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:id="@id/softwareVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="1.0.24" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
         <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setdarktheme" />
-        <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@id/theme_switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
+        <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@+id/theme_switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
         <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setleft" />
         <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@id/switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
-        <TextView android:textSize="26.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/changeLogo" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textColor="@color/gray_color" android:gravity="center" android:id="@id/changeLogo" android:background="@drawable/round_circle_drawable_r20" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="180.0dip" android:layout_height="40.0dip" android:layout_marginRight="20.0dip" android:text="@string/changeLogoText" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textColor="@color/gray_color" android:gravity="center" android:id="@id/defaultLogo" android:background="@drawable/round_circle_drawable_r20" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="180.0dip" android:layout_height="40.0dip" android:layout_marginRight="20.0dip" android:text="@string/defaultLogoText" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/changeLogo" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/changeLogo" android:background="@drawable/round_circle_drawable_r20" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="180.0dip" android:layout_height="40.0dip" android:layout_marginRight="20.0dip" android:text="@string/changeLogoText" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/defaultLogo" android:background="@drawable/round_circle_drawable_r20" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="180.0dip" android:layout_height="40.0dip" android:layout_marginRight="20.0dip" android:text="@string/defaultLogoText" />
         <ImageView android:id="@id/logoImage" android:layout_width="105.0dip" android:layout_height="40.0dip" android:layout_marginLeft="10.0dip" android:src="@mipmap/logo2" />
     </LinearLayout>
 </LinearLayout>

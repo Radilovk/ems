@@ -18,7 +18,7 @@
     <!-- Legacy color overrides so every screen picks up dark values -->
     <color name="light_gray_1">#ff121212</color>
     <color name="light_gray_2">#ff1e1e1e</color>
-    <color name="light_gray_3">#ff444444</color>
+    <color name="light_gray_3">#ffb8b8b8</color>
     <color name="light_gray_4">#ff555555</color>
     <color name="light_gray_5">#ff666666</color>
     <color name="light_gray_6">#ff2d2d2d</color>

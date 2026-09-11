@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:background="@color/light_gray_1" android:layout_width="fill_parent" android:layout_height="fill_parent"
+<LinearLayout android:orientation="vertical" android:background="@color/bg_screen" android:layout_width="fill_parent" android:layout_height="fill_parent"
   xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <RelativeLayout android:layout_width="fill_parent" android:layout_height="90.0dip">
         <ImageView android:background="@mipmap/titlebar2" android:layout_width="fill_parent" android:layout_height="90.0dip" />
@@ -7,7 +7,7 @@
         <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textColor="@color/white_color" android:gravity="center" android:id="@id/logout" android:background="@drawable/red_button_drawable_r35" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="120.0dip" android:layout_height="40.0dip" android:layout_marginRight="40.0dip" android:text="@string/logout" android:layout_alignParentRight="true" android:layout_centerVertical="true" />
     </RelativeLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
-        <TextView android:textSize="26.0sp" android:gravity="bottom" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="20.0dip" android:layout_marginRight="20.0dip" android:layout_marginBottom="30.0dip" android:text="@string/screenlight" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:gravity="bottom" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="20.0dip" android:layout_marginRight="20.0dip" android:layout_marginBottom="30.0dip" android:text="@string/screenlight" />
         <RelativeLayout android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="3.0">
             <TextView android:textSize="45.0sp" android:textColor="@color/light_gray_3" android:id="@id/percent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80%" android:layout_centerHorizontal="true" />
             <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_below="@id/percent">
@@ -19,7 +19,7 @@
         <View android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
-        <TextView android:textSize="26.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setlanguage" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setlanguage" />
         <com.isaigu.gymapp.widget.MyButton android:id="@id/chinese" android:background="@mipmap/chinese" android:layout_width="50.0dip" android:layout_height="65.0dip" android:layout_margin="15.0dip" />
         <com.isaigu.gymapp.widget.MyButton android:id="@id/english" android:background="@mipmap/english1" android:layout_width="50.0dip" android:layout_height="65.0dip" android:layout_margin="15.0dip" />
         <com.isaigu.gymapp.widget.MyButton android:id="@id/espanol" android:visibility="gone" android:background="@mipmap/espanol1" android:layout_width="54.0dip" android:layout_height="65.0dip" android:layout_margin="15.0dip" />
@@ -42,7 +42,11 @@
         <TextView android:textSize="26.0sp" android:id="@id/softwareVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="1.0.24" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
-        <TextView android:textSize="26.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setleft" />
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setdarktheme" />
+        <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@id/theme_switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
+    </LinearLayout>
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setleft" />
         <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@id/switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">

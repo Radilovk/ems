@@ -10,18 +10,23 @@ DECOMPILED = ROOT / "build" / "decompiled"
 BRANDING = ROOT / "branding"
 LAYOUT_DIR = DECOMPILED / "res" / "layout"
 
-SKIP_LAYOUT_PREFIXES = ("abc_", "design_", "notification_", "select_dialog_")
+SKIP_LAYOUT_PREFIXES = ("abc_", "design_", "notification_", "select_dialog_", "jz_")
 
 LAYOUT_REPLACEMENTS = (
     ('android:background="@color/light_gray_1"', 'android:background="@color/bg_screen"'),
     ('android:background="@color/light_gray_background"', 'android:background="@color/bg_screen"'),
     ('android:background="@color/light_gray_2"', 'android:background="@color/bg_card"'),
     ('android:background="@color/light_gray_6"', 'android:background="@color/table_cell_bg"'),
+    ('android:background="@color/white_color"', 'android:background="@color/bg_card"'),
+    ('android:background="@android:color/white"', 'android:background="@color/bg_card"'),
     ('android:textColor="@color/light_black_color"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="@color/light_gray_select_text"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="@color/light_gray_3"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="@color/gray_color"', 'android:textColor="@color/text_secondary"'),
+    ('android:textColor="@color/black_color"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="#ff000000"', 'android:textColor="@color/text_primary"'),
+    ('android:textColor="#ff333333"', 'android:textColor="@color/text_primary"'),
+    ('android:textColor="#ff666666"', 'android:textColor="@color/text_secondary"'),
 )
 
 # Only replace white backgrounds on container views, not button text colors.
@@ -111,14 +116,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.7-xems-pro",
+        "versionName: 1.0.8-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.7-xems-pro")
+    print("patched versionName -> 1.0.8-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -128,6 +133,65 @@ def copy_branding_layouts() -> None:
         dest = dest_dir / path.name
         dest.write_bytes(path.read_bytes())
         print(f"copied layout {path.name}")
+
+
+SKIP_TEXTVIEW_COLOR_TAGS = (
+    "textColor=",
+    "@color/white_color",
+    "MyButton",
+    "AppCompatCheckBox",
+    "light_red_exister",
+    "light_orange_exister",
+    "light_blue_exister",
+    "light_black_color",
+    "red_button",
+    "black_button",
+)
+
+
+def add_text_color_to_textviews(content: str) -> str:
+    result: list[str] = []
+    index = 0
+    while True:
+        start = content.find("<TextView", index)
+        if start == -1:
+            result.append(content[index:])
+            break
+        result.append(content[index:start])
+        end = content.find(">", start)
+        if end == -1:
+            result.append(content[start:])
+            break
+        tag = content[start : end + 1]
+        if not any(marker in tag for marker in SKIP_TEXTVIEW_COLOR_TAGS):
+            color = "@color/text_primary" if "android:id=" in tag else "@color/text_secondary"
+            tag = tag.replace("<TextView ", f'<TextView android:textColor="{color}" ', 1)
+        result.append(tag)
+        index = end + 1
+    return "".join(result)
+
+
+def add_edittext_theme_attrs(content: str) -> str:
+    result: list[str] = []
+    index = 0
+    while True:
+        start = content.find("<EditText", index)
+        if start == -1:
+            result.append(content[index:])
+            break
+        result.append(content[index:start])
+        end = content.find(">", start)
+        if end == -1:
+            result.append(content[start:])
+            break
+        tag = content[start : end + 1]
+        if "textColor=" not in tag:
+            tag = tag.replace("<EditText ", '<EditText android:textColor="@color/text_primary" ', 1)
+        if "textColorHint=" not in tag and "android:hint=" in tag:
+            tag = tag.replace("<EditText ", '<EditText android:textColorHint="@color/text_hint" ', 1)
+        result.append(tag)
+        index = end + 1
+    return "".join(result)
 
 
 def patch_all_layouts() -> None:
@@ -141,6 +205,8 @@ def patch_all_layouts() -> None:
             text = text.replace(old, new)
         for old, new in WHITE_BG_REPLACEMENTS:
             text = text.replace(old, new)
+        text = add_text_color_to_textviews(text)
+        text = add_edittext_theme_attrs(text)
         if text != original:
             path.write_text(text, encoding="utf-8")
             changed += 1

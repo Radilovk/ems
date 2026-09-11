@@ -46,6 +46,10 @@
         <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@+id/theme_switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
     </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
+        <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setdemomode" />
+        <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@+id/demo_switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
+    </LinearLayout>
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
         <TextView android:textSize="26.0sp" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20.0dip" android:text="@string/setleft" />
         <com.isaigu.gymapp.widget.SwitchButton android:layout_gravity="center" android:id="@id/switch_button" android:layout_width="100.0dip" android:layout_height="40.0dip" />
     </LinearLayout>

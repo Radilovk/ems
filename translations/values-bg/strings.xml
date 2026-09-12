@@ -214,6 +214,7 @@
     <string name="selfdefine">Бележка</string>
     <string name="setlanguage">Език:</string>
     <string name="setdarktheme">Тъмна тема:</string>
+    <string name="setdemomode">Демо режим (симулирано устройство):</string>
     <string name="setleft">Лява ръка:</string>
     <string name="settime">Час:</string>
     <string name="setting">Настройки</string>

@@ -108,22 +108,26 @@
 
     move-result-object v0
 
-    if-nez v0, :cond_has_adapter
+    if-eqz v0, :cond_use_demo_device
 
-    const/4 v0, 0x0
+    invoke-virtual {v0, p0}, Landroid/bluetooth/BluetoothAdapter;->getRemoteDevice(Ljava/lang/String;)Landroid/bluetooth/BluetoothDevice;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_use_demo_device
+
+    new-instance v0, Lcom/clj/fastble/data/BleDevice;
+
+    invoke-direct {v0, v1}, Lcom/clj/fastble/data/BleDevice;-><init>(Landroid/bluetooth/BluetoothDevice;)V
 
     return-object v0
 
-    :cond_has_adapter
-    invoke-virtual {v0, p0}, Landroid/bluetooth/BluetoothAdapter;->getRemoteDevice(Ljava/lang/String;)Landroid/bluetooth/BluetoothDevice;
+    :cond_use_demo_device
+    new-instance v0, Lcom/isaigu/gymapp/utils/DemoBleDevice;
 
-    move-result-object v0
+    invoke-direct {v0, p0}, Lcom/isaigu/gymapp/utils/DemoBleDevice;-><init>(Ljava/lang/String;)V
 
-    new-instance v1, Lcom/clj/fastble/data/BleDevice;
-
-    invoke-direct {v1, v0}, Lcom/clj/fastble/data/BleDevice;-><init>(Landroid/bluetooth/BluetoothDevice;)V
-
-    return-object v1
+    return-object v0
 .end method
 
 .method public static ensureDemoDeviceInList(Ljava/util/List;)V
@@ -230,6 +234,21 @@
     const-string v2, "demo_mode"
 
     invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v0
+
+    return v0
+.end method
+
+.method public static isDemoMac(Ljava/lang/String;)Z
+    .locals 1
+    .param p0, "mac"    # Ljava/lang/String;
+
+    invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->getDemoMac()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0, p0}, Landroid/text/TextUtils;->equals(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z
 
     move-result v0
 

@@ -9,6 +9,7 @@ DECOMPILED = ROOT / "build" / "decompiled"
 BRANDING = ROOT / "branding"
 SMALI_DIR = DECOMPILED / "smali_classes2" / "com" / "isaigu" / "gymapp"
 BLE_MANAGER = SMALI_DIR / "train" / "ble" / "BleDeviceManager.smali"
+BLE_CONTROLLER = SMALI_DIR / "ble" / "AndroidBleController.smali"
 BASE_ACTIVITY = SMALI_DIR / "BaseActivity.smali"
 SETTING_FRAGMENT = SMALI_DIR / "fragment" / "SettingFragment.smali"
 CONNECT_FRAGMENT = SMALI_DIR / "dialog" / "NewUserProgramDeviceConnectDialogFragment.smali"
@@ -56,7 +57,7 @@ START_SCAN_MARKER = (
 def install_smali_files() -> None:
     utils_dir = SMALI_DIR / "utils"
     utils_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("DemoUtils.smali", "DemoUtils$DemoSwitchListener.smali"):
+    for name in ("DemoUtils.smali", "DemoUtils$DemoSwitchListener.smali", "DemoBleDevice.smali"):
         shutil.copy2(BRANDING / "smali" / name, utils_dir / name)
         print(f"installed {name}")
 
@@ -162,7 +163,7 @@ def patch_ble_connect_string() -> None:
 
     move-result v0
 
-    if-eqz v0, :cond_demo_connect_str
+    if-nez v0, :cond_demo_connect_str
 
     .line 213
     new-instance v0, Ljava/lang/StringBuilder;"""
@@ -213,7 +214,7 @@ def patch_ble_connect_device() -> None:
 
     move-result v0
 
-    if-eqz v0, :cond_demo_connect_dev
+    if-nez v0, :cond_demo_connect_dev
 
     .line 207
     sget v0, Lcom/isaigu/gymapp/train/ble/BleDeviceManager;->connectCount:I"""
@@ -278,7 +279,7 @@ def patch_ble_write() -> None:
 
     move-result v0
 
-    if-eqz v0, :cond_demo_write_end
+    if-nez v0, :cond_demo_write_end
 
     .line 316
     invoke-static {p0}, Lcom/isaigu/gymapp/train/ble/BleDeviceManager;->getConfig(Lcom/clj/fastble/data/BleDevice;)Lcom/isaigu/gymapp/train/ble/BleDeviceConfig;"""
@@ -301,6 +302,174 @@ def patch_ble_write() -> None:
         print("BleDeviceManager.write already patched")
 
     BLE_MANAGER.write_text(text, encoding="utf-8")
+
+
+def fix_demo_branch_logic() -> None:
+    """Correct inverted if-eqz branches from earlier demo patches."""
+    text = BLE_MANAGER.read_text(encoding="utf-8")
+    fixes = (
+        (
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-eqz v0, :cond_demo_connect_str",
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-nez v0, :cond_demo_connect_str",
+        ),
+        (
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-eqz v0, :cond_demo_connect_dev",
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-nez v0, :cond_demo_connect_dev",
+        ),
+        (
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-eqz v0, :cond_demo_write_end",
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-nez v0, :cond_demo_write_end",
+        ),
+        (
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-eqz v0, :cond_demo_notify_end",
+            "invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z\n\n"
+            "    move-result v0\n\n"
+            "    if-nez v0, :cond_demo_notify_end",
+        ),
+    )
+    changed = False
+    for old, new in fixes:
+        if old in text:
+            text = text.replace(old, new, 1)
+            changed = True
+    if changed:
+        BLE_MANAGER.write_text(text, encoding="utf-8")
+        print("fixed inverted demo branch logic in BleDeviceManager")
+    else:
+        print("demo branch logic already correct")
+
+
+def patch_ble_notify() -> None:
+    text = BLE_MANAGER.read_text(encoding="utf-8")
+    marker = """.method public static notify(Lcom/clj/fastble/data/BleDevice;Lcom/clj/fastble/callback/BleNotifyCallback;)V
+    .locals 4
+    .param p0, "bleDevice"    # Lcom/clj/fastble/data/BleDevice;
+    .param p1, "callback"    # Lcom/clj/fastble/callback/BleNotifyCallback;
+
+    .line 297
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/ble/BleDeviceManager;->getConfig(Lcom/clj/fastble/data/BleDevice;)Lcom/isaigu/gymapp/train/ble/BleDeviceConfig;"""
+    inject = """.method public static notify(Lcom/clj/fastble/data/BleDevice;Lcom/clj/fastble/callback/BleNotifyCallback;)V
+    .locals 4
+    .param p0, "bleDevice"    # Lcom/clj/fastble/data/BleDevice;
+    .param p1, "callback"    # Lcom/clj/fastble/callback/BleNotifyCallback;
+
+    invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z
+
+    move-result v0
+
+    if-nez v0, :cond_demo_notify_end
+
+    .line 297
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/ble/BleDeviceManager;->getConfig(Lcom/clj/fastble/data/BleDevice;)Lcom/isaigu/gymapp/train/ble/BleDeviceConfig;"""
+    end_marker = """    .line 299
+    return-void
+.end method
+
+.method private static onDeviceConnected"""
+    end_inject = """    .line 299
+    return-void
+
+    :cond_demo_notify_end
+    return-void
+.end method
+
+.method private static onDeviceConnected"""
+    if "cond_demo_notify_end" not in text:
+        if marker not in text:
+            raise RuntimeError("BleDeviceManager.notify marker not found")
+        text = text.replace(marker, inject, 1)
+        text = text.replace(end_marker, end_inject, 1)
+        print("patched BleDeviceManager.notify")
+    else:
+        print("BleDeviceManager.notify already patched")
+    BLE_MANAGER.write_text(text, encoding="utf-8")
+
+
+def patch_android_ble_controller() -> None:
+    text = BLE_CONTROLLER.read_text(encoding="utf-8")
+    is_connected_marker = """.method public isConnected(Ljava/lang/String;)Z
+    .locals 5
+    .param p1, "address"    # Ljava/lang/String;
+
+    .line 759
+    iget-object v0, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->mGattMap:Ljava/util/HashMap;"""
+    is_connected_inject = """.method public isConnected(Ljava/lang/String;)Z
+    .locals 5
+    .param p1, "address"    # Ljava/lang/String;
+
+    invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_real_is_connected
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoMac(Ljava/lang/String;)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_real_is_connected
+    .line 759
+    iget-object v0, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->mGattMap:Ljava/util/HashMap;"""
+    if "DemoUtils;->isDemoMac" not in text:
+        if is_connected_marker not in text:
+            raise RuntimeError("AndroidBleController.isConnected marker not found")
+        text = text.replace(is_connected_marker, is_connected_inject, 1)
+        print("patched AndroidBleController.isConnected")
+
+    connect_marker = """.method public connectByAddress(Ljava/lang/String;)Z
+    .locals 4
+    .param p1, "address"    # Ljava/lang/String;
+
+    .line 385
+    iget-object v0, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->mBluetoothAdapter:Landroid/bluetooth/BluetoothAdapter;"""
+    connect_inject = """.method public connectByAddress(Ljava/lang/String;)Z
+    .locals 4
+    .param p1, "address"    # Ljava/lang/String;
+
+    invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_real_connect_by_address
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoMac(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_real_connect_by_address
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_real_connect_by_address
+    .line 385
+    iget-object v0, p0, Lcom/isaigu/gymapp/ble/AndroidBleController;->mBluetoothAdapter:Landroid/bluetooth/BluetoothAdapter;"""
+    if "cond_real_connect_by_address" not in text:
+        if connect_marker not in text:
+            raise RuntimeError("AndroidBleController.connectByAddress marker not found")
+        text = text.replace(connect_marker, connect_inject, 1)
+        print("patched AndroidBleController.connectByAddress")
+    else:
+        print("AndroidBleController.connectByAddress already patched")
+
+    BLE_CONTROLLER.write_text(text, encoding="utf-8")
 
 
 def patch_demo_strings() -> None:
@@ -329,6 +498,9 @@ def main() -> None:
     patch_ble_connect_string()
     patch_ble_connect_device()
     patch_ble_write()
+    patch_ble_notify()
+    fix_demo_branch_logic()
+    patch_android_ble_controller()
     patch_demo_strings()
     print("Demo mode installed.")
 

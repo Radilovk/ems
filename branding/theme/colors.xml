@@ -14,4 +14,5 @@
     <color name="table_cell_bg">#ffe3e3e3</color>
     <color name="calendar_month_text">#ff4b4b4b</color>
     <color name="calendar_week_text">#ff9e9e9d</color>
+    <color name="section_header_bg">#ffe8e8e8</color>
 </resources>

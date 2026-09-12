@@ -27,6 +27,11 @@ LAYOUT_REPLACEMENTS = (
     ('android:textColor="#ff000000"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="#ff333333"', 'android:textColor="@color/text_primary"'),
     ('android:textColor="#ff666666"', 'android:textColor="@color/text_secondary"'),
+    ('android:background="@color/light_gray_save"', 'android:background="@color/section_header_bg"'),
+    ('android:background="@color/light_gray_3"', 'android:background="@color/divider"'),
+    ('android:background="@color/light_gray_4"', 'android:background="@color/divider"'),
+    ('android:background="@color/light_gray_5"', 'android:background="@color/bg_elevated"'),
+    ('android:background="@color/light_gray_line"', 'android:background="@color/divider"'),
 )
 
 # Only replace white backgrounds on container views, not button text colors.
@@ -116,14 +121,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.9-xems-pro",
+        "versionName: 1.0.10-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.9-xems-pro")
+    print("patched versionName -> 1.0.10-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -171,6 +176,55 @@ def add_text_color_to_textviews(content: str) -> str:
     return "".join(result)
 
 
+def add_checkbox_theme_attrs(content: str) -> str:
+    tags = ("<CheckBox", "<android.support.v7.widget.AppCompatCheckBox")
+    result: list[str] = []
+    index = 0
+    while index < len(content):
+        earliest = -1
+        tag_name = ""
+        for tag in tags:
+            pos = content.find(tag, index)
+            if pos != -1 and (earliest == -1 or pos < earliest):
+                earliest = pos
+                tag_name = tag
+        if earliest == -1:
+            result.append(content[index:])
+            break
+        result.append(content[index:earliest])
+        end = content.find(">", earliest)
+        if end == -1:
+            result.append(content[earliest:])
+            break
+        tag = content[earliest : end + 1]
+        if "textColor=" not in tag:
+            tag = tag.replace(tag_name + " ", f'{tag_name} android:textColor="@color/text_primary" ', 1)
+        result.append(tag)
+        index = end + 1
+    return "".join(result)
+
+
+def add_button_text_color(content: str) -> str:
+    result: list[str] = []
+    index = 0
+    while True:
+        start = content.find("<Button", index)
+        if start == -1:
+            result.append(content[index:])
+            break
+        result.append(content[index:start])
+        end = content.find(">", start)
+        if end == -1:
+            result.append(content[start:])
+            break
+        tag = content[start : end + 1]
+        if "textColor=" not in tag and "MyButton" not in tag:
+            tag = tag.replace("<Button ", '<Button android:textColor="@color/text_primary" ', 1)
+        result.append(tag)
+        index = end + 1
+    return "".join(result)
+
+
 def add_edittext_theme_attrs(content: str) -> str:
     result: list[str] = []
     index = 0
@@ -207,6 +261,8 @@ def patch_all_layouts() -> None:
             text = text.replace(old, new)
         text = add_text_color_to_textviews(text)
         text = add_edittext_theme_attrs(text)
+        text = add_checkbox_theme_attrs(text)
+        text = add_button_text_color(text)
         if text != original:
             path.write_text(text, encoding="utf-8")
             changed += 1

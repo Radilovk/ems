@@ -62,6 +62,17 @@ UI_STRINGS = {
     "values-bg/strings.xml": "Добави",
 }
 
+# So adapter-driven list/device colors look modern in light theme too.
+DAY_LEGACY_COLOR_REPLACEMENTS = (
+    ('<color name="cpb_red2">#ffff2222</color>', '<color name="cpb_red2">#ff3a3a3a</color>'),
+    (
+        '<color name="select_color_user_device_program">#ffe0f8f8</color>',
+        '<color name="select_color_user_device_program">#ffd8f0ee</color>',
+    ),
+    ('<color name="light_blue_exister">#ff1aa7c2</color>', '<color name="light_blue_exister">#ffe3f2fd</color>'),
+    ('<color name="white_color">#ffffffff</color>', '<color name="white_color">#fff5f5f5</color>'),
+)
+
 
 def copy_theme_resources() -> None:
     import shutil
@@ -121,14 +132,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.11-xems-pro",
+        "versionName: 1.0.12-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.11-xems-pro")
+    print("patched versionName -> 1.0.12-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -324,6 +335,19 @@ def patch_user_row_layouts() -> None:
             print(f"patched user row layout {name}")
 
 
+def patch_legacy_day_colors() -> None:
+    path = DECOMPILED / "res" / "values" / "colors.xml"
+    text = path.read_text(encoding="utf-8")
+    changed = 0
+    for old, new in DAY_LEGACY_COLOR_REPLACEMENTS:
+        if old in text:
+            text = text.replace(old, new, 1)
+            changed += 1
+    if changed:
+        path.write_text(text, encoding="utf-8")
+    print(f"patched {changed} legacy day colors in colors.xml")
+
+
 def patch_ui_strings() -> None:
     for rel, value in UI_STRINGS.items():
         path = DECOMPILED / "res" / rel
@@ -345,6 +369,7 @@ def main() -> None:
     patch_all_layouts()
     patch_train_layouts()
     patch_user_row_layouts()
+    patch_legacy_day_colors()
     patch_ui_strings()
     print("UI theme applied.")
 

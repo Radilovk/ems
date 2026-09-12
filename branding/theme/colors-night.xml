@@ -15,6 +15,17 @@
     <color name="calendar_month_text">#ffe0e0e0</color>
     <color name="calendar_week_text">#ffaaaaaa</color>
     <color name="section_header_bg">#ff2a2a2a</color>
+    <color name="accent_primary">#ffe53935</color>
+    <color name="accent_primary_dark">#ffb71c1c</color>
+    <color name="list_selected_bg">#ff2a4040</color>
+    <color name="list_selected_stroke">#ff4db6ac</color>
+    <color name="list_training_bg">#ff1a3050</color>
+    <color name="text_on_accent">#ffffffff</color>
+    <color name="text_on_selected">#ffe8e8e8</color>
+    <color name="channel_active">#ff81c784</color>
+    <color name="channel_inactive">#ffb0b0b0</color>
+    <color name="device_available">#ff81c784</color>
+    <color name="device_connected">#ff64b5f6</color>
 
     <!-- Legacy color overrides so every screen picks up dark values -->
     <color name="light_gray_1">#ff121212</color>
@@ -43,8 +54,14 @@
     <color name="indicator_normal">#ff333333</color>
     <color name="indicator_select">#ffaaaaaa</color>
     <color name="recycler_swipe_color_text_gray">#ffaaaaaa</color>
-    <color name="select_color_user_device_program">#ff1a3333</color>
-    <color name="select_color_user_device_program_light">#7f1a3333</color>
     <color name="black_color">#ffe8e8e8</color>
     <color name="white_color">#ffffffff</color>
+    <color name="select_color_user_device_program">#ff2a4040</color>
+    <color name="select_color_user_device_program_light">#7f2a4040</color>
+    <color name="cpb_red2">#ffe0e0e0</color>
+    <color name="green_color_font">#ff81c784</color>
+    <color name="light_blue_exister">#ff1a3050</color>
+    <color name="theme_gray">#ffb0b0b0</color>
+    <color name="slider_color">#ffaaaaaa</color>
+    <color name="slider_color_normal">#ff999999</color>
 </resources>

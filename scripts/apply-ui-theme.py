@@ -56,6 +56,12 @@ USER_ROW_LAYOUTS = (
     "user_train_control_item_layout.xml",
 )
 
+WAVE_BALL_HIDE = (
+    '<com.isaigu.gymapp.widget.WaveBallProgress android:id="@id/wave_ball_progress_act_view"',
+    '<com.isaigu.gymapp.widget.WaveBallProgress android:id="@id/wave_ball_progress_act_view" '
+    'android:visibility="gone"',
+)
+
 UI_STRINGS = {
     "values/strings.xml": "Add",
     "values-en/strings.xml": "Add",
@@ -140,14 +146,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.15-xems-pro",
+        "versionName: 1.0.16-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.15-xems-pro")
+    print("patched versionName -> 1.0.16-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -487,6 +493,20 @@ def copy_layout_night() -> None:
         print(f"created layout-night/{name}")
 
 
+def patch_wave_ball_hidden() -> None:
+    for name in USER_ROW_LAYOUTS:
+        path = LAYOUT_DIR / name
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if 'wave_ball_progress_act_view" android:visibility="gone"' in text:
+            continue
+        updated = text.replace(WAVE_BALL_HIDE[0], WAVE_BALL_HIDE[1], 1)
+        if updated != text:
+            path.write_text(updated, encoding="utf-8")
+            print(f"hid wave fill view in {name}")
+
+
 def patch_user_row_layouts() -> None:
     root_old = (
         '<LinearLayout android:orientation="horizontal" android:background="@color/white_color" '
@@ -554,6 +574,7 @@ def main() -> None:
     patch_all_layouts()
     patch_train_layouts()
     patch_user_row_layouts()
+    patch_wave_ball_hidden()
     patch_mode_buttons()
     copy_layout_night()
     patch_legacy_day_colors()

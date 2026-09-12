@@ -15,4 +15,15 @@
     <color name="calendar_month_text">#ff4b4b4b</color>
     <color name="calendar_week_text">#ff9e9e9d</color>
     <color name="section_header_bg">#ffe8e8e8</color>
+    <color name="accent_primary">#ffe53935</color>
+    <color name="accent_primary_dark">#ffc62828</color>
+    <color name="list_selected_bg">#ffd8f0ee</color>
+    <color name="list_selected_stroke">#ff80cbc4</color>
+    <color name="list_training_bg">#ffe3f2fd</color>
+    <color name="text_on_accent">#ffffffff</color>
+    <color name="text_on_selected">#ff1a3a3a</color>
+    <color name="channel_active">#ff2e7d32</color>
+    <color name="channel_inactive">#ff5a5a5a</color>
+    <color name="device_available">#ff2e7d32</color>
+    <color name="device_connected">#ff1565c0</color>
 </resources>

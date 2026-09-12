@@ -32,6 +32,32 @@ UNSELECTED_ICON_TINT_NEW = """    invoke-virtual {v1, v2}, Landroid/widget/Image
 
     move-result v3
 
+    if-nez v3, :cond_tab_icon_light
+
+    const v2, -0x1
+
+    sget-object v3, Landroid/graphics/PorterDuff$Mode;->SRC_IN:Landroid/graphics/PorterDuff$Mode;
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/ImageView;->setColorFilter(ILandroid/graphics/PorterDuff$Mode;)V
+
+    goto :goto_tab_icon_tint
+
+    :cond_tab_icon_light
+    invoke-virtual {v1}, Landroid/widget/ImageView;->clearColorFilter()V
+
+    :goto_tab_icon_tint
+    .line 488"""
+
+UNSELECTED_ICON_TINT_INVERTED = """    invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setBackgroundResource(I)V
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/MainFragment;->getActivity()Landroid/support/v4/app/FragmentActivity;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z
+
+    move-result v3
+
     if-eqz v3, :cond_tab_icon_tint
 
     invoke-virtual {v1}, Landroid/widget/ImageView;->clearColorFilter()V
@@ -51,7 +77,12 @@ UNSELECTED_ICON_TINT_NEW = """    invoke-virtual {v1, v2}, Landroid/widget/Image
 
 def patch_main_fragment() -> None:
     text = MAIN_FRAGMENT.read_text(encoding="utf-8")
-    if "cond_tab_icon_tint" in text:
+    if UNSELECTED_ICON_TINT_INVERTED in text:
+        text = text.replace(UNSELECTED_ICON_TINT_INVERTED, UNSELECTED_ICON_TINT_NEW, 1)
+        MAIN_FRAGMENT.write_text(text, encoding="utf-8")
+        print("MainFragment tab icon tint: fixed inverted dark-mode logic")
+        return
+    if "cond_tab_icon_light" in text:
         print("MainFragment tab icon tint: already patched")
         return
     if SELECTED_ICON_CLEAR not in text:

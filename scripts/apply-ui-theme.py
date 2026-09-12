@@ -140,14 +140,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.14-xems-pro",
+        "versionName: 1.0.15-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.14-xems-pro")
+    print("patched versionName -> 1.0.15-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -375,7 +375,7 @@ MODE_BUTTON_REPLACEMENTS = (
 
 ARROW_NIGHT = (
     'android:background="@mipmap/sanjiaoxing" android:layout_width="wrap_content" android:layout_height="wrap_content"',
-    'android:background="@mipmap/sanjiaoxing" android:layout_width="16.0dip" android:layout_height="16.0dip" '
+    'android:background="@mipmap/sanjiaoxing" android:layout_width="18.0dip" android:layout_height="18.0dip" '
     'android:tint="@color/accent_primary"',
 )
 
@@ -417,7 +417,7 @@ LAYOUT_NIGHT_SOURCES = {
         (
             'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="25.0dip" '
             'android:layout_centerInParent="true" />',
-            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="38.0dip" '
+            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" '
             'android:layout_centerInParent="true" />',
         ),
         ('android:textColor="@color/mode_button_text"', 'android:textColor="@color/mode_button_text_active"'),
@@ -436,7 +436,7 @@ LAYOUT_NIGHT_SOURCES = {
         (
             'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="25.0dip" '
             'android:layout_centerInParent="true" />',
-            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="38.0dip" '
+            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" '
             'android:layout_centerInParent="true" />',
         ),
         ('android:textColor="@color/mode_button_text"', 'android:textColor="@color/mode_button_text_active"'),

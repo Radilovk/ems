@@ -170,13 +170,15 @@
 
     check-cast v2, Lcom/isaigu/gymapp/bean/DeviceBean;
 
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
+    iget-object v3, v2, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-static {v0, v3}, Landroid/text/TextUtils;->equals(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z
 
-    move-result v2
+    move-result v3
 
-    if-eqz v2, :cond_next
+    if-eqz v3, :cond_next
+
+    iput-object v0, v2, Lcom/isaigu/gymapp/bean/DeviceBean;->connectedSign:Ljava/lang/String;
 
     return-void
 
@@ -195,6 +197,8 @@
     iput-object v2, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
 
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
+
+    iput-object v0, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->connectedSign:Ljava/lang/String;
 
     const/4 v2, 0x0
 
@@ -296,28 +300,3 @@
     return-void
 .end method
 
-.method public static simulateDeviceDiscover(Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;)V
-    .locals 2
-    .param p0, "adapter"    # Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;
-
-    invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_end
-
-    if-nez p0, :cond_has_adapter
-
-    goto :goto_end
-
-    :cond_has_adapter
-    invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->getDemoMac()Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {p0, v0, v0}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;->discoverDevice(Ljava/lang/String;Ljava/lang/String;)V
-
-    :cond_end
-    :goto_end
-    return-void
-.end method

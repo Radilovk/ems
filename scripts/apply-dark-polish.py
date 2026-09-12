@@ -69,6 +69,8 @@ CHANGE_PART_NEW = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainAdap
 
     move-result-object v0
 
+    if-nez v0, :cond_end
+
     invoke-static {v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z
 
     move-result v0
@@ -271,7 +273,35 @@ CHANNEL_SELECTED_SIZE_OLD = """    invoke-virtual {v5, v4}, Landroid/text/TextPa
     .line 226
     :cond_0"""
 
+CHANNEL_SELECTED_SIZE_BROKEN = """    invoke-virtual {v5, v4}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
+
+    move-result-object v6
+
+    invoke-static {v6}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z
+
+    move-result v6
+
+    if-eqz v6, :skip_selected_size
+
+    const/4 v6, 0x2
+
+    const/high16 v8, 0x41800000
+
+    invoke-virtual {v5, v6, v8}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    :skip_selected_size
+    goto :goto_1
+
+    .line 226
+    :cond_0"""
+
 CHANNEL_SELECTED_SIZE_NEW = """    invoke-virtual {v5, v4}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->texts:[Landroid/widget/TextView;
+
+    aget-object v5, v5, v1
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
@@ -301,7 +331,35 @@ CHANNEL_NORMAL_SIZE_OLD = """    invoke-virtual {v5, v7}, Landroid/text/TextPain
     .end local v2    # "value":I
     :goto_1"""
 
+CHANNEL_NORMAL_SIZE_BROKEN = """    invoke-virtual {v5, v7}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
+
+    move-result-object v6
+
+    invoke-static {v6}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z
+
+    move-result v6
+
+    if-eqz v6, :skip_normal_size
+
+    const/4 v6, 0x2
+
+    const/high16 v8, 0x41500000
+
+    invoke-virtual {v5, v6, v8}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    :skip_normal_size
+
+    .line 218
+    .end local v2    # "value":I
+    :goto_1"""
+
 CHANNEL_NORMAL_SIZE_NEW = """    invoke-virtual {v5, v7}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->texts:[Landroid/widget/TextView;
+
+    aget-object v5, v5, v1
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
@@ -594,11 +652,37 @@ def patch_new_train_fragment() -> None:
     if ON_CREATE_VIEW_OLD in text:
         text = text.replace(ON_CREATE_VIEW_OLD, ON_CREATE_VIEW_NEW, 1)
         print("NewTrainFragment: initial muscle selection visual on view create")
+    null_guard_old = (
+        "    move-result-object v0\n\n"
+        "    invoke-static {v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z\n\n"
+        "    move-result v0\n\n"
+        "    if-nez v0, :cond_end\n\n"
+        "    const/4 v0, 0x0\n\n"
+        "    :goto_loop"
+    )
+    null_guard_new = (
+        "    move-result-object v0\n\n"
+        "    if-nez v0, :cond_end\n\n"
+        "    invoke-static {v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z\n\n"
+        "    move-result v0\n\n"
+        "    if-nez v0, :cond_end\n\n"
+        "    const/4 v0, 0x0\n\n"
+        "    :goto_loop"
+    )
+    if null_guard_old in text and null_guard_new not in text:
+        text = text.replace(null_guard_old, null_guard_new, 1)
+        print("NewTrainFragment: null-safe muscle selection visual")
     NEW_TRAIN_FRAGMENT.write_text(text, encoding="utf-8")
 
 
 def patch_train_viewholder_channel_text() -> None:
     text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
+    if CHANNEL_SELECTED_SIZE_BROKEN in text:
+        text = text.replace(CHANNEL_SELECTED_SIZE_BROKEN, CHANNEL_SELECTED_SIZE_NEW, 1)
+        text = text.replace(CHANNEL_NORMAL_SIZE_BROKEN, CHANNEL_NORMAL_SIZE_NEW, 1)
+        TRAIN_VIEW_HOLDER.write_text(text, encoding="utf-8")
+        print("TrainViewHolder: fixed channel text size crash (TextPaint vs TextView)")
+        return
     if ":skip_selected_size" in text:
         print("TrainViewHolder channel text size: already patched")
         return

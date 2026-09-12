@@ -95,7 +95,7 @@
     <string name="location_permission_error">Без местоположение Bluetooth няма да работи. Включете го в Настройки.</string>
     <string name="login">Вход</string>
     <string name="logout">Изход</string>
-    <string name="maValue">%1$d mA</string>
+    <string name="maValue">%1$d%%</string>
     <string name="maikuan">Ширина</string>
     <string name="maikuangap">Ширината: 1–%1$d</string>
     <string name="maincontrol">Главен</string>

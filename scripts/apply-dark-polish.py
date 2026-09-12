@@ -69,13 +69,13 @@ CHANGE_PART_NEW = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainAdap
 
     move-result-object v0
 
-    if-nez v0, :cond_end
+    if-eqz v0, :cond_end
 
     invoke-static {v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z
 
     move-result v0
 
-    if-nez v0, :cond_end
+    if-eqz v0, :cond_end
 
     const/4 v0, 0x0
 
@@ -652,26 +652,35 @@ def patch_new_train_fragment() -> None:
     if ON_CREATE_VIEW_OLD in text:
         text = text.replace(ON_CREATE_VIEW_OLD, ON_CREATE_VIEW_NEW, 1)
         print("NewTrainFragment: initial muscle selection visual on view create")
-    null_guard_old = (
-        "    move-result-object v0\n\n"
-        "    invoke-static {v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z\n\n"
-        "    move-result v0\n\n"
-        "    if-nez v0, :cond_end\n\n"
-        "    const/4 v0, 0x0\n\n"
-        "    :goto_loop"
-    )
-    null_guard_new = (
+    inverted_guard_old = (
         "    move-result-object v0\n\n"
         "    if-nez v0, :cond_end\n\n"
         "    invoke-static {v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z\n\n"
         "    move-result v0\n\n"
-        "    if-nez v0, :cond_end\n\n"
-        "    const/4 v0, 0x0\n\n"
-        "    :goto_loop"
+        "    if-nez v0, :cond_end"
     )
-    if null_guard_old in text and null_guard_new not in text:
-        text = text.replace(null_guard_old, null_guard_new, 1)
-        print("NewTrainFragment: null-safe muscle selection visual")
+    inverted_guard_new = (
+        "    move-result-object v0\n\n"
+        "    if-eqz v0, :cond_end\n\n"
+        "    invoke-static {v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z\n\n"
+        "    move-result v0\n\n"
+        "    if-eqz v0, :cond_end"
+    )
+    if inverted_guard_old in text:
+        text = text.replace(inverted_guard_old, inverted_guard_new, 1)
+        print("NewTrainFragment: fixed inverted dark-mode muscle selection guards")
+    elif (
+        "updateMuscleSelectionVisual" in text
+        and "if-nez v0, :cond_end" in text.split("updateMuscleSelectionVisual")[1][:600]
+    ):
+        visual_method = (
+            ".method private updateMuscleSelectionVisual()V"
+            + CHANGE_PART_NEW.split(".method private updateMuscleSelectionVisual()V")[1].split(
+                ".method private applyMuscleIndexVisual(I)V"
+            )[0]
+        )
+        text = replace_method(text, "updateMuscleSelectionVisual()V", visual_method)
+        print("NewTrainFragment: replaced muscle selection visual method")
     NEW_TRAIN_FRAGMENT.write_text(text, encoding="utf-8")
 
 

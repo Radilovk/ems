@@ -140,14 +140,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.13-xems-pro",
+        "versionName: 1.0.15-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.13-xems-pro")
+    print("patched versionName -> 1.0.15-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -373,18 +373,23 @@ MODE_BUTTON_REPLACEMENTS = (
     ),
 )
 
+ARROW_NIGHT = (
+    'android:background="@mipmap/sanjiaoxing" android:layout_width="wrap_content" android:layout_height="wrap_content"',
+    'android:background="@mipmap/sanjiaoxing" android:layout_width="18.0dip" android:layout_height="18.0dip" '
+    'android:tint="@color/accent_primary"',
+)
+
 LAYOUT_NIGHT_SOURCES = {
     "new_train_fragment_layout.xml": (
         ('android:background="@mipmap/verticalbar"', 'android:background="@drawable/ui_sidebar_background"'),
+        ARROW_NIGHT,
     ),
     "train_fragment_layout.xml": (
         ('android:background="@mipmap/verticalbar"', 'android:background="@drawable/ui_sidebar_background"'),
+        ARROW_NIGHT,
     ),
     "user_fragment_layout.xml": (
         ('android:background="@mipmap/titlebar2"', 'android:background="@drawable/ui_header_background"'),
-    ),
-    "main_fragment_layout.xml": (
-        ('android:textSize="15.0sp"', 'android:textSize="@dimen/ui_tab_text_size" android:textAllCaps="true"'),
     ),
     "user_item_layout.xml": (
         ('android:background="@mipmap/people"', 'android:background="@mipmap/people" android:tint="@color/tab_icon_unselected"'),
@@ -395,7 +400,26 @@ LAYOUT_NIGHT_SOURCES = {
         ('android:background="@mipmap/trainrecord"', 'android:background="@mipmap/trainrecord" android:tint="@color/tab_icon_unselected"'),
         ('android:background="@mipmap/orderpic"', 'android:background="@mipmap/orderpic" android:tint="@color/tab_icon_unselected"'),
     ),
+    "amount_layout2.xml": (
+        ('app:appBorderColor="@color/gray_color"', 'app:appBorderColor="@color/card_stroke"'),
+        (
+            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnDecrease"',
+            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
+            'android:id="@id/btnDecrease"',
+        ),
+        (
+            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnIncrease"',
+            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
+            'android:id="@id/btnIncrease"',
+        ),
+    ),
     "new_user_train_control_item_layout.xml": (
+        (
+            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="25.0dip" '
+            'android:layout_centerInParent="true" />',
+            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" '
+            'android:layout_centerInParent="true" />',
+        ),
         ('android:textColor="@color/mode_button_text"', 'android:textColor="@color/mode_button_text_active"'),
         ('android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview',
          'android:textSize="@dimen/ui_channel_value_text_size" android:textStyle="bold" '
@@ -409,6 +433,12 @@ LAYOUT_NIGHT_SOURCES = {
          'android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/pause_accent"'),
     ),
     "user_train_control_item_layout.xml": (
+        (
+            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="25.0dip" '
+            'android:layout_centerInParent="true" />',
+            'android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" '
+            'android:layout_centerInParent="true" />',
+        ),
         ('android:textColor="@color/mode_button_text"', 'android:textColor="@color/mode_button_text_active"'),
         ('android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview',
          'android:textSize="@dimen/ui_channel_value_text_size" android:textStyle="bold" '
@@ -441,6 +471,10 @@ def patch_mode_buttons() -> None:
 def copy_layout_night() -> None:
     layout_night_dest = DECOMPILED / "res" / "layout-night"
     layout_night_dest.mkdir(parents=True, exist_ok=True)
+    for stale in layout_night_dest.glob("*.xml"):
+        if stale.name not in LAYOUT_NIGHT_SOURCES:
+            stale.unlink()
+            print(f"removed stale layout-night/{stale.name}")
     for name, replacements in LAYOUT_NIGHT_SOURCES.items():
         src = LAYOUT_DIR / name
         if not src.exists():

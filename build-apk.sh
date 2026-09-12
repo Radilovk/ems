@@ -36,6 +36,7 @@ python3 "${ROOT}/scripts/apply-languages.py"
 python3 "${ROOT}/scripts/apply-ui-theme.py"
 python3 "${ROOT}/scripts/apply-list-theme.py"
 python3 "${ROOT}/scripts/apply-tab-theme.py"
+python3 "${ROOT}/scripts/apply-slider-theme.py"
 python3 "${ROOT}/scripts/apply-theme-toggle.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 

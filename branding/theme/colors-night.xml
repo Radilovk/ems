@@ -83,4 +83,8 @@
     <color name="ma_badge_active_bg">#ff43a047</color>
     <color name="impulse_accent">#ff81c784</color>
     <color name="pause_accent">#ffef5350</color>
+    <color name="slider_channel_bg">#ff08080e</color>
+    <color name="slider_channel_stroke">#ff6e6e7c</color>
+    <color name="slider_thumb_fill">#fff2f2f2</color>
+    <color name="slider_thumb_stroke">#ff81c784</color>
 </resources>

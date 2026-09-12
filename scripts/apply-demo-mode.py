@@ -38,18 +38,18 @@ EVENTBUS_REGISTER_BLOCK = (
     "    invoke-virtual {v1, p0}, Lorg/greenrobot/eventbus/EventBus;->register(Ljava/lang/Object;)V"
 )
 
-START_SCAN_MARKER = (
-    "NewUserProgramDeviceConnectDialogFragment;->startScan()V\n\n" + EVENTBUS_REGISTER_BLOCK
-)
-
-START_SCAN_INJECT = (
+START_SCAN_SIMULATE_INJECT = (
     "NewUserProgramDeviceConnectDialogFragment;->startScan()V\n\n"
     "    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/"
     "NewUserProgramDeviceConnectDialogFragment;->deviceAdapter:Lcom/isaigu/gymapp/dialog/"
     "NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;\n\n"
     "    invoke-static {v1}, Lcom/isaigu/gymapp/utils/DemoUtils;"
     "->simulateDeviceDiscover(Lcom/isaigu/gymapp/dialog/"
-    "NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;)V\n\n" + EVENTBUS_REGISTER_BLOCK
+    "NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;)V\n\n"
+)
+
+START_SCAN_MARKER = (
+    "NewUserProgramDeviceConnectDialogFragment;->startScan()V\n\n" + EVENTBUS_REGISTER_BLOCK
 )
 
 
@@ -124,13 +124,24 @@ def patch_connect_fragment() -> None:
     else:
         print("connect dialog ensureDemoDeviceInList already patched")
 
-    if "DemoUtils;->simulateDeviceDiscover" not in text:
-        if START_SCAN_MARKER not in text:
-            raise RuntimeError("connect dialog startScan marker not found")
-        text = text.replace(START_SCAN_MARKER, START_SCAN_INJECT, 1)
-        print("patched connect dialog simulateDeviceDiscover")
-    else:
-        print("connect dialog simulateDeviceDiscover already patched")
+    broken_scan = (
+        "    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/    .line 192\n"
+        "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()Lorg/greenrobot/eventbus/EventBus;"
+    )
+    fixed_scan = (
+        "    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/"
+        "NewUserProgramDeviceConnectDialogFragment;->startScan()V\n\n"
+        "    .line 192\n"
+        "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()Lorg/greenrobot/eventbus/EventBus;"
+    )
+    if broken_scan in text:
+        text = text.replace(broken_scan, fixed_scan, 1)
+        print("repaired broken connect dialog startScan block")
+    elif START_SCAN_SIMULATE_INJECT in text:
+        text = text.replace(START_SCAN_SIMULATE_INJECT, "", 1)
+        print("removed unsafe connect dialog simulateDeviceDiscover call")
+    elif "DemoUtils;->simulateDeviceDiscover" in text:
+        raise RuntimeError("unexpected simulateDeviceDiscover patch variant in connect dialog")
 
     CONNECT_FRAGMENT.write_text(text, encoding="utf-8")
 
@@ -232,12 +243,16 @@ def patch_ble_connect_device() -> None:
 .end method
 
 .method public static connect(Ljava/lang/String;)V"""
-    if "cond_demo_connect_dev" in text and "simulateConnectByMac" not in text.split("cond_demo_connect_dev", 1)[1][:400]:
+    already_patched = (
+        ":cond_demo_connect_dev\n"
+        "    invoke-virtual {p0}, Lcom/clj/fastble/data/BleDevice;->getMac()Ljava/lang/String;"
+    ) in text
+    if not already_patched:
         if return_marker not in text:
             raise RuntimeError("BleDeviceManager.connect(BleDevice) return marker not found")
         text = text.replace(return_marker, return_inject, 1)
         print("patched BleDeviceManager.connect(BleDevice)")
-    elif "simulateConnectByMac" in text:
+    else:
         print("BleDeviceManager.connect(BleDevice) already patched")
 
     BLE_MANAGER.write_text(text, encoding="utf-8")

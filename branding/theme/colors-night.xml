@@ -79,6 +79,7 @@
     <color name="mode_button_text">#ffb8b8b8</color>
     <color name="mode_button_text_active">#ffffffff</color>
     <color name="tab_icon_unselected">#ffdddddd</color>
+    <color name="underline_color">#ff666666</color>
     <color name="ma_badge_bg">#ff2a2a32</color>
     <color name="ma_badge_active_bg">#ff43a047</color>
     <color name="impulse_accent">#ff81c784</color>

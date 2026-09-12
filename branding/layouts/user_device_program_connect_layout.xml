@@ -62,7 +62,7 @@
             </RelativeLayout>
             <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
                 <android.support.v7.widget.RecyclerView android:id="@id/devicelistview" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="20.0dip" />
-                <com.isaigu.gymapp.widget.MyButton android:textSize="28.0sp" android:id="@id/ok" android:background="@drawable/black_button_drawable_r50" android:layout_width="100.0dip" android:layout_height="100.0dip" android:layout_marginRight="40.0dip" android:layout_marginBottom="40.0dip" android:text="@string/ok" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" />
+                <com.isaigu.gymapp.widget.MyButton android:textSize="32.0sp" android:textStyle="bold" android:textColor="@color/text_on_accent" android:id="@id/ok" android:background="@drawable/ui_ok_button_green" android:layout_width="130.0dip" android:layout_height="130.0dip" android:layout_marginRight="40.0dip" android:layout_marginBottom="40.0dip" android:text="@string/ok" android:elevation="8.0dip" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" />
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>

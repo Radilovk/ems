@@ -72,9 +72,9 @@
     <string name="friday">Петък</string>
     <string name="fubu">Корем</string>
     <string name="hardwareVersion">Хардуер:</string>
-    <string name="height">Височина</string>
-    <string name="height2">Височина (см)</string>
-    <string name="height3">Височина:</string>
+    <string name="height">Ръст</string>
+    <string name="height2">Ръст (см)</string>
+    <string name="height3">Ръст:</string>
     <string name="heightValue">%1$d см</string>
     <string name="hint">Внимание</string>
     <string name="hour">ч</string>

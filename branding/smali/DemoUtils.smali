@@ -293,6 +293,35 @@
     return-void
 .end method
 
+.method public static simulateNotifySuccess(Lcom/clj/fastble/callback/BleNotifyCallback;)V
+    .locals 0
+    .param p0, "callback"    # Lcom/clj/fastble/callback/BleNotifyCallback;
+
+    if-eqz p0, :cond_end
+
+    invoke-virtual {p0}, Lcom/clj/fastble/callback/BleNotifyCallback;->onNotifySuccess()V
+
+    :cond_end
+    return-void
+.end method
+
+.method public static simulateWriteSuccess(Lcom/clj/fastble/callback/BleWriteCallback;[B)V
+    .locals 2
+    .param p0, "callback"    # Lcom/clj/fastble/callback/BleWriteCallback;
+    .param p1, "data"    # [B
+
+    if-eqz p0, :cond_end
+
+    const/4 v0, 0x1
+
+    const/4 v1, 0x1
+
+    invoke-virtual {p0, v0, v1, p1}, Lcom/clj/fastble/callback/BleWriteCallback;->onWriteSuccess(II[B)V
+
+    :cond_end
+    return-void
+.end method
+
 .method public static simulateConnectByMac(Ljava/lang/String;)V
     .locals 3
     .param p0, "mac"    # Ljava/lang/String;

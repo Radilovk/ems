@@ -13,6 +13,7 @@ BLE_CONTROLLER = SMALI_DIR / "ble" / "AndroidBleController.smali"
 BASE_ACTIVITY = SMALI_DIR / "BaseActivity.smali"
 SETTING_FRAGMENT = SMALI_DIR / "fragment" / "SettingFragment.smali"
 CONNECT_FRAGMENT = SMALI_DIR / "dialog" / "NewUserProgramDeviceConnectDialogFragment.smali"
+CONNECT_OK_LISTENER = SMALI_DIR / "dialog" / "NewUserProgramDeviceConnectDialogFragment$4.smali"
 
 DEMO_BIND_CALL = (
     "    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/SettingFragment;"
@@ -290,6 +291,11 @@ def patch_ble_write() -> None:
     return-void
 
     :cond_demo_write_end
+    if-eqz p2, :cond_demo_write_done
+
+    invoke-static {p2, p1}, Lcom/isaigu/gymapp/utils/DemoUtils;->simulateWriteSuccess(Lcom/clj/fastble/callback/BleWriteCallback;[B)V
+
+    :cond_demo_write_done
     return-void
 .end method"""
     if "cond_demo_write_end" not in text:
@@ -302,6 +308,97 @@ def patch_ble_write() -> None:
         print("BleDeviceManager.write already patched")
 
     BLE_MANAGER.write_text(text, encoding="utf-8")
+
+
+def fix_demo_ble_callbacks() -> None:
+    """Upgrade demo write/notify stubs to invoke BLE callbacks."""
+    text = BLE_MANAGER.read_text(encoding="utf-8")
+    write_old = """    :cond_demo_write_end
+    return-void
+.end method"""
+    write_new = """    :cond_demo_write_end
+    if-eqz p2, :cond_demo_write_done
+
+    invoke-static {p2, p1}, Lcom/isaigu/gymapp/utils/DemoUtils;->simulateWriteSuccess(Lcom/clj/fastble/callback/BleWriteCallback;[B)V
+
+    :cond_demo_write_done
+    return-void
+.end method"""
+    notify_old = """    :cond_demo_notify_end
+    return-void
+.end method
+
+.method private static onDeviceConnected"""
+    notify_new = """    :cond_demo_notify_end
+    if-eqz p1, :cond_demo_notify_done
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/utils/DemoUtils;->simulateNotifySuccess(Lcom/clj/fastble/callback/BleNotifyCallback;)V
+
+    :cond_demo_notify_done
+    return-void
+.end method
+
+.method private static onDeviceConnected"""
+    changed = False
+    if write_old in text and "simulateWriteSuccess" not in text:
+        text = text.replace(write_old, write_new, 1)
+        changed = True
+    if notify_old in text and "simulateNotifySuccess" not in text:
+        text = text.replace(notify_old, notify_new, 1)
+        changed = True
+    if changed:
+        BLE_MANAGER.write_text(text, encoding="utf-8")
+        print("upgraded demo BLE write/notify callbacks in BleDeviceManager")
+    else:
+        print("demo BLE write/notify callbacks already upgraded")
+
+
+def patch_connect_skip_loading() -> None:
+    text = CONNECT_OK_LISTENER.read_text(encoding="utf-8")
+    marker = """    .line 391
+    new-instance v0, Lcom/isaigu/gymapp/message/DataBundle;
+
+    const/4 v1, 0x1
+
+    invoke-static {v1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v1
+
+    const/16 v2, 0x67
+
+    invoke-direct {v0, v2, v1}, Lcom/isaigu/gymapp/message/DataBundle;-><init>(SLjava/lang/Object;)V
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(Lcom/isaigu/gymapp/message/DataBundle;)V"""
+    inject = """    .line 391
+    invoke-static {}, Lcom/isaigu/gymapp/utils/DemoUtils;->isDemoModeActive()Z
+
+    move-result v0
+
+    if-nez v0, :cond_demo_show_loading
+
+    new-instance v0, Lcom/isaigu/gymapp/message/DataBundle;
+
+    const/4 v1, 0x1
+
+    invoke-static {v1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v1
+
+    const/16 v2, 0x67
+
+    invoke-direct {v0, v2, v1}, Lcom/isaigu/gymapp/message/DataBundle;-><init>(SLjava/lang/Object;)V
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(Lcom/isaigu/gymapp/message/DataBundle;)V
+
+    :cond_demo_show_loading"""
+    if "cond_demo_show_loading" not in text:
+        if marker not in text:
+            raise RuntimeError("connect dialog OK loading marker not found")
+        text = text.replace(marker, inject, 1)
+        CONNECT_OK_LISTENER.write_text(text, encoding="utf-8")
+        print("patched connect dialog to skip loading overlay in demo mode")
+    else:
+        print("connect dialog demo loading skip already patched")
 
 
 def fix_demo_branch_logic() -> None:
@@ -384,6 +481,11 @@ def patch_ble_notify() -> None:
     return-void
 
     :cond_demo_notify_end
+    if-eqz p1, :cond_demo_notify_done
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/utils/DemoUtils;->simulateNotifySuccess(Lcom/clj/fastble/callback/BleNotifyCallback;)V
+
+    :cond_demo_notify_done
     return-void
 .end method
 
@@ -500,6 +602,8 @@ def main() -> None:
     patch_ble_write()
     patch_ble_notify()
     fix_demo_branch_logic()
+    fix_demo_ble_callbacks()
+    patch_connect_skip_loading()
     patch_android_ble_controller()
     patch_demo_strings()
     print("Demo mode installed.")

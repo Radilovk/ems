@@ -26,4 +26,13 @@
     <color name="channel_inactive">#ff5a5a5a</color>
     <color name="device_available">#ff2e7d32</color>
     <color name="device_connected">#ff1565c0</color>
+    <color name="sidebar_bg">#00000000</color>
+    <color name="header_bg">#00000000</color>
+    <color name="mode_button_text">#ff3a3a3a</color>
+    <color name="mode_button_text_active">#ffffffff</color>
+    <color name="tab_icon_unselected">#ff666666</color>
+    <color name="ma_badge_bg">#ff3a3a3a</color>
+    <color name="ma_badge_active_bg">#ff2e7d32</color>
+    <color name="impulse_accent">#ff2e7d32</color>
+    <color name="pause_accent">#ffc62828</color>
 </resources>

@@ -38,9 +38,9 @@
     <color name="light_gray_line">#ff3a3a3a</color>
     <color name="light_gray_save">#ff2a2a2a</color>
     <color name="light_gray_select_text">#ffe0e0e0</color>
-    <color name="light_black_color">#ffe8e8e8</color>
+    <color name="light_black_color">#ffe0e0e0</color>
     <color name="gray_color">#ffb0b0b0</color>
-    <color name="gray_color2">#ff888888</color>
+    <color name="gray_color2">#ff3a3a42</color>
     <color name="gray_color3">#ffaaaaaa</color>
     <color name="gray_color4">#ff666666</color>
     <color name="gray_color5">#ff999999</color>
@@ -50,7 +50,7 @@
     <color name="pickerview_wheelview_textcolor_center">#ffe8e8e8</color>
     <color name="pickerview_wheelview_textcolor_out">#ff888888</color>
     <color name="pickerview_wheelview_textcolor_divider">#ff444444</color>
-    <color name="seekbar_back_gray">#ff444444</color>
+    <color name="seekbar_back_gray">#ff3a3a42</color>
     <color name="indicator_normal">#ff333333</color>
     <color name="indicator_select">#ffaaaaaa</color>
     <color name="recycler_swipe_color_text_gray">#ffaaaaaa</color>
@@ -60,8 +60,27 @@
     <color name="select_color_user_device_program_light">#7f2a4040</color>
     <color name="cpb_red2">#ffe0e0e0</color>
     <color name="green_color_font">#ff81c784</color>
-    <color name="light_blue_exister">#ff1a3050</color>
+    <color name="light_blue_exister">#ff1976d2</color>
+    <color name="light_green_color">#ff66bb6a</color>
+    <color name="dark_green_color">#ff1f4a2c</color>
+    <color name="light_red_exister">#ffd32f2f</color>
+    <color name="light_orange_exister">#fff57c00</color>
+    <color name="wave_color_green">#ff81c784</color>
+    <color name="wave_color_red">#ffef5350</color>
+    <color name="green_color">#ff81c784</color>
+    <color name="blume_color">#ff3a3a44</color>
+    <color name="grown_color">#ff81c784</color>
     <color name="theme_gray">#ffb0b0b0</color>
     <color name="slider_color">#ffaaaaaa</color>
     <color name="slider_color_normal">#ff999999</color>
+
+    <color name="sidebar_bg">#ff16161c</color>
+    <color name="header_bg">#ff1c1c22</color>
+    <color name="mode_button_text">#ffb8b8b8</color>
+    <color name="mode_button_text_active">#ffffffff</color>
+    <color name="tab_icon_unselected">#ffdddddd</color>
+    <color name="ma_badge_bg">#ff2a2a32</color>
+    <color name="ma_badge_active_bg">#ff43a047</color>
+    <color name="impulse_accent">#ff81c784</color>
+    <color name="pause_accent">#ffef5350</color>
 </resources>

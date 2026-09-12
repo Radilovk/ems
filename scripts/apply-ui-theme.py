@@ -93,6 +93,14 @@ def copy_theme_resources() -> None:
         shutil.copy2(src, drawable_dest / src.name)
         print(f"copied drawable {src.name}")
 
+    drawable_night_src = BRANDING / "drawable-night"
+    if drawable_night_src.is_dir():
+        drawable_night_dest = DECOMPILED / "res" / "drawable-night"
+        drawable_night_dest.mkdir(parents=True, exist_ok=True)
+        for src in drawable_night_src.glob("*.xml"):
+            shutil.copy2(src, drawable_night_dest / src.name)
+            print(f"copied drawable-night {src.name}")
+
 
 def patch_app_theme() -> None:
     styles_path = DECOMPILED / "res" / "values" / "styles.xml"
@@ -132,14 +140,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.12-xems-pro",
+        "versionName: 1.0.13-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.12-xems-pro")
+    print("patched versionName -> 1.0.13-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -302,6 +310,149 @@ def patch_train_layouts() -> None:
             print(f"patched train layout {name}")
 
 
+MODE_BUTTON_REPLACEMENTS = (
+    (
+        'android:id="@id/strenthExist" android:background="@drawable/round_corner_drawable_r10_red" '
+        'android:layout_width="120.0dip" android:layout_height="38.0dip" android:layout_margin="5.0dip" '
+        'android:text="@string/muscleexist" android:textAllCaps="false"',
+        'android:id="@id/strenthExist" android:background="@drawable/round_corner_drawable_r10_red" '
+        'android:layout_width="120.0dip" android:layout_height="42.0dip" android:layout_margin="5.0dip" '
+        'android:text="@string/muscleexist" android:textAllCaps="true" '
+        'android:textSize="@dimen/ui_mode_button_text_size" android:textColor="@color/mode_button_text" '
+        'android:textStyle="bold"',
+    ),
+    (
+        'android:id="@id/youyangyundong" android:background="@drawable/round_corner_drawable_r10_orange" '
+        'android:layout_width="120.0dip" android:layout_height="38.0dip" android:layout_marginLeft="5.0dip" '
+        'android:layout_marginRight="5.0dip" android:text="@string/youyangyundong" android:textAllCaps="false"',
+        'android:id="@id/youyangyundong" android:background="@drawable/round_corner_drawable_r10_orange" '
+        'android:layout_width="120.0dip" android:layout_height="42.0dip" android:layout_marginLeft="5.0dip" '
+        'android:layout_marginRight="5.0dip" android:text="@string/youyangyundong" android:textAllCaps="true" '
+        'android:textSize="@dimen/ui_mode_button_text_size" android:textColor="@color/mode_button_text" '
+        'android:textStyle="bold"',
+    ),
+    (
+        'android:id="@id/anmo" android:background="@drawable/round_corner_drawable_r10_blue" '
+        'android:layout_width="120.0dip" android:layout_height="38.0dip" android:layout_margin="5.0dip" '
+        'android:text="@string/anmo"',
+        'android:id="@id/anmo" android:background="@drawable/round_corner_drawable_r10_blue" '
+        'android:layout_width="120.0dip" android:layout_height="42.0dip" android:layout_margin="5.0dip" '
+        'android:text="@string/anmo" android:textAllCaps="true" '
+        'android:textSize="@dimen/ui_mode_button_text_size" android:textColor="@color/mode_button_text" '
+        'android:textStyle="bold"',
+    ),
+    (
+        'android:id="@id/strenthExist" android:background="@drawable/round_corner_drawable_r10_red" '
+        'android:layout_width="100.0dip" android:layout_height="40.0dip" android:layout_margin="20.0dip" '
+        'android:text="@string/strenthtrain" android:textAllCaps="false"',
+        'android:id="@id/strenthExist" android:background="@drawable/round_corner_drawable_r10_red" '
+        'android:layout_width="100.0dip" android:layout_height="42.0dip" android:layout_margin="20.0dip" '
+        'android:text="@string/strenthtrain" android:textAllCaps="true" '
+        'android:textSize="@dimen/ui_mode_button_text_size" android:textColor="@color/mode_button_text" '
+        'android:textStyle="bold"',
+    ),
+    (
+        'android:id="@id/youyangyundong" android:background="@drawable/round_corner_drawable_r10_orange" '
+        'android:layout_width="100.0dip" android:layout_height="40.0dip" android:layout_marginLeft="10.0dip" '
+        'android:layout_marginRight="10.0dip" android:text="@string/youyangyundong" android:textAllCaps="false"',
+        'android:id="@id/youyangyundong" android:background="@drawable/round_corner_drawable_r10_orange" '
+        'android:layout_width="100.0dip" android:layout_height="42.0dip" android:layout_marginLeft="10.0dip" '
+        'android:layout_marginRight="10.0dip" android:text="@string/youyangyundong" android:textAllCaps="true" '
+        'android:textSize="@dimen/ui_mode_button_text_size" android:textColor="@color/mode_button_text" '
+        'android:textStyle="bold"',
+    ),
+    (
+        'android:id="@id/anmo" android:background="@drawable/round_corner_drawable_r10_blue" '
+        'android:layout_width="100.0dip" android:layout_height="40.0dip" android:layout_margin="20.0dip" '
+        'android:text="@string/anmo"',
+        'android:id="@id/anmo" android:background="@drawable/round_corner_drawable_r10_blue" '
+        'android:layout_width="100.0dip" android:layout_height="42.0dip" android:layout_margin="20.0dip" '
+        'android:text="@string/anmo" android:textAllCaps="true" '
+        'android:textSize="@dimen/ui_mode_button_text_size" android:textColor="@color/mode_button_text" '
+        'android:textStyle="bold"',
+    ),
+)
+
+LAYOUT_NIGHT_SOURCES = {
+    "new_train_fragment_layout.xml": (
+        ('android:background="@mipmap/verticalbar"', 'android:background="@drawable/ui_sidebar_background"'),
+    ),
+    "train_fragment_layout.xml": (
+        ('android:background="@mipmap/verticalbar"', 'android:background="@drawable/ui_sidebar_background"'),
+    ),
+    "user_fragment_layout.xml": (
+        ('android:background="@mipmap/titlebar2"', 'android:background="@drawable/ui_header_background"'),
+    ),
+    "main_fragment_layout.xml": (
+        ('android:textSize="15.0sp"', 'android:textSize="@dimen/ui_tab_text_size" android:textAllCaps="true"'),
+    ),
+    "user_item_layout.xml": (
+        ('android:background="@mipmap/people"', 'android:background="@mipmap/people" android:tint="@color/tab_icon_unselected"'),
+        ('android:background="@mipmap/register"', 'android:background="@mipmap/register" android:tint="@color/tab_icon_unselected"'),
+        ('android:background="@mipmap/high"', 'android:background="@mipmap/high" android:tint="@color/tab_icon_unselected"'),
+        ('android:background="@mipmap/weight"', 'android:background="@mipmap/weight" android:tint="@color/tab_icon_unselected"'),
+        ('android:background="@mipmap/setting"', 'android:background="@mipmap/setting" android:tint="@color/tab_icon_unselected"'),
+        ('android:background="@mipmap/trainrecord"', 'android:background="@mipmap/trainrecord" android:tint="@color/tab_icon_unselected"'),
+        ('android:background="@mipmap/orderpic"', 'android:background="@mipmap/orderpic" android:tint="@color/tab_icon_unselected"'),
+    ),
+    "new_user_train_control_item_layout.xml": (
+        ('android:textColor="@color/mode_button_text"', 'android:textColor="@color/mode_button_text_active"'),
+        ('android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview',
+         'android:textSize="@dimen/ui_channel_value_text_size" android:textStyle="bold" '
+         'android:textColor="@color/text_primary" android:id="@id/textview'),
+        ('android:textColor="@color/white_color" android:gravity="center" android:id="@id/ma"',
+         'android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
+         'android:textStyle="bold" android:gravity="center" android:id="@id/ma"'),
+        ('android:textSize="14.0sp" android:textColor="@color/green_color"',
+         'android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/impulse_accent"'),
+        ('android:textSize="14.0sp" android:textColor="@color/wave_color_red"',
+         'android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/pause_accent"'),
+    ),
+    "user_train_control_item_layout.xml": (
+        ('android:textColor="@color/mode_button_text"', 'android:textColor="@color/mode_button_text_active"'),
+        ('android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview',
+         'android:textSize="@dimen/ui_channel_value_text_size" android:textStyle="bold" '
+         'android:textColor="@color/text_primary" android:id="@id/textview'),
+        ('android:textColor="@color/white_color" android:gravity="center" android:id="@id/ma"',
+         'android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
+         'android:textStyle="bold" android:gravity="center" android:id="@id/ma"'),
+        ('android:textSize="14.0sp" android:textColor="@color/green_color"',
+         'android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/impulse_accent"'),
+        ('android:textSize="14.0sp" android:textColor="@color/wave_color_red"',
+         'android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/pause_accent"'),
+    ),
+}
+
+
+def patch_mode_buttons() -> None:
+    for name in USER_ROW_LAYOUTS:
+        path = LAYOUT_DIR / name
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        original = text
+        for old, new in MODE_BUTTON_REPLACEMENTS:
+            text = text.replace(old, new)
+        if text != original:
+            path.write_text(text, encoding="utf-8")
+            print(f"patched mode buttons in {name}")
+
+
+def copy_layout_night() -> None:
+    layout_night_dest = DECOMPILED / "res" / "layout-night"
+    layout_night_dest.mkdir(parents=True, exist_ok=True)
+    for name, replacements in LAYOUT_NIGHT_SOURCES.items():
+        src = LAYOUT_DIR / name
+        if not src.exists():
+            continue
+        text = src.read_text(encoding="utf-8")
+        for old, new in replacements:
+            text = text.replace(old, new)
+        dest = layout_night_dest / name
+        dest.write_text(text, encoding="utf-8")
+        print(f"created layout-night/{name}")
+
+
 def patch_user_row_layouts() -> None:
     root_old = (
         '<LinearLayout android:orientation="horizontal" android:background="@color/white_color" '
@@ -369,6 +520,8 @@ def main() -> None:
     patch_all_layouts()
     patch_train_layouts()
     patch_user_row_layouts()
+    patch_mode_buttons()
+    copy_layout_night()
     patch_legacy_day_colors()
     patch_ui_strings()
     print("UI theme applied.")

@@ -81,9 +81,9 @@
     <string name="houxiefangji">Трапец</string>
     <string name="id">ID</string>
     <string name="inputerror">Грешно въвеждане</string>
-    <string name="inputoutputramperror">Нарастването и спадът заедно трябва да са по-малки от импулса</string>
+    <string name="inputoutputramperror">Нарастването и спадът заедно трябва да са по-малки от импулса (сек)</string>
     <string name="inputramp">Нарастване</string>
-    <string name="inputramperror">Нарастването: 0–3000 ms</string>
+    <string name="inputramperror">Нарастването: 0–3 s</string>
     <string name="inputworktimelengtherror">Времето: 1–99 мин</string>
     <string name="lightValue">%1$d</string>
     <string name="listview_header_hint_normal">Дръпнете за опресняване</string>
@@ -117,7 +117,7 @@
     <string name="nv">Жена</string>
     <string name="ok">OK</string>
     <string name="outputramp">Спад</string>
-    <string name="outputramperror">Спадът: 0–3000 ms</string>
+    <string name="outputramperror">Спадът: 0–3 s</string>
     <string name="password">Парола</string>
     <string name="password_toggle_content_description">Покажи паролата</string>
     <string name="passwordnull">Въведете парола</string>

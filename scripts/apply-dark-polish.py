@@ -692,7 +692,10 @@ def patch_train_viewholder_channel_text() -> None:
         TRAIN_VIEW_HOLDER.write_text(text, encoding="utf-8")
         print("TrainViewHolder: fixed channel text size crash (TextPaint vs TextView)")
         return
-    if ":skip_selected_size" in text:
+    if (
+        ":skip_selected_size" in text
+        or "invoke-virtual {v5, v6, v8}, Landroid/widget/TextView;->setTextSize(IF)V" in text
+    ):
         print("TrainViewHolder channel text size: already patched")
         return
     if CHANNEL_SELECTED_SIZE_OLD not in text:

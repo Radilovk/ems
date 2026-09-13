@@ -291,7 +291,11 @@ UPDATE_TIME_NEW = """.method private updateTime()V
 
 def patch_update_time() -> None:
     text = HOLDER.read_text(encoding="utf-8")
-    if "cond_hide" in text:
+    if "cond_hide" in text or (
+        "WaveBallProgress;->setVisibility(I)V" in text
+        and "workLength:I" in text
+        and "formatTime(I)Ljava/lang/String;" in text
+    ):
         print("TrainViewHolder.updateTime: already patched")
         return
     if UPDATE_TIME_OLD not in text:

@@ -139,7 +139,7 @@ SWITCH_TO_LANGUAGE = """.method private switchToLanguage(Ljava/lang/String;Z)V
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setBackgroundResource(I)V
 
     :goto_apply
-    if-nez p2, :cond_done
+    if-eqz p2, :cond_done
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
@@ -279,7 +279,7 @@ def main() -> int:
         SETTING_FRAGMENT,
         r"private switchToLanguage\(Ljava/lang/String;Z\)V",
         SWITCH_TO_LANGUAGE,
-        force="if-nez p2, :cond_done" not in SETTING_FRAGMENT.read_text(encoding="utf-8"),
+        force="if-eqz p2, :cond_done" not in SETTING_FRAGMENT.read_text(encoding="utf-8"),
     )
     patch_defaults()
     patch_ramp_unit_labels()

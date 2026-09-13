@@ -71,13 +71,13 @@ def patch_defaults() -> None:
 
 def patch_ramp_unit_labels() -> None:
     text = EDIT_PARAM_LAYOUT.read_text(encoding="utf-8")
-    updated = text.replace('android:text="ms" />', 'android:text="s" />', 2)
+    updated = text.replace('android:text="s" />', 'android:text="ms" />', 2)
     if updated == text:
-        if 'android:text="s" />' in text:
+        if 'android:text="ms" />' in text:
             return
         raise SystemExit("ramp unit labels not found in edit_parameter_dialog.xml")
     EDIT_PARAM_LAYOUT.write_text(updated, encoding="utf-8")
-    print("patched ramp unit labels ms -> s")
+    print("patched ramp unit labels -> ms")
 
 
 def main() -> int:
@@ -86,7 +86,7 @@ def main() -> int:
         return 1
     patch_defaults()
     patch_ramp_unit_labels()
-    print("Defaults applied (bg, dark theme, ramp s labels)")
+    print("Defaults applied (bg, dark theme, ramp ms labels)")
     return 0
 
 

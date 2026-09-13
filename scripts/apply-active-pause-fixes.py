@@ -11,8 +11,10 @@ ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 DIALOG_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/dialog"
 DATA_MGR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/mgr/DataMgr.smali"
+MAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/MainFragment.smali"
 MAIN_FRAGMENT_9 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/MainFragment$9.smali"
 OPERATION_UTIL_1_1_1 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils/OperationUtil$1$1$1.smali"
+OPERATION_UTIL_1_2_1 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils/OperationUtil$1$2$1.smali"
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 LAYOUT = DECOMPILED / "res/layout/edit_parameter_dialog.xml"
@@ -731,6 +733,65 @@ def patch_data_mgr(text: str) -> str:
     return text.replace(marker, hook, 1)
 
 
+def patch_train_item_set_program(text: str) -> str:
+    section = text.split("setTrainProgram")[1].split(".method")[0]
+    if "ActivePauseStorage;->apply" in section:
+        return text
+    old = """    iput-object p1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    .line 248
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->reset()V"""
+    new = """    iput-object p1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    .line 248
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->reset()V"""
+    if old not in text:
+        raise RuntimeError("TrainItem.setTrainProgram hook marker not found")
+    return text.replace(old, new, 1)
+
+
+def patch_main_fragment_startup_load(text: str) -> str:
+    marker = "file_name_train_data"
+    if marker not in text:
+        raise RuntimeError("MainFragment file_name_train_data marker not found")
+    chunk = text.split(marker, 1)[1][:900]
+    if "ActivePauseStorage;->mergeList" in chunk:
+        return text
+    old = """    iput-object v2, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    .line 196
+    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;"""
+    new = """    iput-object v2, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList(Ljava/util/List;)V
+
+    .line 196
+    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;"""
+    if old not in text:
+        raise RuntimeError("MainFragment startup trainData load marker not found")
+    return text.replace(old, new, 1)
+
+
+def patch_main_fragment_9_cache_fallback(text: str) -> str:
+    old = """    iput-object v0, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    .line 370
+    :goto_0"""
+    new = """    iput-object v0, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList(Ljava/util/List;)V
+
+    .line 370
+    :goto_0"""
+    if old not in text:
+        if "invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList" in text:
+            return text
+        raise RuntimeError("MainFragment$9 cache fallback marker not found")
+    return text.replace(old, new, 1)
+
+
 def patch_merge_after_load(text: str, label: str) -> str:
     if "ActivePauseStorage;->mergeList" in text:
         return text
@@ -838,17 +899,28 @@ def main() -> int:
 
     EDIT_DIALOG.write_text(patch_edit_dialog_clone(EDIT_DIALOG.read_text(encoding="utf-8")), encoding="utf-8")
     DATA_MGR.write_text(patch_data_mgr(DATA_MGR.read_text(encoding="utf-8")), encoding="utf-8")
-    MAIN_FRAGMENT_9.write_text(
-        patch_merge_after_load(MAIN_FRAGMENT_9.read_text(encoding="utf-8"), "MainFragment$9"),
-        encoding="utf-8",
-    )
+    mf9 = MAIN_FRAGMENT_9.read_text(encoding="utf-8")
+    mf9 = patch_merge_after_load(mf9, "MainFragment$9")
+    mf9 = patch_main_fragment_9_cache_fallback(mf9)
+    MAIN_FRAGMENT_9.write_text(mf9, encoding="utf-8")
+
     OPERATION_UTIL_1_1_1.write_text(
         patch_merge_after_load(OPERATION_UTIL_1_1_1.read_text(encoding="utf-8"), "OperationUtil$1$1$1"),
         encoding="utf-8",
     )
+    OPERATION_UTIL_1_2_1.write_text(
+        patch_merge_after_load(OPERATION_UTIL_1_2_1.read_text(encoding="utf-8"), "OperationUtil$1$2$1"),
+        encoding="utf-8",
+    )
+    MAIN_FRAGMENT.write_text(
+        patch_main_fragment_startup_load(MAIN_FRAGMENT.read_text(encoding="utf-8")),
+        encoding="utf-8",
+    )
+    train_item = patch_train_item_set_program(TRAIN_ITEM.read_text(encoding="utf-8"))
+    TRAIN_ITEM.write_text(train_item, encoding="utf-8")
     revert_training_strength_tweaks()
 
-    print("Active pause fixes applied (Hz input, persistence).")
+    print("Active pause fixes applied (Hz input, persistence, training load hooks).")
     return 0
 
 

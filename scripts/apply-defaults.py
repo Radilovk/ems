@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Default Bulgarian + dark theme, and ramp unit labels (s not ms)."""
+"""Default Bulgarian + dark theme."""
 
 from __future__ import annotations
 
@@ -13,9 +13,6 @@ LANGUAGE_UTILS = SMALI / "utils/LanguageUtils.smali"
 USER_DATA = SMALI / "bean/UserData.smali"
 THEME_UTILS = ROOT / "branding/smali/ThemeUtils.smali"
 THEME_UTILS_INSTALLED = SMALI / "utils/ThemeUtils.smali"
-EDIT_PARAM_LAYOUT = DECOMPILED / "res/layout/edit_parameter_dialog.xml"
-
-
 def patch_defaults() -> None:
     lang = LANGUAGE_UTILS.read_text(encoding="utf-8")
     if 'const-string v2, "bg"' not in lang.split("getLang", 1)[-1][:400]:
@@ -69,24 +66,12 @@ def patch_defaults() -> None:
         print(f"patched {theme_path.name} default theme -> dark")
 
 
-def patch_ramp_unit_labels() -> None:
-    text = EDIT_PARAM_LAYOUT.read_text(encoding="utf-8")
-    updated = text.replace('android:text="s" />', 'android:text="ms" />', 2)
-    if updated == text:
-        if 'android:text="ms" />' in text:
-            return
-        raise SystemExit("ramp unit labels not found in edit_parameter_dialog.xml")
-    EDIT_PARAM_LAYOUT.write_text(updated, encoding="utf-8")
-    print("patched ramp unit labels -> ms")
-
-
 def main() -> int:
     if not DECOMPILED.is_dir():
         print("Decompiled tree missing; run build-apk.sh first", file=sys.stderr)
         return 1
     patch_defaults()
-    patch_ramp_unit_labels()
-    print("Defaults applied (bg, dark theme, ramp ms labels)")
+    print("Defaults applied (bg, dark theme)")
     return 0
 
 

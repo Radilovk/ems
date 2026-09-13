@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Live Hz +/- controls around the client avatar during training."""
+"""Hz indicator + shared slider/master controls for frequency during training."""
 
 import re
 from pathlib import Path
@@ -28,11 +28,31 @@ TRAIN_VIEW_HOLDER = (
     / "train"
     / "TrainViewHolder.smali"
 )
+TRAIN_VIEW_HOLDER_4 = (
+    DECOMPILED
+    / "smali_classes2"
+    / "com"
+    / "isaigu"
+    / "gymapp"
+    / "train"
+    / "TrainViewHolder$4.smali"
+)
+TRAIN_ITEM_MANAGER = (
+    DECOMPILED
+    / "smali_classes2"
+    / "com"
+    / "isaigu"
+    / "gymapp"
+    / "train"
+    / "TrainItemManager.smali"
+)
 TRAIN_DIR = DECOMPILED / "smali_classes2" / "com" / "isaigu" / "gymapp" / "train"
 DRAWABLE_SRC = ROOT / "branding" / "drawable"
 DRAWABLE_NIGHT_SRC = ROOT / "branding" / "drawable-night"
 
-HZ_ID_NAMES = ("hzAdd", "hzMinus", "hzValue")
+HZ_ID_NAMES = ("hzValue",)
+GREEN_BG = 0x7f080091
+BLACK_BG = 0x7f080090
 
 AVATAR_BLOCK = re.compile(
     r"<RelativeLayout android:layout_width=\"0\.0dip\" android:layout_height=\"fill_parent\" "
@@ -48,10 +68,13 @@ AVATAR_NEW = """<RelativeLayout android:layout_width="0.0dip" android:layout_hei
             <TextView android:textColor="@color/text_primary" android:textSize="45.0sp" android:textStyle="bold" android:id="@id/wave_ball_progress_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" />
             <com.isaigu.gymapp.widget.WaveBallProgress android:id="@id/wave_ball_progress_act_view" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" android:layout_centerInParent="true" />
             <TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" android:gravity="center" android:id="@id/hzValue" android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" android:text="80Hz" />
-            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzAdd" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignTop="@id/circleSeekBar" android:layout_alignRight="@id/circleSeekBar" android:layout_marginTop="10.0dip" android:layout_marginRight="0.0dip" android:gravity="center" android:text="+" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
-            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzMinus" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignBottom="@id/circleSeekBar" android:layout_alignRight="@id/circleSeekBar" android:layout_marginBottom="10.0dip" android:layout_marginRight="0.0dip" android:gravity="center" android:text="-" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
             <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/circleSeekBar" android:paddingLeft="14.0dip" android:paddingTop="14.0dip" android:paddingRight="14.0dip" android:paddingBottom="10.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="2.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="18.0dip" app:wheel_reached_width="14.0dip" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="14.0dip" />
         </RelativeLayout>"""
+
+HZ_BUTTONS = re.compile(
+    r"\s*<com\.isaigu\.gymapp\.widget\.MyButton android:id=\"@id/hzAdd\"[^>]*/>\s*"
+    r"<com\.isaigu\.gymapp\.widget\.MyButton android:id=\"@id/hzMinus\"[^>]*/>\s*",
+)
 
 USER_INFO_OLD = re.compile(
     r"<RelativeLayout android:gravity=\"center_vertical\" android:layout_width=\"fill_parent\" "
@@ -100,6 +123,7 @@ def user_info_new(name_size: str, time_size: str) -> str:
                     </FrameLayout>
                 </LinearLayout>
             </RelativeLayout>"""
+
 
 ADD_HZ_METHOD = """
 .method public addHz(I)V
@@ -150,9 +174,37 @@ ADD_HZ_METHOD = """
 .end method
 """
 
-def bind_hz_controls_smali(hz_add_id: int, hz_minus_id: int) -> str:
+HZ_SELECTED_FIELD = """.field private hzSelected:Z
+"""
+
+HZ_SELECTED_INIT = """    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->maSelected:Z
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
+"""
+
+HZ_SELECTED_METHODS = """
+.method public isHzSelected()Z
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
+
+    return v0
+.end method
+
+.method public setHzSelected(Z)V
+    .locals 0
+    .param p1, "hzSelected"    # Z
+
+    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
+
+    return-void
+.end method
+"""
+
+
+def bind_hz_value_click_smali(hz_value_id: int) -> str:
     return f"""
-.method private bindHzControls()V
+.method private bindHzValueClick()V
     .locals 3
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
@@ -161,22 +213,7 @@ def bind_hz_controls_smali(hz_add_id: int, hz_minus_id: int) -> str:
 
     move-result-object v0
 
-    const v1, {hz_add_id:#x}
-
-    invoke-virtual {{v0, v1}}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_skip_add
-
-    new-instance v2, Lcom/isaigu/gymapp/train/TrainHzAddListener;
-
-    invoke-direct {{v2, p0}}, Lcom/isaigu/gymapp/train/TrainHzAddListener;-><init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    invoke-virtual {{v1, v2}}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    :cond_skip_add
-    const v1, {hz_minus_id:#x}
+    const v1, {hz_value_id:#x}
 
     invoke-virtual {{v0, v1}}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
 
@@ -184,9 +221,9 @@ def bind_hz_controls_smali(hz_add_id: int, hz_minus_id: int) -> str:
 
     if-eqz v0, :cond_end
 
-    new-instance v1, Lcom/isaigu/gymapp/train/TrainHzMinusListener;
+    new-instance v1, Lcom/isaigu/gymapp/train/TrainHzValueClickListener;
 
-    invoke-direct {{v1, p0}}, Lcom/isaigu/gymapp/train/TrainHzMinusListener;-><init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+    invoke-direct {{v1, p0}}, Lcom/isaigu/gymapp/train/TrainHzValueClickListener;-><init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
     invoke-virtual {{v0, v1}}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
@@ -248,13 +285,34 @@ def update_hz_display_smali(hz_value_id: int) -> str:
 
     invoke-virtual {{v0, v1}}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1
+
+    const v1, {GREEN_BG:#x}
+
+    invoke-virtual {{v0, v1}}, Landroid/widget/TextView;->setBackgroundResource(I)V
+
+    goto :goto_0
+
+    :cond_1
+    const v1, {BLACK_BG:#x}
+
+    invoke-virtual {{v0, v1}}, Landroid/widget/TextView;->setBackgroundResource(I)V
+
+    :goto_0
     return-void
 .end method
 """.strip()
 
-HZ_ADD_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainHzAddListener;
+
+HZ_VALUE_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainHzValueClickListener;
 .super Ljava/lang/Object;
-.source "TrainHzAddListener.java"
+.source "TrainHzValueClickListener.java"
 
 # interfaces
 .implements Landroid/view/View$OnClickListener;
@@ -271,7 +329,7 @@ HZ_ADD_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainHzAddListener;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    iput-object p1, p0, Lcom/isaigu/gymapp/train/TrainHzAddListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    iput-object p1, p0, Lcom/isaigu/gymapp/train/TrainHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     return-void
 .end method
@@ -282,19 +340,278 @@ HZ_ADD_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainHzAddListener;
     .locals 2
     .param p1, "v"    # Landroid/view/View;
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzAddListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+
+    move-result v1
+
+    xor-int/lit8 v1, v1, 0x1
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
+
+    if-eqz v1, :cond_0
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
+    :cond_0
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    return-void
+.end method
+"""
+
+SEEKBAR_LISTENER = """.class Lcom/isaigu/gymapp/train/TrainViewHolder$4;
+.super Ljava/lang/Object;
+.source "TrainViewHolder.java"
+
+# interfaces
+.implements Lcom/isaigu/gymapp/widget/CircleSeekBar$OnSeekBarChangeListener;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/train/TrainViewHolder;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+
+# direct methods
+.method constructor <init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+    .locals 0
+    .param p1, "this$0"    # Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    iput-object p1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public onChanged(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
+    .locals 5
+    .param p1, "seekbar"    # Lcom/isaigu/gymapp/widget/CircleSeekBar;
+    .param p2, "curValue"    # I
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_strength
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$400(Lcom/isaigu/gymapp/train/TrainViewHolder;)Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    const v1, 0x7f090206
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
+
+    move-result-object v0
+
+    check-cast v0, Landroid/widget/TextView;
+
+    if-eqz v0, :cond_hz_done
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    mul-int/lit8 v2, p2, 0x78
+
+    div-int/lit8 v2, v2, 0x4b
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, "Hz"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    :cond_hz_done
+    return-void
+
+    :cond_strength
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$400(Lcom/isaigu/gymapp/train/TrainViewHolder;)Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    move-result-object v0
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->ma:Landroid/widget/TextView;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$500(Lcom/isaigu/gymapp/train/TrainViewHolder;)Landroid/content/Context;
+
+    move-result-object v1
+
+    const v2, 0x7f0d006e
+
+    invoke-virtual {v1, v2}, Landroid/content/Context;->getString(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [Ljava/lang/Object;
+
+    mul-int/lit8 v3, p2, 0x64
+
+    div-int/lit8 v3, v3, 0x4b
+
+    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v3
+
+    const/4 v4, 0x0
+
+    aput-object v3, v2, v4
+
+    invoke-static {v1, v2}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    return-void
+.end method
+
+.method public onChangedEnd(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
+    .locals 4
+    .param p1, "seekbar"    # Lcom/isaigu/gymapp/widget/CircleSeekBar;
+    .param p2, "curValue"    # I
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_strength
+
+    mul-int/lit8 v0, p2, 0x78
+
+    div-int/lit8 v0, v0, 0x4b
 
     const/4 v1, 0x1
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addHz(I)V
+    if-ge v0, v1, :cond_hz_min
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzAddListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    const/4 v0, 0x1
+
+    :cond_hz_min
+    const/16 v1, 0x78
+
+    if-le v0, v1, :cond_hz_store
+
+    const/16 v0, 0x78
+
+    :cond_hz_store
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzAddListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    return-void
+
+    :cond_strength
+    mul-int/lit8 v0, p2, 0x64
+
+    div-int/lit8 v0, v0, 0x4b
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    sub-int v2, v0, v1
+
+    const/16 v3, 0x14
+
+    if-le v2, v3, :cond_0
+
+    add-int/lit8 v0, v1, 0x14
+
+    :cond_0
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v2
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v2
+
+    iput v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
@@ -302,55 +619,174 @@ HZ_ADD_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainHzAddListener;
 .end method
 """
 
-HZ_MINUS_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainHzMinusListener;
-.super Ljava/lang/Object;
-.source "TrainHzMinusListener.java"
+ADD_ALL_PART_VALUE_OLD = """.method public addAllPartValue(I)V
+    .locals 3
+    .param p1, "value"    # I
 
-# interfaces
-.implements Landroid/view/View$OnClickListener;
+    .line 64
+    new-instance v0, Ljava/util/concurrent/atomic/AtomicBoolean;
 
+    const/4 v1, 0x0
 
-# instance fields
-.field private final holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    invoke-direct {v0, v1}, Ljava/util/concurrent/atomic/AtomicBoolean;-><init>(Z)V
 
+    .line 65
+    .local v0, "anyMaSelected":Ljava/util/concurrent/atomic/AtomicBoolean;
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainItemManager;->notEmptyItems()Ljava/util/stream/Stream;
 
-# direct methods
-.method public constructor <init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-    .locals 0
-    .param p1, "holder"    # Lcom/isaigu/gymapp/train/TrainViewHolder;
+    move-result-object v1
 
-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+    new-instance v2, Lcom/isaigu/gymapp/train/-$$Lambda$TrainItemManager$NH_2vasCxMVn7scoo3q5zW5xA-M;
 
-    iput-object p1, p0, Lcom/isaigu/gymapp/train/TrainHzMinusListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    invoke-direct {v2, v0, p1}, Lcom/isaigu/gymapp/train/-$$Lambda$TrainItemManager$NH_2vasCxMVn7scoo3q5zW5xA-M;-><init>(Ljava/util/concurrent/atomic/AtomicBoolean;I)V
+
+    invoke-interface {v1, v2}, Ljava/util/stream/Stream;->forEach(Ljava/util/function/Consumer;)V
+
+    .line 71
+    invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->get()Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
+    .line 72
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainItemManager;->notEmptyItems()Ljava/util/stream/Stream;
+
+    move-result-object v1
+
+    new-instance v2, Lcom/isaigu/gymapp/train/-$$Lambda$TrainItemManager$UF59B4EXu0W6VouWuS5ErUQhZs4;
+
+    invoke-direct {v2, p1}, Lcom/isaigu/gymapp/train/-$$Lambda$TrainItemManager$UF59B4EXu0W6VouWuS5ErUQhZs4;-><init>(I)V
+
+    invoke-interface {v1, v2}, Ljava/util/stream/Stream;->forEach(Ljava/util/function/Consumer;)V
+
+    .line 74
+    :cond_0
+    return-void
+.end method"""
+
+ADD_ALL_PART_VALUE_NEW = ADD_ALL_PART_VALUE_OLD
+
+LAMBDA_ADD_ALL_OLD = """.method static synthetic lambda$addAllPartValue$6(Ljava/util/concurrent/atomic/AtomicBoolean;ILcom/isaigu/gymapp/train/model/TrainItem;)V
+    .locals 1
+    .param p0, "anyMaSelected"    # Ljava/util/concurrent/atomic/AtomicBoolean;
+    .param p1, "value"    # I
+    .param p2, "i"    # Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    .line 66
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    .line 67
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    .line 68
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    .line 70
+    :cond_0
+    return-void
+.end method"""
+
+LAMBDA_ADD_ALL_NEW = """.method static synthetic lambda$addAllPartValue$6(Ljava/util/concurrent/atomic/AtomicBoolean;ILcom/isaigu/gymapp/train/model/TrainItem;)V
+    .locals 1
+    .param p0, "anySelected"    # Ljava/util/concurrent/atomic/AtomicBoolean;
+    .param p1, "value"    # I
+    .param p2, "i"    # Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_ma
+
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addHz(I)V
 
     return-void
-.end method
 
+    :cond_ma
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
 
-# virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 2
-    .param p1, "v"    # Landroid/view/View;
+    move-result v0
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzMinusListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    if-eqz v0, :cond_end
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+    const/4 v0, 0x1
 
-    const/4 v1, -0x1
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addHz(I)V
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzMinusListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainHzMinusListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
+    :cond_end
     return-void
-.end method
-"""
+.end method"""
+
+UPDATE_UI_SEEKBAR_OLD = """    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->circleSeekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
+
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    mul-int/lit8 v2, v2, 0x4b
+
+    div-int/lit8 v2, v2, 0x64
+
+    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V"""
+
+UPDATE_UI_SEEKBAR_NEW = """    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->circleSeekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_seek_strength
+
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
+
+    mul-int/lit8 v2, v2, 0x4b
+
+    div-int/lit8 v2, v2, 0x78
+
+    goto :goto_seek_set
+
+    :cond_seek_strength
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    mul-int/lit8 v2, v2, 0x4b
+
+    div-int/lit8 v2, v2, 0x64
+
+    :goto_seek_set
+    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V"""
+
+MA_CLICK_OLD = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
+    .line 145
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
+
+MA_CLICK_NEW = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
+    if-eqz v1, :cond_clear_hz
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
+
+    :cond_clear_hz
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
 
 
 def next_drawable_id() -> int:
@@ -449,35 +885,37 @@ def patch_layouts() -> None:
             if not path.exists():
                 continue
             text = path.read_text(encoding="utf-8")
+            if HZ_BUTTONS.search(text):
+                text = HZ_BUTTONS.sub("", text, count=1)
+                print(f"removed Hz +/- buttons from {layout_dir}/{name}")
+
             hz_value_chunk = text.split("@id/hzValue", 1)[1][:400] if "@id/hzValue" in text else ""
             avatar_done = (
-                "@id/hzAdd" in text
-                and "@id/setting" not in text.split("@id/circleSeekBar", 1)[0]
+                "@id/hzValue" in text
+                and "@id/hzAdd" not in text
                 and 'android:layout_alignParentBottom="true"' in hz_value_chunk
+                and "@id/setting" not in text.split("@id/circleSeekBar", 1)[0]
             )
             if not avatar_done:
                 if AVATAR_BLOCK.search(text):
                     text = AVATAR_BLOCK.sub(AVATAR_NEW, text, count=1)
                     print(f"patched {layout_dir}/{name} avatar area")
-                elif "@id/hzAdd" not in text:
+                elif "@id/hzValue" not in text:
                     raise RuntimeError(f"avatar block not found in {layout_dir}/{name}")
             else:
                 print(f"{layout_dir}/{name}: avatar area already updated")
 
-            user_info_updated = False
             if USER_INFO_BROKEN.search(text):
                 text = USER_INFO_BROKEN.sub(r"\1\n            \2", text, count=1)
                 print(f"fixed {layout_dir}/{name} user status row markup")
 
             if USER_INFO_PATCHED.search(text):
                 print(f"{layout_dir}/{name}: user status row already updated")
-                user_info_updated = True
             elif USER_INFO_OLD.search(text):
                 name_size = "14.0sp" if name.startswith("new_") else "16.0sp"
                 time_size = "18.0sp" if name.startswith("new_") else "28.0sp"
                 text = USER_INFO_OLD.sub(user_info_new(name_size, time_size), text, count=1)
                 print(f"patched {layout_dir}/{name} user status row")
-                user_info_updated = True
             elif "@drawable/ui_status_icon_bg" not in text:
                 raise RuntimeError(f"user info block not found in {layout_dir}/{name}")
 
@@ -486,45 +924,88 @@ def patch_layouts() -> None:
 
 def patch_train_item() -> None:
     text = TRAIN_ITEM.read_text(encoding="utf-8")
-    if "addHz(I)V" in text:
-        print("TrainItem.addHz: already patched")
-        return
-    marker = ".method public close()V"
-    if marker not in text:
-        raise RuntimeError("TrainItem.close marker not found")
-    text = text.replace(marker, ADD_HZ_METHOD.strip() + "\n\n" + marker, 1)
+    if "addHz(I)V" not in text:
+        marker = ".method public close()V"
+        if marker not in text:
+            raise RuntimeError("TrainItem.close marker not found")
+        text = text.replace(marker, ADD_HZ_METHOD.strip() + "\n\n" + marker, 1)
+        print("TrainItem: added addHz()")
+
+    if "hzSelected:Z" not in text:
+        text = text.replace(
+            ".field private maSelected:Z\n",
+            ".field private maSelected:Z\n\n.field private hzSelected:Z\n",
+            1,
+        )
+        text = text.replace(
+            "    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->maSelected:Z\n",
+            HZ_SELECTED_INIT,
+            1,
+        )
+        text = text.replace(
+            ".method public isMaSelected()Z",
+            HZ_SELECTED_METHODS.strip() + "\n\n.method public isMaSelected()Z",
+            1,
+        )
+        print("TrainItem: added hzSelected state")
+
     TRAIN_ITEM.write_text(text, encoding="utf-8")
-    print("TrainItem: added addHz()")
 
 
 def patch_train_view_holder(ids: dict[str, int]) -> None:
     text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
-    bind_block = bind_hz_controls_smali(ids["hzAdd"], ids["hzMinus"])
+    bind_block = bind_hz_value_click_smali(ids["hzValue"])
     display_block = update_hz_display_smali(ids["hzValue"])
-    if "bindHzControls()V" not in text:
-        bind_end = """    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 149
-    return-void
-.end method"""
-        bind_new = """    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    if "bindHzValueClick()V" not in text:
+        if "bindHzControls()V" in text:
+            text = re.sub(
+                r"\.method private bindHzControls\(\)V.*?\.end method",
+                bind_block,
+                text,
+                count=1,
+                flags=re.DOTALL,
+            )
+            text = text.replace("bindHzControls()V", "bindHzValueClick()V")
+        else:
+            bind_end = """    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindHzControls()V
 
     return-void
 .end method"""
-        if bind_end not in text:
-            raise RuntimeError("TrainViewHolder.bindListener end marker not found")
-        text = text.replace(bind_end, bind_new, 1)
-        text = text.replace(
-            ".method private bindNotEmpty()V",
-            bind_block + "\n\n" + display_block + "\n\n.method private bindNotEmpty()V",
-            1,
-        )
-        print("TrainViewHolder: added bindHzControls + updateHzDisplay")
+            bind_new = """    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindHzValueClick()V
+
+    return-void
+.end method"""
+            if bind_end not in text:
+                bind_end2 = """    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    return-void
+.end method"""
+                bind_new2 = """    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindHzValueClick()V
+
+    return-void
+.end method"""
+                if bind_end2 in text:
+                    text = text.replace(bind_end2, bind_new2, 1)
+                else:
+                    raise RuntimeError("TrainViewHolder.bindListener end marker not found")
+            else:
+                text = text.replace(bind_end, bind_new, 1)
+            text = text.replace(
+                ".method private bindNotEmpty()V",
+                bind_block + "\n\n" + display_block + "\n\n.method private bindNotEmpty()V",
+                1,
+            )
+        print("TrainViewHolder: added bindHzValueClick + updateHzDisplay")
     else:
         text = re.sub(
-            r"\.method private bindHzControls\(\)V.*?\.end method",
+            r"\.method private bindHzValueClick\(\)V.*?\.end method",
             bind_block,
             text,
             count=1,
@@ -538,29 +1019,79 @@ def patch_train_view_holder(ids: dict[str, int]) -> None:
             flags=re.DOTALL,
         )
 
-    update_marker = """    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    if UPDATE_UI_SEEKBAR_OLD in text:
+        text = text.replace(UPDATE_UI_SEEKBAR_OLD, UPDATE_UI_SEEKBAR_NEW, 1)
+        print("TrainViewHolder.updateUI: Hz-aware seekbar position")
 
-    .line 218
-    const/4 v1, 0x0"""
-    update_replacement = """    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    if MA_CLICK_OLD in text:
+        text = text.replace(MA_CLICK_OLD, MA_CLICK_NEW, 1)
+        print("TrainViewHolder: ma click clears hz selection")
+
+    if "updateHzDisplay()V" not in text.split("updateUI()V")[1].split(".method")[0]:
+        update_marker = """    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V"""
+        if update_marker not in text:
+            text = text.replace(
+                """    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V
 
-    .line 218
-    const/4 v1, 0x0"""
-    if update_marker in text and "updateHzDisplay()V" not in text.split("updateUI()V")[1].split(".method")[0]:
-        text = text.replace(update_marker, update_replacement, 1)
-        print("TrainViewHolder.updateUI: refresh Hz label")
+    .line 218""",
+                """    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V
+
+    .line 218""",
+                1,
+            )
+            alt = """    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 218"""
+            if alt in text:
+                text = text.replace(
+                    alt,
+                    """    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V
+
+    .line 218""",
+                    1,
+                )
 
     TRAIN_VIEW_HOLDER.write_text(text, encoding="utf-8")
 
 
-def write_listeners() -> None:
-    add_path = TRAIN_DIR / "TrainHzAddListener.smali"
-    minus_path = TRAIN_DIR / "TrainHzMinusListener.smali"
-    add_path.write_text(HZ_ADD_LISTENER.strip() + "\n", encoding="utf-8")
-    minus_path.write_text(HZ_MINUS_LISTENER.strip() + "\n", encoding="utf-8")
-    print("TrainHzAddListener / TrainHzMinusListener written")
+def patch_seekbar_listener(hz_value_id: int) -> None:
+    content = SEEKBAR_LISTENER.replace("0x7f090206", f"{hz_value_id:#x}")
+    TRAIN_VIEW_HOLDER_4.write_text(content.strip() + "\n", encoding="utf-8")
+    print("TrainViewHolder$4: Hz-aware circle slider")
+
+
+def patch_train_item_manager() -> None:
+    text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
+    if "isHzSelected()Z" in text and "addHz(I)V" in text.split("lambda$addAllPartValue$6")[1][:500]:
+        print("TrainItemManager: Hz master controls already patched")
+        return
+    if LAMBDA_ADD_ALL_OLD in text:
+        text = text.replace(LAMBDA_ADD_ALL_OLD, LAMBDA_ADD_ALL_NEW, 1)
+        print("TrainItemManager: lambda checks hzSelected first")
+    elif LAMBDA_ADD_ALL_NEW not in text:
+        raise RuntimeError("TrainItemManager lambda marker not found")
+
+    if "isHzSelected()Z" not in text.split("addAllPartValue(I)V")[1].split(".method")[0]:
+        print("TrainItemManager.addAllPartValue: unchanged (lambda handles Hz)")
+
+    TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
+
+
+def write_listener() -> None:
+    (TRAIN_DIR / "TrainHzValueClickListener.smali").write_text(HZ_VALUE_CLICK_LISTENER.strip() + "\n", encoding="utf-8")
+    for obsolete in ("TrainHzAddListener.smali", "TrainHzMinusListener.smali"):
+        path = TRAIN_DIR / obsolete
+        if path.exists():
+            path.unlink()
+            print(f"removed obsolete {obsolete}")
 
 
 def main() -> None:
@@ -570,8 +1101,10 @@ def main() -> None:
     patch_layouts()
     patch_train_item()
     patch_train_view_holder(ids)
-    write_listeners()
-    print("Hz control patches applied.")
+    patch_seekbar_listener(ids["hzValue"])
+    patch_train_item_manager()
+    write_listener()
+    print("Hz shared-control patches applied.")
 
 
 if __name__ == "__main__":

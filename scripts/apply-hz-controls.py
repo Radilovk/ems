@@ -48,9 +48,9 @@ AVATAR_NEW = """<RelativeLayout android:layout_width="0.0dip" android:layout_hei
             <TextView android:textColor="@color/text_primary" android:textSize="45.0sp" android:textStyle="bold" android:id="@id/wave_ball_progress_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" />
             <com.isaigu.gymapp.widget.WaveBallProgress android:id="@id/wave_ball_progress_act_view" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" android:layout_centerInParent="true" />
             <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_alignLeft="@id/circleSeekBar" android:layout_alignBottom="@id/circleSeekBar" android:layout_marginLeft="10.0dip" android:layout_marginBottom="10.0dip" />
-            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzAdd" android:background="@drawable/ui_hz_button_bg" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_alignParentRight="true" android:layout_marginTop="10.0dip" android:gravity="center" android:text="+" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
-            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzMinus" android:background="@drawable/ui_hz_button_bg" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" android:gravity="center" android:text="-" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
-            <TextView android:id="@id/hzValue" android:background="@drawable/ui_hz_value_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_centerVertical="true" android:layout_marginRight="2.0dip" android:gravity="center" android:paddingLeft="5.0dip" android:paddingRight="5.0dip" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:text="80" android:textColor="@color/impulse_accent" android:textSize="10.0sp" android:textStyle="bold" />
+            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzAdd" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignTop="@id/circleSeekBar" android:layout_alignRight="@id/circleSeekBar" android:layout_marginTop="10.0dip" android:layout_marginRight="0.0dip" android:gravity="center" android:text="+" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
+            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzMinus" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignBottom="@id/circleSeekBar" android:layout_alignRight="@id/circleSeekBar" android:layout_marginBottom="10.0dip" android:layout_marginRight="0.0dip" android:gravity="center" android:text="-" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
+            <TextView android:textColor="@color/white_color" android:textSize="10.0sp" android:textStyle="bold" android:gravity="center" android:id="@id/hzValue" android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignRight="@id/circleSeekBar" android:layout_centerVertical="true" android:layout_marginRight="0.0dip" android:text="80" />
             <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/circleSeekBar" android:paddingLeft="14.0dip" android:paddingTop="14.0dip" android:paddingRight="14.0dip" android:paddingBottom="10.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="2.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="18.0dip" app:wheel_reached_width="14.0dip" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="14.0dip" />
         </RelativeLayout>"""
 
@@ -403,11 +403,11 @@ def patch_layouts() -> None:
                 continue
             text = path.read_text(encoding="utf-8")
             if (
-                'android:layout_alignParentRight="true" android:layout_marginTop="10.0dip"' in text
-                and "@drawable/ui_hz_button_bg" in text
+                'android:layout_alignRight="@id/circleSeekBar" android:layout_marginTop="10.0dip"' in text
+                and "@drawable/light_green_button_drawable_r30" in text
                 and text.find("@id/circleSeekBar") > text.find("@id/hzMinus")
             ):
-                print(f"{layout_dir}/{name}: Hz controls already tucked under ring")
+                print(f"{layout_dir}/{name}: Hz controls already on ring edge")
                 continue
             if not AVATAR_BLOCK.search(text):
                 raise RuntimeError(f"avatar block not found in {layout_dir}/{name}")

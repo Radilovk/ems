@@ -1070,7 +1070,8 @@ def patch_seekbar_listener(hz_value_id: int) -> None:
 
 def patch_train_item_manager() -> None:
     text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
-    if "isHzSelected()Z" in text and "addHz(I)V" in text.split("lambda$addAllPartValue$6")[1][:500]:
+    lambda_body = text.split("lambda$addAllPartValue$6", 1)[-1].split(".method", 1)[0]
+    if "isHzSelected()Z" in lambda_body and "addHz(I)V" in lambda_body:
         print("TrainItemManager: Hz master controls already patched")
         return
     if LAMBDA_ADD_ALL_OLD in text:

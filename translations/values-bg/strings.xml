@@ -263,5 +263,8 @@
     <string name="active_pause_hint">По време на паузата се изпраща импулс с отделни параметри</string>
     <string name="active_pause_strength">Сила на пауза (%)</string>
     <string name="active_pause_hz">Честота на пауза</string>
+    <string name="active_pause_interval">Интервал</string>
+    <string name="active_pause_add">+ Добави интервал</string>
+    <string name="active_pause_remove">Премахни</string>
 
 </resources>

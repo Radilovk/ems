@@ -103,19 +103,31 @@ def patch_ramp_picker(path: Path, label: str) -> None:
     marker = "    const/16 v2, 0xbb8\n"
     if marker in text:
         return
-    old = (
-        "    const/4 v1, 0x0\n\n"
-        "    const/16 v2, 0x64\n\n"
-        "    const/16 v3, 0xa\n"
-    )
-    new = (
-        "    const/4 v1, 0x0\n\n"
-        f"    const/16 v2, 0x{RAMP_PICKER_MAX:x}\n\n"
-        f"    const/16 v3, 0x{RAMP_PICKER_STEP:x}\n"
-    )
-    if old not in text:
-        raise SystemExit(f"{label}: picker block not found in {path}")
-    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+    patterns = [
+        (
+            "    const/4 v1, 0x0\n\n"
+            "    const/16 v2, 0x64\n\n"
+            "    const/16 v3, 0xa\n",
+            "    const/4 v1, 0x0\n\n"
+            f"    const/16 v2, 0x{RAMP_PICKER_MAX:x}\n\n"
+            f"    const/16 v3, 0x{RAMP_PICKER_STEP:x}\n",
+        ),
+        (
+            "    const/4 v1, 0x0\n\n"
+            "    const/16 v2, 0x64\n\n"
+            "    const/16 v3, 0xa\n\n"
+            "    const-string v4, \"ms\"\n",
+            "    const/4 v1, 0x0\n\n"
+            f"    const/16 v2, 0x{RAMP_PICKER_MAX:x}\n\n"
+            f"    const/16 v3, 0x{RAMP_PICKER_STEP:x}\n\n"
+            "    const-string v4, \"ms\"\n",
+        ),
+    ]
+    for old, new in patterns:
+        if old in text:
+            path.write_text(text.replace(old, new, 1), encoding="utf-8")
+            return
+    raise SystemExit(f"{label}: picker block not found in {path}")
 
 
 def patch_command_util() -> None:

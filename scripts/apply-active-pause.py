@@ -76,8 +76,31 @@ HELPER_SMALI = f""".class public Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHe
 # static fields
 .field private static final BOUND_TAG:Ljava/lang/String; = "active_pause_bound"
 
+.field private static roots:Ljava/util/HashMap;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {{
+            "Ljava/util/HashMap<",
+            "Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;",
+            "Landroid/view/View;",
+            ">;"
+        }}
+    .end annotation
+.end field
+
 
 # direct methods
+.method static constructor <clinit>()V
+    .locals 1
+
+    new-instance v0, Ljava/util/HashMap;
+
+    invoke-direct {{v0}}, Ljava/util/HashMap;-><init>()V
+
+    sput-object v0, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->roots:Ljava/util/HashMap;
+
+    return-void
+.end method
+
 .method public constructor <init>()V
     .locals 0
 
@@ -89,6 +112,10 @@ HELPER_SMALI = f""".class public Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHe
 .method public static bind(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
     .locals 2
 
+    sget-object v0, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->roots:Ljava/util/HashMap;
+
+    invoke-virtual {{v0, p0, p1}}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
     invoke-virtual {{p1}}, Landroid/view/View;->getTag()Ljava/lang/Object;
 
     move-result-object v0
@@ -99,13 +126,13 @@ HELPER_SMALI = f""".class public Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHe
 
     move-result v0
 
-    if-eqz v0, :cond_wire
+    if-eqz v0, :cond_refresh_only
 
-    invoke-static {{p0, p1}}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
+    invoke-static {{p0}}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
 
     return-void
 
-    :cond_wire
+    :cond_refresh_only
     const-string v0, "active_pause_bound"
 
     invoke-virtual {{p1, v0}}, Landroid/view/View;->setTag(Ljava/lang/Object;)V
@@ -193,120 +220,133 @@ HELPER_SMALI = f""".class public Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHe
     invoke-virtual {{v0, v1}}, Lcom/isaigu/gymapp/widget/AmountView;->setOnAmountChangeListener(Lcom/isaigu/gymapp/widget/AmountView$OnAmountChangeListener;)V
 
     :cond_done
-    invoke-static {{p0, p1}}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
+    invoke-static {{p0}}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
 
     return-void
 .end method
 
-.method public static refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
+.method public static refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
     .locals 4
 
-    invoke-static {{p0}}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access$200(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Lcom/isaigu/gymapp/bean/TrainProgram;
+    sget-object v0, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->roots:Ljava/util/HashMap;
+
+    invoke-virtual {{v0, p0}}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
-    if-nez v0, :cond_0
+    check-cast v0, Landroid/view/View;
+
+    if-nez v0, :cond_has_view
+
+    return-void
+
+    :cond_has_view
+    invoke-static {{p0}}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access$200(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v1
+
+    if-nez v1, :cond_0
 
     return-void
 
     :cond_0
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    const v1, {IDS["activePauseSwitch"]:#x}
+    const v2, {IDS["activePauseSwitch"]:#x}
 
-    invoke-virtual {{p1, v1}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+    invoke-virtual {{v0, v2}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object v1
+    move-result-object v2
 
-    check-cast v1, Landroid/widget/Switch;
+    check-cast v2, Landroid/widget/Switch;
 
-    if-eqz v1, :cond_switch_done
+    if-eqz v2, :cond_switch_done
 
-    iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-boolean v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    invoke-virtual {{v1, v2}}, Landroid/widget/Switch;->setChecked(Z)V
+    invoke-virtual {{v2, v3}}, Landroid/widget/Switch;->setChecked(Z)V
 
     :cond_switch_done
-    const v1, {IDS["activePausePanel"]:#x}
+    const v2, {IDS["activePausePanel"]:#x}
 
-    invoke-virtual {{p1, v1}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+    invoke-virtual {{v0, v2}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object v1
+    move-result-object v2
 
-    check-cast v1, Landroid/widget/LinearLayout;
+    check-cast v2, Landroid/widget/LinearLayout;
 
-    if-eqz v1, :cond_panel_done
+    if-eqz v2, :cond_panel_done
 
-    iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-boolean v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v2, :cond_hide
+    if-eqz v3, :cond_hide
 
-    const/4 v2, 0x0
+    const/4 v3, 0x0
 
-    invoke-virtual {{v1, v2}}, Landroid/widget/LinearLayout;->setVisibility(I)V
+    invoke-virtual {{v2, v3}}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
     goto :goto_panel
 
     :cond_hide
-    const/16 v2, 0x8
+    const/16 v3, 0x8
 
-    invoke-virtual {{v1, v2}}, Landroid/widget/LinearLayout;->setVisibility(I)V
+    invoke-virtual {{v2, v3}}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
     :goto_panel
     :cond_panel_done
-    const v1, {IDS["pauseStrengthAmount"]:#x}
+    const v2, {IDS["pauseStrengthAmount"]:#x}
 
-    invoke-virtual {{p1, v1}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+    invoke-virtual {{v0, v2}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object v1
+    move-result-object v2
 
-    check-cast v1, Lcom/isaigu/gymapp/widget/AmountView;
+    check-cast v2, Lcom/isaigu/gymapp/widget/AmountView;
 
-    if-eqz v1, :cond_strength_done
+    if-eqz v2, :cond_strength_done
 
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    if-gtz v2, :cond_strength_set
+    if-gtz v3, :cond_strength_set
 
-    const/16 v2, 0x64
+    const/16 v3, 0x64
 
-    iput v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iput v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     :cond_strength_set
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    invoke-virtual {{v1, v2}}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
+    invoke-virtual {{v2, v3}}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
 
     :cond_strength_done
-    const v1, {IDS["pauseHzAmount"]:#x}
+    const v2, {IDS["pauseHzAmount"]:#x}
 
-    invoke-virtual {{p1, v1}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+    invoke-virtual {{v0, v2}}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object v1
+    move-result-object v2
 
-    check-cast v1, Lcom/isaigu/gymapp/widget/AmountView;
+    check-cast v2, Lcom/isaigu/gymapp/widget/AmountView;
 
-    if-eqz v1, :cond_hz_done
+    if-eqz v2, :cond_hz_done
 
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
-    const/4 v3, 0x1
+    const/4 v0, 0x1
 
-    if-ge v2, v3, :cond_hz_use_main
+    if-ge v3, v0, :cond_hz_use_main
 
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    if-ge v2, v3, :cond_hz_default
+    if-ge v3, v0, :cond_hz_default
 
-    const/16 v2, 0x32
+    const/16 v3, 0x32
 
     :cond_hz_default
-    iput v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iput v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
     :cond_hz_use_main
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
-    invoke-virtual {{v1, v2}}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
+    invoke-virtual {{v2, v3}}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
 
     :cond_hz_done
     return-void
@@ -775,83 +815,39 @@ def patch_train_item_send_pulse(text: str) -> str:
     return text.replace(old, new, 1)
 
 
-def patch_edit_dialog_init_set_data(text: str) -> str:
-    if "ActivePauseSettingsHelper;->refresh" in text:
-        return text
-    marker = "    .line 1184\n    return-void\n.end method\n\n.method private initView"
-    hook = """    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access$2800(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Landroid/view/View;
+def patch_edit_dialog(text: str) -> str:
+    broken_refresh = re.compile(
+        r"\n    invoke-static \{p0\}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access\$2800\(.*?\n    :cond_active_pause_refresh_done\n",
+        re.DOTALL,
+    )
+    if broken_refresh.search(text):
+        text = broken_refresh.sub("\n", text, count=1)
+        print("EditUserProgramDataDialog: removed broken access$2800 active-pause hook")
 
-    move-result-object v0
+    text = text.replace(
+        ".field private rootView:Landroid/view/View;\n\n",
+        "",
+    )
 
-    if-eqz v0, :cond_active_pause_refresh_done
+    refresh_sig = "ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V"
+    if refresh_sig not in text:
+        marker = "    .line 1184\n    return-void\n.end method\n\n.method private initView"
+        hook = """    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
-
-    :cond_active_pause_refresh_done
     .line 1184
     return-void\n.end method\n\n.method private initView"""
-    if marker not in text:
-        # fallback without line number
-        marker = "    return-void\n.end method\n\n.method private initView(Landroid/view/View;)V"
-        hook = """    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access$2800(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Landroid/view/View;
+        if marker in text:
+            text = text.replace(marker, hook, 1)
+            print("EditUserProgramDataDialog.initSetData: active-pause refresh hook")
 
-    move-result-object v0
-
-    if-eqz v0, :cond_active_pause_refresh_done
-
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->refresh(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
-
-    :cond_active_pause_refresh_done
-    return-void\n.end method\n\n.method private initView(Landroid/view/View;)V"""
-    return text.replace(marker, hook, 1)
-
-
-def patch_edit_dialog_store_root(text: str) -> str:
-    if "access$2800" in text:
-        return text
-    # Add field rootView and accessor
-    text = text.replace(
-        ".field private saveProgramListener:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$SaveProgramListener;\n",
-        ".field private saveProgramListener:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$SaveProgramListener;\n\n"
-        ".field private rootView:Landroid/view/View;\n",
-        1,
-    )
-    accessor = """
-.method static synthetic access$2800(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Landroid/view/View;
-    .locals 1
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->rootView:Landroid/view/View;
-
-    return-object v0
-.end method
-
-"""
-    text = text.replace(
-        ".method static synthetic access$2700",
-        accessor + ".method static synthetic access$2700",
-        1,
-    )
-    store = """
-    iput-object v0, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->rootView:Landroid/view/View;
-
-    .line 95
-    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initView(Landroid/view/View;)V"""
-    text = text.replace(
-        "    .line 95\n    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initView(Landroid/view/View;)V",
-        store,
-        1,
-    )
-    hook_bind = """
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->bind(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
-
-    .line 143
-    return-object v0"""
     if "ActivePauseSettingsHelper;->bind" not in text:
         text = text.replace(
-            "    .line 143\n    return-object v0\n.end method\n\n.method public onStart()V",
-            hook_bind + "\n.end method\n\n.method public onStart()V",
+            "    .line 141\n    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initListener()V\n\n    .line 143\n    return-object v0",
+            "    .line 141\n    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initListener()V\n\n    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->bind(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V\n\n    .line 143\n    return-object v0",
             1,
         )
+        print("EditUserProgramDataDialog.onCreateView: active-pause bind hook")
+
     return text
 
 
@@ -904,10 +900,7 @@ def main() -> int:
     COMMAND_UTIL.write_text(patch_command_util(COMMAND_UTIL.read_text(encoding="utf-8")), encoding="utf-8")
     COMMAND_SENDER.write_text(patch_command_sender(COMMAND_SENDER.read_text(encoding="utf-8")), encoding="utf-8")
     TRAIN_ITEM.write_text(patch_train_item_send_pulse(TRAIN_ITEM.read_text(encoding="utf-8")), encoding="utf-8")
-    dialog_text = DIALOG.read_text(encoding="utf-8")
-    dialog_text = patch_edit_dialog_store_root(dialog_text)
-    dialog_text = patch_edit_dialog_init_set_data(dialog_text)
-    DIALOG.write_text(dialog_text, encoding="utf-8")
+    DIALOG.write_text(patch_edit_dialog(DIALOG.read_text(encoding="utf-8")), encoding="utf-8")
     LAYOUT.write_text(patch_layout(LAYOUT.read_text(encoding="utf-8")), encoding="utf-8")
     PUBLIC_XML.write_text(patch_public_xml(PUBLIC_XML.read_text(encoding="utf-8")), encoding="utf-8")
     write_helpers()

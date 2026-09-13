@@ -258,4 +258,10 @@
     <string name="xiongbu">Гърди</string>
     <string name="yaobu">Кръст</string>
     <string name="youyangyundong">Кардио</string>
+
+    <string name="active_pause_title">Импулсна промяна (активна пауза)</string>
+    <string name="active_pause_hint">По време на паузата се изпраща импулс с отделни параметри</string>
+    <string name="active_pause_strength">Сила на пауза (%)</string>
+    <string name="active_pause_hz">Честота на пауза</string>
+
 </resources>

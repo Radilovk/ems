@@ -864,6 +864,77 @@ def patch_train_item_init(text: str) -> str:
     return text.replace(old, new, 1)
 
 
+def patch_train_item_active_pause_match_program(text: str) -> str:
+    """Read activePause fields from matchProgram() bean during sendPulse."""
+    if "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" in text.split(":cond_1")[1].split(":cond_4")[0]:
+        if "programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause" not in text.split(":cond_1")[1].split(":cond_4")[0]:
+            return text
+    old = """    :cond_1
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iget-boolean v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v1, :cond_4
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iget v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
+    new = """    :cond_1
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v2, :cond_4
+
+    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
+    if old not in text:
+        return text
+    text = text.replace(old, new, 1)
+    old2 = """    iget v7, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+
+    iget v6, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
+
+    move-object v4, v1
+
+    move v8, v2
+
+    invoke-virtual/range {v3 .. v8}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendActivePause(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZIII)V"""
+    new2 = """    iget v7, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+
+    iget v6, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
+
+    move-object v4, v1
+
+    move v8, v2
+
+    invoke-virtual/range {v3 .. v8}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendActivePause(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZIII)V"""
+    if old2 in text:
+        text = text.replace(old2, new2, 1)
+    return text
+
+
 def patch_train_item_set_program(text: str) -> str:
     section = text.split("setTrainProgram")[1].split(".method")[0]
     if "ActivePauseStorage;->apply" in section:
@@ -1050,6 +1121,7 @@ def main() -> int:
     train_item = TRAIN_ITEM.read_text(encoding="utf-8")
     train_item = patch_train_item_set_program(train_item)
     train_item = patch_train_item_init(train_item)
+    train_item = patch_train_item_active_pause_match_program(train_item)
     TRAIN_ITEM.write_text(train_item, encoding="utf-8")
 
     new_connect = NEW_CONNECT.read_text(encoding="utf-8")

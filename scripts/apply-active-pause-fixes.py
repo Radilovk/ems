@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix active-pause Hz input, persistence, and live strength response during training."""
+"""Fix active-pause Hz input and persistence (does not change training +/- or slider)."""
 
 from __future__ import annotations
 
@@ -15,9 +15,6 @@ MAIN_FRAGMENT_9 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/MainFr
 OPERATION_UTIL_1_1_1 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils/OperationUtil$1$1$1.smali"
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
-TRAIN_VIEW_HOLDER_4 = (
-    DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder$4.smali"
-)
 LAYOUT = DECOMPILED / "res/layout/edit_parameter_dialog.xml"
 PUBLIC_XML = DECOMPILED / "res/values/public.xml"
 IDS_XML = DECOMPILED / "res/values/ids.xml"
@@ -494,22 +491,6 @@ SEND_PULSE_PAUSE_NEW = """    :cond_4
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendPause(Lcom/isaigu/gymapp/bean/ProgramDataBean;I)V"""
 
-SEEKBAR_RATE_LIMIT = """    iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
-
-    sub-int v2, v0, v1
-
-    const/16 v3, 0x14
-
-    if-le v2, v3, :cond_0
-
-    add-int/lit8 v0, v1, 0x14
-
-    :cond_0
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;"""
-
-SEEKBAR_DIRECT = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;"""
-
-
 def register_pause_hz_input_id() -> None:
     public_text = PUBLIC_XML.read_text(encoding="utf-8")
     if "pauseHzInput" not in public_text:
@@ -793,54 +774,37 @@ def patch_edit_dialog_clone(text: str) -> str:
     return text.replace(marker, hook, 1)
 
 
-def patch_train_item_send_pulse(text: str) -> str:
-    if "getPartsParamsPdu" in text.split(":cond_4")[1].split(":goto_0")[0]:
-        return text
-    if SEND_PULSE_PAUSE_OLD not in text:
-        raise RuntimeError("TrainItem.sendPulse pause branch not found")
-    return text.replace(SEND_PULSE_PAUSE_OLD, SEND_PULSE_PAUSE_NEW, 1)
+def revert_training_strength_tweaks() -> None:
+    """Undo mistaken +/- step, seekbar, and pause-phase PDU changes from an earlier revision."""
+    if TRAIN_ITEM.exists():
+        text = TRAIN_ITEM.read_text(encoding="utf-8")
+        if SEND_PULSE_PAUSE_NEW.split("\n")[0] in text and SEND_PULSE_PAUSE_OLD not in text.split(":cond_4")[1].split(":goto_0")[0]:
+            text = text.replace(SEND_PULSE_PAUSE_NEW, SEND_PULSE_PAUSE_OLD, 1)
+            TRAIN_ITEM.write_text(text, encoding="utf-8")
+            print("TrainItem.sendPulse: reverted pause-phase strength PDU tweak")
 
-
-def patch_master_step(text: str) -> str:
-    old = """    const/4 v1, 0x1
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->addAllPartValue(I)V
-
-    return-void
-.end method
-
-.method public synthetic lambda$onCreateView$3$NewTrainFragment"""
-    new = """    const/4 v1, 0x5
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->addAllPartValue(I)V
-
-    return-void
-.end method
-
-.method public synthetic lambda$onCreateView$3$NewTrainFragment"""
-    if "addAllPartValue(I)V" not in text.split("lambda$onCreateView$2")[1].split("lambda$onCreateView$4")[0]:
-        if "const/4 v1, 0x5" in text:
-            return text
-        raise RuntimeError("NewTrainFragment master + step marker not found")
-    text = text.replace(old, new, 1)
-    text = text.replace(
-        """    const/4 v1, -0x1
+    if NEW_TRAIN_FRAGMENT.exists():
+        text = NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")
+        updated = text.replace(
+            """    const/4 v1, 0x5
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->addAllPartValue(I)V""",
-        """    const/4 v1, -0x5
+            """    const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->addAllPartValue(I)V""",
-        1,
-    )
-    return text
+            1,
+        ).replace(
+            """    const/4 v1, -0x5
 
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->addAllPartValue(I)V""",
+            """    const/4 v1, -0x1
 
-def patch_seekbar_strength(text: str) -> str:
-    if SEEKBAR_DIRECT in text and SEEKBAR_RATE_LIMIT not in text:
-        return text
-    if SEEKBAR_RATE_LIMIT not in text:
-        raise RuntimeError("TrainViewHolder$4 strength rate limit block not found")
-    return text.replace(SEEKBAR_RATE_LIMIT, SEEKBAR_DIRECT, 1)
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->addAllPartValue(I)V""",
+            1,
+        )
+        if updated != text:
+            NEW_TRAIN_FRAGMENT.write_text(updated, encoding="utf-8")
+            print("NewTrainFragment: reverted master +/- step to 1")
 
 
 def write_storage_files() -> None:
@@ -882,14 +846,9 @@ def main() -> int:
         patch_merge_after_load(OPERATION_UTIL_1_1_1.read_text(encoding="utf-8"), "OperationUtil$1$1$1"),
         encoding="utf-8",
     )
-    TRAIN_ITEM.write_text(patch_train_item_send_pulse(TRAIN_ITEM.read_text(encoding="utf-8")), encoding="utf-8")
-    NEW_TRAIN_FRAGMENT.write_text(patch_master_step(NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")), encoding="utf-8")
-    TRAIN_VIEW_HOLDER_4.write_text(
-        patch_seekbar_strength(TRAIN_VIEW_HOLDER_4.read_text(encoding="utf-8")),
-        encoding="utf-8",
-    )
+    revert_training_strength_tweaks()
 
-    print("Active pause fixes applied (Hz input, persistence, strength response).")
+    print("Active pause fixes applied (Hz input, persistence).")
     return 0
 
 

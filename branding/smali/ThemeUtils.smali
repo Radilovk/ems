@@ -134,6 +134,8 @@
 
     const-string v2, "dark_mode"
 
+    const/4 v1, 0x1
+
     invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
 
     move-result v0

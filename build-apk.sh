@@ -44,6 +44,8 @@ python3 "${ROOT}/scripts/apply-avatar-timer.py"
 python3 "${ROOT}/scripts/apply-hz-controls.py"
 python3 "${ROOT}/scripts/apply-active-pause.py"
 python3 "${ROOT}/scripts/apply-ramp-limits.py"
+python3 "${ROOT}/scripts/apply-settings-cleanup.py"
+python3 "${ROOT}/scripts/apply-calendar-timezone.py"
 python3 "${ROOT}/scripts/apply-theme-toggle.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 

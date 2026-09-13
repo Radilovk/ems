@@ -108,6 +108,22 @@ def copy_theme_resources() -> None:
             print(f"copied drawable-night {src.name}")
 
 
+def remove_duplicate_theme_resource_files() -> None:
+    pairs = (
+        (DECOMPILED / "res" / "values" / "colors.xml", 'name="accent_primary"', DECOMPILED / "res" / "values" / "ui_colors.xml"),
+        (DECOMPILED / "res" / "values" / "dimens.xml", 'name="ui_card_corner"', DECOMPILED / "res" / "values" / "ui_dimens.xml"),
+        (
+            DECOMPILED / "res" / "values-night" / "colors.xml",
+            'name="bg_screen"',
+            DECOMPILED / "res" / "values-night" / "ui_colors.xml",
+        ),
+    )
+    for merged_path, marker, duplicate_path in pairs:
+        if merged_path.exists() and duplicate_path.exists() and marker in merged_path.read_text(encoding="utf-8"):
+            duplicate_path.unlink()
+            print(f"removed duplicate {duplicate_path.relative_to(DECOMPILED)} (already in {merged_path.name})")
+
+
 def patch_app_theme() -> None:
     styles_path = DECOMPILED / "res" / "values" / "styles.xml"
     text = styles_path.read_text(encoding="utf-8")
@@ -568,6 +584,7 @@ def patch_ui_strings() -> None:
 
 def main() -> None:
     copy_theme_resources()
+    remove_duplicate_theme_resource_files()
     patch_app_theme()
     patch_version_name()
     copy_branding_layouts()

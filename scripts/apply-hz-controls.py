@@ -47,12 +47,59 @@ AVATAR_NEW = """<RelativeLayout android:layout_width="0.0dip" android:layout_hei
             <ImageView android:id="@id/userIcon" android:padding="15.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="1.0dip" android:src="@mipmap/icon_sample" />
             <TextView android:textColor="@color/text_primary" android:textSize="45.0sp" android:textStyle="bold" android:id="@id/wave_ball_progress_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" />
             <com.isaigu.gymapp.widget.WaveBallProgress android:id="@id/wave_ball_progress_act_view" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" android:layout_centerInParent="true" />
-            <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_alignLeft="@id/circleSeekBar" android:layout_alignBottom="@id/circleSeekBar" android:layout_marginLeft="10.0dip" android:layout_marginBottom="10.0dip" />
-            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzAdd" android:background="@drawable/ui_hz_button_bg" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_alignParentRight="true" android:layout_marginTop="10.0dip" android:gravity="center" android:text="+" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
-            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzMinus" android:background="@drawable/ui_hz_button_bg" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" android:gravity="center" android:text="-" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
-            <TextView android:id="@id/hzValue" android:background="@drawable/ui_hz_value_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_centerVertical="true" android:layout_marginRight="2.0dip" android:gravity="center" android:paddingLeft="5.0dip" android:paddingRight="5.0dip" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:text="80" android:textColor="@color/impulse_accent" android:textSize="10.0sp" android:textStyle="bold" />
+            <TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" android:gravity="center" android:id="@id/hzValue" android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" android:text="80Hz" />
+            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzAdd" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignTop="@id/circleSeekBar" android:layout_alignRight="@id/circleSeekBar" android:layout_marginTop="10.0dip" android:layout_marginRight="0.0dip" android:gravity="center" android:text="+" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
+            <com.isaigu.gymapp.widget.MyButton android:id="@id/hzMinus" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignBottom="@id/circleSeekBar" android:layout_alignRight="@id/circleSeekBar" android:layout_marginBottom="10.0dip" android:layout_marginRight="0.0dip" android:gravity="center" android:text="-" android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" />
             <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/circleSeekBar" android:paddingLeft="14.0dip" android:paddingTop="14.0dip" android:paddingRight="14.0dip" android:paddingBottom="10.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="2.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="18.0dip" app:wheel_reached_width="14.0dip" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="14.0dip" />
         </RelativeLayout>"""
+
+USER_INFO_OLD = re.compile(
+    r"<RelativeLayout android:gravity=\"center_vertical\" android:layout_width=\"fill_parent\" "
+    r"android:layout_height=\"wrap_content\">"
+    r"\s*<TextView[^>]*android:id=\"@id/name\"[^>]*/>\s*"
+    r"<TextView[^>]*android:id=\"@id/address\"[^>]*/>\s*"
+    r"</RelativeLayout>\s*"
+    r"<RelativeLayout android:layout_width=\"fill_parent\" android:layout_height=\"wrap_content\" "
+    r"android:layout_marginLeft=\"10\.0dip\">"
+    r"\s*<TextView[^>]*android:id=\"@id/time\"[^>]*/>\s*"
+    r"<ImageView[^>]*android:id=\"@id/signalImage\"[^>]*/>\s*"
+    r"<RelativeLayout android:layout_width=\"wrap_content\" android:layout_height=\"wrap_content\"[^>]*>"
+    r"[\s\S]*?</RelativeLayout>\s*"
+    r"</RelativeLayout>",
+)
+
+USER_INFO_PATCHED = re.compile(
+    r"<RelativeLayout android:layout_width=\"fill_parent\" android:layout_height=\"wrap_content\" "
+    r"android:layout_marginLeft=\"10\.0dip\" android:layout_marginRight=\"4\.0dip\">"
+    r"[\s\S]*?@drawable/ui_status_icon_bg[\s\S]*?@id/setting[\s\S]*?</RelativeLayout>",
+)
+
+USER_INFO_BROKEN = re.compile(
+    r"(@drawable/ui_status_icon_bg[\s\S]*?</FrameLayout>\s*</LinearLayout>\s*</RelativeLayout>)\s*</RelativeLayout>\s*"
+    r"(<RelativeLayout android:layout_width=\"wrap_content\" android:layout_height=\"wrap_content\" "
+    r"android:layout_marginLeft=\"10\.0dip\">\s*<com\.isaigu\.gymapp\.widget\.AmountView2 "
+    r"android:id=\"@id/paulsecontinue\")",
+)
+
+
+def user_info_new(name_size: str, time_size: str) -> str:
+    return f"""<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginRight="4.0dip">
+                <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_centerVertical="true">
+                    <TextView android:textColor="@color/text_primary" android:textSize="{name_size}" android:gravity="center|left" android:id="@id/name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="张先生" />
+                    <TextView android:textSize="{time_size}" android:textColor="@color/text_primary" android:id="@id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="20:00" />
+                </LinearLayout>
+                <TextView android:textColor="@color/text_primary" android:textSize="12.0sp" android:gravity="center|left" android:id="@id/address" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5.0dip" android:text="张先生" />
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_centerVertical="true">
+                    <ImageView android:id="@id/signalImage" android:background="@drawable/ui_status_icon_bg" android:src="@mipmap/signal" android:scaleType="fitCenter" android:padding="5.0dip" android:layout_width="28.0dip" android:layout_height="28.0dip" />
+                    <RelativeLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="4.0dip">
+                        <com.isaigu.gymapp.widget.BatterView android:id="@id/MyBatterView" android:layout_width="14.0dip" android:layout_height="22.0dip" android:layout_centerInParent="true" app:batteryTextSize="15.0sp" app:mCapWidth="3.0dip" app:showText="false" />
+                        <TextView android:textSize="8.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/batteryValueTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100" android:layout_centerInParent="true" android:rotation="90.0" />
+                    </RelativeLayout>
+                    <FrameLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="4.0dip">
+                        <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="18.0dip" android:layout_height="18.0dip" android:layout_gravity="center" />
+                    </FrameLayout>
+                </LinearLayout>
+            </RelativeLayout>"""
 
 ADD_HZ_METHOD = """
 .method public addHz(I)V
@@ -191,7 +238,7 @@ def update_hz_display_smali(hz_value_id: int) -> str:
 
     invoke-virtual {{v2, v1}}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    const-string v1, " Hz"
+    const-string v1, "Hz"
 
     invoke-virtual {{v2, v1}}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -402,18 +449,39 @@ def patch_layouts() -> None:
             if not path.exists():
                 continue
             text = path.read_text(encoding="utf-8")
-            if (
-                'android:layout_alignParentRight="true" android:layout_marginTop="10.0dip"' in text
-                and "@drawable/ui_hz_button_bg" in text
-                and text.find("@id/circleSeekBar") > text.find("@id/hzMinus")
-            ):
-                print(f"{layout_dir}/{name}: Hz controls already tucked under ring")
-                continue
-            if not AVATAR_BLOCK.search(text):
-                raise RuntimeError(f"avatar block not found in {layout_dir}/{name}")
-            text = AVATAR_BLOCK.sub(AVATAR_NEW, text, count=1)
+            hz_value_chunk = text.split("@id/hzValue", 1)[1][:400] if "@id/hzValue" in text else ""
+            avatar_done = (
+                "@id/hzAdd" in text
+                and "@id/setting" not in text.split("@id/circleSeekBar", 1)[0]
+                and 'android:layout_alignParentBottom="true"' in hz_value_chunk
+            )
+            if not avatar_done:
+                if AVATAR_BLOCK.search(text):
+                    text = AVATAR_BLOCK.sub(AVATAR_NEW, text, count=1)
+                    print(f"patched {layout_dir}/{name} avatar area")
+                elif "@id/hzAdd" not in text:
+                    raise RuntimeError(f"avatar block not found in {layout_dir}/{name}")
+            else:
+                print(f"{layout_dir}/{name}: avatar area already updated")
+
+            user_info_updated = False
+            if USER_INFO_BROKEN.search(text):
+                text = USER_INFO_BROKEN.sub(r"\1\n            \2", text, count=1)
+                print(f"fixed {layout_dir}/{name} user status row markup")
+
+            if USER_INFO_PATCHED.search(text):
+                print(f"{layout_dir}/{name}: user status row already updated")
+                user_info_updated = True
+            elif USER_INFO_OLD.search(text):
+                name_size = "14.0sp" if name.startswith("new_") else "16.0sp"
+                time_size = "18.0sp" if name.startswith("new_") else "28.0sp"
+                text = USER_INFO_OLD.sub(user_info_new(name_size, time_size), text, count=1)
+                print(f"patched {layout_dir}/{name} user status row")
+                user_info_updated = True
+            elif "@drawable/ui_status_icon_bg" not in text:
+                raise RuntimeError(f"user info block not found in {layout_dir}/{name}")
+
             path.write_text(text, encoding="utf-8")
-            print(f"patched {layout_dir}/{name} with inset Hz controls")
 
 
 def patch_train_item() -> None:
@@ -497,7 +565,7 @@ def write_listeners() -> None:
 
 def main() -> None:
     ids = register_ids()
-    for drawable in ("ui_hz_button_bg", "ui_hz_value_bg"):
+    for drawable in ("ui_hz_button_bg", "ui_hz_value_bg", "ui_status_icon_bg"):
         register_drawable(drawable)
     patch_layouts()
     patch_train_item()

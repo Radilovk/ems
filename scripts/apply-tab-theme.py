@@ -116,7 +116,11 @@ CHANGE_PAGE_LOCALS_NEW = """.method public changePageSelect(I)V
 def patch_main_fragment() -> None:
     text = MAIN_FRAGMENT.read_text(encoding="utf-8")
 
-    if UNSELECTED_ICON_TINT_DARK in text:
+    if UNSELECTED_ICON_TINT_DARK in text or (
+        "imageUnselect:[I" in text
+        and "ThemeUtils;->isDarkMode" in text
+        and "setColorFilter(ILandroid/graphics/PorterDuff$Mode;)V" in text
+    ):
         print("MainFragment tab icon tint: already patched (dark-only)")
         return
 

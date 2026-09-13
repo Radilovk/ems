@@ -113,7 +113,7 @@ HELPER_SMALI = """.class public Lcom/isaigu/gymapp/train/utils/SoftwareRampHelpe
 .end method
 
 .method private static finishRamp()V
-    .locals 8
+    .locals 12
 
     const/4 v0, 0x0
 
@@ -137,52 +137,62 @@ HELPER_SMALI = """.class public Lcom/isaigu/gymapp/train/utils/SoftwareRampHelpe
     :cond_1
     sget-object v4, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
+    if-nez v4, :cond_has_bean
+
+    return-void
+
+    :cond_has_bean
     sget v5, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampWorkLength:I
 
     iget-object v6, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
 
-    const/4 v7, 0x2
+    if-nez v6, :cond_has_sender
 
-    if-ne v2, v7, :cond_2
+    return-void
+
+    :cond_has_sender
+    const/4 v3, 0x2
+
+    if-ne v2, v3, :cond_2
 
     invoke-virtual {v6, v4, v5}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendPause(Lcom/isaigu/gymapp/bean/ProgramDataBean;I)V
 
     return-void
 
     :cond_2
-    const/4 v7, 0x3
+    const/4 v3, 0x3
 
-    if-ne v2, v7, :cond_3
+    if-ne v2, v3, :cond_3
 
-    iget v2, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    iget v0, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    sget v7, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampPausePercent:I
+    sget v2, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampPausePercent:I
 
-    mul-int v2, v2, v7
+    mul-int v0, v0, v2
 
-    div-int/lit8 v2, v2, 0x64
+    div-int/lit8 v0, v0, 0x64
 
-    if-gez v2, :cond_4
+    if-gez v0, :cond_4
 
-    const/4 v2, 0x0
+    const/4 v0, 0x0
 
     :cond_4
-    const/16 v7, 0x96
-
-    if-le v2, v7, :cond_5
-
     const/16 v2, 0x96
 
+    if-le v0, v2, :cond_5
+
+    const/16 v0, 0x96
+
     :cond_5
-    move-object v7, v4
-
     iget-object v8, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
-
-    move v9, v5
 
     sget v10, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampPauseHz:I
 
-    move v11, v2
+    move-object v7, v4
+
+    move v9, v5
+
+    move v11, v0
 
     invoke-virtual/range {v6 .. v11}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendActivePause(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZIII)V
 
@@ -203,11 +213,16 @@ HELPER_SMALI = """.class public Lcom/isaigu/gymapp/train/utils/SoftwareRampHelpe
     return v1
 
     :cond_0
+    const/4 v3, 0x0
+
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z
+    if-nez v0, :cond_data
 
-    const/4 v3, 0x0
+    return v3
+
+    :cond_data
+    iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z
 
     if-nez v2, :cond_1
 
@@ -252,6 +267,18 @@ HELPER_SMALI = """.class public Lcom/isaigu/gymapp/train/utils/SoftwareRampHelpe
     :cond_5
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
 
+    if-nez v0, :cond_sender
+
+    return v3
+
+    :cond_sender
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
+
+    if-nez v5, :cond_parts
+
+    return v3
+
+    :cond_parts
     invoke-static {v2, v4, v1}, Lcom/isaigu/gymapp/train/utils/CommandUtil;->getWorkParamsPdu(Lcom/isaigu/gymapp/bean/ProgramDataBean;IZ)[B
 
     move-result-object v3
@@ -311,7 +338,26 @@ HELPER_SMALI = """.class public Lcom/isaigu/gymapp/train/utils/SoftwareRampHelpe
 
     sget-object v1, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampItem:Lcom/isaigu/gymapp/train/model/TrainItem;
 
+    if-nez v1, :cond_item
+
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->ramping:Z
+
+    return-void
+
+    :cond_item
     sget-object v2, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    if-nez v2, :cond_bean
+
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->ramping:Z
+
+    return-void
+
+    :cond_bean
 
     sget v3, Lcom/isaigu/gymapp/train/utils/SoftwareRampHelper;->rampMode:I
 
@@ -351,15 +397,21 @@ HELPER_SMALI = """.class public Lcom/isaigu/gymapp/train/utils/SoftwareRampHelpe
     :cond_2
     iget-object v4, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
 
+    iget-object v6, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
+
+    if-eqz v4, :cond_send
+
+    if-eqz v6, :cond_send
+
     invoke-static {v2, v4, v3}, Lcom/isaigu/gymapp/train/utils/CommandUtil;->getPartsParamsPduWithStrength(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B
 
     move-result-object v3
 
-    iget-object v4, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
-
     const/4 v7, 0x1
 
-    invoke-virtual {v4, v7, v3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendCommend(B[B)V
+    invoke-virtual {v6, v7, v3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendCommend(B[B)V
+
+    :cond_send
 
     if-lt v0, v5, :cond_3
 

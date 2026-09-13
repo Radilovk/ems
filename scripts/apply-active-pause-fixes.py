@@ -779,24 +779,52 @@ def patch_after_clone_program_list(text: str, fragment_class: str, label: str) -
     return text.replace(old, new)
 
 
+def _private_method_body(text: str, name: str) -> str | None:
+    sig = f".method private {name}"
+    start = text.find(sig)
+    if start < 0:
+        return None
+    end = text.find(".end method", start)
+    return text[start:end] if end >= 0 else None
+
+
 def patch_update_selected_program(text: str, class_name: str, label: str) -> str:
-    if "ActivePauseStorage;->apply" in text.split("updateSelectedProgram")[1].split(".method")[0]:
+    body = _private_method_body(
+        text, "updateSelectedProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)V"
+    )
+    if body is None:
+        raise RuntimeError(f"{label}: updateSelectedProgram method not found")
+    if "ActivePauseStorage;->apply" in body:
         return text
-    old = f"""    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/{class_name};->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    .line 597"""
-    new = f"""    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/{class_name};->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    invoke-static {{p1}}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
-
-    .line 597"""
-    if old not in text:
+    iput = (
+        f"    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/{class_name};"
+        "->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;\n\n"
+    )
+    hook = (
+        "    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;"
+        "->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V\n\n"
+    )
+    if iput not in text:
         raise RuntimeError(f"{label}: updateSelectedProgram marker not found")
-    return text.replace(old, new, 1)
+    return text.replace(iput, iput + hook, 1)
+
+
+def _public_method_body(text: str, name: str) -> str | None:
+    sig = f".method public {name}"
+    start = text.find(sig)
+    if start < 0:
+        return None
+    end = text.find(".end method", start)
+    return text[start:end] if end >= 0 else None
 
 
 def patch_on_device_connected(text: str, class_name: str, label: str) -> str:
-    if "ActivePauseStorage;->apply" in text.split("onDeviceConnected(Lcom/isaigu/gymapp/train/events/DeviceConnectedEvent;")[1][:1200]:
+    body = _public_method_body(
+        text, "onDeviceConnected(Lcom/isaigu/gymapp/train/events/DeviceConnectedEvent;)V"
+    )
+    if body is None:
+        return text
+    if "ActivePauseStorage;->apply" in body:
         return text
     old = f"""    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/{class_name};->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;
 

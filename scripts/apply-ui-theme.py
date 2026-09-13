@@ -162,14 +162,14 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.29-xems-pro",
+        "versionName: 1.0.30-xems-pro",
         text,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionName -> 1.0.29-xems-pro")
+    print("patched versionName -> 1.0.30-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -503,6 +503,10 @@ def copy_layout_night() -> None:
             continue
         text = src.read_text(encoding="utf-8")
         for old, new in replacements:
+            if old not in text:
+                continue
+            if '@id/ma"' in old and "ui_ma_text_size" in text:
+                continue
             text = text.replace(old, new)
         dest = layout_night_dest / name
         dest.write_text(text, encoding="utf-8")

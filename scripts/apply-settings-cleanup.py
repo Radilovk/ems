@@ -139,6 +139,8 @@ SWITCH_TO_LANGUAGE = """.method private switchToLanguage(Ljava/lang/String;Z)V
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setBackgroundResource(I)V
 
     :goto_apply
+    if-nez p2, :cond_done
+
     invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/SettingFragment;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
     move-result-object v0
@@ -181,13 +183,14 @@ SWITCH_TO_LANGUAGE = """.method private switchToLanguage(Ljava/lang/String;Z)V
 
     invoke-static {v0}, Lcom/isaigu/gymapp/utils/LanguageUtils;->applyChange(Landroid/app/Activity;)V
 
+    :cond_done
     return-void
 .end method"""
 
 
-def replace_method(path: Path, signature: str, replacement: str) -> None:
+def replace_method(path: Path, signature: str, replacement: str, force: bool = False) -> None:
     text = path.read_text(encoding="utf-8")
-    if replacement in text:
+    if not force and replacement in text:
         return
     pattern = rf"\.method {signature}\n.*?\.end method"
     match = re.search(pattern, text, flags=re.DOTALL)
@@ -272,7 +275,12 @@ def main() -> int:
         r"public onCreateView\(Landroid/view/LayoutInflater;Landroid/view/ViewGroup;Landroid/os/Bundle;\)Landroid/view/View;",
         ON_CREATE_VIEW,
     )
-    replace_method(SETTING_FRAGMENT, r"private switchToLanguage\(Ljava/lang/String;Z\)V", SWITCH_TO_LANGUAGE)
+    replace_method(
+        SETTING_FRAGMENT,
+        r"private switchToLanguage\(Ljava/lang/String;Z\)V",
+        SWITCH_TO_LANGUAGE,
+        force="if-nez p2, :cond_done" not in SETTING_FRAGMENT.read_text(encoding="utf-8"),
+    )
     patch_defaults()
     patch_ramp_unit_labels()
     print("Settings cleanup applied")

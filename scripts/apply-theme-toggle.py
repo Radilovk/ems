@@ -61,19 +61,8 @@ def cleanup_setting_fragment() -> None:
 
 
 def patch_base_activity() -> None:
-    path = SMALI_DIR / "BaseActivity.smali"
-    text = path.read_text(encoding="utf-8")
-    marker = "invoke-super {p0, p1}, Landroid/support/v7/app/AppCompatActivity;->onCreate(Landroid/os/Bundle;)V"
-    inject = (
-        "    invoke-static {p0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->applyStoredNightMode(Landroid/content/Context;)V\n\n"
-        f"    {marker}"
-    )
-    if "ThemeUtils;->applyStoredNightMode" not in text:
-        if marker not in text:
-            raise RuntimeError("BaseActivity.onCreate marker not found")
-        text = text.replace(marker, inject, 1)
-        path.write_text(text, encoding="utf-8")
-        print("patched BaseActivity.onCreate")
+    # Night mode is applied in CrashApplication.onCreate (see apply-startup-fix.py).
+    print("BaseActivity theme init handled by CrashApplication")
 
 
 def patch_setting_fragment_bind() -> None:

@@ -47,6 +47,7 @@ python3 "${ROOT}/scripts/apply-ramp-limits.py"
 python3 "${ROOT}/scripts/apply-settings-cleanup.py"
 python3 "${ROOT}/scripts/apply-calendar-timezone.py"
 python3 "${ROOT}/scripts/apply-theme-toggle.py"
+python3 "${ROOT}/scripts/apply-startup-fix.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"

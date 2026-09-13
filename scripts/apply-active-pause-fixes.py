@@ -16,6 +16,8 @@ MAIN_FRAGMENT_9 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/MainFr
 OPERATION_UTIL_1_1_1 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils/OperationUtil$1$1$1.smali"
 OPERATION_UTIL_1_2_1 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils/OperationUtil$1$2$1.smali"
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
+NEW_CONNECT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment.smali"
+LEGACY_CONNECT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment.smali"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 LAYOUT = DECOMPILED / "res/layout/edit_parameter_dialog.xml"
 PUBLIC_XML = DECOMPILED / "res/values/public.xml"
@@ -131,6 +133,8 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
 
     if-eqz v1, :cond_found
 
+    goto :cond_loop
+
     :cond_try_name
     iget-object v1, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->name:Ljava/lang/String;
 
@@ -204,8 +208,36 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     return-void
 .end method
 
+.method private static applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+    .locals 1
+
+    if-nez p0, :cond_0
+
+    return-void
+
+    :cond_0
+    if-nez p1, :cond_1
+
+    return-void
+
+    :cond_1
+    iget-boolean v0, p1, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->activePause:Z
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    iget v0, p1, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->pauseHz:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+
+    iget v0, p1, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->pauseStrenthPercent:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    return-void
+.end method
+
 .method public static apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
-    .locals 3
+    .locals 2
 
     if-nez p0, :cond_0
 
@@ -227,22 +259,19 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     :cond_1
     iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    if-nez v1, :cond_2
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
 
-    return-void
+    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    :cond_2
-    iget-boolean v2, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->activePause:Z
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
 
-    iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    iget v2, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->pauseHz:I
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
 
-    iput v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    iget v0, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->pauseStrenthPercent:I
-
-    iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
 
     return-void
 .end method
@@ -733,6 +762,80 @@ def patch_data_mgr(text: str) -> str:
     return text.replace(marker, hook, 1)
 
 
+def patch_after_clone_program_list(text: str, fragment_class: str, label: str) -> str:
+    if f"programDatas:Ljava/util/List;\n\n    invoke-static {{v1}}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList" in text:
+        return text
+    old = (
+        f"    iput-object v1, p0, Lcom/isaigu/gymapp/dialog/{fragment_class};"
+        "->programDatas:Ljava/util/List;\n"
+    )
+    new = (
+        old
+        + "\n    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;"
+        "->mergeList(Ljava/util/List;)V\n"
+    )
+    if old not in text:
+        raise RuntimeError(f"{label}: programDatas clone marker not found")
+    return text.replace(old, new)
+
+
+def patch_update_selected_program(text: str, class_name: str, label: str) -> str:
+    if "ActivePauseStorage;->apply" in text.split("updateSelectedProgram")[1].split(".method")[0]:
+        return text
+    old = f"""    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/{class_name};->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    .line 597"""
+    new = f"""    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/{class_name};->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {{p1}}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    .line 597"""
+    if old not in text:
+        raise RuntimeError(f"{label}: updateSelectedProgram marker not found")
+    return text.replace(old, new, 1)
+
+
+def patch_on_device_connected(text: str, class_name: str, label: str) -> str:
+    if "ActivePauseStorage;->apply" in text.split("onDeviceConnected(Lcom/isaigu/gymapp/train/events/DeviceConnectedEvent;")[1][:1200]:
+        return text
+    old = f"""    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/{class_name};->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;"""
+    new = f"""    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/{class_name};->selectedDataBean:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {{v1}}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;"""
+    if old not in text:
+        raise RuntimeError(f"{label}: onDeviceConnected marker not found")
+    return text.replace(old, new, 1)
+
+
+def patch_train_item_init(text: str) -> str:
+    if "ActivePauseStorage;->apply" in text.split(".method public init")[1].split(".method")[0]:
+        return text
+    old = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendStop()V
+
+    .line 56
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->reset()V"""
+    new = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendStop()V
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_ap_init
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    :cond_ap_init
+    .line 56
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->reset()V"""
+    if old not in text:
+        raise RuntimeError("TrainItem.init active pause hook marker not found")
+    return text.replace(old, new, 1)
+
+
 def patch_train_item_set_program(text: str) -> str:
     section = text.split("setTrainProgram")[1].split(".method")[0]
     if "ActivePauseStorage;->apply" in section:
@@ -916,8 +1019,39 @@ def main() -> int:
         patch_main_fragment_startup_load(MAIN_FRAGMENT.read_text(encoding="utf-8")),
         encoding="utf-8",
     )
-    train_item = patch_train_item_set_program(TRAIN_ITEM.read_text(encoding="utf-8"))
+    train_item = TRAIN_ITEM.read_text(encoding="utf-8")
+    train_item = patch_train_item_set_program(train_item)
+    train_item = patch_train_item_init(train_item)
     TRAIN_ITEM.write_text(train_item, encoding="utf-8")
+
+    new_connect = NEW_CONNECT.read_text(encoding="utf-8")
+    new_connect = patch_after_clone_program_list(
+        new_connect, "NewUserProgramDeviceConnectDialogFragment", "NewConnect programDatas"
+    )
+    new_connect = patch_update_selected_program(
+        new_connect, "NewUserProgramDeviceConnectDialogFragment", "NewConnect updateSelectedProgram"
+    )
+    new_connect = patch_on_device_connected(
+        new_connect, "NewUserProgramDeviceConnectDialogFragment", "NewConnect onDeviceConnected"
+    )
+    NEW_CONNECT.write_text(new_connect, encoding="utf-8")
+
+    if LEGACY_CONNECT.exists():
+        legacy = LEGACY_CONNECT.read_text(encoding="utf-8")
+        try:
+            legacy = patch_after_clone_program_list(
+                legacy, "UserProgramDeviceConnectDialogFragment", "LegacyConnect programDatas"
+            )
+            legacy = patch_update_selected_program(
+                legacy, "UserProgramDeviceConnectDialogFragment", "LegacyConnect updateSelectedProgram"
+            )
+            legacy = patch_on_device_connected(
+                legacy, "UserProgramDeviceConnectDialogFragment", "LegacyConnect onDeviceConnected"
+            )
+            LEGACY_CONNECT.write_text(legacy, encoding="utf-8")
+        except RuntimeError:
+            pass
+
     revert_training_strength_tweaks()
 
     print("Active pause fixes applied (Hz input, persistence, training load hooks).")

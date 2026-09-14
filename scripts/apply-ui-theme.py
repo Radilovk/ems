@@ -177,6 +177,11 @@ def patch_version_name() -> None:
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
+    release_version = ROOT / "RELEASE_VERSION"
+    release_version.write_text(
+        "versionName=1.0.43-xems-pro\nversionCode=12\n",
+        encoding="utf-8",
+    )
     print("patched versionCode -> 12, versionName -> 1.0.43-xems-pro")
 
 

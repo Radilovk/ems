@@ -58,4 +58,39 @@ java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.ap
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign
 cp "${ROOT}/build/signed/unsigned-aligned-debugSigned.apk" "${OUT_APK}"
 
-echo "Built: ${OUT_APK}"
+VERSION_NAME=""
+VERSION_CODE=""
+if [[ -f "${DECOMPILED}/apktool.yml" ]]; then
+  VERSION_NAME="$(grep '^  versionName:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionName: //')"
+  VERSION_CODE="$(grep '^  versionCode:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionCode: //')"
+  cat > "${ROOT}/RELEASE_VERSION" <<EOF
+versionName=${VERSION_NAME}
+versionCode=${VERSION_CODE}
+builtAt=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+fi
+
+echo ""
+echo "=============================================="
+echo "  Built: ${OUT_APK}"
+echo "  Version: ${VERSION_NAME} (code ${VERSION_CODE})"
+echo "=============================================="
+
+if git rev-parse --git-dir >/dev/null 2>&1; then
+  apk_dirty=0
+  version_dirty=0
+  if ! git diff --quiet -- "${OUT_APK}" 2>/dev/null || ! git diff --cached --quiet -- "${OUT_APK}" 2>/dev/null; then
+    apk_dirty=1
+  fi
+  if ! git diff --quiet -- "${ROOT}/RELEASE_VERSION" 2>/dev/null || ! git diff --cached --quiet -- "${ROOT}/RELEASE_VERSION" 2>/dev/null; then
+    version_dirty=1
+  fi
+  if [[ "${apk_dirty}" -eq 1 || "${version_dirty}" -eq 1 ]]; then
+    echo ""
+    echo "ERROR: Built APK is not committed. Users cannot download the new version until you:"
+    echo "  git add xems27.apk RELEASE_VERSION"
+    echo "  git commit -m \"Build ${VERSION_NAME}\""
+    echo "  git push"
+    exit 1
+  fi
+fi

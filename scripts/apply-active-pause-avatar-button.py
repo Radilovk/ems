@@ -65,7 +65,7 @@ PAUSE_MA_VALUE_VIEW = (
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" '
     'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
     'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_marginTop="10.0dip" android:text="64%" />'
+    'android:layout_marginTop="-2.0dip" android:layout_marginRight="-6.0dip" android:text="0%" />'
 )
 
 PAUSE_HZ_VALUE_VIEW = (
@@ -73,7 +73,44 @@ PAUSE_HZ_VALUE_VIEW = (
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" '
     'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
     'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" android:text="50Hz" />'
+    'android:layout_alignParentBottom="true" android:layout_marginBottom="-2.0dip" '
+    'android:layout_marginRight="-6.0dip" android:text="7Hz" />'
+)
+
+AVATAR_INDEX_OUTWARD_REPLACEMENTS = (
+    (
+        'android:id="@id/ma" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_marginTop="10.0dip"',
+        'android:id="@id/ma" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" '
+        'android:layout_alignParentLeft="true" android:layout_marginTop="-2.0dip" android:layout_marginLeft="-6.0dip"',
+    ),
+    (
+        'android:id="@id/hzValue" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" '
+        'android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip"',
+        'android:id="@id/hzValue" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" '
+        'android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" '
+        'android:layout_marginBottom="-2.0dip" android:layout_marginLeft="-6.0dip"',
+    ),
+    (
+        'android:id="@id/pauseMaValue" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignParentRight="true" '
+        'android:layout_marginTop="10.0dip"',
+        'android:id="@id/pauseMaValue" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignParentRight="true" '
+        'android:layout_marginTop="-2.0dip" android:layout_marginRight="-6.0dip"',
+    ),
+    (
+        'android:id="@id/pauseHzValue" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignParentRight="true" '
+        'android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip"',
+        'android:id="@id/pauseHzValue" android:background="@drawable/light_black_button_drawable_r30" '
+        'android:layout_width="50.0dip" android:layout_height="50.0dip" android:layout_alignParentRight="true" '
+        'android:layout_alignParentBottom="true" android:layout_marginBottom="-2.0dip" '
+        'android:layout_marginRight="-6.0dip"',
+    ),
 )
 
 ADD_PAUSE_HZ_METHOD = """
@@ -1374,6 +1411,25 @@ def ensure_yellow_drawable() -> int:
     return resource_id
 
 
+def patch_avatar_button_outward() -> None:
+    for layout_dir in ("layout", "layout-night"):
+        for name in ("new_user_train_control_item_layout.xml", "user_train_control_item_layout.xml"):
+            path = DECOMPILED / "res" / layout_dir / name
+            if not path.exists():
+                continue
+            text = path.read_text(encoding="utf-8")
+            changed = False
+            for old, new in AVATAR_INDEX_OUTWARD_REPLACEMENTS:
+                if old in text and new not in text:
+                    text = text.replace(old, new, 1)
+                    changed = True
+            if changed:
+                path.write_text(text, encoding="utf-8")
+                print(f"patched {layout_dir}/{name}: moved avatar index buttons outward")
+            else:
+                print(f"{layout_dir}/{name}: avatar index buttons already outward")
+
+
 def patch_layouts() -> None:
     ma_close = re.compile(r'(<TextView[^>]*android:id="@id/ma"[^>]*/>)')
     hz_close = re.compile(r'(<TextView[^>]*android:id="@id/hzValue"[^>]*/>)')
@@ -1905,6 +1961,7 @@ def main() -> None:
     ensure_green_drawable()
     yellow_bg = ensure_yellow_drawable()
     patch_layouts()
+    patch_avatar_button_outward()
     patch_train_item()
     patch_train_view_holder(pause_ma_id, pause_hz_id, yellow_bg)
     patch_hz_listener()

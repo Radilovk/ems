@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Training screen UX polish: header layout, timer, impulse/pause controls, slider artifacts."""
+"""Training screen UX: header chips, timer label, impulse/pause layout, slider fix."""
 
 from __future__ import annotations
 
@@ -19,13 +19,29 @@ ROW_LAYOUTS = (
     "user_train_control_item_layout.xml",
 )
 
-USER_INFO_PATCHED = re.compile(
+HEADER_BLOCK = re.compile(
     r"<RelativeLayout android:layout_width=\"fill_parent\" android:layout_height=\"wrap_content\" "
-    r"android:layout_marginLeft=\"10\.0dip\" android:layout_marginRight=\"4\.0dip\">"
-    r"[\s\S]*?@drawable/ui_status_icon_bg[\s\S]*?@id/setting[\s\S]*?</RelativeLayout>",
+    r"android:layout_marginLeft=\"10\.0dip\" android:layout_marginRight=\"4\.0dip\">[\s\S]*?"
+    r"@id/setting[\s\S]*?</RelativeLayout>\s*",
 )
 
-FORMAT_TIME_OLD = """.method public static formatTime(I)Ljava/lang/String;
+PULSE_CONTINUE_BLOCK = re.compile(
+    r"<(?:RelativeLayout|LinearLayout) android:[^>]*>\s*"
+    r"(?:<TextView[^>]*@string/paulsecontinue[^>]*/>\s*)?"
+    r"<com\.isaigu\.gymapp\.widget\.AmountView2 android:id=\"@id/paulsecontinue\"[^/]*/>\s*"
+    r"(?:<TextView[^>]*@string/paulsecontinue[^>]*/>\s*)?"
+    r"</(?:RelativeLayout|LinearLayout)>\s*",
+)
+
+PULSE_STOP_BLOCK = re.compile(
+    r"<(?:RelativeLayout|LinearLayout) android:[^>]*>\s*"
+    r"(?:<TextView[^>]*@string/paulsestop[^>]*/>\s*)?"
+    r"<com\.isaigu\.gymapp\.widget\.AmountView2 android:id=\"@id/paulsestop\"[^/]*/>\s*"
+    r"(?:<TextView[^>]*@string/paulsestop[^>]*/>\s*)?"
+    r"</(?:RelativeLayout|LinearLayout)>\s*",
+)
+
+FORMAT_TIME_MMSS = """.method public static formatTime(I)Ljava/lang/String;
     .locals 6
     .param p0, "second"    # I
 
@@ -87,7 +103,7 @@ FORMAT_TIME_OLD = """.method public static formatTime(I)Ljava/lang/String;
     return-object v3
 .end method"""
 
-FORMAT_TIME_NEW = """.method public static formatTime(I)Ljava/lang/String;
+FORMAT_TIME_MINUTES = """.method public static formatTime(I)Ljava/lang/String;
     .locals 2
     .param p0, "second"    # I
 
@@ -113,143 +129,192 @@ FORMAT_TIME_NEW = """.method public static formatTime(I)Ljava/lang/String;
     return-object v0
 .end method"""
 
-AMOUNT_LAYOUT_VARIANTS = [
+DRAW_FOREGROUND_ZERO_GUARD = """    .line 113
+    iget v1, p0, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->progress:F
+
+    const/4 v2, 0x0
+
+    cmpg-float v1, v1, v2
+
+    if-gtz v1, :cond_zero_fg_skip
+
+    return-void
+
+    :cond_zero_fg_skip
+    new-instance v0, Landroid/graphics/RectF;"""
+
+DRAW_FOREGROUND_START = """    .line 113
+    new-instance v0, Landroid/graphics/RectF;"""
+
+AMOUNT_VARIANTS = [
     (
-        """<RelativeLayout android:orientation="vertical" android:layout_width="150.0dip" android:layout_height="36.0dip"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/text" android:paddingTop="10.0dip" android:layout_width="150.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/gray_color" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="3.0dip" android:text="-" android:layout_alignParentLeft="true" />
-    <com.isaigu.gymapp.widget.MyButton android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginTop="3.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
-</RelativeLayout>""",
-        """<RelativeLayout android:orientation="vertical" android:layout_width="158.0dip" android:layout_height="44.0dip"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="13.0sp" android:textColor="@color/text_primary" android:id="@id/text" android:paddingTop="8.0dip" android:layout_width="158.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/gray_color" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="34.0dip" android:layout_height="34.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:text="-" android:layout_alignParentLeft="true" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="34.0dip" android:layout_height="34.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
-</RelativeLayout>""",
+        150,
+        36,
+        "gray_color",
+        "white_color",
+        False,
     ),
     (
-        """<RelativeLayout android:orientation="vertical" android:layout_width="150.0dip" android:layout_height="36.0dip"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/text" android:paddingTop="10.0dip" android:layout_width="150.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/card_stroke" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="3.0dip" android:text="-" android:layout_alignParentLeft="true" />
-    <com.isaigu.gymapp.widget.MyButton android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginTop="3.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
-</RelativeLayout>""",
-        """<RelativeLayout android:orientation="vertical" android:layout_width="158.0dip" android:layout_height="44.0dip"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="13.0sp" android:textColor="@color/text_primary" android:id="@id/text" android:paddingTop="8.0dip" android:layout_width="158.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/card_stroke" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/text_on_accent" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="34.0dip" android:layout_height="34.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:text="-" android:layout_alignParentLeft="true" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/text_on_accent" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="34.0dip" android:layout_height="34.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
-</RelativeLayout>""",
+        158,
+        44,
+        "gray_color",
+        "white_color",
+        False,
+    ),
+    (
+        150,
+        36,
+        "card_stroke",
+        "text_on_accent",
+        True,
+    ),
+    (
+        158,
+        44,
+        "card_stroke",
+        "text_on_accent",
+        True,
     ),
 ]
 
 
-def user_info_polished(name_size: str, time_size: str) -> str:
-    return f"""<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginRight="4.0dip">
-                <TextView android:textColor="@color/text_primary" android:textSize="{name_size}" android:gravity="center|left" android:id="@id/name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:text="张先生" />
-                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:gravity="center|left" android:id="@id/address" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5.0dip" android:text="张先生" />
-                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_alignParentTop="true">
-                    <ImageView android:id="@id/signalImage" android:background="@drawable/ui_status_icon_bg" android:src="@mipmap/signal" android:scaleType="fitCenter" android:padding="4.0dip" android:layout_width="34.0dip" android:layout_height="34.0dip" />
-                    <RelativeLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="34.0dip" android:layout_height="34.0dip" android:layout_marginLeft="4.0dip">
-                        <com.isaigu.gymapp.widget.BatterView android:id="@id/MyBatterView" android:layout_width="16.0dip" android:layout_height="24.0dip" android:layout_centerInParent="true" app:batteryTextSize="15.0sp" app:mCapWidth="3.0dip" app:showText="false" />
-                        <TextView android:textSize="9.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/batteryValueTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100" android:layout_centerInParent="true" />
-                    </RelativeLayout>
-                    <FrameLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="34.0dip" android:layout_height="34.0dip" android:layout_marginLeft="4.0dip">
-                        <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="20.0dip" android:layout_height="20.0dip" android:layout_gravity="center" />
-                    </FrameLayout>
+def amount_layout(width: int, height: int, border: str, btn_color: str, night: bool) -> str:
+    btn = "text_on_accent" if night else "white_color"
+    pad_top = "11.0dip" if height >= 40 else "10.0dip"
+    btn_size = 32 if height >= 40 else 30
+    btn_text = 20 if height >= 40 else 18
+    btn_margin = 4 if height >= 40 else 3
+    text_size = 14 if height >= 40 else 12
+    return f"""<RelativeLayout android:orientation="vertical" android:layout_width="{width}.0dip" android:layout_height="{height}.0dip"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="{text_size}.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/text" android:layout_width="{width}.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/{border}" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="{btn_text}.0sp" android:textStyle="bold" android:textColor="@color/{btn}" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="{btn_size}.0dip" android:layout_height="{btn_size}.0dip" android:layout_marginLeft="{btn_margin}.0dip" android:layout_marginTop="{btn_margin}.0dip" android:text="-" android:layout_alignParentLeft="true" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="{btn_text}.0sp" android:textStyle="bold" android:textColor="@color/{btn}" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="{btn_size}.0dip" android:layout_height="{btn_size}.0dip" android:layout_marginTop="{btn_margin}.0dip" android:layout_marginRight="{btn_margin}.0dip" android:text="+" android:layout_alignParentRight="true" />
+</RelativeLayout>"""
+
+
+def header_block(name_size: str, time_size: str) -> str:
+    return f"""<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginRight="4.0dip">
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="40.0dip">
+                    <TextView android:textColor="@color/text_primary" android:textSize="{name_size}" android:textStyle="bold" android:ellipsize="end" android:gravity="center|left" android:id="@id/name" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:maxLines="1" android:text="张先生" />
+                    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="6.0dip">
+                        <FrameLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="40.0dip" android:layout_height="40.0dip">
+                            <ImageView android:id="@id/signalImage" android:padding="8.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@mipmap/signal" android:scaleType="fitCenter" />
+                        </FrameLayout>
+                        <LinearLayout android:gravity="center" android:orientation="vertical" android:background="@drawable/ui_status_icon_bg" android:paddingLeft="4.0dip" android:paddingTop="3.0dip" android:paddingRight="4.0dip" android:paddingBottom="2.0dip" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginLeft="4.0dip">
+                            <com.isaigu.gymapp.widget.BatterView android:id="@id/MyBatterView" android:layout_width="14.0dip" android:layout_height="20.0dip" app:batteryTextSize="15.0sp" app:mCapWidth="3.0dip" app:showText="false" />
+                            <TextView android:textSize="10.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/batteryValueTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="100" />
+                        </LinearLayout>
+                        <FrameLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginLeft="4.0dip">
+                            <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="22.0dip" android:layout_height="22.0dip" android:layout_gravity="center" />
+                        </FrameLayout>
+                    </LinearLayout>
                 </LinearLayout>
-                <TextView android:textSize="{time_size}" android:textColor="@color/text_primary" android:id="@id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_below="@id/name" android:layout_marginTop="4.0dip" android:text="99" />
-            </RelativeLayout>"""
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:gravity="center|left" android:id="@id/address" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="张先生" />
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2.0dip">
+                    <TextView android:textSize="{time_size}" android:textStyle="bold" android:textColor="@color/text_primary" android:id="@id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="45" />
+                    <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:text="@string/minute" />
+                </LinearLayout>
+            </LinearLayout>
+            """
+
+
+def pulse_continue_block() -> str:
+    return """<LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginTop="6.0dip">
+                <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/impulse_accent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="3.0dip" android:text="@string/paulsecontinue" />
+                <com.isaigu.gymapp.widget.AmountView2 android:id="@id/paulsecontinue" android:layout_width="wrap_content" android:layout_height="40.0dip" />
+            </LinearLayout>
+            """
+
+
+def pulse_stop_block() -> str:
+    return """<LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginTop="8.0dip">
+                <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/pause_accent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="3.0dip" android:text="@string/paulsestop" />
+                <com.isaigu.gymapp.widget.AmountView2 android:id="@id/paulsestop" android:layout_width="wrap_content" android:layout_height="40.0dip" />
+            </LinearLayout>
+            """
 
 
 def patch_row_layouts() -> None:
+    marker = 'android:layout_height="40.0dip" android:layout_marginLeft="4.0dip">'
     for layout_dir in ("layout", "layout-night"):
         for name in ROW_LAYOUTS:
             path = RES / layout_dir / name
             if not path.exists():
                 continue
             text = path.read_text(encoding="utf-8")
-            changed = False
+            if marker in text and "layout_marginTop=\"6.0dip\"" in text and "@string/minute" in text:
+                continue
 
-            if 'android:layout_gravity="center_vertical"' in text:
+            text = text.replace(
+                'android:layout_gravity="center_vertical"',
+                'android:layout_gravity="top"',
+            )
+            if 'android:layout_marginTop="5.0dip"' not in text.split("layout_weight=\"0.5\"")[1][:120]:
                 text = text.replace(
-                    'android:layout_gravity="center_vertical"',
-                    'android:layout_gravity="top"',
+                    'android:layout_gravity="top" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.5"',
+                    'android:layout_gravity="top" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_marginTop="5.0dip" android:layout_weight="0.5"',
                     1,
                 )
-                changed = True
 
             name_size = "12.0sp" if name.startswith("new_") else "14.0sp"
-            time_size = "20.0sp" if name.startswith("new_") else "24.0sp"
-            polished = user_info_polished(name_size, time_size)
-            if polished not in text:
-                if USER_INFO_PATCHED.search(text):
-                    text = USER_INFO_PATCHED.sub(polished, text, count=1)
-                    changed = True
-                elif "@drawable/ui_status_icon_bg" not in text:
-                    raise SystemExit(f"user info block not found in {layout_dir}/{name}")
+            time_size = "18.0sp" if name.startswith("new_") else "22.0sp"
+            if HEADER_BLOCK.search(text):
+                text = HEADER_BLOCK.sub(header_block(name_size, time_size), text, count=1)
+            elif marker not in text:
+                raise SystemExit(f"header block not found in {layout_dir}/{name}")
 
-            text = text.replace(
-                'android:id="@id/paulsecontinue" android:layout_width="wrap_content" android:layout_height="36.0dip"',
-                'android:id="@id/paulsecontinue" android:layout_width="wrap_content" android:layout_height="44.0dip"',
-            )
-            text = text.replace(
-                'android:id="@id/paulsestop" android:layout_width="wrap_content" android:layout_height="36.0dip"',
-                'android:id="@id/paulsestop" android:layout_width="wrap_content" android:layout_height="44.0dip"',
-            )
+            if PULSE_CONTINUE_BLOCK.search(text):
+                text = PULSE_CONTINUE_BLOCK.sub(pulse_continue_block(), text, count=1)
+            if PULSE_STOP_BLOCK.search(text):
+                text = PULSE_STOP_BLOCK.sub(pulse_stop_block(), text, count=1)
+
             text = re.sub(
-                r'(<TextView android:textSize=")14\.0sp(" android:textColor="@color/(?:green_color|impulse_accent|wave_color_red|pause_accent)" '
-                r'android:paddingBottom=")15\.0dip(" android:layout_width="wrap_content" android:layout_height="wrap_content" '
-                r'android:text="@string/(?:paulsecontinue|paulsestop)" android:layout_centerInParent="true" />)',
-                r'\g<1>12.0sp\g<2>10.0dip\g<3>',
+                r'android:layout_marginBottom="4\.0dip" android:clipToPadding="true"',
+                'android:layout_marginBottom="6.0dip" android:clipToPadding="true"',
                 text,
             )
             text = text.replace(
-                'android:paddingBottom="15.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/paulsecontinue"',
-                'android:paddingBottom="10.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/paulsecontinue"',
-            )
-            text = text.replace(
-                'android:paddingBottom="15.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/paulsestop"',
-                'android:paddingBottom="10.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/paulsestop"',
-            )
-            text = text.replace(
                 'android:layout_marginBottom="10.0dip" />',
-                'android:layout_marginBottom="4.0dip" android:clipToPadding="true" />',
+                'android:layout_marginBottom="6.0dip" android:clipToPadding="true" />',
             )
-            if "clipToPadding" in text or "44.0dip" in text:
-                changed = True
 
-            if changed:
-                path.write_text(text, encoding="utf-8")
-                print(f"polished {layout_dir}/{name}")
+            path.write_text(text, encoding="utf-8")
+            print(f"redesigned {layout_dir}/{name}")
 
 
 def patch_amount_layout() -> None:
-    for layout_dir in ("layout", "layout-night"):
+    targets = {
+        "layout": amount_layout(164, 40, "gray_color", "white_color", False),
+        "layout-night": amount_layout(164, 40, "card_stroke", "text_on_accent", True),
+    }
+    for layout_dir, body in targets.items():
         path = RES / layout_dir / "amount_layout2.xml"
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8")
-        if 'android:layout_height="44.0dip"' in text:
+        if (
+            'android:layout_width="164.0dip" android:layout_height="40.0dip"' in text
+            and 'android:gravity="center" android:id="@id/text"' in text
+        ):
             continue
-        for old, new in AMOUNT_LAYOUT_VARIANTS:
-            if old in text:
-                path.write_text(text.replace(old, new, 1), encoding="utf-8")
-                print(f"polished {layout_dir}/amount_layout2.xml")
-                break
-        else:
-            raise SystemExit(f"amount_layout2 marker not found in {layout_dir}")
+        path.write_text(
+            '<?xml version="1.0" encoding="utf-8"?>\n' + body,
+            encoding="utf-8",
+        )
+        print(f"redesigned {layout_dir}/amount_layout2.xml")
 
 
 def patch_format_time() -> None:
     text = COMMON_UTILS.read_text(encoding="utf-8")
-    if FORMAT_TIME_NEW in text:
+    if FORMAT_TIME_MINUTES in text:
         return
-    if FORMAT_TIME_OLD not in text:
+    if FORMAT_TIME_MMSS in text:
+        text = text.replace(FORMAT_TIME_MMSS, FORMAT_TIME_MINUTES, 1)
+    else:
         raise SystemExit("CommonUtils.formatTime marker not found")
-    COMMON_UTILS.write_text(text.replace(FORMAT_TIME_OLD, FORMAT_TIME_NEW, 1), encoding="utf-8")
-    print("patched CommonUtils.formatTime -> minutes only (max 99)")
+    COMMON_UTILS.write_text(text, encoding="utf-8")
+    print("patched CommonUtils.formatTime -> minutes (max 99)")
 
 
 def patch_max_work_length() -> None:
@@ -267,21 +332,22 @@ def patch_max_work_length() -> None:
     print("patched Constants.max_workLength -> 99")
 
 
-def patch_slider_gradient() -> None:
+def patch_slider_zero_foreground() -> None:
     text = SLIDER.read_text(encoding="utf-8")
-    if "Shader$TileMode;->CLAMP" in text:
-        print("VerticalColorSeekBar gradient: already CLAMP")
+    if "cond_zero_fg_skip" in text:
+        print("VerticalColorSeekBar: zero foreground guard already patched")
         return
-    old = "sget-object v12, Landroid/graphics/Shader$TileMode;->MIRROR:Landroid/graphics/Shader$TileMode;"
-    if old not in text:
-        raise SystemExit("VerticalColorSeekBar MIRROR gradient marker not found")
-    text = text.replace(
-        old,
-        "sget-object v12, Landroid/graphics/Shader$TileMode;->CLAMP:Landroid/graphics/Shader$TileMode;",
-        1,
-    )
+    if DRAW_FOREGROUND_START not in text:
+        raise SystemExit("VerticalColorSeekBar.drawForground start not found")
+    text = text.replace(DRAW_FOREGROUND_START, DRAW_FOREGROUND_ZERO_GUARD, 1)
+    if "Shader$TileMode;->MIRROR" in text:
+        text = text.replace(
+            "sget-object v12, Landroid/graphics/Shader$TileMode;->MIRROR:Landroid/graphics/Shader$TileMode;",
+            "sget-object v12, Landroid/graphics/Shader$TileMode;->CLAMP:Landroid/graphics/Shader$TileMode;",
+            1,
+        )
     SLIDER.write_text(text, encoding="utf-8")
-    print("patched VerticalColorSeekBar gradient MIRROR -> CLAMP")
+    print("patched VerticalColorSeekBar: skip foreground at 0%, CLAMP gradient")
 
 
 def main() -> int:
@@ -293,8 +359,8 @@ def main() -> int:
     patch_amount_layout()
     patch_format_time()
     patch_max_work_length()
-    patch_slider_gradient()
-    print("Training UI polish applied.")
+    patch_slider_zero_foreground()
+    print("Training UI redesign applied.")
     return 0
 
 

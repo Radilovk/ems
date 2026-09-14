@@ -438,14 +438,8 @@ LAYOUT_NIGHT_SOURCES = {
     "amount_layout2.xml": (
         ('app:appBorderColor="@color/gray_color"', 'app:appBorderColor="@color/card_stroke"'),
         (
-            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnDecrease"',
-            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
-            'android:id="@id/btnDecrease"',
-        ),
-        (
-            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnIncrease"',
-            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
-            'android:id="@id/btnIncrease"',
+            'android:textColor="@color/white_color"',
+            'android:textColor="@color/text_on_accent"',
         ),
     ),
     "new_user_train_control_item_layout.xml": (

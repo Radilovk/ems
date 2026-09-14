@@ -52,6 +52,14 @@ PULSE_STOP_V = re.compile(
     r"</LinearLayout>\s*",
 )
 
+PULSE_COMPACT = re.compile(
+    r"<RelativeLayout android:layout_width=\"wrap_content\" android:layout_height=\"36\.0dip\" "
+    r"android:layout_marginLeft=\"10\.0dip\"[^>]*>\s*"
+    r"<com\.isaigu\.gymapp\.widget\.AmountView2 android:id=\"@id/(paulsecontinue|paulsestop)\"[^/]*/>\s*"
+    r"<TextView[^>]*@string/(paulsecontinue|paulsestop)[^>]*/>\s*"
+    r"</RelativeLayout>\s*",
+)
+
 
 def status_icons_block() -> str:
     return """<LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_centerVertical="true">
@@ -69,7 +77,7 @@ def status_icons_block() -> str:
 def pulse_block(label: str, view_id: str, color: str, margin_top: str) -> str:
     return f"""<RelativeLayout android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_marginLeft="10.0dip" android:layout_marginTop="{margin_top}">
                 <com.isaigu.gymapp.widget.AmountView2 android:id="@id/{view_id}" android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_centerInParent="true" />
-                <TextView android:textSize="9.0sp" android:textStyle="bold" android:textColor="@color/{color}" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="@string/{label}" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" />
+                <TextView android:textSize="10.5sp" android:textStyle="bold" android:textColor="@color/{color}" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="@string/{label}" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" />
             </RelativeLayout>
             """
 
@@ -77,63 +85,94 @@ def pulse_block(label: str, view_id: str, color: str, margin_top: str) -> str:
 def amount_layout(width: int, border: str, btn_color: str) -> str:
     return f"""<RelativeLayout android:orientation="vertical" android:layout_width="{width}.0dip" android:layout_height="36.0dip"
   xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="10.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/text" android:paddingTop="15.0dip" android:layout_width="{width}.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/{border}" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="3.0dip" android:text="-" android:layout_alignParentLeft="true" />
-    <com.isaigu.gymapp.widget.MyButton android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginTop="3.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
+    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="9.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/text" android:paddingTop="11.0dip" android:layout_width="{width}.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/{border}" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="3.0dip" android:text="-" android:layout_alignParentLeft="true" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginTop="3.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
 </RelativeLayout>"""
 
 
 def patch_row_layouts() -> None:
-    marker = 'android:layout_marginTop="2.0dip" android:text="@string/paulsecontinue"'
+    pulse_marker = 'android:textSize="10.5sp" android:textStyle="bold" android:textColor="@color/green_color"'
     for layout_dir in ("layout", "layout-night"):
         for name in ROW_LAYOUTS:
             path = RES / layout_dir / name
             if not path.exists():
                 continue
             text = path.read_text(encoding="utf-8")
-            if marker in text and '@mipmap/signal"' in text.split("@id/setting")[0]:
-                continue
+            changed = False
 
-            if STATUS_ICONS.search(text):
-                text = STATUS_ICONS.sub(status_icons_block(), text, count=1)
-            elif "@mipmap/signal\"" not in text:
-                raise SystemExit(f"status icons block not found in {layout_dir}/{name}")
+            if '@mipmap/signal"' not in text.split("@id/setting")[0]:
+                if STATUS_ICONS.search(text):
+                    text = STATUS_ICONS.sub(status_icons_block(), text, count=1)
+                    changed = True
+                else:
+                    raise SystemExit(f"status icons block not found in {layout_dir}/{name}")
 
-            if marker not in text:
-                impulse_color = "impulse_accent" if layout_dir == "layout-night" else "green_color"
-                pause_color = "pause_accent" if layout_dir == "layout-night" else "wave_color_red"
-                if PULSE_CONTINUE.search(text):
-                    text = PULSE_CONTINUE.sub(
-                        pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip"),
+            impulse_color = "impulse_accent" if layout_dir == "layout-night" else "green_color"
+            pause_color = "pause_accent" if layout_dir == "layout-night" else "wave_color_red"
+            night_pulse_marker = (
+                'android:textSize="10.5sp" android:textStyle="bold" android:textColor="@color/impulse_accent"'
+            )
+            if (pulse_marker if layout_dir == "layout" else night_pulse_marker) not in text:
+                if PULSE_COMPACT.search(text):
+                    continue_old = re.search(
+                        r"<RelativeLayout android:layout_width=\"wrap_content\" android:layout_height=\"36\.0dip\" "
+                        r"android:layout_marginLeft=\"10\.0dip\" android:layout_marginTop=\"0\.0dip\"[^>]*>"
+                        r"[\s\S]*?@id/paulsecontinue[\s\S]*?</RelativeLayout>\s*",
                         text,
-                        count=1,
                     )
-                elif PULSE_CONTINUE_V.search(text):
-                    text = PULSE_CONTINUE_V.sub(
-                        pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip"),
+                    stop_old = re.search(
+                        r"<RelativeLayout android:layout_width=\"wrap_content\" android:layout_height=\"36\.0dip\" "
+                        r"android:layout_marginLeft=\"10\.0dip\" android:layout_marginTop=\"5\.0dip\"[^>]*>"
+                        r"[\s\S]*?@id/paulsestop[\s\S]*?</RelativeLayout>\s*",
                         text,
-                        count=1,
                     )
+                    if not continue_old or not stop_old:
+                        raise SystemExit(f"compact pulse blocks not found in {layout_dir}/{name}")
+                    text = (
+                        text[: stop_old.start()]
+                        + pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip")
+                        + text[stop_old.end() :]
+                    )
+                    text = (
+                        text[: continue_old.start()]
+                        + pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip")
+                        + text[continue_old.end() :]
+                    )
+                elif PULSE_CONTINUE.search(text) or PULSE_CONTINUE_V.search(text):
+                    if PULSE_CONTINUE.search(text):
+                        text = PULSE_CONTINUE.sub(
+                            pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip"),
+                            text,
+                            count=1,
+                        )
+                    else:
+                        text = PULSE_CONTINUE_V.sub(
+                            pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip"),
+                            text,
+                            count=1,
+                        )
+                    if PULSE_STOP.search(text):
+                        text = PULSE_STOP.sub(
+                            pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip"),
+                            text,
+                            count=1,
+                        )
+                    elif PULSE_STOP_V.search(text):
+                        text = PULSE_STOP_V.sub(
+                            pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip"),
+                            text,
+                            count=1,
+                        )
+                    else:
+                        raise SystemExit(f"pulse stop block not found in {layout_dir}/{name}")
                 else:
                     raise SystemExit(f"pulse continue block not found in {layout_dir}/{name}")
+                changed = True
 
-                if PULSE_STOP.search(text):
-                    text = PULSE_STOP.sub(
-                        pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip"),
-                        text,
-                        count=1,
-                    )
-                elif PULSE_STOP_V.search(text):
-                    text = PULSE_STOP_V.sub(
-                        pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip"),
-                        text,
-                        count=1,
-                    )
-                else:
-                    raise SystemExit(f"pulse stop block not found in {layout_dir}/{name}")
-
-            path.write_text(text, encoding="utf-8")
-            print(f"refined {layout_dir}/{name}")
+            if changed:
+                path.write_text(text, encoding="utf-8")
+                print(f"refined {layout_dir}/{name}")
 
 
 def patch_amount_layout() -> None:
@@ -146,7 +185,11 @@ def patch_amount_layout() -> None:
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8")
-        if 'android:paddingTop="15.0dip"' in text and 'android:textSize="10.0sp"' in text:
+        if (
+            'android:paddingTop="11.0dip"' in text
+            and 'android:textSize="9.0sp"' in text.split("@id/text")[1][:120]
+            and 'android:textSize="22.0sp"' in text
+        ):
             continue
         path.write_text('<?xml version="1.0" encoding="utf-8"?>\n' + body, encoding="utf-8")
         print(f"refined {layout_dir}/amount_layout2.xml")

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -407,7 +408,10 @@ def _replace_first(text: str, variants: list[str], replacement: str, label: str)
 
 def hide_ramp_ui() -> None:
     text = EDIT_PARAM_LAYOUT.read_text(encoding="utf-8")
-    if RAMP_COLUMN_HIDDEN.split("\n")[0] in text:
+    if re.search(
+        r"<LinearLayout[^>]*android:visibility=\"gone\"[^>]*>[\s\S]*?@string/inputramp",
+        text,
+    ):
         return
     if RAMP_COLUMN not in text:
         raise SystemExit("ramp column not found in edit_parameter_dialog.xml")
@@ -429,6 +433,8 @@ def zero_ramp_bytes() -> None:
 def skip_ramp_precheck() -> None:
     text = EDIT_DIALOG.read_text(encoding="utf-8")
     if PRECHECK_SKIP in text:
+        return
+    if re.search(r'\.local v3, "value2":I\n    goto ', text):
         return
     text = _replace_first(text, PRECHECK_VARIANTS, PRECHECK_SKIP, "EditUserProgramDataDialog.preCheck")
     EDIT_DIALOG.write_text(text, encoding="utf-8")

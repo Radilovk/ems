@@ -162,7 +162,7 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionCode: \d+",
-        "versionCode: 10",
+        "versionCode: 11",
         text,
         count=1,
     )
@@ -170,14 +170,14 @@ def patch_version_name() -> None:
         raise RuntimeError("failed to patch versionCode in apktool.yml")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.41-xems-pro",
+        "versionName: 1.0.42-xems-pro",
         updated,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    print("patched versionCode -> 10, versionName -> 1.0.41-xems-pro")
+    print("patched versionCode -> 11, versionName -> 1.0.42-xems-pro")
 
 
 def copy_branding_layouts() -> None:

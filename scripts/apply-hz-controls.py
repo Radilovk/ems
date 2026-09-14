@@ -113,14 +113,12 @@ def user_info_new(name_size: str, time_size: str) -> str:
                 </LinearLayout>
                 <TextView android:textColor="@color/text_primary" android:textSize="12.0sp" android:gravity="center|left" android:id="@id/address" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5.0dip" android:text="张先生" />
                 <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_centerVertical="true">
-                    <ImageView android:id="@id/signalImage" android:background="@drawable/ui_status_icon_bg" android:src="@mipmap/signal" android:scaleType="fitCenter" android:padding="5.0dip" android:layout_width="28.0dip" android:layout_height="28.0dip" />
-                    <RelativeLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="4.0dip">
-                        <com.isaigu.gymapp.widget.BatterView android:id="@id/MyBatterView" android:layout_width="14.0dip" android:layout_height="22.0dip" android:layout_centerInParent="true" app:batteryTextSize="15.0sp" app:mCapWidth="3.0dip" app:showText="false" />
-                        <TextView android:textSize="8.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/batteryValueTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100" android:layout_centerInParent="true" android:rotation="90.0" />
+                    <ImageView android:id="@id/signalImage" android:background="@mipmap/signal" android:layout_width="20.0dip" android:layout_height="31.0dip" android:scaleType="fitXY" />
+                    <RelativeLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip">
+                        <com.isaigu.gymapp.widget.BatterView android:id="@id/MyBatterView" android:layout_width="16.0dip" android:layout_height="32.0dip" android:layout_centerInParent="true" app:batteryTextSize="15.0sp" app:mCapWidth="3.0dip" app:showText="false" />
+                        <TextView android:textSize="10.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/batteryValueTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100" android:layout_centerInParent="true" android:rotation="90.0" />
                     </RelativeLayout>
-                    <FrameLayout android:background="@drawable/ui_status_icon_bg" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="4.0dip">
-                        <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="18.0dip" android:layout_height="18.0dip" android:layout_gravity="center" />
-                    </FrameLayout>
+                    <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="22.0dip" android:layout_height="22.0dip" android:layout_marginLeft="8.0dip" />
                 </LinearLayout>
             </RelativeLayout>"""
 

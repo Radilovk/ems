@@ -21,19 +21,29 @@ AMOUNT_VIEW2_INIT_SIZES = """    :cond_1
 
     const/4 v2, 0x2
 
-    const/high16 v3, 0x41d00000
+    const/high16 v3, 0x41c00000
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/Button;->setTextSize(IF)V
+
+    const/4 v4, 0x0
+
+    invoke-virtual {v1, v4}, Landroid/widget/Button;->setIncludeFontPadding(Z)V
+
+    invoke-virtual {v1, v4, v4, v4, v4}, Landroid/widget/Button;->setPadding(IIII)V
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/AmountView2;->btnIncrease:Landroid/widget/Button;
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/Button;->setTextSize(IF)V
 
+    invoke-virtual {v1, v4}, Landroid/widget/Button;->setIncludeFontPadding(Z)V
+
+    invoke-virtual {v1, v4, v4, v4, v4}, Landroid/widget/Button;->setPadding(IIII)V
+
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/AmountView2;->etAmount:Lcom/isaigu/gymapp/widget/ShapeCornerBgView;
 
-    const/high16 v4, 0x41000000
+    const/high16 v5, 0x41900000
 
-    invoke-virtual {v1, v2, v4}, Lcom/isaigu/gymapp/widget/ShapeCornerBgView;->setTextSize(IF)V
+    invoke-virtual {v1, v5}, Lcom/isaigu/gymapp/widget/ShapeCornerBgView;->setTextSize(F)V
 
     return-void
 .end method"""
@@ -112,9 +122,9 @@ def pulse_block(label: str, view_id: str, color: str, margin_top: str) -> str:
 def amount_layout(width: int, border: str, btn_color: str) -> str:
     return f"""<RelativeLayout android:orientation="vertical" android:layout_width="{width}.0dip" android:layout_height="36.0dip"
   xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="8.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/text" android:paddingTop="9.0dip" android:paddingBottom="4.0dip" android:layout_width="{width}.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/{border}" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="26.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="3.0dip" android:text="-" android:layout_alignParentLeft="true" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="26.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginTop="3.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
+    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="9.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/text" android:paddingTop="10.0dip" android:layout_width="{width}.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/{border}" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="24.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:padding="0.0dip" android:includeFontPadding="false" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:text="-" android:layout_alignParentLeft="true" android:layout_centerVertical="true" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="24.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:padding="0.0dip" android:includeFontPadding="false" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" android:layout_centerVertical="true" />
 </RelativeLayout>"""
 
 
@@ -212,7 +222,11 @@ def patch_amount_layout() -> None:
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8")
-        if 'android:paddingTop="9.0dip"' in text and 'android:textSize="8.0sp"' in text.split("@id/text")[1][:120]:
+        if (
+            'android:paddingTop="10.0dip"' in text
+            and 'android:includeFontPadding="false"' in text
+            and 'android:textSize="9.0sp"' in text.split("@id/text")[1][:120]
+        ):
             continue
         path.write_text('<?xml version="1.0" encoding="utf-8"?>\n' + body, encoding="utf-8")
         print(f"refined {layout_dir}/amount_layout2.xml")
@@ -221,17 +235,24 @@ def patch_amount_layout() -> None:
 def patch_amount_view2_smali() -> None:
     text = AMOUNT_VIEW2.read_text(encoding="utf-8")
     if (
-        "0x41d00000" in text
-        and "0x41000000" in text
-        and "btnIncrease" in text.split("0x41d00000")[1][:400]
+        "0x41c00000" in text
+        and "0x41900000" in text
+        and "setIncludeFontPadding" in text
     ):
         print("AmountView2: button/value text sizes already patched")
         return
-    if AMOUNT_VIEW2_INIT_END not in text:
+    init_tail = re.compile(
+        r"    :cond_1\n.*?    return-void\n\.end method",
+        re.DOTALL,
+    )
+    if init_tail.search(text):
+        text = init_tail.sub(AMOUNT_VIEW2_INIT_SIZES, text, count=1)
+    elif AMOUNT_VIEW2_INIT_END in text:
+        text = text.replace(AMOUNT_VIEW2_INIT_END, AMOUNT_VIEW2_INIT_SIZES, 1)
+    else:
         raise SystemExit("AmountView2 init end marker not found")
-    text = text.replace(AMOUNT_VIEW2_INIT_END, AMOUNT_VIEW2_INIT_SIZES, 1)
     AMOUNT_VIEW2.write_text(text, encoding="utf-8")
-    print("AmountView2: forced +/- 26sp and value 8sp")
+    print("AmountView2: forced +/- 24sp centered, value 18px")
 
 
 def main() -> int:

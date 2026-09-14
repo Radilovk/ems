@@ -292,12 +292,6 @@ def patch_amount_layout() -> None:
         path = RES / layout_dir / "amount_layout2.xml"
         if not path.exists():
             continue
-        text = path.read_text(encoding="utf-8")
-        if (
-            'android:layout_width="164.0dip" android:layout_height="40.0dip"' in text
-            and 'android:gravity="center" android:id="@id/text"' in text
-        ):
-            continue
         path.write_text(
             '<?xml version="1.0" encoding="utf-8"?>\n' + body,
             encoding="utf-8",

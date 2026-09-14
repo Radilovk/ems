@@ -10,6 +10,33 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 RES = DECOMPILED / "res"
+AMOUNT_VIEW2 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget/AmountView2.smali"
+
+AMOUNT_VIEW2_INIT_END = """    :cond_1
+    return-void
+.end method"""
+
+AMOUNT_VIEW2_INIT_SIZES = """    :cond_1
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/AmountView2;->btnDecrease:Landroid/widget/Button;
+
+    const/4 v2, 0x2
+
+    const/high16 v3, 0x41d00000
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/Button;->setTextSize(IF)V
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/AmountView2;->btnIncrease:Landroid/widget/Button;
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/Button;->setTextSize(IF)V
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/AmountView2;->etAmount:Lcom/isaigu/gymapp/widget/ShapeCornerBgView;
+
+    const/high16 v4, 0x41000000
+
+    invoke-virtual {v1, v2, v4}, Lcom/isaigu/gymapp/widget/ShapeCornerBgView;->setTextSize(IF)V
+
+    return-void
+.end method"""
 
 ROW_LAYOUTS = (
     "new_user_train_control_item_layout.xml",
@@ -85,9 +112,9 @@ def pulse_block(label: str, view_id: str, color: str, margin_top: str) -> str:
 def amount_layout(width: int, border: str, btn_color: str) -> str:
     return f"""<RelativeLayout android:orientation="vertical" android:layout_width="{width}.0dip" android:layout_height="36.0dip"
   xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="9.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/text" android:paddingTop="11.0dip" android:layout_width="{width}.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/{border}" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="3.0dip" android:text="-" android:layout_alignParentLeft="true" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginTop="3.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
+    <com.isaigu.gymapp.widget.ShapeCornerBgView android:textSize="8.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/text" android:paddingTop="9.0dip" android:paddingBottom="4.0dip" android:layout_width="{width}.0dip" android:layout_height="fill_parent" android:text="20" app:appBorder="true" app:appBorderColor="@color/{border}" app:appBorderWidth="1.0dip" app:appRadius="23.0dip" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="26.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnDecrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="3.0dip" android:text="-" android:layout_alignParentLeft="true" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="26.0sp" android:textStyle="bold" android:textColor="@color/{btn_color}" android:gravity="center" android:id="@id/btnIncrease" android:background="@drawable/black_button_drawable_r15" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginTop="3.0dip" android:layout_marginRight="3.0dip" android:text="+" android:layout_alignParentRight="true" />
 </RelativeLayout>"""
 
 
@@ -185,14 +212,26 @@ def patch_amount_layout() -> None:
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8")
-        if (
-            'android:paddingTop="11.0dip"' in text
-            and 'android:textSize="9.0sp"' in text.split("@id/text")[1][:120]
-            and 'android:textSize="22.0sp"' in text
-        ):
+        if 'android:paddingTop="9.0dip"' in text and 'android:textSize="8.0sp"' in text.split("@id/text")[1][:120]:
             continue
         path.write_text('<?xml version="1.0" encoding="utf-8"?>\n' + body, encoding="utf-8")
         print(f"refined {layout_dir}/amount_layout2.xml")
+
+
+def patch_amount_view2_smali() -> None:
+    text = AMOUNT_VIEW2.read_text(encoding="utf-8")
+    if (
+        "0x41d00000" in text
+        and "0x41000000" in text
+        and "btnIncrease" in text.split("0x41d00000")[1][:400]
+    ):
+        print("AmountView2: button/value text sizes already patched")
+        return
+    if AMOUNT_VIEW2_INIT_END not in text:
+        raise SystemExit("AmountView2 init end marker not found")
+    text = text.replace(AMOUNT_VIEW2_INIT_END, AMOUNT_VIEW2_INIT_SIZES, 1)
+    AMOUNT_VIEW2.write_text(text, encoding="utf-8")
+    print("AmountView2: forced +/- 26sp and value 8sp")
 
 
 def main() -> int:
@@ -201,6 +240,7 @@ def main() -> int:
         return 1
     patch_row_layouts()
     patch_amount_layout()
+    patch_amount_view2_smali()
     print("Training UI refinements applied.")
     return 0
 

@@ -236,76 +236,6 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     return-void
 .end method
 
-.method private static ensurePauseDefaults(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
-    .locals 2
-
-    if-nez p0, :cond_0
-
-    return-void
-
-    :cond_0
-    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
-
-    const/16 v1, 0x32
-
-    if-ne v0, v1, :cond_legacy_done
-
-    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
-
-    const/16 v1, 0x64
-
-    if-ne v0, v1, :cond_legacy_done
-
-    const/4 v0, 0x7
-
-    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
-
-    const/4 v0, 0x0
-
-    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
-
-    :cond_legacy_done
-    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
-
-    const/4 v1, 0x1
-
-    if-ge v0, v1, :cond_done
-
-    const/4 v0, 0x7
-
-    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
-
-    :cond_done
-    return-void
-.end method
-
-.method private static applyDefaults(Lcom/isaigu/gymapp/bean/TrainProgram;)V
-    .locals 1
-
-    if-nez p0, :cond_0
-
-    return-void
-
-    :cond_0
-    iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->ensurePauseDefaults(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->ensurePauseDefaults(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->ensurePauseDefaults(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->ensurePauseDefaults(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
-
-    return-void
-.end method
-
 .method public static apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
     .locals 2
 
@@ -323,8 +253,6 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     move-result-object v0
 
     if-nez v0, :cond_1
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyDefaults(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
     return-void
 
@@ -344,8 +272,6 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyDefaults(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
     return-void
 .end method
@@ -721,7 +647,7 @@ def patch_helper_refresh(text: str) -> str:
 
     if-ge v3, v0, :cond_hz_default
 
-    const/4 v3, 0x7
+    const/16 v3, 0x32
 
     :cond_hz_default
     iput v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
@@ -756,7 +682,7 @@ def patch_helper_refresh(text: str) -> str:
 
     if-ge v3, v0, :cond_hz_default
 
-    const/4 v3, 0x7
+    const/16 v3, 0x32
 
     :cond_hz_default
     iput v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I

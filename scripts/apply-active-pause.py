@@ -338,7 +338,7 @@ HELPER_SMALI = f""".class public Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHe
 
     if-ge v3, v0, :cond_hz_default
 
-    const/4 v3, 0x7
+    const/16 v3, 0x32
 
     :cond_hz_default
     iput v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I

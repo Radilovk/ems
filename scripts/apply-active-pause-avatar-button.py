@@ -65,7 +65,7 @@ PAUSE_MA_VALUE_VIEW = (
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" '
     'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
     'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_marginTop="-4.0dip" android:layout_marginRight="-12.0dip" android:text="0%" />'
+    'android:layout_marginTop="10.0dip" android:text="64%" />'
 )
 
 PAUSE_HZ_VALUE_VIEW = (
@@ -73,30 +73,8 @@ PAUSE_HZ_VALUE_VIEW = (
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" '
     'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
     'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_alignParentBottom="true" android:layout_marginBottom="-4.0dip" '
-    'android:layout_marginRight="-12.0dip" android:text="7Hz" />'
+    'android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" android:text="50Hz" />'
 )
-
-OUTWARD_EDGE = "-12.0dip"
-OUTWARD_EDGE_TOP = "-4.0dip"
-INDEX_BUTTON_LAYOUT = {
-    "ma": (
-        ' android:layout_alignParentLeft="true" android:layout_marginTop="{top}"'
-        ' android:layout_marginLeft="{edge}"'
-    ),
-    "hzValue": (
-        ' android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"'
-        ' android:layout_marginBottom="{top}" android:layout_marginLeft="{edge}"'
-    ),
-    "pauseMaValue": (
-        ' android:layout_alignParentRight="true" android:layout_marginTop="{top}"'
-        ' android:layout_marginRight="{edge}"'
-    ),
-    "pauseHzValue": (
-        ' android:layout_alignParentRight="true" android:layout_alignParentBottom="true"'
-        ' android:layout_marginBottom="{top}" android:layout_marginRight="{edge}"'
-    ),
-}
 
 ADD_PAUSE_HZ_METHOD = """
 .method public addPauseHz(I)V
@@ -1396,62 +1374,6 @@ def ensure_yellow_drawable() -> int:
     return resource_id
 
 
-def _strip_layout_attrs(tag: str, attrs: tuple[str, ...]) -> str:
-    for attr in attrs:
-        tag = re.sub(rf'\s*android:{attr}="[^"]*"', "", tag)
-    return tag
-
-
-def _patch_index_button_outward(text: str, view_id: str, layout_suffix: str) -> tuple[str, bool]:
-    pattern = rf'<TextView\b[^>]*android:id="@id/{view_id}"[^>]*/>'
-    match = re.search(pattern, text)
-    if not match:
-        return text, False
-    tag = match.group(0)
-    stripped = _strip_layout_attrs(
-        tag,
-        (
-            "layout_marginTop",
-            "layout_marginBottom",
-            "layout_marginLeft",
-            "layout_marginRight",
-            "layout_alignParentLeft",
-            "layout_alignParentRight",
-            "layout_alignParentBottom",
-            "layout_alignParentTop",
-        ),
-    )
-    if stripped.endswith("/>") and layout_suffix in tag:
-        return text, False
-    if stripped.endswith("/>"):
-        stripped = stripped[:-2] + layout_suffix + " />"
-    else:
-        stripped = stripped + layout_suffix
-    return text[: match.start()] + stripped + text[match.end() :], True
-
-
-def patch_avatar_button_outward() -> None:
-    layout_suffixes = {
-        view_id: suffix.format(edge=OUTWARD_EDGE, top=OUTWARD_EDGE_TOP)
-        for view_id, suffix in INDEX_BUTTON_LAYOUT.items()
-    }
-    for layout_dir in ("layout", "layout-night"):
-        for name in ("new_user_train_control_item_layout.xml", "user_train_control_item_layout.xml"):
-            path = DECOMPILED / "res" / layout_dir / name
-            if not path.exists():
-                continue
-            text = path.read_text(encoding="utf-8")
-            changed = False
-            for view_id, suffix in layout_suffixes.items():
-                text, updated = _patch_index_button_outward(text, view_id, suffix)
-                changed = changed or updated
-            if changed:
-                path.write_text(text, encoding="utf-8")
-                print(f"patched {layout_dir}/{name}: moved avatar index buttons outward")
-            else:
-                print(f"{layout_dir}/{name}: avatar index buttons already outward")
-
-
 def patch_layouts() -> None:
     ma_close = re.compile(r'(<TextView[^>]*android:id="@id/ma"[^>]*/>)')
     hz_close = re.compile(r'(<TextView[^>]*android:id="@id/hzValue"[^>]*/>)')
@@ -1983,7 +1905,6 @@ def main() -> None:
     ensure_green_drawable()
     yellow_bg = ensure_yellow_drawable()
     patch_layouts()
-    patch_avatar_button_outward()
     patch_train_item()
     patch_train_view_holder(pause_ma_id, pause_hz_id, yellow_bg)
     patch_hz_listener()

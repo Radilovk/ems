@@ -83,6 +83,7 @@
     <color name="underline_color">#ff666666</color>
     <color name="ma_badge_bg">#ff2a2a32</color>
     <color name="ma_badge_active_bg">#ff43a047</color>
+    <color name="ma_badge_pause_bg">#fff9a825</color>
     <color name="impulse_accent">#ff81c784</color>
     <color name="pause_accent">#ffef5350</color>
     <color name="slider_channel_bg">#ff08080e</color>

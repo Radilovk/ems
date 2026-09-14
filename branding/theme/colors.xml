@@ -33,6 +33,7 @@
     <color name="tab_icon_unselected">#ff666666</color>
     <color name="ma_badge_bg">#ff3a3a3a</color>
     <color name="ma_badge_active_bg">#ff2e7d32</color>
+    <color name="ma_badge_pause_bg">#fff9a825</color>
     <color name="impulse_accent">#ff2e7d32</color>
     <color name="pause_accent">#ffc62828</color>
     <color name="slider_channel_bg">#ffe0e0e0</color>

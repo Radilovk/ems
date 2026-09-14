@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remember last user/program/device and move them to the top when starting training."""
+"""Remember last user/program/device and preselect them when starting training."""
 
 from __future__ import annotations
 
@@ -47,6 +47,14 @@ ENTRY_SMALI = """.class public Lcom/isaigu/gymapp/dialog/LastTrainSelectionEntry
 STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;
 .super Ljava/lang/Object;
 .source "LastTrainSelectionStorage.java"
+
+
+# static fields
+.field private static lastDeviceReady:Z
+
+.field private static lastProgramReady:Z
+
+.field private static lastUserReady:Z
 
 
 # direct methods
@@ -385,6 +393,14 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/LastTrainSelectionSto
 .method public static prepareLists(Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;)V
     .locals 4
 
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastUserReady:Z
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastProgramReady:Z
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastDeviceReady:Z
+
     if-nez p0, :cond_0
 
     return-void
@@ -405,6 +421,10 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/LastTrainSelectionSto
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->moveUserToTop(Ljava/util/List;J)Z
 
+    move-result v1
+
+    sput-boolean v1, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastUserReady:Z
+
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->programDatas:Ljava/util/List;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionEntry;->programId:Ljava/lang/Long;
@@ -413,17 +433,33 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/LastTrainSelectionSto
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->moveProgramToTop(Ljava/util/List;Ljava/lang/Long;Ljava/lang/String;)Z
 
+    move-result v1
+
+    sput-boolean v1, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastProgramReady:Z
+
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->deviceBeans:Ljava/util/List;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionEntry;->deviceMac:Ljava/lang/String;
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->moveDeviceToTop(Ljava/util/List;Ljava/lang/String;)Z
 
+    move-result v0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastDeviceReady:Z
+
     return-void
 .end method
 
 .method public static prepareListsLegacy(Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;)V
     .locals 4
+
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastUserReady:Z
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastProgramReady:Z
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastDeviceReady:Z
 
     if-nez p0, :cond_0
 
@@ -445,6 +481,10 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/LastTrainSelectionSto
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->moveUserToTop(Ljava/util/List;J)Z
 
+    move-result v1
+
+    sput-boolean v1, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastUserReady:Z
+
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->programDatas:Ljava/util/List;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionEntry;->programId:Ljava/lang/Long;
@@ -453,11 +493,19 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/LastTrainSelectionSto
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->moveProgramToTop(Ljava/util/List;Ljava/lang/Long;Ljava/lang/String;)Z
 
+    move-result v1
+
+    sput-boolean v1, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastProgramReady:Z
+
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;->deviceBeans:Ljava/util/List;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionEntry;->deviceMac:Ljava/lang/String;
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->moveDeviceToTop(Ljava/util/List;Ljava/lang/String;)Z
+
+    move-result v0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastDeviceReady:Z
 
     return-void
 .end method
@@ -520,6 +568,102 @@ def prepare_replacement(class_name: str, line_no: str, prepare_call: str) -> str
         f"    invoke-direct {{p0}}, Lcom/isaigu/gymapp/dialog/{class_name};->initData()V"
     )
 
+PRESELECT_MARKER = """    :cond_7
+    const/16 v1, 0x3f1
+
+    invoke-static {v1, p0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->attachEventListener(SLcom/isaigu/gymapp/message/EventListener;)V"""
+
+APPLY_LAST_SELECTION_NEW = """
+.method private applyLastTrainSelectionIfNeeded()V
+    .locals 4
+
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->addTrainUser:Z
+
+    if-eqz v0, :cond_end
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->wrapper:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v0, :cond_end
+
+    sget-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastUserReady:Z
+
+    const/4 v1, 0x1
+
+    const/4 v2, 0x0
+
+    if-eqz v0, :cond_program
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->trainUsers:Ljava/util/List;
+
+    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
+
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->updateSelectedUser(Lcom/isaigu/gymapp/bean/TrainUser;)V
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->userAdapter:Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$UserAdapter;
+
+    invoke-virtual {v3, v2, v1}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$UserAdapter;->setUserSelected(IZ)V
+
+    :cond_program
+    sget-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastProgramReady:Z
+
+    if-eqz v0, :cond_device
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->programDatas:Ljava/util/List;
+
+    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->updateSelectedProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->programAdapter:Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$ProgramAdapter;
+
+    invoke-virtual {v3, v2, v1}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$ProgramAdapter;->setTrainProgramSelected(IZ)V
+
+    :cond_device
+    sget-boolean v0, Lcom/isaigu/gymapp/dialog/LastTrainSelectionStorage;->lastDeviceReady:Z
+
+    if-eqz v0, :cond_done
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->deviceBeans:Ljava/util/List;
+
+    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/DeviceBean;
+
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->updateSelectedDevice(Lcom/isaigu/gymapp/bean/DeviceBean;)V
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->deviceAdapter:Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;
+
+    invoke-virtual {v3, v2, v1}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;->setDeviceSelected(IZ)V
+
+    :cond_done
+    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->handleSelectedItems()V
+
+    :cond_end
+    return-void
+.end method
+"""
+
+APPLY_LAST_SELECTION_LEGACY = APPLY_LAST_SELECTION_NEW.replace(
+    "NewUserProgramDeviceConnectDialogFragment", "UserProgramDeviceConnectDialogFragment"
+)
+
+PRESELECT_REPLACEMENT = """    :cond_7
+    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;->applyLastTrainSelectionIfNeeded()V
+
+    const/16 v1, 0x3f1
+
+    invoke-static {v1, p0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->attachEventListener(SLcom/isaigu/gymapp/message/EventListener;)V"""
+
 def save_marker_new(class_name: str) -> str:
     return (
         f"    iput-boolean v1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z\n\n"
@@ -581,19 +725,24 @@ def patch_connect_fragment(
     text: str,
     class_name: str,
     prepare_call: str,
+    apply_method: str,
     init_line: str,
     save_marker: str,
     save_replacement: str,
     bump_on_device_connected_locals: bool = False,
 ) -> str:
-    if "LastTrainSelectionStorage;->prepareLists" in text or "LastTrainSelectionStorage;->prepareListsLegacy" in text:
+    if "applyLastTrainSelectionIfNeeded()V" in text:
         print(f"{class_name}: last selection already patched")
         return text
     marker = prepare_marker(class_name, init_line)
     replacement = prepare_replacement(class_name, init_line, prepare_call)
+    preselect_replacement = PRESELECT_REPLACEMENT.replace("NewUserProgramDeviceConnectDialogFragment", class_name)
     if marker not in text:
         raise RuntimeError(f"{class_name} prepareLists marker not found")
     text = text.replace(marker, replacement, 1)
+    if PRESELECT_MARKER not in text:
+        raise RuntimeError(f"{class_name} applyPreselect marker not found")
+    text = text.replace(PRESELECT_MARKER, preselect_replacement, 1)
     if save_marker not in text:
         raise RuntimeError(f"{class_name} save marker not found")
     if bump_on_device_connected_locals:
@@ -603,6 +752,9 @@ def patch_connect_fragment(
             1,
         )
     text = text.replace(save_marker, save_replacement, 1)
+    insert_at = ".method private initData()V"
+    if apply_method.strip() not in text:
+        text = text.replace(insert_at, apply_method.strip() + "\n\n" + insert_at, 1)
     print(f"{class_name}: last selection hooks added")
     return text
 
@@ -619,6 +771,7 @@ def main() -> int:
             NEW_CONNECT.read_text(encoding="utf-8"),
             "NewUserProgramDeviceConnectDialogFragment",
             "LastTrainSelectionStorage;->prepareLists(Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment;)V",
+            APPLY_LAST_SELECTION_NEW,
             "129",
             save_marker_new("NewUserProgramDeviceConnectDialogFragment"),
             save_replacement_new("NewUserProgramDeviceConnectDialogFragment"),
@@ -632,6 +785,7 @@ def main() -> int:
                 LEGACY_CONNECT.read_text(encoding="utf-8"),
                 "UserProgramDeviceConnectDialogFragment",
                 "LastTrainSelectionStorage;->prepareListsLegacy(Lcom/isaigu/gymapp/dialog/UserProgramDeviceConnectDialogFragment;)V",
+                APPLY_LAST_SELECTION_LEGACY,
                 "116",
                 save_marker_legacy("UserProgramDeviceConnectDialogFragment"),
                 save_replacement_legacy("UserProgramDeviceConnectDialogFragment"),

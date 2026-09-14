@@ -192,7 +192,7 @@ SWIPE_RUN = """.class Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuCli
 
 # virtual methods
 .method public run()V
-    .locals 8
+    .locals 10
 
     iget-object v0, p0, Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuClickListener$1;->val$menuBridge:Lcom/yanzhenjie/recyclerview/swipe/SwipeMenuBridge;
 
@@ -250,13 +250,13 @@ SWIPE_RUN = """.class Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuCli
 
     invoke-static {v5, v2, v4}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    iget-wide v5, v3, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
+    iget-wide v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    const-wide/16 v7, 0x0
+    const-wide/16 v8, 0x0
 
-    cmp-long v5, v5, v7
+    cmp-long v6, v6, v8
 
-    if-nez v5, :cond_offline_add_done
+    if-nez v6, :cond_offline_add_done
 
     const-class v2, Lcom/isaigu/gymapp/bean/TrainUser;
 
@@ -398,6 +398,11 @@ def patch_user_fragment(text: str) -> str:
             ".field private userlistview:Landroid/support/v7/widget/RecyclerView;\n\n" + FIELD_INIT,
             1,
         )
+    text = text.replace(
+        ".method public constructor <init>()V\n    .locals 0",
+        ".method public constructor <init>()V\n    .locals 1",
+        1,
+    )
     text = text.replace(
         "    invoke-direct {p0}, Lcom/isaigu/gymapp/BaseFragment;-><init>()V\n\n    return-void",
         CONSTRUCTOR_INIT,

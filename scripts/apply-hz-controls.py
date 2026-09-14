@@ -97,6 +97,12 @@ USER_INFO_PATCHED = re.compile(
     r"[\s\S]*?@drawable/ui_status_icon_bg[\s\S]*?@id/setting[\s\S]*?</RelativeLayout>",
 )
 
+USER_INFO_FACTORY = re.compile(
+    r"<RelativeLayout android:layout_width=\"fill_parent\" android:layout_height=\"wrap_content\" "
+    r"android:layout_marginLeft=\"10\.0dip\" android:layout_marginRight=\"4\.0dip\">"
+    r"[\s\S]*?@mipmap/signal[\s\S]*?@id/setting[\s\S]*?</RelativeLayout>",
+)
+
 USER_INFO_BROKEN = re.compile(
     r"(@drawable/ui_status_icon_bg[\s\S]*?</FrameLayout>\s*</LinearLayout>\s*</RelativeLayout>)\s*</RelativeLayout>\s*"
     r"(<RelativeLayout android:layout_width=\"wrap_content\" android:layout_height=\"wrap_content\" "
@@ -909,6 +915,8 @@ def patch_layouts() -> None:
 
             if USER_INFO_PATCHED.search(text):
                 print(f"{layout_dir}/{name}: user status row already updated")
+            elif USER_INFO_FACTORY.search(text):
+                print(f"{layout_dir}/{name}: user status row already factory style")
             elif USER_INFO_OLD.search(text):
                 name_size = "14.0sp" if name.startswith("new_") else "16.0sp"
                 time_size = "18.0sp" if name.startswith("new_") else "28.0sp"

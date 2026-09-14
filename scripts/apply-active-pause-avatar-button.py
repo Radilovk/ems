@@ -65,7 +65,7 @@ PAUSE_MA_VALUE_VIEW = (
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" '
     'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
     'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_marginTop="-4.0dip" android:layout_marginRight="-12.0dip" android:text="0%" />'
+    'android:layout_marginTop="10.0dip" android:layout_marginRight="-4.0dip" android:text="0%" />'
 )
 
 PAUSE_HZ_VALUE_VIEW = (
@@ -73,29 +73,33 @@ PAUSE_HZ_VALUE_VIEW = (
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" '
     'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
     'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_alignParentBottom="true" android:layout_marginBottom="-4.0dip" '
-    'android:layout_marginRight="-12.0dip" android:text="7Hz" />'
+    'android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" '
+    'android:layout_marginRight="-4.0dip" android:text="7Hz" />'
 )
 
-OUTWARD_EDGE = "-12.0dip"
-OUTWARD_EDGE_TOP = "-4.0dip"
-INDEX_BUTTON_LAYOUT = {
-    "ma": (
-        ' android:layout_alignParentLeft="true" android:layout_marginTop="{top}"'
-        ' android:layout_marginLeft="{edge}"'
-    ),
-    "hzValue": (
-        ' android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"'
-        ' android:layout_marginBottom="{top}" android:layout_marginLeft="{edge}"'
-    ),
-    "pauseMaValue": (
-        ' android:layout_alignParentRight="true" android:layout_marginTop="{top}"'
-        ' android:layout_marginRight="{edge}"'
-    ),
-    "pauseHzValue": (
-        ' android:layout_alignParentRight="true" android:layout_alignParentBottom="true"'
-        ' android:layout_marginBottom="{top}" android:layout_marginRight="{edge}"'
-    ),
+# Small outward nudge so the button edge clears the slider circle (not the label text).
+OUTWARD_NUDGE = "-4.0dip"
+BUTTON_OUTWARD_NUDGE = {
+    "ma": {
+        "layout_marginTop": "10.0dip",
+        "layout_marginLeft": OUTWARD_NUDGE,
+    },
+    "hzValue": {
+        "layout_marginBottom": "10.0dip",
+        "layout_marginLeft": OUTWARD_NUDGE,
+        "layout_alignParentBottom": "true",
+    },
+    "pauseMaValue": {
+        "layout_marginTop": "10.0dip",
+        "layout_marginRight": OUTWARD_NUDGE,
+        "layout_alignParentRight": "true",
+    },
+    "pauseHzValue": {
+        "layout_marginBottom": "10.0dip",
+        "layout_marginRight": OUTWARD_NUDGE,
+        "layout_alignParentRight": "true",
+        "layout_alignParentBottom": "true",
+    },
 }
 
 ADD_PAUSE_HZ_METHOD = """
@@ -1396,45 +1400,37 @@ def ensure_yellow_drawable() -> int:
     return resource_id
 
 
-def _strip_layout_attrs(tag: str, attrs: tuple[str, ...]) -> str:
+def _remove_xml_attrs(tag: str, attrs: tuple[str, ...]) -> str:
     for attr in attrs:
         tag = re.sub(rf'\s*android:{attr}="[^"]*"', "", tag)
     return tag
 
 
-def _patch_index_button_outward(text: str, view_id: str, layout_suffix: str) -> tuple[str, bool]:
-    pattern = rf'<TextView\b[^>]*android:id="@id/{view_id}"[^>]*/>'
+def _set_xml_attr(tag: str, attr: str, value: str) -> str:
+    pattern = rf'\s*android:{attr}="[^"]*"'
+    replacement = f' android:{attr}="{value}"'
+    if re.search(pattern, tag):
+        return re.sub(pattern, replacement, tag, count=1)
+    if tag.endswith("/>"):
+        return tag[:-2] + replacement + " />"
+    return tag + replacement
+
+
+def _patch_index_button_outward(text: str, view_id: str) -> tuple[str, bool]:
+    pattern = rf'(<TextView\b[^>]*android:id="@id/{view_id}"[^>]*/>)'
     match = re.search(pattern, text)
     if not match:
         return text, False
-    tag = match.group(0)
-    stripped = _strip_layout_attrs(
-        tag,
-        (
-            "layout_marginTop",
-            "layout_marginBottom",
-            "layout_marginLeft",
-            "layout_marginRight",
-            "layout_alignParentLeft",
-            "layout_alignParentRight",
-            "layout_alignParentBottom",
-            "layout_alignParentTop",
-        ),
-    )
-    if stripped.endswith("/>") and layout_suffix in tag:
+    tag = match.group(1)
+    new_tag = _remove_xml_attrs(tag, ("layout_alignParentLeft",))
+    for attr, value in BUTTON_OUTWARD_NUDGE[view_id].items():
+        new_tag = _set_xml_attr(new_tag, attr, value)
+    if new_tag == tag:
         return text, False
-    if stripped.endswith("/>"):
-        stripped = stripped[:-2] + layout_suffix + " />"
-    else:
-        stripped = stripped + layout_suffix
-    return text[: match.start()] + stripped + text[match.end() :], True
+    return text[: match.start()] + new_tag + text[match.end() :], True
 
 
 def patch_avatar_button_outward() -> None:
-    layout_suffixes = {
-        view_id: suffix.format(edge=OUTWARD_EDGE, top=OUTWARD_EDGE_TOP)
-        for view_id, suffix in INDEX_BUTTON_LAYOUT.items()
-    }
     for layout_dir in ("layout", "layout-night"):
         for name in ("new_user_train_control_item_layout.xml", "user_train_control_item_layout.xml"):
             path = DECOMPILED / "res" / layout_dir / name
@@ -1442,14 +1438,14 @@ def patch_avatar_button_outward() -> None:
                 continue
             text = path.read_text(encoding="utf-8")
             changed = False
-            for view_id, suffix in layout_suffixes.items():
-                text, updated = _patch_index_button_outward(text, view_id, suffix)
+            for view_id in BUTTON_OUTWARD_NUDGE:
+                text, updated = _patch_index_button_outward(text, view_id)
                 changed = changed or updated
             if changed:
                 path.write_text(text, encoding="utf-8")
-                print(f"patched {layout_dir}/{name}: moved avatar index buttons outward")
+                print(f"patched {layout_dir}/{name}: nudged avatar index buttons outward")
             else:
-                print(f"{layout_dir}/{name}: avatar index buttons already outward")
+                print(f"{layout_dir}/{name}: avatar index buttons already nudged")
 
 
 def patch_layouts() -> None:

@@ -811,7 +811,11 @@ ON_CHANGED_END_PAUSE_PREFIX = """    iget-object v0, p0, Lcom/isaigu/gymapp/trai
     :cond_pause_hz_end
 """
 
-UPDATE_UI_SEEKBAR_OLD = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+UPDATE_UI_SEEKBAR_HZ_ONLY = """    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->circleSeekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
 
@@ -834,35 +838,44 @@ UPDATE_UI_SEEKBAR_OLD = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/Trai
 
     div-int/lit8 v2, v2, 0x64
 
-    :goto_0"""
+    :goto_0
+    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V"""
 
-UPDATE_UI_SEEKBAR_PAUSE_HZ = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+UPDATE_UI_SEEKBAR_HZ_CONTROLS = """    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
 
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseHzSelected()Z
+    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->circleSeekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
 
     move-result v2
 
-    if-eqz v2, :cond_pause_seek
+    if-eqz v2, :cond_seek_strength
 
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
     mul-int/lit8 v2, v2, 0x4b
 
     div-int/lit8 v2, v2, 0x78
 
-    goto :goto_0
+    goto :goto_seek_set
 
-    :cond_pause_seek"""
+    :cond_seek_strength
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-UPDATE_UI_SEEKBAR_NEW = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+    mul-int/lit8 v2, v2, 0x4b
+
+    div-int/lit8 v2, v2, 0x64
+
+    :goto_seek_set
+    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V"""
+
+UPDATE_UI_SEEKBAR_PAUSE = """    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->circleSeekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
 
@@ -870,21 +883,13 @@ UPDATE_UI_SEEKBAR_NEW = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/Trai
 
     if-eqz v2, :cond_pause_ma_seek
 
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     mul-int/lit8 v2, v2, 0x4b
 
     div-int/lit8 v2, v2, 0x64
 
-    goto :goto_0
+    goto :goto_seek_set
 
     :cond_pause_ma_seek
     iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -893,32 +898,24 @@ UPDATE_UI_SEEKBAR_NEW = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/Trai
 
     move-result v2
 
-    if-eqz v2, :cond_pause_seek
+    if-eqz v2, :cond_pause_hz_seek
 
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
     mul-int/lit8 v2, v2, 0x4b
 
     div-int/lit8 v2, v2, 0x78
 
-    goto :goto_0
+    goto :goto_seek_set
 
-    :cond_pause_seek
+    :cond_pause_hz_seek
     iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
 
     move-result v2
 
-    if-eqz v2, :cond_0
+    if-eqz v2, :cond_seek_strength
 
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
@@ -926,16 +923,17 @@ UPDATE_UI_SEEKBAR_NEW = """    iget-object v2, p0, Lcom/isaigu/gymapp/train/Trai
 
     div-int/lit8 v2, v2, 0x78
 
-    goto :goto_0
+    goto :goto_seek_set
 
-    :cond_0
+    :cond_seek_strength
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     mul-int/lit8 v2, v2, 0x4b
 
     div-int/lit8 v2, v2, 0x64
 
-    :goto_0"""
+    :goto_seek_set
+    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V"""
 
 LAMBDA_ADD_ALL_OLD = """.method static synthetic lambda$addAllPartValue$6(Ljava/util/concurrent/atomic/AtomicBoolean;ILcom/isaigu/gymapp/train/model/TrainItem;)V
     .locals 1
@@ -1321,14 +1319,16 @@ def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int) -> None:
         ):
             text = re.sub(pattern, block, text, count=1, flags=re.DOTALL)
 
-    if "isPauseMaSelected()Z" in text and UPDATE_UI_SEEKBAR_NEW.split("isPauseMaSelected()Z", 1)[0] in text:
+    if ":cond_pause_ma_seek" in text:
         print("TrainViewHolder.updateUI: pause ma/hz seekbar routing already patched")
-    elif UPDATE_UI_SEEKBAR_OLD in text:
-        text = text.replace(UPDATE_UI_SEEKBAR_OLD, UPDATE_UI_SEEKBAR_NEW, 1)
+    elif UPDATE_UI_SEEKBAR_HZ_ONLY in text:
+        text = text.replace(UPDATE_UI_SEEKBAR_HZ_ONLY, UPDATE_UI_SEEKBAR_PAUSE, 1)
         print("TrainViewHolder.updateUI: pause ma/hz seekbar routing")
-    elif UPDATE_UI_SEEKBAR_PAUSE_HZ in text:
-        text = text.replace(UPDATE_UI_SEEKBAR_PAUSE_HZ, UPDATE_UI_SEEKBAR_NEW, 1)
-        print("TrainViewHolder.updateUI: added pause-ma seekbar routing")
+    elif UPDATE_UI_SEEKBAR_HZ_CONTROLS in text:
+        text = text.replace(UPDATE_UI_SEEKBAR_HZ_CONTROLS, UPDATE_UI_SEEKBAR_PAUSE, 1)
+        print("TrainViewHolder.updateUI: pause ma/hz seekbar routing (hz-controls base)")
+    else:
+        raise RuntimeError("TrainViewHolder updateUI seekbar patch marker not found")
 
     update_ui_display_old = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V
 

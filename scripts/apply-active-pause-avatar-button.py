@@ -124,7 +124,9 @@ ADD_PAUSE_STRENTH_METHOD = """
 
     move-result-object v0
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v0
 
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
@@ -1425,6 +1427,15 @@ def patch_train_item() -> None:
             marker = ".method public addHz(I)V"
         text = text.replace(marker, ADD_PAUSE_STRENTH_METHOD.strip() + "\n\n" + marker, 1)
         print("TrainItem: added addPauseStrenth()")
+    else:
+        text = re.sub(
+            r"\.method public addPauseStrenth\(I\)V.*?\.end method",
+            ADD_PAUSE_STRENTH_METHOD.strip(),
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        print("TrainItem: updated addPauseStrenth() to use matchProgram()")
 
     if "pauseMaSelected:Z" not in text:
         if "pauseHzSelected:Z" not in text:

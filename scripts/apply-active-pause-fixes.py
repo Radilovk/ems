@@ -935,6 +935,97 @@ def patch_train_item_active_pause_match_program(text: str) -> str:
     return text
 
 
+PAUSE_STRENGTH_PERCENT_SCALE = """    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    mul-int v2, v2, v3
+
+    div-int/lit8 v2, v2, 0x64
+
+    if-gez v2, :cond_2
+
+    const/4 v2, 0x0
+
+    :cond_2
+    const/16 v3, 0x96
+
+    if-le v2, v3, :cond_3
+
+    const/16 v2, 0x96
+
+    :cond_3"""
+
+PAUSE_STRENGTH_PERCENT_SCALE_ALT = """    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iget v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    mul-int v2, v2, v3
+
+    div-int/lit8 v2, v2, 0x64
+
+    if-gez v2, :cond_strength_floor
+
+    const/4 v2, 0x0
+
+    :cond_strength_floor
+    const/16 v3, 0x96
+
+    if-le v2, v3, :cond_strength_cap
+
+    const/16 v2, 0x96
+
+    :cond_strength_cap"""
+
+PAUSE_STRENGTH_INDEPENDENT = """    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    if-gez v2, :cond_2
+
+    const/4 v2, 0x0
+
+    :cond_2
+    const/16 v3, 0x64
+
+    if-le v2, v3, :cond_3
+
+    const/16 v2, 0x64
+
+    :cond_3"""
+
+PAUSE_STRENGTH_INDEPENDENT_ALT = """    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    if-gez v2, :cond_strength_floor
+
+    const/4 v2, 0x0
+
+    :cond_strength_floor
+    const/16 v3, 0x64
+
+    if-le v2, v3, :cond_strength_cap
+
+    const/16 v2, 0x64
+
+    :cond_strength_cap"""
+
+
+def patch_pause_strength_independent(text: str) -> str:
+    """Use pauseStrenthPercent as absolute strength (0-100), not % of main impulse."""
+    if "pauseStrenthPercent:I\n\n    if-gez v2, :cond_2" in text or "pauseStrenthPercent:I\n\n    if-gez v2, :cond_strength_floor" in text:
+        if "mul-int v2, v2, v3" not in text.split("sendPulse()V")[1].split(".method")[0]:
+            print("TrainItem.sendPulse: pause strength already independent")
+            return text
+    if PAUSE_STRENGTH_PERCENT_SCALE in text:
+        text = text.replace(PAUSE_STRENGTH_PERCENT_SCALE, PAUSE_STRENGTH_INDEPENDENT, 1)
+        print("TrainItem.sendPulse: pause strength is now independent")
+        return text
+    if PAUSE_STRENGTH_PERCENT_SCALE_ALT in text:
+        text = text.replace(PAUSE_STRENGTH_PERCENT_SCALE_ALT, PAUSE_STRENGTH_INDEPENDENT_ALT, 1)
+        print("TrainItem.sendPulse: pause strength is now independent (alt labels)")
+        return text
+    print("TrainItem.sendPulse: pause strength scale marker not found; skipping")
+    return text
+
+
 def patch_train_item_set_program(text: str) -> str:
     section = text.split("setTrainProgram")[1].split(".method")[0]
     if "ActivePauseStorage;->apply" in section:
@@ -1122,6 +1213,7 @@ def main() -> int:
     train_item = patch_train_item_set_program(train_item)
     train_item = patch_train_item_init(train_item)
     train_item = patch_train_item_active_pause_match_program(train_item)
+    train_item = patch_pause_strength_independent(train_item)
     TRAIN_ITEM.write_text(train_item, encoding="utf-8")
 
     new_connect = NEW_CONNECT.read_text(encoding="utf-8")

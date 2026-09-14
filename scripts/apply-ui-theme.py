@@ -177,6 +177,11 @@ def patch_version_name() -> None:
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
+    release_version = ROOT / "RELEASE_VERSION"
+    release_version.write_text(
+        "versionName=1.0.43-xems-pro\nversionCode=12\n",
+        encoding="utf-8",
+    )
     print("patched versionCode -> 12, versionName -> 1.0.43-xems-pro")
 
 
@@ -433,14 +438,8 @@ LAYOUT_NIGHT_SOURCES = {
     "amount_layout2.xml": (
         ('app:appBorderColor="@color/gray_color"', 'app:appBorderColor="@color/card_stroke"'),
         (
-            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnDecrease"',
-            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
-            'android:id="@id/btnDecrease"',
-        ),
-        (
-            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnIncrease"',
-            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
-            'android:id="@id/btnIncrease"',
+            'android:textColor="@color/white_color"',
+            'android:textColor="@color/text_on_accent"',
         ),
     ),
     "new_user_train_control_item_layout.xml": (

@@ -53,6 +53,7 @@ DRAWABLE_NIGHT_SRC = ROOT / "branding" / "drawable-night"
 
 GREEN_BG = 0x7f080091
 BLACK_BG = 0x7f080090
+YELLOW_DRAWABLE_NAME = "light_yellow_button_drawable_r30"
 PAUSE_MA_ID_NAME = "pauseMaValue"
 PAUSE_HZ_ID_NAME = "pauseHzValue"
 PAUSE_MA_ID = 0x7f090218
@@ -307,22 +308,49 @@ def update_pause_ma_display_smali(pause_ma_id: int) -> str:
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
+    iget-object v2, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iget-boolean v3, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v3, :cond_enabled
+
+    const/4 v2, 0x0
+
+    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setClickable(Z)V
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    const/4 v3, 0x0
+
+    invoke-virtual {{v2, v3}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    const v2, {BLACK_BG:#x}
+
+    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
+
+    goto :goto_0
+
+    :cond_enabled
+    const/4 v2, 0x1
+
+    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setClickable(Z)V
+
     iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {{v2}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
 
     move-result v2
 
-    if-eqz v2, :cond_off
+    if-eqz v2, :cond_green
 
-    const v2, {GREEN_BG:#x}
+    const v2, {BLACK_BG:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
     goto :goto_0
 
-    :cond_off
-    const v2, {BLACK_BG:#x}
+    :cond_green
+    const v2, {GREEN_BG:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
@@ -363,7 +391,7 @@ def bind_pause_hz_value_click_smali(pause_hz_id: int) -> str:
 """.strip()
 
 
-def update_pause_hz_display_smali(pause_hz_id: int) -> str:
+def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
     return f"""
 .method private updatePauseHzDisplay()V
     .locals 5
@@ -434,22 +462,33 @@ def update_pause_hz_display_smali(pause_hz_id: int) -> str:
 
     invoke-virtual {{v0, v3}}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+    iget-object v3, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    invoke-virtual {{v2}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseHzSelected()Z
+    invoke-virtual {{v3}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseHzSelected()Z
 
-    move-result v2
+    move-result v3
 
-    if-eqz v2, :cond_off
+    if-eqz v3, :cond_green
 
-    const v2, {GREEN_BG:#x}
+    iget-boolean v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v2, :cond_yellow
+
+    const v2, {BLACK_BG:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
     goto :goto_0
 
-    :cond_off
-    const v2, {BLACK_BG:#x}
+    :cond_yellow
+    const v2, {yellow_bg:#x}
+
+    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
+
+    goto :goto_0
+
+    :cond_green
+    const v2, {GREEN_BG:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
@@ -486,7 +525,7 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 3
     .param p1, "v"    # Landroid/view/View;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
@@ -497,24 +536,70 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     move-result v1
 
-    xor-int/lit8 v1, v1, 0x1
+    if-eqz v1, :cond_enable
+
+    const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
-    if-eqz v1, :cond_clear
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v2
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iput-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    goto :cond_clear
+
+    :cond_enable
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v2, :cond_already_on
+
+    const/4 v2, 0x1
+
+    iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    :cond_already_on
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    :cond_clear
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    :cond_clear
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
     return-void
 .end method
@@ -547,10 +632,22 @@ PAUSE_MA_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseMa
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 3
     .param p1, "v"    # Landroid/view/View;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iget-boolean v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v1, :cond_end
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -577,6 +674,7 @@ PAUSE_MA_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseMa
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
+    :cond_end
     return-void
 .end method
 """
@@ -1167,21 +1265,67 @@ def register_id(name: str, resource_id: int) -> int:
     return resource_id
 
 
-def ensure_green_drawable() -> None:
+def next_drawable_id() -> int:
+    ids: list[int] = []
+    r_drawable = DECOMPILED / "smali_classes2" / "com" / "isaigu" / "gymapp" / "R$drawable.smali"
+    for path in (PUBLIC_XML, r_drawable):
+        if path.exists():
+            ids.extend(int(value, 16) for value in re.findall(r"0x7f08[0-9a-f]+", path.read_text(encoding="utf-8")))
+    return max(ids) + 1 if ids else 0x7f0800dc
+
+
+def copy_branding_drawable(name: str) -> None:
     for src_dir in (DRAWABLE_NIGHT_SRC, DRAWABLE_SRC):
-        src = src_dir / "light_green_button_drawable_r30.xml"
+        src = src_dir / f"{name}.xml"
         if not src.exists():
             continue
         for dest_dir_name in ("drawable", "drawable-night"):
-            dest = DECOMPILED / "res" / dest_dir_name / "light_green_button_drawable_r30.xml"
+            dest = DECOMPILED / "res" / dest_dir_name / f"{name}.xml"
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+
+
+def ensure_green_drawable() -> None:
+    copy_branding_drawable("light_green_button_drawable_r30")
     branding_day = DRAWABLE_SRC / "light_green_button_drawable_r30.xml"
     if not branding_day.exists() and (DRAWABLE_NIGHT_SRC / "light_green_button_drawable_r30.xml").exists():
         branding_day.write_text(
             (DRAWABLE_NIGHT_SRC / "light_green_button_drawable_r30.xml").read_text(encoding="utf-8"),
             encoding="utf-8",
         )
+
+
+def ensure_yellow_drawable() -> int:
+    copy_branding_drawable(YELLOW_DRAWABLE_NAME)
+    public_text = PUBLIC_XML.read_text(encoding="utf-8")
+    match = re.search(rf'name="{YELLOW_DRAWABLE_NAME}" id="(0x[0-9a-f]+)"', public_text)
+    if match:
+        return int(match.group(1), 16)
+
+    resource_id = next_drawable_id()
+    resource_hex = f"0x{resource_id:08x}"
+    PUBLIC_XML.write_text(
+        public_text.replace(
+            "</resources>",
+            f'    <public type="drawable" name="{YELLOW_DRAWABLE_NAME}" id="{resource_hex}" />\n</resources>',
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    r_drawable = DECOMPILED / "smali_classes2" / "com" / "isaigu" / "gymapp" / "R$drawable.smali"
+    r_text = r_drawable.read_text(encoding="utf-8")
+    if f".field public static final {YELLOW_DRAWABLE_NAME}:I" not in r_text:
+        r_drawable.write_text(
+            r_text.replace(
+                "\n\n# direct methods",
+                f"\n.field public static final {YELLOW_DRAWABLE_NAME}:I = {resource_hex}\n\n\n# direct methods",
+                1,
+            ),
+            encoding="utf-8",
+        )
+    print(f"registered drawable {YELLOW_DRAWABLE_NAME} -> {resource_hex}")
+    return resource_id
 
 
 def patch_layouts() -> None:
@@ -1267,12 +1411,12 @@ def patch_train_item() -> None:
     TRAIN_ITEM.write_text(text, encoding="utf-8")
 
 
-def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int) -> None:
+def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int, yellow_bg: int) -> None:
     text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
     bind_ma = bind_pause_ma_value_click_smali(pause_ma_id)
     display_ma = update_pause_ma_display_smali(pause_ma_id)
     bind_hz = bind_pause_hz_value_click_smali(pause_hz_id)
-    display_hz = update_pause_hz_display_smali(pause_hz_id)
+    display_hz = update_pause_hz_display_smali(pause_hz_id, yellow_bg)
     pause_methods = bind_ma + "\n\n" + display_ma + "\n\n" + bind_hz + "\n\n" + display_hz
 
     if "bindPauseMaValueClick()V" not in text:
@@ -1704,9 +1848,10 @@ def main() -> None:
     pause_ma_id = register_id(PAUSE_MA_ID_NAME, PAUSE_MA_ID)
     pause_hz_id = register_id(PAUSE_HZ_ID_NAME, PAUSE_HZ_ID)
     ensure_green_drawable()
+    yellow_bg = ensure_yellow_drawable()
     patch_layouts()
     patch_train_item()
-    patch_train_view_holder(pause_ma_id, pause_hz_id)
+    patch_train_view_holder(pause_ma_id, pause_hz_id, yellow_bg)
     patch_hz_listener()
     patch_seekbar_listener_simple(pause_ma_id, pause_hz_id)
     patch_train_item_manager()

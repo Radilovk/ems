@@ -71,8 +71,6 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
 # static fields
 .field private static final FILE_NAME:Ljava/lang/String; = "file_name_active_pause_overlay"
 
-.field private static final FILE_NAME_DEFAULTS:Ljava/lang/String; = "file_name_active_pause_defaults"
-
 
 # direct methods
 .method public constructor <init>()V
@@ -134,6 +132,8 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     move-result v1
 
     if-eqz v1, :cond_found
+
+    goto :cond_loop
 
     :cond_try_name
     iget-object v1, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->name:Ljava/lang/String;
@@ -236,85 +236,6 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     return-void
 .end method
 
-.method private static loadDefaults()Lcom/isaigu/gymapp/dialog/ActivePauseEntry;
-    .locals 2
-
-    const-string v0, "file_name_active_pause_defaults"
-
-    const-class v1, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/utils/FileUtils;->getData(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;
-
-    return-object v0
-.end method
-
-.method private static saveDefaults(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
-    .locals 2
-
-    if-nez p0, :cond_0
-
-    return-void
-
-    :cond_0
-    new-instance v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;
-
-    invoke-direct {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;-><init>()V
-
-    iget-boolean v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    iput-boolean v1, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->activePause:Z
-
-    iget v1, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
-
-    iput v1, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->pauseHz:I
-
-    iget p0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
-
-    iput p0, v0, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->pauseStrenthPercent:I
-
-    const-string p0, "file_name_active_pause_defaults"
-
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveData(Ljava/lang/String;Ljava/lang/Object;)V
-
-    return-void
-.end method
-
-.method private static applyToProgram(Lcom/isaigu/gymapp/bean/TrainProgram;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-    .locals 1
-
-    if-nez p0, :cond_0
-
-    return-void
-
-    :cond_0
-    if-nez p1, :cond_1
-
-    return-void
-
-    :cond_1
-    iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    iget-object p0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    return-void
-.end method
-
 .method public static apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
     .locals 2
 
@@ -333,16 +254,24 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
 
     if-nez v0, :cond_1
 
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->loadDefaults()Lcom/isaigu/gymapp/dialog/ActivePauseEntry;
-
-    move-result-object v0
-
-    if-nez v0, :cond_1
-
     return-void
 
     :cond_1
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyToProgram(Lcom/isaigu/gymapp/bean/TrainProgram;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
 
     return-void
 .end method
@@ -441,8 +370,6 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     iput v0, v2, Lcom/isaigu/gymapp/dialog/ActivePauseEntry;->pauseStrenthPercent:I
 
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->saveEntries(Ljava/util/List;)V
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->saveDefaults(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
 
     return-void
 .end method
@@ -1089,28 +1016,8 @@ def patch_merge_after_load(text: str, label: str) -> str:
 
 
 def patch_edit_dialog_clone(text: str) -> str:
-    section = re.compile(
-        r"    invoke-direct \{p0\}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initListener\(\)V\n+"
-        r"(?:    invoke-static \{p0\}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access\$200"
-        r"\(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;\)Lcom/isaigu/gymapp/bean/TrainProgram;\n+"
-        r"    move-result-object v1\n+"
-        r"    invoke-static \{v1\}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply"
-        r"\(Lcom/isaigu/gymapp/bean/TrainProgram;\)V\n+)*"
-        r"    invoke-static \{p0, v0\}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->bind"
-        r"\(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;\)V",
-    )
-    replacement = (
-        "    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initListener()V\n\n"
-        "    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access$200"
-        "(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Lcom/isaigu/gymapp/bean/TrainProgram;\n\n"
-        "    move-result-object v1\n\n"
-        "    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply"
-        "(Lcom/isaigu/gymapp/bean/TrainProgram;)V\n\n"
-        "    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->bind"
-        "(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V"
-    )
-    if section.search(text):
-        return section.sub(replacement, text, count=1)
+    if "ActivePauseStorage;->apply" in text.split("onCreateView")[1][:4000]:
+        return text
     marker = """    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->bind(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
 
     .line 143
@@ -1125,11 +1032,9 @@ def patch_edit_dialog_clone(text: str) -> str:
 
     .line 143
     return-object v0"""
-    if marker in text:
-        return text.replace(marker, hook, 1)
-    if "ActivePauseStorage;->apply" in text.split("onCreateView")[1][:4000]:
-        return text
-    raise RuntimeError("EditUserProgramDataDialog onCreateView bind marker not found")
+    if marker not in text:
+        raise RuntimeError("EditUserProgramDataDialog onCreateView bind marker not found")
+    return text.replace(marker, hook, 1)
 
 
 def revert_training_strength_tweaks() -> None:
@@ -1249,7 +1154,7 @@ def main() -> int:
 
     revert_training_strength_tweaks()
 
-    print("Active pause fixes applied (Hz input, device cache, training load hooks).")
+    print("Active pause fixes applied (Hz input, persistence, training load hooks).")
     return 0
 
 

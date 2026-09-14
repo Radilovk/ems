@@ -341,7 +341,7 @@ def update_pause_ma_display_smali(pause_ma_id: int) -> str:
 
     move-result v2
 
-    if-eqz v2, :cond_green
+    if-nez v2, :cond_green
 
     const v2, {BLACK_BG:#x}
 
@@ -468,11 +468,11 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
 
     move-result v3
 
-    if-eqz v3, :cond_green
+    if-nez v3, :cond_green
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v2, :cond_yellow
+    if-nez v2, :cond_yellow
 
     const v2, {BLACK_BG:#x}
 
@@ -657,7 +657,7 @@ PAUSE_MA_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseMa
 
     iget-boolean v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v1, :cond_end
+    if-eqz v1, :cond_end
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -680,9 +680,23 @@ PAUSE_MA_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseMa
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
     :cond_clear
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->save(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
     :cond_end
     return-void
@@ -799,6 +813,16 @@ ON_CHANGED_END_PAUSE_MA_PREFIX = """    iget-object v0, p0, Lcom/isaigu/gymapp/t
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v0
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->save(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
@@ -905,6 +929,16 @@ ON_CHANGED_END_PAUSE_PREFIX = """    iget-object v0, p0, Lcom/isaigu/gymapp/trai
     iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v0
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->save(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 

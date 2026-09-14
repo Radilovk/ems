@@ -90,13 +90,9 @@ SWIPE_CREATOR = """.class Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMen
 
     move-result-object v0
 
-    const/16 v1, 0x64
+    const/16 v1, 0x50
 
     invoke-virtual {v0, v1}, Lcom/yanzhenjie/recyclerview/swipe/SwipeMenuItem;->setWidth(I)Lcom/yanzhenjie/recyclerview/swipe/SwipeMenuItem;
-
-    move-result-object v0
-
-    invoke-virtual {v0, v1}, Lcom/yanzhenjie/recyclerview/swipe/SwipeMenuItem;->setHeight(I)Lcom/yanzhenjie/recyclerview/swipe/SwipeMenuItem;
 
     move-result-object v0
 
@@ -190,7 +186,7 @@ SWIPE_RUN = """.class Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuCli
 
 # virtual methods
 .method public run()V
-    .locals 6
+    .locals 5
 
     iget-object v0, p0, Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuClickListener$1;->val$menuBridge:Lcom/yanzhenjie/recyclerview/swipe/SwipeMenuBridge;
 
@@ -198,8 +194,51 @@ SWIPE_RUN = """.class Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuCli
 
     move-result v0
 
-    if-ltz v0, :cond_end
+    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
+
+    invoke-interface {v1, v0}, Ljava/util/List;->remove(I)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/isaigu/gymapp/bean/TrainUser;
+
+    const-class v3, Lcom/isaigu/gymapp/bean/TrainUser;
+
+    const-string v4, "file_name_user_data"
+
+    invoke-static {v4, v3, v1}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+
+    iget-wide v1, v2, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
+
+    const-wide/16 v3, 0x0
+
+    cmp-long v1, v1, v3
+
+    if-nez v1, :cond_0
+
+    const-class v1, Lcom/isaigu/gymapp/bean/TrainUser;
+
+    const-string v3, "file_name_offline_user_data"
+
+    invoke-static {v3, v1}, Lcom/isaigu/gymapp/utils/FileUtils;->getDataList(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Ljava/util/List;
+
+    if-eqz v1, :cond_0
+
+    invoke-interface {v1, v2}, Ljava/util/List;->remove(Ljava/lang/Object;)Z
+
+    const-class v2, Lcom/isaigu/gymapp/bean/TrainUser;
+
+    invoke-static {v3, v2, v1}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+
+    :cond_0
     iget-object v1, p0, Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuClickListener$1;->this$1:Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuClickListener;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuClickListener;->this$0:Lcom/isaigu/gymapp/fragment/UserFragment;
@@ -208,77 +247,12 @@ SWIPE_RUN = """.class Lcom/isaigu/gymapp/fragment/UserFragment$UserDeleteMenuCli
 
     move-result-object v1
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/fragment/UserFragment$UserAdapter;->access$200(Lcom/isaigu/gymapp/fragment/UserFragment$UserAdapter;)Ljava/util/List;
-
-    move-result-object v2
-
-    if-eqz v2, :cond_end
-
-    invoke-interface {v2}, Ljava/util/List;->size()I
-
-    move-result v3
-
-    if-lt v0, v3, :cond_has_user
-
-    goto :cond_end
-
-    :cond_has_user
-    invoke-interface {v2, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v3
-
-    check-cast v3, Lcom/isaigu/gymapp/bean/TrainUser;
-
-    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
-
-    move-result-object v4
-
-    iget-object v4, v4, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
-
-    invoke-interface {v4, v3}, Ljava/util/List;->remove(Ljava/lang/Object;)Z
-
-    invoke-interface {v2, v0}, Ljava/util/List;->remove(I)Ljava/lang/Object;
-
-    const-class v2, Lcom/isaigu/gymapp/bean/TrainUser;
-
-    const-string v5, "file_name_user_data"
-
-    invoke-static {v5, v2, v4}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
-
-    iget-wide v4, v3, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
-
-    const-wide/16 v2, 0x0
-
-    cmp-long v2, v4, v2
-
-    if-nez v2, :cond_offline_done
-
-    const-class v2, Lcom/isaigu/gymapp/bean/TrainUser;
-
-    const-string v4, "file_name_offline_user_data"
-
-    invoke-static {v4, v2}, Lcom/isaigu/gymapp/utils/FileUtils;->getDataList(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Ljava/util/List;
-
-    if-eqz v2, :cond_offline_done
-
-    invoke-interface {v2, v3}, Ljava/util/List;->remove(Ljava/lang/Object;)Z
-
-    const-class v3, Lcom/isaigu/gymapp/bean/TrainUser;
-
-    invoke-static {v4, v3, v2}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
-
-    :cond_offline_done
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/fragment/UserFragment$UserAdapter;->notifyItemRemoved(I)V
 
     const/16 v0, 0x69
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    :cond_end
     return-void
 .end method
 """

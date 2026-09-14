@@ -236,6 +236,23 @@ SET_COLOR_ARRAY_OLD = """    invoke-virtual {v0, v1, v2, v3}, Lcom/isaigu/gymapp
 
     .line 339"""
 
+DRAW_FOREGROUND_ZERO_GUARD = """    .line 113
+    iget v1, p0, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->progress:F
+
+    const/4 v2, 0x0
+
+    cmpg-float v1, v1, v2
+
+    if-gtz v1, :cond_zero_fg_skip
+
+    return-void
+
+    :cond_zero_fg_skip
+    new-instance v0, Landroid/graphics/RectF;"""
+
+DRAW_FOREGROUND_START = """    .line 113
+    new-instance v0, Landroid/graphics/RectF;"""
+
 SET_COLOR_ARRAY_NEW = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
     move-result-object v4
@@ -305,6 +322,32 @@ def patch_slider_background() -> None:
     print("VerticalColorSeekBar.drawBackground: patched track fill + stroke")
 
 
+def patch_slider_zero_foreground() -> None:
+    text = SLIDER.read_text(encoding="utf-8")
+    changed = False
+    has_zero_guard = (
+        "cond_zero_fg_skip" in text
+        or "->progress:F\n\n    const/4 v2, 0x0\n\n    cmpg-float v1, v1, v2\n\n    if-gtz v1," in text
+    )
+    if not has_zero_guard:
+        if DRAW_FOREGROUND_START not in text:
+            raise RuntimeError("VerticalColorSeekBar.drawForground start not found")
+        text = text.replace(DRAW_FOREGROUND_START, DRAW_FOREGROUND_ZERO_GUARD, 1)
+        changed = True
+    if "Shader$TileMode;->MIRROR" in text:
+        text = text.replace(
+            "sget-object v12, Landroid/graphics/Shader$TileMode;->MIRROR:Landroid/graphics/Shader$TileMode;",
+            "sget-object v12, Landroid/graphics/Shader$TileMode;->CLAMP:Landroid/graphics/Shader$TileMode;",
+            1,
+        )
+        changed = True
+    if changed:
+        SLIDER.write_text(text, encoding="utf-8")
+        print("VerticalColorSeekBar: skip foreground at 0%, CLAMP gradient")
+    else:
+        print("VerticalColorSeekBar: zero foreground guard already patched")
+
+
 def patch_train_holder() -> None:
     text = HOLDER.read_text(encoding="utf-8")
     if "slider_thumb_fill" in text:
@@ -321,6 +364,7 @@ def patch_train_holder() -> None:
 
 def main() -> None:
     patch_slider_background()
+    patch_slider_zero_foreground()
     patch_train_holder()
     print("Slider theme patches applied.")
 

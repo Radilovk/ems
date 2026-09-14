@@ -162,7 +162,7 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionCode: \d+",
-        "versionCode: 12",
+        "versionCode: 13",
         text,
         count=1,
     )
@@ -170,7 +170,7 @@ def patch_version_name() -> None:
         raise RuntimeError("failed to patch versionCode in apktool.yml")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.43-xems-pro",
+        "versionName: 1.0.44-xems-pro",
         updated,
         count=1,
     )
@@ -179,10 +179,10 @@ def patch_version_name() -> None:
     apktool_yml.write_text(updated, encoding="utf-8")
     release_version = ROOT / "RELEASE_VERSION"
     release_version.write_text(
-        "versionName=1.0.43-xems-pro\nversionCode=12\n",
+        "versionName=1.0.44-xems-pro\nversionCode=13\n",
         encoding="utf-8",
     )
-    print("patched versionCode -> 12, versionName -> 1.0.43-xems-pro")
+    print("patched versionCode -> 13, versionName -> 1.0.44-xems-pro")
 
 
 def copy_branding_layouts() -> None:
@@ -438,8 +438,14 @@ LAYOUT_NIGHT_SOURCES = {
     "amount_layout2.xml": (
         ('app:appBorderColor="@color/gray_color"', 'app:appBorderColor="@color/card_stroke"'),
         (
-            'android:textColor="@color/white_color"',
-            'android:textColor="@color/text_on_accent"',
+            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnDecrease"',
+            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
+            'android:id="@id/btnDecrease"',
+        ),
+        (
+            'android:textColor="@color/white_color" android:gravity="center" android:id="@id/btnIncrease"',
+            'android:textColor="@color/text_on_accent" android:textStyle="bold" android:gravity="center" '
+            'android:id="@id/btnIncrease"',
         ),
     ),
     "new_user_train_control_item_layout.xml": (

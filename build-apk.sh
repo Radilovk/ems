@@ -23,9 +23,15 @@ if [[ ! -f "${TOOLS}/uber-apk-signer.jar" ]]; then
     https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar
 fi
 
-if [[ ! -d "${DECOMPILED}" ]]; then
-  java -jar "${TOOLS}/apktool.jar" d "${OUT_APK}" -o "${DECOMPILED}" -f
+BASE_APK="${ROOT}/build/xems27-base.apk"
+if [[ ! -f "${BASE_APK}" ]]; then
+  echo "Extracting v0.50 base APK from git..."
+  git show 724be17:xems27.apk > "${BASE_APK}"
 fi
+
+echo "Fresh decompile from v0.50 base (${BASE_APK})..."
+rm -rf "${DECOMPILED}"
+java -jar "${TOOLS}/apktool.jar" d "${BASE_APK}" -o "${DECOMPILED}" -f
 
 cp "${ROOT}/translations/values-bg/strings.xml" "${DECOMPILED}/res/values-bg/strings.xml"
 cp "${ROOT}"/branding/layouts/*.xml "${DECOMPILED}/res/layout/"

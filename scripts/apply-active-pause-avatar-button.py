@@ -55,6 +55,9 @@ GREEN_BG = 0x7f080091
 BLACK_BG = 0x7f080090
 PAUSE_MA_ID_NAME = "pauseMaValue"
 PAUSE_HZ_ID_NAME = "pauseHzValue"
+PAUSE_MA_ID = 0x7f090218
+PAUSE_HZ_ID = 0x7f090219
+PUBLIC_ID_INSERT_AFTER = '<public type="id" name="pauseSegmentRemove3" id="0x7f090217" />'
 
 PAUSE_MA_VALUE_VIEW = (
     '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
@@ -304,15 +307,11 @@ def update_pause_ma_display_smali(pause_ma_id: int) -> str:
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    invoke-virtual {{p0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    move-result-object v2
+    invoke-virtual {{v2}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
 
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget-boolean v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    move-result v2
 
     if-eqz v2, :cond_off
 
@@ -435,7 +434,11 @@ def update_pause_hz_display_smali(pause_hz_id: int) -> str:
 
     invoke-virtual {{v0, v3}}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    iget-boolean v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {{v2}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseHzSelected()Z
+
+    move-result v2
 
     if-eqz v2, :cond_off
 
@@ -483,7 +486,7 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 3
+    .locals 2
     .param p1, "v"    # Landroid/view/View;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
@@ -494,51 +497,12 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     move-result v1
 
-    if-eqz v1, :cond_enable
-
-    const/4 v1, 0x0
+    xor-int/lit8 v1, v1, 0x1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    if-eqz v1, :cond_clear
 
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iput-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    goto :cond_clear
-
-    :cond_enable
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-nez v2, :cond_already_on
-
-    const/4 v2, 0x1
-
-    iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    :cond_already_on
-    const/4 v1, 0x1
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
-    :cond_clear
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
@@ -547,13 +511,10 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
+    :cond_clear
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
     return-void
 .end method
@@ -586,7 +547,7 @@ PAUSE_MA_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseMa
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 3
+    .locals 2
     .param p1, "v"    # Landroid/view/View;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
@@ -597,51 +558,12 @@ PAUSE_MA_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseMa
 
     move-result v1
 
-    if-eqz v1, :cond_enable
-
-    const/4 v1, 0x0
+    xor-int/lit8 v1, v1, 0x1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+    if-eqz v1, :cond_clear
 
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iput-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    goto :cond_clear
-
-    :cond_enable
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-nez v2, :cond_already_on
-
-    const/4 v2, 0x1
-
-    iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    :cond_already_on
-    const/4 v1, 0x1
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    :cond_clear
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
@@ -650,13 +572,10 @@ PAUSE_MA_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseMa
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
+    :cond_clear
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseMaValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
     return-void
 .end method
@@ -1201,19 +1120,28 @@ def next_id_value() -> int:
     return max(ids) + 1
 
 
-def register_id(name: str) -> int:
+def register_id(name: str, resource_id: int) -> int:
     public_text = PUBLIC_XML.read_text(encoding="utf-8")
     match = re.search(rf'type="id" name="{name}" id="(0x[0-9a-f]+)"', public_text)
     if match:
-        return int(match.group(1), 16)
+        existing = int(match.group(1), 16)
+        if existing != resource_id:
+            raise RuntimeError(f"{name} already registered as {match.group(1)}, expected 0x{resource_id:08x}")
+        return existing
 
-    resource_id = next_id_value()
     resource_hex = f"0x{resource_id:08x}"
-    public_text = public_text.replace(
-        "</resources>",
-        f'    <public type="id" name="{name}" id="{resource_hex}" />\n</resources>',
-        1,
-    )
+    if PUBLIC_ID_INSERT_AFTER in public_text:
+        public_text = public_text.replace(
+            PUBLIC_ID_INSERT_AFTER,
+            f"{PUBLIC_ID_INSERT_AFTER}\n    <public type=\"id\" name=\"{name}\" id=\"{resource_hex}\" />",
+            1,
+        )
+    else:
+        public_text = public_text.replace(
+            "</resources>",
+            f'    <public type="id" name="{name}" id="{resource_hex}" />\n</resources>',
+            1,
+        )
     PUBLIC_XML.write_text(public_text, encoding="utf-8")
 
     ids_text = IDS_XML.read_text(encoding="utf-8")
@@ -1393,22 +1321,29 @@ def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int) -> None:
         ):
             text = re.sub(pattern, block, text, count=1, flags=re.DOTALL)
 
-    if UPDATE_UI_SEEKBAR_OLD in text:
+    if "isPauseMaSelected()Z" in text and UPDATE_UI_SEEKBAR_NEW.split("isPauseMaSelected()Z", 1)[0] in text:
+        print("TrainViewHolder.updateUI: pause ma/hz seekbar routing already patched")
+    elif UPDATE_UI_SEEKBAR_OLD in text:
         text = text.replace(UPDATE_UI_SEEKBAR_OLD, UPDATE_UI_SEEKBAR_NEW, 1)
         print("TrainViewHolder.updateUI: pause ma/hz seekbar routing")
     elif UPDATE_UI_SEEKBAR_PAUSE_HZ in text:
         text = text.replace(UPDATE_UI_SEEKBAR_PAUSE_HZ, UPDATE_UI_SEEKBAR_NEW, 1)
         print("TrainViewHolder.updateUI: added pause-ma seekbar routing")
 
-    update_ui_tail = text.split("updateHzDisplay()V")[1].split(".method")[0]
-    if "updatePauseMaDisplay()V" not in update_ui_tail:
-        text = text.replace(
-            "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V\n",
-            "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V\n\n"
-            "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updatePauseMaDisplay()V\n\n"
-            "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updatePauseHzDisplay()V\n",
-            1,
-        )
+    update_ui_display_old = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V
+
+    .line 218"""
+    update_ui_display_new = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateHzDisplay()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updatePauseMaDisplay()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updatePauseHzDisplay()V
+
+    .line 218"""
+    if update_ui_display_new in text:
+        print("TrainViewHolder.updateUI: pause display calls already patched")
+    elif update_ui_display_old in text:
+        text = text.replace(update_ui_display_old, update_ui_display_new, 1)
         print("TrainViewHolder.updateUI: calls updatePauseMa/HZ display")
 
     if "setPauseMaSelected(Z)V" not in text.split("lambda$bindListener$7", 1)[-1].split(".method")[0]:
@@ -1766,8 +1701,8 @@ def write_listener() -> None:
 
 
 def main() -> None:
-    pause_ma_id = register_id(PAUSE_MA_ID_NAME)
-    pause_hz_id = register_id(PAUSE_HZ_ID_NAME)
+    pause_ma_id = register_id(PAUSE_MA_ID_NAME, PAUSE_MA_ID)
+    pause_hz_id = register_id(PAUSE_HZ_ID_NAME, PAUSE_HZ_ID)
     ensure_green_drawable()
     patch_layouts()
     patch_train_item()

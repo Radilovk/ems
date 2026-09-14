@@ -306,9 +306,9 @@ HELPER_SMALI = f""".class public Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHe
 
     iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    if-gtz v3, :cond_strength_set
+    if-gez v3, :cond_strength_set
 
-    const/16 v3, 0x64
+    const/4 v3, 0x0
 
     iput v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
@@ -338,7 +338,7 @@ HELPER_SMALI = f""".class public Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHe
 
     if-ge v3, v0, :cond_hz_default
 
-    const/16 v3, 0x32
+    const/4 v3, 0x7
 
     :cond_hz_default
     iput v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
@@ -562,29 +562,43 @@ SEND_ACTIVE_PAUSE = """
 
 
 def patch_program_data_bean(text: str) -> str:
-    if "activePause:Z" in text:
-        return text
-    text = text.replace(
-        ".field public workLength:I\n",
-        ".field public workLength:I\n\n"
-        ".field public activePause:Z\n\n"
-        ".field public pauseHz:I\n\n"
-        ".field public pauseStrenthPercent:I\n",
-        1,
-    )
-    text = text.replace(
+    if "activePause:Z" not in text:
+        text = text.replace(
+            ".field public workLength:I\n",
+            ".field public workLength:I\n\n"
+            ".field public activePause:Z\n\n"
+            ".field public pauseHz:I\n\n"
+            ".field public pauseStrenthPercent:I\n",
+            1,
+        )
+    constructor_defaults = (
         "    iput-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;\n\n"
-        "    .line 29\n"
-        "    return-void\n",
-        "    iput-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;\n\n"
-        "    const/16 v0, 0x32\n\n"
+        "    const/4 v0, 0x7\n\n"
         "    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I\n\n"
-        "    const/16 v0, 0x64\n\n"
+        "    const/4 v0, 0x0\n\n"
         "    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I\n\n"
         "    .line 29\n"
-        "    return-void\n",
-        1,
+        "    return-void\n"
     )
+    if constructor_defaults not in text:
+        text = text.replace(
+            "    iput-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;\n\n"
+            "    const/16 v0, 0x32\n\n"
+            "    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I\n\n"
+            "    const/16 v0, 0x64\n\n"
+            "    iput v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I\n\n"
+            "    .line 29\n"
+            "    return-void\n",
+            constructor_defaults,
+            1,
+        )
+        text = text.replace(
+            "    iput-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;\n\n"
+            "    .line 29\n"
+            "    return-void\n",
+            constructor_defaults,
+            1,
+        )
     return text
 
 

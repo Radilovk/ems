@@ -188,9 +188,7 @@ def update_pulse_labels_method(
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    move-result-object v0
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
 
@@ -204,7 +202,7 @@ def update_pulse_labels_method(
 
     move-result-object v2
 
-    if-nez v2, :cond_end
+    if-eqz v2, :cond_end
 
     check-cast v2, Landroid/widget/TextView;
 
@@ -214,7 +212,7 @@ def update_pulse_labels_method(
 
     move-result-object v1
 
-    if-nez v1, :cond_end
+    if-eqz v1, :cond_end
 
     check-cast v1, Landroid/widget/TextView;
 
@@ -279,15 +277,24 @@ def patch_train_view_holder(
     pause_ap_str: int,
 ) -> None:
     text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
-    if "updatePulseTimeLabels()V" not in text:
-        method = update_pulse_labels_method(
-            continue_label_id,
-            pause_label_id,
-            continue_str,
-            pause_str,
-            continue_ap_str,
-            pause_ap_str,
+    method = update_pulse_labels_method(
+        continue_label_id,
+        pause_label_id,
+        continue_str,
+        pause_str,
+        continue_ap_str,
+        pause_ap_str,
+    )
+    if "updatePulseTimeLabels()V" in text:
+        text = re.sub(
+            r"\.method private updatePulseTimeLabels\(\)V.*?\.end method",
+            method,
+            text,
+            count=1,
+            flags=re.DOTALL,
         )
+        print("TrainViewHolder: replaced updatePulseTimeLabels()")
+    else:
         text = text.replace(
             ".method private updateUI()V",
             method + "\n\n.method private updateUI()V",

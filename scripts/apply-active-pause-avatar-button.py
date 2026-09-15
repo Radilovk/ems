@@ -60,45 +60,57 @@ PAUSE_MA_ID = 0x7f090218
 PAUSE_HZ_ID = 0x7f090219
 PUBLIC_ID_INSERT_AFTER = '<public type="id" name="pauseSegmentRemove3" id="0x7f090217" />'
 
+INDEX_BUTTON_SIZE = "45.0dip"
+# Halfway between original (0) and the prior -4dp outward nudge.
+OUTWARD_NUDGE = "-2.0dip"
+
 PAUSE_MA_VALUE_VIEW = (
     '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" '
-    'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
-    'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_marginTop="10.0dip" android:layout_marginRight="-4.0dip" android:text="0%" />'
+    'android:background="@drawable/light_black_button_drawable_r30" '
+    f'android:layout_width="{INDEX_BUTTON_SIZE}" android:layout_height="{INDEX_BUTTON_SIZE}" '
+    'android:layout_alignParentRight="true" android:layout_marginTop="10.0dip" '
+    f'android:layout_marginRight="{OUTWARD_NUDGE}" android:text="0%" />'
 )
 
 PAUSE_HZ_VALUE_VIEW = (
     '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" '
-    'android:background="@drawable/light_black_button_drawable_r30" android:layout_width="50.0dip" '
-    'android:layout_height="50.0dip" android:layout_alignParentRight="true" '
-    'android:layout_alignParentBottom="true" android:layout_marginBottom="10.0dip" '
-    'android:layout_marginRight="-4.0dip" android:text="7Hz" />'
+    'android:background="@drawable/light_black_button_drawable_r30" '
+    f'android:layout_width="{INDEX_BUTTON_SIZE}" android:layout_height="{INDEX_BUTTON_SIZE}" '
+    'android:layout_alignParentRight="true" android:layout_alignParentBottom="true" '
+    f'android:layout_marginBottom="10.0dip" android:layout_marginRight="{OUTWARD_NUDGE}" '
+    'android:text="7Hz" />'
 )
 
-# Small outward nudge so the button edge clears the slider circle (not the label text).
-OUTWARD_NUDGE = "-4.0dip"
 BUTTON_OUTWARD_NUDGE = {
     "ma": {
         "layout_marginTop": "10.0dip",
         "layout_marginLeft": OUTWARD_NUDGE,
+        "layout_width": INDEX_BUTTON_SIZE,
+        "layout_height": INDEX_BUTTON_SIZE,
     },
     "hzValue": {
         "layout_marginBottom": "10.0dip",
         "layout_marginLeft": OUTWARD_NUDGE,
         "layout_alignParentBottom": "true",
+        "layout_width": INDEX_BUTTON_SIZE,
+        "layout_height": INDEX_BUTTON_SIZE,
     },
     "pauseMaValue": {
         "layout_marginTop": "10.0dip",
         "layout_marginRight": OUTWARD_NUDGE,
         "layout_alignParentRight": "true",
+        "layout_width": INDEX_BUTTON_SIZE,
+        "layout_height": INDEX_BUTTON_SIZE,
     },
     "pauseHzValue": {
         "layout_marginBottom": "10.0dip",
         "layout_marginRight": OUTWARD_NUDGE,
         "layout_alignParentRight": "true",
         "layout_alignParentBottom": "true",
+        "layout_width": INDEX_BUTTON_SIZE,
+        "layout_height": INDEX_BUTTON_SIZE,
     },
 }
 
@@ -1443,9 +1455,9 @@ def patch_avatar_button_outward() -> None:
                 changed = changed or updated
             if changed:
                 path.write_text(text, encoding="utf-8")
-                print(f"patched {layout_dir}/{name}: nudged avatar index buttons outward")
+                print(f"patched {layout_dir}/{name}: adjusted avatar index button size/position")
             else:
-                print(f"{layout_dir}/{name}: avatar index buttons already nudged")
+                print(f"{layout_dir}/{name}: avatar index buttons already adjusted")
 
 
 def patch_layouts() -> None:

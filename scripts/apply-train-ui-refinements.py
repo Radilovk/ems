@@ -111,10 +111,10 @@ def status_icons_block() -> str:
             """
 
 
-def pulse_block(label: str, view_id: str, color: str, margin_top: str) -> str:
+def pulse_block(label: str, view_id: str, label_id: str, color: str, margin_top: str) -> str:
     return f"""<RelativeLayout android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_marginLeft="10.0dip" android:layout_marginTop="{margin_top}">
                 <com.isaigu.gymapp.widget.AmountView2 android:id="@id/{view_id}" android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_centerInParent="true" />
-                <TextView android:textSize="10.5sp" android:textStyle="bold" android:textColor="@color/{color}" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="@string/{label}" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" />
+                <TextView android:textSize="10.5sp" android:textStyle="bold" android:textColor="@color/{color}" android:gravity="center" android:id="@id/{label_id}" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="@string/{label}" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" />
             </RelativeLayout>
             """
 
@@ -168,36 +168,36 @@ def patch_row_layouts() -> None:
                         raise SystemExit(f"compact pulse blocks not found in {layout_dir}/{name}")
                     text = (
                         text[: stop_old.start()]
-                        + pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip")
+                        + pulse_block("paulsestop", "paulsestop", "pulsePauseLabel", pause_color, "5.0dip")
                         + text[stop_old.end() :]
                     )
                     text = (
                         text[: continue_old.start()]
-                        + pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip")
+                        + pulse_block("paulsecontinue", "paulsecontinue", "pulseContinueLabel", impulse_color, "0.0dip")
                         + text[continue_old.end() :]
                     )
                 elif PULSE_CONTINUE.search(text) or PULSE_CONTINUE_V.search(text):
                     if PULSE_CONTINUE.search(text):
                         text = PULSE_CONTINUE.sub(
-                            pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip"),
+                            pulse_block("paulsecontinue", "paulsecontinue", "pulseContinueLabel", impulse_color, "0.0dip"),
                             text,
                             count=1,
                         )
                     else:
                         text = PULSE_CONTINUE_V.sub(
-                            pulse_block("paulsecontinue", "paulsecontinue", impulse_color, "0.0dip"),
+                            pulse_block("paulsecontinue", "paulsecontinue", "pulseContinueLabel", impulse_color, "0.0dip"),
                             text,
                             count=1,
                         )
                     if PULSE_STOP.search(text):
                         text = PULSE_STOP.sub(
-                            pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip"),
+                            pulse_block("paulsestop", "paulsestop", "pulsePauseLabel", pause_color, "5.0dip"),
                             text,
                             count=1,
                         )
                     elif PULSE_STOP_V.search(text):
                         text = PULSE_STOP_V.sub(
-                            pulse_block("paulsestop", "paulsestop", pause_color, "5.0dip"),
+                            pulse_block("paulsestop", "paulsestop", "pulsePauseLabel", pause_color, "5.0dip"),
                             text,
                             count=1,
                         )

@@ -61,16 +61,18 @@ PAUSE_HZ_ID = 0x7f090219
 PUBLIC_ID_INSERT_AFTER = '<public type="id" name="pauseSegmentRemove3" id="0x7f090217" />'
 
 INDEX_BUTTON_SIZE = "45.0dip"
-# Halfway between original (0) and the prior -4dp outward nudge.
-OUTWARD_NUDGE = "-2.0dip"
+# Nudge index buttons inward so they sit slightly under the slider ring (circleSeekBar draws on top).
+INWARD_EDGE = "6.0dip"
+INWARD_TOP_BOTTOM = "16.0dip"
 
 PAUSE_MA_VALUE_VIEW = (
     '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
     'android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" '
     'android:background="@drawable/light_black_button_drawable_r30" '
     f'android:layout_width="{INDEX_BUTTON_SIZE}" android:layout_height="{INDEX_BUTTON_SIZE}" '
-    'android:layout_alignParentRight="true" android:layout_marginTop="10.0dip" '
-    f'android:layout_marginRight="{OUTWARD_NUDGE}" android:text="0%" />'
+    'android:layout_alignParentRight="true" '
+    f'android:layout_marginTop="{INWARD_TOP_BOTTOM}" android:layout_marginRight="{INWARD_EDGE}" '
+    'android:text="0%" />'
 )
 
 PAUSE_HZ_VALUE_VIEW = (
@@ -79,34 +81,34 @@ PAUSE_HZ_VALUE_VIEW = (
     'android:background="@drawable/light_black_button_drawable_r30" '
     f'android:layout_width="{INDEX_BUTTON_SIZE}" android:layout_height="{INDEX_BUTTON_SIZE}" '
     'android:layout_alignParentRight="true" android:layout_alignParentBottom="true" '
-    f'android:layout_marginBottom="10.0dip" android:layout_marginRight="{OUTWARD_NUDGE}" '
+    f'android:layout_marginBottom="{INWARD_TOP_BOTTOM}" android:layout_marginRight="{INWARD_EDGE}" '
     'android:text="7Hz" />'
 )
 
-BUTTON_OUTWARD_NUDGE = {
+BUTTON_INDEX_LAYOUT = {
     "ma": {
-        "layout_marginTop": "10.0dip",
-        "layout_marginLeft": OUTWARD_NUDGE,
+        "layout_marginTop": INWARD_TOP_BOTTOM,
+        "layout_marginLeft": INWARD_EDGE,
         "layout_width": INDEX_BUTTON_SIZE,
         "layout_height": INDEX_BUTTON_SIZE,
     },
     "hzValue": {
-        "layout_marginBottom": "10.0dip",
-        "layout_marginLeft": OUTWARD_NUDGE,
+        "layout_marginBottom": INWARD_TOP_BOTTOM,
+        "layout_marginLeft": INWARD_EDGE,
         "layout_alignParentBottom": "true",
         "layout_width": INDEX_BUTTON_SIZE,
         "layout_height": INDEX_BUTTON_SIZE,
     },
     "pauseMaValue": {
-        "layout_marginTop": "10.0dip",
-        "layout_marginRight": OUTWARD_NUDGE,
+        "layout_marginTop": INWARD_TOP_BOTTOM,
+        "layout_marginRight": INWARD_EDGE,
         "layout_alignParentRight": "true",
         "layout_width": INDEX_BUTTON_SIZE,
         "layout_height": INDEX_BUTTON_SIZE,
     },
     "pauseHzValue": {
-        "layout_marginBottom": "10.0dip",
-        "layout_marginRight": OUTWARD_NUDGE,
+        "layout_marginBottom": INWARD_TOP_BOTTOM,
+        "layout_marginRight": INWARD_EDGE,
         "layout_alignParentRight": "true",
         "layout_alignParentBottom": "true",
         "layout_width": INDEX_BUTTON_SIZE,
@@ -1428,21 +1430,21 @@ def _set_xml_attr(tag: str, attr: str, value: str) -> str:
     return tag + replacement
 
 
-def _patch_index_button_outward(text: str, view_id: str) -> tuple[str, bool]:
+def _patch_index_button_layout(text: str, view_id: str) -> tuple[str, bool]:
     pattern = rf'(<TextView\b[^>]*android:id="@id/{view_id}"[^>]*/>)'
     match = re.search(pattern, text)
     if not match:
         return text, False
     tag = match.group(1)
     new_tag = _remove_xml_attrs(tag, ("layout_alignParentLeft",))
-    for attr, value in BUTTON_OUTWARD_NUDGE[view_id].items():
+    for attr, value in BUTTON_INDEX_LAYOUT[view_id].items():
         new_tag = _set_xml_attr(new_tag, attr, value)
     if new_tag == tag:
         return text, False
     return text[: match.start()] + new_tag + text[match.end() :], True
 
 
-def patch_avatar_button_outward() -> None:
+def patch_avatar_index_buttons() -> None:
     for layout_dir in ("layout", "layout-night"):
         for name in ("new_user_train_control_item_layout.xml", "user_train_control_item_layout.xml"):
             path = DECOMPILED / "res" / layout_dir / name
@@ -1450,14 +1452,14 @@ def patch_avatar_button_outward() -> None:
                 continue
             text = path.read_text(encoding="utf-8")
             changed = False
-            for view_id in BUTTON_OUTWARD_NUDGE:
-                text, updated = _patch_index_button_outward(text, view_id)
+            for view_id in BUTTON_INDEX_LAYOUT:
+                text, updated = _patch_index_button_layout(text, view_id)
                 changed = changed or updated
             if changed:
                 path.write_text(text, encoding="utf-8")
-                print(f"patched {layout_dir}/{name}: adjusted avatar index button size/position")
+                print(f"patched {layout_dir}/{name}: tucked avatar index buttons under slider ring")
             else:
-                print(f"{layout_dir}/{name}: avatar index buttons already adjusted")
+                print(f"{layout_dir}/{name}: avatar index buttons already tucked")
 
 
 def patch_layouts() -> None:
@@ -1991,7 +1993,7 @@ def main() -> None:
     ensure_green_drawable()
     yellow_bg = ensure_yellow_drawable()
     patch_layouts()
-    patch_avatar_button_outward()
+    patch_avatar_index_buttons()
     patch_train_item()
     patch_train_view_holder(pause_ma_id, pause_hz_id, yellow_bg)
     patch_hz_listener()

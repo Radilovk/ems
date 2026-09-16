@@ -64,6 +64,7 @@ python3 "${ROOT}/scripts/apply-settings-ui.py"
 python3 "${ROOT}/scripts/apply-theme-toggle.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 python3 "${ROOT}/scripts/apply-guide-tab.py"
+python3 "${ROOT}/scripts/apply-bt-latency.py"
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign

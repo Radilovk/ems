@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Reduce safe Bluetooth command queue delays for faster device response."""
+"""Minimize Bluetooth command queue latency — write immediately after each ACK."""
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -11,30 +12,41 @@ DECOMPILED = ROOT / "build" / "decompiled"
 COMMAND_SENDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/CommandSender.smali"
 COMMAND_RECEIVER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/CommandReceiver.smali"
 
-# Conservative values: keep a small gap between writes, but much faster than stock.
-CMD_DELAY_MS = 0x1e  # 30 ms (was 100 ms)
-STOP_DELAY_MS = 0xc8  # 200 ms (was 1000 ms)
-NOTIFY_SETUP_DELAY_MS = 0xc8  # 200 ms (was 500 ms)
+POST_WRITE_IMMEDIATE = """    iput-boolean v1, p0, Lcom/isaigu/gymapp/train/model/CommandSender;->writing:Z
 
-POST_WRITE_OLD = f"""    if-ne v3, v4, :cond_2
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/train/model/CommandSender;->writeCommend(Lcom/isaigu/gymapp/train/ble/BleDeviceCommend;)V"""
 
-    const-wide/16 v3, 0x3e8
+POST_WRITE_DELAYED_RE = re.compile(
+    r"    iput-boolean v1, p0, Lcom/isaigu/gymapp/train/model/CommandSender;->writing:Z\n\n"
+    r"    \.line 85\n"
+    r"    iget-object v1, p0, Lcom/isaigu/gymapp/train/model/CommandSender;->handler:Landroid/os/Handler;\n\n"
+    r"    new-instance v2, Lcom/isaigu/gymapp/train/model/-\$\$Lambda\$CommandSender\$RihoiG4MsHHeMDH04A0cwm0tV0E;\n\n"
+    r"    invoke-direct \{v2, p0, v0\}, Lcom/isaigu/gymapp/train/model/-\$\$Lambda\$CommandSender\$RihoiG4MsHHeMDH04A0cwm0tV0E;-><init>\("
+    r"Lcom/isaigu/gymapp/train/model/CommandSender;Lcom/isaigu/gymapp/train/ble/BleDeviceCommend;\)V\n\n"
+    r"    const/16 v3, -0xe\n\n"
+    r"    invoke-virtual \{v0\}, Lcom/isaigu/gymapp/train/ble/BleDeviceCommend;->getCommend\(\)B\n\n"
+    r"    move-result v4\n\n"
+    r"    if-ne v3, v4, :cond_2\n\n"
+    r"    const-wide/16 v3, 0x[0-9a-f]+\n\n"
+    r"    goto :goto_0\n\n"
+    r"    :cond_2\n"
+    r"    const-wide/16 v3, 0x[0-9a-f]+\n\n"
+    r"    :goto_0\n"
+    r"    invoke-virtual \{v1, v2, v3, v4\}, Landroid/os/Handler;->postDelayed\(Ljava/lang/Runnable;J\)Z",
+    re.MULTILINE,
+)
 
-    goto :goto_0
+RECEIVER_NOTIFY_RE = re.compile(
+    r"    const-wide/16 v2, 0x[0-9a-f]+\n\n"
+    r"    invoke-virtual \{v0, v1, v2, v3\}, Landroid/os/Handler;->postDelayed\(Ljava/lang/Runnable;J\)Z\n\n"
+    r"    \.line 28\n"
+    r"    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/CommandReceiver;->handler:Landroid/os/Handler;\n\n"
+    r"    iget-object v1, p0, Lcom/isaigu/gymapp/train/model/CommandReceiver;->batteryRunnable:Ljava/lang/Runnable;\n\n"
+    r"    const-wide/16 v2, 0x[0-9a-f]+",
+    re.MULTILINE,
+)
 
-    :cond_2
-    const-wide/16 v3, 0x64"""
-
-POST_WRITE_NEW = f"""    if-ne v3, v4, :cond_2
-
-    const-wide/16 v3, {STOP_DELAY_MS:#x}
-
-    goto :goto_0
-
-    :cond_2
-    const-wide/16 v3, {CMD_DELAY_MS:#x}"""
-
-RECEIVER_NOTIFY_OLD = """    const-wide/16 v2, 0x1f4
+RECEIVER_NOTIFY_IMMEDIATE = """    const-wide/16 v2, 0x0
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
@@ -43,42 +55,33 @@ RECEIVER_NOTIFY_OLD = """    const-wide/16 v2, 0x1f4
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/model/CommandReceiver;->batteryRunnable:Ljava/lang/Runnable;
 
-    const-wide/16 v2, 0x3e8"""
-
-RECEIVER_NOTIFY_NEW = f"""    const-wide/16 v2, {NOTIFY_SETUP_DELAY_MS:#x}
-
-    invoke-virtual {{v0, v1, v2, v3}}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    .line 28
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/CommandReceiver;->handler:Landroid/os/Handler;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/model/CommandReceiver;->batteryRunnable:Ljava/lang/Runnable;
-
-    const-wide/16 v2, 0x3e8"""
+    const-wide/16 v2, 0x0"""
 
 
 def patch_command_sender() -> None:
     text = COMMAND_SENDER.read_text(encoding="utf-8")
-    if POST_WRITE_NEW in text:
-        print("CommandSender.postWrite: delays already patched")
+    if POST_WRITE_IMMEDIATE in text:
+        print("CommandSender.postWrite: already immediate (no inter-command delay)")
         return
-    if POST_WRITE_OLD not in text:
-        raise RuntimeError("CommandSender.postWrite delay patch marker not found")
-    COMMAND_SENDER.write_text(text.replace(POST_WRITE_OLD, POST_WRITE_NEW, 1), encoding="utf-8")
-    print(
-        f"CommandSender.postWrite: cmd delay {CMD_DELAY_MS} ms, stop delay {STOP_DELAY_MS} ms"
-    )
+    match = POST_WRITE_DELAYED_RE.search(text)
+    if not match:
+        raise RuntimeError("CommandSender.postWrite delay block not found")
+    text = POST_WRITE_DELAYED_RE.sub(POST_WRITE_IMMEDIATE, text, count=1)
+    COMMAND_SENDER.write_text(text, encoding="utf-8")
+    print("CommandSender.postWrite: removed Handler delays, write on ACK immediately")
 
 
 def patch_command_receiver() -> None:
     text = COMMAND_RECEIVER.read_text(encoding="utf-8")
-    if RECEIVER_NOTIFY_NEW in text:
-        print("CommandReceiver: notify setup delay already patched")
+    if RECEIVER_NOTIFY_IMMEDIATE in text:
+        print("CommandReceiver: connect setup delays already minimal")
         return
-    if RECEIVER_NOTIFY_OLD not in text:
-        raise RuntimeError("CommandReceiver notify setup delay patch marker not found")
-    COMMAND_RECEIVER.write_text(text.replace(RECEIVER_NOTIFY_OLD, RECEIVER_NOTIFY_NEW, 1), encoding="utf-8")
-    print(f"CommandReceiver: notify setup delay {NOTIFY_SETUP_DELAY_MS} ms (battery poll unchanged)")
+    match = RECEIVER_NOTIFY_RE.search(text)
+    if not match:
+        raise RuntimeError("CommandReceiver connect delay block not found")
+    text = RECEIVER_NOTIFY_RE.sub(RECEIVER_NOTIFY_IMMEDIATE, text, count=1)
+    COMMAND_RECEIVER.write_text(text, encoding="utf-8")
+    print("CommandReceiver: notify + first battery poll scheduled immediately")
 
 
 def main() -> int:
@@ -87,7 +90,7 @@ def main() -> int:
         return 1
     patch_command_sender()
     patch_command_receiver()
-    print("Bluetooth latency patches applied.")
+    print("Bluetooth minimum-latency patches applied.")
     return 0
 
 

@@ -18,25 +18,25 @@
 
 
 # instance fields
-.field private final activity:Lcom/isaigu/gymapp/BaseActivity;
-
 .field private final manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+.field private final root:Landroid/view/View;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/BaseActivity;Lcom/isaigu/gymapp/train/TrainItemManager;)V
+.method constructor <init>(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
     .registers 3
 
-    .line 250
+    .line 271
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 251
-    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->activity:Lcom/isaigu/gymapp/BaseActivity;
+    .line 272
+    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
 
-    .line 252
+    .line 273
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 253
+    .line 274
     return-void
 .end method
 
@@ -45,38 +45,60 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 257
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+    .line 278
+    if-eqz p1, :cond_3
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
+    goto :goto_5
+
+    :cond_3
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
+
+    :goto_5
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 258
-    if-nez p1, :cond_11
+    .line 279
+    if-nez p1, :cond_13
 
-    .line 259
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->activity:Lcom/isaigu/gymapp/BaseActivity;
+    .line 280
+    const/4 p1, 0x0
 
+    const v0, 0x7f0d010b
+
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;I)V
+
+    .line 281
+    return-void
+
+    .line 283
+    :cond_13
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
+
+    .line 284
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    move-result-object v0
+
+    .line 285
+    if-nez v0, :cond_25
+
+    .line 286
     const v0, 0x7f0d011a
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;I)V
 
-    .line 260
+    .line 287
     return-void
 
-    .line 262
-    :cond_11
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->activity:Lcom/isaigu/gymapp/BaseActivity;
+    .line 289
+    :cond_25
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveActivity(Landroid/app/Activity;)Lcom/isaigu/gymapp/BaseActivity;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100(Landroid/app/Activity;)Lcom/isaigu/gymapp/BaseActivity;
-
-    move-result-object v0
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Lcom/isaigu/gymapp/BaseActivity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
-
-    .line 263
+    .line 290
     return-void
 .end method

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 370
+    .line 326
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,144 +32,84 @@
 .method public onClick(Landroid/view/View;)V
     .registers 5
 
-    .line 373
+    .line 329
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 374
+    .line 330
     if-nez p1, :cond_d
 
-    .line 375
+    .line 331
     const p1, 0x7f0d010b
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 376
+    .line 332
     return-void
 
-    .line 378
+    .line 334
     :cond_d
-    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingItem:Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100()Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v0
-
-    .line 379
-    if-nez v0, :cond_1b
-
-    .line 380
-    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$200()Lcom/isaigu/gymapp/train/TrainItemManager;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v0
-
-    .line 382
-    :cond_1b
-    if-nez v0, :cond_24
-
-    .line 383
-    const p1, 0x7f0d011a
-
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
-
-    .line 384
-    return-void
-
-    .line 386
-    :cond_24
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 387
-    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingActivity:Landroid/app/Activity;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$302(Landroid/app/Activity;)Landroid/app/Activity;
-
-    .line 388
-    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingItem:Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    .line 389
-    const/4 v0, 0x1
-
-    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$402(Z)Z
-
-    .line 390
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->hideDialogForPicker()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$500()V
-
-    .line 392
-    :try_start_34
+    .line 336
+    :try_start_10
     new-instance v0, Landroid/content/Intent;
 
-    const-string v1, "android.intent.action.GET_CONTENT"
+    const-string v1, "android.intent.action.OPEN_DOCUMENT"
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 393
-    const-string v1, "audio/*"
-
-    invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
-
-    .line 394
+    .line 337
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 395
-    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->hostFragment:Landroid/support/v4/app/Fragment;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$600()Landroid/support/v4/app/Fragment;
+    .line 338
+    const-string v1, "audio/*"
 
-    move-result-object v1
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    const/16 v2, 0x4255
+    .line 339
+    const/4 v1, 0x1
 
-    if-eqz v1, :cond_55
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 396
-    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->hostFragment:Landroid/support/v4/app/Fragment;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$600()Landroid/support/v4/app/Fragment;
+    .line 340
+    const/16 v2, 0x40
 
-    move-result-object p1
+    invoke-virtual {v0, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    invoke-virtual {p1, v0, v2}, Landroid/support/v4/app/Fragment;->startActivityForResult(Landroid/content/Intent;I)V
+    .line 341
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(Z)Z
 
-    goto :goto_58
+    .line 342
+    const/16 v1, 0x4255
 
-    .line 398
-    :cond_55
-    invoke-virtual {p1, v0, v2}, Landroid/app/Activity;->startActivityForResult(Landroid/content/Intent;I)V
-    :try_end_58
-    .catchall {:try_start_34 .. :try_end_58} :catchall_59
+    invoke-virtual {p1, v0, v1}, Landroid/app/Activity;->startActivityForResult(Landroid/content/Intent;I)V
+    :try_end_32
+    .catchall {:try_start_10 .. :try_end_32} :catchall_33
 
-    .line 404
-    :goto_58
-    goto :goto_67
+    .line 346
+    goto :goto_3e
 
-    .line 400
-    :catchall_59
+    .line 343
+    :catchall_33
     move-exception p1
 
-    .line 401
+    .line 344
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$402(Z)Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(Z)Z
 
-    .line 402
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreDialogAfterPick()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$700()V
-
-    .line 403
+    .line 345
     const p1, 0x7f0d0113
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 405
-    :goto_67
+    .line 347
+    :goto_3e
     return-void
 .end method

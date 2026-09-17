@@ -30,7 +30,7 @@
 
 # virtual methods
 .method public run()V
-    .registers 2
+    .registers 3
 
     .line 333
     const/16 v0, -0x13
@@ -41,7 +41,7 @@
     :goto_5
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    if-eqz v0, :cond_18
+    if-eqz v0, :cond_1f
 
     .line 336
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
@@ -53,7 +53,7 @@
     if-nez v0, :cond_10
 
     .line 338
-    goto :goto_18
+    goto :goto_1f
 
     .line 340
     :cond_10
@@ -65,11 +65,26 @@
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$600(I)V
 
-    .line 341
+    .line 342
+    const-wide/16 v0, 0x5
+
+    :try_start_19
+    invoke-static {v0, v1}, Ljava/lang/Thread;->sleep(J)V
+    :try_end_1c
+    .catch Ljava/lang/InterruptedException; {:try_start_19 .. :try_end_1c} :catch_1e
+
+    .line 345
+    nop
+
+    .line 346
     goto :goto_5
 
-    .line 342
-    :cond_18
-    :goto_18
+    .line 343
+    :catch_1e
+    move-exception v0
+
+    .line 347
+    :cond_1f
+    :goto_1f
     return-void
 .end method

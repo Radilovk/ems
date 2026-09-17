@@ -18,7 +18,7 @@ import com.isaigu.gymapp.utils.AndroidUtils;
 
 /**
  * Low-latency mic → {@link MasterStrengthControl#setMasterStrength(int)}.
- * Tight read loop (no sleep), coalesced postAtFrontOfQueue apply on main thread.
+ * Coalesced handler.post apply on main thread; short sleep in mic loop to avoid CPU spin.
  */
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
@@ -31,6 +31,7 @@ public class MusicSync {
     private static final int AUDIO_BUFFER_SAMPLES = 128;
     private static final long UI_INTERVAL_MS = 80L;
     private static final long BLE_MIN_INTERVAL_MS = 16L;
+    private static final long READ_YIELD_MS = 5L;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
@@ -108,7 +109,7 @@ public class MusicSync {
         }
         ensureHandler();
         handler.removeCallbacks(applyRunnable);
-        handler.postAtFrontOfQueue(applyRunnable);
+        handler.post(applyRunnable);
     }
 
     private static Context permissionContext() {
@@ -292,7 +293,6 @@ public class MusicSync {
         }
         if (handler != null) {
             handler.removeCallbacks(applyRunnable);
-            handler.removeCallbacksAndMessages(null);
         }
         releaseAudio();
         liveStrength = 0;
@@ -338,6 +338,11 @@ public class MusicSync {
                             break;
                         }
                         pushSoundLevel(sampleSoundPercent(r));
+                        try {
+                            Thread.sleep(READ_YIELD_MS);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
                     }
                 }
             }, "MusicSyncMic");

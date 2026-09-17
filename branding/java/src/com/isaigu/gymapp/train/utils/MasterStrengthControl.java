@@ -88,6 +88,9 @@ public final class MasterStrengthControl {
      */
     public static void setMasterStrength(int percent) {
         percent = clamp(percent);
+        if (percent == lastApplied) {
+            return;
+        }
         TrainItem item = targetItem;
         if (item == null) {
             return;

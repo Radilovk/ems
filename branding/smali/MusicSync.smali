@@ -60,11 +60,8 @@
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    if-nez v0, :cond_has_manager
+    if-eqz v0, :cond_skip_apply
 
-    return-void
-
-    :cond_has_manager
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->notEmptyItems()Ljava/util/stream/Stream;
 
     move-result-object v0
@@ -74,6 +71,8 @@
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/train/utils/MusicSync$StrengthApplier;-><init>(I)V
 
     invoke-interface {v0, v1}, Ljava/util/stream/Stream;->forEach(Ljava/util/function/Consumer;)V
+
+    :cond_skip_apply
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
 
@@ -86,13 +85,13 @@
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
-    if-nez v0, :cond_has_record
+    if-eqz v0, :cond_no_record
 
     sget v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastAppliedStrength:I
 
     return v0
 
-    :cond_has_record
+    :cond_no_record
     const/16 v1, 0x400
 
     new-array v1, v1, [S
@@ -188,7 +187,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
-    if-nez v0, :cond_done
+    if-eqz v0, :cond_skip_create
 
     new-instance v0, Landroid/os/Handler;
 
@@ -200,7 +199,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
-    :cond_done
+    :cond_skip_create
     return-void
 .end method
 
@@ -209,11 +208,8 @@
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
-    if-nez v0, :cond_has_record
+    if-eqz v0, :cond_skip_release
 
-    return-void
-
-    :cond_has_record
     :try_start_0
     invoke-virtual {v0}, Landroid/media/AudioRecord;->getState()I
 
@@ -221,7 +217,7 @@
 
     const/4 v2, 0x1
 
-    if-ne v1, v2, :cond_release
+    if-ne v1, v2, :cond_done
 
     invoke-virtual {v0}, Landroid/media/AudioRecord;->getRecordingState()I
 
@@ -236,7 +232,7 @@
     :cond_stop
     invoke-virtual {v0}, Landroid/media/AudioRecord;->release()V
 
-    :cond_release
+    :cond_done
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
@@ -245,6 +241,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
+    :cond_skip_release
     return-void
 .end method
 
@@ -253,11 +250,8 @@
 
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    if-nez v0, :cond_running
+    if-eqz v0, :cond_skip_schedule
 
-    return-void
-
-    :cond_running
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
@@ -270,6 +264,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
+    :cond_skip_schedule
     return-void
 .end method
 
@@ -458,11 +453,11 @@
 .method public static start(Landroid/app/Activity;II)V
     .locals 3
 
-    if-nez p0, :cond_has_activity
+    if-eqz p0, :cond_start_ok
 
     return-void
 
-    :cond_has_activity
+    :cond_start_ok
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setStrengthRange(II)V
@@ -473,13 +468,8 @@
 
     move-result v1
 
-    if-nez v1, :cond_granted
+    if-nez v1, :cond_request_permission
 
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
-
-    goto :goto_end
-
-    :cond_granted
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showPermission()V
 
     new-instance v1, Lcom/isaigu/gymapp/train/utils/MusicSync$PermissionCallback;
@@ -489,6 +479,11 @@
     const/16 v2, 0x4254
 
     invoke-static {p0, v0, v2, v1}, Lcom/isaigu/gymapp/utils/AndroidUtils;->requestPermission(Landroid/app/Activity;Ljava/lang/String;ILcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;)V
+
+    goto :goto_end
+
+    :cond_request_permission
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 
     :goto_end
     return-void

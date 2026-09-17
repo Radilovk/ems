@@ -67,7 +67,7 @@ public class MusicSync {
             }
             lastPushedApplied = value;
             lastBleMs = SystemClock.elapsedRealtime();
-            MasterStrengthControl.setMasterStrength(value, !playerMode);
+            MasterStrengthControl.setMasterStrength(value, true);
             maybeUpdateUi();
         }
     };
@@ -108,8 +108,8 @@ public class MusicSync {
         }
         if (playerMode) {
             float target = level / 100f;
-            float attack = 0.55f;
-            float release = 0.22f;
+            float attack = 0.92f;
+            float release = 0.62f;
             float rate = target > playerSmoothedSound ? attack : release;
             playerSmoothedSound += (target - playerSmoothedSound) * rate;
             level = Math.round(playerSmoothedSound * 100f);
@@ -283,28 +283,7 @@ public class MusicSync {
 
     private static int envelopeToSoundPercent(double rms) {
         updateEnvelope(rms);
-
-        double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
-        if (gateRatio < 0.05) {
-            gateRatio = 0.05;
-        }
-        double noiseGate = Math.max(35.0, trackedPeakRms * gateRatio);
-        if (smoothedRms <= noiseGate) {
-            return 0;
-        }
-
-        double span = trackedPeakRms - noiseGate;
-        if (span < 25.0) {
-            span = 25.0;
-        }
-        double level = (smoothedRms - noiseGate) / span;
-        if (level < 0.0) {
-            level = 0.0;
-        } else if (level > 1.0) {
-            level = 1.0;
-        }
-
-        return clampPercent((int) Math.round(level * 100.0));
+        return clampPercent(SoundEnvelopeMapper.rmsToPercent(smoothedRms, trackedPeakRms, sensitivity));
     }
 
     private static int sampleSoundPercent(AudioRecord rec) {
@@ -356,6 +335,7 @@ public class MusicSync {
         releasePlayer();
         liveStrength = 0;
         resetAudioLevels();
+        setSyncActive(false);
     }
 
     static void startCapture() {
@@ -384,6 +364,7 @@ public class MusicSync {
                 return;
             }
             running = true;
+            setSyncActive(true);
             liveStrength = 0;
             MusicSyncHelper.showActive(0, getStrengthCeiling());
             audioThread = new Thread(new Runnable() {
@@ -419,6 +400,39 @@ public class MusicSync {
 
     public static boolean isRunning() {
         return running;
+    }
+
+    public static boolean isPlayerMode() {
+        return playerMode;
+    }
+
+    public static boolean isTargetItem(TrainItem item) {
+        if (item == null) {
+            return false;
+        }
+        TrainItem target = MasterStrengthControl.getTarget();
+        return target == item;
+    }
+
+    /** +/− with MA index: adjust ceiling, re-apply current sound envelope. */
+    public static boolean adjustCeiling(int delta) {
+        if (!running || delta == 0) {
+            return false;
+        }
+        MasterStrengthControl.adjustCeiling(delta);
+        int applied = MasterStrengthControl.scaleFromSound(liveStrength);
+        lastPushedApplied = -1;
+        pendingApplied = applied;
+        ensureHandler();
+        handler.removeCallbacks(applyRunnable);
+        applyRunnable.run();
+        MasterStrengthControl.refreshSyncLabel();
+        maybeUpdateUi();
+        return true;
+    }
+
+    private static void setSyncActive(boolean active) {
+        MasterStrengthControl.setSyncActive(active);
     }
 
     public static int getLiveStrength() {
@@ -483,6 +497,7 @@ public class MusicSync {
             playerEngine = engine;
             playerMode = true;
             running = true;
+            setSyncActive(true);
             liveStrength = 0;
             MusicPlayerHelper.showActive(0, getStrengthCeiling());
         } catch (Throwable t) {

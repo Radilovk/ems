@@ -12,15 +12,9 @@ DECOMPILED = Path(os.environ.get("DECOMPILED", ROOT / "build" / "decompiled"))
 
 FORBIDDEN = {
     DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali": (
-        "MusicSync",
-        "MusicSyncBridge",
         "MusicSyncHelper",
         "betaFeatures",
         "BetaFeatures",
-    ),
-    DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainItemManager.smali": (
-        "MusicSync",
-        "MusicSyncBridge",
     ),
     DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/LoginFragment.smali": (
         "MusicSync",

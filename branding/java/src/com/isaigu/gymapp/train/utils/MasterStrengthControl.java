@@ -19,6 +19,7 @@ public final class MasterStrengthControl {
     private static WeakReference<TextView> maLabelRef;
     private static int ceiling = 100;
     private static int lastApplied = -1;
+    private static boolean syncActive;
 
     private MasterStrengthControl() {
     }
@@ -77,6 +78,20 @@ public final class MasterStrengthControl {
         }
     }
 
+    /** Bump impulse ceiling during music sync (+/− with MA index selected). */
+    public static int adjustCeiling(int delta) {
+        setCeiling(ceiling + delta);
+        return ceiling;
+    }
+
+    public static void setSyncActive(boolean active) {
+        syncActive = active;
+    }
+
+    public static boolean isSyncActive() {
+        return syncActive;
+    }
+
     /** Map raw sound level 0–100% onto [0, ceiling]. */
     public static int scaleFromSound(int soundPercent) {
         return clamp(ceiling * clamp(soundPercent) / 100);
@@ -120,7 +135,11 @@ public final class MasterStrengthControl {
 
             TextView ma = maLabelRef != null ? maLabelRef.get() : null;
             if (ma != null) {
-                ma.setText(percent + " %");
+                if (syncActive) {
+                    ma.setText(percent + "% / " + ceiling + "%");
+                } else {
+                    ma.setText(percent + " %");
+                }
             }
         }
 
@@ -152,6 +171,17 @@ public final class MasterStrengthControl {
 
     public static void resetApplied() {
         lastApplied = -1;
+    }
+
+    /** Update MA label after ceiling change without a new BLE write. */
+    public static void refreshSyncLabel() {
+        if (!syncActive) {
+            return;
+        }
+        TextView ma = maLabelRef != null ? maLabelRef.get() : null;
+        if (ma != null) {
+            ma.setText(getLastApplied() + "% / " + ceiling + "%");
+        }
     }
 
     private static int clamp(int value) {

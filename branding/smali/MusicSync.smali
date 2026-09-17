@@ -247,45 +247,63 @@
     return-void
 .end method
 
-.method private static hasRecordPermission()Z
-    .locals 2
+.method private static getPermissionContext()Landroid/content/Context;
+    .locals 1
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
 
-    if-nez v0, :cond_no
+    if-eqz v0, :cond_try_main
+
+    return-object v0
+
+    :cond_try_main
+    invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method private static hasRecordPermission()Z
+    .locals 2
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPermissionContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    if-nez v0, :cond_no_context
 
     const/4 v0, 0x0
 
     return v0
 
-    :cond_no
+    :cond_no_context
     const-string v1, "android.permission.RECORD_AUDIO"
 
     invoke-static {v0, v1}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v0
 
-    if-nez v0, :cond_ok
+    if-nez v0, :cond_denied
 
     const/4 v0, 0x1
 
     return v0
 
-    :cond_ok
+    :cond_denied
     const/4 v0, 0x0
 
     return v0
 .end method
 
-.method private static openAudioAtRate(I)Z
+.method private static openAudioConfig(IIII)Z
     .locals 12
-    .param p0, "sampleRate"    # I
+    .param p0, "source"    # I
+    .param p1, "sampleRate"    # I
+    .param p2, "channelConfig"    # I
+    .param p3, "audioFormat"    # I
 
-    const/16 v0, 0x10
-
-    const/4 v1, 0x2
-
-    invoke-static {p0, v0, v1}, Landroid/media/AudioRecord;->getMinBufferSize(III)I
+    invoke-static {p1, p2, p3}, Landroid/media/AudioRecord;->getMinBufferSize(III)I
 
     move-result v2
 
@@ -298,15 +316,22 @@
     :cond_buf_ok
     shl-int/lit8 v2, v2, 0x1
 
+    const/16 v0, 0x1000
+
+    invoke-static {v0, v2}, Ljava/lang/Math;->max(II)I
+
+    move-result v2
+
+    :try_start_0
     new-instance v6, Landroid/media/AudioRecord;
 
-    const/4 v7, 0x1
+    move v7, p0
 
-    move v8, p0
+    move v8, p1
 
-    const/16 v9, 0x10
+    move v9, p2
 
-    const/4 v10, 0x2
+    move v10, p3
 
     move v11, v2
 
@@ -327,12 +352,302 @@
     return v0
 
     :cond_fail
-    :try_start_0
     invoke-virtual {v6}, Landroid/media/AudioRecord;->release()V
     :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_release
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
 
-    :catch_release
+    :catch_all
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+.method private static tryOpenBuilder(II)Z
+    .locals 6
+    .param p0, "source"    # I
+    .param p1, "sampleRate"    # I
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x17
+
+    if-lt v0, v1, :cond_fail
+
+    const/16 v0, 0x10
+
+    const/4 v1, 0x2
+
+    invoke-static {p1, v0, v1}, Landroid/media/AudioRecord;->getMinBufferSize(III)I
+
+    move-result v2
+
+    if-lez v2, :cond_fail
+
+    shl-int/lit8 v2, v2, 0x1
+
+    :try_start_0
+    new-instance v3, Landroid/media/AudioFormat$Builder;
+
+    invoke-direct {v3}, Landroid/media/AudioFormat$Builder;-><init>()V
+
+    invoke-virtual {v3, v1}, Landroid/media/AudioFormat$Builder;->setEncoding(I)Landroid/media/AudioFormat$Builder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, p1}, Landroid/media/AudioFormat$Builder;->setSampleRate(I)Landroid/media/AudioFormat$Builder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v0}, Landroid/media/AudioFormat$Builder;->setChannelMask(I)Landroid/media/AudioFormat$Builder;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Landroid/media/AudioFormat$Builder;->build()Landroid/media/AudioFormat;
+
+    move-result-object v3
+
+    new-instance v4, Landroid/media/AudioRecord$Builder;
+
+    invoke-direct {v4}, Landroid/media/AudioRecord$Builder;-><init>()V
+
+    invoke-virtual {v4, p0}, Landroid/media/AudioRecord$Builder;->setAudioSource(I)Landroid/media/AudioRecord$Builder;
+
+    move-result-object v4
+
+    invoke-virtual {v4, v3}, Landroid/media/AudioRecord$Builder;->setAudioFormat(Landroid/media/AudioFormat;)Landroid/media/AudioRecord$Builder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v2}, Landroid/media/AudioRecord$Builder;->setBufferSizeInBytes(I)Landroid/media/AudioRecord$Builder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Landroid/media/AudioRecord$Builder;->build()Landroid/media/AudioRecord;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Landroid/media/AudioRecord;->getState()I
+
+    move-result v3
+
+    const/4 v4, 0x1
+
+    if-ne v3, v4, :cond_release
+
+    sput-object v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_release
+    invoke-virtual {v2}, Landroid/media/AudioRecord;->release()V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
+
+    :catch_all
+    :cond_fail
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+.method private static tryOpenAllConfigs()Z
+    .locals 4
+
+    const/4 v0, 0x0
+
+    const v1, 0xac44
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->tryOpenBuilder(II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_b1
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_b1
+    const/4 v0, 0x1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->tryOpenBuilder(II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_b2
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_b2
+    const/4 v0, 0x6
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->tryOpenBuilder(II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_b3
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_b3
+    const/4 v0, 0x0
+
+    const v1, 0xac44
+
+    const/16 v2, 0x10
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c1
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c1
+    const/4 v0, 0x0
+
+    const v1, 0x3e80
+
+    const/16 v2, 0x10
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c2
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c2
+    const/4 v0, 0x1
+
+    const v1, 0xac44
+
+    const/16 v2, 0x10
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c3
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c3
+    const/4 v0, 0x1
+
+    const v1, 0x3e80
+
+    const/16 v2, 0x10
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c4
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c4
+    const/4 v0, 0x6
+
+    const v1, 0x3e80
+
+    const/16 v2, 0x10
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c5
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c5
+    const/4 v0, 0x5
+
+    const v1, 0xac44
+
+    const/16 v2, 0x10
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c6
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c6
+    const/4 v0, 0x0
+
+    const v1, 0x1f40
+
+    const/16 v2, 0x10
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c7
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c7
+    const/4 v0, 0x1
+
+    const v1, 0xac44
+
+    const/16 v2, 0xc
+
+    const/4 v3, 0x2
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioConfig(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c8
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_c8
     const/4 v0, 0x0
 
     return v0
@@ -380,31 +695,7 @@
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 
     :try_start_0
-    const v0, 0x3e80
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioAtRate(I)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_try_44100
-
-    goto :goto_opened
-
-    :cond_try_44100
-    const v0, 0xac44
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioAtRate(I)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_try_8000
-
-    goto :goto_opened
-
-    :cond_try_8000
-    const v0, 0x1f40
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioAtRate(I)Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->tryOpenAllConfigs()Z
 
     move-result v0
 
@@ -608,8 +899,13 @@
 
     move-result v1
 
-    if-nez v1, :cond_request_permission
+    if-nez v1, :cond_need_permission
 
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
+
+    goto :goto_end
+
+    :cond_need_permission
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showPermission()V
 
     new-instance v1, Lcom/isaigu/gymapp/train/utils/MusicSync$PermissionCallback;
@@ -619,11 +915,6 @@
     const/16 v2, 0x4254
 
     invoke-static {p0, v0, v2, v1}, Lcom/isaigu/gymapp/utils/AndroidUtils;->requestPermission(Landroid/app/Activity;Ljava/lang/String;ILcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;)V
-
-    goto :goto_end
-
-    :cond_request_permission
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 
     :goto_end
     return-void

@@ -137,7 +137,7 @@
 
     move-result-object v1
 
-    if-nez v1, :goto_try_view
+    if-eqz v1, :goto_try_view
 
     invoke-virtual {v1}, Landroid/app/Dialog;->getOwnerActivity()Landroid/app/Activity;
 
@@ -148,7 +148,7 @@
     return-object v0
 
     :goto_try_view
-    if-nez p1, :cond_try_cached
+    if-eqz p1, :cond_try_cached
 
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 

@@ -19,8 +19,8 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"\.method public static start\(Landroid/app/Activity;II\)V[\s\S]*?if-nez v1, :cond_request_permission",
-        "start() requests permission only when not granted",
+        r"\.method public static start\(Landroid/app/Activity;II\)V[\s\S]*?if-nez v1, :cond_need_permission[\s\S]*?startCapture\(\)V[\s\S]*?:cond_need_permission",
+        "start() calls startCapture when permission granted, else requests permission",
     ),
     (
         "MusicSync.smali",
@@ -34,8 +34,18 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"\.method private static openAudioAtRate\(I\)Z[\s\S]*?getState\(\)I[\s\S]*?if-ne v0, v1, :cond_fail",
-        "openAudioAtRate() fails only when AudioRecord is not INITIALIZED",
+        r"\.method private static openAudioConfig\(IIII\)Z[\s\S]*?getState\(\)I[\s\S]*?if-ne v0, v1, :cond_fail",
+        "openAudioConfig() fails only when AudioRecord is not INITIALIZED",
+    ),
+    (
+        "MusicSync.smali",
+        r"\.method private static tryOpenAllConfigs\(\)Z",
+        "tryOpenAllConfigs() exists for multi-source mic fallback",
+    ),
+    (
+        "MusicSync.smali",
+        r"\.method private static tryOpenBuilder\(II\)Z[\s\S]*?if-lt v0, v1, :cond_fail[\s\S]*?if-lez v2, :cond_fail",
+        "tryOpenBuilder() skips only on API < 23 or invalid buffer size",
     ),
     (
         "MusicSync.smali",
@@ -44,8 +54,8 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"\.method private static startCapture\(\)V[\s\S]*?openAudioAtRate\(I\)Z",
-        "startCapture() uses openAudioAtRate helper",
+        r"\.method private static startCapture\(\)V[\s\S]*?tryOpenAllConfigs\(\)Z[\s\S]*?if-eqz v0, :cond_open_fail[\s\S]*?goto :goto_opened",
+        "startCapture() continues only when tryOpenAllConfigs succeeds",
     ),
     (
         "MusicSync$PermissionCallback.smali",
@@ -142,13 +152,38 @@ ANTI_PATTERNS = [
     ),
     (
         "MusicSync.smali",
-        r"\.method private static openAudioAtRate\(I\)Z[\s\S]*?if-eq v0, v1, :cond_fail",
-        "openAudioAtRate() must not treat INITIALIZED state as failure",
+        r"\.method private static openAudioConfig\(IIII\)Z[\s\S]*?if-eq v0, v1, :cond_fail",
+        "openAudioConfig() must not treat INITIALIZED state as failure",
+    ),
+    (
+        "MusicSync.smali",
+        r"if-eqz v0, :cond_open_fail\n\n    :cond_open_fail",
+        "startCapture() must not fall through to mic error when tryOpenAllConfigs succeeds",
     ),
     (
         "MusicSyncHelper$StartListener.smali",
         r"if-nez v0, :cond_no_activity",
         "StartListener must not skip start when activity is valid",
+    ),
+    (
+        "MusicSync.smali",
+        r"\.method private static tryOpenBuilder\(II\)Z[\s\S]*?if-ge v0, v1, :cond_fail",
+        "tryOpenBuilder() must not skip Builder path on API 23+ (inverted SDK check)",
+    ),
+    (
+        "MusicSync.smali",
+        r"\.method private static tryOpenBuilder\(II\)Z[\s\S]*?getMinBufferSize\(III\)I[\s\S]*?if-gtz v2, :cond_fail",
+        "tryOpenBuilder() must not fail when buffer size is valid (inverted if-gtz)",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r"getDialog\(\)Landroid/app/Dialog;[\s\S]*?if-nez v1, :goto_try_view",
+        "resolveActivityForDialog() must not skip getOwnerActivity when dialog exists",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r":goto_try_view[\s\S]*?if-nez p1, :cond_try_cached",
+        "resolveActivityForDialog() must not skip view context when view exists",
     ),
 ]
 

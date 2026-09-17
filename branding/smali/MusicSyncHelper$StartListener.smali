@@ -20,56 +20,59 @@
 .method public onClick(Landroid/view/View;)V
     .locals 4
 
-    :try_start_0
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->getActivity()Landroid/app/Activity;
+
+    move-result-object v0
+
+    if-nez v0, :cond_try_context
+
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    move-result-object p1
+    move-result-object v1
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v0
 
-    if-nez p1, :cond_has_activity
+    :cond_try_context
+    if-nez v0, :cond_has_activity
 
-    const v0, 0x7f0d010b
+    const v1, 0x7f0d010b
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
     return-void
 
     :cond_has_activity
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->getMinAmount()Lcom/isaigu/gymapp/widget/AmountView;
 
-    move-result-object v0
+    move-result-object v1
 
-    const/16 v1, 0x14
+    const/16 v2, 0x14
 
-    if-eqz v0, :cond_min
+    if-eqz v1, :cond_min
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/AmountView;->getAmount()I
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/widget/AmountView;->getAmount()I
 
-    move-result v1
+    move-result v2
 
     :cond_min
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->getMaxAmount()Lcom/isaigu/gymapp/widget/AmountView;
 
-    move-result-object v0
+    move-result-object v1
 
-    const/16 v2, 0x50
+    const/16 v3, 0x50
 
-    if-eqz v0, :cond_max
+    if-eqz v1, :cond_max
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/AmountView;->getAmount()I
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/widget/AmountView;->getAmount()I
 
-    move-result v2
+    move-result v3
 
     :cond_max
-    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
 
-    invoke-static {p1, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
+    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
 
-    :catch_all
     return-void
 .end method

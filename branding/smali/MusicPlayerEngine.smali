@@ -15,16 +15,14 @@
 
 
 # static fields
-.field private static final PCM_WINDOW_SAMPLES:I = 0x200
+.field private static final PCM_WINDOW_FRAMES:I = 0x100
 
-.field private static final SYNC_OFFSET_MS:I = 0x5a
+.field private static final SYNC_OFFSET_MS:I = 0x32
 
 .field private static final WINDOW_MS:I = 0x14
 
 
 # instance fields
-.field private durationMs:I
-
 .field private envelope:[I
 
 .field private final handler:Landroid/os/Handler;
@@ -32,6 +30,8 @@
 .field private listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
 .field private player:Landroid/media/MediaPlayer;
+
+.field private syncAnchorWallMs:J
 
 .field private syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
@@ -42,10 +42,10 @@
 .method public constructor <init>()V
     .registers 3
 
-    .line 19
+    .line 20
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 34
+    .line 35
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -62,7 +62,7 @@
 .method static synthetic access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
     .registers 1
 
-    .line 19
+    .line 20
     iget-boolean p0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
     return p0
@@ -71,7 +71,7 @@
 .method static synthetic access$100(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/media/MediaPlayer;
     .registers 1
 
-    .line 19
+    .line 20
     iget-object p0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
     return-object p0
@@ -80,7 +80,7 @@
 .method static synthetic access$200(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)[I
     .registers 1
 
-    .line 19
+    .line 20
     iget-object p0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
 
     return-object p0
@@ -89,26 +89,26 @@
 .method static synthetic access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/os/Handler;
     .registers 1
 
-    .line 19
+    .line 20
     iget-object p0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
     return-object p0
 .end method
 
 .method public static buildEnvelope(Landroid/content/Context;Landroid/net/Uri;)[I
-    .registers 25
+    .registers 29
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
         }
     .end annotation
 
-    .line 44
+    .line 48
     new-instance v0, Landroid/media/MediaExtractor;
 
     invoke-direct {v0}, Landroid/media/MediaExtractor;-><init>()V
 
-    .line 45
+    .line 49
     const/4 v1, 0x0
 
     move-object/from16 v2, p0
@@ -117,10 +117,10 @@
 
     invoke-virtual {v0, v2, v3, v1}, Landroid/media/MediaExtractor;->setDataSource(Landroid/content/Context;Landroid/net/Uri;Ljava/util/Map;)V
 
-    .line 46
+    .line 50
     nop
 
-    .line 47
+    .line 51
     const/4 v2, 0x0
 
     const/4 v3, 0x0
@@ -132,22 +132,20 @@
 
     const-string v5, "mime"
 
-    const/4 v6, -0x1
+    if-ge v3, v4, :cond_2f
 
-    if-ge v3, v4, :cond_30
-
-    .line 48
+    .line 52
     invoke-virtual {v0, v3}, Landroid/media/MediaExtractor;->getTrackFormat(I)Landroid/media/MediaFormat;
 
     move-result-object v4
 
-    .line 49
+    .line 53
     invoke-virtual {v4, v5}, Landroid/media/MediaFormat;->getString(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
-    .line 50
-    if-eqz v4, :cond_2d
+    .line 54
+    if-eqz v4, :cond_2c
 
     const-string v7, "audio/"
 
@@ -155,315 +153,329 @@
 
     move-result v4
 
-    if-eqz v4, :cond_2d
+    if-eqz v4, :cond_2c
 
-    .line 51
+    .line 55
     nop
 
-    .line 52
-    goto :goto_31
+    .line 56
+    goto :goto_30
 
-    .line 47
-    :cond_2d
+    .line 51
+    :cond_2c
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_10
 
-    :cond_30
+    :cond_2f
     const/4 v3, -0x1
 
-    .line 55
-    :goto_31
-    if-gez v3, :cond_37
-
-    .line 56
-    invoke-virtual {v0}, Landroid/media/MediaExtractor;->release()V
-
-    .line 57
-    return-object v1
-
     .line 59
-    :cond_37
-    invoke-virtual {v0, v3}, Landroid/media/MediaExtractor;->selectTrack(I)V
+    :goto_30
+    if-gez v3, :cond_36
 
     .line 60
+    invoke-virtual {v0}, Landroid/media/MediaExtractor;->release()V
+
+    .line 61
+    return-object v1
+
+    .line 63
+    :cond_36
+    invoke-virtual {v0, v3}, Landroid/media/MediaExtractor;->selectTrack(I)V
+
+    .line 64
     invoke-virtual {v0, v3}, Landroid/media/MediaExtractor;->getTrackFormat(I)Landroid/media/MediaFormat;
 
     move-result-object v3
 
-    .line 61
-    const v4, 0xac44
+    .line 65
+    const-string v4, "channel-count"
 
-    const-string v7, "sample-rate"
+    const/4 v7, 0x1
 
-    invoke-static {v3, v7, v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->readIntFormat(Landroid/media/MediaFormat;Ljava/lang/String;I)I
+    invoke-static {v3, v4, v7}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->readIntFormat(Landroid/media/MediaFormat;Ljava/lang/String;I)I
 
     move-result v4
 
-    .line 62
-    const-string v7, "channel-count"
-
-    const/4 v8, 0x1
-
-    invoke-static {v3, v7, v8}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->readIntFormat(Landroid/media/MediaFormat;Ljava/lang/String;I)I
-
-    move-result v7
-
-    .line 63
-    if-ge v7, v8, :cond_51
-
-    .line 64
-    const/4 v7, 0x1
-
     .line 66
-    :cond_51
-    const-string v9, "durationUs"
+    if-ge v4, v7, :cond_47
 
-    const-wide/16 v10, 0x0
+    .line 67
+    const/4 v4, 0x1
 
-    invoke-static {v3, v9, v10, v11}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->readLongFormat(Landroid/media/MediaFormat;Ljava/lang/String;J)J
-
-    move-result-wide v12
-
-    .line 68
+    .line 70
+    :cond_47
     invoke-virtual {v3, v5}, Landroid/media/MediaFormat;->getString(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 69
+    .line 71
     invoke-static {v5}, Landroid/media/MediaCodec;->createDecoderByType(Ljava/lang/String;)Landroid/media/MediaCodec;
 
     move-result-object v5
 
-    .line 70
+    .line 72
     invoke-virtual {v5, v3, v1, v1, v2}, Landroid/media/MediaCodec;->configure(Landroid/media/MediaFormat;Landroid/view/Surface;Landroid/media/MediaCrypto;I)V
 
-    .line 71
+    .line 73
     invoke-virtual {v5}, Landroid/media/MediaCodec;->start()V
 
-    .line 73
+    .line 75
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 74
-    const/16 v3, 0x200
-
-    new-array v9, v3, [S
-
-    .line 75
-    nop
-
     .line 76
-    new-instance v15, Landroid/media/MediaCodec$BufferInfo;
-
-    invoke-direct {v15}, Landroid/media/MediaCodec$BufferInfo;-><init>()V
+    nop
 
     .line 77
     nop
 
     .line 78
-    const/4 v14, 0x0
+    nop
 
-    const/16 v21, 0x0
+    .line 79
+    new-instance v3, Landroid/media/MediaCodec$BufferInfo;
 
-    const/16 v22, 0x0
+    invoke-direct {v3}, Landroid/media/MediaCodec$BufferInfo;-><init>()V
 
     .line 80
-    :goto_7c
-    if-nez v21, :cond_1a7
+    nop
 
     .line 81
-    const-wide/16 v10, 0x2710
+    const-wide/16 v8, 0x0
 
-    if-nez v22, :cond_c7
+    const-wide/16 v10, 0x0
 
-    .line 82
-    invoke-virtual {v5, v10, v11}, Landroid/media/MediaCodec;->dequeueInputBuffer(J)I
-
-    move-result v8
-
-    .line 83
-    if-ltz v8, :cond_c4
-
-    .line 84
-    invoke-virtual {v5, v8}, Landroid/media/MediaCodec;->getInputBuffer(I)Ljava/nio/ByteBuffer;
-
-    move-result-object v16
-
-    .line 85
-    if-nez v16, :cond_97
-
-    .line 86
-    invoke-virtual {v5}, Landroid/media/MediaCodec;->getInputBuffers()[Ljava/nio/ByteBuffer;
-
-    move-result-object v16
-
-    aget-object v16, v16, v8
-
-    move-object/from16 v3, v16
-
-    goto :goto_99
-
-    .line 85
-    :cond_97
-    move-object/from16 v3, v16
-
-    .line 88
-    :goto_99
-    invoke-virtual {v0, v3, v2}, Landroid/media/MediaExtractor;->readSampleData(Ljava/nio/ByteBuffer;I)I
-
-    move-result v17
-
-    .line 89
-    if-gez v17, :cond_b1
-
-    .line 90
-    const/16 v16, 0x0
+    const-wide/16 v12, 0x0
 
     const/16 v17, 0x0
+
+    const/16 v18, 0x0
+
+    .line 83
+    :goto_6d
+    if-nez v17, :cond_18e
+
+    .line 84
+    const-wide/16 v6, 0x2710
+
+    if-nez v18, :cond_cd
+
+    .line 85
+    invoke-virtual {v5, v6, v7}, Landroid/media/MediaCodec;->dequeueInputBuffer(J)I
+
+    move-result v14
+
+    .line 86
+    if-ltz v14, :cond_c6
+
+    .line 87
+    invoke-virtual {v5, v14}, Landroid/media/MediaCodec;->getInputBuffer(I)Ljava/nio/ByteBuffer;
+
+    move-result-object v19
+
+    .line 88
+    if-nez v19, :cond_88
+
+    .line 89
+    invoke-virtual {v5}, Landroid/media/MediaCodec;->getInputBuffers()[Ljava/nio/ByteBuffer;
+
+    move-result-object v19
+
+    aget-object v19, v19, v14
+
+    move-object/from16 v15, v19
+
+    goto :goto_8a
+
+    .line 88
+    :cond_88
+    move-object/from16 v15, v19
+
+    .line 91
+    :goto_8a
+    invoke-virtual {v0, v15, v2}, Landroid/media/MediaExtractor;->readSampleData(Ljava/nio/ByteBuffer;I)I
+
+    move-result v15
+
+    .line 92
+    if-gez v15, :cond_ad
+
+    .line 93
+    const/4 v15, 0x0
+
+    const/16 v16, 0x0
 
     const-wide/16 v18, 0x0
 
     const/16 v20, 0x4
 
-    move v3, v14
+    move-wide/from16 v21, v8
 
-    move-object v14, v5
+    move-object v8, v5
 
-    move-object v2, v15
+    move v9, v14
 
-    move v15, v8
+    move-wide/from16 v23, v10
 
-    invoke-virtual/range {v14 .. v20}, Landroid/media/MediaCodec;->queueInputBuffer(IIIJI)V
+    move v10, v15
 
-    .line 91
-    const/16 v22, 0x1
+    move/from16 v11, v16
 
-    goto :goto_c9
+    move-wide v14, v12
 
-    .line 93
-    :cond_b1
-    move v3, v14
+    move-wide/from16 v12, v18
 
-    move-object v2, v15
+    move-wide/from16 v25, v14
 
-    const/16 v16, 0x0
+    move/from16 v14, v20
+
+    invoke-virtual/range {v8 .. v14}, Landroid/media/MediaCodec;->queueInputBuffer(IIIJI)V
+
+    .line 94
+    const/16 v18, 0x1
+
+    goto :goto_d3
+
+    .line 96
+    :cond_ad
+    move-wide/from16 v21, v8
+
+    move-wide/from16 v23, v10
+
+    move-wide/from16 v25, v12
+
+    const/4 v10, 0x0
 
     invoke-virtual {v0}, Landroid/media/MediaExtractor;->getSampleTime()J
 
-    move-result-wide v18
+    move-result-wide v12
 
-    const/16 v20, 0x0
+    const/16 v16, 0x0
 
-    move-object v14, v5
+    move-object v8, v5
 
-    move v15, v8
+    move v9, v14
 
-    invoke-virtual/range {v14 .. v20}, Landroid/media/MediaCodec;->queueInputBuffer(IIIJI)V
+    move v11, v15
 
-    .line 94
+    move/from16 v14, v16
+
+    invoke-virtual/range {v8 .. v14}, Landroid/media/MediaCodec;->queueInputBuffer(IIIJI)V
+
+    .line 97
     invoke-virtual {v0}, Landroid/media/MediaExtractor;->advance()Z
 
-    goto :goto_c9
+    goto :goto_d3
 
-    .line 83
-    :cond_c4
-    move v3, v14
+    .line 86
+    :cond_c6
+    move-wide/from16 v21, v8
 
-    move-object v2, v15
+    move-wide/from16 v23, v10
 
-    goto :goto_c9
+    move-wide/from16 v25, v12
 
-    .line 81
-    :cond_c7
-    move v3, v14
+    goto :goto_d3
 
-    move-object v2, v15
+    .line 84
+    :cond_cd
+    move-wide/from16 v21, v8
 
-    .line 99
-    :goto_c9
-    invoke-virtual {v5, v2, v10, v11}, Landroid/media/MediaCodec;->dequeueOutputBuffer(Landroid/media/MediaCodec$BufferInfo;J)I
+    move-wide/from16 v23, v10
 
-    move-result v8
+    move-wide/from16 v25, v12
 
-    .line 100
-    if-ne v8, v6, :cond_d7
+    .line 102
+    :goto_d3
+    invoke-virtual {v5, v3, v6, v7}, Landroid/media/MediaCodec;->dequeueOutputBuffer(Landroid/media/MediaCodec$BufferInfo;J)I
 
-    .line 101
-    move/from16 v18, v4
-
-    move-wide v15, v12
-
-    const/16 v4, 0x200
-
-    const/4 v6, 0x0
-
-    goto/16 :goto_199
+    move-result v6
 
     .line 103
-    :cond_d7
-    const/4 v10, -0x2
+    const/4 v7, -0x1
 
-    if-eq v8, v10, :cond_193
+    if-ne v6, v7, :cond_dd
 
-    const/4 v10, -0x3
+    .line 104
+    move-object v2, v3
 
-    if-ne v8, v10, :cond_e5
+    goto/16 :goto_183
 
-    .line 105
-    move/from16 v18, v4
+    .line 106
+    :cond_dd
+    const/4 v8, -0x2
 
-    move-wide v15, v12
+    if-eq v6, v8, :cond_182
 
-    const/16 v4, 0x200
+    const/4 v8, -0x3
 
-    const/4 v6, 0x0
-
-    goto/16 :goto_199
-
-    .line 107
-    :cond_e5
-    if-ltz v8, :cond_17f
+    if-ne v6, v8, :cond_e6
 
     .line 108
-    invoke-virtual {v5, v8}, Landroid/media/MediaCodec;->getOutputBuffer(I)Ljava/nio/ByteBuffer;
+    move-object v2, v3
+
+    goto/16 :goto_183
+
+    .line 110
+    :cond_e6
+    if-ltz v6, :cond_176
+
+    .line 111
+    iget v8, v3, Landroid/media/MediaCodec$BufferInfo;->size:I
+
+    if-lez v8, :cond_ef
+
+    .line 112
+    iget-wide v8, v3, Landroid/media/MediaCodec$BufferInfo;->presentationTimeUs:J
+
+    goto :goto_f1
+
+    .line 111
+    :cond_ef
+    move-wide/from16 v8, v21
+
+    .line 114
+    :goto_f1
+    invoke-virtual {v5, v6}, Landroid/media/MediaCodec;->getOutputBuffer(I)Ljava/nio/ByteBuffer;
 
     move-result-object v10
 
-    .line 109
-    if-nez v10, :cond_f3
+    .line 115
+    if-nez v10, :cond_fd
 
-    .line 110
+    .line 116
     invoke-virtual {v5}, Landroid/media/MediaCodec;->getOutputBuffers()[Ljava/nio/ByteBuffer;
 
     move-result-object v10
 
-    aget-object v10, v10, v8
+    aget-object v10, v10, v6
 
-    .line 112
-    :cond_f3
-    iget v11, v2, Landroid/media/MediaCodec$BufferInfo;->size:I
+    .line 118
+    :cond_fd
+    iget v11, v3, Landroid/media/MediaCodec$BufferInfo;->size:I
 
-    if-lez v11, :cond_168
+    if-lez v11, :cond_161
 
-    if-eqz v10, :cond_168
+    if-eqz v10, :cond_161
 
-    .line 113
-    iget v11, v2, Landroid/media/MediaCodec$BufferInfo;->offset:I
+    .line 119
+    iget v11, v3, Landroid/media/MediaCodec$BufferInfo;->offset:I
 
     invoke-virtual {v10, v11}, Ljava/nio/ByteBuffer;->position(I)Ljava/nio/Buffer;
 
-    .line 114
-    iget v11, v2, Landroid/media/MediaCodec$BufferInfo;->offset:I
+    .line 120
+    iget v11, v3, Landroid/media/MediaCodec$BufferInfo;->offset:I
 
-    iget v14, v2, Landroid/media/MediaCodec$BufferInfo;->size:I
+    iget v12, v3, Landroid/media/MediaCodec$BufferInfo;->size:I
 
-    add-int/2addr v11, v14
+    add-int/2addr v11, v12
 
     invoke-virtual {v10, v11}, Ljava/nio/ByteBuffer;->limit(I)Ljava/nio/Buffer;
 
-    .line 115
+    .line 121
     invoke-virtual {v10}, Ljava/nio/ByteBuffer;->slice()Ljava/nio/ByteBuffer;
 
     move-result-object v10
@@ -474,280 +486,445 @@
 
     move-result-object v10
 
-    .line 116
-    mul-int/lit8 v11, v7, 0x2
+    .line 122
+    mul-int/lit8 v11, v4, 0x2
 
-    move v14, v3
-
-    .line 117
-    :goto_113
-    invoke-virtual {v10}, Ljava/nio/ByteBuffer;->remaining()I
-
-    move-result v3
-
-    if-lt v3, v11, :cond_160
-
-    .line 118
-    nop
-
-    .line 119
-    move-wide v15, v12
-
-    const/4 v3, 0x0
-
-    move v13, v11
-
-    const-wide/16 v11, 0x0
-
-    :goto_11f
-    if-ge v3, v7, :cond_135
-
-    .line 120
-    invoke-virtual {v10}, Ljava/nio/ByteBuffer;->getShort()S
-
-    move-result v6
-
-    .line 121
-    move/from16 v18, v4
-
-    move-object/from16 v19, v5
-
-    int-to-long v4, v6
-
-    mul-long v4, v4, v4
-
-    add-long/2addr v11, v4
-
-    .line 119
-    add-int/lit8 v3, v3, 0x1
-
-    move/from16 v4, v18
-
-    move-object/from16 v5, v19
-
-    const/4 v6, -0x1
-
-    goto :goto_11f
+    move-wide/from16 v12, v25
 
     .line 123
-    :cond_135
-    move/from16 v18, v4
+    :goto_11e
+    invoke-virtual {v10}, Ljava/nio/ByteBuffer;->remaining()I
 
-    move-object/from16 v19, v5
+    move-result v14
 
-    add-int/lit8 v3, v14, 0x1
-
-    long-to-double v4, v11
-
-    int-to-double v11, v7
-
-    div-double/2addr v4, v11
-
-    invoke-static {v4, v5}, Ljava/lang/Math;->sqrt(D)D
-
-    move-result-wide v4
-
-    double-to-int v4, v4
-
-    int-to-short v4, v4
-
-    aput-short v4, v9, v14
+    if-lt v14, v11, :cond_15c
 
     .line 124
-    const/16 v4, 0x200
-
-    if-lt v3, v4, :cond_157
+    nop
 
     .line 125
-    invoke-static {v9, v3}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->sampleWindowToLevel([SI)I
-
-    move-result v3
-
-    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v3
-
-    invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
-    .line 126
     const/4 v14, 0x0
 
-    goto :goto_158
+    const-wide/16 v15, 0x0
 
-    .line 124
-    :cond_157
-    move v14, v3
+    :goto_128
+    if-ge v14, v4, :cond_13b
 
-    .line 128
-    :goto_158
-    move v11, v13
+    .line 126
+    invoke-virtual {v10}, Ljava/nio/ByteBuffer;->getShort()S
 
-    move-wide v12, v15
+    move-result v7
 
-    move/from16 v4, v18
+    .line 127
+    move-object/from16 v20, v3
 
-    move-object/from16 v5, v19
+    int-to-long v2, v7
 
-    const/4 v6, -0x1
+    mul-long v2, v2, v2
 
-    goto :goto_113
+    add-long/2addr v15, v2
 
-    .line 117
-    :cond_160
-    move/from16 v18, v4
+    .line 125
+    add-int/lit8 v14, v14, 0x1
 
-    move-object/from16 v19, v5
+    move-object/from16 v3, v20
 
-    move-wide v15, v12
+    const/4 v2, 0x0
 
-    const/16 v4, 0x200
+    const/4 v7, -0x1
 
-    goto :goto_170
+    goto :goto_128
 
-    .line 112
-    :cond_168
-    move/from16 v18, v4
+    .line 129
+    :cond_13b
+    move-object/from16 v20, v3
 
-    move-object/from16 v19, v5
-
-    move-wide v15, v12
-
-    const/16 v4, 0x200
+    add-long v2, v23, v15
 
     .line 130
-    move v14, v3
+    const-wide/16 v14, 0x1
 
-    :goto_170
-    move-object/from16 v5, v19
-
-    const/4 v6, 0x0
-
-    invoke-virtual {v5, v8, v6}, Landroid/media/MediaCodec;->releaseOutputBuffer(IZ)V
+    add-long/2addr v12, v14
 
     .line 131
+    const-wide/16 v14, 0x100
+
+    cmp-long v7, v12, v14
+
+    if-ltz v7, :cond_155
+
+    .line 132
+    invoke-static {v2, v3, v12, v13}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->frameRmsToLevel(JJ)I
+
+    move-result v2
+
+    .line 133
+    invoke-static {v1, v8, v9, v2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->writeBucket(Ljava/util/ArrayList;JI)V
+
+    .line 134
+    nop
+
+    .line 135
+    const-wide/16 v12, 0x0
+
+    const-wide/16 v23, 0x0
+
+    goto :goto_157
+
+    .line 131
+    :cond_155
+    move-wide/from16 v23, v2
+
+    .line 137
+    :goto_157
+    move-object/from16 v3, v20
+
+    const/4 v2, 0x0
+
+    const/4 v7, -0x1
+
+    goto :goto_11e
+
+    .line 123
+    :cond_15c
+    move-object/from16 v20, v3
+
+    move-wide/from16 v10, v23
+
+    goto :goto_167
+
+    .line 118
+    :cond_161
+    move-object/from16 v20, v3
+
+    .line 139
+    move-wide/from16 v10, v23
+
+    move-wide/from16 v12, v25
+
+    :goto_167
+    const/4 v2, 0x0
+
+    invoke-virtual {v5, v6, v2}, Landroid/media/MediaCodec;->releaseOutputBuffer(IZ)V
+
+    .line 140
+    move-object/from16 v2, v20
+
     iget v3, v2, Landroid/media/MediaCodec$BufferInfo;->flags:I
 
     and-int/lit8 v3, v3, 0x4
 
-    if-eqz v3, :cond_186
+    if-eqz v3, :cond_17d
 
-    .line 132
-    const/16 v21, 0x1
+    .line 141
+    const/16 v17, 0x1
 
-    goto :goto_186
+    goto :goto_17d
 
-    .line 107
-    :cond_17f
-    move/from16 v18, v4
+    .line 110
+    :cond_176
+    move-object v2, v3
 
-    move-wide v15, v12
+    move-wide/from16 v8, v21
 
-    const/16 v4, 0x200
+    move-wide/from16 v10, v23
 
-    const/4 v6, 0x0
+    move-wide/from16 v12, v25
 
-    move v14, v3
-
-    .line 135
-    :cond_186
-    :goto_186
-    move-wide v12, v15
-
-    move/from16 v4, v18
-
-    const/16 v3, 0x200
-
-    const/4 v6, -0x1
-
-    const/4 v8, 0x1
-
-    const-wide/16 v10, 0x0
-
-    move-object v15, v2
+    .line 144
+    :cond_17d
+    :goto_17d
+    move-object v3, v2
 
     const/4 v2, 0x0
 
-    goto/16 :goto_7c
+    const/4 v7, 0x1
 
-    .line 103
-    :cond_193
-    move/from16 v18, v4
+    goto/16 :goto_6d
 
-    move-wide v15, v12
+    .line 106
+    :cond_182
+    move-object v2, v3
 
-    const/16 v4, 0x200
+    .line 83
+    :goto_183
+    move-object v3, v2
 
-    const/4 v6, 0x0
+    move-wide/from16 v8, v21
 
-    .line 80
-    :goto_199
-    move v14, v3
+    move-wide/from16 v10, v23
 
-    move-wide v12, v15
-
-    move/from16 v4, v18
-
-    const/16 v3, 0x200
-
-    const/4 v6, -0x1
-
-    const/4 v8, 0x1
-
-    const-wide/16 v10, 0x0
-
-    move-object v15, v2
+    move-wide/from16 v12, v25
 
     const/4 v2, 0x0
 
-    goto/16 :goto_7c
+    const/4 v7, 0x1
 
-    .line 137
-    :cond_1a7
-    move/from16 v18, v4
+    goto/16 :goto_6d
 
-    move-wide v15, v12
+    .line 146
+    :cond_18e
+    move-wide/from16 v21, v8
 
-    move v3, v14
+    move-wide/from16 v23, v10
 
-    if-lez v3, :cond_1b8
+    move-wide/from16 v25, v12
 
-    .line 138
-    invoke-static {v9, v3}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->sampleWindowToLevel([SI)I
+    const-wide/16 v2, 0x0
+
+    cmp-long v4, v12, v2
+
+    if-lez v4, :cond_1a5
+
+    .line 147
+    move-wide/from16 v10, v23
+
+    invoke-static {v10, v11, v12, v13}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->frameRmsToLevel(JJ)I
 
     move-result v2
 
-    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    .line 148
+    move-wide/from16 v8, v21
+
+    invoke-static {v1, v8, v9, v2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->writeBucket(Ljava/util/ArrayList;JI)V
+
+    .line 151
+    :cond_1a5
+    invoke-virtual {v5}, Landroid/media/MediaCodec;->stop()V
+
+    .line 152
+    invoke-virtual {v5}, Landroid/media/MediaCodec;->release()V
+
+    .line 153
+    invoke-virtual {v0}, Landroid/media/MediaExtractor;->release()V
+
+    .line 155
+    invoke-virtual {v1}, Ljava/util/ArrayList;->isEmpty()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1bb
+
+    .line 156
+    const/4 v0, 0x1
+
+    new-array v0, v0, [I
+
+    const/4 v2, 0x0
+
+    aput v2, v0, v2
+
+    return-object v0
+
+    .line 158
+    :cond_1bb
+    const/4 v2, 0x0
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->fillTimelineGaps(Ljava/util/ArrayList;)V
+
+    .line 159
+    invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
+
+    move-result v0
+
+    new-array v0, v0, [I
+
+    .line 160
+    nop
+
+    :goto_1c6
+    invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
+
+    move-result v3
+
+    if-ge v2, v3, :cond_1db
+
+    .line 161
+    invoke-virtual {v1, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v3
+
+    check-cast v3, Ljava/lang/Integer;
+
+    invoke-virtual {v3}, Ljava/lang/Integer;->intValue()I
+
+    move-result v3
+
+    aput v3, v0, v2
+
+    .line 160
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_1c6
+
+    .line 163
+    :cond_1db
+    return-object v0
+.end method
+
+.method private static fillTimelineGaps(Ljava/util/ArrayList;)V
+    .registers 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/ArrayList<",
+            "Ljava/lang/Integer;",
+            ">;)V"
+        }
+    .end annotation
+
+    .line 181
+    nop
+
+    .line 182
+    const/4 v0, 0x0
+
+    const/4 v1, 0x0
+
+    :goto_3
+    invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
+
+    move-result v2
+
+    if-ge v0, v2, :cond_23
+
+    .line 183
+    invoke-virtual {p0, v0}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v2
 
-    invoke-virtual {v1, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+    check-cast v2, Ljava/lang/Integer;
 
-    .line 141
-    :cond_1b8
-    invoke-virtual {v5}, Landroid/media/MediaCodec;->stop()V
+    invoke-virtual {v2}, Ljava/lang/Integer;->intValue()I
 
-    .line 142
-    invoke-virtual {v5}, Landroid/media/MediaCodec;->release()V
+    move-result v2
 
-    .line 143
-    invoke-virtual {v0}, Landroid/media/MediaExtractor;->release()V
+    .line 184
+    if-lez v2, :cond_17
 
-    .line 145
-    move-wide v2, v15
+    .line 185
+    move v1, v2
 
-    move/from16 v0, v18
+    goto :goto_20
 
-    invoke-static {v1, v0, v7, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resampleToTimeline(Ljava/util/ArrayList;IIJ)[I
+    .line 186
+    :cond_17
+    if-lez v1, :cond_20
 
-    move-result-object v0
+    .line 187
+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    return-object v0
+    move-result-object v2
+
+    invoke-virtual {p0, v0, v2}, Ljava/util/ArrayList;->set(ILjava/lang/Object;)Ljava/lang/Object;
+
+    .line 182
+    :cond_20
+    :goto_20
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_3
+
+    .line 190
+    :cond_23
+    return-void
+.end method
+
+.method private static frameRmsToLevel(JJ)I
+    .registers 8
+
+    .line 212
+    const/4 v0, 0x0
+
+    const-wide/16 v1, 0x0
+
+    cmp-long v3, p2, v1
+
+    if-gtz v3, :cond_8
+
+    .line 213
+    return v0
+
+    .line 215
+    :cond_8
+    long-to-double p0, p0
+
+    long-to-double p2, p2
+
+    div-double/2addr p0, p2
+
+    invoke-static {p0, p1}, Ljava/lang/Math;->sqrt(D)D
+
+    move-result-wide p0
+
+    .line 216
+    const-wide p2, 0x40bf400000000000L    # 8000.0
+
+    div-double/2addr p0, p2
+
+    const-wide/high16 p2, 0x4059000000000000L    # 100.0
+
+    mul-double p0, p0, p2
+
+    invoke-static {p0, p1}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide p0
+
+    long-to-int p1, p0
+
+    .line 217
+    if-gez p1, :cond_21
+
+    .line 218
+    return v0
+
+    .line 220
+    :cond_21
+    const/16 p0, 0x64
+
+    if-le p1, p0, :cond_26
+
+    .line 221
+    return p0
+
+    .line 223
+    :cond_26
+    return p1
+.end method
+
+.method private static ptsToBucketIndex(J)I
+    .registers 5
+
+    .line 193
+    const-wide/16 v0, 0x0
+
+    cmp-long v2, p0, v0
+
+    if-gez v2, :cond_7
+
+    .line 194
+    move-wide p0, v0
+
+    .line 196
+    :cond_7
+    const-wide/16 v0, 0x3e8
+
+    div-long/2addr p0, v0
+
+    .line 197
+    const-wide/16 v0, 0x14
+
+    div-long/2addr p0, v0
+
+    long-to-int p1, p0
+
+    return p1
 .end method
 
 .method private static readIntFormat(Landroid/media/MediaFormat;Ljava/lang/String;I)I
     .registers 4
 
-    .line 149
+    .line 201
     if-eqz p0, :cond_10
 
     invoke-virtual {p0, p1}, Landroid/media/MediaFormat;->containsKey(Ljava/lang/String;)Z
@@ -758,7 +935,7 @@
 
     goto :goto_10
 
-    .line 153
+    .line 205
     :cond_9
     :try_start_9
     invoke-virtual {p0, p1}, Landroid/media/MediaFormat;->getInteger(Ljava/lang/String;)I
@@ -769,326 +946,86 @@
 
     return p0
 
-    .line 154
+    .line 206
     :catchall_e
     move-exception p0
 
-    .line 155
+    .line 207
     return p2
 
-    .line 150
+    .line 202
     :cond_10
     :goto_10
     return p2
 .end method
 
-.method private static readLongFormat(Landroid/media/MediaFormat;Ljava/lang/String;J)J
+.method private static writeBucket(Ljava/util/ArrayList;JI)V
     .registers 5
-
-    .line 160
-    if-eqz p0, :cond_10
-
-    invoke-virtual {p0, p1}, Landroid/media/MediaFormat;->containsKey(Ljava/lang/String;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_9
-
-    goto :goto_10
-
-    .line 164
-    :cond_9
-    :try_start_9
-    invoke-virtual {p0, p1}, Landroid/media/MediaFormat;->getLong(Ljava/lang/String;)J
-
-    move-result-wide p0
-    :try_end_d
-    .catchall {:try_start_9 .. :try_end_d} :catchall_e
-
-    return-wide p0
-
-    .line 165
-    :catchall_e
-    move-exception p0
-
-    .line 166
-    return-wide p2
-
-    .line 161
-    :cond_10
-    :goto_10
-    return-wide p2
-.end method
-
-.method private static resampleToTimeline(Ljava/util/ArrayList;IIJ)[I
-    .registers 11
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
             "Ljava/util/ArrayList<",
             "Ljava/lang/Integer;",
-            ">;IIJ)[I"
+            ">;JI)V"
         }
     .end annotation
 
-    .line 173
-    const/4 v0, 0x0
-
-    const/4 v1, 0x1
-
-    if-eqz p0, :cond_6f
-
-    invoke-virtual {p0}, Ljava/util/ArrayList;->isEmpty()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_b
-
-    goto :goto_6f
-
-    .line 176
-    :cond_b
-    const-wide/16 v2, 0x0
-
-    cmp-long v4, p3, v2
-
-    if-lez v4, :cond_15
-
-    const-wide/16 v4, 0x3e8
-
-    div-long/2addr p3, v4
-
-    goto :goto_16
-
-    :cond_15
-    move-wide p3, v2
-
-    .line 177
-    :goto_16
-    cmp-long v4, p3, v2
-
-    if-gtz v4, :cond_33
-
-    .line 178
-    const-wide p3, 0x411f400000000000L    # 512000.0
-
-    invoke-static {v1, p2}, Ljava/lang/Math;->max(II)I
-
-    move-result p2
-
-    mul-int p1, p1, p2
-
-    int-to-double p1, p1
-
-    div-double/2addr p3, p1
-
-    .line 179
-    invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
+    .line 167
+    invoke-static {p1, p2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->ptsToBucketIndex(J)I
 
     move-result p1
 
-    int-to-double p1, p1
+    .line 168
+    const/4 p2, 0x0
 
-    mul-double p1, p1, p3
+    if-gez p1, :cond_8
 
-    invoke-static {p1, p2}, Ljava/lang/Math;->ceil(D)D
+    .line 169
+    const/4 p1, 0x0
 
-    move-result-wide p1
-
-    double-to-long p3, p1
-
-    .line 181
-    :cond_33
-    const-wide/16 p1, 0x14
-
-    div-long p1, p3, p1
-
-    long-to-int p2, p1
-
-    add-int/2addr p2, v1
-
-    .line 182
-    if-ge p2, v1, :cond_3c
-
-    .line 183
-    const/4 p2, 0x1
-
-    .line 185
-    :cond_3c
-    new-array p1, p2, [I
-
-    .line 186
-    long-to-double p3, p3
-
+    .line 171
+    :cond_8
+    :goto_8
     invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
 
-    move-result v2
+    move-result v0
 
-    int-to-double v2, v2
+    if-gt v0, p1, :cond_16
 
-    div-double/2addr p3, v2
+    .line 172
+    invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    .line 187
-    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+    move-result-object v0
 
-    cmpg-double v4, p3, v2
+    invoke-virtual {p0, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    if-gez v4, :cond_4c
-
-    .line 188
-    move-wide p3, v2
-
-    .line 190
-    :cond_4c
-    nop
-
-    :goto_4d
-    if-ge v0, p2, :cond_6e
-
-    .line 191
-    mul-int/lit8 v2, v0, 0x14
-
-    .line 192
-    int-to-double v2, v2
-
-    div-double/2addr v2, p3
-
-    double-to-int v2, v2
-
-    .line 193
-    invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
-
-    move-result v3
-
-    if-lt v2, v3, :cond_5f
-
-    .line 194
-    invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
-
-    move-result v2
-
-    sub-int/2addr v2, v1
-
-    .line 196
-    :cond_5f
-    invoke-virtual {p0, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Ljava/lang/Integer;
-
-    invoke-virtual {v2}, Ljava/lang/Integer;->intValue()I
-
-    move-result v2
-
-    aput v2, p1, v0
-
-    .line 190
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_4d
-
-    .line 198
-    :cond_6e
-    return-object p1
+    goto :goto_8
 
     .line 174
-    :cond_6f
-    :goto_6f
-    new-array p0, v1, [I
+    :cond_16
+    invoke-virtual {p0, p1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
-    aput v0, p0, v0
+    move-result-object p2
 
-    return-object p0
-.end method
+    check-cast p2, Ljava/lang/Integer;
 
-.method private static sampleWindowToLevel([SI)I
-    .registers 8
+    invoke-virtual {p2}, Ljava/lang/Integer;->intValue()I
 
-    .line 202
-    const/4 v0, 0x0
+    move-result p2
 
-    if-eqz p0, :cond_33
+    .line 175
+    if-le p3, p2, :cond_29
 
-    if-gtz p1, :cond_6
+    .line 176
+    invoke-static {p3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    goto :goto_33
+    move-result-object p2
 
-    .line 205
-    :cond_6
-    const-wide/16 v1, 0x0
+    invoke-virtual {p0, p1, p2}, Ljava/util/ArrayList;->set(ILjava/lang/Object;)Ljava/lang/Object;
 
-    .line 206
-    const/4 v3, 0x0
-
-    :goto_9
-    if-ge v3, p1, :cond_14
-
-    .line 207
-    aget-short v4, p0, v3
-
-    .line 208
-    int-to-long v4, v4
-
-    mul-long v4, v4, v4
-
-    add-long/2addr v1, v4
-
-    .line 206
-    add-int/lit8 v3, v3, 0x1
-
-    goto :goto_9
-
-    .line 210
-    :cond_14
-    long-to-double v1, v1
-
-    int-to-double p0, p1
-
-    div-double/2addr v1, p0
-
-    invoke-static {v1, v2}, Ljava/lang/Math;->sqrt(D)D
-
-    move-result-wide p0
-
-    .line 211
-    const-wide v1, 0x40bf400000000000L    # 8000.0
-
-    div-double/2addr p0, v1
-
-    const-wide/high16 v1, 0x4059000000000000L    # 100.0
-
-    mul-double p0, p0, v1
-
-    invoke-static {p0, p1}, Ljava/lang/Math;->round(D)J
-
-    move-result-wide p0
-
-    long-to-int p1, p0
-
-    .line 212
-    if-gez p1, :cond_2d
-
-    .line 213
-    return v0
-
-    .line 215
-    :cond_2d
-    const/16 p0, 0x64
-
-    if-le p1, p0, :cond_32
-
-    .line 216
-    return p0
-
-    .line 218
-    :cond_32
-    return p1
-
-    .line 203
-    :cond_33
-    :goto_33
-    return v0
+    .line 178
+    :cond_29
+    return-void
 .end method
 
 
@@ -1096,31 +1033,31 @@
 .method dispatchEnded()V
     .registers 3
 
-    .line 290
+    .line 301
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
-    .line 291
+    .line 302
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
     if-eqz v0, :cond_c
 
-    .line 292
+    .line 303
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
     invoke-virtual {v1, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 294
+    .line 305
     :cond_c
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
     if-eqz v0, :cond_13
 
-    .line 295
+    .line 306
     invoke-interface {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;->onPlaybackEnded()V
 
-    .line 297
+    .line 308
     :cond_13
     return-void
 .end method
@@ -1128,31 +1065,31 @@
 .method dispatchError()V
     .registers 3
 
-    .line 300
+    .line 311
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
-    .line 301
+    .line 312
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
     if-eqz v0, :cond_c
 
-    .line 302
+    .line 313
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
     invoke-virtual {v1, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 304
+    .line 315
     :cond_c
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
     if-eqz v0, :cond_13
 
-    .line 305
+    .line 316
     invoke-interface {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;->onError()V
 
-    .line 307
+    .line 318
     :cond_13
     return-void
 .end method
@@ -1160,7 +1097,7 @@
 .method dispatchLevel(I)V
     .registers 4
 
-    .line 245
+    .line 247
     iget-boolean v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
     if-eqz v0, :cond_31
@@ -1179,7 +1116,7 @@
 
     goto :goto_31
 
-    .line 249
+    .line 251
     :cond_11
     :try_start_11
     invoke-virtual {v0}, Landroid/media/MediaPlayer;->isPlaying()Z
@@ -1188,17 +1125,17 @@
 
     if-nez v0, :cond_18
 
-    .line 250
+    .line 252
     return-void
 
-    .line 252
+    .line 254
     :cond_18
     if-gez p1, :cond_1b
 
-    .line 253
+    .line 255
     const/4 p1, 0x0
 
-    .line 255
+    .line 257
     :cond_1b
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
 
@@ -1206,14 +1143,14 @@
 
     if-lt p1, v0, :cond_25
 
-    .line 256
+    .line 258
     iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
 
     array-length p1, p1
 
     add-int/lit8 p1, p1, -0x1
 
-    .line 258
+    .line 260
     :cond_25
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
@@ -1225,208 +1162,244 @@
     :try_end_2e
     .catchall {:try_start_11 .. :try_end_2e} :catchall_2f
 
-    .line 260
+    .line 262
     goto :goto_30
 
-    .line 259
+    .line 261
     :catchall_2f
     move-exception p1
 
-    .line 261
+    .line 263
     :goto_30
     return-void
 
-    .line 246
+    .line 248
     :cond_31
     :goto_31
     return-void
 .end method
 
 .method public release()V
-    .registers 5
+    .registers 4
 
-    .line 310
+    .line 321
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
-    .line 311
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
+    .line 322
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
-    const/4 v2, 0x0
+    const/4 v1, 0x0
 
-    if-eqz v1, :cond_f
+    if-eqz v0, :cond_f
 
-    .line 312
-    iget-object v3, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
+    .line 323
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
-    invoke-virtual {v3, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
+    invoke-virtual {v2, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 313
-    iput-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
+    .line 324
+    iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
-    .line 315
+    .line 326
     :cond_f
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
-    if-eqz v1, :cond_29
+    if-eqz v0, :cond_29
 
-    .line 317
+    .line 328
     :try_start_13
-    invoke-virtual {v1}, Landroid/media/MediaPlayer;->isPlaying()Z
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->isPlaying()Z
 
-    move-result v1
+    move-result v0
 
-    if-eqz v1, :cond_1e
+    if-eqz v0, :cond_1e
 
-    .line 318
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+    .line 329
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
-    invoke-virtual {v1}, Landroid/media/MediaPlayer;->stop()V
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->stop()V
     :try_end_1e
     .catchall {:try_start_13 .. :try_end_1e} :catchall_1f
 
-    .line 321
+    .line 332
     :cond_1e
     goto :goto_20
 
-    .line 320
+    .line 331
     :catchall_1f
-    move-exception v1
+    move-exception v0
 
-    .line 323
+    .line 334
     :goto_20
     :try_start_20
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
-    invoke-virtual {v1}, Landroid/media/MediaPlayer;->release()V
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->release()V
     :try_end_25
     .catchall {:try_start_20 .. :try_end_25} :catchall_26
 
-    .line 325
+    .line 336
     goto :goto_27
 
-    .line 324
+    .line 335
     :catchall_26
-    move-exception v1
+    move-exception v0
 
-    .line 326
+    .line 337
     :goto_27
-    iput-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+    iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
-    .line 328
+    .line 339
     :cond_29
-    iput-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
+    iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
 
-    .line 329
-    iput-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
+    .line 340
+    iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
-    .line 330
-    iput v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->durationMs:I
+    .line 341
+    const-wide/16 v0, 0x0
 
-    .line 331
+    iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncAnchorWallMs:J
+
+    .line 342
     return-void
 .end method
 
 .method resolveEnvelopeIndex(I)I
-    .registers 11
+    .registers 4
 
-    .line 264
+    .line 266
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
 
     const/4 v1, 0x0
 
-    if-eqz v0, :cond_38
+    if-eqz v0, :cond_1b
 
     array-length v0, v0
 
     if-nez v0, :cond_9
 
-    goto :goto_38
-
-    .line 267
-    :cond_9
-    add-int/lit8 p1, p1, 0x5a
-
-    .line 268
-    if-gez p1, :cond_e
+    goto :goto_1b
 
     .line 269
-    const/4 p1, 0x0
+    :cond_9
+    add-int/lit8 p1, p1, 0x32
+
+    .line 270
+    if-gez p1, :cond_e
 
     .line 271
+    goto :goto_f
+
+    .line 270
     :cond_e
-    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->durationMs:I
-
-    .line 272
-    if-gtz v0, :cond_1a
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
-
-    if-eqz v2, :cond_1a
+    move v1, p1
 
     .line 273
-    invoke-virtual {v2}, Landroid/media/MediaPlayer;->getDuration()I
+    :goto_f
+    div-int/lit8 v1, v1, 0x14
 
-    move-result v0
+    .line 274
+    iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
+
+    array-length v0, p1
+
+    if-lt v1, v0, :cond_1a
 
     .line 275
-    :cond_1a
-    if-lez v0, :cond_35
+    array-length p1, p1
 
-    .line 276
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
+    add-int/lit8 p1, p1, -0x1
 
-    array-length v2, v2
-
-    add-int/lit8 v2, v2, -0x1
+    return p1
 
     .line 277
-    int-to-long v3, p1
-
-    int-to-long v5, v2
-
-    mul-long v3, v3, v5
-
-    int-to-long v7, v0
-
-    div-long/2addr v3, v7
-
-    .line 278
-    const-wide/16 v7, 0x0
-
-    cmp-long p1, v3, v7
-
-    if-gez p1, :cond_2e
-
-    .line 279
+    :cond_1a
     return v1
+
+    .line 267
+    :cond_1b
+    :goto_1b
+    return v1
+.end method
+
+.method resolvePlaybackPositionMs()I
+    .registers 8
 
     .line 281
-    :cond_2e
-    cmp-long p1, v3, v5
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
-    if-lez p1, :cond_33
+    const/4 v1, 0x0
+
+    if-nez v0, :cond_6
 
     .line 282
-    return v2
+    return v1
 
     .line 284
-    :cond_33
-    long-to-int p1, v3
-
-    return p1
+    :cond_6
+    nop
 
     .line 286
-    :cond_35
-    div-int/lit8 p1, p1, 0x14
+    :try_start_7
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->getCurrentPosition()I
 
-    return p1
+    move-result v0
+    :try_end_b
+    .catchall {:try_start_7 .. :try_end_b} :catchall_c
 
-    .line 265
-    :cond_38
-    :goto_38
+    .line 288
+    goto :goto_e
+
+    .line 287
+    :catchall_c
+    move-exception v0
+
+    const/4 v0, 0x0
+
+    .line 289
+    :goto_e
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v2
+
+    iget-wide v4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncAnchorWallMs:J
+
+    sub-long/2addr v2, v4
+
+    .line 290
+    const-wide/16 v4, 0x0
+
+    cmp-long v6, v2, v4
+
+    if-gez v6, :cond_1c
+
+    .line 291
+    move-wide v2, v4
+
+    .line 293
+    :cond_1c
+    int-to-long v4, v0
+
+    add-long/2addr v2, v4
+
+    const-wide/16 v4, 0x2
+
+    div-long/2addr v2, v4
+
+    long-to-int v0, v2
+
+    .line 294
+    if-gez v0, :cond_25
+
+    .line 295
     return v1
+
+    .line 297
+    :cond_25
+    return v0
 .end method
 
 .method public startPlayback(Landroid/content/Context;Landroid/net/Uri;[ILcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;)V
@@ -1437,33 +1410,33 @@
         }
     .end annotation
 
-    .line 223
+    .line 228
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->release()V
 
-    .line 224
+    .line 229
     iput-object p4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
-    .line 225
+    .line 230
     iput-object p3, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
 
-    .line 226
-    if-eqz p3, :cond_55
+    .line 231
+    if-eqz p3, :cond_4a
 
     array-length p3, p3
 
-    if-eqz p3, :cond_55
+    if-eqz p3, :cond_4a
 
-    .line 229
+    .line 234
     new-instance p3, Landroid/media/MediaPlayer;
 
     invoke-direct {p3}, Landroid/media/MediaPlayer;-><init>()V
 
     iput-object p3, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
-    .line 230
+    .line 235
     invoke-virtual {p3, p1, p2}, Landroid/media/MediaPlayer;->setDataSource(Landroid/content/Context;Landroid/net/Uri;)V
 
-    .line 231
+    .line 236
     iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
     new-instance p2, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$CompletionHandler;
@@ -1472,7 +1445,7 @@
 
     invoke-virtual {p1, p2}, Landroid/media/MediaPlayer;->setOnCompletionListener(Landroid/media/MediaPlayer$OnCompletionListener;)V
 
-    .line 232
+    .line 237
     iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
     new-instance p2, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$ErrorHandler;
@@ -1481,60 +1454,45 @@
 
     invoke-virtual {p1, p2}, Landroid/media/MediaPlayer;->setOnErrorListener(Landroid/media/MediaPlayer$OnErrorListener;)V
 
-    .line 233
+    .line 238
     iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
     invoke-virtual {p1}, Landroid/media/MediaPlayer;->prepare()V
 
-    .line 234
-    iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
-
-    invoke-virtual {p1}, Landroid/media/MediaPlayer;->getDuration()I
-
-    move-result p1
-
-    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->durationMs:I
-
-    .line 235
-    if-gtz p1, :cond_40
-
-    .line 236
-    iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
-
-    array-length p1, p1
-
-    mul-int/lit8 p1, p1, 0x14
-
-    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->durationMs:I
-
-    .line 238
-    :cond_40
+    .line 239
     iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
     invoke-virtual {p1}, Landroid/media/MediaPlayer;->start()V
 
-    .line 239
+    .line 240
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide p1
+
+    iput-wide p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncAnchorWallMs:J
+
+    .line 241
     const/4 p1, 0x1
 
     iput-boolean p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
-    .line 240
+    .line 242
     new-instance p1, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
     invoke-direct {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;-><init>(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)V
 
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
-    .line 241
+    .line 243
     iget-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
     invoke-virtual {p2, p1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 242
+    .line 244
     return-void
 
-    .line 227
-    :cond_55
+    .line 232
+    :cond_4a
     new-instance p1, Ljava/lang/IllegalStateException;
 
     const-string p2, "empty envelope"

@@ -115,6 +115,7 @@ public class MusicSyncHelper {
             Activity activity = resolveActivityForDialog(dialog, root);
             if (activity != null) {
                 MusicSync.setHostActivity(activity);
+                MusicSyncBridge.attachManager(activity);
             }
         } catch (Throwable ignored) {
         }
@@ -188,10 +189,7 @@ public class MusicSyncHelper {
                 if (maxAmount != null) {
                     max = maxAmount.getAmount();
                 }
-            if (!MusicSyncBridge.attachManager(activity) && MusicSync.getManager() == null) {
-                showError(0x7f0d010c);
-                return;
-            }
+            MusicSyncBridge.attachManager(activity);
             MusicSync.start(activity, min, max);
             } catch (Throwable t) {
                 showError(0x7f0d010e);

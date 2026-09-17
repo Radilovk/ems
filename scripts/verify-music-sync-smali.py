@@ -66,6 +66,16 @@ RULES = [
         r"\.method public static attachManager\([\s\S]*?if-nez p0, :cond_[a-z0-9_]+",
         "attachManager() returns when activity is null",
     ),
+    (
+        "MusicSyncBridge.smali",
+        r"getChildFragmentManager\(\)Landroid/support/v4/app/FragmentManager;",
+        "attachManager() walks child fragment managers",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r"MusicSyncBridge;->attachManager\(Landroid/app/Activity;\)Z",
+        "bind() pre-attaches TrainItemManager",
+    ),
 ]
 
 ANTI_PATTERNS = [
@@ -93,6 +103,16 @@ ANTI_PATTERNS = [
         "MusicSyncHelper.smali",
         r"getDialog\(\)Landroid/app/Dialog;[\s\S]*?if-nez v\d+, :goto_[a-z0-9_]+",
         "resolveActivityForDialog() must not skip getOwnerActivity when dialog exists",
+    ),
+    (
+        "MusicSyncHelper$StartListener.smali",
+        r"0x7f0d010c",
+        "StartListener must not block mic start with training-screen error",
+    ),
+    (
+        "MusicSyncBridge.smali",
+        r"fragment_now",
+        "attachManager() must not access private MainFragment.fragment_now",
     ),
 ]
 

@@ -172,6 +172,10 @@ public class MusicSync {
         MusicSyncHelper.showActive(strength);
         TrainItemManager mgr = manager;
         if (mgr == null) {
+            MusicSyncBridge.attachManager(hostActivity);
+            mgr = manager;
+        }
+        if (mgr == null) {
             return;
         }
         try {

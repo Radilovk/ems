@@ -190,23 +190,26 @@
     move-result-object p0
 
     .line 116
-    if-eqz p0, :cond_69
+    if-eqz p0, :cond_6c
 
     .line 117
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
-    :try_end_69
-    .catchall {:try_start_3 .. :try_end_69} :catchall_6a
 
-    .line 120
-    :cond_69
-    goto :goto_6b
-
-    .line 119
-    :catchall_6a
-    move-exception p0
+    .line 118
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
+    :try_end_6c
+    .catchall {:try_start_3 .. :try_end_6c} :catchall_6d
 
     .line 121
-    :goto_6b
+    :cond_6c
+    goto :goto_6e
+
+    .line 120
+    :catchall_6d
+    move-exception p0
+
+    .line 122
+    :goto_6e
     return-void
 .end method
 
@@ -276,7 +279,7 @@
 .method public static getMaxAmount()Lcom/isaigu/gymapp/widget/AmountView;
     .registers 1
 
-    .line 128
+    .line 129
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->maxAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
     return-object v0
@@ -285,7 +288,7 @@
 .method public static getMinAmount()Lcom/isaigu/gymapp/widget/AmountView;
     .registers 1
 
-    .line 124
+    .line 125
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
     return-object v0
@@ -442,32 +445,32 @@
 .method public static showActive(I)V
     .registers 4
 
-    .line 132
+    .line 133
     const/4 v0, 0x0
 
     if-gez p0, :cond_4
 
-    .line 133
+    .line 134
     const/4 p0, 0x0
 
-    .line 135
+    .line 136
     :cond_4
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_e
 
-    .line 136
+    .line 137
     const v2, 0x7f0d0108
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(I)V
 
-    .line 138
+    .line 139
     :cond_e
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_2b
 
-    .line 139
+    .line 140
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -484,12 +487,12 @@
 
     invoke-virtual {v1, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 140
+    .line 141
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 142
+    .line 143
     :cond_2b
     return-void
 .end method
@@ -497,26 +500,26 @@
 .method public static showError(I)V
     .registers 2
 
-    .line 145
+    .line 146
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_7
 
-    .line 146
+    .line 147
     invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(I)V
 
-    .line 148
+    .line 149
     :cond_7
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
     if-eqz p0, :cond_10
 
-    .line 149
+    .line 150
     const/16 v0, 0x8
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 151
+    .line 152
     :cond_10
     return-void
 .end method
@@ -524,28 +527,28 @@
 .method public static showIdle()V
     .registers 2
 
-    .line 154
+    .line 155
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_a
 
-    .line 155
+    .line 156
     const v1, 0x7f0d0109
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    .line 157
+    .line 158
     :cond_a
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_13
 
-    .line 158
+    .line 159
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 160
+    .line 161
     :cond_13
     return-void
 .end method
@@ -553,17 +556,17 @@
 .method public static showPermission()V
     .registers 2
 
-    .line 163
+    .line 164
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_a
 
-    .line 164
+    .line 165
     const v1, 0x7f0d010a
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    .line 166
+    .line 167
     :cond_a
     return-void
 .end method

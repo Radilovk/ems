@@ -81,6 +81,16 @@ RULES = [
         r"TrainItemManager;->getItemList\(\)Ljava/util/List;",
         "applyStrength() iterates TrainItemManager.getItemList()",
     ),
+    (
+        "MusicSync.smali",
+        r"TrainItem;->onParamsChange\(\)V",
+        "applyStrength() uses slider path via onParamsChange()",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r"MusicSync;->setTargetMacAddress\(Ljava/lang/String;\)V",
+        "bind() sets target MAC from gear dialog data",
+    ),
 ]
 
 ANTI_PATTERNS = [

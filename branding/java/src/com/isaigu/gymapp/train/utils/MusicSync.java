@@ -36,6 +36,7 @@ public class MusicSync {
     private static Activity hostActivity;
     static int lastAppliedStrength = -1;
     private static TrainItemManager manager;
+    private static String targetMacAddress;
     private static int maxStrength = 80;
     private static int minStrength = 20;
     static boolean running;
@@ -142,19 +143,37 @@ public class MusicSync {
         return tryOpen(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_STEREO, pcm16);
     }
 
-    private static int readItemStrength(TrainItem item) {
-        if (item == null) {
-            return 0;
+    private static boolean matchesTarget(TrainItem item) {
+        if (targetMacAddress == null || targetMacAddress.isEmpty()) {
+            return true;
+        }
+        if (item == null || item.data == null || item.data.macAddress == null) {
+            return false;
+        }
+        return item.data.macAddress.equalsIgnoreCase(targetMacAddress);
+    }
+
+    /**
+     * Same effect as moving the circle strength slider:
+     * write ProgramDataBean.strenth, then onParamsChange() -> sendPulse().
+     */
+    private static void setItemStrength(TrainItem item, int strength) {
+        if (item == null || item.isEmpty()) {
+            return;
         }
         TrainProgram program = item.getTrainProgram();
         if (program == null) {
-            return 0;
+            return;
         }
         ProgramDataBean data = program.matchProgram();
         if (data == null) {
-            return 0;
+            return;
         }
-        return data.strenth;
+        if (data.strenth == strength) {
+            return;
+        }
+        data.strenth = strength;
+        item.onParamsChange();
     }
 
     private static void applyStrength(int strength) {
@@ -185,14 +204,10 @@ public class MusicSync {
             }
             for (int i = 0; i < items.size(); i++) {
                 TrainItem item = items.get(i);
-                if (item == null || item.isEmpty()) {
+                if (!matchesTarget(item)) {
                     continue;
                 }
-                int current = readItemStrength(item);
-                int delta = strength - current;
-                if (delta != 0) {
-                    item.addStrenth(delta);
-                }
+                setItemStrength(item, strength);
             }
         } catch (Throwable ignored) {
         }
@@ -340,6 +355,10 @@ public class MusicSync {
         manager = trainItemManager;
     }
 
+    public static void setTargetMacAddress(String macAddress) {
+        targetMacAddress = macAddress;
+    }
+
     public static TrainItemManager getManager() {
         return manager;
     }
@@ -376,6 +395,7 @@ public class MusicSync {
         } catch (Throwable ignored) {
         }
         lastAppliedStrength = -1;
+        targetMacAddress = null;
         resetAudioLevels();
     }
 

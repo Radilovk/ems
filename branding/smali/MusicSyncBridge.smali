@@ -12,6 +12,23 @@
     return-void
 .end method
 
+.method private static tryAttach(Lcom/isaigu/gymapp/train/TrainItemManager;)Z
+    .locals 1
+
+    if-nez p0, :cond_fail
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_fail
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setManager(Lcom/isaigu/gymapp/train/TrainItemManager;)V
+
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
 .method public static attachManager(Landroid/app/Activity;)Z
     .locals 4
 
@@ -42,13 +59,8 @@
 
     move-result-object p0
 
-    if-nez p0, :cond_has_list
+    if-eqz p0, :cond_fail
 
-    const/4 p0, 0x0
-
-    return p0
-
-    :cond_has_list
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object p0
@@ -66,27 +78,61 @@
 
     check-cast v0, Landroid/support/v4/app/Fragment;
 
-    instance-of v1, v0, Lcom/isaigu/gymapp/fragment/MainFragment;
+    instance-of v1, v0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
-    if-eqz v1, :cond_try_main
+    if-eqz v1, :cond_main
 
-    check-cast v0, Lcom/isaigu/gymapp/fragment/MainFragment;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/fragment/MainFragment;->newTrainFragment:Lcom/isaigu/gymapp/fragment/NewTrainFragment;
-
-    if-eqz v0, :cond_try_main
+    check-cast v0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    if-eqz v0, :cond_try_main
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->tryAttach(Lcom/isaigu/gymapp/train/TrainItemManager;)Z
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setManager(Lcom/isaigu/gymapp/train/TrainItemManager;)V
+    move-result v0
 
-    const/4 p0, 0x1
+    return v0
 
-    return p0
+    :cond_main
+    instance-of v1, v0, Lcom/isaigu/gymapp/fragment/MainFragment;
 
-    :cond_try_main
+    if-eqz v1, :cond_next
+
+    check-cast v0, Lcom/isaigu/gymapp/fragment/MainFragment;
+
+    iget-object v1, v0, Lcom/isaigu/gymapp/fragment/MainFragment;->fragment_now:Landroid/support/v4/app/Fragment;
+
+    instance-of v2, v1, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
+
+    if-eqz v2, :cond_now_train
+
+    check-cast v1, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->tryAttach(Lcom/isaigu/gymapp/train/TrainItemManager;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_now_train
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_now_train
+    iget-object v0, v0, Lcom/isaigu/gymapp/fragment/MainFragment;->newTrainFragment:Lcom/isaigu/gymapp/fragment/NewTrainFragment;
+
+    if-eqz v0, :cond_next
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->tryAttach(Lcom/isaigu/gymapp/train/TrainItemManager;)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_next
     goto :goto_loop
 
     :cond_fail

@@ -25,8 +25,20 @@ VALUES_DEFAULT = RES / "values/strings.xml"
 IDS = {
     "musicMinStrength": 0x7f09021f,
     "musicMaxStrength": 0x7f090220,
+    "musicSyncStatus": 0x7f090221,
     "musicSyncStart": 0x7f090222,
     "musicSyncStop": 0x7f090223,
+    "musicSyncLevel": 0x7f090225,
+}
+
+STRING_IDS = {
+    "beta_music_status_active": 0x7f0d0108,
+    "beta_music_status_idle": 0x7f0d0109,
+    "beta_music_status_permission": 0x7f0d010a,
+    "beta_music_error_no_activity": 0x7f0d010b,
+    "beta_music_error_no_manager": 0x7f0d010c,
+    "beta_music_status_denied": 0x7f0d010d,
+    "beta_music_error_mic": 0x7f0d010e,
 }
 
 MUSIC_UI = """
@@ -41,7 +53,9 @@ MUSIC_UI = """
                     <TextView android:textSize="18.0sp" android:textColor="@color/text_primary" android:ellipsize="end" android:layout_width="140.0dip" android:layout_height="wrap_content" android:text="@string/beta_music_max_strength" android:maxEms="18" android:singleLine="true" />
                     <com.isaigu.gymapp.widget.AmountView android:id="@id/musicMaxStrength" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="10.0dip" />
                 </LinearLayout>
-                <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:textSize="14.0sp" android:textColor="@color/light_green_color" android:id="@id/musicSyncStatus" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/beta_music_status_idle" />
+                <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/light_orange_exister" android:gravity="center" android:id="@id/musicSyncLevel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="0%" />
+                <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
                     <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStart" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/beta_music_start" android:textAllCaps="false" />
                     <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStop" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/beta_music_stop" android:textAllCaps="false" />
                 </LinearLayout>
@@ -50,20 +64,34 @@ MUSIC_UI = """
 
 BG_STRINGS = """
     <string name="beta_music_sync_title">БЕТА — Музикален импулс</string>
-    <string name="beta_music_sync_hint">Микрофонът улавя музиката и регулира силата на импулса по амплитуда.</string>
+    <string name="beta_music_sync_hint">Микрофонът улавя музиката и регулира силата на импулса по амплитуда. Пуснете музика близо до таблета.</string>
     <string name="beta_music_min_strength">Мин. сила (%)</string>
     <string name="beta_music_max_strength">Макс. сила (%)</string>
     <string name="beta_music_start">Старт</string>
     <string name="beta_music_stop">Стоп</string>
+    <string name="beta_music_status_active">Статус: активно — слуша музика</string>
+    <string name="beta_music_status_idle">Статус: изключено</string>
+    <string name="beta_music_status_permission">Изисква се разрешение за микрофон…</string>
+    <string name="beta_music_error_no_activity">Грешка: неуспешен достъп до екрана</string>
+    <string name="beta_music_error_no_manager">Първо отворете екрана за тренировка</string>
+    <string name="beta_music_status_denied">Микрофонът е отказан — дайте разрешение от настройките</string>
+    <string name="beta_music_error_mic">Микрофонът не може да стартира на това устройство</string>
 """
 
 EN_STRINGS = """
     <string name="beta_music_sync_title">BETA — Music-reactive pulse</string>
-    <string name="beta_music_sync_hint">Microphone captures music and adjusts pulse strength by amplitude.</string>
+    <string name="beta_music_sync_hint">Microphone captures music and adjusts pulse strength by amplitude. Play music near the tablet.</string>
     <string name="beta_music_min_strength">Min strength (%)</string>
     <string name="beta_music_max_strength">Max strength (%)</string>
     <string name="beta_music_start">Start</string>
     <string name="beta_music_stop">Stop</string>
+    <string name="beta_music_status_active">Status: active — listening</string>
+    <string name="beta_music_status_idle">Status: off</string>
+    <string name="beta_music_status_permission">Microphone permission required…</string>
+    <string name="beta_music_error_no_activity">Error: cannot access screen</string>
+    <string name="beta_music_error_no_manager">Open the training screen first</string>
+    <string name="beta_music_status_denied">Microphone denied — grant permission in settings</string>
+    <string name="beta_music_error_mic">Microphone failed to start on this device</string>
 """
 
 
@@ -97,12 +125,18 @@ def patch_manifest(text: str) -> str:
 
 
 def patch_public_xml(text: str) -> str:
-    if "musicMinStrength" in text:
-        return text
-    entries = "\n".join(
-        f'    <public type="id" name="{name}" id="{id:#x}" />' for name, id in IDS.items()
-    )
-    return text.replace("</resources>", entries + "\n</resources>", 1)
+    if "musicSyncLevel" not in text:
+        entries = "\n".join(
+            f'    <public type="id" name="{name}" id="{id:#x}" />' for name, id in IDS.items()
+        )
+        text = text.replace("</resources>", entries + "\n</resources>", 1)
+    if "beta_music_status_active" not in text:
+        entries = "\n".join(
+            f'    <public type="string" name="{name}" id="{id:#x}" />'
+            for name, id in STRING_IDS.items()
+        )
+        text = text.replace("</resources>", entries + "\n</resources>", 1)
+    return text
 
 
 def patch_ids_xml(text: str) -> str:
@@ -113,6 +147,27 @@ def patch_ids_xml(text: str) -> str:
 
 
 def patch_layout(text: str) -> str:
+    if "musicSyncStatus" in text:
+        return text
+    if "musicMinStrength" in text:
+        old = '                <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">\n                    <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp"'
+        new = (
+            '                <TextView android:textSize="14.0sp" android:textColor="@color/light_green_color" '
+            'android:id="@id/musicSyncStatus" android:layout_width="fill_parent" '
+            'android:layout_height="wrap_content" android:layout_marginTop="6.0dip" '
+            'android:text="@string/beta_music_status_idle" />\n'
+            '                <TextView android:textSize="22.0sp" android:textStyle="bold" '
+            'android:textColor="@color/light_orange_exister" android:gravity="center" '
+            'android:id="@id/musicSyncLevel" android:visibility="gone" '
+            'android:layout_width="fill_parent" android:layout_height="wrap_content" '
+            'android:layout_marginTop="4.0dip" android:text="0%" />\n'
+            '                <LinearLayout android:gravity="center" android:orientation="horizontal" '
+            'android:layout_width="fill_parent" android:layout_height="wrap_content" '
+            'android:layout_marginTop="6.0dip">\n'
+            '                    <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp"'
+        )
+        if old in text:
+            return text.replace(old, new, 1)
     if "musicMinStrength" in text:
         return text
     marker = (
@@ -145,10 +200,22 @@ def merge_strings(path: Path, block: str, names: list[str]) -> None:
     if not path.exists():
         return
     text = path.read_text(encoding="utf-8")
-    if all(f'name="{n}"' in text for n in names):
+    missing = [n for n in names if f'name="{n}"' not in text]
+    if not missing:
         return
-    path.write_text(text.replace("</resources>", block + "\n</resources>", 1), encoding="utf-8")
-    print(f"added beta strings to {path.name}")
+    additions = []
+    for line in block.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        for name in missing:
+            if f'name="{name}"' in line:
+                additions.append(f"    {line}")
+                break
+    if not additions:
+        return
+    path.write_text(text.replace("</resources>", "\n".join(additions) + "\n</resources>", 1), encoding="utf-8")
+    print(f"added {len(additions)} beta strings to {path.name}")
 
 
 def main() -> int:
@@ -162,7 +229,7 @@ def main() -> int:
     IDS_XML.write_text(patch_ids_xml(IDS_XML.read_text(encoding="utf-8")), encoding="utf-8")
     LAYOUT.write_text(patch_layout(LAYOUT.read_text(encoding="utf-8")), encoding="utf-8")
     EDIT_DIALOG.write_text(patch_edit_dialog(EDIT_DIALOG.read_text(encoding="utf-8")), encoding="utf-8")
-    names = [
+    names = list(STRING_IDS.keys()) + [
         "beta_music_sync_title",
         "beta_music_sync_hint",
         "beta_music_min_strength",
@@ -172,7 +239,6 @@ def main() -> int:
     ]
     merge_strings(VALUES_DEFAULT, EN_STRINGS, names)
     merge_strings(VALUES_BG, BG_STRINGS, names)
-    merge_strings(VALUES_BG_DECOMPILED, BG_STRINGS, names)
     print("BETA music sync patches applied (gear dialog only).")
     return 0
 

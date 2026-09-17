@@ -38,6 +38,7 @@ mkdir -p "${OUT_DIR}/dex"
     --output "${OUT_DIR}/dex" \
     com/isaigu/gymapp/train/utils/MusicSync.class \
     com/isaigu/gymapp/train/utils/MusicSync\$*.class \
+    com/isaigu/gymapp/train/utils/MasterStrengthControl.class \
     com/isaigu/gymapp/train/utils/MusicSyncBridge.class \
     com/isaigu/gymapp/dialog/MusicSyncHelper.class \
     com/isaigu/gymapp/dialog/MusicSyncHelper\$*.class
@@ -50,9 +51,10 @@ java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 
 echo "Installing smali to branding/smali..."
 find "${BRANDING_SMALI}" -name 'MusicSync*.smali' -delete
+find "${BRANDING_SMALI}" -name 'MasterStrengthControl.smali' -delete
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
   echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" -name 'MusicSync*.smali' -print0)
+done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' \) -print0)
 
 echo "Music-sync Java compile complete."

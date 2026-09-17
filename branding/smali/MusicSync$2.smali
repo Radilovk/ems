@@ -32,7 +32,7 @@
         }
     .end annotation
 
-    .line 368
+    .line 275
     iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$applied:I
 
     iput p2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$ceiling:I
@@ -47,19 +47,19 @@
 .method public run()V
     .registers 3
 
-    .line 371
+    .line 278
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_b
 
-    .line 372
+    .line 279
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$applied:I
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$ceiling:I
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(II)V
 
-    .line 374
+    .line 281
     :cond_b
     return-void
 .end method

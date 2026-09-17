@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeApplyMusicLevel(I)V
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -30,7 +30,7 @@
         }
     .end annotation
 
-    .line 182
+    .line 97
     iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$1;->val$value:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,22 +43,21 @@
 .method public run()V
     .registers 2
 
-    .line 185
+    .line 100
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_c
 
-    .line 186
+    .line 101
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$1;->val$value:I
 
-    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->applyStrengthToSlider(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(I)V
 
-    .line 187
+    .line 102
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()V
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000()V
 
-    .line 189
+    .line 104
     :cond_c
     return-void
 .end method

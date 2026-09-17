@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Music-sync drives bean.strenth + CircleSeekBar + onParamsChange (no PDU hook)."""
+"""Mic → MasterStrengthControl.setMasterStrength (no PDU hook)."""
 
 import re
 import sys
@@ -32,15 +32,15 @@ TRAIN_VH = (
 )
 
 RULES = [
-    ("MusicSync.smali", r"\.method public static registerUi\(", "registerUi()"),
+    ("MasterStrengthControl.smali", r"\.method public static setMasterStrength\(I\)V", "setMasterStrength()"),
+    ("MasterStrengthControl.smali", r"iput.*ProgramDataBean;->strenth:I", "writes bean.strenth"),
+    ("MasterStrengthControl.smali", r"CircleSeekBar;->setCurProcess\(I\)V", "moves circle slider"),
+    ("MasterStrengthControl.smali", r"TrainItem;->onParamsChange\(\)V", "BLE via onParamsChange"),
     ("MusicSync.smali", r"\.method public static isRunning\(\)Z", "isRunning()"),
-    ("MusicSync.smali", r"strengthCeiling", "ceiling from slider at Start"),
-    ("MusicSync.smali", r"iput.*ProgramDataBean;->strenth:I", "writes bean.strenth"),
-    ("MusicSync.smali", r"CircleSeekBar;->setCurProcess\(I\)V", "moves circle slider"),
 ]
 
 GLOBAL_RULES = [
-    (r"TrainItem;->onParamsChange\(\)V", "sends BLE via onParamsChange"),
+    (r"MasterStrengthControl;->setMasterStrength\(I\)V", "mic calls control channel"),
 ]
 
 ANTI = [
@@ -54,23 +54,25 @@ def check_pdu() -> list[str]:
     if not COMMAND_UTIL.is_file():
         return ["MISSING: CommandUtil (run build first)"]
     t = COMMAND_UTIL.read_text(encoding="utf-8")
-    out: list[str] = []
-    if "MusicSync;->getLiveStrength()I" in t:
-        out.append("BUG: PDU hook must be removed (strength comes from slider value)")
-    return out
+    if "MusicSync;->getLiveStrength()I" in t or "MasterStrengthControl" in t.split("getPartsParamsPdu")[0]:
+        if "MusicSync;->getLiveStrength()I" in t:
+            return ["BUG: PDU hook must be removed"]
+    return []
 
 
 def check_train_vh() -> list[str]:
     if not TRAIN_VH.is_file():
         return ["MISSING: TrainViewHolder (run build first)"]
-    if "MusicSync;->registerUi" not in TRAIN_VH.read_text(encoding="utf-8"):
-        return ["MISSING: TrainViewHolder.bind registerUi hook"]
+    t = TRAIN_VH.read_text(encoding="utf-8")
+    if "MusicSync;->registerUi" not in t and "MasterStrengthControl;->bind" not in t:
+        return ["MISSING: TrainViewHolder.bind UI registration hook"]
     return []
 
 
 def main() -> int:
     errs: list[str] = []
-    paths = sorted(SMALI_DIR.glob("MusicSync*.smali"))
+    paths = sorted(SMALI_DIR.glob("*.smali"))
+    paths = [p for p in paths if p.name.startswith("MusicSync") or p.name.startswith("MasterStrength")]
     combined = "\n".join(p.read_text(encoding="utf-8") for p in paths)
     for path in paths:
         c = path.read_text(encoding="utf-8")

@@ -1,6 +1,6 @@
-.class Lcom/isaigu/gymapp/beta/MusicReactiveController$StrengthApplier;
+.class Lcom/isaigu/gymapp/train/utils/MusicSync$StrengthApplier;
 .super Ljava/lang/Object;
-.source "MusicReactiveController.java"
+.source "MusicSync.java"
 
 # interfaces
 .implements Ljava/util/function/Consumer;
@@ -13,11 +13,10 @@
 # direct methods
 .method constructor <init>(I)V
     .locals 0
-    .param p1, "target"    # I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    iput p1, p0, Lcom/isaigu/gymapp/beta/MusicReactiveController$StrengthApplier;->target:I
+    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$StrengthApplier;->target:I
 
     return-void
 .end method
@@ -26,7 +25,6 @@
 # virtual methods
 .method public accept(Ljava/lang/Object;)V
     .locals 3
-    .param p1, "item"    # Ljava/lang/Object;
 
     check-cast p1, Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -40,7 +38,7 @@
 
     iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iget v1, p0, Lcom/isaigu/gymapp/beta/MusicReactiveController$StrengthApplier;->target:I
+    iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$StrengthApplier;->target:I
 
     if-ne v0, v1, :cond_apply
 

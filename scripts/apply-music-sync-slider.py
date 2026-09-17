@@ -39,19 +39,35 @@ BIND_NEW = """    .line 194
     .line 195
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindNotEmpty()V"""
 
+LOCALS_BROKEN = """.method public bind(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/train/listener/OnTrainListListener;)V
+    .locals 1"""
+
+LOCALS_FIXED = """.method public bind(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/train/listener/OnTrainListListener;)V
+    .locals 3"""
+
 
 def main() -> int:
     if not TRAIN_VH.is_file():
         raise SystemExit(f"TrainViewHolder.smali not found: {TRAIN_VH}")
     text = TRAIN_VH.read_text(encoding="utf-8")
-    if "MusicSync;->registerUi" in text:
+
+    if "MusicSync;->registerUi" not in text:
+        if BIND_OLD not in text:
+            raise RuntimeError("TrainViewHolder.bind marker not found")
+        text = text.replace(BIND_OLD, BIND_NEW, 1)
+        print("TrainViewHolder.bind: register circle slider for music sync")
+    else:
         print("TrainViewHolder.bind: music slider hook already applied")
-        return 0
-    if BIND_OLD not in text:
-        raise RuntimeError("TrainViewHolder.bind marker not found")
-    text = text.replace(BIND_OLD, BIND_NEW, 1)
+
+    if LOCALS_BROKEN in text:
+        text = text.replace(LOCALS_BROKEN, LOCALS_FIXED, 1)
+        print("TrainViewHolder.bind: fixed .locals 3 (was 1, caused register crash)")
+    elif LOCALS_FIXED in text:
+        print("TrainViewHolder.bind: .locals already correct")
+    elif "MusicSync;->registerUi" in text:
+        raise RuntimeError("TrainViewHolder.bind: registerUi present but .locals not fixed")
+
     TRAIN_VH.write_text(text, encoding="utf-8")
-    print("TrainViewHolder.bind: register circle slider for music sync")
     return 0
 
 

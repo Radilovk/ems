@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 577
+    .line 556
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,35 +32,35 @@
 .method public onError()V
     .registers 2
 
-    .line 593
+    .line 572
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 594
+    .line 573
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 595
+    .line 574
     return-void
 .end method
 
 .method public onPlaybackEnded()V
     .registers 1
 
-    .line 587
+    .line 566
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 588
+    .line 567
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 589
+    .line 568
     return-void
 .end method
 
 .method public onWaveformLevel(I)V
     .registers 3
 
-    .line 580
+    .line 559
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_d
@@ -72,11 +72,11 @@
 
     if-eqz v0, :cond_d
 
-    .line 581
+    .line 560
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$600(I)V
 
-    .line 583
+    .line 562
     :cond_d
     return-void
 .end method

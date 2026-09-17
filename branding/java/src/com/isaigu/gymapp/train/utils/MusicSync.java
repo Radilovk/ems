@@ -108,8 +108,8 @@ public class MusicSync {
         }
         if (playerMode) {
             float target = level / 100f;
-            float attack = 0.55f;
-            float release = 0.22f;
+            float attack = 0.92f;
+            float release = 0.62f;
             float rate = target > playerSmoothedSound ? attack : release;
             playerSmoothedSound += (target - playerSmoothedSound) * rate;
             level = Math.round(playerSmoothedSound * 100f);
@@ -283,28 +283,7 @@ public class MusicSync {
 
     private static int envelopeToSoundPercent(double rms) {
         updateEnvelope(rms);
-
-        double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
-        if (gateRatio < 0.05) {
-            gateRatio = 0.05;
-        }
-        double noiseGate = Math.max(35.0, trackedPeakRms * gateRatio);
-        if (smoothedRms <= noiseGate) {
-            return 0;
-        }
-
-        double span = trackedPeakRms - noiseGate;
-        if (span < 25.0) {
-            span = 25.0;
-        }
-        double level = (smoothedRms - noiseGate) / span;
-        if (level < 0.0) {
-            level = 0.0;
-        } else if (level > 1.0) {
-            level = 1.0;
-        }
-
-        return clampPercent((int) Math.round(level * 100.0));
+        return clampPercent(SoundEnvelopeMapper.rmsToPercent(smoothedRms, trackedPeakRms, sensitivity));
     }
 
     private static int sampleSoundPercent(AudioRecord rec) {

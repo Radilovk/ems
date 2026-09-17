@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 569
+    .line 548
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,15 +32,15 @@
 .method public run()V
     .registers 2
 
-    .line 572
+    .line 551
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1000()V
 
-    .line 573
+    .line 552
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 574
+    .line 553
     return-void
 .end method

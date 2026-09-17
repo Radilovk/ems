@@ -206,7 +206,7 @@ def install_smali() -> None:
     for src in sorted((BRANDING / "smali").glob("MusicPlayerEngine*.smali")):
         shutil.copy2(src, UTILS_DIR / src.name)
         print(f"installed train/utils/{src.name}")
-    for name in ("MusicSync.smali", "MasterStrengthControl.smali"):
+    for name in ("MusicSync.smali", "MasterStrengthControl.smali", "SoundEnvelopeMapper.smali"):
         src = BRANDING / f"smali/{name}"
         if src.is_file():
             shutil.copy2(src, UTILS_DIR / name)

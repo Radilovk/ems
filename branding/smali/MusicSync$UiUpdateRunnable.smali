@@ -25,13 +25,13 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 428
+    .line 455
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 429
+    .line 456
     iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$UiUpdateRunnable;->display:I
 
-    .line 430
+    .line 457
     return-void
 .end method
 
@@ -40,20 +40,20 @@
 .method public run()V
     .registers 2
 
-    .line 434
+    .line 461
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-nez v0, :cond_5
 
-    .line 435
+    .line 462
     return-void
 
-    .line 437
+    .line 464
     :cond_5
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$UiUpdateRunnable;->display:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(I)V
 
-    .line 438
+    .line 465
     return-void
 .end method

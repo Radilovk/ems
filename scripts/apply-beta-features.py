@@ -67,7 +67,7 @@ MUSIC_UI = """
 
 BG_STRINGS = """
     <string name="beta_music_sync_title">БЕТА — Музикален импулс</string>
-    <string name="beta_music_sync_hint">Слайдерът на тренировката задава таван (макс. сила). Музиката плавно варира импулса от 0% до този таван. Чувствителността контролира колко лесно реагира на звук.</string>
+    <string name="beta_music_sync_hint">Слайдерът задава таван. Музиката променя силата само по време на импулса (не в паузата). Продължителност и пауза остават както сте ги настроили. Чувствителност = колко лесно реагира на звук.</string>
     <string name="beta_music_min_strength">Чувствителност (%)</string>
     <string name="beta_music_max_strength">Макс. сила (%)</string>
     <string name="beta_music_start">Старт</string>
@@ -83,7 +83,7 @@ BG_STRINGS = """
 
 EN_STRINGS = """
     <string name="beta_music_sync_title">BETA — Music-reactive pulse</string>
-    <string name="beta_music_sync_hint">The training slider sets the ceiling (max strength). Music smoothly varies impulse from 0% up to that ceiling. Sensitivity controls how easily it reacts to sound.</string>
+    <string name="beta_music_sync_hint">Slider sets the ceiling. Music changes strength only during the impulse (not in pause). Duration and pause stay as configured. Sensitivity = how easily it reacts to sound.</string>
     <string name="beta_music_min_strength">Sensitivity (%)</string>
     <string name="beta_music_max_strength">Max strength (%)</string>
     <string name="beta_music_start">Start</string>

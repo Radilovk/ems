@@ -18,7 +18,6 @@ PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
 LAYOUT = RES / "layout/edit_parameter_dialog.xml"
 EDIT_DIALOG = DIALOG_DIR / "EditUserProgramDataDialog.smali"
-TRAIN_MANAGER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainItemManager.smali"
 VALUES_BG = ROOT / "translations/values-bg/strings.xml"
 VALUES_BG_DECOMPILED = RES / "values-bg/strings.xml"
 VALUES_DEFAULT = RES / "values/strings.xml"
@@ -71,7 +70,10 @@ EN_STRINGS = """
 def install_smali() -> None:
     UTILS_DIR.mkdir(parents=True, exist_ok=True)
     DIALOG_DIR.mkdir(parents=True, exist_ok=True)
-    utils_files = [BRANDING / "smali/MusicSync.smali"]
+    utils_files = [
+        BRANDING / "smali/MusicSync.smali",
+        BRANDING / "smali/MusicSyncBridge.smali",
+    ]
     utils_files.extend(sorted((BRANDING / "smali").glob("MusicSync$*.smali")))
     for src in utils_files:
         if not src.is_file():
@@ -139,27 +141,6 @@ def patch_edit_dialog(text: str) -> str:
     return text.replace(marker, hook, 1)
 
 
-def patch_train_manager(text: str) -> str:
-    if "MusicSync;->setManager" in text:
-        return text
-    marker = (
-        "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainItemManager;->addEmptyItem()V\n\n"
-        "    .line 19\n"
-        "    return-void\n"
-    )
-    hook = (
-        "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainItemManager;->addEmptyItem()V\n\n"
-        "    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;"
-        "->setManager(Lcom/isaigu/gymapp/train/TrainItemManager;)V\n\n"
-        "    .line 19\n"
-        "    return-void\n"
-    )
-    if marker not in text:
-        raise RuntimeError("TrainItemManager constructor marker not found")
-    print("TrainItemManager.<init>: music sync manager hook")
-    return text.replace(marker, hook, 1)
-
-
 def merge_strings(path: Path, block: str, names: list[str]) -> None:
     if not path.exists():
         return
@@ -181,7 +162,6 @@ def main() -> int:
     IDS_XML.write_text(patch_ids_xml(IDS_XML.read_text(encoding="utf-8")), encoding="utf-8")
     LAYOUT.write_text(patch_layout(LAYOUT.read_text(encoding="utf-8")), encoding="utf-8")
     EDIT_DIALOG.write_text(patch_edit_dialog(EDIT_DIALOG.read_text(encoding="utf-8")), encoding="utf-8")
-    TRAIN_MANAGER.write_text(patch_train_manager(TRAIN_MANAGER.read_text(encoding="utf-8")), encoding="utf-8")
     names = [
         "beta_music_sync_title",
         "beta_music_sync_hint",

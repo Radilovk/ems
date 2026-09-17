@@ -56,6 +56,7 @@
     return-void
 
     :cond_has_root
+    :try_start_0
     const v0, 0x7f09021f
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -118,6 +119,12 @@
     invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     :cond_stop
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
+
+    return-void
+
+    :catch_all
     return-void
 .end method
 

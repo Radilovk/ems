@@ -76,6 +76,11 @@ RULES = [
         r"MusicSyncBridge;->attachManager\(Landroid/app/Activity;\)Z",
         "bind() pre-attaches TrainItemManager",
     ),
+    (
+        "MusicSync.smali",
+        r"TrainItemManager;->getItemList\(\)Ljava/util/List;",
+        "applyStrength() iterates TrainItemManager.getItemList()",
+    ),
 ]
 
 ANTI_PATTERNS = [
@@ -113,6 +118,11 @@ ANTI_PATTERNS = [
         "MusicSyncBridge.smali",
         r"fragment_now",
         "attachManager() must not access private MainFragment.fragment_now",
+    ),
+    (
+        "MusicSync.smali",
+        r"Ljava/util/stream/Stream;->iterator\(\)Ljava/util/Iterator;",
+        "applyStrength() must not call Stream.iterator() (not available on Android)",
     ),
 ]
 

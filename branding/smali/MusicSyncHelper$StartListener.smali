@@ -38,6 +38,12 @@
 
     move-result-object v0
 
+    if-nez v0, :cond_has_activity
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getHostActivity()Landroid/app/Activity;
+
+    move-result-object v0
+
     :cond_has_activity
     if-nez v0, :cond_start
 

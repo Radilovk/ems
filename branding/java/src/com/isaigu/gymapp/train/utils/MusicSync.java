@@ -5,6 +5,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +13,7 @@ import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 
 import com.isaigu.gymapp.MainActivity;
+import com.isaigu.gymapp.dialog.MusicPlayerHelper;
 import com.isaigu.gymapp.dialog.MusicSyncHelper;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
@@ -24,6 +26,7 @@ public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
     static final int ERROR_DENIED = 0x7f0d010d;
     static final int ERROR_MIC = 0x7f0d010e;
+    static final int ERROR_PLAYER = 0x7f0d0113;
 
     private static final double ATTACK = 0.94;
     private static final double RELEASE = 0.32;
@@ -34,10 +37,12 @@ public class MusicSync {
     private static final long READ_YIELD_MS = 5L;
 
     private static AudioRecord audioRecord;
+    private static MusicPlayerEngine playerEngine;
     private static Handler handler;
     private static Thread audioThread;
     private static Activity hostActivity;
     private static int sensitivity = 20;
+    private static boolean playerMode;
     static boolean running;
     static volatile int liveStrength;
 
@@ -235,16 +240,27 @@ public class MusicSync {
         }
     }
 
-    private static int sampleSoundPercent(AudioRecord rec) {
-        if (rec == null) {
+    static int waveformToSoundPercent(byte[] waveform) {
+        if (waveform == null || waveform.length == 0) {
             return liveStrength;
         }
-        int read = rec.read(audioBuffer, 0, audioBuffer.length);
-        if (read <= 0) {
-            return liveStrength;
+        long sumSq = 0L;
+        for (int i = 0; i < waveform.length; i++) {
+            int sample = waveform[i] + 128;
+            sumSq += (long) sample * sample;
         }
+        double rms = Math.sqrt((double) sumSq / waveform.length);
+        return envelopeToSoundPercent(rms);
+    }
 
-        double rms = measureRms(audioBuffer, read);
+    static int waveformToSoundPercent(short[] samples, int count) {
+        if (samples == null || count <= 0) {
+            return liveStrength;
+        }
+        return envelopeToSoundPercent(measureRms(samples, count));
+    }
+
+    private static int envelopeToSoundPercent(double rms) {
         updateEnvelope(rms);
 
         double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
@@ -270,6 +286,17 @@ public class MusicSync {
         return clampPercent((int) Math.round(level * 100.0));
     }
 
+    private static int sampleSoundPercent(AudioRecord rec) {
+        if (rec == null) {
+            return liveStrength;
+        }
+        int read = rec.read(audioBuffer, 0, audioBuffer.length);
+        if (read <= 0) {
+            return liveStrength;
+        }
+        return envelopeToSoundPercent(measureRms(audioBuffer, read));
+    }
+
     private static void maybeUpdateUi() {
         long now = SystemClock.elapsedRealtime();
         if (now - lastUiMs < UI_INTERVAL_MS) {
@@ -279,10 +306,20 @@ public class MusicSync {
         final int applied = getEffectiveStrength();
         final int ceiling = getStrengthCeiling();
         MusicSyncHelper.showActive(applied, ceiling);
+        MusicPlayerHelper.showActive(applied, ceiling);
+    }
+
+    private static void releasePlayer() {
+        MusicPlayerEngine engine = playerEngine;
+        playerEngine = null;
+        if (engine != null) {
+            engine.release();
+        }
     }
 
     private static void stopCaptureOnly() {
         running = false;
+        playerMode = false;
         Thread thread = audioThread;
         audioThread = null;
         if (thread != null) {
@@ -295,6 +332,7 @@ public class MusicSync {
             handler.removeCallbacks(applyRunnable);
         }
         releaseAudio();
+        releasePlayer();
         liveStrength = 0;
         resetAudioLevels();
     }
@@ -396,6 +434,49 @@ public class MusicSync {
         MusicSyncHelper.showPermission();
         AndroidUtils.requestPermission(activity, "android.permission.RECORD_AUDIO", PERMISSION_REQUEST,
                 new PermissionCallback());
+    }
+
+    public static void startPlayer(Activity activity, Uri uri, int min) {
+        if (activity == null || uri == null) {
+            return;
+        }
+        hostActivity = activity;
+        stopCaptureOnly();
+        setSensitivity(min);
+        MasterStrengthControl.ensureMaMode();
+        resetAudioLevels();
+        MasterStrengthControl.captureCeilingFromSlider();
+        try {
+            MusicPlayerEngine engine = new MusicPlayerEngine();
+            engine.start(activity, uri, new MusicPlayerEngine.Listener() {
+                @Override
+                public void onWaveformLevel(int soundPercent) {
+                    if (running && playerMode) {
+                        pushSoundLevel(soundPercent);
+                    }
+                }
+
+                @Override
+                public void onPlaybackEnded() {
+                    stop();
+                    MusicPlayerHelper.showIdle();
+                }
+
+                @Override
+                public void onError() {
+                    stop();
+                    MusicPlayerHelper.showError(ERROR_PLAYER);
+                }
+            });
+            playerEngine = engine;
+            playerMode = true;
+            running = true;
+            liveStrength = 0;
+            MusicPlayerHelper.showActive(0, getStrengthCeiling());
+        } catch (Throwable t) {
+            stopCaptureOnly();
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+        }
     }
 
     public static void stop() {

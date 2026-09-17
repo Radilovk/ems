@@ -1,0 +1,38 @@
+.class Lcom/isaigu/gymapp/beta/BetaFeaturesDialog$StopListener;
+.super Ljava/lang/Object;
+.source "BetaFeaturesDialog.java"
+
+# interfaces
+.implements Landroid/view/View$OnClickListener;
+
+
+# instance fields
+.field final synthetic this$0:Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;
+
+
+# direct methods
+.method constructor <init>(Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;)V
+    .locals 0
+    .param p1, "this$0"    # Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;
+
+    iput-object p1, p0, Lcom/isaigu/gymapp/beta/BetaFeaturesDialog$StopListener;->this$0:Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public onClick(Landroid/view/View;)V
+    .locals 1
+    .param p1, "v"    # Landroid/view/View;
+
+    invoke-static {}, Lcom/isaigu/gymapp/beta/MusicReactiveController;->stop()V
+
+    iget-object p1, p0, Lcom/isaigu/gymapp/beta/BetaFeaturesDialog$StopListener;->this$0:Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;
+
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;->refreshStatusPublic()V
+
+    return-void
+.end method

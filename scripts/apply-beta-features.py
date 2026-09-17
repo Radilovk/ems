@@ -217,42 +217,57 @@ def patch_edit_dialog(text: str) -> str:
         "    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
         "->bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V\n"
     )
+    bind_line = bind_invoke + "\n"
     on_start_hook = (
         "\n    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;"
         "->getView()Landroid/view/View;\n\n"
         "    move-result-object v0\n\n"
-        "    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
-        "->bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V\n"
+        + bind_invoke
     )
     old_hook = (
         "\n    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
         "->bind(Landroid/view/View;)V\n"
     )
-    if "EditUserProgramDataDialog;->getView()Landroid/view/View;" in text and (
-        "MusicSyncHelper;->bind" in text
-    ):
-        return text
-
-    marker = (
-        "    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initListener()V\n"
+    apply_block = (
+        "    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;"
+        "->access$200(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)"
+        "Lcom/isaigu/gymapp/bean/TrainProgram;\n\n"
+        "    move-result-object v1\n\n"
+        "    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;"
+        "->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V\n\n"
     )
-    if marker not in text:
-        raise RuntimeError("EditUserProgramDataDialog.initListener marker not found")
 
-    if "MusicSyncHelper;->bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V" not in text:
+    if on_start_hook in text:
+        text = text.replace(on_start_hook, "\n", 1)
+        print("EditUserProgramDataDialog.onStart: removed music sync re-bind hook")
+
+    while text.count(apply_block) > 1:
+        text = text.replace(apply_block, "", 1)
+    if apply_block in text:
+        print("EditUserProgramDataDialog.onCreateView: deduped ActivePauseStorage.apply")
+
+    while bind_line in text:
+        text = text.replace(bind_line, "", 1)
+
+    return_marker = (
+        "    return-object v0\n.end method\n\n.method public onStart()V"
+    )
+    if return_marker in text and "MusicSyncHelper;->bind" not in text:
+        text = text.replace(return_marker, bind_line + return_marker, 1)
+        print("EditUserProgramDataDialog.onCreateView: music sync bind before return")
+    elif "MusicSyncHelper;->bind" not in text:
+        marker = (
+            "    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;"
+            "->initListener()V\n"
+        )
+        if marker not in text:
+            raise RuntimeError("EditUserProgramDataDialog.initListener marker not found")
         if old_hook in text:
             print("EditUserProgramDataDialog.onCreateView: upgraded music sync bind hook")
             text = text.replace(old_hook, "\n" + bind_invoke, 1)
         else:
             print("EditUserProgramDataDialog.onCreateView: music sync bind hook")
             text = text.replace(marker, marker + "\n" + bind_invoke, 1)
-
-    on_start_marker = (
-        "    invoke-super {p0}, Lcom/isaigu/gymapp/BaseFullScreenDialogFragment;->onStart()V\n"
-    )
-    if on_start_marker in text and on_start_hook.strip() not in text:
-        text = text.replace(on_start_marker, on_start_marker + on_start_hook, 1)
-        print("EditUserProgramDataDialog.onStart: music sync re-bind hook")
 
     return text
 

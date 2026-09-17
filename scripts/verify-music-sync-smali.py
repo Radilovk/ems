@@ -34,6 +34,7 @@ TRAIN_VH = (
 RULES = [
     ("MusicSync.smali", r"\.method public static registerUi\(", "registerUi()"),
     ("MusicSync.smali", r"\.method public static isRunning\(\)Z", "isRunning()"),
+    ("MusicSync.smali", r"strengthCeiling", "ceiling from slider at Start"),
     ("MusicSync.smali", r"iput.*ProgramDataBean;->strenth:I", "writes bean.strenth"),
     ("MusicSync.smali", r"CircleSeekBar;->setCurProcess\(I\)V", "moves circle slider"),
 ]

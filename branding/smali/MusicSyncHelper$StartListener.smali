@@ -25,13 +25,13 @@
 .method constructor <init>(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
     .registers 2
 
-    .line 201
+    .line 208
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 202
+    .line 209
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;->dialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    .line 203
+    .line 210
     return-void
 .end method
 
@@ -40,7 +40,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 208
+    .line 215
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;->dialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
@@ -48,22 +48,22 @@
 
     move-result-object p1
 
-    .line 209
+    .line 216
     if-nez p1, :cond_f
 
-    .line 210
+    .line 217
     const p1, 0x7f0d010b
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 211
+    .line 218
     return-void
 
-    .line 213
+    .line 220
     :cond_f
     const/16 v0, 0x14
 
-    .line 214
+    .line 221
     # getter for: Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->access$000()Lcom/isaigu/gymapp/widget/AmountView;
 
@@ -71,7 +71,7 @@
 
     if-eqz v1, :cond_1f
 
-    .line 215
+    .line 222
     # getter for: Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->access$000()Lcom/isaigu/gymapp/widget/AmountView;
 
@@ -81,7 +81,7 @@
 
     move-result v0
 
-    .line 217
+    .line 224
     :cond_1f
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;->dialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
@@ -92,26 +92,26 @@
 
     invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setTargetMacAddress(Ljava/lang/String;)V
 
-    .line 218
+    .line 225
     const/16 v1, 0x64
 
     invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
     :try_end_2d
     .catchall {:try_start_0 .. :try_end_2d} :catchall_2e
 
-    .line 221
+    .line 228
     goto :goto_35
 
-    .line 219
+    .line 226
     :catchall_2e
     move-exception p1
 
-    .line 220
+    .line 227
     const p1, 0x7f0d010e
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 222
+    .line 229
     :goto_35
     return-void
 .end method

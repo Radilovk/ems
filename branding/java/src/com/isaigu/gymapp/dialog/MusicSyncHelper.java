@@ -158,15 +158,22 @@ public class MusicSyncHelper {
         return maxAmount;
     }
 
-    public static void showActive(int level) {
-        if (level < 0) {
-            level = 0;
+    public static void showActive(int appliedStrength) {
+        showActive(appliedStrength, 100);
+    }
+
+    public static void showActive(int appliedStrength, int ceiling) {
+        if (appliedStrength < 0) {
+            appliedStrength = 0;
+        }
+        if (ceiling < 1) {
+            ceiling = 1;
         }
         if (statusView != null) {
             statusView.setText(0x7f0d0108);
         }
         if (levelView != null) {
-            levelView.setText(level + "%");
+            levelView.setText(appliedStrength + "% / " + ceiling + "%");
             levelView.setVisibility(View.VISIBLE);
         }
     }

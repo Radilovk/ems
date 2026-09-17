@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 382
+    .line 402
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,15 +32,15 @@
 .method public run()V
     .registers 2
 
-    .line 385
+    .line 405
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-nez v0, :cond_5
 
-    .line 386
+    .line 406
     return-void
 
-    .line 388
+    .line 408
     :cond_5
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->computeStrength()I
 
@@ -49,9 +49,9 @@
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->applyStrength(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000(I)V
 
-    .line 389
+    .line 409
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->scheduleTick()V
 
-    .line 390
+    .line 410
     return-void
 .end method

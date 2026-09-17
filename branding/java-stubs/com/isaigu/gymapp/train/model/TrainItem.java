@@ -1,8 +1,11 @@
 package com.isaigu.gymapp.train.model;
 
 import com.isaigu.gymapp.bean.TrainProgram;
+import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 
 public class TrainItem {
+    public TrainUserProgramDataWrapper data;
+
     public boolean isEmpty() {
         return true;
     }
@@ -12,5 +15,8 @@ public class TrainItem {
     }
 
     public void addStrenth(int delta) {
+    }
+
+    public void onParamsChange() {
     }
 }

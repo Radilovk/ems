@@ -8,9 +8,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.isaigu.gymapp.MainActivity;
+import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.train.utils.MusicSyncBridge;
 import com.isaigu.gymapp.widget.AmountView;
+
+import android.os.Bundle;
 
 public class MusicSyncHelper {
     private static EditUserProgramDataDialog hostDialog;
@@ -58,6 +61,24 @@ public class MusicSyncHelper {
             } else {
                 return null;
             }
+        }
+        return null;
+    }
+
+    private static String resolveTargetMac(EditUserProgramDataDialog dialog) {
+        if (dialog == null) {
+            return null;
+        }
+        try {
+            Bundle args = dialog.getArguments();
+            if (args == null) {
+                return null;
+            }
+            Object data = args.getSerializable("data");
+            if (data instanceof TrainUserProgramDataWrapper) {
+                return ((TrainUserProgramDataWrapper) data).macAddress;
+            }
+        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -115,6 +136,7 @@ public class MusicSyncHelper {
             Activity activity = resolveActivityForDialog(dialog, root);
             if (activity != null) {
                 MusicSync.setHostActivity(activity);
+                MusicSync.setTargetMacAddress(resolveTargetMac(dialog));
                 MusicSyncBridge.attachManager(activity);
             }
         } catch (Throwable ignored) {

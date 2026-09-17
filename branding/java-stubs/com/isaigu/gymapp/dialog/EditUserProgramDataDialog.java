@@ -2,6 +2,7 @@ package com.isaigu.gymapp.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import com.isaigu.gymapp.BaseActivity;
 
@@ -10,4 +11,5 @@ public class EditUserProgramDataDialog {
     public Context getContext() { return null; }
     public BaseActivity getParentActivity() { return null; }
     public Dialog getDialog() { return null; }
+    public Bundle getArguments() { return null; }
 }

@@ -25,13 +25,13 @@
 .method constructor <init>(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
     .registers 2
 
-    .line 172
+    .line 194
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 173
+    .line 195
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;->dialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    .line 174
+    .line 196
     return-void
 .end method
 
@@ -40,7 +40,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 5
 
-    .line 179
+    .line 201
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;->dialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
@@ -48,25 +48,25 @@
 
     move-result-object p1
 
-    .line 180
+    .line 202
     if-nez p1, :cond_f
 
-    .line 181
+    .line 203
     const p1, 0x7f0d010b
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 182
+    .line 204
     return-void
 
-    .line 184
+    .line 206
     :cond_f
     const/16 v0, 0x14
 
-    .line 185
+    .line 207
     const/16 v1, 0x50
 
-    .line 186
+    .line 208
     # getter for: Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->access$000()Lcom/isaigu/gymapp/widget/AmountView;
 
@@ -74,7 +74,7 @@
 
     if-eqz v2, :cond_21
 
-    .line 187
+    .line 209
     # getter for: Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->access$000()Lcom/isaigu/gymapp/widget/AmountView;
 
@@ -84,7 +84,7 @@
 
     move-result v0
 
-    .line 189
+    .line 211
     :cond_21
     # getter for: Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->maxAmount:Lcom/isaigu/gymapp/widget/AmountView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->access$100()Lcom/isaigu/gymapp/widget/AmountView;
@@ -93,7 +93,7 @@
 
     if-eqz v2, :cond_2f
 
-    .line 190
+    .line 212
     # getter for: Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->maxAmount:Lcom/isaigu/gymapp/widget/AmountView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->access$100()Lcom/isaigu/gymapp/widget/AmountView;
 
@@ -103,28 +103,28 @@
 
     move-result v1
 
-    .line 192
+    .line 214
     :cond_2f
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
 
-    .line 193
+    .line 215
     invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
     :try_end_35
     .catchall {:try_start_0 .. :try_end_35} :catchall_36
 
-    .line 196
+    .line 218
     goto :goto_3d
 
-    .line 194
+    .line 216
     :catchall_36
     move-exception p1
 
-    .line 195
+    .line 217
     const p1, 0x7f0d010e
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 197
+    .line 219
     :goto_3d
     return-void
 .end method

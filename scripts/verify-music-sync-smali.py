@@ -19,7 +19,7 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"\.method public static start\(Landroid/app/Activity;II\)V[\s\S]*?if-eqz v1, :cond_request_permission",
+        r"\.method public static start\(Landroid/app/Activity;II\)V[\s\S]*?if-nez v1, :cond_request_permission",
         "start() requests permission only when not granted",
     ),
     (
@@ -69,13 +69,18 @@ RULES = [
     ),
     (
         "MusicSyncHelper.smali",
-        r"\.method public static getActivity\(\)[\s\S]*?if-nez v0, :cond_has_dialog",
-        "getActivity() returns null when dialog is missing",
+        r"\.method public static getActivity\(\)[\s\S]*?resolveActivityForDialog",
+        "getActivity() delegates to resolveActivityForDialog()",
     ),
     (
         "MusicSyncHelper.smali",
-        r"->getActivity\(\)Landroid/support/v4/app/FragmentActivity;",
-        "getActivity() uses Fragment.getActivity() fallback",
+        r"resolveActivityForDialog\(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;\)",
+        "resolveActivityForDialog() exists for robust activity lookup",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r"MainActivity;->getInstance\(\)Lcom/isaigu/gymapp/MainActivity;",
+        "resolveActivityForDialog() falls back to MainActivity.getInstance()",
     ),
     (
         "MusicSyncHelper.smali",
@@ -89,13 +94,13 @@ RULES = [
     ),
     (
         "MusicSyncHelper$StartListener.smali",
-        r"if-nez v0, :cond_start",
-        "StartListener errors when activity is null",
+        r"resolveActivityForDialog\(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;\)",
+        "StartListener resolves activity via resolveActivityForDialog()",
     ),
     (
         "MusicSyncHelper$StartListener.smali",
-        r"return-void\s*:catch_all",
-        "StartListener returns after successful start",
+        r"if-nez v0, :cond_start",
+        "StartListener errors when activity is null",
     ),
     (
         "MusicSyncBridge.smali",

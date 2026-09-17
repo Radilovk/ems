@@ -83,43 +83,96 @@
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    if-nez v0, :cond_has_dialog
+    const/4 v1, 0x0
 
-    const/4 v0, 0x0
-
-    return-object v0
-
-    :cond_has_dialog
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getActivity()Landroid/support/v4/app/FragmentActivity;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_try_parent
-
-    return-object v1
-
-    :cond_try_parent
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_try_dialog
-
-    return-object v1
-
-    :cond_try_dialog
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getDialog()Landroid/app/Dialog;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    if-nez v0, :cond_none
+    return-object v0
+.end method
 
-    const/4 v0, 0x0
+.method public static resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
+    .locals 2
+    .param p0, "dialog"    # Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
+    .param p1, "view"    # Landroid/view/View;
+
+    if-nez p0, :cond_has_dialog
+
+    goto :goto_try_view
+
+    :cond_has_dialog
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getActivity()Landroid/support/v4/app/FragmentActivity;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_try_context
 
     return-object v0
 
-    :cond_none
-    invoke-virtual {v0}, Landroid/app/Dialog;->getOwnerActivity()Landroid/app/Activity;
+    :cond_try_context
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_try_parent
+
+    return-object v0
+
+    :cond_try_parent
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_try_dialog
+
+    return-object v0
+
+    :cond_try_dialog
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getDialog()Landroid/app/Dialog;
+
+    move-result-object v1
+
+    if-nez v1, :goto_try_view
+
+    invoke-virtual {v1}, Landroid/app/Dialog;->getOwnerActivity()Landroid/app/Activity;
+
+    move-result-object v0
+
+    if-eqz v0, :goto_try_view
+
+    return-object v0
+
+    :goto_try_view
+    if-nez p1, :cond_try_cached
+
+    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_try_cached
+
+    return-object v0
+
+    :cond_try_cached
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getHostActivity()Landroid/app/Activity;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_try_main
+
+    return-object v0
+
+    :cond_try_main
+    invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
 
     move-result-object v0
 
@@ -205,7 +258,7 @@
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;
 
-    invoke-direct {v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;-><init>()V
+    invoke-direct {v1, p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;-><init>(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->attachButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
@@ -255,7 +308,7 @@
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showIdle()V
 
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->getActivity()Landroid/app/Activity;
+    invoke-static {p1, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 

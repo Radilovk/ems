@@ -56,8 +56,8 @@ MUSIC_UI = """
                 <TextView android:textSize="14.0sp" android:textColor="@color/light_green_color" android:id="@id/musicSyncStatus" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/beta_music_status_idle" />
                 <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/light_orange_exister" android:gravity="center" android:id="@id/musicSyncLevel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="0%" />
                 <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
-                    <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStart" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/beta_music_start" android:textAllCaps="false" />
-                    <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStop" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/beta_music_stop" android:textAllCaps="false" />
+                    <Button android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStart" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/beta_music_start" android:textAllCaps="false" />
+                    <Button android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStop" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/beta_music_stop" android:textAllCaps="false" />
                 </LinearLayout>
             </LinearLayout>
 """
@@ -148,7 +148,11 @@ def patch_ids_xml(text: str) -> str:
 
 def patch_layout(text: str) -> str:
     if "musicSyncStatus" in text:
-        return text
+        return (
+            text.replace("com.isaigu.gymapp.widget.MyButton", "Button", 2)
+            if "musicSyncStart" in text and "MyButton" in text
+            else text
+        )
     if "musicMinStrength" in text:
         old = '                <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">\n                    <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp"'
         new = (
@@ -181,17 +185,27 @@ def patch_layout(text: str) -> str:
 
 
 def patch_edit_dialog(text: str) -> str:
-    if "MusicSyncHelper;->bind" in text:
+    new_hook = (
+        "\n    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
+        "->bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V\n"
+    )
+    old_hook = (
+        "\n    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
+        "->bind(Landroid/view/View;)V\n"
+    )
+    if "bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V" in text:
         return text
     marker = (
         "    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initListener()V\n"
     )
-    hook = marker + (
-        "\n    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
-        "->bind(Landroid/view/View;)V\n"
-    )
     if marker not in text:
         raise RuntimeError("EditUserProgramDataDialog.initListener marker not found")
+    if old_hook in text:
+        print("EditUserProgramDataDialog.onCreateView: upgraded music sync bind hook")
+        return text.replace(old_hook, new_hook, 1)
+    if "MusicSyncHelper;->bind" in text:
+        return text
+    hook = marker + new_hook
     print("EditUserProgramDataDialog.onCreateView: music sync bind hook")
     return text.replace(marker, hook, 1)
 

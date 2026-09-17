@@ -107,24 +107,43 @@
     :cond_2f
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
 
-    .line 192
-    invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
-    :try_end_35
-    .catchall {:try_start_0 .. :try_end_35} :catchall_36
+    move-result v2
 
-    .line 195
-    goto :goto_3d
+    if-nez v2, :cond_42
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getManager()Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    move-result-object v2
+
+    if-nez v2, :cond_42
+
+    .line 192
+    const p1, 0x7f0d010c
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
     .line 193
-    :catchall_36
+    return-void
+
+    .line 195
+    :cond_42
+    invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
+    :try_end_45
+    .catchall {:try_start_0 .. :try_end_45} :catchall_46
+
+    .line 198
+    goto :goto_4d
+
+    .line 196
+    :catchall_46
     move-exception p1
 
-    .line 194
+    .line 197
     const p1, 0x7f0d010e
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 196
-    :goto_3d
+    .line 199
+    :goto_4d
     return-void
 .end method

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 284
+    .line 386
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,21 +32,29 @@
 .method public onRequestPermission(Ljava/lang/String;IZ)V
     .registers 4
 
-    .line 287
-    if-eqz p3, :cond_6
+    .line 389
+    if-eqz p3, :cond_d
 
-    .line 288
+    .line 390
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()Landroid/app/Activity;
+
+    move-result-object p1
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
+
+    .line 391
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 
-    goto :goto_c
+    goto :goto_13
 
-    .line 290
-    :cond_6
+    .line 393
+    :cond_d
     const p1, 0x7f0d010d
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 292
-    :goto_c
+    .line 395
+    :goto_13
     return-void
 .end method

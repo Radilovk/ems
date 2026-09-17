@@ -67,7 +67,7 @@ public class MusicSync {
             }
             lastPushedApplied = value;
             lastBleMs = SystemClock.elapsedRealtime();
-            MasterStrengthControl.setMasterStrength(value, !playerMode);
+            MasterStrengthControl.setMasterStrength(value, true);
             maybeUpdateUi();
         }
     };
@@ -356,6 +356,7 @@ public class MusicSync {
         releasePlayer();
         liveStrength = 0;
         resetAudioLevels();
+        setSyncActive(false);
     }
 
     static void startCapture() {
@@ -384,6 +385,7 @@ public class MusicSync {
                 return;
             }
             running = true;
+            setSyncActive(true);
             liveStrength = 0;
             MusicSyncHelper.showActive(0, getStrengthCeiling());
             audioThread = new Thread(new Runnable() {
@@ -419,6 +421,39 @@ public class MusicSync {
 
     public static boolean isRunning() {
         return running;
+    }
+
+    public static boolean isPlayerMode() {
+        return playerMode;
+    }
+
+    public static boolean isTargetItem(TrainItem item) {
+        if (item == null) {
+            return false;
+        }
+        TrainItem target = MasterStrengthControl.getTarget();
+        return target == item;
+    }
+
+    /** +/− with MA index: adjust ceiling, re-apply current sound envelope. */
+    public static boolean adjustCeiling(int delta) {
+        if (!running || delta == 0) {
+            return false;
+        }
+        MasterStrengthControl.adjustCeiling(delta);
+        int applied = MasterStrengthControl.scaleFromSound(liveStrength);
+        lastPushedApplied = -1;
+        pendingApplied = applied;
+        ensureHandler();
+        handler.removeCallbacks(applyRunnable);
+        applyRunnable.run();
+        MasterStrengthControl.refreshSyncLabel();
+        maybeUpdateUi();
+        return true;
+    }
+
+    private static void setSyncActive(boolean active) {
+        MasterStrengthControl.setSyncActive(active);
     }
 
     public static int getLiveStrength() {
@@ -483,6 +518,7 @@ public class MusicSync {
             playerEngine = engine;
             playerMode = true;
             running = true;
+            setSyncActive(true);
             liveStrength = 0;
             MusicPlayerHelper.showActive(0, getStrengthCeiling());
         } catch (Throwable t) {

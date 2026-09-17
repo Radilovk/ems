@@ -100,7 +100,11 @@ public final class MusicPlayerHelper {
         bindButton(content.findViewById(0x7f09022b), new PickListener());
         bindButton(content.findViewById(0x7f09022c), new PlayListener());
         bindButton(content.findViewById(0x7f09022d), new StopListener());
-        showIdle();
+        if (MusicSync.isRunning()) {
+            showActive(MusicSync.getEffectiveStrength(), MusicSync.getStrengthCeiling());
+        } else {
+            showIdle();
+        }
         android.support.v7.app.AlertDialog.Builder builder =
                 new android.support.v7.app.AlertDialog.Builder(activity);
         builder.setView(content);
@@ -439,6 +443,11 @@ public final class MusicPlayerHelper {
         @Override
         public void onDismiss(android.content.DialogInterface d) {
             if (!pickingFile) {
+                if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+                    dialog = null;
+                    clearDialogRefs();
+                    return;
+                }
                 MusicSync.stop();
                 pendingActivity = null;
                 pendingItem = null;

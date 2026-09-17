@@ -72,18 +72,13 @@
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$202(J)J
 
     .line 70
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$300()Z
-
-    move-result v1
-
-    xor-int/lit8 v1, v1, 0x1
+    const/4 v1, 0x1
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(IZ)V
 
     .line 71
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$400()V
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$300()V
 
     .line 72
     return-void

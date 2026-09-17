@@ -67,7 +67,7 @@ MUSIC_UI = """
 
 BG_STRINGS = """
     <string name="beta_music_sync_title">БЕТА — Музикален импулс</string>
-    <string name="beta_music_sync_hint">Микрофонът следи музиката: при тишина силата е 0%, при силен звук достига максимума. Пуснете музика близо до таблета.</string>
+    <string name="beta_music_sync_hint">Слайдерът на тренировката задава таван (макс. сила). Музиката плавно варира импулса от 0% до този таван. Чувствителността контролира колко лесно реагира на звук.</string>
     <string name="beta_music_min_strength">Чувствителност (%)</string>
     <string name="beta_music_max_strength">Макс. сила (%)</string>
     <string name="beta_music_start">Старт</string>
@@ -83,7 +83,7 @@ BG_STRINGS = """
 
 EN_STRINGS = """
     <string name="beta_music_sync_title">BETA — Music-reactive pulse</string>
-    <string name="beta_music_sync_hint">Microphone follows music: silence keeps strength at 0%, loud audio reaches the maximum. Play music near the tablet.</string>
+    <string name="beta_music_sync_hint">The training slider sets the ceiling (max strength). Music smoothly varies impulse from 0% up to that ceiling. Sensitivity controls how easily it reacts to sound.</string>
     <string name="beta_music_min_strength">Sensitivity (%)</string>
     <string name="beta_music_max_strength">Max strength (%)</string>
     <string name="beta_music_start">Start</string>

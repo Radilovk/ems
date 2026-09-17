@@ -115,6 +115,8 @@ def check_pdu_hook() -> list[str]:
     content = DECOMPILED_COMMAND_UTIL.read_text(encoding="utf-8")
     if "MusicSync;->getLiveStrength()I" not in content:
         return ["MISSING: CommandUtil.getPartsParamsPduWithStrength music-sync hook"]
+    if "div-int/lit8 p2, v5, 0x64" not in content:
+        return ["MISSING: CommandUtil multiplies slider ceiling by music ratio"]
     return []
 
 

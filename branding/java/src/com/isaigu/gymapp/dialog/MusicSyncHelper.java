@@ -136,7 +136,9 @@ public class MusicSyncHelper {
             minAmount = (AmountView) root.findViewById(0x7f09021f);
             maxAmount = (AmountView) root.findViewById(0x7f090220);
             configureAmount(minAmount, 20);
-            configureAmount(maxAmount, 80);
+            if (maxAmount != null) {
+                maxAmount.setVisibility(View.GONE);
+            }
             showIdle();
             Activity activity = resolveActivityForDialog(dialog, root);
             if (activity != null) {
@@ -209,15 +211,11 @@ public class MusicSyncHelper {
                     return;
                 }
                 int min = 20;
-                int max = 80;
                 if (minAmount != null) {
                     min = minAmount.getAmount();
                 }
-                if (maxAmount != null) {
-                    max = maxAmount.getAmount();
-                }
-            MusicSync.setTargetMacAddress(resolveTargetMac(dialog));
-            MusicSync.start(activity, min, max);
+                MusicSync.setTargetMacAddress(resolveTargetMac(dialog));
+                MusicSync.start(activity, min, 100);
             } catch (Throwable t) {
                 showError(0x7f0d010e);
             }

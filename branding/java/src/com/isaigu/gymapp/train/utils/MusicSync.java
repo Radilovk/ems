@@ -11,6 +11,8 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
 import com.isaigu.gymapp.MainActivity;
+import com.isaigu.gymapp.bean.ProgramDataBean;
+import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.dialog.MusicSyncHelper;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
@@ -31,9 +33,9 @@ public class MusicSync {
     private static Activity hostActivity;
     private static TrainItem targetItem;
     private static String targetMacAddress;
-    private static int maxStrength = 80;
-    private static int minStrength = 20;
+    private static int sensitivity = 20;
     static boolean running;
+    /** Music intensity 0-100 (% of the circle-slider ceiling). */
     static int liveStrength;
 
     private static double smoothedRms;
@@ -138,6 +140,37 @@ public class MusicSync {
         return tryOpen(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_STEREO, pcm16);
     }
 
+    public static int getSliderCeiling() {
+        TrainItem item = targetItem;
+        if (item == null) {
+            return 100;
+        }
+        try {
+            TrainProgram program = item.getTrainProgram();
+            if (program == null) {
+                return 100;
+            }
+            ProgramDataBean data = program.matchProgram();
+            if (data == null) {
+                return 100;
+            }
+            int ceiling = data.strenth;
+            if (ceiling < 0) {
+                return 0;
+            }
+            if (ceiling > 100) {
+                return 100;
+            }
+            return ceiling;
+        } catch (Throwable ignored) {
+            return 100;
+        }
+    }
+
+    public static int getEffectiveStrength() {
+        return getSliderCeiling() * liveStrength / 100;
+    }
+
     private static double measureRms(short[] buffer, int count) {
         long sumSq = 0L;
         for (int i = 0; i < count; i++) {
@@ -163,8 +196,8 @@ public class MusicSync {
     }
 
     /**
-     * Silence or weak audio -> 0%.
-     * Strong audio scales from 0% up to maxStrength.
+     * Returns music intensity 0-100 (% of circle-slider ceiling).
+     * Silence -> 0. Loud audio -> 100.
      */
     static int computeStrength() {
         AudioRecord rec = audioRecord;
@@ -180,7 +213,7 @@ public class MusicSync {
         double rms = measureRms(buffer, read);
         updateEnvelope(rms);
 
-        double gateRatio = 0.22 - (minStrength / 100.0) * 0.17;
+        double gateRatio = 0.22 - (sensitivity / 100.0) * 0.17;
         if (gateRatio < 0.05) {
             gateRatio = 0.05;
         }
@@ -205,12 +238,12 @@ public class MusicSync {
             return 0;
         }
 
-        int value = (int) Math.round(level * maxStrength);
+        int value = (int) Math.round(level * 100.0);
         if (value < 0) {
             value = 0;
         }
-        if (value > maxStrength) {
-            value = maxStrength;
+        if (value > 100) {
+            value = 100;
         }
         return value;
     }
@@ -298,9 +331,8 @@ public class MusicSync {
         targetItem = item;
     }
 
-    public static void setStrengthRange(int min, int max) {
-        minStrength = Math.min(Math.max(min, 0), 100);
-        maxStrength = Math.min(Math.max(max, minStrength), 100);
+    public static void setSensitivity(int min) {
+        sensitivity = Math.min(Math.max(min, 0), 100);
     }
 
     public static void start(Activity activity, int min, int max) {
@@ -309,7 +341,7 @@ public class MusicSync {
         }
         hostActivity = activity;
         stopCaptureOnly();
-        setStrengthRange(min, max);
+        setSensitivity(min);
         if (hasRecordPermission()) {
             startCapture();
             return;
@@ -332,7 +364,7 @@ public class MusicSync {
                 return;
             }
             liveStrength = computeStrength();
-            MusicSyncHelper.showActive(liveStrength);
+            MusicSyncHelper.showActive(getEffectiveStrength());
             scheduleTick();
         }
     }

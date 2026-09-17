@@ -79,7 +79,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    if-eqz v0, :cond_no_dialog
+    if-nez v0, :cond_no_dialog
 
     const/4 v0, 0x0
 
@@ -97,7 +97,7 @@
     .locals 2
 
     :goto_loop
-    if-eqz p0, :cond_no_context
+    if-nez p0, :cond_no_context
 
     const/4 p0, 0x0
 
@@ -115,7 +115,7 @@
     :cond_is_activity
     instance-of v0, p0, Landroid/content/ContextWrapper;
 
-    if-eqz v0, :cond_not_wrapper
+    if-nez v0, :cond_not_wrapper
 
     const/4 p0, 0x0
 
@@ -136,7 +136,7 @@
     .param p0, "root"    # Landroid/view/View;
     .param p1, "dialog"    # Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    if-nez p0, :cond_has_root
+    if-eqz p0, :cond_has_root
 
     return-void
 

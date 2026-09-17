@@ -39,7 +39,7 @@
     move-result-object v0
 
     :cond_has_activity
-    if-eqz v0, :cond_start
+    if-nez v0, :cond_start
 
     const v1, 0x7f0d010b
 
@@ -79,6 +79,8 @@
     invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
+
+    return-void
 
     :catch_all
     const v0, 0x7f0d010e

@@ -85,7 +85,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
-    if-eqz v0, :cond_no_record
+    if-nez v0, :cond_no_record
 
     sget v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastAppliedStrength:I
 
@@ -187,7 +187,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
-    if-eqz v0, :cond_skip_create
+    if-nez v0, :cond_skip_create
 
     new-instance v0, Landroid/os/Handler;
 
@@ -453,7 +453,7 @@
 .method public static start(Landroid/app/Activity;II)V
     .locals 3
 
-    if-eqz p0, :cond_start_ok
+    if-nez p0, :cond_start_ok
 
     return-void
 
@@ -468,7 +468,7 @@
 
     move-result v1
 
-    if-nez v1, :cond_request_permission
+    if-eqz v1, :cond_request_permission
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showPermission()V
 

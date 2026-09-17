@@ -32,7 +32,7 @@
 .method public static attachManager(Landroid/app/Activity;)Z
     .locals 4
 
-    if-eqz p0, :cond_missing_activity
+    if-nez p0, :cond_missing_activity
 
     const/4 p0, 0x0
 
@@ -42,7 +42,7 @@
     :try_start_0
     instance-of v0, p0, Landroid/support/v4/app/FragmentActivity;
 
-    if-eqz v0, :cond_not_fragment_activity
+    if-nez v0, :cond_not_fragment_activity
 
     const/4 p0, 0x0
 
@@ -59,7 +59,7 @@
 
     move-result-object p0
 
-    if-eqz p0, :cond_fail
+    if-nez p0, :cond_fail
 
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 

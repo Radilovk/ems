@@ -33,7 +33,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_skip_item
+    if-eqz v0, :cond_skip_item
 
     return-void
 
@@ -54,7 +54,7 @@
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$StrengthApplier;->target:I
 
-    if-ne v0, v1, :cond_skip_program
+    if-eq v0, v1, :cond_skip_program
 
     sub-int v2, v1, v0
 

@@ -18,12 +18,18 @@
 
 # virtual methods
 .method public onRequestPermission(Ljava/lang/String;IZ)V
-    .locals 0
+    .locals 1
 
-    if-eqz p3, :cond_end
+    if-eqz p3, :cond_denied
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$400()V
 
-    :cond_end
+    return-void
+
+    :cond_denied
+    const v0, 0x7f0d010d
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
+
     return-void
 .end method

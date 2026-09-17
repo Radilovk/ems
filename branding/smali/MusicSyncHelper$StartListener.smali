@@ -20,19 +20,24 @@
 .method public onClick(Landroid/view/View;)V
     .locals 4
 
+    :try_start_0
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object p1
 
-    instance-of v0, p1, Landroid/app/Activity;
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
 
-    if-nez v0, :cond_activity
+    move-result-object p1
+
+    if-nez p1, :cond_has_activity
+
+    const v0, 0x7f0d010b
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
     return-void
 
-    :cond_activity
-    check-cast p1, Landroid/app/Activity;
-
+    :cond_has_activity
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->getMinAmount()Lcom/isaigu/gymapp/widget/AmountView;
 
     move-result-object v0
@@ -61,14 +66,10 @@
     :cond_max
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
 
-    move-result v0
-
-    if-nez v0, :cond_has_manager
-
-    return-void
-
-    :cond_has_manager
     invoke-static {p1, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
 
+    :catch_all
     return-void
 .end method

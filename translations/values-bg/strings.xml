@@ -308,12 +308,18 @@
     <string name="guide_s16_body">• Не надвишавайте комфортната поносимост\n• Поддържайте костюма и електродите чисти и влажни\n• Зареждайте устройството редовно\n• Следете индикатора за батерия и сигнал\n• При технически проблем рестартирайте Bluetooth връзката\n\nЗа медицински въпроси и противопоказания винаги се консултирайте със специалист.</string>
     <string name="beta_features_title">БЕТА функции</string>
     <string name="beta_features_subtitle">Експериментални възможности — използвайте с внимание</string>
-    <string name="beta_music_sync_title">Музикален импулс</string>
-    <string name="beta_music_sync_hint">Микрофонът улавя музиката от телефона и регулира силата на импулса по ритъма (амплитуда).</string>
+    <string name="beta_music_sync_title">БЕТА — Музикален импулс</string>
+    <string name="beta_music_sync_hint">Микрофонът улавя музиката и регулира силата на импулса по амплитуда. Пуснете музика близо до таблета.</string>
     <string name="beta_music_min_strength">Мин. сила (%)</string>
     <string name="beta_music_max_strength">Макс. сила (%)</string>
-    <string name="beta_music_status_idle">Статус: изключено</string>
-    <string name="beta_music_status_active">Статус: активно — слуша музика</string>
     <string name="beta_music_start">Старт</string>
     <string name="beta_music_stop">Стоп</string>
+    <string name="beta_music_status_active">Статус: активно — слуша музика</string>
+    <string name="beta_music_status_idle">Статус: изключено</string>
+    <string name="beta_music_status_permission">Изисква се разрешение за микрофон…</string>
+    <string name="beta_music_error_no_activity">Грешка: неуспешен достъп до екрана</string>
+    <string name="beta_music_error_no_manager">Първо отворете екрана за тренировка</string>
+    <string name="beta_music_status_denied">Микрофонът е отказан — дайте разрешение от настройките</string>
+    <string name="beta_music_error_mic">Микрофонът не може да стартира на това устройство</string>
+
 </resources>

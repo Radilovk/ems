@@ -39,7 +39,6 @@
     if-eqz v0, :cond_1a
 
     .line 335
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()Landroid/media/AudioRecord;
 
     move-result-object v0
@@ -52,12 +51,10 @@
 
     .line 339
     :cond_b
-    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->sampleSoundPercent(Landroid/media/AudioRecord;)I
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200(Landroid/media/AudioRecord;)I
 
     move-result v0
 
-    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$300(I)V
 
     .line 341

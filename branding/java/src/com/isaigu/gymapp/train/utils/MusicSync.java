@@ -17,22 +17,20 @@ import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
 
 /**
- * Microphone → {@link MasterStrengthControl}: sound% scaled to slider ceiling,
- * then setMasterStrength() (bean + slider + BLE).
+ * Low-latency mic → {@link MasterStrengthControl#setMasterStrength(int)}.
+ * Tight read loop (no sleep), coalesced postAtFrontOfQueue apply on main thread.
  */
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
     static final int ERROR_DENIED = 0x7f0d010d;
     static final int ERROR_MIC = 0x7f0d010e;
 
-    private static final double ATTACK = 0.82;
-    private static final double RELEASE = 0.38;
-    private static final double PEAK_DECAY = 0.982;
-    private static final int AUDIO_BUFFER_SAMPLES = 256;
-    private static final long SAMPLE_INTERVAL_MS = 15L;
-    private static final long UI_INTERVAL_MS = 50L;
-    private static final long APPLY_MIN_INTERVAL_MS = 30L;
-    private static final int APPLY_MIN_DELTA = 1;
+    private static final double ATTACK = 0.94;
+    private static final double RELEASE = 0.32;
+    private static final double PEAK_DECAY = 0.978;
+    private static final int AUDIO_BUFFER_SAMPLES = 128;
+    private static final long UI_INTERVAL_MS = 80L;
+    private static final long BLE_MIN_INTERVAL_MS = 16L;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
@@ -40,15 +38,32 @@ public class MusicSync {
     private static Activity hostActivity;
     private static int sensitivity = 20;
     static boolean running;
-    /** Sound level 0–100% after noise gate (before ceiling). */
     static volatile int liveStrength;
 
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 300.0;
     private static long lastUiMs;
-    private static long lastApplyMs;
+    private static long lastBleMs;
     private static int lastPushedApplied = -1;
+    private static volatile int pendingApplied;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
+
+    private static final Runnable applyRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!running) {
+                return;
+            }
+            int value = pendingApplied;
+            if (value == lastPushedApplied) {
+                return;
+            }
+            lastPushedApplied = value;
+            lastBleMs = SystemClock.elapsedRealtime();
+            MasterStrengthControl.setMasterStrength(value);
+            maybeUpdateUi();
+        }
+    };
 
     static void ensureHandler() {
         if (handler == null) {
@@ -60,8 +75,9 @@ public class MusicSync {
         smoothedRms = 0.0;
         trackedPeakRms = 300.0;
         lastUiMs = 0L;
-        lastApplyMs = 0L;
+        lastBleMs = 0L;
         lastPushedApplied = -1;
+        pendingApplied = 0;
         MasterStrengthControl.resetApplied();
     }
 
@@ -79,30 +95,20 @@ public class MusicSync {
     private static void pushSoundLevel(int soundPercent) {
         liveStrength = soundPercent;
         int applied = MasterStrengthControl.scaleFromSound(soundPercent);
-        if (applied == lastPushedApplied) {
+        if (applied == lastPushedApplied && applied == pendingApplied) {
             return;
         }
+        pendingApplied = applied;
         long now = SystemClock.elapsedRealtime();
-        if (Math.abs(applied - lastPushedApplied) < APPLY_MIN_DELTA
-                && now - lastApplyMs < APPLY_MIN_INTERVAL_MS) {
-            return;
-        }
-        if (now - lastApplyMs < APPLY_MIN_INTERVAL_MS) {
-            return;
-        }
-        lastApplyMs = now;
-        lastPushedApplied = applied;
-        ensureHandler();
-        final int value = applied;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (running) {
-                    MasterStrengthControl.setMasterStrength(value);
-                    maybeUpdateUi();
-                }
+        if (now - lastBleMs < BLE_MIN_INTERVAL_MS && applied != 0) {
+            int delta = Math.abs(applied - lastPushedApplied);
+            if (delta < 2 && applied != 0) {
+                return;
             }
-        });
+        }
+        ensureHandler();
+        handler.removeCallbacks(applyRunnable);
+        handler.postAtFrontOfQueue(applyRunnable);
     }
 
     private static Context permissionContext() {
@@ -144,7 +150,7 @@ public class MusicSync {
             if (minBuf <= 0) {
                 return false;
             }
-            int bufSize = Math.max(minBuf, AUDIO_BUFFER_SAMPLES * 2);
+            int bufSize = minBuf;
             AudioRecord rec;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 AudioFormat format = new AudioFormat.Builder()
@@ -174,9 +180,9 @@ public class MusicSync {
 
     private static boolean openMicrophone() {
         int[][] configs = new int[][]{
-                {MediaRecorder.AudioSource.MIC, 44100},
                 {MediaRecorder.AudioSource.MIC, 16000},
-                {MediaRecorder.AudioSource.DEFAULT, 44100},
+                {MediaRecorder.AudioSource.MIC, 44100},
+                {MediaRecorder.AudioSource.DEFAULT, 16000},
         };
         for (int i = 0; i < configs.length; i++) {
             if (tryOpen(configs[i][0], configs[i][1])) {
@@ -269,17 +275,9 @@ public class MusicSync {
             return;
         }
         lastUiMs = now;
-        ensureHandler();
         final int applied = getEffectiveStrength();
         final int ceiling = getStrengthCeiling();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (running) {
-                    MusicSyncHelper.showActive(applied, ceiling);
-                }
-            }
-        });
+        MusicSyncHelper.showActive(applied, ceiling);
     }
 
     private static void stopCaptureOnly() {
@@ -293,6 +291,7 @@ public class MusicSync {
             }
         }
         if (handler != null) {
+            handler.removeCallbacks(applyRunnable);
             handler.removeCallbacksAndMessages(null);
         }
         releaseAudio();
@@ -331,17 +330,14 @@ public class MusicSync {
             audioThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    android.os.Process.setThreadPriority(
+                            android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
                     while (running) {
                         AudioRecord r = audioRecord;
                         if (r == null) {
                             break;
                         }
                         pushSoundLevel(sampleSoundPercent(r));
-                        try {
-                            Thread.sleep(SAMPLE_INTERVAL_MS);
-                        } catch (InterruptedException e) {
-                            break;
-                        }
                     }
                 }
             }, "MusicSyncMic");

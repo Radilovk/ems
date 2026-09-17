@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,26 +17,11 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$applied:I
-
-.field final synthetic val$ceiling:I
-
-
 # direct methods
-.method constructor <init>(II)V
-    .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
-    .line 275
-    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$applied:I
-
-    iput p2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$ceiling:I
-
+    .line 330
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -45,21 +30,46 @@
 
 # virtual methods
 .method public run()V
-    .registers 3
+    .registers 2
 
-    .line 278
+    .line 333
+    const/16 v0, -0x13
+
+    invoke-static {v0}, Landroid/os/Process;->setThreadPriority(I)V
+
+    .line 335
+    :goto_5
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    if-eqz v0, :cond_b
+    if-eqz v0, :cond_18
 
-    .line 279
-    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$applied:I
+    .line 336
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$400()Landroid/media/AudioRecord;
 
-    iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$ceiling:I
+    move-result-object v0
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(II)V
+    .line 337
+    if-nez v0, :cond_10
 
-    .line 281
-    :cond_b
+    .line 338
+    goto :goto_18
+
+    .line 340
+    :cond_10
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->sampleSoundPercent(Landroid/media/AudioRecord;)I
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$500(Landroid/media/AudioRecord;)I
+
+    move-result v0
+
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$600(I)V
+
+    .line 341
+    goto :goto_5
+
+    .line 342
+    :cond_18
+    :goto_18
     return-void
 .end method

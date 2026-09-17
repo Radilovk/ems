@@ -83,7 +83,7 @@
     return-void
 
     :catch_all
-    const v0, 0x7f0d010e
+    const v0, 0x7f0d010b
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 

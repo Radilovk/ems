@@ -46,7 +46,17 @@ RULES = [
     (
         "MusicSync.smali",
         r"sput.*liveStrength",
-        "tick updates liveStrength",
+        "audio loop updates liveStrength",
+    ),
+    (
+        "MusicSync.smali",
+        r"TrainItem;->onParamsChange\(\)V",
+        "pushPulse() forces immediate sendPulse on strength change",
+    ),
+    (
+        "MusicSync.smali",
+        r"MusicSync\$AudioLoopRunnable",
+        "dedicated audio thread for low-latency sampling",
     ),
     (
         "MusicSync$PermissionCallback.smali",

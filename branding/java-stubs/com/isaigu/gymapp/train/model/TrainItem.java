@@ -19,4 +19,16 @@ public class TrainItem {
 
     public void onParamsChange() {
     }
+
+    public void setMaSelected(boolean selected) {
+    }
+
+    public void setHzSelected(boolean selected) {
+    }
+
+    public void setPauseMaSelected(boolean selected) {
+    }
+
+    public void setPauseHzSelected(boolean selected) {
+    }
 }

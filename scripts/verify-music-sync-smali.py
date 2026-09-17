@@ -83,13 +83,23 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"TrainItem;->onParamsChange\(\)V",
-        "applyStrength() uses slider path via onParamsChange()",
+        r"TrainItem;->addStrenth\(I\)V",
+        "applyStrength() uses TrainItem.addStrenth() like +/- buttons",
+    ),
+    (
+        "MusicSync.smali",
+        r"setTargetItem\(Lcom/isaigu/gymapp/train/model/TrainItem;\)V",
+        "MusicSync stores live TrainItem from gear dialog",
     ),
     (
         "MusicSyncHelper.smali",
         r"MusicSync;->setTargetMacAddress\(Ljava/lang/String;\)V",
         "bind() sets target MAC from gear dialog data",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r"\.method public static setTargetItem\(Lcom/isaigu/gymapp/train/model/TrainItem;\)V",
+        "setTargetItem() exposes live TrainItem from gear dialog",
     ),
 ]
 
@@ -133,6 +143,16 @@ ANTI_PATTERNS = [
         "MusicSync.smali",
         r"Ljava/util/stream/Stream;->iterator\(\)Ljava/util/Iterator;",
         "applyStrength() must not call Stream.iterator() (not available on Android)",
+    ),
+    (
+        "MusicSync.smali",
+        r"setItemStrength\(Lcom/isaigu/gymapp/train/model/TrainItem;I\)V",
+        "applyStrength() must not use setItemStrength (use addStrenth instead)",
+    ),
+    (
+        "MusicSync.smali",
+        r"TrainItem;->onParamsChange\(\)V",
+        "applyStrength() must not call onParamsChange directly (use addStrenth)",
     ),
 ]
 

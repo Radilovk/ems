@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
+import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.train.utils.MusicSyncBridge;
 import com.isaigu.gymapp.widget.AmountView;
@@ -81,6 +82,10 @@ public class MusicSyncHelper {
         } catch (Throwable ignored) {
         }
         return null;
+    }
+
+    public static void setTargetItem(TrainItem item) {
+        MusicSync.setTargetItem(item);
     }
 
     public static Activity resolveActivityForDialog(EditUserProgramDataDialog dialog, View view) {

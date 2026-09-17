@@ -36,6 +36,7 @@ public class MusicSync {
     private static Activity hostActivity;
     static int lastAppliedStrength = -1;
     private static TrainItemManager manager;
+    private static TrainItem targetItem;
     private static String targetMacAddress;
     private static int maxStrength = 80;
     private static int minStrength = 20;
@@ -143,7 +144,7 @@ public class MusicSync {
         return tryOpen(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_STEREO, pcm16);
     }
 
-    private static boolean matchesTarget(TrainItem item) {
+    private static boolean matchesMac(TrainItem item) {
         if (targetMacAddress == null || targetMacAddress.isEmpty()) {
             return true;
         }
@@ -153,27 +154,67 @@ public class MusicSync {
         return item.data.macAddress.equalsIgnoreCase(targetMacAddress);
     }
 
-    /**
-     * Same effect as moving the circle strength slider:
-     * write ProgramDataBean.strenth, then onParamsChange() -> sendPulse().
-     */
-    private static void setItemStrength(TrainItem item, int strength) {
-        if (item == null || item.isEmpty()) {
-            return;
+    private static TrainItem resolveTargetItem(TrainItemManager mgr) {
+        TrainItem item = targetItem;
+        if (item != null) {
+            return item;
         }
+        if (mgr == null) {
+            return null;
+        }
+        List<TrainItem> items = mgr.getItemList();
+        if (items == null) {
+            return null;
+        }
+        TrainItem fallback = null;
+        for (int i = 0; i < items.size(); i++) {
+            TrainItem candidate = items.get(i);
+            if (candidate == null || candidate.isEmpty()) {
+                continue;
+            }
+            if (fallback == null) {
+                fallback = candidate;
+            }
+            if (matchesMac(candidate)) {
+                return candidate;
+            }
+        }
+        return fallback;
+    }
+
+    /**
+     * Same chain as +/- buttons and circle slider release:
+     * TrainItem.addStrenth(delta) -> sendPulse() -> onTrainItemChange().
+     * Rate-limited to +20 per tick like TrainViewHolder$4.onChangedEnd.
+     */
+    private static boolean applyStrengthToItem(TrainItem item, int targetStrength) {
+        if (item == null) {
+            return false;
+        }
+        item.setMaSelected(true);
+        item.setHzSelected(false);
+        item.setPauseMaSelected(false);
+        item.setPauseHzSelected(false);
         TrainProgram program = item.getTrainProgram();
         if (program == null) {
-            return;
+            return false;
         }
         ProgramDataBean data = program.matchProgram();
         if (data == null) {
-            return;
+            return false;
         }
-        if (data.strenth == strength) {
-            return;
+        int current = data.strenth;
+        if (current == targetStrength) {
+            return true;
         }
-        data.strenth = strength;
-        item.onParamsChange();
+        int delta = targetStrength - current;
+        if (delta > 20) {
+            delta = 20;
+        } else if (delta < -20) {
+            delta = -20;
+        }
+        item.addStrenth(delta);
+        return true;
     }
 
     private static void applyStrength(int strength) {
@@ -183,11 +224,6 @@ public class MusicSync {
         if (strength > 100) {
             strength = 100;
         }
-        if (strength == lastAppliedStrength) {
-            MusicSyncHelper.showActive(strength);
-            return;
-        }
-        lastAppliedStrength = strength;
         MusicSyncHelper.showActive(strength);
         TrainItemManager mgr = manager;
         if (mgr == null) {
@@ -198,16 +234,12 @@ public class MusicSync {
             return;
         }
         try {
-            List<TrainItem> items = mgr.getItemList();
-            if (items == null) {
+            TrainItem item = resolveTargetItem(mgr);
+            if (item == null) {
                 return;
             }
-            for (int i = 0; i < items.size(); i++) {
-                TrainItem item = items.get(i);
-                if (!matchesTarget(item)) {
-                    continue;
-                }
-                setItemStrength(item, strength);
+            if (applyStrengthToItem(item, strength)) {
+                lastAppliedStrength = strength;
             }
         } catch (Throwable ignored) {
         }
@@ -359,6 +391,10 @@ public class MusicSync {
         targetMacAddress = macAddress;
     }
 
+    public static void setTargetItem(TrainItem item) {
+        targetItem = item;
+    }
+
     public static TrainItemManager getManager() {
         return manager;
     }
@@ -396,6 +432,7 @@ public class MusicSync {
         }
         lastAppliedStrength = -1;
         targetMacAddress = null;
+        targetItem = null;
         resetAudioLevels();
     }
 

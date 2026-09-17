@@ -17,84 +17,71 @@
     .registers 3
 
     .line 76
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getManager()Lcom/isaigu/gymapp/train/TrainItemManager;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_8
-
-    .line 77
-    const/4 p0, 0x1
-
-    return p0
-
-    .line 79
-    :cond_8
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object p0
 
-    .line 80
+    .line 77
     const/4 v0, 0x0
 
-    if-nez p0, :cond_10
+    if-nez p0, :cond_8
+
+    .line 78
+    return v0
+
+    .line 80
+    :cond_8
+    instance-of v1, p0, Landroid/support/v4/app/FragmentActivity;
+
+    if-nez v1, :cond_d
 
     .line 81
     return v0
 
-    .line 83
-    :cond_10
-    instance-of v1, p0, Landroid/support/v4/app/FragmentActivity;
-
-    if-nez v1, :cond_15
-
     .line 84
-    return v0
-
-    .line 87
-    :cond_15
-    :try_start_15
+    :cond_d
+    :try_start_d
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 88
+    .line 85
     check-cast p0, Landroid/support/v4/app/FragmentActivity;
 
-    .line 89
+    .line 86
     invoke-virtual {p0}, Landroid/support/v4/app/FragmentActivity;->getSupportFragmentManager()Landroid/support/v4/app/FragmentManager;
 
     move-result-object p0
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->collectFragments(Landroid/support/v4/app/FragmentManager;Ljava/util/List;)V
 
-    .line 90
+    .line 87
     invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->findNewTrainFragment(Ljava/util/List;)Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
     move-result-object p0
 
-    .line 91
-    if-eqz p0, :cond_2e
+    .line 88
+    if-eqz p0, :cond_26
 
-    .line 92
+    .line 89
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->tryAttach(Lcom/isaigu/gymapp/fragment/NewTrainFragment;)Z
 
     move-result p0
-    :try_end_2d
-    .catchall {:try_start_15 .. :try_end_2d} :catchall_2f
+    :try_end_25
+    .catchall {:try_start_d .. :try_end_25} :catchall_27
 
     return p0
 
-    .line 95
-    :cond_2e
-    goto :goto_30
+    .line 92
+    :cond_26
+    goto :goto_28
 
-    .line 94
-    :catchall_2f
+    .line 91
+    :catchall_27
     move-exception p0
 
-    .line 96
-    :goto_30
+    .line 93
+    :goto_28
     return v0
 .end method
 

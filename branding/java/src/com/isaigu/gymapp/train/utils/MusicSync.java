@@ -18,7 +18,7 @@ import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
 
-import java.util.Iterator;
+import java.util.List;
 
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
@@ -179,9 +179,12 @@ public class MusicSync {
             return;
         }
         try {
-            Iterator<TrainItem> it = mgr.notEmptyItems().iterator();
-            while (it.hasNext()) {
-                TrainItem item = it.next();
+            List<TrainItem> items = mgr.getItemList();
+            if (items == null) {
+                return;
+            }
+            for (int i = 0; i < items.size(); i++) {
+                TrainItem item = items.get(i);
                 if (item == null || item.isEmpty()) {
                     continue;
                 }

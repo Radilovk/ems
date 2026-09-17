@@ -128,6 +128,19 @@ FRAGMENT_HOOK = """
 
     move-result-object v1
 
+    iget-object v2, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
+
+"""
+
+FRAGMENT_HOOK_OLD = """
+    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->binding:Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
     invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->getBaseActivity()Lcom/isaigu/gymapp/BaseActivity;
 
     move-result-object v2
@@ -233,8 +246,15 @@ def remove_row_button(path: Path) -> None:
 
 
 def patch_new_train_fragment(text: str) -> str:
+    if FRAGMENT_HOOK_OLD in text:
+        text = text.replace(FRAGMENT_HOOK_OLD, FRAGMENT_HOOK, 1)
+        print("NewTrainFragment.onCreateView: upgraded master music hook (activity resolve on click)")
+        return text
     if "MusicPlayerHelper;->attachMasterPanel" in text:
-        print("NewTrainFragment.onCreateView: master music hook already applied")
+        if "BaseActivity;Lcom/isaigu/gymapp/train/TrainItemManager;)V" in text:
+            print("NewTrainFragment.onCreateView: master music hook needs manual upgrade")
+        else:
+            print("NewTrainFragment.onCreateView: master music hook already applied")
         return text
     if FRAGMENT_MARKER not in text:
         raise RuntimeError("NewTrainFragment.onCreateView marker not found")

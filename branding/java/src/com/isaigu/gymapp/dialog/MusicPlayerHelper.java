@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.isaigu.gymapp.BaseActivity;
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
@@ -22,8 +21,8 @@ public final class MusicPlayerHelper {
     static final int LAYOUT_ID = 0x7f0b0078;
     static final int PICK_AUDIO = 0x4255;
 
-    private static Activity hostActivity;
     private static android.support.v7.app.AlertDialog dialog;
+    private static View dialogContent;
     private static TextView trackView;
     private static TextView statusView;
     private static TextView levelView;
@@ -35,8 +34,8 @@ public final class MusicPlayerHelper {
     }
 
     /** Wire the master-panel music button in {@code rightLayout}. */
-    public static void attachMasterPanel(View root, BaseActivity activity, TrainItemManager manager) {
-        if (root == null || activity == null || manager == null) {
+    public static void attachMasterPanel(View root, TrainItemManager manager) {
+        if (root == null || manager == null) {
             return;
         }
         View button = root.findViewById(BUTTON_ID);
@@ -48,10 +47,11 @@ public final class MusicPlayerHelper {
         button.setEnabled(true);
         button.setFocusable(true);
         button.setFocusableInTouchMode(true);
-        button.setOnClickListener(new MasterOpenListener(activity, manager));
+        button.setOnClickListener(new MasterOpenListener(root, manager));
     }
 
-    public static void show(BaseActivity activity, TrainItem item) {
+    public static void show(Activity activity, TrainItem item) {
+        activity = resolveHostActivity(activity, dialogContent);
         if (activity == null) {
             return;
         }
@@ -59,9 +59,8 @@ public final class MusicPlayerHelper {
             toast(activity, 0x7f0d011a);
             return;
         }
-        hostActivity = activity;
-        MusicSync.setTargetItem(item);
         MusicSync.setHostActivity(activity);
+        MusicSync.setTargetItem(item);
         dismissDialog();
         View content;
         try {
@@ -70,6 +69,7 @@ public final class MusicPlayerHelper {
             toast(activity, 0x7f0d0113);
             return;
         }
+        dialogContent = content;
         trackView = (TextView) content.findViewById(0x7f090227);
         sensitivityView = (AmountView) content.findViewById(0x7f090228);
         statusView = (TextView) content.findViewById(0x7f090229);
@@ -99,6 +99,34 @@ public final class MusicPlayerHelper {
         updateTrackLabel(selectedUri);
     }
 
+    /** Same fallback chain as {@link MusicSyncHelper} for mic start. */
+    static Activity resolveHostActivity(View view) {
+        return resolveHostActivity(null, view);
+    }
+
+    static Activity resolveHostActivity(Activity preferred, View view) {
+        if (preferred != null) {
+            return preferred;
+        }
+        if (dialog != null) {
+            Activity fromDialog = MusicSyncHelper.resolveActivity(dialog.getContext());
+            if (fromDialog != null) {
+                return fromDialog;
+            }
+        }
+        if (view != null) {
+            Activity fromView = MusicSyncHelper.resolveActivity(view.getContext());
+            if (fromView != null) {
+                return fromView;
+            }
+        }
+        Activity cached = MusicSync.getHostActivity();
+        if (cached != null) {
+            return cached;
+        }
+        return MainActivity.getInstance();
+    }
+
     static TrainItem resolveTargetItem(TrainItemManager manager) {
         if (manager == null) {
             manager = itemManager;
@@ -117,17 +145,6 @@ public final class MusicPlayerHelper {
             }
         }
         return null;
-    }
-
-    private static BaseActivity resolveActivity(Activity activity) {
-        if (activity instanceof BaseActivity) {
-            return (BaseActivity) activity;
-        }
-        Activity cached = MusicSync.getHostActivity();
-        if (cached instanceof BaseActivity) {
-            return (BaseActivity) cached;
-        }
-        return MainActivity.getInstance();
     }
 
     private static void toast(Activity activity, int resId) {
@@ -152,11 +169,11 @@ public final class MusicPlayerHelper {
     }
 
     private static void clearDialogRefs() {
+        dialogContent = null;
         trackView = null;
         statusView = null;
         levelView = null;
         sensitivityView = null;
-        hostActivity = null;
     }
 
     private static void configureSensitivity() {
@@ -241,36 +258,47 @@ public final class MusicPlayerHelper {
         if (levelView != null) {
             levelView.setVisibility(View.GONE);
         }
+        Activity activity = resolveHostActivity(null, dialogContent);
+        if (activity != null) {
+            toast(activity, resId);
+        }
     }
 
     static final class MasterOpenListener implements View.OnClickListener {
-        private final BaseActivity activity;
+        private final View root;
         private final TrainItemManager manager;
 
-        MasterOpenListener(BaseActivity activity, TrainItemManager manager) {
-            this.activity = activity;
+        MasterOpenListener(View root, TrainItemManager manager) {
+            this.root = root;
             this.manager = manager;
         }
 
         @Override
         public void onClick(View view) {
+            Activity activity = resolveHostActivity(view != null ? view : root);
+            if (activity == null) {
+                toast(null, 0x7f0d010b);
+                return;
+            }
+            MusicSync.setHostActivity(activity);
             TrainItem item = resolveTargetItem(manager);
             if (item == null) {
                 toast(activity, 0x7f0d011a);
                 return;
             }
-            show(resolveActivity(activity), item);
+            show(activity, item);
         }
     }
 
     static final class PickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            Activity activity = hostActivity;
+            Activity activity = resolveHostActivity(view);
             if (activity == null) {
                 showError(0x7f0d010b);
                 return;
             }
+            MusicSync.setHostActivity(activity);
             try {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -289,11 +317,12 @@ public final class MusicPlayerHelper {
                 showError(0x7f0d0112);
                 return;
             }
-            Activity activity = hostActivity;
+            Activity activity = resolveHostActivity(view);
             if (activity == null) {
                 showError(0x7f0d010b);
                 return;
             }
+            MusicSync.setHostActivity(activity);
             MusicSync.startPlayer(activity, selectedUri, readSensitivity());
         }
     }

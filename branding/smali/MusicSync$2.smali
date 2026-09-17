@@ -1,4 +1,4 @@
-.class final Lcom/isaigu/gymapp/train/utils/MusicSync$UiUpdateRunnable;
+.class Lcom/isaigu/gymapp/train/utils/MusicSync$2;
 .super Ljava/lang/Object;
 .source "MusicSync.java"
 
@@ -7,31 +7,34 @@
 
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/train/utils/MusicSync;
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
-    accessFlags = 0x18
-    name = "UiUpdateRunnable"
+    accessFlags = 0x0
+    name = null
 .end annotation
 
 
 # instance fields
-.field private final display:I
+.field final synthetic val$display:I
 
 
 # direct methods
 .method constructor <init>(I)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 455
+    .line 326
+    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$display:I
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 456
-    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$UiUpdateRunnable;->display:I
-
-    .line 457
     return-void
 .end method
 
@@ -40,20 +43,17 @@
 .method public run()V
     .registers 2
 
-    .line 461
+    .line 329
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    if-nez v0, :cond_5
+    if-eqz v0, :cond_9
 
-    .line 462
-    return-void
-
-    .line 464
-    :cond_5
-    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$UiUpdateRunnable;->display:I
+    .line 330
+    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$display:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(I)V
 
-    .line 465
+    .line 332
+    :cond_9
     return-void
 .end method

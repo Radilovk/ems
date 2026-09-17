@@ -17,6 +17,29 @@
 .end method
 
 .method public static bindTrainScreen(Lcom/isaigu/gymapp/fragment/NewTrainFragment;Landroid/view/View;)V
+    .locals 2
+    .param p0, "fragment"    # Lcom/isaigu/gymapp/fragment/NewTrainFragment;
+    .param p1, "root"    # Landroid/view/View;
+
+    if-eqz p0, :cond_end
+
+    if-nez p1, :cond_has_root
+
+    goto :goto_end
+
+    :cond_has_root
+    new-instance v0, Lcom/isaigu/gymapp/beta/BetaFeaturesUtils$BindRunnable;
+
+    invoke-direct {v0, p0, p1}, Lcom/isaigu/gymapp/beta/BetaFeaturesUtils$BindRunnable;-><init>(Lcom/isaigu/gymapp/fragment/NewTrainFragment;Landroid/view/View;)V
+
+    invoke-virtual {p1, v0}, Landroid/view/View;->post(Ljava/lang/Runnable;)Z
+
+    :cond_end
+    :goto_end
+    return-void
+.end method
+
+.method public static bindTrainScreenNow(Lcom/isaigu/gymapp/fragment/NewTrainFragment;Landroid/view/View;)V
     .locals 4
     .param p0, "fragment"    # Lcom/isaigu/gymapp/fragment/NewTrainFragment;
     .param p1, "root"    # Landroid/view/View;
@@ -37,6 +60,15 @@
     goto :goto_end
 
     :cond_has_activity
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->isAdded()Z
+
+    move-result v1
+
+    if-nez v1, :cond_added
+
+    goto :goto_end
+
+    :cond_added
     invoke-virtual {v0}, Landroid/support/v4/app/FragmentActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -67,6 +99,25 @@
     goto :goto_end
 
     :cond_has_button
+    invoke-virtual {v0}, Landroid/view/View;->getTag()Ljava/lang/Object;
+
+    move-result-object v1
+
+    const-string v2, "beta_bound"
+
+    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_not_bound
+
+    goto :goto_end
+
+    :cond_not_bound
+    const-string v1, "beta_bound"
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setTag(Ljava/lang/Object;)V
+
     new-instance v1, Lcom/isaigu/gymapp/beta/BetaFeaturesUtils$BetaButtonListener;
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/beta/BetaFeaturesUtils$BetaButtonListener;-><init>(Lcom/isaigu/gymapp/fragment/NewTrainFragment;)V
@@ -75,6 +126,16 @@
 
     :cond_end
     :goto_end
+    return-void
+.end method
+
+.method public static clearPendingManager()V
+    .locals 1
+
+    const/4 v0, 0x0
+
+    sput-object v0, Lcom/isaigu/gymapp/beta/BetaFeaturesUtils;->pendingManager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
     return-void
 .end method
 

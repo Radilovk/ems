@@ -28,6 +28,8 @@
     .locals 1
     .param p1, "v"    # Landroid/view/View;
 
+    invoke-static {}, Lcom/isaigu/gymapp/beta/MusicReactiveController;->stop()V
+
     iget-object p1, p0, Lcom/isaigu/gymapp/beta/BetaFeaturesDialog$CloseListener;->this$0:Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;->dismiss()V

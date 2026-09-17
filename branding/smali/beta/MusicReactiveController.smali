@@ -208,42 +208,33 @@
 .end method
 
 .method private static releaseAudio()V
-    .locals 2
+    .locals 1
 
     sget-object v0, Lcom/isaigu/gymapp/beta/MusicReactiveController;->audioRecord:Landroid/media/AudioRecord;
 
-    if-eqz v0, :cond_done
+    if-nez v0, :cond_has_record
 
-    :try_start
-    invoke-virtual {v0}, Landroid/media/AudioRecord;->getState()I
+    return-void
 
-    move-result v1
-
-    const/4 v0, 0x1
-
-    if-ne v1, v0, :cond_stop
-
-    sget-object v0, Lcom/isaigu/gymapp/beta/MusicReactiveController;->audioRecord:Landroid/media/AudioRecord;
-
+    :cond_has_record
+    :try_start_0
     invoke-virtual {v0}, Landroid/media/AudioRecord;->stop()V
-    :try_end
-    .catch Ljava/lang/Exception; {:try_start .. :try_end} :catch_stop
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    :catch_stop
-    :cond_stop
-    :try_start_release
+    :catch_0
+    :try_start_1
     sget-object v0, Lcom/isaigu/gymapp/beta/MusicReactiveController;->audioRecord:Landroid/media/AudioRecord;
 
     invoke-virtual {v0}, Landroid/media/AudioRecord;->release()V
-    :try_end_release
-    .catch Ljava/lang/Exception; {:try_start_release .. :try_end_release} :catch_release
+    :try_end_1
+    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
 
-    :catch_release
+    :catch_1
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/beta/MusicReactiveController;->audioRecord:Landroid/media/AudioRecord;
 
-    :cond_done
     return-void
 .end method
 
@@ -428,6 +419,8 @@
     goto :goto_end
 
     :cond_has_manager
+    invoke-static {}, Lcom/isaigu/gymapp/beta/MusicReactiveController;->stop()V
+
     invoke-static {p2, p3}, Lcom/isaigu/gymapp/beta/MusicReactiveController;->setStrengthRange(II)V
 
     sput-object p1, Lcom/isaigu/gymapp/beta/MusicReactiveController;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;

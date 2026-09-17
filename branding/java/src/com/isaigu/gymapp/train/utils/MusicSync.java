@@ -14,14 +14,15 @@ import android.support.v4.content.ContextCompat;
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
+import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 import com.isaigu.gymapp.dialog.MusicSyncHelper;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
 
 /**
- * Microphone → liveStrength (0–100). Strength is applied in ONE place only:
- * CommandUtil.getPartsParamsPdu (build patch), when the app already sends a
- * work-phase impulse. This class never calls TrainItem or sendPulse.
+ * Microphone → liveStrength (0–100). Strength is applied in CommandUtil.getPartsParamsPdu
+ * (slider ceiling × music%). BLE refresh uses the same path as the MA +/- buttons:
+ * connected + training + work phase (inStart) → onParamsChange → sendPulse → sendDuration.
  */
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
@@ -34,6 +35,8 @@ public class MusicSync {
     private static final int AUDIO_BUFFER_SAMPLES = 512;
     private static final long SAMPLE_INTERVAL_MS = 20L;
     private static final long UI_INTERVAL_MS = 100L;
+    private static final long PUSH_MIN_INTERVAL_MS = 100L;
+    private static final int PUSH_MIN_DELTA = 5;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
@@ -47,6 +50,9 @@ public class MusicSync {
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 300.0;
     private static long lastUiMs;
+    private static long lastPushMs;
+    private static int lastPushedStrength = -1;
+    private static boolean wasInWorkPhase;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
 
     static void ensureHandler() {
@@ -59,6 +65,68 @@ public class MusicSync {
         smoothedRms = 0.0;
         trackedPeakRms = 300.0;
         lastUiMs = 0L;
+        lastPushMs = 0L;
+        lastPushedStrength = -1;
+        wasInWorkPhase = false;
+    }
+
+    /** Same gates as TrainItem.sendPulse() for the work-phase branch. */
+    private static boolean canPushWorkPulse(TrainItem item) {
+        if (item == null || item.data == null) {
+            return false;
+        }
+        TrainUserProgramDataWrapper data = item.data;
+        return data.connected && data.start && data.inStart;
+    }
+
+    /**
+     * Re-send work-phase BLE params when music level changes — same chain as MA +/- buttons
+     * (onParamsChange → sendPulse → sendDuration). Skips pause phase to preserve rhythm.
+     */
+    private static void maybePushWorkPulse(int strength) {
+        TrainItem item = targetItem;
+        if (!canPushWorkPulse(item)) {
+            wasInWorkPhase = false;
+            return;
+        }
+
+        boolean enteringWork = !wasInWorkPhase;
+        wasInWorkPhase = true;
+
+        long now = SystemClock.elapsedRealtime();
+        if (!enteringWork) {
+            if (strength == lastPushedStrength) {
+                return;
+            }
+            if (Math.abs(strength - lastPushedStrength) < PUSH_MIN_DELTA
+                    && now - lastPushMs < PUSH_MIN_INTERVAL_MS) {
+                return;
+            }
+            if (now - lastPushMs < PUSH_MIN_INTERVAL_MS) {
+                return;
+            }
+        }
+
+        lastPushedStrength = strength;
+        lastPushMs = now;
+        ensureHandler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (!running) {
+                    return;
+                }
+                TrainItem ti = targetItem;
+                if (!canPushWorkPulse(ti)) {
+                    wasInWorkPhase = false;
+                    return;
+                }
+                try {
+                    ti.onParamsChange();
+                } catch (Throwable ignored) {
+                }
+            }
+        });
     }
 
     private static Context permissionContext() {
@@ -197,7 +265,6 @@ public class MusicSync {
         }
     }
 
-    /** 0–100 music intensity; multiplied by slider ceiling in PDU hook. */
     private static int sampleIntensity(AudioRecord rec) {
         if (rec == null) {
             return liveStrength;
@@ -238,6 +305,14 @@ public class MusicSync {
             return 100;
         }
         return value;
+    }
+
+    private static void onStrengthChanged(int next) {
+        if (next != liveStrength) {
+            liveStrength = next;
+            maybePushWorkPulse(next);
+            maybeUpdateUi();
+        }
     }
 
     private static void maybeUpdateUi() {
@@ -310,11 +385,7 @@ public class MusicSync {
                         if (r == null) {
                             break;
                         }
-                        int next = sampleIntensity(r);
-                        if (next != liveStrength) {
-                            liveStrength = next;
-                            maybeUpdateUi();
-                        }
+                        onStrengthChanged(sampleIntensity(r));
                         try {
                             Thread.sleep(SAMPLE_INTERVAL_MS);
                         } catch (InterruptedException e) {
@@ -381,7 +452,6 @@ public class MusicSync {
 
     public static void stop() {
         stopCaptureOnly();
-        targetItem = null;
     }
 
     static final class PermissionCallback implements AndroidUtils.RequestPermissionCallback {

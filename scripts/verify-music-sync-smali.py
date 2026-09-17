@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static verification: mic-only MusicSync + work-phase PDU hook."""
+"""Static verification: mic + work-phase PDU hook + gated onParamsChange push."""
 
 import re
 import sys
@@ -24,12 +24,17 @@ RULES = [
     ("MusicSync.smali", r"\.method public static isRunning\(\)Z", "isRunning()"),
     ("MusicSync.smali", r"\.method public static getLiveStrength\(\)I", "getLiveStrength()"),
     ("MusicSync.smali", r"sput.*liveStrength", "updates liveStrength from mic"),
+    ("MusicSync.smali", r"inStart:Z", "work-phase gate checks inStart"),
+    ("MusicSync.smali", r"connected:Z", "connected gate before BLE push"),
+]
+
+GLOBAL_RULES = [
+    (r"TrainItem;->onParamsChange\(\)V", "work-phase BLE refresh via onParamsChange"),
 ]
 
 ANTI = [
-    ("MusicSync.smali", r"TrainItem;->onParamsChange\(\)V", "must not call onParamsChange"),
-    ("MusicSync.smali", r"TrainItem;->addStrenth\(I\)V", "must not call addStrenth"),
-    ("MusicSync.smali", r"TrainItemManager", "must not use TrainItemManager"),
+    (r"TrainItem;->addStrenth\(I\)V", "must not call addStrenth"),
+    (r"TrainItemManager", "must not use TrainItemManager"),
 ]
 
 
@@ -48,14 +53,19 @@ def check_pdu() -> list[str]:
 
 def main() -> int:
     errs: list[str] = []
-    for path in sorted(SMALI_DIR.glob("MusicSync*.smali")):
+    paths = sorted(SMALI_DIR.glob("MusicSync*.smali"))
+    combined = "\n".join(p.read_text(encoding="utf-8") for p in paths)
+    for path in paths:
         c = path.read_text(encoding="utf-8")
         for f, p, d in RULES:
             if f == path.name and not re.search(p, c):
                 errs.append(f"{path.name}: MISSING {d}")
-        for f, p, d in ANTI:
-            if f == path.name and re.search(p, c):
+        for p, d in ANTI:
+            if re.search(p, c):
                 errs.append(f"{path.name}: BUG {d}")
+    for p, d in GLOBAL_RULES:
+        if not re.search(p, combined):
+            errs.append(f"MusicSync*.smali: MISSING {d}")
     errs.extend(check_pdu())
     if errs:
         print("FAILED:")

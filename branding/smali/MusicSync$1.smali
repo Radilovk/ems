@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->maybePushWorkPulse(I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,22 +17,11 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$display:I
-
-
 # direct methods
-.method constructor <init>(I)V
-    .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
-    .line 251
-    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$1;->val$display:I
-
+    .line 113
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,19 +30,55 @@
 
 # virtual methods
 .method public run()V
-    .registers 2
+    .registers 3
 
-    .line 254
+    .line 116
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    if-eqz v0, :cond_9
+    if-nez v0, :cond_5
 
-    .line 255
-    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$1;->val$display:I
+    .line 117
+    return-void
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(I)V
+    .line 119
+    :cond_5
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->targetItem:Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000()Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 257
-    :cond_9
+    move-result-object v0
+
+    .line 120
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->canPushWorkPulse(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_14
+
+    .line 121
+    const/4 v0, 0x0
+
+    # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->wasInWorkPhase:Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$202(Z)Z
+
+    .line 122
+    return-void
+
+    .line 125
+    :cond_14
+    :try_start_14
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
+    :try_end_17
+    .catchall {:try_start_14 .. :try_end_17} :catchall_18
+
+    .line 127
+    goto :goto_19
+
+    .line 126
+    :catchall_18
+    move-exception v0
+
+    .line 128
+    :goto_19
     return-void
 .end method

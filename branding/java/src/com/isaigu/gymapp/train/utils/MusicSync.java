@@ -48,6 +48,7 @@ public class MusicSync {
 
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 300.0;
+    private static volatile float playerSmoothedSound;
     private static long lastUiMs;
     private static long lastBleMs;
     private static int lastPushedApplied = -1;
@@ -66,7 +67,7 @@ public class MusicSync {
             }
             lastPushedApplied = value;
             lastBleMs = SystemClock.elapsedRealtime();
-            MasterStrengthControl.setMasterStrength(value);
+            MasterStrengthControl.setMasterStrength(value, !playerMode);
             maybeUpdateUi();
         }
     };
@@ -99,8 +100,22 @@ public class MusicSync {
     }
 
     private static void pushSoundLevel(int soundPercent) {
-        liveStrength = soundPercent;
-        int applied = MasterStrengthControl.scaleFromSound(soundPercent);
+        int level = soundPercent;
+        if (level < 0) {
+            level = 0;
+        } else if (level > 100) {
+            level = 100;
+        }
+        if (playerMode) {
+            float target = level / 100f;
+            float attack = 0.55f;
+            float release = 0.22f;
+            float rate = target > playerSmoothedSound ? attack : release;
+            playerSmoothedSound += (target - playerSmoothedSound) * rate;
+            level = Math.round(playerSmoothedSound * 100f);
+        }
+        liveStrength = level;
+        int applied = MasterStrengthControl.scaleFromSound(level);
         if (applied == lastPushedApplied && applied == pendingApplied) {
             return;
         }
@@ -451,6 +466,7 @@ public class MusicSync {
         setSensitivity(min);
         MasterStrengthControl.ensureMaMode();
         resetAudioLevels();
+        playerSmoothedSound = 0f;
         MasterStrengthControl.captureCeilingFromSlider();
         MusicPlayerHelper.showPreparing();
         new Thread(new PlayerPrepareTask(activity, uri), "music-player-prepare").start();
@@ -487,7 +503,7 @@ public class MusicSync {
         @Override
         public void run() {
             try {
-                int[] envelope = MusicPlayerEngine.buildEnvelope(activity, uri);
+                int[] envelope = MusicPlayerEngine.buildEnvelope(activity, uri, sensitivity);
                 ensureHandler();
                 handler.post(new PlayerPrepareSuccess(activity, uri, envelope));
             } catch (Throwable t) {

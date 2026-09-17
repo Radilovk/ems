@@ -25,13 +25,13 @@
 .method constructor <init>(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)V
     .registers 2
 
-    .line 347
+    .line 373
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 348
+    .line 374
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 349
+    .line 375
     return-void
 .end method
 
@@ -40,10 +40,10 @@
 .method public run()V
     .registers 4
 
-    .line 353
+    .line 379
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 354
+    .line 380
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
@@ -67,14 +67,14 @@
 
     goto :goto_32
 
-    .line 358
+    .line 384
     :cond_15
     :try_start_15
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolvePlaybackPositionMs()I
 
     move-result v1
 
-    .line 359
+    .line 385
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolveEnvelopeIndex(I)I
 
     move-result v1
@@ -83,14 +83,14 @@
     :try_end_20
     .catchall {:try_start_15 .. :try_end_20} :catchall_21
 
-    .line 361
+    .line 387
     goto :goto_22
 
-    .line 360
+    .line 386
     :catchall_21
     move-exception v1
 
-    .line 362
+    .line 388
     :goto_22
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
@@ -99,21 +99,21 @@
 
     if-eqz v1, :cond_31
 
-    .line 363
+    .line 389
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/os/Handler;
 
     move-result-object v0
 
-    const-wide/16 v1, 0x14
+    const-wide/16 v1, 0x10
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 365
+    .line 391
     :cond_31
     return-void
 
-    .line 355
+    .line 381
     :cond_32
     :goto_32
     return-void

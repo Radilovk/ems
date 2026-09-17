@@ -184,24 +184,24 @@
 .method private static clamp(I)I
     .registers 2
 
-    .line 151
+    .line 158
     if-gez p0, :cond_4
 
-    .line 152
+    .line 159
     const/4 p0, 0x0
 
     return p0
 
-    .line 154
+    .line 161
     :cond_4
     const/16 v0, 0x64
 
     if-le p0, v0, :cond_9
 
-    .line 155
+    .line 162
     return v0
 
-    .line 157
+    .line 164
     :cond_9
     return p0
 .end method
@@ -209,52 +209,52 @@
 .method public static ensureMaMode()V
     .registers 1
 
-    .line 130
+    .line 137
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->targetItem:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 131
+    .line 138
     return-void
 .end method
 
 .method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 2
 
-    .line 134
+    .line 141
     if-nez p0, :cond_3
 
-    .line 135
+    .line 142
     return-void
 
-    .line 138
+    .line 145
     :cond_3
     const/4 v0, 0x1
 
     :try_start_4
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
 
-    .line 139
+    .line 146
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
 
-    .line 140
+    .line 147
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
-    .line 141
+    .line 148
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
     :try_end_11
     .catchall {:try_start_4 .. :try_end_11} :catchall_12
 
-    .line 143
+    .line 150
     goto :goto_13
 
-    .line 142
+    .line 149
     :catchall_12
     move-exception p0
 
-    .line 144
+    .line 151
     :goto_13
     return-void
 .end method
@@ -285,7 +285,7 @@
 .method public static getTarget()Lcom/isaigu/gymapp/train/model/TrainItem;
     .registers 1
 
-    .line 126
+    .line 133
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->targetItem:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     return-object v0
@@ -294,12 +294,12 @@
 .method public static resetApplied()V
     .registers 1
 
-    .line 147
+    .line 154
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->lastApplied:I
 
-    .line 148
+    .line 155
     return-void
 .end method
 
@@ -348,143 +348,158 @@
 .end method
 
 .method public static setMasterStrength(I)V
-    .registers 5
+    .registers 2
 
     .line 90
+    const/4 v0, 0x1
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(IZ)V
+
+    .line 91
+    return-void
+.end method
+
+.method public static setMasterStrength(IZ)V
+    .registers 5
+
+    .line 95
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->clamp(I)I
 
     move-result p0
 
-    .line 91
+    .line 96
     sget v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->lastApplied:I
 
     if-ne p0, v0, :cond_9
 
-    .line 92
+    .line 97
     return-void
 
-    .line 94
+    .line 99
     :cond_9
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->targetItem:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 95
+    .line 100
     if-nez v0, :cond_e
 
-    .line 96
+    .line 101
     return-void
 
-    .line 98
+    .line 103
     :cond_e
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
 
-    .line 99
+    .line 104
     if-nez v1, :cond_15
 
-    .line 100
+    .line 105
     return-void
 
-    .line 102
+    .line 107
     :cond_15
     invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
-    .line 103
+    .line 108
     if-nez v1, :cond_1c
 
-    .line 104
+    .line 109
     return-void
 
-    .line 107
+    .line 112
     :cond_1c
     iput p0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 108
+    .line 113
     sput p0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->lastApplied:I
 
-    .line 110
-    sget-object v1, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->seekBarRef:Ljava/lang/ref/WeakReference;
-
-    const/4 v2, 0x0
-
-    if-eqz v1, :cond_2c
-
-    invoke-virtual {v1}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Lcom/isaigu/gymapp/widget/CircleSeekBar;
-
-    goto :goto_2d
-
-    :cond_2c
-    move-object v1, v2
-
-    .line 111
-    :goto_2d
-    if-eqz v1, :cond_36
-
-    .line 112
-    mul-int/lit8 v3, p0, 0x4b
-
-    div-int/lit8 v3, v3, 0x64
-
-    invoke-virtual {v1, v3}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V
-
     .line 115
-    :cond_36
-    sget-object v1, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->maLabelRef:Ljava/lang/ref/WeakReference;
-
-    if-eqz v1, :cond_41
-
-    invoke-virtual {v1}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
-
-    move-result-object v1
-
-    move-object v2, v1
-
-    check-cast v2, Landroid/widget/TextView;
+    if-eqz p1, :cond_59
 
     .line 116
-    :cond_41
-    if-eqz v2, :cond_57
+    sget-object p1, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->seekBarRef:Ljava/lang/ref/WeakReference;
+
+    const/4 v1, 0x0
+
+    if-eqz p1, :cond_2e
+
+    invoke-virtual {p1}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
+
+    move-result-object p1
+
+    check-cast p1, Lcom/isaigu/gymapp/widget/CircleSeekBar;
+
+    goto :goto_2f
+
+    :cond_2e
+    move-object p1, v1
 
     .line 117
-    new-instance v1, Ljava/lang/StringBuilder;
+    :goto_2f
+    if-eqz p1, :cond_38
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    .line 118
+    mul-int/lit8 v2, p0, 0x4b
 
-    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    div-int/lit8 v2, v2, 0x64
+
+    invoke-virtual {p1, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V
+
+    .line 121
+    :cond_38
+    sget-object p1, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->maLabelRef:Ljava/lang/ref/WeakReference;
+
+    if-eqz p1, :cond_43
+
+    invoke-virtual {p1}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
+
+    move-result-object p1
+
+    move-object v1, p1
+
+    check-cast v1, Landroid/widget/TextView;
+
+    .line 122
+    :cond_43
+    if-eqz v1, :cond_59
+
+    .line 123
+    new-instance p1, Ljava/lang/StringBuilder;
+
+    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     const-string p0, " %"
 
-    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object p0
 
-    invoke-virtual {v2, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v1, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 120
-    :cond_57
+    .line 127
+    :cond_59
     iget-object p0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    if-eqz p0, :cond_64
+    if-eqz p0, :cond_66
 
     iget-object p0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-boolean p0, p0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z
 
-    if-eqz p0, :cond_64
+    if-eqz p0, :cond_66
 
-    .line 121
+    .line 128
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
 
-    .line 123
-    :cond_64
+    .line 130
+    :cond_66
     return-void
 .end method
 

@@ -14,11 +14,8 @@ import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.dialog.MusicSyncHelper;
-import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
-
-import java.util.List;
 
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
@@ -34,13 +31,12 @@ public class MusicSync {
     private static AudioRecord audioRecord;
     private static Handler handler;
     private static Activity hostActivity;
-    static int lastAppliedStrength = -1;
-    private static TrainItemManager manager;
     private static TrainItem targetItem;
     private static String targetMacAddress;
-    private static int maxStrength = 80;
-    private static int minStrength = 20;
+    private static int sensitivity = 20;
     static boolean running;
+    /** Music intensity 0-100 (% of the circle-slider ceiling). */
+    static int liveStrength;
 
     private static double smoothedRms;
     private static double trackedPeakRms = 400.0;
@@ -144,105 +140,35 @@ public class MusicSync {
         return tryOpen(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_STEREO, pcm16);
     }
 
-    private static boolean matchesMac(TrainItem item) {
-        if (targetMacAddress == null || targetMacAddress.isEmpty()) {
-            return true;
-        }
-        if (item == null || item.data == null || item.data.macAddress == null) {
-            return false;
-        }
-        return item.data.macAddress.equalsIgnoreCase(targetMacAddress);
-    }
-
-    private static TrainItem resolveTargetItem(TrainItemManager mgr) {
+    public static int getSliderCeiling() {
         TrainItem item = targetItem;
-        if (item != null) {
-            return item;
-        }
-        if (mgr == null) {
-            return null;
-        }
-        List<TrainItem> items = mgr.getItemList();
-        if (items == null) {
-            return null;
-        }
-        TrainItem fallback = null;
-        for (int i = 0; i < items.size(); i++) {
-            TrainItem candidate = items.get(i);
-            if (candidate == null || candidate.isEmpty()) {
-                continue;
-            }
-            if (fallback == null) {
-                fallback = candidate;
-            }
-            if (matchesMac(candidate)) {
-                return candidate;
-            }
-        }
-        return fallback;
-    }
-
-    /**
-     * Same chain as +/- buttons and circle slider release:
-     * TrainItem.addStrenth(delta) -> sendPulse() -> onTrainItemChange().
-     * Rate-limited to +20 per tick like TrainViewHolder$4.onChangedEnd.
-     */
-    private static boolean applyStrengthToItem(TrainItem item, int targetStrength) {
         if (item == null) {
-            return false;
-        }
-        item.setMaSelected(true);
-        item.setHzSelected(false);
-        item.setPauseMaSelected(false);
-        item.setPauseHzSelected(false);
-        TrainProgram program = item.getTrainProgram();
-        if (program == null) {
-            return false;
-        }
-        ProgramDataBean data = program.matchProgram();
-        if (data == null) {
-            return false;
-        }
-        int current = data.strenth;
-        if (current == targetStrength) {
-            return true;
-        }
-        int delta = targetStrength - current;
-        if (delta > 20) {
-            delta = 20;
-        } else if (delta < -20) {
-            delta = -20;
-        }
-        item.addStrenth(delta);
-        return true;
-    }
-
-    private static void applyStrength(int strength) {
-        if (strength < 0) {
-            strength = 0;
-        }
-        if (strength > 100) {
-            strength = 100;
-        }
-        MusicSyncHelper.showActive(strength);
-        TrainItemManager mgr = manager;
-        if (mgr == null) {
-            MusicSyncBridge.attachManager(hostActivity);
-            mgr = manager;
-        }
-        if (mgr == null) {
-            return;
+            return 100;
         }
         try {
-            TrainItem item = resolveTargetItem(mgr);
-            if (item == null) {
-                return;
+            TrainProgram program = item.getTrainProgram();
+            if (program == null) {
+                return 100;
             }
-            if (applyStrengthToItem(item, strength)) {
-                lastAppliedStrength = strength;
+            ProgramDataBean data = program.matchProgram();
+            if (data == null) {
+                return 100;
             }
+            int ceiling = data.strenth;
+            if (ceiling < 0) {
+                return 0;
+            }
+            if (ceiling > 100) {
+                return 100;
+            }
+            return ceiling;
         } catch (Throwable ignored) {
+            return 100;
         }
+    }
+
+    public static int getEffectiveStrength() {
+        return getSliderCeiling() * liveStrength / 100;
     }
 
     private static double measureRms(short[] buffer, int count) {
@@ -270,9 +196,8 @@ public class MusicSync {
     }
 
     /**
-     * Silence or weak audio -> 0%.
-     * Strong audio scales from 0% up to maxStrength.
-     * minStrength tunes the noise gate (lower = more sensitive).
+     * Returns music intensity 0-100 (% of circle-slider ceiling).
+     * Silence -> 0. Loud audio -> 100.
      */
     static int computeStrength() {
         AudioRecord rec = audioRecord;
@@ -282,14 +207,13 @@ public class MusicSync {
         short[] buffer = new short[1024];
         int read = rec.read(buffer, 0, buffer.length);
         if (read <= 0) {
-            return lastAppliedStrength >= 0 ? lastAppliedStrength : 0;
+            return liveStrength;
         }
 
         double rms = measureRms(buffer, read);
         updateEnvelope(rms);
 
-        // minStrength controls gate sensitivity: lower min = reacts earlier.
-        double gateRatio = 0.22 - (minStrength / 100.0) * 0.17;
+        double gateRatio = 0.22 - (sensitivity / 100.0) * 0.17;
         if (gateRatio < 0.05) {
             gateRatio = 0.05;
         }
@@ -314,12 +238,12 @@ public class MusicSync {
             return 0;
         }
 
-        int value = (int) Math.round(level * maxStrength);
+        int value = (int) Math.round(level * 100.0);
         if (value < 0) {
             value = 0;
         }
-        if (value > maxStrength) {
-            value = maxStrength;
+        if (value > 100) {
+            value = 100;
         }
         return value;
     }
@@ -330,6 +254,19 @@ public class MusicSync {
         }
         ensureHandler();
         handler.postDelayed(new TickRunnable(), 50L);
+    }
+
+    private static void stopCaptureOnly() {
+        running = false;
+        try {
+            if (handler != null) {
+                handler.removeCallbacksAndMessages(null);
+            }
+            releaseAudio();
+        } catch (Throwable ignored) {
+        }
+        liveStrength = 0;
+        resetAudioLevels();
     }
 
     static void startCapture() {
@@ -356,9 +293,8 @@ public class MusicSync {
                 return;
             }
             running = true;
-            lastAppliedStrength = -1;
+            liveStrength = 0;
             MusicSyncHelper.showActive(0);
-            applyStrength(0);
             scheduleTick();
         } catch (SecurityException se) {
             running = false;
@@ -375,16 +311,16 @@ public class MusicSync {
         return running;
     }
 
+    public static int getLiveStrength() {
+        return liveStrength;
+    }
+
     public static Activity getHostActivity() {
         return hostActivity;
     }
 
     public static void setHostActivity(Activity activity) {
         hostActivity = activity;
-    }
-
-    public static void setManager(TrainItemManager trainItemManager) {
-        manager = trainItemManager;
     }
 
     public static void setTargetMacAddress(String macAddress) {
@@ -395,13 +331,8 @@ public class MusicSync {
         targetItem = item;
     }
 
-    public static TrainItemManager getManager() {
-        return manager;
-    }
-
-    public static void setStrengthRange(int min, int max) {
-        minStrength = Math.min(Math.max(min, 0), 100);
-        maxStrength = Math.min(Math.max(max, minStrength), 100);
+    public static void setSensitivity(int min) {
+        sensitivity = Math.min(Math.max(min, 0), 100);
     }
 
     public static void start(Activity activity, int min, int max) {
@@ -409,9 +340,8 @@ public class MusicSync {
             return;
         }
         hostActivity = activity;
-        stop();
-        setStrengthRange(min, max);
-        MusicSyncBridge.attachManager(activity);
+        stopCaptureOnly();
+        setSensitivity(min);
         if (hasRecordPermission()) {
             startCapture();
             return;
@@ -422,18 +352,9 @@ public class MusicSync {
     }
 
     public static void stop() {
-        running = false;
-        try {
-            if (handler != null) {
-                handler.removeCallbacksAndMessages(null);
-            }
-            releaseAudio();
-        } catch (Throwable ignored) {
-        }
-        lastAppliedStrength = -1;
+        stopCaptureOnly();
         targetMacAddress = null;
         targetItem = null;
-        resetAudioLevels();
     }
 
     static final class TickRunnable implements Runnable {
@@ -442,7 +363,8 @@ public class MusicSync {
             if (!running) {
                 return;
             }
-            applyStrength(computeStrength());
+            liveStrength = computeStrength();
+            MusicSyncHelper.showActive(getEffectiveStrength());
             scheduleTick();
         }
     }
@@ -451,7 +373,6 @@ public class MusicSync {
         @Override
         public void onRequestPermission(String permission, int requestCode, boolean granted) {
             if (granted) {
-                MusicSyncBridge.attachManager(hostActivity);
                 startCapture();
             } else {
                 MusicSyncHelper.showError(ERROR_DENIED);

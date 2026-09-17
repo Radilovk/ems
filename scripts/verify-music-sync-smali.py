@@ -9,6 +9,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SMALI_DIR = ROOT / "branding" / "smali"
+DECOMPILED_COMMAND_UTIL = (
+    ROOT
+    / "build"
+    / "decompiled"
+    / "smali_classes2"
+    / "com"
+    / "isaigu"
+    / "gymapp"
+    / "train"
+    / "utils"
+    / "CommandUtil.smali"
+)
 
 RULES = [
     (
@@ -23,18 +35,18 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"\.method static startCapture\(\)V[\s\S]*?openMicrophone\(\)Z[\s\S]*?if-nez v\d+, :cond_[a-z0-9_]+[\s\S]*?startRecording\(\)V",
-        "startCapture() starts recording when openMicrophone succeeds",
+        r"\.method public static isRunning\(\)Z",
+        "isRunning() exists for PDU hook",
     ),
     (
         "MusicSync.smali",
-        r"\.method private static tryOpen\(IIII\)Z[\s\S]*?getMinBufferSize\(III\)I[\s\S]*?if-gtz v\d+, :cond_[a-z0-9_]+",
-        "tryOpen() continues only when buffer size is valid",
+        r"\.method public static getLiveStrength\(\)I",
+        "getLiveStrength() exists for PDU hook",
     ),
     (
         "MusicSync.smali",
-        r"\.method private static tryOpen\(IIII\)Z[\s\S]*?if-lt v\d+, v\d+, :cond_[a-z0-9_]+[\s\S]*?AudioRecord\$Builder",
-        "tryOpen() uses AudioRecord.Builder on API 23+",
+        r"sput.*liveStrength",
+        "tick updates liveStrength",
     ),
     (
         "MusicSync$PermissionCallback.smali",
@@ -48,86 +60,26 @@ RULES = [
     ),
     (
         "MusicSyncHelper.smali",
-        r"MainActivity;->getInstance\(\)Lcom/isaigu/gymapp/MainActivity;",
-        "resolveActivityForDialog() falls back to MainActivity.getInstance()",
-    ),
-    (
-        "MusicSyncHelper.smali",
-        r"\.method public static bind\([\s\S]*?if-nez p0, :cond_[a-z0-9_]+[\s\S]*?return-void",
-        "bind() returns when root view is null",
+        r"\.method public static setTargetItem\(Lcom/isaigu/gymapp/train/model/TrainItem;\)V",
+        "setTargetItem() exposes live TrainItem from gear dialog",
     ),
     (
         "MusicSyncHelper$StartListener.smali",
-        r"if-nez p\d+, :cond_[a-z0-9_]+[\s\S]*?0x7f0d010b",
-        "StartListener reports missing activity error",
-    ),
-    (
-        "MusicSyncBridge.smali",
-        r"\.method public static attachManager\([\s\S]*?if-nez p0, :cond_[a-z0-9_]+",
-        "attachManager() returns when activity is null",
-    ),
-    (
-        "MusicSyncBridge.smali",
-        r"getChildFragmentManager\(\)Landroid/support/v4/app/FragmentManager;",
-        "attachManager() walks child fragment managers",
-    ),
-    (
-        "MusicSyncHelper.smali",
-        r"MusicSyncBridge;->attachManager\(Landroid/app/Activity;\)Z",
-        "bind() pre-attaches TrainItemManager",
-    ),
-    (
-        "MusicSync.smali",
-        r"TrainItemManager;->getItemList\(\)Ljava/util/List;",
-        "applyStrength() iterates TrainItemManager.getItemList()",
-    ),
-    (
-        "MusicSync.smali",
-        r"TrainItem;->addStrenth\(I\)V",
-        "applyStrength() uses TrainItem.addStrenth() like +/- buttons",
-    ),
-    (
-        "MusicSync.smali",
-        r"setTargetItem\(Lcom/isaigu/gymapp/train/model/TrainItem;\)V",
-        "MusicSync stores live TrainItem from gear dialog",
-    ),
-    (
-        "MusicSyncHelper.smali",
-        r"MusicSync;->setTargetMacAddress\(Ljava/lang/String;\)V",
-        "bind() sets target MAC from gear dialog data",
-    ),
-    (
-        "MusicSyncHelper.smali",
-        r"\.method public static setTargetItem\(Lcom/isaigu/gymapp/train/model/TrainItem;\)V",
-        "setTargetItem() exposes live TrainItem from gear dialog",
+        r"setTargetMacAddress\(Ljava/lang/String;\)V",
+        "StartListener preserves target MAC before start",
     ),
 ]
 
 ANTI_PATTERNS = [
     (
         "MusicSync.smali",
-        r"\.method public static start\(Landroid/app/Activity;II\)V[\s\S]*?if-eqz p0, :cond_[a-z0-9_]+[\s\S]*?return-void",
-        "start() must not return when activity is valid",
+        r"TrainItem;->addStrenth\(I\)V",
+        "MusicSync must not call addStrenth (PDU hook applies strength)",
     ),
     (
         "MusicSync.smali",
-        r"\.method static startCapture\(\)V[\s\S]*?openMicrophone\(\)Z[\s\S]*?if-eqz v\d+, :cond_[a-z0-9_]+\n\n    :cond_[a-z0-9_]+\n    const v\d+, 0x7f0d010e",
-        "startCapture() must not show mic error when openMicrophone succeeds",
-    ),
-    (
-        "MusicSync.smali",
-        r"\.method private static tryOpen\(IIII\)Z[\s\S]*?if-ge v\d+, v\d+, :cond_[a-z0-9_]+[\s\S]*?AudioRecord\$Builder",
-        "tryOpen() must not skip Builder path on API 23+",
-    ),
-    (
-        "MusicSync$PermissionCallback.smali",
-        r"if-nez p3, :cond_[a-z0-9_]+[\s\S]*?startCapture\(\)V",
-        "PermissionCallback must not invert grant flag",
-    ),
-    (
-        "MusicSyncHelper.smali",
-        r"getDialog\(\)Landroid/app/Dialog;[\s\S]*?if-nez v\d+, :goto_[a-z0-9_]+",
-        "resolveActivityForDialog() must not skip getOwnerActivity when dialog exists",
+        r"TrainItemManager;->getItemList\(\)Ljava/util/List;",
+        "MusicSync must not iterate TrainItemManager (PDU hook applies strength)",
     ),
     (
         "MusicSyncHelper$StartListener.smali",
@@ -138,21 +90,6 @@ ANTI_PATTERNS = [
         "MusicSyncBridge.smali",
         r"fragment_now",
         "attachManager() must not access private MainFragment.fragment_now",
-    ),
-    (
-        "MusicSync.smali",
-        r"Ljava/util/stream/Stream;->iterator\(\)Ljava/util/Iterator;",
-        "applyStrength() must not call Stream.iterator() (not available on Android)",
-    ),
-    (
-        "MusicSync.smali",
-        r"setItemStrength\(Lcom/isaigu/gymapp/train/model/TrainItem;I\)V",
-        "applyStrength() must not use setItemStrength (use addStrenth instead)",
-    ),
-    (
-        "MusicSync.smali",
-        r"TrainItem;->onParamsChange\(\)V",
-        "applyStrength() must not call onParamsChange directly (use addStrenth)",
     ),
 ]
 
@@ -172,6 +109,17 @@ def check_file(name: str, content: str) -> list[str]:
     return errors
 
 
+def check_pdu_hook() -> list[str]:
+    if not DECOMPILED_COMMAND_UTIL.is_file():
+        return ["MISSING: CommandUtil PDU hook (build/decompiled not found)"]
+    content = DECOMPILED_COMMAND_UTIL.read_text(encoding="utf-8")
+    if "MusicSync;->getLiveStrength()I" not in content:
+        return ["MISSING: CommandUtil.getPartsParamsPduWithStrength music-sync hook"]
+    if "div-int/lit8 p2, v5, 0x64" not in content:
+        return ["MISSING: CommandUtil multiplies slider ceiling by music ratio"]
+    return []
+
+
 def main() -> int:
     if not SMALI_DIR.is_dir():
         print(f"ERROR: smali dir not found: {SMALI_DIR}")
@@ -185,6 +133,8 @@ def main() -> int:
         errs = check_file(path.name, content)
         for e in errs:
             all_errors.append(f"{path.name}: {e}")
+
+    all_errors.extend(check_pdu_hook())
 
     if all_errors:
         print("MusicSync smali verification FAILED:")

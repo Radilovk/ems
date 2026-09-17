@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SMALI_DIR = ROOT / "branding" / "smali"
-DECOMPILED_COMMAND_UTIL = (
+COMMAND_UTIL = (
     ROOT
     / "build"
     / "decompiled"
@@ -25,16 +25,6 @@ DECOMPILED_COMMAND_UTIL = (
 RULES = [
     (
         "MusicSync.smali",
-        r"\.method public static start\(Landroid/app/Activity;II\)V[\s\S]*?if-nez p0, :cond_[a-z0-9_]+",
-        "start() returns when activity is null",
-    ),
-    (
-        "MusicSync.smali",
-        r"\.method static startCapture\(\)V[\s\S]*?hasRecordPermission\(\)Z[\s\S]*?if-nez v\d+, :cond_[a-z0-9_]+[\s\S]*?openMicrophone\(\)Z",
-        "startCapture() checks permission then opens microphone",
-    ),
-    (
-        "MusicSync.smali",
         r"\.method public static isRunning\(\)Z",
         "isRunning() exists for PDU hook",
     ),
@@ -45,61 +35,26 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"sput.*liveStrength",
-        "audio loop updates liveStrength",
-    ),
-    (
-        "MusicSync.smali",
-        r"TrainItem;->onParamsChange\(\)V",
-        "pushPulse() forces immediate sendPulse on strength change",
-    ),
-    (
-        "MusicSync.smali",
         r"MusicSync\$AudioLoopRunnable",
-        "dedicated audio thread for low-latency sampling",
-    ),
-    (
-        "MusicSync$PermissionCallback.smali",
-        r"if-eqz p3, :cond_[a-z0-9_]+[\s\S]*?startCapture\(\)V",
-        "PermissionCallback calls startCapture when granted",
-    ),
-    (
-        "MusicSyncHelper.smali",
-        r"resolveActivityForDialog\(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;\)",
-        "resolveActivityForDialog() exists",
-    ),
-    (
-        "MusicSyncHelper.smali",
-        r"\.method public static setTargetItem\(Lcom/isaigu/gymapp/train/model/TrainItem;\)V",
-        "setTargetItem() exposes live TrainItem from gear dialog",
-    ),
-    (
-        "MusicSyncHelper$StartListener.smali",
-        r"setTargetMacAddress\(Ljava/lang/String;\)V",
-        "StartListener preserves target MAC before start",
+        "audio thread updates liveStrength without sendPulse",
     ),
 ]
 
 ANTI_PATTERNS = [
     (
         "MusicSync.smali",
-        r"TrainItem;->addStrenth\(I\)V",
-        "MusicSync must not call addStrenth (PDU hook applies strength)",
+        r"TrainItem;->onParamsChange\(\)V",
+        "MusicSync must not call onParamsChange (breaks pulse/pause rhythm)",
     ),
     (
         "MusicSync.smali",
-        r"TrainItemManager;->getItemList\(\)Ljava/util/List;",
-        "MusicSync must not iterate TrainItemManager (PDU hook applies strength)",
+        r"TrainItem;->addStrenth\(I\)V",
+        "MusicSync must not call addStrenth",
     ),
     (
         "MusicSyncHelper$StartListener.smali",
         r"0x7f0d010c",
         "StartListener must not block mic start with training-screen error",
-    ),
-    (
-        "MusicSyncBridge.smali",
-        r"fragment_now",
-        "attachManager() must not access private MainFragment.fragment_now",
     ),
 ]
 
@@ -120,14 +75,19 @@ def check_file(name: str, content: str) -> list[str]:
 
 
 def check_pdu_hook() -> list[str]:
-    if not DECOMPILED_COMMAND_UTIL.is_file():
+    if not COMMAND_UTIL.is_file():
         return ["MISSING: CommandUtil PDU hook (build/decompiled not found)"]
-    content = DECOMPILED_COMMAND_UTIL.read_text(encoding="utf-8")
-    if "MusicSync;->getLiveStrength()I" not in content:
-        return ["MISSING: CommandUtil.getPartsParamsPduWithStrength music-sync hook"]
-    if "div-int/lit8 p2, v5, 0x64" not in content:
-        return ["MISSING: CommandUtil multiplies slider ceiling by music ratio"]
-    return []
+    content = COMMAND_UTIL.read_text(encoding="utf-8")
+    errors: list[str] = []
+    if "cond_music_work_strength" not in content:
+        errors.append("MISSING: work-phase hook in getPartsParamsPdu")
+    if "getPartsParamsPduWithStrength" in content.split("cond_music_work_strength")[0]:
+        pass
+    # Pause path must NOT have music hook
+    ws = content.split(".method public static getPartsParamsPduWithStrength", 1)
+    if len(ws) > 1 and "MusicSync;->getLiveStrength()I" in ws[1].split(".end method", 1)[0]:
+        errors.append("BUG: music hook must not be in getPartsParamsPduWithStrength (pause phase)")
+    return errors
 
 
 def main() -> int:

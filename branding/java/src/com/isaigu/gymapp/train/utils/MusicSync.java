@@ -18,18 +18,23 @@ import com.isaigu.gymapp.dialog.MusicSyncHelper;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
 
+/**
+ * Tracks microphone level as 0-100% intensity. Applied only during the work phase
+ * of each impulse cycle (see CommandUtil.getPartsParamsPdu hook). Does not call
+ * sendPulse — the app's pulseContinue/pulsePause timer owns rhythm.
+ */
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
     static final int ERROR_DENIED = 0x7f0d010d;
     static final int ERROR_MIC = 0x7f0d010e;
 
-    /** Fast release only; attack is instant for zero perceived lag on beats. */
-    private static final double RELEASE = 0.72;
-    private static final double PEAK_DECAY = 0.965;
-    private static final int AUDIO_BUFFER_SAMPLES = 256;
-    private static final long PULSE_MIN_INTERVAL_MS = 16L;
-    private static final long UI_MIN_INTERVAL_MS = 40L;
-    private static final int PULSE_DEADBAND = 1;
+    private static final double ATTACK = 0.62;
+    private static final double RELEASE = 0.38;
+    private static final double PEAK_DECAY = 0.985;
+    private static final double CURVE = 0.82;
+    private static final double ACTIVE_LEVEL = 0.06;
+    private static final int AUDIO_BUFFER_SAMPLES = 512;
+    private static final long UI_MIN_INTERVAL_MS = 80L;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
@@ -39,13 +44,11 @@ public class MusicSync {
     private static String targetMacAddress;
     private static int sensitivity = 20;
     static boolean running;
-    /** Music intensity 0-100 (% of circle-slider ceiling). */
+    /** Music intensity 0-100 (% of circle-slider ceiling). Read at each work-phase PDU. */
     static volatile int liveStrength;
 
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 400.0;
-    private static int lastPushedStrength = -1;
-    private static long lastPulseMs;
     private static long lastUiMs;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
 
@@ -58,8 +61,6 @@ public class MusicSync {
     private static void resetAudioLevels() {
         smoothedRms = 0.0;
         trackedPeakRms = 400.0;
-        lastPushedStrength = -1;
-        lastPulseMs = 0L;
         lastUiMs = 0L;
     }
 
@@ -103,8 +104,7 @@ public class MusicSync {
             if (minBuf <= 0) {
                 return false;
             }
-            int sampleBytes = AUDIO_BUFFER_SAMPLES * 2;
-            int bufSize = Math.max(minBuf, sampleBytes);
+            int bufSize = Math.max(minBuf, AUDIO_BUFFER_SAMPLES * 2);
             AudioRecord rec;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 AudioFormat format = new AudioFormat.Builder()
@@ -136,18 +136,16 @@ public class MusicSync {
         int pcm16 = AudioFormat.ENCODING_PCM_16BIT;
         int[][] configs = new int[][]{
                 {MediaRecorder.AudioSource.MIC, 44100},
-                {MediaRecorder.AudioSource.MIC, 48000},
                 {MediaRecorder.AudioSource.MIC, 16000},
                 {MediaRecorder.AudioSource.DEFAULT, 44100},
                 {MediaRecorder.AudioSource.VOICE_RECOGNITION, 44100},
-                {MediaRecorder.AudioSource.VOICE_RECOGNITION, 16000},
         };
         for (int i = 0; i < configs.length; i++) {
             if (tryOpen(configs[i][0], configs[i][1], mono, pcm16)) {
                 return true;
             }
         }
-        return tryOpen(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_STEREO, pcm16);
+        return false;
     }
 
     public static int getSliderCeiling() {
@@ -190,8 +188,8 @@ public class MusicSync {
     }
 
     private static void updateEnvelope(double rms) {
-        if (rms >= smoothedRms) {
-            smoothedRms = rms;
+        if (rms > smoothedRms) {
+            smoothedRms += ATTACK * (rms - smoothedRms);
         } else {
             smoothedRms += RELEASE * (rms - smoothedRms);
         }
@@ -200,14 +198,11 @@ public class MusicSync {
         } else {
             trackedPeakRms = trackedPeakRms * PEAK_DECAY + rms * (1.0 - PEAK_DECAY);
         }
-        if (trackedPeakRms < 80.0) {
-            trackedPeakRms = 80.0;
+        if (trackedPeakRms < 100.0) {
+            trackedPeakRms = 100.0;
         }
     }
 
-    /**
-     * Returns music intensity 0-100 (% of circle-slider ceiling).
-     */
     private static int sampleStrength(AudioRecord rec) {
         if (rec == null) {
             return liveStrength;
@@ -220,18 +215,18 @@ public class MusicSync {
         double rms = measureRms(audioBuffer, read);
         updateEnvelope(rms);
 
-        double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
-        if (gateRatio < 0.04) {
-            gateRatio = 0.04;
+        double gateRatio = 0.20 - (sensitivity / 100.0) * 0.15;
+        if (gateRatio < 0.05) {
+            gateRatio = 0.05;
         }
-        double noiseGate = Math.max(35.0, trackedPeakRms * gateRatio);
+        double noiseGate = Math.max(40.0, trackedPeakRms * gateRatio);
         if (smoothedRms < noiseGate) {
             return 0;
         }
 
         double span = trackedPeakRms - noiseGate;
-        if (span < 25.0) {
-            span = 25.0;
+        if (span < 30.0) {
+            span = 30.0;
         }
         double level = (smoothedRms - noiseGate) / span;
         if (level < 0.0) {
@@ -240,36 +235,19 @@ public class MusicSync {
         if (level > 1.0) {
             level = 1.0;
         }
+        level = Math.pow(level, CURVE);
+        if (level < ACTIVE_LEVEL) {
+            return 0;
+        }
 
         int value = (int) Math.round(level * 100.0);
         if (value < 0) {
-            value = 0;
+            return 0;
         }
         if (value > 100) {
-            value = 100;
+            return 100;
         }
         return value;
-    }
-
-    private static void pushPulse(int strength) {
-        if (strength == lastPushedStrength) {
-            return;
-        }
-        long now = SystemClock.elapsedRealtime();
-        if (now - lastPulseMs < PULSE_MIN_INTERVAL_MS
-                && Math.abs(strength - lastPushedStrength) <= PULSE_DEADBAND) {
-            return;
-        }
-        TrainItem item = targetItem;
-        if (item == null) {
-            return;
-        }
-        try {
-            item.onParamsChange();
-            lastPushedStrength = strength;
-            lastPulseMs = now;
-        } catch (Throwable ignored) {
-        }
     }
 
     private static void maybeUpdateUi() {
@@ -285,7 +263,7 @@ public class MusicSync {
 
     private static void startAudioThread() {
         Thread thread = new Thread(new AudioLoopRunnable(), "MusicSyncAudio");
-        thread.setPriority(Thread.MAX_PRIORITY);
+        thread.setPriority(Thread.NORM_PRIORITY);
         audioThread = thread;
         thread.start();
     }
@@ -297,7 +275,7 @@ public class MusicSync {
             return;
         }
         try {
-            thread.join(400L);
+            thread.join(500L);
         } catch (Throwable ignored) {
         }
     }
@@ -415,8 +393,12 @@ public class MusicSync {
                 int strength = sampleStrength(rec);
                 if (strength != liveStrength) {
                     liveStrength = strength;
-                    pushPulse(strength);
                     maybeUpdateUi();
+                }
+                try {
+                    Thread.sleep(25L);
+                } catch (InterruptedException ignored) {
+                    break;
                 }
             }
         }

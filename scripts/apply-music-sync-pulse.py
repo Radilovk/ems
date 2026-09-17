@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inject music-sync strength at PDU build time (slider ceiling * music ratio)."""
+"""Music-sync strength only on WORK-phase PDU (sendDuration), not pause phase."""
 
 from __future__ import annotations
 
@@ -11,15 +11,22 @@ COMMAND_UTIL = (
     / "build/decompiled/smali_classes2/com/isaigu/gymapp/train/utils/CommandUtil.smali"
 )
 
-METHOD_HEAD = """.method public static getPartsParamsPduWithStrength(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B
+WITH_STRENGTH_PLAIN = """.method public static getPartsParamsPduWithStrength(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B
     .locals 6
     .param p0, "programDataBean"    # Lcom/isaigu/gymapp/bean/ProgramDataBean;
     .param p1, "partsDisabled"    # [Z
     .param p2, "strenth"    # I
 
-"""
+    .line 17
+    iget-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;"""
 
-HOOK_BODY = """    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
+WITH_STRENGTH_HOOK = """.method public static getPartsParamsPduWithStrength(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B
+    .locals 6
+    .param p0, "programDataBean"    # Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    .param p1, "partsDisabled"    # [Z
+    .param p2, "strenth"    # I
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result v5
 
@@ -34,42 +41,60 @@ HOOK_BODY = """    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->
     div-int/lit8 p2, v5, 0x64
 
     :cond_music_sync_strength
-"""
-
-PLAIN_HEAD = METHOD_HEAD + "    .line 17\n    iget-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;"
-
-OLD_REPLACE_HEAD = METHOD_HEAD + """    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
-
-    move-result v5
-
-    if-eqz v5, :cond_music_sync_strength
-
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getLiveStrength()I
-
-    move-result p2
-
-    :cond_music_sync_strength
     .line 17
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;"""
 
-NEW_HEAD = METHOD_HEAD + HOOK_BODY + "    .line 17\n    iget-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;"
+PARTS_PLAIN = """.method public static getPartsParamsPdu(Lcom/isaigu/gymapp/bean/ProgramDataBean;[Z)[B
+    .locals 2
+    .param p0, "programDataBean"    # Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    .param p1, "partsDisabled"    # [Z
+
+    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/train/utils/CommandUtil;->getPartsParamsPduWithStrength(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B"""
+
+PARTS_HOOK = """.method public static getPartsParamsPdu(Lcom/isaigu/gymapp/bean/ProgramDataBean;[Z)[B
+    .locals 2
+    .param p0, "programDataBean"    # Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    .param p1, "partsDisabled"    # [Z
+
+    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_music_work_strength
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getLiveStrength()I
+
+    move-result v1
+
+    mul-int v0, v0, v1
+
+    div-int/lit8 v0, v0, 0x64
+
+    :cond_music_work_strength
+    invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/train/utils/CommandUtil;->getPartsParamsPduWithStrength(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B"""
 
 
 def main() -> int:
     if not COMMAND_UTIL.is_file():
         raise SystemExit(f"CommandUtil.smali not found: {COMMAND_UTIL}")
     text = COMMAND_UTIL.read_text(encoding="utf-8")
-    if "div-int/lit8 p2, v5, 0x64" in text and "MusicSync;->getLiveStrength()I" in text:
-        print("CommandUtil: music-sync slider-ceiling PDU hook already applied")
-        return 0
-    if OLD_REPLACE_HEAD in text:
-        text = text.replace(OLD_REPLACE_HEAD, NEW_HEAD, 1)
-        print("CommandUtil: upgraded music-sync hook to slider ceiling * music ratio")
-    elif PLAIN_HEAD in text:
-        text = text.replace(PLAIN_HEAD, NEW_HEAD, 1)
-        print("CommandUtil: music-sync slider-ceiling PDU hook applied")
+
+    if WITH_STRENGTH_HOOK in text:
+        text = text.replace(WITH_STRENGTH_HOOK, WITH_STRENGTH_PLAIN, 1)
+        print("CommandUtil: removed music hook from pause-phase WithStrength path")
+
+    if PARTS_HOOK.split("invoke-static {p0, p1, v0}")[0] in text:
+        print("CommandUtil: work-phase music hook already applied")
+    elif PARTS_PLAIN in text:
+        text = text.replace(PARTS_PLAIN, PARTS_HOOK, 1)
+        print("CommandUtil: music hook on work-phase getPartsParamsPdu only")
     else:
-        raise RuntimeError("CommandUtil.getPartsParamsPduWithStrength marker not found")
+        raise RuntimeError("CommandUtil.getPartsParamsPdu marker not found")
+
     COMMAND_UTIL.write_text(text, encoding="utf-8")
     return 0
 

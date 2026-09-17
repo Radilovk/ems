@@ -371,7 +371,7 @@
 
     const/16 v1, 0x17
 
-    if-ge v0, v1, :cond_fail
+    if-lt v0, v1, :cond_fail
 
     const/16 v0, 0x10
 
@@ -381,7 +381,7 @@
 
     move-result v2
 
-    if-gtz v2, :cond_fail
+    if-lez v2, :cond_fail
 
     shl-int/lit8 v2, v2, 0x1
 

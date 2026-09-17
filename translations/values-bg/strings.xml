@@ -332,4 +332,5 @@
     <string name="beta_music_player_stop">Стоп</string>
     <string name="beta_music_player_sensitivity">Чувствителност (%)</string>
     <string name="beta_music_player_hint">Задай таван с кръговия слайдер, избери песен и натисни Пусни. PCM синхрон — без закъснение от микрофона.</string>
+    <string name="beta_music_player_no_user">Първо добави свързан потребител</string>
 </resources>

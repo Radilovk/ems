@@ -105,6 +105,12 @@ public class MusicSync {
             return;
         }
         pendingApplied = applied;
+        if (playerMode) {
+            ensureHandler();
+            handler.removeCallbacks(applyRunnable);
+            applyRunnable.run();
+            return;
+        }
         long now = SystemClock.elapsedRealtime();
         if (now - lastBleMs < BLE_MIN_INTERVAL_MS && applied != 0) {
             int delta = Math.abs(applied - lastPushedApplied);

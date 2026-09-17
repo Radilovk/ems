@@ -318,7 +318,7 @@
 
     const/4 v1, 0x1
 
-    if-eq v0, v1, :cond_fail
+    if-ne v0, v1, :cond_fail
 
     sput-object v6, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
@@ -327,6 +327,12 @@
     return v0
 
     :cond_fail
+    :try_start_0
+    invoke-virtual {v6}, Landroid/media/AudioRecord;->release()V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_release
+
+    :catch_release
     const/4 v0, 0x0
 
     return v0
@@ -414,6 +420,18 @@
     return-void
 
     :goto_opened
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
+
+    if-eqz v0, :cond_open_fail
+
+    invoke-virtual {v0}, Landroid/media/AudioRecord;->getState()I
+
+    move-result v1
+
+    const/4 v0, 0x1
+
+    if-ne v1, v0, :cond_open_fail
+
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
     invoke-virtual {v0}, Landroid/media/AudioRecord;->startRecording()V

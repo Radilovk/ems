@@ -34,7 +34,7 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"\.method private static openAudioAtRate\(I\)Z[\s\S]*?getState\(\)I[\s\S]*?if-eq v0, v1, :cond_fail",
+        r"\.method private static openAudioAtRate\(I\)Z[\s\S]*?getState\(\)I[\s\S]*?if-ne v0, v1, :cond_fail",
         "openAudioAtRate() fails only when AudioRecord is not INITIALIZED",
     ),
     (
@@ -99,8 +99,13 @@ RULES = [
     ),
     (
         "MusicSyncHelper$StartListener.smali",
-        r"if-nez v0, :cond_start",
+        r"if-eqz v0, :cond_no_activity",
         "StartListener errors when activity is null",
+    ),
+    (
+        "MusicSyncHelper$StartListener.smali",
+        r"if-nez v1, :cond_read_min",
+        "StartListener reads min amount only when AmountView is non-null",
     ),
     (
         "MusicSyncBridge.smali",
@@ -129,6 +134,21 @@ ANTI_PATTERNS = [
         "MusicSyncHelper.smali",
         r"\.method public static bind\([\s\S]*?if-eqz p0, :cond_has_root[\s\S]*?return-void",
         "bind() must not return when root view is valid (inverted null guard)",
+    ),
+    (
+        "MusicSync.smali",
+        r":goto_opened[\s\S]*?if-nez v0, :cond_open_fail",
+        "startCapture() must not skip recording when audioRecord is valid (inverted null guard)",
+    ),
+    (
+        "MusicSync.smali",
+        r"\.method private static openAudioAtRate\(I\)Z[\s\S]*?if-eq v0, v1, :cond_fail",
+        "openAudioAtRate() must not treat INITIALIZED state as failure",
+    ),
+    (
+        "MusicSyncHelper$StartListener.smali",
+        r"if-nez v0, :cond_no_activity",
+        "StartListener must not skip start when activity is valid",
     ),
 ]
 

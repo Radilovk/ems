@@ -16,7 +16,4 @@ public class Fragment {
     }
 
     public Activity getActivity() { return null; }
-
-    public void startActivityForResult(Intent intent, int requestCode) {
-    }
 }

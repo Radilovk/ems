@@ -140,7 +140,7 @@
     .param p0, "root"    # Landroid/view/View;
     .param p1, "dialog"    # Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    if-eqz p0, :cond_has_root
+    if-nez p0, :cond_has_root
 
     return-void
 

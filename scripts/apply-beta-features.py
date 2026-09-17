@@ -213,29 +213,48 @@ def patch_layout(text: str) -> str:
 
 
 def patch_edit_dialog(text: str) -> str:
-    new_hook = (
-        "\n    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
+    bind_invoke = (
+        "    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
+        "->bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V\n"
+    )
+    on_start_hook = (
+        "\n    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;"
+        "->getView()Landroid/view/View;\n\n"
+        "    move-result-object v0\n\n"
+        "    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
         "->bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V\n"
     )
     old_hook = (
         "\n    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
         "->bind(Landroid/view/View;)V\n"
     )
-    if "bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V" in text:
+    if "EditUserProgramDataDialog;->getView()Landroid/view/View;" in text and (
+        "MusicSyncHelper;->bind" in text
+    ):
         return text
+
     marker = (
         "    invoke-direct {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->initListener()V\n"
     )
     if marker not in text:
         raise RuntimeError("EditUserProgramDataDialog.initListener marker not found")
-    if old_hook in text:
-        print("EditUserProgramDataDialog.onCreateView: upgraded music sync bind hook")
-        return text.replace(old_hook, new_hook, 1)
-    if "MusicSyncHelper;->bind" in text:
-        return text
-    hook = marker + new_hook
-    print("EditUserProgramDataDialog.onCreateView: music sync bind hook")
-    return text.replace(marker, hook, 1)
+
+    if "MusicSyncHelper;->bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V" not in text:
+        if old_hook in text:
+            print("EditUserProgramDataDialog.onCreateView: upgraded music sync bind hook")
+            text = text.replace(old_hook, "\n" + bind_invoke, 1)
+        else:
+            print("EditUserProgramDataDialog.onCreateView: music sync bind hook")
+            text = text.replace(marker, marker + "\n" + bind_invoke, 1)
+
+    on_start_marker = (
+        "    invoke-super {p0}, Lcom/isaigu/gymapp/BaseFullScreenDialogFragment;->onStart()V\n"
+    )
+    if on_start_marker in text and on_start_hook.strip() not in text:
+        text = text.replace(on_start_marker, on_start_marker + on_start_hook, 1)
+        print("EditUserProgramDataDialog.onStart: music sync re-bind hook")
+
+    return text
 
 
 def merge_strings(path: Path, block: str, names: list[str]) -> None:

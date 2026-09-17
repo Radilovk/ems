@@ -64,8 +64,8 @@ RULES = [
     ),
     (
         "MusicSyncHelper.smali",
-        r"\.method public static bind\([\s\S]*?if-eqz p0, :cond_has_root",
-        "bind() returns when root view is null",
+        r"\.method public static bind\([\s\S]*?if-nez p0, :cond_has_root[\s\S]*?return-void[\s\S]*?:cond_has_root",
+        "bind() returns when root view is null, continues when non-null",
     ),
     (
         "MusicSyncHelper$StartListener.smali",
@@ -99,6 +99,11 @@ ANTI_PATTERNS = [
         "MusicSync$PermissionCallback.smali",
         r"if-nez p3, :cond_denied",
         "PermissionCallback must not invert grant flag",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r"\.method public static bind\([\s\S]*?if-eqz p0, :cond_has_root[\s\S]*?return-void",
+        "bind() must not return when root view is valid (inverted null guard)",
     ),
 ]
 

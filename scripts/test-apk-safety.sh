@@ -23,15 +23,18 @@ CRITICAL_FILES=(
 
 mkdir -p "${OUT_DIR}"
 
-echo "=== [1/4] Build baseline APK (BETA_MUSIC=0) ==="
+echo "=== [0/5] Verify MusicSync smali branch logic ==="
+python3 "${ROOT}/scripts/verify-music-sync-smali.py"
+
+echo "=== [1/5] Build baseline APK (BETA_MUSIC=0) ==="
 SKIP_APK_COMMIT_CHECK=1 BETA_MUSIC=0 "${ROOT}/build-apk.sh"
 cp "${ROOT}/xems27.apk" "${BASELINE_APK}"
 
-echo "=== [2/4] Build BETA APK (BETA_MUSIC=1) ==="
+echo "=== [2/5] Build BETA APK (BETA_MUSIC=1) ==="
 SKIP_APK_COMMIT_CHECK=1 BETA_MUSIC=1 "${ROOT}/build-apk.sh"
 cp "${ROOT}/xems27.apk" "${BETA_APK}"
 
-echo "=== [3/4] Compare login-critical smali (baseline vs BETA) ==="
+echo "=== [3/5] Compare login-critical smali (baseline vs BETA) ==="
 java -jar "${TOOLS}/apktool.jar" d "${BASELINE_APK}" -o "${BASELINE_DEC}" -f -q
 java -jar "${TOOLS}/apktool.jar" d "${BETA_APK}" -o "${BETA_DEC}" -f -q
 
@@ -77,7 +80,7 @@ if [[ "${DIFF_FAILED}" -ne 0 ]]; then
   exit 1
 fi
 
-echo "=== [4/4] Static BETA safety rules ==="
+echo "=== [4/5] Static BETA safety rules ==="
 DECOMPILED="${BETA_DEC}" python3 - "${BETA_DEC}" <<'PY'
 import os, sys
 from pathlib import Path
@@ -106,6 +109,7 @@ if errors:
 print("Static rules passed.")
 PY
 
+echo "=== [5/5] Copy BETA APK to repo root ==="
 cp "${BETA_APK}" "${ROOT}/xems27.apk"
 echo "Copied BETA APK -> ${ROOT}/xems27.apk"
 

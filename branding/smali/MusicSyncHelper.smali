@@ -35,6 +35,10 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setEnabled(Z)V
 
+    invoke-virtual {p0, v0}, Landroid/view/View;->setFocusable(Z)V
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->setFocusableInTouchMode(Z)V
+
     invoke-virtual {p0, p1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     :cond_done

@@ -56,8 +56,8 @@ MUSIC_UI = """
                 <TextView android:textSize="14.0sp" android:textColor="@color/light_green_color" android:id="@id/musicSyncStatus" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/beta_music_status_idle" />
                 <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/light_orange_exister" android:gravity="center" android:id="@id/musicSyncLevel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="0%" />
                 <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
-                    <Button android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStart" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/beta_music_start" android:textAllCaps="false" />
-                    <Button android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStop" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/beta_music_stop" android:textAllCaps="false" />
+                    <com.isaigu.gymapp.widget.MyButton android:clickable="true" android:focusable="true" android:minHeight="48.0dip" android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStart" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/beta_music_start" android:textAllCaps="false" />
+                    <com.isaigu.gymapp.widget.MyButton android:clickable="true" android:focusable="true" android:minHeight="48.0dip" android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicSyncStop" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/beta_music_stop" android:textAllCaps="false" />
                 </LinearLayout>
             </LinearLayout>
 """
@@ -148,11 +148,39 @@ def patch_ids_xml(text: str) -> str:
 
 def patch_layout(text: str) -> str:
     if "musicSyncStatus" in text:
-        return (
-            text.replace("com.isaigu.gymapp.widget.MyButton", "Button", 2)
-            if "musicSyncStart" in text and "MyButton" in text
-            else text
-        )
+        # AppCompat <Button> can swallow touches on some OEMs (e.g. Huawei); use MyButton.
+        if "musicSyncStart" in text and 'android:id="@id/musicSyncStart"' in text:
+            text = text.replace(
+                '<Button android:textSize="16.0sp" android:textColor="@color/text_primary" '
+                'android:id="@id/musicSyncStart"',
+                '<com.isaigu.gymapp.widget.MyButton android:clickable="true" android:focusable="true" '
+                'android:minHeight="48.0dip" android:textSize="16.0sp" android:textColor="@color/text_primary" '
+                'android:id="@id/musicSyncStart"',
+                1,
+            )
+            text = text.replace(
+                '<Button android:textSize="16.0sp" android:textColor="@color/text_primary" '
+                'android:id="@id/musicSyncStop"',
+                '<com.isaigu.gymapp.widget.MyButton android:clickable="true" android:focusable="true" '
+                'android:minHeight="48.0dip" android:textSize="16.0sp" android:textColor="@color/text_primary" '
+                'android:id="@id/musicSyncStop"',
+                1,
+            )
+            text = text.replace(
+                'android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" '
+                'android:text="@string/beta_music_start"',
+                'android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" '
+                'android:text="@string/beta_music_start"',
+                1,
+            )
+            text = text.replace(
+                'android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" '
+                'android:text="@string/beta_music_stop"',
+                'android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" '
+                'android:text="@string/beta_music_stop"',
+                1,
+            )
+        return text
     if "musicMinStrength" in text:
         old = '                <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">\n                    <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp"'
         new = (

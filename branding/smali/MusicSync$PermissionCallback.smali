@@ -1,6 +1,6 @@
-.class Lcom/isaigu/gymapp/beta/MusicReactiveController$PermissionCallback;
+.class Lcom/isaigu/gymapp/train/utils/MusicSync$PermissionCallback;
 .super Ljava/lang/Object;
-.source "MusicReactiveController.java"
+.source "MusicSync.java"
 
 # interfaces
 .implements Lcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;
@@ -19,13 +19,10 @@
 # virtual methods
 .method public onRequestPermission(Ljava/lang/String;IZ)V
     .locals 0
-    .param p1, "permission"    # Ljava/lang/String;
-    .param p2, "requestCode"    # I
-    .param p3, "granted"    # Z
 
     if-eqz p3, :cond_end
 
-    invoke-static {}, Lcom/isaigu/gymapp/beta/MusicReactiveController;->access$400()V
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$400()V
 
     :cond_end
     return-void

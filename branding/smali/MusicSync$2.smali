@@ -30,7 +30,7 @@
         }
     .end annotation
 
-    .line 326
+    .line 321
     iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$display:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,17 +43,17 @@
 .method public run()V
     .registers 2
 
-    .line 329
+    .line 324
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_9
 
-    .line 330
+    .line 325
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$2;->val$display:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(I)V
 
-    .line 332
+    .line 327
     :cond_9
     return-void
 .end method

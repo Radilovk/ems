@@ -10,39 +10,43 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
+import android.widget.TextView;
 
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.bean.TrainProgram;
-import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 import com.isaigu.gymapp.dialog.MusicSyncHelper;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
+import com.isaigu.gymapp.widget.CircleSeekBar;
+
+import java.lang.ref.WeakReference;
 
 /**
- * Microphone → liveStrength (0–100). Strength is applied in CommandUtil.getPartsParamsPdu
- * (slider ceiling × music%). BLE refresh uses the same path as the MA +/- buttons:
- * connected + training + work phase (inStart) → onParamsChange → sendPulse → sendDuration.
+ * Microphone drives the impulse-strength slider: sets bean.strenth, moves CircleSeekBar,
+ * and calls onParamsChange() — identical to the user releasing the slider.
  */
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
     static final int ERROR_DENIED = 0x7f0d010d;
     static final int ERROR_MIC = 0x7f0d010e;
 
-    private static final double ATTACK = 0.70;
-    private static final double RELEASE = 0.45;
-    private static final double PEAK_DECAY = 0.988;
+    private static final double ATTACK = 0.75;
+    private static final double RELEASE = 0.40;
+    private static final double PEAK_DECAY = 0.985;
     private static final int AUDIO_BUFFER_SAMPLES = 512;
     private static final long SAMPLE_INTERVAL_MS = 20L;
-    private static final long UI_INTERVAL_MS = 100L;
-    private static final long PUSH_MIN_INTERVAL_MS = 100L;
-    private static final int PUSH_MIN_DELTA = 5;
+    private static final long UI_INTERVAL_MS = 50L;
+    private static final long APPLY_MIN_INTERVAL_MS = 50L;
+    private static final int APPLY_MIN_DELTA = 2;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
     private static Thread audioThread;
     private static Activity hostActivity;
     private static TrainItem targetItem;
+    private static WeakReference<CircleSeekBar> seekBarRef;
+    private static WeakReference<TextView> maLabelRef;
     private static int sensitivity = 20;
     static boolean running;
     static volatile int liveStrength;
@@ -50,9 +54,8 @@ public class MusicSync {
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 300.0;
     private static long lastUiMs;
-    private static long lastPushMs;
-    private static int lastPushedStrength = -1;
-    private static boolean wasInWorkPhase;
+    private static long lastApplyMs;
+    private static int lastAppliedStrength = -1;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
 
     static void ensureHandler() {
@@ -65,68 +68,102 @@ public class MusicSync {
         smoothedRms = 0.0;
         trackedPeakRms = 300.0;
         lastUiMs = 0L;
-        lastPushMs = 0L;
-        lastPushedStrength = -1;
-        wasInWorkPhase = false;
+        lastApplyMs = 0L;
+        lastAppliedStrength = -1;
     }
 
-    /** Same gates as TrainItem.sendPulse() for the work-phase branch. */
-    private static boolean canPushWorkPulse(TrainItem item) {
-        if (item == null || item.data == null) {
-            return false;
+    public static void registerUi(CircleSeekBar seekBar, TextView maLabel, TrainItem item) {
+        seekBarRef = seekBar != null ? new WeakReference<CircleSeekBar>(seekBar) : null;
+        maLabelRef = maLabel != null ? new WeakReference<TextView>(maLabel) : null;
+        if (item != null) {
+            targetItem = item;
         }
-        TrainUserProgramDataWrapper data = item.data;
-        return data.connected && data.start && data.inStart;
     }
 
-    /**
-     * Re-send work-phase BLE params when music level changes — same chain as MA +/- buttons
-     * (onParamsChange → sendPulse → sendDuration). Skips pause phase to preserve rhythm.
-     */
-    private static void maybePushWorkPulse(int strength) {
+    private static int clampStrength(int value) {
+        if (value < 0) {
+            return 0;
+        }
+        if (value > 100) {
+            return 100;
+        }
+        return value;
+    }
+
+    /** Same effect as CircleSeekBar onChangedEnd for MA/strength mode. */
+    private static void applyStrengthToSlider(int strength) {
+        strength = clampStrength(strength);
         TrainItem item = targetItem;
-        if (!canPushWorkPulse(item)) {
-            wasInWorkPhase = false;
+        if (item == null) {
             return;
         }
 
-        boolean enteringWork = !wasInWorkPhase;
-        wasInWorkPhase = true;
-
-        long now = SystemClock.elapsedRealtime();
-        if (!enteringWork) {
-            if (strength == lastPushedStrength) {
-                return;
-            }
-            if (Math.abs(strength - lastPushedStrength) < PUSH_MIN_DELTA
-                    && now - lastPushMs < PUSH_MIN_INTERVAL_MS) {
-                return;
-            }
-            if (now - lastPushMs < PUSH_MIN_INTERVAL_MS) {
-                return;
-            }
+        TrainProgram program = item.getTrainProgram();
+        if (program == null) {
+            return;
+        }
+        ProgramDataBean bean = program.matchProgram();
+        if (bean == null) {
+            return;
         }
 
-        lastPushedStrength = strength;
-        lastPushMs = now;
+        bean.strenth = strength;
+        lastAppliedStrength = strength;
+        liveStrength = strength;
+
+        CircleSeekBar bar = seekBarRef != null ? seekBarRef.get() : null;
+        if (bar != null) {
+            bar.setCurProcess(strength * 75 / 100);
+        }
+
+        TextView ma = maLabelRef != null ? maLabelRef.get() : null;
+        if (ma != null) {
+            ma.setText(strength + " %");
+        }
+
+        if (item.data != null && item.data.connected) {
+            item.onParamsChange();
+        }
+    }
+
+    private static void maybeApplyStrength(int strength) {
+        strength = clampStrength(strength);
+        if (strength == lastAppliedStrength) {
+            return;
+        }
+        long now = SystemClock.elapsedRealtime();
+        if (Math.abs(strength - lastAppliedStrength) < APPLY_MIN_DELTA
+                && now - lastApplyMs < APPLY_MIN_INTERVAL_MS) {
+            return;
+        }
+        if (now - lastApplyMs < APPLY_MIN_INTERVAL_MS) {
+            return;
+        }
+        lastApplyMs = now;
         ensureHandler();
+        final int value = strength;
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (!running) {
-                    return;
-                }
-                TrainItem ti = targetItem;
-                if (!canPushWorkPulse(ti)) {
-                    wasInWorkPhase = false;
-                    return;
-                }
-                try {
-                    ti.onParamsChange();
-                } catch (Throwable ignored) {
+                if (running) {
+                    applyStrengthToSlider(value);
+                    maybeUpdateUi();
                 }
             }
         });
+    }
+
+    private static void selectStrengthMode(TrainItem item) {
+        if (item == null) {
+            return;
+        }
+        try {
+            item.setMaSelected(true);
+            item.setHzSelected(false);
+            item.setPauseMaSelected(false);
+            item.setPauseHzSelected(false);
+        } catch (Throwable ignored) {
+        }
     }
 
     private static Context permissionContext() {
@@ -210,35 +247,8 @@ public class MusicSync {
         return false;
     }
 
-    public static int getSliderCeiling() {
-        TrainItem item = targetItem;
-        if (item == null) {
-            return 100;
-        }
-        try {
-            TrainProgram program = item.getTrainProgram();
-            if (program == null) {
-                return 100;
-            }
-            ProgramDataBean data = program.matchProgram();
-            if (data == null) {
-                return 100;
-            }
-            int ceiling = data.strenth;
-            if (ceiling < 0) {
-                return 0;
-            }
-            if (ceiling > 100) {
-                return 100;
-            }
-            return ceiling;
-        } catch (Throwable ignored) {
-            return 100;
-        }
-    }
-
     public static int getEffectiveStrength() {
-        return getSliderCeiling() * liveStrength / 100;
+        return liveStrength;
     }
 
     private static double measureRms(short[] buffer, int count) {
@@ -297,22 +307,7 @@ public class MusicSync {
             level = 1.0;
         }
 
-        int value = (int) Math.round(level * 100.0);
-        if (value < 0) {
-            return 0;
-        }
-        if (value > 100) {
-            return 100;
-        }
-        return value;
-    }
-
-    private static void onStrengthChanged(int next) {
-        if (next != liveStrength) {
-            liveStrength = next;
-            maybePushWorkPulse(next);
-            maybeUpdateUi();
-        }
+        return clampStrength((int) Math.round(level * 100.0));
     }
 
     private static void maybeUpdateUi() {
@@ -322,7 +317,7 @@ public class MusicSync {
         }
         lastUiMs = now;
         ensureHandler();
-        final int display = getEffectiveStrength();
+        final int display = liveStrength;
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -358,6 +353,7 @@ public class MusicSync {
         }
         releaseAudio();
         resetAudioLevels();
+        selectStrengthMode(targetItem);
         try {
             if (!openMicrophone()) {
                 MusicSyncHelper.showError(ERROR_MIC);
@@ -385,7 +381,7 @@ public class MusicSync {
                         if (r == null) {
                             break;
                         }
-                        onStrengthChanged(sampleIntensity(r));
+                        maybeApplyStrength(sampleIntensity(r));
                         try {
                             Thread.sleep(SAMPLE_INTERVAL_MS);
                         } catch (InterruptedException e) {
@@ -427,7 +423,6 @@ public class MusicSync {
     }
 
     public static void setTargetMacAddress(String macAddress) {
-        // kept for MusicSyncHelper; targeting uses live TrainItem from gear dialog
     }
 
     public static void setSensitivity(int min) {
@@ -441,6 +436,7 @@ public class MusicSync {
         hostActivity = activity;
         stopCaptureOnly();
         setSensitivity(min);
+        selectStrengthMode(targetItem);
         if (hasRecordPermission()) {
             startCapture();
             return;

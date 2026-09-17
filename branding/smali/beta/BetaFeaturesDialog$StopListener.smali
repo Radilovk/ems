@@ -30,6 +30,8 @@
 
     invoke-static {}, Lcom/isaigu/gymapp/beta/MusicReactiveController;->stop()V
 
+    invoke-static {}, Lcom/isaigu/gymapp/beta/BetaFeaturesUtils;->clearPendingManager()V
+
     iget-object p1, p0, Lcom/isaigu/gymapp/beta/BetaFeaturesDialog$StopListener;->this$0:Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/beta/BetaFeaturesDialog;->refreshStatusPublic()V

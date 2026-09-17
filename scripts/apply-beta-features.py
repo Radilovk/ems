@@ -17,6 +17,7 @@ MANIFEST = DECOMPILED / "AndroidManifest.xml"
 PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
 TRAIN_LAYOUT = RES / "layout/new_train_fragment_layout.xml"
+TRAIN_LAYOUT_NIGHT = RES / "layout-night/new_train_fragment_layout.xml"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 VALUES_BG = ROOT / "translations/values-bg/strings.xml"
 VALUES_BG_DECOMPILED = RES / "values-bg/strings.xml"
@@ -36,7 +37,11 @@ IDS = {
 }
 
 BETA_BUTTON = """
-        <com.isaigu.gymapp.widget.MyButton android:textSize="9.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/betaFeaturesButton" android:background="@drawable/black_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="28.0dip" android:text="BETA" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="9.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/betaFeaturesButton" android:background="@mipmap/set" android:layout_width="50.0dip" android:layout_height="28.0dip" android:text="BETA" />
+        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.1" />"""
+
+BETA_BUTTON_NIGHT = """
+        <com.isaigu.gymapp.widget.MyButton android:textSize="9.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/betaFeaturesButton" android:background="@mipmap/set" android:layout_width="50.0dip" android:layout_height="28.0dip" android:text="BETA" />
         <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.1" />"""
 
 BG_STRINGS = """
@@ -112,7 +117,7 @@ def patch_ids_xml(text: str) -> str:
     return text.replace("</resources>", entries + "\n</resources>", 1)
 
 
-def patch_train_layout(text: str) -> str:
+def patch_train_layout(text: str, button_block: str) -> str:
     if "betaFeaturesButton" in text:
         return text
     marker = (
@@ -128,7 +133,7 @@ def patch_train_layout(text: str) -> str:
         '        <com.isaigu.gymapp.widget.MyButton android:id="@id/allminus" '
         'android:background="@mipmap/minus" android:layout_width="50.0dip" '
         'android:layout_height="50.0dip" />\n'
-        + BETA_BUTTON
+        + button_block
         + '\n        <View android:layout_width="fill_parent" android:layout_height="0.0dip" '
         'android:layout_weight="0.3" />'
     )
@@ -147,22 +152,20 @@ def patch_new_train_fragment(text: str) -> str:
         text = text.replace(marker, bind_call + marker, 1)
         print("NewTrainFragment.onCreateView: beta bind hook")
 
-    destroy_marker = (
-        "    invoke-super {p0}, Landroid/support/v4/app/Fragment;->onDestroy()V\n\n"
-        "    .line 217\n"
-        "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()Lorg/greenrobot/eventbus/EventBus;"
-    )
     destroy_hook = (
         "    invoke-super {p0}, Landroid/support/v4/app/Fragment;->onDestroy()V\n\n"
         "    invoke-static {}, Lcom/isaigu/gymapp/beta/MusicReactiveController;->stop()V\n\n"
         "    .line 217\n"
         "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()Lorg/greenrobot/eventbus/EventBus;"
     )
-    if "MusicReactiveController;->stop" not in text:
-        if destroy_marker not in text:
-            raise RuntimeError("NewTrainFragment.onDestroy marker not found")
-        text = text.replace(destroy_marker, destroy_hook, 1)
-        print("NewTrainFragment.onDestroy: music sync stop hook")
+    destroy_marker = (
+        "    invoke-super {p0}, Landroid/support/v4/app/Fragment;->onDestroy()V\n\n"
+        "    .line 217\n"
+        "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()Lorg/greenrobot/eventbus/EventBus;"
+    )
+    if destroy_hook in text:
+        text = text.replace(destroy_hook, destroy_marker, 1)
+        print("NewTrainFragment.onDestroy: removed music sync stop hook")
 
     return text
 
@@ -187,7 +190,16 @@ def main() -> int:
     MANIFEST.write_text(patch_manifest(MANIFEST.read_text(encoding="utf-8")), encoding="utf-8")
     PUBLIC_XML.write_text(patch_public_xml(PUBLIC_XML.read_text(encoding="utf-8")), encoding="utf-8")
     IDS_XML.write_text(patch_ids_xml(IDS_XML.read_text(encoding="utf-8")), encoding="utf-8")
-    TRAIN_LAYOUT.write_text(patch_train_layout(TRAIN_LAYOUT.read_text(encoding="utf-8")), encoding="utf-8")
+    TRAIN_LAYOUT.write_text(
+        patch_train_layout(TRAIN_LAYOUT.read_text(encoding="utf-8"), BETA_BUTTON),
+        encoding="utf-8",
+    )
+    if TRAIN_LAYOUT_NIGHT.exists():
+        TRAIN_LAYOUT_NIGHT.write_text(
+            patch_train_layout(TRAIN_LAYOUT_NIGHT.read_text(encoding="utf-8"), BETA_BUTTON_NIGHT),
+            encoding="utf-8",
+        )
+        print("patched layout-night/new_train_fragment_layout.xml")
     NEW_TRAIN_FRAGMENT.write_text(
         patch_new_train_fragment(NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")),
         encoding="utf-8",

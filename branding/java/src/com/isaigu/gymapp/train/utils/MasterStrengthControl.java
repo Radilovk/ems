@@ -87,6 +87,11 @@ public final class MasterStrengthControl {
      * Same path as releasing the circle slider in MA mode.
      */
     public static void setMasterStrength(int percent) {
+        setMasterStrength(percent, true);
+    }
+
+    /** @param updateUi false for high-rate music player drive (BLE only, UI throttled elsewhere) */
+    public static void setMasterStrength(int percent, boolean updateUi) {
         percent = clamp(percent);
         if (percent == lastApplied) {
             return;
@@ -107,14 +112,16 @@ public final class MasterStrengthControl {
         bean.strenth = percent;
         lastApplied = percent;
 
-        CircleSeekBar bar = seekBarRef != null ? seekBarRef.get() : null;
-        if (bar != null) {
-            bar.setCurProcess(percent * 75 / 100);
-        }
+        if (updateUi) {
+            CircleSeekBar bar = seekBarRef != null ? seekBarRef.get() : null;
+            if (bar != null) {
+                bar.setCurProcess(percent * 75 / 100);
+            }
 
-        TextView ma = maLabelRef != null ? maLabelRef.get() : null;
-        if (ma != null) {
-            ma.setText(percent + " %");
+            TextView ma = maLabelRef != null ? maLabelRef.get() : null;
+            if (ma != null) {
+                ma.setText(percent + " %");
+            }
         }
 
         if (item.data != null && item.data.connected) {

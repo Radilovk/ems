@@ -40,7 +40,10 @@ RULES = [
 ]
 
 GLOBAL_RULES = [
-    (r"MasterStrengthControl;->setMasterStrength\(I\)V", "mic calls control channel"),
+    (
+        r"MasterStrengthControl;->setMasterStrength\(I(?:Z)?\)V",
+        "mic calls control channel",
+    ),
 ]
 
 ANTI = [

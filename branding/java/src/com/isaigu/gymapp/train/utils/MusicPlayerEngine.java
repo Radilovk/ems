@@ -8,8 +8,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -26,10 +24,12 @@ public final class MusicPlayerEngine {
         void onError();
     }
 
-    /** Envelope bucket size and sync poll interval (ms). */
+    /** Envelope bucket size (ms). */
     private static final int WINDOW_MS = 20;
+    /** Sync poll interval (ms). */
+    private static final int SYNC_POLL_MS = 16;
     /** Small fixed output latency compensation for MediaPlayer. */
-    private static final int SYNC_OFFSET_MS = 50;
+    private static final int SYNC_OFFSET_MS = 30;
     private static final int PCM_WINDOW_FRAMES = 256;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -37,14 +37,13 @@ public final class MusicPlayerEngine {
     private MediaPlayer player;
     private Listener listener;
     private int[] envelope;
-    private long syncAnchorWallMs;
     private volatile boolean tracking;
 
     /**
      * Decode file off the UI thread. Envelope buckets are stamped from decoder PTS
      * so playback lookup stays aligned for the whole track (no duration drift).
      */
-    public static int[] buildEnvelope(Context context, Uri uri) throws Exception {
+    public static int[] buildEnvelope(Context context, Uri uri, int sensitivity) throws Exception {
         MediaExtractor extractor = new MediaExtractor();
         extractor.setDataSource(context, uri, null);
         int trackIndex = -1;
@@ -73,6 +72,7 @@ public final class MusicPlayerEngine {
         codec.start();
 
         ArrayList<Integer> timeline = new ArrayList<Integer>();
+        ArrayList<Double> rawRms = new ArrayList<Double>();
         long framesInWindow = 0L;
         long windowSumSq = 0L;
         long lastPtsUs = 0L;
@@ -129,8 +129,8 @@ public final class MusicPlayerEngine {
                         windowSumSq += frameSumSq;
                         framesInWindow++;
                         if (framesInWindow >= PCM_WINDOW_FRAMES) {
-                            int level = frameRmsToLevel(windowSumSq, framesInWindow);
-                            writeBucket(timeline, lastPtsUs, level);
+                            double rms = windowRms(windowSumSq, framesInWindow);
+                            writeBucket(timeline, rawRms, lastPtsUs, rms);
                             framesInWindow = 0L;
                             windowSumSq = 0L;
                         }
@@ -144,8 +144,8 @@ public final class MusicPlayerEngine {
         }
 
         if (framesInWindow > 0L) {
-            int level = frameRmsToLevel(windowSumSq, framesInWindow);
-            writeBucket(timeline, lastPtsUs, level);
+            double rms = windowRms(windowSumSq, framesInWindow);
+            writeBucket(timeline, rawRms, lastPtsUs, rms);
         }
 
         codec.stop();
@@ -155,7 +155,7 @@ public final class MusicPlayerEngine {
         if (timeline.isEmpty()) {
             return new int[]{0};
         }
-        fillTimelineGaps(timeline);
+        normalizeTimeline(timeline, rawRms, sensitivity);
         int[] result = new int[timeline.size()];
         for (int i = 0; i < timeline.size(); i++) {
             result[i] = timeline.get(i);
@@ -163,29 +163,73 @@ public final class MusicPlayerEngine {
         return result;
     }
 
-    private static void writeBucket(ArrayList<Integer> timeline, long ptsUs, int level) {
+    private static void writeBucket(
+            ArrayList<Integer> timeline,
+            ArrayList<Double> rawRms,
+            long ptsUs,
+            double rms) {
         int bucketIndex = ptsToBucketIndex(ptsUs);
         if (bucketIndex < 0) {
             bucketIndex = 0;
         }
         while (timeline.size() <= bucketIndex) {
             timeline.add(0);
+            rawRms.add(0.0);
         }
-        int existing = timeline.get(bucketIndex);
-        if (level > existing) {
-            timeline.set(bucketIndex, level);
+        double existing = rawRms.get(bucketIndex);
+        if (rms > existing) {
+            rawRms.set(bucketIndex, rms);
         }
     }
 
-    private static void fillTimelineGaps(ArrayList<Integer> timeline) {
-        int last = 0;
-        for (int i = 0; i < timeline.size(); i++) {
-            int value = timeline.get(i);
-            if (value > 0) {
-                last = value;
-            } else if (last > 0) {
-                timeline.set(i, last);
+    /**
+     * Map raw RMS buckets to 0–100% using track peak, noise gate, and power curve
+     * (same idea as mic {@link MusicSync#envelopeToSoundPercent}).
+     */
+    private static void normalizeTimeline(
+            ArrayList<Integer> timeline,
+            ArrayList<Double> rawRms,
+            int sensitivity) {
+        double peak = 0.0;
+        for (int i = 0; i < rawRms.size(); i++) {
+            double rms = rawRms.get(i);
+            if (rms > peak) {
+                peak = rms;
             }
+        }
+        if (peak < 80.0) {
+            peak = 80.0;
+        }
+
+        double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
+        if (gateRatio < 0.05) {
+            gateRatio = 0.05;
+        }
+        double noiseGate = Math.max(35.0, peak * gateRatio);
+        double span = peak - noiseGate;
+        if (span < 25.0) {
+            span = 25.0;
+        }
+
+        for (int i = 0; i < timeline.size(); i++) {
+            double rms = rawRms.get(i);
+            int level = 0;
+            if (rms > noiseGate) {
+                double normalized = (rms - noiseGate) / span;
+                if (normalized < 0.0) {
+                    normalized = 0.0;
+                } else if (normalized > 1.0) {
+                    normalized = 1.0;
+                }
+                normalized = Math.pow(normalized, 1.35);
+                level = (int) Math.round(normalized * 100.0);
+                if (level < 0) {
+                    level = 0;
+                } else if (level > 100) {
+                    level = 100;
+                }
+            }
+            timeline.set(i, level);
         }
     }
 
@@ -208,19 +252,11 @@ public final class MusicPlayerEngine {
         }
     }
 
-    private static int frameRmsToLevel(long sumSq, long frames) {
+    private static double windowRms(long sumSq, long frames) {
         if (frames <= 0L) {
-            return 0;
+            return 0.0;
         }
-        double rms = Math.sqrt((double) sumSq / frames);
-        int level = (int) Math.round((rms / 8000.0) * 100.0);
-        if (level < 0) {
-            return 0;
-        }
-        if (level > 100) {
-            return 100;
-        }
-        return level;
+        return Math.sqrt((double) sumSq / frames);
     }
 
     public void startPlayback(Context context, Uri uri, int[] preparedEnvelope, Listener callback)
@@ -237,7 +273,6 @@ public final class MusicPlayerEngine {
         player.setOnErrorListener(new ErrorHandler(this));
         player.prepare();
         player.start();
-        syncAnchorWallMs = SystemClock.elapsedRealtime();
         tracking = true;
         syncRunnable = new SyncRunnable(this);
         handler.post(syncRunnable);
@@ -281,20 +316,12 @@ public final class MusicPlayerEngine {
         if (player == null) {
             return 0;
         }
-        int playerPos = 0;
         try {
-            playerPos = player.getCurrentPosition();
+            int pos = player.getCurrentPosition();
+            return pos < 0 ? 0 : pos;
         } catch (Throwable ignored) {
-        }
-        long wallPos = SystemClock.elapsedRealtime() - syncAnchorWallMs;
-        if (wallPos < 0L) {
-            wallPos = 0L;
-        }
-        int blended = (int) ((wallPos + playerPos) / 2L);
-        if (blended < 0) {
             return 0;
         }
-        return blended;
     }
 
     void dispatchEnded() {
@@ -338,7 +365,6 @@ public final class MusicPlayerEngine {
         }
         envelope = null;
         listener = null;
-        syncAnchorWallMs = 0L;
     }
 
     static final class SyncRunnable implements Runnable {
@@ -360,7 +386,7 @@ public final class MusicPlayerEngine {
             } catch (Throwable ignored) {
             }
             if (target.tracking) {
-                target.handler.postDelayed(this, WINDOW_MS);
+                target.handler.postDelayed(this, SYNC_POLL_MS);
             }
         }
     }

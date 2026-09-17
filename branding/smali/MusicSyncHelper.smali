@@ -79,18 +79,47 @@
 .end method
 
 .method public static getActivity()Landroid/app/Activity;
-    .locals 1
+    .locals 2
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    if-nez v0, :cond_no_dialog
+    if-nez v0, :cond_has_dialog
 
     const/4 v0, 0x0
 
     return-object v0
 
-    :cond_no_dialog
+    :cond_has_dialog
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getActivity()Landroid/support/v4/app/FragmentActivity;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_try_parent
+
+    return-object v1
+
+    :cond_try_parent
     invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_try_dialog
+
+    return-object v1
+
+    :cond_try_dialog
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getDialog()Landroid/app/Dialog;
+
+    move-result-object v0
+
+    if-nez v0, :cond_none
+
+    const/4 v0, 0x0
+
+    return-object v0
+
+    :cond_none
+    invoke-virtual {v0}, Landroid/app/Dialog;->getOwnerActivity()Landroid/app/Activity;
 
     move-result-object v0
 
@@ -225,6 +254,16 @@
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->configureAmount(Lcom/isaigu/gymapp/widget/AmountView;I)V
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showIdle()V
+
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->getActivity()Landroid/app/Activity;
+
+    move-result-object v0
+
+    if-eqz v0, :skip_set_host
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
+
+    :skip_set_host
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
 

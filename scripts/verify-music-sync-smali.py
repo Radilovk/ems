@@ -69,8 +69,13 @@ RULES = [
     ),
     (
         "MusicSyncHelper.smali",
-        r"\.method public static getActivity\(\)[\s\S]*?if-nez v0, :cond_no_dialog",
+        r"\.method public static getActivity\(\)[\s\S]*?if-nez v0, :cond_has_dialog",
         "getActivity() returns null when dialog is missing",
+    ),
+    (
+        "MusicSyncHelper.smali",
+        r"->getActivity\(\)Landroid/support/v4/app/FragmentActivity;",
+        "getActivity() uses Fragment.getActivity() fallback",
     ),
     (
         "MusicSyncHelper.smali",

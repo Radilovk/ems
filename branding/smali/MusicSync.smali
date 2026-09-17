@@ -516,6 +516,14 @@
     return v0
 .end method
 
+.method public static getHostActivity()Landroid/app/Activity;
+    .locals 1
+
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
+
+    return-object v0
+.end method
+
 .method public static setHostActivity(Landroid/app/Activity;)V
     .locals 0
 

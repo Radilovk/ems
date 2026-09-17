@@ -216,7 +216,7 @@ public class MusicSyncHelper {
                 if (maxAmount != null) {
                     max = maxAmount.getAmount();
                 }
-            MusicSyncBridge.attachManager(activity);
+            MusicSync.setTargetMacAddress(resolveTargetMac(dialog));
             MusicSync.start(activity, min, max);
             } catch (Throwable t) {
                 showError(0x7f0d010e);

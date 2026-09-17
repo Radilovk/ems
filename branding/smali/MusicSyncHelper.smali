@@ -52,6 +52,17 @@
     return-object v0
 .end method
 
+.method static synthetic access$200(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Ljava/lang/String;
+    .registers 1
+
+    .line 19
+    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveTargetMac(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Ljava/lang/String;
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
 .method private static attachButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
     .registers 3
 

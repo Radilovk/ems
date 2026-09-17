@@ -34,10 +34,131 @@ public final class MusicPlayerEngine {
     private int[] envelope;
     private volatile boolean tracking;
 
-    public void start(Context context, Uri uri, Listener callback) throws Exception {
+    /** Decode file off the UI thread; call {@link #startPlayback} on the main thread. */
+    public static int[] buildEnvelope(Context context, Uri uri) throws Exception {
+        MediaExtractor extractor = new MediaExtractor();
+        extractor.setDataSource(context, uri, null);
+        int trackIndex = -1;
+        for (int i = 0; i < extractor.getTrackCount(); i++) {
+            MediaFormat format = extractor.getTrackFormat(i);
+            String mime = format.getString(MediaFormat.KEY_MIME);
+            if (mime != null && mime.startsWith("audio/")) {
+                trackIndex = i;
+                break;
+            }
+        }
+        if (trackIndex < 0) {
+            extractor.release();
+            return null;
+        }
+        extractor.selectTrack(trackIndex);
+        MediaFormat format = extractor.getTrackFormat(trackIndex);
+        String mime = format.getString(MediaFormat.KEY_MIME);
+        MediaCodec codec = MediaCodec.createDecoderByType(mime);
+        codec.configure(format, null, null, 0);
+        codec.start();
+
+        ArrayList<Integer> levels = new ArrayList<Integer>();
+        short[] window = new short[512];
+        int windowFill = 0;
+        MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+        boolean inputDone = false;
+        boolean outputDone = false;
+
+        while (!outputDone) {
+            if (!inputDone) {
+                int inIndex = codec.dequeueInputBuffer(10000L);
+                if (inIndex >= 0) {
+                    ByteBuffer buffer = codec.getInputBuffer(inIndex);
+                    if (buffer == null) {
+                        buffer = codec.getInputBuffers()[inIndex];
+                    }
+                    int sampleSize = extractor.readSampleData(buffer, 0);
+                    if (sampleSize < 0) {
+                        codec.queueInputBuffer(inIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                        inputDone = true;
+                    } else {
+                        codec.queueInputBuffer(inIndex, 0, sampleSize, extractor.getSampleTime(), 0);
+                        extractor.advance();
+                    }
+                }
+            }
+
+            int outIndex = codec.dequeueOutputBuffer(info, 10000L);
+            if (outIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
+                continue;
+            }
+            if (outIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED
+                    || outIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+                continue;
+            }
+            if (outIndex >= 0) {
+                ByteBuffer out = codec.getOutputBuffer(outIndex);
+                if (out == null) {
+                    out = codec.getOutputBuffers()[outIndex];
+                }
+                if (info.size > 0 && out != null) {
+                    out.position(info.offset);
+                    out.limit(info.offset + info.size);
+                    ByteBuffer slice = out.slice().order(ByteOrder.LITTLE_ENDIAN);
+                    while (slice.remaining() >= 2) {
+                        window[windowFill++] = slice.getShort();
+                        if (windowFill >= window.length) {
+                            levels.add(sampleWindowToLevel(window, windowFill));
+                            windowFill = 0;
+                        }
+                    }
+                }
+                codec.releaseOutputBuffer(outIndex, false);
+                if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+                    outputDone = true;
+                }
+            }
+        }
+
+        if (windowFill > 0) {
+            levels.add(sampleWindowToLevel(window, windowFill));
+        }
+
+        codec.stop();
+        codec.release();
+        extractor.release();
+
+        if (levels.isEmpty()) {
+            return new int[]{0};
+        }
+        int[] result = new int[levels.size()];
+        for (int i = 0; i < levels.size(); i++) {
+            result[i] = levels.get(i);
+        }
+        return result;
+    }
+
+    private static int sampleWindowToLevel(short[] samples, int count) {
+        if (samples == null || count <= 0) {
+            return 0;
+        }
+        long sumSq = 0L;
+        for (int i = 0; i < count; i++) {
+            int sample = samples[i];
+            sumSq += (long) sample * sample;
+        }
+        double rms = Math.sqrt((double) sumSq / count);
+        int level = (int) Math.round((rms / 8000.0) * 100.0);
+        if (level < 0) {
+            return 0;
+        }
+        if (level > 100) {
+            return 100;
+        }
+        return level;
+    }
+
+    public void startPlayback(Context context, Uri uri, int[] preparedEnvelope, Listener callback)
+            throws Exception {
         release();
         listener = callback;
-        envelope = buildEnvelope(context, uri);
+        envelope = preparedEnvelope;
         if (envelope == null || envelope.length == 0) {
             throw new IllegalStateException("empty envelope");
         }
@@ -89,98 +210,6 @@ public final class MusicPlayerEngine {
         if (listener != null) {
             listener.onError();
         }
-    }
-
-    private static int[] buildEnvelope(Context context, Uri uri) throws Exception {
-        MediaExtractor extractor = new MediaExtractor();
-        extractor.setDataSource(context, uri, null);
-        int trackIndex = -1;
-        for (int i = 0; i < extractor.getTrackCount(); i++) {
-            MediaFormat format = extractor.getTrackFormat(i);
-            String mime = format.getString(MediaFormat.KEY_MIME);
-            if (mime != null && mime.startsWith("audio/")) {
-                trackIndex = i;
-                break;
-            }
-        }
-        if (trackIndex < 0) {
-            extractor.release();
-            return null;
-        }
-        extractor.selectTrack(trackIndex);
-        MediaFormat format = extractor.getTrackFormat(trackIndex);
-        String mime = format.getString(MediaFormat.KEY_MIME);
-        MediaCodec codec = MediaCodec.createDecoderByType(mime);
-        codec.configure(format, null, null, 0);
-        codec.start();
-
-        ArrayList<Integer> levels = new ArrayList<Integer>();
-        short[] window = new short[512];
-        int windowFill = 0;
-        MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
-        boolean inputDone = false;
-        boolean outputDone = false;
-
-        while (!outputDone) {
-            if (!inputDone) {
-                int inIndex = codec.dequeueInputBuffer(5000L);
-                if (inIndex >= 0) {
-                    ByteBuffer buffer = codec.getInputBuffer(inIndex);
-                    if (buffer == null) {
-                        buffer = codec.getInputBuffers()[inIndex];
-                    }
-                    int sampleSize = extractor.readSampleData(buffer, 0);
-                    if (sampleSize < 0) {
-                        codec.queueInputBuffer(inIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                        inputDone = true;
-                    } else {
-                        codec.queueInputBuffer(inIndex, 0, sampleSize, extractor.getSampleTime(), 0);
-                        extractor.advance();
-                    }
-                }
-            }
-
-            int outIndex = codec.dequeueOutputBuffer(info, 5000L);
-            if (outIndex >= 0) {
-                ByteBuffer out = codec.getOutputBuffer(outIndex);
-                if (out == null) {
-                    out = codec.getOutputBuffers()[outIndex];
-                }
-                if (info.size > 0 && out != null) {
-                    out.position(info.offset);
-                    out.limit(info.offset + info.size);
-                    ByteBuffer slice = out.slice().order(ByteOrder.LITTLE_ENDIAN);
-                    while (slice.remaining() >= 2) {
-                        window[windowFill++] = slice.getShort();
-                        if (windowFill >= window.length) {
-                            levels.add(MusicSync.waveformToSoundPercent(window, windowFill));
-                            windowFill = 0;
-                        }
-                    }
-                }
-                codec.releaseOutputBuffer(outIndex, false);
-                if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                    outputDone = true;
-                }
-            }
-        }
-
-        if (windowFill > 0) {
-            levels.add(MusicSync.waveformToSoundPercent(window, windowFill));
-        }
-
-        codec.stop();
-        codec.release();
-        extractor.release();
-
-        if (levels.isEmpty()) {
-            return new int[]{0};
-        }
-        int[] result = new int[levels.size()];
-        for (int i = 0; i < levels.size(); i++) {
-            result[i] = levels.get(i);
-        }
-        return result;
     }
 
     public void release() {

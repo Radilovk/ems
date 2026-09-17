@@ -49,6 +49,7 @@ STRING_IDS = {
     "beta_music_player_sensitivity": 0x7f0d0118,
     "beta_music_player_hint": 0x7f0d0119,
     "beta_music_player_no_user": 0x7f0d011a,
+    "beta_music_player_preparing": 0x7f0d011b,
 }
 
 PLAYER_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -105,6 +106,7 @@ EN_STRINGS = """
     <string name="beta_music_player_sensitivity">Sensitivity (%)</string>
     <string name="beta_music_player_hint">Set circle slider ceiling on a user row, pick a track, then Play.</string>
     <string name="beta_music_player_no_user">Add a connected user first</string>
+    <string name="beta_music_player_preparing">Preparing track…</string>
 """
 
 BG_STRINGS = """
@@ -119,6 +121,7 @@ BG_STRINGS = """
     <string name="beta_music_player_sensitivity">Чувствителност (%)</string>
     <string name="beta_music_player_hint">Задай таван с кръговия слайдер, избери песен и натисни Пусни.</string>
     <string name="beta_music_player_no_user">Първо добави свързан потребител</string>
+    <string name="beta_music_player_preparing">Подготовка на файла…</string>
 """
 
 FRAGMENT_HOOK = """
@@ -203,6 +206,12 @@ def patch_public_xml(text: str) -> str:
         text = text.replace(
             "</resources>",
             '    <public type="string" name="beta_music_player_no_user" id="0x7f0d011a" />\n</resources>',
+            1,
+        )
+    if "beta_music_player_preparing" not in text:
+        text = text.replace(
+            "</resources>",
+            '    <public type="string" name="beta_music_player_preparing" id="0x7f0d011b" />\n</resources>',
             1,
         )
     return text

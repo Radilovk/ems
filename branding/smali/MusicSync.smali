@@ -276,7 +276,7 @@
 
     const/4 v1, 0x2
 
-    const v2, 0xac44
+    const v2, 0x3e80
 
     invoke-static {v2, v0, v1}, Landroid/media/AudioRecord;->getMinBufferSize(III)I
 
@@ -291,11 +291,13 @@
     return-void
 
     :cond_buffer_ok
+    shl-int/lit8 v3, v3, 0x1
+
     new-instance v6, Landroid/media/AudioRecord;
 
     const/4 v7, 0x1
 
-    const v8, 0xac44
+    const v8, 0x3e80
 
     const/16 v9, 0x10
 
@@ -313,7 +315,7 @@
 
     const/4 v1, 0x1
 
-    if-eq v0, v1, :cond_state_ok
+    if-ne v0, v1, :cond_state_ok
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 

@@ -59,6 +59,15 @@
     move-result v2
 
     :cond_max
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->attachManager(Landroid/app/Activity;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_has_manager
+
+    return-void
+
+    :cond_has_manager
     invoke-static {p1, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->start(Landroid/app/Activity;II)V
 
     return-void

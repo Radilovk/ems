@@ -65,7 +65,12 @@ python3 "${ROOT}/scripts/apply-theme-toggle.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 python3 "${ROOT}/scripts/apply-guide-tab.py"
 python3 "${ROOT}/scripts/apply-bt-latency.py"
-python3 "${ROOT}/scripts/apply-beta-features.py"
+if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
+  python3 "${ROOT}/scripts/apply-beta-features.py"
+  python3 "${ROOT}/scripts/verify-beta-safety.py"
+else
+  echo "BETA music sync disabled (BETA_MUSIC=0)."
+fi
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign
@@ -100,10 +105,14 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   fi
   if [[ "${apk_dirty}" -eq 1 || "${version_dirty}" -eq 1 ]]; then
     echo ""
-    echo "ERROR: Built APK is not committed. Users cannot download the new version until you:"
-    echo "  git add xems27.apk RELEASE_VERSION"
-    echo "  git commit -m \"Build ${VERSION_NAME}\""
-    echo "  git push"
-    exit 1
+    if [[ "${SKIP_APK_COMMIT_CHECK:-0}" == "1" ]]; then
+      echo "WARN: Built APK is not committed (SKIP_APK_COMMIT_CHECK=1)."
+    else
+      echo "ERROR: Built APK is not committed. Users cannot download the new version until you:"
+      echo "  git add xems27.apk RELEASE_VERSION"
+      echo "  git commit -m \"Build ${VERSION_NAME}\""
+      echo "  git push"
+      exit 1
+    fi
   fi
 fi

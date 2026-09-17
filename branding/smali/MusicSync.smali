@@ -8,6 +8,8 @@
 
 .field private static handler:Landroid/os/Handler;
 
+.field private static hostActivity:Landroid/app/Activity;
+
 .field private static lastAppliedStrength:I
 
 .field private static manager:Lcom/isaigu/gymapp/train/TrainItemManager;
@@ -245,6 +247,91 @@
     return-void
 .end method
 
+.method private static hasRecordPermission()Z
+    .locals 2
+
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
+
+    if-nez v0, :cond_no
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_no
+    const-string v1, "android.permission.RECORD_AUDIO"
+
+    invoke-static {v0, v1}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v0
+
+    if-nez v0, :cond_ok
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_ok
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+.method private static openAudioAtRate(I)Z
+    .locals 12
+    .param p0, "sampleRate"    # I
+
+    const/16 v0, 0x10
+
+    const/4 v1, 0x2
+
+    invoke-static {p0, v0, v1}, Landroid/media/AudioRecord;->getMinBufferSize(III)I
+
+    move-result v2
+
+    if-gtz v2, :cond_buf_ok
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_buf_ok
+    shl-int/lit8 v2, v2, 0x1
+
+    new-instance v6, Landroid/media/AudioRecord;
+
+    const/4 v7, 0x1
+
+    move v8, p0
+
+    const/16 v9, 0x10
+
+    const/4 v10, 0x2
+
+    move v11, v2
+
+    invoke-direct/range {v6 .. v11}, Landroid/media/AudioRecord;-><init>(IIIII)V
+
+    invoke-virtual {v6}, Landroid/media/AudioRecord;->getState()I
+
+    move-result v0
+
+    const/4 v1, 0x1
+
+    if-eq v0, v1, :cond_fail
+
+    sput-object v6, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_fail
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
 .method private static scheduleTick()V
     .locals 4
 
@@ -269,63 +356,64 @@
 .end method
 
 .method private static startCapture()V
-    .locals 12
+    .locals 2
 
-    :try_start_0
-    const/16 v0, 0x10
-
-    const/4 v1, 0x2
-
-    const v2, 0x3e80
-
-    invoke-static {v2, v0, v1}, Landroid/media/AudioRecord;->getMinBufferSize(III)I
-
-    move-result v3
-
-    if-gtz v3, :cond_buffer_ok
-
-    const v0, 0x7f0d010e
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
-
-    return-void
-
-    :cond_buffer_ok
-    shl-int/lit8 v3, v3, 0x1
-
-    new-instance v6, Landroid/media/AudioRecord;
-
-    const/4 v7, 0x1
-
-    const v8, 0x3e80
-
-    const/16 v9, 0x10
-
-    const/4 v10, 0x2
-
-    move v11, v3
-
-    invoke-direct/range {v6 .. v11}, Landroid/media/AudioRecord;-><init>(IIIII)V
-
-    sput-object v6, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
-
-    invoke-virtual {v6}, Landroid/media/AudioRecord;->getState()I
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->hasRecordPermission()Z
 
     move-result v0
 
-    const/4 v1, 0x1
+    if-nez v0, :cond_has_permission
 
-    if-ne v0, v1, :cond_state_ok
+    const v0, 0x7f0d010d
 
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
+
+    return-void
+
+    :cond_has_permission
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 
+    :try_start_0
+    const v0, 0x3e80
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioAtRate(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_try_44100
+
+    goto :goto_opened
+
+    :cond_try_44100
+    const v0, 0xac44
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioAtRate(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_try_8000
+
+    goto :goto_opened
+
+    :cond_try_8000
+    const v0, 0x1f40
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->openAudioAtRate(I)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_open_fail
+
+    goto :goto_opened
+
+    :cond_open_fail
     const v0, 0x7f0d010e
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
     return-void
 
-    :cond_state_ok
+    :goto_opened
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
     invoke-virtual {v0}, Landroid/media/AudioRecord;->startRecording()V
@@ -346,7 +434,21 @@
 
     return-void
     :try_end_0
+    .catch Ljava/lang/SecurityException; {:try_start_0 .. :try_end_0} :catch_security
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
+
+    :catch_security
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
+
+    const v0, 0x7f0d010d
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
+
+    return-void
 
     :catch_all
     const/4 v0, 0x0
@@ -414,6 +516,14 @@
     return v0
 .end method
 
+.method public static setHostActivity(Landroid/app/Activity;)V
+    .locals 0
+
+    sput-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
+
+    return-void
+.end method
+
 .method public static setManager(Lcom/isaigu/gymapp/train/TrainItemManager;)V
     .locals 0
 
@@ -460,6 +570,8 @@
     return-void
 
     :cond_start_ok
+    sput-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
+
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setStrengthRange(II)V

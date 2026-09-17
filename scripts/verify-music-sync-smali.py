@@ -34,8 +34,18 @@ RULES = [
     ),
     (
         "MusicSync.smali",
-        r"\.method private static startCapture\(\)V[\s\S]*?getState\(\)I[\s\S]*?if-ne v0, v1, :cond_state_ok",
-        "startCapture() errors only when AudioRecord is not INITIALIZED",
+        r"\.method private static openAudioAtRate\(I\)Z[\s\S]*?getState\(\)I[\s\S]*?if-eq v0, v1, :cond_fail",
+        "openAudioAtRate() fails only when AudioRecord is not INITIALIZED",
+    ),
+    (
+        "MusicSync.smali",
+        r"\.method private static scheduleTick\(\)V[\s\S]*?if-eqz v0, :cond_skip_schedule",
+        "scheduleTick() runs only while music sync is active",
+    ),
+    (
+        "MusicSync.smali",
+        r"\.method private static startCapture\(\)V[\s\S]*?openAudioAtRate\(I\)Z",
+        "startCapture() uses openAudioAtRate helper",
     ),
     (
         "MusicSync$PermissionCallback.smali",
@@ -109,11 +119,6 @@ ANTI_PATTERNS = [
         "MusicSyncHelper.smali",
         r"\.method public static bind\([\s\S]*?if-eqz p0, :cond_has_root[\s\S]*?return-void",
         "bind() must not return when root view is valid (inverted null guard)",
-    ),
-    (
-        "MusicSync.smali",
-        r"\.method private static startCapture\(\)V[\s\S]*?getState\(\)I[\s\S]*?if-eq v0, v1, :cond_state_ok",
-        "startCapture() must not treat INITIALIZED state as failure",
     ),
 ]
 

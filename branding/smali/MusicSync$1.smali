@@ -7,8 +7,8 @@
 
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->maybePushWorkPulse(I)V
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 113
+    .line 51
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,55 +30,54 @@
 
 # virtual methods
 .method public run()V
-    .registers 3
+    .registers 4
 
-    .line 116
+    .line 54
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-nez v0, :cond_5
 
-    .line 117
+    .line 55
     return-void
 
-    .line 119
+    .line 57
     :cond_5
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->targetItem:Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000()Lcom/isaigu/gymapp/train/model/TrainItem;
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->pendingApplied:I
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000()I
 
-    move-result-object v0
+    move-result v0
 
-    .line 120
-    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->canPushWorkPulse(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+    .line 58
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()I
 
     move-result v1
 
-    if-nez v1, :cond_14
+    if-ne v0, v1, :cond_10
 
-    .line 121
-    const/4 v0, 0x0
-
-    # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->wasInWorkPhase:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$202(Z)Z
-
-    .line 122
+    .line 59
     return-void
 
-    .line 125
-    :cond_14
-    :try_start_14
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
-    :try_end_17
-    .catchall {:try_start_14 .. :try_end_17} :catchall_18
+    .line 61
+    :cond_10
+    # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$102(I)I
 
-    .line 127
-    goto :goto_19
+    .line 62
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
-    .line 126
-    :catchall_18
-    move-exception v0
+    move-result-wide v1
 
-    .line 128
-    :goto_19
+    # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->lastBleMs:J
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$202(J)J
+
+    .line 63
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(I)V
+
+    .line 64
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$300()V
+
+    .line 65
     return-void
 .end method

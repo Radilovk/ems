@@ -83,7 +83,7 @@ BG_STRINGS = """
 
 EN_STRINGS = """
     <string name="beta_music_sync_title">BETA — Music-reactive pulse</string>
-    <string name="beta_music_sync_hint">BETA: Slider = ceiling. Music changes strength on each impulse (not in pause). For best effect: longer impulse (3–4 s), shorter pause (1 s), clear beat near the tablet.</string>
+    <string name="beta_music_sync_hint">BETA: Set circle slider to max strength, then Start. Mic drives master strength 0→ceiling in real time.</string>
     <string name="beta_music_min_strength">Sensitivity (%)</string>
     <string name="beta_music_max_strength">Max strength (%)</string>
     <string name="beta_music_start">Start</string>
@@ -103,6 +103,7 @@ def install_smali() -> None:
     DIALOG_DIR.mkdir(parents=True, exist_ok=True)
     utils_files = [
         BRANDING / "smali/MusicSync.smali",
+        BRANDING / "smali/MasterStrengthControl.smali",
         BRANDING / "smali/MusicSyncBridge.smali",
     ]
     utils_files.extend(sorted((BRANDING / "smali").glob("MusicSync$*.smali")))

@@ -12,37 +12,30 @@ import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 
 import com.isaigu.gymapp.MainActivity;
-import com.isaigu.gymapp.bean.ProgramDataBean;
-import com.isaigu.gymapp.bean.TrainProgram;
-import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 import com.isaigu.gymapp.dialog.MusicSyncHelper;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
 
 /**
- * Microphone → liveStrength (0–100). Strength is applied in CommandUtil.getPartsParamsPdu
- * (slider ceiling × music%). BLE refresh uses the same path as the MA +/- buttons:
- * connected + training + work phase (inStart) → onParamsChange → sendPulse → sendDuration.
+ * Low-latency mic → {@link MasterStrengthControl#setMasterStrength(int)}.
+ * Tight read loop (no sleep), coalesced postAtFrontOfQueue apply on main thread.
  */
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
     static final int ERROR_DENIED = 0x7f0d010d;
     static final int ERROR_MIC = 0x7f0d010e;
 
-    private static final double ATTACK = 0.70;
-    private static final double RELEASE = 0.45;
-    private static final double PEAK_DECAY = 0.988;
-    private static final int AUDIO_BUFFER_SAMPLES = 512;
-    private static final long SAMPLE_INTERVAL_MS = 20L;
-    private static final long UI_INTERVAL_MS = 100L;
-    private static final long PUSH_MIN_INTERVAL_MS = 100L;
-    private static final int PUSH_MIN_DELTA = 5;
+    private static final double ATTACK = 0.94;
+    private static final double RELEASE = 0.32;
+    private static final double PEAK_DECAY = 0.978;
+    private static final int AUDIO_BUFFER_SAMPLES = 128;
+    private static final long UI_INTERVAL_MS = 80L;
+    private static final long BLE_MIN_INTERVAL_MS = 16L;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
     private static Thread audioThread;
     private static Activity hostActivity;
-    private static TrainItem targetItem;
     private static int sensitivity = 20;
     static boolean running;
     static volatile int liveStrength;
@@ -50,10 +43,27 @@ public class MusicSync {
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 300.0;
     private static long lastUiMs;
-    private static long lastPushMs;
-    private static int lastPushedStrength = -1;
-    private static boolean wasInWorkPhase;
+    private static long lastBleMs;
+    private static int lastPushedApplied = -1;
+    private static volatile int pendingApplied;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
+
+    private static final Runnable applyRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!running) {
+                return;
+            }
+            int value = pendingApplied;
+            if (value == lastPushedApplied) {
+                return;
+            }
+            lastPushedApplied = value;
+            lastBleMs = SystemClock.elapsedRealtime();
+            MasterStrengthControl.setMasterStrength(value);
+            maybeUpdateUi();
+        }
+    };
 
     static void ensureHandler() {
         if (handler == null) {
@@ -65,68 +75,40 @@ public class MusicSync {
         smoothedRms = 0.0;
         trackedPeakRms = 300.0;
         lastUiMs = 0L;
-        lastPushMs = 0L;
-        lastPushedStrength = -1;
-        wasInWorkPhase = false;
+        lastBleMs = 0L;
+        lastPushedApplied = -1;
+        pendingApplied = 0;
+        MasterStrengthControl.resetApplied();
     }
 
-    /** Same gates as TrainItem.sendPulse() for the work-phase branch. */
-    private static boolean canPushWorkPulse(TrainItem item) {
-        if (item == null || item.data == null) {
-            return false;
-        }
-        TrainUserProgramDataWrapper data = item.data;
-        return data.connected && data.start && data.inStart;
+    public static void registerUi(
+            com.isaigu.gymapp.widget.CircleSeekBar seekBar,
+            android.widget.TextView maLabel,
+            TrainItem item) {
+        MasterStrengthControl.bind(seekBar, maLabel, item);
     }
 
-    /**
-     * Re-send work-phase BLE params when music level changes — same chain as MA +/- buttons
-     * (onParamsChange → sendPulse → sendDuration). Skips pause phase to preserve rhythm.
-     */
-    private static void maybePushWorkPulse(int strength) {
-        TrainItem item = targetItem;
-        if (!canPushWorkPulse(item)) {
-            wasInWorkPhase = false;
+    public static void setTargetItem(TrainItem item) {
+        MasterStrengthControl.setTarget(item);
+    }
+
+    private static void pushSoundLevel(int soundPercent) {
+        liveStrength = soundPercent;
+        int applied = MasterStrengthControl.scaleFromSound(soundPercent);
+        if (applied == lastPushedApplied && applied == pendingApplied) {
             return;
         }
-
-        boolean enteringWork = !wasInWorkPhase;
-        wasInWorkPhase = true;
-
+        pendingApplied = applied;
         long now = SystemClock.elapsedRealtime();
-        if (!enteringWork) {
-            if (strength == lastPushedStrength) {
-                return;
-            }
-            if (Math.abs(strength - lastPushedStrength) < PUSH_MIN_DELTA
-                    && now - lastPushMs < PUSH_MIN_INTERVAL_MS) {
-                return;
-            }
-            if (now - lastPushMs < PUSH_MIN_INTERVAL_MS) {
+        if (now - lastBleMs < BLE_MIN_INTERVAL_MS && applied != 0) {
+            int delta = Math.abs(applied - lastPushedApplied);
+            if (delta < 2 && applied != 0) {
                 return;
             }
         }
-
-        lastPushedStrength = strength;
-        lastPushMs = now;
         ensureHandler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!running) {
-                    return;
-                }
-                TrainItem ti = targetItem;
-                if (!canPushWorkPulse(ti)) {
-                    wasInWorkPhase = false;
-                    return;
-                }
-                try {
-                    ti.onParamsChange();
-                } catch (Throwable ignored) {
-                }
-            }
-        });
+        handler.removeCallbacks(applyRunnable);
+        handler.postAtFrontOfQueue(applyRunnable);
     }
 
     private static Context permissionContext() {
@@ -168,7 +150,7 @@ public class MusicSync {
             if (minBuf <= 0) {
                 return false;
             }
-            int bufSize = Math.max(minBuf, AUDIO_BUFFER_SAMPLES * 2);
+            int bufSize = minBuf;
             AudioRecord rec;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 AudioFormat format = new AudioFormat.Builder()
@@ -198,9 +180,9 @@ public class MusicSync {
 
     private static boolean openMicrophone() {
         int[][] configs = new int[][]{
-                {MediaRecorder.AudioSource.MIC, 44100},
                 {MediaRecorder.AudioSource.MIC, 16000},
-                {MediaRecorder.AudioSource.DEFAULT, 44100},
+                {MediaRecorder.AudioSource.MIC, 44100},
+                {MediaRecorder.AudioSource.DEFAULT, 16000},
         };
         for (int i = 0; i < configs.length; i++) {
             if (tryOpen(configs[i][0], configs[i][1])) {
@@ -210,35 +192,22 @@ public class MusicSync {
         return false;
     }
 
-    public static int getSliderCeiling() {
-        TrainItem item = targetItem;
-        if (item == null) {
-            return 100;
-        }
-        try {
-            TrainProgram program = item.getTrainProgram();
-            if (program == null) {
-                return 100;
-            }
-            ProgramDataBean data = program.matchProgram();
-            if (data == null) {
-                return 100;
-            }
-            int ceiling = data.strenth;
-            if (ceiling < 0) {
-                return 0;
-            }
-            if (ceiling > 100) {
-                return 100;
-            }
-            return ceiling;
-        } catch (Throwable ignored) {
-            return 100;
-        }
+    public static int getStrengthCeiling() {
+        return MasterStrengthControl.getCeiling();
     }
 
     public static int getEffectiveStrength() {
-        return getSliderCeiling() * liveStrength / 100;
+        return MasterStrengthControl.getLastApplied();
+    }
+
+    private static int clampPercent(int value) {
+        if (value < 0) {
+            return 0;
+        }
+        if (value > 100) {
+            return 100;
+        }
+        return value;
     }
 
     private static double measureRms(short[] buffer, int count) {
@@ -265,7 +234,7 @@ public class MusicSync {
         }
     }
 
-    private static int sampleIntensity(AudioRecord rec) {
+    private static int sampleSoundPercent(AudioRecord rec) {
         if (rec == null) {
             return liveStrength;
         }
@@ -297,22 +266,7 @@ public class MusicSync {
             level = 1.0;
         }
 
-        int value = (int) Math.round(level * 100.0);
-        if (value < 0) {
-            return 0;
-        }
-        if (value > 100) {
-            return 100;
-        }
-        return value;
-    }
-
-    private static void onStrengthChanged(int next) {
-        if (next != liveStrength) {
-            liveStrength = next;
-            maybePushWorkPulse(next);
-            maybeUpdateUi();
-        }
+        return clampPercent((int) Math.round(level * 100.0));
     }
 
     private static void maybeUpdateUi() {
@@ -321,16 +275,9 @@ public class MusicSync {
             return;
         }
         lastUiMs = now;
-        ensureHandler();
-        final int display = getEffectiveStrength();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (running) {
-                    MusicSyncHelper.showActive(display);
-                }
-            }
-        });
+        final int applied = getEffectiveStrength();
+        final int ceiling = getStrengthCeiling();
+        MusicSyncHelper.showActive(applied, ceiling);
     }
 
     private static void stopCaptureOnly() {
@@ -344,6 +291,7 @@ public class MusicSync {
             }
         }
         if (handler != null) {
+            handler.removeCallbacks(applyRunnable);
             handler.removeCallbacksAndMessages(null);
         }
         releaseAudio();
@@ -357,7 +305,9 @@ public class MusicSync {
             return;
         }
         releaseAudio();
+        MasterStrengthControl.ensureMaMode();
         resetAudioLevels();
+        MasterStrengthControl.captureCeilingFromSlider();
         try {
             if (!openMicrophone()) {
                 MusicSyncHelper.showError(ERROR_MIC);
@@ -376,21 +326,18 @@ public class MusicSync {
             }
             running = true;
             liveStrength = 0;
-            MusicSyncHelper.showActive(0);
+            MusicSyncHelper.showActive(0, getStrengthCeiling());
             audioThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    android.os.Process.setThreadPriority(
+                            android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
                     while (running) {
                         AudioRecord r = audioRecord;
                         if (r == null) {
                             break;
                         }
-                        onStrengthChanged(sampleIntensity(r));
-                        try {
-                            Thread.sleep(SAMPLE_INTERVAL_MS);
-                        } catch (InterruptedException e) {
-                            break;
-                        }
+                        pushSoundLevel(sampleSoundPercent(r));
                     }
                 }
             }, "MusicSyncMic");
@@ -422,12 +369,7 @@ public class MusicSync {
         hostActivity = activity;
     }
 
-    public static void setTargetItem(TrainItem item) {
-        targetItem = item;
-    }
-
     public static void setTargetMacAddress(String macAddress) {
-        // kept for MusicSyncHelper; targeting uses live TrainItem from gear dialog
     }
 
     public static void setSensitivity(int min) {
@@ -441,6 +383,7 @@ public class MusicSync {
         hostActivity = activity;
         stopCaptureOnly();
         setSensitivity(min);
+        MasterStrengthControl.ensureMaMode();
         if (hasRecordPermission()) {
             startCapture();
             return;

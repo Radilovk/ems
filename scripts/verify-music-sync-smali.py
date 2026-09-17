@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static verification: mic + work-phase PDU hook + gated onParamsChange push."""
+"""Mic → MasterStrengthControl.setMasterStrength (no PDU hook)."""
 
 import re
 import sys
@@ -19,22 +19,34 @@ COMMAND_UTIL = (
     / "utils"
     / "CommandUtil.smali"
 )
+TRAIN_VH = (
+    ROOT
+    / "build"
+    / "decompiled"
+    / "smali_classes2"
+    / "com"
+    / "isaigu"
+    / "gymapp"
+    / "train"
+    / "TrainViewHolder.smali"
+)
 
 RULES = [
+    ("MasterStrengthControl.smali", r"\.method public static setMasterStrength\(I\)V", "setMasterStrength()"),
+    ("MasterStrengthControl.smali", r"iput.*ProgramDataBean;->strenth:I", "writes bean.strenth"),
+    ("MasterStrengthControl.smali", r"CircleSeekBar;->setCurProcess\(I\)V", "moves circle slider"),
+    ("MasterStrengthControl.smali", r"TrainItem;->onParamsChange\(\)V", "BLE via onParamsChange"),
     ("MusicSync.smali", r"\.method public static isRunning\(\)Z", "isRunning()"),
-    ("MusicSync.smali", r"\.method public static getLiveStrength\(\)I", "getLiveStrength()"),
-    ("MusicSync.smali", r"sput.*liveStrength", "updates liveStrength from mic"),
-    ("MusicSync.smali", r"inStart:Z", "work-phase gate checks inStart"),
-    ("MusicSync.smali", r"connected:Z", "connected gate before BLE push"),
 ]
 
 GLOBAL_RULES = [
-    (r"TrainItem;->onParamsChange\(\)V", "work-phase BLE refresh via onParamsChange"),
+    (r"MasterStrengthControl;->setMasterStrength\(I\)V", "mic calls control channel"),
 ]
 
 ANTI = [
     (r"TrainItem;->addStrenth\(I\)V", "must not call addStrenth"),
     (r"TrainItemManager", "must not use TrainItemManager"),
+    (r"inStart:Z", "must not gate on impulse phase"),
 ]
 
 
@@ -42,18 +54,25 @@ def check_pdu() -> list[str]:
     if not COMMAND_UTIL.is_file():
         return ["MISSING: CommandUtil (run build first)"]
     t = COMMAND_UTIL.read_text(encoding="utf-8")
-    out: list[str] = []
-    if "cond_music_work_strength" not in t:
-        out.append("MISSING: work-phase PDU hook in getPartsParamsPdu")
-    ws = t.split(".method public static getPartsParamsPduWithStrength", 1)
-    if len(ws) > 1 and "MusicSync;->getLiveStrength()I" in ws[1].split(".end method", 1)[0]:
-        out.append("BUG: hook must not be in getPartsParamsPduWithStrength (pause path)")
-    return out
+    if "MusicSync;->getLiveStrength()I" in t or "MasterStrengthControl" in t.split("getPartsParamsPdu")[0]:
+        if "MusicSync;->getLiveStrength()I" in t:
+            return ["BUG: PDU hook must be removed"]
+    return []
+
+
+def check_train_vh() -> list[str]:
+    if not TRAIN_VH.is_file():
+        return ["MISSING: TrainViewHolder (run build first)"]
+    t = TRAIN_VH.read_text(encoding="utf-8")
+    if "MusicSync;->registerUi" not in t and "MasterStrengthControl;->bind" not in t:
+        return ["MISSING: TrainViewHolder.bind UI registration hook"]
+    return []
 
 
 def main() -> int:
     errs: list[str] = []
-    paths = sorted(SMALI_DIR.glob("MusicSync*.smali"))
+    paths = sorted(SMALI_DIR.glob("*.smali"))
+    paths = [p for p in paths if p.name.startswith("MusicSync") or p.name.startswith("MasterStrength")]
     combined = "\n".join(p.read_text(encoding="utf-8") for p in paths)
     for path in paths:
         c = path.read_text(encoding="utf-8")
@@ -67,6 +86,7 @@ def main() -> int:
         if not re.search(p, combined):
             errs.append(f"MusicSync*.smali: MISSING {d}")
     errs.extend(check_pdu())
+    errs.extend(check_train_vh())
     if errs:
         print("FAILED:")
         for e in errs:

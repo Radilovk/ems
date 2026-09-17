@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Music-sync strength only on WORK-phase PDU (sendDuration), not pause phase."""
+"""Remove PDU hooks — music-sync drives bean.strenth / slider directly."""
 
 from __future__ import annotations
 
@@ -82,20 +82,24 @@ def main() -> int:
     if not COMMAND_UTIL.is_file():
         raise SystemExit(f"CommandUtil.smali not found: {COMMAND_UTIL}")
     text = COMMAND_UTIL.read_text(encoding="utf-8")
+    changed = False
 
     if WITH_STRENGTH_HOOK in text:
         text = text.replace(WITH_STRENGTH_HOOK, WITH_STRENGTH_PLAIN, 1)
-        print("CommandUtil: removed music hook from pause-phase WithStrength path")
+        print("CommandUtil: removed music hook from getPartsParamsPduWithStrength")
+        changed = True
 
-    if PARTS_HOOK.split("invoke-static {p0, p1, v0}")[0] in text:
-        print("CommandUtil: work-phase music hook already applied")
+    if PARTS_HOOK in text:
+        text = text.replace(PARTS_HOOK, PARTS_PLAIN, 1)
+        print("CommandUtil: removed music hook from getPartsParamsPdu")
+        changed = True
     elif PARTS_PLAIN in text:
-        text = text.replace(PARTS_PLAIN, PARTS_HOOK, 1)
-        print("CommandUtil: music hook on work-phase getPartsParamsPdu only")
+        print("CommandUtil: no PDU music hook (plain getPartsParamsPdu)")
     else:
         raise RuntimeError("CommandUtil.getPartsParamsPdu marker not found")
 
-    COMMAND_UTIL.write_text(text, encoding="utf-8")
+    if changed:
+        COMMAND_UTIL.write_text(text, encoding="utf-8")
     return 0
 
 

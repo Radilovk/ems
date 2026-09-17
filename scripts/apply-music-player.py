@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""BETA in-app music player: button on train row + modal player dialog."""
+"""BETA in-app music player: button on master rightLayout + modal player dialog."""
 
 from __future__ import annotations
 
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -14,6 +15,7 @@ BRANDING = ROOT / "branding"
 DIALOG_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/dialog"
 UTILS_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils"
 TRAIN_VH = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder.smali"
+NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 BASE_ACTIVITY = DECOMPILED / "smali_classes2/com/isaigu/gymapp/BaseActivity.smali"
 PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
@@ -46,6 +48,7 @@ STRING_IDS = {
     "beta_music_player_stop": 0x7f0d0116,
     "beta_music_player_sensitivity": 0x7f0d0118,
     "beta_music_player_hint": 0x7f0d0119,
+    "beta_music_player_no_user": 0x7f0d011a,
 }
 
 PLAYER_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -70,13 +73,25 @@ PLAYER_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
 </ScrollView>
 """
 
-TRAIN_BUTTON = """
-            <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerBtn" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginBottom="12.0dip" android:text="&#9835;" android:textAllCaps="false" />"""
+MASTER_BUTTON_BLOCK = """        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.15" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerBtn" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:text="&#9835;" android:textAllCaps="false" />
+        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.15" />
+"""
 
-TRAIN_LAYOUTS = [
+FRAGMENT_LAYOUTS = [
+    RES / "layout/new_train_fragment_layout.xml",
+    RES / "layout-night/new_train_fragment_layout.xml",
+]
+
+ROW_LAYOUTS = [
     RES / "layout/new_user_train_control_item_layout.xml",
     RES / "layout-night/new_user_train_control_item_layout.xml",
 ]
+
+ROW_BUTTON_RE = re.compile(
+    r"\s*<com\.isaigu\.gymapp\.widget\.MyButton[^>]*@id/musicPlayerBtn[^>]*/>\s*\n?",
+    re.MULTILINE,
+)
 
 EN_STRINGS = """
     <string name="beta_music_player_title">BETA — Music player</string>
@@ -88,7 +103,8 @@ EN_STRINGS = """
     <string name="beta_music_player_play">Play</string>
     <string name="beta_music_player_stop">Stop</string>
     <string name="beta_music_player_sensitivity">Sensitivity (%)</string>
-    <string name="beta_music_player_hint">Set circle slider ceiling first, pick a track, then Play. PCM sync — no mic lag.</string>
+    <string name="beta_music_player_hint">Set circle slider ceiling on a user row, pick a track, then Play.</string>
+    <string name="beta_music_player_no_user">Add a connected user first</string>
 """
 
 BG_STRINGS = """
@@ -101,28 +117,39 @@ BG_STRINGS = """
     <string name="beta_music_player_play">Пусни</string>
     <string name="beta_music_player_stop">Стоп</string>
     <string name="beta_music_player_sensitivity">Чувствителност (%)</string>
-    <string name="beta_music_player_hint">Задай таван с кръговия слайдер, избери песен и натисни Пусни. PCM синхрон — без закъснение от микрофона.</string>
+    <string name="beta_music_player_hint">Задай таван с кръговия слайдер, избери песен и натисни Пусни.</string>
+    <string name="beta_music_player_no_user">Първо добави свързан потребител</string>
 """
 
-BIND_LISTENER_HOOK = """
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+FRAGMENT_HOOK = """
+    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->binding:Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
 
-    move-result-object v0
+    move-result-object v1
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->getBaseActivity()Lcom/isaigu/gymapp/BaseActivity;
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachButton(Landroid/view/View;Lcom/isaigu/gymapp/train/model/TrainItem;)V
+    move-result-object v2
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/BaseActivity;Lcom/isaigu/gymapp/train/TrainItemManager;)V
 
 """
 
-BIND_LISTENER_MARKER = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MyButton;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+FRAGMENT_MARKER = """    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/MyButton;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 143
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+    .line 104
+    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->binding:Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->ma:Landroid/widget/TextView;"""
+    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;->buwei1:Landroid/widget/LinearLayout;"""
+
+TRAIN_VH_HOOK_RE = re.compile(
+    r"\n\s*iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:.*?"
+    r"invoke-static \{v0, v1\}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachButton.*?\n",
+    re.MULTILINE,
+)
 
 
 def install_smali() -> None:
@@ -159,6 +186,12 @@ def patch_public_xml(text: str) -> str:
             for name, id in STRING_IDS.items()
         )
         text = text.replace("</resources>", entries + "\n</resources>", 1)
+    if "beta_music_player_no_user" not in text:
+        text = text.replace(
+            "</resources>",
+            '    <public type="string" name="beta_music_player_no_user" id="0x7f0d011a" />\n</resources>',
+            1,
+        )
     return text
 
 
@@ -169,22 +202,61 @@ def patch_ids_xml(text: str) -> str:
     return text.replace("</resources>", entries + "\n</resources>", 1)
 
 
-def patch_train_layout(path: Path) -> None:
+def patch_fragment_layout(path: Path) -> None:
     if not path.is_file():
         return
     text = path.read_text(encoding="utf-8")
     if "musicPlayerBtn" in text:
-        print(f"{path.name}: music player button already present")
+        print(f"{path.name}: master music button already present")
         return
     marker = (
-        '<com.isaigu.gymapp.widget.MyButton android:id="@id/save" '
-        'android:background="@mipmap/save"'
+        '<View android:layout_width="fill_parent" android:layout_height="0.0dip" '
+        'android:layout_weight="1.0" />\n'
+        '        <com.isaigu.gymapp.widget.MyButton android:id="@id/allAdd"'
     )
     if marker not in text:
-        raise RuntimeError(f"{path}: save button marker not found")
-    text = text.replace(marker, TRAIN_BUTTON.strip() + "\n            " + marker, 1)
+        raise RuntimeError(f"{path}: allAdd marker not found for master music button")
+    text = text.replace(marker, MASTER_BUTTON_BLOCK + "        " + marker.split("\n        ", 1)[1], 1)
     path.write_text(text, encoding="utf-8")
-    print(f"{path.name}: added music player button")
+    print(f"{path.name}: added master-panel music button")
+
+
+def remove_row_button(path: Path) -> None:
+    if not path.is_file():
+        return
+    text = path.read_text(encoding="utf-8")
+    if "musicPlayerBtn" not in text:
+        return
+    text = ROW_BUTTON_RE.sub("", text)
+    path.write_text(text, encoding="utf-8")
+    print(f"{path.name}: removed per-row music button")
+
+
+def patch_new_train_fragment(text: str) -> str:
+    if "MusicPlayerHelper;->attachMasterPanel" in text:
+        print("NewTrainFragment.onCreateView: master music hook already applied")
+        return text
+    if FRAGMENT_MARKER not in text:
+        raise RuntimeError("NewTrainFragment.onCreateView marker not found")
+    replacement = (
+        "    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/MyButton;->setOnClickListener"
+        "(Landroid/view/View$OnClickListener;)V\n\n"
+        + FRAGMENT_HOOK
+        + "    .line 104\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->binding:"
+        "Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;"
+        "->buwei1:Landroid/widget/LinearLayout;"
+    )
+    print("NewTrainFragment.onCreateView: master-panel music button hook")
+    return text.replace(FRAGMENT_MARKER, replacement, 1)
+
+
+def patch_train_view_holder(text: str) -> str:
+    if "MusicPlayerHelper;->attachButton" in text:
+        text = TRAIN_VH_HOOK_RE.sub("\n", text)
+        print("TrainViewHolder.bindListener: removed per-row music hook")
+    return text
 
 
 def patch_base_activity(text: str) -> str:
@@ -209,26 +281,6 @@ def patch_base_activity(text: str) -> str:
         raise RuntimeError("BaseActivity.onCreate marker not found")
     print("BaseActivity.onActivityResult: forward file-picker result to MusicPlayerHelper")
     return text.replace(marker, hook + marker, 1)
-
-
-def patch_train_view_holder(text: str) -> str:
-    if "MusicPlayerHelper;->attachButton" in text:
-        print("TrainViewHolder.bindListener: music player hook already applied")
-        return text
-    if BIND_LISTENER_MARKER not in text:
-        raise RuntimeError("TrainViewHolder.bindListener marker not found")
-    replacement = (
-        "    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MyButton;->setOnClickListener"
-        "(Landroid/view/View$OnClickListener;)V\n\n"
-        + BIND_LISTENER_HOOK
-        + "    .line 143\n"
-        "    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:"
-        "Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
-        "    iget-object v0, v0, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;"
-        "->ma:Landroid/widget/TextView;"
-    )
-    print("TrainViewHolder.bindListener: music player button hook")
-    return text.replace(BIND_LISTENER_MARKER, replacement, 1)
 
 
 def merge_strings(path: Path, block: str, names: list[str]) -> None:
@@ -267,12 +319,15 @@ def main() -> int:
 
     PUBLIC_XML.write_text(patch_public_xml(PUBLIC_XML.read_text(encoding="utf-8")), encoding="utf-8")
     IDS_XML.write_text(patch_ids_xml(IDS_XML.read_text(encoding="utf-8")), encoding="utf-8")
-    for layout in TRAIN_LAYOUTS:
-        patch_train_layout(layout)
-    TRAIN_VH.write_text(
-        patch_train_view_holder(TRAIN_VH.read_text(encoding="utf-8")),
+    for layout in FRAGMENT_LAYOUTS:
+        patch_fragment_layout(layout)
+    for layout in ROW_LAYOUTS:
+        remove_row_button(layout)
+    NEW_TRAIN_FRAGMENT.write_text(
+        patch_new_train_fragment(NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")),
         encoding="utf-8",
     )
+    TRAIN_VH.write_text(patch_train_view_holder(TRAIN_VH.read_text(encoding="utf-8")), encoding="utf-8")
     BASE_ACTIVITY.write_text(
         patch_base_activity(BASE_ACTIVITY.read_text(encoding="utf-8")),
         encoding="utf-8",
@@ -282,7 +337,7 @@ def main() -> int:
     merge_strings(VALUES_BG, BG_STRINGS, names)
     merge_strings(VALUES_BG_DECOMPILED, BG_STRINGS, names)
     install_smali()
-    print("BETA music player patches applied.")
+    print("BETA music player patches applied (master rightLayout).")
     return 0
 
 

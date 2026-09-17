@@ -36,6 +36,8 @@ FORBIDDEN = {
         "betaFeatures",
         "musicMinStrength",
         "musicSyncStart",
+        "MusicSync",
+        "MusicSyncHelper",
     ),
 }
 

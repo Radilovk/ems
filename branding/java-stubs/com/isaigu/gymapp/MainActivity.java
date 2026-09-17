@@ -1,7 +1,5 @@
 package com.isaigu.gymapp;
 
-import android.app.Activity;
-
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
     public static MainActivity getInstance() { return null; }
 }

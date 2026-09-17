@@ -3,12 +3,12 @@
 .source "MusicSync.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->startPlayer(Landroid/app/Activity;Landroid/net/Uri;I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 331
+    .line 451
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,54 +29,54 @@
 
 
 # virtual methods
-.method public run()V
+.method public onError()V
+    .registers 2
+
+    .line 467
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
+
+    .line 468
+    const v0, 0x7f0d0113
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
+
+    .line 469
+    return-void
+.end method
+
+.method public onPlaybackEnded()V
+    .registers 1
+
+    .line 461
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
+
+    .line 462
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
+
+    .line 463
+    return-void
+.end method
+
+.method public onWaveformLevel(I)V
     .registers 3
 
-    .line 334
-    :goto_0
+    .line 454
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    if-eqz v0, :cond_1a
+    if-eqz v0, :cond_d
 
-    .line 335
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()Landroid/media/AudioRecord;
-
-    move-result-object v0
-
-    .line 336
-    if-nez v0, :cond_b
-
-    .line 337
-    goto :goto_1a
-
-    .line 339
-    :cond_b
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200(Landroid/media/AudioRecord;)I
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$700()Z
 
     move-result v0
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$300(I)V
+    if-eqz v0, :cond_d
 
-    .line 341
-    const-wide/16 v0, 0xf
+    .line 455
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$600(I)V
 
-    :try_start_14
-    invoke-static {v0, v1}, Ljava/lang/Thread;->sleep(J)V
-    :try_end_17
-    .catch Ljava/lang/InterruptedException; {:try_start_14 .. :try_end_17} :catch_19
-
-    .line 344
-    nop
-
-    .line 345
-    goto :goto_0
-
-    .line 342
-    :catch_19
-    move-exception v0
-
-    .line 346
-    :cond_1a
-    :goto_1a
+    .line 457
+    :cond_d
     return-void
 .end method

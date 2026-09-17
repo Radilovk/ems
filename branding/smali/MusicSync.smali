@@ -22,6 +22,8 @@
 
 .field static final ERROR_MIC:I = 0x7f0d010e
 
+.field static final ERROR_PLAYER:I = 0x7f0d0113
+
 .field private static final PEAK_DECAY:D = 0.978
 
 .field static final PERMISSION_REQUEST:I = 0x4254
@@ -54,6 +56,10 @@
 
 .field private static volatile pendingApplied:I
 
+.field private static playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
+
+.field private static playerMode:Z
+
 .field static running:Z
 
 .field private static sensitivity:I
@@ -67,29 +73,29 @@
 .method static constructor <clinit>()V
     .registers 2
 
-    .line 40
+    .line 44
     const/16 v0, 0x14
 
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
 
-    .line 45
+    .line 50
     const-wide v0, 0x4072c00000000000L    # 300.0
 
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
-    .line 48
+    .line 53
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
 
-    .line 50
+    .line 55
     const/16 v0, 0x80
 
     new-array v0, v0, [S
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioBuffer:[S
 
-    .line 52
+    .line 57
     new-instance v0, Lcom/isaigu/gymapp/train/utils/MusicSync$1;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync$1;-><init>()V
@@ -102,7 +108,7 @@
 .method public constructor <init>()V
     .registers 1
 
-    .line 23
+    .line 25
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -111,7 +117,7 @@
 .method static synthetic access$000()I
     .registers 1
 
-    .line 23
+    .line 25
     sget v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pendingApplied:I
 
     return v0
@@ -120,7 +126,7 @@
 .method static synthetic access$100()I
     .registers 1
 
-    .line 23
+    .line 25
     sget v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
 
     return v0
@@ -129,7 +135,7 @@
 .method static synthetic access$102(I)I
     .registers 1
 
-    .line 23
+    .line 25
     sput p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
 
     return p0
@@ -138,7 +144,7 @@
 .method static synthetic access$202(J)J
     .registers 2
 
-    .line 23
+    .line 25
     sput-wide p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastBleMs:J
 
     return-wide p0
@@ -147,7 +153,7 @@
 .method static synthetic access$300()V
     .registers 0
 
-    .line 23
+    .line 25
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
 
     return-void
@@ -156,7 +162,7 @@
 .method static synthetic access$400()Landroid/media/AudioRecord;
     .registers 1
 
-    .line 23
+    .line 25
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
     return-object v0
@@ -165,7 +171,7 @@
 .method static synthetic access$500(Landroid/media/AudioRecord;)I
     .registers 1
 
-    .line 23
+    .line 25
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->sampleSoundPercent(Landroid/media/AudioRecord;)I
 
     move-result p0
@@ -176,33 +182,42 @@
 .method static synthetic access$600(I)V
     .registers 1
 
-    .line 23
+    .line 25
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
 
     return-void
 .end method
 
+.method static synthetic access$700()Z
+    .registers 1
+
+    .line 25
+    sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
+
+    return v0
+.end method
+
 .method private static clampPercent(I)I
     .registers 2
 
-    .line 205
+    .line 210
     if-gez p0, :cond_4
 
-    .line 206
+    .line 211
     const/4 p0, 0x0
 
     return p0
 
-    .line 208
+    .line 213
     :cond_4
     const/16 v0, 0x64
 
     if-le p0, v0, :cond_9
 
-    .line 209
+    .line 214
     return v0
 
-    .line 211
+    .line 216
     :cond_9
     return p0
 .end method
@@ -210,12 +225,12 @@
 .method static ensureHandler()V
     .registers 2
 
-    .line 70
+    .line 75
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
     if-nez v0, :cond_f
 
-    .line 71
+    .line 76
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -226,15 +241,137 @@
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
-    .line 73
+    .line 78
     :cond_f
     return-void
+.end method
+
+.method private static envelopeToSoundPercent(D)I
+    .registers 9
+
+    .line 264
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->updateEnvelope(D)V
+
+    .line 266
+    sget p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
+
+    int-to-double p0, p0
+
+    const-wide/high16 v0, 0x4059000000000000L    # 100.0
+
+    div-double/2addr p0, v0
+
+    const-wide v2, 0x3fc1eb851eb851ecL    # 0.14
+
+    mul-double p0, p0, v2
+
+    const-wide v2, 0x3fc70a3d70a3d70aL    # 0.18
+
+    sub-double/2addr v2, p0
+
+    .line 267
+    const-wide p0, 0x3fa999999999999aL    # 0.05
+
+    cmpg-double v4, v2, p0
+
+    if-gez v4, :cond_20
+
+    .line 268
+    move-wide v2, p0
+
+    .line 270
+    :cond_20
+    const-wide p0, 0x4041800000000000L    # 35.0
+
+    sget-wide v4, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
+
+    mul-double v4, v4, v2
+
+    invoke-static {p0, p1, v4, v5}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide p0
+
+    .line 271
+    sget-wide v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
+
+    cmpg-double v4, v2, p0
+
+    if-gtz v4, :cond_35
+
+    .line 272
+    const/4 p0, 0x0
+
+    return p0
+
+    .line 275
+    :cond_35
+    sget-wide v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
+
+    sub-double/2addr v2, p0
+
+    .line 276
+    const-wide/high16 v4, 0x4039000000000000L    # 25.0
+
+    cmpg-double v6, v2, v4
+
+    if-gez v6, :cond_3f
+
+    .line 277
+    move-wide v2, v4
+
+    .line 279
+    :cond_3f
+    sget-wide v4, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
+
+    sub-double/2addr v4, p0
+
+    div-double/2addr v4, v2
+
+    .line 280
+    const-wide/high16 p0, 0x3ff0000000000000L    # 1.0
+
+    const-wide/16 v2, 0x0
+
+    cmpg-double v6, v4, v2
+
+    if-gez v6, :cond_4d
+
+    .line 281
+    move-wide v4, v2
+
+    goto :goto_52
+
+    .line 282
+    :cond_4d
+    cmpl-double v2, v4, p0
+
+    if-lez v2, :cond_52
+
+    .line 283
+    move-wide v4, p0
+
+    .line 286
+    :cond_52
+    :goto_52
+    mul-double v4, v4, v0
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide p0
+
+    long-to-int p1, p0
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->clampPercent(I)I
+
+    move-result p0
+
+    return p0
 .end method
 
 .method public static getEffectiveStrength()I
     .registers 1
 
-    .line 201
+    .line 206
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->getLastApplied()I
 
     move-result v0
@@ -245,7 +382,7 @@
 .method public static getHostActivity()Landroid/app/Activity;
     .registers 1
 
-    .line 370
+    .line 408
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
 
     return-object v0
@@ -254,7 +391,7 @@
 .method public static getLiveStrength()I
     .registers 1
 
-    .line 366
+    .line 404
     sget v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
     return v0
@@ -263,7 +400,7 @@
 .method public static getStrengthCeiling()I
     .registers 1
 
-    .line 197
+    .line 202
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->getCeiling()I
 
     move-result v0
@@ -274,15 +411,15 @@
 .method static hasRecordPermission()Z
     .registers 2
 
-    .line 123
+    .line 128
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->permissionContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 124
+    .line 129
     if-eqz v0, :cond_10
 
-    .line 125
+    .line 130
     const-string v1, "android.permission.RECORD_AUDIO"
 
     invoke-static {v0, v1}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
@@ -298,7 +435,7 @@
     :cond_10
     const/4 v0, 0x0
 
-    .line 124
+    .line 129
     :goto_11
     return v0
 .end method
@@ -306,7 +443,7 @@
 .method public static isRunning()Z
     .registers 1
 
-    .line 362
+    .line 400
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     return v0
@@ -315,12 +452,12 @@
 .method private static maybeUpdateUi()V
     .registers 7
 
-    .line 274
+    .line 301
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
-    .line 275
+    .line 302
     sget-wide v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastUiMs:J
 
     sub-long v2, v0, v2
@@ -331,37 +468,40 @@
 
     if-gez v6, :cond_f
 
-    .line 276
+    .line 303
     return-void
 
-    .line 278
+    .line 305
     :cond_f
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastUiMs:J
 
-    .line 279
+    .line 306
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getEffectiveStrength()I
 
     move-result v0
 
-    .line 280
+    .line 307
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getStrengthCeiling()I
 
     move-result v1
 
-    .line 281
+    .line 308
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(II)V
 
-    .line 282
+    .line 309
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showActive(II)V
+
+    .line 310
     return-void
 .end method
 
 .method private static measureRms([SI)D
     .registers 9
 
-    .line 215
+    .line 220
     nop
 
-    .line 216
+    .line 221
     const-wide/16 v0, 0x0
 
     const/4 v2, 0x0
@@ -369,7 +509,7 @@
     :goto_4
     if-ge v2, p1, :cond_12
 
-    .line 217
+    .line 222
     aget-short v3, p0, v2
 
     int-to-long v3, v3
@@ -382,12 +522,12 @@
 
     add-long/2addr v0, v3
 
-    .line 216
+    .line 221
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_4
 
-    .line 219
+    .line 224
     :cond_12
     long-to-double v0, v0
 
@@ -405,7 +545,7 @@
 .method private static openMicrophone()Z
     .registers 7
 
-    .line 183
+    .line 188
     const/4 v0, 0x3
 
     new-array v1, v0, [[I
@@ -434,13 +574,13 @@
 
     aput-object v3, v1, v2
 
-    .line 188
+    .line 193
     const/4 v2, 0x0
 
     :goto_1c
     if-ge v2, v0, :cond_30
 
-    .line 189
+    .line 194
     aget-object v3, v1, v2
 
     aget v3, v3, v4
@@ -455,16 +595,16 @@
 
     if-eqz v3, :cond_2d
 
-    .line 190
+    .line 195
     return v5
 
-    .line 188
+    .line 193
     :cond_2d
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_1c
 
-    .line 193
+    .line 198
     :cond_30
     return v4
 
@@ -492,15 +632,15 @@
 .method private static permissionContext()Landroid/content/Context;
     .registers 1
 
-    .line 116
+    .line 121
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
 
     if-eqz v0, :cond_5
 
-    .line 117
+    .line 122
     return-object v0
 
-    .line 119
+    .line 124
     :cond_5
     invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
 
@@ -512,15 +652,15 @@
 .method private static pushSoundLevel(I)V
     .registers 6
 
-    .line 97
+    .line 102
     sput p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
-    .line 98
+    .line 103
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->scaleFromSound(I)I
 
     move-result p0
 
-    .line 99
+    .line 104
     sget v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
 
     if-ne p0, v0, :cond_f
@@ -529,19 +669,19 @@
 
     if-ne p0, v0, :cond_f
 
-    .line 100
+    .line 105
     return-void
 
-    .line 102
+    .line 107
     :cond_f
     sput p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pendingApplied:I
 
-    .line 103
+    .line 108
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
-    .line 104
+    .line 109
     sget-wide v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastBleMs:J
 
     sub-long/2addr v0, v2
@@ -554,7 +694,7 @@
 
     if-eqz p0, :cond_2e
 
-    .line 105
+    .line 110
     sget v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
 
     sub-int v0, p0, v0
@@ -563,66 +703,66 @@
 
     move-result v0
 
-    .line 106
+    .line 111
     const/4 v1, 0x2
 
     if-ge v0, v1, :cond_2e
 
     if-eqz p0, :cond_2e
 
-    .line 107
+    .line 112
     return-void
 
-    .line 110
+    .line 115
     :cond_2e
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 111
+    .line 116
     sget-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->applyRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 112
+    .line 117
     sget-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->applyRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 113
+    .line 118
     return-void
 .end method
 
 .method public static registerUi(Lcom/isaigu/gymapp/widget/CircleSeekBar;Landroid/widget/TextView;Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 3
 
-    .line 89
+    .line 94
     invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->bind(Lcom/isaigu/gymapp/widget/CircleSeekBar;Landroid/widget/TextView;Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 90
+    .line 95
     return-void
 .end method
 
 .method static releaseAudio()V
     .registers 3
 
-    .line 129
+    .line 134
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
-    .line 130
+    .line 135
     const/4 v1, 0x0
 
     sput-object v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
-    .line 131
+    .line 136
     if-nez v0, :cond_8
 
-    .line 132
+    .line 137
     return-void
 
-    .line 135
+    .line 140
     :cond_8
     :try_start_8
     invoke-virtual {v0}, Landroid/media/AudioRecord;->getState()I
@@ -633,7 +773,7 @@
 
     if-ne v1, v2, :cond_19
 
-    .line 136
+    .line 141
     invoke-virtual {v0}, Landroid/media/AudioRecord;->getRecordingState()I
 
     move-result v1
@@ -642,108 +782,130 @@
 
     if-ne v1, v2, :cond_19
 
-    .line 137
+    .line 142
     invoke-virtual {v0}, Landroid/media/AudioRecord;->stop()V
     :try_end_19
     .catchall {:try_start_8 .. :try_end_19} :catchall_1a
 
-    .line 140
+    .line 145
     :cond_19
     goto :goto_1b
 
-    .line 139
+    .line 144
     :catchall_1a
     move-exception v1
 
-    .line 142
+    .line 147
     :goto_1b
     :try_start_1b
     invoke-virtual {v0}, Landroid/media/AudioRecord;->release()V
     :try_end_1e
     .catchall {:try_start_1b .. :try_end_1e} :catchall_1f
 
-    .line 144
+    .line 149
     goto :goto_20
 
-    .line 143
+    .line 148
     :catchall_1f
     move-exception v0
 
-    .line 145
+    .line 150
     :goto_20
+    return-void
+.end method
+
+.method private static releasePlayer()V
+    .registers 2
+
+    .line 313
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
+
+    .line 314
+    const/4 v1, 0x0
+
+    sput-object v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
+
+    .line 315
+    if-eqz v0, :cond_a
+
+    .line 316
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->release()V
+
+    .line 318
+    :cond_a
     return-void
 .end method
 
 .method private static resetAudioLevels()V
     .registers 2
 
-    .line 76
+    .line 81
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
 
-    .line 77
+    .line 82
     const-wide v0, 0x4072c00000000000L    # 300.0
 
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
-    .line 78
+    .line 83
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastUiMs:J
 
-    .line 79
+    .line 84
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastBleMs:J
 
-    .line 80
+    .line 85
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
 
-    .line 81
+    .line 86
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pendingApplied:I
 
-    .line 82
+    .line 87
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->resetApplied()V
 
-    .line 83
+    .line 88
     return-void
 .end method
 
 .method private static sampleSoundPercent(Landroid/media/AudioRecord;)I
-    .registers 10
+    .registers 4
 
-    .line 239
+    .line 290
     if-nez p0, :cond_5
 
-    .line 240
+    .line 291
     sget p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
     return p0
 
-    .line 242
+    .line 293
     :cond_5
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioBuffer:[S
 
-    array-length v1, v0
+    const/4 v1, 0x0
 
-    const/4 v2, 0x0
+    array-length v2, v0
 
-    invoke-virtual {p0, v0, v2, v1}, Landroid/media/AudioRecord;->read([SII)I
+    invoke-virtual {p0, v0, v1, v2}, Landroid/media/AudioRecord;->read([SII)I
 
     move-result p0
 
-    .line 243
+    .line 294
     if-gtz p0, :cond_12
 
-    .line 244
+    .line 295
     sget p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
     return p0
 
-    .line 247
+    .line 297
     :cond_12
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioBuffer:[S
 
@@ -751,117 +913,7 @@
 
     move-result-wide v0
 
-    .line 248
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->updateEnvelope(D)V
-
-    .line 250
-    const-wide v0, 0x3fc70a3d70a3d70aL    # 0.18
-
-    sget p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
-
-    int-to-double v3, p0
-
-    const-wide/high16 v5, 0x4059000000000000L    # 100.0
-
-    div-double/2addr v3, v5
-
-    const-wide v7, 0x3fc1eb851eb851ecL    # 0.14
-
-    mul-double v3, v3, v7
-
-    sub-double/2addr v0, v3
-
-    .line 251
-    const-wide v3, 0x3fa999999999999aL    # 0.05
-
-    cmpg-double p0, v0, v3
-
-    if-gez p0, :cond_38
-
-    .line 252
-    move-wide v0, v3
-
-    .line 254
-    :cond_38
-    const-wide v3, 0x4041800000000000L    # 35.0
-
-    sget-wide v7, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
-
-    mul-double v7, v7, v0
-
-    invoke-static {v3, v4, v7, v8}, Ljava/lang/Math;->max(DD)D
-
-    move-result-wide v0
-
-    .line 255
-    sget-wide v3, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
-
-    cmpg-double p0, v3, v0
-
-    if-gtz p0, :cond_4c
-
-    .line 256
-    return v2
-
-    .line 259
-    :cond_4c
-    sget-wide v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
-
-    sub-double/2addr v2, v0
-
-    .line 260
-    const-wide/high16 v7, 0x4039000000000000L    # 25.0
-
-    cmpg-double p0, v2, v7
-
-    if-gez p0, :cond_56
-
-    .line 261
-    move-wide v2, v7
-
-    .line 263
-    :cond_56
-    sget-wide v7, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
-
-    sub-double/2addr v7, v0
-
-    div-double/2addr v7, v2
-
-    .line 264
-    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
-
-    const-wide/16 v2, 0x0
-
-    cmpg-double p0, v7, v2
-
-    if-gez p0, :cond_64
-
-    .line 265
-    move-wide v7, v2
-
-    goto :goto_69
-
-    .line 266
-    :cond_64
-    cmpl-double p0, v7, v0
-
-    if-lez p0, :cond_69
-
-    .line 267
-    move-wide v7, v0
-
-    .line 270
-    :cond_69
-    :goto_69
-    mul-double v7, v7, v5
-
-    invoke-static {v7, v8}, Ljava/lang/Math;->round(D)J
-
-    move-result-wide v0
-
-    long-to-int p0, v0
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->clampPercent(I)I
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->envelopeToSoundPercent(D)I
 
     move-result p0
 
@@ -871,17 +923,17 @@
 .method public static setHostActivity(Landroid/app/Activity;)V
     .registers 1
 
-    .line 374
+    .line 412
     sput-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
 
-    .line 375
+    .line 413
     return-void
 .end method
 
 .method public static setSensitivity(I)V
     .registers 2
 
-    .line 381
+    .line 419
     const/4 v0, 0x0
 
     invoke-static {p0, v0}, Ljava/lang/Math;->max(II)I
@@ -896,67 +948,67 @@
 
     sput p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
 
-    .line 382
+    .line 420
     return-void
 .end method
 
 .method public static setTargetItem(Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 1
 
-    .line 93
+    .line 98
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setTarget(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 94
+    .line 99
     return-void
 .end method
 
 .method public static setTargetMacAddress(Ljava/lang/String;)V
     .registers 1
 
-    .line 378
+    .line 416
     return-void
 .end method
 
 .method public static start(Landroid/app/Activity;II)V
     .registers 4
 
-    .line 385
+    .line 423
     if-nez p0, :cond_3
 
-    .line 386
+    .line 424
     return-void
 
-    .line 388
+    .line 426
     :cond_3
     sput-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
 
-    .line 389
+    .line 427
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
 
-    .line 390
+    .line 428
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSensitivity(I)V
 
-    .line 391
+    .line 429
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->ensureMaMode()V
 
-    .line 392
+    .line 430
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->hasRecordPermission()Z
 
     move-result p1
 
     if-eqz p1, :cond_18
 
-    .line 393
+    .line 431
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 
-    .line 394
+    .line 432
     return-void
 
-    .line 396
+    .line 434
     :cond_18
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showPermission()V
 
-    .line 397
+    .line 435
     const/16 p1, 0x4254
 
     new-instance p2, Lcom/isaigu/gymapp/train/utils/MusicSync$PermissionCallback;
@@ -967,14 +1019,14 @@
 
     invoke-static {p0, v0, p1, p2}, Lcom/isaigu/gymapp/utils/AndroidUtils;->requestPermission(Landroid/app/Activity;Ljava/lang/String;ILcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;)V
 
-    .line 399
+    .line 437
     return-void
 .end method
 
 .method static startCapture()V
     .registers 6
 
-    .line 303
+    .line 341
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->hasRecordPermission()Z
 
     move-result v0
@@ -983,26 +1035,26 @@
 
     if-nez v0, :cond_d
 
-    .line 304
+    .line 342
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 305
+    .line 343
     return-void
 
-    .line 307
+    .line 345
     :cond_d
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 
-    .line 308
+    .line 346
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->ensureMaMode()V
 
-    .line 309
+    .line 347
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->resetAudioLevels()V
 
-    .line 310
+    .line 348
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->captureCeilingFromSlider()I
 
-    .line 312
+    .line 350
     const v0, 0x7f0d010e
 
     const/4 v2, 0x0
@@ -1014,17 +1066,17 @@
 
     if-nez v3, :cond_27
 
-    .line 313
+    .line 351
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 314
+    .line 352
     return-void
 
-    .line 316
+    .line 354
     :cond_27
     sget-object v3, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
 
-    .line 317
+    .line 355
     if-eqz v3, :cond_61
 
     invoke-virtual {v3}, Landroid/media/AudioRecord;->getState()I
@@ -1037,11 +1089,11 @@
 
     goto :goto_61
 
-    .line 321
+    .line 359
     :cond_33
     invoke-virtual {v3}, Landroid/media/AudioRecord;->startRecording()V
 
-    .line 322
+    .line 360
     invoke-virtual {v3}, Landroid/media/AudioRecord;->getRecordingState()I
 
     move-result v3
@@ -1050,30 +1102,30 @@
 
     if-eq v3, v4, :cond_44
 
-    .line 323
+    .line 361
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 
-    .line 324
+    .line 362
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 325
+    .line 363
     return-void
 
-    .line 327
+    .line 365
     :cond_44
     sput-boolean v5, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    .line 328
+    .line 366
     sput v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
-    .line 329
+    .line 367
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getStrengthCeiling()I
 
     move-result v3
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showActive(II)V
 
-    .line 330
+    .line 368
     new-instance v3, Ljava/lang/Thread;
 
     new-instance v4, Lcom/isaigu/gymapp/train/utils/MusicSync$2;
@@ -1086,12 +1138,12 @@
 
     sput-object v3, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioThread:Ljava/lang/Thread;
 
-    .line 349
+    .line 387
     invoke-virtual {v3}, Ljava/lang/Thread;->start()V
 
     goto :goto_78
 
-    .line 318
+    .line 356
     :cond_61
     :goto_61
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
@@ -1099,120 +1151,218 @@
     .catch Ljava/lang/SecurityException; {:try_start_1d .. :try_end_64} :catch_6f
     .catchall {:try_start_1d .. :try_end_64} :catchall_65
 
-    .line 319
+    .line 357
     return-void
 
-    .line 354
+    .line 392
     :catchall_65
     move-exception v1
 
-    .line 355
+    .line 393
     sput-boolean v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    .line 356
+    .line 394
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 
-    .line 357
+    .line 395
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
     goto :goto_79
 
-    .line 350
+    .line 388
     :catch_6f
     move-exception v0
 
-    .line 351
+    .line 389
     sput-boolean v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    .line 352
+    .line 390
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 
-    .line 353
+    .line 391
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 358
+    .line 396
     :goto_78
     nop
 
-    .line 359
+    .line 397
     :goto_79
+    return-void
+.end method
+
+.method public static startPlayer(Landroid/app/Activity;Landroid/net/Uri;I)V
+    .registers 4
+
+    .line 440
+    if-eqz p0, :cond_40
+
+    if-nez p1, :cond_5
+
+    goto :goto_40
+
+    .line 443
+    :cond_5
+    sput-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->hostActivity:Landroid/app/Activity;
+
+    .line 444
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
+
+    .line 445
+    invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSensitivity(I)V
+
+    .line 446
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->ensureMaMode()V
+
+    .line 447
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->resetAudioLevels()V
+
+    .line 448
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->captureCeilingFromSlider()I
+
+    .line 450
+    :try_start_16
+    new-instance p2, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
+
+    invoke-direct {p2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;-><init>()V
+
+    .line 451
+    new-instance v0, Lcom/isaigu/gymapp/train/utils/MusicSync$3;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync$3;-><init>()V
+
+    invoke-virtual {p2, p0, p1, v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->start(Landroid/content/Context;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;)V
+
+    .line 471
+    sput-object p2, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
+
+    .line 472
+    const/4 p0, 0x1
+
+    sput-boolean p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
+
+    .line 473
+    sput-boolean p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
+
+    .line 474
+    const/4 p0, 0x0
+
+    sput p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
+
+    .line 475
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getStrengthCeiling()I
+
+    move-result p1
+
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showActive(II)V
+    :try_end_34
+    .catchall {:try_start_16 .. :try_end_34} :catchall_35
+
+    .line 479
+    goto :goto_3f
+
+    .line 476
+    :catchall_35
+    move-exception p0
+
+    .line 477
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
+
+    .line 478
+    const p0, 0x7f0d0113
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
+
+    .line 480
+    :goto_3f
+    return-void
+
+    .line 441
+    :cond_40
+    :goto_40
     return-void
 .end method
 
 .method public static stop()V
     .registers 0
 
-    .line 402
+    .line 483
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
 
-    .line 403
+    .line 484
     return-void
 .end method
 
 .method private static stopCaptureOnly()V
     .registers 4
 
-    .line 285
+    .line 321
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    .line 286
+    .line 322
+    sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
+
+    .line 323
     sget-object v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioThread:Ljava/lang/Thread;
 
-    .line 287
+    .line 324
     const/4 v2, 0x0
 
     sput-object v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioThread:Ljava/lang/Thread;
 
-    .line 288
-    if-eqz v1, :cond_11
+    .line 325
+    if-eqz v1, :cond_13
 
-    .line 290
+    .line 327
     const-wide/16 v2, 0x190
 
-    :try_start_c
+    :try_start_e
     invoke-virtual {v1, v2, v3}, Ljava/lang/Thread;->join(J)V
-    :try_end_f
-    .catchall {:try_start_c .. :try_end_f} :catchall_10
+    :try_end_11
+    .catchall {:try_start_e .. :try_end_11} :catchall_12
 
-    .line 292
-    goto :goto_11
+    .line 329
+    goto :goto_13
 
-    .line 291
-    :catchall_10
+    .line 328
+    :catchall_12
     move-exception v1
 
-    .line 294
-    :cond_11
-    :goto_11
+    .line 331
+    :cond_13
+    :goto_13
     sget-object v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
-    if-eqz v1, :cond_1a
+    if-eqz v1, :cond_1c
 
-    .line 295
+    .line 332
     sget-object v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->applyRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 297
-    :cond_1a
+    .line 334
+    :cond_1c
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releaseAudio()V
 
-    .line 298
+    .line 335
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->releasePlayer()V
+
+    .line 336
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
-    .line 299
+    .line 337
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->resetAudioLevels()V
 
-    .line 300
+    .line 338
     return-void
 .end method
 
 .method private static tryOpen(II)Z
     .registers 11
 
-    .line 149
+    .line 154
     const/4 v0, 0x2
 
     const/16 v1, 0x10
@@ -1224,77 +1374,77 @@
 
     move-result v8
 
-    .line 151
+    .line 156
     if-gtz v8, :cond_b
 
-    .line 152
+    .line 157
     return v2
 
-    .line 154
+    .line 159
     :cond_b
     nop
 
-    .line 156
+    .line 161
     sget v3, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v4, 0x17
 
     if-lt v3, v4, :cond_3d
 
-    .line 157
+    .line 162
     new-instance v3, Landroid/media/AudioFormat$Builder;
 
     invoke-direct {v3}, Landroid/media/AudioFormat$Builder;-><init>()V
 
-    .line 158
+    .line 163
     invoke-virtual {v3, v0}, Landroid/media/AudioFormat$Builder;->setEncoding(I)Landroid/media/AudioFormat$Builder;
 
     move-result-object v0
 
-    .line 159
+    .line 164
     invoke-virtual {v0, p1}, Landroid/media/AudioFormat$Builder;->setSampleRate(I)Landroid/media/AudioFormat$Builder;
 
     move-result-object p1
 
-    .line 160
+    .line 165
     invoke-virtual {p1, v1}, Landroid/media/AudioFormat$Builder;->setChannelMask(I)Landroid/media/AudioFormat$Builder;
 
     move-result-object p1
 
-    .line 161
+    .line 166
     invoke-virtual {p1}, Landroid/media/AudioFormat$Builder;->build()Landroid/media/AudioFormat;
 
     move-result-object p1
 
-    .line 162
+    .line 167
     new-instance v0, Landroid/media/AudioRecord$Builder;
 
     invoke-direct {v0}, Landroid/media/AudioRecord$Builder;-><init>()V
 
-    .line 163
+    .line 168
     invoke-virtual {v0, p0}, Landroid/media/AudioRecord$Builder;->setAudioSource(I)Landroid/media/AudioRecord$Builder;
 
     move-result-object p0
 
-    .line 164
+    .line 169
     invoke-virtual {p0, p1}, Landroid/media/AudioRecord$Builder;->setAudioFormat(Landroid/media/AudioFormat;)Landroid/media/AudioRecord$Builder;
 
     move-result-object p0
 
-    .line 165
+    .line 170
     invoke-virtual {p0, v8}, Landroid/media/AudioRecord$Builder;->setBufferSizeInBytes(I)Landroid/media/AudioRecord$Builder;
 
     move-result-object p0
 
-    .line 166
+    .line 171
     invoke-virtual {p0}, Landroid/media/AudioRecord$Builder;->build()Landroid/media/AudioRecord;
 
     move-result-object p0
 
-    .line 167
+    .line 172
     goto :goto_49
 
-    .line 168
+    .line 173
     :cond_3d
     new-instance v0, Landroid/media/AudioRecord;
 
@@ -1312,7 +1462,7 @@
 
     move-object p0, v0
 
-    .line 171
+    .line 176
     :goto_49
     invoke-virtual {p0}, Landroid/media/AudioRecord;->getState()I
 
@@ -1322,40 +1472,40 @@
 
     if-eq p1, v0, :cond_54
 
-    .line 172
+    .line 177
     invoke-virtual {p0}, Landroid/media/AudioRecord;->release()V
 
-    .line 173
+    .line 178
     return v2
 
-    .line 175
+    .line 180
     :cond_54
     sput-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->audioRecord:Landroid/media/AudioRecord;
     :try_end_56
     .catchall {:try_start_4 .. :try_end_56} :catchall_57
 
-    .line 176
+    .line 181
     return v0
 
-    .line 177
+    .line 182
     :catchall_57
     move-exception p0
 
-    .line 178
+    .line 183
     return v2
 .end method
 
 .method private static updateEnvelope(D)V
     .registers 8
 
-    .line 223
+    .line 228
     sget-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
 
     cmpl-double v2, p0, v0
 
     if-lez v2, :cond_17
 
-    .line 224
+    .line 229
     sget-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
 
     const-wide v2, 0x3fee147ae147ae14L    # 0.94
@@ -1372,7 +1522,7 @@
 
     goto :goto_27
 
-    .line 226
+    .line 231
     :cond_17
     sget-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
 
@@ -1388,7 +1538,7 @@
 
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->smoothedRms:D
 
-    .line 228
+    .line 233
     :goto_27
     sget-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
@@ -1396,12 +1546,12 @@
 
     if-lez v2, :cond_30
 
-    .line 229
+    .line 234
     sput-wide p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
     goto :goto_43
 
-    .line 231
+    .line 236
     :cond_30
     sget-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
@@ -1417,7 +1567,7 @@
 
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
-    .line 233
+    .line 238
     :goto_43
     sget-wide p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
@@ -1427,10 +1577,110 @@
 
     if-gez v2, :cond_4d
 
-    .line 234
+    .line 239
     sput-wide v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trackedPeakRms:D
 
-    .line 236
+    .line 241
     :cond_4d
     return-void
+.end method
+
+.method static waveformToSoundPercent([B)I
+    .registers 6
+
+    .line 244
+    if-eqz p0, :cond_24
+
+    array-length v0, p0
+
+    if-nez v0, :cond_6
+
+    goto :goto_24
+
+    .line 247
+    :cond_6
+    const-wide/16 v0, 0x0
+
+    .line 248
+    const/4 v2, 0x0
+
+    :goto_9
+    array-length v3, p0
+
+    if-ge v2, v3, :cond_17
+
+    .line 249
+    aget-byte v3, p0, v2
+
+    add-int/lit16 v3, v3, 0x80
+
+    .line 250
+    int-to-long v3, v3
+
+    mul-long v3, v3, v3
+
+    add-long/2addr v0, v3
+
+    .line 248
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_9
+
+    .line 252
+    :cond_17
+    long-to-double v0, v0
+
+    array-length p0, p0
+
+    int-to-double v2, p0
+
+    div-double/2addr v0, v2
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->sqrt(D)D
+
+    move-result-wide v0
+
+    .line 253
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->envelopeToSoundPercent(D)I
+
+    move-result p0
+
+    return p0
+
+    .line 245
+    :cond_24
+    :goto_24
+    sget p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
+
+    return p0
+.end method
+
+.method static waveformToSoundPercent([SI)I
+    .registers 2
+
+    .line 257
+    if-eqz p0, :cond_e
+
+    if-gtz p1, :cond_5
+
+    goto :goto_e
+
+    .line 260
+    :cond_5
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->measureRms([SI)D
+
+    move-result-wide p0
+
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->envelopeToSoundPercent(D)I
+
+    move-result p0
+
+    return p0
+
+    .line 258
+    :cond_e
+    :goto_e
+    sget p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
+
+    return p0
 .end method

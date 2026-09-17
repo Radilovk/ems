@@ -11,9 +11,11 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
 import com.isaigu.gymapp.MainActivity;
+import com.isaigu.gymapp.bean.ProgramDataBean;
+import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.dialog.MusicSyncHelper;
-import com.isaigu.gymapp.train.TrainItem;
 import com.isaigu.gymapp.train.TrainItemManager;
+import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
 
 import java.util.Iterator;
@@ -22,6 +24,12 @@ public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
     static final int ERROR_DENIED = 0x7f0d010d;
     static final int ERROR_MIC = 0x7f0d010e;
+
+    private static final double ATTACK = 0.45;
+    private static final double RELEASE = 0.12;
+    private static final double PEAK_DECAY = 0.992;
+    private static final double CURVE = 0.48;
+    private static final double ACTIVE_LEVEL = 0.10;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
@@ -32,10 +40,18 @@ public class MusicSync {
     private static int minStrength = 20;
     static boolean running;
 
+    private static double smoothedRms;
+    private static double trackedPeakRms = 400.0;
+
     static void ensureHandler() {
         if (handler == null) {
             handler = new Handler(Looper.getMainLooper());
         }
+    }
+
+    private static void resetAudioLevels() {
+        smoothedRms = 0.0;
+        trackedPeakRms = 400.0;
     }
 
     private static Context permissionContext() {
@@ -126,49 +142,127 @@ public class MusicSync {
         return tryOpen(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_STEREO, pcm16);
     }
 
+    private static int readItemStrength(TrainItem item) {
+        if (item == null) {
+            return 0;
+        }
+        TrainProgram program = item.getTrainProgram();
+        if (program == null) {
+            return 0;
+        }
+        ProgramDataBean data = program.matchProgram();
+        if (data == null) {
+            return 0;
+        }
+        return data.strenth;
+    }
+
     private static void applyStrength(int strength) {
+        if (strength < 0) {
+            strength = 0;
+        }
+        if (strength > 100) {
+            strength = 100;
+        }
+        if (strength == lastAppliedStrength) {
+            MusicSyncHelper.showActive(strength);
+            return;
+        }
         lastAppliedStrength = strength;
         MusicSyncHelper.showActive(strength);
+        TrainItemManager mgr = manager;
+        if (mgr == null) {
+            return;
+        }
         try {
-            TrainItemManager mgr = manager;
-            if (mgr != null) {
-                Iterator<TrainItem> it = mgr.notEmptyItems().iterator();
-                while (it.hasNext()) {
-                    TrainItem item = it.next();
-                    if (item == null || item.isEmpty()) {
-                        continue;
-                    }
-                    int current = item.getStrength();
-                    if (current == strength) {
-                        continue;
-                    }
-                    item.addStrenth(strength - current);
+            Iterator<TrainItem> it = mgr.notEmptyItems().iterator();
+            while (it.hasNext()) {
+                TrainItem item = it.next();
+                if (item == null || item.isEmpty()) {
+                    continue;
+                }
+                int current = readItemStrength(item);
+                int delta = strength - current;
+                if (delta != 0) {
+                    item.addStrenth(delta);
                 }
             }
         } catch (Throwable ignored) {
         }
     }
 
+    private static double measureRms(short[] buffer, int count) {
+        long sumSq = 0L;
+        for (int i = 0; i < count; i++) {
+            sumSq += (long) buffer[i] * buffer[i];
+        }
+        return Math.sqrt((double) sumSq / count);
+    }
+
+    private static void updateEnvelope(double rms) {
+        if (rms > smoothedRms) {
+            smoothedRms += ATTACK * (rms - smoothedRms);
+        } else {
+            smoothedRms += RELEASE * (rms - smoothedRms);
+        }
+        if (rms > trackedPeakRms) {
+            trackedPeakRms = rms;
+        } else {
+            trackedPeakRms = trackedPeakRms * PEAK_DECAY + rms * (1.0 - PEAK_DECAY);
+        }
+        if (trackedPeakRms < 120.0) {
+            trackedPeakRms = 120.0;
+        }
+    }
+
+    /**
+     * Silence or weak audio -> 0%.
+     * Strong audio scales from 0% up to maxStrength.
+     * minStrength tunes the noise gate (lower = more sensitive).
+     */
     static int computeStrength() {
         AudioRecord rec = audioRecord;
         if (rec == null) {
-            return lastAppliedStrength;
+            return 0;
         }
         short[] buffer = new short[1024];
         int read = rec.read(buffer, 0, buffer.length);
         if (read <= 0) {
-            return lastAppliedStrength;
+            return lastAppliedStrength >= 0 ? lastAppliedStrength : 0;
         }
-        long sumSq = 0L;
-        for (int i = 0; i < read; i++) {
-            sumSq += (long) buffer[i] * buffer[i];
+
+        double rms = measureRms(buffer, read);
+        updateEnvelope(rms);
+
+        // minStrength controls gate sensitivity: lower min = reacts earlier.
+        double gateRatio = 0.22 - (minStrength / 100.0) * 0.17;
+        if (gateRatio < 0.05) {
+            gateRatio = 0.05;
         }
-        double rms = Math.sqrt((double) sumSq / read);
-        double normalized = Math.min(rms / 750.0, 1.0);
-        int span = maxStrength - minStrength;
-        int value = minStrength + (int) (normalized * span);
-        if (value < minStrength) {
-            value = minStrength;
+        double noiseGate = Math.max(50.0, trackedPeakRms * gateRatio);
+        if (smoothedRms < noiseGate) {
+            return 0;
+        }
+
+        double span = trackedPeakRms - noiseGate;
+        if (span < 40.0) {
+            span = 40.0;
+        }
+        double level = (smoothedRms - noiseGate) / span;
+        if (level < 0.0) {
+            level = 0.0;
+        }
+        if (level > 1.0) {
+            level = 1.0;
+        }
+        level = Math.pow(level, CURVE);
+        if (level < ACTIVE_LEVEL) {
+            return 0;
+        }
+
+        int value = (int) Math.round(level * maxStrength);
+        if (value < 0) {
+            value = 0;
         }
         if (value > maxStrength) {
             value = maxStrength;
@@ -190,6 +284,7 @@ public class MusicSync {
             return;
         }
         releaseAudio();
+        resetAudioLevels();
         try {
             if (!openMicrophone()) {
                 MusicSyncHelper.showError(ERROR_MIC);
@@ -209,6 +304,7 @@ public class MusicSync {
             running = true;
             lastAppliedStrength = -1;
             MusicSyncHelper.showActive(0);
+            applyStrength(0);
             scheduleTick();
         } catch (SecurityException se) {
             running = false;
@@ -237,6 +333,10 @@ public class MusicSync {
         manager = trainItemManager;
     }
 
+    public static TrainItemManager getManager() {
+        return manager;
+    }
+
     public static void setStrengthRange(int min, int max) {
         minStrength = Math.min(Math.max(min, 0), 100);
         maxStrength = Math.min(Math.max(max, minStrength), 100);
@@ -249,6 +349,7 @@ public class MusicSync {
         hostActivity = activity;
         stop();
         setStrengthRange(min, max);
+        MusicSyncBridge.attachManager(activity);
         if (hasRecordPermission()) {
             startCapture();
             return;
@@ -268,6 +369,7 @@ public class MusicSync {
         } catch (Throwable ignored) {
         }
         lastAppliedStrength = -1;
+        resetAudioLevels();
     }
 
     static final class TickRunnable implements Runnable {
@@ -285,6 +387,7 @@ public class MusicSync {
         @Override
         public void onRequestPermission(String permission, int requestCode, boolean granted) {
             if (granted) {
+                MusicSyncBridge.attachManager(hostActivity);
                 startCapture();
             } else {
                 MusicSyncHelper.showError(ERROR_DENIED);

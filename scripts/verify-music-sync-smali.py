@@ -36,16 +36,21 @@ RULES = [
     (
         "MusicSync.smali",
         r"MusicSync\$AudioLoopRunnable",
-        "audio thread updates liveStrength without sendPulse",
+        "audio thread updates liveStrength",
+    ),
+    (
+        "MusicSync.smali",
+        r"TrainItem;->onParamsChange\(\)V",
+        "pushWorkPhaseStrength refreshes BLE during work phase only",
+    ),
+    (
+        "MusicSync.smali",
+        r"inStart:Z",
+        "work-phase gate checks inStart before onParamsChange",
     ),
 ]
 
 ANTI_PATTERNS = [
-    (
-        "MusicSync.smali",
-        r"TrainItem;->onParamsChange\(\)V",
-        "MusicSync must not call onParamsChange (breaks pulse/pause rhythm)",
-    ),
     (
         "MusicSync.smali",
         r"TrainItem;->addStrenth\(I\)V",

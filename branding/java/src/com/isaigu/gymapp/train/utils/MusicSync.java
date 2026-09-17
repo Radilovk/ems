@@ -28,13 +28,14 @@ public class MusicSync {
     static final int ERROR_DENIED = 0x7f0d010d;
     static final int ERROR_MIC = 0x7f0d010e;
 
-    private static final double ATTACK = 0.62;
-    private static final double RELEASE = 0.38;
-    private static final double PEAK_DECAY = 0.985;
-    private static final double CURVE = 0.82;
-    private static final double ACTIVE_LEVEL = 0.06;
-    private static final int AUDIO_BUFFER_SAMPLES = 512;
-    private static final long UI_MIN_INTERVAL_MS = 80L;
+    private static final double ATTACK = 0.88;
+    private static final double RELEASE = 0.55;
+    private static final double PEAK_DECAY = 0.97;
+    private static final double CURVE = 0.92;
+    private static final double ACTIVE_LEVEL = 0.03;
+    private static final int AUDIO_BUFFER_SAMPLES = 256;
+    private static final long UI_MIN_INTERVAL_MS = 60L;
+    private static final long WORK_PUSH_MIN_MS = 35L;
 
     private static AudioRecord audioRecord;
     private static Handler handler;
@@ -50,6 +51,9 @@ public class MusicSync {
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 400.0;
     private static long lastUiMs;
+    private static long lastWorkPushMs;
+    private static int lastWorkPushStrength = -1;
+    private static boolean wasInWorkPhase;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
 
     static void ensureHandler() {
@@ -62,6 +66,39 @@ public class MusicSync {
         smoothedRms = 0.0;
         trackedPeakRms = 400.0;
         lastUiMs = 0L;
+        lastWorkPushMs = 0L;
+        lastWorkPushStrength = -1;
+        wasInWorkPhase = false;
+    }
+
+    private static boolean isInWorkPhase(TrainItem item) {
+        if (item == null || item.data == null) {
+            return false;
+        }
+        return item.data.inStart;
+    }
+
+    /**
+     * Refresh BLE strength during work phase only (inStart). Skips pause phase so
+     * pulseContinue/pulsePause rhythm stays intact.
+     */
+    private static void pushWorkPhaseStrength(int strength) {
+        if (!isInWorkPhase(targetItem)) {
+            return;
+        }
+        if (strength == lastWorkPushStrength) {
+            return;
+        }
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastWorkPushMs < WORK_PUSH_MIN_MS) {
+            return;
+        }
+        try {
+            targetItem.onParamsChange();
+            lastWorkPushStrength = strength;
+            lastWorkPushMs = now;
+        } catch (Throwable ignored) {
+        }
     }
 
     private static Context permissionContext() {
@@ -135,9 +172,9 @@ public class MusicSync {
         int mono = AudioFormat.CHANNEL_IN_MONO;
         int pcm16 = AudioFormat.ENCODING_PCM_16BIT;
         int[][] configs = new int[][]{
+                {MediaRecorder.AudioSource.MIC, 48000},
                 {MediaRecorder.AudioSource.MIC, 44100},
-                {MediaRecorder.AudioSource.MIC, 16000},
-                {MediaRecorder.AudioSource.DEFAULT, 44100},
+                {MediaRecorder.AudioSource.DEFAULT, 48000},
                 {MediaRecorder.AudioSource.VOICE_RECOGNITION, 44100},
         };
         for (int i = 0; i < configs.length; i++) {
@@ -391,12 +428,20 @@ public class MusicSync {
                     break;
                 }
                 int strength = sampleStrength(rec);
+                boolean inWork = isInWorkPhase(targetItem);
+                if (!inWork && wasInWorkPhase) {
+                    lastWorkPushStrength = -1;
+                }
+                wasInWorkPhase = inWork;
                 if (strength != liveStrength) {
                     liveStrength = strength;
+                    if (inWork) {
+                        pushWorkPhaseStrength(strength);
+                    }
                     maybeUpdateUi();
                 }
                 try {
-                    Thread.sleep(25L);
+                    Thread.sleep(10L);
                 } catch (InterruptedException ignored) {
                     break;
                 }

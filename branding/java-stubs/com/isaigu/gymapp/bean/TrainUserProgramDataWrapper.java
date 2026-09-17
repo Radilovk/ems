@@ -6,4 +6,6 @@ public class TrainUserProgramDataWrapper implements Serializable {
     public String macAddress;
     public TrainProgram trainProgram;
     public boolean connected;
+    public boolean inStart;
+    public boolean start;
 }

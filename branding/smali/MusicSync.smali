@@ -590,7 +590,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_request_permission
+    if-nez v1, :cond_request_permission
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showPermission()V
 

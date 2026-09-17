@@ -29,6 +29,7 @@ public final class MusicPlayerHelper {
     private static AmountView sensitivityView;
     private static Uri selectedUri;
     private static TrainItemManager itemManager;
+    private static boolean pickingFile;
 
     private MusicPlayerHelper() {
     }
@@ -92,11 +93,27 @@ public final class MusicPlayerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        pickingFile = false;
         if (requestCode != PICK_AUDIO || resultCode != Activity.RESULT_OK || data == null) {
             return;
         }
-        selectedUri = data.getData();
-        updateTrackLabel(selectedUri);
+        Uri uri = data.getData();
+        if (uri == null) {
+            return;
+        }
+        selectedUri = uri;
+        try {
+            Activity activity = resolveHostActivity(null, dialogContent);
+            if (activity != null) {
+                int flags = data.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                if (flags != 0) {
+                    activity.getContentResolver().takePersistableUriPermission(uri, flags);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        refreshTrackLabel();
     }
 
     /** Same fallback chain as {@link MusicSyncHelper} for mic start. */
@@ -210,6 +227,13 @@ public final class MusicPlayerHelper {
         }
     }
 
+    private static void refreshTrackLabel() {
+        if (trackView == null && dialogContent != null) {
+            trackView = (TextView) dialogContent.findViewById(0x7f090227);
+        }
+        updateTrackLabel(selectedUri);
+    }
+
     private static void updateTrackLabel(Uri uri) {
         if (trackView == null) {
             return;
@@ -229,6 +253,15 @@ public final class MusicPlayerHelper {
     public static void showIdle() {
         if (statusView != null) {
             statusView.setText(0x7f0d0110);
+        }
+        if (levelView != null) {
+            levelView.setVisibility(View.GONE);
+        }
+    }
+
+    public static void showPreparing() {
+        if (statusView != null) {
+            statusView.setText(0x7f0d011b);
         }
         if (levelView != null) {
             levelView.setVisibility(View.GONE);
@@ -303,8 +336,12 @@ public final class MusicPlayerHelper {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("audio/*");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                pickingFile = true;
                 activity.startActivityForResult(intent, PICK_AUDIO);
             } catch (Throwable t) {
+                pickingFile = false;
                 showError(0x7f0d0113);
             }
         }
@@ -338,7 +375,9 @@ public final class MusicPlayerHelper {
     static final class DismissHandler implements android.content.DialogInterface.OnDismissListener {
         @Override
         public void onDismiss(android.content.DialogInterface d) {
-            MusicSync.stop();
+            if (!pickingFile) {
+                MusicSync.stop();
+            }
             clearDialogRefs();
         }
     }

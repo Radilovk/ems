@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/train/utils/MusicSync$3;
+.class final Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerSyncListener;
 .super Ljava/lang/Object;
 .source "MusicSync.java"
 
@@ -7,13 +7,13 @@
 
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/train/utils/MusicSync;->startPlayer(Landroid/app/Activity;Landroid/net/Uri;I)V
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
-    accessFlags = 0x0
-    name = null
+    accessFlags = 0x18
+    name = "PlayerSyncListener"
 .end annotation
 
 
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 451
+    .line 519
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,51 +32,51 @@
 .method public onError()V
     .registers 2
 
-    .line 467
+    .line 535
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 468
+    .line 536
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 469
+    .line 537
     return-void
 .end method
 
 .method public onPlaybackEnded()V
     .registers 1
 
-    .line 461
+    .line 529
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 462
+    .line 530
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 463
+    .line 531
     return-void
 .end method
 
 .method public onWaveformLevel(I)V
     .registers 3
 
-    .line 454
+    .line 522
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_d
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$700()Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1000()Z
 
     move-result v0
 
     if-eqz v0, :cond_d
 
-    .line 455
+    .line 523
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$600(I)V
 
-    .line 457
+    .line 525
     :cond_d
     return-void
 .end method

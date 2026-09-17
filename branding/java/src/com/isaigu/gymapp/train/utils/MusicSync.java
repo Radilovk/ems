@@ -446,28 +446,18 @@ public class MusicSync {
         MasterStrengthControl.ensureMaMode();
         resetAudioLevels();
         MasterStrengthControl.captureCeilingFromSlider();
+        MusicPlayerHelper.showPreparing();
+        new Thread(new PlayerPrepareTask(activity, uri), "music-player-prepare").start();
+    }
+
+    private static void finishStartPlayer(Activity activity, Uri uri, int[] envelope) {
+        if (activity == null || uri == null) {
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+            return;
+        }
         try {
             MusicPlayerEngine engine = new MusicPlayerEngine();
-            engine.start(activity, uri, new MusicPlayerEngine.Listener() {
-                @Override
-                public void onWaveformLevel(int soundPercent) {
-                    if (running && playerMode) {
-                        pushSoundLevel(soundPercent);
-                    }
-                }
-
-                @Override
-                public void onPlaybackEnded() {
-                    stop();
-                    MusicPlayerHelper.showIdle();
-                }
-
-                @Override
-                public void onError() {
-                    stop();
-                    MusicPlayerHelper.showError(ERROR_PLAYER);
-                }
-            });
+            engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
             playerEngine = engine;
             playerMode = true;
             running = true;
@@ -475,6 +465,74 @@ public class MusicSync {
             MusicPlayerHelper.showActive(0, getStrengthCeiling());
         } catch (Throwable t) {
             stopCaptureOnly();
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+        }
+    }
+
+    static final class PlayerPrepareTask implements Runnable {
+        private final Activity activity;
+        private final Uri uri;
+
+        PlayerPrepareTask(Activity activity, Uri uri) {
+            this.activity = activity;
+            this.uri = uri;
+        }
+
+        @Override
+        public void run() {
+            try {
+                int[] envelope = MusicPlayerEngine.buildEnvelope(activity, uri);
+                ensureHandler();
+                handler.post(new PlayerPrepareSuccess(activity, uri, envelope));
+            } catch (Throwable t) {
+                ensureHandler();
+                handler.post(new PlayerPrepareFailure());
+            }
+        }
+    }
+
+    static final class PlayerPrepareSuccess implements Runnable {
+        private final Activity activity;
+        private final Uri uri;
+        private final int[] envelope;
+
+        PlayerPrepareSuccess(Activity activity, Uri uri, int[] envelope) {
+            this.activity = activity;
+            this.uri = uri;
+            this.envelope = envelope;
+        }
+
+        @Override
+        public void run() {
+            finishStartPlayer(activity, uri, envelope);
+        }
+    }
+
+    static final class PlayerPrepareFailure implements Runnable {
+        @Override
+        public void run() {
+            stopCaptureOnly();
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+        }
+    }
+
+    static final class PlayerSyncListener implements MusicPlayerEngine.Listener {
+        @Override
+        public void onWaveformLevel(int soundPercent) {
+            if (running && playerMode) {
+                pushSoundLevel(soundPercent);
+            }
+        }
+
+        @Override
+        public void onPlaybackEnded() {
+            stop();
+            MusicPlayerHelper.showIdle();
+        }
+
+        @Override
+        public void onError() {
+            stop();
             MusicPlayerHelper.showError(ERROR_PLAYER);
         }
     }

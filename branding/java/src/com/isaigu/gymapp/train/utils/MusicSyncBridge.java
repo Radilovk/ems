@@ -73,9 +73,6 @@ public class MusicSyncBridge {
     }
 
     public static boolean attachManager(Activity activity) {
-        if (MusicSync.getManager() != null) {
-            return true;
-        }
         activity = resolveActivity(activity);
         if (activity == null) {
             return false;

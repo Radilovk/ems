@@ -18,6 +18,9 @@ PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
 LAYOUT = RES / "layout/edit_parameter_dialog.xml"
 EDIT_DIALOG = DIALOG_DIR / "EditUserProgramDataDialog.smali"
+TRAIN_VIEW_HOLDER_GEAR = (
+    DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder$1.smali"
+)
 VALUES_BG = ROOT / "translations/values-bg/strings.xml"
 VALUES_BG_DECOMPILED = RES / "values-bg/strings.xml"
 VALUES_DEFAULT = RES / "values/strings.xml"
@@ -212,6 +215,39 @@ def patch_layout(text: str) -> str:
     return text.replace(marker, MUSIC_UI + "\n" + marker, 1)
 
 
+def patch_train_view_holder_gear(text: str) -> str:
+    hook = (
+        "    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
+        "->setTargetItem(Lcom/isaigu/gymapp/train/model/TrainItem;)V\n\n"
+    )
+    if "MusicSyncHelper;->setTargetItem" in text:
+        print("TrainViewHolder$1: music target item hook already patched")
+        return text
+    marker = (
+        "    .line 131\n"
+        "    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$1;->this$0:"
+        "Lcom/isaigu/gymapp/train/TrainViewHolder;\n\n"
+        "    invoke-static {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$000"
+        "(Lcom/isaigu/gymapp/train/TrainViewHolder;)Lcom/isaigu/gymapp/fragment/NewTrainFragment;\n"
+    )
+    replacement = (
+        "    .line 131\n"
+        "    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$1;->this$0:"
+        "Lcom/isaigu/gymapp/train/TrainViewHolder;\n\n"
+        "    iget-object v2, v2, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:"
+        "Lcom/isaigu/gymapp/train/model/TrainItem;\n\n"
+        + hook
+        + "    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$1;->this$0:"
+        "Lcom/isaigu/gymapp/train/TrainViewHolder;\n\n"
+        "    invoke-static {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$000"
+        "(Lcom/isaigu/gymapp/train/TrainViewHolder;)Lcom/isaigu/gymapp/fragment/NewTrainFragment;\n"
+    )
+    if marker not in text:
+        raise RuntimeError("TrainViewHolder$1 gear dialog marker not found")
+    print("TrainViewHolder$1: register live TrainItem for music sync")
+    return text.replace(marker, replacement, 1)
+
+
 def patch_edit_dialog(text: str) -> str:
     bind_invoke = (
         "    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;"
@@ -305,6 +341,10 @@ def main() -> int:
     IDS_XML.write_text(patch_ids_xml(IDS_XML.read_text(encoding="utf-8")), encoding="utf-8")
     LAYOUT.write_text(patch_layout(LAYOUT.read_text(encoding="utf-8")), encoding="utf-8")
     EDIT_DIALOG.write_text(patch_edit_dialog(EDIT_DIALOG.read_text(encoding="utf-8")), encoding="utf-8")
+    TRAIN_VIEW_HOLDER_GEAR.write_text(
+        patch_train_view_holder_gear(TRAIN_VIEW_HOLDER_GEAR.read_text(encoding="utf-8")),
+        encoding="utf-8",
+    )
     names = list(STRING_IDS.keys()) + [
         "beta_music_sync_title",
         "beta_music_sync_hint",

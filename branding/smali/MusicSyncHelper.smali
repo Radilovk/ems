@@ -79,13 +79,13 @@
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    if-nez v0, :cond_has_dialog
+    if-nez v0, :cond_no_dialog
 
     const/4 v0, 0x0
 
     return-object v0
 
-    :cond_has_dialog
+    :cond_no_dialog
     invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
     move-result-object v0
@@ -97,13 +97,13 @@
     .locals 2
 
     :goto_loop
-    if-nez p0, :cond_has_context
+    if-nez p0, :cond_no_context
 
     const/4 p0, 0x0
 
     return-object p0
 
-    :cond_has_context
+    :cond_no_context
     instance-of v0, p0, Landroid/app/Activity;
 
     if-eqz v0, :cond_is_activity
@@ -136,7 +136,7 @@
     .param p0, "root"    # Landroid/view/View;
     .param p1, "dialog"    # Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
-    if-nez p0, :cond_has_root
+    if-eqz p0, :cond_has_root
 
     return-void
 

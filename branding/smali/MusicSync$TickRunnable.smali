@@ -24,11 +24,8 @@
 
     move-result v0
 
-    if-nez v0, :cond_running
+    if-eqz v0, :cond_skip_tick
 
-    return-void
-
-    :cond_running
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200()I
 
     move-result v0
@@ -37,5 +34,6 @@
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()V
 
+    :cond_skip_tick
     return-void
 .end method

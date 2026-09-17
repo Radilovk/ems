@@ -33,41 +33,34 @@
 
     move-result v0
 
-    if-eqz v0, :cond_not_empty
+    if-eqz v0, :cond_skip_item
 
     return-void
 
-    :cond_not_empty
+    :cond_skip_item
     invoke-virtual {p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    if-nez v0, :cond_has_program
+    if-eqz v0, :cond_skip_program
 
-    return-void
-
-    :cond_has_program
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    if-nez v0, :cond_has_bean
+    if-eqz v0, :cond_skip_program
 
-    return-void
-
-    :cond_has_bean
     iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$StrengthApplier;->target:I
 
-    if-ne v0, v1, :cond_apply
+    if-eq v0, v1, :cond_skip_program
 
-    return-void
-
-    :cond_apply
     sub-int v2, v1, v0
 
     invoke-virtual {p1, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_skip_program
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
 

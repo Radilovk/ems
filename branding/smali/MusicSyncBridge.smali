@@ -15,16 +15,16 @@
 .method private static tryAttach(Lcom/isaigu/gymapp/train/TrainItemManager;)Z
     .locals 1
 
-    if-nez p0, :cond_fail
+    if-eqz p0, :cond_missing_manager
 
-    const/4 v0, 0x0
-
-    return v0
-
-    :cond_fail
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setManager(Lcom/isaigu/gymapp/train/TrainItemManager;)V
 
     const/4 v0, 0x1
+
+    return v0
+
+    :cond_missing_manager
+    const/4 v0, 0x0
 
     return v0
 .end method
@@ -32,23 +32,23 @@
 .method public static attachManager(Landroid/app/Activity;)Z
     .locals 4
 
-    if-nez p0, :cond_has_activity
+    if-nez p0, :cond_missing_activity
 
     const/4 p0, 0x0
 
     return p0
 
-    :cond_has_activity
+    :cond_missing_activity
     :try_start_0
     instance-of v0, p0, Landroid/support/v4/app/FragmentActivity;
 
-    if-nez v0, :cond_fragment_activity
+    if-nez v0, :cond_not_fragment_activity
 
     const/4 p0, 0x0
 
     return p0
 
-    :cond_fragment_activity
+    :cond_not_fragment_activity
     check-cast p0, Landroid/support/v4/app/FragmentActivity;
 
     invoke-virtual {p0}, Landroid/support/v4/app/FragmentActivity;->getSupportFragmentManager()Landroid/support/v4/app/FragmentManager;
@@ -59,7 +59,7 @@
 
     move-result-object p0
 
-    if-eqz p0, :cond_fail
+    if-nez p0, :cond_fail
 
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -80,7 +80,7 @@
 
     instance-of v1, v0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
-    if-eqz v1, :cond_main
+    if-eqz v1, :cond_is_train
 
     check-cast v0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
@@ -92,7 +92,7 @@
 
     return v0
 
-    :cond_main
+    :cond_is_train
     instance-of v1, v0, Lcom/isaigu/gymapp/fragment/MainFragment;
 
     if-eqz v1, :cond_next
@@ -103,7 +103,7 @@
 
     instance-of v2, v1, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
-    if-eqz v2, :cond_now_train
+    if-eqz v2, :cond_try_field
 
     check-cast v1, Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
@@ -113,13 +113,13 @@
 
     move-result v1
 
-    if-eqz v1, :cond_now_train
+    if-eqz v1, :cond_try_field
 
     const/4 v0, 0x1
 
     return v0
 
-    :cond_now_train
+    :cond_try_field
     iget-object v0, v0, Lcom/isaigu/gymapp/fragment/MainFragment;->newTrainFragment:Lcom/isaigu/gymapp/fragment/NewTrainFragment;
 
     if-eqz v0, :cond_next

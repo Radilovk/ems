@@ -3,6 +3,15 @@
 .source "MusicSyncHelper.java"
 
 
+# annotations
+.annotation system Ldalvik/annotation/MemberClasses;
+    value = {
+        Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StartListener;,
+        Lcom/isaigu/gymapp/dialog/MusicSyncHelper$StopListener;
+    }
+.end annotation
+
+
 # static fields
 .field private static hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
@@ -17,219 +26,78 @@
 
 # direct methods
 .method public constructor <init>()V
-    .locals 0
+    .registers 1
 
+    .line 15
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
 .end method
 
+.method static synthetic access$000()Lcom/isaigu/gymapp/widget/AmountView;
+    .registers 1
+
+    .line 15
+    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
+
+    return-object v0
+.end method
+
+.method static synthetic access$100()Lcom/isaigu/gymapp/widget/AmountView;
+    .registers 1
+
+    .line 15
+    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->maxAmount:Lcom/isaigu/gymapp/widget/AmountView;
+
+    return-object v0
+.end method
+
 .method private static attachButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
-    .locals 1
+    .registers 3
 
-    if-eqz p0, :cond_done
+    .line 23
+    if-nez p0, :cond_3
 
+    .line 24
+    return-void
+
+    .line 26
+    :cond_3
     const/4 v0, 0x1
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setClickable(Z)V
 
+    .line 27
     invoke-virtual {p0, v0}, Landroid/view/View;->setEnabled(Z)V
 
+    .line 28
     invoke-virtual {p0, v0}, Landroid/view/View;->setFocusable(Z)V
 
+    .line 29
     invoke-virtual {p0, v0}, Landroid/view/View;->setFocusableInTouchMode(Z)V
 
+    .line 30
     invoke-virtual {p0, p1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    :cond_done
+    .line 31
     return-void
-.end method
-
-.method private static configureAmount(Lcom/isaigu/gymapp/widget/AmountView;I)V
-    .locals 2
-
-    if-nez p0, :cond_has_view
-
-    return-void
-
-    :cond_has_view
-    :try_start_0
-    const/4 v0, 0x0
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setMin(I)V
-
-    const/16 v0, 0x64
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setGoods_storage(I)V
-
-    const/4 v0, 0x5
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setStep(I)V
-
-    const-string v0, "%"
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setAmountUnit(Ljava/lang/String;)V
-
-    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
-
-    :catch_all
-    return-void
-.end method
-
-.method public static getActivity()Landroid/app/Activity;
-    .locals 2
-
-    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
-
-    const/4 v1, 0x0
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
-
-    move-result-object v0
-
-    return-object v0
-.end method
-
-.method public static resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
-    .locals 2
-    .param p0, "dialog"    # Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
-    .param p1, "view"    # Landroid/view/View;
-
-    if-nez p0, :cond_has_dialog
-
-    goto :goto_try_view
-
-    :cond_has_dialog
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getActivity()Landroid/support/v4/app/FragmentActivity;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_try_context
-
-    return-object v0
-
-    :cond_try_context
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_try_parent
-
-    return-object v0
-
-    :cond_try_parent
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_try_dialog
-
-    return-object v0
-
-    :cond_try_dialog
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getDialog()Landroid/app/Dialog;
-
-    move-result-object v1
-
-    if-eqz v1, :goto_try_view
-
-    invoke-virtual {v1}, Landroid/app/Dialog;->getOwnerActivity()Landroid/app/Activity;
-
-    move-result-object v0
-
-    if-eqz v0, :goto_try_view
-
-    return-object v0
-
-    :goto_try_view
-    if-eqz p1, :cond_try_cached
-
-    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_try_cached
-
-    return-object v0
-
-    :cond_try_cached
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getHostActivity()Landroid/app/Activity;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_try_main
-
-    return-object v0
-
-    :cond_try_main
-    invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
-
-    move-result-object v0
-
-    return-object v0
-.end method
-
-.method public static resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
-    .locals 2
-
-    :goto_loop
-    if-nez p0, :cond_no_context
-
-    const/4 p0, 0x0
-
-    return-object p0
-
-    :cond_no_context
-    instance-of v0, p0, Landroid/app/Activity;
-
-    if-eqz v0, :cond_is_activity
-
-    check-cast p0, Landroid/app/Activity;
-
-    return-object p0
-
-    :cond_is_activity
-    instance-of v0, p0, Landroid/content/ContextWrapper;
-
-    if-nez v0, :cond_not_wrapper
-
-    const/4 p0, 0x0
-
-    return-object p0
-
-    :cond_not_wrapper
-    check-cast p0, Landroid/content/ContextWrapper;
-
-    invoke-virtual {p0}, Landroid/content/ContextWrapper;->getBaseContext()Landroid/content/Context;
-
-    move-result-object p0
-
-    goto :goto_loop
 .end method
 
 .method public static bind(Landroid/view/View;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)V
-    .locals 3
-    .param p0, "root"    # Landroid/view/View;
-    .param p1, "dialog"    # Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
+    .registers 4
 
-    if-nez p0, :cond_has_root
+    .line 101
+    if-nez p0, :cond_3
 
+    .line 102
     return-void
 
-    :cond_has_root
-    :try_start_0
+    .line 105
+    :cond_3
+    :try_start_3
     sput-object p1, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
 
+    .line 106
     const v0, 0x7f090221
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -240,6 +108,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
+    .line 107
     const v0, 0x7f090225
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -250,6 +119,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
+    .line 108
     const v0, 0x7f090222
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -262,6 +132,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->attachButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
+    .line 109
     const v0, 0x7f090223
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -274,6 +145,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->attachButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
+    .line 110
     const v0, 0x7f09021f
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -284,6 +156,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
+    .line 111
     const v0, 0x7f090220
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -294,154 +167,403 @@
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->maxAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
+    .line 112
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
     const/16 v1, 0x14
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->configureAmount(Lcom/isaigu/gymapp/widget/AmountView;I)V
 
+    .line 113
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->maxAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
     const/16 v1, 0x50
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->configureAmount(Lcom/isaigu/gymapp/widget/AmountView;I)V
 
+    .line 114
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showIdle()V
 
+    .line 115
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
 
-    move-result-object v0
+    move-result-object p0
 
-    if-eqz v0, :skip_set_host
+    .line 116
+    if-eqz p0, :cond_69
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
+    .line 117
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
+    :try_end_69
+    .catchall {:try_start_3 .. :try_end_69} :catchall_6a
 
-    :skip_set_host
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
+    .line 120
+    :cond_69
+    goto :goto_6b
 
-    :catch_all
+    .line 119
+    :catchall_6a
+    move-exception p0
+
+    .line 121
+    :goto_6b
     return-void
 .end method
 
-.method public static getMaxAmount()Lcom/isaigu/gymapp/widget/AmountView;
-    .locals 1
+.method private static configureAmount(Lcom/isaigu/gymapp/widget/AmountView;I)V
+    .registers 3
 
+    .line 34
+    if-nez p0, :cond_3
+
+    .line 35
+    return-void
+
+    .line 38
+    :cond_3
+    const/4 v0, 0x0
+
+    :try_start_4
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setMin(I)V
+
+    .line 39
+    const/16 v0, 0x64
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setGoods_storage(I)V
+
+    .line 40
+    const/4 v0, 0x5
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setStep(I)V
+
+    .line 41
+    const-string v0, "%"
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setAmountUnit(Ljava/lang/String;)V
+
+    .line 42
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
+    :try_end_18
+    .catchall {:try_start_4 .. :try_end_18} :catchall_19
+
+    .line 44
+    goto :goto_1a
+
+    .line 43
+    :catchall_19
+    move-exception p0
+
+    .line 45
+    :goto_1a
+    return-void
+.end method
+
+.method public static getActivity()Landroid/app/Activity;
+    .registers 2
+
+    .line 48
+    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->hostDialog:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
+
+    const/4 v1, 0x0
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static getMaxAmount()Lcom/isaigu/gymapp/widget/AmountView;
+    .registers 1
+
+    .line 128
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->maxAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
     return-object v0
 .end method
 
 .method public static getMinAmount()Lcom/isaigu/gymapp/widget/AmountView;
-    .locals 1
+    .registers 1
 
+    .line 124
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->minAmount:Lcom/isaigu/gymapp/widget/AmountView;
 
     return-object v0
 .end method
 
+.method public static resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
+    .registers 3
+
+    .line 52
+    :goto_0
+    const/4 v0, 0x0
+
+    if-eqz p0, :cond_16
+
+    .line 53
+    instance-of v1, p0, Landroid/app/Activity;
+
+    if-eqz v1, :cond_a
+
+    .line 54
+    check-cast p0, Landroid/app/Activity;
+
+    return-object p0
+
+    .line 56
+    :cond_a
+    instance-of v1, p0, Landroid/content/ContextWrapper;
+
+    if-eqz v1, :cond_15
+
+    .line 57
+    check-cast p0, Landroid/content/ContextWrapper;
+
+    invoke-virtual {p0}, Landroid/content/ContextWrapper;->getBaseContext()Landroid/content/Context;
+
+    move-result-object p0
+
+    goto :goto_0
+
+    .line 59
+    :cond_15
+    return-object v0
+
+    .line 62
+    :cond_16
+    return-object v0
+.end method
+
+.method public static resolveActivityForDialog(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)Landroid/app/Activity;
+    .registers 3
+
+    .line 66
+    if-eqz p0, :cond_28
+
+    .line 67
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getActivity()Landroid/support/v4/app/FragmentActivity;
+
+    move-result-object v0
+
+    .line 68
+    if-eqz v0, :cond_9
+
+    .line 69
+    return-object v0
+
+    .line 71
+    :cond_9
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
+
+    move-result-object v0
+
+    .line 72
+    if-eqz v0, :cond_14
+
+    .line 73
+    return-object v0
+
+    .line 75
+    :cond_14
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
+
+    move-result-object v0
+
+    .line 76
+    if-eqz v0, :cond_1b
+
+    .line 77
+    return-object v0
+
+    .line 79
+    :cond_1b
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getDialog()Landroid/app/Dialog;
+
+    move-result-object p0
+
+    .line 80
+    if-eqz p0, :cond_28
+
+    .line 81
+    invoke-virtual {p0}, Landroid/app/Dialog;->getOwnerActivity()Landroid/app/Activity;
+
+    move-result-object p0
+
+    .line 82
+    if-eqz p0, :cond_28
+
+    .line 83
+    return-object p0
+
+    .line 87
+    :cond_28
+    if-eqz p1, :cond_35
+
+    .line 88
+    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object p0
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->resolveActivity(Landroid/content/Context;)Landroid/app/Activity;
+
+    move-result-object p0
+
+    .line 89
+    if-eqz p0, :cond_35
+
+    .line 90
+    return-object p0
+
+    .line 93
+    :cond_35
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getHostActivity()Landroid/app/Activity;
+
+    move-result-object p0
+
+    .line 94
+    if-eqz p0, :cond_3c
+
+    .line 95
+    return-object p0
+
+    .line 97
+    :cond_3c
+    invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
 .method public static showActive(I)V
-    .locals 3
+    .registers 4
 
-    if-gez p0, :cond_level_ok
+    .line 132
+    const/4 v0, 0x0
 
+    if-gez p0, :cond_4
+
+    .line 133
     const/4 p0, 0x0
 
-    :cond_level_ok
-    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
+    .line 135
+    :cond_4
+    sget-object v1, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_status
+    if-eqz v1, :cond_e
 
-    const v1, 0x7f0d0108
+    .line 136
+    const v2, 0x7f0d0108
 
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
+    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(I)V
 
-    :cond_status
-    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
+    .line 138
+    :cond_e
+    sget-object v1, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_level
+    if-eqz v1, :cond_2b
 
-    new-instance v1, Ljava/lang/StringBuilder;
+    .line 139
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    const-string v2, "%"
+    const-string p0, "%"
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object p0
 
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v1, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    const/4 v1, 0x0
+    .line 140
+    sget-object p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
+    invoke-virtual {p0, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    :cond_level
+    .line 142
+    :cond_2b
     return-void
 .end method
 
 .method public static showError(I)V
-    .locals 1
+    .registers 2
 
+    .line 145
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_done
+    if-eqz v0, :cond_7
 
+    .line 146
     invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(I)V
 
-    :cond_done
-    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
+    .line 148
+    :cond_7
+    sget-object p0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_hide
+    if-eqz p0, :cond_10
 
-    const/16 v1, 0x8
+    .line 149
+    const/16 v0, 0x8
 
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
+    invoke-virtual {p0, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    :cond_hide
+    .line 151
+    :cond_10
     return-void
 .end method
 
 .method public static showIdle()V
-    .locals 2
+    .registers 2
 
+    .line 154
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_status
+    if-eqz v0, :cond_a
 
+    .line 155
     const v1, 0x7f0d0109
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    :cond_status
+    .line 157
+    :cond_a
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->levelView:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_level
+    if-eqz v0, :cond_13
 
+    .line 158
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    :cond_level
+    .line 160
+    :cond_13
     return-void
 .end method
 
 .method public static showPermission()V
-    .locals 2
+    .registers 2
 
+    .line 163
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->statusView:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_done
+    if-eqz v0, :cond_a
 
+    .line 164
     const v1, 0x7f0d010a
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    :cond_done
+    .line 166
+    :cond_a
     return-void
 .end method

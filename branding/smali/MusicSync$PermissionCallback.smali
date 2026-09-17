@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/train/utils/MusicSync$PermissionCallback;
+.class final Lcom/isaigu/gymapp/train/utils/MusicSync$PermissionCallback;
 .super Ljava/lang/Object;
 .source "MusicSync.java"
 
@@ -6,10 +6,22 @@
 .implements Lcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;
 
 
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/train/utils/MusicSync;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x18
+    name = "PermissionCallback"
+.end annotation
+
+
 # direct methods
 .method constructor <init>()V
-    .locals 0
+    .registers 1
 
+    .line 284
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -18,18 +30,23 @@
 
 # virtual methods
 .method public onRequestPermission(Ljava/lang/String;IZ)V
-    .locals 1
+    .registers 4
 
-    if-eqz p3, :cond_denied
+    .line 287
+    if-eqz p3, :cond_6
 
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$400()V
+    .line 288
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 
-    return-void
+    goto :goto_c
 
-    :cond_denied
-    const v0, 0x7f0d010d
+    .line 290
+    :cond_6
+    const p1, 0x7f0d010d
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
+    .line 292
+    :goto_c
     return-void
 .end method

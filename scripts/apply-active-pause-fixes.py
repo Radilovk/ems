@@ -131,7 +131,7 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
 
     move-result v1
 
-    if-eqz v1, :cond_found
+    if-nez v1, :cond_found
 
     goto :cond_loop
 
@@ -306,8 +306,48 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     return-void
 .end method
 
-.method public static apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+.method private static applyLoaded(Ljava/util/List;Lcom/isaigu/gymapp/bean/TrainProgram;)V
     .locals 2
+
+    if-nez p1, :cond_0
+
+    return-void
+
+    :cond_0
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->findEntry(Ljava/util/List;Lcom/isaigu/gymapp/bean/TrainProgram;)Lcom/isaigu/gymapp/dialog/ActivePauseEntry;
+
+    move-result-object v0
+
+    if-nez v0, :cond_1
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyDefaults(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    return-void
+
+    :cond_1
+    iget-object v1, p1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+
+    iget-object v1, p1, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+
+    iget-object v1, p1, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+
+    iget-object v1, p1, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyDefaults(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+
+    return-void
+.end method
+
+.method public static apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+    .locals 1
 
     if-nez p0, :cond_0
 
@@ -318,40 +358,13 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
 
     move-result-object v0
 
-    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->findEntry(Ljava/util/List;Lcom/isaigu/gymapp/bean/TrainProgram;)Lcom/isaigu/gymapp/dialog/ActivePauseEntry;
-
-    move-result-object v0
-
-    if-nez v0, :cond_1
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyDefaults(Lcom/isaigu/gymapp/bean/TrainProgram;)V
-
-    return-void
-
-    :cond_1
-    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyEntry(Lcom/isaigu/gymapp/bean/ProgramDataBean;Lcom/isaigu/gymapp/dialog/ActivePauseEntry;)V
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyDefaults(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+    invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyLoaded(Ljava/util/List;Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
     return-void
 .end method
 
 .method public static mergeList(Ljava/util/List;)V
-    .locals 2
+    .locals 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -366,24 +379,28 @@ STORAGE_SMALI = """.class public Lcom/isaigu/gymapp/dialog/ActivePauseStorage;
     return-void
 
     :cond_0
-    invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-
-    move-result-object p0
-
-    :goto_0
-    invoke-interface {p0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_1
-
-    invoke-interface {p0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->loadEntries()Ljava/util/List;
 
     move-result-object v0
 
-    check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
+    invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V
+    move-result-object v1
+
+    :goto_0
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->applyLoaded(Ljava/util/List;Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
     goto :goto_0
 

@@ -52,7 +52,6 @@ python3 "${ROOT}/scripts/apply-train-ui-refinements.py"
 python3 "${ROOT}/scripts/apply-active-pause.py"
 python3 "${ROOT}/scripts/apply-active-pause-fixes.py"
 python3 "${ROOT}/scripts/apply-active-pause-avatar-button.py"
-python3 "${ROOT}/scripts/apply-avatar-tablet-layout.py"
 python3 "${ROOT}/scripts/apply-active-pause-pulse-labels.py"
 python3 "${ROOT}/scripts/remove-ramp.py"
 python3 "${ROOT}/scripts/remove-software-ramp.py"
@@ -72,12 +71,16 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-music-sync-pulse.py"
   python3 "${ROOT}/scripts/apply-music-sync-slider.py"
   python3 "${ROOT}/scripts/apply-music-sync-controls.py"
-  python3 "${ROOT}/scripts/apply-music-player.py"
   python3 "${ROOT}/scripts/apply-diag-logging.py"
-  python3 "${ROOT}/scripts/verify-music-sync-smali.py"
-  python3 "${ROOT}/scripts/verify-beta-safety.py"
 else
   echo "BETA music sync disabled (BETA_MUSIC=0)."
+fi
+
+python3 "${ROOT}/scripts/apply-branding-train-layouts.py"
+if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
+  python3 "${ROOT}/scripts/apply-music-player.py"
+  python3 "${ROOT}/scripts/verify-music-sync-smali.py"
+  python3 "${ROOT}/scripts/verify-beta-safety.py"
 fi
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"

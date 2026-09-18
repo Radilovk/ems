@@ -24,13 +24,13 @@ public final class MusicPlayerEngine {
         void onError();
     }
 
-    /** Envelope bucket size (ms) — 10 ms for sharper transients. */
-    private static final int WINDOW_MS = 10;
+    /** Envelope bucket size (ms). */
+    private static final int WINDOW_MS = 20;
     /** Sync poll interval (ms). */
-    private static final int SYNC_POLL_MS = 8;
-    /** MediaPlayer output latency compensation (ms). */
-    private static final int SYNC_OFFSET_MS = 18;
-    private static final int PCM_WINDOW_FRAMES = 128;
+    private static final int SYNC_POLL_MS = 16;
+    /** Small fixed output latency compensation for MediaPlayer. */
+    private static final int SYNC_OFFSET_MS = 30;
+    private static final int PCM_WINDOW_FRAMES = 256;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private SyncRunnable syncRunnable;
@@ -155,7 +155,7 @@ public final class MusicPlayerEngine {
         if (timeline.isEmpty()) {
             return new int[]{0};
         }
-        SoundEnvelopeMapper.fillPercentLevels(timeline, rawRms, sensitivity);
+        normalizeTimeline(timeline, rawRms, sensitivity);
         int[] result = new int[timeline.size()];
         for (int i = 0; i < timeline.size(); i++) {
             result[i] = timeline.get(i);
@@ -179,6 +179,57 @@ public final class MusicPlayerEngine {
         double existing = rawRms.get(bucketIndex);
         if (rms > existing) {
             rawRms.set(bucketIndex, rms);
+        }
+    }
+
+    /**
+     * Map raw RMS buckets to 0–100% using track peak, noise gate, and power curve
+     * (same idea as mic {@link MusicSync#envelopeToSoundPercent}).
+     */
+    private static void normalizeTimeline(
+            ArrayList<Integer> timeline,
+            ArrayList<Double> rawRms,
+            int sensitivity) {
+        double peak = 0.0;
+        for (int i = 0; i < rawRms.size(); i++) {
+            double rms = rawRms.get(i);
+            if (rms > peak) {
+                peak = rms;
+            }
+        }
+        if (peak < 80.0) {
+            peak = 80.0;
+        }
+
+        double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
+        if (gateRatio < 0.05) {
+            gateRatio = 0.05;
+        }
+        double noiseGate = Math.max(35.0, peak * gateRatio);
+        double span = peak - noiseGate;
+        if (span < 25.0) {
+            span = 25.0;
+        }
+
+        for (int i = 0; i < timeline.size(); i++) {
+            double rms = rawRms.get(i);
+            int level = 0;
+            if (rms > noiseGate) {
+                double normalized = (rms - noiseGate) / span;
+                if (normalized < 0.0) {
+                    normalized = 0.0;
+                } else if (normalized > 1.0) {
+                    normalized = 1.0;
+                }
+                normalized = Math.pow(normalized, 1.35);
+                level = (int) Math.round(normalized * 100.0);
+                if (level < 0) {
+                    level = 0;
+                } else if (level > 100) {
+                    level = 100;
+                }
+            }
+            timeline.set(i, level);
         }
     }
 
@@ -227,7 +278,7 @@ public final class MusicPlayerEngine {
         handler.post(syncRunnable);
     }
 
-    void dispatchLevel(int soundPercent) {
+    void dispatchLevel(int index) {
         if (!tracking || player == null || envelope == null || listener == null) {
             return;
         }
@@ -235,12 +286,18 @@ public final class MusicPlayerEngine {
             if (!player.isPlaying()) {
                 return;
             }
-            listener.onWaveformLevel(soundPercent);
+            if (index < 0) {
+                index = 0;
+            }
+            if (index >= envelope.length) {
+                index = envelope.length - 1;
+            }
+            listener.onWaveformLevel(envelope[index]);
         } catch (Throwable ignored) {
         }
     }
 
-    int resolveEnvelopeLevel(int positionMs) {
+    int resolveEnvelopeIndex(int positionMs) {
         if (envelope == null || envelope.length == 0) {
             return 0;
         }
@@ -250,15 +307,9 @@ public final class MusicPlayerEngine {
         }
         int index = lookupMs / WINDOW_MS;
         if (index >= envelope.length) {
-            return envelope[envelope.length - 1];
+            return envelope.length - 1;
         }
-        int frac = lookupMs % WINDOW_MS;
-        if (frac == 0 || index >= envelope.length - 1) {
-            return envelope[index];
-        }
-        int current = envelope[index];
-        int next = envelope[index + 1];
-        return current + (next - current) * frac / WINDOW_MS;
+        return index;
     }
 
     int resolvePlaybackPositionMs() {
@@ -331,7 +382,7 @@ public final class MusicPlayerEngine {
             }
             try {
                 int positionMs = target.resolvePlaybackPositionMs();
-                target.dispatchLevel(target.resolveEnvelopeLevel(positionMs));
+                target.dispatchLevel(target.resolveEnvelopeIndex(positionMs));
             } catch (Throwable ignored) {
             }
             if (target.tracking) {

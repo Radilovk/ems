@@ -516,20 +516,15 @@ public class MusicSync {
         try {
             MusicPlayerEngine engine = new MusicPlayerEngine();
             engine.setMappingParams(sensitivity, referencePeakRms);
-            engine.startPlayback(
-                    activity,
-                    uri,
-                    envelope,
-                    referencePeakRms,
-                    sensitivity,
-                    new PlayerSyncListener());
+            engine.setVisualizerAllowed(hasRecordPermission());
+            engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
             playerEngine = engine;
             playerMode = true;
             running = true;
             setSyncActive(true);
             liveStrength = 0;
-            MusicPlayerHelper.showActive(0, getStrengthCeiling());
         } catch (Throwable t) {
+            MusicDiagLog.logError("player_start", t);
             stopCaptureOnly();
             MusicPlayerHelper.showError(ERROR_PLAYER);
         }
@@ -552,6 +547,7 @@ public class MusicSync {
                 ensureHandler();
                 handler.post(new PlayerPrepareSuccess(activity, uri, built));
             } catch (Throwable t) {
+                MusicDiagLog.logError("player_decode", t);
                 ensureHandler();
                 handler.post(new PlayerPrepareFailure());
             }
@@ -589,6 +585,13 @@ public class MusicSync {
     }
 
     static final class PlayerSyncListener implements MusicPlayerEngine.Listener {
+        @Override
+        public void onPlaybackReady() {
+            if (running && playerMode) {
+                MusicPlayerHelper.showActive(0, getStrengthCeiling());
+            }
+        }
+
         @Override
         public void onWaveformLevel(int soundPercent) {
             if (running && playerMode) {

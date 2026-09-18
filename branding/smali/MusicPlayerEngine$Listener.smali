@@ -21,5 +21,8 @@
 .method public abstract onPlaybackEnded()V
 .end method
 
+.method public abstract onPlaybackReady()V
+.end method
+
 .method public abstract onWaveformLevel(I)V
 .end method

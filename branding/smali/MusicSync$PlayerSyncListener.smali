@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 591
+    .line 587
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,35 +32,64 @@
 .method public onError()V
     .registers 2
 
-    .line 607
+    .line 610
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 608
+    .line 611
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 609
+    .line 612
     return-void
 .end method
 
 .method public onPlaybackEnded()V
     .registers 1
 
-    .line 601
+    .line 604
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 602
+    .line 605
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 603
+    .line 606
+    return-void
+.end method
+
+.method public onPlaybackReady()V
+    .registers 3
+
+    .line 590
+    sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
+
+    if-eqz v0, :cond_12
+
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$300()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_12
+
+    .line 591
+    const/4 v0, 0x0
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getStrengthCeiling()I
+
+    move-result v1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showActive(II)V
+
+    .line 593
+    :cond_12
     return-void
 .end method
 
 .method public onWaveformLevel(I)V
     .registers 3
 
-    .line 594
+    .line 597
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_d
@@ -72,11 +101,11 @@
 
     if-eqz v0, :cond_d
 
-    .line 595
+    .line 598
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$700(I)V
 
-    .line 597
+    .line 600
     :cond_d
     return-void
 .end method

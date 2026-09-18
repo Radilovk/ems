@@ -378,96 +378,89 @@
 .end method
 
 .method private static finishStartPlayer(Landroid/app/Activity;Landroid/net/Uri;[ID)V
-    .registers 15
+    .registers 8
 
     .line 512
     const v0, 0x7f0d0113
 
-    if-eqz p0, :cond_3e
+    if-eqz p0, :cond_3c
 
     if-nez p1, :cond_8
 
-    goto :goto_3e
+    goto :goto_3c
 
     .line 517
     :cond_8
     :try_start_8
-    new-instance v9, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
+    new-instance v1, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    invoke-direct {v9}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;-><init>()V
+    invoke-direct {v1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;-><init>()V
 
     .line 518
-    sget v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
+    sget v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
 
-    invoke-virtual {v9, v1, p3, p4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->setMappingParams(ID)V
+    invoke-virtual {v1, v2, p3, p4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->setMappingParams(ID)V
 
     .line 519
-    sget v7, Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->hasRecordPermission()Z
 
-    new-instance v8, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerSyncListener;
+    move-result p3
 
-    invoke-direct {v8}, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerSyncListener;-><init>()V
+    invoke-virtual {v1, p3}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->setVisualizerAllowed(Z)V
 
-    move-object v1, v9
+    .line 520
+    new-instance p3, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerSyncListener;
 
-    move-object v2, p0
+    invoke-direct {p3}, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerSyncListener;-><init>()V
 
-    move-object v3, p1
+    invoke-virtual {v1, p0, p1, p2, p3}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->startPlayback(Landroid/content/Context;Landroid/net/Uri;[ILcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;)V
 
-    move-object v4, p2
+    .line 521
+    sput-object v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    move-wide v5, p3
-
-    invoke-virtual/range {v1 .. v8}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->startPlayback(Landroid/content/Context;Landroid/net/Uri;[IDILcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;)V
-
-    .line 526
-    sput-object v9, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
-
-    .line 527
+    .line 522
     const/4 p0, 0x1
 
     sput-boolean p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
 
-    .line 528
+    .line 523
     sput-boolean p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    .line 529
+    .line 524
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSyncActive(Z)V
 
-    .line 530
+    .line 525
     const/4 p0, 0x0
 
     sput p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
+    :try_end_2e
+    .catchall {:try_start_8 .. :try_end_2e} :catchall_2f
 
-    .line 531
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getStrengthCeiling()I
+    .line 530
+    goto :goto_3b
 
-    move-result p1
-
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showActive(II)V
-    :try_end_35
-    .catchall {:try_start_8 .. :try_end_35} :catchall_36
-
-    .line 535
-    goto :goto_3d
-
-    .line 532
-    :catchall_36
+    .line 526
+    :catchall_2f
     move-exception p0
 
-    .line 533
+    .line 527
+    const-string p1, "player_start"
+
+    invoke-static {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    .line 528
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
 
-    .line 534
+    .line 529
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 536
-    :goto_3d
+    .line 531
+    :goto_3b
     return-void
 
     .line 513
-    :cond_3e
-    :goto_3e
+    :cond_3c
+    :goto_3c
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
     .line 514
@@ -1579,10 +1572,10 @@
 .method public static stop()V
     .registers 0
 
-    .line 613
+    .line 616
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
 
-    .line 614
+    .line 617
     return-void
 .end method
 

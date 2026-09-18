@@ -25,13 +25,13 @@
 .method constructor <init>(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)V
     .registers 2
 
-    .line 451
+    .line 508
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 452
+    .line 509
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 453
+    .line 510
     return-void
 .end method
 
@@ -40,10 +40,10 @@
 .method public run()V
     .registers 4
 
-    .line 457
+    .line 514
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 458
+    .line 515
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
@@ -65,7 +65,7 @@
 
     if-eqz v1, :cond_3e
 
-    .line 459
+    .line 516
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->visualizerActive:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
@@ -75,14 +75,14 @@
 
     goto :goto_3e
 
-    .line 463
+    .line 520
     :cond_1b
     :try_start_1b
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolvePlaybackPositionMs()I
 
     move-result v1
 
-    .line 464
+    .line 521
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolveEnvelopeIndex(I)I
 
     move-result v1
@@ -91,14 +91,14 @@
     :try_end_26
     .catchall {:try_start_1b .. :try_end_26} :catchall_27
 
-    .line 466
+    .line 523
     goto :goto_28
 
-    .line 465
+    .line 522
     :catchall_27
     move-exception v1
 
-    .line 467
+    .line 524
     :goto_28
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
@@ -114,7 +114,7 @@
 
     if-nez v1, :cond_3d
 
-    .line 468
+    .line 525
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$400(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/os/Handler;
 
@@ -124,11 +124,11 @@
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 470
+    .line 527
     :cond_3d
     return-void
 
-    .line 460
+    .line 517
     :cond_3e
     :goto_3e
     return-void

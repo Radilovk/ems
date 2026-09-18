@@ -38,6 +38,7 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/train/utils/MusicSyncBridge.class' \
      -o -path '*/train/utils/MusicPlayerEngine*.class' \
      -o -path '*/train/utils/AudioOutputLatency.class' \
+     -o -path '*/train/utils/MusicUriSource.class' \
      -o -path '*/train/utils/SoundEnvelopeMapper.class' \
      -o -path '*/train/utils/MusicDiagLog.class' \
      -o -path '*/dialog/MusicSyncHelper*.class' \
@@ -66,6 +67,6 @@ find "${BRANDING_SMALI}" -name 'MusicDiagLog.smali' -delete
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
   echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'AudioOutputLatency.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicDiagLog.smali' \) -print0)
+done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'AudioOutputLatency.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicDiagLog.smali' \) -print0)
 
 echo "Music-sync Java compile complete."

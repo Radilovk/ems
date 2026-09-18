@@ -19,6 +19,17 @@ COMMAND_UTIL = (
     / "utils"
     / "CommandUtil.smali"
 )
+UTILS_DIR = (
+    ROOT
+    / "build"
+    / "decompiled"
+    / "smali_classes2"
+    / "com"
+    / "isaigu"
+    / "gymapp"
+    / "train"
+    / "utils"
+)
 TRAIN_VH = (
     ROOT
     / "build"
@@ -72,6 +83,29 @@ def check_train_vh() -> list[str]:
     return []
 
 
+def check_player_engine_deps() -> list[str]:
+    required = (
+        "AudioOutputLatency.smali",
+        "MusicUriSource.smali",
+        "SoundEnvelopeMapper.smali",
+    )
+    if not UTILS_DIR.is_dir():
+        return ["MISSING: train/utils (run build first)"]
+    errs: list[str] = []
+    for name in required:
+        if not (UTILS_DIR / name).is_file():
+            errs.append(f"MISSING in APK: train/utils/{name} (apply-music-player install_smali)")
+    engine = UTILS_DIR / "MusicPlayerEngine.smali"
+    if engine.is_file():
+        text = engine.read_text(encoding="utf-8")
+        for cls in ("AudioOutputLatency", "MusicUriSource"):
+            if cls in text and f"{cls}.smali" not in {
+                p.name for p in UTILS_DIR.glob("*.smali")
+            }:
+                errs.append(f"MusicPlayerEngine references {cls} but smali not installed")
+    return errs
+
+
 def check_stale_player_helper() -> list[str]:
     stale = SMALI_DIR / "MusicPlayerHelper$1.smali"
     if stale.is_file():
@@ -84,6 +118,7 @@ def check_stale_player_helper() -> list[str]:
 
 def main() -> int:
     errs: list[str] = []
+    errs.extend(check_player_engine_deps())
     errs.extend(check_stale_player_helper())
     paths = sorted(SMALI_DIR.glob("*.smali"))
     paths = [p for p in paths if p.name.startswith("MusicSync") or p.name.startswith("MasterStrength")]

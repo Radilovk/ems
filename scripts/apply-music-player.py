@@ -212,11 +212,24 @@ def install_smali() -> None:
     for src in sorted((BRANDING / "smali").glob("MusicPlayerEngine*.smali")):
         shutil.copy2(src, UTILS_DIR / src.name)
         print(f"installed train/utils/{src.name}")
-    for name in ("MusicSync.smali", "MasterStrengthControl.smali", "SoundEnvelopeMapper.smali"):
+    utils_smali = (
+        "MusicSync.smali",
+        "MasterStrengthControl.smali",
+        "MusicSyncBridge.smali",
+        "SoundEnvelopeMapper.smali",
+        "AudioOutputLatency.smali",
+        "MusicUriSource.smali",
+    )
+    for name in utils_smali:
         src = BRANDING / f"smali/{name}"
         if src.is_file():
             shutil.copy2(src, UTILS_DIR / name)
             print(f"installed train/utils/{name}")
+        elif name in ("AudioOutputLatency.smali", "MusicUriSource.smali"):
+            raise SystemExit(f"Missing {name} — run compile-music-sync-java.sh")
+    for src in sorted((BRANDING / "smali").glob("MusicSync$*.smali")):
+        shutil.copy2(src, UTILS_DIR / src.name)
+        print(f"installed train/utils/{src.name}")
 
 
 def patch_public_xml(text: str) -> str:

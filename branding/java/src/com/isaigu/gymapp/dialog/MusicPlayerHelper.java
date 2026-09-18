@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.widget.AmountView;
 
@@ -86,6 +87,8 @@ public final class MusicPlayerHelper {
         builder.setView(content);
         builder.setOnDismissListener(new DismissHandler());
         dialog = builder.create();
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
@@ -94,6 +97,7 @@ public final class MusicPlayerHelper {
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
         pickingFile = false;
+        restoreDialogAfterPick();
         if (requestCode != PICK_AUDIO || resultCode != Activity.RESULT_OK || data == null) {
             return;
         }
@@ -105,15 +109,34 @@ public final class MusicPlayerHelper {
         try {
             Activity activity = resolveHostActivity(null, dialogContent);
             if (activity != null) {
-                int flags = data.getFlags()
+                int takeFlags = data.getFlags()
                         & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                if (flags != 0) {
-                    activity.getContentResolver().takePersistableUriPermission(uri, flags);
+                if (takeFlags != 0) {
+                    try {
+                        activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                    } catch (Throwable t) {
+                        MusicDiagLog.logError("player_uri_persist", t);
+                    }
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable t) {
+            MusicDiagLog.logError("player_uri_grant", t);
         }
         refreshTrackLabel();
+    }
+
+    private static void restoreDialogAfterPick() {
+        android.support.v7.app.AlertDialog current = dialog;
+        if (current == null) {
+            return;
+        }
+        try {
+            if (!current.isShowing()) {
+                current.show();
+            }
+        } catch (Throwable t) {
+            MusicDiagLog.logError("player_dialog_restore", t);
+        }
     }
 
     /** Same fallback chain as {@link MusicSyncHelper} for mic start. */
@@ -339,9 +362,17 @@ public final class MusicPlayerHelper {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
                 pickingFile = true;
+                if (dialog != null) {
+                    try {
+                        dialog.hide();
+                    } catch (Throwable ignored) {
+                    }
+                }
                 activity.startActivityForResult(intent, PICK_AUDIO);
             } catch (Throwable t) {
                 pickingFile = false;
+                restoreDialogAfterPick();
+                MusicDiagLog.logError("player_pick", t);
                 showError(0x7f0d0113);
             }
         }
@@ -375,9 +406,11 @@ public final class MusicPlayerHelper {
     static final class DismissHandler implements android.content.DialogInterface.OnDismissListener {
         @Override
         public void onDismiss(android.content.DialogInterface d) {
-            if (!pickingFile) {
-                MusicSync.stop();
+            if (pickingFile) {
+                return;
             }
+            dialog = null;
+            MusicSync.stop();
             clearDialogRefs();
         }
     }

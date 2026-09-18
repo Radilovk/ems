@@ -84,25 +84,18 @@ def check_train_vh() -> list[str]:
 
 
 def check_player_engine_deps() -> list[str]:
-    required = (
-        "AudioOutputLatency.smali",
-        "MusicUriSource.smali",
-        "SoundEnvelopeMapper.smali",
-    )
     if not UTILS_DIR.is_dir():
         return ["MISSING: train/utils (run build first)"]
     errs: list[str] = []
-    for name in required:
-        if not (UTILS_DIR / name).is_file():
-            errs.append(f"MISSING in APK: train/utils/{name} (apply-music-player install_smali)")
     engine = UTILS_DIR / "MusicPlayerEngine.smali"
     if engine.is_file():
         text = engine.read_text(encoding="utf-8")
+        installed = {p.name for p in UTILS_DIR.glob("*.smali")}
         for cls in ("AudioOutputLatency", "MusicUriSource"):
-            if cls in text and f"{cls}.smali" not in {
-                p.name for p in UTILS_DIR.glob("*.smali")
-            }:
+            if cls in text and f"{cls}.smali" not in installed:
                 errs.append(f"MusicPlayerEngine references {cls} but smali not installed")
+    if not (UTILS_DIR / "SoundEnvelopeMapper.smali").is_file():
+        errs.append("MISSING in APK: train/utils/SoundEnvelopeMapper.smali")
     return errs
 
 

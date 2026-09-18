@@ -54,10 +54,11 @@ java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 echo "Installing smali to branding/smali..."
 find "${BRANDING_SMALI}" -name 'MusicSync*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MasterStrengthControl.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicPlayer*.smali' -delete
+find "${BRANDING_SMALI}" -name 'MusicPlayerHelper*.smali' -delete
+find "${BRANDING_SMALI}" -name 'MusicPlayerEngine*.smali' -delete
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
   echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicPlayer*.smali' \) -print0)
+done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicPlayerEngine*.smali' \) -print0)
 
 echo "Music-sync Java compile complete."

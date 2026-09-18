@@ -3,6 +3,8 @@ package com.isaigu.gymapp.dialog;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -20,6 +22,8 @@ public final class MusicPlayerHelper {
     static final int BUTTON_ID = 0x7f090226;
     static final int LAYOUT_ID = 0x7f0b0078;
     static final int PICK_AUDIO = 0x4255;
+
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private static android.support.v7.app.AlertDialog dialog;
     private static View dialogContent;
@@ -53,43 +57,67 @@ public final class MusicPlayerHelper {
 
     public static void show(Activity activity, TrainItem item) {
         activity = resolveHostActivity(activity, dialogContent);
-        if (activity == null) {
+        if (!canShowOn(activity)) {
             return;
         }
         if (item == null) {
             toast(activity, 0x7f0d011a);
             return;
         }
-        MusicSync.setHostActivity(activity);
-        MusicSync.setTargetItem(item);
-        dismissDialog();
-        View content;
+        final Activity host = activity;
+        final TrainItem target = item;
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                openDialog(host, target);
+            }
+        });
+    }
+
+    private static boolean canShowOn(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
         try {
-            content = LayoutInflater.from(activity).inflate(LAYOUT_ID, null);
-        } catch (Throwable t) {
-            toast(activity, 0x7f0d0113);
+            return !activity.isFinishing();
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    private static void openDialog(Activity activity, TrainItem item) {
+        if (!canShowOn(activity) || item == null) {
             return;
         }
-        dialogContent = content;
-        trackView = (TextView) content.findViewById(0x7f090227);
-        sensitivityView = (AmountView) content.findViewById(0x7f090228);
-        statusView = (TextView) content.findViewById(0x7f090229);
-        levelView = (TextView) content.findViewById(0x7f09022a);
-        configureSensitivity();
-        updateTrackLabel(selectedUri);
-        bindButton(content.findViewById(0x7f09022b), new PickListener());
-        bindButton(content.findViewById(0x7f09022c), new PlayListener());
-        bindButton(content.findViewById(0x7f09022d), new StopListener());
-        showIdle();
-        android.support.v7.app.AlertDialog.Builder builder =
-                new android.support.v7.app.AlertDialog.Builder(activity);
-        builder.setView(content);
-        builder.setOnDismissListener(new DismissHandler());
-        dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        try {
+            MusicSync.setHostActivity(activity);
+            MusicSync.setTargetItem(item);
+            dismissDialog();
+            View content = LayoutInflater.from(activity).inflate(LAYOUT_ID, null);
+            dialogContent = content;
+            trackView = (TextView) content.findViewById(0x7f090227);
+            sensitivityView = (AmountView) content.findViewById(0x7f090228);
+            statusView = (TextView) content.findViewById(0x7f090229);
+            levelView = (TextView) content.findViewById(0x7f09022a);
+            configureSensitivity();
+            updateTrackLabel(selectedUri);
+            bindButton(content.findViewById(0x7f09022b), new PickListener());
+            bindButton(content.findViewById(0x7f09022c), new PlayListener());
+            bindButton(content.findViewById(0x7f09022d), new StopListener());
+            showIdle();
+            android.support.v7.app.AlertDialog.Builder builder =
+                    new android.support.v7.app.AlertDialog.Builder(activity);
+            builder.setView(content);
+            builder.setOnDismissListener(new DismissHandler());
+            dialog = builder.create();
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+            dialog.show();
+        } catch (Throwable t) {
+            dismissDialog();
+            toast(activity, 0x7f0d0113);
         }
-        dialog.show();
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -177,6 +205,7 @@ public final class MusicPlayerHelper {
     private static void dismissDialog() {
         if (dialog != null) {
             try {
+                dialog.setOnDismissListener(null);
                 dialog.dismiss();
             } catch (Throwable ignored) {
             }
@@ -309,11 +338,10 @@ public final class MusicPlayerHelper {
         @Override
         public void onClick(View view) {
             Activity activity = resolveHostActivity(view != null ? view : root);
-            if (activity == null) {
-                toast(null, 0x7f0d010b);
+            if (!canShowOn(activity)) {
+                toast(activity, 0x7f0d010b);
                 return;
             }
-            MusicSync.setHostActivity(activity);
             TrainItem item = resolveTargetItem(manager);
             if (item == null) {
                 toast(activity, 0x7f0d011a);

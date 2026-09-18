@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "id": "example-train-tablet",
+  "screen": "train_user_row",
+  "status": "draft",
+  "user_note": "Пример: avatar колона по-широка, sliders след mode бутоните",
+  "row_height_dp": 190,
+  "columns": [
+    {
+      "name": "mode_buttons",
+      "weight": 0.35,
+      "elements": [{ "type": "button", "id": "strenthExist", "label": "Мускули", "background": "@drawable/round_corner_drawable_r10_red" }]
+    },
+    {
+      "name": "muscle_sliders",
+      "weight": 2.0,
+      "elements": [{ "type": "slider_bank", "channel_width_dp": 32 }]
+    },
+    {
+      "name": "avatar",
+      "weight": 0.72,
+      "elements": [{
+        "type": "avatar_panel",
+        "avatar": {
+          "index_button_size_dp": 42,
+          "index_button_edge_dp": 8,
+          "index_button_vertical_dp": 18,
+          "slider_padding_dp": 22,
+          "slider_track_width_dp": 12
+        }
+      }]
+    },
+    {
+      "name": "user_info",
+      "weight": 0.48,
+      "elements": [{ "type": "text", "id": "name", "label": "Име" }]
+    },
+    {
+      "name": "action_buttons",
+      "weight": 0.2,
+      "elements": []
+    }
+  ]
+}

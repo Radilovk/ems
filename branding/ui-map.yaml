@@ -1,0 +1,237 @@
+# XEMS UI map — canonical reference for humans and agents.
+# Validate: python3 scripts/ui-map.py --check
+# Show summary: python3 scripts/ui-map.py
+
+version: 1
+app: xems-pro
+
+# ── Login freeze (Sep 2026) — NOT caused by this design module ─────────────
+# Real causes: broken BETA APK build, ActivePauseStorage.findEntry bug,
+# loading spinner dismissed after navigation. Design pipeline was disabled
+# as precaution; train layout numbers alone do not touch login code.
+
+build_pipeline:
+  base: "v0.50 APK decompiled fresh each build"
+  design_module_enabled: false  # set DESIGN_PIPELINE=1 to opt in
+  stages:
+    - order: 1
+      name: copy_static_layouts
+      source: branding/layouts/*.xml
+      targets: login, splash, main, settings (NOT train rows)
+    - order: 2
+      name: smali_layout_patches
+      scripts:
+        - apply-ui-theme.py
+        - apply-train-ui-refinements.py
+        - apply-active-pause*.py
+        - apply-avatar-timer.py
+        - apply-hz-controls.py
+      note: "Incremental patches on decompiled/ — order matters"
+    - order: 3
+      name: design_pipeline_opt_in
+      when: "DESIGN_PIPELINE=1"
+      scripts:
+        - apply-design-config.py  # branding/design-config.yaml → branding/design/
+        - apply-branding-train-layouts.py  # branding/design/ → decompiled/res/layout/
+      note: "Runs AFTER train patches; BEFORE BETA music layout hooks"
+    - order: 4
+      name: beta_music
+      when: "BETA_MUSIC=1"
+      scripts:
+        - apply-music-player.py
+      note: "Patches new_train_fragment_layout.xml — must run after design copy"
+
+screens:
+  login:
+    fragment: LoginFragment
+    layout: login_fragment_layout.xml
+    source: branding/layouts/
+    safe_edit: colors, margins via apply-ui-theme.py
+    never_edit: smali login callbacks without apply-login-fix.py
+
+  splash:
+    fragment: SplashFragment
+    layout: splash_fragment_layout.xml
+    source: branding/layouts/
+
+  coach_home:
+    fragment: MainFragment
+    layout: main_fragment_layout.xml
+    source: branding/layouts/
+    post_login: true
+    note: "ROLE_COACH lands here; initData() loads train programs + mergeList"
+
+  user_home:
+    fragment: StartFragment
+    layout: start_fragment_layout.xml
+    source: branding/layouts/
+
+  train_session:
+    fragment: NewTrainFragment
+    layouts:
+      - new_train_fragment_layout.xml
+      - train_fragment_layout.xml
+    row_layouts:
+      - new_user_train_control_item_layout.xml
+      - user_train_control_item_layout.xml
+    canonical_source: branding/design/
+    editor: branding/design-studio.html
+    apply_command: bash scripts/design-apply.sh
+    config: branding/design-config.yaml
+
+# Train row — left-to-right columns (new_user_train_control_item_layout.xml)
+train_row:
+  layout_files:
+    - branding/design/new_user_train_control_item_layout.xml
+    - branding/design/user_train_control_item_layout.xml
+  structure: horizontal LinearLayout with 5 weighted columns
+
+  columns:
+    - id: mode_buttons
+      editor_key: columns.mode_buttons
+      xml: 'LinearLayout[weight] before @id/strenthExist'
+      weight_attr: android:layout_weight
+      contains:
+        - id: strenthExist
+          label_bg: "Мускули (червен)"
+        - id: youyangyundong
+          label_bg: "Аеробно (оранжев)"
+        - id: anmo
+          label_bg: "Масаж (син)"
+
+    - id: muscle_sliders
+      editor_key: columns.muscle_sliders
+      xml: 'LinearLayout[weight] wrapping vpb_brightness1..10'
+      contains:
+        - id: vpb_brightness1
+          label_bg: "Канал 1 slider"
+        - id: vpb_brightness2
+          label_bg: "Канал 2"
+        - pattern: vpb_brightness3..10
+      slider_width_key: sliders.channel_width_dp
+
+    - id: avatar
+      editor_key: columns.avatar
+      xml: 'RelativeLayout[weight] — avatar + circle slider + index buttons'
+      critical_ids:
+        - id: circleSeekBar
+          label_bg: "Кръгов master slider (CircleSeekBar)"
+          config_keys:
+            - avatar.slider_padding_dp
+            - avatar.slider_padding_bottom_dp
+            - avatar.slider_track_width_dp
+            - avatar.slider_pointer_radius_dp
+        - id: ma
+          label_bg: "Горе-ляво: mA (импулс)"
+          config_keys: [avatar.index_button_size_dp, avatar.index_button_edge_dp, avatar.index_button_vertical_dp]
+        - id: pauseMaValue
+          label_bg: "Горе-дясно: pause mA %"
+        - id: hzValue
+          label_bg: "Долу-ляво: Hz"
+        - id: pauseHzValue
+          label_bg: "Долу-дясно: pause Hz"
+        - id: userIcon
+          label_bg: "Снимка на потребителя"
+          config_key: avatar.icon_padding_dp
+        - id: wave_ball_progress_value
+          label_bg: "Таймер в центъра"
+          config_key: avatar.timer_text_sp
+        - id: wave_ball_progress_act_view
+          label_bg: "Wave progress (скрит по подразбиране)"
+          config_key: avatar.wave_margin_dp
+
+    - id: user_info
+      editor_key: columns.user_info
+      contains:
+        - id: name
+        - id: time
+        - id: paulsecontinue
+        - id: paulsestop
+        - id: signalImage
+        - id: MyBatterView
+
+    - id: action_buttons
+      editor_key: columns.action_buttons
+      contains:
+        - id: stop
+        - id: startpaulse
+        - id: save
+
+  row_height:
+    editor_key: row.height_dp
+    xml: root LinearLayout android:layout_height
+
+config_to_xml:
+  row.height_dp: "root layout_height"
+  columns.mode_buttons: "column 1 layout_weight"
+  columns.muscle_sliders: "column 2 layout_weight"
+  columns.avatar: "RelativeLayout layout_weight"
+  columns.user_info: "column 4 layout_weight"
+  columns.action_buttons: "column 5 layout_weight"
+  avatar.index_button_size_dp: "@id/ma, pauseMaValue, hzValue, pauseHzValue width+height"
+  avatar.index_button_edge_dp: "index button marginLeft/Right"
+  avatar.index_button_vertical_dp: "index button marginTop/Bottom"
+  avatar.icon_padding_dp: "@id/userIcon padding"
+  avatar.timer_text_sp: "@id/wave_ball_progress_value textSize"
+  avatar.wave_margin_dp: "@id/wave_ball_progress_act_view layout_margin"
+  avatar.slider_padding_dp: "@id/circleSeekBar padding L/T/R"
+  avatar.slider_padding_bottom_dp: "@id/circleSeekBar paddingBottom"
+  avatar.slider_track_width_dp: "@id/circleSeekBar wheel_*_width"
+  avatar.slider_pointer_radius_dp: "@id/circleSeekBar wheel_pointer_radius"
+  mode_buttons.width_dp: "@id/strenthExist, youyangyundong, anmo width"
+  mode_buttons.height_dp: "@id/strenthExist, youyangyundong, anmo height"
+  sliders.channel_width_dp: "@id/vpb_brightness* layout_width"
+
+safe_edit_rules:
+  do:
+    - "Use design-editor.html or design-config.yaml for train row sizes"
+    - "Run python3 scripts/apply-design-config.py --check before build"
+    - "Use presets phone / tablet / tablet_wide as starting points"
+    - "Describe UI changes by column name + @id (e.g. avatar column, @id/circleSeekBar padding)"
+  do_not:
+    - "Rename or remove @id/* — Java/smali hooks break"
+    - "Change XML nesting or add/remove views in branding/design/"
+    - "Edit decompiled/ directly — changes are lost on rebuild"
+    - "Enable DESIGN_PIPELINE until login is verified on target device"
+    - "Confuse branding/layouts/ (login, settings) with branding/design/ (train only)"
+
+agent_checklist:
+  - "Which screen? login / train row / train fragment / settings?"
+  - "Which column and @id? See train_row.columns above"
+  - "Is change numeric size only? → design-config.yaml"
+  - "Is change color/theme? → apply-ui-theme.py or branding/theme/"
+  - "Is change logic? → smali patch script, NOT design editor"
+  - "Run ui-map.py --check and apply-design-config.py --check"
+
+# ── Visual understanding (agents do NOT see the device screen) ─────────────
+coordination:
+  workshop: branding/layout-workshop.html
+  numeric_tweaks: branding/design-studio.html
+  workflow: |
+    1. User designs structure in Layout Workshop (columns, buttons, forms)
+    2. User clicks „Одобри“ and exports JSON → branding/layout-briefs/
+    3. Agent: bash scripts/coord-design.sh --brief FILE.json --apply [--build]
+    4. User verifies on device; iterate with new brief version
+  agent_must: |
+    - Read user_note in brief before implementing
+    - Never implement draft briefs without user approval
+    - For train row: keep required @id unless user explicitly accepts smali work
+    - Ask for screenshot when visual result is ambiguous
+
+visual_reference:
+  html_mockup: branding/design-studio.html
+  source: "Reconstructed from layout XML — not a device screenshot"
+  open: "Double-click visual-reference.html in browser (tablet train view)"
+  when_user_reports_visual_bug:
+    - "Ask for a screenshot or short video from the actual tablet/phone"
+    - "User marks the problem area using @id names from visual-reference.html"
+    - "Example: 'index button @id/ma overlaps @id/circleSeekBar on tablet landscape'"
+    - "Never guess radial/wedge layouts unless user explicitly requests them"
+  what_agents_can_know_without_screenshot:
+    - "Column structure and layout_weight ratios from XML"
+    - "Exact dp/sp values from design-config.yaml"
+    - "Which views exist (@id) and their parent RelativeLayout/LinearLayout"
+  what_agents_cannot_know_without_screenshot:
+    - "Actual pixel overlap on a specific device resolution"
+    - "Whether a change 'looks good' aesthetically to the user"
+    - "Real mipmap/icon appearance (only placeholders in mockup)"

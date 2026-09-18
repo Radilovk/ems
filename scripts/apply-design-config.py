@@ -364,8 +364,27 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Apply safe train UI design config")
     parser.add_argument("--check", action="store_true", help="Validate YAML and layouts only")
     parser.add_argument("--preset", metavar="ID", help="Write a preset to design-config.yaml")
+    parser.add_argument("--import", dest="import_path", metavar="FILE", help="Import YAML file into design-config.yaml")
     parser.add_argument("--dry-run", action="store_true", help="Show changes without writing XML")
     args = parser.parse_args()
+
+    if args.import_path:
+        src = Path(args.import_path)
+        if not src.is_file():
+            print(f"Import file not found: {src}", file=sys.stderr)
+            sys.exit(1)
+        imported = yaml.safe_load(src.read_text(encoding="utf-8")) or {}
+        if not isinstance(imported, dict):
+            print("Import file must be a YAML mapping", file=sys.stderr)
+            sys.exit(1)
+        safe, warnings = prepare_config(imported)
+        write_config({**safe, "active_preset": imported.get("active_preset", "custom")})
+        print(f"Imported {src.relative_to(ROOT) if src.is_relative_to(ROOT) else src} -> {CONFIG.relative_to(ROOT)}")
+        for w in warnings:
+            print(f"  warn: {w}")
+        if args.check:
+            sys.exit(run_apply(safe, dry_run=True))
+        sys.exit(run_apply(safe, dry_run=args.dry_run))
 
     if args.preset:
         raw = load_preset(args.preset)

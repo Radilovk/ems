@@ -49,6 +49,15 @@ python3 "${ROOT}/scripts/apply-slider-theme.py"
 python3 "${ROOT}/scripts/apply-avatar-timer.py"
 python3 "${ROOT}/scripts/apply-hz-controls.py"
 python3 "${ROOT}/scripts/apply-train-ui-refinements.py"
+if [[ "${DESIGN_PIPELINE:-0}" == "1" ]]; then
+  echo "Design pipeline enabled (DESIGN_PIPELINE=1)..."
+  python3 "${ROOT}/scripts/ui-map.py" --check
+  python3 "${ROOT}/scripts/apply-design-config.py" --check
+  python3 "${ROOT}/scripts/apply-design-config.py"
+  python3 "${ROOT}/scripts/apply-branding-train-layouts.py"
+else
+  echo "Design pipeline skipped (set DESIGN_PIPELINE=1 to apply branding/design train layouts)."
+fi
 python3 "${ROOT}/scripts/apply-active-pause.py"
 python3 "${ROOT}/scripts/apply-active-pause-fixes.py"
 python3 "${ROOT}/scripts/apply-login-fix.py"

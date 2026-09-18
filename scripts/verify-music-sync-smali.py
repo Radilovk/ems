@@ -72,8 +72,19 @@ def check_train_vh() -> list[str]:
     return []
 
 
+def check_stale_player_helper() -> list[str]:
+    stale = SMALI_DIR / "MusicPlayerHelper$1.smali"
+    if stale.is_file():
+        return [
+            "MusicPlayerHelper$1.smali: stale inner class from removed openDialog(); "
+            "run compile-music-sync-java.sh after rm -rf build/music-sync-java/classes",
+        ]
+    return []
+
+
 def main() -> int:
     errs: list[str] = []
+    errs.extend(check_stale_player_helper())
     paths = sorted(SMALI_DIR.glob("*.smali"))
     paths = [p for p in paths if p.name.startswith("MusicSync") or p.name.startswith("MasterStrength")]
     combined = "\n".join(p.read_text(encoding="utf-8") for p in paths)

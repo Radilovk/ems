@@ -29,8 +29,6 @@ public class MusicSyncHelper {
         }
         view.setClickable(true);
         view.setEnabled(true);
-        view.setFocusable(true);
-        view.setFocusableInTouchMode(true);
         view.setOnClickListener(listener);
     }
 

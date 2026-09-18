@@ -201,3 +201,22 @@ agent_checklist:
   - "Is change color/theme? → apply-ui-theme.py or branding/theme/"
   - "Is change logic? → smali patch script, NOT design editor"
   - "Run ui-map.py --check and apply-design-config.py --check"
+
+# ── Visual understanding (agents do NOT see the device screen) ─────────────
+visual_reference:
+  html_mockup: branding/visual-reference.html
+  source: "Reconstructed from layout XML — not a device screenshot"
+  open: "Double-click visual-reference.html in browser (tablet train view)"
+  when_user_reports_visual_bug:
+    - "Ask for a screenshot or short video from the actual tablet/phone"
+    - "User marks the problem area using @id names from visual-reference.html"
+    - "Example: 'index button @id/ma overlaps @id/circleSeekBar on tablet landscape'"
+    - "Never guess radial/wedge layouts unless user explicitly requests them"
+  what_agents_can_know_without_screenshot:
+    - "Column structure and layout_weight ratios from XML"
+    - "Exact dp/sp values from design-config.yaml"
+    - "Which views exist (@id) and their parent RelativeLayout/LinearLayout"
+  what_agents_cannot_know_without_screenshot:
+    - "Actual pixel overlap on a specific device resolution"
+    - "Whether a change 'looks good' aesthetically to the user"
+    - "Real mipmap/icon appearance (only placeholders in mockup)"

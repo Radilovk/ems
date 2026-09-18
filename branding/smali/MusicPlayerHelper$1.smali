@@ -52,7 +52,6 @@
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$1;->val$target:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->openDialog(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
     .line 89

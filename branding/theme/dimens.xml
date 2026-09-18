@@ -10,4 +10,16 @@
     <dimen name="ui_logo_height">60.0dip</dimen>
     <dimen name="ui_card_margin">4.0dip</dimen>
     <dimen name="ui_card_corner">8.0dip</dimen>
+    <dimen name="ui_train_row_height">190.0dip</dimen>
+    <dimen name="ui_avatar_core_size">72.0dip</dimen>
+    <dimen name="ui_avatar_ring_margin">30.0dip</dimen>
+    <dimen name="ui_avatar_icon_padding">6.0dip</dimen>
+    <dimen name="ui_avatar_wave_margin">18.0dip</dimen>
+    <dimen name="ui_avatar_timer_text_size">26.0sp</dimen>
+    <dimen name="ui_avatar_wheel_pointer_radius">12.0dip</dimen>
+    <dimen name="ui_avatar_wheel_track_width">9.0dip</dimen>
+    <dimen name="ui_avatar_wedge_width">42.0dip</dimen>
+    <dimen name="ui_avatar_wedge_height">50.0dip</dimen>
+    <dimen name="ui_avatar_wedge_radius_offset">4.0dip</dimen>
+    <dimen name="ui_avatar_index_text_size">11.0sp</dimen>
 </resources>

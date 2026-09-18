@@ -87,6 +87,7 @@ def copy_theme_resources() -> None:
         (BRANDING / "theme" / "colors.xml", DECOMPILED / "res" / "values" / "ui_colors.xml"),
         (BRANDING / "theme" / "dimens.xml", DECOMPILED / "res" / "values" / "ui_dimens.xml"),
         (BRANDING / "theme" / "colors-night.xml", DECOMPILED / "res" / "values-night" / "ui_colors.xml"),
+        (BRANDING / "theme" / "dimens-sw600dp.xml", DECOMPILED / "res" / "values-sw600dp" / "ui_dimens.xml"),
     )
     for src, dest in copies:
         dest.parent.mkdir(parents=True, exist_ok=True)

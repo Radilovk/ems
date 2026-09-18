@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:background="@drawable/ui_card_background" android:layout_width="fill_parent" android:layout_height="170.0dip" android:layout_margin="@dimen/ui_card_margin"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="0.4">
+            <com.isaigu.gymapp.widget.MyButton android:textSize="@dimen/ui_mode_button_text_size" android:textStyle="bold" android:textColor="@color/mode_button_text" android:id="@id/strenthExist" android:background="@drawable/round_corner_drawable_r10_red" android:layout_width="120.0dip" android:layout_height="42.0dip" android:layout_margin="5.0dip" android:text="@string/muscleexist" android:textAllCaps="true" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="@dimen/ui_mode_button_text_size" android:textStyle="bold" android:textColor="@color/mode_button_text" android:id="@id/youyangyundong" android:background="@drawable/round_corner_drawable_r10_orange" android:layout_width="120.0dip" android:layout_height="42.0dip" android:layout_marginLeft="5.0dip" android:layout_marginRight="5.0dip" android:text="@string/youyangyundong" android:textAllCaps="true" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="@dimen/ui_mode_button_text_size" android:textStyle="bold" android:textColor="@color/mode_button_text" android:id="@id/anmo" android:background="@drawable/round_corner_drawable_r10_blue" android:layout_width="120.0dip" android:layout_height="42.0dip" android:layout_margin="5.0dip" android:text="@string/anmo" android:textAllCaps="true" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0">
+            <LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness4" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness3" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview10" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness10" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview9" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness9" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness2" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview8" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness8" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview7" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness7" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview6" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness6" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness1" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.2">
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/textview5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="5.0dip" android:text="37ml" />
+                <com.isaigu.gymapp.widget.VerticalColorSeekBar android:id="@id/vpb_brightness5" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="35.0dip" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" />
+            </LinearLayout>
+        </LinearLayout>
+        <RelativeLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="0.6">
+            <TextView android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/ma" android:background="@drawable/light_black_button_drawable_r30" android:layout_width="45.0dip" android:layout_height="45.0dip" android:layout_marginTop="16.0dip" android:text="35mA"  android:layout_marginLeft="6.0dip" />
+            <TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" android:background="@drawable/light_black_button_drawable_r30" android:layout_width="45.0dip" android:layout_height="45.0dip" android:layout_alignParentRight="true" android:layout_marginTop="16.0dip" android:layout_marginRight="6.0dip" android:text="0%" />
+            <ImageView android:id="@id/userIcon" android:padding="15.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="1.0dip" android:src="@mipmap/icon_sample" />
+            <TextView android:textSize="45.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:id="@id/wave_ball_progress_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" />
+            <com.isaigu.gymapp.widget.WaveBallProgress android:id="@id/wave_ball_progress_act_view" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="42.0dip" android:layout_centerInParent="true" />
+            <TextView android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/hzValue" android:background="@drawable/light_black_button_drawable_r30" android:layout_width="45.0dip" android:layout_height="45.0dip" android:layout_marginBottom="16.0dip" android:text="80Hz" android:layout_alignParentBottom="true"  android:layout_marginLeft="6.0dip" />
+            <TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" android:background="@drawable/light_black_button_drawable_r30" android:layout_width="45.0dip" android:layout_height="45.0dip" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" android:layout_marginBottom="16.0dip" android:layout_marginRight="6.0dip" android:text="7Hz" />
+            <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/circleSeekBar" android:paddingLeft="14.0dip" android:paddingTop="14.0dip" android:paddingRight="14.0dip" android:paddingBottom="10.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="2.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="18.0dip" app:wheel_reached_width="14.0dip" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="14.0dip" />
+        </RelativeLayout>
+        <LinearLayout android:layout_gravity="center_vertical" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.5">
+            <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginRight="4.0dip">
+                <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_centerVertical="true">
+                    <TextView android:textSize="14.0sp" android:textColor="@color/text_primary" android:gravity="center|left" android:id="@id/name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="张先生" />
+                    <TextView android:textSize="18.0sp" android:textColor="@color/text_primary" android:id="@id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="20:00" />
+                </LinearLayout>
+                <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:gravity="center|left" android:id="@id/address" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5.0dip" android:text="张先生" />
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_centerVertical="true">
+                    <ImageView android:id="@id/signalImage" android:background="@mipmap/signal" android:layout_width="20.0dip" android:layout_height="31.0dip" android:scaleType="fitXY" />
+                    <RelativeLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip">
+                        <com.isaigu.gymapp.widget.BatterView android:id="@id/MyBatterView" android:layout_width="16.0dip" android:layout_height="32.0dip" android:layout_centerInParent="true" app:batteryTextSize="15.0sp" app:mCapWidth="3.0dip" app:showText="false" />
+                        <TextView android:textSize="10.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/batteryValueTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100" android:layout_centerInParent="true" android:rotation="90.0" />
+                    </RelativeLayout>
+                    <com.isaigu.gymapp.widget.MyButton android:id="@id/setting" android:background="@mipmap/set" android:layout_width="22.0dip" android:layout_height="22.0dip" android:layout_marginLeft="8.0dip" />
+                </LinearLayout>
+            </RelativeLayout>
+            <RelativeLayout android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_marginLeft="10.0dip" android:layout_marginTop="0.0dip">
+                <com.isaigu.gymapp.widget.AmountView2 android:id="@id/paulsecontinue" android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_centerInParent="true" />
+                <TextView android:id="@id/pulseContinueLabel" android:textSize="10.5sp" android:textStyle="bold" android:textColor="@color/green_color" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="@string/paulsecontinue" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" />
+            </RelativeLayout>
+            <RelativeLayout android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_marginLeft="10.0dip" android:layout_marginTop="5.0dip">
+                <com.isaigu.gymapp.widget.AmountView2 android:id="@id/paulsestop" android:layout_width="wrap_content" android:layout_height="36.0dip" android:layout_centerInParent="true" />
+                <TextView android:id="@id/pulsePauseLabel" android:textSize="10.5sp" android:textStyle="bold" android:textColor="@color/wave_color_red" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="@string/paulsestop" android:layout_alignParentTop="true" android:layout_centerHorizontal="true" />
+            </RelativeLayout>
+        </LinearLayout>
+        <LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="0.2">
+            <com.isaigu.gymapp.widget.MyButton android:id="@id/stop" android:background="@mipmap/stop" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginTop="20.0dip" android:layout_marginBottom="20.0dip" />
+            <com.isaigu.gymapp.widget.MyButton android:id="@id/startpaulse" android:background="@mipmap/start1" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginBottom="20.0dip" />
+            <com.isaigu.gymapp.widget.MyButton android:id="@id/save" android:background="@mipmap/save" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginBottom="20.0dip" />
+        </LinearLayout>
+        <Button android:textSize="20.0sp" android:textColor="@color/white" android:id="@id/delete_button" android:background="@drawable/round_corner_drawable_r10_red" android:visibility="gone" android:layout_width="5.0dip" android:layout_height="fill_parent" android:text="@string/delete" android:layout_weight="0.2" />
+    </LinearLayout>
+</LinearLayout>

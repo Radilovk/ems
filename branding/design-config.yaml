@@ -3,9 +3,13 @@
 # ═══════════════════════════════════════════════════════════════════
 #
 #  Най-лесно: отвори branding/design-editor.html в браузър (двоен клик).
-#  Или редактирай директно този файл и пусни:  bash build-apk.sh
+#  Готов профил:  python3 scripts/apply-design-config.py --preset tablet
+#  Проверка:      python3 scripts/apply-design-config.py --check
+#  После:         bash build-apk.sh
 #
-#  weight = относителна ширина на колона (по-голямо число = по-широко)
+#  Стойностите се ограничават автоматично в безопасен диапазон.
+
+active_preset: phone
 
 row:
   height_dp: 170 # Височина на реда с потребител

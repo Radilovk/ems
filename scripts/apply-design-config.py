@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""Apply branding/design-config.yaml to train row layouts in branding/design/."""
+"""Apply branding/design-config.yaml to train row layouts in branding/design/.
+
+Only numeric sizes/margins/weights are changed — never view ids or XML structure.
+Values outside safe bounds are clamped automatically.
+"""
 
 from __future__ import annotations
 
+import argparse
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 try:
     import yaml
@@ -13,8 +20,11 @@ except ImportError:
     print("PyYAML required: pip install pyyaml", file=sys.stderr)
     sys.exit(1)
 
+from design_config_schema import sanitize, verify_layout_structure
+
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "branding" / "design-config.yaml"
+PRESETS = ROOT / "branding" / "design-presets.yaml"
 DESIGN = ROOT / "branding" / "design"
 
 ROW_LAYOUTS = (
@@ -275,35 +285,118 @@ def apply_row_layout(text: str, cfg: dict) -> tuple[str, int]:
     return text, changes
 
 
-def main() -> None:
+def load_raw_config() -> dict:
     if not CONFIG.is_file():
-        print(f"Missing {CONFIG.relative_to(ROOT)} — skipping design config")
-        return
-
+        return {}
     cfg = yaml.safe_load(CONFIG.read_text(encoding="utf-8")) or {}
     if not isinstance(cfg, dict):
-        print("design-config.yaml must be a mapping", file=sys.stderr)
-        sys.exit(1)
+        raise ValueError("design-config.yaml must be a mapping")
+    return cfg
+
+
+def load_preset(name: str) -> dict:
+    if not PRESETS.is_file():
+        raise FileNotFoundError(PRESETS)
+    data = yaml.safe_load(PRESETS.read_text(encoding="utf-8")) or {}
+    presets = data.get("presets", {})
+    if name not in presets:
+        known = ", ".join(sorted(presets))
+        raise ValueError(f"unknown preset {name!r} (available: {known})")
+    preset = presets[name]
+    merged = {}
+    for section in ("row", "columns", "avatar", "mode_buttons", "sliders"):
+        if section in preset:
+            merged[section] = preset[section]
+    merged["active_preset"] = name
+    return merged
+
+
+def prepare_config(raw: dict) -> tuple[dict, list[str]]:
+    safe, warnings = sanitize(raw)
+    return safe, warnings
+
+
+def check_layouts() -> list[str]:
+    errors: list[str] = []
+    for name in ROW_LAYOUTS:
+        path = DESIGN / name
+        if not path.is_file():
+            errors.append(f"missing layout template {path.relative_to(ROOT)}")
+            continue
+        missing = verify_layout_structure(path.read_text(encoding="utf-8"))
+        if missing:
+            errors.append(f"{name}: missing required markers: {', '.join(missing)}")
+    return errors
+
+
+def write_config(raw: dict) -> None:
+    CONFIG.write_text(yaml.safe_dump(raw, sort_keys=False, allow_unicode=True), encoding="utf-8")
+
+
+def run_apply(cfg: dict, dry_run: bool = False) -> int:
+    layout_errors = check_layouts()
+    if layout_errors:
+        for err in layout_errors:
+            print(f"ERROR: {err}", file=sys.stderr)
+        return 1
 
     total = 0
     for name in ROW_LAYOUTS:
         path = DESIGN / name
-        if not path.is_file():
-            print(f"warn: missing {path.relative_to(ROOT)}")
-            continue
         original = path.read_text(encoding="utf-8")
         updated, count = apply_row_layout(original, cfg)
         if updated != original:
-            path.write_text(updated, encoding="utf-8")
-            print(f"{name}: {count} design tweak(s) applied")
+            if not dry_run:
+                path.write_text(updated, encoding="utf-8")
+            print(f"{name}: {count} design tweak(s){' (dry-run)' if dry_run else ''}")
             total += count
         else:
             print(f"{name}: already matches design-config.yaml")
 
     if total:
-        print(f"Design config applied ({total} tweak(s)).")
+        print(f"Design config applied ({total} tweak(s){', dry-run' if dry_run else ''}).")
     else:
-        print("Design config: no changes needed.")
+        print("Design config: no layout changes needed.")
+    return 0
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Apply safe train UI design config")
+    parser.add_argument("--check", action="store_true", help="Validate YAML and layouts only")
+    parser.add_argument("--preset", metavar="ID", help="Write a preset to design-config.yaml")
+    parser.add_argument("--dry-run", action="store_true", help="Show changes without writing XML")
+    args = parser.parse_args()
+
+    if args.preset:
+        raw = load_preset(args.preset)
+        safe, warnings = prepare_config(raw)
+        write_config({**safe, "active_preset": args.preset})
+        print(f"Wrote preset '{args.preset}' -> {CONFIG.relative_to(ROOT)}")
+        for w in warnings:
+            print(f"  warn: {w}")
+        if args.check:
+            sys.exit(run_apply(safe, dry_run=True))
+        sys.exit(run_apply(safe, dry_run=args.dry_run))
+
+    if not CONFIG.is_file():
+        print(f"Missing {CONFIG.relative_to(ROOT)} — skipping design config")
+        return
+
+    raw = load_raw_config()
+    safe, warnings = prepare_config(raw)
+    for w in warnings:
+        print(f"warn: {w}")
+
+    if args.check:
+        layout_errors = check_layouts()
+        for err in layout_errors:
+            print(f"ERROR: {err}", file=sys.stderr)
+        if layout_errors:
+            sys.exit(1)
+        print("OK: design-config.yaml is valid and layouts are compatible.")
+        sys.exit(0)
+
+    sys.exit(run_apply(safe, dry_run=args.dry_run))
 
 
 if __name__ == "__main__":

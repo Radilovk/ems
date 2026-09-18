@@ -6,252 +6,237 @@
   <title>XEMS — Редактор на train дизайн</title>
   <style>
     :root {
-      --bg: #0f1419;
-      --card: #1a2332;
-      --accent: #2dd4bf;
-      --text: #e7ecf3;
-      --muted: #8b9cb3;
-      --border: #2a3548;
+      --bg: #0f1419; --card: #1a2332; --accent: #2dd4bf; --text: #e7ecf3;
+      --muted: #8b9cb3; --border: #2a3548; --safe: #4ade80; --warn: #fbbf24;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+    header { padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--card); }
+    header h1 { margin: 0 0 .2rem; font-size: 1.3rem; }
+    header p { margin: 0; color: var(--muted); font-size: .92rem; }
+    .safe-banner {
+      margin-top: .75rem; padding: .65rem .9rem; border-radius: 8px;
+      background: rgba(74, 222, 128, .08); border: 1px solid rgba(74, 222, 128, .25);
+      font-size: .85rem; color: #bbf7d0;
     }
-    header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--card);
-    }
-    header h1 { margin: 0 0 .25rem; font-size: 1.35rem; }
-    header p { margin: 0; color: var(--muted); font-size: .95rem; }
     main {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 1rem;
-      padding: 1rem 1.5rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 360px; gap: 1rem;
+      padding: 1rem 1.5rem 2rem; max-width: 1180px; margin: 0 auto;
     }
-    @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
+    @media (max-width: 920px) { main { grid-template-columns: 1fr; } }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem; }
+    .panel h2 { margin: 0 0 .65rem; font-size: .95rem; color: var(--accent); }
+    .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+    @media (max-width: 520px) { .presets { grid-template-columns: 1fr; } }
+    .preset {
+      background: #121a24; border: 2px solid var(--border); border-radius: 10px;
+      padding: .65rem .75rem; cursor: pointer; text-align: left; color: inherit; font: inherit;
     }
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
+    .preset:hover { border-color: #3d4f6a; }
+    .preset.active { border-color: var(--accent); background: rgba(45, 212, 191, .07); }
+    .preset strong { display: block; font-size: .9rem; margin-bottom: .15rem; }
+    .preset span { font-size: .75rem; color: var(--muted); line-height: 1.35; }
+    .preview-toolbar { display: flex; gap: .5rem; margin-bottom: .65rem; flex-wrap: wrap; }
+    .chip {
+      background: #121a24; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 999px; padding: .25rem .7rem; font-size: .78rem; cursor: pointer;
     }
-    .panel h2 {
-      margin: 0 0 .75rem;
-      font-size: 1rem;
-      color: var(--accent);
+    .chip.active { border-color: var(--accent); color: var(--accent); }
+    .device-frame {
+      margin: 0 auto; background: #0a0e14; border-radius: 16px; padding: 12px;
+      border: 2px solid #334155; transition: max-width .25s ease;
     }
-    .preview-wrap {
-      min-height: 220px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
+    .device-frame.phone { max-width: 420px; }
+    .device-frame.tablet { max-width: 100%; }
+    .device-screen {
+      background: #243044; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border); min-height: 120px;
+      display: flex; align-items: center; justify-content: center; padding: 8px;
     }
-    .row-preview {
-      display: flex;
-      width: 100%;
-      max-width: 680px;
-      height: 140px;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 2px solid var(--border);
-      background: #243044;
-    }
+    .row-preview { display: flex; width: 100%; height: 100%; min-height: 110px; border-radius: 6px; overflow: hidden; }
     .col {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--muted);
-      text-align: center;
-      padding: 4px;
-      border-right: 1px solid var(--border);
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 9px;
+      color: var(--muted); text-align: center; padding: 3px; border-right: 1px solid var(--border); flex-shrink: 0;
     }
     .col:last-child { border-right: none; }
     .col-mode { background: #2d3a52; }
     .col-sliders { background: #253045; gap: 2px; flex-wrap: wrap; }
-    .col-sliders span {
-      width: 6px; height: 60%; background: #4a5568; border-radius: 2px;
-    }
-    .col-avatar {
-      position: relative;
-      background: #1e2a3d;
-      flex-direction: column;
-    }
+    .col-sliders span { width: 5px; height: 55%; background: #4a5568; border-radius: 2px; }
+    .col-avatar { position: relative; background: #1e2a3d; flex-direction: column; }
     .avatar-ring {
-      width: 72%;
-      aspect-ratio: 1;
-      border: 8px solid #4a5568;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
+      width: 78%; aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; position: relative; border-style: solid; border-color: #4a5568;
     }
-    .avatar-face {
-      width: 55%;
-      height: 55%;
-      background: #64748b;
-      border-radius: 50%;
-    }
+    .avatar-face { width: 52%; height: 52%; background: #64748b; border-radius: 50%; }
     .idx-btn {
-      position: absolute;
-      background: #334155;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      color: #cbd5e1;
+      position: absolute; background: #334155; border-radius: 5px;
+      display: flex; align-items: center; justify-content: center; font-size: 7px; color: #cbd5e1;
     }
-    .idx-tl { top: 4%; left: 4%; }
-    .idx-tr { top: 4%; right: 4%; }
-    .idx-bl { bottom: 4%; left: 4%; }
-    .idx-br { bottom: 4%; right: 4%; }
-    .col-info { background: #2a3548; flex-direction: column; gap: 4px; }
-    .col-actions { background: #2d3a52; flex-direction: column; gap: 6px; }
-    .col-actions i {
-      width: 18px; height: 18px; background: #475569; border-radius: 50%;
-    }
-    .field {
-      margin-bottom: .85rem;
-    }
-    .field label {
-      display: flex;
-      justify-content: space-between;
-      font-size: .85rem;
-      margin-bottom: .25rem;
-    }
+    .idx-tl { top: 2%; left: 2%; } .idx-tr { top: 2%; right: 2%; }
+    .idx-bl { bottom: 2%; left: 2%; } .idx-br { bottom: 2%; right: 2%; }
+    .col-info { background: #2a3548; flex-direction: column; gap: 3px; }
+    .col-actions { background: #2d3a52; flex-direction: column; gap: 5px; }
+    .col-actions i { width: 14px; height: 14px; background: #475569; border-radius: 50%; display: block; }
+    .status { font-size: .82rem; color: var(--muted); margin-top: .5rem; min-height: 1.2em; }
+    .status.ok { color: var(--safe); }
+    .field { margin-bottom: .8rem; }
+    .field label { display: flex; justify-content: space-between; font-size: .82rem; margin-bottom: .2rem; }
     .field label span.val { color: var(--accent); font-weight: 600; }
-    .field small { display: block; color: var(--muted); font-size: .75rem; margin-top: .15rem; }
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      margin-top: 1rem;
-    }
+    .field small { display: block; color: var(--muted); font-size: .72rem; margin-top: .1rem; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .actions { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .85rem; }
     button, .file-btn {
-      background: var(--accent);
-      color: #0f1419;
-      border: none;
-      border-radius: 8px;
-      padding: .55rem 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: .9rem;
+      background: var(--accent); color: #0f1419; border: none; border-radius: 8px;
+      padding: .5rem .85rem; font-weight: 600; cursor: pointer; font-size: .85rem;
     }
-    button.secondary, .file-btn.secondary {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
+    button.secondary, .file-btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .file-btn { display: inline-block; }
     input[type="file"] { display: none; }
-    .steps {
-      margin-top: 1rem;
-      padding: .75rem 1rem;
-      background: #121a24;
-      border-radius: 8px;
-      font-size: .85rem;
-      color: var(--muted);
-    }
-    .steps ol { margin: .5rem 0 0; padding-left: 1.2rem; }
-    .steps li { margin-bottom: .35rem; }
-    code { background: #121a24; padding: .1rem .35rem; border-radius: 4px; font-size: .85em; }
+    .steps { font-size: .84rem; color: var(--muted); }
+    .steps ol { margin: .45rem 0 0; padding-left: 1.15rem; }
+    code { background: #121a24; padding: .08rem .32rem; border-radius: 4px; font-size: .84em; }
   </style>
 </head>
 <body>
   <header>
     <h1>Редактор на train дизайн</h1>
-    <p>Плъзни стойностите, запази YAML файла и пусни <code>bash build-apk.sh</code></p>
+    <p>Избери готов профил или плъзни настройките — стойностите се ограничават автоматично в безопасен диапазон.</p>
+    <div class="safe-banner">
+      Безопасно: променят се само размери и разстояния. Код, бутони и ID-та остават непокътнати — няма конфликт с build скриптовете.
+    </div>
   </header>
   <main>
     <section>
       <div class="panel">
-        <h2>Преглед на реда (пропорции)</h2>
-        <div class="preview-wrap">
-          <div class="row-preview" id="preview"></div>
-        </div>
+        <h2>1. Избери профил (препоръчително)</h2>
+        <div class="presets" id="presets"></div>
       </div>
-      <div class="steps">
-        <strong>Как да приложиш промените:</strong>
+      <div class="panel">
+        <h2>2. Преглед</h2>
+        <div class="preview-toolbar">
+          <button type="button" class="chip active" data-orient="landscape">Landscape (таблет)</button>
+          <button type="button" class="chip" data-orient="portrait">Portrait (телефон)</button>
+        </div>
+        <div class="device-frame tablet" id="device">
+          <div class="device-screen">
+            <div class="row-preview" id="preview"></div>
+          </div>
+        </div>
+        <div class="status ok" id="status">Готов за export</div>
+      </div>
+      <div class="panel steps">
+        <strong>3. Приложи</strong>
         <ol>
-          <li>Настрой стойностите с плъзачите вдясно</li>
           <li>Натисни <strong>Изтегли design-config.yaml</strong></li>
-          <li>Замени файла <code>branding/design-config.yaml</code> в проекта</li>
-          <li>Пусни <code>bash build-apk.sh</code> и инсталирай APK-то</li>
+          <li>Замени <code>branding/design-config.yaml</code></li>
+          <li>Пусни <code>bash build-apk.sh</code></li>
         </ol>
+        <p style="margin:.65rem 0 0">Проверка преди build: <code>python3 scripts/apply-design-config.py --check</code></p>
       </div>
     </section>
     <aside class="panel" id="controls"></aside>
   </main>
   <script>
-    const DEFAULTS = {
-      row: { height_dp: 170 },
-      columns: {
-        mode_buttons: 0.4,
-        muscle_sliders: 2.0,
-        avatar: 0.6,
-        user_info: 0.5,
-        action_buttons: 0.2
+    // Sync with branding/design-presets.yaml
+    const PRESETS = {
+      phone: {
+        label: "Телефон",
+        hint: "Стандартен баланс — текущият заводски вид",
+        row: { height_dp: 170 },
+        columns: { mode_buttons: 0.4, muscle_sliders: 2.0, avatar: 0.6, user_info: 0.5, action_buttons: 0.2 },
+        avatar: { index_button_size_dp: 45, index_button_edge_dp: 6, index_button_vertical_dp: 16, icon_padding_dp: 15, timer_text_sp: 45, wave_margin_dp: 42, slider_padding_dp: 14, slider_padding_bottom_dp: 10, slider_track_width_dp: 14, slider_pointer_radius_dp: 18 },
+        mode_buttons: { width_dp: 120, height_dp: 42 },
+        sliders: { channel_width_dp: 35 }
       },
-      avatar: {
-        index_button_size_dp: 45,
-        index_button_edge_dp: 6,
-        index_button_vertical_dp: 16,
-        icon_padding_dp: 15,
-        timer_text_sp: 45,
-        wave_margin_dp: 42,
-        slider_padding_dp: 14,
-        slider_padding_bottom_dp: 10,
-        slider_track_width_dp: 14,
-        slider_pointer_radius_dp: 18
+      tablet: {
+        label: "Таблет",
+        hint: "По-висок ред и по-голям padding на слайдера",
+        row: { height_dp: 190 },
+        columns: { mode_buttons: 0.35, muscle_sliders: 2.0, avatar: 0.72, user_info: 0.48, action_buttons: 0.2 },
+        avatar: { index_button_size_dp: 42, index_button_edge_dp: 8, index_button_vertical_dp: 18, icon_padding_dp: 12, timer_text_sp: 42, wave_margin_dp: 40, slider_padding_dp: 22, slider_padding_bottom_dp: 14, slider_track_width_dp: 12, slider_pointer_radius_dp: 16 },
+        mode_buttons: { width_dp: 110, height_dp: 42 },
+        sliders: { channel_width_dp: 32 }
       },
-      mode_buttons: { width_dp: 120, height_dp: 42 },
-      sliders: { channel_width_dp: 35 }
+      tablet_wide: {
+        label: "Таблет landscape",
+        hint: "Още повече място за avatar колоната",
+        row: { height_dp: 185 },
+        columns: { mode_buttons: 0.3, muscle_sliders: 1.85, avatar: 0.82, user_info: 0.45, action_buttons: 0.18 },
+        avatar: { index_button_size_dp: 40, index_button_edge_dp: 10, index_button_vertical_dp: 20, icon_padding_dp: 10, timer_text_sp: 40, wave_margin_dp: 38, slider_padding_dp: 26, slider_padding_bottom_dp: 16, slider_track_width_dp: 11, slider_pointer_radius_dp: 15 },
+        mode_buttons: { width_dp: 100, height_dp: 40 },
+        sliders: { channel_width_dp: 30 }
+      }
+    };
+
+    const BOUNDS = {
+      "row.height_dp": [140, 220],
+      "columns.mode_buttons": [0.25, 0.7],
+      "columns.muscle_sliders": [1.4, 2.6],
+      "columns.avatar": [0.45, 0.95],
+      "columns.user_info": [0.35, 0.75],
+      "columns.action_buttons": [0.12, 0.35],
+      "avatar.index_button_size_dp": [34, 56],
+      "avatar.index_button_edge_dp": [2, 16],
+      "avatar.index_button_vertical_dp": [8, 28],
+      "avatar.slider_padding_dp": [8, 32],
+      "avatar.slider_track_width_dp": [8, 20],
+      "avatar.icon_padding_dp": [4, 24],
+      "sliders.channel_width_dp": [28, 44]
     };
 
     const LABELS = {
-      "row.height_dp": { label: "Височина на реда", min: 120, max: 240, step: 2, unit: "dp" },
-      "columns.mode_buttons": { label: "Колона: mode бутони", min: 0.2, max: 1.0, step: 0.05, unit: "weight" },
-      "columns.muscle_sliders": { label: "Колона: muscle sliders", min: 1.0, max: 3.0, step: 0.1, unit: "weight" },
-      "columns.avatar": { label: "Колона: аватар", min: 0.3, max: 1.2, step: 0.05, unit: "weight" },
-      "columns.user_info": { label: "Колона: име/импулси", min: 0.3, max: 1.0, step: 0.05, unit: "weight" },
-      "columns.action_buttons": { label: "Колона: Stop/Start", min: 0.1, max: 0.5, step: 0.05, unit: "weight" },
-      "avatar.index_button_size_dp": { label: "Index бутон — размер", min: 32, max: 64, step: 1, unit: "dp", hint: "mA / Hz бутони в ъглите" },
-      "avatar.index_button_edge_dp": { label: "Index бутон — отстояние от ръба", min: 0, max: 20, step: 1, unit: "dp" },
-      "avatar.index_button_vertical_dp": { label: "Index бутон — отстояние горе/долу", min: 0, max: 32, step: 1, unit: "dp" },
-      "avatar.slider_padding_dp": { label: "Слайдер — padding", min: 4, max: 40, step: 1, unit: "dp", hint: "По-голямо = слайдерът е по-малък, бутоните не се припокриват" },
-      "avatar.slider_track_width_dp": { label: "Слайдер — дебелина", min: 6, max: 24, step: 1, unit: "dp" },
-      "avatar.icon_padding_dp": { label: "Аватар — padding", min: 0, max: 30, step: 1, unit: "dp" },
-      "sliders.channel_width_dp": { label: "Muscle slider — ширина", min: 24, max: 50, step: 1, unit: "dp" }
+      "row.height_dp": { label: "Височина на реда", step: 2, unit: "dp" },
+      "columns.avatar": { label: "Колона: аватар", step: 0.05, unit: "weight", hint: "По-голямо = повече място за слайдер и бутони" },
+      "avatar.slider_padding_dp": { label: "Слайдер — padding", step: 1, unit: "dp", hint: "Ключово за tablet: по-голямо = по-малък пръsten" },
+      "avatar.index_button_size_dp": { label: "Index бутон — размер", step: 1, unit: "dp" },
+      "avatar.index_button_edge_dp": { label: "Index бутон — от ръба", step: 1, unit: "dp" },
+      "avatar.index_button_vertical_dp": { label: "Index бутон — горе/долу", step: 1, unit: "dp" },
+      "columns.muscle_sliders": { label: "Колона: muscle sliders", step: 0.05, unit: "weight" },
+      "columns.user_info": { label: "Колона: име/импулси", step: 0.05, unit: "weight" },
+      "avatar.slider_track_width_dp": { label: "Слайдер — дебелина", step: 1, unit: "dp" },
+      "sliders.channel_width_dp": { label: "Muscle slider ширина", step: 1, unit: "dp" }
     };
 
-    let state = structuredClone(DEFAULTS);
+    let activePreset = "phone";
+    let state = structuredClone(PRESETS.phone);
+    let orientation = "landscape";
 
-    function get(obj, path) {
-      return path.split(".").reduce((o, k) => o[k], obj);
+    function clamp(path, val) {
+      const b = BOUNDS[path];
+      if (!b) return val;
+      return Math.max(b[0], Math.min(b[1], val));
     }
+    function get(obj, path) { return path.split(".").reduce((o, k) => o[k], obj); }
     function set(obj, path, val) {
       const keys = path.split(".");
       let o = obj;
       for (let i = 0; i < keys.length - 1; i++) o = o[keys[i]];
       o[keys[keys.length - 1]] = val;
+    }
+    function mergeDeep(base, patch) {
+      for (const [k, v] of Object.entries(patch || {})) {
+        if (v && typeof v === "object" && !Array.isArray(v)) base[k] = mergeDeep(base[k] || {}, v);
+        else base[k] = v;
+      }
+      return base;
+    }
+
+    function renderPresets() {
+      const el = document.getElementById("presets");
+      el.innerHTML = "";
+      for (const [id, p] of Object.entries(PRESETS)) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "preset" + (id === activePreset ? " active" : "");
+        btn.innerHTML = `<strong>${p.label}</strong><span>${p.hint}</span>`;
+        btn.onclick = () => {
+          activePreset = id;
+          state = structuredClone(p);
+          renderPresets(); renderControls(); renderPreview();
+          setStatus("Профил „" + p.label + "“ зареден", true);
+        };
+        el.appendChild(btn);
+      }
     }
 
     function renderPreview() {
@@ -259,10 +244,11 @@
       const total = c.mode_buttons + c.muscle_sliders + c.avatar + c.user_info + c.action_buttons;
       const pct = (w) => (w / total * 100).toFixed(1) + "%";
       const btn = state.avatar.index_button_size_dp;
-      const btnPct = Math.min(28, btn / 1.8) + "%";
-
+      const btnPct = Math.min(26, btn / 1.7) + "%";
+      const h = Math.round(state.row.height_dp * (orientation === "landscape" ? 0.58 : 0.65));
+      document.getElementById("preview").style.minHeight = h + "px";
       document.getElementById("preview").innerHTML = `
-        <div class="col col-mode" style="width:${pct(c.mode_buttons)}">Mode<br>бутони</div>
+        <div class="col col-mode" style="width:${pct(c.mode_buttons)}">Mode</div>
         <div class="col col-sliders" style="width:${pct(c.muscle_sliders)}">${"<span></span>".repeat(10)}</div>
         <div class="col col-avatar" style="width:${pct(c.avatar)}">
           <div class="avatar-ring" style="border-width:${state.avatar.slider_track_width_dp}px">
@@ -273,109 +259,91 @@
             <div class="idx-btn idx-br" style="width:${btnPct};height:${btnPct}">7Hz</div>
           </div>
         </div>
-        <div class="col col-info" style="width:${pct(c.user_info)}">Име<br>Импулси</div>
-        <div class="col col-actions" style="width:${pct(c.action_buttons)}"><i></i><i></i><i></i></div>
-      `;
+        <div class="col col-info" style="width:${pct(c.user_info)}">Име</div>
+        <div class="col col-actions" style="width:${pct(c.action_buttons)}"><i></i><i></i><i></i></div>`;
+      document.getElementById("device").className = "device-frame " + (orientation === "landscape" ? "tablet" : "phone");
+    }
+
+    function setStatus(msg, ok) {
+      const s = document.getElementById("status");
+      s.textContent = msg;
+      s.className = "status" + (ok ? " ok" : "");
     }
 
     function renderControls() {
       const el = document.getElementById("controls");
-      el.innerHTML = "<h2>Настройки</h2>";
+      el.innerHTML = "<h2>Фine-tuning (по желание)</h2>";
       for (const [path, meta] of Object.entries(LABELS)) {
+        const b = BOUNDS[path] || [0, 100];
         const val = get(state, path);
         const field = document.createElement("div");
         field.className = "field";
         field.innerHTML = `
-          <label>${meta.label} <span class="val" id="val-${path.replace(/\./g, "-")}">${val}${meta.unit === "weight" ? "" : " " + meta.unit}</span></label>
-          <input type="range" min="${meta.min}" max="${meta.max}" step="${meta.step}" value="${val}" data-path="${path}">
-          ${meta.hint ? `<small>${meta.hint}</small>` : ""}
-        `;
+          <label>${meta.label} <span class="val" id="val-${path.replace(/\./g, "-")}">${fmtVal(path, val)}</span></label>
+          <input type="range" min="${b[0]}" max="${b[1]}" step="${meta.step}" value="${val}" data-path="${path}">
+          ${meta.hint ? `<small>${meta.hint}</small>` : `<small>Безопасен диапазон: ${b[0]} – ${b[1]}</small>`}`;
         el.appendChild(field);
       }
       const actions = document.createElement("div");
       actions.className = "actions";
       actions.innerHTML = `
         <button type="button" id="download">Изтегли design-config.yaml</button>
-        <label class="file-btn secondary"><input type="file" id="load" accept=".yaml,.yml">Зареди YAML</label>
-        <button type="button" class="secondary" id="reset">Нулирай</button>
-      `;
+        <label class="file-btn secondary"><input type="file" id="load" accept=".yaml,.yml">Зареди YAML</label>`;
       el.appendChild(actions);
 
       el.querySelectorAll("input[type=range]").forEach(input => {
         input.addEventListener("input", () => {
           const path = input.dataset.path;
-          const v = parseFloat(input.value);
+          const v = clamp(path, parseFloat(input.value));
           set(state, path, v);
-          const meta = LABELS[path];
-          const span = document.getElementById("val-" + path.replace(/\./g, "-"));
-          span.textContent = v + (meta.unit === "weight" ? "" : " " + meta.unit);
+          activePreset = "custom";
+          renderPresets();
+          document.getElementById("val-" + path.replace(/\./g, "-")).textContent = fmtVal(path, v);
           renderPreview();
+          setStatus("Персонализирана настройка (в безопасен диапазон)", true);
         });
       });
-
       document.getElementById("download").onclick = () => {
-        const yaml = toYaml(state);
-        const blob = new Blob([yaml], { type: "text/yaml" });
+        const blob = new Blob([toYaml(state)], { type: "text/yaml" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = "design-config.yaml";
         a.click();
+        setStatus("YAML изтеглен — замени branding/design-config.yaml", true);
       };
-      document.getElementById("reset").onclick = () => { state = structuredClone(DEFAULTS); renderControls(); renderPreview(); };
       document.getElementById("load").onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const parsed = parseSimpleYaml(await file.text());
-        state = mergeDeep(structuredClone(DEFAULTS), parsed);
-        renderControls();
-        renderPreview();
+        state = sanitizeLoaded(parseSimpleYaml(await file.text()));
+        activePreset = "custom";
+        renderPresets(); renderControls(); renderPreview();
+        setStatus("YAML зареден и нормализиран в безопасни граници", true);
       };
     }
 
-    function mergeDeep(base, patch) {
-      for (const [k, v] of Object.entries(patch || {})) {
-        if (v && typeof v === "object" && !Array.isArray(v)) base[k] = mergeDeep(base[k] || {}, v);
-        else base[k] = v;
-      }
+    function fmtVal(path, val) {
+      const unit = LABELS[path]?.unit;
+      return unit === "weight" ? val : val + " " + unit;
+    }
+
+    function sanitizeLoaded(parsed) {
+      const base = structuredClone(PRESETS.phone);
+      mergeDeep(base, parsed);
+      for (const path of Object.keys(BOUNDS)) set(base, path, clamp(path, get(base, path)));
       return base;
     }
 
     function toYaml(obj) {
-      const lines = [
-        "# Дизайн на train екрана — генерирано от design-editor.html",
-        "# Замени branding/design-config.yaml и пусни: bash build-apk.sh",
-        "",
-        "row:",
-        `  height_dp: ${obj.row.height_dp}`,
-        "",
-        "columns:",
-        `  mode_buttons: ${obj.columns.mode_buttons}`,
-        `  muscle_sliders: ${obj.columns.muscle_sliders}`,
-        `  avatar: ${obj.columns.avatar}`,
-        `  user_info: ${obj.columns.user_info}`,
-        `  action_buttons: ${obj.columns.action_buttons}`,
-        "",
-        "avatar:",
-        `  index_button_size_dp: ${obj.avatar.index_button_size_dp}`,
-        `  index_button_edge_dp: ${obj.avatar.index_button_edge_dp}`,
-        `  index_button_vertical_dp: ${obj.avatar.index_button_vertical_dp}`,
-        `  icon_padding_dp: ${obj.avatar.icon_padding_dp}`,
-        `  timer_text_sp: ${obj.avatar.timer_text_sp}`,
-        `  wave_margin_dp: ${obj.avatar.wave_margin_dp}`,
-        `  slider_padding_dp: ${obj.avatar.slider_padding_dp}`,
-        `  slider_padding_bottom_dp: ${obj.avatar.slider_padding_bottom_dp}`,
-        `  slider_track_width_dp: ${obj.avatar.slider_track_width_dp}`,
-        `  slider_pointer_radius_dp: ${obj.avatar.slider_pointer_radius_dp}`,
-        "",
-        "mode_buttons:",
-        `  width_dp: ${obj.mode_buttons.width_dp}`,
-        `  height_dp: ${obj.mode_buttons.height_dp}`,
-        "",
-        "sliders:",
-        `  channel_width_dp: ${obj.sliders.channel_width_dp}`,
-        ""
-      ];
-      return lines.join("\n");
+      return `# Генерирано от design-editor.html — безопасни стойности\nactive_preset: ${activePreset}\n\n` +
+        `row:\n  height_dp: ${obj.row.height_dp}\n\ncolumns:\n` +
+        `  mode_buttons: ${obj.columns.mode_buttons}\n  muscle_sliders: ${obj.columns.muscle_sliders}\n` +
+        `  avatar: ${obj.columns.avatar}\n  user_info: ${obj.columns.user_info}\n  action_buttons: ${obj.columns.action_buttons}\n\navatar:\n` +
+        `  index_button_size_dp: ${obj.avatar.index_button_size_dp}\n  index_button_edge_dp: ${obj.avatar.index_button_edge_dp}\n` +
+        `  index_button_vertical_dp: ${obj.avatar.index_button_vertical_dp}\n  icon_padding_dp: ${obj.avatar.icon_padding_dp}\n` +
+        `  timer_text_sp: ${obj.avatar.timer_text_sp}\n  wave_margin_dp: ${obj.avatar.wave_margin_dp}\n` +
+        `  slider_padding_dp: ${obj.avatar.slider_padding_dp}\n  slider_padding_bottom_dp: ${obj.avatar.slider_padding_bottom_dp}\n` +
+        `  slider_track_width_dp: ${obj.avatar.slider_track_width_dp}\n  slider_pointer_radius_dp: ${obj.avatar.slider_pointer_radius_dp}\n\nmode_buttons:\n` +
+        `  width_dp: ${obj.mode_buttons.width_dp}\n  height_dp: ${obj.mode_buttons.height_dp}\n\nsliders:\n  channel_width_dp: ${obj.sliders.channel_width_dp}\n`;
     }
 
     function parseSimpleYaml(text) {
@@ -385,13 +353,24 @@
         const line = raw.split("#")[0].trim();
         if (!line) continue;
         const sec = line.match(/^(\w+):$/);
-        if (sec) { section = sec[1]; out[section] = out[section] || {}; continue; }
+        if (sec) { section = sec[1]; if (section !== "active_preset") out[section] = out[section] || {}; continue; }
         const kv = line.match(/^(\w+):\s*([\d.]+)/);
-        if (kv && section) out[section][kv[1]] = parseFloat(kv[2]);
+        if (kv && section && section !== "active_preset") out[section][kv[1]] = parseFloat(kv[2]);
+        if (kv && section === "active_preset") activePreset = kv[1];
       }
       return out;
     }
 
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        orientation = chip.dataset.orient === "portrait" ? "portrait" : "landscape";
+        renderPreview();
+      });
+    });
+
+    renderPresets();
     renderControls();
     renderPreview();
   </script>

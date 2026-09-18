@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="ui_train_row_height">215.0dip</dimen>
-    <dimen name="ui_avatar_index_button_size">42.0dip</dimen>
-    <dimen name="ui_avatar_index_inset_h">4.0dip</dimen>
-    <dimen name="ui_avatar_index_inset_v">6.0dip</dimen>
-    <dimen name="ui_avatar_content_inset">48.0dip</dimen>
-    <dimen name="ui_avatar_icon_padding">14.0dip</dimen>
-    <dimen name="ui_avatar_ring_padding">14.0dip</dimen>
-    <dimen name="ui_avatar_wave_margin">42.0dip</dimen>
-    <dimen name="ui_avatar_timer_text_size">34.0sp</dimen>
-    <dimen name="ui_avatar_wheel_pointer_radius">16.0dip</dimen>
-    <dimen name="ui_avatar_wheel_track_width">12.0dip</dimen>
+    <dimen name="ui_avatar_core_size">84.0dip</dimen>
+    <dimen name="ui_avatar_ring_margin">34.0dip</dimen>
+    <dimen name="ui_avatar_icon_padding">8.0dip</dimen>
+    <dimen name="ui_avatar_wave_margin">22.0dip</dimen>
+    <dimen name="ui_avatar_timer_text_size">30.0sp</dimen>
+    <dimen name="ui_avatar_wheel_pointer_radius">14.0dip</dimen>
+    <dimen name="ui_avatar_wheel_track_width">10.0dip</dimen>
+    <dimen name="ui_avatar_wedge_width">46.0dip</dimen>
+    <dimen name="ui_avatar_wedge_height">54.0dip</dimen>
+    <dimen name="ui_avatar_wedge_radius_offset">6.0dip</dimen>
+    <dimen name="ui_avatar_index_text_size">12.0sp</dimen>
 </resources>

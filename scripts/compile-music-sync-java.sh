@@ -20,6 +20,8 @@ mapfile -t JAVA_FILES < <(find "${JAVA_SRC}" -name '*.java' | sort)
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 
 echo "Compiling ${#JAVA_FILES[@]} music-sync source files..."
+rm -rf "${CLASSES_DIR}"
+mkdir -p "${CLASSES_DIR}"
 javac \
   --release 8 \
   -classpath "${ANDROID_JAR}:${JAVA_STUBS}" \

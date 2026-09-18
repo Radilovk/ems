@@ -64,8 +64,6 @@ public final class MusicPlayerHelper {
         hostFragment = fragment;
         button.setClickable(true);
         button.setEnabled(true);
-        button.setFocusable(true);
-        button.setFocusableInTouchMode(true);
         button.setOnClickListener(new MasterOpenListener(root, manager));
     }
 
@@ -268,7 +266,6 @@ public final class MusicPlayerHelper {
             return;
         }
         view.setClickable(true);
-        view.setFocusable(true);
         view.setOnClickListener(listener);
     }
 

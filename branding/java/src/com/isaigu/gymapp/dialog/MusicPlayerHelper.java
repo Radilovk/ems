@@ -3,6 +3,7 @@ package com.isaigu.gymapp.dialog;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -95,6 +96,10 @@ public final class MusicPlayerHelper {
             MusicDiagLog.log("show.abort", "no activity");
             return;
         }
+        if (!canShowOn(activity)) {
+            MusicDiagLog.log("show.abort", "activity finishing/destroyed");
+            return;
+        }
         if (item == null) {
             MusicDiagLog.log("show.abort", "no train item");
             toast(activity, 0x7f0d011a);
@@ -132,8 +137,30 @@ public final class MusicPlayerHelper {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
-        dialog.show();
-        MusicDiagLog.log("show.ok", "dialog visible");
+        try {
+            dialog.show();
+            MusicDiagLog.log("show.ok", "dialog visible");
+        } catch (Throwable t) {
+            MusicDiagLog.logError("dialog.show", t);
+            dismissDialog();
+            toast(activity, 0x7f0d0113);
+        }
+    }
+
+    private static boolean canShowOn(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
+        try {
+            if (activity.isFinishing()) {
+                return false;
+            }
+            if (Build.VERSION.SDK_INT >= 17 && activity.isDestroyed()) {
+                return false;
+            }
+        } catch (Throwable ignored) {
+        }
+        return true;
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -399,7 +426,13 @@ public final class MusicPlayerHelper {
         public void onClick(View view) {
             MusicDiagLog.log("click.master", "button tapped");
             try {
-                Activity activity = resolveHostActivity(view != null ? view : root);
+                Activity activity = null;
+                if (hostFragment != null) {
+                    activity = hostFragment.getActivity();
+                }
+                if (activity == null) {
+                    activity = resolveHostActivity(view != null ? view : root);
+                }
                 if (activity == null) {
                     MusicDiagLog.log("click.master", "no activity");
                     toast(null, 0x7f0d010b);

@@ -43,8 +43,23 @@ if adb shell "run-as ${PKG} test -d files/diag-logs" 2>/dev/null; then
   done
 fi
 
+echo "Capturing recent MusicDiag logcat ..."
+adb logcat -d -s MusicDiag > "${DEST}/logcat-musicdiag.txt" 2>/dev/null || true
+if [[ -s "${DEST}/logcat-musicdiag.txt" ]]; then
+  pulled=1
+  echo "  -> logcat-musicdiag.txt"
+fi
+
+adb logcat -d | grep -E "FATAL EXCEPTION|VerifyError|MusicDiag|MusicPlayerHelper" \
+  > "${DEST}/logcat-crash-snippet.txt" 2>/dev/null || true
+if [[ -s "${DEST}/logcat-crash-snippet.txt" ]]; then
+  pulled=1
+  echo "  -> logcat-crash-snippet.txt"
+fi
+
 if [[ "${pulled}" -eq 0 ]]; then
-  echo "No diag logs found on device. Open the app, reproduce the crash, then retry."
+  echo "No diag logs found on device."
+  echo "Install main APK 1.0.80+ (NOT cursor/beta-music-reactive-a389), reproduce crash, retry."
   exit 1
 fi
 

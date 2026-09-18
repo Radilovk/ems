@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 491
+    .line 524
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,15 +32,15 @@
 .method public onDismiss(Landroid/content/DialogInterface;)V
     .registers 3
 
-    .line 494
+    .line 527
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$500()Z
 
     move-result p1
 
     if-nez p1, :cond_23
 
-    .line 495
+    .line 528
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result p1
@@ -55,34 +55,34 @@
 
     if-eqz p1, :cond_1a
 
-    .line 496
+    .line 529
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1002(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
 
-    .line 497
+    .line 530
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearDialogRefs()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1100()V
 
-    .line 498
+    .line 531
     return-void
 
-    .line 500
+    .line 533
     :cond_1a
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 501
+    .line 534
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingActivity:Landroid/app/Activity;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$302(Landroid/app/Activity;)Landroid/app/Activity;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$402(Landroid/app/Activity;)Landroid/app/Activity;
 
-    .line 502
+    .line 535
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingItem:Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$202(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 504
+    .line 537
     :cond_23
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearDialogRefs()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1100()V
 
-    .line 505
+    .line 538
     return-void
 .end method

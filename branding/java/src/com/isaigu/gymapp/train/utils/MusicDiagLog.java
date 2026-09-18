@@ -1,6 +1,8 @@
 package com.isaigu.gymapp.train.utils;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
@@ -33,8 +35,8 @@ public final class MusicDiagLog {
             return;
         }
         appContext = context.getApplicationContext();
-        log("init", "MusicDiagLog ready sdk=" + Build.VERSION.SDK_INT
-                + " model=" + Build.MODEL);
+        log("init", "MusicDiagLog ready version=" + readVersionName(context)
+                + " sdk=" + Build.VERSION.SDK_INT + " model=" + Build.MODEL);
     }
 
     public static void log(String event, String detail) {
@@ -118,6 +120,18 @@ public final class MusicDiagLog {
         } catch (Throwable ignored) {
             return null;
         }
+    }
+
+    private static String readVersionName(Context context) {
+        try {
+            PackageManager pm = context.getPackageManager();
+            PackageInfo info = pm.getPackageInfo(context.getPackageName(), 0);
+            if (info != null && info.versionName != null) {
+                return info.versionName + " (" + info.versionCode + ")";
+            }
+        } catch (Throwable ignored) {
+        }
+        return "unknown";
     }
 
     private static void rotateIfNeeded(File file) {

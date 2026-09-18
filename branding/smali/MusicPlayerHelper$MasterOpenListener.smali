@@ -27,166 +27,78 @@
 .method constructor <init>(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
     .registers 3
 
-    .line 420
+    .line 304
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 421
+    .line 305
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
 
-    .line 422
+    .line 306
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 423
+    .line 307
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 5
+    .registers 3
 
-    .line 427
-    const-string v0, "click.master"
+    .line 311
+    if-eqz p1, :cond_3
 
-    const-string v1, "button tapped"
+    goto :goto_5
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 429
-    nop
-
-    .line 430
-    :try_start_8
-    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->hostFragment:Landroid/support/v4/app/Fragment;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000()Landroid/support/v4/app/Fragment;
-
-    move-result-object v1
-
-    const/4 v2, 0x0
-
-    if-eqz v1, :cond_18
-
-    .line 431
-    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->hostFragment:Landroid/support/v4/app/Fragment;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000()Landroid/support/v4/app/Fragment;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Landroid/support/v4/app/Fragment;->getActivity()Landroid/app/Activity;
-
-    move-result-object v1
-
-    goto :goto_19
-
-    .line 430
-    :cond_18
-    move-object v1, v2
-
-    .line 433
-    :goto_19
-    if-nez v1, :cond_25
-
-    .line 434
-    if-eqz p1, :cond_1f
-
-    move-object v1, p1
-
-    goto :goto_21
-
-    :cond_1f
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
-
-    :goto_21
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
-
-    move-result-object v1
-
-    .line 436
-    :cond_25
-    if-nez v1, :cond_33
-
-    .line 437
-    const-string v1, "no activity"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 438
-    const v1, 0x7f0d010b
-
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
-    invoke-static {v2, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100(Landroid/app/Activity;I)V
-
-    .line 439
-    return-void
-
-    .line 441
-    :cond_33
-    invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
-
-    .line 442
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v2
-
-    .line 443
-    if-nez v2, :cond_4a
-
-    .line 444
-    const-string v2, "no train item"
-
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 445
-    const v2, 0x7f0d011a
-
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100(Landroid/app/Activity;I)V
-
-    .line 446
-    return-void
-
-    .line 448
-    :cond_4a
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
-    :try_end_4d
-    .catchall {:try_start_8 .. :try_end_4d} :catchall_4e
-
-    .line 455
-    goto :goto_63
-
-    .line 449
-    :catchall_4e
-    move-exception v1
-
-    .line 450
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    .line 451
-    if-eqz p1, :cond_55
-
-    goto :goto_57
-
-    :cond_55
+    :cond_3
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
 
-    :goto_57
+    :goto_5
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 452
-    if-eqz p1, :cond_63
+    .line 312
+    if-nez p1, :cond_13
 
-    .line 453
-    const v0, 0x7f0d0113
+    .line 313
+    const/4 p1, 0x0
+
+    const v0, 0x7f0d010b
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100(Landroid/app/Activity;I)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;I)V
 
-    .line 456
-    :cond_63
-    :goto_63
+    .line 314
+    return-void
+
+    .line 316
+    :cond_13
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
+
+    .line 317
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    move-result-object v0
+
+    .line 318
+    if-nez v0, :cond_25
+
+    .line 319
+    const v0, 0x7f0d011a
+
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;I)V
+
+    .line 320
+    return-void
+
+    .line 322
+    :cond_25
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
+
+    .line 323
     return-void
 .end method

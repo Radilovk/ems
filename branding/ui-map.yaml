@@ -204,6 +204,20 @@ agent_checklist:
   - "Run ui-map.py --check and apply-design-config.py --check"
 
 # ── Visual understanding (agents do NOT see the device screen) ─────────────
+coordination:
+  workshop: branding/layout-workshop.html
+  numeric_tweaks: branding/design-studio.html
+  workflow: |
+    1. User designs structure in Layout Workshop (columns, buttons, forms)
+    2. User clicks „Одобри“ and exports JSON → branding/layout-briefs/
+    3. Agent: bash scripts/coord-design.sh --brief FILE.json --apply [--build]
+    4. User verifies on device; iterate with new brief version
+  agent_must: |
+    - Read user_note in brief before implementing
+    - Never implement draft briefs without user approval
+    - For train row: keep required @id unless user explicitly accepts smali work
+    - Ask for screenshot when visual result is ambiguous
+
 visual_reference:
   html_mockup: branding/design-studio.html
   source: "Reconstructed from layout XML — not a device screenshot"

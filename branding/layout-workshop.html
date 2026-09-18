@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XEMS Layout Workshop — съвместен дизайн</title>
+  <style>
+    :root {
+      --bg:#0c1017; --panel:#161d2a; --accent:#60a5fa; --ok:#4ade80; --warn:#fbbf24;
+      --text:#e8edf5; --muted:#8b9cb3; --border:#2a3548;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    header{padding:1rem 1.2rem;border-bottom:1px solid var(--border);background:var(--panel)}
+    header h1{margin:0 0 .3rem;font-size:1.3rem}
+    header p{margin:0;color:var(--muted);font-size:.88rem;max-width:960px;line-height:1.45}
+    .flow{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.7rem}
+    .flow span{background:#121a24;border:1px solid var(--border);border-radius:999px;padding:.25rem .65rem;font-size:.75rem}
+    .flow span.done{color:var(--ok);border-color:rgba(74,222,128,.4)}
+    main{display:grid;grid-template-columns:220px 1fr 300px;gap:.75rem;padding:.75rem;max-width:1400px;margin:0 auto}
+    @media(max-width:1000px){main{grid-template-columns:1fr}}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.75rem}
+    .panel h2{margin:0 0 .5rem;font-size:.85rem;color:var(--accent)}
+    button,.fb{background:var(--accent);color:#0c1017;border:none;border-radius:7px;padding:.4rem .65rem;font-weight:600;cursor:pointer;font-size:.78rem}
+    button.sec,.fb.sec{background:transparent;color:var(--text);border:1px solid var(--border)}
+    button.warn{background:var(--ok);color:#052e16}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    select,input,textarea{width:100%;background:#121a24;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:.35rem .5rem;font-size:.8rem}
+    textarea{min-height:70px;resize:vertical}
+    .palette button{display:block;width:100%;margin-bottom:.35rem;text-align:left}
+    .canvas{min-height:420px;background:#eef0f4;border-radius:8px;padding:8px;overflow:auto}
+    .row-preview{display:flex;background:#fff;border-radius:8px;border:1px solid #ccc;min-height:160px;overflow:hidden}
+    .col{border-right:1px dashed #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8px;color:#444;padding:4px;position:relative;min-width:30px}
+    .col.selected{outline:2px solid var(--accent);outline-offset:-2px;background:rgba(96,165,250,.08)}
+    .col:last-child{border-right:none}
+    .col-head{font-weight:700;font-size:9px;color:#222;margin-bottom:4px}
+    .el-tag{background:#334155;color:#e2e8f0;border-radius:4px;padding:2px 4px;margin:2px;font-size:7px}
+    .col-list{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.5rem}
+    .col-item{display:flex;gap:.3rem;align-items:center}
+    .col-item button{flex:0;padding:.2rem .4rem}
+    .status{font-size:.78rem;color:var(--muted);margin-top:.4rem}
+    .status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
+    input[type=file]{display:none}
+    .badge{display:inline-block;padding:.15rem .5rem;border-radius:999px;font-size:.7rem;font-weight:700}
+    .badge.draft{background:#422006;color:#fde68a}
+    .badge.approved{background:#052e16;color:#bbf7d0}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Layout Workshop — нови форми, бутони, разположения</h1>
+    <p>
+      Тук <strong>ти</strong> проектираш структурата (колони, бутони, полета).
+      <strong>Аз</strong> имплементирам одобрения brief в реален Android XML.
+      Числа-only tweaks → <a href="design-studio.html" style="color:var(--accent)">Design Studio</a>.
+    </p>
+    <div class="flow">
+      <span>1. Ти: layout тук</span>
+      <span>2. Одобри + Export JSON</span>
+      <span>3. Кажи на агента / coord-design.sh</span>
+      <span>4. APK след review</span>
+    </div>
+  </header>
+
+  <main>
+    <aside class="panel palette">
+      <h2>Екран</h2>
+      <select id="screen"></select>
+      <p class="status" id="screen-hint"></p>
+      <h2 style="margin-top:.8rem">Добави в колона</h2>
+      <button type="button" data-add="button">+ Бутон</button>
+      <button type="button" data-add="input">+ Поле (input)</button>
+      <button type="button" data-add="text">+ Текст</button>
+      <button type="button" data-add="slider_bank">+ 10 sliders</button>
+      <button type="button" data-add="avatar_panel">+ Avatar panel</button>
+      <button type="button" class="sec" data-add="spacer">+ Spacer</button>
+      <h2 style="margin-top:.8rem">Колони</h2>
+      <button type="button" class="sec" id="add-col">+ Нова колона</button>
+    </aside>
+
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+        <h2 style="margin:0">Преглед <span class="badge draft" id="status-badge">DRAFT</span></h2>
+        <div>
+          <label>Височина ред: <input type="number" id="row-h" value="170" min="140" max="220" style="width:64px"></label>
+        </div>
+      </div>
+      <div class="canvas"><div class="row-preview" id="canvas"></div></div>
+      <div class="col-list" id="col-list"></div>
+    </section>
+
+    <aside class="panel">
+      <h2>Координация</h2>
+      <label>Бележка за агента</label>
+      <textarea id="user-note" placeholder="Опиши визуално какво искаш: „avatar вляво, по-големи бутони“, „нов login form“…"></textarea>
+      <label style="margin-top:.5rem">Brief ID</label>
+      <input id="brief-id" value="my-layout-v1">
+      <div style="margin-top:.65rem;display:flex;flex-wrap:wrap;gap:.35rem">
+        <button type="button" class="warn" id="approve">Одобри за implement</button>
+        <button type="button" id="export">Export JSON</button>
+        <label class="fb sec"><input type="file" id="import" accept=".json">Import</label>
+      </div>
+      <div class="status" id="coord-status"></div>
+      <div style="margin-top:.8rem;font-size:.75rem;color:var(--muted);line-height:1.5">
+        След export кажи:<br>
+        <code style="color:#cbd5e1">bash scripts/coord-design.sh --brief branding/layout-briefs/FILE.json --apply --build</code>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const SCREENS = {
+      train_user_row: {
+        label: "Train — ред с потребител",
+        hint: "Можеш да пренаредиш колони, добавиш бутони. @id за smali се пазят автоматично.",
+        template: () => defaultTrainColumns()
+      },
+      login: {
+        label: "Login форма",
+        hint: "Нова структура на login — задължителни: username, password",
+        template: () => ({ row_height_dp: 0, columns: [], elements: [
+          { type: "input", id: "username", label: "Username", hint: "username" },
+          { type: "input", id: "password", label: "Password", hint: "password" },
+          { type: "button", id: "loginBtn", label: "Вход", background: "@drawable/ui_ok_button_green" }
+        ]})
+      },
+      add_user_form: {
+        label: "Форма — нов потребител",
+        hint: "Полета name, email, phone…",
+        template: () => ({ row_height_dp: 0, columns: [], elements: [
+          { type: "input", id: "name", label: "Име" },
+          { type: "input", id: "email", label: "Email" },
+          { type: "input", id: "phone", label: "Телефон" }
+        ]})
+      },
+      custom: {
+        label: "Нов custom екран",
+        hint: "Свободна форма — без smali @id изисквания",
+        template: () => ({ row_height_dp: 0, columns: [], elements: [], mode: "freeform" })
+      }
+    };
+
+    let state = {
+      version: 1,
+      id: "my-layout-v1",
+      screen: "train_user_row",
+      status: "draft",
+      user_note: "",
+      row_height_dp: 170,
+      columns: defaultTrainColumns(),
+      elements: []
+    };
+    let selectedCol = 0;
+
+    function defaultTrainColumns() {
+      return [
+        { name: "mode_buttons", weight: 0.4, elements: [] },
+        { name: "muscle_sliders", weight: 2.0, elements: [{ type: "slider_bank", channel_width_dp: 35 }] },
+        { name: "avatar", weight: 0.6, elements: [{ type: "avatar_panel", avatar: { slider_padding_dp: 14 } }] },
+        { name: "user_info", weight: 0.5, elements: [] },
+        { name: "action_buttons", weight: 0.2, elements: [] }
+      ];
+    }
+
+    function initScreenSelect() {
+      const sel = document.getElementById("screen");
+      sel.innerHTML = Object.entries(SCREENS).map(([k,v]) =>
+        `<option value="${k}">${v.label}</option>`).join("");
+      sel.onchange = () => {
+        state.screen = sel.value;
+        const t = SCREENS[state.screen].template();
+        state.columns = t.columns || [];
+        state.elements = t.elements || [];
+        state.mode = t.mode;
+        state.row_height_dp = t.row_height_dp || 170;
+        document.getElementById("screen-h").value = state.row_height_dp || 170;
+        selectedCol = 0;
+        render();
+      };
+      document.getElementById("screen-h").oninput = e => {
+        state.row_height_dp = +e.target.value;
+        renderPreview();
+      };
+    }
+
+    function totalWeight() {
+      return (state.columns || []).reduce((s,c) => s + (+c.weight || 0), 0) || 1;
+    }
+
+    function renderPreview() {
+      const canvas = document.getElementById("canvas");
+      const total = totalWeight();
+      const h = state.row_height_dp || 170;
+      canvas.style.minHeight = h + "px";
+      if (state.screen !== "train_user_row") {
+        canvas.innerHTML = (state.elements||[]).map(e =>
+          `<div style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px;margin:4px;font-size:11px;color:#333">
+            <strong>${e.type}</strong> ${e.id ? '@id/'+e.id : ''} ${e.label||''}
+          </div>`).join("") || "<div style='color:#666;padding:20px'>Добави елементи отляво</div>";
+        return;
+      }
+      canvas.innerHTML = (state.columns||[]).map((c,i) => {
+        const w = ((c.weight/total)*100).toFixed(1);
+        const els = (c.elements||[]).map(e => `<span class="el-tag">${e.type}${e.id?':'+e.id:''}</span>`).join('');
+        const auto = c.name === 'mode_buttons' ? '<span class="el-tag">3 mode btns</span>' : '';
+        const auto2 = c.name === 'action_buttons' ? '<span class="el-tag">stop/start/save</span>' : '';
+        const auto3 = c.name === 'user_info' ? '<span class="el-tag">name/time</span>' : '';
+        return `<div class="col ${i===selectedCol?'selected':''}" style="flex:${c.weight}" data-i="${i}">
+          <div class="col-head">${c.name||'col'} (${w}%)</div>${els}${auto}${auto2}${auto3}
+        </div>`;
+      }).join("");
+      canvas.querySelectorAll(".col").forEach(el => {
+        el.onclick = () => { selectedCol = +el.dataset.i; renderPreview(); renderColList(); };
+      });
+    }
+
+    function renderColList() {
+      const list = document.getElementById("col-list");
+      list.innerHTML = (state.columns||[]).map((c,i) => `
+        <div class="col-item">
+          <button type="button" class="sec" data-up="${i}">↑</button>
+          <button type="button" class="sec" data-down="${i}">↓</button>
+          <input value="${c.name||''}" data-name="${i}" placeholder="име" style="flex:1">
+          <input type="number" step="0.05" value="${c.weight}" data-weight="${i}" style="width:56px" title="weight">
+          <button type="button" class="sec" data-del="${i}">×</button>
+        </div>`).join("");
+      list.querySelectorAll("[data-up]").forEach(b => b.onclick = () => moveCol(+b.dataset.up, -1));
+      list.querySelectorAll("[data-down]").forEach(b => b.onclick = () => moveCol(+b.dataset.down, 1));
+      list.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+        state.columns.splice(+b.dataset.del, 1); selectedCol = 0; render();
+      });
+      list.querySelectorAll("[data-name]").forEach(inp => inp.onchange = () => {
+        state.columns[+inp.dataset.name].name = inp.value; renderPreview();
+      });
+      list.querySelectorAll("[data-weight]").forEach(inp => inp.oninput = () => {
+        state.columns[+inp.dataset.weight].weight = +inp.value; renderPreview();
+      });
+    }
+
+    function moveCol(i, dir) {
+      const j = i + dir;
+      if (j < 0 || j >= state.columns.length) return;
+      const t = state.columns[i]; state.columns[i] = state.columns[j]; state.columns[j] = t;
+      selectedCol = j; render();
+    }
+
+    function render() {
+      document.getElementById("screen-hint").textContent = SCREENS[state.screen]?.hint || "";
+      document.getElementById("brief-id").value = state.id;
+      document.getElementById("user-note").value = state.user_note || "";
+      document.getElementById("status-badge").textContent = state.status === "approved" ? "APPROVED" : "DRAFT";
+      document.getElementById("status-badge").className = "badge " + (state.status === "approved" ? "approved" : "draft");
+      renderPreview();
+      renderColList();
+    }
+
+    document.querySelectorAll("[data-add]").forEach(btn => {
+      btn.onclick = () => {
+        const type = btn.dataset.add;
+        const base = { type };
+        if (type === "button") Object.assign(base, { id: "btn_" + Date.now()%10000, label: "Бутон", background: "@drawable/round_corner_drawable_r10_red" });
+        if (type === "input") Object.assign(base, { id: "field_" + Date.now()%10000, label: "Поле", hint: "hint" });
+        if (type === "text") Object.assign(base, { id: "txt_" + Date.now()%10000, label: "Текст" });
+        if (type === "slider_bank") Object.assign(base, { channel_width_dp: 35 });
+        if (type === "avatar_panel") Object.assign(base, { avatar: { slider_padding_dp: 14, index_button_size_dp: 45 } });
+        if (type === "spacer") Object.assign(base, { height_dp: 12 });
+        if (state.screen === "train_user_row") {
+          if (!state.columns.length) state.columns = [{ name: "col1", weight: 1, elements: [] }];
+          state.columns[selectedCol].elements = state.columns[selectedCol].elements || [];
+          state.columns[selectedCol].elements.push(base);
+        } else {
+          state.elements = state.elements || [];
+          state.elements.push(base);
+        }
+        state.status = "draft";
+        render();
+        setCoord("Добавено — одобри преди implement", false);
+      };
+    });
+
+    document.getElementById("add-col").onclick = () => {
+      state.columns.push({ name: "col_" + (state.columns.length+1), weight: 0.3, elements: [] });
+      selectedCol = state.columns.length - 1;
+      state.status = "draft";
+      render();
+    };
+
+    document.getElementById("user-note").oninput = e => { state.user_note = e.target.value; };
+    document.getElementById("brief-id").oninput = e => { state.id = e.target.value; };
+
+    function toBrief() {
+      return {
+        version: 1,
+        id: document.getElementById("brief-id").value || state.id,
+        screen: state.screen,
+        status: state.status,
+        user_note: document.getElementById("user-note").value,
+        row_height_dp: +document.getElementById("row-h").value || 170,
+        columns: state.columns,
+        elements: state.elements,
+        mode: state.mode
+      };
+    }
+
+    function setCoord(msg, ok) {
+      const el = document.getElementById("coord-status");
+      el.textContent = msg;
+      el.className = "status " + (ok ? "ok" : "warn");
+    }
+
+    document.getElementById("approve").onclick = () => {
+      state.status = "approved";
+      render();
+      setCoord("Одобрено — export JSON и кажи на агента coord-design.sh", true);
+    };
+
+    document.getElementById("export").onclick = () => {
+      const brief = toBrief();
+      const blob = new Blob([JSON.stringify(brief, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = brief.id + ".json";
+      a.click();
+      setCoord("Export: branding/layout-briefs/" + brief.id + ".json", true);
+    };
+
+    document.getElementById("import").onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      const data = JSON.parse(await f.text());
+      state = { ...state, ...data };
+      document.getElementById("screen").value = state.screen;
+      render();
+      setCoord("Brief зареден", true);
+    };
+
+    initScreenSelect();
+    render();
+  </script>
+</body>
+</html>

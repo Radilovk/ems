@@ -1,0 +1,41 @@
+# ═══════════════════════════════════════════════════════════════════
+#  ДИЗАЙН НА TRAIN ЕКРАНА — редактирай числата по-долу
+# ═══════════════════════════════════════════════════════════════════
+#
+#  Най-лесно: отвори branding/design-editor.html в браузър (двоен клик).
+#  Готов профил:  python3 scripts/apply-design-config.py --preset tablet
+#  Проверка:      python3 scripts/apply-design-config.py --check
+#  После:         bash build-apk.sh
+#
+#  Стойностите се ограничават автоматично в безопасен диапазон.
+
+active_preset: phone
+
+row:
+  height_dp: 170 # Височина на реда с потребител
+
+columns:
+  mode_buttons: 0.4 # Бутони: Мускули / Аеробно / Масаж
+  muscle_sliders: 2.0 # 10-те вертикални канала
+  avatar: 0.6 # Аватар + кръгов слайдер + index бутони
+  user_info: 0.5 # Име, време, импулси
+  action_buttons: 0.2 # Stop / Start / Save
+
+avatar:
+  index_button_size_dp: 45 # Размер на ъглите mA/Hz бутони
+  index_button_edge_dp: 6 # Разстояние от ляво/дясно ръб
+  index_button_vertical_dp: 16 # Разстояние от горе/долу ръб
+  icon_padding_dp: 15 # Padding около снимката на потребителя
+  timer_text_sp: 45 # Размер на таймера в центъра
+  wave_margin_dp: 42 # Вътрешен margin на wave progress
+  slider_padding_dp: 14 # Padding на слайдера (оставя място за index бутони)
+  slider_padding_bottom_dp: 10 # Долен padding на слайдера
+  slider_track_width_dp: 14 # Дебелина на пръstenа
+  slider_pointer_radius_dp: 18 # Размер на pointer-а на слайдера
+
+mode_buttons:
+  width_dp: 120 # Ширина на бутоните Мускули/Аеробно/Масаж (new layout)
+  height_dp: 42 # Височина на mode бутоните (new layout)
+
+sliders:
+  channel_width_dp: 35 # Ширина на вертикалните muscle sliders

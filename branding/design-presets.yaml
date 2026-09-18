@@ -1,0 +1,89 @@
+# Готови безопасни профили — използват се от design-editor.html
+# и от: python3 scripts/apply-design-config.py --preset <id>
+
+active_preset: phone
+
+presets:
+  phone:
+    label: "Телефон"
+    hint: "Стандартен баланс — текущият заводски вид"
+    row:
+      height_dp: 170
+    columns:
+      mode_buttons: 0.4
+      muscle_sliders: 2.0
+      avatar: 0.6
+      user_info: 0.5
+      action_buttons: 0.2
+    avatar:
+      index_button_size_dp: 45
+      index_button_edge_dp: 6
+      index_button_vertical_dp: 16
+      icon_padding_dp: 15
+      timer_text_sp: 45
+      wave_margin_dp: 42
+      slider_padding_dp: 14
+      slider_padding_bottom_dp: 10
+      slider_track_width_dp: 14
+      slider_pointer_radius_dp: 18
+    mode_buttons:
+      width_dp: 120
+      height_dp: 42
+    sliders:
+      channel_width_dp: 35
+
+  tablet:
+    label: "Таблет"
+    hint: "По-висок ред и по-голям padding на слайдера — по-малко припокриване"
+    row:
+      height_dp: 190
+    columns:
+      mode_buttons: 0.35
+      muscle_sliders: 2.0
+      avatar: 0.72
+      user_info: 0.48
+      action_buttons: 0.2
+    avatar:
+      index_button_size_dp: 42
+      index_button_edge_dp: 8
+      index_button_vertical_dp: 18
+      icon_padding_dp: 12
+      timer_text_sp: 42
+      wave_margin_dp: 40
+      slider_padding_dp: 22
+      slider_padding_bottom_dp: 14
+      slider_track_width_dp: 12
+      slider_pointer_radius_dp: 16
+    mode_buttons:
+      width_dp: 110
+      height_dp: 42
+    sliders:
+      channel_width_dp: 32
+
+  tablet_wide:
+    label: "Таблет landscape"
+    hint: "Още повече място за avatar колоната на широк екран"
+    row:
+      height_dp: 185
+    columns:
+      mode_buttons: 0.3
+      muscle_sliders: 1.85
+      avatar: 0.82
+      user_info: 0.45
+      action_buttons: 0.18
+    avatar:
+      index_button_size_dp: 40
+      index_button_edge_dp: 10
+      index_button_vertical_dp: 20
+      icon_padding_dp: 10
+      timer_text_sp: 40
+      wave_margin_dp: 38
+      slider_padding_dp: 26
+      slider_padding_bottom_dp: 16
+      slider_track_width_dp: 11
+      slider_pointer_radius_dp: 15
+    mode_buttons:
+      width_dp: 100
+      height_dp: 40
+    sliders:
+      channel_width_dp: 30

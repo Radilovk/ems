@@ -1,0 +1,46 @@
+# Publish branding/ design tools to GitHub Pages
+# URL: https://radilovk.github.io/ems/  (after Settings → Pages → Source: GitHub Actions)
+name: Design Tools — GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "branding/**"
+      - "scripts/generate-design-studio.py"
+      - "scripts/design_config_schema.py"
+      - "branding/design-config.yaml"
+      - "branding/design-presets.yaml"
+      - ".github/workflows/design-tools-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: design-tools-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync Design Studio embedded config
+        run: python3 scripts/generate-design-studio.py
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: branding
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

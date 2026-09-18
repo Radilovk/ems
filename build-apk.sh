@@ -82,6 +82,11 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-music-player.py"
   python3 "${ROOT}/scripts/verify-music-sync-smali.py"
   python3 "${ROOT}/scripts/verify-beta-safety.py"
+  if [[ ! -f "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/MusicPlayerHelper.smali" ]]; then
+    echo "ERROR: BETA_MUSIC=1 but MusicPlayerHelper.smali missing — build would crash after login."
+    echo "  Fix compile-music-sync-java.sh or set BETA_MUSIC=0 intentionally."
+    exit 1
+  fi
 fi
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"

@@ -67,7 +67,7 @@ public class MusicSync {
             }
             lastPushedApplied = value;
             lastBleMs = SystemClock.elapsedRealtime();
-            MasterStrengthControl.setMasterStrength(value, true);
+            MasterStrengthControl.setMasterStrength(value, !playerMode);
             maybeUpdateUi();
         }
     };
@@ -85,7 +85,19 @@ public class MusicSync {
         lastBleMs = 0L;
         lastPushedApplied = -1;
         pendingApplied = 0;
+        playerSmoothedSound = 0f;
         MasterStrengthControl.resetApplied();
+    }
+
+    /** Immediately drop BLE + UI to 0 (music stop must not leave trailing impulses). */
+    private static void flushZeroStrength() {
+        liveStrength = 0;
+        pendingApplied = 0;
+        lastPushedApplied = -1;
+        playerSmoothedSound = 0f;
+        MasterStrengthControl.setMasterStrength(0, true);
+        MusicSyncHelper.showIdle();
+        MusicPlayerHelper.showIdle();
     }
 
     public static void registerUi(
@@ -107,12 +119,18 @@ public class MusicSync {
             level = 100;
         }
         if (playerMode) {
-            float target = level / 100f;
-            float attack = 0.92f;
-            float release = 0.62f;
-            float rate = target > playerSmoothedSound ? attack : release;
-            playerSmoothedSound += (target - playerSmoothedSound) * rate;
-            level = Math.round(playerSmoothedSound * 100f);
+            MusicPlayerEngine engine = playerEngine;
+            boolean liveOutput = engine != null && engine.isVisualizerActive();
+            if (liveOutput) {
+                playerSmoothedSound = level / 100f;
+            } else {
+                float target = level / 100f;
+                float attack = 0.72f;
+                float release = 0.38f;
+                float rate = target > playerSmoothedSound ? attack : release;
+                playerSmoothedSound += (target - playerSmoothedSound) * rate;
+                level = Math.round(playerSmoothedSound * 100f);
+            }
         }
         liveStrength = level;
         int applied = MasterStrengthControl.scaleFromSound(level);
@@ -320,6 +338,12 @@ public class MusicSync {
     private static void stopCaptureOnly() {
         running = false;
         playerMode = false;
+        flushZeroStrength();
+        if (handler != null) {
+            handler.removeCallbacks(applyRunnable);
+        }
+        releasePlayer();
+        releaseAudio();
         Thread thread = audioThread;
         audioThread = null;
         if (thread != null) {
@@ -328,12 +352,6 @@ public class MusicSync {
             } catch (Throwable ignored) {
             }
         }
-        if (handler != null) {
-            handler.removeCallbacks(applyRunnable);
-        }
-        releaseAudio();
-        releasePlayer();
-        liveStrength = 0;
         resetAudioLevels();
         setSyncActive(false);
     }
@@ -486,14 +504,25 @@ public class MusicSync {
         new Thread(new PlayerPrepareTask(activity, uri), "music-player-prepare").start();
     }
 
-    private static void finishStartPlayer(Activity activity, Uri uri, int[] envelope) {
+    private static void finishStartPlayer(
+            Activity activity,
+            Uri uri,
+            int[] envelope,
+            double referencePeakRms) {
         if (activity == null || uri == null) {
             MusicPlayerHelper.showError(ERROR_PLAYER);
             return;
         }
         try {
             MusicPlayerEngine engine = new MusicPlayerEngine();
-            engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
+            engine.setMappingParams(sensitivity, referencePeakRms);
+            engine.startPlayback(
+                    activity,
+                    uri,
+                    envelope,
+                    referencePeakRms,
+                    sensitivity,
+                    new PlayerSyncListener());
             playerEngine = engine;
             playerMode = true;
             running = true;
@@ -518,9 +547,10 @@ public class MusicSync {
         @Override
         public void run() {
             try {
-                int[] envelope = MusicPlayerEngine.buildEnvelope(activity, uri, sensitivity);
+                MusicPlayerEngine.EnvelopeResult built =
+                        MusicPlayerEngine.buildEnvelope(activity, uri, sensitivity);
                 ensureHandler();
-                handler.post(new PlayerPrepareSuccess(activity, uri, envelope));
+                handler.post(new PlayerPrepareSuccess(activity, uri, built));
             } catch (Throwable t) {
                 ensureHandler();
                 handler.post(new PlayerPrepareFailure());
@@ -531,9 +561,9 @@ public class MusicSync {
     static final class PlayerPrepareSuccess implements Runnable {
         private final Activity activity;
         private final Uri uri;
-        private final int[] envelope;
+        private final MusicPlayerEngine.EnvelopeResult envelope;
 
-        PlayerPrepareSuccess(Activity activity, Uri uri, int[] envelope) {
+        PlayerPrepareSuccess(Activity activity, Uri uri, MusicPlayerEngine.EnvelopeResult envelope) {
             this.activity = activity;
             this.uri = uri;
             this.envelope = envelope;
@@ -541,7 +571,12 @@ public class MusicSync {
 
         @Override
         public void run() {
-            finishStartPlayer(activity, uri, envelope);
+            if (envelope == null || envelope.levels == null) {
+                stopCaptureOnly();
+                MusicPlayerHelper.showError(ERROR_PLAYER);
+                return;
+            }
+            finishStartPlayer(activity, uri, envelope.levels, envelope.referencePeakRms);
         }
     }
 

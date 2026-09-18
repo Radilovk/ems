@@ -25,13 +25,13 @@
 .method constructor <init>(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)V
     .registers 2
 
-    .line 508
+    .line 373
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 509
+    .line 374
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 510
+    .line 375
     return-void
 .end method
 
@@ -40,83 +40,68 @@
 .method public run()V
     .registers 4
 
-    .line 514
+    .line 379
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 515
+    .line 380
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_3e
+    if-eqz v1, :cond_32
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$100(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/media/MediaPlayer;
 
     move-result-object v1
 
-    if-eqz v1, :cond_3e
+    if-eqz v1, :cond_32
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$200(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)[I
 
     move-result-object v1
 
-    if-eqz v1, :cond_3e
+    if-nez v1, :cond_15
 
-    .line 516
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->visualizerActive:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
+    goto :goto_32
 
-    move-result v1
-
-    if-eqz v1, :cond_1b
-
-    goto :goto_3e
-
-    .line 520
-    :cond_1b
-    :try_start_1b
+    .line 384
+    :cond_15
+    :try_start_15
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolvePlaybackPositionMs()I
 
     move-result v1
 
-    .line 521
+    .line 385
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolveEnvelopeIndex(I)I
 
     move-result v1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->dispatchLevel(I)V
-    :try_end_26
-    .catchall {:try_start_1b .. :try_end_26} :catchall_27
+    :try_end_20
+    .catchall {:try_start_15 .. :try_end_20} :catchall_21
 
-    .line 523
-    goto :goto_28
+    .line 387
+    goto :goto_22
 
-    .line 522
-    :catchall_27
+    .line 386
+    :catchall_21
     move-exception v1
 
-    .line 524
-    :goto_28
+    .line 388
+    :goto_22
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_3d
+    if-eqz v1, :cond_31
 
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->visualizerActive:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
-
-    move-result v1
-
-    if-nez v1, :cond_3d
-
-    .line 525
+    .line 389
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$400(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/os/Handler;
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/os/Handler;
 
     move-result-object v0
 
@@ -124,12 +109,12 @@
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 527
-    :cond_3d
+    .line 391
+    :cond_31
     return-void
 
-    .line 517
-    :cond_3e
-    :goto_3e
+    .line 381
+    :cond_32
+    :goto_32
     return-void
 .end method

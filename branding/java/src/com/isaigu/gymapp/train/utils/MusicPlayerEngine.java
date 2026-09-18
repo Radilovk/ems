@@ -28,8 +28,8 @@ public final class MusicPlayerEngine {
     private static final int WINDOW_MS = 20;
     /** Sync poll interval (ms). */
     private static final int SYNC_POLL_MS = 16;
-    /** Small fixed output latency compensation for MediaPlayer. */
-    private static final int SYNC_OFFSET_MS = 30;
+    /** MediaPlayer position leads speaker output; advance envelope lookup to match heard audio. */
+    private static final int SYNC_OFFSET_MS = 180;
     private static final int PCM_WINDOW_FRAMES = 256;
 
     private final Handler handler = new Handler(Looper.getMainLooper());

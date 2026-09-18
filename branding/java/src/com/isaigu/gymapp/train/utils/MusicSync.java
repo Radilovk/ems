@@ -67,7 +67,7 @@ public class MusicSync {
             }
             lastPushedApplied = value;
             lastBleMs = SystemClock.elapsedRealtime();
-            MasterStrengthControl.setMasterStrength(value, true);
+            MasterStrengthControl.setMasterStrength(value, !playerMode);
             maybeUpdateUi();
         }
     };
@@ -85,7 +85,19 @@ public class MusicSync {
         lastBleMs = 0L;
         lastPushedApplied = -1;
         pendingApplied = 0;
+        playerSmoothedSound = 0f;
         MasterStrengthControl.resetApplied();
+    }
+
+    /** Immediately drop BLE + UI to 0 (music stop must not leave trailing impulses). */
+    private static void flushZeroStrength() {
+        liveStrength = 0;
+        pendingApplied = 0;
+        lastPushedApplied = -1;
+        playerSmoothedSound = 0f;
+        MasterStrengthControl.setMasterStrength(0, true);
+        MusicSyncHelper.showIdle();
+        MusicPlayerHelper.showIdle();
     }
 
     public static void registerUi(
@@ -108,8 +120,8 @@ public class MusicSync {
         }
         if (playerMode) {
             float target = level / 100f;
-            float attack = 0.92f;
-            float release = 0.62f;
+            float attack = 0.55f;
+            float release = 0.22f;
             float rate = target > playerSmoothedSound ? attack : release;
             playerSmoothedSound += (target - playerSmoothedSound) * rate;
             level = Math.round(playerSmoothedSound * 100f);
@@ -320,6 +332,11 @@ public class MusicSync {
     private static void stopCaptureOnly() {
         running = false;
         playerMode = false;
+        if (handler != null) {
+            handler.removeCallbacks(applyRunnable);
+        }
+        releasePlayer();
+        releaseAudio();
         Thread thread = audioThread;
         audioThread = null;
         if (thread != null) {
@@ -328,12 +345,7 @@ public class MusicSync {
             } catch (Throwable ignored) {
             }
         }
-        if (handler != null) {
-            handler.removeCallbacks(applyRunnable);
-        }
-        releaseAudio();
-        releasePlayer();
-        liveStrength = 0;
+        flushZeroStrength();
         resetAudioLevels();
         setSyncActive(false);
     }

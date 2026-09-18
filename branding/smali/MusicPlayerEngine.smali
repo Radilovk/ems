@@ -17,7 +17,7 @@
 # static fields
 .field private static final PCM_WINDOW_FRAMES:I = 0x100
 
-.field private static final SYNC_OFFSET_MS:I = 0x1e
+.field private static final SYNC_OFFSET_MS:I = 0xb4
 
 .field private static final SYNC_POLL_MS:I = 0x10
 
@@ -1422,7 +1422,7 @@
 
     .line 304
     :cond_9
-    add-int/lit8 p1, p1, 0x1e
+    add-int/lit16 p1, p1, 0xb4
 
     .line 305
     if-gez p1, :cond_e

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 428
+    .line 434
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 431
+    .line 437
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->selectedUri:Landroid/net/Uri;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$800()Landroid/net/Uri;
 
@@ -40,36 +40,36 @@
 
     if-nez v0, :cond_d
 
-    .line 432
+    .line 438
     const p1, 0x7f0d0112
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 433
+    .line 439
     return-void
 
-    .line 435
+    .line 441
     :cond_d
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 436
+    .line 442
     if-nez p1, :cond_1a
 
-    .line 437
+    .line 443
     const p1, 0x7f0d010b
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 438
+    .line 444
     return-void
 
-    .line 440
+    .line 446
     :cond_1a
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 441
+    .line 447
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->selectedUri:Landroid/net/Uri;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$800()Landroid/net/Uri;
 
@@ -82,6 +82,6 @@
 
     invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startPlayer(Landroid/app/Activity;Landroid/net/Uri;I)V
 
-    .line 442
+    .line 448
     return-void
 .end method

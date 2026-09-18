@@ -19,6 +19,10 @@ import com.isaigu.gymapp.widget.AmountView;
 
 import java.util.List;
 
+/**
+ * In-app music player dialog. Based on stable 1.0.69 (music-sync-pr142) open path;
+ * adds file-picker dismiss, fragment result, and background sync on close.
+ */
 public final class MusicPlayerHelper {
     static final int BUTTON_ID = 0x7f090226;
     static final int LAYOUT_ID = 0x7f0b0078;
@@ -44,7 +48,6 @@ public final class MusicPlayerHelper {
     private MusicPlayerHelper() {
     }
 
-    /** Wire the master-panel music button in {@code rightLayout}. */
     public static void attachMasterPanel(View root, TrainItemManager manager) {
         attachMasterPanel(root, manager, null);
     }
@@ -64,12 +67,14 @@ public final class MusicPlayerHelper {
         hostFragment = fragment;
         button.setClickable(true);
         button.setEnabled(true);
+        button.setFocusable(true);
+        button.setFocusableInTouchMode(true);
         button.setOnClickListener(new MasterOpenListener(root, manager));
     }
 
     public static void show(Activity activity, TrainItem item) {
         activity = resolveHostActivity(activity, dialogContent);
-        if (!canShowOn(activity)) {
+        if (activity == null) {
             return;
         }
         if (item == null) {
@@ -78,54 +83,36 @@ public final class MusicPlayerHelper {
         }
         pendingActivity = activity;
         pendingItem = item;
+        MusicSync.setHostActivity(activity);
+        MusicSync.setTargetItem(item);
+        dismissDialog();
+        View content;
         try {
-            MusicSync.setHostActivity(activity);
-            MusicSync.setTargetItem(item);
-            dismissDialog();
-            View content = LayoutInflater.from(activity).inflate(LAYOUT_ID, null);
-            dialogContent = content;
-            trackView = (TextView) content.findViewById(0x7f090227);
-            sensitivityView = (AmountView) content.findViewById(0x7f090228);
-            statusView = (TextView) content.findViewById(0x7f090229);
-            levelView = (TextView) content.findViewById(0x7f09022a);
-            configureSensitivity();
-            updateTrackLabel(selectedUri);
-            bindButton(content.findViewById(0x7f09022b), new PickListener());
-            bindButton(content.findViewById(0x7f09022c), new PlayListener());
-            bindButton(content.findViewById(0x7f09022d), new StopListener());
-            refreshDialogStatus();
-            android.support.v7.app.AlertDialog.Builder builder =
-                    new android.support.v7.app.AlertDialog.Builder(activity);
-            builder.setView(content);
-            builder.setOnDismissListener(new DismissHandler());
-            dialog = builder.create();
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            }
-            dialog.show();
+            content = LayoutInflater.from(activity).inflate(LAYOUT_ID, null);
         } catch (Throwable t) {
-            dismissDialog();
             toast(activity, 0x7f0d0113);
+            return;
         }
-    }
-
-    private static boolean canShowOn(Activity activity) {
-        if (activity == null) {
-            return false;
+        dialogContent = content;
+        trackView = (TextView) content.findViewById(0x7f090227);
+        sensitivityView = (AmountView) content.findViewById(0x7f090228);
+        statusView = (TextView) content.findViewById(0x7f090229);
+        levelView = (TextView) content.findViewById(0x7f09022a);
+        configureSensitivity();
+        updateTrackLabel(selectedUri);
+        bindButton(content.findViewById(0x7f09022b), new PickListener());
+        bindButton(content.findViewById(0x7f09022c), new PlayListener());
+        bindButton(content.findViewById(0x7f09022d), new StopListener());
+        refreshDialogStatus();
+        android.support.v7.app.AlertDialog.Builder builder =
+                new android.support.v7.app.AlertDialog.Builder(activity);
+        builder.setView(content);
+        builder.setOnDismissListener(new DismissHandler());
+        dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
-        try {
-            return !activity.isFinishing();
-        } catch (Throwable ignored) {
-            return true;
-        }
-    }
-
-    private static void refreshDialogStatus() {
-        if (MusicSync.isRunning()) {
-            showActive(MusicSync.getEffectiveStrength(), MusicSync.getStrengthCeiling());
-        } else {
-            showIdle();
-        }
+        dialog.show();
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -142,6 +129,18 @@ public final class MusicPlayerHelper {
             Uri uri = data.getData();
             if (uri != null) {
                 selectedUri = uri;
+                try {
+                    Activity activity = resolveHostActivity(null, dialogContent);
+                    if (activity != null) {
+                        int flags = data.getFlags()
+                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        if (flags != 0) {
+                            activity.getContentResolver().takePersistableUriPermission(uri, flags);
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
             }
         }
         restoreDialogAfterPick();
@@ -162,12 +161,17 @@ public final class MusicPlayerHelper {
         if (activity == null || item == null) {
             return;
         }
-        final Activity host = activity;
-        final TrainItem target = item;
-        mainHandler.post(new RestoreDialogTask(host, target));
+        mainHandler.post(new RestoreDialogTask(activity, item));
     }
 
-    /** Same fallback chain as {@link MusicSyncHelper} for mic start. */
+    private static void refreshDialogStatus() {
+        if (MusicSync.isRunning()) {
+            showActive(MusicSync.getEffectiveStrength(), MusicSync.getStrengthCeiling());
+        } else {
+            showIdle();
+        }
+    }
+
     static Activity resolveHostActivity(View view) {
         return resolveHostActivity(null, view);
     }
@@ -243,7 +247,6 @@ public final class MusicPlayerHelper {
         clearDialogRefs();
     }
 
-    /** Close dialog before system file picker to avoid window-manager deadlock. */
     private static void hideDialogForPicker() {
         savedSensitivity = readSensitivity();
         if (dialog != null) {
@@ -284,6 +287,7 @@ public final class MusicPlayerHelper {
             return;
         }
         view.setClickable(true);
+        view.setFocusable(true);
         view.setOnClickListener(listener);
     }
 
@@ -409,9 +413,11 @@ public final class MusicPlayerHelper {
             pickingFile = true;
             hideDialogForPicker();
             try {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("audio/*");
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("audio/*");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
                 if (hostFragment != null) {
                     hostFragment.startActivityForResult(intent, PICK_AUDIO);
                 } else {

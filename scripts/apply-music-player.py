@@ -200,6 +200,15 @@ TRAIN_VH_HOOK_RE = re.compile(
 def install_smali() -> None:
     DIALOG_DIR.mkdir(parents=True, exist_ok=True)
     UTILS_DIR.mkdir(parents=True, exist_ok=True)
+    for old in DIALOG_DIR.glob("MusicPlayerHelper*.smali"):
+        old.unlink()
+        print(f"removed stale dialog/{old.name}")
+    stale_orphan = BRANDING / "smali/MusicPlayerHelper$1.smali"
+    if stale_orphan.is_file():
+        stale_orphan.unlink()
+        raise SystemExit(
+            "Stale MusicPlayerHelper$1.smali in branding/smali — run compile-music-sync-java.sh"
+        )
     for src in sorted((BRANDING / "smali").glob("MusicPlayerHelper*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")

@@ -71,15 +71,8 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-music-sync-pulse.py"
   python3 "${ROOT}/scripts/apply-music-sync-slider.py"
   python3 "${ROOT}/scripts/apply-music-sync-controls.py"
-  python3 "${ROOT}/scripts/apply-diag-logging.py"
-else
-  echo "BETA music sync disabled (BETA_MUSIC=0)."
-fi
-
-python3 "${ROOT}/scripts/apply-design-config.py"
-python3 "${ROOT}/scripts/apply-branding-train-layouts.py"
-if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-music-player.py"
+  python3 "${ROOT}/scripts/apply-diag-logging.py"
   python3 "${ROOT}/scripts/verify-music-sync-smali.py"
   python3 "${ROOT}/scripts/verify-beta-safety.py"
   if [[ ! -f "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/MusicPlayerHelper.smali" ]]; then
@@ -87,6 +80,8 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
     echo "  Fix compile-music-sync-java.sh or set BETA_MUSIC=0 intentionally."
     exit 1
   fi
+else
+  echo "BETA music sync disabled (BETA_MUSIC=0)."
 fi
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"

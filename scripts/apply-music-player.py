@@ -133,6 +133,19 @@ FRAGMENT_HOOK = """
 
     iget-object v2, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
+
+"""
+
+FRAGMENT_HOOK_3ARG = """
+    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->binding:Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
     invoke-static {v1, v2, p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;Landroid/support/v4/app/Fragment;)V
 
 """
@@ -147,22 +160,6 @@ FRAGMENT_HOOK_2ARG = """
     iget-object v2, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
-
-"""
-
-FRAGMENT_ON_ACTIVITY_RESULT = """
-.method public onActivityResult(IILandroid/content/Intent;)V
-    .locals 0
-    .param p1, "requestCode"    # I
-    .param p2, "resultCode"    # I
-    .param p3, "data"    # Landroid/content/Intent;
-
-    invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onActivityResult(IILandroid/content/Intent;)V
-
-    invoke-super {p0, p1, p2, p3}, Landroid/support/v4/app/Fragment;->onActivityResult(IILandroid/content/Intent;)V
-
-    return-void
-.end method
 
 """
 
@@ -292,27 +289,16 @@ def remove_row_button(path: Path) -> None:
     print(f"{path.name}: removed per-row music button")
 
 
-def patch_new_train_fragment_on_activity_result(text: str) -> str:
-    if "MusicPlayerHelper;->onActivityResult" in text:
-        print("NewTrainFragment.onActivityResult: music player hook already applied")
-        return text
-    marker = ".method public onCreateView(Landroid/view/LayoutInflater;Landroid/view/ViewGroup;Landroid/os/Bundle;)Landroid/view/View;\n"
-    if marker not in text:
-        raise RuntimeError("NewTrainFragment.onCreateView marker not found for onActivityResult")
-    print("NewTrainFragment.onActivityResult: forward file-picker result to MusicPlayerHelper")
-    return text.replace(marker, FRAGMENT_ON_ACTIVITY_RESULT + marker, 1)
-
-
 def patch_new_train_fragment(text: str) -> str:
     if FRAGMENT_HOOK_OLD in text:
         text = text.replace(FRAGMENT_HOOK_OLD, FRAGMENT_HOOK, 1)
         print("NewTrainFragment.onCreateView: upgraded master music hook (activity resolve on click)")
-    elif FRAGMENT_HOOK_2ARG in text:
-        text = text.replace(FRAGMENT_HOOK_2ARG, FRAGMENT_HOOK, 1)
-        print("NewTrainFragment.onCreateView: upgraded master music hook (fragment file picker)")
+    elif FRAGMENT_HOOK_3ARG in text:
+        text = text.replace(FRAGMENT_HOOK_3ARG, FRAGMENT_HOOK, 1)
+        print("NewTrainFragment.onCreateView: reverted to stable 2-arg music hook (pr142)")
     elif "MusicPlayerHelper;->attachMasterPanel" in text:
         if "Landroid/support/v4/app/Fragment;)V" in text:
-            print("NewTrainFragment.onCreateView: master music hook already applied")
+            print("NewTrainFragment.onCreateView: 3-arg hook present — needs rebuild to downgrade")
         elif "BaseActivity;Lcom/isaigu/gymapp/train/TrainItemManager;)V" in text:
             print("NewTrainFragment.onCreateView: master music hook needs manual upgrade")
         else:
@@ -332,7 +318,7 @@ def patch_new_train_fragment(text: str) -> str:
         )
         print("NewTrainFragment.onCreateView: master-panel music button hook")
         text = text.replace(FRAGMENT_MARKER, replacement, 1)
-    return patch_new_train_fragment_on_activity_result(text)
+    return text
 
 
 def patch_train_view_holder(text: str) -> str:

@@ -48,8 +48,6 @@ WEIGHTS_TABLET = {
 }
 
 WEDGE_DRAWABLES = (
-    "ui_avatar_core_circle",
-    "ui_avatar_wedge_cap",
     "ui_avatar_wedge_cap_active",
     "ui_avatar_wedge_cap_dark",
     "ui_avatar_wedge_cap_pause",
@@ -106,7 +104,7 @@ TEXTVIEW_BG_PAUSE_OLD = re.compile(
 
 def wedge_orbit(rotation: str, counter_rotation: str, view_id: str, sample_text: str) -> str:
     return f"""            <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" android:rotation="{rotation}">
-                <TextView android:textColor="@color/text_primary" android:textSize="@dimen/ui_avatar_index_text_size" android:textStyle="bold" android:gravity="center" android:id="@id/{view_id}" android:background="@drawable/ui_avatar_wedge_cap_dark" android:layout_width="@dimen/ui_avatar_wedge_width" android:layout_height="@dimen/ui_avatar_wedge_height" android:layout_gravity="top|center_horizontal" android:layout_marginTop="@dimen/ui_avatar_wedge_radius_offset" android:rotation="{counter_rotation}" android:text="{sample_text}" />
+                <TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_avatar_index_text_size" android:textStyle="bold" android:gravity="center" android:id="@id/{view_id}" android:background="@drawable/ui_avatar_wedge_cap_dark" android:layout_width="@dimen/ui_avatar_wedge_width" android:layout_height="@dimen/ui_avatar_wedge_height" android:layout_gravity="top|center_horizontal" android:layout_marginTop="@dimen/ui_avatar_wedge_radius_offset" android:rotation="{counter_rotation}" android:text="{sample_text}" />
             </FrameLayout>"""
 
 
@@ -121,7 +119,7 @@ def avatar_hub_xml(weights: dict[str, str]) -> str:
     )
     return f"""<RelativeLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="{weights["avatar"]}">
             <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/circleSeekBar" android:padding="@dimen/ui_avatar_ring_margin" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="@dimen/ui_avatar_wheel_pointer_radius" app:wheel_reached_width="@dimen/ui_avatar_wheel_track_width" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="@dimen/ui_avatar_wheel_track_width" />
-            <FrameLayout android:layout_width="@dimen/ui_avatar_core_size" android:layout_height="@dimen/ui_avatar_core_size" android:layout_centerInParent="true" android:background="@drawable/ui_avatar_core_circle">
+            <FrameLayout android:layout_width="@dimen/ui_avatar_core_size" android:layout_height="@dimen/ui_avatar_core_size" android:layout_centerInParent="true">
                 <ImageView android:id="@id/userIcon" android:padding="@dimen/ui_avatar_icon_padding" android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@mipmap/icon_sample" android:scaleType="fitCenter" />
                 <TextView android:textColor="@color/text_primary" android:textSize="@dimen/ui_avatar_timer_text_size" android:textStyle="bold" android:id="@id/wave_ball_progress_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
                 <com.isaigu.gymapp.widget.WaveBallProgress android:id="@id/wave_ball_progress_act_view" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="@dimen/ui_avatar_wave_margin" android:layout_gravity="center" />
@@ -267,7 +265,7 @@ def patch_avatar_weight(text: str, avatar_weight: str) -> str:
 
 
 def patch_avatar_hub(text: str, weights: dict[str, str]) -> tuple[str, bool]:
-    radial = "@drawable/ui_avatar_core_circle" in text and 'android:rotation="-45"' in text
+    radial = 'android:rotation="-45"' in text and "@drawable/ui_avatar_wedge_cap_dark" in text
     if radial:
         if f'android:layout_weight="{weights["avatar"]}"' in text:
             return text, False

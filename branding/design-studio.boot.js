@@ -1,4 +1,4 @@
-// Auto-generated — do not edit. Run: python3 scripts/generate-design-studio.py
+// Auto-generated — prefer inline data in design-studio.html
 window.DESIGN_STUDIO_BOOT = {
   "version": 1,
   "current": {
@@ -271,7 +271,7 @@ window.DESIGN_STUDIO_BOOT = {
       "group": "Avatar"
     },
     "avatar.index_button_edge_dp": {
-      "label": "Index бутон — от ръба (L/R)",
+      "label": "Index бутон — от rъба (L/R)",
       "step": 1,
       "unit": "dp",
       "group": "Avatar"

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XEMS Design Tools</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; background: #0f1419; color: #e7ecf3; line-height: 1.5; }
+    h1 { font-size: 1.4rem; }
+    a.card {
+      display: block; background: #1a2332; border: 1px solid #2a3548; border-radius: 12px;
+      padding: 1rem 1.2rem; margin: .75rem 0; color: inherit; text-decoration: none;
+    }
+    a.card:hover { border-color: #2dd4bf; }
+    a.card strong { color: #2dd4bf; font-size: 1.05rem; }
+    a.card p { margin: .35rem 0 0; color: #8b9cb3; font-size: .9rem; }
+    .warn { background: #422006; color: #fde68a; padding: .75rem 1rem; border-radius: 8px; font-size: .88rem; margin: 1rem 0; }
+    code { background: #121a24; padding: .1rem .35rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>XEMS Design Tools</h1>
+  <div class="warn">
+    <strong>GitHub Pages (legacy):</strong>
+    <a href="https://radilovk.github.io/ems/branding/" style="color:#fde68a">…/ems/branding/</a>
+    &nbsp;|&nbsp;
+    <strong>Actions deploy:</strong>
+    <a href="https://radilovk.github.io/ems/" style="color:#fde68a">…/ems/</a>
+    (Settings → Pages → GitHub Actions за по-кратки URL)
+    <br><br>
+    Локално: <code>bash scripts/serve-branding.sh</code>
+  </div>
+
+  <a class="card" href="layout-workshop.html">
+    <strong>Layout Workshop</strong>
+    <p>Нови форми, бутони, колони, разположения → export JSON brief</p>
+  </a>
+  <a class="card" href="design-studio.html">
+    <strong>Design Studio</strong>
+    <p>Само размери (dp/weight) на train row → export YAML</p>
+  </a>
+
+  <p style="color:#8b9cb3;font-size:.85rem;margin-top:1.5rem">
+    Ако линковете не работят: стартирай в терминал от repo root<br>
+    <code>bash scripts/serve-branding.sh</code><br>
+    и отвори показания адрес (http://127.0.0.1:8765/)
+  </p>
+</body>
+</html>

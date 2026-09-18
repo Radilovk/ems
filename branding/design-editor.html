@@ -95,14 +95,35 @@
     .steps { font-size: .84rem; color: var(--muted); }
     .steps ol { margin: .45rem 0 0; padding-left: 1.15rem; }
     code { background: #121a24; padding: .08rem .32rem; border-radius: 4px; font-size: .84em; }
+    .warn-banner {
+      margin-top: .75rem; padding: .65rem .9rem; border-radius: 8px;
+      background: rgba(251, 191, 36, .08); border: 1px solid rgba(251, 191, 36, .3);
+      font-size: .85rem; color: #fde68a;
+    }
+    .glossary { font-size: .8rem; color: var(--muted); max-height: 280px; overflow-y: auto; }
+    .glossary dt { color: var(--accent); font-weight: 600; margin-top: .45rem; }
+    .glossary dd { margin: .1rem 0 .35rem 0; }
+    .glossary .col-name { color: var(--text); }
+    .preview-id { font-size: 6px; color: #94a3b8; display: block; margin-top: 1px; }
+    .tabs { display: flex; gap: .4rem; margin-bottom: .65rem; flex-wrap: wrap; }
+    .tab {
+      background: #121a24; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: .35rem .65rem; font-size: .78rem; cursor: pointer;
+    }
+    .tab.active { border-color: var(--accent); color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
   </style>
 </head>
 <body>
   <header>
     <h1>Редактор на train дизайн</h1>
-    <p>Избери готов профил или плъзни настройките — стойностите се ограничават автоматично в безопасен диапазон.</p>
+    <p>Екран: <strong>Train session</strong> — ред с потребител (<code>new_user_train_control_item_layout.xml</code>). Не засяга login, splash или settings.</p>
     <div class="safe-banner">
-      Безопасно: променят се само размери и разстояния. Код, бутони и ID-та остават непокътнати — няма конфликт с build скриптовете.
+      Безопасно: само числа (dp/sp/weight). <code>@id/*</code> и XML структурата не се пипат. Пълна карта: <code>branding/ui-map.yaml</code>
+    </div>
+    <div class="warn-banner">
+      Login freeze (Sep 2026) <strong>не</strong> идваше от този модул — беше BETA build + smali bug + spinner. Design pipeline е <strong>изключен</strong> по подразбиране; включва се с <code>DESIGN_PIPELINE=1</code>.
     </div>
   </header>
   <main>
@@ -112,26 +133,35 @@
         <div class="presets" id="presets"></div>
       </div>
       <div class="panel">
-        <h2>2. Преглед</h2>
-        <div class="preview-toolbar">
-          <button type="button" class="chip active" data-orient="landscape">Landscape (таблет)</button>
-          <button type="button" class="chip" data-orient="portrait">Portrait (телефон)</button>
+        <h2>2. Преглед (с реални @id)</h2>
+        <div class="tabs" id="view-tabs">
+          <button type="button" class="tab active" data-tab="preview">Преглед</button>
+          <button type="button" class="tab" data-tab="map">Карта на UI</button>
         </div>
-        <div class="device-frame tablet" id="device">
-          <div class="device-screen">
-            <div class="row-preview" id="preview"></div>
+        <div class="tab-panel active" id="tab-preview">
+          <div class="preview-toolbar">
+            <button type="button" class="chip active" data-orient="landscape">Landscape (таблет)</button>
+            <button type="button" class="chip" data-orient="portrait">Portrait (телефон)</button>
           </div>
+          <div class="device-frame tablet" id="device">
+            <div class="device-screen">
+              <div class="row-preview" id="preview"></div>
+            </div>
+          </div>
+          <div class="status ok" id="status">Готов за export</div>
         </div>
-        <div class="status ok" id="status">Готов за export</div>
+        <div class="tab-panel" id="tab-map">
+          <dl class="glossary" id="glossary"></dl>
+        </div>
       </div>
       <div class="panel steps">
-        <strong>3. Приложи</strong>
+        <strong>3. Приложи (безопасен workflow)</strong>
         <ol>
-          <li>Натисни <strong>Изтегли design-config.yaml</strong></li>
-          <li>Замени <code>branding/design-config.yaml</code></li>
-          <li>Пусни <code>bash build-apk.sh</code></li>
+          <li>Изтегли <strong>design-config.yaml</strong> и замени <code>branding/design-config.yaml</code></li>
+          <li><code>bash scripts/apply-design-workflow.sh</code> — проверка + apply към <code>branding/design/</code></li>
+          <li><code>DESIGN_PIPELINE=1 bash build-apk.sh</code> — само когато login е стабилен</li>
         </ol>
-        <p style="margin:.65rem 0 0">Проверка преди build: <code>python3 scripts/apply-design-config.py --check</code></p>
+        <p style="margin:.65rem 0 0">Карта и валидация: <code>python3 scripts/ui-map.py --check</code></p>
       </div>
     </section>
     <aside class="panel" id="controls"></aside>
@@ -184,10 +214,29 @@
       "sliders.channel_width_dp": [28, 44]
     };
 
+    const UI_GLOSSARY = [
+      { col: "mode_buttons", ids: ["strenthExist", "youyangyundong", "anmo"], desc: "Мускули / Аеробно / Масаж" },
+      { col: "muscle_sliders", ids: ["vpb_brightness1 … vpb_brightness10"], desc: "10 вертикални канала" },
+      { col: "avatar", ids: ["circleSeekBar"], desc: "Кръгов master slider — padding и дебелина на пръstena" },
+      { col: "avatar", ids: ["ma", "pauseMaValue"], desc: "Горни ъглови бутони: mA и pause %" },
+      { col: "avatar", ids: ["hzValue", "pauseHzValue"], desc: "Долни ъглови бутони: Hz и pause Hz" },
+      { col: "avatar", ids: ["userIcon", "wave_ball_progress_value"], desc: "Снимка + таймер в центъра" },
+      { col: "user_info", ids: ["name", "time", "paulsecontinue", "paulsestop"], desc: "Име, време, импулси" },
+      { col: "action_buttons", ids: ["stop", "startpaulse", "save"], desc: "Stop / Start / Save" },
+    ];
+
+    const CONFIG_TO_ID = {
+      "row.height_dp": "root layout_height",
+      "columns.avatar": "RelativeLayout layout_weight (@id/circleSeekBar колона)",
+      "avatar.slider_padding_dp": "@id/circleSeekBar padding",
+      "avatar.index_button_size_dp": "@id/ma, pauseMaValue, hzValue, pauseHzValue",
+      "sliders.channel_width_dp": "@id/vpb_brightness* width",
+    };
+
     const LABELS = {
-      "row.height_dp": { label: "Височина на реда", step: 2, unit: "dp" },
-      "columns.avatar": { label: "Колона: аватар", step: 0.05, unit: "weight", hint: "По-голямо = повече място за слайдер и бутони" },
-      "avatar.slider_padding_dp": { label: "Слайдер — padding", step: 1, unit: "dp", hint: "Ключово за tablet: по-голямо = по-малък пръsten" },
+      "row.height_dp": { label: "Височина на реда", step: 2, unit: "dp", hint: "→ root layout_height" },
+      "columns.avatar": { label: "Колона: аватар", step: 0.05, unit: "weight", hint: "→ RelativeLayout weight; @id/circleSeekBar" },
+      "avatar.slider_padding_dp": { label: "Слайдер — padding", step: 1, unit: "dp", hint: "→ @id/circleSeekBar; ключово за tablet overlap" },
       "avatar.index_button_size_dp": { label: "Index бутон — размер", step: 1, unit: "dp" },
       "avatar.index_button_edge_dp": { label: "Index бутон — от ръба", step: 1, unit: "dp" },
       "avatar.index_button_vertical_dp": { label: "Index бутон — горе/долу", step: 1, unit: "dp" },
@@ -248,19 +297,20 @@
       const h = Math.round(state.row.height_dp * (orientation === "landscape" ? 0.58 : 0.65));
       document.getElementById("preview").style.minHeight = h + "px";
       document.getElementById("preview").innerHTML = `
-        <div class="col col-mode" style="width:${pct(c.mode_buttons)}">Mode</div>
-        <div class="col col-sliders" style="width:${pct(c.muscle_sliders)}">${"<span></span>".repeat(10)}</div>
+        <div class="col col-mode" style="width:${pct(c.mode_buttons)}">Mode<span class="preview-id">strenthExist…</span></div>
+        <div class="col col-sliders" style="width:${pct(c.muscle_sliders)}">${"<span></span>".repeat(10)}<span class="preview-id">vpb_brightness*</span></div>
         <div class="col col-avatar" style="width:${pct(c.avatar)}">
           <div class="avatar-ring" style="border-width:${state.avatar.slider_track_width_dp}px">
             <div class="avatar-face"></div>
-            <div class="idx-btn idx-tl" style="width:${btnPct};height:${btnPct}">mA</div>
-            <div class="idx-btn idx-tr" style="width:${btnPct};height:${btnPct}">0%</div>
-            <div class="idx-btn idx-bl" style="width:${btnPct};height:${btnPct}">Hz</div>
-            <div class="idx-btn idx-br" style="width:${btnPct};height:${btnPct}">7Hz</div>
+            <div class="idx-btn idx-tl" style="width:${btnPct};height:${btnPct}">mA<span class="preview-id">@id/ma</span></div>
+            <div class="idx-btn idx-tr" style="width:${btnPct};height:${btnPct}">0%<span class="preview-id">pauseMa</span></div>
+            <div class="idx-btn idx-bl" style="width:${btnPct};height:${btnPct}">Hz<span class="preview-id">@id/hzValue</span></div>
+            <div class="idx-btn idx-br" style="width:${btnPct};height:${btnPct}">7Hz<span class="preview-id">pauseHz</span></div>
           </div>
+          <span class="preview-id">circleSeekBar</span>
         </div>
-        <div class="col col-info" style="width:${pct(c.user_info)}">Име</div>
-        <div class="col col-actions" style="width:${pct(c.action_buttons)}"><i></i><i></i><i></i></div>`;
+        <div class="col col-info" style="width:${pct(c.user_info)}">Име<span class="preview-id">name, time</span></div>
+        <div class="col col-actions" style="width:${pct(c.action_buttons)}"><i></i><i></i><i></i><span class="preview-id">stop/start/save</span></div>`;
       document.getElementById("device").className = "device-frame " + (orientation === "landscape" ? "tablet" : "phone");
     }
 
@@ -361,6 +411,16 @@
       return out;
     }
 
+    function renderGlossary() {
+      const el = document.getElementById("glossary");
+      el.innerHTML = UI_GLOSSARY.map(g => `
+        <dt class="col-name">${g.col}</dt>
+        <dd><code>@${g.ids.join(", @")}</code> — ${g.desc}</dd>`).join("") +
+        "<dt>config → XML</dt><dd>" +
+        Object.entries(CONFIG_TO_ID).map(([k,v]) => `<code>${k}</code> → ${v}`).join("<br>") +
+        "</dd>";
+    }
+
     document.querySelectorAll(".chip").forEach(chip => {
       chip.addEventListener("click", () => {
         document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
@@ -370,9 +430,19 @@
       });
     });
 
+    document.querySelectorAll("#view-tabs .tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll("#view-tabs .tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+      });
+    });
+
     renderPresets();
     renderControls();
     renderPreview();
+    renderGlossary();
   </script>
 </body>
 </html>

@@ -2,10 +2,13 @@
 #  ДИЗАЙН НА TRAIN ЕКРАНА — редактирай числата по-долу
 # ═══════════════════════════════════════════════════════════════════
 #
-#  Най-лесно: отвори branding/design-editor.html в браузър (двоен клик).
-#  Готов профил:  python3 scripts/apply-design-config.py --preset tablet
-#  Проверка:      python3 scripts/apply-design-config.py --check
-#  После:         bash build-apk.sh
+#  UI карта:     branding/ui-map.yaml  |  python3 scripts/ui-map.py
+#  Редактор:      branding/design-editor.html (в браузър)
+#  Workflow:      bash scripts/apply-design-workflow.sh
+#  Build (opt-in): DESIGN_PIPELINE=1 bash build-apk.sh
+#
+#  ВАЖНО: Този файл засяга САМО train row layouts (branding/design/).
+#  Login/splash/settings са в branding/layouts/ — различен pipeline.
 #
 #  Стойностите се ограничават автоматично в безопасен диапазон.
 

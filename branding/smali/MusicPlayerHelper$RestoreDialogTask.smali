@@ -27,16 +27,16 @@
 .method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 3
 
-    .line 463
+    .line 505
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 464
+    .line 506
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->activity:Landroid/app/Activity;
 
-    .line 465
+    .line 507
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 466
+    .line 508
     return-void
 .end method
 
@@ -45,25 +45,41 @@
 .method public run()V
     .registers 3
 
-    .line 470
+    .line 512
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$600()Z
 
     move-result v0
 
-    if-eqz v0, :cond_7
+    if-nez v0, :cond_19
 
-    .line 471
-    return-void
-
-    .line 473
-    :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->activity:Landroid/app/Activity;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->canShowOn(Landroid/app/Activity;)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100(Landroid/app/Activity;)Z
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
+    move-result v0
 
-    .line 474
+    if-eqz v0, :cond_19
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    if-nez v0, :cond_13
+
+    goto :goto_19
+
+    .line 515
+    :cond_13
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->activity:Landroid/app/Activity;
+
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->openDialog(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
+
+    .line 516
+    return-void
+
+    .line 513
+    :cond_19
+    :goto_19
     return-void
 .end method

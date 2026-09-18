@@ -5,6 +5,7 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaPlayer;
+import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,7 +14,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 /**
- * Decode audio file to RMS envelope, play via MediaPlayer, drive sync from playback position.
+ * Decode audio file to RMS envelope, play via MediaPlayer.
+ * Sync: Visualizer on output session (primary) or position+computed latency (fallback).
  */
 public final class MusicPlayerEngine {
     public interface Listener {
@@ -24,26 +26,40 @@ public final class MusicPlayerEngine {
         void onError();
     }
 
-    /** Envelope bucket size (ms). */
+    public static final class EnvelopeResult {
+        public final int[] levels;
+        public final double referencePeakRms;
+
+        EnvelopeResult(int[] levels, double referencePeakRms) {
+            this.levels = levels;
+            this.referencePeakRms = referencePeakRms;
+        }
+    }
+
+    /** Envelope bucket size (ms) for fallback position lookup. */
     private static final int WINDOW_MS = 20;
-    /** Sync poll interval (ms). */
+    /** Fallback poll interval when Visualizer is unavailable. */
     private static final int SYNC_POLL_MS = 16;
-    /** MediaPlayer position leads speaker output; advance envelope lookup to match heard audio. */
-    private static final int SYNC_OFFSET_MS = 180;
     private static final int PCM_WINDOW_FRAMES = 256;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private SyncRunnable syncRunnable;
     private MediaPlayer player;
+    private Visualizer visualizer;
     private Listener listener;
     private int[] envelope;
+    private int sensitivity = 20;
+    private double referencePeakRms = 80.0;
+    private int playbackOffsetMs = 40;
     private volatile boolean tracking;
+    private volatile boolean visualizerActive;
 
     /**
      * Decode file off the UI thread. Envelope buckets are stamped from decoder PTS
      * so playback lookup stays aligned for the whole track (no duration drift).
      */
-    public static int[] buildEnvelope(Context context, Uri uri, int sensitivity) throws Exception {
+    public static EnvelopeResult buildEnvelope(Context context, Uri uri, int sensitivity)
+            throws Exception {
         MediaExtractor extractor = new MediaExtractor();
         extractor.setDataSource(context, uri, null);
         int trackIndex = -1;
@@ -65,6 +81,10 @@ public final class MusicPlayerEngine {
         if (channelCount < 1) {
             channelCount = 1;
         }
+        int sampleRate = readIntFormat(format, MediaFormat.KEY_SAMPLE_RATE, 44100);
+        if (sampleRate < 8000) {
+            sampleRate = 44100;
+        }
 
         String mime = format.getString(MediaFormat.KEY_MIME);
         MediaCodec codec = MediaCodec.createDecoderByType(mime);
@@ -75,7 +95,7 @@ public final class MusicPlayerEngine {
         ArrayList<Double> rawRms = new ArrayList<Double>();
         long framesInWindow = 0L;
         long windowSumSq = 0L;
-        long lastPtsUs = 0L;
+        long decodedFrames = 0L;
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
         boolean inputDone = false;
         boolean outputDone = false;
@@ -108,9 +128,6 @@ public final class MusicPlayerEngine {
                 continue;
             }
             if (outIndex >= 0) {
-                if (info.size > 0) {
-                    lastPtsUs = info.presentationTimeUs;
-                }
                 ByteBuffer out = codec.getOutputBuffer(outIndex);
                 if (out == null) {
                     out = codec.getOutputBuffers()[outIndex];
@@ -128,9 +145,11 @@ public final class MusicPlayerEngine {
                         }
                         windowSumSq += frameSumSq;
                         framesInWindow++;
+                        decodedFrames++;
                         if (framesInWindow >= PCM_WINDOW_FRAMES) {
+                            long ptsUs = (decodedFrames * 1000000L) / sampleRate;
                             double rms = windowRms(windowSumSq, framesInWindow);
-                            writeBucket(timeline, rawRms, lastPtsUs, rms);
+                            writeBucket(timeline, rawRms, ptsUs, rms);
                             framesInWindow = 0L;
                             windowSumSq = 0L;
                         }
@@ -144,8 +163,9 @@ public final class MusicPlayerEngine {
         }
 
         if (framesInWindow > 0L) {
+            long ptsUs = (decodedFrames * 1000000L) / sampleRate;
             double rms = windowRms(windowSumSq, framesInWindow);
-            writeBucket(timeline, rawRms, lastPtsUs, rms);
+            writeBucket(timeline, rawRms, ptsUs, rms);
         }
 
         codec.stop();
@@ -153,14 +173,16 @@ public final class MusicPlayerEngine {
         extractor.release();
 
         if (timeline.isEmpty()) {
-            return new int[]{0};
+            return new EnvelopeResult(new int[]{0}, 80.0);
         }
-        normalizeTimeline(timeline, rawRms, sensitivity);
+
+        double peak = SoundEnvelopeMapper.percentilePeak(rawRms, 96.0);
+        SoundEnvelopeMapper.fillPercentLevels(timeline, rawRms, sensitivity);
         int[] result = new int[timeline.size()];
         for (int i = 0; i < timeline.size(); i++) {
             result[i] = timeline.get(i);
         }
-        return result;
+        return new EnvelopeResult(result, peak);
     }
 
     private static void writeBucket(
@@ -179,57 +201,6 @@ public final class MusicPlayerEngine {
         double existing = rawRms.get(bucketIndex);
         if (rms > existing) {
             rawRms.set(bucketIndex, rms);
-        }
-    }
-
-    /**
-     * Map raw RMS buckets to 0–100% using track peak, noise gate, and power curve
-     * (same idea as mic {@link MusicSync#envelopeToSoundPercent}).
-     */
-    private static void normalizeTimeline(
-            ArrayList<Integer> timeline,
-            ArrayList<Double> rawRms,
-            int sensitivity) {
-        double peak = 0.0;
-        for (int i = 0; i < rawRms.size(); i++) {
-            double rms = rawRms.get(i);
-            if (rms > peak) {
-                peak = rms;
-            }
-        }
-        if (peak < 80.0) {
-            peak = 80.0;
-        }
-
-        double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
-        if (gateRatio < 0.05) {
-            gateRatio = 0.05;
-        }
-        double noiseGate = Math.max(35.0, peak * gateRatio);
-        double span = peak - noiseGate;
-        if (span < 25.0) {
-            span = 25.0;
-        }
-
-        for (int i = 0; i < timeline.size(); i++) {
-            double rms = rawRms.get(i);
-            int level = 0;
-            if (rms > noiseGate) {
-                double normalized = (rms - noiseGate) / span;
-                if (normalized < 0.0) {
-                    normalized = 0.0;
-                } else if (normalized > 1.0) {
-                    normalized = 1.0;
-                }
-                normalized = Math.pow(normalized, 1.35);
-                level = (int) Math.round(normalized * 100.0);
-                if (level < 0) {
-                    level = 0;
-                } else if (level > 100) {
-                    level = 100;
-                }
-            }
-            timeline.set(i, level);
         }
     }
 
@@ -259,11 +230,30 @@ public final class MusicPlayerEngine {
         return Math.sqrt((double) sumSq / frames);
     }
 
-    public void startPlayback(Context context, Uri uri, int[] preparedEnvelope, Listener callback)
-            throws Exception {
+    public void setMappingParams(int sensitivityValue, double peakRms) {
+        sensitivity = sensitivityValue;
+        if (peakRms > 0.0) {
+            referencePeakRms = peakRms;
+        }
+    }
+
+    public boolean isVisualizerActive() {
+        return visualizerActive;
+    }
+
+    public void startPlayback(
+            Context context,
+            Uri uri,
+            int[] preparedEnvelope,
+            double peakRms,
+            int sensitivityValue,
+            Listener callback) throws Exception {
         release();
         listener = callback;
         envelope = preparedEnvelope;
+        sensitivity = sensitivityValue;
+        referencePeakRms = peakRms > 0.0 ? peakRms : 80.0;
+        playbackOffsetMs = AudioOutputLatency.estimatePlaybackOffsetMs(context);
         if (envelope == null || envelope.length == 0) {
             throw new IllegalStateException("empty envelope");
         }
@@ -274,12 +264,63 @@ public final class MusicPlayerEngine {
         player.prepare();
         player.start();
         tracking = true;
-        syncRunnable = new SyncRunnable(this);
-        handler.post(syncRunnable);
+        visualizerActive = attachVisualizer(player);
+        if (!visualizerActive) {
+            syncRunnable = new SyncRunnable(this);
+            handler.post(syncRunnable);
+        }
+    }
+
+    private boolean attachVisualizer(MediaPlayer mediaPlayer) {
+        if (mediaPlayer == null) {
+            return false;
+        }
+        try {
+            int sessionId = mediaPlayer.getAudioSessionId();
+            if (sessionId <= 0) {
+                return false;
+            }
+            int[] range = Visualizer.getCaptureSizeRange();
+            int captureSize = range[1];
+            Visualizer viz = new Visualizer(sessionId);
+            viz.setCaptureSize(captureSize);
+            int captureRate = Visualizer.getMaxCaptureRate();
+            if (captureRate <= 0) {
+                captureRate = 20000;
+            }
+            viz.setDataCaptureListener(new WaveformCapture(this), captureRate, true, false);
+            viz.setEnabled(true);
+            visualizer = viz;
+            return true;
+        } catch (Throwable ignored) {
+            releaseVisualizer();
+            return false;
+        }
+    }
+
+    void onVisualizerWaveform(byte[] waveform) {
+        if (!tracking || listener == null) {
+            return;
+        }
+        int level = waveformToPercent(waveform);
+        listener.onWaveformLevel(level);
+    }
+
+    private int waveformToPercent(byte[] waveform) {
+        if (waveform == null || waveform.length == 0) {
+            return 0;
+        }
+        long sumSq = 0L;
+        for (int i = 0; i < waveform.length; i++) {
+            int sample = waveform[i] + 128;
+            sumSq += (long) sample * sample;
+        }
+        double rms = Math.sqrt((double) sumSq / waveform.length);
+        return SoundEnvelopeMapper.rmsToPercent(rms, referencePeakRms, sensitivity);
     }
 
     void dispatchLevel(int index) {
-        if (!tracking || player == null || envelope == null || listener == null) {
+        if (!tracking || player == null || envelope == null || listener == null || visualizerActive) {
             return;
         }
         try {
@@ -301,7 +342,7 @@ public final class MusicPlayerEngine {
         if (envelope == null || envelope.length == 0) {
             return 0;
         }
-        int lookupMs = positionMs + SYNC_OFFSET_MS;
+        int lookupMs = positionMs + playbackOffsetMs;
         if (lookupMs < 0) {
             lookupMs = 0;
         }
@@ -326,6 +367,7 @@ public final class MusicPlayerEngine {
 
     void dispatchEnded() {
         tracking = false;
+        releaseVisualizer();
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
         }
@@ -336,6 +378,7 @@ public final class MusicPlayerEngine {
 
     void dispatchError() {
         tracking = false;
+        releaseVisualizer();
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
         }
@@ -344,8 +387,26 @@ public final class MusicPlayerEngine {
         }
     }
 
+    private void releaseVisualizer() {
+        visualizerActive = false;
+        Visualizer viz = visualizer;
+        visualizer = null;
+        if (viz == null) {
+            return;
+        }
+        try {
+            viz.setEnabled(false);
+        } catch (Throwable ignored) {
+        }
+        try {
+            viz.release();
+        } catch (Throwable ignored) {
+        }
+    }
+
     public void release() {
         tracking = false;
+        releaseVisualizer();
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
             syncRunnable = null;
@@ -367,6 +428,23 @@ public final class MusicPlayerEngine {
         listener = null;
     }
 
+    static final class WaveformCapture implements Visualizer.OnDataCaptureListener {
+        private final MusicPlayerEngine engine;
+
+        WaveformCapture(MusicPlayerEngine engine) {
+            this.engine = engine;
+        }
+
+        @Override
+        public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+            engine.onVisualizerWaveform(waveform);
+        }
+
+        @Override
+        public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+        }
+    }
+
     static final class SyncRunnable implements Runnable {
         private final MusicPlayerEngine engine;
 
@@ -377,7 +455,8 @@ public final class MusicPlayerEngine {
         @Override
         public void run() {
             MusicPlayerEngine target = engine;
-            if (!target.tracking || target.player == null || target.envelope == null) {
+            if (!target.tracking || target.player == null || target.envelope == null
+                    || target.visualizerActive) {
                 return;
             }
             try {
@@ -385,7 +464,7 @@ public final class MusicPlayerEngine {
                 target.dispatchLevel(target.resolveEnvelopeIndex(positionMs));
             } catch (Throwable ignored) {
             }
-            if (target.tracking) {
+            if (target.tracking && !target.visualizerActive) {
                 target.handler.postDelayed(this, SYNC_POLL_MS);
             }
         }

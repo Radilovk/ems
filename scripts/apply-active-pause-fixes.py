@@ -1180,8 +1180,27 @@ def patch_merge_after_load(text: str, label: str) -> str:
     raise RuntimeError(f"{label}: trainData assignment marker not found")
 
 
+def dedupe_edit_dialog_apply(text: str) -> str:
+    """Base APK already stacks many apply() calls; keep exactly one."""
+    apply_block = (
+        "    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;"
+        "->access$200(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)"
+        "Lcom/isaigu/gymapp/bean/TrainProgram;\n\n"
+        "    move-result-object v1\n\n"
+        "    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;"
+        "->apply(Lcom/isaigu/gymapp/bean/TrainProgram;)V\n\n"
+    )
+    count = text.count(apply_block)
+    while text.count(apply_block) > 1:
+        text = text.replace(apply_block, "", 1)
+    if count > 1:
+        print(f"EditUserProgramDataDialog.onCreateView: deduped ActivePauseStorage.apply ({count} -> 1)")
+    return text
+
+
 def patch_edit_dialog_clone(text: str) -> str:
-    if "ActivePauseStorage;->apply" in text.split("onCreateView")[1][:4000]:
+    on_create = text.split(".method public onCreateView", 1)
+    if len(on_create) > 1 and "ActivePauseStorage;->apply" in on_create[1].split(".method ", 1)[0]:
         return text
     marker = """    invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/ActivePauseSettingsHelper;->bind(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Landroid/view/View;)V
 
@@ -1264,7 +1283,10 @@ def main() -> int:
     HELPER_1 = DIALOG_DIR / "ActivePauseSettingsHelper$1.smali"
     HELPER_1.write_text(patch_helper_1_save(HELPER_1.read_text(encoding="utf-8")), encoding="utf-8")
 
-    EDIT_DIALOG.write_text(patch_edit_dialog_clone(EDIT_DIALOG.read_text(encoding="utf-8")), encoding="utf-8")
+    edit_dialog = EDIT_DIALOG.read_text(encoding="utf-8")
+    edit_dialog = patch_edit_dialog_clone(edit_dialog)
+    edit_dialog = dedupe_edit_dialog_apply(edit_dialog)
+    EDIT_DIALOG.write_text(edit_dialog, encoding="utf-8")
     DATA_MGR.write_text(patch_data_mgr(DATA_MGR.read_text(encoding="utf-8")), encoding="utf-8")
     mf9 = MAIN_FRAGMENT_9.read_text(encoding="utf-8")
     mf9 = patch_merge_after_load(mf9, "MainFragment$9")

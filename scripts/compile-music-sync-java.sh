@@ -16,6 +16,29 @@ BAKSMALI="${ROOT}/tools/baksmali.jar"
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"
 
+if [[ ! -f "${ANDROID_JAR}" ]]; then
+  PREBUILT=(
+    MusicSync.smali
+    MusicPlayerHelper.smali
+    MusicDiagLog.smali
+    AudioOutputLatency.smali
+    MusicUriSource.smali
+  )
+  missing=0
+  for name in "${PREBUILT[@]}"; do
+    if [[ ! -f "${BRANDING_SMALI}/${name}" ]]; then
+      missing=1
+      echo "Missing prebuilt ${BRANDING_SMALI}/${name}"
+    fi
+  done
+  if [[ "${missing}" -eq 0 ]]; then
+    echo "Android SDK not found — using prebuilt branding/smali for music sync."
+    exit 0
+  fi
+  echo "ERROR: Android SDK missing (${ANDROID_JAR}) and prebuilt smali incomplete."
+  exit 1
+fi
+
 mapfile -t JAVA_FILES < <(find "${JAVA_SRC}" -name '*.java' | sort)
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 

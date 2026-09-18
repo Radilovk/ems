@@ -7,6 +7,8 @@ on:
     branches: [main]
     paths:
       - "branding/**"
+      - "index.html"
+      - ".nojekyll"
       - "scripts/generate-design-studio.py"
       - "scripts/design_config_schema.py"
       - "branding/design-config.yaml"

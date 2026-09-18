@@ -114,16 +114,26 @@ public final class MusicPlayerHelper {
             return false;
         }
         try {
-            return !activity.isFinishing();
+            if (activity.isFinishing()) {
+                return false;
+            }
+            if (android.os.Build.VERSION.SDK_INT >= 17 && activity.isDestroyed()) {
+                return false;
+            }
+            return true;
         } catch (Throwable ignored) {
             return true;
         }
     }
 
     private static void refreshDialogStatus() {
-        if (MusicSync.isRunning()) {
-            showActive(MusicSync.getEffectiveStrength(), MusicSync.getStrengthCeiling());
-        } else {
+        try {
+            if (MusicSync.isRunning()) {
+                showActive(MusicSync.getEffectiveStrength(), MusicSync.getStrengthCeiling());
+            } else {
+                showIdle();
+            }
+        } catch (Throwable ignored) {
             showIdle();
         }
     }
@@ -165,6 +175,20 @@ public final class MusicPlayerHelper {
         final Activity host = activity;
         final TrainItem target = item;
         mainHandler.post(new RestoreDialogTask(host, target));
+    }
+
+    /** Prefer the attached training fragment's activity (stable for master-panel clicks). */
+    static Activity resolveClickActivity(View view) {
+        if (hostFragment != null) {
+            try {
+                Activity fromFragment = hostFragment.getActivity();
+                if (canShowOn(fromFragment)) {
+                    return fromFragment;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return resolveHostActivity(view);
     }
 
     /** Same fallback chain as {@link MusicSyncHelper} for mic start. */
@@ -372,18 +396,25 @@ public final class MusicPlayerHelper {
 
         @Override
         public void onClick(View view) {
-            Activity activity = resolveHostActivity(view != null ? view : root);
-            if (activity == null) {
-                toast(null, 0x7f0d010b);
-                return;
+            Activity activity = null;
+            try {
+                activity = resolveClickActivity(view != null ? view : root);
+                if (!canShowOn(activity)) {
+                    toast(activity, 0x7f0d010b);
+                    return;
+                }
+                TrainItem item = resolveTargetItem(manager);
+                if (item == null) {
+                    toast(activity, 0x7f0d011a);
+                    return;
+                }
+                show(activity, item);
+            } catch (Throwable t) {
+                if (!canShowOn(activity)) {
+                    activity = resolveHostActivity(view != null ? view : root);
+                }
+                toast(activity, 0x7f0d0113);
             }
-            MusicSync.setHostActivity(activity);
-            TrainItem item = resolveTargetItem(manager);
-            if (item == null) {
-                toast(activity, 0x7f0d011a);
-                return;
-            }
-            show(activity, item);
         }
     }
 

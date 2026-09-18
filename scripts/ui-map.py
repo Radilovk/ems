@@ -74,7 +74,8 @@ def print_summary(data: dict) -> None:
     print("  2. python3 scripts/apply-design-config.py --check")
     print("  3. python3 scripts/apply-design-config.py")
     print("  4. DESIGN_PIPELINE=1 bash build-apk.sh  (opt-in; off by default)")
-    print("\nVisual mockup (open in browser): branding/visual-reference.html")
+    print("\nDesign Studio (open in browser): branding/design-studio.html")
+    print("Apply changes: bash scripts/design-apply.sh [--preset tablet] [--import FILE]")
     print("Agents cannot see the device — ask user for screenshot + @id name.")
     print("\nLogin freeze was NOT from design module — see ui-map.yaml header.")
 

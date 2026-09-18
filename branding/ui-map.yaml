@@ -75,7 +75,8 @@ screens:
       - new_user_train_control_item_layout.xml
       - user_train_control_item_layout.xml
     canonical_source: branding/design/
-    editor: branding/design-editor.html
+    editor: branding/design-studio.html
+    apply_command: bash scripts/design-apply.sh
     config: branding/design-config.yaml
 
 # Train row — left-to-right columns (new_user_train_control_item_layout.xml)
@@ -204,7 +205,7 @@ agent_checklist:
 
 # ── Visual understanding (agents do NOT see the device screen) ─────────────
 visual_reference:
-  html_mockup: branding/visual-reference.html
+  html_mockup: branding/design-studio.html
   source: "Reconstructed from layout XML — not a device screenshot"
   open: "Double-click visual-reference.html in browser (tablet train view)"
   when_user_reports_visual_bug:

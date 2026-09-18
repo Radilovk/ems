@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XEMS Design Studio</title>
+  <script src="design-studio.boot.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419; --panel: #1a2332; --accent: #2dd4bf; --text: #e7ecf3;
+      --muted: #8b9cb3; --border: #2a3548; --ok: #4ade80; --warn: #fbbf24;
+      --screen-bg: #eeeeee; --card: #fff; --mode-red: #e53935;
+      --mode-orange: #fb8c00; --mode-blue: #1e88e5; --badge: #3a3a3a;
+      --ring-track: #e0ddde; --ring-active: #9a8073;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--panel); }
+    header h1 { margin: 0 0 .25rem; font-size: 1.35rem; }
+    header p { margin: 0; color: var(--muted); font-size: .9rem; max-width: 900px; line-height: 1.45; }
+    .steps {
+      display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem;
+    }
+    .step {
+      flex: 1; min-width: 140px; background: #121a24; border: 1px solid var(--border);
+      border-radius: 10px; padding: .55rem .7rem; font-size: .78rem;
+    }
+    .step strong { color: var(--accent); display: block; margin-bottom: .15rem; }
+    main {
+      display: grid; grid-template-columns: 1fr 340px; gap: 1rem;
+      padding: 1rem 1.25rem 2rem; max-width: 1280px; margin: 0 auto;
+    }
+    @media (max-width: 960px) { main { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+    }
+    .panel h2 { margin: 0 0 .6rem; font-size: .92rem; color: var(--accent); }
+    .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+    @media (max-width: 520px) { .presets { grid-template-columns: 1fr; } }
+    .preset {
+      background: #121a24; border: 2px solid var(--border); border-radius: 10px;
+      padding: .6rem; cursor: pointer; text-align: left; color: inherit; font: inherit; width: 100%;
+    }
+    .preset.active { border-color: var(--accent); background: rgba(45,212,191,.08); }
+    .preset strong { display: block; font-size: .88rem; }
+    .preset span { font-size: .72rem; color: var(--muted); }
+    .preview-wrap { overflow-x: auto; }
+    .user-row {
+      display: flex; background: var(--card); border-radius: 8px; border: 1px solid #c8c8c8;
+      margin: 0 auto; max-width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      transition: height .2s ease;
+    }
+    .col { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 60px; }
+    .col-mode { gap: 3px; padding: 4px; }
+    .mode-btn { width: 68%; height: 22%; min-height: 22px; max-height: 32px; border-radius: 6px; font-size: 7px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
+    .mode-btn.m { background: var(--mode-red); }
+    .mode-btn.a { background: var(--mode-orange); }
+    .mode-btn.s { background: var(--mode-blue); }
+    .col-sliders { flex-direction: row; gap: 1px; padding: 6px 2px; }
+    .ch { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
+    .ch .bar { flex: 1; width: 70%; background: #2e7d32; border-radius: 2px 2px 0 0; min-height: 40px; opacity: .8; }
+    .col-avatar { padding: 4px; }
+    .av { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .ring {
+      position: relative; width: 85%; aspect-ratio: 1; border-radius: 50%;
+      border-style: solid; border-color: var(--ring-track);
+    }
+    .ring::before {
+      content: ""; position: absolute; inset: calc(-1 * var(--track, 14px)); border-radius: 50%;
+      border: var(--track, 14px) solid transparent;
+      border-top-color: var(--ring-active); border-right-color: var(--ring-active);
+      transform: rotate(-40deg);
+    }
+    .idx {
+      position: absolute; border-radius: 50%; background: var(--badge); color: #fff;
+      font-size: 7px; font-weight: 700; display: flex; align-items: center; justify-content: center; z-index: 2;
+    }
+    .timer { position: absolute; font-size: clamp(14px, 4vw, 24px); font-weight: 700; color: #3a3a3a; z-index: 1; }
+    .col-info { align-items: flex-start; padding: 8px; font-size: 9px; color: #3a3a3a; }
+    .col-act { gap: 6px; }
+    .act { width: 24px; height: 24px; border-radius: 50%; background: #78909c; }
+    .field { margin-bottom: .7rem; }
+    .field label { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: .15rem; }
+    .field label span { color: var(--accent); font-weight: 600; }
+    .field small { color: var(--muted); font-size: .7rem; display: block; margin-top: .1rem; }
+    input[type=range] { width: 100%; accent-color: var(--accent); }
+    .group-title { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: .6rem 0 .3rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+    button, .fbtn {
+      background: var(--accent); color: #0f1419; border: none; border-radius: 8px;
+      padding: .5rem .8rem; font-weight: 600; cursor: pointer; font-size: .82rem;
+    }
+    button.sec, .fbtn.sec { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    input[type=file] { display: none; }
+    .status { font-size: .82rem; color: var(--muted); margin-top: .5rem; min-height: 1.3em; }
+    .status.ok { color: var(--ok); }
+    .status.warn { color: var(--warn); }
+    code, .cmd {
+      background: #121a24; padding: .15rem .4rem; border-radius: 4px; font-size: .8em;
+      font-family: ui-monospace, monospace;
+    }
+    .cmd-block {
+      background: #121a24; border: 1px solid var(--border); border-radius: 8px;
+      padding: .65rem .8rem; font-size: .78rem; color: #cbd5e1; margin-top: .5rem;
+      font-family: ui-monospace, monospace; line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>XEMS Design Studio</h1>
+    <p>Съвместна редакция на <strong>train user row</strong> — само размери, без login/smali. Профил → fine-tune → запази YAML → една команда apply.</p>
+    <div class="steps">
+      <div class="step"><strong>1. Ти</strong>Избери профил или плъзни sliders</div>
+      <div class="step"><strong>2. Запази</strong>Изтегли YAML или Copy</div>
+      <div class="step"><strong>3. Apply</strong><code>bash scripts/design-apply.sh --import файл</code></div>
+      <div class="step"><strong>4. APK</strong><code>DESIGN_PIPELINE=1 bash build-apk.sh</code></div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="panel">
+        <h2>Профили (препоръчително)</h2>
+        <div class="presets" id="presets"></div>
+      </div>
+      <div class="panel preview-wrap">
+        <h2>Преглед — пропорции от реалния layout</h2>
+        <div class="user-row" id="row"></div>
+        <div class="status ok" id="status">Заредено от design-config.yaml</div>
+      </div>
+      <div class="panel">
+        <h2>След export — apply в repo</h2>
+        <div class="cmd-block" id="cmd-block">bash scripts/design-apply.sh --import ~/Downloads/design-config.yaml</div>
+        <p style="font-size:.8rem;color:var(--muted);margin:.5rem 0 0">
+          Или кажи на агента: „apply tablet preset“ → <code>bash scripts/design-apply.sh --preset tablet</code>
+        </p>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>Настройки</h2>
+      <div id="controls"></div>
+      <div class="actions">
+        <button type="button" id="save">Изтегли YAML</button>
+        <button type="button" class="sec" id="copy">Copy YAML</button>
+        <label class="fbtn sec"><input type="file" id="load" accept=".yaml,.yml">Зареди YAML</label>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const BOOT = window.DESIGN_STUDIO_BOOT || {};
+    const BOUNDS = BOOT.bounds || {};
+    const LABELS = BOOT.labels || {};
+    let activePreset = BOOT.current?.active_preset || "phone";
+    let state = structuredClone(BOOT.current || {});
+
+    function get(o, p) { return p.split(".").reduce((a, k) => a?.[k], o); }
+    function set(o, p, v) {
+      const k = p.split("."); let c = o;
+      for (let i = 0; i < k.length - 1; i++) c = c[k[i]] = c[k[i]] || {};
+      c[k[k.length - 1]] = v;
+    }
+    function clamp(p, v) {
+      const b = BOUNDS[p]; if (!b) return v;
+      return Math.max(b[0], Math.min(b[1], v));
+    }
+    function mergeDeep(t, s) {
+      for (const [k, v] of Object.entries(s || {})) {
+        if (v && typeof v === "object" && !Array.isArray(v)) t[k] = mergeDeep(t[k] || {}, v);
+        else t[k] = v;
+      }
+      return t;
+    }
+
+    function renderPresets() {
+      const el = document.getElementById("presets");
+      el.innerHTML = "";
+      const presets = BOOT.presets || {};
+      const meta = BOOT.presetMeta || {};
+      for (const id of Object.keys(presets)) {
+        const m = meta[id] || {};
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "preset" + (id === activePreset ? " active" : "");
+        btn.innerHTML = `<strong>${m.label || id}</strong><span>${m.hint || ""}</span>`;
+        btn.onclick = () => {
+          activePreset = id;
+          state = structuredClone(presets[id]);
+          state.active_preset = id;
+          renderPresets(); renderControls(); renderPreview();
+          setStatus("Профил „" + (m.label || id) + "“", true);
+        };
+        el.appendChild(btn);
+      }
+    }
+
+    function renderPreview() {
+      const c = state.columns || {};
+      const total = (c.mode_buttons||0) + (c.muscle_sliders||0) + (c.avatar||0) + (c.user_info||0) + (c.action_buttons||0) || 1;
+      const pct = w => (w / total * 100) + "%";
+      const av = state.avatar || {};
+      const h = state.row?.height_dp || 170;
+      const btn = av.index_button_size_dp || 45;
+      const btnPx = Math.round(btn * 0.75) + "px";
+      const row = document.getElementById("row");
+      row.style.height = h + "px";
+      row.style.setProperty("--track", (av.slider_track_width_dp || 14) + "px");
+      row.innerHTML = `
+        <div class="col col-mode" style="flex:${c.mode_buttons}">
+          <div class="mode-btn m">Мускули</div><div class="mode-btn a">Аеробно</div><div class="mode-btn s">Масаж</div>
+        </div>
+        <div class="col col-sliders" style="flex:${c.muscle_sliders}">
+          ${Array.from({length:10}, ()=>'<div class="ch"><div class="bar"></div></div>').join("")}
+        </div>
+        <div class="col col-avatar" style="flex:${c.avatar}">
+          <div class="av">
+            <div class="ring" style="padding:${av.slider_padding_dp||14}px"></div>
+            <div class="timer" style="font-size:${Math.min(av.timer_text_sp||45, 28)}px">20:00</div>
+            <div class="idx" style="width:${btnPx};height:${btnPx};top:${av.index_button_vertical_dp||16}px;left:${av.index_button_edge_dp||6}px">mA</div>
+            <div class="idx" style="width:${btnPx};height:${btnPx};top:${av.index_button_vertical_dp||16}px;right:${av.index_button_edge_dp||6}px">0%</div>
+            <div class="idx" style="width:${btnPx};height:${btnPx};bottom:${av.index_button_vertical_dp||16}px;left:${av.index_button_edge_dp||6}px">Hz</div>
+            <div class="idx" style="width:${btnPx};height:${btnPx};bottom:${av.index_button_vertical_dp||16}px;right:${av.index_button_edge_dp||6}px">7Hz</div>
+          </div>
+        </div>
+        <div class="col col-info" style="flex:${c.user_info}">
+          <div><strong>Потребител</strong></div><div>20:00</div>
+        </div>
+        <div class="col col-act" style="flex:${c.action_buttons}">
+          <div class="act"></div><div class="act"></div><div class="act"></div>
+        </div>`;
+    }
+
+    function setStatus(msg, ok) {
+      const s = document.getElementById("status");
+      s.textContent = msg;
+      s.className = "status" + (ok ? " ok" : " warn");
+    }
+
+    function renderControls() {
+      const el = document.getElementById("controls");
+      el.innerHTML = "";
+      let group = "";
+      for (const [path, meta] of Object.entries(LABELS)) {
+        if (meta.group !== group) {
+          group = meta.group;
+          const gt = document.createElement("div");
+          gt.className = "group-title";
+          gt.textContent = group;
+          el.appendChild(gt);
+        }
+        const b = BOUNDS[path] || [0, 100];
+        const val = get(state, path) ?? b[0];
+        const field = document.createElement("div");
+        field.className = "field";
+        const vid = "v-" + path.replace(/\./g, "-");
+        field.innerHTML = `
+          <label>${meta.label} <span id="${vid}">${fmt(path, val)}</span></label>
+          <input type="range" min="${b[0]}" max="${b[1]}" step="${meta.step}" value="${val}" data-path="${path}">
+          <small>${meta.hint || `Диапазон ${b[0]} – ${b[1]}`}</small>`;
+        el.appendChild(field);
+      }
+      el.querySelectorAll("input[type=range]").forEach(inp => {
+        inp.oninput = () => {
+          const p = inp.dataset.path;
+          const v = clamp(p, parseFloat(inp.value));
+          set(state, p, v);
+          activePreset = "custom";
+          document.getElementById("v-" + p.replace(/\./g, "-")).textContent = fmt(p, v);
+          renderPresets(); renderPreview();
+          setStatus("Персонализирано (в безопасен диапазон)", true);
+        };
+      });
+    }
+
+    function fmt(p, v) {
+      return (LABELS[p]?.unit === "weight") ? v : v + " " + (LABELS[p]?.unit || "");
+    }
+
+    function toYaml() {
+      const s = state;
+      return `# XEMS Design Studio export — ${new Date().toISOString().slice(0,10)}\nactive_preset: ${activePreset}\n\n` +
+        `row:\n  height_dp: ${s.row?.height_dp}\n\ncolumns:\n` +
+        `  mode_buttons: ${s.columns?.mode_buttons}\n  muscle_sliders: ${s.columns?.muscle_sliders}\n` +
+        `  avatar: ${s.columns?.avatar}\n  user_info: ${s.columns?.user_info}\n  action_buttons: ${s.columns?.action_buttons}\n\navatar:\n` +
+        Object.entries(s.avatar || {}).map(([k,v]) => `  ${k}: ${v}`).join("\n") + "\n\nmode_buttons:\n" +
+        Object.entries(s.mode_buttons || {}).map(([k,v]) => `  ${k}: ${v}`).join("\n") + "\n\nsliders:\n" +
+        `  channel_width_dp: ${s.sliders?.channel_width_dp}\n`;
+    }
+
+    function parseYaml(text) {
+      const out = { row:{}, columns:{}, avatar:{}, mode_buttons:{}, sliders:{} };
+      let sec = null;
+      for (const raw of text.split("\n")) {
+        const line = raw.split("#")[0].trim();
+        if (!line) continue;
+        const m = line.match(/^(\w+):$/);
+        if (m) { sec = m[1]; continue; }
+        const kv = line.match(/^(\w+):\s*([\d.]+)/);
+        if (!kv || !sec || sec === "active_preset") {
+          if (kv && sec === "active_preset") activePreset = kv[1];
+          continue;
+        }
+        if (!out[sec]) out[sec] = {};
+        out[sec][kv[1]] = parseFloat(kv[2]);
+      }
+      return out;
+    }
+
+    document.getElementById("save").onclick = () => {
+      const blob = new Blob([toYaml()], { type: "text/yaml" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "design-config.yaml";
+      a.click();
+      setStatus("YAML изтеглен → design-apply.sh --import", true);
+    };
+    document.getElementById("copy").onclick = async () => {
+      await navigator.clipboard.writeText(toYaml());
+      setStatus("YAML копиран в clipboard", true);
+    };
+    document.getElementById("load").onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      state = mergeDeep(structuredClone(BOOT.current || {}), parseYaml(await f.text()));
+      activePreset = "custom";
+      renderPresets(); renderControls(); renderPreview();
+      setStatus("YAML зареден", true);
+    };
+
+    if (!BOOT.presets) {
+      setStatus("Липсва design-studio.boot.js — пусни: python3 scripts/generate-design-studio.py", false);
+    } else {
+      renderPresets();
+      renderControls();
+      renderPreview();
+    }
+  </script>
+</body>
+</html>

@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.widget.AmountView;
 
@@ -67,17 +68,35 @@ public final class MusicPlayerHelper {
         hostFragment = fragment;
         button.setClickable(true);
         button.setEnabled(true);
-        button.setFocusable(true);
-        button.setFocusableInTouchMode(true);
+        button.setFocusable(false);
+        button.setFocusableInTouchMode(false);
         button.setOnClickListener(new MasterOpenListener(root, manager));
+        MusicDiagLog.log("attach", "master music button wired, fragment="
+                + (fragment != null ? fragment.getClass().getSimpleName() : "null"));
     }
 
     public static void show(Activity activity, TrainItem item) {
+        MusicDiagLog.log("show.begin", "activity=" + (activity != null ? activity.getClass().getSimpleName() : "null")
+                + " item=" + (item != null ? "ok" : "null"));
+        try {
+            showInternal(activity, item);
+        } catch (Throwable t) {
+            MusicDiagLog.logError("show", t);
+            Activity host = resolveHostActivity(activity, dialogContent);
+            if (host != null) {
+                toast(host, 0x7f0d0113);
+            }
+        }
+    }
+
+    private static void showInternal(Activity activity, TrainItem item) {
         activity = resolveHostActivity(activity, dialogContent);
         if (activity == null) {
+            MusicDiagLog.log("show.abort", "no activity");
             return;
         }
         if (item == null) {
+            MusicDiagLog.log("show.abort", "no train item");
             toast(activity, 0x7f0d011a);
             return;
         }
@@ -90,6 +109,7 @@ public final class MusicPlayerHelper {
         try {
             content = LayoutInflater.from(activity).inflate(LAYOUT_ID, null);
         } catch (Throwable t) {
+            MusicDiagLog.logError("inflate", t);
             toast(activity, 0x7f0d0113);
             return;
         }
@@ -113,6 +133,7 @@ public final class MusicPlayerHelper {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
         dialog.show();
+        MusicDiagLog.log("show.ok", "dialog visible");
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -376,18 +397,29 @@ public final class MusicPlayerHelper {
 
         @Override
         public void onClick(View view) {
-            Activity activity = resolveHostActivity(view != null ? view : root);
-            if (activity == null) {
-                toast(null, 0x7f0d010b);
-                return;
+            MusicDiagLog.log("click.master", "button tapped");
+            try {
+                Activity activity = resolveHostActivity(view != null ? view : root);
+                if (activity == null) {
+                    MusicDiagLog.log("click.master", "no activity");
+                    toast(null, 0x7f0d010b);
+                    return;
+                }
+                MusicSync.setHostActivity(activity);
+                TrainItem item = resolveTargetItem(manager);
+                if (item == null) {
+                    MusicDiagLog.log("click.master", "no train item");
+                    toast(activity, 0x7f0d011a);
+                    return;
+                }
+                show(activity, item);
+            } catch (Throwable t) {
+                MusicDiagLog.logError("click.master", t);
+                Activity activity = resolveHostActivity(view != null ? view : root);
+                if (activity != null) {
+                    toast(activity, 0x7f0d0113);
+                }
             }
-            MusicSync.setHostActivity(activity);
-            TrainItem item = resolveTargetItem(manager);
-            if (item == null) {
-                toast(activity, 0x7f0d011a);
-                return;
-            }
-            show(activity, item);
         }
     }
 

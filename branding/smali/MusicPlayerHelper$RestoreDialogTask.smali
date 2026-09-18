@@ -27,16 +27,16 @@
 .method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 3
 
-    .line 480
+    .line 512
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 481
+    .line 513
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->activity:Landroid/app/Activity;
 
-    .line 482
+    .line 514
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 483
+    .line 515
     return-void
 .end method
 
@@ -45,7 +45,7 @@
 .method public run()V
     .registers 3
 
-    .line 487
+    .line 519
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()Z
 
@@ -53,10 +53,10 @@
 
     if-eqz v0, :cond_7
 
-    .line 488
+    .line 520
     return-void
 
-    .line 490
+    .line 522
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RestoreDialogTask;->activity:Landroid/app/Activity;
 
@@ -64,6 +64,6 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 491
+    .line 523
     return-void
 .end method

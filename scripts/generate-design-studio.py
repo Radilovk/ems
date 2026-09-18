@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Sync branding/design-studio.boot.js from YAML (current config + presets + bounds)."""
+"""Embed design config into design-studio.html (works offline, no extra .js file)."""
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -20,7 +21,8 @@ from design_config_schema import BOUNDS, sanitize
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "branding" / "design-config.yaml"
 PRESETS = ROOT / "branding" / "design-presets.yaml"
-OUT = ROOT / "branding" / "design-studio.boot.js"
+STUDIO = ROOT / "branding" / "design-studio.html"
+BOOT_JS = ROOT / "branding" / "design-studio.boot.js"
 
 LABELS = {
     "row.height_dp": {"label": "Височина на реда", "step": 2, "unit": "dp", "group": "Ред"},
@@ -53,18 +55,16 @@ def _load_yaml(path: Path) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def main() -> int:
+def build_boot() -> dict:
     raw = _load_yaml(CONFIG)
     current, _ = sanitize(raw)
-
     preset_data = _load_yaml(PRESETS)
     presets = preset_data.get("presets", {})
     preset_meta = {
         pid: {"label": p.get("label", pid), "hint": p.get("hint", "")}
         for pid, p in presets.items()
     }
-
-    boot = {
+    return {
         "version": 1,
         "current": {**current, "active_preset": raw.get("active_preset", "phone")},
         "presets": presets,
@@ -73,12 +73,32 @@ def main() -> int:
         "labels": LABELS,
     }
 
-    js = "// Auto-generated — do not edit. Run: python3 scripts/generate-design-studio.py\n"
-    js += "window.DESIGN_STUDIO_BOOT = "
-    js += json.dumps(boot, ensure_ascii=False, indent=2)
-    js += ";\n"
-    OUT.write_text(js, encoding="utf-8")
-    print(f"Wrote {OUT.relative_to(ROOT)}")
+
+def embed_in_html(boot: dict) -> None:
+    text = STUDIO.read_text(encoding="utf-8")
+    block = (
+        "  <!-- DESIGN_STUDIO_BOOT_BEGIN -->\n"
+        "  <script>\n"
+        f"  window.DESIGN_STUDIO_BOOT = {json.dumps(boot, ensure_ascii=False)};\n"
+        "  </script>\n"
+        "  <!-- DESIGN_STUDIO_BOOT_END -->"
+    )
+    pattern = r"  <!-- DESIGN_STUDIO_BOOT_BEGIN -->.*?  <!-- DESIGN_STUDIO_BOOT_END -->"
+    if not re.search(pattern, text, flags=re.DOTALL):
+        raise RuntimeError("design-studio.html boot markers missing")
+    STUDIO.write_text(re.sub(pattern, block, text, count=1, flags=re.DOTALL), encoding="utf-8")
+    print(f"Embedded boot data in {STUDIO.relative_to(ROOT)}")
+
+
+def main() -> int:
+    boot = build_boot()
+    embed_in_html(boot)
+    # Legacy file for tools that still read .boot.js
+    BOOT_JS.write_text(
+        "// Auto-generated — prefer inline data in design-studio.html\n"
+        f"window.DESIGN_STUDIO_BOOT = {json.dumps(boot, ensure_ascii=False, indent=2)};\n",
+        encoding="utf-8",
+    )
     return 0
 
 

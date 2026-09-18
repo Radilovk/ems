@@ -76,6 +76,7 @@ else
   echo "BETA music sync disabled (BETA_MUSIC=0)."
 fi
 
+python3 "${ROOT}/scripts/apply-design-config.py"
 python3 "${ROOT}/scripts/apply-branding-train-layouts.py"
 if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-music-player.py"

@@ -69,7 +69,7 @@ public final class MusicPlayerHelper {
 
     public static void show(Activity activity, TrainItem item) {
         activity = resolveHostActivity(activity, dialogContent);
-        if (activity == null) {
+        if (!canShowOn(activity)) {
             return;
         }
         if (item == null) {
@@ -78,36 +78,54 @@ public final class MusicPlayerHelper {
         }
         pendingActivity = activity;
         pendingItem = item;
-        MusicSync.setHostActivity(activity);
-        MusicSync.setTargetItem(item);
-        dismissDialog();
-        View content;
         try {
-            content = LayoutInflater.from(activity).inflate(LAYOUT_ID, null);
+            MusicSync.setHostActivity(activity);
+            MusicSync.setTargetItem(item);
+            dismissDialog();
+            View content = LayoutInflater.from(activity).inflate(LAYOUT_ID, null);
+            dialogContent = content;
+            trackView = (TextView) content.findViewById(0x7f090227);
+            sensitivityView = (AmountView) content.findViewById(0x7f090228);
+            statusView = (TextView) content.findViewById(0x7f090229);
+            levelView = (TextView) content.findViewById(0x7f09022a);
+            configureSensitivity();
+            updateTrackLabel(selectedUri);
+            bindButton(content.findViewById(0x7f09022b), new PickListener());
+            bindButton(content.findViewById(0x7f09022c), new PlayListener());
+            bindButton(content.findViewById(0x7f09022d), new StopListener());
+            refreshDialogStatus();
+            android.support.v7.app.AlertDialog.Builder builder =
+                    new android.support.v7.app.AlertDialog.Builder(activity);
+            builder.setView(content);
+            builder.setOnDismissListener(new DismissHandler());
+            dialog = builder.create();
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+            dialog.show();
         } catch (Throwable t) {
+            dismissDialog();
             toast(activity, 0x7f0d0113);
-            return;
         }
-        dialogContent = content;
-        trackView = (TextView) content.findViewById(0x7f090227);
-        sensitivityView = (AmountView) content.findViewById(0x7f090228);
-        statusView = (TextView) content.findViewById(0x7f090229);
-        levelView = (TextView) content.findViewById(0x7f09022a);
-        configureSensitivity();
-        updateTrackLabel(selectedUri);
-        bindButton(content.findViewById(0x7f09022b), new PickListener());
-        bindButton(content.findViewById(0x7f09022c), new PlayListener());
-        bindButton(content.findViewById(0x7f09022d), new StopListener());
-        showIdle();
-        android.support.v7.app.AlertDialog.Builder builder =
-                new android.support.v7.app.AlertDialog.Builder(activity);
-        builder.setView(content);
-        builder.setOnDismissListener(new DismissHandler());
-        dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    }
+
+    private static boolean canShowOn(Activity activity) {
+        if (activity == null) {
+            return false;
         }
-        dialog.show();
+        try {
+            return !activity.isFinishing();
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    private static void refreshDialogStatus() {
+        if (MusicSync.isRunning()) {
+            showActive(MusicSync.getEffectiveStrength(), MusicSync.getStrengthCeiling());
+        } else {
+            showIdle();
+        }
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -436,6 +454,11 @@ public final class MusicPlayerHelper {
         @Override
         public void onDismiss(android.content.DialogInterface d) {
             if (!pickingFile) {
+                if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+                    dialog = null;
+                    clearDialogRefs();
+                    return;
+                }
                 MusicSync.stop();
                 pendingActivity = null;
                 pendingItem = null;

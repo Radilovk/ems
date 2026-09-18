@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 427
+    .line 445
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,12 +32,12 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 430
+    .line 448
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 431
+    .line 449
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 432
+    .line 450
     return-void
 .end method

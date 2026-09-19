@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "branding" / "design-config.yaml"
 PRESETS = ROOT / "branding" / "design-presets.yaml"
 STUDIO = ROOT / "branding" / "design-studio.html"
+TRAIN_MOCKUP = ROOT / "branding" / "train-screen-mockup.html"
 BOOT_JS = ROOT / "branding" / "design-studio.boot.js"
 
 LABELS = {
@@ -74,8 +75,8 @@ def build_boot() -> dict:
     }
 
 
-def embed_in_html(boot: dict) -> None:
-    text = STUDIO.read_text(encoding="utf-8")
+def _embed_boot_block(path: Path, boot: dict) -> None:
+    text = path.read_text(encoding="utf-8")
     block = (
         "  <!-- DESIGN_STUDIO_BOOT_BEGIN -->\n"
         "  <script>\n"
@@ -85,9 +86,15 @@ def embed_in_html(boot: dict) -> None:
     )
     pattern = r"  <!-- DESIGN_STUDIO_BOOT_BEGIN -->.*?  <!-- DESIGN_STUDIO_BOOT_END -->"
     if not re.search(pattern, text, flags=re.DOTALL):
-        raise RuntimeError("design-studio.html boot markers missing")
-    STUDIO.write_text(re.sub(pattern, block, text, count=1, flags=re.DOTALL), encoding="utf-8")
-    print(f"Embedded boot data in {STUDIO.relative_to(ROOT)}")
+        raise RuntimeError(f"{path.name} boot markers missing")
+    path.write_text(re.sub(pattern, block, text, count=1, flags=re.DOTALL), encoding="utf-8")
+    print(f"Embedded boot data in {path.relative_to(ROOT)}")
+
+
+def embed_in_html(boot: dict) -> None:
+    _embed_boot_block(STUDIO, boot)
+    if TRAIN_MOCKUP.is_file():
+        _embed_boot_block(TRAIN_MOCKUP, boot)
 
 
 def main() -> int:

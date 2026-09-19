@@ -8,9 +8,9 @@ columns:
   action_buttons: 0.2
 avatar:
   index_button_size_dp: 45.0
-  index_button_edge_dp: 1.0
-  index_button_vertical_dp: 11.0
-  icon_padding_dp: 20.0
+  index_button_edge_dp: -4.0
+  index_button_vertical_dp: 6.0
+  icon_padding_dp: 25.0
   timer_text_sp: 45.0
   wave_margin_dp: 42.0
   slider_padding_dp: 14.0

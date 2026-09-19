@@ -1,4 +1,4 @@
-# Готови безопасни профили — използват се от design-studio.html
+# Готови безопасни профили — apply-design-config.py --preset ID
 # и от: python3 scripts/apply-design-config.py --preset <id>
 
 active_preset: phone

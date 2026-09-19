@@ -1,6 +1,6 @@
-# Publish branding/ design tools to GitHub Pages
+# Publish branding/ dev reference to GitHub Pages
 # URL: https://radilovk.github.io/ems/  (after Settings → Pages → Source: GitHub Actions)
-name: Design Tools — GitHub Pages
+name: Branding Dev Reference — GitHub Pages
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
       - "branding/**"
       - "index.html"
       - ".nojekyll"
-      - "scripts/generate-design-studio.py"
       - "scripts/design_config_schema.py"
       - "branding/design-config.yaml"
       - "branding/design-presets.yaml"
@@ -34,9 +33,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Sync Design Studio embedded config
-        run: python3 scripts/generate-design-studio.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

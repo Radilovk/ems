@@ -78,7 +78,7 @@ def _fmt_dp(value: float | int) -> str:
 
 
 def _load_avatar_dim_strings() -> tuple[str, str, str]:
-    """Use Design Studio dims only when DESIGN_PIPELINE=1 (opt-in build)."""
+    """Use design-config.yaml dims only when DESIGN_PIPELINE=1 (opt-in build)."""
     size = DEFAULT_INDEX_BUTTON_SIZE
     edge = DEFAULT_INWARD_EDGE
     vert = DEFAULT_INWARD_TOP_BOTTOM

@@ -271,7 +271,7 @@ window.DESIGN_STUDIO_BOOT = {
       "group": "Avatar"
     },
     "avatar.index_button_edge_dp": {
-      "label": "Index бутон — от rъба (L/R)",
+      "label": "Index бутон — от ръба (L/R)",
       "step": 1,
       "unit": "dp",
       "group": "Avatar"

@@ -60,61 +60,100 @@ PAUSE_MA_ID = 0x7f090218
 PAUSE_HZ_ID = 0x7f090219
 PUBLIC_ID_INSERT_AFTER = '<public type="id" name="pauseSegmentRemove3" id="0x7f090217" />'
 
-INDEX_BUTTON_SIZE = "45.0dip"
-# Nudge index buttons inward so they sit slightly under the slider ring (circleSeekBar draws on top).
-INWARD_EDGE = "6.0dip"
-INWARD_TOP_BOTTOM = "16.0dip"
+DESIGN_CONFIG = ROOT / "branding" / "design-config.yaml"
+DEFAULT_INDEX_BUTTON_SIZE = "45.0dip"
+DEFAULT_INWARD_EDGE = "6.0dip"
+DEFAULT_INWARD_TOP_BOTTOM = "16.0dip"
 
-PAUSE_MA_VALUE_VIEW = (
-    '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
-    'android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" '
-    'android:background="@drawable/light_black_button_drawable_r30" '
-    f'android:layout_width="{INDEX_BUTTON_SIZE}" android:layout_height="{INDEX_BUTTON_SIZE}" '
-    'android:layout_alignParentRight="true" '
-    f'android:layout_marginTop="{INWARD_TOP_BOTTOM}" android:layout_marginRight="{INWARD_EDGE}" '
-    'android:text="0%" />'
-)
+PAUSE_MA_VALUE_VIEW = ""
+PAUSE_HZ_VALUE_VIEW = ""
+BUTTON_INDEX_LAYOUT: dict[str, dict[str, str]] = {}
 
-PAUSE_HZ_VALUE_VIEW = (
-    '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
-    'android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" '
-    'android:background="@drawable/light_black_button_drawable_r30" '
-    f'android:layout_width="{INDEX_BUTTON_SIZE}" android:layout_height="{INDEX_BUTTON_SIZE}" '
-    'android:layout_alignParentRight="true" android:layout_alignParentBottom="true" '
-    f'android:layout_marginBottom="{INWARD_TOP_BOTTOM}" android:layout_marginRight="{INWARD_EDGE}" '
-    'android:text="7Hz" />'
-)
 
-BUTTON_INDEX_LAYOUT = {
-    "ma": {
-        "layout_marginTop": INWARD_TOP_BOTTOM,
-        "layout_marginLeft": INWARD_EDGE,
-        "layout_width": INDEX_BUTTON_SIZE,
-        "layout_height": INDEX_BUTTON_SIZE,
-    },
-    "hzValue": {
-        "layout_marginBottom": INWARD_TOP_BOTTOM,
-        "layout_marginLeft": INWARD_EDGE,
-        "layout_alignParentBottom": "true",
-        "layout_width": INDEX_BUTTON_SIZE,
-        "layout_height": INDEX_BUTTON_SIZE,
-    },
-    "pauseMaValue": {
-        "layout_marginTop": INWARD_TOP_BOTTOM,
-        "layout_marginRight": INWARD_EDGE,
-        "layout_alignParentRight": "true",
-        "layout_width": INDEX_BUTTON_SIZE,
-        "layout_height": INDEX_BUTTON_SIZE,
-    },
-    "pauseHzValue": {
-        "layout_marginBottom": INWARD_TOP_BOTTOM,
-        "layout_marginRight": INWARD_EDGE,
-        "layout_alignParentRight": "true",
-        "layout_alignParentBottom": "true",
-        "layout_width": INDEX_BUTTON_SIZE,
-        "layout_height": INDEX_BUTTON_SIZE,
-    },
-}
+def _fmt_dp(value: float | int) -> str:
+    if isinstance(value, float) and value.is_integer():
+        value = int(value)
+    return f"{value}.0dip"
+
+
+def _load_avatar_dim_strings() -> tuple[str, str, str]:
+    """Respect branding/design-config.yaml when present (Design Studio export)."""
+    size = DEFAULT_INDEX_BUTTON_SIZE
+    edge = DEFAULT_INWARD_EDGE
+    vert = DEFAULT_INWARD_TOP_BOTTOM
+    if not DESIGN_CONFIG.is_file():
+        return size, edge, vert
+    try:
+        import yaml
+
+        raw = yaml.safe_load(DESIGN_CONFIG.read_text(encoding="utf-8")) or {}
+        avatar = raw.get("avatar") or {}
+        if "index_button_size_dp" in avatar:
+            size = _fmt_dp(avatar["index_button_size_dp"])
+        if "index_button_edge_dp" in avatar:
+            edge = _fmt_dp(avatar["index_button_edge_dp"])
+        if "index_button_vertical_dp" in avatar:
+            vert = _fmt_dp(avatar["index_button_vertical_dp"])
+    except Exception as exc:
+        print(f"warn: could not read avatar dims from design-config.yaml ({exc})")
+    return size, edge, vert
+
+
+def _build_button_index_layout(size: str, edge: str, vert: str) -> dict[str, dict[str, str]]:
+    return {
+        "ma": {
+            "layout_marginTop": vert,
+            "layout_marginLeft": edge,
+            "layout_width": size,
+            "layout_height": size,
+        },
+        "hzValue": {
+            "layout_marginBottom": vert,
+            "layout_marginLeft": edge,
+            "layout_alignParentBottom": "true",
+            "layout_width": size,
+            "layout_height": size,
+        },
+        "pauseMaValue": {
+            "layout_marginTop": vert,
+            "layout_marginRight": edge,
+            "layout_alignParentRight": "true",
+            "layout_width": size,
+            "layout_height": size,
+        },
+        "pauseHzValue": {
+            "layout_marginBottom": vert,
+            "layout_marginRight": edge,
+            "layout_alignParentRight": "true",
+            "layout_alignParentBottom": "true",
+            "layout_width": size,
+            "layout_height": size,
+        },
+    }
+
+
+def _init_avatar_button_dims() -> None:
+    global PAUSE_MA_VALUE_VIEW, PAUSE_HZ_VALUE_VIEW, BUTTON_INDEX_LAYOUT
+    size, edge, vert = _load_avatar_dim_strings()
+    BUTTON_INDEX_LAYOUT = _build_button_index_layout(size, edge, vert)
+    PAUSE_MA_VALUE_VIEW = (
+        '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
+        'android:textStyle="bold" android:gravity="center" android:id="@id/pauseMaValue" '
+        'android:background="@drawable/light_black_button_drawable_r30" '
+        f'android:layout_width="{size}" android:layout_height="{size}" '
+        'android:layout_alignParentRight="true" '
+        f'android:layout_marginTop="{vert}" android:layout_marginRight="{edge}" '
+        'android:text="0%" />'
+    )
+    PAUSE_HZ_VALUE_VIEW = (
+        '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
+        'android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" '
+        'android:background="@drawable/light_black_button_drawable_r30" '
+        f'android:layout_width="{size}" android:layout_height="{size}" '
+        'android:layout_alignParentRight="true" android:layout_alignParentBottom="true" '
+        f'android:layout_marginBottom="{vert}" android:layout_marginRight="{edge}" '
+        'android:text="7Hz" />'
+    )
 
 ADD_PAUSE_HZ_METHOD = """
 .method public addPauseHz(I)V
@@ -1988,6 +2027,7 @@ def write_listener() -> None:
 
 
 def main() -> None:
+    _init_avatar_button_dims()
     pause_ma_id = register_id(PAUSE_MA_ID_NAME, PAUSE_MA_ID)
     pause_hz_id = register_id(PAUSE_HZ_ID_NAME, PAUSE_HZ_ID)
     ensure_green_drawable()

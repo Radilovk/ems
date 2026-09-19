@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XEMS Train Screen — пълен HTML mockup</title>
+  <!-- DESIGN_STUDIO_BOOT_BEGIN -->
+  <script>
+  window.DESIGN_STUDIO_BOOT = {"version": 1, "current": {"row": {"height_dp": 170.0}, "columns": {"mode_buttons": 0.4, "muscle_sliders": 2.0, "avatar": 0.6, "user_info": 0.5, "action_buttons": 0.2}, "avatar": {"index_button_size_dp": 45.0, "index_button_edge_dp": 6.0, "index_button_vertical_dp": 16.0, "icon_padding_dp": 15.0, "timer_text_sp": 45.0, "wave_margin_dp": 42.0, "slider_padding_dp": 14.0, "slider_padding_bottom_dp": 10.0, "slider_track_width_dp": 14.0, "slider_pointer_radius_dp": 18.0}, "mode_buttons": {"width_dp": 120.0, "height_dp": 42.0}, "sliders": {"channel_width_dp": 35.0}, "active_preset": "phone"}, "presets": {"phone": {"label": "Телефон", "hint": "Стандартен баланс — текущият заводски вид", "row": {"height_dp": 170}, "columns": {"mode_buttons": 0.4, "muscle_sliders": 2.0, "avatar": 0.6, "user_info": 0.5, "action_buttons": 0.2}, "avatar": {"index_button_size_dp": 45, "index_button_edge_dp": 6, "index_button_vertical_dp": 16, "icon_padding_dp": 15, "timer_text_sp": 45, "wave_margin_dp": 42, "slider_padding_dp": 14, "slider_padding_bottom_dp": 10, "slider_track_width_dp": 14, "slider_pointer_radius_dp": 18}, "mode_buttons": {"width_dp": 120, "height_dp": 42}, "sliders": {"channel_width_dp": 35}}, "tablet": {"label": "Таблет", "hint": "По-висок ред и по-голям padding на слайдера — по-малко припокриване", "row": {"height_dp": 190}, "columns": {"mode_buttons": 0.35, "muscle_sliders": 2.0, "avatar": 0.72, "user_info": 0.48, "action_buttons": 0.2}, "avatar": {"index_button_size_dp": 42, "index_button_edge_dp": 8, "index_button_vertical_dp": 18, "icon_padding_dp": 12, "timer_text_sp": 42, "wave_margin_dp": 40, "slider_padding_dp": 22, "slider_padding_bottom_dp": 14, "slider_track_width_dp": 12, "slider_pointer_radius_dp": 16}, "mode_buttons": {"width_dp": 110, "height_dp": 42}, "sliders": {"channel_width_dp": 32}}, "tablet_wide": {"label": "Таблет landscape", "hint": "Още повече място за avatar колоната на широк екран", "row": {"height_dp": 185}, "columns": {"mode_buttons": 0.3, "muscle_sliders": 1.85, "avatar": 0.82, "user_info": 0.45, "action_buttons": 0.18}, "avatar": {"index_button_size_dp": 40, "index_button_edge_dp": 10, "index_button_vertical_dp": 20, "icon_padding_dp": 10, "timer_text_sp": 40, "wave_margin_dp": 38, "slider_padding_dp": 26, "slider_padding_bottom_dp": 16, "slider_track_width_dp": 11, "slider_pointer_radius_dp": 15}, "mode_buttons": {"width_dp": 100, "height_dp": 40}, "sliders": {"channel_width_dp": 30}}}, "presetMeta": {"phone": {"label": "Телефон", "hint": "Стандартен баланс — текущият заводски вид"}, "tablet": {"label": "Таблет", "hint": "По-висок ред и по-голям padding на слайдера — по-малко припокриване"}, "tablet_wide": {"label": "Таблет landscape", "hint": "Още повече място за avatar колоната на широк екран"}}, "bounds": {"row.height_dp": [140, 220], "columns.mode_buttons": [0.25, 0.7], "columns.muscle_sliders": [1.4, 2.6], "columns.avatar": [0.45, 0.95], "columns.user_info": [0.35, 0.75], "columns.action_buttons": [0.12, 0.35], "avatar.index_button_size_dp": [34, 56], "avatar.index_button_edge_dp": [2, 16], "avatar.index_button_vertical_dp": [8, 28], "avatar.icon_padding_dp": [4, 24], "avatar.timer_text_sp": [28, 52], "avatar.wave_margin_dp": [28, 52], "avatar.slider_padding_dp": [8, 32], "avatar.slider_padding_bottom_dp": [6, 24], "avatar.slider_track_width_dp": [8, 20], "avatar.slider_pointer_radius_dp": [10, 22], "mode_buttons.width_dp": [80, 140], "mode_buttons.height_dp": [36, 52], "sliders.channel_width_dp": [28, 44]}, "labels": {"row.height_dp": {"label": "Височина на реда", "step": 2, "unit": "dp", "group": "Ред"}, "columns.mode_buttons": {"label": "Колона: mode бутони", "step": 0.05, "unit": "weight", "group": "Колони"}, "columns.muscle_sliders": {"label": "Колона: muscle sliders", "step": 0.05, "unit": "weight", "group": "Колони"}, "columns.avatar": {"label": "Колона: avatar", "step": 0.05, "unit": "weight", "group": "Колони", "hint": "По-голямо = повече място за ring + index бутони"}, "columns.user_info": {"label": "Колона: име/импулси", "step": 0.05, "unit": "weight", "group": "Колони"}, "columns.action_buttons": {"label": "Колона: stop/start/save", "step": 0.05, "unit": "weight", "group": "Колони"}, "avatar.index_button_size_dp": {"label": "Index бутон — размер", "step": 1, "unit": "dp", "group": "Avatar"}, "avatar.index_button_edge_dp": {"label": "Index бутон — от ръба (L/R)", "step": 1, "unit": "dp", "group": "Avatar"}, "avatar.index_button_vertical_dp": {"label": "Index бутон — горе/долу", "step": 1, "unit": "dp", "group": "Avatar"}, "avatar.slider_padding_dp": {"label": "Ring slider — padding", "step": 1, "unit": "dp", "group": "Avatar", "hint": "Ключово за tablet overlap"}, "avatar.slider_track_width_dp": {"label": "Ring — дебелина", "step": 1, "unit": "dp", "group": "Avatar"}, "sliders.channel_width_dp": {"label": "Muscle slider ширина", "step": 1, "unit": "dp", "group": "Sliders"}}};
+  </script>
+  <!-- DESIGN_STUDIO_BOOT_END -->
+  <style>
+    :root {
+      --bg:#0f1419; --panel:#1a2332; --accent:#2dd4bf; --text:#e7ecf3; --muted:#8b9cb3;
+      --border:#2a3548; --ok:#4ade80; --warn:#fbbf24;
+      --screen-bg:#eeeeee; --card:#fff; --mode-red:#e53935; --mode-orange:#fb8c00;
+      --mode-blue:#1e88e5; --badge:#3a3a3a; --ring-track:#e0ddde; --ring-active:#9a8073;
+      --sidebar-bg:linear-gradient(180deg,#455a64 0%,#37474f 100%);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--panel)}
+    header h1{margin:0 0 .25rem;font-size:1.35rem}
+    header p{margin:0;color:var(--muted);font-size:.9rem;max-width:920px;line-height:1.45}
+    .steps{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+    .step{flex:1;min-width:130px;background:#121a24;border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;font-size:.78rem}
+    .step strong{color:var(--accent);display:block;margin-bottom:.15rem}
+    main{display:grid;grid-template-columns:1fr 320px;gap:1rem;padding:1rem 1.25rem 2rem;max-width:1400px;margin:0 auto}
+    @media(max-width:1100px){main{grid-template-columns:1fr}}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1rem}
+    .panel h2{margin:0 0 .6rem;font-size:.92rem;color:var(--accent)}
+    .preview-wrap{overflow-x:auto}
+    /* ── Full train screen ── */
+    .train-screen{display:flex;background:var(--screen-bg);border-radius:10px;border:1px solid #bbb;min-height:520px;box-shadow:0 4px 20px rgba(0,0,0,.15);overflow:hidden}
+    .train-main{flex:10;display:flex;flex-direction:column;min-width:0;padding:5px 12px 8px 10px}
+    .muscle-bar{display:flex;align-items:center;margin-bottom:6px;gap:0}
+    .muscle-spacer{flex:0.51}
+    .muscle-groups{display:flex;flex:2.5;justify-content:space-around;gap:2px}
+    .muscle-item{flex:1;display:flex;flex-direction:column;align-items:center;font-size:7px;color:#333;cursor:pointer;padding:2px;border-radius:6px}
+    .muscle-item:hover,.muscle-item.sel{background:rgba(45,212,191,.15);outline:1px solid var(--accent)}
+    .muscle-icon{width:28px;height:28px;border-radius:50%;background:#78909c;margin-bottom:2px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+    .muscle-arrow{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #666;margin-top:1px}
+    .muscle-spacer2{flex:0.8}
+    .logo-box{flex:0.8;display:flex;justify-content:center;align-items:center}
+    .logo{width:48px;height:32px;background:#263238;color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer}
+    .user-list{flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;padding-bottom:4px}
+    .train-sidebar{flex:0.7;min-width:52px;background:var(--sidebar-bg);display:flex;flex-direction:column;align-items:center;padding:8px 4px}
+    .sb-btn{width:42px;height:42px;border-radius:50%;background:#546e7a;margin:4px 0;cursor:pointer;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700}
+    .sb-btn:hover,.sb-btn.sel{outline:2px solid var(--accent);background:#607d8b}
+    .sb-spacer{flex:1;min-height:8px}
+    .sb-label{font-size:7px;color:#cfd8dc;text-align:center;margin-top:-2px}
+    /* ── User row (same as Design Studio) ── */
+    .user-row{display:flex;background:var(--card);border-radius:8px;border:1px solid #c8c8c8;box-shadow:0 2px 6px rgba(0,0,0,.1);transition:height .2s}
+    .user-row.sel-row{outline:2px solid var(--accent)}
+    .col{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;min-height:60px}
+    .col-mode{gap:3px;padding:4px}
+    .mode-btn{width:68%;height:22%;min-height:22px;max-height:32px;border-radius:6px;font-size:7px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .mode-btn.m{background:var(--mode-red)} .mode-btn.a{background:var(--mode-orange)} .mode-btn.s{background:var(--mode-blue)}
+    .col-sliders{flex-direction:row;gap:1px;padding:6px 2px}
+    .ch{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+    .ch .bar{flex:1;width:70%;background:#2e7d32;border-radius:2px 2px 0 0;min-height:40px;opacity:.85}
+    .col-avatar{padding:4px}
+    .av{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+    .ring{position:relative;width:85%;aspect-ratio:1;border-radius:50%;border-style:solid;border-color:var(--ring-track)}
+    .ring::before{content:"";position:absolute;inset:calc(-1 * var(--track,14px));border-radius:50%;border:var(--track,14px) solid transparent;border-top-color:var(--ring-active);border-right-color:var(--ring-active);transform:rotate(-40deg)}
+    .idx{position:absolute;border-radius:50%;background:var(--badge);color:#fff;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer}
+    .timer{position:absolute;font-size:clamp(14px,4vw,24px);font-weight:700;color:#3a3a3a;z-index:1;cursor:pointer}
+    .avatar-icon{position:absolute;width:55%;height:55%;border-radius:50%;background:#b0bec5;opacity:.5;z-index:0;cursor:pointer}
+    .col-info{align-items:flex-start;padding:8px;font-size:9px;color:#3a3a3a;gap:4px}
+    .col-info .row-meta{display:flex;align-items:center;gap:6px;width:100%;justify-content:space-between}
+    .pulse-ctrl{background:#f5f5f5;border-radius:6px;padding:4px 8px;font-size:8px;margin-top:2px;width:100%}
+    .col-act{gap:6px}
+    .act{width:24px;height:24px;border-radius:50%;background:#78909c;cursor:pointer}
+    [data-id]{cursor:pointer}
+    [data-id].sel{outline:2px solid var(--accent);outline-offset:1px}
+    /* ── Controls ── */
+    .presets{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+    .preset{background:#121a24;border:2px solid var(--border);border-radius:10px;padding:.55rem;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}
+    .preset.active{border-color:var(--accent);background:rgba(45,212,191,.08)}
+    .preset strong{display:block;font-size:.85rem}
+    .preset span{font-size:.7rem;color:var(--muted)}
+    .field{margin-bottom:.65rem}
+    .field label{display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.12rem}
+    .field label span{color:var(--accent);font-weight:600}
+    input[type=range]{width:100%;accent-color:var(--accent)}
+    .group-title{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:.55rem 0 .25rem}
+    .actions{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+    button,.fbtn{background:var(--accent);color:#0f1419;border:none;border-radius:8px;padding:.45rem .75rem;font-weight:600;cursor:pointer;font-size:.8rem}
+    button.sec,.fbtn.sec{background:transparent;color:var(--text);border:1px solid var(--border)}
+    input[type=file]{display:none}
+    .status{font-size:.8rem;color:var(--muted);margin-top:.4rem;min-height:1.2em}
+    .status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
+    .inspector{background:#121a24;border:1px solid var(--border);border-radius:8px;padding:.65rem;font-size:.78rem;line-height:1.5;min-height:80px}
+    .inspector code{color:var(--accent);font-family:ui-monospace,monospace}
+    .cmd-block{background:#121a24;border:1px solid var(--border);border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#cbd5e1;font-family:ui-monospace,monospace;line-height:1.55;margin-top:.4rem}
+    textarea{width:100%;min-height:56px;background:#121a24;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:.4rem;font-size:.78rem;resize:vertical}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Train Screen Mockup — пълен тренировъчен екран</h1>
+    <p>
+      HTML копие на <code>NewTrainFragment</code> + user row.
+      Променяш размери тук → export YAML → аз го пренасям в Android UI.
+      Нови колони/бутони → <a href="layout-workshop.html" style="color:var(--accent)">Layout Workshop</a>.
+      <a href="index.html" style="color:var(--accent)">Начало</a>
+    </p>
+    <div class="steps">
+      <div class="step"><strong>1. Кликни</strong> елемент → виж @id</div>
+      <div class="step"><strong>2. Плъзни</strong> sliders вдясно</div>
+      <div class="step"><strong>3. Export</strong> YAML + бележка</div>
+      <div class="step"><strong>4. Дай на агента</strong> → design-apply + APK</div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="panel preview-wrap">
+        <h2>Преглед — NewTrainFragment (mockup)</h2>
+        <div class="train-screen" id="train-screen">
+          <div class="train-main">
+            <div class="muscle-bar" id="muscle-bar"></div>
+            <div class="user-list" id="user-list"></div>
+          </div>
+          <div class="train-sidebar" id="sidebar"></div>
+        </div>
+        <div class="status ok" id="status">Кликни елемент за @id · промени sliders → Export YAML</div>
+      </div>
+
+      <div class="panel">
+        <h2>Инспектор (избран елемент)</h2>
+        <div class="inspector" id="inspector">Нищо не е избрано. Кликни muscle, sidebar бутон или част от user row.</div>
+        <label style="display:block;margin-top:.6rem;font-size:.78rem;color:var(--muted)">Бележка за агента (по избор)</label>
+        <textarea id="user-note" placeholder="Пример: „avatar index бутоните да са по-малки на tablet“, „muscle bar по-компактна“…"></textarea>
+      </div>
+
+      <div class="panel">
+        <h2>След export — apply в repo</h2>
+        <div class="cmd-block">bash scripts/design-apply.sh --import ~/Downloads/design-config.yaml<br>DESIGN_PIPELINE=1 bash build-apk.sh</div>
+      </div>
+    </section>
+
+    <aside>
+      <div class="panel">
+        <h2>Профили</h2>
+        <div class="presets" id="presets"></div>
+      </div>
+      <div class="panel">
+        <h2>Размери (→ design-config.yaml)</h2>
+        <div id="controls"></div>
+        <div class="actions">
+          <button type="button" id="save">Изтегли YAML</button>
+          <button type="button" class="sec" id="copy">Copy YAML</button>
+          <label class="fbtn sec"><input type="file" id="load" accept=".yaml,.yml">Import</label>
+        </div>
+        <div class="actions">
+          <button type="button" class="sec" id="copy-bundle">Copy YAML + бележка</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const BOOT = window.DESIGN_STUDIO_BOOT || {};
+    const BOUNDS = BOOT.bounds || {};
+    const LABELS = BOOT.labels || {};
+    let activePreset = BOOT.current?.active_preset || "phone";
+    let state = structuredClone(BOOT.current || {});
+
+    const MUSCLES = [
+      { id: "buwei4", label: "Зад бедро" },
+      { id: "buwei3", label: "Предна част на пътя" },
+      { id: "buwei10", label: "Предно бедро" },
+      { id: "buwei9", label: "Бiceps" },
+      { id: "buwei2", label: "Корем" },
+      { id: "buwei8", label: "Талия" },
+      { id: "buwei7", label: "Гръб" },
+      { id: "buwei6", label: "Задно рамо" },
+      { id: "buwei1", label: "Гърди" },
+      { id: "buwei5", label: "Ръка" },
+    ];
+
+    const SIDEBAR = [
+      { id: "allStop", label: "Стоп", title: "Master stop" },
+      { id: "allStartPause", label: "▶", title: "Start/Pause всички" },
+      { id: "allAdd", label: "+", title: "Добави потребител" },
+      { id: "allPerson", label: "M", title: "Main control" },
+      { id: "allminus", label: "−", title: "Премахни" },
+    ];
+
+    const ROW_USERS = ["Иван П.", "Мария К."];
+
+    function get(o, p) { return p.split(".").reduce((a, k) => a?.[k], o); }
+    function set(o, p, v) {
+      const k = p.split("."); let c = o;
+      for (let i = 0; i < k.length - 1; i++) c = c[k[i]] = c[k[i]] || {};
+      c[k[k.length - 1]] = v;
+    }
+    function clamp(p, v) {
+      const b = BOUNDS[p]; if (!b) return v;
+      return Math.max(b[0], Math.min(b[1], v));
+    }
+    function mergeDeep(t, s) {
+      for (const [k, v] of Object.entries(s || {})) {
+        if (v && typeof v === "object" && !Array.isArray(v)) t[k] = mergeDeep(t[k] || {}, v);
+        else t[k] = v;
+      }
+      return t;
+    }
+
+    function selectEl(el, info) {
+      document.querySelectorAll(".sel").forEach(n => n.classList.remove("sel"));
+      if (el) el.classList.add("sel");
+      const ins = document.getElementById("inspector");
+      if (!info) {
+        ins.textContent = "Нищо не е избрано.";
+        return;
+      }
+      ins.innerHTML = `
+        <div><strong>${info.label}</strong></div>
+        <div>Android @id: <code>${info.id}</code></div>
+        <div>Файл: <code>${info.file || "branding/design/new_train_fragment_layout.xml"}</code></div>
+        ${info.config ? `<div>Design key: <code>${info.config}</code> (slider вдясно)</div>` : ""}
+        ${info.hint ? `<div style="color:var(--muted);margin-top:.35rem">${info.hint}</div>` : ""}`;
+    }
+
+    function bindClick(el, info) {
+      el.dataset.id = info.id;
+      el.addEventListener("click", e => { e.stopPropagation(); selectEl(el, info); });
+    }
+
+    function renderMuscleBar() {
+      const bar = document.getElementById("muscle-bar");
+      bar.innerHTML = `<div class="muscle-spacer"></div><div class="muscle-groups" id="muscle-groups"></div><div class="muscle-spacer2"></div><div class="logo-box"></div>`;
+      const groups = bar.querySelector("#muscle-groups");
+      MUSCLES.forEach(m => {
+        const el = document.createElement("div");
+        el.className = "muscle-item";
+        el.innerHTML = `<div class="muscle-icon">●</div><div>${m.label}</div><div class="muscle-arrow"></div>`;
+        bindClick(el, { id: m.id, label: m.label, file: "branding/design/new_train_fragment_layout.xml", hint: "Muscle selection bar — не се променя от YAML (само smali/theme)." });
+        groups.appendChild(el);
+      });
+      const logo = document.createElement("div");
+      logo.className = "logo";
+      logo.textContent = "LOGO";
+      bindClick(logo, { id: "logoImage", label: "Лого", file: "new_train_fragment_layout.xml" });
+      bar.querySelector(".logo-box").appendChild(logo);
+    }
+
+    function renderSidebar() {
+      const sb = document.getElementById("sidebar");
+      sb.innerHTML = "";
+      SIDEBAR.forEach((b, i) => {
+        if (i === 2) sb.appendChild(Object.assign(document.createElement("div"), { className: "sb-spacer" }));
+        const btn = document.createElement("div");
+        btn.className = "sb-btn";
+        btn.textContent = b.label;
+        btn.title = b.title;
+        bindClick(btn, { id: b.id, label: b.title, file: "new_train_fragment_layout.xml", hint: "Master panel — промени структура → Layout Workshop." });
+        sb.appendChild(btn);
+        if (b.id === "allPerson") {
+          const lbl = document.createElement("div");
+          lbl.className = "sb-label";
+          lbl.textContent = "Master";
+          sb.appendChild(lbl);
+        }
+      });
+      sb.appendChild(Object.assign(document.createElement("div"), { className: "sb-spacer" }));
+    }
+
+    function rowHtml(userName, rowIndex) {
+      const c = state.columns || {};
+      const av = state.avatar || {};
+      const h = state.row?.height_dp || 170;
+      const btn = av.index_button_size_dp || 45;
+      const btnPx = Math.round(btn * 0.72) + "px";
+      const chW = Math.max(8, (state.sliders?.channel_width_dp || 35) * 0.45);
+      return `
+        <div class="user-row" data-row="${rowIndex}" style="height:${h}px">
+          <div class="col col-mode" style="flex:${c.mode_buttons}" data-id="mode_buttons">
+            <div class="mode-btn m" data-id="strenthExist">Мускули</div>
+            <div class="mode-btn a" data-id="youyangyundong">Аеробно</div>
+            <div class="mode-btn s" data-id="anmo">Масаж</div>
+          </div>
+          <div class="col col-sliders" style="flex:${c.muscle_sliders}" data-id="muscle_sliders">
+            ${Array.from({length:10}, (_,i)=>`<div class="ch" data-id="vpb_brightness${i+1}"><div class="bar" style="width:${chW}px"></div></div>`).join("")}
+          </div>
+          <div class="col col-avatar" style="flex:${c.avatar}" data-id="avatar">
+            <div class="av">
+              <div class="avatar-icon" data-id="userIcon"></div>
+              <div class="ring" data-id="circleSeekBar" style="padding:${av.slider_padding_dp||14}px;--track:${av.slider_track_width_dp||14}px"></div>
+              <div class="timer" data-id="wave_ball_progress_value" style="font-size:${Math.min(av.timer_text_sp||45, 26)}px">20:00</div>
+              <div class="idx" data-id="ma" style="width:${btnPx};height:${btnPx};top:${av.index_button_vertical_dp||16}px;left:${av.index_button_edge_dp||6}px">35mA</div>
+              <div class="idx" data-id="pauseMaValue" style="width:${btnPx};height:${btnPx};top:${av.index_button_vertical_dp||16}px;right:${av.index_button_edge_dp||6}px">0%</div>
+              <div class="idx" data-id="hzValue" style="width:${btnPx};height:${btnPx};bottom:${av.index_button_vertical_dp||16}px;left:${av.index_button_edge_dp||6}px">80Hz</div>
+              <div class="idx" data-id="pauseHzValue" style="width:${btnPx};height:${btnPx};bottom:${av.index_button_vertical_dp||16}px;right:${av.index_button_edge_dp||6}px">7Hz</div>
+            </div>
+          </div>
+          <div class="col col-info" style="flex:${c.user_info}" data-id="user_info">
+            <div class="row-meta">
+              <div><strong data-id="name">${userName}</strong><div data-id="time">20:00</div></div>
+              <div data-id="signalImage">📶 🔋</div>
+            </div>
+            <div class="pulse-ctrl" data-id="paulsecontinue">▲ Импулс <strong>4s</strong></div>
+            <div class="pulse-ctrl" data-id="paulsestop">▼ Пауза <strong>4s</strong></div>
+          </div>
+          <div class="col col-act" style="flex:${c.action_buttons}" data-id="action_buttons">
+            <div class="act" data-id="stop" title="stop"></div>
+            <div class="act" data-id="startpaulse" title="start"></div>
+            <div class="act" data-id="save" title="save"></div>
+          </div>
+        </div>`;
+    }
+
+    const CONFIG_MAP = {
+      mode_buttons: "columns.mode_buttons",
+      muscle_sliders: "columns.muscle_sliders",
+      avatar: "columns.avatar",
+      user_info: "columns.user_info",
+      action_buttons: "columns.action_buttons",
+      ma: "avatar.index_button_size_dp",
+      pauseMaValue: "avatar.index_button_size_dp",
+      hzValue: "avatar.index_button_size_dp",
+      pauseHzValue: "avatar.index_button_size_dp",
+      circleSeekBar: "avatar.slider_padding_dp",
+      wave_ball_progress_value: "avatar.timer_text_sp",
+      userIcon: "avatar.icon_padding_dp",
+      strenthExist: "mode_buttons.width_dp",
+    };
+
+    function renderUserList() {
+      const list = document.getElementById("user-list");
+      list.innerHTML = ROW_USERS.map((n, i) => rowHtml(n, i)).join("");
+      list.querySelectorAll("[data-id]").forEach(el => {
+        const id = el.dataset.id;
+        const config = CONFIG_MAP[id] || (id.startsWith("vpb_") ? "sliders.channel_width_dp" : null);
+        el.addEventListener("click", e => {
+          e.stopPropagation();
+          selectEl(el, {
+            id, label: id,
+            file: "branding/design/new_user_train_control_item_layout.xml",
+            config,
+            hint: config ? "Промени със slider вдясно → export YAML." : "Структурна промяна → Layout Workshop.",
+          });
+        });
+      });
+    }
+
+    function renderPresets() {
+      const el = document.getElementById("presets");
+      el.innerHTML = "";
+      const presets = BOOT.presets || {};
+      const meta = BOOT.presetMeta || {};
+      for (const id of Object.keys(presets)) {
+        const m = meta[id] || {};
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "preset" + (id === activePreset ? " active" : "");
+        btn.innerHTML = `<strong>${m.label || id}</strong><span>${m.hint || ""}</span>`;
+        btn.onclick = () => {
+          activePreset = id;
+          state = structuredClone(presets[id]);
+          state.active_preset = id;
+          renderPresets(); renderControls(); renderAll();
+          setStatus("Профил „" + (m.label || id) + "“", true);
+        };
+        el.appendChild(btn);
+      }
+    }
+
+    function renderControls() {
+      const el = document.getElementById("controls");
+      el.innerHTML = "";
+      let group = "";
+      for (const [path, meta] of Object.entries(LABELS)) {
+        if (meta.group !== group) {
+          group = meta.group;
+          const gt = document.createElement("div");
+          gt.className = "group-title";
+          gt.textContent = group;
+          el.appendChild(gt);
+        }
+        const b = BOUNDS[path] || [0, 100];
+        const val = get(state, path) ?? b[0];
+        const field = document.createElement("div");
+        field.className = "field";
+        const vid = "v-" + path.replace(/\./g, "-");
+        field.innerHTML = `
+          <label>${meta.label} <span id="${vid}">${fmt(path, val)}</span></label>
+          <input type="range" min="${b[0]}" max="${b[1]}" step="${meta.step}" value="${val}" data-path="${path}">
+          <small>${meta.hint || `Диапазон ${b[0]} – ${b[1]}`}</small>`;
+        el.appendChild(field);
+      }
+      el.querySelectorAll("input[type=range]").forEach(inp => {
+        inp.oninput = () => {
+          const p = inp.dataset.path;
+          const v = clamp(p, parseFloat(inp.value));
+          set(state, p, v);
+          activePreset = "custom";
+          document.getElementById("v-" + p.replace(/\./g, "-")).textContent = fmt(p, v);
+          renderPresets(); renderUserList();
+          setStatus("Промяна: " + p + " = " + v, true);
+        };
+      });
+    }
+
+    function fmt(p, v) {
+      return (LABELS[p]?.unit === "weight") ? v : v + " " + (LABELS[p]?.unit || "");
+    }
+
+    function renderAll() {
+      renderMuscleBar();
+      renderSidebar();
+      renderUserList();
+    }
+
+    function setStatus(msg, ok) {
+      const s = document.getElementById("status");
+      s.textContent = msg;
+      s.className = "status" + (ok ? " ok" : " warn");
+    }
+
+    function toYaml() {
+      const s = state;
+      return `# XEMS Train Screen export — ${new Date().toISOString().slice(0,10)}\nactive_preset: ${activePreset}\n\n` +
+        `row:\n  height_dp: ${s.row?.height_dp}\n\ncolumns:\n` +
+        `  mode_buttons: ${s.columns?.mode_buttons}\n  muscle_sliders: ${s.columns?.muscle_sliders}\n` +
+        `  avatar: ${s.columns?.avatar}\n  user_info: ${s.columns?.user_info}\n  action_buttons: ${s.columns?.action_buttons}\n\navatar:\n` +
+        Object.entries(s.avatar || {}).map(([k,v]) => `  ${k}: ${v}`).join("\n") + "\n\nmode_buttons:\n" +
+        Object.entries(s.mode_buttons || {}).map(([k,v]) => `  ${k}: ${v}`).join("\n") + "\n\nsliders:\n" +
+        `  channel_width_dp: ${s.sliders?.channel_width_dp}\n`;
+    }
+
+    function toBundle() {
+      const note = document.getElementById("user-note").value.trim();
+      return toYaml() + (note ? `\n# user_note:\n# ${note.split("\n").join("\n# ")}\n` : "");
+    }
+
+    function parseYaml(text) {
+      const out = { row:{}, columns:{}, avatar:{}, mode_buttons:{}, sliders:{} };
+      let sec = null;
+      for (const raw of text.split("\n")) {
+        const line = raw.split("#")[0].trim();
+        if (!line) continue;
+        const m = line.match(/^(\w+):$/);
+        if (m) { sec = m[1]; continue; }
+        const kv = line.match(/^(\w+):\s*([\d.]+)/);
+        if (!kv || !sec || sec === "active_preset") {
+          if (line.startsWith("active_preset:")) activePreset = line.split(":")[1].trim();
+          continue;
+        }
+        if (!out[sec]) out[sec] = {};
+        out[sec][kv[1]] = parseFloat(kv[2]);
+      }
+      return out;
+    }
+
+    document.getElementById("save").onclick = () => {
+      const blob = new Blob([toYaml()], { type: "text/yaml" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "design-config.yaml";
+      a.click();
+      setStatus("YAML изтеглен — дай го на агента или design-apply.sh --import", true);
+    };
+    document.getElementById("copy").onclick = async () => {
+      await navigator.clipboard.writeText(toYaml());
+      setStatus("YAML копиран", true);
+    };
+    document.getElementById("copy-bundle").onclick = async () => {
+      await navigator.clipboard.writeText(toBundle());
+      setStatus("YAML + бележка копирани — paste в чата", true);
+    };
+    document.getElementById("load").onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      state = mergeDeep(structuredClone(BOOT.current || {}), parseYaml(await f.text()));
+      activePreset = "custom";
+      renderPresets(); renderControls(); renderAll();
+      setStatus("YAML зареден", true);
+    };
+
+    if (!BOOT.presets || !Object.keys(BOOT.presets).length) {
+      setStatus("Пусни: python3 scripts/generate-design-studio.py (embed boot data)", false);
+    }
+    renderPresets();
+    renderControls();
+    renderAll();
+  </script>
+</body>
+</html>

@@ -219,9 +219,10 @@ coordination:
     - Ask for screenshot when visual result is ambiguous
 
 visual_reference:
-  html_mockup: branding/design-studio.html
+  html_mockup: branding/train-screen-mockup.html
+  row_only: branding/design-studio.html
   source: "Reconstructed from layout XML — not a device screenshot"
-  open: "Double-click visual-reference.html in browser (tablet train view)"
+  open: "train-screen-mockup.html — full NewTrainFragment + user rows"
   when_user_reports_visual_bug:
     - "Ask for a screenshot or short video from the actual tablet/phone"
     - "User marks the problem area using @id names from visual-reference.html"

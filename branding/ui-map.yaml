@@ -220,9 +220,14 @@ coordination:
 
 visual_reference:
   html_mockup: branding/train-screen-mockup.html
+  html_template: branding/train-screen-mockup.template.html
   row_only: branding/design-studio.html
-  source: "Reconstructed from layout XML — not a device screenshot"
-  open: "train-screen-mockup.html — full NewTrainFragment + user rows"
+  generator: scripts/generate-train-mockup.py
+  verify: scripts/verify-mockup-sync.py
+  safe_apply: scripts/design-apply-safe.sh
+  source: "Generated from branding/design/*.xml (1dp=1px) — numeric values match XML exactly"
+  open: "train-screen-mockup.html — full NewTrainFragment + user rows, live sliders + YAML export"
+  sync_check: "python3 scripts/verify-mockup-sync.py"
   when_user_reports_visual_bug:
     - "Ask for a screenshot or short video from the actual tablet/phone"
     - "User marks the problem area using @id names from visual-reference.html"

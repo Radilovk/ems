@@ -62,8 +62,9 @@ PUBLIC_ID_INSERT_AFTER = '<public type="id" name="pauseSegmentRemove3" id="0x7f0
 
 DESIGN_CONFIG = ROOT / "branding" / "design-config.yaml"
 DEFAULT_INDEX_BUTTON_SIZE = "45.0dip"
-DEFAULT_INWARD_EDGE = "6.0dip"
-DEFAULT_INWARD_TOP_BOTTOM = "16.0dip"
+DEFAULT_INWARD_EDGE = "1.0dip"
+DEFAULT_INWARD_TOP_BOTTOM = "11.0dip"
+DEFAULT_ICON_PADDING = "20.0dip"
 
 PAUSE_MA_VALUE_VIEW = ""
 PAUSE_HZ_VALUE_VIEW = ""
@@ -1487,6 +1488,20 @@ def _patch_index_button_layout(text: str, view_id: str) -> tuple[str, bool]:
     return text[: match.start()] + new_tag + text[match.end() :], True
 
 
+def _patch_user_icon_padding(text: str) -> tuple[str, bool]:
+    pattern = r'(<ImageView[^>]*android:id="@id/userIcon"[^>]*)android:padding="[\d.]+dip"'
+    match = re.search(pattern, text)
+    if not match:
+        return text, False
+    new_text = re.sub(
+        pattern,
+        rf'\1android:padding="{DEFAULT_ICON_PADDING}"',
+        text,
+        count=1,
+    )
+    return new_text, new_text != text
+
+
 def patch_avatar_index_buttons() -> None:
     for layout_dir in ("layout", "layout-night"):
         for name in ("new_user_train_control_item_layout.xml", "user_train_control_item_layout.xml"):
@@ -1498,11 +1513,13 @@ def patch_avatar_index_buttons() -> None:
             for view_id in BUTTON_INDEX_LAYOUT:
                 text, updated = _patch_index_button_layout(text, view_id)
                 changed = changed or updated
+            text, pad_upd = _patch_user_icon_padding(text)
+            changed = changed or pad_upd
             if changed:
                 path.write_text(text, encoding="utf-8")
-                print(f"patched {layout_dir}/{name}: tucked avatar index buttons under slider ring")
+                print(f"patched {layout_dir}/{name}: avatar index buttons + icon padding")
             else:
-                print(f"{layout_dir}/{name}: avatar index buttons already tucked")
+                print(f"{layout_dir}/{name}: avatar index buttons already positioned")
 
 
 def patch_layouts() -> None:

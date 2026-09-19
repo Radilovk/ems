@@ -1,0 +1,377 @@
+# XEMS Pro — пълен каталог на тренировъчни контроли
+# Validate: python3 scripts/ui-map.py --check (layout @ids)
+# Agent + human reference for parallel UI / external access design.
+#
+# Legend:
+#   parallel_api: none | partial | yes
+#   data_path: UI → handler → state field → BLE (CommandUtil/CommandSender)
+
+version: 1
+app: xems-pro
+updated: 2026-09-19
+
+architecture:
+  ui_row: TrainViewHolder → NewUserTrainControlItemLayoutBinding
+  ui_fragment: NewTrainFragment → TrainItemManager
+  model: TrainItem → TrainUserProgramDataWrapper → TrainProgram → ProgramDataBean
+  ble: TrainItem.onParamsChange / sendPulse → CommandSender → CommandUtil PDU
+  parallel_pattern: Java in branding/java/src → compile to smali → hook from apply-*.py
+
+# ── GLOBAL (NewTrainFragment, new_train_fragment_layout.xml) ─────────────────
+
+global_controls:
+  - id: allStop
+    screen: train_session
+    handler: NewTrainFragment (factory click)
+    effect: CommandSender.sendStop() за всички редове
+    parallel_api: none
+    bridge_gap: TrainSessionBridge.allStop()
+
+  - id: allStartPause
+    screen: train_session
+    handler: NewTrainFragment (factory)
+    effect: глобален start/pause на всички свързани костюми
+    parallel_api: none
+    bridge_gap: TrainSessionBridge.allStartPause()
+
+  - id: allAdd
+    screen: train_session
+    handler: NewTrainFragment → TrainItemManager.addAllPartValue(+1)
+    effect: master +1 според избран index mode на всеки ред
+    range: step ±1
+    parallel_api: partial
+    notes: MA step intercept via MusicSyncBridge.onMaStrengthDelta during sync
+
+  - id: allminus
+    screen: train_session
+    handler: TrainItemManager.addAllPartValue(-1)
+    effect: master -1
+    range: step ±1
+    parallel_api: partial
+
+  - id: allPerson
+    screen: train_session
+    handler: NewTrainFragment (factory)
+    effect: toggle master-control mode
+    parallel_api: none
+
+  - id: musicPlayerBtn
+    screen: train_session
+    handler: MusicPlayerHelper.attachMasterPanel
+    effect: отваря music player dialog (BETA)
+    parallel_api: yes
+    entry: com.isaigu.gymapp.dialog.MusicPlayerHelper.attachMasterPanel
+
+  - id: buwei1..buwei10
+    screen: train_session
+    handler: NewTrainFragment.changePartControl(I)
+    effect: partsControl[0..9] — кои muscle groups master +/- засягат
+    range: 10 groups
+    parallel_api: none
+    blocked_when: MusicSyncBridge.shouldBlockManualControls()
+
+  - id: recyclerView
+    screen: train_session
+    handler: TrainAdapter → TrainViewHolder per row
+    parallel_api: partial
+    entry: TrainItemManager.getItemList()
+
+# ── PER-ROW (new_user_train_control_item_layout.xml) ─────────────────────────
+
+row_controls:
+
+  mode_buttons:
+    - id: strenthExist
+      label: Мускули / strength
+      handler: TrainViewHolder listener
+      effect: ProgramDataBean program mode → strength training
+      parallel_api: none
+    - id: youyangyundong
+      label: Аеробно
+      handler: TrainViewHolder listener
+      effect: aerobic mode
+      parallel_api: none
+    - id: anmo
+      label: Масаж
+      handler: TrainViewHolder listener
+      effect: massage mode
+      parallel_api: none
+
+  muscle_channels:
+    description: 10 канала PartStrenthBean; header buwei* ↔ vpb_brightness* (reorder-muscles.py)
+    mapping:
+      - { buwei: buwei4, slider: vpb_brightness4, muscle: calf }
+      - { buwei: buwei3, slider: vpb_brightness3, muscle: front_thigh }
+      - { buwei: buwei10, slider: vpb_brightness10, muscle: back_thigh }
+      - { buwei: buwei9, slider: vpb_brightness9, muscle: glutes }
+      - { buwei: buwei2, slider: vpb_brightness2, muscle: abs }
+      - { buwei: buwei8, slider: vpb_brightness8, muscle: lower_back }
+      - { buwei: buwei7, slider: vpb_brightness7, muscle: back }
+      - { buwei: buwei6, slider: vpb_brightness6, muscle: traps }
+      - { buwei: buwei1, slider: vpb_brightness1, muscle: chest }
+      - { buwei: buwei5, slider: vpb_brightness5, muscle: arms }
+    widget: VerticalColorSeekBar
+    ids: [textview1..textview10, vpb_brightness1..vpb_brightness10]
+    state: ProgramDataBean.strenthBean → PartStrenthBean per channel
+    range: 0–100 %
+    handler: TrainViewHolder seekbar listeners
+    ble: CommandUtil.getPartsParamsPdu / getPartsParamsPduWithStrength
+    parallel_api: none
+    bridge_gap: TrainControlBridge.setChannelStrength(channel, percent)
+
+  avatar_index:
+    description: Взаимно изключващи се index modes; само един active per row
+    modes:
+      - id: ma
+        flag: TrainItem.maSelected
+        handler: TrainViewHolder + MasterStrengthControl.ensureMaMode
+        master_plus_minus: addStrenth
+        circle_slider: ProgramDataBean.strenth
+        range: 0–100 %
+        parallel_api: yes
+        entry: MasterStrengthControl.setMasterStrength(int)
+
+      - id: hzValue
+        flag: TrainItem.hzSelected
+        handler: TrainHzValueClickListener
+        master_plus_minus: addHz
+        circle_slider: ProgramDataBean.hz
+        range: 1–120 Hz
+        parallel_api: none
+        bridge_gap: TrainControlBridge.setHz(int)
+
+      - id: pauseMaValue
+        flag: TrainItem.pauseMaSelected
+        requires: ProgramDataBean.activePause == true
+        handler: TrainPauseMaValueClickListener
+        master_plus_minus: addPauseStrenth
+        circle_slider: ProgramDataBean.pauseStrenthPercent
+        range: 0–100 % (absolute pause phase, not % of main)
+        parallel_api: none
+        bridge_gap: TrainControlBridge.setPauseStrength(int)
+
+      - id: pauseHzValue
+        flag: TrainItem.pauseHzSelected
+        requires: ProgramDataBean.activePause == true
+        handler: TrainPauseHzValueClickListener
+        master_plus_minus: addPauseHz
+        circle_slider: ProgramDataBean.pauseHz
+        range: 1–120 Hz
+        parallel_api: none
+        bridge_gap: TrainControlBridge.setPauseHz(int)
+
+  circle_slider:
+    id: circleSeekBar
+    widget: CircleSeekBar
+    handler: TrainViewHolder$4 (OnSeekBarChangeListener)
+    slider_units: 0–75
+    mappings:
+      ma_mode: { display: ma %, write: strenth = slider*100/75, max_step: 20 per drag }
+      hz_mode: { display: NHz, write: hz = slider*120/75 }
+      pause_ma_mode: { write: pauseStrenthPercent = slider*100/75 }
+      pause_hz_mode: { write: pauseHz = slider*120/75 }
+    after_change: updateUI + onParamsChange / sendPulse
+    parallel_api: yes
+    entry: MasterStrengthControl (MA mode only)
+    blocked_when: MusicSyncBridge.shouldBlockManualControls()
+
+  avatar_display:
+    - id: userIcon
+      effect: display only
+      config: avatar.icon_padding_dp
+    - id: wave_ball_progress_value
+      effect: countdown timer (pulseContinue / pulsePause)
+      patch: apply-avatar-timer.py
+    - id: wave_ball_progress_act_view
+      widget: WaveBallProgress
+      effect: pulse animation visual
+
+  user_info:
+    - id: name
+      effect: display user name
+    - id: time
+      effect: session time remaining
+    - id: signalImage
+      effect: BLE RSSI icon
+    - id: MyBatterView
+      effect: suit battery
+    - id: setting
+      handler: TrainViewHolder$1 → EditUserProgramDataDialog
+      parallel_api: partial
+      entry: MusicSyncHelper.setTargetItem(TrainItem)
+
+  impulse_timers:
+    - id: paulsecontinue
+      widget: AmountView2
+      state: ProgramDataBean.pulseContinue
+      label_id: pulseContinueLabel
+      label: Impulse ON time (seconds, factory)
+      parallel_api: none
+      bridge_gap: TrainControlBridge.setPulseContinue(int)
+
+    - id: paulsestop
+      widget: AmountView2
+      state: ProgramDataBean.pulsePause
+      label_id: pulsePauseLabel
+      label: Impulse OFF / pause time (seconds)
+      parallel_api: none
+      bridge_gap: TrainControlBridge.setPulsePause(int)
+
+  row_actions:
+    - id: stop
+      effect: CommandSender.sendStop() for row
+      parallel_api: none
+    - id: startpaulse
+      effect: toggle TrainUserProgramDataWrapper.start / pulse loop
+      parallel_api: none
+    - id: save
+      effect: persist program to storage
+      parallel_api: none
+
+# ── PROGRAM DATA (ProgramDataBean) ───────────────────────────────────────────
+
+program_data_bean:
+  path: com.isaigu.gymapp.bean.ProgramDataBean
+  fields:
+    - name: strenth
+      label: Master impulse strength
+      range: 0–100
+      ui: [ma, circleSeekBar MA mode, allAdd/allminus MA mode]
+      parallel_api: yes
+      entry: MasterStrengthControl.setMasterStrength
+
+    - name: hz
+      label: Frequency
+      range: 1–120 Hz
+      ui: [hzValue, circleSeekBar Hz mode]
+      parallel_api: none
+
+    - name: strenthBean
+      label: Per-channel strength
+      range: 0–100 per channel
+      ui: vpb_brightness1..10
+      parallel_api: none
+
+    - name: pulseContinue
+      label: Impulse ON duration
+      ui: [paulsecontinue, edit_parameter_dialog]
+      parallel_api: none
+
+    - name: pulsePause
+      label: Impulse OFF / pause duration
+      ui: [paulsestop, edit_parameter_dialog]
+      parallel_api: none
+
+    - name: inputRamp
+      label: Input ramp
+      range: 0–3000 ms, step 10
+      encoding: byte (ms+9)/10, max 255
+      ui: edit_parameter_dialog
+      parallel_api: none
+
+    - name: outputRamp
+      label: Output ramp
+      range: 0–3000 ms
+      ui: edit_parameter_dialog
+      parallel_api: none
+
+    - name: activePause
+      label: Active pause feature enabled
+      type: boolean
+      ui: [activePauseSwitch in gear dialog]
+      parallel_api: none
+
+    - name: pauseHz
+      label: Pause-phase frequency
+      range: 1–120 Hz, default 7
+      ui: [pauseHzValue, pauseHzAmount, pauseHzInput]
+      parallel_api: none
+
+    - name: pauseStrenthPercent
+      label: Pause-phase strength
+      range: 0–100 %
+      ui: [pauseMaValue, pauseStrengthAmount]
+      parallel_api: none
+
+# ── GEAR DIALOG (EditUserProgramDataDialog) ──────────────────────────────────
+
+gear_dialog:
+  layout: edit_parameter_dialog.xml
+  class: com.isaigu.gymapp.dialog.EditUserProgramDataDialog
+  patched_controls:
+    - activePauseSwitch
+    - pauseStrengthAmount
+    - pauseHzAmount
+    - musicMinStrength
+    - musicSyncStart
+    - musicSyncStop
+  parallel_api: partial
+  entry: MusicSyncHelper.bind, MusicSyncHelper.setTargetItem
+
+# ── EXISTING PARALLEL APIs (reference implementations) ───────────────────────
+
+parallel_apis_existing:
+  - class: MasterStrengthControl
+    path: branding/java/src/.../MasterStrengthControl.java
+    covers: [master MA strength, circle slider MA path, ceiling for music sync]
+    methods: [setMasterStrength, adjustCeiling, ensureMaMode, bind, setTarget]
+
+  - class: MusicSyncBridge
+    path: branding/java/src/.../MusicSyncBridge.java
+    covers: [block manual UI during sync, MA +/- intercept]
+    methods: [shouldBlockManualControls, onMaStrengthDelta, isSyncRunning]
+
+  - class: MusicSync
+    path: branding/java/src/.../MusicSync.java
+    covers: [mic/player driven strength]
+    methods: [registerUi, setTargetItem, start, stop, isRunning]
+
+  - class: MusicPlayerHelper
+    path: branding/java/src/.../MusicPlayerHelper.java
+    covers: [file picker player UI]
+    methods: [attachMasterPanel, show, onActivityResult]
+
+# ── RECOMMENDED TrainControlBridge (NOT YET IMPLEMENTED) ─────────────────────
+
+train_control_bridge_proposed:
+  description: Unified external access mirroring MasterStrengthControl pattern
+  path: branding/java/src/.../TrainControlBridge.java
+  methods:
+    - setMasterStrength(int) → delegate MasterStrengthControl
+    - setHz(TrainItem, int 1-120)
+    - setPauseHz(TrainItem, int 1-120)
+    - setPauseStrength(TrainItem, int 0-100)
+    - setChannelStrength(TrainItem, channel 1-10, int 0-100)
+    - setPulseContinue(TrainItem, int seconds)
+    - setPulsePause(TrainItem, int seconds)
+    - selectIndexMode(TrainItem, ma|hz|pause_ma|pause_hz)
+    - rowStop(TrainItem)
+    - rowStartPause(TrainItem)
+    - allStop()
+    - allStartPause()
+    - addAllMasterDelta(int delta)
+
+# ── METHOD: NEW UI ELEMENT (music player pattern) ────────────────────────────
+
+new_ui_element_recipe:
+  steps:
+    - id: 1_layout
+      action: Add @id + XML (layout or dialog) in branding/ or patch script
+    - id: 2_register_ids
+      action: public.xml + ids.xml + R$id.smali via apply-*.py
+    - id: 3_drawables_strings
+      action: branding/drawable-night/, values-bg/strings.xml
+    - id: 4_logic
+      choice:
+        simple: smali-only patch (index buttons, labels)
+        complex: Java in branding/java/src → compile-*-java.sh → branding/smali/
+    - id: 5_hook
+      action: Patch TrainViewHolder / NewTrainFragment / BaseActivity smali to call new class
+    - id: 6_pipeline
+      action: Add script to build-apk.sh at correct order (see ui-map.yaml build_pipeline)
+    - id: 7_parallel
+      action: If external access needed, expose static methods in Java bridge class
+  examples:
+    index_buttons: scripts/apply-active-pause-avatar-button.py
+    music_player: scripts/apply-music-player.py + compile-music-sync-java.sh
+    custom_widget: scripts/compile-avatar-cluster-java.sh + apply-avatar-proportional-lock.py

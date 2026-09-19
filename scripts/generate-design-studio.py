@@ -106,6 +106,11 @@ def main() -> int:
         f"window.DESIGN_STUDIO_BOOT = {json.dumps(boot, ensure_ascii=False, indent=2)};\n",
         encoding="utf-8",
     )
+    mockup_gen = ROOT / "scripts" / "generate-train-mockup.py"
+    if mockup_gen.is_file():
+        import subprocess
+
+        subprocess.run([sys.executable, str(mockup_gen)], check=False)
     return 0
 
 

@@ -8,25 +8,22 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
- * Keeps avatar ring, photo, and index buttons in the same proportions as the
- * tuned reference layout (130×170dp), without shifting the cluster.
+ * Proportional avatar cluster lock.
  *
- * At reference size the inflated XML is left untouched. On other column sizes
- * only child margins/sizes/padding are scaled — the container is never scaled.
+ * First layout pass is never modified (preserves tuned XML exactly).
+ * If the column size later changes (rotation, re-measure), child sizes and
+ * margins scale from the captured baseline so proportions stay consistent.
  */
 public class AvatarClusterLayout extends RelativeLayout {
-
-    /** Reference column size matching the tuned phone layout. */
-    private static final float REF_W_DP = 130f;
-    private static final float REF_H_DP = 170f;
 
     private static final float BTN_DP = 45f;
     private static final float EDGE_DP = 0f;
     private static final float VERT_DP = 10f;
-    private static final float ICON_PAD_DP = 29f;
+    private static final float ICON_PAD_DP = 28f;
 
-    private static final float EPS = 0.02f;
-
+    private int baselineW;
+    private int baselineH;
+    private boolean hasBaseline;
     private int appliedW;
     private int appliedH;
 
@@ -43,29 +40,56 @@ public class AvatarClusterLayout extends RelativeLayout {
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        hasBaseline = false;
+        baselineW = 0;
+        baselineH = 0;
+        appliedW = 0;
+        appliedH = 0;
+    }
+
+    @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (w <= 0 || h <= 0 || (w == appliedW && h == appliedH)) {
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+
+        if (!hasBaseline) {
+            baselineW = w;
+            baselineH = h;
+            hasBaseline = true;
+            appliedW = w;
+            appliedH = h;
+            return;
+        }
+
+        if (w == appliedW && h == appliedH) {
             return;
         }
         appliedW = w;
         appliedH = h;
 
-        float density = getResources().getDisplayMetrics().density;
-        float sx = w / (REF_W_DP * density);
-        float sy = h / (REF_H_DP * density);
-        if (Math.abs(sx - 1f) < EPS && Math.abs(sy - 1f) < EPS) {
+        if (w == baselineW && h == baselineH) {
             return;
         }
 
+        float sx = w / (float) baselineW;
+        float sy = h / (float) baselineH;
+        applyScaledLayout(sx, sy);
+    }
+
+    private void applyScaledLayout(float sx, float sy) {
+        float density = getResources().getDisplayMetrics().density;
         float s = Math.min(sx, sy);
         int btn = Math.round(BTN_DP * density * s);
         int vert = Math.round(VERT_DP * density * sy);
         int edge = Math.round(EDGE_DP * density * sx);
         int pad = Math.round(ICON_PAD_DP * density * s);
 
-        applyCornerButton("ma", btn, vert, edge, true, false);
-        applyCornerButton("pauseMaValue", btn, vert, edge, false, true);
+        applyCornerButton("ma", btn, vert, edge, true, false, false);
+        applyCornerButton("pauseMaValue", btn, vert, edge, false, true, false);
         applyCornerButton("hzValue", btn, vert, edge, true, false, true);
         applyCornerButton("pauseHzValue", btn, vert, edge, false, true, true);
 
@@ -76,16 +100,6 @@ public class AvatarClusterLayout extends RelativeLayout {
                 icon.setPadding(pad, pad, pad, pad);
             }
         }
-    }
-
-    private void applyCornerButton(
-            String name,
-            int btn,
-            int vert,
-            int edge,
-            boolean left,
-            boolean right) {
-        applyCornerButton(name, btn, vert, edge, left, right, false);
     }
 
     private void applyCornerButton(

@@ -8,13 +8,7 @@
 
 .field private static final EDGE_DP:F = 0.0f
 
-.field private static final EPS:F = 0.02f
-
-.field private static final ICON_PAD_DP:F = 29.0f
-
-.field private static final REF_H_DP:F = 170.0f
-
-.field private static final REF_W_DP:F = 130.0f
+.field private static final ICON_PAD_DP:F = 28.0f
 
 .field private static final VERT_DP:F = 10.0f
 
@@ -24,85 +18,65 @@
 
 .field private appliedW:I
 
+.field private baselineH:I
+
+.field private baselineW:I
+
+.field private hasBaseline:Z
+
 
 # direct methods
 .method public constructor <init>(Landroid/content/Context;)V
     .registers 2
 
-    .line 34
+    .line 31
     invoke-direct {p0, p1}, Landroid/widget/RelativeLayout;-><init>(Landroid/content/Context;)V
 
-    .line 35
+    .line 32
     return-void
 .end method
 
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
     .registers 3
 
-    .line 38
+    .line 35
     invoke-direct {p0, p1, p2}, Landroid/widget/RelativeLayout;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
 
-    .line 39
+    .line 36
     return-void
 .end method
 
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
     .registers 4
 
-    .line 42
+    .line 39
     invoke-direct {p0, p1, p2, p3}, Landroid/widget/RelativeLayout;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
 
-    .line 43
-    return-void
-.end method
-
-.method private applyCornerButton(Ljava/lang/String;IIIZZ)V
-    .registers 15
-
-    .line 88
-    const/4 v7, 0x0
-
-    move-object v0, p0
-
-    move-object v1, p1
-
-    move v2, p2
-
-    move v3, p3
-
-    move v4, p4
-
-    move v5, p5
-
-    move v6, p6
-
-    invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
-
-    .line 89
+    .line 40
     return-void
 .end method
 
 .method private applyCornerButton(Ljava/lang/String;IIIZZZ)V
     .registers 10
 
-    .line 99
+    .line 113
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->id(Ljava/lang/String;)I
 
     move-result p1
 
-    .line 100
+    .line 114
     if-nez p1, :cond_7
 
-    .line 101
+    .line 115
     return-void
 
-    .line 103
+    .line 117
     :cond_7
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->findViewById(I)Landroid/view/View;
 
     move-result-object p1
 
-    .line 104
+    .line 118
     instance-of v0, p1, Landroid/widget/TextView;
 
     if-eqz v0, :cond_63
@@ -117,7 +91,7 @@
 
     goto :goto_63
 
-    .line 107
+    .line 121
     :cond_18
     invoke-virtual {p1}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
@@ -125,13 +99,13 @@
 
     check-cast v0, Landroid/widget/RelativeLayout$LayoutParams;
 
-    .line 108
+    .line 122
     iput p2, v0, Landroid/widget/RelativeLayout$LayoutParams;->width:I
 
-    .line 109
+    .line 123
     iput p2, v0, Landroid/widget/RelativeLayout$LayoutParams;->height:I
 
-    .line 110
+    .line 124
     const/4 p2, 0x0
 
     if-eqz p5, :cond_27
@@ -146,7 +120,7 @@
     :goto_28
     iput v1, v0, Landroid/widget/RelativeLayout$LayoutParams;->leftMargin:I
 
-    .line 111
+    .line 125
     if-eqz p6, :cond_2d
 
     goto :goto_2e
@@ -157,41 +131,41 @@
     :goto_2e
     iput p4, v0, Landroid/widget/RelativeLayout$LayoutParams;->rightMargin:I
 
-    .line 112
+    .line 126
     const/16 p4, 0xc
 
     const/16 v1, 0xa
 
     if-eqz p7, :cond_41
 
-    .line 113
+    .line 127
     iput p2, v0, Landroid/widget/RelativeLayout$LayoutParams;->topMargin:I
 
-    .line 114
+    .line 128
     iput p3, v0, Landroid/widget/RelativeLayout$LayoutParams;->bottomMargin:I
 
-    .line 115
+    .line 129
     invoke-virtual {v0, p4}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(I)V
 
-    .line 116
+    .line 130
     invoke-virtual {v0, v1, p2}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(II)V
 
     goto :goto_4b
 
-    .line 118
+    .line 132
     :cond_41
     iput p3, v0, Landroid/widget/RelativeLayout$LayoutParams;->topMargin:I
 
-    .line 119
+    .line 133
     iput p2, v0, Landroid/widget/RelativeLayout$LayoutParams;->bottomMargin:I
 
-    .line 120
+    .line 134
     invoke-virtual {v0, v1}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(I)V
 
-    .line 121
+    .line 135
     invoke-virtual {v0, p4, p2}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(II)V
 
-    .line 123
+    .line 137
     :goto_4b
     const/16 p3, 0xb
 
@@ -199,39 +173,178 @@
 
     if-eqz p5, :cond_57
 
-    .line 124
+    .line 138
     invoke-virtual {v0, p4}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(I)V
 
-    .line 125
+    .line 139
     invoke-virtual {v0, p3, p2}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(II)V
 
-    .line 127
+    .line 141
     :cond_57
     if-eqz p6, :cond_5f
 
-    .line 128
+    .line 142
     invoke-virtual {v0, p3}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(I)V
 
-    .line 129
+    .line 143
     invoke-virtual {v0, p4, p2}, Landroid/widget/RelativeLayout$LayoutParams;->addRule(II)V
 
-    .line 131
+    .line 145
     :cond_5f
     invoke-virtual {p1, v0}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 132
+    .line 146
     return-void
 
-    .line 105
+    .line 119
     :cond_63
     :goto_63
+    return-void
+.end method
+
+.method private applyScaledLayout(FF)V
+    .registers 14
+
+    .line 84
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v0
+
+    iget v0, v0, Landroid/util/DisplayMetrics;->density:F
+
+    .line 85
+    invoke-static {p1, p2}, Ljava/lang/Math;->min(FF)F
+
+    move-result v1
+
+    .line 86
+    const/high16 v2, 0x42340000    # 45.0f
+
+    mul-float v2, v2, v0
+
+    mul-float v2, v2, v1
+
+    invoke-static {v2}, Ljava/lang/Math;->round(F)I
+
+    move-result v2
+
+    .line 87
+    const/high16 v3, 0x41200000    # 10.0f
+
+    mul-float v3, v3, v0
+
+    mul-float v3, v3, p2
+
+    invoke-static {v3}, Ljava/lang/Math;->round(F)I
+
+    move-result p2
+
+    .line 88
+    const/4 v3, 0x0
+
+    mul-float v3, v3, v0
+
+    mul-float v3, v3, p1
+
+    invoke-static {v3}, Ljava/lang/Math;->round(F)I
+
+    move-result p1
+
+    .line 89
+    const/high16 v3, 0x41e00000    # 28.0f
+
+    mul-float v0, v0, v3
+
+    mul-float v0, v0, v1
+
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
+
+    move-result v0
+
+    .line 91
+    const-string v4, "ma"
+
+    const/4 v8, 0x1
+
+    const/4 v9, 0x0
+
+    const/4 v10, 0x0
+
+    move-object v3, p0
+
+    move v5, v2
+
+    move v6, p2
+
+    move v7, p1
+
+    invoke-direct/range {v3 .. v10}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
+
+    .line 92
+    const-string v4, "pauseMaValue"
+
+    const/4 v8, 0x0
+
+    const/4 v9, 0x1
+
+    invoke-direct/range {v3 .. v10}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
+
+    .line 93
+    const-string v4, "hzValue"
+
+    const/4 v8, 0x1
+
+    const/4 v9, 0x0
+
+    const/4 v10, 0x1
+
+    invoke-direct/range {v3 .. v10}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
+
+    .line 94
+    const-string v4, "pauseHzValue"
+
+    const/4 v8, 0x0
+
+    const/4 v9, 0x1
+
+    invoke-direct/range {v3 .. v10}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
+
+    .line 96
+    const-string p1, "userIcon"
+
+    invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->id(Ljava/lang/String;)I
+
+    move-result p1
+
+    .line 97
+    if-eqz p1, :cond_6a
+
+    .line 98
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->findViewById(I)Landroid/view/View;
+
+    move-result-object p1
+
+    check-cast p1, Landroid/widget/ImageView;
+
+    .line 99
+    if-eqz p1, :cond_6a
+
+    .line 100
+    invoke-virtual {p1, v0, v0, v0, v0}, Landroid/widget/ImageView;->setPadding(IIII)V
+
+    .line 103
+    :cond_6a
     return-void
 .end method
 
 .method private id(Ljava/lang/String;)I
     .registers 5
 
-    .line 135
+    .line 149
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -255,216 +368,131 @@
 
 
 # virtual methods
-.method protected onSizeChanged(IIII)V
-    .registers 14
+.method protected onDetachedFromWindow()V
+    .registers 2
+
+    .line 44
+    invoke-super {p0}, Landroid/widget/RelativeLayout;->onDetachedFromWindow()V
+
+    .line 45
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->hasBaseline:Z
+
+    .line 46
+    iput v0, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineW:I
 
     .line 47
-    invoke-super {p0, p1, p2, p3, p4}, Landroid/widget/RelativeLayout;->onSizeChanged(IIII)V
+    iput v0, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineH:I
 
     .line 48
-    if-lez p1, :cond_a5
+    iput v0, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedW:I
 
-    if-lez p2, :cond_a5
+    .line 49
+    iput v0, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedH:I
 
+    .line 50
+    return-void
+.end method
+
+.method protected onSizeChanged(IIII)V
+    .registers 5
+
+    .line 54
+    invoke-super {p0, p1, p2, p3, p4}, Landroid/widget/RelativeLayout;->onSizeChanged(IIII)V
+
+    .line 55
+    if-lez p1, :cond_3c
+
+    if-gtz p2, :cond_8
+
+    goto :goto_3c
+
+    .line 59
+    :cond_8
+    iget-boolean p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->hasBaseline:Z
+
+    if-nez p3, :cond_18
+
+    .line 60
+    iput p1, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineW:I
+
+    .line 61
+    iput p2, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineH:I
+
+    .line 62
+    const/4 p3, 0x1
+
+    iput-boolean p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->hasBaseline:Z
+
+    .line 63
+    iput p1, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedW:I
+
+    .line 64
+    iput p2, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedH:I
+
+    .line 65
+    return-void
+
+    .line 68
+    :cond_18
     iget p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedW:I
 
-    if-ne p1, p3, :cond_11
+    if-ne p1, p3, :cond_21
 
     iget p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedH:I
 
-    if-ne p2, p3, :cond_11
-
-    goto/16 :goto_a5
-
-    .line 51
-    :cond_11
-    iput p1, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedW:I
-
-    .line 52
-    iput p2, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedH:I
-
-    .line 54
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->getResources()Landroid/content/res/Resources;
-
-    move-result-object p3
-
-    invoke-virtual {p3}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
-
-    move-result-object p3
-
-    iget p3, p3, Landroid/util/DisplayMetrics;->density:F
-
-    .line 55
-    int-to-float p1, p1
-
-    const/high16 p4, 0x43020000    # 130.0f
-
-    mul-float p4, p4, p3
-
-    div-float/2addr p1, p4
-
-    .line 56
-    int-to-float p2, p2
-
-    const/high16 p4, 0x432a0000    # 170.0f
-
-    mul-float p4, p4, p3
-
-    div-float/2addr p2, p4
-
-    .line 57
-    const/high16 p4, 0x3f800000    # 1.0f
-
-    sub-float v0, p1, p4
-
-    invoke-static {v0}, Ljava/lang/Math;->abs(F)F
-
-    move-result v0
-
-    const v1, 0x3ca3d70a    # 0.02f
-
-    cmpg-float v0, v0, v1
-
-    if-gez v0, :cond_45
-
-    sub-float p4, p2, p4
-
-    invoke-static {p4}, Ljava/lang/Math;->abs(F)F
-
-    move-result p4
-
-    cmpg-float p4, p4, v1
-
-    if-gez p4, :cond_45
-
-    .line 58
-    return-void
-
-    .line 61
-    :cond_45
-    invoke-static {p1, p2}, Ljava/lang/Math;->min(FF)F
-
-    move-result p4
-
-    .line 62
-    const/high16 v0, 0x42340000    # 45.0f
-
-    mul-float v0, v0, p3
-
-    mul-float v0, v0, p4
-
-    invoke-static {v0}, Ljava/lang/Math;->round(F)I
-
-    move-result v0
-
-    .line 63
-    const/high16 v1, 0x41200000    # 10.0f
-
-    mul-float v1, v1, p3
-
-    mul-float v1, v1, p2
-
-    invoke-static {v1}, Ljava/lang/Math;->round(F)I
-
-    move-result p2
-
-    .line 64
-    const/4 v1, 0x0
-
-    mul-float v1, v1, p3
-
-    mul-float v1, v1, p1
-
-    invoke-static {v1}, Ljava/lang/Math;->round(F)I
-
-    move-result p1
-
-    .line 65
-    const/high16 v1, 0x41e80000    # 29.0f
-
-    mul-float p3, p3, v1
-
-    mul-float p3, p3, p4
-
-    invoke-static {p3}, Ljava/lang/Math;->round(F)I
-
-    move-result p3
-
-    .line 67
-    const/4 v6, 0x1
-
-    const/4 v7, 0x0
-
-    const-string v2, "ma"
-
-    move-object v1, p0
-
-    move v3, v0
-
-    move v4, p2
-
-    move v5, p1
-
-    invoke-direct/range {v1 .. v7}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZ)V
-
-    .line 68
-    const/4 v6, 0x0
-
-    const/4 v7, 0x1
-
-    const-string v2, "pauseMaValue"
-
-    invoke-direct/range {v1 .. v7}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZ)V
+    if-ne p2, p3, :cond_21
 
     .line 69
-    const/4 v6, 0x1
-
-    const/4 v7, 0x0
-
-    const/4 v8, 0x1
-
-    const-string v2, "hzValue"
-
-    invoke-direct/range {v1 .. v8}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
-
-    .line 70
-    const/4 v6, 0x0
-
-    const/4 v7, 0x1
-
-    const-string v2, "pauseHzValue"
-
-    invoke-direct/range {v1 .. v8}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
-
-    .line 72
-    const-string p1, "userIcon"
-
-    invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->id(Ljava/lang/String;)I
-
-    move-result p1
-
-    .line 73
-    if-eqz p1, :cond_a4
-
-    .line 74
-    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->findViewById(I)Landroid/view/View;
-
-    move-result-object p1
-
-    check-cast p1, Landroid/widget/ImageView;
-
-    .line 75
-    if-eqz p1, :cond_a4
-
-    .line 76
-    invoke-virtual {p1, p3, p3, p3, p3}, Landroid/widget/ImageView;->setPadding(IIII)V
-
-    .line 79
-    :cond_a4
     return-void
 
-    .line 49
-    :cond_a5
-    :goto_a5
+    .line 71
+    :cond_21
+    iput p1, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedW:I
+
+    .line 72
+    iput p2, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->appliedH:I
+
+    .line 74
+    iget p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineW:I
+
+    if-ne p1, p3, :cond_2e
+
+    iget p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineH:I
+
+    if-ne p2, p3, :cond_2e
+
+    .line 75
+    return-void
+
+    .line 78
+    :cond_2e
+    int-to-float p1, p1
+
+    iget p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineW:I
+
+    int-to-float p3, p3
+
+    div-float/2addr p1, p3
+
+    .line 79
+    int-to-float p2, p2
+
+    iget p3, p0, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->baselineH:I
+
+    int-to-float p3, p3
+
+    div-float/2addr p2, p3
+
+    .line 80
+    invoke-direct {p0, p1, p2}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyScaledLayout(FF)V
+
+    .line 81
+    return-void
+
+    .line 56
+    :cond_3c
+    :goto_3c
     return-void
 .end method

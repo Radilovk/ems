@@ -64,7 +64,7 @@ DESIGN_CONFIG = ROOT / "branding" / "design-config.yaml"
 DEFAULT_INDEX_BUTTON_SIZE = "45.0dip"
 DEFAULT_INWARD_EDGE = "0.0dip"
 DEFAULT_INWARD_TOP_BOTTOM = "10.0dip"
-DEFAULT_ICON_PADDING = "29.0dip"
+DEFAULT_ICON_PADDING = "28.0dip"
 
 PAUSE_MA_VALUE_VIEW = ""
 PAUSE_HZ_VALUE_VIEW = ""
@@ -78,7 +78,7 @@ def _fmt_dp(value: float | int) -> str:
 
 
 def _load_avatar_dim_strings() -> tuple[str, str, str]:
-    """Use Design Studio dims only when DESIGN_PIPELINE=1 (opt-in build)."""
+    """Use design-config.yaml dims only when DESIGN_PIPELINE=1 (opt-in build)."""
     size = DEFAULT_INDEX_BUTTON_SIZE
     edge = DEFAULT_INWARD_EDGE
     vert = DEFAULT_INWARD_TOP_BOTTOM

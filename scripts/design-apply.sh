@@ -39,10 +39,6 @@ EOF
   esac
 done
 
-echo "=== Sync Design Studio from design-config.yaml ==="
-python3 scripts/generate-design-studio.py
-
-echo ""
 echo "=== Validate ==="
 python3 scripts/ui-map.py --check
 python3 scripts/apply-design-config.py --check
@@ -79,8 +75,6 @@ fi
 
 if [[ "$DRY" -eq 0 ]]; then
   echo ""
-  echo "=== Re-sync Design Studio ==="
-  python3 scripts/generate-design-studio.py
   python3 scripts/apply-design-config.py --check
 fi
 

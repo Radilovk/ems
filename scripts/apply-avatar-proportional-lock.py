@@ -48,7 +48,6 @@ def patch_avatar_column(text: str) -> tuple[str, bool]:
     if AVATAR_COLUMN_OPEN not in text or "@id/circleSeekBar" not in text:
         return text, False
     text = text.replace(AVATAR_COLUMN_OPEN, CLUSTER_OPEN, 1)
-    # Close tag: first closing RelativeLayout after circleSeekBar in avatar block
     pattern = (
         r'(<com\.isaigu\.gymapp\.widget\.AvatarClusterLayout[^>]*>[\s\S]*?'
         r'<com\.isaigu\.gymapp\.widget\.CircleSeekBar[^>]*/>[\s\S]*?)(</RelativeLayout>)'
@@ -78,7 +77,7 @@ def patch_layouts() -> None:
 def main() -> None:
     install_smali()
     patch_layouts()
-    print("Avatar proportional lock applied (130×170dp reference, no container shift).")
+    print("Avatar proportional lock applied (first layout untouched).")
 
 
 if __name__ == "__main__":

@@ -162,7 +162,7 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionCode: \d+",
-        "versionCode: 59",
+        "versionCode: 58",
         text,
         count=1,
     )
@@ -170,7 +170,7 @@ def patch_version_name() -> None:
         raise RuntimeError("failed to patch versionCode in apktool.yml")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.0.92-xems-pro",
+        "versionName: 1.0.91-xems-pro",
         updated,
         count=1,
     )
@@ -179,10 +179,10 @@ def patch_version_name() -> None:
     apktool_yml.write_text(updated, encoding="utf-8")
     release_version = ROOT / "RELEASE_VERSION"
     release_version.write_text(
-        "versionName=1.0.92-xems-pro\nversionCode=59\n",
+        "versionName=1.0.91-xems-pro\nversionCode=58\n",
         encoding="utf-8",
     )
-    print("patched versionCode -> 59, versionName -> 1.0.92-xems-pro")
+    print("patched versionCode -> 58, versionName -> 1.0.91-xems-pro")
 
 
 def copy_branding_layouts() -> None:

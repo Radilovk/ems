@@ -21,33 +21,22 @@
 <body>
   <h1>XEMS Design Tools</h1>
   <div class="warn">
-    <strong>GitHub Pages (legacy):</strong>
+    <strong>GitHub Pages:</strong>
     <a href="https://radilovk.github.io/ems/branding/" style="color:#fde68a">…/ems/branding/</a>
     &nbsp;|&nbsp;
-    <strong>Actions deploy:</strong>
     <a href="https://radilovk.github.io/ems/" style="color:#fde68a">…/ems/</a>
-    (Settings → Pages → GitHub Actions за по-кратки URL)
+    (Actions deploy за по-кратък URL)
     <br><br>
     Локално: <code>bash scripts/serve-branding.sh</code>
   </div>
 
-  <a class="card" href="train-screen-mockup.html">
-    <strong>Train Screen Mockup (XML-точно)</strong>
-    <p>Генерирано от <code>branding/design/*.xml</code> — 1dp=1px, същите weights/dp/sp. Live preview в browser → export YAML → <code>bash scripts/design-apply-safe.sh --import FILE.yaml</code></p>
-  </a>
-  <a class="card" href="layout-workshop.html">
-    <strong>Layout Workshop</strong>
-    <p>Нови форми, бутони, колони, разположения → export JSON brief</p>
-  </a>
   <a class="card" href="design-studio.html">
     <strong>Design Studio</strong>
-    <p>Само размери (dp/weight) на train row → export YAML</p>
+    <p>Train row — column weights, dp/sp, avatar ring, mode buttons. Live preview → export YAML → <code>bash scripts/design-apply.sh --import FILE.yaml</code></p>
   </a>
 
   <p style="color:#8b9cb3;font-size:.85rem;margin-top:1.5rem">
-    Ако линковете не работят: стартирай в терминал от repo root<br>
-    <code>bash scripts/serve-branding.sh</code><br>
-    и отвори показания адрес (http://127.0.0.1:8765/)
+    От repo root: <code>bash scripts/serve-branding.sh</code> → http://127.0.0.1:8765/design-studio.html
   </p>
 </body>
 </html>

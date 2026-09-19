@@ -70,7 +70,7 @@ def print_summary(data: dict) -> None:
         for item in col.get("critical_ids", []):
             print(f"      @{item['id']} — {item.get('label_bg', '')}")
     print("\nSafe workflow (train UI only):")
-    print("  1. branding/design-editor.html  OR  edit design-config.yaml")
+    print("  1. branding/design-studio.html  OR  edit design-config.yaml")
     print("  2. python3 scripts/apply-design-config.py --check")
     print("  3. python3 scripts/apply-design-config.py")
     print("  4. DESIGN_PIPELINE=1 bash build-apk.sh  (opt-in; off by default)")

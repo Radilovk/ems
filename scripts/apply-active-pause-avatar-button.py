@@ -77,10 +77,14 @@ def _fmt_dp(value: float | int) -> str:
 
 
 def _load_avatar_dim_strings() -> tuple[str, str, str]:
-    """Respect branding/design-config.yaml when present (Design Studio export)."""
+    """Use Design Studio dims only when DESIGN_PIPELINE=1 (opt-in build)."""
     size = DEFAULT_INDEX_BUTTON_SIZE
     edge = DEFAULT_INWARD_EDGE
     vert = DEFAULT_INWARD_TOP_BOTTOM
+    import os
+
+    if os.environ.get("DESIGN_PIPELINE", "0") != "1":
+        return size, edge, vert
     if not DESIGN_CONFIG.is_file():
         return size, edge, vert
     try:

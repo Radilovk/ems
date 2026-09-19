@@ -98,6 +98,15 @@ java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.ap
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign
 cp "${ROOT}/build/signed/unsigned-aligned-debugSigned.apk" "${OUT_APK}"
 
+# Broken builds (missing BETA music stack) were ~8.76MB; healthy builds ~8.78MB+.
+MIN_APK_BYTES="${MIN_APK_BYTES:-8765000}"
+APK_BYTES="$(wc -c < "${OUT_APK}")"
+if [[ "${APK_BYTES}" -lt "${MIN_APK_BYTES}" ]]; then
+  echo "ERROR: ${OUT_APK} is only ${APK_BYTES} bytes — likely missing BETA music stack (broken login/crash)."
+  echo "  Rebuild with BETA_MUSIC=1 (default) and verify MusicPlayerHelper.smali exists."
+  exit 1
+fi
+
 VERSION_NAME=""
 VERSION_CODE=""
 if [[ -f "${DECOMPILED}/apktool.yml" ]]; then

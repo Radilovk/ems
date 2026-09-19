@@ -32,9 +32,15 @@ build_train_mockup_spec = _lib.build_train_mockup_spec
 build_boot = _studio.build_boot
 
 
-def _embed_block(text: str, begin: str, end: str, payload: str) -> str:
+def _embed_block(text: str, begin: str, end: str, var_name: str, payload: dict) -> str:
     pattern = rf"{re.escape(begin)}.*?{re.escape(end)}"
-    block = begin + "\n" + payload + "\n  " + end
+    block = (
+        f"{begin}\n"
+        f"  <script>\n"
+        f"  {var_name} = {json.dumps(payload, ensure_ascii=False)};\n"
+        f"  </script>\n"
+        f"  {end}"
+    )
     if not re.search(pattern, text, flags=re.DOTALL):
         raise RuntimeError(f"Marker block not found: {begin}")
     return re.sub(pattern, block, text, count=1, flags=re.DOTALL)
@@ -53,13 +59,15 @@ def main() -> int:
         text,
         "  <!-- TRAIN_MOCKUP_SPEC_BEGIN -->",
         "  <!-- TRAIN_MOCKUP_SPEC_END -->",
-        f"  window.TRAIN_MOCKUP_SPEC = {json.dumps(spec, ensure_ascii=False)};",
+        "window.TRAIN_MOCKUP_SPEC",
+        spec,
     )
     text = _embed_block(
         text,
         "  <!-- DESIGN_STUDIO_BOOT_BEGIN -->",
         "  <!-- DESIGN_STUDIO_BOOT_END -->",
-        f"  window.DESIGN_STUDIO_BOOT = {json.dumps(boot, ensure_ascii=False)};",
+        "window.DESIGN_STUDIO_BOOT",
+        boot,
     )
     MOCKUP.write_text(text, encoding="utf-8")
     print(f"Generated {MOCKUP.relative_to(ROOT)} (source hash {spec['source']['hash']})")

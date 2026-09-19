@@ -14,15 +14,15 @@ window.DESIGN_STUDIO_BOOT = {
       "action_buttons": 0.2
     },
     "avatar": {
-      "index_button_size_dp": 37.0,
+      "index_button_size_dp": 45.0,
       "index_button_edge_dp": 6.0,
-      "index_button_vertical_dp": 8,
-      "icon_padding_dp": 24,
+      "index_button_vertical_dp": 16.0,
+      "icon_padding_dp": 15.0,
       "timer_text_sp": 45.0,
       "wave_margin_dp": 42.0,
       "slider_padding_dp": 14.0,
-      "slider_padding_bottom_dp": 19.0,
-      "slider_track_width_dp": 16.0,
+      "slider_padding_bottom_dp": 10.0,
+      "slider_track_width_dp": 14.0,
       "slider_pointer_radius_dp": 18.0
     },
     "mode_buttons": {
@@ -32,7 +32,7 @@ window.DESIGN_STUDIO_BOOT = {
     "sliders": {
       "channel_width_dp": 35.0
     },
-    "active_preset": "custom"
+    "active_preset": "phone"
   },
   "presets": {
     "phone": {

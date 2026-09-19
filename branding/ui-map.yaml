@@ -184,7 +184,7 @@ config_to_xml:
 
 safe_edit_rules:
   do:
-    - "Use design-editor.html or design-config.yaml for train row sizes"
+    - "Use design-studio.html or design-config.yaml for train row sizes"
     - "Run python3 scripts/apply-design-config.py --check before build"
     - "Use presets phone / tablet / tablet_wide as starting points"
     - "Describe UI changes by column name + @id (e.g. avatar column, @id/circleSeekBar padding)"
@@ -205,34 +205,26 @@ agent_checklist:
 
 # ── Visual understanding (agents do NOT see the device screen) ─────────────
 coordination:
-  workshop: branding/layout-workshop.html
-  numeric_tweaks: branding/design-studio.html
+  design_studio: branding/design-studio.html
   workflow: |
-    1. User designs structure in Layout Workshop (columns, buttons, forms)
-    2. User clicks „Одобри“ and exports JSON → branding/layout-briefs/
-    3. Agent: bash scripts/coord-design.sh --brief FILE.json --apply [--build]
-    4. User verifies on device; iterate with new brief version
+    1. User adjusts sliders in Design Studio (or edits design-config.yaml)
+    2. Export YAML → bash scripts/design-apply.sh --import FILE.yaml --safe
+    3. Optional: DESIGN_PIPELINE=1 bash build-apk.sh
+    4. User verifies on device with screenshot; iterate numeric values only
   agent_must: |
-    - Read user_note in brief before implementing
-    - Never implement draft briefs without user approval
-    - For train row: keep required @id unless user explicitly accepts smali work
+    - Numeric train row tweaks only via design-config.yaml (no @id renames)
     - Ask for screenshot when visual result is ambiguous
+    - Never edit smali/login when user only asked for layout sizes
 
 visual_reference:
-  html_mockup: branding/train-screen-mockup.html
-  html_template: branding/train-screen-mockup.template.html
-  row_only: branding/design-studio.html
-  generator: scripts/generate-train-mockup.py
-  verify: scripts/verify-mockup-sync.py
-  safe_apply: scripts/design-apply-safe.sh
-  source: "Generated from branding/design/*.xml (1dp=1px) — numeric values match XML exactly"
-  open: "train-screen-mockup.html — full NewTrainFragment + user rows, live sliders + YAML export"
-  sync_check: "python3 scripts/verify-mockup-sync.py"
+  design_studio: branding/design-studio.html
+  generator: scripts/generate-design-studio.py
+  apply: scripts/design-apply.sh
+  source: "Sliders + schematic column preview — not a device screenshot"
   when_user_reports_visual_bug:
     - "Ask for a screenshot or short video from the actual tablet/phone"
-    - "User marks the problem area using @id names from visual-reference.html"
+    - "User marks the problem area using @id names from Design Studio @id map"
     - "Example: 'index button @id/ma overlaps @id/circleSeekBar on tablet landscape'"
-    - "Never guess radial/wedge layouts unless user explicitly requests them"
   what_agents_can_know_without_screenshot:
     - "Column structure and layout_weight ratios from XML"
     - "Exact dp/sp values from design-config.yaml"
@@ -240,4 +232,4 @@ visual_reference:
   what_agents_cannot_know_without_screenshot:
     - "Actual pixel overlap on a specific device resolution"
     - "Whether a change 'looks good' aesthetically to the user"
-    - "Real mipmap/icon appearance (only placeholders in mockup)"
+    - "Real mipmap/icon appearance on device"

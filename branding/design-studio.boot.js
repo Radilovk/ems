@@ -1,6 +1,7 @@
 // Auto-generated — prefer inline data in design-studio.html
 window.DESIGN_STUDIO_BOOT = {
   "version": 1,
+  "previewScale": 0.55,
   "current": {
     "row": {
       "height_dp": 170.0
@@ -231,75 +232,137 @@ window.DESIGN_STUDIO_BOOT = {
       "label": "Височина на реда",
       "step": 2,
       "unit": "dp",
-      "group": "Ред"
+      "group": "Ред",
+      "ids": "new_user_train_control_item_layout.xml root height",
+      "hint": "layout_height на root LinearLayout"
     },
     "columns.mode_buttons": {
       "label": "Колона: mode бутони",
       "step": 0.05,
       "unit": "weight",
-      "group": "Колони"
+      "group": "Колони",
+      "ids": "@id/strenthExist, @id/youyangyundong, @id/anmo parent"
     },
     "columns.muscle_sliders": {
       "label": "Колона: muscle sliders",
       "step": 0.05,
       "unit": "weight",
-      "group": "Колони"
+      "group": "Колони",
+      "ids": "@id/vpb_brightness* parent"
     },
     "columns.avatar": {
       "label": "Колона: avatar",
       "step": 0.05,
       "unit": "weight",
       "group": "Колони",
-      "hint": "По-голямо = повече място за ring + index бутони"
+      "ids": "@id/ma, @id/circleSeekBar, @id/userIcon parent",
+      "hint": "По-голям weight = повече място за ring + index бутони"
     },
     "columns.user_info": {
       "label": "Колона: име/импулси",
       "step": 0.05,
       "unit": "weight",
-      "group": "Колони"
+      "group": "Колони",
+      "ids": "@id/name, @id/paulsecontinue, @id/paulsestop parent"
     },
     "columns.action_buttons": {
       "label": "Колона: stop/start/save",
       "step": 0.05,
       "unit": "weight",
-      "group": "Колони"
+      "group": "Колони",
+      "ids": "@id/stop, @id/startpaulse, @id/save parent"
     },
     "avatar.index_button_size_dp": {
       "label": "Index бутон — размер",
       "step": 1,
       "unit": "dp",
-      "group": "Avatar"
+      "group": "Avatar",
+      "ids": "@id/ma, @id/pauseMaValue, @id/hzValue, @id/pauseHzValue"
     },
     "avatar.index_button_edge_dp": {
       "label": "Index бутон — от ръба (L/R)",
       "step": 1,
       "unit": "dp",
-      "group": "Avatar"
+      "group": "Avatar",
+      "ids": "@id/ma layout_marginLeft, @id/pauseMaValue layout_marginRight"
     },
     "avatar.index_button_vertical_dp": {
       "label": "Index бутон — горе/долу",
       "step": 1,
       "unit": "dp",
-      "group": "Avatar"
+      "group": "Avatar",
+      "ids": "@id/ma layout_marginTop, @id/hzValue layout_marginBottom"
+    },
+    "avatar.icon_padding_dp": {
+      "label": "Avatar icon — padding",
+      "step": 1,
+      "unit": "dp",
+      "group": "Avatar",
+      "ids": "@id/userIcon padding"
+    },
+    "avatar.timer_text_sp": {
+      "label": "Таймер — textSize",
+      "step": 1,
+      "unit": "sp",
+      "group": "Avatar",
+      "ids": "@id/wave_ball_progress_value textSize"
+    },
+    "avatar.wave_margin_dp": {
+      "label": "Wave ball — margin",
+      "step": 1,
+      "unit": "dp",
+      "group": "Avatar",
+      "ids": "@id/wave_ball_progress_value layout_margin*"
     },
     "avatar.slider_padding_dp": {
       "label": "Ring slider — padding",
       "step": 1,
       "unit": "dp",
       "group": "Avatar",
+      "ids": "@id/circleSeekBar paddingLeft/Top/Right",
       "hint": "Ключово за tablet overlap"
+    },
+    "avatar.slider_padding_bottom_dp": {
+      "label": "Ring slider — padding bottom",
+      "step": 1,
+      "unit": "dp",
+      "group": "Avatar",
+      "ids": "@id/circleSeekBar paddingBottom"
     },
     "avatar.slider_track_width_dp": {
       "label": "Ring — дебелина",
       "step": 1,
       "unit": "dp",
-      "group": "Avatar"
+      "group": "Avatar",
+      "ids": "@id/circleSeekBar wheel_reached/unreached_width"
     },
-    "sliders.channel_width_dp": {
-      "label": "Muscle slider ширина",
+    "avatar.slider_pointer_radius_dp": {
+      "label": "Ring — pointer radius",
       "step": 1,
       "unit": "dp",
-      "group": "Sliders"
+      "group": "Avatar",
+      "ids": "@id/circleSeekBar wheel_pointer_radius"
+    },
+    "mode_buttons.width_dp": {
+      "label": "Mode бутон — ширина",
+      "step": 1,
+      "unit": "dp",
+      "group": "Mode бутони",
+      "ids": "@id/strenthExist layout_width (+ youyangyundong, anmo)"
+    },
+    "mode_buttons.height_dp": {
+      "label": "Mode бутон — височина",
+      "step": 1,
+      "unit": "dp",
+      "group": "Mode бутони",
+      "ids": "@id/strenthExist layout_height"
+    },
+    "sliders.channel_width_dp": {
+      "label": "Muscle slider — ширина",
+      "step": 1,
+      "unit": "dp",
+      "group": "Sliders",
+      "ids": "@id/vpb_brightness1 … vpb_brightness10 layout_width"
     }
   }
 };

@@ -49,9 +49,9 @@ DEFAULTS: dict[str, Any] = {
     },
     "avatar": {
         "index_button_size_dp": 45,
-        "index_button_edge_dp": -1,
-        "index_button_vertical_dp": 9,
-        "icon_padding_dp": 30,
+        "index_button_edge_dp": 0,
+        "index_button_vertical_dp": 10,
+        "icon_padding_dp": 27,
         "timer_text_sp": 45,
         "wave_margin_dp": 42,
         "slider_padding_dp": 14,

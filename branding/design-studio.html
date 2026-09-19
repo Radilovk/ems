@@ -149,7 +149,7 @@
       <div class="step"><strong>1. Ти</strong>Профил или sliders</div>
       <div class="step"><strong>2. Export</strong>YAML / Copy</div>
       <div class="step"><strong>3. Apply</strong><code>design-apply.sh --import</code></div>
-      <div class="step"><strong>4. APK</strong><code>DESIGN_PIPELINE=1 build-apk.sh</code></div>
+      <div class="step"><strong>4. APK</strong><code>bash build-apk.sh</code> (stable)</div>
     </div>
   </header>
 
@@ -171,8 +171,8 @@
       </div>
       <div class="panel">
         <h2>Apply в repo</h2>
-        <div class="safe-box">Само числа · validate + dry-run · без @id промени · DESIGN_PIPELINE=1 само при APK build</div>
-        <div class="cmd-block">bash scripts/design-apply.sh --import ~/Downloads/design-config.yaml<br>bash scripts/design-apply.sh --import FILE.yaml --safe --build</div>
+        <div class="safe-box">Apply променя само branding/design/ (repo). Стабилен APK: <code>bash build-apk.sh</code>. Custom layout в APK: <code>--build --with-design-pipeline</code> (тест, може да счупи login).</div>
+        <div class="cmd-block">bash scripts/design-apply.sh --import ~/Downloads/design-config.yaml --safe<br>bash build-apk.sh</div>
       </div>
     </section>
 

@@ -79,9 +79,10 @@ public final class IntervalTimerHelper {
 
     private static final long TICK_MS = 250L;
     private static final int RING_MAX = 100;
-    /** Matches avatar ring diameter (see apply-interval-timer overlay_metrics). */
-    private static final int OVERLAY_SIZE_DP = 64;
-    private static final float COUNTDOWN_TEXT_SP = 18f;
+    /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
+    private static final int OVERLAY_SIZE_DP = 192;
+    private static final float COUNTDOWN_TEXT_SP = 54f;
+    private static final float OVERLAY_TAP_SLOP_DP = 10f;
     private static final int STR_NO_TRAINING = 0x7f0d011a;
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
@@ -131,6 +132,9 @@ public final class IntervalTimerHelper {
 
     private static float overlayTouchDx;
     private static float overlayTouchDy;
+    private static float overlayDownRawX;
+    private static float overlayDownRawY;
+    private static boolean overlayMoved;
 
     private IntervalTimerHelper() {
     }
@@ -288,6 +292,16 @@ public final class IntervalTimerHelper {
         if (trainingRunning) {
             onTrainingRunningChanged(true);
         }
+    }
+
+    private static void openOverlaySettings() {
+        Activity activity = resolveActivity(null);
+        if (activity == null) {
+            toast(STR_ERROR);
+            return;
+        }
+        hostActivity = activity;
+        showConfigDialog(activity);
     }
 
     private static void toggleMasterPanel() {
@@ -451,6 +465,7 @@ public final class IntervalTimerHelper {
             }
             if (countdownView != null) {
                 countdownView.setTextSize(TypedValue.COMPLEX_UNIT_SP, COUNTDOWN_TEXT_SP);
+                countdownView.setTypeface(countdownView.getTypeface(), android.graphics.Typeface.BOLD);
             }
         } catch (Throwable ignored) {
         }
@@ -482,9 +497,12 @@ public final class IntervalTimerHelper {
             lp.height = overlayPx;
             lp.x = dp(activity, 20);
             lp.y = dp(activity, 88);
-            lp.flags = lp.flags
+            lp.dimAmount = 0f;
+            lp.flags = (lp.flags
                     | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                    | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+                    | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+                    & ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+            window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             window.setAttributes(lp);
             refreshOverlayText();
             return true;
@@ -633,6 +651,10 @@ public final class IntervalTimerHelper {
                 progress = RING_MAX;
             }
             ringView.setCurProcess(progress);
+            if (countdownView != null) {
+                float remaining = progress / (float) RING_MAX;
+                countdownView.setTextColor(TimerRingView.colorForRemaining(remaining));
+            }
         } catch (Throwable ignored) {
         }
     }
@@ -1009,11 +1031,31 @@ public final class IntervalTimerHelper {
                 case MotionEvent.ACTION_DOWN:
                     overlayTouchDx = event.getRawX() - lp.x;
                     overlayTouchDy = event.getRawY() - lp.y;
+                    overlayDownRawX = event.getRawX();
+                    overlayDownRawY = event.getRawY();
+                    overlayMoved = false;
                     return true;
-                case MotionEvent.ACTION_MOVE:
+                case MotionEvent.ACTION_MOVE: {
+                    float dx = event.getRawX() - overlayDownRawX;
+                    float dy = event.getRawY() - overlayDownRawY;
+                    Activity activity = resolveActivity(null);
+                    float slop = activity != null
+                            ? (float) dp(activity, (int) OVERLAY_TAP_SLOP_DP)
+                            : 24f;
+                    if ((dx * dx) + (dy * dy) > slop * slop) {
+                        overlayMoved = true;
+                    }
                     moveOverlayWindow(
                             (int) (event.getRawX() - overlayTouchDx),
                             (int) (event.getRawY() - overlayTouchDy));
+                    return true;
+                }
+                case MotionEvent.ACTION_UP:
+                    if (!overlayMoved) {
+                        openOverlaySettings();
+                    }
+                    return true;
+                case MotionEvent.ACTION_CANCEL:
                     return true;
                 default:
                     return false;

@@ -141,9 +141,9 @@ def overlay_metrics(cfg: dict | None = None) -> dict[str, float]:
     """Compact avatar-scale ring (must match IntervalTimerHelper.OVERLAY_SIZE_DP)."""
     _ = cfg or load_design_config()
     return {
-        "size_dp": 64.0,
-        "countdown_sp": 18.0,
-        "loop_sp": 11.0,
+        "size_dp": 192.0,
+        "countdown_sp": 54.0,
+        "loop_sp": 16.0,
     }
 
 
@@ -157,7 +157,7 @@ def build_overlay_layout(cfg: dict | None = None) -> str:
   xmlns:android="http://schemas.android.com/apk/res/android">
     <com.isaigu.gymapp.widget.TimerRingView android:id="@id/intervalTimerRing" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" />
     <LinearLayout android:gravity="center" android:layout_centerInParent="true" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <TextView android:textSize="{countdown}" android:textStyle="bold" android:textColor="@color/grown_color" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="-0.02" android:text="00:00" />
+        <TextView android:textSize="{countdown}" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="-0.03" android:text="00:00" />
         <TextView android:textSize="{loop}" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="" />
     </LinearLayout>
 </RelativeLayout>

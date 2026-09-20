@@ -15,7 +15,13 @@ NETWORK_CFG = DECOMPILED / "res" / "xml" / "network_security_config.xml"
 REMOVED_PERMISSIONS = (
     "android.permission.MOUNT_UNMOUNT_FILESYSTEMS",
     "android.permission.WRITE_SETTINGS",
+    "android.permission.SYSTEM_ALERT_WINDOW",
+    "android.permission.REQUEST_INSTALL_PACKAGES",
+    "android.permission.CHANGE_CONFIGURATION",
 )
+
+# Install-time grant mode (targetSdk 22): fewer install warnings, no runtime prompts.
+TARGET_SDK_VERSION = 22
 
 DUPLICATE_PERMISSIONS = (
     "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -32,6 +38,14 @@ def patch_manifest(text: str) -> str:
     if 'android:allowBackup="true"' in text:
         text = text.replace('android:allowBackup="true"', 'android:allowBackup="false"', 1)
         print("manifest: allowBackup=false")
+
+    if 'android:requestLegacyExternalStorage="true"' not in text:
+        text = text.replace(
+            "<application ",
+            '<application android:requestLegacyExternalStorage="true" ',
+            1,
+        )
+        print("manifest: requestLegacyExternalStorage=true")
 
     for perm in REMOVED_PERMISSIONS:
         pattern = rf'\s*<uses-permission android:name="{re.escape(perm)}"/>\n'
@@ -63,6 +77,22 @@ def patch_manifest(text: str) -> str:
     return "".join(out)
 
 
+def patch_target_sdk() -> None:
+    apktool_yml = DECOMPILED / "apktool.yml"
+    if not apktool_yml.is_file():
+        return
+    text = apktool_yml.read_text(encoding="utf-8")
+    updated, count = re.subn(
+        r"targetSdkVersion: \d+",
+        f"targetSdkVersion: {TARGET_SDK_VERSION}",
+        text,
+        count=1,
+    )
+    if count:
+        apktool_yml.write_text(updated, encoding="utf-8")
+        print(f"apktool.yml: targetSdkVersion -> {TARGET_SDK_VERSION} (install-time permissions)")
+
+
 def patch_network_config(text: str) -> str:
     if "cleartextTrafficPermitted=\"false\"" in text:
         print("network_security_config: cleartext already disabled")
@@ -85,6 +115,7 @@ def main() -> int:
         print(f"Missing {MANIFEST}", file=sys.stderr)
         return 1
 
+    patch_target_sdk()
     MANIFEST.write_text(patch_manifest(MANIFEST.read_text(encoding="utf-8")), encoding="utf-8")
     if NETWORK_CFG.is_file():
         NETWORK_CFG.write_text(

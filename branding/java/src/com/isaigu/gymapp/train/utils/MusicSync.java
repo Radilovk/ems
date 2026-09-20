@@ -462,12 +462,7 @@ public class MusicSync {
         stopCaptureOnly();
         setSensitivity(min);
         MasterStrengthControl.ensureMaMode();
-        if (hasRecordPermission()) {
-            startCapture();
-            return;
-        }
-        AndroidUtils.requestPermission(activity, "android.permission.RECORD_AUDIO", PERMISSION_REQUEST,
-                new PermissionCallback());
+        startCapture();
     }
 
     public static void startPlayer(Activity activity, Uri uri, int min) {

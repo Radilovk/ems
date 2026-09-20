@@ -79,7 +79,7 @@ python3 "${ROOT}/scripts/remove-demo-mode.py"
 python3 "${ROOT}/scripts/apply-guide-tab.py"
 python3 "${ROOT}/scripts/apply-bt-latency.py"
 bash "${ROOT}/scripts/compile-music-sync-java.sh"
-python3 "${ROOT}/scripts/apply-startup-permissions.py"
+python3 "${ROOT}/scripts/apply-silent-permissions.py"
 if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-beta-features.py"
   python3 "${ROOT}/scripts/apply-music-sync-pulse.py"

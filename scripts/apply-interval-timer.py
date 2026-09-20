@@ -138,23 +138,11 @@ def load_design_config() -> dict:
 
 
 def overlay_metrics(cfg: dict | None = None) -> dict[str, float]:
-    """Match avatar ring box: row height minus vertical index-button chrome."""
-    cfg = cfg or load_design_config()
-    row_h = float((cfg.get("row") or {}).get("height_dp", 170))
-    av = cfg.get("avatar") or {}
-    btn = float(av.get("index_button_size_dp", 45))
-    vert = float(av.get("index_button_vertical_dp", 10))
-    pad = float(av.get("slider_padding_dp", 14))
-    pad_bottom = float(av.get("slider_padding_bottom_dp", 10))
-    track = float(av.get("slider_track_width_dp", 14))
-    size = row_h - 2.0 * (btn + vert)
-    size = max(52.0, min(size, row_h))
+    """Compact avatar-scale ring (must match IntervalTimerHelper.OVERLAY_SIZE_DP)."""
+    _ = cfg or load_design_config()
     return {
-        "size_dp": size,
-        "pad_dp": pad,
-        "pad_bottom_dp": pad_bottom,
-        "track_dp": track,
-        "countdown_sp": 40.0,
+        "size_dp": 64.0,
+        "countdown_sp": 42.0,
         "loop_sp": 11.0,
     }
 
@@ -162,18 +150,15 @@ def overlay_metrics(cfg: dict | None = None) -> dict[str, float]:
 def build_overlay_layout(cfg: dict | None = None) -> str:
     m = overlay_metrics(cfg)
     size = _fmt_dp(m["size_dp"])
-    pad = _fmt_dp(m["pad_dp"])
-    pad_bottom = _fmt_dp(m["pad_bottom_dp"])
-    track = _fmt_dp(m["track_dp"])
     countdown = _fmt_sp(m["countdown_sp"])
     loop = _fmt_sp(m["loop_sp"])
     return f"""<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:id="@id/intervalTimerOverlayRoot" android:layout_width="{size}" android:layout_height="{size}"
-  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/intervalTimerRing" android:paddingLeft="{pad}" android:paddingTop="{pad}" android:paddingRight="{pad}" android:paddingBottom="{pad_bottom}" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="2.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wheel_can_touch="false" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="0.0dip" app:wheel_reached_width="{track}" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="{track}" />
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.isaigu.gymapp.widget.TimerRingView android:id="@id/intervalTimerRing" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" />
     <LinearLayout android:gravity="center" android:layout_centerInParent="true" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <TextView android:textSize="{countdown}" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="-0.02" android:text="00:00" />
-        <TextView android:textSize="{loop}" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0.0dip" android:includeFontPadding="false" android:text="" />
+        <TextView android:textSize="{countdown}" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="-0.03" android:text="00:00" />
+        <TextView android:textSize="{loop}" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="" />
     </LinearLayout>
 </RelativeLayout>
 """
@@ -294,6 +279,8 @@ BG_STRINGS = """
 
 def install_smali() -> None:
     DIALOG_DIR.mkdir(parents=True, exist_ok=True)
+    widget_dir = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget"
+    widget_dir.mkdir(parents=True, exist_ok=True)
     for old in DIALOG_DIR.glob("IntervalTimerHelper*.smali"):
         old.unlink()
         print(f"removed stale dialog/{old.name}")
@@ -302,6 +289,11 @@ def install_smali() -> None:
         print(f"installed dialog/{src.name}")
     if not any(DIALOG_DIR.glob("IntervalTimerHelper*.smali")):
         raise SystemExit("Missing IntervalTimerHelper.smali — run compile-interval-timer-java.sh")
+    ring_src = BRANDING / "smali" / "widget" / "TimerRingView.smali"
+    if not ring_src.is_file():
+        raise SystemExit("Missing TimerRingView.smali — run compile-interval-timer-java.sh")
+    shutil.copy2(ring_src, widget_dir / "TimerRingView.smali")
+    print(f"installed widget/{ring_src.name}")
 
 
 def patch_public_xml(text: str) -> str:

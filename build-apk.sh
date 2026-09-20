@@ -96,6 +96,13 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
     echo "  Fix compile-music-sync-java.sh or set BETA_MUSIC=0 intentionally."
     exit 1
   fi
+  if [[ -f "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/BlockProgramRunner.smali" ]] \
+      && grep -q '\-\$\$Lambda\$BlockProgramRunner' \
+        "${DECOMPILED}/smali_classes2/com/isaigu/gymapp/dialog/BlockProgramRunner.smali"; then
+    echo "ERROR: BlockProgramRunner.smali references missing lambda classes — training start will crash."
+    echo "  Re-run compile-interval-timer-java.sh (BlockProgramRunner must not use lambdas)."
+    exit 1
+  fi
 else
   echo "BETA music sync disabled (BETA_MUSIC=0)."
 fi

@@ -3,14 +3,6 @@
 .source "BlockProgramRunner.java"
 
 
-# annotations
-.annotation system Ldalvik/annotation/MemberClasses;
-    value = {
-        Lcom/isaigu/gymapp/dialog/BlockProgramRunner$ItemAction;
-    }
-.end annotation
-
-
 # static fields
 .field private static final LOCK:Ljava/lang/Object;
 
@@ -72,42 +64,195 @@
 .end method
 
 .method private static applyBlockToAll(Lcom/isaigu/gymapp/dialog/ProgramSegment;)V
-    .registers 2
+    .registers 7
 
-    .line 187
-    if-nez p0, :cond_3
+    .line 202
+    if-eqz p0, :cond_55
 
-    .line 188
+    sget-object v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    if-nez v0, :cond_7
+
+    goto :goto_55
+
+    .line 205
+    :cond_7
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
+
+    move-result-object v0
+
+    .line 206
+    if-nez v0, :cond_e
+
+    .line 207
     return-void
 
-    .line 190
-    :cond_3
-    new-instance v0, Lcom/isaigu/gymapp/dialog/-$$Lambda$BlockProgramRunner$gZEv4osaFSE8XAIvAQDrZQJ87ts;
+    .line 209
+    :cond_e
+    const/4 v1, 0x0
 
-    invoke-direct {v0, p0}, Lcom/isaigu/gymapp/dialog/-$$Lambda$BlockProgramRunner$gZEv4osaFSE8XAIvAQDrZQJ87ts;-><init>(Lcom/isaigu/gymapp/dialog/ProgramSegment;)V
+    :goto_f
+    invoke-interface {v0}, Ljava/util/List;->size()I
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->forEachActive(Lcom/isaigu/gymapp/dialog/BlockProgramRunner$ItemAction;)V
+    move-result v2
 
-    .line 201
+    if-ge v1, v2, :cond_54
+
+    .line 210
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    .line 211
+    if-eqz v2, :cond_51
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
+
+    move-result v3
+
+    if-nez v3, :cond_51
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v3
+
+    if-nez v3, :cond_2a
+
+    .line 212
+    goto :goto_51
+
+    .line 214
+    :cond_2a
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v3
+
+    .line 215
+    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->applyTo(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
+
+    .line 216
+    iget-object v4, v2, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v4, :cond_4e
+
+    iget-object v4, v2, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v4, v4, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
+
+    if-eqz v4, :cond_4e
+
+    .line 217
+    iget-object v4, v2, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget v5, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
+
+    if-lez v5, :cond_48
+
+    iget v3, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
+
+    goto :goto_4c
+
+    :cond_48
+    iget-object v3, v2, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget v3, v3, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->secondValue:I
+
+    :goto_4c
+    iput v3, v4, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->secondValue:I
+
+    .line 219
+    :cond_4e
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
+
+    .line 209
+    :cond_51
+    :goto_51
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_f
+
+    .line 221
+    :cond_54
+    return-void
+
+    .line 203
+    :cond_55
+    :goto_55
     return-void
 .end method
 
 .method private static applyWorkLengthToAll()V
-    .registers 2
+    .registers 5
 
-    .line 182
+    .line 185
+    sget-object v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    if-nez v0, :cond_5
+
+    .line 186
+    return-void
+
+    .line 188
+    :cond_5
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
+
+    move-result-object v0
+
+    .line 189
+    if-nez v0, :cond_c
+
+    .line 190
+    return-void
+
+    .line 192
+    :cond_c
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->resolveWorkLengthSeconds()I
 
-    move-result v0
+    move-result v1
 
-    .line 183
-    new-instance v1, Lcom/isaigu/gymapp/dialog/-$$Lambda$BlockProgramRunner$MLb5Dtmem5KUyZQ11a0ZLonVo-o;
+    .line 193
+    const/4 v2, 0x0
 
-    invoke-direct {v1, v0}, Lcom/isaigu/gymapp/dialog/-$$Lambda$BlockProgramRunner$MLb5Dtmem5KUyZQ11a0ZLonVo-o;-><init>(I)V
+    :goto_11
+    invoke-interface {v0}, Ljava/util/List;->size()I
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->forEachActive(Lcom/isaigu/gymapp/dialog/BlockProgramRunner$ItemAction;)V
+    move-result v3
 
-    .line 184
+    if-ge v2, v3, :cond_2a
+
+    .line 194
+    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v3
+
+    check-cast v3, Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    .line 195
+    if-eqz v3, :cond_27
+
+    invoke-virtual {v3}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
+
+    move-result v4
+
+    if-nez v4, :cond_27
+
+    .line 196
+    iput v1, v3, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+
+    .line 193
+    :cond_27
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_11
+
+    .line 199
+    :cond_2a
     return-void
 .end method
 
@@ -237,7 +382,7 @@
         }
     .end annotation
 
-    .line 143
+    .line 146
     const/4 v0, 0x0
 
     if-eqz p0, :cond_2f
@@ -250,7 +395,7 @@
 
     goto :goto_2f
 
-    .line 146
+    .line 149
     :cond_a
     add-int/2addr p1, p2
 
@@ -260,10 +405,10 @@
 
     move-result p1
 
-    .line 147
+    .line 150
     nop
 
-    .line 148
+    .line 151
     const/4 v1, 0x0
 
     :goto_12
@@ -273,7 +418,7 @@
 
     if-ge v0, v2, :cond_2a
 
-    .line 149
+    .line 152
     invoke-virtual {p0, v0}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v2
@@ -290,12 +435,12 @@
 
     add-int/2addr v1, v2
 
-    .line 148
+    .line 151
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_12
 
-    .line 151
+    .line 154
     :cond_2a
     invoke-static {p2, v1}, Ljava/lang/Math;->max(II)I
 
@@ -303,7 +448,7 @@
 
     return p0
 
-    .line 144
+    .line 147
     :cond_2f
     :goto_2f
     return v0
@@ -312,29 +457,29 @@
 .method private static firstActiveItem()Lcom/isaigu/gymapp/train/model/TrainItem;
     .registers 5
 
-    .line 204
+    .line 224
     sget-object v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     const/4 v1, 0x0
 
     if-nez v0, :cond_6
 
-    .line 205
+    .line 225
     return-object v1
 
-    .line 207
+    .line 227
     :cond_6
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
 
     move-result-object v0
 
-    .line 208
+    .line 228
     if-nez v0, :cond_d
 
-    .line 209
+    .line 229
     return-object v1
 
-    .line 211
+    .line 231
     :cond_d
     const/4 v2, 0x0
 
@@ -345,14 +490,14 @@
 
     if-ge v2, v3, :cond_26
 
-    .line 212
+    .line 232
     invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v3
 
     check-cast v3, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 213
+    .line 233
     if-eqz v3, :cond_23
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -361,88 +506,18 @@
 
     if-nez v4, :cond_23
 
-    .line 214
+    .line 234
     return-object v3
 
-    .line 211
+    .line 231
     :cond_23
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_e
 
-    .line 217
+    .line 237
     :cond_26
     return-object v1
-.end method
-
-.method private static forEachActive(Lcom/isaigu/gymapp/dialog/BlockProgramRunner$ItemAction;)V
-    .registers 5
-
-    .line 221
-    sget-object v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
-
-    if-eqz v0, :cond_2a
-
-    if-nez p0, :cond_7
-
-    goto :goto_2a
-
-    .line 224
-    :cond_7
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
-
-    move-result-object v0
-
-    .line 225
-    if-nez v0, :cond_e
-
-    .line 226
-    return-void
-
-    .line 228
-    :cond_e
-    const/4 v1, 0x0
-
-    :goto_f
-    invoke-interface {v0}, Ljava/util/List;->size()I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_29
-
-    .line 229
-    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    .line 230
-    if-eqz v2, :cond_26
-
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
-
-    move-result v3
-
-    if-nez v3, :cond_26
-
-    .line 231
-    invoke-interface {p0, v2}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner$ItemAction;->run(Lcom/isaigu/gymapp/train/model/TrainItem;)V
-
-    .line 228
-    :cond_26
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_f
-
-    .line 234
-    :cond_29
-    return-void
-
-    .line 222
-    :cond_2a
-    :goto_2a
-    return-void
 .end method
 
 .method public static getBlockCount()I
@@ -543,88 +618,29 @@
     return v0
 .end method
 
-.method static synthetic lambda$applyBlockToAll$1(Lcom/isaigu/gymapp/dialog/ProgramSegment;Lcom/isaigu/gymapp/train/model/TrainItem;)V
-    .registers 4
-
-    .line 191
-    invoke-virtual {p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    move-result-object v0
-
-    if-nez v0, :cond_7
-
-    .line 192
-    return-void
-
-    .line 194
-    :cond_7
-    invoke-virtual {p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    move-result-object v0
-
-    .line 195
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->applyTo(Lcom/isaigu/gymapp/bean/ProgramDataBean;)V
-
-    .line 196
-    iget-object p0, p1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    if-eqz p0, :cond_2b
-
-    iget-object p0, p1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    iget-boolean p0, p0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
-
-    if-eqz p0, :cond_2b
-
-    .line 197
-    iget-object p0, p1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
-
-    if-lez v1, :cond_25
-
-    iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
-
-    goto :goto_29
-
-    :cond_25
-    iget-object v0, p1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    iget v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->secondValue:I
-
-    :goto_29
-    iput v0, p0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->secondValue:I
-
-    .line 199
-    :cond_2b
-    invoke-virtual {p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
-
-    .line 200
-    return-void
-.end method
-
-.method static synthetic lambda$applyWorkLengthToAll$0(ILcom/isaigu/gymapp/train/model/TrainItem;)V
-    .registers 2
-
-    .line 183
-    iput p0, p1, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
-
-    return-void
-.end method
-
 .method public static onPulseCycleComplete(Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 8
 
     .line 99
-    if-eqz p0, :cond_a9
+    if-eqz p0, :cond_b6
 
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v0, :cond_b6
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
+
+    if-nez v0, :cond_e
+
+    goto/16 :goto_b6
+
+    .line 102
+    :cond_e
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->armed:Z
 
-    if-eqz v0, :cond_a9
+    if-eqz v0, :cond_b5
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
 
@@ -632,35 +648,35 @@
 
     move-result v0
 
-    if-eqz v0, :cond_10
+    if-eqz v0, :cond_1c
 
-    goto/16 :goto_a9
+    goto/16 :goto_b5
 
-    .line 102
-    :cond_10
+    .line 105
+    :cond_1c
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->firstActiveItem()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 103
-    if-eqz v0, :cond_19
+    .line 106
+    if-eqz v0, :cond_25
 
-    if-eq v0, p0, :cond_19
+    if-eq v0, p0, :cond_25
 
-    .line 104
+    .line 107
     return-void
 
-    .line 106
-    :cond_19
+    .line 109
+    :cond_25
     sget-object p0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->LOCK:Ljava/lang/Object;
 
     monitor-enter p0
 
-    .line 107
-    :try_start_1c
+    .line 110
+    :try_start_28
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->armed:Z
 
-    if-eqz v0, :cond_a4
+    if-eqz v0, :cond_b0
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
 
@@ -668,17 +684,17 @@
 
     move-result v0
 
-    if-eqz v0, :cond_2a
+    if-eqz v0, :cond_36
 
-    goto/16 :goto_a4
+    goto/16 :goto_b0
 
-    .line 110
-    :cond_2a
+    .line 113
+    :cond_36
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 111
+    .line 114
     sget-wide v2, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->lastAdvanceMs:J
 
     sub-long v2, v0, v2
@@ -687,24 +703,7 @@
 
     cmp-long v6, v2, v4
 
-    if-gez v6, :cond_3a
-
-    .line 112
-    monitor-exit p0
-
-    return-void
-
-    .line 114
-    :cond_3a
-    sget v2, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blockIndex:I
-
-    sget-object v3, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
-
-    invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
-
-    move-result v3
-
-    if-lt v2, v3, :cond_46
+    if-gez v6, :cond_46
 
     .line 115
     monitor-exit p0
@@ -713,6 +712,23 @@
 
     .line 117
     :cond_46
+    sget v2, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blockIndex:I
+
+    sget-object v3, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
+
+    invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
+
+    move-result v3
+
+    if-lt v2, v3, :cond_52
+
+    .line 118
+    monitor-exit p0
+
+    return-void
+
+    .line 120
+    :cond_52
     sget-object v2, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
 
     sget v3, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blockIndex:I
@@ -723,7 +739,7 @@
 
     check-cast v2, Lcom/isaigu/gymapp/dialog/ProgramSegment;
 
-    .line 118
+    .line 121
     sget v3, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->cyclesDone:I
 
     const/4 v4, 0x1
@@ -732,54 +748,54 @@
 
     sput v3, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->cyclesDone:I
 
-    .line 119
+    .line 122
     iget v2, v2, Lcom/isaigu/gymapp/dialog/ProgramSegment;->cycles:I
 
     invoke-static {v4, v2}, Ljava/lang/Math;->max(II)I
 
     move-result v2
 
-    if-ge v3, v2, :cond_60
+    if-ge v3, v2, :cond_6c
 
-    .line 120
+    .line 123
     monitor-exit p0
 
     return-void
 
-    .line 122
-    :cond_60
+    .line 125
+    :cond_6c
     sput-wide v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->lastAdvanceMs:J
 
-    .line 123
+    .line 126
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->cyclesDone:I
 
-    .line 124
+    .line 127
     sget v1, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blockIndex:I
 
     add-int/2addr v1, v4
 
     sput v1, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blockIndex:I
 
-    .line 125
+    .line 128
     sget-object v2, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
 
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
     move-result v2
 
-    if-lt v1, v2, :cond_8f
+    if-lt v1, v2, :cond_9b
 
-    .line 126
+    .line 129
     sget-boolean v1, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->repeat:Z
 
-    if-eqz v1, :cond_88
+    if-eqz v1, :cond_94
 
-    .line 127
+    .line 130
     sput v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blockIndex:I
 
-    .line 128
+    .line 131
     sget-object v1, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
 
     invoke-virtual {v1, v0}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -790,28 +806,28 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->applyBlockToAll(Lcom/isaigu/gymapp/dialog/ProgramSegment;)V
 
-    .line 129
+    .line 132
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockOverlay()V
 
-    .line 130
+    .line 133
     monitor-exit p0
 
     return-void
 
-    .line 132
-    :cond_88
+    .line 135
+    :cond_94
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->armed:Z
 
-    .line 133
+    .line 136
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->triggerAllStop()V
 
-    .line 134
+    .line 137
     monitor-exit p0
 
     return-void
 
-    .line 136
-    :cond_8f
+    .line 139
+    :cond_9b
     sget-object v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
 
     sget v1, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blockIndex:I
@@ -824,38 +840,43 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->applyBlockToAll(Lcom/isaigu/gymapp/dialog/ProgramSegment;)V
 
-    .line 137
+    .line 140
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockOverlay()V
 
-    .line 138
+    .line 141
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playBlockSignal()V
 
-    .line 139
+    .line 142
     monitor-exit p0
 
-    .line 140
+    .line 143
     return-void
 
-    .line 108
-    :cond_a4
-    :goto_a4
+    .line 111
+    :cond_b0
+    :goto_b0
     monitor-exit p0
 
     return-void
 
-    .line 139
-    :catchall_a6
+    .line 142
+    :catchall_b2
     move-exception v0
 
     monitor-exit p0
-    :try_end_a8
-    .catchall {:try_start_1c .. :try_end_a8} :catchall_a6
+    :try_end_b4
+    .catchall {:try_start_28 .. :try_end_b4} :catchall_b2
 
     throw v0
 
+    .line 103
+    :cond_b5
+    :goto_b5
+    return-void
+
     .line 100
-    :cond_a9
-    :goto_a9
+    :cond_b6
+    :goto_b6
     return-void
 .end method
 
@@ -996,18 +1017,18 @@
 .method private static resolveOnOff()[I
     .registers 4
 
-    .line 164
+    .line 167
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->firstActiveItem()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 165
+    .line 168
     nop
 
-    .line 166
+    .line 169
     nop
 
-    .line 167
+    .line 170
     const/4 v1, 0x4
 
     if-eqz v0, :cond_2d
@@ -1018,7 +1039,7 @@
 
     if-eqz v2, :cond_2d
 
-    .line 168
+    .line 171
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
@@ -1027,30 +1048,30 @@
 
     move-result-object v0
 
-    .line 169
+    .line 172
     if-eqz v0, :cond_2d
 
-    .line 170
+    .line 173
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     if-lez v2, :cond_20
 
-    .line 171
+    .line 174
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     goto :goto_21
 
-    .line 170
+    .line 173
     :cond_20
     const/4 v2, 0x4
 
-    .line 173
+    .line 176
     :goto_21
     iget v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     if-lez v3, :cond_2a
 
-    .line 174
+    .line 177
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     move v0, v1
@@ -1059,7 +1080,7 @@
 
     goto :goto_2e
 
-    .line 173
+    .line 176
     :cond_2a
     move v1, v2
 
@@ -1067,7 +1088,7 @@
 
     goto :goto_2e
 
-    .line 178
+    .line 181
     :cond_2d
     const/4 v0, 0x4
 
@@ -1090,12 +1111,12 @@
 .method static resolveWorkLengthSeconds()I
     .registers 4
 
-    .line 155
+    .line 158
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->resolveOnOff()[I
 
     move-result-object v0
 
-    .line 156
+    .line 159
     sget-object v1, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->blocks:Ljava/util/ArrayList;
 
     const/4 v2, 0x0
@@ -1112,12 +1133,12 @@
 
     sput v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->sequenceWorkSec:I
 
-    .line 157
+    .line 160
     sget-boolean v1, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->repeat:Z
 
     if-eqz v1, :cond_1d
 
-    .line 158
+    .line 161
     sget v0, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->configuredWorkSec:I
 
     invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
@@ -1126,7 +1147,7 @@
 
     return v0
 
-    .line 160
+    .line 163
     :cond_1d
     invoke-static {v3, v0}, Ljava/lang/Math;->max(II)I
 

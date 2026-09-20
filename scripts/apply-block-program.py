@@ -20,7 +20,6 @@ BLOCK_SMALI = (
     "BlockProgramStorage.smali",
     "BlockProgramEditor.smali",
     "BlockProgramEditor$RowHolder.smali",
-    "BlockProgramRunner$ItemAction.smali",
 )
 
 
@@ -39,6 +38,12 @@ def install_smali() -> None:
         print(f"installed dialog/{src.name}")
     if not (DIALOG_DIR / "BlockProgramRunner.smali").is_file():
         raise SystemExit("Missing BlockProgramRunner.smali — run compile-interval-timer-java.sh")
+    runner_text = (DIALOG_DIR / "BlockProgramRunner.smali").read_text(encoding="utf-8")
+    if "-$$Lambda$BlockProgramRunner" in runner_text:
+        raise SystemExit(
+            "BlockProgramRunner.smali still references lambda classes — "
+            "recompile without lambdas (compile-interval-timer-java.sh)"
+        )
 
 
 def patch_pulse_hook(text: str) -> str:

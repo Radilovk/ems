@@ -90,7 +90,7 @@ public final class IntervalTimerHelper {
     private static final int ID_RESET = 0x7f090278;
     private static final int ID_CONFIG_SCROLL = 0x7f090274;
     /** Max config panel height before scrolling — keeps activate button reachable. */
-    private static final int CONFIG_DIALOG_MAX_HEIGHT_DP = 420;
+    private static final int CONFIG_DIALOG_MAX_HEIGHT_DP = 520;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
@@ -151,7 +151,7 @@ public final class IntervalTimerHelper {
     private static final int OVERLAY_WIDTH_DP =
             OVERLAY_SIZE_DP + OVERLAY_RESET_BTN_DP + OVERLAY_RESET_GAP_DP;
     /** Compact config panel width — must match apply-interval-timer dialog layout. */
-    private static final int CONFIG_DIALOG_WIDTH_DP = 260;
+    private static final int CONFIG_DIALOG_WIDTH_DP = 280;
 
     private static final String PREFS = "interval_timer";
     private static final String KEY_MINUTES = "minutes";
@@ -619,9 +619,9 @@ public final class IntervalTimerHelper {
         return MainActivity.getInstance();
     }
 
-    private static void capConfigDialogScroll(Activity activity, View content) {
+    private static int capConfigDialogScroll(Activity activity, View content) {
         if (activity == null || content == null) {
-            return;
+            return 0;
         }
         ScrollView scroll = null;
         if (content instanceof ScrollView) {
@@ -633,29 +633,38 @@ public final class IntervalTimerHelper {
             }
         }
         if (scroll == null || scroll.getChildCount() < 1) {
-            return;
+            return 0;
         }
         View child = scroll.getChildAt(0);
         int maxHeight = dp(activity, CONFIG_DIALOG_MAX_HEIGHT_DP);
-        int screenCap = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.82f);
+        int screenCap = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.85f);
         if (screenCap > 0 && screenCap < maxHeight) {
             maxHeight = screenCap;
         }
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(dp(activity, CONFIG_DIALOG_WIDTH_DP),
-                View.MeasureSpec.EXACTLY);
+        int widthPx = dp(activity, CONFIG_DIALOG_WIDTH_DP);
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY);
         int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         child.measure(widthSpec, heightSpec);
+        int contentHeight = child.getMeasuredHeight();
+        int scrollHeight = contentHeight > maxHeight ? maxHeight : contentHeight;
         android.view.ViewGroup.LayoutParams lp = scroll.getLayoutParams();
         if (lp == null) {
-            lp = new android.view.ViewGroup.LayoutParams(
-                    dp(activity, CONFIG_DIALOG_WIDTH_DP), android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp = new android.view.ViewGroup.LayoutParams(widthPx, scrollHeight);
+        } else {
+            lp.width = widthPx;
+            lp.height = scrollHeight;
         }
-        int measured = child.getMeasuredHeight();
-        lp.height = measured > maxHeight ? maxHeight : android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
         scroll.setLayoutParams(lp);
+        scroll.measure(
+                View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(scrollHeight, View.MeasureSpec.EXACTLY));
+        return scroll.getMeasuredHeight() > 0 ? scroll.getMeasuredHeight() : scrollHeight;
     }
 
     private static void showConfigDialog(Activity activity) {
+        if (configDialog != null && configDialog.isShowing()) {
+            return;
+        }
         hostActivity = activity;
         loadSavedSettings(activity);
         dismissConfigDialog(false);
@@ -668,7 +677,7 @@ public final class IntervalTimerHelper {
             return;
         }
         configContent = content;
-        capConfigDialogScroll(activity, content);
+        int dialogHeight = capConfigDialogScroll(activity, content);
         statusView = (TextView) content.findViewById(ID_STATUS);
         soundFileView = (TextView) content.findViewById(ID_SOUND_FILE);
         soundFileRow = content.findViewById(ID_SOUND_FILE_ROW);
@@ -743,7 +752,11 @@ public final class IntervalTimerHelper {
         try {
             Window window = configDialog.getWindow();
             if (window != null) {
-                window.setLayout(dp(activity, CONFIG_DIALOG_WIDTH_DP), WindowManager.LayoutParams.WRAP_CONTENT);
+                int widthPx = dp(activity, CONFIG_DIALOG_WIDTH_DP);
+                int heightPx = dialogHeight > 0
+                        ? dialogHeight
+                        : WindowManager.LayoutParams.WRAP_CONTENT;
+                window.setLayout(widthPx, heightPx);
             }
         } catch (Throwable ignored) {
         }

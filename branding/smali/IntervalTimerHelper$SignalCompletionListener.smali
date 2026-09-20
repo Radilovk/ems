@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1857
+    .line 1870
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,10 +32,10 @@
 .method public onCompletion(Landroid/media/MediaPlayer;)V
     .registers 2
 
-    .line 1860
+    .line 1873
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4500()V
 
-    .line 1861
+    .line 1874
     return-void
 .end method

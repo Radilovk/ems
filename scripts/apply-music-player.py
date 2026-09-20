@@ -51,7 +51,8 @@ IDS = {
     "musicPlayerTrackTitle": 0x7F090282,
     "musicPlayerTime": 0x7F090283,
     "musicPlayerItemTitle": 0x7F090284,
-    "musicPlayerItemHandle": 0x7F090285,
+    "musicPlayerItemUp": 0x7F090286,
+    "musicPlayerItemDown": 0x7F090287,
 }
 
 STRING_IDS = {
@@ -110,10 +111,11 @@ OVERLAY_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 PLAYLIST_ITEM_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="@drawable/modal_field_bg" android:paddingLeft="6.0dip" android:paddingRight="6.0dip" android:layout_width="fill_parent" android:layout_height="32.0dip" android:layout_marginBottom="3.0dip"
+<LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="@drawable/modal_field_bg" android:paddingLeft="8.0dip" android:paddingRight="4.0dip" android:layout_width="fill_parent" android:layout_height="36.0dip" android:layout_marginBottom="4.0dip"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView android:textSize="11.0sp" android:textColor="@color/text_primary" android:ellipsize="middle" android:gravity="center_vertical" android:id="@id/musicPlayerItemTitle" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:singleLine="true" android:text="Track" />
-    <TextView android:textSize="14.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/musicPlayerItemHandle" android:layout_width="28.0dip" android:layout_height="fill_parent" android:text="&#9776;" />
+    <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:ellipsize="middle" android:gravity="center_vertical" android:id="@id/musicPlayerItemTitle" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:singleLine="true" android:text="Track" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/musicPlayerItemUp" android:background="@android:color/transparent" android:layout_width="32.0dip" android:layout_height="fill_parent" android:text="&#9650;" android:textAllCaps="false" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/musicPlayerItemDown" android:background="@android:color/transparent" android:layout_width="32.0dip" android:layout_height="fill_parent" android:text="&#9660;" android:textAllCaps="false" />
 </LinearLayout>
 """
 
@@ -156,7 +158,7 @@ EN_STRINGS = """
     <string name="beta_music_player_expand">Show controls</string>
     <string name="beta_music_player_playlist">Playlist</string>
     <string name="beta_music_player_add_track">Add track</string>
-    <string name="beta_music_player_drag_hint">Long-press ☰ and drag to reorder</string>
+    <string name="beta_music_player_drag_hint">Use ▲▼ to reorder tracks</string>
 """
 
 BG_STRINGS = """
@@ -178,7 +180,7 @@ BG_STRINGS = """
     <string name="beta_music_player_expand">Покажи контролите</string>
     <string name="beta_music_player_playlist">Плейлист</string>
     <string name="beta_music_player_add_track">Добави песен</string>
-    <string name="beta_music_player_drag_hint">Задръж ☰ и плъзни за подредба</string>
+    <string name="beta_music_player_drag_hint">Използвай ▲▼ за подредба</string>
 """
 
 FRAGMENT_HOOK = """
@@ -257,6 +259,9 @@ def install_smali() -> None:
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")
     for src in sorted((BRANDING / "smali").glob("MusicPlaylist*.smali")):
+        shutil.copy2(src, DIALOG_DIR / src.name)
+        print(f"installed dialog/{src.name}")
+    for src in sorted((BRANDING / "smali").glob("MusicTrackLabel*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")
     for src in sorted((BRANDING / "smali").glob("MusicPlayerEngine*.smali")):

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1584
+    .line 1597
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onProgressChanged(Landroid/widget/SeekBar;IZ)V
     .registers 4
 
-    .line 1587
+    .line 1600
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreDurationSlider:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100()Z
 
@@ -40,10 +40,10 @@
 
     if-eqz p1, :cond_7
 
-    .line 1588
+    .line 1601
     return-void
 
-    .line 1590
+    .line 1603
     :cond_7
     mul-int/lit8 p2, p2, 0x5
 
@@ -52,20 +52,20 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshDurationDisplay(I)V
     invoke-static {p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200(I)V
 
-    .line 1591
+    .line 1604
     return-void
 .end method
 
 .method public onStartTrackingTouch(Landroid/widget/SeekBar;)V
     .registers 2
 
-    .line 1595
+    .line 1608
     return-void
 .end method
 
 .method public onStopTrackingTouch(Landroid/widget/SeekBar;)V
     .registers 2
 
-    .line 1599
+    .line 1612
     return-void
 .end method

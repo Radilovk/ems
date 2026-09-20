@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 722
+    .line 747
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 725
+    .line 750
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->minimized:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()Z
 
@@ -40,17 +40,17 @@
 
     if-eqz p1, :cond_d
 
-    .line 726
+    .line 751
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->minimized:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$402(Z)Z
 
-    .line 727
+    .line 752
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyMinimizedState()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$500()V
 
-    .line 729
+    .line 754
     :cond_d
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistVisible:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$600()Z
@@ -62,14 +62,14 @@
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistVisible:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$602(Z)Z
 
-    .line 730
+    .line 755
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyPlaylistVisibility()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$700()V
 
-    .line 731
+    .line 756
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$800()V
 
-    .line 732
+    .line 757
     return-void
 .end method

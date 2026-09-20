@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -50,7 +49,8 @@ public final class MusicPlayerHelper {
     private static final int ID_LEVEL = 0x7f09022a;
     private static final int ID_SENSITIVITY = 0x7f090228;
     private static final int ID_PLAYLIST_ITEM_TITLE = 0x7f090284;
-    private static final int ID_PLAYLIST_ITEM_HANDLE = 0x7f090285;
+    private static final int ID_PLAYLIST_ITEM_UP = 0x7f090286;
+    private static final int ID_PLAYLIST_ITEM_DOWN = 0x7f090287;
 
     private static final int OVERLAY_SIZE_DP = 192;
     private static final int OVERLAY_SIDE_BTN_DP = 44;
@@ -124,6 +124,9 @@ public final class MusicPlayerHelper {
         }
         MusicSync.setHostActivity(activity);
         MusicSync.setTargetItem(item);
+        if (isOverlayShowing()) {
+            return;
+        }
         loadPlaylist(activity);
         if (!showOverlay(activity)) {
             toast(activity, 0x7f0d0113);
@@ -139,12 +142,31 @@ public final class MusicPlayerHelper {
         if (activity == null) {
             return;
         }
+        ClipData clip = data.getClipData();
+        if (clip != null && clip.getItemCount() > 0) {
+            for (int i = 0; i < clip.getItemCount(); i++) {
+                Uri uri = clip.getItemAt(i).getUri();
+                if (uri != null) {
+                    grantUri(activity, data, uri);
+                    addTrack(activity, uri);
+                }
+            }
+            return;
+        }
         Uri uri = data.getData();
         if (uri == null) {
             return;
         }
         grantUri(activity, data, uri);
         addTrack(activity, uri);
+    }
+
+    private static boolean isOverlayShowing() {
+        try {
+            return overlayDialog != null && overlayDialog.isShowing();
+        } catch (Throwable ignored) {
+            return overlayVisible;
+        }
     }
 
     public static boolean advanceToNextTrack() {
@@ -431,7 +453,8 @@ public final class MusicPlayerHelper {
                 continue;
             }
             TextView title = (TextView) row.findViewById(ID_PLAYLIST_ITEM_TITLE);
-            View handle = row.findViewById(ID_PLAYLIST_ITEM_HANDLE);
+            View upBtn = row.findViewById(ID_PLAYLIST_ITEM_UP);
+            View downBtn = row.findViewById(ID_PLAYLIST_ITEM_DOWN);
             if (title != null) {
                 title.setText(entry.name);
                 if (index == currentIndex) {
@@ -439,12 +462,14 @@ public final class MusicPlayerHelper {
                 }
                 title.setOnClickListener(new PlaylistSelectListener(index));
             }
-            if (handle != null) {
-                handle.setOnLongClickListener(new PlaylistDragStarter(index, row));
-                handle.setOnDragListener(new PlaylistDropListener(index));
+            if (upBtn != null) {
+                upBtn.setVisibility(index > 0 ? View.VISIBLE : View.INVISIBLE);
+                upBtn.setOnClickListener(new PlaylistMoveListener(index, -1));
             }
-            row.setOnDragListener(new PlaylistDropListener(index));
-            row.setTag(Integer.valueOf(index));
+            if (downBtn != null) {
+                downBtn.setVisibility(index + 1 < playlist.size() ? View.VISIBLE : View.INVISIBLE);
+                downBtn.setOnClickListener(new PlaylistMoveListener(index, 1));
+            }
             playlistList.addView(row);
         }
     }
@@ -539,7 +564,7 @@ public final class MusicPlayerHelper {
         if (uri == null || activity == null) {
             return;
         }
-        String name = uri.getLastPathSegment();
+        String name = MusicTrackLabel.resolve(activity, uri);
         playlist.add(new MusicPlaylistEntry(uri, name));
         if (currentIndex < 0) {
             currentIndex = playlist.size() - 1;
@@ -760,6 +785,7 @@ public final class MusicPlayerHelper {
                 intent.setType("audio/*");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 pickingFile = true;
                 activity.startActivityForResult(intent, PICK_AUDIO);
             } catch (Throwable t) {
@@ -784,51 +810,18 @@ public final class MusicPlayerHelper {
         }
     }
 
-    static final class PlaylistDragStarter implements View.OnLongClickListener {
+    static final class PlaylistMoveListener implements View.OnClickListener {
         private final int index;
-        private final View row;
+        private final int delta;
 
-        PlaylistDragStarter(int index, View row) {
+        PlaylistMoveListener(int index, int delta) {
             this.index = index;
-            this.row = row;
+            this.delta = delta;
         }
 
         @Override
-        public boolean onLongClick(View v) {
-            ClipData data = ClipData.newPlainText("track", String.valueOf(index));
-            View.DragShadowBuilder shadow = new View.DragShadowBuilder(row);
-            row.startDrag(data, shadow, row, 0);
-            return true;
-        }
-    }
-
-    static final class PlaylistDropListener implements View.OnDragListener {
-        private final int targetIndex;
-
-        PlaylistDropListener(int targetIndex) {
-            this.targetIndex = targetIndex;
-        }
-
-        @Override
-        public boolean onDrag(View v, DragEvent event) {
-            switch (event.getAction()) {
-                case DragEvent.ACTION_DRAG_STARTED:
-                    return true;
-                case DragEvent.ACTION_DROP: {
-                    Object local = event.getLocalState();
-                    if (!(local instanceof View)) {
-                        return false;
-                    }
-                    Object tag = ((View) local).getTag();
-                    if (!(tag instanceof Integer)) {
-                        return false;
-                    }
-                    movePlaylistItem(((Integer) tag).intValue(), targetIndex);
-                    return true;
-                }
-                default:
-                    return true;
-            }
+        public void onClick(View view) {
+            movePlaylistItem(index, index + delta);
         }
     }
 

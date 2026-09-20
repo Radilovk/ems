@@ -107,24 +107,38 @@ CARD_OPEN = (
 )
 
 CARD_WRAP_OPEN = (
-    '<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content" '
+    '<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" '
+    'android:layout_height="wrap_content" android:clipChildren="false" '
     'android:clipToPadding="false" android:paddingBottom="42.0dip" '
     'xmlns:android="http://schemas.android.com/apk/res/android" '
     'xmlns:app="http://schemas.android.com/apk/res-auto">\n'
+    '    <RelativeLayout android:layout_width="fill_parent" '
+    'android:layout_height="wrap_content">\n'
     '    <LinearLayout android:id="@id/trainUserCard" android:orientation="horizontal" '
     'android:background="@drawable/ui_card_background" android:layout_width="fill_parent" '
     'android:layout_height="170.0dip" android:layout_margin="@dimen/ui_card_margin">'
 )
 
 ADD_ROW_OVERLAY = f"""
-    <LinearLayout android:id="@id/trainAddParticipantWrap" android:gravity="center_horizontal" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignRight="@id/trainUserCard" android:layout_alignBottom="@id/trainUserCard" android:layout_marginRight="6.0dip" android:layout_marginBottom="-38.0dip" android:visibility="gone">
-        <FrameLayout android:background="@drawable/shape_bg_white" android:layout_width="{ADD_CIRCLE_OUTER_DP}" android:layout_height="{ADD_CIRCLE_OUTER_DP}">
-            <Button android:id="@id/trainAddParticipantBtn" android:background="@mipmap/add3" android:layout_width="{ADD_CIRCLE_INNER_DP}" android:layout_height="{ADD_CIRCLE_INNER_DP}" android:layout_gravity="center" />
-        </FrameLayout>
-        <TextView android:textSize="13.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/train_add_participant" />
-    </LinearLayout>
-</RelativeLayout>
+        <LinearLayout android:id="@id/trainAddParticipantWrap" android:gravity="center_horizontal" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignRight="@id/trainUserCard" android:layout_alignBottom="@id/trainUserCard" android:layout_marginRight="6.0dip" android:layout_marginBottom="-38.0dip" android:visibility="gone">
+            <FrameLayout android:background="@drawable/shape_bg_white" android:layout_width="{ADD_CIRCLE_OUTER_DP}" android:layout_height="{ADD_CIRCLE_OUTER_DP}">
+                <Button android:id="@id/trainAddParticipantBtn" android:background="@mipmap/add3" android:layout_width="{ADD_CIRCLE_INNER_DP}" android:layout_height="{ADD_CIRCLE_INNER_DP}" android:layout_gravity="center" />
+            </FrameLayout>
+            <TextView android:textSize="13.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/train_add_participant" />
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
 """
+
+# Broken 1.1.28 build used RelativeLayout as binding root -> ClassCastException on first user.
+BROKEN_REL_ROOT_RE = re.compile(
+    r"<RelativeLayout android:layout_width=\"fill_parent\" android:layout_height=\"wrap_content\" "
+    r'android:clipToPadding="false" android:paddingBottom="42\.0dip" '
+    r'xmlns:android="http://schemas.android.com/apk/res/android" '
+    r'xmlns:app="http://schemas.android.com/apk/res-auto">\s*'
+    r'<LinearLayout android:id="@id/trainUserCard"[^>]*>',
+    re.DOTALL,
+)
 
 EN_STRING = f'    <string name="{STRING_NAME}">Add user</string>'
 BG_STRING = f'    <string name="{STRING_NAME}">Добави потребител</string>'
@@ -596,6 +610,21 @@ def patch_user_item_layout(path: Path) -> None:
     if not path.is_file():
         return
     text = path.read_text(encoding="utf-8")
+    if BROKEN_REL_ROOT_RE.search(text):
+        text = BROKEN_REL_ROOT_RE.sub(CARD_WRAP_OPEN, text, count=1)
+        text = text.replace(
+            "    </LinearLayout>\n\n    <LinearLayout android:id=\"@id/trainAddParticipantWrap\"",
+            "        <LinearLayout android:id=\"@id/trainAddParticipantWrap\"",
+            1,
+        )
+        text = text.replace(
+            "    </LinearLayout>\n</RelativeLayout>\n",
+            ADD_ROW_OVERLAY,
+            1,
+        )
+        path.write_text(text, encoding="utf-8")
+        print(f"{path.name}: fixed binding root (LinearLayout) for add-user overlay")
+        return
     if "@id/trainAddParticipantWrap" in text:
         print(f"{path.name}: add-user overlay already present")
         return

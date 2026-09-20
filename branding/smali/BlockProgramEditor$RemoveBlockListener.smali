@@ -47,19 +47,19 @@
         }
     .end annotation
 
-    .line 167
+    .line 227
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 168
+    .line 228
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RemoveBlockListener;->working:Ljava/util/ArrayList;
 
-    .line 169
+    .line 229
     iput p2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RemoveBlockListener;->index:I
 
-    .line 170
+    .line 230
     iput-object p3, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RemoveBlockListener;->rebuild:Ljava/lang/Runnable;
 
-    .line 171
+    .line 231
     return-void
 .end method
 
@@ -68,18 +68,18 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 175
+    .line 235
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RemoveBlockListener;->working:Ljava/util/ArrayList;
 
     iget v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RemoveBlockListener;->index:I
 
     invoke-virtual {p1, v0}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
 
-    .line 176
+    .line 236
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RemoveBlockListener;->rebuild:Ljava/lang/Runnable;
 
     invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
-    .line 177
+    .line 237
     return-void
 .end method

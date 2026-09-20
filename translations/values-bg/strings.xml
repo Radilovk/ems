@@ -389,4 +389,11 @@
     <string name="timer_preset_deleted">Програмата е изтрита</string>
     <string name="timer_preset_delete_confirm">Изтрий тази запазена програма?</string>
     <string name="timer_preset_empty_name">Въведи име</string>
+    <string name="interval_timer_tab_interval">Интервал</string>
+    <string name="interval_timer_tab_block">Блокове</string>
+    <string name="interval_timer_duration">Продължителност</string>
+    <string name="interval_timer_duration_train">Време на тренировка</string>
+    <string name="interval_timer_repeats">Повторения</string>
+    <string name="interval_timer_repeats_unlimited">Безкрайно</string>
+    <string name="interval_timer_advanced">Звук и запазени ▾</string>
 </resources>

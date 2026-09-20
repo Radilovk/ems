@@ -61,22 +61,22 @@
         }
     .end annotation
 
-    .line 144
+    .line 204
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 145
+    .line 205
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->root:Landroid/widget/LinearLayout;
 
-    .line 146
+    .line 206
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->working:Ljava/util/ArrayList;
 
-    .line 147
+    .line 207
     iput-object p3, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->targetBlocks:Ljava/util/ArrayList;
 
-    .line 148
+    .line 208
     iput-object p4, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->onDone:Ljava/lang/Runnable;
 
-    .line 149
+    .line 209
     return-void
 .end method
 
@@ -85,35 +85,35 @@
 .method public onClick(Landroid/content/DialogInterface;I)V
     .registers 3
 
-    .line 153
+    .line 213
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->root:Landroid/widget/LinearLayout;
 
     iget-object p2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->working:Ljava/util/ArrayList;
 
     # invokes: Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->collect(Landroid/widget/LinearLayout;Ljava/util/ArrayList;)V
-    invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->access$100(Landroid/widget/LinearLayout;Ljava/util/ArrayList;)V
+    invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->access$200(Landroid/widget/LinearLayout;Ljava/util/ArrayList;)V
 
-    .line 154
+    .line 214
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->targetBlocks:Ljava/util/ArrayList;
 
     invoke-virtual {p1}, Ljava/util/ArrayList;->clear()V
 
-    .line 155
+    .line 215
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->targetBlocks:Ljava/util/ArrayList;
 
     iget-object p2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->working:Ljava/util/ArrayList;
 
     invoke-virtual {p1, p2}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
 
-    .line 156
+    .line 216
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$DoneClickListener;->onDone:Ljava/lang/Runnable;
 
     if-eqz p1, :cond_1a
 
-    .line 157
+    .line 217
     invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
-    .line 159
+    .line 219
     :cond_1a
     return-void
 .end method

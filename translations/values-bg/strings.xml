@@ -370,4 +370,8 @@
     <string name="segment_program_add">+ Добави блок</string>
     <string name="segment_program_remove">Премахни блок</string>
     <string name="segment_program_done">Готово</string>
+    <string name="block_program_duration">Последователност: %1$d мин %2$d сек (авто време)</string>
+    <string name="block_program_train_time">Мин/сек = общо време на тренировката (RPT)</string>
+    <string name="block_program_empty">Добави поне един блок</string>
+    <string name="block_program_repeat">RPT (повтаряй блоковете до края на времето)</string>
 </resources>

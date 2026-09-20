@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1184
+    .line 1419
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onError(Landroid/media/MediaPlayer;II)Z
     .registers 5
 
-    .line 1187
+    .line 1422
     new-instance p1, Ljava/lang/StringBuilder;
 
     invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
@@ -57,11 +57,11 @@
 
     invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1188
+    .line 1423
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3000()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3600()V
 
-    .line 1189
+    .line 1424
     const/4 p1, 0x1
 
     return p1

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compile IntervalTimerHelper + TimerRingView from Java to smali.
+# Compile interval timer + block program classes from Java to smali.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,6 +18,10 @@ BAKSMALI="${ROOT}/tools/baksmali.jar"
 
 TIMER_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/IntervalTimerHelper.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/dialog/ProgramSegment.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramRunner.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramStorage.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramEditor.java"
   "${JAVA_SRC}/com/isaigu/gymapp/widget/TimerRingView.java"
 )
 
@@ -37,7 +41,7 @@ bash "${ROOT}/scripts/compile-music-sync-java.sh"
 
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 
-echo "Compiling interval timer classes..."
+echo "Compiling interval timer + block program classes..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
 javac \
@@ -51,7 +55,10 @@ echo "Dexing..."
 rm -f "${DEX_FILE}"
 mkdir -p "${OUT_DIR}/dex"
 mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
-  \( -path '*/dialog/IntervalTimerHelper*.class' -o -path '*/widget/TimerRingView*.class' \) -print | sort)
+  \( -path '*/dialog/IntervalTimerHelper*.class' \
+  -o -path '*/dialog/ProgramSegment.class' \
+  -o -path '*/dialog/BlockProgram*.class' \
+  -o -path '*/widget/TimerRingView*.class' \) -print | sort)
 (
   cd "${CLASSES_DIR}"
   "${D8}" \
@@ -67,11 +74,23 @@ rm -rf "${SMALI_OUT}"
 java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 
 echo "Installing smali..."
-find "${BRANDING_SMALI}" -maxdepth 1 -name 'IntervalTimerHelper*.smali' -delete
+find "${BRANDING_SMALI}" -maxdepth 1 \( \
+  -name 'IntervalTimerHelper*.smali' \
+  -o -name 'ProgramSegment.smali' \
+  -o -name 'BlockProgram*.smali' \
+  -o -name 'SegmentProgram*.smali' \
+  -o -name '-$$Lambda$BlockProgramEditor*.smali' \
+  -o -name '-$$Lambda$SegmentProgramUiHelper*.smali' \
+  \) -delete
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
   echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" -path '*/dialog/IntervalTimerHelper*.smali' -print0)
+done < <(find "${SMALI_OUT}" \( \
+  -path '*/dialog/IntervalTimerHelper*.smali' \
+  -o -path '*/dialog/ProgramSegment.smali' \
+  -o -path '*/dialog/BlockProgram*.smali' \
+  -o -path '*/dialog/-$$Lambda$BlockProgramEditor*.smali' \
+  \) -print0)
 
 rm -f "${WIDGET_SMALI}/TimerRingView.smali"
 while IFS= read -r -d '' file; do
@@ -79,9 +98,9 @@ while IFS= read -r -d '' file; do
   echo "  -> widget/TimerRingView.smali"
 done < <(find "${SMALI_OUT}" -path '*/widget/TimerRingView.smali' -print0)
 
-if [[ ! -f "${WIDGET_SMALI}/TimerRingView.smali" ]]; then
-  echo "ERROR: TimerRingView.smali not produced"
+if [[ ! -f "${BRANDING_SMALI}/BlockProgramRunner.smali" ]]; then
+  echo "ERROR: BlockProgramRunner.smali not produced"
   exit 1
 fi
 
-echo "Interval timer Java compile complete."
+echo "Interval timer + block program Java compile complete."

@@ -1,11 +1,11 @@
-.class synthetic Lcom/isaigu/gymapp/dialog/SegmentProgramRunner$1;
+.class synthetic Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;
 .super Ljava/lang/Object;
-.source "SegmentProgramRunner.java"
+.source "BlockProgramEditor.java"
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/dialog/SegmentProgramRunner;
+    value = Lcom/isaigu/gymapp/dialog/BlockProgramEditor;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;

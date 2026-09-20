@@ -52,6 +52,13 @@ IDS = {
     "intervalTimerRing": 0x7F090243,
     "intervalTimerSoundClear": 0x7F090244,
     "intervalTimerSoundFileRow": 0x7F090245,
+    "intervalTimerBlockMode": 0x7F090260,
+    "intervalTimerBlockRepeat": 0x7F090261,
+    "intervalTimerBlockEdit": 0x7F090262,
+    "intervalTimerBlockSummary": 0x7F090263,
+    "intervalTimerSimplePanel": 0x7F090264,
+    "intervalTimerBlockPanel": 0x7F090265,
+    "intervalTimerBlockDuration": 0x7F090266,
 }
 
 STRING_IDS = {
@@ -75,6 +82,22 @@ STRING_IDS = {
     "interval_timer_sound_preview": 0x7F0D0131,
     "interval_timer_sound_upload": 0x7F0D0132,
     "interval_timer_sound_no_file": 0x7F0D0133,
+    "segment_program_title": 0x7F0D0140,
+    "segment_program_hint": 0x7F0D0141,
+    "segment_program_edit": 0x7F0D0142,
+    "segment_program_summary": 0x7F0D0143,
+    "segment_program_block": 0x7F0D0144,
+    "segment_program_cycles": 0x7F0D0145,
+    "segment_program_ma": 0x7F0D0146,
+    "segment_program_hz": 0x7F0D0147,
+    "segment_program_width": 0x7F0D0148,
+    "segment_program_add": 0x7F0D014B,
+    "segment_program_remove": 0x7F0D014C,
+    "segment_program_done": 0x7F0D014D,
+    "block_program_duration": 0x7F0D014E,
+    "block_program_train_time": 0x7F0D014F,
+    "block_program_empty": 0x7F0D0150,
+    "block_program_repeat": 0x7F0D0151,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -89,6 +112,21 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
         <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/impulse_accent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:layout_marginRight="4.0dip" android:text=":" />
         <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerSeconds" android:layout_width="wrap_content" android:layout_height="wrap_content" />
     </LinearLayout>
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
+        <TextView android:textSize="12.0sp" android:textColor="@color/text_primary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:text="@string/segment_program_title" />
+        <Switch android:id="@id/intervalTimerBlockMode" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout android:orientation="vertical" android:id="@id/intervalTimerBlockPanel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:text="@string/block_program_repeat" />
+            <Switch android:id="@id/intervalTimerBlockRepeat" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        </LinearLayout>
+        <TextView android:textSize="10.0sp" android:textColor="@color/text_secondary" android:id="@id/intervalTimerBlockSummary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="@string/segment_program_summary" />
+        <TextView android:textSize="9.0sp" android:textColor="@color/light_green_color" android:id="@id/intervalTimerBlockDuration" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="@string/block_program_duration" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textColor="@color/text_primary" android:id="@id/intervalTimerBlockEdit" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="36.0dip" android:layout_marginTop="4.0dip" android:text="@string/segment_program_edit" android:textAllCaps="false" />
+        <TextView android:textSize="9.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="@string/segment_program_hint" />
+    </LinearLayout>
+    <LinearLayout android:orientation="vertical" android:id="@id/intervalTimerSimplePanel" android:layout_width="fill_parent" android:layout_height="wrap_content">
     <TextView android:textSize="10.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/interval_timer_loops" />
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip">
         <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsMinus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="34.0dip" android:layout_height="34.0dip" android:text="-" android:textAllCaps="false" />
@@ -96,6 +134,7 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
         <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsPlus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="34.0dip" android:layout_height="34.0dip" android:text="+" android:textAllCaps="false" />
     </LinearLayout>
     <TextView android:textSize="9.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:text="@string/interval_timer_loops_hint" />
+    </LinearLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
         <TextView android:textSize="9.0sp" android:textColor="@color/text_secondary" android:layout_width="44.0dip" android:layout_height="wrap_content" android:text="@string/interval_timer_sound_label" />
         <Spinner android:id="@id/intervalTimerSoundSpinner" android:background="@drawable/modal_field_bg" android:layout_width="0.0dip" android:layout_height="32.0dip" android:layout_weight="1.0" android:popupBackground="@color/bg_card" android:spinnerMode="dropdown" />
@@ -251,6 +290,22 @@ EN_STRINGS = """
     <string name="interval_timer_sound_preview">Preview</string>
     <string name="interval_timer_sound_upload">Upload</string>
     <string name="interval_timer_sound_no_file">No custom signal selected</string>
+    <string name="segment_program_title">Block program</string>
+    <string name="segment_program_hint">Impulse cycles per block; MA, Hz and width change automatically</string>
+    <string name="segment_program_edit">Edit blocks</string>
+    <string name="segment_program_summary">%1$d blocks</string>
+    <string name="segment_program_block">Block %1$d</string>
+    <string name="segment_program_cycles">Cycles</string>
+    <string name="segment_program_ma">MA</string>
+    <string name="segment_program_hz">Hz</string>
+    <string name="segment_program_width">Width (ms)</string>
+    <string name="segment_program_add">+ Add block</string>
+    <string name="segment_program_remove">Remove block</string>
+    <string name="segment_program_done">Done</string>
+    <string name="block_program_duration">Sequence: %1$d min %2$d sec (auto work time)</string>
+    <string name="block_program_train_time">Min/sec = total workout time (RPT)</string>
+    <string name="block_program_empty">Add at least one block</string>
+    <string name="block_program_repeat">RPT (repeat blocks until time ends)</string>
 """
 
 BG_STRINGS = """
@@ -274,6 +329,22 @@ BG_STRINGS = """
     <string name="interval_timer_sound_preview">Проба</string>
     <string name="interval_timer_sound_upload">Качи</string>
     <string name="interval_timer_sound_no_file">Няма избран файл</string>
+    <string name="segment_program_title">Блокова програма</string>
+    <string name="segment_program_hint">Импулсни цикли на блок; MA, Hz и ширина се сменят автоматично</string>
+    <string name="segment_program_edit">Редактирай блокове</string>
+    <string name="segment_program_summary">%1$d блока</string>
+    <string name="segment_program_block">Блок %1$d</string>
+    <string name="segment_program_cycles">Цикли</string>
+    <string name="segment_program_ma">MA</string>
+    <string name="segment_program_hz">Hz</string>
+    <string name="segment_program_width">Ширина (ms)</string>
+    <string name="segment_program_add">+ Добави блок</string>
+    <string name="segment_program_remove">Премахни блок</string>
+    <string name="segment_program_done">Готово</string>
+    <string name="block_program_duration">Последователност: %1$d мин %2$d сек (авто време)</string>
+    <string name="block_program_train_time">Мин/сек = общо време на тренировката (RPT)</string>
+    <string name="block_program_empty">Добави поне един блок</string>
+    <string name="block_program_repeat">RPT (повтаряй блоковете до края на времето)</string>
 """
 
 

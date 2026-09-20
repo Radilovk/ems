@@ -27,7 +27,23 @@ public class AlertDialog extends Dialog {
             return this;
         }
 
+        public Builder setTitle(CharSequence title) {
+            return this;
+        }
+
+        public Builder setPositiveButton(int textId, DialogInterface.OnClickListener listener) {
+            return this;
+        }
+
+        public Builder setNegativeButton(int textId, DialogInterface.OnClickListener listener) {
+            return this;
+        }
+
         public AlertDialog create() {
+            return null;
+        }
+
+        public AlertDialog show() {
             return null;
         }
     }

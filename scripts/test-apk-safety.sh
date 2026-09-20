@@ -51,28 +51,6 @@ check_manifest_diff() {
     echo "OK: AndroidManifest.xml — only RECORD_AUDIO permission added"
     return 0
   fi
-  if diff -q "${base}" "${beta}" >/dev/null 2>&1; then
-    echo "OK: AndroidManifest.xml unchanged"
-    return 0
-  fi
-  local allowed=1
-  while IFS= read -r line; do
-    case "${line}" in
-      +*RECORD_AUDIO*|+*debuggable=\"false\"*|+*allowBackup=\"false\"*|\
-      -*debuggable=\"true\"*| -*allowBackup=\"true\"*|\
-      -*MOUNT_UNMOUNT*| -*WRITE_SETTINGS*| -*WRITE_EXTERNAL_STORAGE*)
-        ;;
-      -*cleartextTrafficPermitted=\"true\"*|+*cleartextTrafficPermitted=\"false\"*)
-        ;;
-      *)
-        allowed=0
-        ;;
-    esac
-  done <<< "${changes}"
-  if [[ "${allowed}" -eq 1 && -n "${changes}" ]]; then
-    echo "OK: AndroidManifest.xml — security hardening / RECORD_AUDIO only"
-    return 0
-  fi
   echo "FAIL: AndroidManifest.xml unexpected changes:" >&2
   echo "${changes}" >&2
   return 1

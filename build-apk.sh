@@ -40,7 +40,6 @@ python3 "${ROOT}/scripts/apply-branding.py"
 python3 "${ROOT}/scripts/apply-muscle-icons.py"
 python3 "${ROOT}/scripts/apply-languages.py"
 python3 "${ROOT}/scripts/apply-ui-theme.py"
-python3 "${ROOT}/scripts/apply-security-hardening.py"
 python3 "${ROOT}/scripts/apply-dark-polish.py"
 python3 "${ROOT}/scripts/apply-list-theme.py"
 python3 "${ROOT}/scripts/apply-tab-theme.py"
@@ -78,9 +77,8 @@ python3 "${ROOT}/scripts/apply-theme-toggle.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 python3 "${ROOT}/scripts/apply-guide-tab.py"
 python3 "${ROOT}/scripts/apply-bt-latency.py"
-bash "${ROOT}/scripts/compile-music-sync-java.sh"
-python3 "${ROOT}/scripts/apply-silent-permissions.py"
 if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
+  bash "${ROOT}/scripts/compile-music-sync-java.sh"
   python3 "${ROOT}/scripts/apply-beta-features.py"
   python3 "${ROOT}/scripts/apply-music-sync-pulse.py"
   python3 "${ROOT}/scripts/apply-music-sync-slider.py"
@@ -101,29 +99,8 @@ else
 fi
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
-
-RELEASE_KEYSTORE="${ROOT}/branding/release.keystore"
-RELEASE_KS_PASS="${RELEASE_KS_PASS:-xems27release}"
-RELEASE_KEY_ALIAS="${RELEASE_KEY_ALIAS:-xems}"
-if [[ ! -f "${RELEASE_KEYSTORE}" ]]; then
-  echo "Creating release keystore at branding/release.keystore ..."
-  keytool -genkeypair -v \
-    -keystore "${RELEASE_KEYSTORE}" \
-    -alias "${RELEASE_KEY_ALIAS}" \
-    -keyalg RSA -keysize 2048 -validity 10000 \
-    -storepass "${RELEASE_KS_PASS}" -keypass "${RELEASE_KS_PASS}" \
-    -dname "CN=XEMS Pro, OU=Mobile, O=Isaigu, C=BG"
-fi
-
-java -jar "${TOOLS}/uber-apk-signer.jar" \
-  --apks "${ROOT}/build/unsigned.apk" \
-  -o "${ROOT}/build/signed" \
-  --allowResign \
-  --ks "${RELEASE_KEYSTORE}" \
-  --ksAlias "${RELEASE_KEY_ALIAS}" \
-  --ksPass "${RELEASE_KS_PASS}" \
-  --ksKeyPass "${RELEASE_KS_PASS}"
-SIGNED_APK="${ROOT}/build/signed/unsigned-aligned-signed.apk"
+java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign
+SIGNED_APK="${ROOT}/build/signed/unsigned-aligned-debugSigned.apk"
 if [[ ! -f "${SIGNED_APK}" ]]; then
   SIGNED_APK="$(find "${ROOT}/build/signed" -maxdepth 1 -name '*.apk' ! -name '*.idsig' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
 fi

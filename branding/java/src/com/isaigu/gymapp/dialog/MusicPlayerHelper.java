@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,7 +15,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,24 +42,20 @@ public final class MusicPlayerHelper {
     private static final int ID_PLAYLIST_PANEL = 0x7f09027e;
     private static final int ID_PLAYLIST_LIST = 0x7f09027f;
     private static final int ID_ADD_TRACK = 0x7f090280;
-    private static final int ID_MINIMIZE = 0x7f090281;
     private static final int ID_TRACK_TITLE = 0x7f090282;
     private static final int ID_TIME = 0x7f090283;
     private static final int ID_STATUS = 0x7f090229;
     private static final int ID_LEVEL = 0x7f09022a;
     private static final int ID_SENSITIVITY = 0x7f090228;
     private static final int ID_PLAYLIST_ITEM_TITLE = 0x7f090284;
-    private static final int ID_PLAYLIST_ITEM_UP = 0x7f090286;
-    private static final int ID_PLAYLIST_ITEM_DOWN = 0x7f090287;
+    private static final int ID_PLAYLIST_ITEM_HANDLE = 0x7f090285;
+    private static final int ID_CLOSE = 0x7f090288;
 
     private static final int OVERLAY_SIZE_DP = 192;
-    private static final int OVERLAY_SIDE_BTN_DP = 44;
-    private static final int OVERLAY_SIDE_GAP_DP = 4;
-    private static final int OVERLAY_ROW_WIDTH_DP =
-            OVERLAY_SIZE_DP + OVERLAY_SIDE_BTN_DP + OVERLAY_SIDE_GAP_DP;
     private static final int OVERLAY_PANEL_WIDTH_DP = 260;
     private static final int SEEK_MAX = 1000;
     private static final long PROGRESS_TICK_MS = 200L;
+    private static final long DRAG_LONG_PRESS_MS = 350L;
     private static final float OVERLAY_TAP_SLOP_DP = 10f;
 
     private static android.support.v7.app.AlertDialog overlayDialog;
@@ -74,13 +70,11 @@ public final class MusicPlayerHelper {
     private static TextView statusView;
     private static TextView levelView;
     private static AmountView sensitivityView;
-    private static TextView minimizeBtn;
 
     private static TrainItemManager itemManager;
     private static final ArrayList<MusicPlaylistEntry> playlist = new ArrayList<MusicPlaylistEntry>();
     private static int currentIndex = -1;
-    private static boolean playlistVisible;
-    private static boolean minimized;
+    private static boolean controlsExpanded;
     private static boolean pickingFile;
     private static boolean userSeeking;
     private static boolean overlayVisible;
@@ -90,6 +84,11 @@ public final class MusicPlayerHelper {
     private static float overlayDownRawX;
     private static float overlayDownRawY;
     private static boolean overlayMoved;
+
+    private static int dragFromIndex = -1;
+    private static int dragHighlightIndex = -1;
+    private static Runnable pendingDragStart;
+    private static PlaylistDragListener activeDragListener;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable progressRunnable = new ProgressTickRunnable();
@@ -214,7 +213,7 @@ public final class MusicPlayerHelper {
         }
         if (levelView != null) {
             levelView.setText(appliedStrength + "% / " + ceiling + "%");
-            levelView.setVisibility(minimized ? View.GONE : View.VISIBLE);
+            levelView.setVisibility(controlsExpanded ? View.VISIBLE : View.GONE);
         }
         updatePlayPauseLabel();
         startProgressUpdates();
@@ -316,25 +315,32 @@ public final class MusicPlayerHelper {
         statusView = (TextView) content.findViewById(ID_STATUS);
         levelView = (TextView) content.findViewById(ID_LEVEL);
         sensitivityView = (AmountView) content.findViewById(ID_SENSITIVITY);
-        minimizeBtn = (TextView) content.findViewById(ID_MINIMIZE);
 
         configureSensitivity();
         configureSeekBar();
         bindButton(playPauseBtn, new PlayPauseListener());
-        bindButton(content.findViewById(ID_PLAYLIST_BTN), new PlaylistToggleListener());
+        bindButton(content.findViewById(ID_PLAYLIST_BTN), new ControlsToggleListener());
         bindButton(content.findViewById(ID_ADD_TRACK), new PickListener());
-        bindButton(minimizeBtn, new MinimizeListener());
+        bindButton(content.findViewById(ID_CLOSE), new CloseListener());
 
-        applyMinimizedState();
-        applyPlaylistVisibility();
+        applyExpandedState();
         rebuildPlaylistViews(activity);
         refreshTrackTitle();
         refreshSeekFromPlayer();
         showIdle();
 
-        content.setClickable(true);
-        content.setFocusable(false);
-        content.setOnTouchListener(new OverlayDragListener());
+        View dragRoot = null;
+        if (seekBar != null && seekBar.getParent() instanceof View) {
+            View seekParent = (View) seekBar.getParent();
+            if (seekParent.getParent() instanceof View) {
+                dragRoot = (View) seekParent.getParent();
+            }
+        }
+        if (dragRoot != null) {
+            dragRoot.setClickable(true);
+            dragRoot.setFocusable(false);
+            dragRoot.setOnTouchListener(new OverlayDragListener());
+        }
 
         int rowHeightPx = dp(activity, OVERLAY_SIZE_DP);
         int overlayWidthPx = dp(activity, OVERLAY_PANEL_WIDTH_DP);
@@ -359,17 +365,8 @@ public final class MusicPlayerHelper {
             }
             window.setBackgroundDrawableResource(android.R.color.transparent);
             window.setGravity(Gravity.TOP | Gravity.START);
-            content.measure(
-                    View.MeasureSpec.makeMeasureSpec(overlayWidthPx, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            int overlayHeightPx = content.getMeasuredHeight();
-            if (overlayHeightPx < rowHeightPx) {
-                overlayHeightPx = rowHeightPx;
-            }
-            window.setLayout(overlayWidthPx, overlayHeightPx);
+            resizeOverlayWindow();
             WindowManager.LayoutParams lp = window.getAttributes();
-            lp.width = overlayWidthPx;
-            lp.height = overlayHeightPx;
             lp.x = dp(activity, 20);
             lp.y = dp(activity, 300);
             lp.dimAmount = 0f;
@@ -415,25 +412,16 @@ public final class MusicPlayerHelper {
         }
     }
 
-    private static void applyMinimizedState() {
+    private static void applyExpandedState() {
+        int visibility = controlsExpanded ? View.VISIBLE : View.GONE;
         if (controlPanel != null) {
-            controlPanel.setVisibility(minimized ? View.GONE : View.VISIBLE);
+            controlPanel.setVisibility(visibility);
         }
-        if (minimizeBtn != null) {
-            minimizeBtn.setText(minimized ? 0x7f0d016c : 0x7f0d016b);
-        }
-        if (playlistPanel != null && minimized) {
-            playlistPanel.setVisibility(View.GONE);
-            playlistVisible = false;
-        }
-        if (levelView != null && minimized) {
-            levelView.setVisibility(View.GONE);
-        }
-    }
-
-    private static void applyPlaylistVisibility() {
         if (playlistPanel != null) {
-            playlistPanel.setVisibility(playlistVisible && !minimized ? View.VISIBLE : View.GONE);
+            playlistPanel.setVisibility(visibility);
+        }
+        if (levelView != null && !controlsExpanded) {
+            levelView.setVisibility(View.GONE);
         }
     }
 
@@ -453,8 +441,7 @@ public final class MusicPlayerHelper {
                 continue;
             }
             TextView title = (TextView) row.findViewById(ID_PLAYLIST_ITEM_TITLE);
-            View upBtn = row.findViewById(ID_PLAYLIST_ITEM_UP);
-            View downBtn = row.findViewById(ID_PLAYLIST_ITEM_DOWN);
+            View handle = row.findViewById(ID_PLAYLIST_ITEM_HANDLE);
             if (title != null) {
                 title.setText(entry.name);
                 if (index == currentIndex) {
@@ -462,16 +449,12 @@ public final class MusicPlayerHelper {
                 }
                 title.setOnClickListener(new PlaylistSelectListener(index));
             }
-            if (upBtn != null) {
-                upBtn.setVisibility(index > 0 ? View.VISIBLE : View.INVISIBLE);
-                upBtn.setOnClickListener(new PlaylistMoveListener(index, -1));
-            }
-            if (downBtn != null) {
-                downBtn.setVisibility(index + 1 < playlist.size() ? View.VISIBLE : View.INVISIBLE);
-                downBtn.setOnClickListener(new PlaylistMoveListener(index, 1));
+            if (handle != null) {
+                handle.setOnTouchListener(new PlaylistDragListener(index));
             }
             playlistList.addView(row);
         }
+        clearDragHighlight();
     }
 
     private static void refreshTrackTitle() {
@@ -572,6 +555,7 @@ public final class MusicPlayerHelper {
         persistPlaylist(activity);
         rebuildPlaylistViews(activity);
         refreshTrackTitle();
+        resizeOverlayWindow();
     }
 
     private static void movePlaylistItem(int from, int to) {
@@ -592,6 +576,56 @@ public final class MusicPlayerHelper {
             persistPlaylist(activity);
             rebuildPlaylistViews(activity);
         }
+    }
+
+    private static int resolveDropIndex(float rawY) {
+        if (playlistList == null || playlistList.getChildCount() == 0) {
+            return dragFromIndex >= 0 ? dragFromIndex : 0;
+        }
+        int childCount = playlistList.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = playlistList.getChildAt(i);
+            int[] loc = new int[2];
+            child.getLocationOnScreen(loc);
+            int mid = loc[1] + child.getHeight() / 2;
+            if (rawY < mid) {
+                return i;
+            }
+        }
+        return childCount - 1;
+    }
+
+    private static void highlightDropTarget(int index) {
+        if (playlistList == null || index == dragHighlightIndex) {
+            return;
+        }
+        clearDragHighlight();
+        dragHighlightIndex = index;
+        if (index >= 0 && index < playlistList.getChildCount()) {
+            playlistList.getChildAt(index).setAlpha(0.65f);
+        }
+        if (dragFromIndex >= 0 && dragFromIndex < playlistList.getChildCount()) {
+            playlistList.getChildAt(dragFromIndex).setAlpha(0.45f);
+        }
+    }
+
+    private static void clearDragHighlight() {
+        if (playlistList == null) {
+            dragHighlightIndex = -1;
+            return;
+        }
+        for (int i = 0; i < playlistList.getChildCount(); i++) {
+            playlistList.getChildAt(i).setAlpha(1f);
+        }
+        dragHighlightIndex = -1;
+    }
+
+    private static void cancelPendingDrag() {
+        if (pendingDragStart != null) {
+            handler.removeCallbacks(pendingDragStart);
+            pendingDragStart = null;
+        }
+        activeDragListener = null;
     }
 
     private static int readSensitivity() {
@@ -626,8 +660,15 @@ public final class MusicPlayerHelper {
         view.setOnClickListener(listener);
     }
 
+    private static void closePlayer() {
+        MusicSync.stop();
+        dismissOverlay(false);
+    }
+
     private static void dismissOverlay(boolean fromDismissListener) {
         stopProgressUpdates();
+        cancelPendingDrag();
+        clearDragHighlight();
         if (overlayDialog != null) {
             try {
                 overlayDialog.dismiss();
@@ -653,7 +694,6 @@ public final class MusicPlayerHelper {
         statusView = null;
         levelView = null;
         sensitivityView = null;
-        minimizeBtn = null;
     }
 
     private static void moveOverlayWindow(int x, int y) {
@@ -676,6 +716,10 @@ public final class MusicPlayerHelper {
                 View.MeasureSpec.makeMeasureSpec(overlayWidthPx, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
         int overlayHeightPx = overlayContent.getMeasuredHeight();
+        int minHeightPx = dp(activity, OVERLAY_SIZE_DP + 56);
+        if (overlayHeightPx < minHeightPx) {
+            overlayHeightPx = minHeightPx;
+        }
         Window window = overlayDialog.getWindow();
         if (window != null) {
             window.setLayout(overlayWidthPx, overlayHeightPx);
@@ -744,29 +788,19 @@ public final class MusicPlayerHelper {
         }
     }
 
-    static final class PlaylistToggleListener implements View.OnClickListener {
+    static final class ControlsToggleListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            if (minimized) {
-                minimized = false;
-                applyMinimizedState();
-            }
-            playlistVisible = !playlistVisible;
-            applyPlaylistVisibility();
+            controlsExpanded = !controlsExpanded;
+            applyExpandedState();
             resizeOverlayWindow();
         }
     }
 
-    static final class MinimizeListener implements View.OnClickListener {
+    static final class CloseListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            minimized = !minimized;
-            if (minimized) {
-                playlistVisible = false;
-            }
-            applyMinimizedState();
-            applyPlaylistVisibility();
-            resizeOverlayWindow();
+            closePlayer();
         }
     }
 
@@ -810,18 +844,88 @@ public final class MusicPlayerHelper {
         }
     }
 
-    static final class PlaylistMoveListener implements View.OnClickListener {
+    static final class PlaylistDragListener implements View.OnTouchListener {
         private final int index;
-        private final int delta;
+        private float downRawY;
+        private boolean dragging;
 
-        PlaylistMoveListener(int index, int delta) {
+        PlaylistDragListener(int index) {
             this.index = index;
-            this.delta = delta;
         }
 
         @Override
-        public void onClick(View view) {
-            movePlaylistItem(index, index + delta);
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    downRawY = event.getRawY();
+                    dragging = false;
+                    dragFromIndex = index;
+                    cancelPendingDrag();
+                    activeDragListener = this;
+                    pendingDragStart = new DragStartRunnable(this, v);
+                    handler.postDelayed(pendingDragStart, DRAG_LONG_PRESS_MS);
+                    if (v.getParent() != null) {
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    if (dragging) {
+                        highlightDropTarget(resolveDropIndex(event.getRawY()));
+                        return true;
+                    }
+                    Activity activity = resolveHostActivity(v);
+                    float slop = activity != null
+                            ? (float) dp(activity, (int) OVERLAY_TAP_SLOP_DP)
+                            : 24f;
+                    if (Math.abs(event.getRawY() - downRawY) > slop) {
+                        cancelPendingDrag();
+                    }
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    cancelPendingDrag();
+                    if (dragging) {
+                        int toIndex = resolveDropIndex(event.getRawY());
+                        clearDragHighlight();
+                        dragging = false;
+                        dragFromIndex = -1;
+                        if (toIndex != index) {
+                            movePlaylistItem(index, toIndex);
+                        }
+                        resizeOverlayWindow();
+                        return true;
+                    }
+                    return false;
+                default:
+                    return false;
+            }
+        }
+
+        void beginDrag(View v) {
+            dragging = true;
+            dragFromIndex = index;
+            try {
+                v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            } catch (Throwable ignored) {
+            }
+            highlightDropTarget(index);
+        }
+    }
+
+    static final class DragStartRunnable implements Runnable {
+        private final PlaylistDragListener listener;
+        private final View handle;
+
+        DragStartRunnable(PlaylistDragListener listener, View handle) {
+            this.listener = listener;
+            this.handle = handle;
+        }
+
+        @Override
+        public void run() {
+            if (activeDragListener == listener) {
+                listener.beginDrag(handle);
+            }
         }
     }
 

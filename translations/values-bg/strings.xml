@@ -356,4 +356,18 @@
     <string name="interval_timer_sound_no_file">Няма избран файл</string>
     <string name="beta_music_player_track_label">Песен</string>
     <string name="beta_music_player_sensitivity_short">Чув.</string>
+<string name="segment_program_title">Сегментна програма</string>
+    <string name="segment_program_hint">Блокове с цикли и различни MA, Hz и импулс</string>
+    <string name="segment_program_edit">Редактирай блокове</string>
+    <string name="segment_program_summary">%1$d блока</string>
+    <string name="segment_program_block">Блок %1$d</string>
+    <string name="segment_program_cycles">Цикли</string>
+    <string name="segment_program_ma">MA</string>
+    <string name="segment_program_hz">Hz</string>
+    <string name="segment_program_width">Ширина (ms)</string>
+    <string name="segment_program_on">ON (сек)</string>
+    <string name="segment_program_off">OFF (сек)</string>
+    <string name="segment_program_add">+ Добави блок</string>
+    <string name="segment_program_remove">Премахни блок</string>
+    <string name="segment_program_done">Готово</string>
 </resources>

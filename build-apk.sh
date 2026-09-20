@@ -77,6 +77,8 @@ python3 "${ROOT}/scripts/apply-theme-toggle.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 python3 "${ROOT}/scripts/apply-guide-tab.py"
 python3 "${ROOT}/scripts/apply-bt-latency.py"
+bash "${ROOT}/scripts/compile-segment-program-java.sh"
+python3 "${ROOT}/scripts/apply-segment-program.py"
 if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   bash "${ROOT}/scripts/compile-music-sync-java.sh"
   python3 "${ROOT}/scripts/apply-beta-features.py"

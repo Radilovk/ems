@@ -23,7 +23,6 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -35,6 +34,7 @@ import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
+import com.isaigu.gymapp.widget.AmountView;
 import com.isaigu.gymapp.widget.TimerRingView;
 
 /**
@@ -77,10 +77,6 @@ public final class IntervalTimerHelper {
     private static final int ID_PRESET_SAVE = 0x7f090268;
     private static final int ID_PRESET_EDIT = 0x7f090269;
     private static final int ID_PRESET_DELETE = 0x7f09026a;
-    private static final int ID_DURATION_SLIDER = 0x7f09026b;
-    private static final int ID_DURATION_VALUE = 0x7f09026c;
-    private static final int ID_LOOPS_SLIDER = 0x7f09026d;
-    private static final int ID_LOOPS_VALUE = 0x7f09026e;
     private static final int ID_TAB_INTERVAL = 0x7f090270;
     private static final int ID_TAB_BLOCK = 0x7f090271;
     private static final int ID_ADVANCED_PANEL = 0x7f090272;
@@ -124,10 +120,7 @@ public final class IntervalTimerHelper {
 
     private static final int DURATION_MIN_SEC = 5;
     private static final int DURATION_MAX_SEC = 600;
-    private static final int DURATION_STEP_SEC = 5;
-    private static final int DURATION_SLIDER_MAX =
-            (DURATION_MAX_SEC - DURATION_MIN_SEC) / DURATION_STEP_SEC;
-    private static final int LOOPS_SLIDER_MAX = 30;
+    private static final int LOOPS_MAX = 30;
 
     private static final String KEY_BLOCK_MODE = "block_program_mode";
     private static final String KEY_BLOCK_REPEAT = "block_program_repeat";
@@ -169,11 +162,10 @@ public final class IntervalTimerHelper {
     private static android.support.v7.app.AlertDialog overlayDialog;
     private static View configContent;
     private static View overlayContent;
-    private static SeekBar durationSlider;
-    private static SeekBar loopsSlider;
-    private static TextView durationValueView;
+    private static AmountView minutesView;
+    private static AmountView secondsView;
+    private static AmountView loopsView;
     private static TextView durationLabelView;
-    private static TextView loopsValueView;
     private static View durationRow;
     private static View tabIntervalBtn;
     private static View tabBlockBtn;
@@ -233,8 +225,7 @@ public final class IntervalTimerHelper {
     private static TextView blockDurationView;
     private static Switch blockRepeatSwitch;
     private static Spinner presetSpinner;
-    private static boolean ignoreDurationSlider;
-    private static boolean ignoreLoopsSlider;
+    private static boolean ignoreAmountCallback;
     private static boolean advancedExpanded;
 
     private IntervalTimerHelper() {
@@ -257,8 +248,7 @@ public final class IntervalTimerHelper {
         blockProgramMode = preset.blockMode;
         blockProgramRepeat = preset.blockRepeat;
         blockSegments = preset.blocks != null ? new ArrayList<>(preset.blocks) : new ArrayList<>();
-        syncDurationSliderFromValues();
-        syncLoopsSliderFromValues();
+        syncAmountViewsFromValues();
         if (blockRepeatSwitch != null) {
             blockRepeatSwitch.setChecked(blockProgramRepeat);
         }
@@ -686,24 +676,18 @@ public final class IntervalTimerHelper {
         soundClearBtn = content.findViewById(ID_SOUND_CLEAR);
         durationRow = content.findViewById(ID_DURATION_ROW);
         durationLabelView = (TextView) content.findViewById(ID_DURATION_LABEL);
-        durationValueView = (TextView) content.findViewById(ID_DURATION_VALUE);
-        durationSlider = (SeekBar) content.findViewById(ID_DURATION_SLIDER);
-        loopsSlider = (SeekBar) content.findViewById(ID_LOOPS_SLIDER);
-        loopsValueView = (TextView) content.findViewById(ID_LOOPS_VALUE);
+        minutesView = (AmountView) content.findViewById(ID_MINUTES);
+        secondsView = (AmountView) content.findViewById(ID_SECONDS);
+        loopsView = (AmountView) content.findViewById(ID_LOOPS);
         tabIntervalBtn = content.findViewById(ID_TAB_INTERVAL);
         tabBlockBtn = content.findViewById(ID_TAB_BLOCK);
         advancedPanel = content.findViewById(ID_ADVANCED_PANEL);
         advancedToggle = content.findViewById(ID_ADVANCED_TOGGLE);
-        if (durationSlider != null) {
-            durationSlider.setMax(DURATION_SLIDER_MAX);
-            durationSlider.setOnSeekBarChangeListener(new DurationSliderListener());
-        }
-        if (loopsSlider != null) {
-            loopsSlider.setMax(LOOPS_SLIDER_MAX);
-            loopsSlider.setOnSeekBarChangeListener(new LoopsSliderListener());
-        }
-        syncDurationSliderFromValues();
-        syncLoopsSliderFromValues();
+        configureDurationPicker(minutesView, 0, DURATION_MAX_SEC / 60, 1, savedMinutes);
+        configureDurationPicker(secondsView, 0, 59, 1, savedSeconds);
+        configureDurationPicker(loopsView, 0, LOOPS_MAX, 1, maxLoops);
+        attachAmountListeners();
+        syncAmountViewsFromValues();
         bindButton(tabIntervalBtn, new TabIntervalListener());
         bindButton(tabBlockBtn, new TabBlockListener());
         bindButton(advancedToggle, new AdvancedToggleListener());
@@ -906,11 +890,10 @@ public final class IntervalTimerHelper {
     }
 
     private static void clearConfigRefs() {
-        durationSlider = null;
-        loopsSlider = null;
-        durationValueView = null;
+        minutesView = null;
+        secondsView = null;
+        loopsView = null;
         durationLabelView = null;
-        loopsValueView = null;
         durationRow = null;
         tabIntervalBtn = null;
         tabBlockBtn = null;
@@ -1176,7 +1159,7 @@ public final class IntervalTimerHelper {
         refreshBlockSummary();
     }
 
-    private static void syncDurationSliderFromValues() {
+    private static void syncAmountViewsFromValues() {
         int totalSec = savedMinutes * 60 + savedSeconds;
         if (totalSec < DURATION_MIN_SEC) {
             totalSec = DURATION_MIN_SEC;
@@ -1184,59 +1167,45 @@ public final class IntervalTimerHelper {
         if (totalSec > DURATION_MAX_SEC) {
             totalSec = DURATION_MAX_SEC;
         }
-        if (durationSlider != null) {
-            ignoreDurationSlider = true;
-            durationSlider.setProgress((totalSec - DURATION_MIN_SEC) / DURATION_STEP_SEC);
-            ignoreDurationSlider = false;
-        }
-        refreshDurationDisplay(totalSec);
-    }
-
-    private static void syncLoopsSliderFromValues() {
+        savedMinutes = totalSec / 60;
+        savedSeconds = totalSec % 60;
+        ignoreAmountCallback = true;
+        setAmountQuiet(minutesView, savedMinutes);
+        setAmountQuiet(secondsView, savedSeconds);
         int loops = maxLoops;
         if (loops < 0) {
             loops = 0;
         }
-        if (loops > LOOPS_SLIDER_MAX) {
-            loops = LOOPS_SLIDER_MAX;
+        if (loops > LOOPS_MAX) {
+            loops = LOOPS_MAX;
         }
-        if (loopsSlider != null) {
-            ignoreLoopsSlider = true;
-            loopsSlider.setProgress(loops);
-            ignoreLoopsSlider = false;
-        }
-        refreshLoopsDisplay(maxLoops);
+        setAmountQuiet(loopsView, loops);
+        ignoreAmountCallback = false;
     }
 
-    private static void refreshDurationDisplay(int totalSec) {
-        savedMinutes = totalSec / 60;
-        savedSeconds = totalSec % 60;
-        if (durationValueView != null) {
-            durationValueView.setText(formatSeconds(totalSec));
-        }
-    }
-
-    private static void refreshLoopsDisplay(int loops) {
-        if (loopsValueView == null) {
+    private static void setAmountQuiet(AmountView view, int value) {
+        if (view == null) {
             return;
         }
-        if (loops <= 0) {
-            Activity activity = resolveActivity(null);
-            if (activity != null) {
-                loopsValueView.setText(activity.getString(STR_REPEATS_UNLIMITED));
-            } else {
-                loopsValueView.setText("∞");
-            }
-        } else {
-            loopsValueView.setText(String.valueOf(loops));
+        try {
+            view.setAmount(value);
+        } catch (Throwable ignored) {
         }
     }
 
     private static int readDurationTotalSec() {
-        if (durationSlider != null) {
-            return DURATION_MIN_SEC + durationSlider.getProgress() * DURATION_STEP_SEC;
+        int minutes = readAmount(minutesView, 0, DURATION_MAX_SEC / 60);
+        int seconds = readAmount(secondsView, 0, 59);
+        int totalSec = minutes * 60 + seconds;
+        if (totalSec < DURATION_MIN_SEC) {
+            totalSec = DURATION_MIN_SEC;
         }
-        return savedMinutes * 60 + savedSeconds;
+        if (totalSec > DURATION_MAX_SEC) {
+            totalSec = DURATION_MAX_SEC;
+        }
+        savedMinutes = totalSec / 60;
+        savedSeconds = totalSec % 60;
+        return totalSec;
     }
 
     private static void refreshAdvancedToggleLabel(Activity activity) {
@@ -1546,10 +1515,54 @@ public final class IntervalTimerHelper {
     }
 
     private static int readLoopsInput() {
-        if (loopsSlider != null) {
-            return loopsSlider.getProgress();
+        return readAmount(loopsView, 0, LOOPS_MAX);
+    }
+
+    private static int readAmount(AmountView view, int min, int max) {
+        if (view == null) {
+            return min;
         }
-        return maxLoops;
+        try {
+            int value = view.getAmount();
+            if (value < min) {
+                return min;
+            }
+            if (value > max) {
+                return max;
+            }
+            return value;
+        } catch (Throwable ignored) {
+            return min;
+        }
+    }
+
+    private static void configureDurationPicker(
+            AmountView view, int min, int max, int step, int defaultValue) {
+        if (view == null) {
+            return;
+        }
+        try {
+            view.setMin(min);
+            view.setGoods_storage(max);
+            view.setStep(step);
+            view.setAmountUnit("");
+            view.setAmount(defaultValue);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void attachAmountListeners() {
+        AmountView.OnAmountChangeListener durationListener = new DurationAmountListener();
+        AmountView.OnAmountChangeListener loopsListener = new LoopsAmountListener();
+        if (minutesView != null) {
+            minutesView.setOnAmountChangeListener(durationListener);
+        }
+        if (secondsView != null) {
+            secondsView.setOnAmountChangeListener(durationListener);
+        }
+        if (loopsView != null) {
+            loopsView.setOnAmountChangeListener(loopsListener);
+        }
     }
 
     private static void bindButton(View view, View.OnClickListener listener) {
@@ -1594,40 +1607,23 @@ public final class IntervalTimerHelper {
         }
     }
 
-    static final class DurationSliderListener implements SeekBar.OnSeekBarChangeListener {
+    static final class DurationAmountListener implements AmountView.OnAmountChangeListener {
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (ignoreDurationSlider) {
+        public void onAmountChange(View view, int amount) {
+            if (ignoreAmountCallback) {
                 return;
             }
-            refreshDurationDisplay(DURATION_MIN_SEC + progress * DURATION_STEP_SEC);
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
+            readDurationTotalSec();
         }
     }
 
-    static final class LoopsSliderListener implements SeekBar.OnSeekBarChangeListener {
+    static final class LoopsAmountListener implements AmountView.OnAmountChangeListener {
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (ignoreLoopsSlider) {
+        public void onAmountChange(View view, int amount) {
+            if (ignoreAmountCallback) {
                 return;
             }
-            maxLoops = progress;
-            refreshLoopsDisplay(progress);
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
+            maxLoops = readAmount(loopsView, 0, LOOPS_MAX);
         }
     }
 

@@ -9,8 +9,6 @@
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$MasterToggleListener;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TriggerStopRunnable;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$FinishArmRunnable;,
-        Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$DurationSliderListener;,
-        Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsSliderListener;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TabIntervalListener;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TabBlockListener;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$AdvancedToggleListener;,
@@ -28,6 +26,8 @@
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ReleaseToneRunnable;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$SignalCompletionListener;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$SignalErrorListener;,
+        Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$DurationAmountListener;,
+        Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsAmountListener;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TickRunnable;,
         Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockEditDoneRunnable;
     }
@@ -52,10 +52,6 @@
 .field private static final DURATION_MAX_SEC:I = 0x258
 
 .field private static final DURATION_MIN_SEC:I = 0x5
-
-.field private static final DURATION_SLIDER_MAX:I = 0x77
-
-.field private static final DURATION_STEP_SEC:I = 0x5
 
 .field private static final ID_ACTIVATE:I = 0x7f090236
 
@@ -83,19 +79,11 @@
 
 .field private static final ID_DURATION_ROW:I = 0x7f090276
 
-.field private static final ID_DURATION_SLIDER:I = 0x7f09026b
-
-.field private static final ID_DURATION_VALUE:I = 0x7f09026c
-
 .field private static final ID_LOOPS:I = 0x7f090233
 
 .field private static final ID_LOOPS_MINUS:I = 0x7f090234
 
 .field private static final ID_LOOPS_PLUS:I = 0x7f090235
-
-.field private static final ID_LOOPS_SLIDER:I = 0x7f09026d
-
-.field private static final ID_LOOPS_VALUE:I = 0x7f09026e
 
 .field private static final ID_LOOP_LABEL:I = 0x7f09023a
 
@@ -149,7 +137,7 @@
 
 .field private static final KEY_SOUND:Ljava/lang/String; = "sound"
 
-.field private static final LOOPS_SLIDER_MAX:I = 0x1e
+.field private static final LOOPS_MAX:I = 0x1e
 
 .field private static final OPAQUE_DIALOG_BG:I = 0x7f080069
 
@@ -303,17 +291,11 @@
 
 .field private static durationRow:Landroid/view/View;
 
-.field private static durationSlider:Landroid/widget/SeekBar;
-
-.field private static durationValueView:Landroid/widget/TextView;
-
 .field private static final handler:Landroid/os/Handler;
 
 .field private static hostActivity:Landroid/app/Activity;
 
-.field private static ignoreDurationSlider:Z
-
-.field private static ignoreLoopsSlider:Z
+.field private static ignoreAmountCallback:Z
 
 .field private static ignoreSpinnerCallback:Z
 
@@ -327,11 +309,11 @@
 
 .field private static loopLabelView:Landroid/widget/TextView;
 
-.field private static loopsSlider:Landroid/widget/SeekBar;
-
-.field private static loopsValueView:Landroid/widget/TextView;
+.field private static loopsView:Lcom/isaigu/gymapp/widget/AmountView;
 
 .field private static maxLoops:I
+
+.field private static minutesView:Lcom/isaigu/gymapp/widget/AmountView;
 
 .field private static overlayContent:Landroid/view/View;
 
@@ -362,6 +344,8 @@
 .field private static savedMinutes:I
 
 .field private static savedSeconds:I
+
+.field private static secondsView:Lcom/isaigu/gymapp/widget/AmountView;
 
 .field private static selectedSound:I
 
@@ -396,7 +380,7 @@
 .method static constructor <clinit>()V
     .registers 2
 
-    .line 197
+    .line 189
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -407,37 +391,37 @@
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
-    .line 198
+    .line 190
     new-instance v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TickRunnable;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TickRunnable;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
 
-    .line 207
+    .line 199
     const/4 v0, 0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 208
+    .line 200
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
-    .line 212
+    .line 204
     const-wide/16 v0, 0x7530
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
-    .line 215
+    .line 207
     const/16 v0, 0x1e
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 219
+    .line 211
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 229
+    .line 221
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -450,10 +434,10 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 240
+    .line 231
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 241
+    .line 232
     return-void
 .end method
 
@@ -470,7 +454,7 @@
     .registers 1
 
     .line 44
-    sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreDurationSlider:Z
+    sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreAmountCallback:Z
 
     return v0
 .end method
@@ -574,13 +558,15 @@
     return p0
 .end method
 
-.method static synthetic access$200(I)V
+.method static synthetic access$200()I
     .registers 1
 
     .line 44
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshDurationDisplay(I)V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readDurationTotalSec()I
 
-    return-void
+    move-result v0
+
+    return v0
 .end method
 
 .method static synthetic access$2000()I
@@ -684,15 +670,6 @@
     return-object p0
 .end method
 
-.method static synthetic access$300()Z
-    .registers 1
-
-    .line 44
-    sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreLoopsSlider:Z
-
-    return v0
-.end method
-
 .method static synthetic access$3002(Landroid/view/View;)Landroid/view/View;
     .registers 1
 
@@ -700,6 +677,15 @@
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configContent:Landroid/view/View;
 
     return-object p0
+.end method
+
+.method static synthetic access$302(I)I
+    .registers 1
+
+    .line 44
+    sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
+
+    return p0
 .end method
 
 .method static synthetic access$3100()V
@@ -832,6 +818,15 @@
     return p0
 .end method
 
+.method static synthetic access$400()Lcom/isaigu/gymapp/widget/AmountView;
+    .registers 1
+
+    .line 44
+    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsView:Lcom/isaigu/gymapp/widget/AmountView;
+
+    return-object v0
+.end method
+
 .method static synthetic access$4000(II)V
     .registers 2
 
@@ -839,15 +834,6 @@
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->moveOverlayWindow(II)V
 
     return-void
-.end method
-
-.method static synthetic access$402(I)I
-    .registers 1
-
-    .line 44
-    sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
-
-    return p0
 .end method
 
 .method static synthetic access$4100()V
@@ -940,13 +926,15 @@
     return-wide p0
 .end method
 
-.method static synthetic access$500(I)V
-    .registers 1
+.method static synthetic access$500(Lcom/isaigu/gymapp/widget/AmountView;II)I
+    .registers 3
 
     .line 44
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshLoopsDisplay(I)V
+    invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readAmount(Lcom/isaigu/gymapp/widget/AmountView;II)I
 
-    return-void
+    move-result p0
+
+    return p0
 .end method
 
 .method static synthetic access$5000()Z
@@ -1064,7 +1052,7 @@
 .method private static applyOpaqueWindow(Landroid/support/v7/app/AlertDialog;)V
     .registers 2
 
-    .line 950
+    .line 933
     if-eqz p0, :cond_16
 
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
@@ -1075,7 +1063,7 @@
 
     goto :goto_16
 
-    .line 954
+    .line 937
     :cond_9
     :try_start_9
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
@@ -1088,18 +1076,18 @@
     :try_end_13
     .catchall {:try_start_9 .. :try_end_13} :catchall_14
 
-    .line 956
+    .line 939
     goto :goto_15
 
-    .line 955
+    .line 938
     :catchall_14
     move-exception p0
 
-    .line 957
+    .line 940
     :goto_15
     return-void
 
-    .line 951
+    .line 934
     :cond_16
     :goto_16
     return-void
@@ -1108,47 +1096,47 @@
 .method static applyPreset(Lcom/isaigu/gymapp/dialog/TimerPreset;)V
     .registers 3
 
-    .line 244
+    .line 235
     if-nez p0, :cond_3
 
-    .line 245
+    .line 236
     return-void
 
-    .line 247
+    .line 238
     :cond_3
     iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
-    .line 248
+    .line 239
     iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 249
+    .line 240
     iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
-    .line 250
+    .line 241
     iget v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 251
+    .line 242
     if-ltz v0, :cond_19
 
     const/16 v1, 0x8
 
     if-le v0, v1, :cond_1c
 
-    .line 252
+    .line 243
     :cond_19
     const/4 v0, 0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 254
+    .line 245
     :cond_1c
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
 
@@ -1162,7 +1150,7 @@
 
     if-lez v0, :cond_2f
 
-    .line 255
+    .line 246
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
 
     invoke-static {v0}, Landroid/net/Uri;->parse(Ljava/lang/String;)Landroid/net/Uri;
@@ -1171,24 +1159,24 @@
 
     goto :goto_30
 
-    .line 256
+    .line 247
     :cond_2f
     const/4 v0, 0x0
 
     :goto_30
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
-    .line 257
+    .line 248
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
 
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
-    .line 258
+    .line 249
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockRepeat:Z
 
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
-    .line 259
+    .line 250
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
 
     if-eqz v0, :cond_46
@@ -1209,74 +1197,71 @@
     :goto_4b
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
 
-    .line 260
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncDurationSliderFromValues()V
+    .line 251
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncAmountViewsFromValues()V
 
-    .line 261
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncLoopsSliderFromValues()V
-
-    .line 262
+    .line 252
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockRepeatSwitch:Landroid/widget/Switch;
 
-    if-eqz p0, :cond_5c
+    if-eqz p0, :cond_59
 
-    .line 263
+    .line 253
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
     invoke-virtual {p0, v0}, Landroid/widget/Switch;->setChecked(Z)V
 
-    .line 265
-    :cond_5c
+    .line 255
+    :cond_59
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateModePanels()V
 
-    .line 266
+    .line 256
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockSummary()V
 
-    .line 267
+    .line 257
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 268
+    .line 258
     return-void
 .end method
 
 .method private static armFromConfig()V
     .registers 14
 
-    .line 478
+    .line 468
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hasLoadedTraining()Z
 
     move-result v0
 
     if-nez v0, :cond_d
 
-    .line 479
+    .line 469
     const v0, 0x7f0d011a
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 480
+    .line 470
     return-void
 
-    .line 482
+    .line 472
     :cond_d
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readDurationTotalSec()I
 
     move-result v0
 
-    .line 483
+    .line 473
     div-int/lit8 v1, v0, 0x3c
 
-    .line 484
+    .line 474
     rem-int/lit8 v0, v0, 0x3c
 
-    .line 485
+    .line 475
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readSoundSelection()I
 
     move-result v2
 
     sput v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 486
+    .line 476
     const/16 v3, 0x8
 
     const/4 v4, 0x7
@@ -1290,7 +1275,7 @@
 
     if-nez v2, :cond_35
 
-    .line 488
+    .line 478
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     if-ne v0, v4, :cond_2e
@@ -1305,10 +1290,10 @@
     :goto_31
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 489
+    .line 479
     return-void
 
-    .line 491
+    .line 481
     :cond_35
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockRepeatSwitch:Landroid/widget/Switch;
 
@@ -1334,7 +1319,7 @@
     :goto_44
     sput-boolean v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
-    .line 492
+    .line 482
     sget-boolean v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     const v5, 0x7f0d0127
@@ -1347,7 +1332,7 @@
 
     if-eqz v2, :cond_bc
 
-    .line 493
+    .line 483
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
 
     if-eqz v2, :cond_b5
@@ -1360,37 +1345,37 @@
 
     goto :goto_b5
 
-    .line 497
+    .line 487
     :cond_5c
     mul-int/lit8 v2, v1, 0x3c
 
     add-int/2addr v2, v0
 
-    .line 498
+    .line 488
     sget-boolean v10, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
     if-eqz v10, :cond_69
 
     if-gtz v2, :cond_69
 
-    .line 499
+    .line 489
     invoke-static {v5}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 500
+    .line 490
     return-void
 
-    .line 502
+    .line 492
     :cond_69
     sget-boolean v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
     if-nez v5, :cond_7b
 
-    .line 503
+    .line 493
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveOnOffFromSeed()[I
 
     move-result-object v2
 
-    .line 504
+    .line 494
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
 
     aget v10, v2, v4
@@ -1401,7 +1386,7 @@
 
     move-result v2
 
-    .line 507
+    .line 497
     :cond_7b
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
@@ -1415,50 +1400,50 @@
 
     invoke-static {v5, v10, v11, v12}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->arm(Lcom/isaigu/gymapp/train/TrainItemManager;Ljava/util/ArrayList;ZI)V
 
-    .line 508
+    .line 498
     int-to-long v10, v2
 
     mul-long v10, v10, v8
 
     sput-wide v10, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
-    .line 509
+    .line 499
     sput v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
-    .line 510
+    .line 500
     invoke-static {v7}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v2
 
     invoke-static {v2, v1, v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->saveSettings(Landroid/app/Activity;II)V
 
-    .line 511
+    .line 501
     sput v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
-    .line 512
+    .line 502
     sget-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
-    .line 513
+    .line 503
     sput v6, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 514
+    .line 504
     sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
-    .line 515
+    .line 505
     sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayVisible:Z
 
-    .line 516
+    .line 506
     sput-boolean v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
-    .line 517
+    .line 507
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshStatusText()V
 
-    .line 518
+    .line 508
     invoke-static {v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dismissConfigDialog(Z)V
 
-    .line 519
+    .line 509
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$FinishArmRunnable;
@@ -1467,32 +1452,32 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 520
+    .line 510
     return-void
 
-    .line 494
+    .line 484
     :cond_b5
     :goto_b5
     const v0, 0x7f0d0150
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 495
+    .line 485
     return-void
 
-    .line 522
+    .line 512
     :cond_bc
     if-nez v1, :cond_c4
 
     if-nez v0, :cond_c4
 
-    .line 523
+    .line 513
     invoke-static {v5}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 524
+    .line 514
     return-void
 
-    .line 526
+    .line 516
     :cond_c4
     int-to-long v10, v1
 
@@ -1508,47 +1493,47 @@
 
     sput-wide v10, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
-    .line 527
+    .line 517
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readLoopsInput()I
 
     move-result v2
 
     sput v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
-    .line 528
+    .line 518
     invoke-static {v7}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v2
 
     invoke-static {v2, v1, v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->saveSettings(Landroid/app/Activity;II)V
 
-    .line 529
+    .line 519
     sput v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
-    .line 530
+    .line 520
     sget-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
-    .line 531
+    .line 521
     sput v6, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 532
+    .line 522
     sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
-    .line 533
+    .line 523
     sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayVisible:Z
 
-    .line 534
+    .line 524
     sput-boolean v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
-    .line 535
+    .line 525
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshStatusText()V
 
-    .line 536
+    .line 526
     invoke-static {v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dismissConfigDialog(Z)V
 
-    .line 537
+    .line 527
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$FinishArmRunnable;
@@ -1557,28 +1542,72 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 538
+    .line 528
+    return-void
+.end method
+
+.method private static attachAmountListeners()V
+    .registers 3
+
+    .line 1555
+    new-instance v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$DurationAmountListener;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$DurationAmountListener;-><init>()V
+
+    .line 1556
+    new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsAmountListener;
+
+    invoke-direct {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsAmountListener;-><init>()V
+
+    .line 1557
+    sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->minutesView:Lcom/isaigu/gymapp/widget/AmountView;
+
+    if-eqz v2, :cond_11
+
+    .line 1558
+    invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setOnAmountChangeListener(Lcom/isaigu/gymapp/widget/AmountView$OnAmountChangeListener;)V
+
+    .line 1560
+    :cond_11
+    sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->secondsView:Lcom/isaigu/gymapp/widget/AmountView;
+
+    if-eqz v2, :cond_18
+
+    .line 1561
+    invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/widget/AmountView;->setOnAmountChangeListener(Lcom/isaigu/gymapp/widget/AmountView$OnAmountChangeListener;)V
+
+    .line 1563
+    :cond_18
+    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsView:Lcom/isaigu/gymapp/widget/AmountView;
+
+    if-eqz v0, :cond_1f
+
+    .line 1564
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/AmountView;->setOnAmountChangeListener(Lcom/isaigu/gymapp/widget/AmountView$OnAmountChangeListener;)V
+
+    .line 1566
+    :cond_1f
     return-void
 .end method
 
 .method public static attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
     .registers 2
 
-    .line 287
+    .line 277
     if-eqz p0, :cond_2f
 
     if-nez p1, :cond_5
 
     goto :goto_2f
 
-    .line 290
+    .line 280
     :cond_5
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->panelRoot:Landroid/view/View;
 
-    .line 291
+    .line 281
     sput-object p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 292
+    .line 282
     const p1, 0x7f09003c
 
     invoke-virtual {p0, p1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -1587,42 +1616,42 @@
 
     sput-object p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->allStopButton:Landroid/view/View;
 
-    .line 293
+    .line 283
     const p1, 0x7f090230
 
     invoke-virtual {p0, p1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object p0
 
-    .line 294
+    .line 284
     if-nez p0, :cond_1c
 
-    .line 295
+    .line 285
     return-void
 
-    .line 297
+    .line 287
     :cond_1c
     const/4 p1, 0x1
 
     invoke-virtual {p0, p1}, Landroid/view/View;->setClickable(Z)V
 
-    .line 298
+    .line 288
     invoke-virtual {p0, p1}, Landroid/view/View;->setEnabled(Z)V
 
-    .line 299
+    .line 289
     invoke-virtual {p0, p1}, Landroid/view/View;->setFocusable(Z)V
 
-    .line 300
+    .line 290
     new-instance p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$MasterToggleListener;
 
     invoke-direct {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$MasterToggleListener;-><init>()V
 
     invoke-virtual {p0, p1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 301
+    .line 291
     return-void
 
-    .line 288
+    .line 278
     :cond_2f
     :goto_2f
     return-void
@@ -1631,32 +1660,32 @@
 .method private static bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
     .registers 3
 
-    .line 1556
+    .line 1569
     if-nez p0, :cond_3
 
-    .line 1557
+    .line 1570
     return-void
 
-    .line 1559
+    .line 1572
     :cond_3
     const/4 v0, 0x1
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setClickable(Z)V
 
-    .line 1560
+    .line 1573
     invoke-virtual {p0, v0}, Landroid/view/View;->setFocusable(Z)V
 
-    .line 1561
+    .line 1574
     invoke-virtual {p0, p1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1562
+    .line 1575
     return-void
 .end method
 
 .method private static capConfigDialogScroll(Landroid/app/Activity;Landroid/view/View;)I
     .registers 7
 
-    .line 623
+    .line 613
     const/4 v0, 0x0
 
     if-eqz p0, :cond_8e
@@ -1665,23 +1694,23 @@
 
     goto/16 :goto_8e
 
-    .line 626
+    .line 616
     :cond_7
     const/4 v1, 0x0
 
-    .line 627
+    .line 617
     instance-of v2, p1, Landroid/widget/ScrollView;
 
     if-eqz v2, :cond_10
 
-    .line 628
+    .line 618
     move-object v1, p1
 
     check-cast v1, Landroid/widget/ScrollView;
 
     goto :goto_1e
 
-    .line 630
+    .line 620
     :cond_10
     const v2, 0x7f090274
 
@@ -1689,17 +1718,17 @@
 
     move-result-object p1
 
-    .line 631
+    .line 621
     instance-of v2, p1, Landroid/widget/ScrollView;
 
     if-eqz v2, :cond_1e
 
-    .line 632
+    .line 622
     move-object v1, p1
 
     check-cast v1, Landroid/widget/ScrollView;
 
-    .line 635
+    .line 625
     :cond_1e
     :goto_1e
     if-eqz v1, :cond_8d
@@ -1714,20 +1743,20 @@
 
     goto :goto_8d
 
-    .line 638
+    .line 628
     :cond_28
     invoke-virtual {v1, v0}, Landroid/widget/ScrollView;->getChildAt(I)Landroid/view/View;
 
     move-result-object p1
 
-    .line 639
+    .line 629
     const/16 v2, 0x208
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v2
 
-    .line 640
+    .line 630
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v3
@@ -1746,15 +1775,15 @@
 
     float-to-int v3, v3
 
-    .line 641
+    .line 631
     if-lez v3, :cond_48
 
     if-ge v3, v2, :cond_48
 
-    .line 642
+    .line 632
     move v2, v3
 
-    .line 644
+    .line 634
     :cond_48
     const/16 v3, 0x118
 
@@ -1762,27 +1791,27 @@
 
     move-result p0
 
-    .line 645
+    .line 635
     const/high16 v3, 0x40000000    # 2.0f
 
     invoke-static {p0, v3}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v4
 
-    .line 646
+    .line 636
     invoke-static {v0, v0}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v0
 
-    .line 647
+    .line 637
     invoke-virtual {p1, v4, v0}, Landroid/view/View;->measure(II)V
 
-    .line 648
+    .line 638
     invoke-virtual {p1}, Landroid/view/View;->getMeasuredHeight()I
 
     move-result p1
 
-    .line 649
+    .line 639
     if-le p1, v2, :cond_62
 
     goto :goto_63
@@ -1790,50 +1819,50 @@
     :cond_62
     move v2, p1
 
-    .line 650
+    .line 640
     :goto_63
     invoke-virtual {v1}, Landroid/widget/ScrollView;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object p1
 
-    .line 651
+    .line 641
     if-nez p1, :cond_6f
 
-    .line 652
+    .line 642
     new-instance p1, Landroid/view/ViewGroup$LayoutParams;
 
     invoke-direct {p1, p0, v2}, Landroid/view/ViewGroup$LayoutParams;-><init>(II)V
 
     goto :goto_73
 
-    .line 654
+    .line 644
     :cond_6f
     iput p0, p1, Landroid/view/ViewGroup$LayoutParams;->width:I
 
-    .line 655
+    .line 645
     iput v2, p1, Landroid/view/ViewGroup$LayoutParams;->height:I
 
-    .line 657
+    .line 647
     :goto_73
     invoke-virtual {v1, p1}, Landroid/widget/ScrollView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 658
+    .line 648
     nop
 
-    .line 659
+    .line 649
     invoke-static {p0, v3}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result p0
 
-    .line 660
+    .line 650
     invoke-static {v2, v3}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result p1
 
-    .line 658
+    .line 648
     invoke-virtual {v1, p0, p1}, Landroid/widget/ScrollView;->measure(II)V
 
-    .line 661
+    .line 651
     invoke-virtual {v1}, Landroid/widget/ScrollView;->getMeasuredHeight()I
 
     move-result p0
@@ -1847,12 +1876,12 @@
     :cond_8c
     return v2
 
-    .line 636
+    .line 626
     :cond_8d
     :goto_8d
     return v0
 
-    .line 624
+    .line 614
     :cond_8e
     :goto_8e
     return v0
@@ -1861,12 +1890,12 @@
 .method static captureCurrentPreset(Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/TimerPreset;
     .registers 4
 
-    .line 271
+    .line 261
     new-instance v0, Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/dialog/TimerPreset;-><init>()V
 
-    .line 272
+    .line 262
     if-eqz p0, :cond_8
 
     goto :goto_c
@@ -1879,7 +1908,7 @@
     :goto_c
     iput-object p0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
-    .line 273
+    .line 263
     const-string p0, ""
 
     if-eqz p1, :cond_13
@@ -1892,36 +1921,36 @@
     :goto_14
     iput-object p1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
 
-    .line 274
+    .line 264
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readDurationTotalSec()I
 
     move-result p1
 
-    .line 275
+    .line 265
     div-int/lit8 v1, p1, 0x3c
 
     iput v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->minutes:I
 
-    .line 276
+    .line 266
     rem-int/lit8 p1, p1, 0x3c
 
     iput p1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->seconds:I
 
-    .line 277
+    .line 267
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readLoopsInput()I
 
     move-result p1
 
     iput p1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->loops:I
 
-    .line 278
+    .line 268
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readSoundSelection()I
 
     move-result p1
 
     iput p1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->sound:I
 
-    .line 279
+    .line 269
     sget-object p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
     if-eqz p1, :cond_36
@@ -1933,12 +1962,12 @@
     :cond_36
     iput-object p0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->customUri:Ljava/lang/String;
 
-    .line 280
+    .line 270
     sget-boolean p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     iput-boolean p0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockMode:Z
 
-    .line 281
+    .line 271
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockRepeatSwitch:Landroid/widget/Switch;
 
     if-eqz p0, :cond_48
@@ -1959,7 +1988,7 @@
     :goto_49
     iput-boolean p0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blockRepeat:Z
 
-    .line 282
+    .line 272
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
 
     if-eqz p0, :cond_57
@@ -1980,107 +2009,146 @@
     :goto_5c
     iput-object p0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->blocks:Ljava/util/ArrayList;
 
-    .line 283
+    .line 273
     return-object v0
 .end method
 
 .method private static clearConfigRefs()V
     .registers 1
 
-    .line 909
+    .line 893
     const/4 v0, 0x0
 
-    sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationSlider:Landroid/widget/SeekBar;
+    sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->minutesView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 910
-    sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsSlider:Landroid/widget/SeekBar;
+    .line 894
+    sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->secondsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 911
-    sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationValueView:Landroid/widget/TextView;
+    .line 895
+    sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 912
+    .line 896
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationLabelView:Landroid/widget/TextView;
 
-    .line 913
-    sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsValueView:Landroid/widget/TextView;
-
-    .line 914
+    .line 897
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationRow:Landroid/view/View;
 
-    .line 915
+    .line 898
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabIntervalBtn:Landroid/view/View;
 
-    .line 916
+    .line 899
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabBlockBtn:Landroid/view/View;
 
-    .line 917
+    .line 900
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedPanel:Landroid/view/View;
 
-    .line 918
+    .line 901
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedToggle:Landroid/view/View;
 
-    .line 919
+    .line 902
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->statusView:Landroid/widget/TextView;
 
-    .line 920
+    .line 903
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileView:Landroid/widget/TextView;
 
-    .line 921
+    .line 904
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileRow:Landroid/view/View;
 
-    .line 922
+    .line 905
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
-    .line 923
+    .line 906
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundPickBtn:Landroid/view/View;
 
-    .line 924
+    .line 907
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundClearBtn:Landroid/view/View;
 
-    .line 925
+    .line 908
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->presetSpinner:Landroid/widget/Spinner;
 
-    .line 926
+    .line 909
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->simpleModePanel:Landroid/view/View;
 
-    .line 927
+    .line 910
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockModePanel:Landroid/view/View;
 
-    .line 928
+    .line 911
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSummaryView:Landroid/widget/TextView;
 
-    .line 929
+    .line 912
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockDurationView:Landroid/widget/TextView;
 
-    .line 930
+    .line 913
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockRepeatSwitch:Landroid/widget/Switch;
 
-    .line 931
+    .line 914
+    return-void
+.end method
+
+.method private static configureDurationPicker(Lcom/isaigu/gymapp/widget/AmountView;IIII)V
+    .registers 5
+
+    .line 1541
+    if-nez p0, :cond_3
+
+    .line 1542
+    return-void
+
+    .line 1545
+    :cond_3
+    :try_start_3
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AmountView;->setMin(I)V
+
+    .line 1546
+    invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/widget/AmountView;->setGoods_storage(I)V
+
+    .line 1547
+    invoke-virtual {p0, p3}, Lcom/isaigu/gymapp/widget/AmountView;->setStep(I)V
+
+    .line 1548
+    const-string p1, ""
+
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AmountView;->setAmountUnit(Ljava/lang/String;)V
+
+    .line 1549
+    invoke-virtual {p0, p4}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
+    :try_end_14
+    .catchall {:try_start_3 .. :try_end_14} :catchall_15
+
+    .line 1551
+    goto :goto_16
+
+    .line 1550
+    :catchall_15
+    move-exception p0
+
+    .line 1552
+    :goto_16
     return-void
 .end method
 
 .method private static dismissConfigDialog(Z)V
     .registers 2
 
-    .line 895
+    .line 879
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_17
 
-    .line 897
+    .line 881
     :try_start_4
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->dismiss()V
     :try_end_7
     .catchall {:try_start_4 .. :try_end_7} :catchall_8
 
-    .line 899
+    .line 883
     goto :goto_9
 
-    .line 898
+    .line 882
     :catchall_8
     move-exception v0
 
-    .line 900
+    .line 884
     :goto_9
     if-nez p0, :cond_17
 
@@ -2088,18 +2156,18 @@
 
     if-nez p0, :cond_17
 
-    .line 901
+    .line 885
     const/4 p0, 0x0
 
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 902
+    .line 886
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configContent:Landroid/view/View;
 
-    .line 903
+    .line 887
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->clearConfigRefs()V
 
-    .line 906
+    .line 890
     :cond_17
     return-void
 .end method
@@ -2107,46 +2175,46 @@
 .method private static dismissOverlayDialog(Z)V
     .registers 2
 
-    .line 934
+    .line 917
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_16
 
-    .line 936
+    .line 919
     :try_start_4
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->dismiss()V
     :try_end_7
     .catchall {:try_start_4 .. :try_end_7} :catchall_8
 
-    .line 938
+    .line 921
     goto :goto_9
 
-    .line 937
+    .line 920
     :catchall_8
     move-exception v0
 
-    .line 939
+    .line 922
     :goto_9
     if-nez p0, :cond_16
 
-    .line 940
+    .line 923
     const/4 p0, 0x0
 
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 941
+    .line 924
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayContent:Landroid/view/View;
 
-    .line 942
+    .line 925
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    .line 943
+    .line 926
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
-    .line 944
+    .line 927
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
-    .line 947
+    .line 930
     :cond_16
     return-void
 .end method
@@ -2154,13 +2222,13 @@
 .method private static dp(Landroid/app/Activity;I)I
     .registers 2
 
-    .line 1565
+    .line 1578
     if-nez p0, :cond_3
 
-    .line 1566
+    .line 1579
     return p1
 
-    .line 1568
+    .line 1581
     :cond_3
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -2172,7 +2240,7 @@
 
     iget p0, p0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 1569
+    .line 1582
     int-to-float p1, p1
 
     mul-float p1, p1, p0
@@ -2189,15 +2257,15 @@
 .method private static finishArm()V
     .registers 4
 
-    .line 541
+    .line 531
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
     if-nez v0, :cond_5
 
-    .line 542
+    .line 532
     return-void
 
-    .line 544
+    .line 534
     :cond_5
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->showOverlayDialog()Z
 
@@ -2207,35 +2275,35 @@
 
     if-nez v0, :cond_1e
 
-    .line 545
+    .line 535
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
-    .line 546
+    .line 536
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayVisible:Z
 
-    .line 547
+    .line 537
     const v0, 0x7f0d0128
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 548
+    .line 538
     const-string v0, "overlay dialog failed"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 549
+    .line 539
     return-void
 
-    .line 551
+    .line 541
     :cond_1e
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
 
-    .line 552
+    .line 542
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateOverlayVisibility()V
 
-    .line 553
+    .line 543
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2270,17 +2338,17 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 556
+    .line 546
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainingRunning:Z
 
     if-eqz v0, :cond_56
 
-    .line 557
+    .line 547
     const/4 v0, 0x1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingRunningChanged(Z)V
 
-    .line 559
+    .line 549
     :cond_56
     return-void
 .end method
@@ -2288,26 +2356,26 @@
 .method private static formatSeconds(J)Ljava/lang/String;
     .registers 6
 
-    .line 1540
+    .line 1509
     const-wide/16 v0, 0x0
 
     cmp-long v2, p0, v0
 
     if-gez v2, :cond_7
 
-    .line 1541
+    .line 1510
     move-wide p0, v0
 
-    .line 1543
+    .line 1512
     :cond_7
     const-wide/16 v0, 0x3c
 
     div-long v2, p0, v0
 
-    .line 1544
+    .line 1513
     rem-long/2addr p0, v0
 
-    .line 1545
+    .line 1514
     const/4 v0, 0x2
 
     new-array v0, v0, [Ljava/lang/Object;
@@ -2340,7 +2408,7 @@
 .method private static handleRingtoneResult(ILandroid/content/Intent;)V
     .registers 3
 
-    .line 351
+    .line 341
     const/4 v0, -0x1
 
     if-ne p0, v0, :cond_28
@@ -2349,7 +2417,7 @@
 
     goto :goto_28
 
-    .line 356
+    .line 346
     :cond_6
     const-string p0, "android.intent.extra.ringtone.PICKED_URI"
 
@@ -2359,60 +2427,60 @@
 
     check-cast p0, Landroid/net/Uri;
 
-    .line 357
+    .line 347
     if-nez p0, :cond_18
 
-    .line 358
+    .line 348
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
     sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 359
+    .line 349
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 360
+    .line 350
     return-void
 
-    .line 362
+    .line 352
     :cond_18
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
-    .line 363
+    .line 353
     const/4 p0, 0x7
 
     sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 364
+    .line 354
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 365
+    .line 355
     const-string p0, "interval_timer"
 
     const-string p1, "device signal uri set"
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 366
+    .line 356
     return-void
 
-    .line 352
+    .line 342
     :cond_28
     :goto_28
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
     sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 353
+    .line 343
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 354
+    .line 344
     return-void
 .end method
 
 .method private static handleSignalFileResult(ILandroid/content/Intent;)V
     .registers 4
 
-    .line 316
+    .line 306
     const/4 v0, -0x1
 
     if-ne p0, v0, :cond_4b
@@ -2421,36 +2489,36 @@
 
     goto :goto_4b
 
-    .line 321
+    .line 311
     :cond_6
     invoke-virtual {p1}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
     move-result-object p0
 
-    .line 322
+    .line 312
     if-nez p0, :cond_14
 
-    .line 323
+    .line 313
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
     sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 324
+    .line 314
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 325
+    .line 315
     return-void
 
-    .line 327
+    .line 317
     :cond_14
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
-    .line 328
+    .line 318
     const/16 v0, 0x8
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 330
+    .line 320
     const/4 v0, 0x0
 
     :try_start_1b
@@ -2460,10 +2528,10 @@
 
     move-result-object v0
 
-    .line 331
+    .line 321
     if-eqz v0, :cond_39
 
-    .line 332
+    .line 322
     invoke-virtual {p1}, Landroid/content/Intent;->getFlags()I
 
     move-result p1
@@ -2472,10 +2540,10 @@
 
     and-int/lit8 p1, p1, 0x3
 
-    .line 335
+    .line 325
     if-eqz p1, :cond_39
 
-    .line 337
+    .line 327
     :try_start_2b
     invoke-virtual {v0}, Landroid/app/Activity;->getContentResolver()Landroid/content/ContentResolver;
 
@@ -2485,14 +2553,14 @@
     :try_end_32
     .catchall {:try_start_2b .. :try_end_32} :catchall_33
 
-    .line 340
+    .line 330
     goto :goto_39
 
-    .line 338
+    .line 328
     :catchall_33
     move-exception p0
 
-    .line 339
+    .line 329
     :try_start_34
     const-string p1, "interval_timer_uri_persist"
 
@@ -2500,52 +2568,52 @@
     :try_end_39
     .catchall {:try_start_34 .. :try_end_39} :catchall_3a
 
-    .line 345
+    .line 335
     :cond_39
     :goto_39
     goto :goto_40
 
-    .line 343
+    .line 333
     :catchall_3a
     move-exception p0
 
-    .line 344
+    .line 334
     const-string p1, "interval_timer_uri_grant"
 
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 346
+    .line 336
     :goto_40
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 347
+    .line 337
     const-string p0, "interval_timer"
 
     const-string p1, "custom signal uri set"
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 348
+    .line 338
     return-void
 
-    .line 317
+    .line 307
     :cond_4b
     :goto_4b
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
     sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 318
+    .line 308
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 319
+    .line 309
     return-void
 .end method
 
 .method private static hasLoadedTraining()Z
     .registers 1
 
-    .line 474
+    .line 464
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -2568,13 +2636,13 @@
 .method private static loadSavedSettings(Landroid/app/Activity;)V
     .registers 7
 
-    .line 1080
+    .line 1063
     if-nez p0, :cond_3
 
-    .line 1081
+    .line 1064
     return-void
 
-    .line 1084
+    .line 1067
     :cond_3
     :try_start_3
     const-string v0, "interval_timer"
@@ -2585,7 +2653,7 @@
 
     move-result-object v0
 
-    .line 1085
+    .line 1068
     const-string v2, "minutes"
 
     invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
@@ -2594,7 +2662,7 @@
 
     sput v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
-    .line 1086
+    .line 1069
     const-string v2, "seconds"
 
     const/16 v3, 0x1e
@@ -2605,7 +2673,7 @@
 
     sput v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 1087
+    .line 1070
     const-string v2, "loops"
 
     invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
@@ -2614,7 +2682,7 @@
 
     sput v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
-    .line 1088
+    .line 1071
     const-string v2, "sound"
 
     const/4 v3, 0x1
@@ -2625,7 +2693,7 @@
 
     sput v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 1089
+    .line 1072
     const-string v2, "custom_uri"
 
     const/4 v4, 0x0
@@ -2634,7 +2702,7 @@
 
     move-result-object v2
 
-    .line 1090
+    .line 1073
     if-eqz v2, :cond_40
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
@@ -2650,15 +2718,15 @@
     :cond_40
     sput-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
-    .line 1091
+    .line 1074
     sget v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
     if-gez v2, :cond_48
 
-    .line 1092
+    .line 1075
     sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
-    .line 1094
+    .line 1077
     :cond_48
     sget v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
@@ -2666,28 +2734,28 @@
 
     if-le v2, v4, :cond_50
 
-    .line 1095
+    .line 1078
     sput v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
-    .line 1097
+    .line 1080
     :cond_50
     sget v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
     if-gez v2, :cond_56
 
-    .line 1098
+    .line 1081
     sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 1100
+    .line 1083
     :cond_56
     sget v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
     if-le v2, v4, :cond_5c
 
-    .line 1101
+    .line 1084
     sput v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 1103
+    .line 1086
     :cond_5c
     sget v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
@@ -2699,11 +2767,11 @@
 
     if-le v2, v4, :cond_68
 
-    .line 1104
+    .line 1087
     :cond_66
     sput v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
-    .line 1106
+    .line 1089
     :cond_68
     const-string v2, "block_program_mode"
 
@@ -2713,7 +2781,7 @@
 
     sput-boolean v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
-    .line 1107
+    .line 1090
     const-string v2, "block_program_repeat"
 
     invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
@@ -2722,14 +2790,14 @@
 
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
-    .line 1108
+    .line 1091
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/BlockProgramStorage;->loadBlocks(Landroid/content/Context;)Ljava/util/ArrayList;
 
     move-result-object p0
 
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
 
-    .line 1109
+    .line 1092
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
     int-to-long v0, p0
@@ -2748,7 +2816,7 @@
 
     mul-long v0, v0, v2
 
-    .line 1110
+    .line 1093
     const-wide/16 v2, 0x0
 
     cmp-long p0, v0, v2
@@ -2765,19 +2833,19 @@
     :try_end_98
     .catchall {:try_start_3 .. :try_end_98} :catchall_99
 
-    .line 1113
+    .line 1096
     goto :goto_9f
 
-    .line 1111
+    .line 1094
     :catchall_99
     move-exception p0
 
-    .line 1112
+    .line 1095
     const-string v0, "interval_timer_prefs_load"
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1114
+    .line 1097
     :goto_9f
     return-void
 .end method
@@ -2785,57 +2853,57 @@
 .method private static moveOverlayWindow(II)V
     .registers 4
 
-    .line 977
+    .line 960
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-nez v0, :cond_5
 
-    .line 978
+    .line 961
     return-void
 
-    .line 980
+    .line 963
     :cond_5
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
 
     move-result-object v0
 
-    .line 981
+    .line 964
     if-nez v0, :cond_c
 
-    .line 982
+    .line 965
     return-void
 
-    .line 985
+    .line 968
     :cond_c
     :try_start_c
     invoke-virtual {v0}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v1
 
-    .line 986
+    .line 969
     iput p0, v1, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 987
+    .line 970
     iput p1, v1, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 988
+    .line 971
     invoke-virtual {v0, v1}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
     :try_end_17
     .catchall {:try_start_c .. :try_end_17} :catchall_18
 
-    .line 991
+    .line 974
     goto :goto_1e
 
-    .line 989
+    .line 972
     :catchall_18
     move-exception p0
 
-    .line 990
+    .line 973
     const-string p1, "interval_timer_overlay_move"
 
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 992
+    .line 975
     :goto_1e
     return-void
 .end method
@@ -2843,35 +2911,35 @@
 .method public static onActivityResult(IILandroid/content/Intent;)V
     .registers 4
 
-    .line 304
+    .line 294
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
 
-    .line 305
+    .line 295
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->restoreConfigDialogAfterPick()V
 
-    .line 306
+    .line 296
     const/16 v0, 0x4256
 
     if-ne p0, v0, :cond_e
 
-    .line 307
+    .line 297
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handleSignalFileResult(ILandroid/content/Intent;)V
 
-    .line 308
+    .line 298
     return-void
 
-    .line 310
+    .line 300
     :cond_e
     const/16 v0, 0x4257
 
     if-ne p0, v0, :cond_15
 
-    .line 311
+    .line 301
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handleRingtoneResult(ILandroid/content/Intent;)V
 
-    .line 313
+    .line 303
     :cond_15
     return-void
 .end method
@@ -2879,7 +2947,7 @@
 .method private static onIntervalFinished()V
     .registers 2
 
-    .line 1372
+    .line 1341
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
     if-lez v0, :cond_c
@@ -2888,13 +2956,13 @@
 
     if-lt v1, v0, :cond_c
 
-    .line 1373
+    .line 1342
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->triggerAllStop()V
 
-    .line 1374
+    .line 1343
     return-void
 
-    .line 1376
+    .line 1345
     :cond_c
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
@@ -2902,39 +2970,39 @@
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
-    .line 1377
+    .line 1346
     sget-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
-    .line 1378
+    .line 1347
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
 
-    .line 1379
+    .line 1348
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
 
-    .line 1380
+    .line 1349
     return-void
 .end method
 
 .method public static onTrainingRunningChanged(Z)V
     .registers 4
 
-    .line 394
+    .line 384
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainingRunning:Z
 
-    .line 395
+    .line 385
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
     if-nez v0, :cond_a
 
-    .line 396
+    .line 386
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateOverlayVisibility()V
 
-    .line 397
+    .line 387
     return-void
 
-    .line 399
+    .line 389
     :cond_a
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
@@ -2950,40 +3018,40 @@
 
     if-eqz v0, :cond_50
 
-    .line 400
+    .line 390
     if-eqz p0, :cond_39
 
-    .line 401
+    .line 391
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->onTrainingStart()V
 
-    .line 402
+    .line 392
     const/4 p0, -0x1
 
     sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 403
+    .line 393
     sget-boolean p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
     if-nez p0, :cond_46
 
-    .line 404
+    .line 394
     sput-boolean v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
-    .line 405
+    .line 395
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
 
-    .line 406
+    .line 396
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 407
+    .line 397
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
@@ -2992,80 +3060,80 @@
 
     goto :goto_46
 
-    .line 409
+    .line 399
     :cond_39
     sget-boolean p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
     if-eqz p0, :cond_46
 
-    .line 410
+    .line 400
     sput-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
-    .line 411
+    .line 401
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 413
+    .line 403
     :cond_46
     :goto_46
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshStatusText()V
 
-    .line 414
+    .line 404
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
 
-    .line 415
+    .line 405
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateOverlayVisibility()V
 
-    .line 416
+    .line 406
     return-void
 
-    .line 418
+    .line 408
     :cond_50
     if-eqz p0, :cond_7a
 
-    .line 419
+    .line 409
     sget-boolean p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
     if-nez p0, :cond_87
 
-    .line 420
+    .line 410
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
     if-gtz p0, :cond_63
 
-    .line 421
+    .line 411
     sput v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
-    .line 422
+    .line 412
     sget-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
-    .line 423
+    .line 413
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
 
-    .line 425
+    .line 415
     :cond_63
     sput-boolean v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
-    .line 426
+    .line 416
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
 
-    .line 427
+    .line 417
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 428
+    .line 418
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
@@ -3074,144 +3142,144 @@
 
     goto :goto_87
 
-    .line 430
+    .line 420
     :cond_7a
     sget-boolean p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
     if-eqz p0, :cond_87
 
-    .line 431
+    .line 421
     sput-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
-    .line 432
+    .line 422
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 434
+    .line 424
     :cond_87
     :goto_87
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshStatusText()V
 
-    .line 435
+    .line 425
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
 
-    .line 436
+    .line 426
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateOverlayVisibility()V
 
-    .line 437
+    .line 427
     return-void
 .end method
 
 .method public static onTrainingStop()V
     .registers 0
 
-    .line 440
+    .line 430
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->reset()V
 
-    .line 441
+    .line 431
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resetAll()V
 
-    .line 442
+    .line 432
     return-void
 .end method
 
 .method private static openOverlaySettings()V
     .registers 1
 
-    .line 562
+    .line 552
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 563
+    .line 553
     if-nez v0, :cond_e
 
-    .line 564
+    .line 554
     const v0, 0x7f0d0128
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 565
+    .line 555
     return-void
 
-    .line 567
+    .line 557
     :cond_e
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 568
+    .line 558
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->showConfigDialog(Landroid/app/Activity;)V
 
-    .line 569
+    .line 559
     return-void
 .end method
 
 .method public static playBlockSignal()V
     .registers 0
 
-    .line 450
+    .line 440
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
 
-    .line 451
+    .line 441
     return-void
 .end method
 
 .method private static playBuiltInTone(I)V
     .registers 5
 
-    .line 1395
+    .line 1364
     packed-switch p0, :pswitch_data_38
 
-    .line 1415
+    .line 1384
     return-void
 
-    .line 1412
+    .line 1381
     :pswitch_4
     const/16 p0, 0x56
 
-    .line 1413
+    .line 1382
     goto :goto_16
 
-    .line 1409
+    .line 1378
     :pswitch_7
     const/16 p0, 0x29
 
-    .line 1410
+    .line 1379
     goto :goto_16
 
-    .line 1406
+    .line 1375
     :pswitch_a
     const/16 p0, 0x1b
 
-    .line 1407
+    .line 1376
     goto :goto_16
 
-    .line 1403
+    .line 1372
     :pswitch_d
     const/16 p0, 0x5d
 
-    .line 1404
+    .line 1373
     goto :goto_16
 
-    .line 1400
+    .line 1369
     :pswitch_10
     const/16 p0, 0x19
 
-    .line 1401
+    .line 1370
     goto :goto_16
 
-    .line 1397
+    .line 1366
     :pswitch_13
     const/16 p0, 0x18
 
-    .line 1398
+    .line 1367
     nop
 
-    .line 1418
+    .line 1387
     :goto_16
     :try_start_16
     new-instance v0, Landroid/media/ToneGenerator;
@@ -3222,12 +3290,12 @@
 
     invoke-direct {v0, v1, v2}, Landroid/media/ToneGenerator;-><init>(II)V
 
-    .line 1419
+    .line 1388
     const/16 v1, 0x1f4
 
     invoke-virtual {v0, p0, v1}, Landroid/media/ToneGenerator;->startTone(II)Z
 
-    .line 1420
+    .line 1389
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ReleaseToneRunnable;
@@ -3240,19 +3308,19 @@
     :try_end_2f
     .catchall {:try_start_16 .. :try_end_2f} :catchall_30
 
-    .line 1423
+    .line 1392
     goto :goto_36
 
-    .line 1421
+    .line 1390
     :catchall_30
     move-exception p0
 
-    .line 1422
+    .line 1391
     const-string v0, "interval_timer_tone"
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1424
+    .line 1393
     :goto_36
     return-void
 
@@ -3272,15 +3340,15 @@
 .method private static playCustomSignal()V
     .registers 3
 
-    .line 1427
+    .line 1396
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
     if-nez v0, :cond_5
 
-    .line 1428
+    .line 1397
     return-void
 
-    .line 1430
+    .line 1399
     :cond_5
     const/4 v0, 0x0
 
@@ -3288,17 +3356,17 @@
 
     move-result-object v0
 
-    .line 1431
+    .line 1400
     if-nez v0, :cond_d
 
-    .line 1432
+    .line 1401
     return-void
 
-    .line 1434
+    .line 1403
     :cond_d
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
 
-    .line 1436
+    .line 1405
     :try_start_10
     new-instance v1, Landroid/media/MediaPlayer;
 
@@ -3306,26 +3374,26 @@
 
     sput-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
-    .line 1437
+    .line 1406
     const/4 v2, 0x3
 
     invoke-virtual {v1, v2}, Landroid/media/MediaPlayer;->setAudioStreamType(I)V
 
-    .line 1438
+    .line 1407
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
     const/high16 v2, 0x3f800000    # 1.0f
 
     invoke-virtual {v1, v2, v2}, Landroid/media/MediaPlayer;->setVolume(FF)V
 
-    .line 1439
+    .line 1408
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
     invoke-virtual {v1, v0, v2}, Landroid/media/MediaPlayer;->setDataSource(Landroid/content/Context;Landroid/net/Uri;)V
 
-    .line 1440
+    .line 1409
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$SignalCompletionListener;
@@ -3334,7 +3402,7 @@
 
     invoke-virtual {v0, v1}, Landroid/media/MediaPlayer;->setOnCompletionListener(Landroid/media/MediaPlayer$OnCompletionListener;)V
 
-    .line 1441
+    .line 1410
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$SignalErrorListener;
@@ -3343,34 +3411,34 @@
 
     invoke-virtual {v0, v1}, Landroid/media/MediaPlayer;->setOnErrorListener(Landroid/media/MediaPlayer$OnErrorListener;)V
 
-    .line 1442
+    .line 1411
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
     invoke-virtual {v0}, Landroid/media/MediaPlayer;->prepare()V
 
-    .line 1443
+    .line 1412
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
     invoke-virtual {v0}, Landroid/media/MediaPlayer;->start()V
     :try_end_47
     .catchall {:try_start_10 .. :try_end_47} :catchall_48
 
-    .line 1447
+    .line 1416
     goto :goto_51
 
-    .line 1444
+    .line 1413
     :catchall_48
     move-exception v0
 
-    .line 1445
+    .line 1414
     const-string v1, "interval_timer_custom_signal"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1446
+    .line 1415
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
 
-    .line 1448
+    .line 1417
     :goto_51
     return-void
 .end method
@@ -3378,15 +3446,15 @@
 .method private static playSignal()V
     .registers 2
 
-    .line 1383
+    .line 1352
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     if-nez v0, :cond_5
 
-    .line 1384
+    .line 1353
     return-void
 
-    .line 1386
+    .line 1355
     :cond_5
     const/16 v1, 0x8
 
@@ -3398,72 +3466,138 @@
 
     goto :goto_11
 
-    .line 1390
+    .line 1359
     :cond_d
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playBuiltInTone(I)V
 
-    .line 1391
+    .line 1360
     return-void
 
-    .line 1387
+    .line 1356
     :cond_11
     :goto_11
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playCustomSignal()V
 
-    .line 1388
+    .line 1357
     return-void
 .end method
 
+.method private static readAmount(Lcom/isaigu/gymapp/widget/AmountView;II)I
+    .registers 3
+
+    .line 1522
+    if-nez p0, :cond_3
+
+    .line 1523
+    return p1
+
+    .line 1526
+    :cond_3
+    :try_start_3
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/AmountView;->getAmount()I
+
+    move-result p0
+    :try_end_7
+    .catchall {:try_start_3 .. :try_end_7} :catchall_e
+
+    .line 1527
+    if-ge p0, p1, :cond_a
+
+    .line 1528
+    return p1
+
+    .line 1530
+    :cond_a
+    if-le p0, p2, :cond_d
+
+    .line 1531
+    return p2
+
+    .line 1533
+    :cond_d
+    return p0
+
+    .line 1534
+    :catchall_e
+    move-exception p0
+
+    .line 1535
+    return p1
+.end method
+
 .method private static readDurationTotalSec()I
-    .registers 2
+    .registers 4
 
-    .line 1236
-    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationSlider:Landroid/widget/SeekBar;
+    .line 1197
+    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->minutesView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    if-eqz v0, :cond_d
+    const/4 v1, 0x0
 
-    .line 1237
-    invoke-virtual {v0}, Landroid/widget/SeekBar;->getProgress()I
+    const/16 v2, 0xa
+
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readAmount(Lcom/isaigu/gymapp/widget/AmountView;II)I
 
     move-result v0
 
-    mul-int/lit8 v0, v0, 0x5
+    .line 1198
+    sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->secondsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    add-int/lit8 v0, v0, 0x5
+    const/16 v3, 0x3b
 
-    return v0
+    invoke-static {v2, v1, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readAmount(Lcom/isaigu/gymapp/widget/AmountView;II)I
 
-    .line 1239
-    :cond_d
-    sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
+    move-result v1
 
+    .line 1199
     mul-int/lit8 v0, v0, 0x3c
-
-    sget v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
     add-int/2addr v0, v1
 
+    .line 1200
+    const/4 v1, 0x5
+
+    if-ge v0, v1, :cond_18
+
+    .line 1201
+    const/4 v0, 0x5
+
+    .line 1203
+    :cond_18
+    const/16 v1, 0x258
+
+    if-le v0, v1, :cond_1e
+
+    .line 1204
+    const/16 v0, 0x258
+
+    .line 1206
+    :cond_1e
+    div-int/lit8 v1, v0, 0x3c
+
+    sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
+
+    .line 1207
+    rem-int/lit8 v1, v0, 0x3c
+
+    sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
+
+    .line 1208
     return v0
 .end method
 
 .method private static readLoopsInput()I
-    .registers 1
+    .registers 3
 
-    .line 1549
-    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsSlider:Landroid/widget/SeekBar;
+    .line 1518
+    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    if-eqz v0, :cond_9
+    const/4 v1, 0x0
 
-    .line 1550
-    invoke-virtual {v0}, Landroid/widget/SeekBar;->getProgress()I
+    const/16 v2, 0x1e
+
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readAmount(Lcom/isaigu/gymapp/widget/AmountView;II)I
 
     move-result v0
-
-    return v0
-
-    .line 1552
-    :cond_9
-    sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
     return v0
 .end method
@@ -3471,19 +3605,19 @@
 .method private static readSoundSelection()I
     .registers 1
 
-    .line 794
+    .line 778
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
     if-eqz v0, :cond_9
 
-    .line 795
+    .line 779
     invoke-virtual {v0}, Landroid/widget/Spinner;->getSelectedItemPosition()I
 
     move-result v0
 
     return v0
 
-    .line 797
+    .line 781
     :cond_9
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
@@ -3493,7 +3627,7 @@
 .method private static refreshAdvancedToggleLabel(Landroid/app/Activity;)V
     .registers 3
 
-    .line 1243
+    .line 1212
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedToggle:Landroid/view/View;
 
     if-eqz v0, :cond_30
@@ -3502,7 +3636,7 @@
 
     goto :goto_30
 
-    .line 1246
+    .line 1215
     :cond_7
     const v0, 0x7f0d0167
 
@@ -3510,12 +3644,12 @@
 
     move-result-object p0
 
-    .line 1247
+    .line 1216
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedExpanded:Z
 
     if-eqz v0, :cond_1a
 
-    .line 1248
+    .line 1217
     const/16 v0, 0x25be
 
     const/16 v1, 0x25b4
@@ -3524,7 +3658,7 @@
 
     move-result-object p0
 
-    .line 1250
+    .line 1219
     :cond_1a
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedToggle:Landroid/view/View;
 
@@ -3532,30 +3666,30 @@
 
     if-eqz v1, :cond_26
 
-    .line 1251
+    .line 1220
     check-cast v0, Landroid/widget/TextView;
 
     invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto :goto_2f
 
-    .line 1252
+    .line 1221
     :cond_26
     instance-of v1, v0, Landroid/widget/Button;
 
     if-eqz v1, :cond_2f
 
-    .line 1253
+    .line 1222
     check-cast v0, Landroid/widget/Button;
 
     invoke-virtual {v0, p0}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1255
+    .line 1224
     :cond_2f
     :goto_2f
     return-void
 
-    .line 1244
+    .line 1213
     :cond_30
     :goto_30
     return-void
@@ -3564,42 +3698,42 @@
 .method public static refreshBlockOverlay()V
     .registers 1
 
-    .line 445
+    .line 435
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 446
+    .line 436
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
 
-    .line 447
+    .line 437
     return-void
 .end method
 
 .method private static refreshBlockOverlayRing()V
     .registers 8
 
-    .line 1026
+    .line 1009
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
     if-nez v0, :cond_5
 
-    .line 1027
+    .line 1010
     return-void
 
-    .line 1030
+    .line 1013
     :cond_5
     :try_start_5
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->getBlockTotalMs()J
 
     move-result-wide v0
 
-    .line 1031
+    .line 1014
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->getBlockRemainingMs()J
 
     move-result-wide v2
 
-    .line 1032
+    .line 1015
     const-wide/16 v4, 0x0
 
     const/4 v6, 0x0
@@ -3619,20 +3753,20 @@
     :cond_18
     const/4 v2, 0x0
 
-    .line 1033
+    .line 1016
     :goto_19
     cmpg-float v0, v2, v6
 
     if-gez v0, :cond_1e
 
-    .line 1034
+    .line 1017
     goto :goto_1f
 
-    .line 1033
+    .line 1016
     :cond_1e
     move v6, v2
 
-    .line 1036
+    .line 1019
     :goto_1f
     const/high16 v0, 0x3f800000    # 1.0f
 
@@ -3640,10 +3774,10 @@
 
     if-lez v1, :cond_27
 
-    .line 1037
+    .line 1020
     const/high16 v6, 0x3f800000    # 1.0f
 
-    .line 1039
+    .line 1022
     :cond_27
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
@@ -3651,12 +3785,12 @@
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/widget/TimerRingView;->setElapsedFraction(F)V
 
-    .line 1040
+    .line 1023
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_3a
 
-    .line 1041
+    .line 1024
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     invoke-static {v6}, Lcom/isaigu/gymapp/widget/TimerRingView;->colorForRemaining(F)I
@@ -3667,15 +3801,15 @@
     :try_end_3a
     .catchall {:try_start_5 .. :try_end_3a} :catchall_3b
 
-    .line 1044
+    .line 1027
     :cond_3a
     goto :goto_3c
 
-    .line 1043
+    .line 1026
     :catchall_3b
     move-exception v0
 
-    .line 1045
+    .line 1028
     :goto_3c
     return-void
 .end method
@@ -3683,15 +3817,15 @@
 .method private static refreshBlockSummary()V
     .registers 8
 
-    .line 1258
+    .line 1227
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSummaryView:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 1259
+    .line 1228
     return-void
 
-    .line 1261
+    .line 1230
     :cond_5
     const/4 v0, 0x0
 
@@ -3699,13 +3833,13 @@
 
     move-result-object v0
 
-    .line 1262
+    .line 1231
     if-nez v0, :cond_d
 
-    .line 1263
+    .line 1232
     return-void
 
-    .line 1265
+    .line 1234
     :cond_d
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
 
@@ -3722,7 +3856,7 @@
     :cond_17
     const/4 v1, 0x0
 
-    .line 1266
+    .line 1235
     :goto_18
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSummaryView:Landroid/widget/TextView;
 
@@ -3744,26 +3878,26 @@
 
     invoke-virtual {v3, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1267
+    .line 1236
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockDurationView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_a0
 
-    .line 1268
+    .line 1237
     const/4 v1, 0x2
 
     new-array v3, v1, [I
 
     fill-array-data v3, :array_a2
 
-    .line 1269
+    .line 1238
     sget-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-static {v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v4
 
-    .line 1270
+    .line 1239
     if-eqz v4, :cond_67
 
     invoke-virtual {v4}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -3772,7 +3906,7 @@
 
     if-eqz v6, :cond_67
 
-    .line 1271
+    .line 1240
     invoke-virtual {v4}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v6
@@ -3783,7 +3917,7 @@
 
     if-eqz v6, :cond_67
 
-    .line 1272
+    .line 1241
     invoke-virtual {v4}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v4
@@ -3792,28 +3926,28 @@
 
     move-result-object v4
 
-    .line 1273
+    .line 1242
     iget v6, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     if-lez v6, :cond_5f
 
-    .line 1274
+    .line 1243
     iget v6, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     aput v6, v3, v2
 
-    .line 1276
+    .line 1245
     :cond_5f
     iget v6, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     if-lez v6, :cond_67
 
-    .line 1277
+    .line 1246
     iget v4, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     aput v4, v3, v5
 
-    .line 1280
+    .line 1249
     :cond_67
     sget-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
 
@@ -3825,12 +3959,12 @@
 
     move-result v3
 
-    .line 1281
+    .line 1250
     sget-boolean v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
     if-eqz v4, :cond_82
 
-    .line 1282
+    .line 1251
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockDurationView:Landroid/widget/TextView;
 
     const v2, 0x7f0d014f
@@ -3843,7 +3977,7 @@
 
     goto :goto_a0
 
-    .line 1284
+    .line 1253
     :cond_82
     sget-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockDurationView:Landroid/widget/TextView;
 
@@ -3873,7 +4007,7 @@
 
     invoke-virtual {v4, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1287
+    .line 1256
     :cond_a0
     :goto_a0
     return-void
@@ -3887,105 +4021,10 @@
     .end array-data
 .end method
 
-.method private static refreshDurationDisplay(I)V
-    .registers 4
-
-    .line 1212
-    div-int/lit8 v0, p0, 0x3c
-
-    sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
-
-    .line 1213
-    rem-int/lit8 v0, p0, 0x3c
-
-    sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
-
-    .line 1214
-    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationValueView:Landroid/widget/TextView;
-
-    if-eqz v0, :cond_14
-
-    .line 1215
-    int-to-long v1, p0
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
-
-    move-result-object p0
-
-    invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 1217
-    :cond_14
-    return-void
-.end method
-
-.method private static refreshLoopsDisplay(I)V
-    .registers 3
-
-    .line 1220
-    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsValueView:Landroid/widget/TextView;
-
-    if-nez v0, :cond_5
-
-    .line 1221
-    return-void
-
-    .line 1223
-    :cond_5
-    if-gtz p0, :cond_23
-
-    .line 1224
-    const/4 p0, 0x0
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
-
-    move-result-object p0
-
-    .line 1225
-    if-eqz p0, :cond_1b
-
-    .line 1226
-    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsValueView:Landroid/widget/TextView;
-
-    const v1, 0x7f0d0166
-
-    invoke-virtual {p0, v1}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
-
-    move-result-object p0
-
-    invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    goto :goto_22
-
-    .line 1228
-    :cond_1b
-    sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsValueView:Landroid/widget/TextView;
-
-    const-string v0, "\u221e"
-
-    invoke-virtual {p0, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 1230
-    :goto_22
-    goto :goto_2a
-
-    .line 1231
-    :cond_23
-    invoke-static {p0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-
-    move-result-object p0
-
-    invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 1233
-    :goto_2a
-    return-void
-.end method
-
 .method private static refreshModeTabHighlight()V
     .registers 4
 
-    .line 1165
+    .line 1148
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabIntervalBtn:Landroid/view/View;
 
     const v1, 0x3f0ccccd    # 0.55f
@@ -3994,7 +4033,7 @@
 
     if-eqz v0, :cond_16
 
-    .line 1166
+    .line 1149
     sget-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     if-eqz v3, :cond_11
@@ -4009,13 +4048,13 @@
     :goto_13
     invoke-virtual {v0, v3}, Landroid/view/View;->setAlpha(F)V
 
-    .line 1168
+    .line 1151
     :cond_16
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabBlockBtn:Landroid/view/View;
 
     if-eqz v0, :cond_23
 
-    .line 1169
+    .line 1152
     sget-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     if-eqz v3, :cond_20
@@ -4025,7 +4064,7 @@
     :cond_20
     invoke-virtual {v0, v1}, Landroid/view/View;->setAlpha(F)V
 
-    .line 1171
+    .line 1154
     :cond_23
     return-void
 .end method
@@ -4033,7 +4072,7 @@
 .method private static refreshOverlayRing()V
     .registers 7
 
-    .line 1048
+    .line 1031
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
     if-eqz v0, :cond_3e
@@ -4048,7 +4087,7 @@
 
     goto :goto_3e
 
-    .line 1052
+    .line 1035
     :cond_d
     :try_start_d
     sget-wide v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
@@ -4059,7 +4098,7 @@
 
     sget-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
-    .line 1053
+    .line 1036
     :cond_15
     long-to-float v0, v0
 
@@ -4069,17 +4108,17 @@
 
     div-float/2addr v0, v1
 
-    .line 1054
+    .line 1037
     const/4 v1, 0x0
 
     cmpg-float v2, v0, v1
 
     if-gez v2, :cond_20
 
-    .line 1055
+    .line 1038
     const/4 v0, 0x0
 
-    .line 1057
+    .line 1040
     :cond_20
     const/high16 v1, 0x3f800000    # 1.0f
 
@@ -4087,10 +4126,10 @@
 
     if-lez v2, :cond_28
 
-    .line 1058
+    .line 1041
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 1060
+    .line 1043
     :cond_28
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
@@ -4098,12 +4137,12 @@
 
     invoke-virtual {v2, v1}, Lcom/isaigu/gymapp/widget/TimerRingView;->setElapsedFraction(F)V
 
-    .line 1061
+    .line 1044
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_3b
 
-    .line 1062
+    .line 1045
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/TimerRingView;->colorForRemaining(F)I
@@ -4114,19 +4153,19 @@
     :try_end_3b
     .catchall {:try_start_d .. :try_end_3b} :catchall_3c
 
-    .line 1065
+    .line 1048
     :cond_3b
     goto :goto_3d
 
-    .line 1064
+    .line 1047
     :catchall_3c
     move-exception v0
 
-    .line 1066
+    .line 1049
     :goto_3d
     return-void
 
-    .line 1049
+    .line 1032
     :cond_3e
     :goto_3e
     return-void
@@ -4135,15 +4174,15 @@
 .method private static refreshOverlayText()V
     .registers 8
 
-    .line 995
+    .line 978
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 996
+    .line 979
     return-void
 
-    .line 998
+    .line 981
     :cond_5
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
@@ -4163,26 +4202,26 @@
 
     if-eqz v0, :cond_69
 
-    .line 999
+    .line 982
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->getBlockRemainingMs()J
 
     move-result-wide v3
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateCountdownDisplay(J)V
 
-    .line 1000
+    .line 983
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_65
 
-    .line 1001
+    .line 984
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->getBlockIndex()I
 
     move-result v0
 
     add-int/2addr v0, v2
 
-    .line 1002
+    .line 985
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->getBlockCount()I
 
     move-result v3
@@ -4191,14 +4230,14 @@
 
     move-result v3
 
-    .line 1003
+    .line 986
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->getCyclesDone()I
 
     move-result v4
 
     add-int/2addr v4, v2
 
-    .line 1004
+    .line 987
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->getCurrentBlockCycles()I
 
     move-result v5
@@ -4207,7 +4246,7 @@
 
     move-result v2
 
-    .line 1005
+    .line 988
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -4240,14 +4279,14 @@
 
     invoke-virtual {v5, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1007
+    .line 990
     :cond_65
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockOverlayRing()V
 
-    .line 1008
+    .line 991
     return-void
 
-    .line 1010
+    .line 993
     :cond_69
     sget-wide v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
@@ -4265,24 +4304,24 @@
     :goto_74
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateCountdownDisplay(J)V
 
-    .line 1011
+    .line 994
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_c6
 
-    .line 1012
+    .line 995
     sget-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
     if-nez v3, :cond_85
 
-    .line 1013
+    .line 996
     const-string v1, ""
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto :goto_c6
 
-    .line 1014
+    .line 997
     :cond_85
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
@@ -4290,14 +4329,14 @@
 
     if-gtz v0, :cond_a5
 
-    .line 1015
+    .line 998
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
     if-lez v0, :cond_90
 
     move v2, v0
 
-    .line 1016
+    .line 999
     :cond_90
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
@@ -4315,10 +4354,10 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1017
+    .line 1000
     goto :goto_c6
 
-    .line 1018
+    .line 1001
     :cond_a5
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
@@ -4326,7 +4365,7 @@
 
     move v2, v0
 
-    .line 1019
+    .line 1002
     :cond_aa
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
@@ -4350,19 +4389,19 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1022
+    .line 1005
     :cond_c6
     :goto_c6
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayRing()V
 
-    .line 1023
+    .line 1006
     return-void
 .end method
 
 .method private static refreshSoundUi()V
     .registers 7
 
-    .line 1321
+    .line 1290
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     const/4 v1, 0x7
@@ -4388,16 +4427,16 @@
     :goto_e
     const/4 v0, 0x1
 
-    .line 1322
+    .line 1291
     :goto_f
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundPickBtn:Landroid/view/View;
 
     if-eqz v5, :cond_23
 
-    .line 1323
+    .line 1292
     invoke-virtual {v5, v0}, Landroid/view/View;->setEnabled(Z)V
 
-    .line 1324
+    .line 1293
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundPickBtn:Landroid/view/View;
 
     if-eqz v0, :cond_1d
@@ -4412,13 +4451,13 @@
     :goto_20
     invoke-virtual {v5, v6}, Landroid/view/View;->setAlpha(F)V
 
-    .line 1326
+    .line 1295
     :cond_23
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileRow:Landroid/view/View;
 
     if-eqz v5, :cond_30
 
-    .line 1327
+    .line 1296
     if-eqz v0, :cond_2b
 
     const/4 v6, 0x0
@@ -4431,7 +4470,7 @@
     :goto_2d
     invoke-virtual {v5, v6}, Landroid/view/View;->setVisibility(I)V
 
-    .line 1329
+    .line 1298
     :cond_30
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileView:Landroid/widget/TextView;
 
@@ -4439,15 +4478,15 @@
 
     if-eqz v0, :cond_68
 
-    .line 1330
+    .line 1299
     sget-object v6, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
     if-nez v6, :cond_4a
 
-    .line 1331
+    .line 1300
     nop
 
-    .line 1332
+    .line 1301
     sget v6, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     if-ne v6, v1, :cond_43
@@ -4459,19 +4498,19 @@
     :cond_43
     const v1, 0x7f0d0133
 
-    .line 1331
+    .line 1300
     :goto_46
     invoke-virtual {v5, v1}, Landroid/widget/TextView;->setText(I)V
 
     goto :goto_68
 
-    .line 1334
+    .line 1303
     :cond_4a
     invoke-virtual {v6}, Landroid/net/Uri;->getLastPathSegment()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 1335
+    .line 1304
     if-eqz v1, :cond_5d
 
     invoke-virtual {v1}, Ljava/lang/String;->length()I
@@ -4482,7 +4521,7 @@
 
     goto :goto_5d
 
-    .line 1338
+    .line 1307
     :cond_57
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileView:Landroid/widget/TextView;
 
@@ -4490,7 +4529,7 @@
 
     goto :goto_68
 
-    .line 1336
+    .line 1305
     :cond_5d
     :goto_5d
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileView:Landroid/widget/TextView;
@@ -4503,14 +4542,14 @@
 
     invoke-virtual {v1, v5}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1342
+    .line 1311
     :cond_68
     :goto_68
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundClearBtn:Landroid/view/View;
 
     if-eqz v1, :cond_72
 
-    .line 1343
+    .line 1312
     if-eqz v0, :cond_6f
 
     const/4 v3, 0x0
@@ -4518,16 +4557,16 @@
     :cond_6f
     invoke-virtual {v1, v3}, Landroid/view/View;->setVisibility(I)V
 
-    .line 1345
+    .line 1314
     :cond_72
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
     if-eqz v0, :cond_8b
 
-    .line 1346
+    .line 1315
     sput-boolean v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
 
-    .line 1347
+    .line 1316
     sget v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     if-ltz v1, :cond_89
@@ -4538,18 +4577,18 @@
 
     if-ge v1, v0, :cond_89
 
-    .line 1348
+    .line 1317
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
     sget v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     invoke-virtual {v0, v1}, Landroid/widget/Spinner;->setSelection(I)V
 
-    .line 1350
+    .line 1319
     :cond_89
     sput-boolean v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
 
-    .line 1352
+    .line 1321
     :cond_8b
     return-void
 .end method
@@ -4557,47 +4596,47 @@
 .method private static refreshStatusText()V
     .registers 2
 
-    .line 1308
+    .line 1277
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->statusView:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 1309
+    .line 1278
     return-void
 
-    .line 1311
+    .line 1280
     :cond_5
     sget-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
     if-nez v1, :cond_10
 
-    .line 1312
+    .line 1281
     const v1, 0x7f0d0120
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
     goto :goto_21
 
-    .line 1313
+    .line 1282
     :cond_10
     sget-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
     if-eqz v1, :cond_1b
 
-    .line 1314
+    .line 1283
     const v1, 0x7f0d0122
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
     goto :goto_21
 
-    .line 1316
+    .line 1285
     :cond_1b
     const v1, 0x7f0d0121
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    .line 1318
+    .line 1287
     :goto_21
     return-void
 .end method
@@ -4605,29 +4644,29 @@
 .method private static releaseSignalPlayer()V
     .registers 1
 
-    .line 1451
+    .line 1420
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
     if-nez v0, :cond_5
 
-    .line 1452
+    .line 1421
     return-void
 
-    .line 1455
+    .line 1424
     :cond_5
     :try_start_5
     invoke-virtual {v0}, Landroid/media/MediaPlayer;->stop()V
     :try_end_8
     .catchall {:try_start_5 .. :try_end_8} :catchall_9
 
-    .line 1457
+    .line 1426
     goto :goto_a
 
-    .line 1456
+    .line 1425
     :catchall_9
     move-exception v0
 
-    .line 1459
+    .line 1428
     :goto_a
     :try_start_a
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
@@ -4636,91 +4675,91 @@
     :try_end_f
     .catchall {:try_start_a .. :try_end_f} :catchall_10
 
-    .line 1461
+    .line 1430
     goto :goto_11
 
-    .line 1460
+    .line 1429
     :catchall_10
     move-exception v0
 
-    .line 1462
+    .line 1431
     :goto_11
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->signalPlayer:Landroid/media/MediaPlayer;
 
-    .line 1463
+    .line 1432
     return-void
 .end method
 
 .method private static resetAll()V
     .registers 3
 
-    .line 458
+    .line 448
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
-    .line 459
+    .line 449
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
-    .line 460
+    .line 450
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainingRunning:Z
 
-    .line 461
+    .line 451
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->currentLoop:I
 
-    .line 462
+    .line 452
     sget-wide v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
     sput-wide v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
-    .line 463
+    .line 453
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayVisible:Z
 
-    .line 464
+    .line 454
     const/4 v1, -0x1
 
     sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 465
+    .line 455
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 466
+    .line 456
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
 
-    .line 467
+    .line 457
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->reset()V
 
-    .line 468
+    .line 458
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dismissConfigDialog(Z)V
 
-    .line 469
+    .line 459
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dismissOverlayDialog(Z)V
 
-    .line 470
+    .line 460
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshStatusText()V
 
-    .line 471
+    .line 461
     return-void
 .end method
 
 .method private static resetCurrentInterval()V
     .registers 2
 
-    .line 1355
+    .line 1324
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
     if-nez v0, :cond_5
 
-    .line 1356
+    .line 1325
     return-void
 
-    .line 1358
+    .line 1327
     :cond_5
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
@@ -4732,24 +4771,24 @@
 
     if-eqz v0, :cond_13
 
-    .line 1359
+    .line 1328
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->resetCurrentBlockCountdown()V
 
     goto :goto_17
 
-    .line 1361
+    .line 1330
     :cond_13
     sget-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalMs:J
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
 
-    .line 1363
+    .line 1332
     :goto_17
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 1364
+    .line 1333
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
 
     if-eqz v0, :cond_28
@@ -4758,34 +4797,34 @@
 
     if-eqz v0, :cond_28
 
-    .line 1365
+    .line 1334
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
     sput-wide v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
 
-    .line 1367
+    .line 1336
     :cond_28
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
 
-    .line 1368
+    .line 1337
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
 
-    .line 1369
+    .line 1338
     return-void
 .end method
 
 .method private static resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
     .registers 1
 
-    .line 592
+    .line 582
     if-eqz p0, :cond_3
 
-    .line 593
+    .line 583
     return-object p0
 
-    .line 595
+    .line 585
     :cond_3
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
@@ -4797,18 +4836,18 @@
 
     if-nez p0, :cond_10
 
-    .line 596
+    .line 586
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
     return-object p0
 
-    .line 598
+    .line 588
     :cond_10
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz p0, :cond_21
 
-    .line 599
+    .line 589
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getContext()Landroid/content/Context;
 
     move-result-object p0
@@ -4817,22 +4856,22 @@
 
     move-result-object p0
 
-    .line 600
+    .line 590
     if-eqz p0, :cond_21
 
-    .line 601
+    .line 591
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 602
+    .line 592
     return-object p0
 
-    .line 605
+    .line 595
     :cond_21
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz p0, :cond_32
 
-    .line 606
+    .line 596
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getContext()Landroid/content/Context;
 
     move-result-object p0
@@ -4841,36 +4880,36 @@
 
     move-result-object p0
 
-    .line 607
+    .line 597
     if-eqz p0, :cond_32
 
-    .line 608
+    .line 598
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 609
+    .line 599
     return-object p0
 
-    .line 612
+    .line 602
     :cond_32
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->panelRoot:Landroid/view/View;
 
     if-eqz p0, :cond_3f
 
-    .line 613
+    .line 603
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p0
 
-    .line 614
+    .line 604
     if-eqz p0, :cond_3f
 
-    .line 615
+    .line 605
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 616
+    .line 606
     return-object p0
 
-    .line 619
+    .line 609
     :cond_3f
     invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
 
@@ -4882,20 +4921,20 @@
 .method private static resolveOnOffFromSeed()[I
     .registers 4
 
-    .line 1290
+    .line 1259
     nop
 
-    .line 1291
+    .line 1260
     nop
 
-    .line 1292
+    .line 1261
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 1293
+    .line 1262
     const/4 v1, 0x4
 
     if-eqz v0, :cond_2f
@@ -4906,7 +4945,7 @@
 
     if-eqz v2, :cond_2f
 
-    .line 1294
+    .line 1263
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
@@ -4915,30 +4954,30 @@
 
     move-result-object v0
 
-    .line 1295
+    .line 1264
     if-eqz v0, :cond_2f
 
-    .line 1296
+    .line 1265
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     if-lez v2, :cond_22
 
-    .line 1297
+    .line 1266
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     goto :goto_23
 
-    .line 1296
+    .line 1265
     :cond_22
     const/4 v2, 0x4
 
-    .line 1299
+    .line 1268
     :goto_23
     iget v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     if-lez v3, :cond_2c
 
-    .line 1300
+    .line 1269
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
     move v0, v1
@@ -4947,7 +4986,7 @@
 
     goto :goto_30
 
-    .line 1299
+    .line 1268
     :cond_2c
     move v1, v2
 
@@ -4955,7 +4994,7 @@
 
     goto :goto_30
 
-    .line 1304
+    .line 1273
     :cond_2f
     const/4 v0, 0x4
 
@@ -4978,16 +5017,16 @@
 .method private static restoreConfigDialogAfterPick()V
     .registers 2
 
-    .line 881
+    .line 865
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 882
+    .line 866
     if-nez v0, :cond_5
 
-    .line 883
+    .line 867
     return-void
 
-    .line 886
+    .line 870
     :cond_5
     :try_start_5
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->isShowing()Z
@@ -4996,25 +5035,25 @@
 
     if-nez v1, :cond_e
 
-    .line 887
+    .line 871
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->show()V
     :try_end_e
     .catchall {:try_start_5 .. :try_end_e} :catchall_f
 
-    .line 891
+    .line 875
     :cond_e
     goto :goto_15
 
-    .line 889
+    .line 873
     :catchall_f
     move-exception v0
 
-    .line 890
+    .line 874
     const-string v1, "interval_timer_dialog_restore"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 892
+    .line 876
     :goto_15
     return-void
 .end method
@@ -5022,26 +5061,26 @@
 .method private static saveSettings(Landroid/app/Activity;II)V
     .registers 5
 
-    .line 1117
+    .line 1100
     if-nez p0, :cond_3
 
-    .line 1118
+    .line 1101
     return-void
 
-    .line 1120
+    .line 1103
     :cond_3
     sput p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
-    .line 1121
+    .line 1104
     sput p2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 1123
+    .line 1106
     :try_start_7
     const-string v0, "interval_timer"
 
     const/4 v1, 0x0
 
-    .line 1124
+    .line 1107
     invoke-virtual {p0, v0, v1}, Landroid/app/Activity;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -5050,45 +5089,45 @@
 
     move-result-object v0
 
-    .line 1125
+    .line 1108
     const-string v1, "minutes"
 
     invoke-interface {v0, v1, p1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 1126
+    .line 1109
     const-string p1, "seconds"
 
     invoke-interface {v0, p1, p2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 1127
+    .line 1110
     const-string p1, "loops"
 
     sget p2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
     invoke-interface {v0, p1, p2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 1128
+    .line 1111
     const-string p1, "sound"
 
     sget p2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     invoke-interface {v0, p1, p2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 1129
+    .line 1112
     const-string p1, "block_program_mode"
 
     sget-boolean p2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     invoke-interface {v0, p1, p2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
-    .line 1130
+    .line 1113
     const-string p1, "block_program_repeat"
 
     sget-boolean p2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
     invoke-interface {v0, p1, p2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
-    .line 1131
+    .line 1114
     sget-object p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
     :try_end_3a
     .catchall {:try_start_7 .. :try_end_3a} :catchall_58
@@ -5097,7 +5136,7 @@
 
     if-eqz p1, :cond_48
 
-    .line 1132
+    .line 1115
     :try_start_3e
     sget-object p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
@@ -5109,15 +5148,15 @@
 
     goto :goto_4b
 
-    .line 1134
+    .line 1117
     :cond_48
     invoke-interface {v0, p2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 1136
+    .line 1119
     :goto_4b
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1137
+    .line 1120
     sget-boolean p1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     sget-boolean p2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
@@ -5128,19 +5167,19 @@
     :try_end_57
     .catchall {:try_start_3e .. :try_end_57} :catchall_58
 
-    .line 1140
+    .line 1123
     goto :goto_5e
 
-    .line 1138
+    .line 1121
     :catchall_58
     move-exception p0
 
-    .line 1139
+    .line 1122
     const-string p1, "interval_timer_prefs_save"
 
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1141
+    .line 1124
     :goto_5e
     return-void
 .end method
@@ -5148,31 +5187,59 @@
 .method private static selectModeTab(Z)V
     .registers 1
 
-    .line 1174
+    .line 1157
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
-    .line 1175
+    .line 1158
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateModePanels()V
 
-    .line 1176
+    .line 1159
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockSummary()V
 
-    .line 1177
+    .line 1160
+    return-void
+.end method
+
+.method private static setAmountQuiet(Lcom/isaigu/gymapp/widget/AmountView;I)V
+    .registers 2
+
+    .line 1187
+    if-nez p0, :cond_3
+
+    .line 1188
+    return-void
+
+    .line 1191
+    :cond_3
+    :try_start_3
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/AmountView;->setAmount(I)V
+    :try_end_6
+    .catchall {:try_start_3 .. :try_end_6} :catchall_7
+
+    .line 1193
+    goto :goto_8
+
+    .line 1192
+    :catchall_7
+    move-exception p0
+
+    .line 1194
+    :goto_8
     return-void
 .end method
 
 .method private static setupSoundSpinner(Landroid/app/Activity;)V
     .registers 7
 
-    .line 767
+    .line 751
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
     if-nez v0, :cond_5
 
-    .line 768
+    .line 752
     return-void
 
-    .line 770
+    .line 754
     :cond_5
     const/16 v0, 0x9
 
@@ -5180,7 +5247,7 @@
 
     const v2, 0x7f0d012c
 
-    .line 771
+    .line 755
     invoke-virtual {p0, v2}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v2
@@ -5191,7 +5258,7 @@
 
     const v2, 0x7f0d012d
 
-    .line 772
+    .line 756
     invoke-virtual {p0, v2}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v2
@@ -5204,7 +5271,7 @@
 
     const v5, 0x7f0d012e
 
-    .line 773
+    .line 757
     invoke-virtual {p0, v5}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v5
@@ -5215,7 +5282,7 @@
 
     const v5, 0x7f0d012f
 
-    .line 774
+    .line 758
     invoke-virtual {p0, v5}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v5
@@ -5226,7 +5293,7 @@
 
     const v5, 0x7f0d0152
 
-    .line 775
+    .line 759
     invoke-virtual {p0, v5}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v5
@@ -5237,7 +5304,7 @@
 
     const v5, 0x7f0d0153
 
-    .line 776
+    .line 760
     invoke-virtual {p0, v5}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v5
@@ -5248,7 +5315,7 @@
 
     const v5, 0x7f0d0154
 
-    .line 777
+    .line 761
     invoke-virtual {p0, v5}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v5
@@ -5259,7 +5326,7 @@
 
     const v5, 0x7f0d0155
 
-    .line 778
+    .line 762
     invoke-virtual {p0, v5}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v5
@@ -5270,44 +5337,44 @@
 
     const v5, 0x7f0d0130
 
-    .line 779
+    .line 763
     invoke-virtual {p0, v5}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v5
 
     aput-object v5, v1, v2
 
-    .line 781
+    .line 765
     new-instance v2, Landroid/widget/ArrayAdapter;
 
     const v5, 0x7f0b007b
 
     invoke-direct {v2, p0, v5, v1}, Landroid/widget/ArrayAdapter;-><init>(Landroid/content/Context;I[Ljava/lang/Object;)V
 
-    .line 783
+    .line 767
     invoke-virtual {v2, v5}, Landroid/widget/ArrayAdapter;->setDropDownViewResource(I)V
 
-    .line 784
+    .line 768
     sput-boolean v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
 
-    .line 785
+    .line 769
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
     invoke-virtual {p0, v2}, Landroid/widget/Spinner;->setAdapter(Landroid/widget/SpinnerAdapter;)V
 
-    .line 786
+    .line 770
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
 
     if-ltz p0, :cond_81
 
     if-ge p0, v0, :cond_81
 
-    .line 787
+    .line 771
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
     invoke-virtual {v0, p0}, Landroid/widget/Spinner;->setSelection(I)V
 
-    .line 789
+    .line 773
     :cond_81
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
@@ -5317,17 +5384,17 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/Spinner;->setOnItemSelectedListener(Landroid/widget/AdapterView$OnItemSelectedListener;)V
 
-    .line 790
+    .line 774
     sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
 
-    .line 791
+    .line 775
     return-void
 .end method
 
 .method private static showConfigDialog(Landroid/app/Activity;)V
-    .registers 10
+    .registers 14
 
-    .line 665
+    .line 655
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_b
@@ -5338,22 +5405,22 @@
 
     if-eqz v0, :cond_b
 
-    .line 666
+    .line 656
     return-void
 
-    .line 668
+    .line 658
     :cond_b
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 669
+    .line 659
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loadSavedSettings(Landroid/app/Activity;)V
 
-    .line 670
+    .line 660
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dismissConfigDialog(Z)V
 
-    .line 673
+    .line 663
     :try_start_14
     invoke-static {p0}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
 
@@ -5367,20 +5434,20 @@
 
     move-result-object v1
     :try_end_20
-    .catchall {:try_start_14 .. :try_end_20} :catchall_225
+    .catchall {:try_start_14 .. :try_end_20} :catchall_20f
 
-    .line 678
+    .line 668
     nop
 
-    .line 679
+    .line 669
     sput-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configContent:Landroid/view/View;
 
-    .line 680
+    .line 670
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->capConfigDialogScroll(Landroid/app/Activity;Landroid/view/View;)I
 
     move-result v2
 
-    .line 681
+    .line 671
     const v3, 0x7f090237
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5391,7 +5458,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->statusView:Landroid/widget/TextView;
 
-    .line 682
+    .line 672
     const v3, 0x7f09023b
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5402,7 +5469,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileView:Landroid/widget/TextView;
 
-    .line 683
+    .line 673
     const v3, 0x7f090245
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5411,7 +5478,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundFileRow:Landroid/view/View;
 
-    .line 684
+    .line 674
     const v3, 0x7f09023e
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5422,7 +5489,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
 
-    .line 685
+    .line 675
     const v3, 0x7f09023d
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5431,7 +5498,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundPickBtn:Landroid/view/View;
 
-    .line 686
+    .line 676
     const v3, 0x7f090244
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5440,7 +5507,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundClearBtn:Landroid/view/View;
 
-    .line 687
+    .line 677
     const v3, 0x7f090276
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5449,7 +5516,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationRow:Landroid/view/View;
 
-    .line 688
+    .line 678
     const v3, 0x7f090275
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5460,51 +5527,40 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationLabelView:Landroid/widget/TextView;
 
-    .line 689
-    const v3, 0x7f09026c
+    .line 679
+    const v3, 0x7f090231
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v3
 
-    check-cast v3, Landroid/widget/TextView;
+    check-cast v3, Lcom/isaigu/gymapp/widget/AmountView;
 
-    sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationValueView:Landroid/widget/TextView;
+    sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->minutesView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 690
-    const v3, 0x7f09026b
-
-    invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
-
-    move-result-object v3
-
-    check-cast v3, Landroid/widget/SeekBar;
-
-    sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationSlider:Landroid/widget/SeekBar;
-
-    .line 691
-    const v3, 0x7f09026d
+    .line 680
+    const v3, 0x7f090232
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v3
 
-    check-cast v3, Landroid/widget/SeekBar;
+    check-cast v3, Lcom/isaigu/gymapp/widget/AmountView;
 
-    sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsSlider:Landroid/widget/SeekBar;
+    sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->secondsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 692
-    const v3, 0x7f09026e
+    .line 681
+    const v3, 0x7f090233
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v3
 
-    check-cast v3, Landroid/widget/TextView;
+    check-cast v3, Lcom/isaigu/gymapp/widget/AmountView;
 
-    sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsValueView:Landroid/widget/TextView;
+    sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 693
+    .line 682
     const v3, 0x7f090270
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5513,7 +5569,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabIntervalBtn:Landroid/view/View;
 
-    .line 694
+    .line 683
     const v3, 0x7f090271
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5522,7 +5578,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabBlockBtn:Landroid/view/View;
 
-    .line 695
+    .line 684
     const v3, 0x7f090272
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5531,7 +5587,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedPanel:Landroid/view/View;
 
-    .line 696
+    .line 685
     const v3, 0x7f090273
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5540,53 +5596,42 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedToggle:Landroid/view/View;
 
-    .line 697
-    sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationSlider:Landroid/widget/SeekBar;
+    .line 686
+    sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->minutesView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    if-eqz v3, :cond_da
+    const/16 v4, 0xa
 
-    .line 698
-    const/16 v4, 0x77
+    sget v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
-    invoke-virtual {v3, v4}, Landroid/widget/SeekBar;->setMax(I)V
+    const/4 v6, 0x1
 
-    .line 699
-    sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationSlider:Landroid/widget/SeekBar;
+    invoke-static {v3, v0, v4, v6, v5}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configureDurationPicker(Lcom/isaigu/gymapp/widget/AmountView;IIII)V
 
-    new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$DurationSliderListener;
+    .line 687
+    sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->secondsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    invoke-direct {v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$DurationSliderListener;-><init>()V
+    const/16 v4, 0x3b
 
-    invoke-virtual {v3, v4}, Landroid/widget/SeekBar;->setOnSeekBarChangeListener(Landroid/widget/SeekBar$OnSeekBarChangeListener;)V
+    sget v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 701
-    :cond_da
-    sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsSlider:Landroid/widget/SeekBar;
+    invoke-static {v3, v0, v4, v6, v5}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configureDurationPicker(Lcom/isaigu/gymapp/widget/AmountView;IIII)V
 
-    if-eqz v3, :cond_ed
+    .line 688
+    sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 702
     const/16 v4, 0x1e
 
-    invoke-virtual {v3, v4}, Landroid/widget/SeekBar;->setMax(I)V
+    sget v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
-    .line 703
-    sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsSlider:Landroid/widget/SeekBar;
+    invoke-static {v3, v0, v4, v6, v5}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configureDurationPicker(Lcom/isaigu/gymapp/widget/AmountView;IIII)V
 
-    new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsSliderListener;
+    .line 689
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->attachAmountListeners()V
 
-    invoke-direct {v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsSliderListener;-><init>()V
+    .line 690
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncAmountViewsFromValues()V
 
-    invoke-virtual {v3, v4}, Landroid/widget/SeekBar;->setOnSeekBarChangeListener(Landroid/widget/SeekBar$OnSeekBarChangeListener;)V
-
-    .line 705
-    :cond_ed
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncDurationSliderFromValues()V
-
-    .line 706
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncLoopsSliderFromValues()V
-
-    .line 707
+    .line 691
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabIntervalBtn:Landroid/view/View;
 
     new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TabIntervalListener;
@@ -5595,7 +5640,7 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 708
+    .line 692
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tabBlockBtn:Landroid/view/View;
 
     new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TabBlockListener;
@@ -5604,7 +5649,7 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 709
+    .line 693
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedToggle:Landroid/view/View;
 
     new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$AdvancedToggleListener;
@@ -5613,7 +5658,7 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 710
+    .line 694
     const v3, 0x7f090236
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5626,7 +5671,7 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 711
+    .line 695
     const v3, 0x7f09023c
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5639,7 +5684,7 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 712
+    .line 696
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundPickBtn:Landroid/view/View;
 
     new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$SoundPickListener;
@@ -5648,7 +5693,7 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 713
+    .line 697
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundClearBtn:Landroid/view/View;
 
     new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$SoundClearListener;
@@ -5657,7 +5702,7 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 714
+    .line 698
     const v3, 0x7f090264
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5666,7 +5711,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->simpleModePanel:Landroid/view/View;
 
-    .line 715
+    .line 699
     const v3, 0x7f090265
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5675,7 +5720,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockModePanel:Landroid/view/View;
 
-    .line 716
+    .line 700
     const v3, 0x7f090263
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5686,7 +5731,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSummaryView:Landroid/widget/TextView;
 
-    .line 717
+    .line 701
     const v3, 0x7f090266
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5697,7 +5742,7 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockDurationView:Landroid/widget/TextView;
 
-    .line 718
+    .line 702
     const v3, 0x7f090261
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5708,24 +5753,24 @@
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockRepeatSwitch:Landroid/widget/Switch;
 
-    .line 719
+    .line 703
     const v3, 0x7f090262
 
     invoke-virtual {v1, v3}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v3
 
-    .line 720
+    .line 704
     sget-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockRepeatSwitch:Landroid/widget/Switch;
 
-    if-eqz v4, :cond_190
+    if-eqz v4, :cond_17b
 
-    .line 721
+    .line 705
     sget-boolean v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
 
     invoke-virtual {v4, v5}, Landroid/widget/Switch;->setChecked(Z)V
 
-    .line 722
+    .line 706
     sget-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockRepeatSwitch:Landroid/widget/Switch;
 
     new-instance v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockRepeatSwitchListener;
@@ -5734,216 +5779,214 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/Switch;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
 
-    .line 724
-    :cond_190
-    if-eqz v3, :cond_19a
+    .line 708
+    :cond_17b
+    if-eqz v3, :cond_185
 
-    .line 725
+    .line 709
     new-instance v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockEditListener;
 
     invoke-direct {v4, p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockEditListener;-><init>(Landroid/app/Activity;)V
 
     invoke-virtual {v3, v4}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 727
-    :cond_19a
+    .line 711
+    :cond_185
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedPanel:Landroid/view/View;
 
-    if-eqz v3, :cond_1a8
+    if-eqz v3, :cond_193
 
-    .line 728
+    .line 712
     sget-boolean v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedExpanded:Z
 
-    if-eqz v4, :cond_1a3
+    if-eqz v4, :cond_18e
 
-    goto :goto_1a5
+    goto :goto_190
 
-    :cond_1a3
+    :cond_18e
     const/16 v0, 0x8
 
-    :goto_1a5
+    :goto_190
     invoke-virtual {v3, v0}, Landroid/view/View;->setVisibility(I)V
 
-    .line 730
-    :cond_1a8
+    .line 714
+    :cond_193
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshAdvancedToggleLabel(Landroid/app/Activity;)V
 
-    .line 731
+    .line 715
     const v0, 0x7f090267
 
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
-    move-object v4, v0
+    move-object v8, v0
 
-    check-cast v4, Landroid/widget/Spinner;
+    check-cast v8, Landroid/widget/Spinner;
 
-    sput-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->presetSpinner:Landroid/widget/Spinner;
+    sput-object v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->presetSpinner:Landroid/widget/Spinner;
 
-    .line 732
+    .line 716
     const v0, 0x7f090268
 
-    .line 735
+    .line 719
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object v5
+    move-result-object v9
 
     const v0, 0x7f090269
 
-    .line 736
+    .line 720
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object v6
+    move-result-object v10
 
     const v0, 0x7f09026a
 
-    .line 737
+    .line 721
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object v7
+    move-result-object v11
 
-    new-instance v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$PresetRefreshRunnable;
+    new-instance v12, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$PresetRefreshRunnable;
 
-    invoke-direct {v8}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$PresetRefreshRunnable;-><init>()V
+    invoke-direct {v12}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$PresetRefreshRunnable;-><init>()V
 
-    .line 732
-    move-object v3, p0
+    .line 716
+    move-object v7, p0
 
-    invoke-static/range {v3 .. v8}, Lcom/isaigu/gymapp/dialog/TimerPresetUiHelper;->bind(Landroid/app/Activity;Landroid/widget/Spinner;Landroid/view/View;Landroid/view/View;Landroid/view/View;Ljava/lang/Runnable;)V
+    invoke-static/range {v7 .. v12}, Lcom/isaigu/gymapp/dialog/TimerPresetUiHelper;->bind(Landroid/app/Activity;Landroid/widget/Spinner;Landroid/view/View;Landroid/view/View;Landroid/view/View;Ljava/lang/Runnable;)V
 
-    .line 739
+    .line 723
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateModePanels()V
 
-    .line 740
+    .line 724
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockSummary()V
 
-    .line 741
+    .line 725
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->setupSoundSpinner(Landroid/app/Activity;)V
 
-    .line 742
+    .line 726
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
 
-    .line 743
+    .line 727
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshStatusText()V
 
-    .line 744
+    .line 728
     new-instance v0, Landroid/support/v7/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/support/v7/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 746
+    .line 730
     invoke-virtual {v0, v1}, Landroid/support/v7/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/support/v7/app/AlertDialog$Builder;
 
-    .line 747
+    .line 731
     new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ConfigDismissListener;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ConfigDismissListener;-><init>()V
 
     invoke-virtual {v0, v1}, Landroid/support/v7/app/AlertDialog$Builder;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)Landroid/support/v7/app/AlertDialog$Builder;
 
-    .line 748
+    .line 732
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog$Builder;->create()Landroid/support/v7/app/AlertDialog;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 749
-    const/4 v1, 0x1
+    .line 733
+    invoke-virtual {v0, v6}, Landroid/support/v7/app/AlertDialog;->setCancelable(Z)V
 
-    invoke-virtual {v0, v1}, Landroid/support/v7/app/AlertDialog;->setCancelable(Z)V
-
-    .line 750
+    .line 734
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
-    invoke-virtual {v0, v1}, Landroid/support/v7/app/AlertDialog;->setCanceledOnTouchOutside(Z)V
+    invoke-virtual {v0, v6}, Landroid/support/v7/app/AlertDialog;->setCanceledOnTouchOutside(Z)V
 
-    .line 751
+    .line 735
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->applyOpaqueWindow(Landroid/support/v7/app/AlertDialog;)V
 
-    .line 753
-    :try_start_208
+    .line 737
+    :try_start_1f2
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
 
     move-result-object v0
 
-    .line 754
-    if-eqz v0, :cond_21d
+    .line 738
+    if-eqz v0, :cond_207
 
-    .line 755
+    .line 739
     const/16 v1, 0x118
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result p0
 
-    .line 756
-    if-lez v2, :cond_219
+    .line 740
+    if-lez v2, :cond_203
 
-    .line 757
-    goto :goto_21a
+    .line 741
+    goto :goto_204
 
-    .line 758
-    :cond_219
+    .line 742
+    :cond_203
     const/4 v2, -0x2
 
-    .line 759
-    :goto_21a
+    .line 743
+    :goto_204
     invoke-virtual {v0, p0, v2}, Landroid/view/Window;->setLayout(II)V
-    :try_end_21d
-    .catchall {:try_start_208 .. :try_end_21d} :catchall_21e
+    :try_end_207
+    .catchall {:try_start_1f2 .. :try_end_207} :catchall_208
 
-    .line 762
-    :cond_21d
-    goto :goto_21f
+    .line 746
+    :cond_207
+    goto :goto_209
 
-    .line 761
-    :catchall_21e
+    .line 745
+    :catchall_208
     move-exception p0
 
-    .line 763
-    :goto_21f
+    .line 747
+    :goto_209
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->show()V
 
-    .line 764
+    .line 748
     return-void
 
-    .line 674
-    :catchall_225
+    .line 664
+    :catchall_20f
     move-exception p0
 
-    .line 675
+    .line 665
     const-string v0, "interval_timer_config"
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 676
+    .line 666
     const p0, 0x7f0d0128
 
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 677
+    .line 667
     return-void
 .end method
 
 .method private static showOverlayDialog()Z
     .registers 10
 
-    .line 801
+    .line 785
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 802
+    .line 786
     const/4 v2, 0x0
 
     if-eqz v1, :cond_123
@@ -5956,14 +5999,14 @@
 
     goto/16 :goto_123
 
-    .line 805
+    .line 789
     :cond_10
     sput-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 806
+    .line 790
     invoke-static {v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dismissOverlayDialog(Z)V
 
-    .line 809
+    .line 793
     :try_start_15
     invoke-static {v1}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
 
@@ -5977,13 +6020,13 @@
     :try_end_20
     .catchall {:try_start_15 .. :try_end_20} :catchall_11c
 
-    .line 813
+    .line 797
     nop
 
-    .line 814
+    .line 798
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayContent:Landroid/view/View;
 
-    .line 815
+    .line 799
     const v4, 0x7f090243
 
     invoke-virtual {v3, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -5994,7 +6037,7 @@
 
     sput-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    .line 816
+    .line 800
     const v4, 0x7f090239
 
     invoke-virtual {v3, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -6005,7 +6048,7 @@
 
     sput-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
-    .line 817
+    .line 801
     const v4, 0x7f09023a
 
     invoke-virtual {v3, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -6016,7 +6059,7 @@
 
     sput-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
-    .line 818
+    .line 802
     const v4, 0x7f090278
 
     invoke-virtual {v3, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -6029,21 +6072,21 @@
 
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 819
+    .line 803
     const/16 v4, 0xc0
 
     invoke-static {v1, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v4
 
-    .line 820
+    .line 804
     const/16 v5, 0xf0
 
     invoke-static {v1, v5}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v5
 
-    .line 822
+    .line 806
     const/4 v6, 0x2
 
     const/4 v7, 0x1
@@ -6053,34 +6096,34 @@
 
     if-eqz v8, :cond_73
 
-    .line 823
+    .line 807
     sget-object v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
     const/high16 v9, 0x43400000    # 192.0f
 
     invoke-virtual {v8, v9}, Lcom/isaigu/gymapp/widget/TimerRingView;->setMaxDiameterDp(F)V
 
-    .line 824
+    .line 808
     sget-object v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
     const/16 v9, 0x64
 
     invoke-virtual {v8, v9}, Lcom/isaigu/gymapp/widget/TimerRingView;->setMaxProcess(I)V
 
-    .line 826
+    .line 810
     :cond_73
     sget-object v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     if-eqz v8, :cond_89
 
-    .line 827
+    .line 811
     sget-object v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     const/high16 v9, 0x42580000    # 54.0f
 
     invoke-virtual {v8, v6, v9}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 828
+    .line 812
     sget-object v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     sget-object v9, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
@@ -6093,111 +6136,111 @@
     :try_end_89
     .catchall {:try_start_61 .. :try_end_89} :catchall_8a
 
-    .line 831
+    .line 815
     :cond_89
     goto :goto_8b
 
-    .line 830
+    .line 814
     :catchall_8a
     move-exception v8
 
-    .line 832
+    .line 816
     :goto_8b
     invoke-virtual {v3, v7}, Landroid/view/View;->setClickable(Z)V
 
-    .line 833
+    .line 817
     invoke-virtual {v3, v2}, Landroid/view/View;->setFocusable(Z)V
 
-    .line 834
+    .line 818
     new-instance v8, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$OverlayDragListener;
 
     invoke-direct {v8}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$OverlayDragListener;-><init>()V
 
     invoke-virtual {v3, v8}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
-    .line 835
+    .line 819
     new-instance v8, Landroid/widget/FrameLayout;
 
     invoke-direct {v8, v1}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 836
+    .line 820
     invoke-virtual {v8, v7}, Landroid/widget/FrameLayout;->setClipChildren(Z)V
 
-    .line 837
+    .line 821
     new-instance v9, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {v9, v5, v4}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v8, v3, v9}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 841
+    .line 825
     :try_start_a9
     new-instance v3, Landroid/support/v7/app/AlertDialog$Builder;
 
     invoke-direct {v3, v1}, Landroid/support/v7/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 843
+    .line 827
     invoke-virtual {v3, v8}, Landroid/support/v7/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/support/v7/app/AlertDialog$Builder;
 
-    .line 844
+    .line 828
     invoke-virtual {v3}, Landroid/support/v7/app/AlertDialog$Builder;->create()Landroid/support/v7/app/AlertDialog;
 
     move-result-object v3
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 845
+    .line 829
     invoke-virtual {v3, v2}, Landroid/support/v7/app/AlertDialog;->setCancelable(Z)V
 
-    .line 846
+    .line 830
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v3, v2}, Landroid/support/v7/app/AlertDialog;->setCanceledOnTouchOutside(Z)V
 
-    .line 847
+    .line 831
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v3}, Landroid/support/v7/app/AlertDialog;->show()V
 
-    .line 848
+    .line 832
     sget-object v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v3}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
 
     move-result-object v3
 
-    .line 849
+    .line 833
     if-nez v3, :cond_cd
 
-    .line 850
+    .line 834
     return v2
 
-    .line 852
+    .line 836
     :cond_cd
     const v8, 0x106000d
 
     invoke-virtual {v3, v8}, Landroid/view/Window;->setBackgroundDrawableResource(I)V
 
-    .line 853
+    .line 837
     const v8, 0x800033
 
     invoke-virtual {v3, v8}, Landroid/view/Window;->setGravity(I)V
 
-    .line 854
+    .line 838
     invoke-virtual {v3, v5, v4}, Landroid/view/Window;->setLayout(II)V
 
-    .line 855
+    .line 839
     invoke-virtual {v3}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v8
 
-    .line 856
+    .line 840
     iput v5, v8, Landroid/view/WindowManager$LayoutParams;->width:I
 
-    .line 857
+    .line 841
     iput v4, v8, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    .line 858
+    .line 842
     const/16 v4, 0x14
 
     invoke-static {v1, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
@@ -6206,7 +6249,7 @@
 
     iput v4, v8, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 859
+    .line 843
     const/16 v4, 0x58
 
     invoke-static {v1, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
@@ -6215,12 +6258,12 @@
 
     iput v1, v8, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 860
+    .line 844
     const/4 v1, 0x0
 
     iput v1, v8, Landroid/view/WindowManager$LayoutParams;->dimAmount:F
 
-    .line 861
+    .line 845
     iget v1, v8, Landroid/view/WindowManager$LayoutParams;->flags:I
 
     or-int/lit8 v1, v1, 0x8
@@ -6231,60 +6274,60 @@
 
     iput v1, v8, Landroid/view/WindowManager$LayoutParams;->flags:I
 
-    .line 865
+    .line 849
     invoke-virtual {v3, v6}, Landroid/view/Window;->clearFlags(I)V
 
-    .line 866
+    .line 850
     invoke-virtual {v3, v8}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    .line 867
+    .line 851
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
     :try_end_10a
     .catchall {:try_start_a9 .. :try_end_10a} :catchall_10b
 
-    .line 868
+    .line 852
     return v7
 
-    .line 869
+    .line 853
     :catchall_10b
     move-exception v1
 
-    .line 870
+    .line 854
     const-string v3, "interval_timer_overlay_show"
 
     invoke-static {v3, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 871
+    .line 855
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 872
+    .line 856
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayContent:Landroid/view/View;
 
-    .line 873
+    .line 857
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    .line 874
+    .line 858
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
-    .line 875
+    .line 859
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopLabelView:Landroid/widget/TextView;
 
-    .line 876
+    .line 860
     return v2
 
-    .line 810
+    .line 794
     :catchall_11c
     move-exception v0
 
-    .line 811
+    .line 795
     const-string v1, "interval_timer_overlay_inflate"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 812
+    .line 796
     return v2
 
-    .line 803
+    .line 787
     :cond_123
     :goto_123
     return v2
@@ -6293,44 +6336,44 @@
 .method private static startRingtonePick(Landroid/view/View;)V
     .registers 7
 
-    .line 1466
+    .line 1435
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p0
 
-    .line 1467
+    .line 1436
     const v0, 0x7f0d0128
 
     if-nez p0, :cond_d
 
-    .line 1468
+    .line 1437
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 1469
+    .line 1438
     return-void
 
-    .line 1471
+    .line 1440
     :cond_d
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 1472
+    .line 1441
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readSoundSelection()I
 
     move-result v1
 
     sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
-    .line 1473
+    .line 1442
     const/4 v2, 0x7
 
     const/4 v3, 0x1
 
     if-eq v1, v2, :cond_1b
 
-    .line 1474
+    .line 1443
     sput v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
-    .line 1477
+    .line 1446
     :cond_1b
     const/4 v1, 0x0
 
@@ -6341,22 +6384,22 @@
 
     invoke-direct {v4, v5}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 1478
+    .line 1447
     const-string v5, "android.intent.extra.ringtone.TYPE"
 
     invoke-virtual {v4, v5, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;I)Landroid/content/Intent;
 
-    .line 1483
+    .line 1452
     const-string v2, "android.intent.extra.ringtone.SHOW_DEFAULT"
 
     invoke-virtual {v4, v2, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Z)Landroid/content/Intent;
 
-    .line 1484
+    .line 1453
     const-string v2, "android.intent.extra.ringtone.SHOW_SILENT"
 
     invoke-virtual {v4, v2, v1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Z)Landroid/content/Intent;
 
-    .line 1485
+    .line 1454
     const-string v2, "android.intent.extra.ringtone.TITLE"
 
     const v5, 0x7f0d0155
@@ -6367,30 +6410,30 @@
 
     invoke-virtual {v4, v2, v5}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1486
+    .line 1455
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
     if-eqz v2, :cond_49
 
-    .line 1487
+    .line 1456
     const-string v2, "android.intent.extra.ringtone.EXISTING_URI"
 
     sget-object v5, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
 
     invoke-virtual {v4, v2, v5}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Landroid/os/Parcelable;)Landroid/content/Intent;
 
-    .line 1489
+    .line 1458
     :cond_49
     sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
 
-    .line 1490
+    .line 1459
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
     :try_end_4d
     .catchall {:try_start_1c .. :try_end_4d} :catchall_5c
 
     if-eqz v2, :cond_56
 
-    .line 1492
+    .line 1461
     :try_start_4f
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
@@ -6398,14 +6441,14 @@
     :try_end_54
     .catchall {:try_start_4f .. :try_end_54} :catchall_55
 
-    .line 1494
+    .line 1463
     goto :goto_56
 
-    .line 1493
+    .line 1462
     :catchall_55
     move-exception v2
 
-    .line 1496
+    .line 1465
     :cond_56
     :goto_56
     const/16 v2, 0x4257
@@ -6415,28 +6458,28 @@
     :try_end_5b
     .catchall {:try_start_58 .. :try_end_5b} :catchall_5c
 
-    .line 1502
+    .line 1471
     goto :goto_6a
 
-    .line 1497
+    .line 1466
     :catchall_5c
     move-exception p0
 
-    .line 1498
+    .line 1467
     sput-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
 
-    .line 1499
+    .line 1468
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->restoreConfigDialogAfterPick()V
 
-    .line 1500
+    .line 1469
     const-string v1, "interval_timer_ringtone_pick"
 
     invoke-static {v1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1501
+    .line 1470
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 1503
+    .line 1472
     :goto_6a
     return-void
 .end method
@@ -6444,44 +6487,44 @@
 .method private static startSignalPick(Landroid/view/View;)V
     .registers 5
 
-    .line 1507
+    .line 1476
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p0
 
-    .line 1508
+    .line 1477
     const v0, 0x7f0d0128
 
     if-nez p0, :cond_d
 
-    .line 1509
+    .line 1478
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 1510
+    .line 1479
     return-void
 
-    .line 1512
+    .line 1481
     :cond_d
     sput-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 1513
+    .line 1482
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readSoundSelection()I
 
     move-result v1
 
     sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
-    .line 1514
+    .line 1483
     const/16 v2, 0x8
 
     const/4 v3, 0x1
 
     if-ne v1, v2, :cond_1c
 
-    .line 1515
+    .line 1484
     sput v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundBeforePick:I
 
-    .line 1518
+    .line 1487
     :cond_1c
     :try_start_1c
     new-instance v1, Landroid/content/Intent;
@@ -6490,35 +6533,35 @@
 
     invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 1519
+    .line 1488
     const-string v2, "android.intent.category.OPENABLE"
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1520
+    .line 1489
     const-string v2, "audio/*"
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1521
+    .line 1490
     invoke-virtual {v1, v3}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 1522
+    .line 1491
     const/16 v2, 0x40
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 1523
+    .line 1492
     sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
 
-    .line 1524
+    .line 1493
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
     :try_end_39
     .catchall {:try_start_1c .. :try_end_39} :catchall_48
 
     if-eqz v2, :cond_42
 
-    .line 1526
+    .line 1495
     :try_start_3b
     sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
@@ -6526,14 +6569,14 @@
     :try_end_40
     .catchall {:try_start_3b .. :try_end_40} :catchall_41
 
-    .line 1528
+    .line 1497
     goto :goto_42
 
-    .line 1527
+    .line 1496
     :catchall_41
     move-exception v2
 
-    .line 1530
+    .line 1499
     :cond_42
     :goto_42
     const/16 v2, 0x4256
@@ -6543,38 +6586,38 @@
     :try_end_47
     .catchall {:try_start_44 .. :try_end_47} :catchall_48
 
-    .line 1536
+    .line 1505
     goto :goto_57
 
-    .line 1531
+    .line 1500
     :catchall_48
     move-exception p0
 
-    .line 1532
+    .line 1501
     const/4 v1, 0x0
 
     sput-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
 
-    .line 1533
+    .line 1502
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->restoreConfigDialogAfterPick()V
 
-    .line 1534
+    .line 1503
     const-string v1, "interval_timer_pick"
 
     invoke-static {v1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1535
+    .line 1504
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 1537
+    .line 1506
     :goto_57
     return-void
 .end method
 
-.method private static syncDurationSliderFromValues()V
-    .registers 4
+.method private static syncAmountViewsFromValues()V
+    .registers 3
 
-    .line 1180
+    .line 1163
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
     mul-int/lit8 v0, v0, 0x3c
@@ -6583,120 +6626,100 @@
 
     add-int/2addr v0, v1
 
-    .line 1181
+    .line 1164
     const/4 v1, 0x5
 
     if-ge v0, v1, :cond_b
 
-    .line 1182
+    .line 1165
     const/4 v0, 0x5
 
-    .line 1184
+    .line 1167
     :cond_b
-    const/16 v2, 0x258
+    const/16 v1, 0x258
 
-    if-le v0, v2, :cond_11
+    if-le v0, v1, :cond_11
 
-    .line 1185
+    .line 1168
     const/16 v0, 0x258
 
-    .line 1187
+    .line 1170
     :cond_11
-    sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationSlider:Landroid/widget/SeekBar;
+    div-int/lit8 v1, v0, 0x3c
 
-    if-eqz v2, :cond_21
+    sput v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedMinutes:I
 
-    .line 1188
-    const/4 v3, 0x1
+    .line 1171
+    rem-int/lit8 v0, v0, 0x3c
 
-    sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreDurationSlider:Z
+    sput v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 1189
-    add-int/lit8 v3, v0, -0x5
+    .line 1172
+    const/4 v0, 0x1
 
-    div-int/2addr v3, v1
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreAmountCallback:Z
 
-    invoke-virtual {v2, v3}, Landroid/widget/SeekBar;->setProgress(I)V
+    .line 1173
+    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->minutesView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 1190
-    const/4 v1, 0x0
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->setAmountQuiet(Lcom/isaigu/gymapp/widget/AmountView;I)V
 
-    sput-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreDurationSlider:Z
+    .line 1174
+    sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->secondsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 1192
-    :cond_21
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshDurationDisplay(I)V
+    sget v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->savedSeconds:I
 
-    .line 1193
-    return-void
-.end method
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->setAmountQuiet(Lcom/isaigu/gymapp/widget/AmountView;I)V
 
-.method private static syncLoopsSliderFromValues()V
-    .registers 4
-
-    .line 1196
+    .line 1175
     sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
 
-    .line 1197
+    .line 1176
     const/4 v1, 0x0
 
-    if-gez v0, :cond_6
+    if-gez v0, :cond_2e
 
-    .line 1198
+    .line 1177
     const/4 v0, 0x0
 
-    .line 1200
-    :cond_6
+    .line 1179
+    :cond_2e
     const/16 v2, 0x1e
 
-    if-le v0, v2, :cond_c
+    if-le v0, v2, :cond_34
 
-    .line 1201
+    .line 1180
     const/16 v0, 0x1e
 
-    .line 1203
-    :cond_c
-    sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsSlider:Landroid/widget/SeekBar;
+    .line 1182
+    :cond_34
+    sget-object v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->loopsView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    if-eqz v2, :cond_18
+    invoke-static {v2, v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->setAmountQuiet(Lcom/isaigu/gymapp/widget/AmountView;I)V
 
-    .line 1204
-    const/4 v3, 0x1
+    .line 1183
+    sput-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreAmountCallback:Z
 
-    sput-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreLoopsSlider:Z
-
-    .line 1205
-    invoke-virtual {v2, v0}, Landroid/widget/SeekBar;->setProgress(I)V
-
-    .line 1206
-    sput-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreLoopsSlider:Z
-
-    .line 1208
-    :cond_18
-    sget v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshLoopsDisplay(I)V
-
-    .line 1209
+    .line 1184
     return-void
 .end method
 
 .method public static syncTrainingState()V
     .registers 5
 
-    .line 370
+    .line 360
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-nez v0, :cond_5
 
-    .line 371
+    .line 361
     return-void
 
-    .line 373
+    .line 363
     :cond_5
     nop
 
-    .line 375
+    .line 365
     const/4 v1, 0x0
 
     :try_start_7
@@ -6704,10 +6727,10 @@
 
     move-result-object v0
 
-    .line 376
+    .line 366
     if-eqz v0, :cond_34
 
-    .line 377
+    .line 367
     const/4 v2, 0x0
 
     :goto_e
@@ -6717,14 +6740,14 @@
 
     if-ge v2, v3, :cond_34
 
-    .line 378
+    .line 368
     invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v3
 
     check-cast v3, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 379
+    .line 369
     if-eqz v3, :cond_31
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -6737,10 +6760,10 @@
 
     if-nez v4, :cond_27
 
-    .line 380
+    .line 370
     goto :goto_31
 
-    .line 382
+    .line 372
     :cond_27
     iget-object v3, v3, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -6750,57 +6773,57 @@
 
     if-eqz v3, :cond_31
 
-    .line 383
+    .line 373
     nop
 
-    .line 384
+    .line 374
     const/4 v0, 0x1
 
     const/4 v1, 0x1
 
     goto :goto_34
 
-    .line 377
+    .line 367
     :cond_31
     :goto_31
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_e
 
-    .line 389
+    .line 379
     :cond_34
     :goto_34
     goto :goto_36
 
-    .line 388
+    .line 378
     :catchall_35
     move-exception v0
 
-    .line 390
+    .line 380
     :goto_36
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingRunningChanged(Z)V
 
-    .line 391
+    .line 381
     return-void
 .end method
 
 .method private static toast(I)V
     .registers 3
 
-    .line 1573
+    .line 1586
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 1574
+    .line 1587
     if-nez v0, :cond_8
 
-    .line 1575
+    .line 1588
     return-void
 
-    .line 1578
+    .line 1591
     :cond_8
     const/4 v1, 0x0
 
@@ -6813,14 +6836,14 @@
     :try_end_10
     .catchall {:try_start_9 .. :try_end_10} :catchall_11
 
-    .line 1580
+    .line 1593
     goto :goto_12
 
-    .line 1579
+    .line 1592
     :catchall_11
     move-exception p0
 
-    .line 1581
+    .line 1594
     :goto_12
     return-void
 .end method
@@ -6828,63 +6851,63 @@
 .method private static toggleMasterPanel()V
     .registers 2
 
-    .line 572
+    .line 562
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 573
+    .line 563
     if-nez v0, :cond_15
 
-    .line 574
+    .line 564
     const v0, 0x7f0d0128
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 575
+    .line 565
     const-string v0, "interval_timer"
 
     const-string v1, "toggle: no activity"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 576
+    .line 566
     return-void
 
-    .line 578
+    .line 568
     :cond_15
     sput-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
 
-    .line 579
+    .line 569
     sget-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
 
     if-nez v1, :cond_2c
 
-    .line 580
+    .line 570
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hasLoadedTraining()Z
 
     move-result v1
 
     if-nez v1, :cond_28
 
-    .line 581
+    .line 571
     const v0, 0x7f0d011a
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
 
-    .line 582
+    .line 572
     return-void
 
-    .line 584
+    .line 574
     :cond_28
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->showConfigDialog(Landroid/app/Activity;)V
 
-    .line 585
+    .line 575
     return-void
 
-    .line 587
+    .line 577
     :cond_2c
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayVisible:Z
 
@@ -6892,17 +6915,17 @@
 
     sput-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayVisible:Z
 
-    .line 588
+    .line 578
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateOverlayVisibility()V
 
-    .line 589
+    .line 579
     return-void
 .end method
 
 .method public static triggerAllStop()V
     .registers 2
 
-    .line 454
+    .line 444
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TriggerStopRunnable;
@@ -6911,22 +6934,22 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 455
+    .line 445
     return-void
 .end method
 
 .method private static updateCountdownDisplay(J)V
     .registers 5
 
-    .line 1069
+    .line 1052
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 1070
+    .line 1053
     return-void
 
-    .line 1072
+    .line 1055
     :cond_5
     const-wide/16 v0, 0x0
 
@@ -6938,7 +6961,7 @@
 
     div-long v0, p0, v0
 
-    .line 1073
+    .line 1056
     :cond_f
     sget p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
@@ -6948,12 +6971,12 @@
 
     if-eqz v2, :cond_22
 
-    .line 1074
+    .line 1057
     long-to-int p0, v0
 
     sput p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastDisplayedCountdownSec:I
 
-    .line 1075
+    .line 1058
     sget-object p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownView:Landroid/widget/TextView;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
@@ -6962,7 +6985,7 @@
 
     invoke-virtual {p0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1077
+    .line 1060
     :cond_22
     return-void
 .end method
@@ -6970,7 +6993,7 @@
 .method private static updateModePanels()V
     .registers 5
 
-    .line 1144
+    .line 1127
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     const/4 v1, 0x0
@@ -6986,7 +7009,7 @@
     :cond_9
     const/16 v0, 0x8
 
-    .line 1145
+    .line 1128
     :goto_b
     sget-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
@@ -6999,34 +7022,34 @@
     :cond_12
     const/4 v3, 0x0
 
-    .line 1146
+    .line 1129
     :goto_13
     sget-object v4, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockModePanel:Landroid/view/View;
 
     if-eqz v4, :cond_1a
 
-    .line 1147
+    .line 1130
     invoke-virtual {v4, v0}, Landroid/view/View;->setVisibility(I)V
 
-    .line 1149
+    .line 1132
     :cond_1a
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->simpleModePanel:Landroid/view/View;
 
     if-eqz v0, :cond_21
 
-    .line 1150
+    .line 1133
     invoke-virtual {v0, v3}, Landroid/view/View;->setVisibility(I)V
 
-    .line 1152
+    .line 1135
     :cond_21
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationRow:Landroid/view/View;
 
     if-eqz v0, :cond_34
 
-    .line 1153
+    .line 1136
     nop
 
-    .line 1154
+    .line 1137
     sget-boolean v3, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     if-eqz v3, :cond_31
@@ -7040,12 +7063,12 @@
     :cond_2f
     const/16 v1, 0x8
 
-    .line 1153
+    .line 1136
     :cond_31
     :goto_31
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 1156
+    .line 1139
     :cond_34
     const/4 v0, 0x0
 
@@ -7053,17 +7076,17 @@
 
     move-result-object v0
 
-    .line 1157
+    .line 1140
     sget-object v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->durationLabelView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_52
 
     if-eqz v0, :cond_52
 
-    .line 1158
+    .line 1141
     nop
 
-    .line 1159
+    .line 1142
     sget-boolean v2, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
 
     if-eqz v2, :cond_48
@@ -7080,29 +7103,29 @@
 
     move-result-object v0
 
-    .line 1158
+    .line 1141
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1161
+    .line 1144
     :cond_52
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshModeTabHighlight()V
 
-    .line 1162
+    .line 1145
     return-void
 .end method
 
 .method private static updateOverlayVisibility()V
     .registers 2
 
-    .line 960
+    .line 943
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-nez v0, :cond_5
 
-    .line 961
+    .line 944
     return-void
 
-    .line 964
+    .line 947
     :cond_5
     :try_start_5
     sget-boolean v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
@@ -7113,21 +7136,21 @@
 
     if-eqz v1, :cond_19
 
-    .line 965
+    .line 948
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->isShowing()Z
 
     move-result v0
 
     if-nez v0, :cond_26
 
-    .line 966
+    .line 949
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->show()V
 
     goto :goto_26
 
-    .line 968
+    .line 951
     :cond_19
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
@@ -7137,28 +7160,28 @@
 
     if-eqz v0, :cond_26
 
-    .line 969
+    .line 952
     sget-object v0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->hide()V
     :try_end_26
     .catchall {:try_start_5 .. :try_end_26} :catchall_27
 
-    .line 973
+    .line 956
     :cond_26
     :goto_26
     goto :goto_2d
 
-    .line 971
+    .line 954
     :catchall_27
     move-exception v0
 
-    .line 972
+    .line 955
     const-string v1, "interval_timer_overlay_visibility"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 974
+    .line 957
     :goto_2d
     return-void
 .end method

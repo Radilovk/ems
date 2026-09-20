@@ -13,6 +13,7 @@ DECOMPILED = ROOT / "build" / "decompiled"
 RES = DECOMPILED / "res"
 BRANDING = ROOT / "branding"
 DIALOG_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/dialog"
+BASE_ACTIVITY = DECOMPILED / "smali_classes2/com/isaigu/gymapp/BaseActivity.smali"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
@@ -37,6 +38,14 @@ IDS = {
     "intervalTimerOverlayRoot": 0x7F090238,
     "intervalTimerCountdown": 0x7F090239,
     "intervalTimerLoopLabel": 0x7F09023A,
+    "intervalTimerSoundFile": 0x7F09023B,
+    "intervalTimerSoundPreview": 0x7F09023C,
+    "intervalTimerSoundPick": 0x7F09023D,
+    "intervalTimerSoundOff": 0x7F09023E,
+    "intervalTimerSoundBeep": 0x7F09023F,
+    "intervalTimerSoundChime": 0x7F090240,
+    "intervalTimerSoundBell": 0x7F090241,
+    "intervalTimerSoundCustom": 0x7F090242,
 }
 
 STRING_IDS = {
@@ -51,40 +60,63 @@ STRING_IDS = {
     "interval_timer_error": 0x7F0D0128,
     "interval_timer_loops_hint": 0x7F0D0129,
     "interval_timer_activate": 0x7F0D012A,
+    "interval_timer_sound_label": 0x7F0D012B,
+    "interval_timer_sound_off": 0x7F0D012C,
+    "interval_timer_sound_beep": 0x7F0D012D,
+    "interval_timer_sound_chime": 0x7F0D012E,
+    "interval_timer_sound_bell": 0x7F0D012F,
+    "interval_timer_sound_custom": 0x7F0D0130,
+    "interval_timer_sound_preview": 0x7F0D0131,
+    "interval_timer_sound_upload": 0x7F0D0132,
+    "interval_timer_sound_no_file": 0x7F0D0133,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="fill_parent"
+<LinearLayout android:orientation="vertical" android:background="@drawable/interval_timer_dialog_panel" android:padding="16.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:padding="20.0dip" android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/interval_timer_title" />
-        <TextView android:textSize="14.0sp" android:textColor="@color/light_green_color" android:id="@id/intervalTimerStatus" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip" android:text="@string/interval_timer_status_idle" />
-        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
-            <TextView android:textSize="16.0sp" android:textColor="@color/white_color" android:layout_width="120.0dip" android:layout_height="wrap_content" android:text="@string/interval_timer_minutes" />
-            <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerMinutes" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-        </LinearLayout>
-        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip">
-            <TextView android:textSize="16.0sp" android:textColor="@color/white_color" android:layout_width="120.0dip" android:layout_height="wrap_content" android:text="@string/interval_timer_seconds" />
-            <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerSeconds" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-        </LinearLayout>
-        <TextView android:textSize="16.0sp" android:textColor="@color/white_color" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" android:text="@string/interval_timer_loops" />
-        <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="@string/interval_timer_loops_hint" />
-        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
-            <com.isaigu.gymapp.widget.MyButton android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsMinus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="48.0dip" android:layout_height="48.0dip" android:text="-" android:textAllCaps="false" />
-            <EditText android:textSize="18.0sp" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerLoops" android:background="@drawable/shape_bg_white" android:layout_width="0.0dip" android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:layout_marginRight="8.0dip" android:inputType="number" android:text="0" />
-            <com.isaigu.gymapp.widget.MyButton android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsPlus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="48.0dip" android:layout_height="48.0dip" android:text="+" android:textAllCaps="false" />
-        </LinearLayout>
-        <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerActivate" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginTop="16.0dip" android:text="@string/interval_timer_activate" android:textAllCaps="false" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <TextView android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:text="@string/interval_timer_title" />
+        <TextView android:textSize="11.0sp" android:textColor="@color/light_green_color" android:gravity="end" android:id="@id/intervalTimerStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/interval_timer_status_idle" />
     </LinearLayout>
-</ScrollView>
+    <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip">
+        <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerMinutes" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <TextView android:textSize="28.0sp" android:textStyle="bold" android:textColor="@color/impulse_accent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:layout_marginRight="8.0dip" android:text=":" />
+        <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerSeconds" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    </LinearLayout>
+    <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" android:text="@string/interval_timer_loops" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
+        <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsMinus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="40.0dip" android:layout_height="40.0dip" android:text="-" android:textAllCaps="false" />
+        <EditText android:textSize="16.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerLoops" android:background="@drawable/interval_timer_sound_chip" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:layout_marginRight="6.0dip" android:inputType="number" android:text="0" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsPlus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="40.0dip" android:layout_height="40.0dip" android:text="+" android:textAllCaps="false" />
+    </LinearLayout>
+    <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="@string/interval_timer_loops_hint" />
+    <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:text="@string/interval_timer_sound_label" />
+    <HorizontalScrollView android:scrollbars="none" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
+        <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <com.isaigu.gymapp.widget.MyButton android:textSize="11.0sp" android:textColor="@color/white_color" android:id="@id/intervalTimerSoundOff" android:background="@drawable/interval_timer_sound_chip" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="wrap_content" android:layout_height="32.0dip" android:minWidth="48.0dip" android:text="@string/interval_timer_sound_off" android:textAllCaps="false" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="11.0sp" android:textColor="@color/white_color" android:id="@id/intervalTimerSoundBeep" android:background="@drawable/interval_timer_sound_chip" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="wrap_content" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:minWidth="48.0dip" android:text="@string/interval_timer_sound_beep" android:textAllCaps="false" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="11.0sp" android:textColor="@color/white_color" android:id="@id/intervalTimerSoundChime" android:background="@drawable/interval_timer_sound_chip" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="wrap_content" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:minWidth="48.0dip" android:text="@string/interval_timer_sound_chime" android:textAllCaps="false" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="11.0sp" android:textColor="@color/white_color" android:id="@id/intervalTimerSoundBell" android:background="@drawable/interval_timer_sound_chip" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="wrap_content" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:minWidth="48.0dip" android:text="@string/interval_timer_sound_bell" android:textAllCaps="false" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="11.0sp" android:textColor="@color/white_color" android:id="@id/intervalTimerSoundCustom" android:background="@drawable/interval_timer_sound_chip" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="wrap_content" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:minWidth="48.0dip" android:text="@string/interval_timer_sound_custom" android:textAllCaps="false" />
+        </LinearLayout>
+    </HorizontalScrollView>
+    <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:ellipsize="middle" android:id="@id/intervalTimerSoundFile" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:singleLine="true" android:text="@string/interval_timer_sound_no_file" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerSoundPreview" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="36.0dip" android:layout_weight="1.0" android:text="@string/interval_timer_sound_preview" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerSoundPick" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="36.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/interval_timer_sound_upload" android:textAllCaps="false" />
+    </LinearLayout>
+    <com.isaigu.gymapp.widget.MyButton android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerActivate" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="44.0dip" android:layout_marginTop="12.0dip" android:text="@string/interval_timer_activate" android:textAllCaps="false" />
+</LinearLayout>
 """
 
 OVERLAY_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:id="@id/intervalTimerOverlayRoot" android:background="@drawable/design_snackbar_background" android:padding="12.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content"
+<FrameLayout android:id="@id/intervalTimerOverlayRoot" android:background="@drawable/interval_timer_dial_bg" android:layout_width="76.0dip" android:layout_height="76.0dip"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView android:textSize="32.0sp" android:textStyle="bold" android:textColor="@color/light_green_color" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="100.0dip" android:text="00:00" />
-    <TextView android:textSize="13.0sp" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="" />
-</LinearLayout>
+    <LinearLayout android:gravity="center" android:layout_gravity="center" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/light_green_color" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="0.04" android:text="00:00" />
+        <TextView android:textSize="9.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:includeFontPadding="false" android:text="" />
+    </LinearLayout>
+</FrameLayout>
 """
 
 TIMER_BUTTON_BLOCK = """        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.08" />
@@ -166,6 +198,15 @@ EN_STRINGS = """
     <string name="interval_timer_activate">Activate timer</string>
     <string name="interval_timer_invalid_duration">Set interval longer than 0 seconds</string>
     <string name="interval_timer_error">Could not open interval timer</string>
+    <string name="interval_timer_sound_label">Interval signal</string>
+    <string name="interval_timer_sound_off">Off</string>
+    <string name="interval_timer_sound_beep">Beep</string>
+    <string name="interval_timer_sound_chime">Chime</string>
+    <string name="interval_timer_sound_bell">Bell</string>
+    <string name="interval_timer_sound_custom">Custom</string>
+    <string name="interval_timer_sound_preview">Preview</string>
+    <string name="interval_timer_sound_upload">Upload</string>
+    <string name="interval_timer_sound_no_file">No custom signal selected</string>
 """
 
 BG_STRINGS = """
@@ -180,6 +221,15 @@ BG_STRINGS = """
     <string name="interval_timer_activate">Активирай таймера</string>
     <string name="interval_timer_invalid_duration">Задай интервал по-голям от 0 секунди</string>
     <string name="interval_timer_error">Таймерът не може да се отвори</string>
+    <string name="interval_timer_sound_label">Сигнал при интервал</string>
+    <string name="interval_timer_sound_off">Без</string>
+    <string name="interval_timer_sound_beep">Бип</string>
+    <string name="interval_timer_sound_chime">Камбана</string>
+    <string name="interval_timer_sound_bell">Звън</string>
+    <string name="interval_timer_sound_custom">Свой</string>
+    <string name="interval_timer_sound_preview">Проба</string>
+    <string name="interval_timer_sound_upload">Качи</string>
+    <string name="interval_timer_sound_no_file">Няма избран файл</string>
 """
 
 
@@ -287,6 +337,41 @@ def patch_new_train_fragment(text: str) -> str:
     return text
 
 
+def patch_base_activity(text: str) -> str:
+    hook = (
+        "    invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;"
+        "->onActivityResult(IILandroid/content/Intent;)V\n\n"
+    )
+    if "IntervalTimerHelper;->onActivityResult" in text:
+        print("BaseActivity.onActivityResult: interval timer hook already applied")
+        return text
+    music_hook = (
+        "    invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;"
+        "->onActivityResult(IILandroid/content/Intent;)V\n\n"
+    )
+    if music_hook in text:
+        text = text.replace(music_hook, hook + music_hook, 1)
+        print("BaseActivity.onActivityResult: forward signal picker to IntervalTimerHelper")
+        return text
+    full_hook = (
+        ".method protected onActivityResult(IILandroid/content/Intent;)V\n"
+        "    .locals 0\n"
+        "    .param p1, \"requestCode\"    # I\n"
+        "    .param p2, \"resultCode\"    # I\n"
+        "    .param p3, \"data\"    # Landroid/content/Intent;\n\n"
+        + hook
+        + "    invoke-super {p0, p1, p2, p3}, Landroid/support/v7/app/AppCompatActivity;"
+        "->onActivityResult(IILandroid/content/Intent;)V\n\n"
+        "    return-void\n"
+        ".end method\n\n"
+    )
+    marker = ".method protected onCreate(Landroid/os/Bundle;)V\n"
+    if marker not in text:
+        raise RuntimeError("BaseActivity.onCreate marker not found")
+    print("BaseActivity.onActivityResult: created interval timer result handler")
+    return text.replace(marker, full_hook + marker, 1)
+
+
 def merge_strings(path: Path, block: str, names: list[str]) -> None:
     if not path.exists():
         return
@@ -328,6 +413,11 @@ def main() -> int:
         patch_new_train_fragment(NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")),
         encoding="utf-8",
     )
+    if BASE_ACTIVITY.is_file():
+        BASE_ACTIVITY.write_text(
+            patch_base_activity(BASE_ACTIVITY.read_text(encoding="utf-8")),
+            encoding="utf-8",
+        )
     names = list(STRING_IDS.keys())
     merge_strings(VALUES_DEFAULT, EN_STRINGS, names)
     merge_strings(VALUES_BG, BG_STRINGS, names)

@@ -345,4 +345,13 @@
     <string name="interval_timer_activate">Активирай таймера</string>
     <string name="interval_timer_invalid_duration">Задай интервал по-голям от 0 секунди</string>
     <string name="interval_timer_error">Таймерът не може да се отвори</string>
+    <string name="interval_timer_sound_label">Сигнал при интервал</string>
+    <string name="interval_timer_sound_off">Без</string>
+    <string name="interval_timer_sound_beep">Бип</string>
+    <string name="interval_timer_sound_chime">Камбана</string>
+    <string name="interval_timer_sound_bell">Звън</string>
+    <string name="interval_timer_sound_custom">Свой</string>
+    <string name="interval_timer_sound_preview">Проба</string>
+    <string name="interval_timer_sound_upload">Качи</string>
+    <string name="interval_timer_sound_no_file">Няма избран файл</string>
 </resources>

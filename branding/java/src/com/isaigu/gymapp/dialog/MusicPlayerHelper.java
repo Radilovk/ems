@@ -90,7 +90,7 @@ public final class MusicPlayerHelper {
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setBackgroundDrawableResource(0x7f080069);
         }
         dialog.show();
     }

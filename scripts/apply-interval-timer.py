@@ -1,0 +1,341 @@
+#!/usr/bin/env python3
+"""Interval timer: master button, config dialog, draggable overlay, training sync hooks."""
+
+from __future__ import annotations
+
+import re
+import shutil
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DECOMPILED = ROOT / "build" / "decompiled"
+RES = DECOMPILED / "res"
+BRANDING = ROOT / "branding"
+DIALOG_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/dialog"
+NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
+PUBLIC_XML = RES / "values/public.xml"
+IDS_XML = RES / "values/ids.xml"
+VALUES_DEFAULT = RES / "values/strings.xml"
+VALUES_BG = ROOT / "translations/values-bg/strings.xml"
+VALUES_BG_DECOMPILED = RES / "values-bg/strings.xml"
+
+DIALOG_LAYOUT_NAME = "interval_timer_dialog.xml"
+OVERLAY_LAYOUT_NAME = "interval_timer_overlay.xml"
+DIALOG_LAYOUT_ID = 0x7F0B0079
+OVERLAY_LAYOUT_ID = 0x7F0B007A
+
+IDS = {
+    "intervalTimerBtn": 0x7F090230,
+    "intervalTimerMinutes": 0x7F090231,
+    "intervalTimerSeconds": 0x7F090232,
+    "intervalTimerLoops": 0x7F090233,
+    "intervalTimerLoopsMinus": 0x7F090234,
+    "intervalTimerLoopsPlus": 0x7F090235,
+    "intervalTimerActivate": 0x7F090236,
+    "intervalTimerStatus": 0x7F090237,
+    "intervalTimerOverlayRoot": 0x7F090238,
+    "intervalTimerCountdown": 0x7F090239,
+    "intervalTimerLoopLabel": 0x7F09023A,
+}
+
+STRING_IDS = {
+    "interval_timer_status_idle": 0x7F0D0120,
+    "interval_timer_status_armed": 0x7F0D0121,
+    "interval_timer_status_running": 0x7F0D0122,
+    "interval_timer_title": 0x7F0D0123,
+    "interval_timer_minutes": 0x7F0D0124,
+    "interval_timer_seconds": 0x7F0D0125,
+    "interval_timer_loops": 0x7F0D0126,
+    "interval_timer_invalid_duration": 0x7F0D0127,
+    "interval_timer_error": 0x7F0D0128,
+    "interval_timer_loops_hint": 0x7F0D0129,
+    "interval_timer_activate": 0x7F0D012A,
+}
+
+DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:padding="20.0dip" android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/interval_timer_title" />
+        <TextView android:textSize="14.0sp" android:textColor="@color/light_green_color" android:id="@id/intervalTimerStatus" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip" android:text="@string/interval_timer_status_idle" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
+            <TextView android:textSize="16.0sp" android:textColor="@color/white_color" android:layout_width="120.0dip" android:layout_height="wrap_content" android:text="@string/interval_timer_minutes" />
+            <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerMinutes" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip">
+            <TextView android:textSize="16.0sp" android:textColor="@color/white_color" android:layout_width="120.0dip" android:layout_height="wrap_content" android:text="@string/interval_timer_seconds" />
+            <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerSeconds" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        </LinearLayout>
+        <TextView android:textSize="16.0sp" android:textColor="@color/white_color" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" android:text="@string/interval_timer_loops" />
+        <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="@string/interval_timer_loops_hint" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
+            <com.isaigu.gymapp.widget.MyButton android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsMinus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="48.0dip" android:layout_height="48.0dip" android:text="-" android:textAllCaps="false" />
+            <EditText android:textSize="18.0sp" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerLoops" android:background="@drawable/shape_bg_white" android:layout_width="0.0dip" android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:layout_marginRight="8.0dip" android:inputType="number" android:text="0" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsPlus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="48.0dip" android:layout_height="48.0dip" android:text="+" android:textAllCaps="false" />
+        </LinearLayout>
+        <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerActivate" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginTop="16.0dip" android:text="@string/interval_timer_activate" android:textAllCaps="false" />
+    </LinearLayout>
+</ScrollView>
+"""
+
+OVERLAY_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/intervalTimerOverlayRoot" android:background="@drawable/design_snackbar_background" android:padding="12.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:elevation="8.0dip"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textSize="32.0sp" android:textStyle="bold" android:textColor="@color/light_green_color" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="100.0dip" android:text="00:00" />
+    <TextView android:textSize="13.0sp" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="" />
+</LinearLayout>
+"""
+
+TIMER_BUTTON_BLOCK = """        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.08" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerBtn" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:text="&#9201;" android:textAllCaps="false" />
+        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.08" />
+"""
+
+FRAGMENT_LAYOUTS = [
+    RES / "layout/new_train_fragment_layout.xml",
+    RES / "layout-night/new_train_fragment_layout.xml",
+]
+
+INTERVAL_HOOK = """
+    iget-object v1, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->binding:Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/databinding/NewTrainFragmentLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
+
+"""
+
+MUSIC_HOOK_MARKER = "MusicPlayerHelper;->attachMasterPanel"
+
+START_PAUSE_HOOK_OLD = """.method public synthetic lambda$onCreateView$0$NewTrainFragment(Landroid/view/View;)V
+    .locals 0
+    .param p1, "l"    # Landroid/view/View;
+
+    .line 94
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->startOrStopAll()V
+
+    return-void
+.end method"""
+
+START_PAUSE_HOOK_NEW = """.method public synthetic lambda$onCreateView$0$NewTrainFragment(Landroid/view/View;)V
+    .locals 1
+    .param p1, "l"    # Landroid/view/View;
+
+    .line 94
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->startOrStopAll()V
+
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->allStart:Z
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingRunningChanged(Z)V
+
+    return-void
+.end method"""
+
+ALL_STOP_HOOK_OLD = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V
+
+    .line 100
+    return-void
+.end method
+
+.method public synthetic lambda$onCreateView$10$NewTrainFragment"""
+
+ALL_STOP_HOOK_NEW = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V
+
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingStop()V
+
+    .line 100
+    return-void
+.end method
+
+.method public synthetic lambda$onCreateView$10$NewTrainFragment"""
+
+EN_STRINGS = """
+    <string name="interval_timer_title">Interval timer</string>
+    <string name="interval_timer_status_idle">Status: configure and activate</string>
+    <string name="interval_timer_status_armed">Status: armed — starts with training</string>
+    <string name="interval_timer_status_running">Status: running</string>
+    <string name="interval_timer_minutes">Minutes</string>
+    <string name="interval_timer_seconds">Seconds</string>
+    <string name="interval_timer_loops">Loops (0 = unlimited)</string>
+    <string name="interval_timer_loops_hint">After the last loop, training stops automatically.</string>
+    <string name="interval_timer_activate">Activate timer</string>
+    <string name="interval_timer_invalid_duration">Set interval longer than 0 seconds</string>
+    <string name="interval_timer_error">Could not open interval timer</string>
+"""
+
+BG_STRINGS = """
+    <string name="interval_timer_title">Интервален таймер</string>
+    <string name="interval_timer_status_idle">Статус: настрой и активирай</string>
+    <string name="interval_timer_status_armed">Статус: активиран — стартира с тренировката</string>
+    <string name="interval_timer_status_running">Статус: работи</string>
+    <string name="interval_timer_minutes">Минути</string>
+    <string name="interval_timer_seconds">Секунди</string>
+    <string name="interval_timer_loops">Повторения (0 = безкрайно)</string>
+    <string name="interval_timer_loops_hint">След последното повторение тренировката спира автоматично.</string>
+    <string name="interval_timer_activate">Активирай таймера</string>
+    <string name="interval_timer_invalid_duration">Задай интервал по-голям от 0 секунди</string>
+    <string name="interval_timer_error">Таймерът не може да се отвори</string>
+"""
+
+
+def install_smali() -> None:
+    DIALOG_DIR.mkdir(parents=True, exist_ok=True)
+    for old in DIALOG_DIR.glob("IntervalTimerHelper*.smali"):
+        old.unlink()
+        print(f"removed stale dialog/{old.name}")
+    for src in sorted((BRANDING / "smali").glob("IntervalTimerHelper*.smali")):
+        shutil.copy2(src, DIALOG_DIR / src.name)
+        print(f"installed dialog/{src.name}")
+    if not any(DIALOG_DIR.glob("IntervalTimerHelper*.smali")):
+        raise SystemExit("Missing IntervalTimerHelper.smali — run compile-interval-timer-java.sh")
+
+
+def patch_public_xml(text: str) -> str:
+    for name, id_val in IDS.items():
+        if name not in text:
+            text = text.replace(
+                "</resources>",
+                f'    <public type="id" name="{name}" id="{id_val:#x}" />\n</resources>',
+                1,
+            )
+    for layout_name, layout_id in (
+        (DIALOG_LAYOUT_NAME.replace(".xml", ""), DIALOG_LAYOUT_ID),
+        (OVERLAY_LAYOUT_NAME.replace(".xml", ""), OVERLAY_LAYOUT_ID),
+    ):
+        if layout_name not in text:
+            text = text.replace(
+                "</resources>",
+                f'    <public type="layout" name="{layout_name}" id="{layout_id:#x}" />\n</resources>',
+                1,
+            )
+    for name, id_val in STRING_IDS.items():
+        if name not in text:
+            text = text.replace(
+                "</resources>",
+                f'    <public type="string" name="{name}" id="{id_val:#x}" />\n</resources>',
+                1,
+            )
+    return text
+
+
+def patch_ids_xml(text: str) -> str:
+    missing = [name for name in IDS if name not in text]
+    if not missing:
+        return text
+    entries = "\n".join(f'    <item type="id" name="{name}" />' for name in missing)
+    return text.replace("</resources>", entries + "\n</resources>", 1)
+
+
+def patch_fragment_layout(path: Path) -> None:
+    if not path.is_file():
+        return
+    text = path.read_text(encoding="utf-8")
+    if "intervalTimerBtn" in text:
+        print(f"{path.name}: interval timer button already present")
+        return
+    marker = '@id/musicPlayerBtn'
+    if marker not in text:
+        raise RuntimeError(f"{path}: musicPlayerBtn marker not found — run apply-music-player.py first")
+    insert_after = 'android:textAllCaps="false" />\n        <View android:layout_width="fill_parent"'
+    idx = text.find(marker)
+    if idx < 0:
+        raise RuntimeError(f"{path}: musicPlayerBtn not found")
+    sub = text[idx:]
+    close_idx = sub.find('android:textAllCaps="false" />')
+    if close_idx < 0:
+        raise RuntimeError(f"{path}: music button end not found")
+    abs_end = idx + close_idx + len('android:textAllCaps="false" />')
+    text = text[:abs_end] + "\n" + TIMER_BUTTON_BLOCK + text[abs_end:]
+    path.write_text(text, encoding="utf-8")
+    print(f"{path.name}: added interval timer button near music player")
+
+
+def patch_new_train_fragment(text: str) -> str:
+    if START_PAUSE_HOOK_OLD in text:
+        text = text.replace(START_PAUSE_HOOK_OLD, START_PAUSE_HOOK_NEW, 1)
+        print("NewTrainFragment: interval hook on allStartPause")
+    elif "IntervalTimerHelper;->onTrainingRunningChanged" in text:
+        print("NewTrainFragment: start/pause hook already applied")
+    else:
+        raise RuntimeError("NewTrainFragment lambda$onCreateView$0 marker not found")
+
+    if ALL_STOP_HOOK_OLD in text:
+        text = text.replace(ALL_STOP_HOOK_OLD, ALL_STOP_HOOK_NEW, 1)
+        print("NewTrainFragment: interval hook on allStop")
+    elif "IntervalTimerHelper;->onTrainingStop" in text:
+        print("NewTrainFragment: allStop hook already applied")
+    else:
+        raise RuntimeError("NewTrainFragment lambda$onCreateView$1 marker not found")
+
+    if "IntervalTimerHelper;->attachMasterPanel" in text:
+        print("NewTrainFragment.onCreateView: interval timer hook already applied")
+        return text
+    if MUSIC_HOOK_MARKER not in text:
+        raise RuntimeError("NewTrainFragment: MusicPlayerHelper hook missing")
+    text = text.replace(
+        "invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V\n",
+        "invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V\n"
+        + INTERVAL_HOOK,
+        1,
+    )
+    print("NewTrainFragment.onCreateView: interval timer attach hook")
+    return text
+
+
+def merge_strings(path: Path, block: str, names: list[str]) -> None:
+    if not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    missing = [n for n in names if f'name="{n}"' not in text]
+    if not missing:
+        return
+    additions = []
+    for line in block.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        for name in missing:
+            if f'name="{name}"' in line:
+                additions.append(f"    {line}")
+                break
+    if additions:
+        path.write_text(
+            text.replace("</resources>", "\n".join(additions) + "\n</resources>", 1),
+            encoding="utf-8",
+        )
+        print(f"added {len(additions)} interval timer strings to {path.name}")
+
+
+def main() -> int:
+    if not DECOMPILED.exists():
+        print("Decompiled tree missing; run decompile first.", file=sys.stderr)
+        return 1
+
+    (RES / "layout" / DIALOG_LAYOUT_NAME).write_text(DIALOG_LAYOUT, encoding="utf-8")
+    (RES / "layout" / OVERLAY_LAYOUT_NAME).write_text(OVERLAY_LAYOUT, encoding="utf-8")
+    print(f"created layout/{DIALOG_LAYOUT_NAME} and {OVERLAY_LAYOUT_NAME}")
+
+    PUBLIC_XML.write_text(patch_public_xml(PUBLIC_XML.read_text(encoding="utf-8")), encoding="utf-8")
+    IDS_XML.write_text(patch_ids_xml(IDS_XML.read_text(encoding="utf-8")), encoding="utf-8")
+    for layout in FRAGMENT_LAYOUTS:
+        patch_fragment_layout(layout)
+    NEW_TRAIN_FRAGMENT.write_text(
+        patch_new_train_fragment(NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")),
+        encoding="utf-8",
+    )
+    names = list(STRING_IDS.keys())
+    merge_strings(VALUES_DEFAULT, EN_STRINGS, names)
+    merge_strings(VALUES_BG, BG_STRINGS, names)
+    merge_strings(VALUES_BG_DECOMPILED, BG_STRINGS, names)
+    install_smali()
+    print("Interval timer patches applied.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

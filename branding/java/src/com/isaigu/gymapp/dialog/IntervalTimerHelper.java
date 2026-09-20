@@ -1,7 +1,9 @@
 package com.isaigu.gymapp.dialog;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
@@ -81,6 +83,15 @@ public final class IntervalTimerHelper {
     private static final int RING_MAX = 100;
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
+    /** Compact config panel width — must match apply-interval-timer dialog layout. */
+    private static final int CONFIG_DIALOG_WIDTH_DP = 268;
+
+    private static final String PREFS = "interval_timer";
+    private static final String KEY_MINUTES = "minutes";
+    private static final String KEY_SECONDS = "seconds";
+    private static final String KEY_LOOPS = "loops";
+    private static final String KEY_SOUND = "sound";
+    private static final String KEY_CUSTOM_URI = "custom_uri";
     private static final float COUNTDOWN_TEXT_SP = 54f;
     private static final float OVERLAY_TAP_SLOP_DP = 10f;
     private static final int STR_NO_TRAINING = 0x7f0d011a;
@@ -126,6 +137,8 @@ public final class IntervalTimerHelper {
 
     private static long intervalMs = 60000L;
     private static int maxLoops;
+    private static int savedMinutes = 1;
+    private static int savedSeconds;
     private static int currentLoop;
     private static long remainingMs;
     private static long lastTickRealtime;
@@ -263,6 +276,7 @@ public final class IntervalTimerHelper {
         }
         intervalMs = ((minutes * 60L) + seconds) * 1000L;
         maxLoops = readLoopsInput();
+        saveSettings(resolveActivity(null), minutes, seconds);
         currentLoop = 0;
         remainingMs = intervalMs;
         armed = true;
@@ -357,6 +371,7 @@ public final class IntervalTimerHelper {
 
     private static void showConfigDialog(Activity activity) {
         hostActivity = activity;
+        loadSavedSettings(activity);
         dismissConfigDialog(false);
         View content;
         try {
@@ -376,8 +391,8 @@ public final class IntervalTimerHelper {
         soundSpinner = (Spinner) content.findViewById(ID_SOUND_SPINNER);
         soundPickBtn = content.findViewById(ID_SOUND_PICK);
         soundClearBtn = content.findViewById(ID_SOUND_CLEAR);
-        configureDurationPicker(minutesView, 0, 59, 1, 1);
-        configureDurationPicker(secondsView, 0, 59, 5, 0);
+        configureDurationPicker(minutesView, 0, 59, 1, savedMinutes);
+        configureDurationPicker(secondsView, 0, 59, 5, savedSeconds);
         if (loopsInput != null) {
             loopsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
             loopsInput.setText(String.valueOf(maxLoops));
@@ -402,7 +417,7 @@ public final class IntervalTimerHelper {
         try {
             Window window = configDialog.getWindow();
             if (window != null) {
-                window.setLayout(dp(activity, 320), WindowManager.LayoutParams.WRAP_CONTENT);
+                window.setLayout(dp(activity, CONFIG_DIALOG_WIDTH_DP), WindowManager.LayoutParams.WRAP_CONTENT);
             }
         } catch (Throwable ignored) {
         }
@@ -643,19 +658,78 @@ public final class IntervalTimerHelper {
         }
         try {
             long shownMs = remainingMs > 0L ? remainingMs : intervalMs;
-            int progress = (int) (shownMs * RING_MAX / intervalMs);
-            if (progress < 0) {
-                progress = 0;
+            float remainingFraction = shownMs / (float) intervalMs;
+            if (remainingFraction < 0f) {
+                remainingFraction = 0f;
             }
-            if (progress > RING_MAX) {
-                progress = RING_MAX;
+            if (remainingFraction > 1f) {
+                remainingFraction = 1f;
             }
-            ringView.setCurProcess(progress);
+            int elapsedProgress = (int) ((1f - remainingFraction) * RING_MAX + 0.5f);
+            ringView.setCurProcess(elapsedProgress);
+            ringView.setRemainingFraction(remainingFraction);
             if (countdownView != null) {
-                float remaining = progress / (float) RING_MAX;
-                countdownView.setTextColor(TimerRingView.colorForRemaining(remaining));
+                countdownView.setTextColor(TimerRingView.colorForRemaining(remainingFraction));
             }
         } catch (Throwable ignored) {
+        }
+    }
+
+    private static void loadSavedSettings(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        try {
+            SharedPreferences prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            savedMinutes = prefs.getInt(KEY_MINUTES, 1);
+            savedSeconds = prefs.getInt(KEY_SECONDS, 0);
+            maxLoops = prefs.getInt(KEY_LOOPS, 0);
+            selectedSound = prefs.getInt(KEY_SOUND, SOUND_BEEP);
+            String uriText = prefs.getString(KEY_CUSTOM_URI, null);
+            customSignalUri = uriText != null && uriText.length() > 0 ? Uri.parse(uriText) : null;
+            if (savedMinutes < 0) {
+                savedMinutes = 0;
+            }
+            if (savedMinutes > 59) {
+                savedMinutes = 59;
+            }
+            if (savedSeconds < 0) {
+                savedSeconds = 0;
+            }
+            if (savedSeconds > 59) {
+                savedSeconds = 59;
+            }
+            if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
+                selectedSound = SOUND_BEEP;
+            }
+            long ms = ((savedMinutes * 60L) + savedSeconds) * 1000L;
+            intervalMs = ms > 0L ? ms : 60000L;
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_prefs_load", t);
+        }
+    }
+
+    private static void saveSettings(Activity activity, int minutes, int seconds) {
+        if (activity == null) {
+            return;
+        }
+        savedMinutes = minutes;
+        savedSeconds = seconds;
+        try {
+            SharedPreferences.Editor editor =
+                    activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+            editor.putInt(KEY_MINUTES, minutes);
+            editor.putInt(KEY_SECONDS, seconds);
+            editor.putInt(KEY_LOOPS, maxLoops);
+            editor.putInt(KEY_SOUND, selectedSound);
+            if (customSignalUri != null) {
+                editor.putString(KEY_CUSTOM_URI, customSignalUri.toString());
+            } else {
+                editor.remove(KEY_CUSTOM_URI);
+            }
+            editor.apply();
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_prefs_save", t);
         }
     }
 

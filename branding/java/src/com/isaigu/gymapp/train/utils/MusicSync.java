@@ -466,7 +466,6 @@ public class MusicSync {
             startCapture();
             return;
         }
-        MusicSyncHelper.showPermission();
         AndroidUtils.requestPermission(activity, "android.permission.RECORD_AUDIO", PERMISSION_REQUEST,
                 new PermissionCallback());
     }

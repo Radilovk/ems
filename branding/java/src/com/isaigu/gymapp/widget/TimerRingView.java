@@ -10,7 +10,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 /**
- * Display-only countdown ring with traffic-light progress color (no thumb/touch).
+ * Display-only countdown ring: arc grows as interval elapses; color tracks remaining fraction.
  */
 public final class TimerRingView extends View {
 
@@ -23,7 +23,8 @@ public final class TimerRingView extends View {
     private float trackWidthPx;
     private int maxDiameterPx;
     private int maxProcess = 100;
-    private int curProcess = 100;
+    private int curProcess;
+    private float remainingFraction = 1f;
 
     public TimerRingView(Context context) {
         super(context);
@@ -70,10 +71,10 @@ public final class TimerRingView extends View {
         if (curProcess > this.maxProcess) {
             curProcess = this.maxProcess;
         }
-        updateProgressColor();
         invalidate();
     }
 
+    /** Elapsed fraction of the configured interval (0 = just started, max = finished). */
     public void setCurProcess(int curProcess) {
         if (curProcess < 0) {
             curProcess = 0;
@@ -82,16 +83,30 @@ public final class TimerRingView extends View {
             curProcess = maxProcess;
         }
         this.curProcess = curProcess;
+        invalidate();
+    }
+
+    /** Remaining fraction of the user-selected interval (1 = full duration left). */
+    public void setRemainingFraction(float remaining) {
+        if (remaining < 0f) {
+            remaining = 0f;
+        }
+        if (remaining > 1f) {
+            remaining = 1f;
+        }
+        remainingFraction = remaining;
         updateProgressColor();
         invalidate();
     }
 
     private void updateProgressColor() {
-        float remaining = curProcess / (float) maxProcess;
-        progressPaint.setColor(colorForRemaining(remaining));
+        progressPaint.setColor(colorForRemaining(remainingFraction));
     }
 
-    /** Full time = red; as time runs out → orange → yellow → green. */
+    /**
+     * Smooth red → orange → yellow → green proportional to remaining time
+     * of the configured interval (not bucketed).
+     */
     public static int colorForRemaining(float remaining) {
         if (remaining >= 1f) {
             return 0xFFE53935;
@@ -99,30 +114,8 @@ public final class TimerRingView extends View {
         if (remaining <= 0f) {
             return 0xFF43A047;
         }
-        if (remaining >= 0.75f) {
-            return blend(0xFFFF9800, 0xFFE53935, (remaining - 0.75f) / 0.25f);
-        }
-        if (remaining >= 0.50f) {
-            return blend(0xFFFFEB3B, 0xFFFF9800, (remaining - 0.50f) / 0.25f);
-        }
-        if (remaining >= 0.25f) {
-            return blend(0xFF66BB6A, 0xFFFFEB3B, (remaining - 0.25f) / 0.25f);
-        }
-        return blend(0xFF43A047, 0xFF66BB6A, remaining / 0.25f);
-    }
-
-    private static int blend(int c1, int c2, float ratio) {
-        if (ratio <= 0f) {
-            return c2;
-        }
-        if (ratio >= 1f) {
-            return c1;
-        }
-        int a = (int) (Color.alpha(c1) * ratio + Color.alpha(c2) * (1f - ratio));
-        int r = (int) (Color.red(c1) * ratio + Color.red(c2) * (1f - ratio));
-        int g = (int) (Color.green(c1) * ratio + Color.green(c2) * (1f - ratio));
-        int b = (int) (Color.blue(c1) * ratio + Color.blue(c2) * (1f - ratio));
-        return Color.argb(a, r, g, b);
+        float hue = (1f - remaining) * 120f;
+        return Color.HSVToColor(new float[] {hue, 0.88f, 0.96f});
     }
 
     @Override

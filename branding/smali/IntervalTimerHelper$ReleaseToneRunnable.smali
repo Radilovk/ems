@@ -25,13 +25,13 @@
 .method constructor <init>(Landroid/media/ToneGenerator;)V
     .registers 2
 
-    .line 1090
+    .line 1164
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1091
+    .line 1165
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ReleaseToneRunnable;->tone:Landroid/media/ToneGenerator;
 
-    .line 1092
+    .line 1166
     return-void
 .end method
 
@@ -40,7 +40,7 @@
 .method public run()V
     .registers 2
 
-    .line 1097
+    .line 1171
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ReleaseToneRunnable;->tone:Landroid/media/ToneGenerator;
 
@@ -48,14 +48,14 @@
     :try_end_5
     .catchall {:try_start_0 .. :try_end_5} :catchall_6
 
-    .line 1099
+    .line 1173
     goto :goto_7
 
-    .line 1098
+    .line 1172
     :catchall_6
     move-exception v0
 
-    .line 1100
+    .line 1174
     :goto_7
     return-void
 .end method

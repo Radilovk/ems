@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 984
+    .line 1058
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,13 +32,13 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 987
+    .line 1061
     const/4 v0, 0x4
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(I)I
 
-    .line 988
+    .line 1062
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1100()Landroid/widget/Spinner;
 
@@ -46,13 +46,13 @@
 
     if-eqz v1, :cond_19
 
-    .line 989
+    .line 1063
     const/4 v1, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$402(Z)Z
 
-    .line 990
+    .line 1064
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1100()Landroid/widget/Spinner;
 
@@ -60,21 +60,21 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/Spinner;->setSelection(I)V
 
-    .line 991
+    .line 1065
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$402(Z)Z
 
-    .line 993
+    .line 1067
     :cond_19
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
 
-    .line 994
+    .line 1068
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startSignalPick(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1200(Landroid/view/View;)V
 
-    .line 995
+    .line 1069
     return-void
 .end method

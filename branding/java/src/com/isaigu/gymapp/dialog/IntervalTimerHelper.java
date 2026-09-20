@@ -26,6 +26,7 @@ import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.widget.AmountView;
+import com.isaigu.gymapp.widget.CircleSeekBar;
 
 /**
  * Master-panel interval timer. Uses AlertDialog for config and floating overlay
@@ -52,6 +53,9 @@ public final class IntervalTimerHelper {
     private static final int ID_SOUND_PREVIEW = 0x7f09023c;
     private static final int ID_SOUND_PICK = 0x7f09023d;
     private static final int ID_SOUND_SPINNER = 0x7f09023e;
+    private static final int ID_RING = 0x7f090243;
+    private static final int ID_SOUND_CLEAR = 0x7f090244;
+    private static final int ID_SOUND_FILE_ROW = 0x7f090245;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
@@ -72,7 +76,9 @@ public final class IntervalTimerHelper {
     private static final int SOUND_CUSTOM = 4;
 
     private static final long TICK_MS = 250L;
+    private static final int RING_MAX = 100;
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
+    private static final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
 
     private static android.support.v7.app.AlertDialog configDialog;
     private static android.support.v7.app.AlertDialog overlayDialog;
@@ -85,8 +91,11 @@ public final class IntervalTimerHelper {
     private static TextView countdownView;
     private static TextView loopLabelView;
     private static TextView soundFileView;
+    private static View soundFileRow;
     private static Spinner soundSpinner;
     private static View soundPickBtn;
+    private static View soundClearBtn;
+    private static CircleSeekBar ringView;
 
     private static View allStopButton;
     private static View panelRoot;
@@ -104,6 +113,7 @@ public final class IntervalTimerHelper {
     private static boolean ignoreSpinnerCallback;
 
     private static int selectedSound = SOUND_BEEP;
+    private static int soundBeforePick = SOUND_BEEP;
     private static Uri customSignalUri;
     private static MediaPlayer signalPlayer;
 
@@ -137,34 +147,43 @@ public final class IntervalTimerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        pickingSignal = false;
+        restoreConfigDialogAfterPick();
         if (requestCode != PICK_SIGNAL) {
             return;
         }
-        pickingSignal = false;
-        Activity activity = resolvePickerActivity(null);
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            Uri uri = data.getData();
-            if (uri != null) {
-                customSignalUri = uri;
-                selectedSound = SOUND_CUSTOM;
-                if (activity != null) {
+        if (resultCode != Activity.RESULT_OK || data == null) {
+            selectedSound = soundBeforePick;
+            refreshSoundUi();
+            return;
+        }
+        Uri uri = data.getData();
+        if (uri == null) {
+            selectedSound = soundBeforePick;
+            refreshSoundUi();
+            return;
+        }
+        customSignalUri = uri;
+        selectedSound = SOUND_CUSTOM;
+        try {
+            Activity activity = MusicPlayerHelper.resolveHostActivity(null, configContent);
+            if (activity != null) {
+                int takeFlags = data.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                if (takeFlags != 0) {
                     try {
-                        int takeFlags = data.getFlags()
-                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        if (takeFlags != 0) {
-                            activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
-                        }
+                        activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
                     } catch (Throwable t) {
                         MusicDiagLog.logError("interval_timer_uri_persist", t);
                     }
                 }
-                MusicDiagLog.log("interval_timer", "custom signal uri set");
             }
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_uri_grant", t);
         }
-        if (activity != null && !activity.isFinishing()) {
-            showConfigDialog(activity);
-        }
+        refreshSoundUi();
+        MusicDiagLog.log("interval_timer", "custom signal uri set");
     }
 
     public static void onTrainingRunningChanged(boolean running) {
@@ -273,18 +292,6 @@ public final class IntervalTimerHelper {
         updateOverlayVisibility();
     }
 
-    /** Always use MainActivity for file picker — guarantees BaseActivity.onActivityResult hook. */
-    private static Activity resolvePickerActivity(View view) {
-        Activity main = MainActivity.getInstance();
-        if (main != null && !main.isFinishing()) {
-            return main;
-        }
-        if (hostActivity != null && !hostActivity.isFinishing()) {
-            return hostActivity;
-        }
-        return MusicPlayerHelper.resolveHostActivity(view);
-    }
-
     private static Activity resolveActivity(Activity preferred) {
         if (preferred != null) {
             return preferred;
@@ -333,8 +340,10 @@ public final class IntervalTimerHelper {
         loopsInput = (EditText) content.findViewById(ID_LOOPS);
         statusView = (TextView) content.findViewById(ID_STATUS);
         soundFileView = (TextView) content.findViewById(ID_SOUND_FILE);
+        soundFileRow = content.findViewById(ID_SOUND_FILE_ROW);
         soundSpinner = (Spinner) content.findViewById(ID_SOUND_SPINNER);
         soundPickBtn = content.findViewById(ID_SOUND_PICK);
+        soundClearBtn = content.findViewById(ID_SOUND_CLEAR);
         configureDurationPicker(minutesView, 0, 59, 1, 1);
         configureDurationPicker(secondsView, 0, 59, 5, 0);
         if (loopsInput != null) {
@@ -346,6 +355,7 @@ public final class IntervalTimerHelper {
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         bindButton(content.findViewById(ID_SOUND_PREVIEW), new SoundPreviewListener());
         bindButton(soundPickBtn, new SoundPickListener());
+        bindButton(soundClearBtn, new SoundClearListener());
         setupSoundSpinner(activity);
         refreshSoundUi();
         refreshStatusText();
@@ -412,8 +422,15 @@ public final class IntervalTimerHelper {
             return false;
         }
         overlayContent = content;
+        ringView = (CircleSeekBar) content.findViewById(ID_RING);
         countdownView = (TextView) content.findViewById(ID_COUNTDOWN);
         loopLabelView = (TextView) content.findViewById(ID_LOOP_LABEL);
+        try {
+            if (ringView != null) {
+                ringView.setMaxProcess(RING_MAX);
+            }
+        } catch (Throwable ignored) {
+        }
         content.setClickable(true);
         content.setFocusable(false);
         content.setOnTouchListener(new OverlayDragListener());
@@ -441,14 +458,30 @@ public final class IntervalTimerHelper {
                     | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
             window.setAttributes(lp);
             overlayDialog.show();
+            refreshOverlayText();
             return true;
         } catch (Throwable t) {
             MusicDiagLog.logError("interval_timer_overlay_show", t);
             overlayDialog = null;
             overlayContent = null;
+            ringView = null;
             countdownView = null;
             loopLabelView = null;
             return false;
+        }
+    }
+
+    private static void restoreConfigDialogAfterPick() {
+        android.support.v7.app.AlertDialog current = configDialog;
+        if (current == null) {
+            return;
+        }
+        try {
+            if (!current.isShowing()) {
+                current.show();
+            }
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_dialog_restore", t);
         }
     }
 
@@ -458,13 +491,11 @@ public final class IntervalTimerHelper {
                 configDialog.dismiss();
             } catch (Throwable ignored) {
             }
-            if (!fromDismissListener) {
+            if (!fromDismissListener && !pickingSignal) {
                 configDialog = null;
                 configContent = null;
+                clearConfigRefs();
             }
-        }
-        if (!fromDismissListener && !pickingSignal) {
-            clearConfigRefs();
         }
     }
 
@@ -474,8 +505,10 @@ public final class IntervalTimerHelper {
         loopsInput = null;
         statusView = null;
         soundFileView = null;
+        soundFileRow = null;
         soundSpinner = null;
         soundPickBtn = null;
+        soundClearBtn = null;
     }
 
     private static void dismissOverlayDialog(boolean fromDismissListener) {
@@ -487,6 +520,7 @@ public final class IntervalTimerHelper {
             if (!fromDismissListener) {
                 overlayDialog = null;
                 overlayContent = null;
+                ringView = null;
                 countdownView = null;
                 loopLabelView = null;
             }
@@ -554,6 +588,25 @@ public final class IntervalTimerHelper {
                 loopLabelView.setText("#" + shownLoop + "/" + maxLoops);
             }
         }
+        refreshOverlayRing();
+    }
+
+    private static void refreshOverlayRing() {
+        if (ringView == null || intervalMs <= 0L) {
+            return;
+        }
+        try {
+            long shownMs = remainingMs > 0L ? remainingMs : intervalMs;
+            int progress = (int) (shownMs * RING_MAX / intervalMs);
+            if (progress < 0) {
+                progress = 0;
+            }
+            if (progress > RING_MAX) {
+                progress = RING_MAX;
+            }
+            ringView.setCurProcess(progress);
+        } catch (Throwable ignored) {
+        }
     }
 
     private static void refreshStatusText() {
@@ -575,22 +628,23 @@ public final class IntervalTimerHelper {
             soundPickBtn.setEnabled(custom);
             soundPickBtn.setAlpha(custom ? 1.0f : 0.45f);
         }
-        if (soundFileView != null) {
-            if (!custom) {
-                soundFileView.setVisibility(View.GONE);
+        if (soundFileRow != null) {
+            soundFileRow.setVisibility(custom ? View.VISIBLE : View.GONE);
+        }
+        if (soundFileView != null && custom) {
+            if (customSignalUri == null) {
+                soundFileView.setText(STR_SOUND_NO_FILE);
             } else {
-                soundFileView.setVisibility(View.VISIBLE);
-                if (customSignalUri == null) {
-                    soundFileView.setText(STR_SOUND_NO_FILE);
+                String name = customSignalUri.getLastPathSegment();
+                if (name == null || name.length() == 0) {
+                    soundFileView.setText(customSignalUri.toString());
                 } else {
-                    String name = customSignalUri.getLastPathSegment();
-                    if (name == null || name.length() == 0) {
-                        soundFileView.setText(customSignalUri.toString());
-                    } else {
-                        soundFileView.setText(name);
-                    }
+                    soundFileView.setText(name);
                 }
             }
+        }
+        if (soundClearBtn != null) {
+            soundClearBtn.setVisibility(custom ? View.VISIBLE : View.GONE);
         }
         if (soundSpinner != null) {
             ignoreSpinnerCallback = true;
@@ -643,9 +697,9 @@ public final class IntervalTimerHelper {
                 return;
         }
         try {
-            final ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
-            tone.startTone(toneType, 350);
-            handler.postDelayed(new ReleaseToneRunnable(tone), 400L);
+            final ToneGenerator tone = new ToneGenerator(AUDIO_STREAM, 100);
+            tone.startTone(toneType, 500);
+            handler.postDelayed(new ReleaseToneRunnable(tone), 550L);
         } catch (Throwable t) {
             MusicDiagLog.logError("interval_timer_tone", t);
         }
@@ -662,7 +716,8 @@ public final class IntervalTimerHelper {
         releaseSignalPlayer();
         try {
             signalPlayer = new MediaPlayer();
-            signalPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
+            signalPlayer.setAudioStreamType(AUDIO_STREAM);
+            signalPlayer.setVolume(1.0f, 1.0f);
             signalPlayer.setDataSource(activity, customSignalUri);
             signalPlayer.setOnCompletionListener(new SignalCompletionListener());
             signalPlayer.setOnErrorListener(new SignalErrorListener());
@@ -689,12 +744,18 @@ public final class IntervalTimerHelper {
         signalPlayer = null;
     }
 
-    private static void launchSignalPicker(Activity activity) {
-        if (activity == null || activity.isFinishing()) {
+    /** Same file-picker flow as {@link MusicPlayerHelper.PickListener}. */
+    private static void startSignalPick(View view) {
+        Activity activity = MusicPlayerHelper.resolveHostActivity(view);
+        if (activity == null) {
             toast(STR_ERROR);
             return;
         }
         hostActivity = activity;
+        soundBeforePick = readSoundSelection();
+        if (soundBeforePick == SOUND_CUSTOM) {
+            soundBeforePick = SOUND_BEEP;
+        }
         try {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -702,15 +763,18 @@ public final class IntervalTimerHelper {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
             pickingSignal = true;
-            dismissConfigDialog(false);
+            if (configDialog != null) {
+                try {
+                    configDialog.hide();
+                } catch (Throwable ignored) {
+                }
+            }
             activity.startActivityForResult(intent, PICK_SIGNAL);
         } catch (Throwable t) {
             pickingSignal = false;
+            restoreConfigDialogAfterPick();
             MusicDiagLog.logError("interval_timer_pick", t);
             toast(STR_ERROR);
-            if (!activity.isFinishing()) {
-                showConfigDialog(activity);
-            }
         }
     }
 
@@ -848,9 +912,6 @@ public final class IntervalTimerHelper {
             }
             selectedSound = position;
             refreshSoundUi();
-            if (position == SOUND_CUSTOM && customSignalUri == null) {
-                launchSignalPicker(resolvePickerActivity(view));
-            }
         }
 
         @Override
@@ -880,7 +941,20 @@ public final class IntervalTimerHelper {
                 ignoreSpinnerCallback = false;
             }
             refreshSoundUi();
-            launchSignalPicker(resolvePickerActivity(v));
+            startSignalPick(v);
+        }
+    }
+
+    static final class SoundClearListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            selectedSound = SOUND_BEEP;
+            if (soundSpinner != null) {
+                ignoreSpinnerCallback = true;
+                soundSpinner.setSelection(SOUND_BEEP);
+                ignoreSpinnerCallback = false;
+            }
+            refreshSoundUi();
         }
     }
 

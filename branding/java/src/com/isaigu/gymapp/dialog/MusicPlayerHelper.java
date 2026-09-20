@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,8 +92,17 @@ public final class MusicPlayerHelper {
         dialog.setCanceledOnTouchOutside(true);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(0x7f080069);
+            dialog.getWindow().setLayout(dp(activity, 320), WindowManager.LayoutParams.WRAP_CONTENT);
         }
         dialog.show();
+    }
+
+    private static int dp(Activity activity, int value) {
+        if (activity == null) {
+            return value;
+        }
+        float density = activity.getResources().getDisplayMetrics().density;
+        return (int) (value * density + 0.5f);
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {

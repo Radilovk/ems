@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -26,7 +27,7 @@ import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.widget.AmountView;
-import com.isaigu.gymapp.widget.CircleSeekBar;
+import com.isaigu.gymapp.widget.TimerRingView;
 
 /**
  * Master-panel interval timer. Uses AlertDialog for config and floating overlay
@@ -77,6 +78,9 @@ public final class IntervalTimerHelper {
 
     private static final long TICK_MS = 250L;
     private static final int RING_MAX = 100;
+    /** Matches avatar ring diameter (see apply-interval-timer overlay_metrics). */
+    private static final int OVERLAY_SIZE_DP = 64;
+    private static final float COUNTDOWN_TEXT_SP = 42f;
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
 
@@ -95,7 +99,7 @@ public final class IntervalTimerHelper {
     private static Spinner soundSpinner;
     private static View soundPickBtn;
     private static View soundClearBtn;
-    private static CircleSeekBar ringView;
+    private static TimerRingView ringView;
 
     private static View allStopButton;
     private static View panelRoot;
@@ -422,12 +426,15 @@ public final class IntervalTimerHelper {
             return false;
         }
         overlayContent = content;
-        ringView = (CircleSeekBar) content.findViewById(ID_RING);
+        ringView = (TimerRingView) content.findViewById(ID_RING);
         countdownView = (TextView) content.findViewById(ID_COUNTDOWN);
         loopLabelView = (TextView) content.findViewById(ID_LOOP_LABEL);
         try {
             if (ringView != null) {
                 ringView.setMaxProcess(RING_MAX);
+            }
+            if (countdownView != null) {
+                countdownView.setTextSize(TypedValue.COMPLEX_UNIT_SP, COUNTDOWN_TEXT_SP);
             }
         } catch (Throwable ignored) {
         }
@@ -447,9 +454,8 @@ public final class IntervalTimerHelper {
             }
             window.setBackgroundDrawableResource(android.R.color.transparent);
             window.setGravity(Gravity.TOP | Gravity.START);
-            window.setLayout(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT);
+            int overlayPx = dp(activity, OVERLAY_SIZE_DP);
+            window.setLayout(overlayPx, overlayPx);
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.x = dp(activity, 20);
             lp.y = dp(activity, 88);

@@ -8,4 +8,5 @@ public class TrainUserProgramDataWrapper implements Serializable {
     public boolean connected;
     public boolean inStart;
     public boolean start;
+    public int secondValue;
 }

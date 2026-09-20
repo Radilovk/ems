@@ -29,19 +29,19 @@
 .method constructor <init>(Landroid/app/Activity;Landroid/net/Uri;[I)V
     .registers 4
 
-    .line 530
+    .line 536
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 531
+    .line 537
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->activity:Landroid/app/Activity;
 
-    .line 532
+    .line 538
     iput-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->uri:Landroid/net/Uri;
 
-    .line 533
+    .line 539
     iput-object p3, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->envelope:[I
 
-    .line 534
+    .line 540
     return-void
 .end method
 
@@ -50,7 +50,7 @@
 .method public run()V
     .registers 4
 
-    .line 538
+    .line 544
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->activity:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->uri:Landroid/net/Uri;
@@ -60,6 +60,6 @@
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->finishStartPlayer(Landroid/app/Activity;Landroid/net/Uri;[I)V
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$900(Landroid/app/Activity;Landroid/net/Uri;[I)V
 
-    .line 539
+    .line 545
     return-void
 .end method

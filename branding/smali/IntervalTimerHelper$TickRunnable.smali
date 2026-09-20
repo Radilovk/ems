@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 550
+    .line 572
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public run()V
     .registers 6
 
-    .line 553
+    .line 575
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1400()Z
 
@@ -56,13 +56,13 @@
 
     goto :goto_41
 
-    .line 556
+    .line 578
     :cond_13
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
-    .line 557
+    .line 579
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1700()J
 
@@ -70,15 +70,15 @@
 
     sub-long v2, v0, v2
 
-    .line 558
+    .line 580
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1702(J)J
 
-    .line 559
+    .line 581
     # -= operator for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1822(J)J
 
-    .line 560
+    .line 582
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1800()J
 
@@ -90,16 +90,16 @@
 
     if-gtz v4, :cond_30
 
-    .line 561
+    .line 583
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onIntervalFinished()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1900()V
 
-    .line 563
+    .line 585
     :cond_30
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlay()V
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2000()V
 
-    .line 564
+    .line 586
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2200()Landroid/os/Handler;
 
@@ -114,10 +114,10 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 565
+    .line 587
     return-void
 
-    .line 554
+    .line 576
     :cond_41
     :goto_41
     return-void

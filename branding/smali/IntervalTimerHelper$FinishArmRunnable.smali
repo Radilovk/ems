@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1066
+    .line 1140
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,10 +32,10 @@
 .method public run()V
     .registers 1
 
-    .line 1069
+    .line 1143
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->finishArm()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2700()V
 
-    .line 1070
+    .line 1144
     return-void
 .end method

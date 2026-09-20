@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 956
+    .line 1030
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,7 +41,7 @@
         }
     .end annotation
 
-    .line 960
+    .line 1034
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$400()Z
 
@@ -49,19 +49,19 @@
 
     if-eqz p1, :cond_7
 
-    .line 961
+    .line 1035
     return-void
 
-    .line 963
+    .line 1037
     :cond_7
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {p3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(I)I
 
-    .line 964
+    .line 1038
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
 
-    .line 965
+    .line 1039
     return-void
 .end method
 
@@ -75,6 +75,6 @@
         }
     .end annotation
 
-    .line 969
+    .line 1043
     return-void
 .end method

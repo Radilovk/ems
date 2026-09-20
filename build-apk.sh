@@ -123,12 +123,16 @@ java -jar "${TOOLS}/uber-apk-signer.jar" \
   --ksAlias "${RELEASE_KEY_ALIAS}" \
   --ksPass "${RELEASE_KS_PASS}" \
   --ksKeyPass "${RELEASE_KS_PASS}"
-SIGNED_APK="$(find "${ROOT}/build/signed" -maxdepth 1 -name '*-aligned-*Signed.apk' | head -1)"
+SIGNED_APK="${ROOT}/build/signed/unsigned-aligned-signed.apk"
+if [[ ! -f "${SIGNED_APK}" ]]; then
+  SIGNED_APK="$(find "${ROOT}/build/signed" -maxdepth 1 -name '*.apk' ! -name '*.idsig' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
+fi
 if [[ -z "${SIGNED_APK}" || ! -f "${SIGNED_APK}" ]]; then
   echo "ERROR: signed APK not found under build/signed/"
   exit 1
 fi
 cp "${SIGNED_APK}" "${OUT_APK}"
+echo "Copied ${SIGNED_APK} -> ${OUT_APK}"
 
 # Broken builds (missing BETA music stack) were ~8.76MB; healthy builds ~8.78MB+.
 MIN_APK_BYTES="${MIN_APK_BYTES:-8765000}"

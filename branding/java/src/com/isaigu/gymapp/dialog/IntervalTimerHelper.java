@@ -16,7 +16,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ public final class IntervalTimerHelper {
     static final int ALL_STOP_ID = 0x7f09003c;
     static final int DIALOG_LAYOUT_ID = 0x7f0b0079;
     static final int OVERLAY_LAYOUT_ID = 0x7f0b007a;
+    static final int SPINNER_ITEM_LAYOUT_ID = 0x7f0b007b;
     static final int PICK_SIGNAL = 0x4256;
 
     private static final int ID_MINUTES = 0x7f090231;
@@ -48,17 +51,18 @@ public final class IntervalTimerHelper {
     private static final int ID_SOUND_FILE = 0x7f09023b;
     private static final int ID_SOUND_PREVIEW = 0x7f09023c;
     private static final int ID_SOUND_PICK = 0x7f09023d;
-    private static final int ID_SOUND_OFF = 0x7f09023e;
-    private static final int ID_SOUND_BEEP = 0x7f09023f;
-    private static final int ID_SOUND_CHIME = 0x7f090240;
-    private static final int ID_SOUND_BELL = 0x7f090241;
-    private static final int ID_SOUND_CUSTOM = 0x7f090242;
+    private static final int ID_SOUND_SPINNER = 0x7f09023e;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
     private static final int STR_STATUS_RUNNING = 0x7f0d0122;
     private static final int STR_INVALID_DURATION = 0x7f0d0127;
     private static final int STR_ERROR = 0x7f0d0128;
+    private static final int STR_SOUND_OFF = 0x7f0d012c;
+    private static final int STR_SOUND_BEEP = 0x7f0d012d;
+    private static final int STR_SOUND_CHIME = 0x7f0d012e;
+    private static final int STR_SOUND_BELL = 0x7f0d012f;
+    private static final int STR_SOUND_CUSTOM = 0x7f0d0130;
     private static final int STR_SOUND_NO_FILE = 0x7f0d0133;
 
     private static final int SOUND_OFF = 0;
@@ -81,11 +85,8 @@ public final class IntervalTimerHelper {
     private static TextView countdownView;
     private static TextView loopLabelView;
     private static TextView soundFileView;
-    private static View soundOffBtn;
-    private static View soundBeepBtn;
-    private static View soundChimeBtn;
-    private static View soundBellBtn;
-    private static View soundCustomBtn;
+    private static Spinner soundSpinner;
+    private static View soundPickBtn;
 
     private static View allStopButton;
     private static View panelRoot;
@@ -100,6 +101,7 @@ public final class IntervalTimerHelper {
     private static boolean countdownRunning;
     private static boolean trainingRunning;
     private static boolean pickingSignal;
+    private static boolean ignoreSpinnerCallback;
 
     private static int selectedSound = SOUND_BEEP;
     private static Uri customSignalUri;
@@ -113,9 +115,6 @@ public final class IntervalTimerHelper {
 
     private static float overlayTouchDx;
     private static float overlayTouchDy;
-
-    private static int chipBgRes;
-    private static int chipSelectedRes;
 
     private IntervalTimerHelper() {
     }
@@ -138,36 +137,34 @@ public final class IntervalTimerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != PICK_SIGNAL) {
+            return;
+        }
         pickingSignal = false;
-        restoreConfigDialogAfterPick();
-        if (requestCode != PICK_SIGNAL || resultCode != Activity.RESULT_OK || data == null) {
-            return;
-        }
-        Uri uri = data.getData();
-        if (uri == null) {
-            return;
-        }
-        customSignalUri = uri;
-        selectedSound = SOUND_CUSTOM;
-        try {
-            Activity activity = resolveActivity(null);
-            if (activity != null) {
-                int takeFlags = data.getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                if (takeFlags != 0) {
+        Activity activity = resolvePickerActivity(null);
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                customSignalUri = uri;
+                selectedSound = SOUND_CUSTOM;
+                if (activity != null) {
                     try {
-                        activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                        int takeFlags = data.getFlags()
+                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        if (takeFlags != 0) {
+                            activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                        }
                     } catch (Throwable t) {
                         MusicDiagLog.logError("interval_timer_uri_persist", t);
                     }
                 }
+                MusicDiagLog.log("interval_timer", "custom signal uri set");
             }
-        } catch (Throwable t) {
-            MusicDiagLog.logError("interval_timer_uri_grant", t);
         }
-        refreshSoundUi();
-        MusicDiagLog.log("interval_timer", "custom signal uri set");
+        if (activity != null && !activity.isFinishing()) {
+            showConfigDialog(activity);
+        }
     }
 
     public static void onTrainingRunningChanged(boolean running) {
@@ -222,6 +219,7 @@ public final class IntervalTimerHelper {
             toast(STR_INVALID_DURATION);
             return;
         }
+        selectedSound = readSoundSelection();
         if (selectedSound == SOUND_CUSTOM && customSignalUri == null) {
             toast(STR_SOUND_NO_FILE);
             return;
@@ -275,6 +273,18 @@ public final class IntervalTimerHelper {
         updateOverlayVisibility();
     }
 
+    /** Always use MainActivity for file picker — guarantees BaseActivity.onActivityResult hook. */
+    private static Activity resolvePickerActivity(View view) {
+        Activity main = MainActivity.getInstance();
+        if (main != null && !main.isFinishing()) {
+            return main;
+        }
+        if (hostActivity != null && !hostActivity.isFinishing()) {
+            return hostActivity;
+        }
+        return MusicPlayerHelper.resolveHostActivity(view);
+    }
+
     private static Activity resolveActivity(Activity preferred) {
         if (preferred != null) {
             return preferred;
@@ -309,7 +319,6 @@ public final class IntervalTimerHelper {
     private static void showConfigDialog(Activity activity) {
         hostActivity = activity;
         dismissConfigDialog(false);
-        resolveChipDrawableIds(activity);
         View content;
         try {
             content = LayoutInflater.from(activity).inflate(DIALOG_LAYOUT_ID, null);
@@ -324,11 +333,8 @@ public final class IntervalTimerHelper {
         loopsInput = (EditText) content.findViewById(ID_LOOPS);
         statusView = (TextView) content.findViewById(ID_STATUS);
         soundFileView = (TextView) content.findViewById(ID_SOUND_FILE);
-        soundOffBtn = content.findViewById(ID_SOUND_OFF);
-        soundBeepBtn = content.findViewById(ID_SOUND_BEEP);
-        soundChimeBtn = content.findViewById(ID_SOUND_CHIME);
-        soundBellBtn = content.findViewById(ID_SOUND_BELL);
-        soundCustomBtn = content.findViewById(ID_SOUND_CUSTOM);
+        soundSpinner = (Spinner) content.findViewById(ID_SOUND_SPINNER);
+        soundPickBtn = content.findViewById(ID_SOUND_PICK);
         configureDurationPicker(minutesView, 0, 59, 1, 1);
         configureDurationPicker(secondsView, 0, 59, 5, 0);
         if (loopsInput != null) {
@@ -339,12 +345,8 @@ public final class IntervalTimerHelper {
         bindButton(content.findViewById(ID_LOOPS_PLUS), new LoopsAdjustListener(1));
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         bindButton(content.findViewById(ID_SOUND_PREVIEW), new SoundPreviewListener());
-        bindButton(content.findViewById(ID_SOUND_PICK), new SoundPickListener());
-        bindButton(soundOffBtn, new SoundSelectListener(SOUND_OFF));
-        bindButton(soundBeepBtn, new SoundSelectListener(SOUND_BEEP));
-        bindButton(soundChimeBtn, new SoundSelectListener(SOUND_CHIME));
-        bindButton(soundBellBtn, new SoundSelectListener(SOUND_BELL));
-        bindButton(soundCustomBtn, new SoundSelectListener(SOUND_CUSTOM));
+        bindButton(soundPickBtn, new SoundPickListener());
+        setupSoundSpinner(activity);
         refreshSoundUi();
         refreshStatusText();
         android.support.v7.app.AlertDialog.Builder builder =
@@ -358,11 +360,41 @@ public final class IntervalTimerHelper {
         try {
             Window window = configDialog.getWindow();
             if (window != null) {
-                window.setLayout(dp(activity, 340), WindowManager.LayoutParams.WRAP_CONTENT);
+                window.setLayout(dp(activity, 320), WindowManager.LayoutParams.WRAP_CONTENT);
             }
         } catch (Throwable ignored) {
         }
         configDialog.show();
+    }
+
+    private static void setupSoundSpinner(Activity activity) {
+        if (soundSpinner == null) {
+            return;
+        }
+        String[] labels = new String[] {
+                activity.getString(STR_SOUND_OFF),
+                activity.getString(STR_SOUND_BEEP),
+                activity.getString(STR_SOUND_CHIME),
+                activity.getString(STR_SOUND_BELL),
+                activity.getString(STR_SOUND_CUSTOM),
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                activity, SPINNER_ITEM_LAYOUT_ID, labels);
+        adapter.setDropDownViewResource(SPINNER_ITEM_LAYOUT_ID);
+        ignoreSpinnerCallback = true;
+        soundSpinner.setAdapter(adapter);
+        if (selectedSound >= 0 && selectedSound < labels.length) {
+            soundSpinner.setSelection(selectedSound);
+        }
+        soundSpinner.setOnItemSelectedListener(new SoundSpinnerListener());
+        ignoreSpinnerCallback = false;
+    }
+
+    private static int readSoundSelection() {
+        if (soundSpinner != null) {
+            return soundSpinner.getSelectedItemPosition();
+        }
+        return selectedSound;
     }
 
     private static boolean showOverlayDialog() {
@@ -420,20 +452,6 @@ public final class IntervalTimerHelper {
         }
     }
 
-    private static void restoreConfigDialogAfterPick() {
-        android.support.v7.app.AlertDialog current = configDialog;
-        if (current == null) {
-            return;
-        }
-        try {
-            if (!current.isShowing()) {
-                current.show();
-            }
-        } catch (Throwable t) {
-            MusicDiagLog.logError("interval_timer_dialog_restore", t);
-        }
-    }
-
     private static void dismissConfigDialog(boolean fromDismissListener) {
         if (configDialog != null) {
             try {
@@ -445,6 +463,19 @@ public final class IntervalTimerHelper {
                 configContent = null;
             }
         }
+        if (!fromDismissListener && !pickingSignal) {
+            clearConfigRefs();
+        }
+    }
+
+    private static void clearConfigRefs() {
+        minutesView = null;
+        secondsView = null;
+        loopsInput = null;
+        statusView = null;
+        soundFileView = null;
+        soundSpinner = null;
+        soundPickBtn = null;
     }
 
     private static void dismissOverlayDialog(boolean fromDismissListener) {
@@ -539,55 +570,35 @@ public final class IntervalTimerHelper {
     }
 
     private static void refreshSoundUi() {
-        applyChipStyle(soundOffBtn, selectedSound == SOUND_OFF);
-        applyChipStyle(soundBeepBtn, selectedSound == SOUND_BEEP);
-        applyChipStyle(soundChimeBtn, selectedSound == SOUND_CHIME);
-        applyChipStyle(soundBellBtn, selectedSound == SOUND_BELL);
-        applyChipStyle(soundCustomBtn, selectedSound == SOUND_CUSTOM);
+        boolean custom = selectedSound == SOUND_CUSTOM;
+        if (soundPickBtn != null) {
+            soundPickBtn.setEnabled(custom);
+            soundPickBtn.setAlpha(custom ? 1.0f : 0.45f);
+        }
         if (soundFileView != null) {
-            if (customSignalUri == null) {
-                soundFileView.setText(STR_SOUND_NO_FILE);
+            if (!custom) {
+                soundFileView.setVisibility(View.GONE);
             } else {
-                String name = customSignalUri.getLastPathSegment();
-                if (name == null || name.length() == 0) {
-                    soundFileView.setText(customSignalUri.toString());
+                soundFileView.setVisibility(View.VISIBLE);
+                if (customSignalUri == null) {
+                    soundFileView.setText(STR_SOUND_NO_FILE);
                 } else {
-                    soundFileView.setText(name);
+                    String name = customSignalUri.getLastPathSegment();
+                    if (name == null || name.length() == 0) {
+                        soundFileView.setText(customSignalUri.toString());
+                    } else {
+                        soundFileView.setText(name);
+                    }
                 }
             }
         }
-    }
-
-    private static void applyChipStyle(View view, boolean selected) {
-        if (view == null || chipBgRes == 0) {
-            return;
+        if (soundSpinner != null) {
+            ignoreSpinnerCallback = true;
+            if (selectedSound >= 0 && selectedSound < soundSpinner.getCount()) {
+                soundSpinner.setSelection(selectedSound);
+            }
+            ignoreSpinnerCallback = false;
         }
-        try {
-            view.setBackgroundResource(selected ? chipSelectedRes : chipBgRes);
-        } catch (Throwable ignored) {
-        }
-    }
-
-    private static void resolveChipDrawableIds(Activity activity) {
-        if (chipBgRes != 0 && chipSelectedRes != 0) {
-            return;
-        }
-        String pkg = activity.getPackageName();
-        chipBgRes = activity.getResources().getIdentifier(
-                "interval_timer_sound_chip", "drawable", pkg);
-        chipSelectedRes = activity.getResources().getIdentifier(
-                "light_green_button_drawable_r30", "drawable", pkg);
-        if (chipBgRes == 0) {
-            chipBgRes = OPAQUE_DIALOG_BG;
-        }
-        if (chipSelectedRes == 0) {
-            chipSelectedRes = chipBgRes;
-        }
-    }
-
-    private static void selectSound(int sound) {
-        selectedSound = sound;
-        refreshSoundUi();
     }
 
     private static void onIntervalFinished() {
@@ -676,6 +687,31 @@ public final class IntervalTimerHelper {
         } catch (Throwable ignored) {
         }
         signalPlayer = null;
+    }
+
+    private static void launchSignalPicker(Activity activity) {
+        if (activity == null || activity.isFinishing()) {
+            toast(STR_ERROR);
+            return;
+        }
+        hostActivity = activity;
+        try {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("audio/*");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+            pickingSignal = true;
+            dismissConfigDialog(false);
+            activity.startActivityForResult(intent, PICK_SIGNAL);
+        } catch (Throwable t) {
+            pickingSignal = false;
+            MusicDiagLog.logError("interval_timer_pick", t);
+            toast(STR_ERROR);
+            if (!activity.isFinishing()) {
+                showConfigDialog(activity);
+            }
+        }
     }
 
     private static String formatRemaining(long ms) {
@@ -803,26 +839,33 @@ public final class IntervalTimerHelper {
         }
     }
 
-    static final class SoundSelectListener implements View.OnClickListener {
-        private final int sound;
-
-        SoundSelectListener(int sound) {
-            this.sound = sound;
+    static final class SoundSpinnerListener implements android.widget.AdapterView.OnItemSelectedListener {
+        @Override
+        public void onItemSelected(
+                android.widget.AdapterView<?> parent, View view, int position, long id) {
+            if (ignoreSpinnerCallback) {
+                return;
+            }
+            selectedSound = position;
+            refreshSoundUi();
+            if (position == SOUND_CUSTOM && customSignalUri == null) {
+                launchSignalPicker(resolvePickerActivity(view));
+            }
         }
 
         @Override
-        public void onClick(View v) {
-            if (sound == SOUND_CUSTOM && customSignalUri == null) {
-                toast(STR_SOUND_NO_FILE);
-            }
-            selectSound(sound);
+        public void onNothingSelected(android.widget.AdapterView<?> parent) {
         }
     }
 
     static final class SoundPreviewListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            hostActivity = MusicPlayerHelper.resolveHostActivity(v);
+            selectedSound = readSoundSelection();
+            if (selectedSound == SOUND_CUSTOM && customSignalUri == null) {
+                toast(STR_SOUND_NO_FILE);
+                return;
+            }
             playSignal();
         }
     }
@@ -830,32 +873,14 @@ public final class IntervalTimerHelper {
     static final class SoundPickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Activity activity = MusicPlayerHelper.resolveHostActivity(v);
-            if (activity == null) {
-                toast(STR_ERROR);
-                return;
+            selectedSound = SOUND_CUSTOM;
+            if (soundSpinner != null) {
+                ignoreSpinnerCallback = true;
+                soundSpinner.setSelection(SOUND_CUSTOM);
+                ignoreSpinnerCallback = false;
             }
-            hostActivity = activity;
-            try {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("audio/*");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-                pickingSignal = true;
-                if (configDialog != null) {
-                    try {
-                        configDialog.hide();
-                    } catch (Throwable ignored) {
-                    }
-                }
-                activity.startActivityForResult(intent, PICK_SIGNAL);
-            } catch (Throwable t) {
-                pickingSignal = false;
-                restoreConfigDialogAfterPick();
-                MusicDiagLog.logError("interval_timer_pick", t);
-                toast(STR_ERROR);
-            }
+            refreshSoundUi();
+            launchSignalPicker(resolvePickerActivity(v));
         }
     }
 
@@ -867,16 +892,7 @@ public final class IntervalTimerHelper {
             }
             configDialog = null;
             configContent = null;
-            minutesView = null;
-            secondsView = null;
-            loopsInput = null;
-            statusView = null;
-            soundFileView = null;
-            soundOffBtn = null;
-            soundBeepBtn = null;
-            soundChimeBtn = null;
-            soundBellBtn = null;
-            soundCustomBtn = null;
+            clearConfigRefs();
         }
     }
 

@@ -32,28 +32,39 @@
 .method public onError()V
     .registers 2
 
-    .line 572
+    .line 575
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 573
+    .line 576
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 574
+    .line 577
     return-void
 .end method
 
 .method public onPlaybackEnded()V
-    .registers 1
+    .registers 2
 
     .line 566
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->advanceToNextTrack()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_7
 
     .line 567
+    return-void
+
+    .line 569
+    :cond_7
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
+
+    .line 570
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 568
+    .line 571
     return-void
 .end method
 

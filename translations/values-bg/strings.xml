@@ -397,4 +397,9 @@
     <string name="interval_timer_repeats_unlimited">Безкрайно</string>
     <string name="interval_timer_advanced">Звук и запазени ▾</string>
     <string name="interval_timer_reset">Рестарт на интервала</string>
+    <string name="beta_music_player_minimize">Скрий контролите</string>
+    <string name="beta_music_player_expand">Покажи контролите</string>
+    <string name="beta_music_player_playlist">Плейлист</string>
+    <string name="beta_music_player_add_track">Добави песен</string>
+    <string name="beta_music_player_drag_hint">Задръж ☰ и плъзни за подредба</string>
 </resources>

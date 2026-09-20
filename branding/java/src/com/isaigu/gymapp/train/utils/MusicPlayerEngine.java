@@ -324,6 +324,71 @@ public final class MusicPlayerEngine {
         }
     }
 
+    public int getDurationMs() {
+        if (player == null) {
+            return 0;
+        }
+        try {
+            int duration = player.getDuration();
+            return duration < 0 ? 0 : duration;
+        } catch (Throwable ignored) {
+            return 0;
+        }
+    }
+
+    public boolean isPlaying() {
+        if (player == null) {
+            return false;
+        }
+        try {
+            return player.isPlaying();
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    public void seekTo(int positionMs) {
+        if (player == null) {
+            return;
+        }
+        try {
+            int duration = getDurationMs();
+            int target = positionMs;
+            if (target < 0) {
+                target = 0;
+            }
+            if (duration > 0 && target > duration) {
+                target = duration;
+            }
+            player.seekTo(target);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    public void pausePlayback() {
+        if (player == null) {
+            return;
+        }
+        try {
+            if (player.isPlaying()) {
+                player.pause();
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    public void resumePlayback() {
+        if (player == null) {
+            return;
+        }
+        try {
+            if (!player.isPlaying()) {
+                player.start();
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
     void dispatchEnded() {
         tracking = false;
         if (syncRunnable != null) {

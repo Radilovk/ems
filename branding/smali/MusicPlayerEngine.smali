@@ -1175,31 +1175,31 @@
 .method dispatchEnded()V
     .registers 3
 
-    .line 328
+    .line 393
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
-    .line 329
+    .line 394
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
     if-eqz v0, :cond_c
 
-    .line 330
+    .line 395
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
     invoke-virtual {v1, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 332
+    .line 397
     :cond_c
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
     if-eqz v0, :cond_13
 
-    .line 333
+    .line 398
     invoke-interface {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;->onPlaybackEnded()V
 
-    .line 335
+    .line 400
     :cond_13
     return-void
 .end method
@@ -1207,31 +1207,31 @@
 .method dispatchError()V
     .registers 3
 
-    .line 338
+    .line 403
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
-    .line 339
+    .line 404
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
     if-eqz v0, :cond_c
 
-    .line 340
+    .line 405
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
     invoke-virtual {v1, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 342
+    .line 407
     :cond_c
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
     if-eqz v0, :cond_13
 
-    .line 343
+    .line 408
     invoke-interface {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;->onError()V
 
-    .line 345
+    .line 410
     :cond_13
     return-void
 .end method
@@ -1321,36 +1321,149 @@
     return-void
 .end method
 
+.method public getDurationMs()I
+    .registers 3
+
+    .line 328
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    const/4 v1, 0x0
+
+    if-nez v0, :cond_6
+
+    .line 329
+    return v1
+
+    .line 332
+    :cond_6
+    :try_start_6
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->getDuration()I
+
+    move-result v0
+    :try_end_a
+    .catchall {:try_start_6 .. :try_end_a} :catchall_f
+
+    .line 333
+    if-gez v0, :cond_d
+
+    goto :goto_e
+
+    :cond_d
+    move v1, v0
+
+    :goto_e
+    return v1
+
+    .line 334
+    :catchall_f
+    move-exception v0
+
+    .line 335
+    return v1
+.end method
+
+.method public isPlaying()Z
+    .registers 3
+
+    .line 340
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    const/4 v1, 0x0
+
+    if-nez v0, :cond_6
+
+    .line 341
+    return v1
+
+    .line 344
+    :cond_6
+    :try_start_6
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->isPlaying()Z
+
+    move-result v0
+    :try_end_a
+    .catchall {:try_start_6 .. :try_end_a} :catchall_b
+
+    return v0
+
+    .line 345
+    :catchall_b
+    move-exception v0
+
+    .line 346
+    return v1
+.end method
+
+.method public pausePlayback()V
+    .registers 2
+
+    .line 369
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    if-nez v0, :cond_5
+
+    .line 370
+    return-void
+
+    .line 373
+    :cond_5
+    :try_start_5
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->isPlaying()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_10
+
+    .line 374
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->pause()V
+    :try_end_10
+    .catchall {:try_start_5 .. :try_end_10} :catchall_11
+
+    .line 377
+    :cond_10
+    goto :goto_12
+
+    .line 376
+    :catchall_11
+    move-exception v0
+
+    .line 378
+    :goto_12
+    return-void
+.end method
+
 .method public release()V
     .registers 4
 
-    .line 348
+    .line 413
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
 
-    .line 349
+    .line 414
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
     const/4 v1, 0x0
 
     if-eqz v0, :cond_f
 
-    .line 350
+    .line 415
     iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
 
     invoke-virtual {v2, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 351
+    .line 416
     iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->syncRunnable:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;
 
-    .line 353
+    .line 418
     :cond_f
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
     if-eqz v0, :cond_29
 
-    .line 355
+    .line 420
     :try_start_13
     invoke-virtual {v0}, Landroid/media/MediaPlayer;->isPlaying()Z
 
@@ -1358,22 +1471,22 @@
 
     if-eqz v0, :cond_1e
 
-    .line 356
+    .line 421
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
     invoke-virtual {v0}, Landroid/media/MediaPlayer;->stop()V
     :try_end_1e
     .catchall {:try_start_13 .. :try_end_1e} :catchall_1f
 
-    .line 359
+    .line 424
     :cond_1e
     goto :goto_20
 
-    .line 358
+    .line 423
     :catchall_1f
     move-exception v0
 
-    .line 361
+    .line 426
     :goto_20
     :try_start_20
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
@@ -1382,25 +1495,25 @@
     :try_end_25
     .catchall {:try_start_20 .. :try_end_25} :catchall_26
 
-    .line 363
+    .line 428
     goto :goto_27
 
-    .line 362
+    .line 427
     :catchall_26
     move-exception v0
 
-    .line 364
+    .line 429
     :goto_27
     iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
 
-    .line 366
+    .line 431
     :cond_29
     iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
 
-    .line 367
+    .line 432
     iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->listener:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;
 
-    .line 368
+    .line 433
     return-void
 .end method
 
@@ -1501,6 +1614,105 @@
 
     .line 323
     return v1
+.end method
+
+.method public resumePlayback()V
+    .registers 2
+
+    .line 381
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    if-nez v0, :cond_5
+
+    .line 382
+    return-void
+
+    .line 385
+    :cond_5
+    :try_start_5
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->isPlaying()Z
+
+    move-result v0
+
+    if-nez v0, :cond_10
+
+    .line 386
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    invoke-virtual {v0}, Landroid/media/MediaPlayer;->start()V
+    :try_end_10
+    .catchall {:try_start_5 .. :try_end_10} :catchall_11
+
+    .line 389
+    :cond_10
+    goto :goto_12
+
+    .line 388
+    :catchall_11
+    move-exception v0
+
+    .line 390
+    :goto_12
+    return-void
+.end method
+
+.method public seekTo(I)V
+    .registers 3
+
+    .line 351
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    if-nez v0, :cond_5
+
+    .line 352
+    return-void
+
+    .line 355
+    :cond_5
+    :try_start_5
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->getDurationMs()I
+
+    move-result v0
+
+    .line 356
+    nop
+
+    .line 357
+    if-gez p1, :cond_d
+
+    .line 358
+    const/4 p1, 0x0
+
+    .line 360
+    :cond_d
+    if-lez v0, :cond_12
+
+    if-le p1, v0, :cond_12
+
+    .line 361
+    goto :goto_13
+
+    .line 363
+    :cond_12
+    move v0, p1
+
+    :goto_13
+    iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
+
+    invoke-virtual {p1, v0}, Landroid/media/MediaPlayer;->seekTo(I)V
+    :try_end_18
+    .catchall {:try_start_5 .. :try_end_18} :catchall_19
+
+    .line 365
+    goto :goto_1a
+
+    .line 364
+    :catchall_19
+    move-exception p1
+
+    .line 366
+    :goto_1a
+    return-void
 .end method
 
 .method public startPlayback(Landroid/content/Context;Landroid/net/Uri;[ILcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Listener;)V

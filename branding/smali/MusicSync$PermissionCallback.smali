@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 581
+    .line 619
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,21 +32,21 @@
 .method public onRequestPermission(Ljava/lang/String;IZ)V
     .registers 4
 
-    .line 584
+    .line 622
     if-eqz p3, :cond_6
 
-    .line 585
+    .line 623
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 
     goto :goto_c
 
-    .line 587
+    .line 625
     :cond_6
     const p1, 0x7f0d010d
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicSyncHelper;->showError(I)V
 
-    .line 589
+    .line 627
     :goto_c
     return-void
 .end method

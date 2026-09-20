@@ -43,7 +43,7 @@
 
 .field private static final CONFIG_DIALOG_MAX_HEIGHT_DP:I = 0x1a4
 
-.field private static final CONFIG_DIALOG_WIDTH_DP:I = 0x12c
+.field private static final CONFIG_DIALOG_WIDTH_DP:I = 0x148
 
 .field private static final COUNTDOWN_TEXT_SP:F = 54.0f
 
@@ -1785,7 +1785,7 @@
 
     .line 634
     :cond_48
-    const/16 v3, 0x12c
+    const/16 v3, 0x148
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
 
@@ -5919,7 +5919,7 @@
     if-eqz v0, :cond_20c
 
     .line 739
-    const/16 v1, 0x12c
+    const/16 v1, 0x148
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
 

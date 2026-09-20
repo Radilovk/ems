@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 975
+    .line 982
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,23 +32,23 @@
 .method public run()V
     .registers 6
 
-    .line 978
+    .line 985
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2600()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500()Z
 
     move-result v0
 
     if-eqz v0, :cond_41
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2700()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2600()Z
 
     move-result v0
 
     if-eqz v0, :cond_41
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainingRunning:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2800()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2700()Z
 
     move-result v0
 
@@ -56,31 +56,31 @@
 
     goto :goto_41
 
-    .line 981
+    .line 988
     :cond_13
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
-    .line 982
+    .line 989
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2900()J
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2800()J
 
     move-result-wide v2
 
     sub-long v2, v0, v2
 
-    .line 983
+    .line 990
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2902(J)J
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2802(J)J
 
-    .line 984
+    .line 991
     # -= operator for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3022(J)J
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2922(J)J
 
-    .line 985
+    .line 992
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3000()J
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2900()J
 
     move-result-wide v0
 
@@ -90,23 +90,23 @@
 
     if-gtz v4, :cond_30
 
-    .line 986
+    .line 993
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onIntervalFinished()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3100()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3000()V
 
-    .line 988
+    .line 995
     :cond_30
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3200()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3100()V
 
-    .line 989
+    .line 996
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3400()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3300()Landroid/os/Handler;
 
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3300()Ljava/lang/Runnable;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3200()Ljava/lang/Runnable;
 
     move-result-object v1
 
@@ -114,10 +114,10 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 990
+    .line 997
     return-void
 
-    .line 979
+    .line 986
     :cond_41
     :goto_41
     return-void

@@ -25,7 +25,7 @@ DIALOG_LAYOUT_NAME = "interval_timer_dialog.xml"
 OVERLAY_LAYOUT_NAME = "interval_timer_overlay.xml"
 DIALOG_LAYOUT_ID = 0x7F0B0079
 OVERLAY_LAYOUT_ID = 0x7F0B007A
-SPINNER_ITEM_LAYOUT_NAME = "interval_timer_spinner_item.xml"
+SPINNER_ITEM_LAYOUT_NAME = "modal_spinner_item.xml"
 SPINNER_ITEM_LAYOUT_ID = 0x7F0B007B
 
 IDS = {
@@ -70,7 +70,7 @@ STRING_IDS = {
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:background="@drawable/interval_timer_dialog_panel" android:padding="16.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
+<LinearLayout android:orientation="vertical" android:background="@drawable/modal_dialog_panel" android:padding="16.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
   xmlns:android="http://schemas.android.com/apk/res/android">
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
         <TextView android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:text="@string/interval_timer_title" />
@@ -84,13 +84,13 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
     <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" android:text="@string/interval_timer_loops" />
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
         <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsMinus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="40.0dip" android:layout_height="40.0dip" android:text="-" android:textAllCaps="false" />
-        <EditText android:textSize="16.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerLoops" android:background="@drawable/interval_timer_sound_chip" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:layout_marginRight="6.0dip" android:inputType="number" android:text="0" />
+        <EditText android:textSize="16.0sp" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerLoops" android:background="@drawable/modal_field_bg" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:layout_marginRight="6.0dip" android:inputType="number" android:text="0" />
         <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/intervalTimerLoopsPlus" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="40.0dip" android:layout_height="40.0dip" android:text="+" android:textAllCaps="false" />
     </LinearLayout>
     <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="@string/interval_timer_loops_hint" />
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
         <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:layout_width="52.0dip" android:layout_height="wrap_content" android:text="@string/interval_timer_sound_label" />
-        <Spinner android:id="@id/intervalTimerSoundSpinner" android:background="@drawable/interval_timer_spinner_bg" android:layout_width="0.0dip" android:layout_height="36.0dip" android:layout_weight="1.0" android:popupBackground="@color/bg_card" android:spinnerMode="dropdown" />
+        <Spinner android:id="@id/intervalTimerSoundSpinner" android:background="@drawable/modal_field_bg" android:layout_width="0.0dip" android:layout_height="36.0dip" android:layout_weight="1.0" android:popupBackground="@color/bg_card" android:spinnerMode="dropdown" />
         <com.isaigu.gymapp.widget.MyButton android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerSoundPreview" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginLeft="4.0dip" android:text="&#9654;" android:textAllCaps="false" />
         <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerSoundPick" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginLeft="4.0dip" android:text="+" android:textAllCaps="false" />
     </LinearLayout>

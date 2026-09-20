@@ -50,28 +50,31 @@ STRING_IDS = {
     "beta_music_player_hint": 0x7f0d0119,
     "beta_music_player_no_user": 0x7f0d011a,
     "beta_music_player_preparing": 0x7f0d011b,
+    "beta_music_player_track_label": 0x7f0d011c,
+    "beta_music_player_sensitivity_short": 0x7f0d011d,
 }
 
 PLAYER_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="fill_parent"
+<LinearLayout android:orientation="vertical" android:background="@drawable/modal_dialog_panel" android:padding="16.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:padding="20.0dip" android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/beta_music_player_title" />
-        <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/beta_music_player_hint" />
-        <TextView android:textSize="14.0sp" android:textColor="@color/text_primary" android:ellipsize="end" android:id="@id/musicPlayerTrack" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" android:maxLines="2" android:text="@string/beta_music_player_no_file" />
-        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
-            <TextView android:textSize="16.0sp" android:textColor="@color/text_primary" android:layout_width="140.0dip" android:layout_height="wrap_content" android:text="@string/beta_music_player_sensitivity" />
-            <com.isaigu.gymapp.widget.AmountView android:id="@id/musicPlayerSensitivity" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-        </LinearLayout>
-        <TextView android:textSize="14.0sp" android:textColor="@color/light_green_color" android:id="@id/musicPlayerStatus" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:text="@string/beta_music_player_status_idle" />
-        <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/light_orange_exister" android:gravity="center" android:id="@id/musicPlayerLevel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="0%" />
-        <com.isaigu.gymapp.widget.MyButton android:clickable="true" android:focusable="true" android:minHeight="48.0dip" android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicPlayerPick" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginTop="12.0dip" android:text="@string/beta_music_player_pick" android:textAllCaps="false" />
-        <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip">
-            <com.isaigu.gymapp.widget.MyButton android:clickable="true" android:focusable="true" android:minHeight="48.0dip" android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicPlayerPlay" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/beta_music_player_play" android:textAllCaps="false" />
-            <com.isaigu.gymapp.widget.MyButton android:clickable="true" android:focusable="true" android:minHeight="48.0dip" android:textSize="16.0sp" android:textColor="@color/text_primary" android:id="@id/musicPlayerStop" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="48.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/beta_music_player_stop" android:textAllCaps="false" />
-        </LinearLayout>
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <TextView android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:text="@string/beta_music_player_title" />
+        <TextView android:textSize="11.0sp" android:textColor="@color/light_green_color" android:gravity="end" android:id="@id/musicPlayerStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/beta_music_player_status_idle" />
     </LinearLayout>
-</ScrollView>
+    <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/beta_music_player_hint" />
+    <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:text="@string/beta_music_player_track_label" />
+    <TextView android:textSize="13.0sp" android:textColor="@color/text_primary" android:ellipsize="middle" android:gravity="center_vertical" android:id="@id/musicPlayerTrack" android:background="@drawable/modal_field_bg" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="fill_parent" android:layout_height="36.0dip" android:layout_marginTop="4.0dip" android:singleLine="true" android:text="@string/beta_music_player_no_file" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
+        <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:layout_width="52.0dip" android:layout_height="wrap_content" android:text="@string/beta_music_player_sensitivity_short" />
+        <com.isaigu.gymapp.widget.AmountView android:id="@id/musicPlayerSensitivity" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+    </LinearLayout>
+    <TextView android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/light_orange_exister" android:gravity="center" android:id="@id/musicPlayerLevel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="0%" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/musicPlayerPick" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="40.0dip" android:layout_marginTop="10.0dip" android:text="@string/beta_music_player_pick" android:textAllCaps="false" />
+    <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip">
+        <com.isaigu.gymapp.widget.MyButton android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/musicPlayerPlay" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="44.0dip" android:layout_weight="1.0" android:layout_marginRight="4.0dip" android:text="@string/beta_music_player_play" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:id="@id/musicPlayerStop" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="44.0dip" android:layout_weight="1.0" android:layout_marginLeft="4.0dip" android:text="@string/beta_music_player_stop" android:textAllCaps="false" />
+    </LinearLayout>
+</LinearLayout>
 """
 
 MASTER_BUTTON_BLOCK = """        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.15" />
@@ -107,6 +110,8 @@ EN_STRINGS = """
     <string name="beta_music_player_hint">Set circle slider ceiling on a user row, pick a track, then Play.</string>
     <string name="beta_music_player_no_user">Add a connected user first</string>
     <string name="beta_music_player_preparing">Preparing track…</string>
+    <string name="beta_music_player_track_label">Track</string>
+    <string name="beta_music_player_sensitivity_short">Sens.</string>
 """
 
 BG_STRINGS = """
@@ -122,6 +127,8 @@ BG_STRINGS = """
     <string name="beta_music_player_hint">Задай таван с кръговия слайдер, избери песен и натисни Пусни.</string>
     <string name="beta_music_player_no_user">Първо добави свързан потребител</string>
     <string name="beta_music_player_preparing">Подготовка на файла…</string>
+    <string name="beta_music_player_track_label">Песен</string>
+    <string name="beta_music_player_sensitivity_short">Чув.</string>
 """
 
 FRAGMENT_HOOK = """

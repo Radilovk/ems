@@ -354,4 +354,6 @@
     <string name="interval_timer_sound_preview">Проба</string>
     <string name="interval_timer_sound_upload">Качи</string>
     <string name="interval_timer_sound_no_file">Няма избран файл</string>
+    <string name="beta_music_player_track_label">Песен</string>
+    <string name="beta_music_player_sensitivity_short">Чув.</string>
 </resources>

@@ -178,6 +178,8 @@ bash scripts/design-apply.sh --safe --dry-run       # preview без запис
 - Overlay: компактен 76dp dial (`interval_timer_dial_bg.xml`) — зелен ring като avatar cluster
 - Config modal: тъмен card panel, inline `mm:ss`, sound chips
 - Signal: Off / Beep / Chime / Bell / Custom + Upload (audio/*) + Preview; custom via `MediaPlayer`
+- File pick = **същият flow като ♫** (`pickingFile` flag, `dialog.hide()`, `restoreDialogAfterPick()`)
+- Споделен modal UI: `modal_dialog_panel.xml`, `modal_field_bg.xml` (и за music player)
 - След промяна на `IntervalTimerHelper.java` **задължително** `bash scripts/compile-interval-timer-java.sh` (stale smali = crash)
 - Loops `0` = безкрайно; `N>0` → `allStop` след N-тия интервал
 

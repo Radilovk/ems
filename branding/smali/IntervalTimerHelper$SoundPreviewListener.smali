@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 861
+    .line 868
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,16 +32,16 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 864
+    .line 871
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readSoundSelection()I
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000()I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()I
 
     move-result p1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(I)I
 
-    .line 865
+    .line 872
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$500()I
 
@@ -58,20 +58,20 @@
 
     if-nez p1, :cond_1b
 
-    .line 866
+    .line 873
     const p1, 0x7f0d0133
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toast(I)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1100(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000(I)V
 
-    .line 867
+    .line 874
     return-void
 
-    .line 869
+    .line 876
     :cond_1b
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1200()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1100()V
 
-    .line 870
+    .line 877
     return-void
 .end method

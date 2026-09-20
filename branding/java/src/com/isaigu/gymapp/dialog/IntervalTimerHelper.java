@@ -137,34 +137,36 @@ public final class IntervalTimerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode != PICK_SIGNAL) {
+        pickingSignal = false;
+        restoreConfigDialogAfterPick();
+        if (requestCode != PICK_SIGNAL || resultCode != Activity.RESULT_OK || data == null) {
             return;
         }
-        pickingSignal = false;
-        Activity activity = resolvePickerActivity(null);
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            Uri uri = data.getData();
-            if (uri != null) {
-                customSignalUri = uri;
-                selectedSound = SOUND_CUSTOM;
-                if (activity != null) {
+        Uri uri = data.getData();
+        if (uri == null) {
+            return;
+        }
+        customSignalUri = uri;
+        selectedSound = SOUND_CUSTOM;
+        try {
+            Activity activity = MusicPlayerHelper.resolveHostActivity(null, configContent);
+            if (activity != null) {
+                int takeFlags = data.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                if (takeFlags != 0) {
                     try {
-                        int takeFlags = data.getFlags()
-                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        if (takeFlags != 0) {
-                            activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
-                        }
+                        activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
                     } catch (Throwable t) {
                         MusicDiagLog.logError("interval_timer_uri_persist", t);
                     }
                 }
-                MusicDiagLog.log("interval_timer", "custom signal uri set");
             }
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_uri_grant", t);
         }
-        if (activity != null && !activity.isFinishing()) {
-            showConfigDialog(activity);
-        }
+        refreshSoundUi();
+        MusicDiagLog.log("interval_timer", "custom signal uri set");
     }
 
     public static void onTrainingRunningChanged(boolean running) {
@@ -271,18 +273,6 @@ public final class IntervalTimerHelper {
         }
         overlayVisible = !overlayVisible;
         updateOverlayVisibility();
-    }
-
-    /** Always use MainActivity for file picker — guarantees BaseActivity.onActivityResult hook. */
-    private static Activity resolvePickerActivity(View view) {
-        Activity main = MainActivity.getInstance();
-        if (main != null && !main.isFinishing()) {
-            return main;
-        }
-        if (hostActivity != null && !hostActivity.isFinishing()) {
-            return hostActivity;
-        }
-        return MusicPlayerHelper.resolveHostActivity(view);
     }
 
     private static Activity resolveActivity(Activity preferred) {
@@ -452,19 +442,31 @@ public final class IntervalTimerHelper {
         }
     }
 
+    private static void restoreConfigDialogAfterPick() {
+        android.support.v7.app.AlertDialog current = configDialog;
+        if (current == null) {
+            return;
+        }
+        try {
+            if (!current.isShowing()) {
+                current.show();
+            }
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_dialog_restore", t);
+        }
+    }
+
     private static void dismissConfigDialog(boolean fromDismissListener) {
         if (configDialog != null) {
             try {
                 configDialog.dismiss();
             } catch (Throwable ignored) {
             }
-            if (!fromDismissListener) {
+            if (!fromDismissListener && !pickingSignal) {
                 configDialog = null;
                 configContent = null;
+                clearConfigRefs();
             }
-        }
-        if (!fromDismissListener && !pickingSignal) {
-            clearConfigRefs();
         }
     }
 
@@ -689,8 +691,10 @@ public final class IntervalTimerHelper {
         signalPlayer = null;
     }
 
-    private static void launchSignalPicker(Activity activity) {
-        if (activity == null || activity.isFinishing()) {
+    /** Same file-picker flow as {@link MusicPlayerHelper.PickListener}. */
+    private static void startSignalPick(View view) {
+        Activity activity = MusicPlayerHelper.resolveHostActivity(view);
+        if (activity == null) {
             toast(STR_ERROR);
             return;
         }
@@ -702,15 +706,18 @@ public final class IntervalTimerHelper {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
             pickingSignal = true;
-            dismissConfigDialog(false);
+            if (configDialog != null) {
+                try {
+                    configDialog.hide();
+                } catch (Throwable ignored) {
+                }
+            }
             activity.startActivityForResult(intent, PICK_SIGNAL);
         } catch (Throwable t) {
             pickingSignal = false;
+            restoreConfigDialogAfterPick();
             MusicDiagLog.logError("interval_timer_pick", t);
             toast(STR_ERROR);
-            if (!activity.isFinishing()) {
-                showConfigDialog(activity);
-            }
         }
     }
 
@@ -849,7 +856,7 @@ public final class IntervalTimerHelper {
             selectedSound = position;
             refreshSoundUi();
             if (position == SOUND_CUSTOM && customSignalUri == null) {
-                launchSignalPicker(resolvePickerActivity(view));
+                startSignalPick(view);
             }
         }
 
@@ -880,7 +887,7 @@ public final class IntervalTimerHelper {
                 ignoreSpinnerCallback = false;
             }
             refreshSoundUi();
-            launchSignalPicker(resolvePickerActivity(v));
+            startSignalPick(v);
         }
     }
 

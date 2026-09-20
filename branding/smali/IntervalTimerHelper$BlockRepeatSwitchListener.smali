@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1392
+    .line 1541
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,14 +32,18 @@
 .method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
     .registers 3
 
-    .line 1395
+    .line 1544
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
-    invoke-static {p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$302(Z)Z
+    invoke-static {p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$902(Z)Z
 
-    .line 1396
+    .line 1545
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateModePanels()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000()V
+
+    .line 1546
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockSummary()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1100()V
 
-    .line 1397
+    .line 1547
     return-void
 .end method

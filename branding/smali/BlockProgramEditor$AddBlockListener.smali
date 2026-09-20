@@ -48,19 +48,19 @@
         }
     .end annotation
 
-    .line 212
+    .line 273
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 213
+    .line 274
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->working:Ljava/util/ArrayList;
 
-    .line 214
+    .line 275
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->seedItem:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 215
+    .line 276
     iput-object p3, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->rebuildUi:Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RebuildUi;
 
-    .line 216
+    .line 277
     return-void
 .end method
 
@@ -69,7 +69,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 221
+    .line 282
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->seedItem:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     if-eqz p1, :cond_15
@@ -80,7 +80,7 @@
 
     if-eqz p1, :cond_15
 
-    .line 222
+    .line 283
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->seedItem:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -93,17 +93,17 @@
 
     goto :goto_16
 
-    .line 223
+    .line 284
     :cond_15
     const/4 p1, 0x0
 
-    .line 220
+    .line 281
     :goto_16
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->fromBean(Lcom/isaigu/gymapp/bean/ProgramDataBean;)Lcom/isaigu/gymapp/dialog/ProgramSegment;
 
     move-result-object p1
 
-    .line 224
+    .line 285
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->working:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
@@ -112,7 +112,7 @@
 
     if-nez v0, :cond_3c
 
-    .line 225
+    .line 286
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->working:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
@@ -127,32 +127,32 @@
 
     check-cast v0, Lcom/isaigu/gymapp/dialog/ProgramSegment;
 
-    .line 226
+    .line 287
     iget v1, v0, Lcom/isaigu/gymapp/dialog/ProgramSegment;->strenth:I
 
     iput v1, p1, Lcom/isaigu/gymapp/dialog/ProgramSegment;->strenth:I
 
-    .line 227
+    .line 288
     iget v1, v0, Lcom/isaigu/gymapp/dialog/ProgramSegment;->hz:I
 
     iput v1, p1, Lcom/isaigu/gymapp/dialog/ProgramSegment;->hz:I
 
-    .line 228
+    .line 289
     iget v0, v0, Lcom/isaigu/gymapp/dialog/ProgramSegment;->pulseWidth:I
 
     iput v0, p1, Lcom/isaigu/gymapp/dialog/ProgramSegment;->pulseWidth:I
 
-    .line 230
+    .line 291
     :cond_3c
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->working:Ljava/util/ArrayList;
 
     invoke-virtual {v0, p1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 231
+    .line 292
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$AddBlockListener;->rebuildUi:Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RebuildUi;
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$RebuildUi;->run()V
 
-    .line 232
+    .line 293
     return-void
 .end method

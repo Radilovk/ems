@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,8 +21,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.CompoundButton;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
-import com.isaigu.gymapp.widget.AmountView;
 import com.isaigu.gymapp.widget.TimerRingView;
 
 /**
@@ -77,6 +75,16 @@ public final class IntervalTimerHelper {
     private static final int ID_PRESET_SAVE = 0x7f090268;
     private static final int ID_PRESET_EDIT = 0x7f090269;
     private static final int ID_PRESET_DELETE = 0x7f09026a;
+    private static final int ID_DURATION_SLIDER = 0x7f09026b;
+    private static final int ID_DURATION_VALUE = 0x7f09026c;
+    private static final int ID_LOOPS_SLIDER = 0x7f09026d;
+    private static final int ID_LOOPS_VALUE = 0x7f09026e;
+    private static final int ID_TAB_INTERVAL = 0x7f090270;
+    private static final int ID_TAB_BLOCK = 0x7f090271;
+    private static final int ID_ADVANCED_PANEL = 0x7f090272;
+    private static final int ID_ADVANCED_TOGGLE = 0x7f090273;
+    private static final int ID_DURATION_LABEL = 0x7f090275;
+    private static final int ID_DURATION_ROW = 0x7f090276;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
@@ -101,6 +109,19 @@ public final class IntervalTimerHelper {
     private static final int STR_BLOCK_DURATION = 0x7f0d014e;
     private static final int STR_BLOCK_TRAIN_TIME = 0x7f0d014f;
     private static final int STR_BLOCK_EMPTY = 0x7f0d0150;
+    private static final int STR_TAB_INTERVAL = 0x7f0d0161;
+    private static final int STR_TAB_BLOCK = 0x7f0d0162;
+    private static final int STR_DURATION = 0x7f0d0163;
+    private static final int STR_DURATION_TRAIN = 0x7f0d0164;
+    private static final int STR_REPEATS_UNLIMITED = 0x7f0d0166;
+    private static final int STR_ADVANCED = 0x7f0d0167;
+
+    private static final int DURATION_MIN_SEC = 5;
+    private static final int DURATION_MAX_SEC = 600;
+    private static final int DURATION_STEP_SEC = 5;
+    private static final int DURATION_SLIDER_MAX =
+            (DURATION_MAX_SEC - DURATION_MIN_SEC) / DURATION_STEP_SEC;
+    private static final int LOOPS_SLIDER_MAX = 30;
 
     private static final String KEY_BLOCK_MODE = "block_program_mode";
     private static final String KEY_BLOCK_REPEAT = "block_program_repeat";
@@ -120,7 +141,7 @@ public final class IntervalTimerHelper {
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
     /** Compact config panel width — must match apply-interval-timer dialog layout. */
-    private static final int CONFIG_DIALOG_WIDTH_DP = 288;
+    private static final int CONFIG_DIALOG_WIDTH_DP = 260;
 
     private static final String PREFS = "interval_timer";
     private static final String KEY_MINUTES = "minutes";
@@ -138,9 +159,16 @@ public final class IntervalTimerHelper {
     private static android.support.v7.app.AlertDialog overlayDialog;
     private static View configContent;
     private static View overlayContent;
-    private static AmountView minutesView;
-    private static AmountView secondsView;
-    private static EditText loopsInput;
+    private static SeekBar durationSlider;
+    private static SeekBar loopsSlider;
+    private static TextView durationValueView;
+    private static TextView durationLabelView;
+    private static TextView loopsValueView;
+    private static View durationRow;
+    private static View tabIntervalBtn;
+    private static View tabBlockBtn;
+    private static View advancedPanel;
+    private static View advancedToggle;
     private static TextView statusView;
     private static TextView countdownView;
     private static TextView loopLabelView;
@@ -193,9 +221,11 @@ public final class IntervalTimerHelper {
     private static View blockModePanel;
     private static TextView blockSummaryView;
     private static TextView blockDurationView;
-    private static Switch blockModeSwitch;
     private static Switch blockRepeatSwitch;
     private static Spinner presetSpinner;
+    private static boolean ignoreDurationSlider;
+    private static boolean ignoreLoopsSlider;
+    private static boolean advancedExpanded;
 
     private IntervalTimerHelper() {
     }
@@ -217,18 +247,8 @@ public final class IntervalTimerHelper {
         blockProgramMode = preset.blockMode;
         blockProgramRepeat = preset.blockRepeat;
         blockSegments = preset.blocks != null ? new ArrayList<>(preset.blocks) : new ArrayList<>();
-        if (minutesView != null) {
-            configureDurationPicker(minutesView, 0, 59, 1, savedMinutes);
-        }
-        if (secondsView != null) {
-            configureDurationPicker(secondsView, 0, 59, 5, savedSeconds);
-        }
-        if (loopsInput != null) {
-            loopsInput.setText(String.valueOf(maxLoops));
-        }
-        if (blockModeSwitch != null) {
-            blockModeSwitch.setChecked(blockProgramMode);
-        }
+        syncDurationSliderFromValues();
+        syncLoopsSliderFromValues();
         if (blockRepeatSwitch != null) {
             blockRepeatSwitch.setChecked(blockProgramRepeat);
         }
@@ -241,12 +261,13 @@ public final class IntervalTimerHelper {
         TimerPreset preset = new TimerPreset();
         preset.id = id != null ? id : TimerPresetStorage.newId();
         preset.name = name != null ? name : "";
-        preset.minutes = readAmount(minutesView, 0, 59);
-        preset.seconds = readAmount(secondsView, 0, 59);
+        int totalSec = readDurationTotalSec();
+        preset.minutes = totalSec / 60;
+        preset.seconds = totalSec % 60;
         preset.loops = readLoopsInput();
         preset.sound = readSoundSelection();
         preset.customUri = customSignalUri != null ? customSignalUri.toString() : "";
-        preset.blockMode = blockModeSwitch != null && blockModeSwitch.isChecked();
+        preset.blockMode = blockProgramMode;
         preset.blockRepeat = blockRepeatSwitch != null && blockRepeatSwitch.isChecked();
         preset.blocks = blockSegments != null ? new ArrayList<>(blockSegments) : new ArrayList<>();
         return preset;
@@ -423,15 +444,15 @@ public final class IntervalTimerHelper {
             toast(STR_NO_TRAINING);
             return;
         }
-        int minutes = readAmount(minutesView, 0, 59);
-        int seconds = readAmount(secondsView, 0, 59);
+        int totalSec = readDurationTotalSec();
+        int minutes = totalSec / 60;
+        int seconds = totalSec % 60;
         selectedSound = readSoundSelection();
         if ((selectedSound == SOUND_CUSTOM || selectedSound == SOUND_DEVICE)
                 && customSignalUri == null) {
             toast(selectedSound == SOUND_DEVICE ? STR_SOUND_PICK_DEVICE : STR_SOUND_NO_FILE);
             return;
         }
-        blockProgramMode = blockModeSwitch != null && blockModeSwitch.isChecked();
         blockProgramRepeat = blockRepeatSwitch != null && blockRepeatSwitch.isChecked();
         if (blockProgramMode) {
             if (blockSegments == null || blockSegments.isEmpty()) {
@@ -576,23 +597,35 @@ public final class IntervalTimerHelper {
             return;
         }
         configContent = content;
-        minutesView = (AmountView) content.findViewById(ID_MINUTES);
-        secondsView = (AmountView) content.findViewById(ID_SECONDS);
-        loopsInput = (EditText) content.findViewById(ID_LOOPS);
         statusView = (TextView) content.findViewById(ID_STATUS);
         soundFileView = (TextView) content.findViewById(ID_SOUND_FILE);
         soundFileRow = content.findViewById(ID_SOUND_FILE_ROW);
         soundSpinner = (Spinner) content.findViewById(ID_SOUND_SPINNER);
         soundPickBtn = content.findViewById(ID_SOUND_PICK);
         soundClearBtn = content.findViewById(ID_SOUND_CLEAR);
-        configureDurationPicker(minutesView, 0, 59, 1, savedMinutes);
-        configureDurationPicker(secondsView, 0, 59, 5, savedSeconds);
-        if (loopsInput != null) {
-            loopsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-            loopsInput.setText(String.valueOf(maxLoops));
+        durationRow = content.findViewById(ID_DURATION_ROW);
+        durationLabelView = (TextView) content.findViewById(ID_DURATION_LABEL);
+        durationValueView = (TextView) content.findViewById(ID_DURATION_VALUE);
+        durationSlider = (SeekBar) content.findViewById(ID_DURATION_SLIDER);
+        loopsSlider = (SeekBar) content.findViewById(ID_LOOPS_SLIDER);
+        loopsValueView = (TextView) content.findViewById(ID_LOOPS_VALUE);
+        tabIntervalBtn = content.findViewById(ID_TAB_INTERVAL);
+        tabBlockBtn = content.findViewById(ID_TAB_BLOCK);
+        advancedPanel = content.findViewById(ID_ADVANCED_PANEL);
+        advancedToggle = content.findViewById(ID_ADVANCED_TOGGLE);
+        if (durationSlider != null) {
+            durationSlider.setMax(DURATION_SLIDER_MAX);
+            durationSlider.setOnSeekBarChangeListener(new DurationSliderListener());
         }
-        bindButton(content.findViewById(ID_LOOPS_MINUS), new LoopsAdjustListener(-1));
-        bindButton(content.findViewById(ID_LOOPS_PLUS), new LoopsAdjustListener(1));
+        if (loopsSlider != null) {
+            loopsSlider.setMax(LOOPS_SLIDER_MAX);
+            loopsSlider.setOnSeekBarChangeListener(new LoopsSliderListener());
+        }
+        syncDurationSliderFromValues();
+        syncLoopsSliderFromValues();
+        bindButton(tabIntervalBtn, new TabIntervalListener());
+        bindButton(tabBlockBtn, new TabBlockListener());
+        bindButton(advancedToggle, new AdvancedToggleListener());
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         bindButton(content.findViewById(ID_SOUND_PREVIEW), new SoundPreviewListener());
         bindButton(soundPickBtn, new SoundPickListener());
@@ -601,13 +634,8 @@ public final class IntervalTimerHelper {
         blockModePanel = content.findViewById(ID_BLOCK_PANEL);
         blockSummaryView = (TextView) content.findViewById(ID_BLOCK_SUMMARY);
         blockDurationView = (TextView) content.findViewById(ID_BLOCK_DURATION);
-        blockModeSwitch = (Switch) content.findViewById(ID_BLOCK_MODE);
         blockRepeatSwitch = (Switch) content.findViewById(ID_BLOCK_REPEAT);
         View blockEditBtn = content.findViewById(ID_BLOCK_EDIT);
-        if (blockModeSwitch != null) {
-            blockModeSwitch.setChecked(blockProgramMode);
-            blockModeSwitch.setOnCheckedChangeListener(new BlockModeSwitchListener());
-        }
         if (blockRepeatSwitch != null) {
             blockRepeatSwitch.setChecked(blockProgramRepeat);
             blockRepeatSwitch.setOnCheckedChangeListener(new BlockRepeatSwitchListener());
@@ -615,6 +643,10 @@ public final class IntervalTimerHelper {
         if (blockEditBtn != null) {
             blockEditBtn.setOnClickListener(new BlockEditListener(activity));
         }
+        if (advancedPanel != null) {
+            advancedPanel.setVisibility(advancedExpanded ? View.VISIBLE : View.GONE);
+        }
+        refreshAdvancedToggleLabel(activity);
         presetSpinner = (Spinner) content.findViewById(ID_PRESET_SPINNER);
         TimerPresetUiHelper.bind(
                 activity,
@@ -787,9 +819,16 @@ public final class IntervalTimerHelper {
     }
 
     private static void clearConfigRefs() {
-        minutesView = null;
-        secondsView = null;
-        loopsInput = null;
+        durationSlider = null;
+        loopsSlider = null;
+        durationValueView = null;
+        durationLabelView = null;
+        loopsValueView = null;
+        durationRow = null;
+        tabIntervalBtn = null;
+        tabBlockBtn = null;
+        advancedPanel = null;
+        advancedToggle = null;
         statusView = null;
         soundFileView = null;
         soundFileRow = null;
@@ -797,6 +836,11 @@ public final class IntervalTimerHelper {
         soundPickBtn = null;
         soundClearBtn = null;
         presetSpinner = null;
+        simpleModePanel = null;
+        blockModePanel = null;
+        blockSummaryView = null;
+        blockDurationView = null;
+        blockRepeatSwitch = null;
     }
 
     private static void dismissOverlayDialog(boolean fromDismissListener) {
@@ -1017,6 +1061,109 @@ public final class IntervalTimerHelper {
         }
         if (simpleModePanel != null) {
             simpleModePanel.setVisibility(simpleVisibility);
+        }
+        if (durationRow != null) {
+            durationRow.setVisibility(
+                    !blockProgramMode || blockProgramRepeat ? View.VISIBLE : View.GONE);
+        }
+        Activity activity = resolveActivity(null);
+        if (durationLabelView != null && activity != null) {
+            durationLabelView.setText(
+                    activity.getString(blockProgramMode ? STR_DURATION_TRAIN : STR_DURATION));
+        }
+        refreshModeTabHighlight();
+    }
+
+    private static void refreshModeTabHighlight() {
+        if (tabIntervalBtn != null) {
+            tabIntervalBtn.setAlpha(blockProgramMode ? 0.55f : 1f);
+        }
+        if (tabBlockBtn != null) {
+            tabBlockBtn.setAlpha(blockProgramMode ? 1f : 0.55f);
+        }
+    }
+
+    private static void selectModeTab(boolean blockMode) {
+        blockProgramMode = blockMode;
+        updateModePanels();
+        refreshBlockSummary();
+    }
+
+    private static void syncDurationSliderFromValues() {
+        int totalSec = savedMinutes * 60 + savedSeconds;
+        if (totalSec < DURATION_MIN_SEC) {
+            totalSec = DURATION_MIN_SEC;
+        }
+        if (totalSec > DURATION_MAX_SEC) {
+            totalSec = DURATION_MAX_SEC;
+        }
+        if (durationSlider != null) {
+            ignoreDurationSlider = true;
+            durationSlider.setProgress((totalSec - DURATION_MIN_SEC) / DURATION_STEP_SEC);
+            ignoreDurationSlider = false;
+        }
+        refreshDurationDisplay(totalSec);
+    }
+
+    private static void syncLoopsSliderFromValues() {
+        int loops = maxLoops;
+        if (loops < 0) {
+            loops = 0;
+        }
+        if (loops > LOOPS_SLIDER_MAX) {
+            loops = LOOPS_SLIDER_MAX;
+        }
+        if (loopsSlider != null) {
+            ignoreLoopsSlider = true;
+            loopsSlider.setProgress(loops);
+            ignoreLoopsSlider = false;
+        }
+        refreshLoopsDisplay(maxLoops);
+    }
+
+    private static void refreshDurationDisplay(int totalSec) {
+        savedMinutes = totalSec / 60;
+        savedSeconds = totalSec % 60;
+        if (durationValueView != null) {
+            durationValueView.setText(formatSeconds(totalSec));
+        }
+    }
+
+    private static void refreshLoopsDisplay(int loops) {
+        if (loopsValueView == null) {
+            return;
+        }
+        if (loops <= 0) {
+            Activity activity = resolveActivity(null);
+            if (activity != null) {
+                loopsValueView.setText(activity.getString(STR_REPEATS_UNLIMITED));
+            } else {
+                loopsValueView.setText("∞");
+            }
+        } else {
+            loopsValueView.setText(String.valueOf(loops));
+        }
+    }
+
+    private static int readDurationTotalSec() {
+        if (durationSlider != null) {
+            return DURATION_MIN_SEC + durationSlider.getProgress() * DURATION_STEP_SEC;
+        }
+        return savedMinutes * 60 + savedSeconds;
+    }
+
+    private static void refreshAdvancedToggleLabel(Activity activity) {
+        if (advancedToggle == null || activity == null) {
+            return;
+        }
+        String label = activity.getString(STR_ADVANCED);
+        if (advancedExpanded) {
+            label = label.replace('\u25BE', '\u25B4');
+        }
+        if (advancedToggle instanceof TextView) {
+            ((TextView) advancedToggle).setText(label);
+        } else if (advancedToggle instanceof android.widget.Button) {
+            ((android.widget.Button) advancedToggle).setText(label);
         }
     }
 
@@ -1295,61 +1442,10 @@ public final class IntervalTimerHelper {
     }
 
     private static int readLoopsInput() {
-        if (loopsInput == null) {
-            return maxLoops;
+        if (loopsSlider != null) {
+            return loopsSlider.getProgress();
         }
-        try {
-            String text = loopsInput.getText().toString().trim();
-            if (text.length() == 0) {
-                return 0;
-            }
-            return Math.max(0, Integer.parseInt(text));
-        } catch (Throwable ignored) {
-            return 0;
-        }
-    }
-
-    private static void adjustLoops(int delta) {
-        int value = readLoopsInput() + delta;
-        if (value < 0) {
-            value = 0;
-        }
-        if (loopsInput != null) {
-            loopsInput.setText(String.valueOf(value));
-        }
-    }
-
-    private static int readAmount(AmountView view, int min, int max) {
-        if (view == null) {
-            return min;
-        }
-        try {
-            int value = view.getAmount();
-            if (value < min) {
-                return min;
-            }
-            if (value > max) {
-                return max;
-            }
-            return value;
-        } catch (Throwable ignored) {
-            return min;
-        }
-    }
-
-    private static void configureDurationPicker(
-            AmountView view, int min, int max, int step, int defaultValue) {
-        if (view == null) {
-            return;
-        }
-        try {
-            view.setMin(min);
-            view.setGoods_storage(max);
-            view.setStep(step);
-            view.setAmountUnit("");
-            view.setAmount(defaultValue);
-        } catch (Throwable ignored) {
-        }
+        return maxLoops;
     }
 
     private static void bindButton(View view, View.OnClickListener listener) {
@@ -1380,12 +1476,65 @@ public final class IntervalTimerHelper {
         }
     }
 
-    static final class BlockModeSwitchListener implements CompoundButton.OnCheckedChangeListener {
+    static final class TabIntervalListener implements View.OnClickListener {
         @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            blockProgramMode = isChecked;
-            updateModePanels();
-            refreshBlockSummary();
+        public void onClick(View v) {
+            selectModeTab(false);
+        }
+    }
+
+    static final class TabBlockListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            selectModeTab(true);
+        }
+    }
+
+    static final class DurationSliderListener implements SeekBar.OnSeekBarChangeListener {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (ignoreDurationSlider) {
+                return;
+            }
+            refreshDurationDisplay(DURATION_MIN_SEC + progress * DURATION_STEP_SEC);
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+        }
+    }
+
+    static final class LoopsSliderListener implements SeekBar.OnSeekBarChangeListener {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (ignoreLoopsSlider) {
+                return;
+            }
+            maxLoops = progress;
+            refreshLoopsDisplay(progress);
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+        }
+    }
+
+    static final class AdvancedToggleListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            advancedExpanded = !advancedExpanded;
+            if (advancedPanel != null) {
+                advancedPanel.setVisibility(advancedExpanded ? View.VISIBLE : View.GONE);
+            }
+            refreshAdvancedToggleLabel(MusicPlayerHelper.resolveHostActivity(v));
         }
     }
 
@@ -1393,6 +1542,7 @@ public final class IntervalTimerHelper {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             blockProgramRepeat = isChecked;
+            updateModePanels();
             refreshBlockSummary();
         }
     }
@@ -1443,19 +1593,6 @@ public final class IntervalTimerHelper {
         public void onClick(View v) {
             hostActivity = MusicPlayerHelper.resolveHostActivity(v);
             armFromConfig();
-        }
-    }
-
-    static final class LoopsAdjustListener implements View.OnClickListener {
-        private final int delta;
-
-        LoopsAdjustListener(int delta) {
-            this.delta = delta;
-        }
-
-        @Override
-        public void onClick(View v) {
-            adjustLoops(delta);
         }
     }
 

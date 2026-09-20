@@ -1,9 +1,9 @@
-.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$FinishArmRunnable;
+.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TabBlockListener;
 .super Ljava/lang/Object;
 .source "IntervalTimerHelper.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -13,7 +13,7 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "FinishArmRunnable"
+    name = "TabBlockListener"
 .end annotation
 
 
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1722
+    .line 1486
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,13 +29,15 @@
 
 
 # virtual methods
-.method public run()V
-    .registers 1
+.method public onClick(Landroid/view/View;)V
+    .registers 2
 
-    .line 1725
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->finishArm()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4100()V
+    .line 1489
+    const/4 p1, 0x1
 
-    .line 1726
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectModeTab(Z)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$000(Z)V
+
+    .line 1490
     return-void
 .end method

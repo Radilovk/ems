@@ -3,14 +3,13 @@ package com.isaigu.gymapp.dialog;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
@@ -18,7 +17,7 @@ import com.isaigu.gymapp.train.model.TrainItem;
 
 import java.util.ArrayList;
 
-/** Block list editor opened from interval timer config. */
+/** Compact block list editor with sliders (opened from interval timer config). */
 final class BlockProgramEditor {
     private static final int STR_BLOCK = 0x7f0d0144;
     private static final int STR_CYCLES = 0x7f0d0145;
@@ -53,7 +52,7 @@ final class BlockProgramEditor {
         ScrollView scroll = new ScrollView(activity);
         LinearLayout root = new LinearLayout(activity);
         root.setOrientation(LinearLayout.VERTICAL);
-        int pad = dp(activity, 8);
+        int pad = dp(activity, 6);
         root.setPadding(pad, pad, pad, pad);
         scroll.addView(root, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -85,50 +84,111 @@ final class BlockProgramEditor {
         ProgramSegment seg = working.get(index);
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.VERTICAL);
-        row.setPadding(0, dp(ctx, 6), 0, dp(ctx, 10));
+        row.setPadding(0, dp(ctx, 4), 0, dp(ctx, 6));
 
         TextView title = new TextView(ctx);
         title.setText(ctx.getString(STR_BLOCK, index + 1));
-        title.setTextSize(16);
+        title.setTextSize(12);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         row.addView(title);
 
         RowHolder holder = new RowHolder();
         row.setTag(holder);
-        holder.cycles = field(ctx, row, STR_CYCLES, String.valueOf(seg.cycles));
-        holder.strenth = field(ctx, row, STR_MA, String.valueOf(seg.strenth));
-        holder.hz = field(ctx, row, STR_HZ, String.valueOf(seg.hz));
-        holder.pulseWidth = field(ctx, row, STR_WIDTH, String.valueOf(seg.pulseWidth));
+        holder.cycles = sliderField(ctx, row, STR_CYCLES, seg.cycles, 1, 30);
+        holder.strenth = sliderField(ctx, row, STR_MA, seg.strenth, 0, 100);
+        holder.hz = sliderField(ctx, row, STR_HZ, seg.hz, 1, 100);
+        holder.pulseWidth = sliderField(ctx, row, STR_WIDTH, seg.pulseWidth, 0, 500);
 
         if (working.size() > 1) {
             Button remove = new Button(ctx);
             remove.setText(STR_REMOVE);
             remove.setAllCaps(false);
+            remove.setTextSize(10);
             remove.setOnClickListener(new RemoveBlockListener(working, index, rebuild));
             row.addView(remove);
         }
         return row;
     }
 
-    private static EditText field(Context ctx, LinearLayout row, int labelRes, String value) {
+    private static SliderField sliderField(
+            Context ctx, LinearLayout row, int labelRes, int value, int min, int max) {
         LinearLayout line = new LinearLayout(ctx);
         line.setOrientation(LinearLayout.HORIZONTAL);
         line.setGravity(Gravity.CENTER_VERTICAL);
+        line.setPadding(0, dp(ctx, 2), 0, 0);
         TextView label = new TextView(ctx);
         label.setText(labelRes);
-        label.setTextSize(14);
-        line.addView(label, new LinearLayout.LayoutParams(dp(ctx, 110), ViewGroup.LayoutParams.WRAP_CONTENT));
-        EditText input = new EditText(ctx);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setText(value);
-        input.setSelectAllOnFocus(true);
-        line.addView(input, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        label.setTextSize(10);
+        line.addView(label, new LinearLayout.LayoutParams(dp(ctx, 56), ViewGroup.LayoutParams.WRAP_CONTENT));
+        SliderField field = new SliderField(min, max, value);
+        SeekBar bar = new SeekBar(ctx);
+        bar.setMax(max - min);
+        bar.setProgress(Math.max(0, Math.min(max - min, value - min)));
+        TextView val = new TextView(ctx);
+        val.setTextSize(10);
+        val.setGravity(Gravity.END);
+        val.setText(String.valueOf(field.value));
+        bar.setOnSeekBarChangeListener(new SliderChangeListener(field, val, min));
+        field.valueView = val;
+        line.addView(bar, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        line.addView(val, new LinearLayout.LayoutParams(dp(ctx, 32), ViewGroup.LayoutParams.WRAP_CONTENT));
         row.addView(line);
-        return input;
+        return field;
     }
 
     private static int dp(Context ctx, int dp) {
         return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
+    }
+
+    private static final class SliderField {
+        final int min;
+        final int max;
+        int value;
+        TextView valueView;
+
+        SliderField(int min, int max, int value) {
+            this.min = min;
+            this.max = max;
+            this.value = clamp(value, min, max);
+        }
+    }
+
+    private static int clamp(int value, int min, int max) {
+        if (value < min) {
+            return min;
+        }
+        if (value > max) {
+            return max;
+        }
+        return value;
+    }
+
+    private static final class SliderChangeListener implements SeekBar.OnSeekBarChangeListener {
+        private final SliderField field;
+        private final TextView valueView;
+        private final int min;
+
+        SliderChangeListener(SliderField field, TextView valueView, int min) {
+            this.field = field;
+            this.valueView = valueView;
+            this.min = min;
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            field.value = min + progress;
+            if (valueView != null) {
+                valueView.setText(String.valueOf(field.value));
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+        }
     }
 
     private static final class DoneClickListener implements android.content.DialogInterface.OnClickListener {
@@ -199,6 +259,7 @@ final class BlockProgramEditor {
             Button add = new Button(activity);
             add.setText(STR_ADD);
             add.setAllCaps(false);
+            add.setTextSize(10);
             add.setOnClickListener(new AddBlockListener(working, seedItem, this));
             root.addView(add);
         }
@@ -233,33 +294,18 @@ final class BlockProgramEditor {
     }
 
     private static final class RowHolder {
-        EditText cycles;
-        EditText strenth;
-        EditText hz;
-        EditText pulseWidth;
+        SliderField cycles;
+        SliderField strenth;
+        SliderField hz;
+        SliderField pulseWidth;
 
         ProgramSegment toSegment() {
             ProgramSegment seg = new ProgramSegment();
-            seg.cycles = parse(cycles, 1);
-            seg.strenth = parse(strenth, 0);
-            seg.hz = parse(hz, 1);
-            seg.pulseWidth = parse(pulseWidth, 0);
-            if (seg.cycles < 1) {
-                seg.cycles = 1;
-            }
+            seg.cycles = cycles != null ? Math.max(1, cycles.value) : 1;
+            seg.strenth = strenth != null ? strenth.value : 0;
+            seg.hz = hz != null ? Math.max(1, hz.value) : 1;
+            seg.pulseWidth = pulseWidth != null ? pulseWidth.value : 0;
             return seg;
-        }
-
-        private static int parse(EditText field, int fallback) {
-            try {
-                String text = field.getText() != null ? field.getText().toString().trim() : "";
-                if (text.length() == 0) {
-                    return fallback;
-                }
-                return Integer.parseInt(text);
-            } catch (NumberFormatException e) {
-                return fallback;
-            }
         }
     }
 }

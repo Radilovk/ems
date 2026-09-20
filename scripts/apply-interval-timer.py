@@ -59,6 +59,10 @@ IDS = {
     "intervalTimerSimplePanel": 0x7F090264,
     "intervalTimerBlockPanel": 0x7F090265,
     "intervalTimerBlockDuration": 0x7F090266,
+    "intervalTimerPresetSpinner": 0x7F090267,
+    "intervalTimerPresetSave": 0x7F090268,
+    "intervalTimerPresetEdit": 0x7F090269,
+    "intervalTimerPresetDelete": 0x7F09026A,
 }
 
 STRING_IDS = {
@@ -103,6 +107,16 @@ STRING_IDS = {
     "interval_timer_sound_alarm": 0x7F0D0154,
     "interval_timer_sound_device": 0x7F0D0155,
     "interval_timer_sound_pick_device": 0x7F0D0156,
+    "timer_preset_pick": 0x7F0D0157,
+    "timer_preset_save": 0x7F0D0158,
+    "timer_preset_rename": 0x7F0D0159,
+    "timer_preset_delete": 0x7F0D015A,
+    "timer_preset_name_title": 0x7F0D015B,
+    "timer_preset_name_hint": 0x7F0D015C,
+    "timer_preset_saved": 0x7F0D015D,
+    "timer_preset_deleted": 0x7F0D015E,
+    "timer_preset_delete_confirm": 0x7F0D015F,
+    "timer_preset_empty_name": 0x7F0D0160,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -111,6 +125,13 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
         <TextView android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:text="@string/interval_timer_title" />
         <TextView android:textSize="10.0sp" android:textColor="@color/light_green_color" android:gravity="end" android:id="@id/intervalTimerStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxWidth="118.0dip" android:maxLines="2" android:ellipsize="end" android:text="@string/interval_timer_status_idle" />
+    </LinearLayout>
+    <TextView android:textSize="10.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/timer_preset_pick" />
+    <Spinner android:id="@id/intervalTimerPresetSpinner" android:background="@drawable/interval_timer_spinner_bg" android:layout_width="fill_parent" android:layout_height="34.0dip" android:layout_marginTop="2.0dip" android:popupBackground="@color/bg_card" android:spinnerMode="dropdown" />
+    <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
+        <com.isaigu.gymapp.widget.MyButton android:textSize="10.0sp" android:textColor="@color/text_primary" android:id="@id/intervalTimerPresetSave" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="30.0dip" android:layout_weight="1.0" android:text="@string/timer_preset_save" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="10.0sp" android:textColor="@color/text_primary" android:id="@id/intervalTimerPresetEdit" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="30.0dip" android:layout_weight="1.0" android:layout_marginLeft="4.0dip" android:text="@string/timer_preset_rename" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="10.0sp" android:textColor="@color/text_primary" android:id="@id/intervalTimerPresetDelete" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="30.0dip" android:layout_weight="1.0" android:layout_marginLeft="4.0dip" android:text="@string/timer_preset_delete" android:textAllCaps="false" />
     </LinearLayout>
     <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip">
         <LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0">
@@ -327,6 +348,16 @@ EN_STRINGS = """
     <string name="block_program_train_time">Min/sec = total workout time (RPT)</string>
     <string name="block_program_empty">Add at least one block</string>
     <string name="block_program_repeat">RPT (repeat blocks until time ends)</string>
+    <string name="timer_preset_pick">Saved programs</string>
+    <string name="timer_preset_save">Save</string>
+    <string name="timer_preset_rename">Rename</string>
+    <string name="timer_preset_delete">Delete</string>
+    <string name="timer_preset_name_title">Program name</string>
+    <string name="timer_preset_name_hint">Enter a name for this timer setup</string>
+    <string name="timer_preset_saved">Program saved</string>
+    <string name="timer_preset_deleted">Program deleted</string>
+    <string name="timer_preset_delete_confirm">Delete this saved program?</string>
+    <string name="timer_preset_empty_name">Enter a name</string>
 """
 
 BG_STRINGS = """
@@ -370,6 +401,16 @@ BG_STRINGS = """
     <string name="block_program_train_time">Мин/сек = общо време на тренировката (RPT)</string>
     <string name="block_program_empty">Добави поне един блок</string>
     <string name="block_program_repeat">RPT (повтаряй блоковете до края на времето)</string>
+    <string name="timer_preset_pick">Запазени програми</string>
+    <string name="timer_preset_save">Запази</string>
+    <string name="timer_preset_rename">Преименувай</string>
+    <string name="timer_preset_delete">Изтрий</string>
+    <string name="timer_preset_name_title">Име на програмата</string>
+    <string name="timer_preset_name_hint">Въведи име за тази настройка</string>
+    <string name="timer_preset_saved">Програмата е запазена</string>
+    <string name="timer_preset_deleted">Програмата е изтрита</string>
+    <string name="timer_preset_delete_confirm">Изтрий тази запазена програма?</string>
+    <string name="timer_preset_empty_name">Въведи име</string>
 """
 
 

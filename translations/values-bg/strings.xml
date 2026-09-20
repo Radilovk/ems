@@ -379,4 +379,14 @@
     <string name="block_program_train_time">Мин/сек = общо време на тренировката (RPT)</string>
     <string name="block_program_empty">Добави поне един блок</string>
     <string name="block_program_repeat">RPT (повтаряй блоковете до края на времето)</string>
+    <string name="timer_preset_pick">Запазени програми</string>
+    <string name="timer_preset_save">Запази</string>
+    <string name="timer_preset_rename">Преименувай</string>
+    <string name="timer_preset_delete">Изтрий</string>
+    <string name="timer_preset_name_title">Име на програмата</string>
+    <string name="timer_preset_name_hint">Въведи име за тази настройка</string>
+    <string name="timer_preset_saved">Програмата е запазена</string>
+    <string name="timer_preset_deleted">Програмата е изтрита</string>
+    <string name="timer_preset_delete_confirm">Изтрий тази запазена програма?</string>
+    <string name="timer_preset_empty_name">Въведи име</string>
 </resources>

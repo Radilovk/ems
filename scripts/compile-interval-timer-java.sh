@@ -22,6 +22,9 @@ TIMER_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramRunner.java"
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramStorage.java"
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramEditor.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPreset.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPresetStorage.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPresetUiHelper.java"
   "${JAVA_SRC}/com/isaigu/gymapp/widget/TimerRingView.java"
 )
 
@@ -58,6 +61,7 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
   \( -path '*/dialog/IntervalTimerHelper*.class' \
   -o -path '*/dialog/ProgramSegment.class' \
   -o -path '*/dialog/BlockProgram*.class' \
+  -o -path '*/dialog/TimerPreset*.class' \
   -o -path '*/widget/TimerRingView*.class' \) -print | sort)
 (
   cd "${CLASSES_DIR}"
@@ -78,6 +82,7 @@ find "${BRANDING_SMALI}" -maxdepth 1 \( \
   -name 'IntervalTimerHelper*.smali' \
   -o -name 'ProgramSegment.smali' \
   -o -name 'BlockProgram*.smali' \
+  -o -name 'TimerPreset*.smali' \
   -o -name 'SegmentProgram*.smali' \
   -o -name '-$$Lambda$BlockProgramEditor*.smali' \
   -o -name '-$$Lambda$SegmentProgramUiHelper*.smali' \
@@ -89,6 +94,7 @@ done < <(find "${SMALI_OUT}" \( \
   -path '*/dialog/IntervalTimerHelper*.smali' \
   -o -path '*/dialog/ProgramSegment.smali' \
   -o -path '*/dialog/BlockProgram*.smali' \
+  -o -path '*/dialog/TimerPreset*.smali' \
   -o -path '*/dialog/-$$Lambda$BlockProgramEditor*.smali' \
   \) -print0)
 

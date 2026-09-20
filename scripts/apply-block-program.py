@@ -20,6 +20,9 @@ BLOCK_SMALI = (
     "BlockProgramStorage.smali",
     "BlockProgramEditor.smali",
     "BlockProgramEditor$RowHolder.smali",
+    "TimerPreset.smali",
+    "TimerPresetStorage.smali",
+    "TimerPresetUiHelper.smali",
 )
 
 

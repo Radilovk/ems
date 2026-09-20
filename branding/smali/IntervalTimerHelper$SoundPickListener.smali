@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1685
+    .line 1726
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,13 +32,13 @@
 .method public onClick(Landroid/view/View;)V
     .registers 6
 
-    .line 1688
+    .line 1729
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->readSoundSelection()I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2100()I
 
     move-result v0
 
-    .line 1689
+    .line 1730
     const/4 v1, 0x0
 
     const/4 v2, 0x1
@@ -47,7 +47,7 @@
 
     if-ne v0, v3, :cond_26
 
-    .line 1690
+    .line 1731
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500()Landroid/widget/Spinner;
 
@@ -55,11 +55,11 @@
 
     if-eqz v0, :cond_1c
 
-    .line 1691
+    .line 1732
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1902(Z)Z
 
-    .line 1692
+    .line 1733
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500()Landroid/widget/Spinner;
 
@@ -67,34 +67,34 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/Spinner;->setSelection(I)V
 
-    .line 1693
+    .line 1734
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1902(Z)Z
 
-    .line 1695
+    .line 1736
     :cond_1c
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2002(I)I
 
-    .line 1696
+    .line 1737
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1400()V
 
-    .line 1697
+    .line 1738
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startRingtonePick(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2600(Landroid/view/View;)V
 
-    .line 1698
+    .line 1739
     return-void
 
-    .line 1700
+    .line 1741
     :cond_26
     const/16 v0, 0x8
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2002(I)I
 
-    .line 1701
+    .line 1742
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500()Landroid/widget/Spinner;
 
@@ -102,11 +102,11 @@
 
     if-eqz v3, :cond_3e
 
-    .line 1702
+    .line 1743
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1902(Z)Z
 
-    .line 1703
+    .line 1744
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500()Landroid/widget/Spinner;
 
@@ -114,19 +114,19 @@
 
     invoke-virtual {v2, v0}, Landroid/widget/Spinner;->setSelection(I)V
 
-    .line 1704
+    .line 1745
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1902(Z)Z
 
-    .line 1706
+    .line 1747
     :cond_3e
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1400()V
 
-    .line 1707
+    .line 1748
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startSignalPick(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2700(Landroid/view/View;)V
 
-    .line 1708
+    .line 1749
     return-void
 .end method

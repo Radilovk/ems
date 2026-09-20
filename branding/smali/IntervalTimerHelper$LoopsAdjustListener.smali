@@ -25,13 +25,13 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 1255
+    .line 1366
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1256
+    .line 1367
     iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsAdjustListener;->delta:I
 
-    .line 1257
+    .line 1368
     return-void
 .end method
 
@@ -40,12 +40,12 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1261
+    .line 1372
     iget p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$LoopsAdjustListener;->delta:I
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->adjustLoops(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900(I)V
 
-    .line 1262
+    .line 1373
     return-void
 .end method

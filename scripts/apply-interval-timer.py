@@ -80,7 +80,7 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 OVERLAY_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:id="@id/intervalTimerOverlayRoot" android:background="@drawable/design_snackbar_background" android:padding="12.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:elevation="8.0dip"
+<LinearLayout android:orientation="vertical" android:id="@id/intervalTimerOverlayRoot" android:background="@drawable/design_snackbar_background" android:padding="12.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content"
   xmlns:android="http://schemas.android.com/apk/res/android">
     <TextView android:textSize="32.0sp" android:textStyle="bold" android:textColor="@color/light_green_color" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="100.0dip" android:text="00:00" />
     <TextView android:textSize="13.0sp" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="2.0dip" android:text="" />

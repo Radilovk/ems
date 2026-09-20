@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.widget.AmountView;
+
 /**
  * Master-panel interval timer: configurable loops, sync with training start/pause/stop,
  * draggable countdown overlay.
@@ -37,12 +38,17 @@ public final class IntervalTimerHelper {
     private static final int ID_LOOPS_PLUS = 0x7f090235;
     private static final int ID_ACTIVATE = 0x7f090236;
     private static final int ID_STATUS = 0x7f090237;
-    private static final int ID_OVERLAY_ROOT = 0x7f090238;
     private static final int ID_COUNTDOWN = 0x7f090239;
     private static final int ID_LOOP_LABEL = 0x7f09023a;
 
+    private static final int STR_STATUS_IDLE = 0x7f0d0120;
+    private static final int STR_STATUS_ARMED = 0x7f0d0121;
+    private static final int STR_STATUS_RUNNING = 0x7f0d0122;
+    private static final int STR_INVALID_DURATION = 0x7f0d0127;
+    private static final int STR_ERROR = 0x7f0d0128;
+
     private static final long TICK_MS = 250L;
-    private static final int OPACITY_DIALOG_BG = 0x7f080069; // design_snackbar_background drawable
+    private static final int OPACITY_DIALOG_BG = 0x7f080069;
 
     private static android.support.v7.app.AlertDialog configDialog;
     private static View configContent;
@@ -51,12 +57,12 @@ public final class IntervalTimerHelper {
     private static EditText loopsInput;
     private static TextView statusView;
 
-    private static FrameLayout overlayHost;
     private static View overlayRoot;
     private static TextView countdownView;
     private static TextView loopLabelView;
 
     private static View allStopButton;
+    private static View panelRoot;
     private static Activity hostActivity;
     private static TrainItemManager itemManager;
 
@@ -84,6 +90,7 @@ public final class IntervalTimerHelper {
         if (root == null || manager == null) {
             return;
         }
+        panelRoot = root;
         itemManager = manager;
         allStopButton = root.findViewById(ALL_STOP_ID);
         View button = root.findViewById(BUTTON_ID);
@@ -94,14 +101,14 @@ public final class IntervalTimerHelper {
         button.setClickable(true);
         button.setEnabled(true);
         button.setFocusable(true);
-        button.setOnClickListener(new MasterToggleListener(root));
+        button.setOnClickListener(new MasterToggleListener());
     }
 
     /** Called from NewTrainFragment after startOrStopAll(). */
     public static void onTrainingRunningChanged(boolean running) {
         trainingRunning = running;
         if (!armed) {
-            refreshOverlay();
+            updateOverlayVisibility();
             return;
         }
         if (running) {
@@ -121,7 +128,8 @@ public final class IntervalTimerHelper {
             handler.removeCallbacks(tickRunnable);
         }
         refreshStatusText();
-        refreshOverlay();
+        refreshOverlayText();
+        updateOverlayVisibility();
     }
 
     /** Called from NewTrainFragment allStop handler. */
@@ -135,10 +143,10 @@ public final class IntervalTimerHelper {
         trainingRunning = false;
         currentLoop = 0;
         remainingMs = intervalMs;
+        overlayVisible = false;
         handler.removeCallbacks(tickRunnable);
         dismissConfigDialog(false);
-        hideOverlay();
-        overlayVisible = false;
+        detachOverlay();
         refreshStatusText();
     }
 
@@ -146,7 +154,7 @@ public final class IntervalTimerHelper {
         int minutes = readAmount(minutesView, 0, 59);
         int seconds = readAmount(secondsView, 0, 59);
         if (minutes == 0 && seconds == 0) {
-            toast(0x7f0d0126);
+            toast(STR_INVALID_DURATION);
             return;
         }
         intervalMs = ((minutes * 60L) + seconds) * 1000L;
@@ -157,16 +165,22 @@ public final class IntervalTimerHelper {
         overlayVisible = true;
         countdownRunning = false;
         refreshStatusText();
-        ensureOverlay();
-        showOverlay();
         dismissConfigDialog(false);
+        if (!ensureOverlay()) {
+            armed = false;
+            overlayVisible = false;
+            toast(STR_ERROR);
+            return;
+        }
+        refreshOverlayText();
+        updateOverlayVisibility();
         if (trainingRunning) {
             onTrainingRunningChanged(true);
         }
     }
 
-    private static void toggleMasterPanel(View root) {
-        Activity activity = MusicPlayerHelper.resolveHostActivity(root);
+    private static void toggleMasterPanel() {
+        Activity activity = resolveActivity();
         if (activity == null) {
             return;
         }
@@ -177,11 +191,24 @@ public final class IntervalTimerHelper {
         }
         overlayVisible = !overlayVisible;
         if (overlayVisible) {
-            ensureOverlay();
-            showOverlay();
+            if (ensureOverlay()) {
+                refreshOverlayText();
+                updateOverlayVisibility();
+            }
         } else {
-            hideOverlay();
+            updateOverlayVisibility();
         }
+    }
+
+    private static Activity resolveActivity() {
+        Activity activity = hostActivity;
+        if (activity == null && panelRoot != null) {
+            activity = MusicPlayerHelper.resolveHostActivity(panelRoot);
+        }
+        if (activity == null) {
+            activity = MainActivity.getInstance();
+        }
+        return activity;
     }
 
     private static void showConfigDialog(Activity activity) {
@@ -191,7 +218,7 @@ public final class IntervalTimerHelper {
         try {
             content = LayoutInflater.from(activity).inflate(DIALOG_LAYOUT_ID, null);
         } catch (Throwable t) {
-            toast(0x7f0d0127);
+            toast(STR_ERROR);
             return;
         }
         configContent = content;
@@ -199,8 +226,8 @@ public final class IntervalTimerHelper {
         secondsView = (AmountView) content.findViewById(ID_SECONDS);
         loopsInput = (EditText) content.findViewById(ID_LOOPS);
         statusView = (TextView) content.findViewById(ID_STATUS);
-        configureDurationPicker(minutesView, 0, 59, 1);
-        configureDurationPicker(secondsView, 0, 59, 5);
+        configureDurationPicker(minutesView, 0, 59, 1, 1);
+        configureDurationPicker(secondsView, 0, 59, 5, 0);
         if (loopsInput != null) {
             loopsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
             loopsInput.setText(String.valueOf(maxLoops));
@@ -243,38 +270,35 @@ public final class IntervalTimerHelper {
         }
     }
 
-    private static void ensureOverlay() {
-        Activity activity = hostActivity;
+    /** Add draggable overlay directly to the activity decor (no full-screen touch blocker). */
+    private static boolean ensureOverlay() {
+        Activity activity = resolveActivity();
         if (activity == null) {
-            activity = MainActivity.getInstance();
+            return false;
         }
-        if (activity == null) {
-            return;
+        hostActivity = activity;
+        if (overlayRoot != null && overlayRoot.getParent() != null) {
+            return true;
         }
+        detachOverlay();
         View decor = activity.getWindow().getDecorView();
         if (!(decor instanceof FrameLayout)) {
-            return;
+            return false;
         }
         FrameLayout decorFrame = (FrameLayout) decor;
-        if (overlayHost == null) {
-            overlayHost = new FrameLayout(activity);
-            overlayHost.setClickable(false);
-            overlayHost.setFocusable(false);
-            FrameLayout.LayoutParams hostLp = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT);
-            decorFrame.addView(overlayHost, hostLp);
-        }
-        if (overlayRoot != null) {
-            return;
-        }
         try {
-            overlayRoot = LayoutInflater.from(activity).inflate(OVERLAY_LAYOUT_ID, overlayHost, false);
+            overlayRoot = LayoutInflater.from(activity).inflate(OVERLAY_LAYOUT_ID, decorFrame, false);
         } catch (Throwable t) {
-            return;
+            overlayRoot = null;
+            return false;
+        }
+        if (overlayRoot == null) {
+            return false;
         }
         countdownView = (TextView) overlayRoot.findViewById(ID_COUNTDOWN);
         loopLabelView = (TextView) overlayRoot.findViewById(ID_LOOP_LABEL);
+        overlayRoot.setClickable(true);
+        overlayRoot.setFocusable(false);
         overlayRoot.setOnTouchListener(new OverlayDragListener());
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -282,24 +306,33 @@ public final class IntervalTimerHelper {
         lp.gravity = Gravity.TOP | Gravity.START;
         lp.leftMargin = dp(activity, 24);
         lp.topMargin = dp(activity, 96);
-        overlayHost.addView(overlayRoot, lp);
-        refreshOverlay();
+        decorFrame.addView(overlayRoot, lp);
+        return true;
     }
 
-    private static void showOverlay() {
+    private static void detachOverlay() {
         if (overlayRoot != null) {
-            overlayRoot.setVisibility(View.VISIBLE);
+            try {
+                ViewGroup parent = (ViewGroup) overlayRoot.getParent();
+                if (parent != null) {
+                    parent.removeView(overlayRoot);
+                }
+            } catch (Throwable ignored) {
+            }
         }
-        refreshOverlay();
+        overlayRoot = null;
+        countdownView = null;
+        loopLabelView = null;
     }
 
-    private static void hideOverlay() {
-        if (overlayRoot != null) {
-            overlayRoot.setVisibility(View.GONE);
+    private static void updateOverlayVisibility() {
+        if (overlayRoot == null) {
+            return;
         }
+        overlayRoot.setVisibility(armed && overlayVisible ? View.VISIBLE : View.GONE);
     }
 
-    private static void refreshOverlay() {
+    private static void refreshOverlayText() {
         if (countdownView == null) {
             return;
         }
@@ -315,9 +348,6 @@ public final class IntervalTimerHelper {
                 loopLabelView.setText("#" + shownLoop + " / " + maxLoops);
             }
         }
-        if (armed && overlayVisible) {
-            showOverlay();
-        }
     }
 
     private static void refreshStatusText() {
@@ -325,11 +355,11 @@ public final class IntervalTimerHelper {
             return;
         }
         if (!armed) {
-            statusView.setText(0x7f0d0120);
+            statusView.setText(STR_STATUS_IDLE);
         } else if (countdownRunning) {
-            statusView.setText(0x7f0d0122);
+            statusView.setText(STR_STATUS_RUNNING);
         } else {
-            statusView.setText(0x7f0d0121);
+            statusView.setText(STR_STATUS_ARMED);
         }
     }
 
@@ -341,7 +371,7 @@ public final class IntervalTimerHelper {
         currentLoop++;
         remainingMs = intervalMs;
         playBeep();
-        refreshOverlay();
+        refreshOverlayText();
     }
 
     private static void triggerAllStop() {
@@ -430,7 +460,8 @@ public final class IntervalTimerHelper {
         }
     }
 
-    private static void configureDurationPicker(AmountView view, int min, int max, int step) {
+    private static void configureDurationPicker(
+            AmountView view, int min, int max, int step, int defaultValue) {
         if (view == null) {
             return;
         }
@@ -439,7 +470,7 @@ public final class IntervalTimerHelper {
             view.setGoods_storage(max);
             view.setStep(step);
             view.setAmountUnit("");
-            view.setAmount(min);
+            view.setAmount(defaultValue);
         } catch (Throwable ignored) {
         }
     }
@@ -462,10 +493,7 @@ public final class IntervalTimerHelper {
     }
 
     private static void toast(int resId) {
-        Activity activity = hostActivity;
-        if (activity == null) {
-            activity = MainActivity.getInstance();
-        }
+        Activity activity = resolveActivity();
         if (activity == null) {
             return;
         }
@@ -476,15 +504,9 @@ public final class IntervalTimerHelper {
     }
 
     static final class MasterToggleListener implements View.OnClickListener {
-        private final View root;
-
-        MasterToggleListener(View root) {
-            this.root = root;
-        }
-
         @Override
         public void onClick(View v) {
-            toggleMasterPanel(root);
+            toggleMasterPanel();
         }
     }
 
@@ -560,7 +582,7 @@ public final class IntervalTimerHelper {
             if (remainingMs <= 0L) {
                 onIntervalFinished();
             }
-            refreshOverlay();
+            refreshOverlayText();
             handler.postDelayed(tickRunnable, TICK_MS);
         }
     }

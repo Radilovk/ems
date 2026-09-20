@@ -17,21 +17,13 @@
 .end annotation
 
 
-# instance fields
-.field private final root:Landroid/view/View;
-
-
 # direct methods
-.method constructor <init>(Landroid/view/View;)V
-    .registers 2
+.method constructor <init>()V
+    .registers 1
 
-    .line 481
+    .line 506
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 482
-    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$MasterToggleListener;->root:Landroid/view/View;
-
-    .line 483
     return-void
 .end method
 
@@ -40,12 +32,10 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 487
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$MasterToggleListener;->root:Landroid/view/View;
+    .line 509
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toggleMasterPanel()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200()V
 
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toggleMasterPanel(Landroid/view/View;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200(Landroid/view/View;)V
-
-    .line 488
+    .line 510
     return-void
 .end method

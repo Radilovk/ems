@@ -8,6 +8,11 @@ import shutil
 import sys
 from pathlib import Path
 
+try:
+    import yaml
+except ImportError:
+    yaml = None  # type: ignore[assignment]
+
 ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 RES = DECOMPILED / "res"
@@ -110,13 +115,65 @@ SPINNER_ITEM_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
   xmlns:android="http://schemas.android.com/apk/res/android" />
 """
 
-OVERLAY_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@id/intervalTimerOverlayRoot" android:layout_width="100.0dip" android:layout_height="100.0dip"
+DESIGN_CONFIG = ROOT / "branding" / "design-config.yaml"
+
+
+def _fmt_dp(value: float | int) -> str:
+    if isinstance(value, float) and value.is_integer():
+        value = int(value)
+    return f"{value}.0dip"
+
+
+def _fmt_sp(value: float | int) -> str:
+    if isinstance(value, float) and value.is_integer():
+        value = int(value)
+    return f"{value}.0sp"
+
+
+def load_design_config() -> dict:
+    if yaml is None or not DESIGN_CONFIG.is_file():
+        return {}
+    data = yaml.safe_load(DESIGN_CONFIG.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def overlay_metrics(cfg: dict | None = None) -> dict[str, float]:
+    """Match avatar ring box: row height minus vertical index-button chrome."""
+    cfg = cfg or load_design_config()
+    row_h = float((cfg.get("row") or {}).get("height_dp", 170))
+    av = cfg.get("avatar") or {}
+    btn = float(av.get("index_button_size_dp", 45))
+    vert = float(av.get("index_button_vertical_dp", 10))
+    pad = float(av.get("slider_padding_dp", 14))
+    pad_bottom = float(av.get("slider_padding_bottom_dp", 10))
+    track = float(av.get("slider_track_width_dp", 14))
+    size = row_h - 2.0 * (btn + vert)
+    size = max(52.0, min(size, row_h))
+    return {
+        "size_dp": size,
+        "pad_dp": pad,
+        "pad_bottom_dp": pad_bottom,
+        "track_dp": track,
+        "countdown_sp": 40.0,
+        "loop_sp": 11.0,
+    }
+
+
+def build_overlay_layout(cfg: dict | None = None) -> str:
+    m = overlay_metrics(cfg)
+    size = _fmt_dp(m["size_dp"])
+    pad = _fmt_dp(m["pad_dp"])
+    pad_bottom = _fmt_dp(m["pad_bottom_dp"])
+    track = _fmt_dp(m["track_dp"])
+    countdown = _fmt_sp(m["countdown_sp"])
+    loop = _fmt_sp(m["loop_sp"])
+    return f"""<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@id/intervalTimerOverlayRoot" android:layout_width="{size}" android:layout_height="{size}"
   xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/intervalTimerRing" android:paddingLeft="8.0dip" android:paddingTop="8.0dip" android:paddingRight="8.0dip" android:paddingBottom="6.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_can_touch="false" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="0.0dip" app:wheel_reached_width="10.0dip" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="10.0dip" />
+    <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/intervalTimerRing" android:paddingLeft="{pad}" android:paddingTop="{pad}" android:paddingRight="{pad}" android:paddingBottom="{pad_bottom}" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="2.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wheel_can_touch="false" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="0.0dip" app:wheel_reached_width="{track}" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="{track}" />
     <LinearLayout android:gravity="center" android:layout_centerInParent="true" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <TextView android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/grown_color" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="0.04" android:text="00:00" />
-        <TextView android:textSize="9.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:includeFontPadding="false" android:text="" />
+        <TextView android:textSize="{countdown}" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="-0.02" android:text="00:00" />
+        <TextView android:textSize="{loop}" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0.0dip" android:includeFontPadding="false" android:text="" />
     </LinearLayout>
 </RelativeLayout>
 """
@@ -405,9 +462,15 @@ def main() -> int:
         return 1
 
     (RES / "layout" / DIALOG_LAYOUT_NAME).write_text(DIALOG_LAYOUT, encoding="utf-8")
-    (RES / "layout" / OVERLAY_LAYOUT_NAME).write_text(OVERLAY_LAYOUT, encoding="utf-8")
+    overlay_cfg = load_design_config()
+    overlay_layout = build_overlay_layout(overlay_cfg)
+    overlay_size = overlay_metrics(overlay_cfg)["size_dp"]
+    (RES / "layout" / OVERLAY_LAYOUT_NAME).write_text(overlay_layout, encoding="utf-8")
     (RES / "layout" / SPINNER_ITEM_LAYOUT_NAME).write_text(SPINNER_ITEM_LAYOUT, encoding="utf-8")
-    print(f"created layout/{DIALOG_LAYOUT_NAME}, {OVERLAY_LAYOUT_NAME}, {SPINNER_ITEM_LAYOUT_NAME}")
+    print(
+        f"created layout/{DIALOG_LAYOUT_NAME}, {OVERLAY_LAYOUT_NAME} "
+        f"({overlay_size:.0f}dp avatar ring), {SPINNER_ITEM_LAYOUT_NAME}"
+    )
 
     PUBLIC_XML.write_text(patch_public_xml(PUBLIC_XML.read_text(encoding="utf-8")), encoding="utf-8")
     IDS_XML.write_text(patch_ids_xml(IDS_XML.read_text(encoding="utf-8")), encoding="utf-8")

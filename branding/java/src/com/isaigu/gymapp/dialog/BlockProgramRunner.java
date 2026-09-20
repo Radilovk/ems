@@ -96,7 +96,10 @@ public final class BlockProgramRunner {
 
     /** Called from TrainItem pulse timer when entering ON phase (full OFF+ON cycle done). */
     public static void onPulseCycleComplete(TrainItem item) {
-        if (item == null || !armed || blocks.isEmpty()) {
+        if (item == null || item.data == null || !item.data.inStart) {
+            return;
+        }
+        if (!armed || blocks.isEmpty()) {
             return;
         }
         TrainItem leader = firstActiveItem();
@@ -179,17 +182,34 @@ public final class BlockProgramRunner {
     }
 
     private static void applyWorkLengthToAll() {
+        if (manager == null) {
+            return;
+        }
+        List<TrainItem> list = manager.getItemList();
+        if (list == null) {
+            return;
+        }
         int workSec = resolveWorkLengthSeconds();
-        forEachActive(item -> item.workLength = workSec);
+        for (int i = 0; i < list.size(); i++) {
+            TrainItem item = list.get(i);
+            if (item != null && !item.isEmpty()) {
+                item.workLength = workSec;
+            }
+        }
     }
 
     private static void applyBlockToAll(ProgramSegment segment) {
-        if (segment == null) {
+        if (segment == null || manager == null) {
             return;
         }
-        forEachActive(item -> {
-            if (item.getTrainProgram() == null) {
-                return;
+        List<TrainItem> list = manager.getItemList();
+        if (list == null) {
+            return;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            TrainItem item = list.get(i);
+            if (item == null || item.isEmpty() || item.getTrainProgram() == null) {
+                continue;
             }
             ProgramDataBean bean = item.getTrainProgram().matchProgram();
             segment.applyTo(bean);
@@ -197,7 +217,7 @@ public final class BlockProgramRunner {
                 item.data.secondValue = bean.pulseContinue > 0 ? bean.pulseContinue : item.data.secondValue;
             }
             item.onParamsChange();
-        });
+        }
     }
 
     private static TrainItem firstActiveItem() {
@@ -217,23 +237,4 @@ public final class BlockProgramRunner {
         return null;
     }
 
-    private static void forEachActive(ItemAction action) {
-        if (manager == null || action == null) {
-            return;
-        }
-        List<TrainItem> list = manager.getItemList();
-        if (list == null) {
-            return;
-        }
-        for (int i = 0; i < list.size(); i++) {
-            TrainItem item = list.get(i);
-            if (item != null && !item.isEmpty()) {
-                action.run(item);
-            }
-        }
-    }
-
-    private interface ItemAction {
-        void run(TrainItem item);
-    }
 }

@@ -174,7 +174,9 @@ bash scripts/design-apply.sh --safe --dry-run       # preview без запис
 - Бутон ⏱ до ♫ в `rightLayout`
 - Config modal (непрозрачен) → **Activate** → armed
 - Countdown започва при **Start на тренировката**; pause/stop sync с `allStartPause` / `allStop`
-- Draggable overlay (`interval_timer_overlay.xml`) — toggle visibility с бутона ⏱
+- Floating overlay = втори **AlertDialog** (като ♫), **не** `decorView.addView()` — иначе crash при Activate
+- След промяна на `IntervalTimerHelper.java` **задължително** `bash scripts/compile-interval-timer-java.sh` (stale smali = crash, същият клас проблем като `MusicPlayerHelper$1.smali`)
+- Named inner classes (`FinishArmRunnable`, …) — без анонимни `$1`/`$2` smali
 - Loops `0` = безкрайно; `N>0` → `allStop` след N-тия интервал
 
 ### Паралелен достъп (external control)

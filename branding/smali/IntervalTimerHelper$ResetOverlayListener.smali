@@ -1,4 +1,4 @@
-.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$TabIntervalListener;
+.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ResetOverlayListener;
 .super Ljava/lang/Object;
 .source "IntervalTimerHelper.java"
 
@@ -13,7 +13,7 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "TabIntervalListener"
+    name = "ResetOverlayListener"
 .end annotation
 
 
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1529
+    .line 1633
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,12 +32,10 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1532
-    const/4 p1, 0x0
+    .line 1636
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resetCurrentInterval()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1500()V
 
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectModeTab(Z)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$000(Z)V
-
-    .line 1533
+    .line 1637
     return-void
 .end method

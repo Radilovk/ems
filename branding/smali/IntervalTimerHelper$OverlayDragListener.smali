@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1679
+    .line 1736
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,9 +32,9 @@
 .method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
     .registers 7
 
-    .line 1682
+    .line 1739
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3100()Landroid/support/v7/app/AlertDialog;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3200()Landroid/support/v7/app/AlertDialog;
 
     move-result-object p1
 
@@ -43,7 +43,7 @@
     if-eqz p1, :cond_ac
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3100()Landroid/support/v7/app/AlertDialog;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3200()Landroid/support/v7/app/AlertDialog;
 
     move-result-object p1
 
@@ -55,10 +55,10 @@
 
     goto/16 :goto_ac
 
-    .line 1685
+    .line 1742
     :cond_13
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3100()Landroid/support/v7/app/AlertDialog;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3200()Landroid/support/v7/app/AlertDialog;
 
     move-result-object p1
 
@@ -70,7 +70,7 @@
 
     move-result-object p1
 
-    .line 1686
+    .line 1743
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v1
@@ -89,54 +89,54 @@
 
     if-eq v1, p1, :cond_2f
 
-    .line 1717
+    .line 1774
     return v0
 
-    .line 1715
+    .line 1772
     :cond_2f
     return v2
 
-    .line 1695
+    .line 1752
     :cond_30
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result p1
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDownRawX:F
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3400()F
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3500()F
 
     move-result v0
 
     sub-float/2addr p1, v0
 
-    .line 1696
+    .line 1753
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v0
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDownRawY:F
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3500()F
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3600()F
 
     move-result v1
 
     sub-float/2addr v0, v1
 
-    .line 1697
+    .line 1754
     const/4 v1, 0x0
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3700(Landroid/app/Activity;)Landroid/app/Activity;
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3800(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 1698
+    .line 1755
     if-eqz v1, :cond_51
 
-    .line 1699
+    .line 1756
     const/16 v3, 0xa
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
-    invoke-static {v1, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3800(Landroid/app/Activity;I)I
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3900(Landroid/app/Activity;I)I
 
     move-result v1
 
@@ -144,11 +144,11 @@
 
     goto :goto_53
 
-    .line 1700
+    .line 1757
     :cond_51
     const/high16 v1, 0x41c00000    # 24.0f
 
-    .line 1701
+    .line 1758
     :goto_53
     mul-float p1, p1, p1
 
@@ -162,21 +162,21 @@
 
     if-lez p1, :cond_61
 
-    .line 1702
+    .line 1759
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayMoved:Z
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3602(Z)Z
+    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3702(Z)Z
 
-    .line 1704
+    .line 1761
     :cond_61
     nop
 
-    .line 1705
+    .line 1762
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result p1
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayTouchDx:F
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3200()F
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3300()F
 
     move-result v0
 
@@ -184,13 +184,13 @@
 
     float-to-int p1, p1
 
-    .line 1706
+    .line 1763
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result p2
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayTouchDy:F
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3300()F
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3400()F
 
     move-result v0
 
@@ -198,31 +198,31 @@
 
     float-to-int p2, p2
 
-    .line 1704
+    .line 1761
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->moveOverlayWindow(II)V
-    invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3900(II)V
+    invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4000(II)V
 
-    .line 1707
+    .line 1764
     return v2
 
-    .line 1710
+    .line 1767
     :cond_7a
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayMoved:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3600()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3700()Z
 
     move-result p1
 
     if-nez p1, :cond_83
 
-    .line 1711
+    .line 1768
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->openOverlaySettings()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4000()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4100()V
 
-    .line 1713
+    .line 1770
     :cond_83
     return v2
 
-    .line 1688
+    .line 1745
     :cond_84
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
@@ -235,9 +235,9 @@
     sub-float/2addr v1, v3
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayTouchDx:F
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3202(F)F
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3302(F)F
 
-    .line 1689
+    .line 1746
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v1
@@ -249,32 +249,32 @@
     sub-float/2addr v1, p1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayTouchDy:F
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3302(F)F
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3402(F)F
 
-    .line 1690
+    .line 1747
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result p1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDownRawX:F
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3402(F)F
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3502(F)F
 
-    .line 1691
+    .line 1748
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result p1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDownRawY:F
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3502(F)F
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3602(F)F
 
-    .line 1692
+    .line 1749
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayMoved:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3602(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3702(Z)Z
 
-    .line 1693
+    .line 1750
     return v2
 
-    .line 1683
+    .line 1740
     :cond_ac
     :goto_ac
     return v0

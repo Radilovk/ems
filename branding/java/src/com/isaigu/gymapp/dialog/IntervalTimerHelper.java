@@ -32,6 +32,7 @@ import java.util.ArrayList;
 
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
+import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.widget.TimerRingView;
 
@@ -85,6 +86,7 @@ public final class IntervalTimerHelper {
     private static final int ID_ADVANCED_TOGGLE = 0x7f090273;
     private static final int ID_DURATION_LABEL = 0x7f090275;
     private static final int ID_DURATION_ROW = 0x7f090276;
+    private static final int ID_RESET = 0x7f090278;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
@@ -140,6 +142,10 @@ public final class IntervalTimerHelper {
     private static final int RING_MAX = 100;
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
+    private static final int OVERLAY_RESET_BTN_DP = 22;
+    private static final int OVERLAY_RESET_GAP_DP = 4;
+    private static final int OVERLAY_WIDTH_DP =
+            OVERLAY_SIZE_DP + OVERLAY_RESET_BTN_DP + OVERLAY_RESET_GAP_DP;
     /** Compact config panel width — must match apply-interval-timer dialog layout. */
     private static final int CONFIG_DIALOG_WIDTH_DP = 260;
 
@@ -353,6 +359,31 @@ public final class IntervalTimerHelper {
         selectedSound = SOUND_DEVICE;
         refreshSoundUi();
         MusicDiagLog.log("interval_timer", "device signal uri set");
+    }
+
+    /** Sync timer run/pause from any train row start/stop (not only master buttons). */
+    public static void syncTrainingState() {
+        if (itemManager == null) {
+            return;
+        }
+        boolean anyRunning = false;
+        try {
+            java.util.List<TrainItem> items = itemManager.getItemList();
+            if (items != null) {
+                for (int i = 0; i < items.size(); i++) {
+                    TrainItem item = items.get(i);
+                    if (item == null || item.isEmpty() || item.data == null) {
+                        continue;
+                    }
+                    if (item.data.start) {
+                        anyRunning = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        onTrainingRunningChanged(anyRunning);
     }
 
     public static void onTrainingRunningChanged(boolean running) {
@@ -730,7 +761,9 @@ public final class IntervalTimerHelper {
         ringView = (TimerRingView) content.findViewById(ID_RING);
         countdownView = (TextView) content.findViewById(ID_COUNTDOWN);
         loopLabelView = (TextView) content.findViewById(ID_LOOP_LABEL);
-        int overlayPx = dp(activity, OVERLAY_SIZE_DP);
+        bindButton(content.findViewById(ID_RESET), new ResetOverlayListener());
+        int overlayHeightPx = dp(activity, OVERLAY_SIZE_DP);
+        int overlayWidthPx = dp(activity, OVERLAY_WIDTH_DP);
         try {
             if (ringView != null) {
                 ringView.setMaxDiameterDp(OVERLAY_SIZE_DP);
@@ -749,7 +782,7 @@ public final class IntervalTimerHelper {
         wrapper.setClipChildren(true);
         wrapper.addView(
                 content,
-                new FrameLayout.LayoutParams(overlayPx, overlayPx));
+                new FrameLayout.LayoutParams(overlayWidthPx, overlayHeightPx));
         try {
             android.support.v7.app.AlertDialog.Builder builder =
                     new android.support.v7.app.AlertDialog.Builder(activity);
@@ -764,10 +797,10 @@ public final class IntervalTimerHelper {
             }
             window.setBackgroundDrawableResource(android.R.color.transparent);
             window.setGravity(Gravity.TOP | Gravity.START);
-            window.setLayout(overlayPx, overlayPx);
+            window.setLayout(overlayWidthPx, overlayHeightPx);
             WindowManager.LayoutParams lp = window.getAttributes();
-            lp.width = overlayPx;
-            lp.height = overlayPx;
+            lp.width = overlayWidthPx;
+            lp.height = overlayHeightPx;
             lp.x = dp(activity, 20);
             lp.y = dp(activity, 88);
             lp.dimAmount = 0f;
@@ -1264,6 +1297,23 @@ public final class IntervalTimerHelper {
         }
     }
 
+    private static void resetCurrentInterval() {
+        if (!armed) {
+            return;
+        }
+        if (blockProgramMode && BlockProgramRunner.isArmed()) {
+            BlockProgramRunner.resetCurrentBlockCountdown();
+        } else {
+            remainingMs = intervalMs;
+        }
+        lastDisplayedCountdownSec = -1;
+        if (countdownRunning && trainingRunning) {
+            lastTickRealtime = SystemClock.elapsedRealtime();
+        }
+        playSignal();
+        refreshOverlayText();
+    }
+
     private static void onIntervalFinished() {
         if (maxLoops > 0 && currentLoop >= maxLoops) {
             triggerAllStop();
@@ -1577,6 +1627,13 @@ public final class IntervalTimerHelper {
             updateModePanels();
             refreshBlockSummary();
             refreshSoundUi();
+        }
+    }
+
+    static final class ResetOverlayListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            resetCurrentInterval();
         }
     }
 

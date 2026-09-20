@@ -73,6 +73,7 @@ IDS = {
     "intervalTimerAdvancedToggle": 0x7F090273,
     "intervalTimerDurationLabel": 0x7F090275,
     "intervalTimerDurationRow": 0x7F090276,
+    "intervalTimerReset": 0x7F090278,
 }
 
 STRING_IDS = {
@@ -135,6 +136,7 @@ STRING_IDS = {
     "interval_timer_repeats_unlimited": 0x7F0D0166,
     "interval_timer_advanced": 0x7F0D0167,
     "interval_timer_loops_hint": 0x7F0D0168,
+    "interval_timer_reset": 0x7F0D0169,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -237,18 +239,24 @@ def overlay_metrics(cfg: dict | None = None) -> dict[str, float]:
 
 def build_overlay_layout(cfg: dict | None = None) -> str:
     m = overlay_metrics(cfg)
-    size = _fmt_dp(m["size_dp"])
+    ring = m["size_dp"]
+    total_w = ring + 22.0 + 4.0
+    size = _fmt_dp(ring)
+    width = _fmt_dp(total_w)
     countdown = _fmt_sp(m["countdown_sp"])
     loop = _fmt_sp(m["loop_sp"])
     return f"""<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@id/intervalTimerOverlayRoot" android:layout_width="{size}" android:layout_height="{size}"
+<LinearLayout android:id="@id/intervalTimerOverlayRoot" android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="{width}" android:layout_height="{size}"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <com.isaigu.gymapp.widget.TimerRingView android:id="@id/intervalTimerRing" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" />
-    <LinearLayout android:gravity="center" android:layout_centerInParent="true" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
-        <TextView android:textSize="{countdown}" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="-0.03" android:text="00:00" />
-        <TextView android:textSize="{loop}" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="" />
-    </LinearLayout>
-</RelativeLayout>
+    <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerReset" android:background="@drawable/interval_timer_sound_chip" android:layout_width="22.0dip" android:layout_height="22.0dip" android:text="&#8635;" android:textAllCaps="false" />
+    <RelativeLayout android:layout_width="{size}" android:layout_height="{size}" android:layout_marginLeft="4.0dip">
+        <com.isaigu.gymapp.widget.TimerRingView android:id="@id/intervalTimerRing" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" />
+        <LinearLayout android:gravity="center" android:layout_centerInParent="true" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:textSize="{countdown}" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerCountdown" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:letterSpacing="-0.03" android:text="00:00" />
+            <TextView android:textSize="{loop}" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="" />
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
 """
 
 TIMER_BUTTON_BLOCK = """        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.08" />
@@ -287,18 +295,20 @@ START_PAUSE_HOOK_OLD = """.method public synthetic lambda$onCreateView$0$NewTrai
 .end method"""
 
 START_PAUSE_HOOK_NEW = """.method public synthetic lambda$onCreateView$0$NewTrainFragment(Landroid/view/View;)V
-    .locals 1
+    .locals 0
     .param p1, "l"    # Landroid/view/View;
 
     .line 94
     invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->startOrStopAll()V
 
-    iget-boolean v0, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->allStart:Z
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingRunningChanged(Z)V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncTrainingState()V
 
     return-void
 .end method"""
+
+START_PAUSE_HOOK_LEGACY = """    iget-boolean v0, p0, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->allStart:Z
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingRunningChanged(Z)V"""
 
 ALL_STOP_HOOK_OLD = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V
 
@@ -377,6 +387,7 @@ EN_STRINGS = """
     <string name="interval_timer_repeats_unlimited">Unlimited</string>
     <string name="interval_timer_advanced">Sound &amp; saved ▾</string>
     <string name="interval_timer_loops_hint">0 = unlimited</string>
+    <string name="interval_timer_reset">Restart interval</string>
 """
 
 BG_STRINGS = """
@@ -438,6 +449,7 @@ BG_STRINGS = """
     <string name="interval_timer_repeats_unlimited">Безкрайно</string>
     <string name="interval_timer_advanced">Звук и запазени ▾</string>
     <string name="interval_timer_loops_hint">0 = безкрайно</string>
+    <string name="interval_timer_reset">Рестарт на интервала</string>
 """
 
 
@@ -518,12 +530,69 @@ def patch_fragment_layout(path: Path) -> None:
     print(f"{path.name}: added interval timer button near music player")
 
 
+TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
+TIMER_SYNC_HOOK = (
+    "\n    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;"
+    "->syncTrainingState()V\n"
+)
+
+
+def patch_train_item_timer_sync(text: str) -> str:
+    if "IntervalTimerHelper;->syncTrainingState" in text:
+        print("TrainItem: per-row timer sync already applied")
+        return text
+    start_old = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
+
+    .line 95
+    return-void"""
+    start_new = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
+""" + TIMER_SYNC_HOOK + """
+    .line 95
+    return-void"""
+    stop_old = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 161
+    monitor-exit p0
+
+    return-void"""
+    stop_new = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
+""" + TIMER_SYNC_HOOK + """    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 161
+    monitor-exit p0
+
+    return-void"""
+    if start_old not in text or stop_old not in text:
+        raise RuntimeError("TrainItem.start/stop timer sync markers not found")
+    text = text.replace(start_old, start_new, 1)
+    text = text.replace(stop_old, stop_new, 1)
+    print("TrainItem.start/stop: sync interval timer with per-row controls")
+    return text
+
+
 def patch_new_train_fragment(text: str) -> str:
     if START_PAUSE_HOOK_OLD in text:
         text = text.replace(START_PAUSE_HOOK_OLD, START_PAUSE_HOOK_NEW, 1)
         print("NewTrainFragment: interval hook on allStartPause")
-    elif "IntervalTimerHelper;->onTrainingRunningChanged" in text:
+    elif "IntervalTimerHelper;->syncTrainingState" in text:
         print("NewTrainFragment: start/pause hook already applied")
+    elif START_PAUSE_HOOK_LEGACY in text:
+        text = text.replace(
+            START_PAUSE_HOOK_LEGACY,
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncTrainingState()V",
+            1,
+        )
+        print("NewTrainFragment: upgraded master start/pause to syncTrainingState")
+    elif "IntervalTimerHelper;->onTrainingRunningChanged" in text:
+        text = text.replace(
+            "    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingRunningChanged(Z)V\n",
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncTrainingState()V\n",
+            1,
+        )
+        print("NewTrainFragment: upgraded master start/pause to syncTrainingState")
     else:
         raise RuntimeError("NewTrainFragment lambda$onCreateView$0 marker not found")
 
@@ -642,6 +711,11 @@ def main() -> int:
     merge_strings(VALUES_DEFAULT, EN_STRINGS, names)
     merge_strings(VALUES_BG, BG_STRINGS, names)
     merge_strings(VALUES_BG_DECOMPILED, BG_STRINGS, names)
+    if TRAIN_ITEM.is_file():
+        TRAIN_ITEM.write_text(
+            patch_train_item_timer_sync(TRAIN_ITEM.read_text(encoding="utf-8")),
+            encoding="utf-8",
+        )
     install_smali()
     print("Interval timer patches applied.")
     return 0

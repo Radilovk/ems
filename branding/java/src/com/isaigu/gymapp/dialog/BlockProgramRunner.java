@@ -70,6 +70,17 @@ public final class BlockProgramRunner {
         }
     }
 
+    /** Reset current block countdown to full (interval timer overlay restart). */
+    public static void resetCurrentBlockCountdown() {
+        synchronized (LOCK) {
+            if (!armed || blocks.isEmpty()) {
+                return;
+            }
+            cyclesDone = 0;
+            syncBlockTimerFromState();
+        }
+    }
+
     public static void arm(
             TrainItemManager itemManager,
             ArrayList<ProgramSegment> blockList,

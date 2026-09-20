@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1591
+    .line 1648
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,18 +32,18 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1594
+    .line 1651
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1502(Landroid/app/Activity;)Landroid/app/Activity;
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1602(Landroid/app/Activity;)Landroid/app/Activity;
 
-    .line 1595
+    .line 1652
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armFromConfig()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1700()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1800()V
 
-    .line 1596
+    .line 1653
     return-void
 .end method

@@ -50,6 +50,9 @@ public final class MusicPlayerHelper {
     private static final int ID_PLAYLIST_ITEM_TITLE = 0x7f090284;
     private static final int ID_PLAYLIST_ITEM_HANDLE = 0x7f090285;
     private static final int ID_CLOSE = 0x7f090288;
+    private static final int ID_INFO = 0x7f090289;
+    private static final int STR_INFO_TITLE = 0x7f0d0172;
+    private static final int STR_INFO_BODY = 0x7f0d0173;
 
     private static final int OVERLAY_SIZE_DP = 192;
     private static final int OVERLAY_PANEL_WIDTH_DP = 260;
@@ -322,6 +325,7 @@ public final class MusicPlayerHelper {
         bindButton(content.findViewById(ID_PLAYLIST_BTN), new ControlsToggleListener());
         bindButton(content.findViewById(ID_ADD_TRACK), new PickListener());
         bindButton(content.findViewById(ID_CLOSE), new CloseListener());
+        bindButton(content.findViewById(ID_INFO), new InfoListener());
 
         applyExpandedState();
         rebuildPlaylistViews(activity);
@@ -801,6 +805,26 @@ public final class MusicPlayerHelper {
         @Override
         public void onClick(View view) {
             closePlayer();
+        }
+    }
+
+    static final class InfoListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Activity activity = resolveHostActivity(view);
+            if (activity == null) {
+                return;
+            }
+            try {
+                android.support.v7.app.AlertDialog.Builder builder =
+                        new android.support.v7.app.AlertDialog.Builder(activity);
+                builder.setTitle(activity.getString(STR_INFO_TITLE));
+                builder.setMessage(activity.getString(STR_INFO_BODY));
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.show();
+            } catch (Throwable t) {
+                MusicDiagLog.logError("music_player_info", t);
+            }
         }
     }
 

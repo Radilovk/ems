@@ -22,9 +22,13 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
@@ -60,6 +64,13 @@ public final class IntervalTimerHelper {
     private static final int ID_RING = 0x7f090243;
     private static final int ID_SOUND_CLEAR = 0x7f090244;
     private static final int ID_SOUND_FILE_ROW = 0x7f090245;
+    private static final int ID_BLOCK_MODE = 0x7f090260;
+    private static final int ID_BLOCK_REPEAT = 0x7f090261;
+    private static final int ID_BLOCK_EDIT = 0x7f090262;
+    private static final int ID_BLOCK_SUMMARY = 0x7f090263;
+    private static final int ID_SIMPLE_PANEL = 0x7f090264;
+    private static final int ID_BLOCK_PANEL = 0x7f090265;
+    private static final int ID_BLOCK_DURATION = 0x7f090266;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
@@ -72,6 +83,16 @@ public final class IntervalTimerHelper {
     private static final int STR_SOUND_BELL = 0x7f0d012f;
     private static final int STR_SOUND_CUSTOM = 0x7f0d0130;
     private static final int STR_SOUND_NO_FILE = 0x7f0d0133;
+    private static final int STR_BLOCK_MODE = 0x7f0d0140;
+    private static final int STR_BLOCK_REPEAT = 0x7f0d0141;
+    private static final int STR_BLOCK_EDIT = 0x7f0d0142;
+    private static final int STR_BLOCK_SUMMARY = 0x7f0d0143;
+    private static final int STR_BLOCK_DURATION = 0x7f0d014e;
+    private static final int STR_BLOCK_TRAIN_TIME = 0x7f0d014f;
+    private static final int STR_BLOCK_EMPTY = 0x7f0d0150;
+
+    private static final String KEY_BLOCK_MODE = "block_program_mode";
+    private static final String KEY_BLOCK_REPEAT = "block_program_repeat";
 
     private static final int SOUND_OFF = 0;
     private static final int SOUND_BEEP = 1;
@@ -149,6 +170,16 @@ public final class IntervalTimerHelper {
     private static float overlayDownRawY;
     private static boolean overlayMoved;
 
+    private static boolean blockProgramMode;
+    private static boolean blockProgramRepeat;
+    private static ArrayList<ProgramSegment> blockSegments = new ArrayList<>();
+    private static View simpleModePanel;
+    private static View blockModePanel;
+    private static TextView blockSummaryView;
+    private static TextView blockDurationView;
+    private static Switch blockModeSwitch;
+    private static Switch blockRepeatSwitch;
+
     private IntervalTimerHelper() {
     }
 
@@ -215,6 +246,14 @@ public final class IntervalTimerHelper {
             updateOverlayVisibility();
             return;
         }
+        if (blockProgramMode && BlockProgramRunner.isArmed()) {
+            if (running) {
+                BlockProgramRunner.onTrainingStart();
+            }
+            refreshOverlayText();
+            updateOverlayVisibility();
+            return;
+        }
         if (running) {
             if (!countdownRunning) {
                 if (currentLoop <= 0) {
@@ -237,7 +276,20 @@ public final class IntervalTimerHelper {
     }
 
     public static void onTrainingStop() {
+        BlockProgramRunner.reset();
         resetAll();
+    }
+
+    public static void refreshBlockOverlay() {
+        refreshOverlayText();
+    }
+
+    public static void playBlockSignal() {
+        playSignal();
+    }
+
+    public static void triggerAllStop() {
+        handler.post(new TriggerStopRunnable());
     }
 
     private static void resetAll() {
@@ -249,6 +301,7 @@ public final class IntervalTimerHelper {
         overlayVisible = false;
         handler.removeCallbacks(tickRunnable);
         releaseSignalPlayer();
+        BlockProgramRunner.reset();
         dismissConfigDialog(false);
         dismissOverlayDialog(false);
         refreshStatusText();
@@ -265,13 +318,44 @@ public final class IntervalTimerHelper {
         }
         int minutes = readAmount(minutesView, 0, 59);
         int seconds = readAmount(secondsView, 0, 59);
-        if (minutes == 0 && seconds == 0) {
-            toast(STR_INVALID_DURATION);
-            return;
-        }
         selectedSound = readSoundSelection();
         if (selectedSound == SOUND_CUSTOM && customSignalUri == null) {
             toast(STR_SOUND_NO_FILE);
+            return;
+        }
+        blockProgramMode = blockModeSwitch != null && blockModeSwitch.isChecked();
+        blockProgramRepeat = blockRepeatSwitch != null && blockRepeatSwitch.isChecked();
+        if (blockProgramMode) {
+            if (blockSegments == null || blockSegments.isEmpty()) {
+                toast(STR_BLOCK_EMPTY);
+                return;
+            }
+            int trainingSec = minutes * 60 + seconds;
+            if (blockProgramRepeat && trainingSec <= 0) {
+                toast(STR_INVALID_DURATION);
+                return;
+            }
+            if (!blockProgramRepeat) {
+                int[] onOff = resolveOnOffFromSeed();
+                trainingSec = BlockProgramRunner.computeSequenceSeconds(
+                        blockSegments, onOff[0], onOff[1]);
+            }
+            BlockProgramRunner.arm(itemManager, blockSegments, blockProgramRepeat, Math.max(1, trainingSec));
+            intervalMs = trainingSec * 1000L;
+            maxLoops = 0;
+            saveSettings(resolveActivity(null), minutes, seconds);
+            currentLoop = 0;
+            remainingMs = intervalMs;
+            armed = true;
+            overlayVisible = true;
+            countdownRunning = false;
+            refreshStatusText();
+            dismissConfigDialog(false);
+            handler.post(new FinishArmRunnable());
+            return;
+        }
+        if (minutes == 0 && seconds == 0) {
+            toast(STR_INVALID_DURATION);
             return;
         }
         intervalMs = ((minutes * 60L) + seconds) * 1000L;
@@ -403,6 +487,26 @@ public final class IntervalTimerHelper {
         bindButton(content.findViewById(ID_SOUND_PREVIEW), new SoundPreviewListener());
         bindButton(soundPickBtn, new SoundPickListener());
         bindButton(soundClearBtn, new SoundClearListener());
+        simpleModePanel = content.findViewById(ID_SIMPLE_PANEL);
+        blockModePanel = content.findViewById(ID_BLOCK_PANEL);
+        blockSummaryView = (TextView) content.findViewById(ID_BLOCK_SUMMARY);
+        blockDurationView = (TextView) content.findViewById(ID_BLOCK_DURATION);
+        blockModeSwitch = (Switch) content.findViewById(ID_BLOCK_MODE);
+        blockRepeatSwitch = (Switch) content.findViewById(ID_BLOCK_REPEAT);
+        View blockEditBtn = content.findViewById(ID_BLOCK_EDIT);
+        if (blockModeSwitch != null) {
+            blockModeSwitch.setChecked(blockProgramMode);
+            blockModeSwitch.setOnCheckedChangeListener(new BlockModeSwitchListener());
+        }
+        if (blockRepeatSwitch != null) {
+            blockRepeatSwitch.setChecked(blockProgramRepeat);
+            blockRepeatSwitch.setOnCheckedChangeListener(new BlockRepeatSwitchListener());
+        }
+        if (blockEditBtn != null) {
+            blockEditBtn.setOnClickListener(new BlockEditListener(activity));
+        }
+        updateModePanels();
+        refreshBlockSummary();
         setupSoundSpinner(activity);
         refreshSoundUi();
         refreshStatusText();
@@ -637,6 +741,18 @@ public final class IntervalTimerHelper {
         if (countdownView == null) {
             return;
         }
+        if (armed && blockProgramMode && BlockProgramRunner.isArmed()) {
+            countdownView.setText("");
+            if (loopLabelView != null) {
+                int blockNum = BlockProgramRunner.getBlockIndex() + 1;
+                int blockCount = Math.max(1, BlockProgramRunner.getBlockCount());
+                int cycleNum = BlockProgramRunner.getCyclesDone() + 1;
+                int cycleMax = Math.max(1, BlockProgramRunner.getCurrentBlockCycles());
+                loopLabelView.setText("B" + blockNum + "/" + blockCount + " C" + cycleNum + "/" + cycleMax);
+            }
+            refreshBlockOverlayRing();
+            return;
+        }
         countdownView.setText(formatRemaining(remainingMs > 0 ? remainingMs : intervalMs));
         if (loopLabelView != null) {
             if (!armed) {
@@ -650,6 +766,21 @@ public final class IntervalTimerHelper {
             }
         }
         refreshOverlayRing();
+    }
+
+    private static void refreshBlockOverlayRing() {
+        if (ringView == null) {
+            return;
+        }
+        try {
+            int cycleMax = Math.max(1, BlockProgramRunner.getCurrentBlockCycles());
+            int cycleNum = Math.max(0, BlockProgramRunner.getCyclesDone());
+            float remainingFraction = 1f - (cycleNum / (float) cycleMax);
+            int elapsedProgress = (int) ((1f - remainingFraction) * RING_MAX + 0.5f);
+            ringView.setCurProcess(elapsedProgress);
+            ringView.setRemainingFraction(remainingFraction);
+        } catch (Throwable ignored) {
+        }
     }
 
     private static void refreshOverlayRing() {
@@ -702,6 +833,9 @@ public final class IntervalTimerHelper {
             if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
                 selectedSound = SOUND_BEEP;
             }
+            blockProgramMode = prefs.getBoolean(KEY_BLOCK_MODE, false);
+            blockProgramRepeat = prefs.getBoolean(KEY_BLOCK_REPEAT, false);
+            blockSegments = BlockProgramStorage.loadBlocks(activity);
             long ms = ((savedMinutes * 60L) + savedSeconds) * 1000L;
             intervalMs = ms > 0L ? ms : 60000L;
         } catch (Throwable t) {
@@ -722,15 +856,79 @@ public final class IntervalTimerHelper {
             editor.putInt(KEY_SECONDS, seconds);
             editor.putInt(KEY_LOOPS, maxLoops);
             editor.putInt(KEY_SOUND, selectedSound);
+            editor.putBoolean(KEY_BLOCK_MODE, blockProgramMode);
+            editor.putBoolean(KEY_BLOCK_REPEAT, blockProgramRepeat);
             if (customSignalUri != null) {
                 editor.putString(KEY_CUSTOM_URI, customSignalUri.toString());
             } else {
                 editor.remove(KEY_CUSTOM_URI);
             }
             editor.apply();
+            BlockProgramStorage.save(activity, blockProgramMode, blockProgramRepeat, blockSegments);
         } catch (Throwable t) {
             MusicDiagLog.logError("interval_timer_prefs_save", t);
         }
+    }
+
+    private static void updateModePanels() {
+        int blockVisibility = blockProgramMode ? View.VISIBLE : View.GONE;
+        int simpleVisibility = blockProgramMode ? View.GONE : View.VISIBLE;
+        if (blockModePanel != null) {
+            blockModePanel.setVisibility(blockVisibility);
+        }
+        if (simpleModePanel != null) {
+            simpleModePanel.setVisibility(simpleVisibility);
+        }
+    }
+
+    private static void refreshBlockSummary() {
+        if (blockSummaryView == null) {
+            return;
+        }
+        Activity activity = resolveActivity(null);
+        if (activity == null) {
+            return;
+        }
+        int count = blockSegments != null ? blockSegments.size() : 0;
+        blockSummaryView.setText(activity.getString(STR_BLOCK_SUMMARY, count));
+        if (blockDurationView != null) {
+            int[] onOff = new int[] {4, 4};
+            com.isaigu.gymapp.train.model.TrainItem seed = MusicPlayerHelper.resolveTargetItem(itemManager);
+            if (seed != null && seed.getTrainProgram() != null
+                    && seed.getTrainProgram().matchProgram() != null) {
+                com.isaigu.gymapp.bean.ProgramDataBean bean = seed.getTrainProgram().matchProgram();
+                if (bean.pulseContinue > 0) {
+                    onOff[0] = bean.pulseContinue;
+                }
+                if (bean.pulsePause > 0) {
+                    onOff[1] = bean.pulsePause;
+                }
+            }
+            int seqSec = BlockProgramRunner.computeSequenceSeconds(blockSegments, onOff[0], onOff[1]);
+            if (blockProgramRepeat) {
+                blockDurationView.setText(activity.getString(STR_BLOCK_TRAIN_TIME));
+            } else {
+                blockDurationView.setText(activity.getString(STR_BLOCK_DURATION, seqSec / 60, seqSec % 60));
+            }
+        }
+    }
+
+    private static int[] resolveOnOffFromSeed() {
+        int on = 4;
+        int off = 4;
+        com.isaigu.gymapp.train.model.TrainItem seed = MusicPlayerHelper.resolveTargetItem(itemManager);
+        if (seed != null && seed.getTrainProgram() != null) {
+            com.isaigu.gymapp.bean.ProgramDataBean bean = seed.getTrainProgram().matchProgram();
+            if (bean != null) {
+                if (bean.pulseContinue > 0) {
+                    on = bean.pulseContinue;
+                }
+                if (bean.pulsePause > 0) {
+                    off = bean.pulsePause;
+                }
+            }
+        }
+        return new int[] {on, off};
     }
 
     private static void refreshStatusText() {
@@ -788,10 +986,6 @@ public final class IntervalTimerHelper {
         remainingMs = intervalMs;
         playSignal();
         refreshOverlayText();
-    }
-
-    private static void triggerAllStop() {
-        handler.post(new TriggerStopRunnable());
     }
 
     private static void playSignal() {
@@ -995,6 +1189,47 @@ public final class IntervalTimerHelper {
         try {
             Toast.makeText(activity, resId, Toast.LENGTH_SHORT).show();
         } catch (Throwable ignored) {
+        }
+    }
+
+    static final class BlockModeSwitchListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            blockProgramMode = isChecked;
+            updateModePanels();
+            refreshBlockSummary();
+        }
+    }
+
+    static final class BlockRepeatSwitchListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            blockProgramRepeat = isChecked;
+            refreshBlockSummary();
+        }
+    }
+
+    static final class BlockEditListener implements View.OnClickListener {
+        private final Activity activity;
+
+        BlockEditListener(Activity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onClick(View v) {
+            BlockProgramEditor.show(
+                    activity,
+                    blockSegments,
+                    MusicPlayerHelper.resolveTargetItem(itemManager),
+                    new BlockEditDoneRunnable());
+        }
+    }
+
+    static final class BlockEditDoneRunnable implements Runnable {
+        @Override
+        public void run() {
+            refreshBlockSummary();
         }
     }
 

@@ -4,7 +4,7 @@ import com.isaigu.gymapp.bean.ProgramDataBean;
 
 import java.io.Serializable;
 
-/** One block in a segment program: X cycles at fixed impulse params. */
+/** One block: X impulse cycles at MA / Hz / width (ON/OFF stay from the program). */
 public final class ProgramSegment implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -12,8 +12,6 @@ public final class ProgramSegment implements Serializable {
     public int strenth;
     public int hz;
     public int pulseWidth;
-    public int pulseContinue;
-    public int pulsePause;
 
     public ProgramSegment() {}
 
@@ -25,8 +23,6 @@ public final class ProgramSegment implements Serializable {
         seg.strenth = bean.strenth;
         seg.hz = bean.hz;
         seg.pulseWidth = bean.pulseWidth;
-        seg.pulseContinue = bean.pulseContinue;
-        seg.pulsePause = bean.pulsePause;
         if (seg.cycles < 1) {
             seg.cycles = 1;
         }
@@ -40,7 +36,33 @@ public final class ProgramSegment implements Serializable {
         bean.strenth = strenth;
         bean.hz = hz;
         bean.pulseWidth = pulseWidth;
-        bean.pulseContinue = pulseContinue;
-        bean.pulsePause = pulsePause;
+    }
+
+    public String serialize() {
+        return cycles + "," + strenth + "," + hz + "," + pulseWidth;
+    }
+
+    public static ProgramSegment deserialize(String token) {
+        ProgramSegment seg = new ProgramSegment();
+        if (token == null || token.length() == 0) {
+            return seg;
+        }
+        String[] parts = token.split(",", 4);
+        try {
+            if (parts.length > 0) {
+                seg.cycles = Math.max(1, Integer.parseInt(parts[0].trim()));
+            }
+            if (parts.length > 1) {
+                seg.strenth = Integer.parseInt(parts[1].trim());
+            }
+            if (parts.length > 2) {
+                seg.hz = Integer.parseInt(parts[2].trim());
+            }
+            if (parts.length > 3) {
+                seg.pulseWidth = Integer.parseInt(parts[3].trim());
+            }
+        } catch (NumberFormatException ignored) {
+        }
+        return seg;
     }
 }

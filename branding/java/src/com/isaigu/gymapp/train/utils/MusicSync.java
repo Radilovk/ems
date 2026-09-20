@@ -563,6 +563,9 @@ public class MusicSync {
 
         @Override
         public void onPlaybackEnded() {
+            if (MusicPlayerHelper.advanceToNextTrack()) {
+                return;
+            }
             stop();
             MusicPlayerHelper.showIdle();
         }
@@ -576,6 +579,41 @@ public class MusicSync {
 
     public static void stop() {
         stopCaptureOnly();
+    }
+
+    public static int getPlaybackPositionMs() {
+        MusicPlayerEngine engine = playerEngine;
+        return engine != null ? engine.resolvePlaybackPositionMs() : 0;
+    }
+
+    public static int getPlaybackDurationMs() {
+        MusicPlayerEngine engine = playerEngine;
+        return engine != null ? engine.getDurationMs() : 0;
+    }
+
+    public static boolean isPlaybackPaused() {
+        MusicPlayerEngine engine = playerEngine;
+        return engine != null && playerMode && running && !engine.isPlaying();
+    }
+
+    public static void seekPlaybackTo(int positionMs) {
+        MusicPlayerEngine engine = playerEngine;
+        if (engine != null && playerMode) {
+            engine.seekTo(positionMs);
+        }
+    }
+
+    public static void togglePlaybackPause() {
+        MusicPlayerEngine engine = playerEngine;
+        if (engine == null || !playerMode || !running) {
+            return;
+        }
+        if (engine.isPlaying()) {
+            engine.pausePlayback();
+        } else {
+            engine.resumePlayback();
+        }
+        MusicPlayerHelper.refreshTransportState();
     }
 
     static final class PermissionCallback implements AndroidUtils.RequestPermissionCallback {

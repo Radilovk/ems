@@ -166,7 +166,16 @@ bash scripts/design-apply.sh --safe --dry-run       # preview без запис
 Референции:
 
 - Music player: `compile-music-sync-java.sh`, `apply-music-player.py`
+- Interval timer: `compile-interval-timer-java.sh`, `apply-interval-timer.py`
 - Avatar cluster: `compile-avatar-cluster-java.sh`, `apply-avatar-proportional-lock.py`
+
+### Interval timer (1.1.00+)
+
+- Бутон ⏱ до ♫ в `rightLayout`
+- Config modal (непрозрачен) → **Activate** → armed
+- Countdown започва при **Start на тренировката**; pause/stop sync с `allStartPause` / `allStop`
+- Draggable overlay (`interval_timer_overlay.xml`) — toggle visibility с бутона ⏱
+- Loops `0` = безкрайно; `N>0` → `allStop` след N-тия интервал
 
 ### Паралелен достъп (external control)
 

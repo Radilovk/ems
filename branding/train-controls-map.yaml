@@ -62,6 +62,17 @@ global_controls:
     parallel_api: yes
     entry: com.isaigu.gymapp.dialog.MusicPlayerHelper.attachMasterPanel
 
+  - id: intervalTimerBtn
+    screen: train_session
+    handler: IntervalTimerHelper.attachMasterPanel
+    effect: |
+      Интервален таймер — config dialog (мин/сек, loops), draggable overlay countdown.
+      Активира се от модала; броенето започва при allStartPause.
+      Pause/stop на тренировката sync-ва таймера; allStop нулира.
+      Loops=0 → безкрайно; иначе allStop след последния loop + beep в начало на loop.
+    parallel_api: none
+    entry: com.isaigu.gymapp.dialog.IntervalTimerHelper
+
   - id: buwei1..buwei10
     screen: train_session
     handler: NewTrainFragment.changePartControl(I)

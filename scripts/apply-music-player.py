@@ -53,9 +53,9 @@ STRING_IDS = {
 }
 
 PLAYER_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="fill_parent" android:layout_height="fill_parent"
+<ScrollView android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="fill_parent"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:padding="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+    <LinearLayout android:orientation="vertical" android:padding="20.0dip" android:background="@color/design_snackbar_background_color" android:layout_width="fill_parent" android:layout_height="wrap_content">
         <TextView android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/beta_music_player_title" />
         <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/beta_music_player_hint" />
         <TextView android:textSize="14.0sp" android:textColor="@color/text_primary" android:ellipsize="end" android:id="@id/musicPlayerTrack" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" android:maxLines="2" android:text="@string/beta_music_player_no_file" />

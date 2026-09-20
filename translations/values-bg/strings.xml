@@ -334,4 +334,15 @@
     <string name="beta_music_player_hint">Задай таван с кръговия слайдер, избери песен и натисни Пусни. PCM синхрон — без закъснение от микрофона.</string>
     <string name="beta_music_player_no_user">Първо добави свързан потребител</string>
     <string name="beta_music_player_preparing">Подготовка на файла…</string>
+    <string name="interval_timer_title">Интервален таймер</string>
+    <string name="interval_timer_status_idle">Статус: настрой и активирай</string>
+    <string name="interval_timer_status_armed">Статус: активиран — стартира с тренировката</string>
+    <string name="interval_timer_status_running">Статус: работи</string>
+    <string name="interval_timer_minutes">Минути</string>
+    <string name="interval_timer_seconds">Секунди</string>
+    <string name="interval_timer_loops">Повторения (0 = безкрайно)</string>
+    <string name="interval_timer_loops_hint">След последното повторение тренировката спира автоматично.</string>
+    <string name="interval_timer_activate">Активирай таймера</string>
+    <string name="interval_timer_invalid_duration">Задай интервал по-голям от 0 секунди</string>
+    <string name="interval_timer_error">Таймерът не може да се отвори</string>
 </resources>

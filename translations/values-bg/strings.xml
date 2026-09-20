@@ -335,9 +335,9 @@
     <string name="beta_music_player_no_user">Първо добави свързан потребител</string>
     <string name="beta_music_player_preparing">Подготовка на файла…</string>
     <string name="interval_timer_title">Интервален таймер</string>
-    <string name="interval_timer_status_idle">Статус: настрой и активирай</string>
-    <string name="interval_timer_status_armed">Статус: активиран — стартира с тренировката</string>
-    <string name="interval_timer_status_running">Статус: работи</string>
+    <string name="interval_timer_status_idle">Настрой и активирай</string>
+    <string name="interval_timer_status_armed">Активиран — стартира с тренировка</string>
+    <string name="interval_timer_status_running">Работи</string>
     <string name="interval_timer_minutes">Минути</string>
     <string name="interval_timer_seconds">Секунди</string>
     <string name="interval_timer_loops">Повторения (0 = безкрайно)</string>
@@ -350,13 +350,18 @@
     <string name="interval_timer_sound_beep">Бип</string>
     <string name="interval_timer_sound_chime">Камбана</string>
     <string name="interval_timer_sound_bell">Звън</string>
-    <string name="interval_timer_sound_custom">Свой</string>
+    <string name="interval_timer_sound_custom">Свой файл</string>
+    <string name="interval_timer_sound_pip">Кратък сигнал</string>
+    <string name="interval_timer_sound_confirm">Потвърждение</string>
+    <string name="interval_timer_sound_alarm">Алармен тон</string>
+    <string name="interval_timer_sound_device">Звуци от телефона</string>
+    <string name="interval_timer_sound_pick_device">Натисни + за звук от телефона</string>
     <string name="interval_timer_sound_preview">Проба</string>
     <string name="interval_timer_sound_upload">Качи</string>
     <string name="interval_timer_sound_no_file">Няма избран файл</string>
     <string name="beta_music_player_track_label">Песен</string>
     <string name="beta_music_player_sensitivity_short">Чув.</string>
-<string name="segment_program_title">Сегментна програма</string>
+    <string name="segment_program_title">Блокова програма</string>
     <string name="segment_program_hint">Блокове с цикли и различни MA, Hz и импулс</string>
     <string name="segment_program_edit">Редактирай блокове</string>
     <string name="segment_program_summary">%1$d блока</string>

@@ -21,6 +21,9 @@ public final class BlockProgramRunner {
     private static int blockIndex;
     private static int cyclesDone;
     private static long lastAdvanceMs;
+    private static long blockRemainingMs;
+    private static long blockTotalMs;
+    private static int cycleMs;
     private static ArrayList<ProgramSegment> blocks = new ArrayList<>();
     private static TrainItemManager manager;
 
@@ -47,6 +50,24 @@ public final class BlockProgramRunner {
             return 0;
         }
         return Math.max(1, blocks.get(blockIndex).cycles);
+    }
+
+    public static long getBlockRemainingMs() {
+        return blockRemainingMs;
+    }
+
+    public static long getBlockTotalMs() {
+        return blockTotalMs;
+    }
+
+    public static void tickBlock(long deltaMs) {
+        if (deltaMs <= 0L || blockRemainingMs <= 0L) {
+            return;
+        }
+        blockRemainingMs -= deltaMs;
+        if (blockRemainingMs < 0L) {
+            blockRemainingMs = 0L;
+        }
     }
 
     public static void arm(
@@ -77,6 +98,9 @@ public final class BlockProgramRunner {
             blockIndex = 0;
             cyclesDone = 0;
             lastAdvanceMs = 0L;
+            blockRemainingMs = 0L;
+            blockTotalMs = 0L;
+            cycleMs = 0;
             blocks = new ArrayList<>();
             manager = null;
         }
@@ -91,6 +115,7 @@ public final class BlockProgramRunner {
             cyclesDone = 0;
             applyWorkLengthToAll();
             applyBlockToAll(blocks.get(0));
+            syncBlockTimerFromState();
         }
     }
 
@@ -119,7 +144,9 @@ public final class BlockProgramRunner {
             }
             ProgramSegment current = blocks.get(blockIndex);
             cyclesDone++;
+            syncBlockTimerFromState();
             if (cyclesDone < Math.max(1, current.cycles)) {
+                IntervalTimerHelper.refreshBlockOverlay();
                 return;
             }
             lastAdvanceMs = now;
@@ -129,17 +156,35 @@ public final class BlockProgramRunner {
                 if (repeat) {
                     blockIndex = 0;
                     applyBlockToAll(blocks.get(0));
+                    syncBlockTimerFromState();
                     IntervalTimerHelper.refreshBlockOverlay();
                     return;
                 }
+                blockRemainingMs = 0L;
                 armed = false;
                 IntervalTimerHelper.triggerAllStop();
                 return;
             }
             applyBlockToAll(blocks.get(blockIndex));
+            syncBlockTimerFromState();
             IntervalTimerHelper.refreshBlockOverlay();
             IntervalTimerHelper.playBlockSignal();
         }
+    }
+
+    private static void syncBlockTimerFromState() {
+        if (blocks.isEmpty() || blockIndex < 0 || blockIndex >= blocks.size()) {
+            blockRemainingMs = 0L;
+            blockTotalMs = 0L;
+            return;
+        }
+        int[] onOff = resolveOnOff();
+        cycleMs = Math.max(1000, (onOff[0] + onOff[1]) * 1000);
+        ProgramSegment current = blocks.get(blockIndex);
+        int blockCycles = Math.max(1, current.cycles);
+        blockTotalMs = (long) blockCycles * cycleMs;
+        int cyclesLeft = Math.max(0, blockCycles - cyclesDone);
+        blockRemainingMs = (long) cyclesLeft * cycleMs;
     }
 
     public static int computeSequenceSeconds(ArrayList<ProgramSegment> list, int onSec, int offSec) {

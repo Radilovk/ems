@@ -1,9 +1,9 @@
-.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$FinishArmRunnable;
+.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$SignalCompletionListener;
 .super Ljava/lang/Object;
 .source "IntervalTimerHelper.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/media/MediaPlayer$OnCompletionListener;
 
 
 # annotations
@@ -13,7 +13,7 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "FinishArmRunnable"
+    name = "SignalCompletionListener"
 .end annotation
 
 
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 906
+    .line 943
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,13 +29,13 @@
 
 
 # virtual methods
-.method public run()V
-    .registers 1
+.method public onCompletion(Landroid/media/MediaPlayer;)V
+    .registers 2
 
-    .line 909
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->finishArm()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2600()V
+    .line 946
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2900()V
 
-    .line 910
+    .line 947
     return-void
 .end method

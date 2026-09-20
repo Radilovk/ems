@@ -77,6 +77,7 @@ python3 "${ROOT}/scripts/apply-theme-toggle.py"
 python3 "${ROOT}/scripts/remove-demo-mode.py"
 python3 "${ROOT}/scripts/apply-guide-tab.py"
 python3 "${ROOT}/scripts/apply-bt-latency.py"
+python3 "${ROOT}/scripts/apply-ble-scan-lifecycle.py"
 if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   bash "${ROOT}/scripts/compile-music-sync-java.sh"
   python3 "${ROOT}/scripts/apply-beta-features.py"

@@ -24,6 +24,7 @@ public final class TimerRingView extends View {
     private int maxDiameterPx;
     private int maxProcess = 100;
     private int curProcess;
+    private float elapsedFraction;
     private float remainingFraction = 1f;
 
     public TimerRingView(Context context) {
@@ -95,6 +96,21 @@ public final class TimerRingView extends View {
             remaining = 1f;
         }
         remainingFraction = remaining;
+        elapsedFraction = 1f - remaining;
+        updateProgressColor();
+        invalidate();
+    }
+
+    /** Smooth elapsed fraction (0 = start, 1 = finished). */
+    public void setElapsedFraction(float elapsed) {
+        if (elapsed < 0f) {
+            elapsed = 0f;
+        }
+        if (elapsed > 1f) {
+            elapsed = 1f;
+        }
+        elapsedFraction = elapsed;
+        remainingFraction = 1f - elapsed;
         updateProgressColor();
         invalidate();
     }
@@ -137,10 +153,10 @@ public final class TimerRingView extends View {
         trackPaint.setStrokeWidth(trackWidthPx);
         progressPaint.setStrokeWidth(trackWidthPx);
         canvas.drawArc(arcBounds, 0f, 360f, false, trackPaint);
-        if (curProcess <= 0) {
+        float sweep = 360f * elapsedFraction;
+        if (sweep <= 0f) {
             return;
         }
-        float sweep = 360f * curProcess / (float) maxProcess;
         canvas.drawArc(arcBounds, -90f, sweep, false, progressPaint);
     }
 

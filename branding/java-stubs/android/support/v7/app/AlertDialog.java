@@ -31,6 +31,10 @@ public class AlertDialog extends Dialog {
             return this;
         }
 
+        public Builder setMessage(CharSequence message) {
+            return this;
+        }
+
         public Builder setPositiveButton(int textId, DialogInterface.OnClickListener listener) {
             return this;
         }

@@ -73,6 +73,10 @@ public final class IntervalTimerHelper {
     private static final int ID_SIMPLE_PANEL = 0x7f090264;
     private static final int ID_BLOCK_PANEL = 0x7f090265;
     private static final int ID_BLOCK_DURATION = 0x7f090266;
+    private static final int ID_PRESET_SPINNER = 0x7f090267;
+    private static final int ID_PRESET_SAVE = 0x7f090268;
+    private static final int ID_PRESET_EDIT = 0x7f090269;
+    private static final int ID_PRESET_DELETE = 0x7f09026a;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
@@ -111,7 +115,7 @@ public final class IntervalTimerHelper {
     private static final int SOUND_DEVICE = 7;
     private static final int SOUND_CUSTOM = 8;
 
-    private static final long TICK_MS = 250L;
+    private static final long TICK_MS = 50L;
     private static final int RING_MAX = 100;
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
@@ -174,6 +178,7 @@ public final class IntervalTimerHelper {
     private static int currentLoop;
     private static long remainingMs;
     private static long lastTickRealtime;
+    private static int lastDisplayedCountdownSec = -1;
 
     private static float overlayTouchDx;
     private static float overlayTouchDy;
@@ -190,8 +195,61 @@ public final class IntervalTimerHelper {
     private static TextView blockDurationView;
     private static Switch blockModeSwitch;
     private static Switch blockRepeatSwitch;
+    private static Spinner presetSpinner;
 
     private IntervalTimerHelper() {
+    }
+
+    static void applyPreset(TimerPreset preset) {
+        if (preset == null) {
+            return;
+        }
+        savedMinutes = preset.minutes;
+        savedSeconds = preset.seconds;
+        maxLoops = preset.loops;
+        selectedSound = preset.sound;
+        if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
+            selectedSound = SOUND_BEEP;
+        }
+        customSignalUri = preset.customUri != null && preset.customUri.length() > 0
+                ? Uri.parse(preset.customUri)
+                : null;
+        blockProgramMode = preset.blockMode;
+        blockProgramRepeat = preset.blockRepeat;
+        blockSegments = preset.blocks != null ? new ArrayList<>(preset.blocks) : new ArrayList<>();
+        if (minutesView != null) {
+            configureDurationPicker(minutesView, 0, 59, 1, savedMinutes);
+        }
+        if (secondsView != null) {
+            configureDurationPicker(secondsView, 0, 59, 5, savedSeconds);
+        }
+        if (loopsInput != null) {
+            loopsInput.setText(String.valueOf(maxLoops));
+        }
+        if (blockModeSwitch != null) {
+            blockModeSwitch.setChecked(blockProgramMode);
+        }
+        if (blockRepeatSwitch != null) {
+            blockRepeatSwitch.setChecked(blockProgramRepeat);
+        }
+        updateModePanels();
+        refreshBlockSummary();
+        refreshSoundUi();
+    }
+
+    static TimerPreset captureCurrentPreset(String id, String name) {
+        TimerPreset preset = new TimerPreset();
+        preset.id = id != null ? id : TimerPresetStorage.newId();
+        preset.name = name != null ? name : "";
+        preset.minutes = readAmount(minutesView, 0, 59);
+        preset.seconds = readAmount(secondsView, 0, 59);
+        preset.loops = readLoopsInput();
+        preset.sound = readSoundSelection();
+        preset.customUri = customSignalUri != null ? customSignalUri.toString() : "";
+        preset.blockMode = blockModeSwitch != null && blockModeSwitch.isChecked();
+        preset.blockRepeat = blockRepeatSwitch != null && blockRepeatSwitch.isChecked();
+        preset.blocks = blockSegments != null ? new ArrayList<>(blockSegments) : new ArrayList<>();
+        return preset;
     }
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
@@ -285,6 +343,7 @@ public final class IntervalTimerHelper {
         if (blockProgramMode && BlockProgramRunner.isArmed()) {
             if (running) {
                 BlockProgramRunner.onTrainingStart();
+                lastDisplayedCountdownSec = -1;
                 if (!countdownRunning) {
                     countdownRunning = true;
                     lastTickRealtime = SystemClock.elapsedRealtime();
@@ -327,6 +386,7 @@ public final class IntervalTimerHelper {
     }
 
     public static void refreshBlockOverlay() {
+        lastDisplayedCountdownSec = -1;
         refreshOverlayText();
     }
 
@@ -345,6 +405,7 @@ public final class IntervalTimerHelper {
         currentLoop = 0;
         remainingMs = intervalMs;
         overlayVisible = false;
+        lastDisplayedCountdownSec = -1;
         handler.removeCallbacks(tickRunnable);
         releaseSignalPlayer();
         BlockProgramRunner.reset();
@@ -393,6 +454,7 @@ public final class IntervalTimerHelper {
             saveSettings(resolveActivity(null), minutes, seconds);
             currentLoop = 0;
             remainingMs = intervalMs;
+            lastDisplayedCountdownSec = -1;
             armed = true;
             overlayVisible = true;
             countdownRunning = false;
@@ -410,6 +472,7 @@ public final class IntervalTimerHelper {
         saveSettings(resolveActivity(null), minutes, seconds);
         currentLoop = 0;
         remainingMs = intervalMs;
+        lastDisplayedCountdownSec = -1;
         armed = true;
         overlayVisible = true;
         countdownRunning = false;
@@ -552,6 +615,14 @@ public final class IntervalTimerHelper {
         if (blockEditBtn != null) {
             blockEditBtn.setOnClickListener(new BlockEditListener(activity));
         }
+        presetSpinner = (Spinner) content.findViewById(ID_PRESET_SPINNER);
+        TimerPresetUiHelper.bind(
+                activity,
+                presetSpinner,
+                content.findViewById(ID_PRESET_SAVE),
+                content.findViewById(ID_PRESET_EDIT),
+                content.findViewById(ID_PRESET_DELETE),
+                new PresetRefreshRunnable());
         updateModePanels();
         refreshBlockSummary();
         setupSoundSpinner(activity);
@@ -725,6 +796,7 @@ public final class IntervalTimerHelper {
         soundSpinner = null;
         soundPickBtn = null;
         soundClearBtn = null;
+        presetSpinner = null;
     }
 
     private static void dismissOverlayDialog(boolean fromDismissListener) {
@@ -793,8 +865,7 @@ public final class IntervalTimerHelper {
             return;
         }
         if (armed && blockProgramMode && BlockProgramRunner.isArmed()) {
-            long blockRemain = BlockProgramRunner.getBlockRemainingMs();
-            countdownView.setText(formatRemaining(blockRemain));
+            updateCountdownDisplay(BlockProgramRunner.getBlockRemainingMs());
             if (loopLabelView != null) {
                 int blockNum = BlockProgramRunner.getBlockIndex() + 1;
                 int blockCount = Math.max(1, BlockProgramRunner.getBlockCount());
@@ -805,7 +876,7 @@ public final class IntervalTimerHelper {
             refreshBlockOverlayRing();
             return;
         }
-        countdownView.setText(formatRemaining(remainingMs > 0 ? remainingMs : intervalMs));
+        updateCountdownDisplay(remainingMs > 0 ? remainingMs : intervalMs);
         if (loopLabelView != null) {
             if (!armed) {
                 loopLabelView.setText("");
@@ -834,9 +905,7 @@ public final class IntervalTimerHelper {
             if (remainingFraction > 1f) {
                 remainingFraction = 1f;
             }
-            int elapsedProgress = (int) ((1f - remainingFraction) * RING_MAX + 0.5f);
-            ringView.setCurProcess(elapsedProgress);
-            ringView.setRemainingFraction(remainingFraction);
+            ringView.setElapsedFraction(1f - remainingFraction);
             if (countdownView != null) {
                 countdownView.setTextColor(TimerRingView.colorForRemaining(remainingFraction));
             }
@@ -857,13 +926,22 @@ public final class IntervalTimerHelper {
             if (remainingFraction > 1f) {
                 remainingFraction = 1f;
             }
-            int elapsedProgress = (int) ((1f - remainingFraction) * RING_MAX + 0.5f);
-            ringView.setCurProcess(elapsedProgress);
-            ringView.setRemainingFraction(remainingFraction);
+            ringView.setElapsedFraction(1f - remainingFraction);
             if (countdownView != null) {
                 countdownView.setTextColor(TimerRingView.colorForRemaining(remainingFraction));
             }
         } catch (Throwable ignored) {
+        }
+    }
+
+    private static void updateCountdownDisplay(long remainingMsValue) {
+        if (countdownView == null) {
+            return;
+        }
+        long sec = remainingMsValue > 0L ? remainingMsValue / 1000L : 0L;
+        if (sec != lastDisplayedCountdownSec) {
+            lastDisplayedCountdownSec = (int) sec;
+            countdownView.setText(formatSeconds(sec));
         }
     }
 
@@ -1207,11 +1285,10 @@ public final class IntervalTimerHelper {
         }
     }
 
-    private static String formatRemaining(long ms) {
-        if (ms < 0) {
-            ms = 0;
+    private static String formatSeconds(long totalSec) {
+        if (totalSec < 0L) {
+            totalSec = 0L;
         }
-        long totalSec = (ms + 999L) / 1000L;
         long min = totalSec / 60L;
         long sec = totalSec % 60L;
         return String.format("%02d:%02d", min, sec);
@@ -1341,6 +1418,15 @@ public final class IntervalTimerHelper {
         @Override
         public void run() {
             refreshBlockSummary();
+        }
+    }
+
+    static final class PresetRefreshRunnable implements Runnable {
+        @Override
+        public void run() {
+            updateModePanels();
+            refreshBlockSummary();
+            refreshSoundUi();
         }
     }
 

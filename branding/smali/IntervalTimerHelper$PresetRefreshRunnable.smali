@@ -1,9 +1,9 @@
-.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockRepeatSwitchListener;
+.class final Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$PresetRefreshRunnable;
 .super Ljava/lang/Object;
 .source "IntervalTimerHelper.java"
 
 # interfaces
-.implements Landroid/widget/CompoundButton$OnCheckedChangeListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -13,7 +13,7 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "BlockRepeatSwitchListener"
+    name = "PresetRefreshRunnable"
 .end annotation
 
 
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1392
+    .line 1424
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,17 +29,21 @@
 
 
 # virtual methods
-.method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
-    .registers 3
+.method public run()V
+    .registers 1
 
-    .line 1395
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
-    invoke-static {p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$302(Z)Z
+    .line 1427
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->updateModePanels()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100()V
 
-    .line 1396
+    .line 1428
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshBlockSummary()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200()V
 
-    .line 1397
+    .line 1429
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
+
+    .line 1430
     return-void
 .end method

@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -80,7 +81,8 @@ public final class IntervalTimerHelper {
     private static final int RING_MAX = 100;
     /** Matches avatar ring diameter (see apply-interval-timer overlay_metrics). */
     private static final int OVERLAY_SIZE_DP = 64;
-    private static final float COUNTDOWN_TEXT_SP = 42f;
+    private static final float COUNTDOWN_TEXT_SP = 18f;
+    private static final int STR_NO_TRAINING = 0x7f0d011a;
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
 
@@ -235,7 +237,15 @@ public final class IntervalTimerHelper {
         refreshStatusText();
     }
 
+    private static boolean hasLoadedTraining() {
+        return MusicPlayerHelper.resolveTargetItem(itemManager) != null;
+    }
+
     private static void armFromConfig() {
+        if (!hasLoadedTraining()) {
+            toast(STR_NO_TRAINING);
+            return;
+        }
         int minutes = readAmount(minutesView, 0, 59);
         int seconds = readAmount(secondsView, 0, 59);
         if (minutes == 0 && seconds == 0) {
@@ -289,6 +299,10 @@ public final class IntervalTimerHelper {
         }
         hostActivity = activity;
         if (!armed) {
+            if (!hasLoadedTraining()) {
+                toast(STR_NO_TRAINING);
+                return;
+            }
             showConfigDialog(activity);
             return;
         }
@@ -429,8 +443,10 @@ public final class IntervalTimerHelper {
         ringView = (TimerRingView) content.findViewById(ID_RING);
         countdownView = (TextView) content.findViewById(ID_COUNTDOWN);
         loopLabelView = (TextView) content.findViewById(ID_LOOP_LABEL);
+        int overlayPx = dp(activity, OVERLAY_SIZE_DP);
         try {
             if (ringView != null) {
+                ringView.setMaxDiameterDp(OVERLAY_SIZE_DP);
                 ringView.setMaxProcess(RING_MAX);
             }
             if (countdownView != null) {
@@ -441,29 +457,35 @@ public final class IntervalTimerHelper {
         content.setClickable(true);
         content.setFocusable(false);
         content.setOnTouchListener(new OverlayDragListener());
+        FrameLayout wrapper = new FrameLayout(activity);
+        wrapper.setClipChildren(true);
+        wrapper.addView(
+                content,
+                new FrameLayout.LayoutParams(overlayPx, overlayPx));
         try {
             android.support.v7.app.AlertDialog.Builder builder =
                     new android.support.v7.app.AlertDialog.Builder(activity);
-            builder.setView(content);
+            builder.setView(wrapper);
             overlayDialog = builder.create();
             overlayDialog.setCancelable(false);
             overlayDialog.setCanceledOnTouchOutside(false);
+            overlayDialog.show();
             Window window = overlayDialog.getWindow();
             if (window == null) {
                 return false;
             }
             window.setBackgroundDrawableResource(android.R.color.transparent);
             window.setGravity(Gravity.TOP | Gravity.START);
-            int overlayPx = dp(activity, OVERLAY_SIZE_DP);
             window.setLayout(overlayPx, overlayPx);
             WindowManager.LayoutParams lp = window.getAttributes();
+            lp.width = overlayPx;
+            lp.height = overlayPx;
             lp.x = dp(activity, 20);
             lp.y = dp(activity, 88);
             lp.flags = lp.flags
                     | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
             window.setAttributes(lp);
-            overlayDialog.show();
             refreshOverlayText();
             return true;
         } catch (Throwable t) {

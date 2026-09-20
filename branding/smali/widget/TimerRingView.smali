@@ -4,15 +4,17 @@
 
 
 # static fields
-.field private static final COLOR_PROGRESS:I = -0x657f8d
+.field private static final RES_COLOR_PROGRESS:I = 0x7f06005c
 
-.field private static final COLOR_TRACK:I = -0x1f2222
+.field private static final RES_COLOR_TRACK:I = 0x7f0600ac
 
 
 # instance fields
 .field private final arcBounds:Landroid/graphics/RectF;
 
 .field private curProcess:I
+
+.field private maxDiameterPx:I
 
 .field private maxProcess:I
 
@@ -27,7 +29,7 @@
 .method public constructor <init>(Landroid/content/Context;)V
     .registers 4
 
-    .line 28
+    .line 29
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
     .line 19
@@ -53,25 +55,25 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->arcBounds:Landroid/graphics/RectF;
 
-    .line 24
+    .line 25
     const/16 v0, 0x64
 
     iput v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxProcess:I
 
-    .line 25
+    .line 26
     iput v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->curProcess:I
 
-    .line 29
+    .line 30
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/TimerRingView;->init(Landroid/content/Context;)V
 
-    .line 30
+    .line 31
     return-void
 .end method
 
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
     .registers 4
 
-    .line 33
+    .line 34
     invoke-direct {p0, p1, p2}, Landroid/view/View;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
 
     .line 19
@@ -97,25 +99,25 @@
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->arcBounds:Landroid/graphics/RectF;
 
-    .line 24
+    .line 25
     const/16 p2, 0x64
 
     iput p2, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxProcess:I
 
-    .line 25
+    .line 26
     iput p2, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->curProcess:I
 
-    .line 34
+    .line 35
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/TimerRingView;->init(Landroid/content/Context;)V
 
-    .line 35
+    .line 36
     return-void
 .end method
 
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
     .registers 4
 
-    .line 38
+    .line 39
     invoke-direct {p0, p1, p2, p3}, Landroid/view/View;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
 
     .line 19
@@ -141,28 +143,28 @@
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->arcBounds:Landroid/graphics/RectF;
 
-    .line 24
+    .line 25
     const/16 p2, 0x64
 
     iput p2, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxProcess:I
 
-    .line 25
+    .line 26
     iput p2, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->curProcess:I
 
-    .line 39
+    .line 40
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/TimerRingView;->init(Landroid/content/Context;)V
 
-    .line 40
+    .line 41
     return-void
 .end method
 
 .method private static dp(Landroid/content/Context;F)F
     .registers 3
 
-    .line 115
+    .line 116
     nop
 
-    .line 116
+    .line 117
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object p0
@@ -171,7 +173,7 @@
 
     move-result-object p0
 
-    .line 115
+    .line 116
     const/4 v0, 0x1
 
     invoke-static {v0, p1, p0}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
@@ -182,96 +184,116 @@
 .end method
 
 .method private init(Landroid/content/Context;)V
-    .registers 3
+    .registers 5
 
-    .line 43
+    .line 44
     const/high16 v0, 0x41200000    # 10.0f
 
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/TimerRingView;->dp(Landroid/content/Context;F)F
 
-    move-result p1
+    move-result v0
 
-    iput p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackWidthPx:F
-
-    .line 44
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
-
-    sget-object v0, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
-
-    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+    iput v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackWidthPx:F
 
     .line 45
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
+    const/high16 v0, 0x42800000    # 64.0f
 
-    sget-object v0, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/TimerRingView;->dp(Landroid/content/Context;F)F
 
-    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
+    move-result v0
+
+    float-to-int v0, v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxDiameterPx:I
 
     .line 46
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
-
-    const v0, -0x1f2222
-
-    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setColor(I)V
+    nop
 
     .line 47
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->progressPaint:Landroid/graphics/Paint;
-
-    sget-object v0, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
-
-    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
-
-    .line 48
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->progressPaint:Landroid/graphics/Paint;
-
-    sget-object v0, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
-
-    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
+    nop
 
     .line 49
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->progressPaint:Landroid/graphics/Paint;
+    const v0, -0x1f2222
 
-    const v0, -0x657f8d
+    :try_start_16
+    invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
-    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setColor(I)V
+    move-result-object v1
+
+    const v2, 0x7f0600ac
+
+    invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getColor(I)I
+
+    move-result v0
 
     .line 50
+    invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object p1
+
+    const v1, 0x7f06005c
+
+    invoke-virtual {p1, v1}, Landroid/content/res/Resources;->getColor(I)I
+
+    move-result p1
+    :try_end_2c
+    .catchall {:try_start_16 .. :try_end_2c} :catchall_2d
+
+    .line 52
+    goto :goto_31
+
+    .line 51
+    :catchall_2d
+    move-exception p1
+
+    const p1, -0x657f8d
+
+    .line 53
+    :goto_31
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
+
+    sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+
+    .line 54
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
+
+    sget-object v2, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
+
+    invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
+
+    .line 55
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
+
+    invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 56
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->progressPaint:Landroid/graphics/Paint;
+
+    sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+
+    .line 57
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->progressPaint:Landroid/graphics/Paint;
+
+    sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
+
+    .line 58
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->progressPaint:Landroid/graphics/Paint;
+
+    invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 59
     const/4 p1, 0x0
 
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/TimerRingView;->setWillNotDraw(Z)V
 
-    .line 51
+    .line 60
     return-void
-.end method
-
-.method private suggestedMinimumHeight()I
-    .registers 2
-
-    .line 96
-    invoke-direct {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->suggestedMinimumWidth()I
-
-    move-result v0
-
-    return v0
-.end method
-
-.method private suggestedMinimumWidth()I
-    .registers 3
-
-    .line 92
-    iget v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackWidthPx:F
-
-    const/high16 v1, 0x40800000    # 4.0f
-
-    mul-float v0, v0, v1
-
-    const/high16 v1, 0x3f000000    # 0.5f
-
-    add-float/2addr v0, v1
-
-    float-to-int v0, v0
-
-    return v0
 .end method
 
 
@@ -279,10 +301,10 @@
 .method protected onDraw(Landroid/graphics/Canvas;)V
     .registers 10
 
-    .line 101
+    .line 102
     invoke-super {p0, p1}, Landroid/view/View;->onDraw(Landroid/graphics/Canvas;)V
 
-    .line 102
+    .line 103
     iget v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackWidthPx:F
 
     const/high16 v1, 0x40000000    # 2.0f
@@ -301,7 +323,7 @@
 
     add-float/2addr v0, v1
 
-    .line 103
+    .line 104
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->arcBounds:Landroid/graphics/RectF;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->getWidth()I
@@ -322,21 +344,21 @@
 
     invoke-virtual {v1, v0, v0, v2, v3}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 104
+    .line 105
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackWidthPx:F
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 105
+    .line 106
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->progressPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackWidthPx:F
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 106
+    .line 107
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->arcBounds:Landroid/graphics/RectF;
 
     iget-object v7, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->trackPaint:Landroid/graphics/Paint;
@@ -351,15 +373,15 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 107
+    .line 108
     iget v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->curProcess:I
 
     if-gtz v0, :cond_43
 
-    .line 108
+    .line 109
     return-void
 
-    .line 110
+    .line 111
     :cond_43
     const/high16 v1, 0x43b40000    # 360.0f
 
@@ -373,7 +395,7 @@
 
     div-float v5, v0, v1
 
-    .line 111
+    .line 112
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->arcBounds:Landroid/graphics/RectF;
 
     const/high16 v4, -0x3d4c0000    # -90.0f
@@ -386,119 +408,124 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 112
+    .line 113
     return-void
 .end method
 
 .method protected onMeasure(II)V
-    .registers 6
+    .registers 3
 
-    .line 77
+    .line 91
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
-
-    move-result v0
-
-    .line 78
-    invoke-static {p2}, Landroid/view/View$MeasureSpec;->getSize(I)I
-
-    move-result v1
-
-    .line 79
-    invoke-static {p1}, Landroid/view/View$MeasureSpec;->getMode(I)I
 
     move-result p1
 
-    .line 80
-    invoke-static {p2}, Landroid/view/View$MeasureSpec;->getMode(I)I
+    .line 92
+    invoke-static {p2}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
     move-result p2
 
-    .line 81
-    const/high16 v2, 0x40000000    # 2.0f
-
-    if-eq p1, v2, :cond_18
-
-    .line 82
-    invoke-direct {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->suggestedMinimumWidth()I
-
-    move-result v0
-
-    .line 84
-    :cond_18
-    if-eq p2, v2, :cond_1e
-
-    .line 85
-    invoke-direct {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->suggestedMinimumHeight()I
-
-    move-result v1
-
-    .line 87
-    :cond_1e
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
+    .line 93
+    invoke-static {p1, p2}, Ljava/lang/Math;->min(II)I
 
     move-result p1
 
-    .line 88
+    .line 94
+    if-lez p1, :cond_12
+
+    iget p2, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxDiameterPx:I
+
+    if-le p1, p2, :cond_14
+
+    .line 95
+    :cond_12
+    iget p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxDiameterPx:I
+
+    .line 97
+    :cond_14
     invoke-virtual {p0, p1, p1}, Lcom/isaigu/gymapp/widget/TimerRingView;->setMeasuredDimension(II)V
 
-    .line 89
+    .line 98
     return-void
 .end method
 
 .method public setCurProcess(I)V
     .registers 3
 
-    .line 65
+    .line 79
     if-gez p1, :cond_3
 
-    .line 66
+    .line 80
     const/4 p1, 0x0
 
-    .line 68
+    .line 82
     :cond_3
     iget v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxProcess:I
 
     if-le p1, v0, :cond_8
 
-    .line 69
+    .line 83
     move p1, v0
 
-    .line 71
+    .line 85
     :cond_8
     iput p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->curProcess:I
 
-    .line 72
+    .line 86
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->invalidate()V
 
-    .line 73
+    .line 87
+    return-void
+.end method
+
+.method public setMaxDiameterDp(F)V
+    .registers 3
+
+    .line 63
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/TimerRingView;->dp(Landroid/content/Context;F)F
+
+    move-result p1
+
+    float-to-int p1, p1
+
+    iput p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxDiameterPx:I
+
+    .line 64
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->requestLayout()V
+
+    .line 65
     return-void
 .end method
 
 .method public setMaxProcess(I)V
     .registers 3
 
-    .line 54
+    .line 68
     if-gtz p1, :cond_3
 
-    .line 55
+    .line 69
     const/4 p1, 0x1
 
-    .line 57
+    .line 71
     :cond_3
     iput p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->maxProcess:I
 
-    .line 58
+    .line 72
     iget v0, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->curProcess:I
 
     if-le v0, p1, :cond_b
 
-    .line 59
+    .line 73
     iput p1, p0, Lcom/isaigu/gymapp/widget/TimerRingView;->curProcess:I
 
-    .line 61
+    .line 75
     :cond_b
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/TimerRingView;->invalidate()V
 
-    .line 62
+    .line 76
     return-void
 .end method

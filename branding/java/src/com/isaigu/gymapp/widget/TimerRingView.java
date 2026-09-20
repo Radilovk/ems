@@ -9,18 +9,19 @@ import android.util.TypedValue;
 import android.view.View;
 
 /**
- * Display-only countdown ring (avatar slider look without thumb/touch).
+ * Display-only countdown ring (avatar slider colors, no thumb/touch).
  */
 public final class TimerRingView extends View {
 
-    private static final int COLOR_TRACK = 0xFFE0DDDE;
-    private static final int COLOR_PROGRESS = 0xFF9A8073;
+    private static final int RES_COLOR_TRACK = 0x7f0600ac; // seekbar_back_gray
+    private static final int RES_COLOR_PROGRESS = 0x7f06005c; // grown_color
 
     private final Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint progressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF arcBounds = new RectF();
 
     private float trackWidthPx;
+    private int maxDiameterPx;
     private int maxProcess = 100;
     private int curProcess = 100;
 
@@ -41,13 +42,26 @@ public final class TimerRingView extends View {
 
     private void init(Context context) {
         trackWidthPx = dp(context, 10f);
+        maxDiameterPx = (int) dp(context, 64f);
+        int trackColor = 0xFFE0DDDE;
+        int progressColor = 0xFF9A8073;
+        try {
+            trackColor = context.getResources().getColor(RES_COLOR_TRACK);
+            progressColor = context.getResources().getColor(RES_COLOR_PROGRESS);
+        } catch (Throwable ignored) {
+        }
         trackPaint.setStyle(Paint.Style.STROKE);
         trackPaint.setStrokeCap(Paint.Cap.ROUND);
-        trackPaint.setColor(COLOR_TRACK);
+        trackPaint.setColor(trackColor);
         progressPaint.setStyle(Paint.Style.STROKE);
         progressPaint.setStrokeCap(Paint.Cap.ROUND);
-        progressPaint.setColor(COLOR_PROGRESS);
+        progressPaint.setColor(progressColor);
         setWillNotDraw(false);
+    }
+
+    public void setMaxDiameterDp(float dpValue) {
+        maxDiameterPx = (int) dp(getContext(), dpValue);
+        requestLayout();
     }
 
     public void setMaxProcess(int maxProcess) {
@@ -74,26 +88,13 @@ public final class TimerRingView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        int modeW = MeasureSpec.getMode(widthMeasureSpec);
-        int modeH = MeasureSpec.getMode(heightMeasureSpec);
-        if (modeW != MeasureSpec.EXACTLY) {
-            width = suggestedMinimumWidth();
+        int specW = MeasureSpec.getSize(widthMeasureSpec);
+        int specH = MeasureSpec.getSize(heightMeasureSpec);
+        int size = Math.min(specW, specH);
+        if (size <= 0 || size > maxDiameterPx) {
+            size = maxDiameterPx;
         }
-        if (modeH != MeasureSpec.EXACTLY) {
-            height = suggestedMinimumHeight();
-        }
-        int size = Math.min(width, height);
         setMeasuredDimension(size, size);
-    }
-
-    private int suggestedMinimumWidth() {
-        return (int) (trackWidthPx * 4f + 0.5f);
-    }
-
-    private int suggestedMinimumHeight() {
-        return suggestedMinimumWidth();
     }
 
     @Override

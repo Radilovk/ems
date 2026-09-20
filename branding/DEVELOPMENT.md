@@ -175,7 +175,7 @@ bash scripts/design-apply.sh --safe --dry-run       # preview без запис
 - Config modal (непрозрачен) → **Activate** → armed
 - Countdown започва при **Start на тренировката**; pause/stop sync с `allStartPause` / `allStop`
 - Floating overlay = втори **AlertDialog** (като ♫), **не** `decorView.addView()` — иначе crash при Activate
-- Overlay: компактен 76dp dial (`interval_timer_dial_bg.xml`) — зелен ring като avatar cluster
+- Overlay: `CircleSeekBar` display-only (като avatar slider, без thumb/touch) + countdown текст в центъра
 - Config modal: тъмен card panel, inline `mm:ss`, sound chips
 - Signal: Off / Beep / Chime / Bell / Custom + Upload (audio/*) + Preview; custom via `MediaPlayer`
 - File pick = **същият flow като ♫** (`pickingFile` flag, `dialog.hide()`, `restoreDialogAfterPick()`)

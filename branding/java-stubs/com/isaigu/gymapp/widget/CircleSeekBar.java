@@ -15,4 +15,7 @@ public class CircleSeekBar extends View {
 
     public void setCurProcess(int curProcess) {
     }
+
+    public void setMaxProcess(int maxProcess) {
+    }
 }

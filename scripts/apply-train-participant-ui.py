@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single compact add-participant control; hide sector/minus sidebar buttons."""
+"""Single compact add-participant control; no empty slots; hide sector/minus sidebar."""
 
 from __future__ import annotations
 
@@ -10,6 +10,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 RES = DECOMPILED / "res"
+TRAIN_ITEM_MANAGER = (
+    DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainItemManager.smali"
+)
 PUBLIC_XML = RES / "values/public.xml"
 VALUES_DEFAULT = RES / "values/strings.xml"
 VALUES_BG = ROOT / "translations/values-bg/strings.xml"
@@ -83,6 +86,23 @@ EMPTY_CENTER_RE = re.compile(
 EN_STRING = f'    <string name="{STRING_NAME}">+ Add participant</string>'
 BG_STRING = f'    <string name="{STRING_NAME}">+ Добави участник</string>'
 
+BINDING_STUBS = """
+        <com.isaigu.gymapp.widget.MyButton android:id="@id/allPerson" android:visibility="gone" android:layout_width="0.0dip" android:layout_height="0.0dip" />
+        <com.isaigu.gymapp.widget.MyButton android:id="@id/allminus" android:visibility="gone" android:layout_width="0.0dip" android:layout_height="0.0dip" />
+"""
+
+ADD_EMPTY_ITEM_RE = re.compile(
+    r"\.method private addEmptyItem\(\)V\n.*?\.end method\n",
+    re.DOTALL,
+)
+
+ADD_EMPTY_ITEM_NOOP = """.method private addEmptyItem()V
+    .locals 0
+
+    return-void
+.end method
+"""
+
 
 def patch_public_xml(text: str) -> str:
     if STRING_NAME not in text:
@@ -104,24 +124,54 @@ def merge_string(path: Path, line: str) -> None:
     print(f"added {STRING_NAME} to {path.name}")
 
 
+def ensure_binding_stubs(text: str) -> tuple[str, bool]:
+    if '@id/allPerson' in text:
+        return text, False
+    close = text.rfind("</LinearLayout>")
+    if close == -1:
+        return text, False
+    return text[:close] + BINDING_STUBS + text[close:], True
+
+
 def patch_fragment(path: Path) -> None:
     if not path.is_file():
         return
     text = path.read_text(encoding="utf-8")
-    changed = False
+    overlay_changed = False
     if "@id/allAdd" in text and "layout_alignParentBottom" not in text:
         if RECYCLER_RE.search(text):
             text = RECYCLER_RE.sub(RECYCLER_REPLACEMENT, text, count=1)
-            changed = True
+            overlay_changed = True
         if SIDEBAR_BLOCK_RE.search(text):
-            text = SIDEBAR_BLOCK_RE.sub("\n        ", text, count=1)
-            changed = True
+            text = SIDEBAR_BLOCK_RE.sub(BINDING_STUBS, text, count=1)
+            overlay_changed = True
         elif SIDEBAR_BLOCK_ALT_RE.search(text):
-            text = SIDEBAR_BLOCK_ALT_RE.sub("\n        ", text, count=1)
-            changed = True
-    if changed:
+            text = SIDEBAR_BLOCK_ALT_RE.sub(BINDING_STUBS, text, count=1)
+            overlay_changed = True
+    text, stub_added = ensure_binding_stubs(text)
+    if overlay_changed or stub_added:
         path.write_text(text, encoding="utf-8")
-        print(f"{path.name}: compact add-participant button, hid sidebar add/sector/minus")
+        notes: list[str] = []
+        if overlay_changed:
+            notes.append("compact add button, hid sidebar controls")
+        if stub_added:
+            notes.append("binding stubs for allPerson/allminus")
+        print(f"{path.name}: {', '.join(notes)}")
+
+
+def patch_train_item_manager() -> None:
+    if not TRAIN_ITEM_MANAGER.is_file():
+        print("TrainItemManager.smali missing; skipping empty-slot removal")
+        return
+    text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
+    if "addEmptyItem()V\n    .locals 0\n\n    return-void" in text:
+        print("TrainItemManager: empty participant slots already disabled")
+        return
+    if not ADD_EMPTY_ITEM_RE.search(text):
+        raise RuntimeError("TrainItemManager.addEmptyItem marker not found")
+    text = ADD_EMPTY_ITEM_RE.sub(ADD_EMPTY_ITEM_NOOP + "\n", text, count=1)
+    TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
+    print("TrainItemManager: disabled empty participant slot rows")
 
 
 def patch_empty_layout(path: Path) -> None:
@@ -151,6 +201,7 @@ def main() -> int:
         patch_fragment(path)
     for path in EMPTY_LAYOUTS:
         patch_empty_layout(path)
+    patch_train_item_manager()
     print("Train participant UI patches applied.")
     return 0
 

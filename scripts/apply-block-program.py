@@ -14,39 +14,20 @@ TRAIN_ITEM_2 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainI
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
 BRANDING_SMALI = ROOT / "branding/smali"
 
-BLOCK_SMALI = (
-    "ProgramSegment.smali",
-    "BlockProgramRunner.smali",
-    "BlockProgramStorage.smali",
-    "BlockProgramEditor.smali",
-    "BlockProgramEditor$RowHolder.smali",
-    "TimerPreset.smali",
-    "TimerPresetStorage.smali",
-    "TimerPresetUiHelper.smali",
-)
+def _load_timer_smali_installer():
+    import importlib.util
+
+    path = ROOT / "scripts" / "install_interval_timer_smali.py"
+    spec = importlib.util.spec_from_file_location("install_interval_timer_smali", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def install_smali() -> None:
-    DIALOG_DIR.mkdir(parents=True, exist_ok=True)
-    for name in BLOCK_SMALI:
-        src = BRANDING_SMALI / name
-        if src.is_file():
-            shutil.copy2(src, DIALOG_DIR / name)
-            print(f"installed dialog/{name}")
-    for src in sorted(BRANDING_SMALI.glob("BlockProgramEditor$*.smali")):
-        shutil.copy2(src, DIALOG_DIR / src.name)
-        print(f"installed dialog/{src.name}")
-    for src in sorted(BRANDING_SMALI.glob("-$$Lambda$BlockProgramEditor*.smali")):
-        shutil.copy2(src, DIALOG_DIR / src.name)
-        print(f"installed dialog/{src.name}")
-    if not (DIALOG_DIR / "BlockProgramRunner.smali").is_file():
-        raise SystemExit("Missing BlockProgramRunner.smali — run compile-interval-timer-java.sh")
-    runner_text = (DIALOG_DIR / "BlockProgramRunner.smali").read_text(encoding="utf-8")
-    if "-$$Lambda$BlockProgramRunner" in runner_text:
-        raise SystemExit(
-            "BlockProgramRunner.smali still references lambda classes — "
-            "recompile without lambdas (compile-interval-timer-java.sh)"
-        )
+    _load_timer_smali_installer().install()
 
 
 def patch_pulse_hook(text: str) -> str:

@@ -103,6 +103,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
     echo "  Re-run compile-interval-timer-java.sh (BlockProgramRunner must not use lambdas)."
     exit 1
   fi
+  python3 "${ROOT}/scripts/verify-interval-timer-smali.py"
 else
   echo "BETA music sync disabled (BETA_MUSIC=0)."
 fi

@@ -414,23 +414,20 @@ BG_STRINGS = """
 """
 
 
+def _load_timer_smali_installer():
+    import importlib.util
+
+    path = ROOT / "scripts" / "install_interval_timer_smali.py"
+    spec = importlib.util.spec_from_file_location("install_interval_timer_smali", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def install_smali() -> None:
-    DIALOG_DIR.mkdir(parents=True, exist_ok=True)
-    widget_dir = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget"
-    widget_dir.mkdir(parents=True, exist_ok=True)
-    for old in DIALOG_DIR.glob("IntervalTimerHelper*.smali"):
-        old.unlink()
-        print(f"removed stale dialog/{old.name}")
-    for src in sorted((BRANDING / "smali").glob("IntervalTimerHelper*.smali")):
-        shutil.copy2(src, DIALOG_DIR / src.name)
-        print(f"installed dialog/{src.name}")
-    if not any(DIALOG_DIR.glob("IntervalTimerHelper*.smali")):
-        raise SystemExit("Missing IntervalTimerHelper.smali — run compile-interval-timer-java.sh")
-    ring_src = BRANDING / "smali" / "widget" / "TimerRingView.smali"
-    if not ring_src.is_file():
-        raise SystemExit("Missing TimerRingView.smali — run compile-interval-timer-java.sh")
-    shutil.copy2(ring_src, widget_dir / "TimerRingView.smali")
-    print(f"installed widget/{ring_src.name}")
+    _load_timer_smali_installer().install()
 
 
 def patch_public_xml(text: str) -> str:

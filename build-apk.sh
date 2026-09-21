@@ -89,6 +89,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-interval-timer.py"
   python3 "${ROOT}/scripts/apply-music-training-sync.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
+  python3 "${ROOT}/scripts/apply-train-swipe-delete-fix.py"
   python3 "${ROOT}/scripts/remove-segment-program-gear.py"
   python3 "${ROOT}/scripts/apply-diag-logging.py"
   python3 "${ROOT}/scripts/verify-music-sync-smali.py"

@@ -68,8 +68,10 @@ public final class MusicPlayerHelper {
     private static final int OVERLAY_SIZE_DP = 192;
     private static final int OVERLAY_PANEL_WIDTH_DP = 260;
     private static final int SEEK_MAX = 1000;
-    /** CircleSeekBar touch arc is 270deg; widget max maps that arc to full track length. */
+    /** CircleSeekBar touch arc is 270deg; widget max is inflated so touch at 270deg yields SEEK_MAX. */
     private static final int SEEK_WIDGET_MAX = (SEEK_MAX * 360) / 270;
+    /** Highest progress value reachable by touch (270deg arc). Position math uses this, not widget max. */
+    private static final int SEEK_TOUCH_MAX = SEEK_MAX;
     private static final long PROGRESS_TICK_MS = 200L;
     private static final long DRAG_LONG_PRESS_MS = 280L;
     private static final long PLAY_DEBOUNCE_MS = 450L;
@@ -670,11 +672,11 @@ public final class MusicPlayerHelper {
             seekBar.setCurProcess(0);
             return;
         }
-        int progress = (int) ((position * (long) SEEK_WIDGET_MAX) / duration);
+        int progress = (int) ((position * (long) SEEK_TOUCH_MAX) / duration);
         if (progress < 0) {
             progress = 0;
-        } else if (progress > SEEK_WIDGET_MAX) {
-            progress = SEEK_WIDGET_MAX;
+        } else if (progress > SEEK_TOUCH_MAX) {
+            progress = SEEK_TOUCH_MAX;
         }
         seekBar.setCurProcess(progress);
     }
@@ -1563,7 +1565,7 @@ public final class MusicPlayerHelper {
         public void onChanged(CircleSeekBar seekbar, int progress) {
             userSeeking = true;
             int duration = MusicSync.getPlaybackDurationMs();
-            int position = duration > 0 ? (int) ((progress * (long) duration) / SEEK_WIDGET_MAX) : 0;
+            int position = duration > 0 ? (int) ((progress * (long) duration) / SEEK_TOUCH_MAX) : 0;
             updateTimeLabel(position, duration);
         }
 
@@ -1574,12 +1576,12 @@ public final class MusicPlayerHelper {
                 int clamped = progress;
                 if (clamped < 0) {
                     clamped = 0;
-                } else if (clamped > SEEK_WIDGET_MAX) {
-                    clamped = SEEK_WIDGET_MAX;
+                } else if (clamped > SEEK_TOUCH_MAX) {
+                    clamped = SEEK_TOUCH_MAX;
                 }
-                int position = clamped >= SEEK_WIDGET_MAX
+                int position = clamped >= SEEK_TOUCH_MAX
                         ? duration
-                        : (int) ((clamped * (long) duration) / SEEK_WIDGET_MAX);
+                        : (int) ((clamped * (long) duration) / SEEK_TOUCH_MAX);
                 MusicSync.seekPlaybackTo(position);
             }
             userSeeking = false;

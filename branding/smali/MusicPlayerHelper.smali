@@ -159,25 +159,25 @@
 .method static constructor <clinit>()V
     .registers 2
 
-    .line 80
+    .line 79
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
-    .line 81
+    .line 80
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
-    .line 93
+    .line 92
     sput v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragFromIndex:I
 
-    .line 94
+    .line 93
     sput v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragHighlightIndex:I
 
-    .line 101
+    .line 100
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -188,7 +188,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
 
-    .line 102
+    .line 101
     new-instance v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$ProgressTickRunnable;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$ProgressTickRunnable;-><init>()V
@@ -201,17 +201,17 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 104
+    .line 103
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 105
+    .line 104
     return-void
 .end method
 
 .method static synthetic access$000(Landroid/app/Activity;I)V
     .registers 2
 
-    .line 34
+    .line 33
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
 
     return-void
@@ -220,25 +220,34 @@
 .method static synthetic access$100()I
     .registers 1
 
-    .line 34
+    .line 33
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     return v0
 .end method
 
-.method static synthetic access$1002(I)I
+.method static synthetic access$1000()Landroid/support/v7/app/AlertDialog;
     .registers 1
 
-    .line 34
-    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragFromIndex:I
+    .line 33
+    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    return p0
+    return-object v0
+.end method
+
+.method static synthetic access$1002(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
+    .registers 1
+
+    .line 33
+    sput-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
+
+    return-object p0
 .end method
 
 .method static synthetic access$102(I)I
     .registers 1
 
-    .line 34
+    .line 33
     sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     return p0
@@ -247,70 +256,88 @@
 .method static synthetic access$1100()V
     .registers 0
 
-    .line 34
+    .line 33
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
+
+    return-void
+.end method
+
+.method static synthetic access$1202(I)I
+    .registers 1
+
+    .line 33
+    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragFromIndex:I
+
+    return p0
+.end method
+
+.method static synthetic access$1300()V
+    .registers 0
+
+    .line 33
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->cancelPendingDrag()V
 
     return-void
 .end method
 
-.method static synthetic access$1200()Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
+.method static synthetic access$1400()Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
     .registers 1
 
-    .line 34
+    .line 33
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->activeDragListener:Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
 
     return-object v0
 .end method
 
-.method static synthetic access$1202(Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;)Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
+.method static synthetic access$1402(Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;)Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
     .registers 1
 
-    .line 34
+    .line 33
     sput-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->activeDragListener:Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
 
     return-object p0
 .end method
 
-.method static synthetic access$1300()Ljava/lang/Runnable;
+.method static synthetic access$1500()Ljava/lang/Runnable;
     .registers 1
 
-    .line 34
+    .line 33
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingDragStart:Ljava/lang/Runnable;
 
     return-object v0
 .end method
 
-.method static synthetic access$1302(Ljava/lang/Runnable;)Ljava/lang/Runnable;
+.method static synthetic access$1502(Ljava/lang/Runnable;)Ljava/lang/Runnable;
     .registers 1
 
-    .line 34
+    .line 33
     sput-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingDragStart:Ljava/lang/Runnable;
 
     return-object p0
 .end method
 
-.method static synthetic access$1400()Landroid/os/Handler;
+.method static synthetic access$1600()Landroid/os/Handler;
     .registers 1
 
-    .line 34
+    .line 33
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
 
     return-object v0
 .end method
 
-.method static synthetic access$1500(FF)V
+.method static synthetic access$1700(FF)V
     .registers 2
 
-    .line 34
+    .line 33
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->moveDragGhost(FF)V
 
     return-void
 .end method
 
-.method static synthetic access$1600(F)I
+.method static synthetic access$1800(F)I
     .registers 1
 
-    .line 34
+    .line 33
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveDropIndex(F)I
 
     move-result p0
@@ -318,29 +345,11 @@
     return p0
 .end method
 
-.method static synthetic access$1700(I)V
+.method static synthetic access$1900(I)V
     .registers 1
 
-    .line 34
+    .line 33
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->highlightDropTarget(I)V
-
-    return-void
-.end method
-
-.method static synthetic access$1800()V
-    .registers 0
-
-    .line 34
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearDragHighlight()V
-
-    return-void
-.end method
-
-.method static synthetic access$1900(II)V
-    .registers 2
-
-    .line 34
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->movePlaylistItem(II)V
 
     return-void
 .end method
@@ -348,16 +357,34 @@
 .method static synthetic access$200()Ljava/util/ArrayList;
     .registers 1
 
-    .line 34
+    .line 33
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     return-object v0
 .end method
 
-.method static synthetic access$2000(Landroid/view/View;)Landroid/view/View;
+.method static synthetic access$2000()V
+    .registers 0
+
+    .line 33
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearDragHighlight()V
+
+    return-void
+.end method
+
+.method static synthetic access$2100(II)V
+    .registers 2
+
+    .line 33
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->movePlaylistItem(II)V
+
+    return-void
+.end method
+
+.method static synthetic access$2200(Landroid/view/View;)Landroid/view/View;
     .registers 1
 
-    .line 34
+    .line 33
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->findPlaylistRow(Landroid/view/View;)Landroid/view/View;
 
     move-result-object p0
@@ -365,83 +392,47 @@
     return-object p0
 .end method
 
-.method static synthetic access$2100(Landroid/view/View;FF)V
+.method static synthetic access$2300(Landroid/view/View;FF)V
     .registers 3
 
-    .line 34
+    .line 33
     invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showDragGhost(Landroid/view/View;FF)V
 
     return-void
 .end method
 
-.method static synthetic access$2202(Z)Z
+.method static synthetic access$2402(Z)Z
     .registers 1
 
-    .line 34
+    .line 33
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
 
     return p0
 .end method
 
-.method static synthetic access$2300(II)V
+.method static synthetic access$2500(II)V
     .registers 2
 
-    .line 34
+    .line 33
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
 
     return-void
 .end method
 
-.method static synthetic access$2400()V
+.method static synthetic access$2600()V
     .registers 0
 
-    .line 34
+    .line 33
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshSeekFromPlayer()V
 
     return-void
 .end method
 
-.method static synthetic access$2500()Landroid/support/v7/app/AlertDialog;
-    .registers 1
-
-    .line 34
-    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-
-    return-object v0
-.end method
-
-.method static synthetic access$2502(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
-    .registers 1
-
-    .line 34
-    sput-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-
-    return-object p0
-.end method
-
-.method static synthetic access$2600()F
-    .registers 1
-
-    .line 34
-    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDx:F
-
-    return v0
-.end method
-
-.method static synthetic access$2602(F)F
-    .registers 1
-
-    .line 34
-    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDx:F
-
-    return p0
-.end method
-
 .method static synthetic access$2700()F
     .registers 1
 
-    .line 34
-    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDy:F
+    .line 33
+    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDx:F
 
     return v0
 .end method
@@ -449,8 +440,8 @@
 .method static synthetic access$2702(F)F
     .registers 1
 
-    .line 34
-    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDy:F
+    .line 33
+    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDx:F
 
     return p0
 .end method
@@ -458,8 +449,8 @@
 .method static synthetic access$2800()F
     .registers 1
 
-    .line 34
-    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawX:F
+    .line 33
+    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDy:F
 
     return v0
 .end method
@@ -467,8 +458,8 @@
 .method static synthetic access$2802(F)F
     .registers 1
 
-    .line 34
-    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawX:F
+    .line 33
+    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDy:F
 
     return p0
 .end method
@@ -476,8 +467,8 @@
 .method static synthetic access$2900()F
     .registers 1
 
-    .line 34
-    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawY:F
+    .line 33
+    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawX:F
 
     return v0
 .end method
@@ -485,8 +476,8 @@
 .method static synthetic access$2902(F)F
     .registers 1
 
-    .line 34
-    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawY:F
+    .line 33
+    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawX:F
 
     return p0
 .end method
@@ -494,7 +485,7 @@
 .method static synthetic access$300(Z)Z
     .registers 1
 
-    .line 34
+    .line 33
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->startCurrentTrack(Z)Z
 
     move-result p0
@@ -502,46 +493,64 @@
     return p0
 .end method
 
-.method static synthetic access$3000()Z
+.method static synthetic access$3000()F
     .registers 1
 
-    .line 34
+    .line 33
+    sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawY:F
+
+    return v0
+.end method
+
+.method static synthetic access$3002(F)F
+    .registers 1
+
+    .line 33
+    sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawY:F
+
+    return p0
+.end method
+
+.method static synthetic access$3100()Z
+    .registers 1
+
+    .line 33
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayMoved:Z
 
     return v0
 .end method
 
-.method static synthetic access$3002(Z)Z
+.method static synthetic access$3102(Z)Z
     .registers 1
 
-    .line 34
+    .line 33
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayMoved:Z
 
     return p0
 .end method
 
-.method static synthetic access$3100(II)V
+.method static synthetic access$3200(II)V
     .registers 2
 
-    .line 34
+    .line 33
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->moveOverlayWindow(II)V
 
     return-void
 .end method
 
-.method static synthetic access$3202(Z)Z
+.method static synthetic access$3302(Z)Z
     .registers 1
 
-    .line 34
+    .line 33
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
 
     return p0
 .end method
 
-.method static synthetic access$3300()V
+.method static synthetic access$3400()V
     .registers 0
 
-    .line 34
+    .line 33
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearOverlayRefs()V
 
     return-void
@@ -550,7 +559,7 @@
 .method static synthetic access$400()Z
     .registers 1
 
-    .line 34
+    .line 33
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
 
     return v0
@@ -559,7 +568,7 @@
 .method static synthetic access$402(Z)Z
     .registers 1
 
-    .line 34
+    .line 33
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
 
     return p0
@@ -568,7 +577,7 @@
 .method static synthetic access$500()V
     .registers 0
 
-    .line 34
+    .line 33
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
 
     return-void
@@ -577,7 +586,7 @@
 .method static synthetic access$600()V
     .registers 0
 
-    .line 34
+    .line 33
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
 
     return-void
@@ -586,7 +595,7 @@
 .method static synthetic access$700()V
     .registers 0
 
-    .line 34
+    .line 33
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->closePlayer()V
 
     return-void
@@ -595,7 +604,7 @@
 .method static synthetic access$800(Landroid/app/Activity;I)I
     .registers 2
 
-    .line 34
+    .line 33
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result p0
@@ -606,7 +615,7 @@
 .method static synthetic access$900()Z
     .registers 1
 
-    .line 34
+    .line 33
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
 
     return v0
@@ -615,7 +624,7 @@
 .method static synthetic access$902(Z)Z
     .registers 1
 
-    .line 34
+    .line 33
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
 
     return p0
@@ -624,20 +633,20 @@
 .method private static addTrack(Landroid/app/Activity;Landroid/net/Uri;)V
     .registers 5
 
-    .line 573
+    .line 567
     if-eqz p1, :cond_34
 
     if-nez p0, :cond_5
 
     goto :goto_34
 
-    .line 576
+    .line 570
     :cond_5
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicTrackLabel;->resolve(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 577
+    .line 571
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     new-instance v2, Lcom/isaigu/gymapp/dialog/MusicPlaylistEntry;
@@ -646,12 +655,12 @@
 
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 578
+    .line 572
     sget p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     if-gez p1, :cond_21
 
-    .line 579
+    .line 573
     sget-object p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     invoke-virtual {p1}, Ljava/util/ArrayList;->size()I
@@ -662,31 +671,31 @@
 
     sput p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
-    .line 581
+    .line 575
     :cond_21
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->persistPlaylist(Landroid/app/Activity;)V
 
-    .line 582
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->isOverlayShowing()Z
-
-    move-result p1
-
-    if-eqz p1, :cond_33
-
-    .line 583
+    .line 576
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->rebuildPlaylistViews(Landroid/app/Activity;)V
 
-    .line 584
+    .line 577
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTrackTitle()V
 
-    .line 585
+    .line 578
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->isOverlayShowing()Z
+
+    move-result p0
+
+    if-eqz p0, :cond_33
+
+    .line 579
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
 
-    .line 587
+    .line 581
     :cond_33
     return-void
 
-    .line 574
+    .line 568
     :cond_34
     :goto_34
     return-void
@@ -695,30 +704,30 @@
 .method private static addTrackSafe(Landroid/app/Activity;Landroid/net/Uri;)V
     .registers 2
 
-    .line 565
+    .line 559
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->addTrack(Landroid/app/Activity;Landroid/net/Uri;)V
     :try_end_3
     .catchall {:try_start_0 .. :try_end_3} :catchall_4
 
-    .line 569
+    .line 563
     goto :goto_10
 
-    .line 566
+    .line 560
     :catchall_4
     move-exception p0
 
-    .line 567
+    .line 561
     const-string p1, "player_add_track"
 
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 568
+    .line 562
     const p0, 0x7f0d0113
 
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 570
+    .line 564
     :goto_10
     return-void
 .end method
@@ -726,7 +735,7 @@
 .method public static advanceToNextTrack()Z
     .registers 3
 
-    .line 188
+    .line 182
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     add-int/lit8 v0, v0, 0x1
@@ -741,10 +750,10 @@
 
     if-lt v0, v1, :cond_e
 
-    .line 189
+    .line 183
     return v2
 
-    .line 191
+    .line 185
     :cond_e
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
@@ -752,7 +761,7 @@
 
     sput v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
-    .line 192
+    .line 186
     invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->startCurrentTrack(Z)Z
 
     move-result v0
@@ -763,7 +772,7 @@
 .method private static applyExpandedState()V
     .registers 3
 
-    .line 433
+    .line 427
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
 
     const/16 v1, 0x8
@@ -777,25 +786,25 @@
     :cond_8
     const/16 v0, 0x8
 
-    .line 434
+    .line 428
     :goto_a
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlPanel:Landroid/view/View;
 
     if-eqz v2, :cond_11
 
-    .line 435
+    .line 429
     invoke-virtual {v2, v0}, Landroid/view/View;->setVisibility(I)V
 
-    .line 437
+    .line 431
     :cond_11
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistPanel:Landroid/view/View;
 
     if-eqz v2, :cond_18
 
-    .line 438
+    .line 432
     invoke-virtual {v2, v0}, Landroid/view/View;->setVisibility(I)V
 
-    .line 440
+    .line 434
     :cond_18
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
@@ -805,10 +814,10 @@
 
     if-nez v2, :cond_23
 
-    .line 441
+    .line 435
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 443
+    .line 437
     :cond_23
     return-void
 .end method
@@ -816,14 +825,14 @@
 .method public static attachMasterPanel(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
     .registers 4
 
-    .line 108
+    .line 107
     if-eqz p0, :cond_27
 
     if-nez p1, :cond_5
 
     goto :goto_27
 
-    .line 111
+    .line 110
     :cond_5
     const v0, 0x7f090226
 
@@ -831,41 +840,41 @@
 
     move-result-object v0
 
-    .line 112
+    .line 111
     if-nez v0, :cond_f
 
-    .line 113
+    .line 112
     return-void
 
-    .line 115
+    .line 114
     :cond_f
     sput-object p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 116
+    .line 115
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setClickable(Z)V
 
-    .line 117
+    .line 116
     invoke-virtual {v0, v1}, Landroid/view/View;->setEnabled(Z)V
 
-    .line 118
+    .line 117
     invoke-virtual {v0, v1}, Landroid/view/View;->setFocusable(Z)V
 
-    .line 119
+    .line 118
     invoke-virtual {v0, v1}, Landroid/view/View;->setFocusableInTouchMode(Z)V
 
-    .line 120
+    .line 119
     new-instance v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;
 
     invoke-direct {v1, p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;-><init>(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 121
+    .line 120
     return-void
 
-    .line 109
+    .line 108
     :cond_27
     :goto_27
     return-void
@@ -874,74 +883,74 @@
 .method private static bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
     .registers 3
 
-    .line 851
+    .line 811
     if-nez p0, :cond_3
 
-    .line 852
+    .line 812
     return-void
 
-    .line 854
+    .line 814
     :cond_3
     const/4 v0, 0x1
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setClickable(Z)V
 
-    .line 855
+    .line 815
     invoke-virtual {p0, v0}, Landroid/view/View;->setFocusable(Z)V
 
-    .line 856
+    .line 816
     invoke-virtual {p0, p1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 857
+    .line 817
     return-void
 .end method
 
 .method private static cancelPendingDrag()V
     .registers 3
 
-    .line 820
+    .line 780
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingDragStart:Ljava/lang/Runnable;
 
     const/4 v1, 0x0
 
     if-eqz v0, :cond_c
 
-    .line 821
+    .line 781
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
 
     invoke-virtual {v2, v0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 822
+    .line 782
     sput-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pendingDragStart:Ljava/lang/Runnable;
 
-    .line 824
+    .line 784
     :cond_c
     sput-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->activeDragListener:Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
 
-    .line 825
+    .line 785
     return-void
 .end method
 
 .method private static clearDragHighlight()V
     .registers 4
 
-    .line 698
+    .line 658
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->removeDragGhost()V
 
-    .line 699
+    .line 659
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     const/4 v1, -0x1
 
     if-nez v0, :cond_b
 
-    .line 700
+    .line 660
     sput v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragHighlightIndex:I
 
-    .line 701
+    .line 661
     return-void
 
-    .line 703
+    .line 663
     :cond_b
     const/4 v0, 0x0
 
@@ -954,7 +963,7 @@
 
     if-ge v0, v2, :cond_22
 
-    .line 704
+    .line 664
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
@@ -965,102 +974,102 @@
 
     invoke-virtual {v2, v3}, Landroid/view/View;->setAlpha(F)V
 
-    .line 703
+    .line 663
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_c
 
-    .line 706
+    .line 666
     :cond_22
     sput v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragHighlightIndex:I
 
-    .line 707
+    .line 667
     return-void
 .end method
 
 .method private static clearOverlayRefs()V
     .registers 1
 
-    .line 882
+    .line 844
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
 
-    .line 883
+    .line 845
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
-    .line 884
+    .line 846
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playPauseBtn:Landroid/widget/TextView;
 
-    .line 885
+    .line 847
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlPanel:Landroid/view/View;
 
-    .line 886
+    .line 848
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistPanel:Landroid/view/View;
 
-    .line 887
+    .line 849
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
-    .line 888
+    .line 850
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->trackTitleView:Landroid/widget/TextView;
 
-    .line 889
+    .line 851
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->timeView:Landroid/widget/TextView;
 
-    .line 890
+    .line 852
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->statusView:Landroid/widget/TextView;
 
-    .line 891
+    .line 853
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
-    .line 892
+    .line 854
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 893
+    .line 855
     return-void
 .end method
 
 .method private static closePlayer()V
     .registers 1
 
-    .line 860
+    .line 820
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 861
+    .line 821
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dismissOverlay(Z)V
 
-    .line 862
+    .line 822
     return-void
 .end method
 
 .method private static configureSeekBar()V
     .registers 2
 
-    .line 407
+    .line 401
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     if-nez v0, :cond_5
 
-    .line 408
+    .line 402
     return-void
 
-    .line 411
+    .line 405
     :cond_5
     const/16 v1, 0x3e8
 
     :try_start_7
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setMaxProcess(I)V
 
-    .line 412
+    .line 406
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V
 
-    .line 413
+    .line 407
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     new-instance v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SeekChangeListener;
@@ -1071,14 +1080,14 @@
     :try_end_1a
     .catchall {:try_start_7 .. :try_end_1a} :catchall_1b
 
-    .line 415
+    .line 409
     goto :goto_1c
 
-    .line 414
+    .line 408
     :catchall_1b
     move-exception v0
 
-    .line 416
+    .line 410
     :goto_1c
     return-void
 .end method
@@ -1086,43 +1095,43 @@
 .method private static configureSensitivity()V
     .registers 2
 
-    .line 419
+    .line 413
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
     if-nez v0, :cond_5
 
-    .line 420
+    .line 414
     return-void
 
-    .line 423
+    .line 417
     :cond_5
     const/4 v1, 0x0
 
     :try_start_6
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/AmountView;->setMin(I)V
 
-    .line 424
+    .line 418
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
     const/16 v1, 0x64
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/AmountView;->setGoods_storage(I)V
 
-    .line 425
+    .line 419
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
     const/4 v1, 0x5
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/AmountView;->setStep(I)V
 
-    .line 426
+    .line 420
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
     const-string v1, "%"
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/AmountView;->setAmountUnit(Ljava/lang/String;)V
 
-    .line 427
+    .line 421
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
     const/16 v1, 0x14
@@ -1131,14 +1140,14 @@
     :try_end_24
     .catchall {:try_start_6 .. :try_end_24} :catchall_25
 
-    .line 429
+    .line 423
     goto :goto_26
 
-    .line 428
+    .line 422
     :catchall_25
     move-exception v0
 
-    .line 430
+    .line 424
     :goto_26
     return-void
 .end method
@@ -1146,65 +1155,75 @@
 .method private static dismissOverlay(Z)V
     .registers 2
 
-    .line 865
+    .line 825
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->stopProgressUpdates()V
 
-    .line 866
+    .line 826
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->cancelPendingDrag()V
 
-    .line 867
+    .line 827
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearDragHighlight()V
 
-    .line 868
+    .line 828
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    if-eqz v0, :cond_1a
+    if-eqz v0, :cond_1e
 
-    .line 870
+    .line 830
     :try_start_d
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->dismiss()V
     :try_end_10
     .catchall {:try_start_d .. :try_end_10} :catchall_11
 
-    .line 872
+    .line 832
     goto :goto_12
 
-    .line 871
+    .line 831
     :catchall_11
     move-exception v0
 
-    .line 873
+    .line 833
     :goto_12
-    if-nez p0, :cond_1a
+    if-nez p0, :cond_1e
 
-    .line 874
+    sget-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
+
+    if-nez p0, :cond_1e
+
+    .line 834
     const/4 p0, 0x0
 
     sput-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 875
+    .line 835
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearOverlayRefs()V
 
-    .line 878
-    :cond_1a
+    .line 838
+    :cond_1e
+    sget-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
+
+    if-nez p0, :cond_25
+
+    .line 839
     const/4 p0, 0x0
 
     sput-boolean p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
 
-    .line 879
+    .line 841
+    :cond_25
     return-void
 .end method
 
 .method private static dp(Landroid/app/Activity;I)I
     .registers 2
 
-    .line 931
+    .line 893
     if-nez p0, :cond_3
 
-    .line 932
+    .line 894
     return p1
 
-    .line 934
+    .line 896
     :cond_3
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -1216,7 +1235,7 @@
 
     iget p0, p0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 935
+    .line 897
     int-to-float p1, p1
 
     mul-float p1, p1, p0
@@ -1233,19 +1252,19 @@
 .method private static findPlaylistRow(Landroid/view/View;)Landroid/view/View;
     .registers 5
 
-    .line 710
+    .line 670
     const/4 v0, 0x0
 
     if-nez p0, :cond_4
 
-    .line 711
+    .line 671
     return-object v0
 
-    .line 713
+    .line 673
     :cond_4
     move-object v1, p0
 
-    .line 714
+    .line 674
     :cond_5
     invoke-virtual {v1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
@@ -1255,14 +1274,14 @@
 
     if-eqz v2, :cond_1c
 
-    .line 715
+    .line 675
     invoke-virtual {v1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
 
     check-cast v1, Landroid/view/View;
 
-    .line 716
+    .line 676
     invoke-virtual {v1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v2
@@ -1271,10 +1290,10 @@
 
     if-ne v2, v3, :cond_5
 
-    .line 717
+    .line 677
     return-object v1
 
-    .line 720
+    .line 680
     :cond_1c
     invoke-virtual {p0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
@@ -1284,7 +1303,7 @@
 
     if-eqz v1, :cond_2b
 
-    .line 721
+    .line 681
     invoke-virtual {p0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object p0
@@ -1293,7 +1312,7 @@
 
     return-object p0
 
-    .line 723
+    .line 683
     :cond_2b
     return-object v0
 .end method
@@ -1301,23 +1320,23 @@
 .method private static formatTime(I)Ljava/lang/String;
     .registers 4
 
-    .line 516
+    .line 510
     if-gez p0, :cond_3
 
-    .line 517
+    .line 511
     const/4 p0, 0x0
 
-    .line 519
+    .line 513
     :cond_3
     div-int/lit16 p0, p0, 0x3e8
 
-    .line 520
+    .line 514
     div-int/lit8 v0, p0, 0x3c
 
-    .line 521
+    .line 515
     rem-int/lit8 p0, p0, 0x3c
 
-    .line 522
+    .line 516
     const/16 v1, 0xa
 
     if-ge p0, v1, :cond_1f
@@ -1343,7 +1362,7 @@
 
     move-result-object p0
 
-    .line 523
+    .line 517
     :goto_23
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -1367,7 +1386,7 @@
 .method private static grantUri(Landroid/app/Activity;Landroid/content/Intent;Landroid/net/Uri;)V
     .registers 3
 
-    .line 840
+    .line 800
     :try_start_0
     invoke-virtual {p1}, Landroid/content/Intent;->getFlags()I
 
@@ -1375,10 +1394,10 @@
 
     and-int/lit8 p1, p1, 0x3
 
-    .line 842
+    .line 802
     if-eqz p1, :cond_f
 
-    .line 843
+    .line 803
     invoke-virtual {p0}, Landroid/app/Activity;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object p0
@@ -1387,20 +1406,20 @@
     :try_end_f
     .catchall {:try_start_0 .. :try_end_f} :catchall_10
 
-    .line 847
+    .line 807
     :cond_f
     goto :goto_16
 
-    .line 845
+    .line 805
     :catchall_10
     move-exception p0
 
-    .line 846
+    .line 806
     const-string p1, "player_uri_persist"
 
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 848
+    .line 808
     :goto_16
     return-void
 .end method
@@ -1408,7 +1427,7 @@
 .method private static highlightDropTarget(I)V
     .registers 2
 
-    .line 684
+    .line 644
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     if-eqz v0, :cond_3f
@@ -1419,14 +1438,14 @@
 
     goto :goto_3f
 
-    .line 687
+    .line 647
     :cond_9
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearDragHighlight()V
 
-    .line 688
+    .line 648
     sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragHighlightIndex:I
 
-    .line 689
+    .line 649
     if-ltz p0, :cond_24
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
@@ -1437,7 +1456,7 @@
 
     if-ge p0, v0, :cond_24
 
-    .line 690
+    .line 650
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, p0}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
@@ -1448,7 +1467,7 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setAlpha(F)V
 
-    .line 692
+    .line 652
     :cond_24
     sget p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragFromIndex:I
 
@@ -1462,7 +1481,7 @@
 
     if-ge p0, v0, :cond_3e
 
-    .line 693
+    .line 653
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragFromIndex:I
@@ -1475,11 +1494,11 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setAlpha(F)V
 
-    .line 695
+    .line 655
     :cond_3e
     return-void
 
-    .line 685
+    .line 645
     :cond_3f
     :goto_3f
     return-void
@@ -1488,7 +1507,7 @@
 .method private static isOverlayShowing()Z
     .registers 1
 
-    .line 181
+    .line 175
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
@@ -1514,11 +1533,11 @@
     :goto_f
     return v0
 
-    .line 182
+    .line 176
     :catchall_10
     move-exception v0
 
-    .line 183
+    .line 177
     sget-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
 
     return v0
@@ -1527,12 +1546,12 @@
 .method private static loadPlaylist(Landroid/app/Activity;)V
     .registers 2
 
-    .line 300
+    .line 294
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
 
-    .line 301
+    .line 295
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlaylistStorage;->load(Landroid/content/Context;)Ljava/util/List;
@@ -1541,7 +1560,7 @@
 
     invoke-virtual {v0, p0}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
 
-    .line 302
+    .line 296
     sget p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
@@ -1552,7 +1571,7 @@
 
     if-lt p0, v0, :cond_25
 
-    .line 303
+    .line 297
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     invoke-virtual {p0}, Ljava/util/ArrayList;->isEmpty()Z
@@ -1571,7 +1590,7 @@
     :goto_23
     sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
-    .line 305
+    .line 299
     :cond_25
     return-void
 .end method
@@ -1579,15 +1598,15 @@
 .method private static moveDragGhost(FF)V
     .registers 5
 
-    .line 790
+    .line 750
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostView:Landroid/view/View;
 
     if-nez v0, :cond_5
 
-    .line 791
+    .line 751
     return-void
 
-    .line 793
+    .line 753
     :cond_5
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
@@ -1595,37 +1614,37 @@
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 794
+    .line 754
     if-nez v0, :cond_e
 
-    .line 795
+    .line 755
     return-void
 
-    .line 797
+    .line 757
     :cond_e
     const/4 v1, 0x2
 
     new-array v1, v1, [I
 
-    .line 798
+    .line 758
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->getLocationOnScreen([I)V
 
-    .line 799
+    .line 759
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostView:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object v0
 
-    .line 800
+    .line 760
     instance-of v2, v0, Landroid/widget/FrameLayout$LayoutParams;
 
     if-eqz v2, :cond_3b
 
-    .line 801
+    .line 761
     check-cast v0, Landroid/widget/FrameLayout$LayoutParams;
 
-    .line 802
+    .line 762
     const/4 v2, 0x0
 
     aget v2, v1, v2
@@ -1642,7 +1661,7 @@
 
     iput p0, v0, Landroid/widget/FrameLayout$LayoutParams;->leftMargin:I
 
-    .line 803
+    .line 763
     const/4 p0, 0x1
 
     aget p0, v1, p0
@@ -1659,12 +1678,12 @@
 
     iput p0, v0, Landroid/widget/FrameLayout$LayoutParams;->topMargin:I
 
-    .line 804
+    .line 764
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostView:Landroid/view/View;
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 806
+    .line 766
     :cond_3b
     return-void
 .end method
@@ -1672,7 +1691,7 @@
 .method private static moveOverlayWindow(II)V
     .registers 3
 
-    .line 896
+    .line 858
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_23
@@ -1685,7 +1704,7 @@
 
     goto :goto_23
 
-    .line 899
+    .line 861
     :cond_b
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
@@ -1697,13 +1716,13 @@
 
     move-result-object v0
 
-    .line 900
+    .line 862
     iput p0, v0, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 901
+    .line 863
     iput p1, v0, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 902
+    .line 864
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
@@ -1712,10 +1731,10 @@
 
     invoke-virtual {p0, v0}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    .line 903
+    .line 865
     return-void
 
-    .line 897
+    .line 859
     :cond_23
     :goto_23
     return-void
@@ -1724,7 +1743,7 @@
 .method private static movePlaylistItem(II)V
     .registers 4
 
-    .line 647
+    .line 607
     if-eq p0, p1, :cond_4e
 
     if-ltz p0, :cond_4e
@@ -1749,7 +1768,7 @@
 
     goto :goto_4e
 
-    .line 650
+    .line 610
     :cond_17
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
@@ -1759,35 +1778,35 @@
 
     check-cast v0, Lcom/isaigu/gymapp/dialog/MusicPlaylistEntry;
 
-    .line 651
+    .line 611
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     invoke-virtual {v1, p1, v0}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
 
-    .line 652
+    .line 612
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     if-ne v0, p0, :cond_2b
 
-    .line 653
+    .line 613
     sput p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     goto :goto_3e
 
-    .line 654
+    .line 614
     :cond_2b
     if-ge p0, v0, :cond_34
 
     if-lt p1, v0, :cond_34
 
-    .line 655
+    .line 615
     add-int/lit8 v0, v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     goto :goto_3e
 
-    .line 656
+    .line 616
     :cond_34
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
@@ -1795,12 +1814,12 @@
 
     if-gt p1, v0, :cond_3e
 
-    .line 657
+    .line 617
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
-    .line 659
+    .line 619
     :cond_3e
     :goto_3e
     const/4 p0, 0x0
@@ -1811,237 +1830,180 @@
 
     move-result-object p0
 
-    .line 660
+    .line 620
     if-eqz p0, :cond_4d
 
-    .line 661
+    .line 621
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->persistPlaylist(Landroid/app/Activity;)V
 
-    .line 662
+    .line 622
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->rebuildPlaylistViews(Landroid/app/Activity;)V
 
-    .line 664
+    .line 624
     :cond_4d
     return-void
 
-    .line 648
+    .line 608
     :cond_4e
     :goto_4e
     return-void
 .end method
 
 .method public static onActivityResult(IILandroid/content/Intent;)V
-    .registers 6
+    .registers 5
+
+    .line 143
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
 
     .line 144
-    sget-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
 
     .line 145
-    const/4 v1, 0x0
+    const/16 v1, 0x4255
 
-    sput-boolean v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-
-    .line 147
-    const/16 v2, 0x4255
-
-    if-ne p0, v2, :cond_6c
+    if-ne p0, v1, :cond_55
 
     const/4 p0, -0x1
 
-    if-ne p1, p0, :cond_6c
+    if-ne p1, p0, :cond_55
 
-    if-nez p2, :cond_f
+    if-nez p2, :cond_10
 
-    goto :goto_6c
+    goto :goto_55
 
-    .line 150
-    :cond_f
+    .line 148
+    :cond_10
     const/4 p0, 0x0
 
-    :try_start_10
     sget-object p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/app/Activity;Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p0
-    :try_end_16
-    .catchall {:try_start_10 .. :try_end_16} :catchall_65
 
-    .line 151
-    if-nez p0, :cond_1e
+    .line 149
+    if-nez p0, :cond_1a
 
-    .line 173
-    if-eqz v0, :cond_1d
-
-    .line 174
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
-
-    .line 152
-    :cond_1d
+    .line 150
     return-void
 
-    .line 154
-    :cond_1e
+    .line 152
+    :cond_1a
     const/4 p1, 0x1
 
-    :try_start_1f
     sput-boolean p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
 
-    .line 155
+    .line 153
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
+
+    .line 154
     invoke-virtual {p2}, Landroid/content/Intent;->getClipData()Landroid/content/ClipData;
 
     move-result-object p1
 
-    .line 156
-    if-eqz p1, :cond_4d
+    .line 155
+    if-eqz p1, :cond_47
 
     invoke-virtual {p1}, Landroid/content/ClipData;->getItemCount()I
 
-    move-result v2
+    move-result v1
 
-    if-lez v2, :cond_4d
+    if-lez v1, :cond_47
 
-    .line 157
+    .line 156
     nop
 
-    :goto_2e
+    :goto_2d
     invoke-virtual {p1}, Landroid/content/ClipData;->getItemCount()I
 
-    move-result v2
+    move-result v1
 
-    if-ge v1, v2, :cond_47
-
-    .line 158
-    invoke-virtual {p1, v1}, Landroid/content/ClipData;->getItemAt(I)Landroid/content/ClipData$Item;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Landroid/content/ClipData$Item;->getUri()Landroid/net/Uri;
-
-    move-result-object v2
-
-    .line 159
-    if-eqz v2, :cond_44
-
-    .line 160
-    invoke-static {p0, p2, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->grantUri(Landroid/app/Activity;Landroid/content/Intent;Landroid/net/Uri;)V
-
-    .line 161
-    invoke-static {p0, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->addTrackSafe(Landroid/app/Activity;Landroid/net/Uri;)V
-    :try_end_44
-    .catchall {:try_start_1f .. :try_end_44} :catchall_65
+    if-ge v0, v1, :cond_46
 
     .line 157
-    :cond_44
-    add-int/lit8 v1, v1, 0x1
+    invoke-virtual {p1, v0}, Landroid/content/ClipData;->getItemAt(I)Landroid/content/ClipData$Item;
 
-    goto :goto_2e
+    move-result-object v1
 
-    .line 173
-    :cond_47
-    if-eqz v0, :cond_4c
+    invoke-virtual {v1}, Landroid/content/ClipData$Item;->getUri()Landroid/net/Uri;
 
-    .line 174
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
+    move-result-object v1
 
-    .line 164
-    :cond_4c
+    .line 158
+    if-eqz v1, :cond_43
+
+    .line 159
+    invoke-static {p0, p2, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->grantUri(Landroid/app/Activity;Landroid/content/Intent;Landroid/net/Uri;)V
+
+    .line 160
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->addTrackSafe(Landroid/app/Activity;Landroid/net/Uri;)V
+
+    .line 156
+    :cond_43
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_2d
+
+    .line 163
+    :cond_46
     return-void
 
-    .line 166
-    :cond_4d
-    :try_start_4d
+    .line 165
+    :cond_47
     invoke-virtual {p2}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
     move-result-object p1
-    :try_end_51
-    .catchall {:try_start_4d .. :try_end_51} :catchall_65
+
+    .line 166
+    if-nez p1, :cond_4e
 
     .line 167
-    if-nez p1, :cond_59
-
-    .line 173
-    if-eqz v0, :cond_58
-
-    .line 174
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
-
-    .line 168
-    :cond_58
     return-void
 
-    .line 170
-    :cond_59
-    :try_start_59
+    .line 169
+    :cond_4e
     invoke-static {p0, p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->grantUri(Landroid/app/Activity;Landroid/content/Intent;Landroid/net/Uri;)V
 
-    .line 171
+    .line 170
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->addTrackSafe(Landroid/app/Activity;Landroid/net/Uri;)V
-    :try_end_5f
-    .catchall {:try_start_59 .. :try_end_5f} :catchall_65
 
-    .line 173
-    if-eqz v0, :cond_64
-
-    .line 174
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
-
-    .line 177
-    :cond_64
+    .line 171
     return-void
 
-    .line 173
-    :catchall_65
-    move-exception p0
-
-    if-eqz v0, :cond_6b
-
-    .line 174
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
-
-    .line 176
-    :cond_6b
-    throw p0
-
-    .line 173
-    :cond_6c
-    :goto_6c
-    if-eqz v0, :cond_71
-
-    .line 174
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
-
-    .line 148
-    :cond_71
+    .line 146
+    :cond_55
+    :goto_55
     return-void
 .end method
 
 .method private static persistPlaylist(Landroid/app/Activity;)V
     .registers 2
 
-    .line 308
+    .line 302
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/MusicPlaylistStorage;->save(Landroid/content/Context;Ljava/util/List;)V
 
-    .line 309
+    .line 303
     return-void
 .end method
 
 .method private static readSensitivity()I
     .registers 2
 
-    .line 828
+    .line 788
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
     const/16 v1, 0x14
 
     if-nez v0, :cond_7
 
-    .line 829
+    .line 789
     return v1
 
-    .line 832
+    .line 792
     :cond_7
     :try_start_7
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/AmountView;->getAmount()I
@@ -2052,18 +2014,18 @@
 
     return v0
 
-    .line 833
+    .line 793
     :catchall_c
     move-exception v0
 
-    .line 834
+    .line 794
     return v1
 .end method
 
 .method private static rebuildPlaylistViews(Landroid/app/Activity;)V
     .registers 7
 
-    .line 446
+    .line 440
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     if-eqz v0, :cond_6d
@@ -2072,16 +2034,16 @@
 
     goto :goto_6d
 
-    .line 449
+    .line 443
     :cond_7
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 450
+    .line 444
     invoke-static {p0}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
 
     move-result-object p0
 
-    .line 451
+    .line 445
     const/4 v0, 0x0
 
     const/4 v1, 0x0
@@ -2095,10 +2057,10 @@
 
     if-ge v1, v2, :cond_69
 
-    .line 452
+    .line 446
     nop
 
-    .line 453
+    .line 447
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
     invoke-virtual {v2, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -2107,7 +2069,7 @@
 
     check-cast v2, Lcom/isaigu/gymapp/dialog/MusicPlaylistEntry;
 
-    .line 456
+    .line 450
     const v3, 0x7f0b007d
 
     :try_start_24
@@ -2119,10 +2081,10 @@
     :try_end_2a
     .catchall {:try_start_24 .. :try_end_2a} :catchall_64
 
-    .line 459
+    .line 453
     nop
 
-    .line 460
+    .line 454
     const v4, 0x7f090284
 
     invoke-virtual {v3, v4}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -2131,32 +2093,32 @@
 
     check-cast v4, Landroid/widget/TextView;
 
-    .line 461
+    .line 455
     const v5, 0x7f090285
 
     invoke-virtual {v3, v5}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v5
 
-    .line 462
+    .line 456
     if-eqz v4, :cond_54
 
-    .line 463
+    .line 457
     iget-object v2, v2, Lcom/isaigu/gymapp/dialog/MusicPlaylistEntry;->name:Ljava/lang/String;
 
     invoke-virtual {v4, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 464
+    .line 458
     sget v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     if-ne v1, v2, :cond_4c
 
-    .line 465
+    .line 459
     const v2, -0x830400
 
     invoke-virtual {v4, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 467
+    .line 461
     :cond_4c
     new-instance v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistSelectListener;
 
@@ -2164,18 +2126,18 @@
 
     invoke-virtual {v4, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 469
+    .line 463
     :cond_54
     if-eqz v5, :cond_5e
 
-    .line 470
+    .line 464
     new-instance v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
 
     invoke-direct {v2, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;-><init>(I)V
 
     invoke-virtual {v5, v2}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
-    .line 472
+    .line 466
     :cond_5e
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
@@ -2183,27 +2145,27 @@
 
     goto :goto_66
 
-    .line 457
+    .line 451
     :catchall_64
     move-exception v2
 
-    .line 458
+    .line 452
     nop
 
-    .line 451
+    .line 445
     :goto_66
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_10
 
-    .line 474
+    .line 468
     :cond_69
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearDragHighlight()V
 
-    .line 475
+    .line 469
     return-void
 
-    .line 447
+    .line 441
     :cond_6d
     :goto_6d
     return-void
@@ -2212,7 +2174,7 @@
 .method private static refreshSeekFromPlayer()V
     .registers 7
 
-    .line 489
+    .line 483
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     if-eqz v0, :cond_36
@@ -2223,34 +2185,34 @@
 
     goto :goto_36
 
-    .line 492
+    .line 486
     :cond_9
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result v0
 
-    .line 493
+    .line 487
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackPositionMs()I
 
     move-result v1
 
-    .line 494
+    .line 488
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
 
-    .line 495
+    .line 489
     const/4 v2, 0x0
 
     if-gtz v0, :cond_1d
 
-    .line 496
+    .line 490
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V
 
-    .line 497
+    .line 491
     return-void
 
-    .line 499
+    .line 493
     :cond_1d
     int-to-long v3, v1
 
@@ -2264,37 +2226,37 @@
 
     long-to-int v0, v3
 
-    .line 500
+    .line 494
     const/16 v1, 0x3e8
 
     if-gez v0, :cond_2a
 
-    .line 501
+    .line 495
     goto :goto_30
 
-    .line 502
+    .line 496
     :cond_2a
     if-le v0, v1, :cond_2f
 
-    .line 503
+    .line 497
     const/16 v2, 0x3e8
 
     goto :goto_30
 
-    .line 502
+    .line 496
     :cond_2f
     move v2, v0
 
-    .line 505
+    .line 499
     :goto_30
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setCurProcess(I)V
 
-    .line 506
+    .line 500
     return-void
 
-    .line 490
+    .line 484
     :cond_36
     :goto_36
     return-void
@@ -2303,15 +2265,15 @@
 .method private static refreshTrackTitle()V
     .registers 3
 
-    .line 478
+    .line 472
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->trackTitleView:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 479
+    .line 473
     return-void
 
-    .line 481
+    .line 475
     :cond_5
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
@@ -2327,7 +2289,7 @@
 
     goto :goto_24
 
-    .line 485
+    .line 479
     :cond_12
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->trackTitleView:Landroid/widget/TextView;
 
@@ -2345,10 +2307,10 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 486
+    .line 480
     return-void
 
-    .line 482
+    .line 476
     :cond_24
     :goto_24
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->trackTitleView:Landroid/widget/TextView;
@@ -2357,32 +2319,32 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    .line 483
+    .line 477
     return-void
 .end method
 
 .method public static refreshTransportState()V
     .registers 0
 
-    .line 196
+    .line 190
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updatePlayPauseLabel()V
 
-    .line 197
+    .line 191
     return-void
 .end method
 
 .method private static removeDragGhost()V
     .registers 2
 
-    .line 809
+    .line 769
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostView:Landroid/view/View;
 
     if-nez v0, :cond_5
 
-    .line 810
+    .line 770
     return-void
 
-    .line 812
+    .line 772
     :cond_5
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
@@ -2390,28 +2352,28 @@
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 813
+    .line 773
     if-eqz v0, :cond_12
 
-    .line 814
+    .line 774
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostView:Landroid/view/View;
 
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
 
-    .line 816
+    .line 776
     :cond_12
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostView:Landroid/view/View;
 
-    .line 817
+    .line 777
     return-void
 .end method
 
 .method private static resizeOverlayWindow()V
     .registers 5
 
-    .line 906
+    .line 868
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
 
     const/4 v1, 0x0
@@ -2420,7 +2382,7 @@
 
     move-result-object v0
 
-    .line 907
+    .line 869
     if-eqz v0, :cond_54
 
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
@@ -2431,7 +2393,7 @@
 
     if-eqz v2, :cond_54
 
-    .line 908
+    .line 870
     invoke-virtual {v1}, Landroid/support/v7/app/AlertDialog;->isShowing()Z
 
     move-result v1
@@ -2440,7 +2402,7 @@
 
     goto :goto_54
 
-    .line 911
+    .line 873
     :cond_18
     const/16 v1, 0x104
 
@@ -2448,47 +2410,47 @@
 
     move-result v1
 
-    .line 912
+    .line 874
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
 
     const/high16 v3, 0x40000000    # 2.0f
 
-    .line 913
+    .line 875
     invoke-static {v1, v3}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v3
 
-    .line 914
+    .line 876
     const/4 v4, 0x0
 
     invoke-static {v4, v4}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v4
 
-    .line 912
+    .line 874
     invoke-virtual {v2, v3, v4}, Landroid/view/View;->measure(II)V
 
-    .line 915
+    .line 877
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
 
     invoke-virtual {v2}, Landroid/view/View;->getMeasuredHeight()I
 
     move-result v2
 
-    .line 916
+    .line 878
     const/16 v3, 0xf8
 
     invoke-static {v0, v3}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v0
 
-    .line 917
+    .line 879
     if-ge v2, v0, :cond_3d
 
-    .line 918
+    .line 880
     move v2, v0
 
-    .line 920
+    .line 882
     :cond_3d
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
@@ -2496,31 +2458,31 @@
 
     move-result-object v0
 
-    .line 921
+    .line 883
     if-eqz v0, :cond_53
 
-    .line 922
+    .line 884
     invoke-virtual {v0, v1, v2}, Landroid/view/Window;->setLayout(II)V
 
-    .line 923
+    .line 885
     invoke-virtual {v0}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v3
 
-    .line 924
+    .line 886
     iput v1, v3, Landroid/view/WindowManager$LayoutParams;->width:I
 
-    .line 925
+    .line 887
     iput v2, v3, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    .line 926
+    .line 888
     invoke-virtual {v0, v3}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    .line 928
+    .line 890
     :cond_53
     return-void
 
-    .line 909
+    .line 871
     :cond_54
     :goto_54
     return-void
@@ -2529,7 +2491,7 @@
 .method private static resolveDropIndex(F)I
     .registers 7
 
-    .line 667
+    .line 627
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     const/4 v1, 0x0
@@ -2544,7 +2506,7 @@
 
     goto :goto_35
 
-    .line 670
+    .line 630
     :cond_c
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
@@ -2552,7 +2514,7 @@
 
     move-result v0
 
-    .line 671
+    .line 631
     nop
 
     :goto_13
@@ -2560,22 +2522,22 @@
 
     if-ge v1, v0, :cond_33
 
-    .line 672
+    .line 632
     sget-object v3, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
     invoke-virtual {v3, v1}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v3
 
-    .line 673
+    .line 633
     const/4 v4, 0x2
 
     new-array v5, v4, [I
 
-    .line 674
+    .line 634
     invoke-virtual {v3, v5}, Landroid/view/View;->getLocationOnScreen([I)V
 
-    .line 675
+    .line 635
     aget v2, v5, v2
 
     invoke-virtual {v3}, Landroid/view/View;->getHeight()I
@@ -2586,29 +2548,29 @@
 
     add-int/2addr v2, v3
 
-    .line 676
+    .line 636
     int-to-float v2, v2
 
     cmpg-float v2, p0, v2
 
     if-gez v2, :cond_30
 
-    .line 677
+    .line 637
     return v1
 
-    .line 671
+    .line 631
     :cond_30
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_13
 
-    .line 680
+    .line 640
     :cond_33
     sub-int/2addr v0, v2
 
     return v0
 
-    .line 668
+    .line 628
     :cond_35
     :goto_35
     sget p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragFromIndex:I
@@ -2624,19 +2586,19 @@
 .method static resolveHostActivity(Landroid/app/Activity;Landroid/view/View;)Landroid/app/Activity;
     .registers 2
 
-    .line 257
+    .line 251
     if-eqz p0, :cond_3
 
-    .line 258
+    .line 252
     return-object p0
 
-    .line 260
+    .line 254
     :cond_3
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz p0, :cond_12
 
-    .line 261
+    .line 255
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getContext()Landroid/content/Context;
 
     move-result-object p0
@@ -2645,17 +2607,17 @@
 
     move-result-object p0
 
-    .line 262
+    .line 256
     if-eqz p0, :cond_12
 
-    .line 263
+    .line 257
     return-object p0
 
-    .line 266
+    .line 260
     :cond_12
     if-eqz p1, :cond_1f
 
-    .line 267
+    .line 261
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object p0
@@ -2664,25 +2626,25 @@
 
     move-result-object p0
 
-    .line 268
+    .line 262
     if-eqz p0, :cond_1f
 
-    .line 269
+    .line 263
     return-object p0
 
-    .line 272
+    .line 266
     :cond_1f
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getHostActivity()Landroid/app/Activity;
 
     move-result-object p0
 
-    .line 273
+    .line 267
     if-eqz p0, :cond_26
 
-    .line 274
+    .line 268
     return-object p0
 
-    .line 276
+    .line 270
     :cond_26
     invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
 
@@ -2694,7 +2656,7 @@
 .method static resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
     .registers 2
 
-    .line 253
+    .line 247
     const/4 v0, 0x0
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/app/Activity;Landroid/view/View;)Landroid/app/Activity;
@@ -2707,34 +2669,34 @@
 .method static resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
     .registers 5
 
-    .line 280
+    .line 274
     if-nez p0, :cond_4
 
-    .line 281
+    .line 275
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 283
+    .line 277
     :cond_4
     const/4 v0, 0x0
 
     if-nez p0, :cond_8
 
-    .line 284
+    .line 278
     return-object v0
 
-    .line 286
+    .line 280
     :cond_8
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
 
     move-result-object p0
 
-    .line 287
+    .line 281
     if-nez p0, :cond_f
 
-    .line 288
+    .line 282
     return-object v0
 
-    .line 290
+    .line 284
     :cond_f
     const/4 v1, 0x0
 
@@ -2745,14 +2707,14 @@
 
     if-ge v1, v2, :cond_28
 
-    .line 291
+    .line 285
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 292
+    .line 286
     if-eqz v2, :cond_25
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -2761,292 +2723,160 @@
 
     if-nez v3, :cond_25
 
-    .line 293
+    .line 287
     return-object v2
 
-    .line 290
+    .line 284
     :cond_25
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_10
 
-    .line 296
+    .line 290
     :cond_28
     return-object v0
 .end method
 
 .method private static restoreOverlayAfterPick()V
-    .registers 5
+    .registers 2
+
+    .line 585
+    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
+
+    .line 586
+    if-nez v0, :cond_5
+
+    .line 587
+    return-void
 
     .line 590
-    sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
-
-    const/4 v1, 0x0
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/app/Activity;Landroid/view/View;)Landroid/app/Activity;
-
-    move-result-object v0
-
-    .line 591
-    if-eqz v0, :cond_96
-
-    invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
+    :cond_5
+    :try_start_5
+    invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->isShowing()Z
 
     move-result v1
 
-    if-eqz v1, :cond_11
+    if-nez v1, :cond_11
 
-    goto/16 :goto_96
+    .line 591
+    invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->show()V
+
+    .line 592
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
+
+    .line 594
+    :cond_11
+    const/4 v0, 0x0
+
+    sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/app/Activity;Landroid/view/View;)Landroid/app/Activity;
+
+    move-result-object v0
 
     .line 595
-    :cond_11
-    const/4 v1, 0x1
+    if-eqz v0, :cond_2a
 
-    :try_start_12
-    sput-boolean v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
+    sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
+
+    if-eqz v1, :cond_2a
 
     .line 596
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
 
     .line 597
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-
-    if-eqz v2, :cond_5a
-
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
-
-    if-eqz v2, :cond_5a
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->rebuildPlaylistViews(Landroid/app/Activity;)V
 
     .line 598
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-
-    invoke-virtual {v2}, Landroid/support/v7/app/AlertDialog;->isShowing()Z
-
-    move-result v2
-
-    if-nez v2, :cond_50
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTrackTitle()V
 
     .line 599
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-
-    invoke-virtual {v2}, Landroid/support/v7/app/AlertDialog;->show()V
-
-    .line 600
-    sput-boolean v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
-
-    .line 601
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-
-    invoke-virtual {v2}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
-
-    move-result-object v2
-
-    .line 602
-    if-eqz v2, :cond_50
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
+    :try_end_2a
+    .catchall {:try_start_5 .. :try_end_2a} :catchall_2b
 
     .line 603
-    const v3, 0x106000d
+    :cond_2a
+    goto :goto_31
 
-    invoke-virtual {v2, v3}, Landroid/view/Window;->setBackgroundDrawableResource(I)V
-
-    .line 604
-    invoke-virtual {v2}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
-
-    move-result-object v3
-
-    .line 605
-    const/4 v4, 0x0
-
-    iput v4, v3, Landroid/view/WindowManager$LayoutParams;->dimAmount:F
-
-    .line 606
-    iget v4, v3, Landroid/view/WindowManager$LayoutParams;->flags:I
-
-    or-int/lit8 v4, v4, 0x8
-
-    or-int/lit8 v4, v4, 0x20
-
-    and-int/lit8 v4, v4, -0x3
-
-    iput v4, v3, Landroid/view/WindowManager$LayoutParams;->flags:I
-
-    .line 610
-    invoke-virtual {v2, v3}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
-
-    .line 613
-    :cond_50
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->rebuildPlaylistViews(Landroid/app/Activity;)V
-
-    .line 614
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTrackTitle()V
-
-    .line 615
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
-
-    .line 616
-    return-void
-
-    .line 618
-    :cond_5a
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->getTarget()Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v2
-
-    .line 619
-    if-nez v2, :cond_66
-
-    .line 620
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v2
-
-    .line 622
-    :cond_66
-    if-eqz v2, :cond_76
-
-    .line 623
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
-
-    .line 624
-    sput-boolean v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
-
-    .line 625
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
-
-    .line 626
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->rebuildPlaylistViews(Landroid/app/Activity;)V
-
-    .line 627
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTrackTitle()V
-    :try_end_76
-    .catchall {:try_start_12 .. :try_end_76} :catchall_77
-
-    .line 643
-    :cond_76
-    goto :goto_95
-
-    .line 629
-    :catchall_77
-    move-exception v2
-
-    .line 630
-    const-string v3, "music_player_restore_pick"
-
-    invoke-static {v3, v2}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    .line 631
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->getTarget()Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v2
-
-    .line 632
-    if-nez v2, :cond_89
-
-    .line 633
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v2
-
-    .line 635
-    :cond_89
-    if-eqz v2, :cond_95
-
-    .line 637
-    :try_start_8b
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
-
-    .line 638
-    sput-boolean v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
-
-    .line 639
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
-    :try_end_93
-    .catchall {:try_start_8b .. :try_end_93} :catchall_94
-
-    .line 641
-    goto :goto_95
-
-    .line 640
-    :catchall_94
+    .line 601
+    :catchall_2b
     move-exception v0
 
-    .line 644
-    :cond_95
-    :goto_95
-    return-void
+    .line 602
+    const-string v1, "music_player_restore_pick"
 
-    .line 592
-    :cond_96
-    :goto_96
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    .line 604
+    :goto_31
     return-void
 .end method
 
 .method public static show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 3
 
-    .line 124
+    .line 123
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/app/Activity;Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p0
 
-    .line 125
+    .line 124
     if-nez p0, :cond_9
 
-    .line 126
+    .line 125
     return-void
 
-    .line 128
+    .line 127
     :cond_9
     if-nez p1, :cond_12
 
-    .line 129
+    .line 128
     const p1, 0x7f0d011a
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
 
-    .line 130
+    .line 129
     return-void
 
-    .line 132
+    .line 131
     :cond_12
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 133
+    .line 132
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setTargetItem(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 134
+    .line 133
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->isOverlayShowing()Z
 
     move-result p1
 
     if-eqz p1, :cond_1f
 
-    .line 135
+    .line 134
     return-void
 
-    .line 137
+    .line 136
     :cond_1f
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->loadPlaylist(Landroid/app/Activity;)V
 
-    .line 138
+    .line 137
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showOverlay(Landroid/app/Activity;)Z
 
     move-result p1
 
     if-nez p1, :cond_2e
 
-    .line 139
+    .line 138
     const p1, 0x7f0d0113
 
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
 
-    .line 141
+    .line 140
     :cond_2e
     return-void
 .end method
@@ -3054,41 +2884,41 @@
 .method public static showActive(II)V
     .registers 5
 
-    .line 221
+    .line 215
     const/4 v0, 0x0
 
     if-gez p0, :cond_4
 
-    .line 222
+    .line 216
     const/4 p0, 0x0
 
-    .line 224
+    .line 218
     :cond_4
     const/4 v1, 0x1
 
     if-ge p1, v1, :cond_8
 
-    .line 225
+    .line 219
     const/4 p1, 0x1
 
-    .line 227
+    .line 221
     :cond_8
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_12
 
-    .line 228
+    .line 222
     const v2, 0x7f0d0111
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(I)V
 
-    .line 230
+    .line 224
     :cond_12
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_3e
 
-    .line 231
+    .line 225
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -3111,7 +2941,7 @@
 
     invoke-virtual {v1, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 232
+    .line 226
     sget-object p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
     sget-boolean p1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
@@ -3126,36 +2956,36 @@
     :goto_3b
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 234
+    .line 228
     :cond_3e
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updatePlayPauseLabel()V
 
-    .line 235
+    .line 229
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->startProgressUpdates()V
 
-    .line 236
+    .line 230
     return-void
 .end method
 
 .method private static showDragGhost(Landroid/view/View;FF)V
     .registers 13
 
-    .line 727
+    .line 687
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->removeDragGhost()V
 
-    .line 728
+    .line 688
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 729
+    .line 689
     if-eqz v0, :cond_126
 
     if-nez p0, :cond_d
 
     goto/16 :goto_126
 
-    .line 732
+    .line 692
     :cond_d
     invoke-virtual {v0}, Landroid/app/Activity;->getWindow()Landroid/view/Window;
 
@@ -3167,7 +2997,7 @@
 
     check-cast v1, Landroid/view/ViewGroup;
 
-    .line 733
+    .line 693
     const v2, 0x7f090284
 
     invoke-virtual {p0, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3176,7 +3006,7 @@
 
     check-cast v2, Landroid/widget/TextView;
 
-    .line 734
+    .line 694
     if-eqz v2, :cond_27
 
     invoke-virtual {v2}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
@@ -3188,50 +3018,50 @@
     :cond_27
     const-string v2, ""
 
-    .line 736
+    .line 696
     :goto_29
     new-instance v3, Landroid/widget/LinearLayout;
 
     invoke-direct {v3, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 737
+    .line 697
     const/4 v4, 0x0
 
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 738
+    .line 698
     const/16 v5, 0x10
 
     invoke-virtual {v3, v5}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 739
+    .line 699
     const/16 v5, 0x8
 
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v6
 
-    .line 740
+    .line 700
     const/4 v7, 0x6
 
     invoke-static {v0, v7}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v8
 
-    .line 741
+    .line 701
     invoke-virtual {v3, v6, v8, v6, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 742
+    .line 702
     new-instance v6, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v6}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 743
+    .line 703
     const v8, -0x70708
 
     invoke-virtual {v6, v8}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 744
+    .line 704
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v5
@@ -3240,7 +3070,7 @@
 
     invoke-virtual {v6, v5}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 745
+    .line 705
     const/4 v5, 0x1
 
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
@@ -3255,22 +3085,22 @@
 
     invoke-virtual {v6, v8, v9}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 746
+    .line 706
     invoke-virtual {v3, v6}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 747
+    .line 707
     const v6, 0x3f733333    # 0.95f
 
     invoke-virtual {v3, v6}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
-    .line 748
+    .line 708
     sget v6, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v8, 0x15
 
     if-lt v6, v8, :cond_80
 
-    .line 749
+    .line 709
     const/16 v6, 0xa
 
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
@@ -3281,34 +3111,34 @@
 
     invoke-virtual {v3, v6}, Landroid/widget/LinearLayout;->setElevation(F)V
 
-    .line 752
+    .line 712
     :cond_80
     new-instance v6, Landroid/widget/TextView;
 
     invoke-direct {v6, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 753
+    .line 713
     invoke-virtual {v6, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 754
+    .line 714
     const/high16 v2, 0x41600000    # 14.0f
 
     invoke-virtual {v6, v2}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 755
+    .line 715
     const v2, -0xddddde
 
     invoke-virtual {v6, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 756
+    .line 716
     invoke-virtual {v6, v5}, Landroid/widget/TextView;->setSingleLine(Z)V
 
-    .line 757
+    .line 717
     sget-object v2, Landroid/text/TextUtils$TruncateAt;->MIDDLE:Landroid/text/TextUtils$TruncateAt;
 
     invoke-virtual {v6, v2}, Landroid/widget/TextView;->setEllipsize(Landroid/text/TextUtils$TruncateAt;)V
 
-    .line 758
+    .line 718
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, -0x2
@@ -3319,40 +3149,40 @@
 
     invoke-virtual {v6, v2}, Landroid/widget/TextView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 761
+    .line 721
     new-instance v2, Landroid/widget/TextView;
 
     invoke-direct {v2, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 762
+    .line 722
     const-string v8, "\u2630"
 
     invoke-virtual {v2, v8}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 763
+    .line 723
     const/high16 v8, 0x41800000    # 16.0f
 
     invoke-virtual {v2, v8}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 764
+    .line 724
     const v8, -0x99999a
 
     invoke-virtual {v2, v8}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 765
+    .line 725
     invoke-static {v0, v7}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v7
 
     invoke-virtual {v2, v7, v4, v4, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 767
+    .line 727
     invoke-virtual {v3, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 768
+    .line 728
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 770
+    .line 730
     invoke-virtual {p0}, Landroid/view/View;->getWidth()I
 
     move-result v2
@@ -3372,7 +3202,7 @@
 
     move-result v2
 
-    .line 771
+    .line 731
     :goto_d9
     invoke-virtual {p0}, Landroid/view/View;->getHeight()I
 
@@ -3393,16 +3223,16 @@
 
     move-result v0
 
-    .line 773
+    .line 733
     :goto_ea
     const/4 v6, 0x2
 
     new-array v7, v6, [I
 
-    .line 774
+    .line 734
     invoke-virtual {p0, v7}, Landroid/view/View;->getLocationOnScreen([I)V
 
-    .line 775
+    .line 735
     aget p0, v7, v4
 
     int-to-float p0, p0
@@ -3411,7 +3241,7 @@
 
     sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostOffsetX:F
 
-    .line 776
+    .line 736
     aget p0, v7, v5
 
     int-to-float p0, p0
@@ -3420,23 +3250,23 @@
 
     sput p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostOffsetY:F
 
-    .line 778
+    .line 738
     new-array p0, v6, [I
 
-    .line 779
+    .line 739
     invoke-virtual {v1, p0}, Landroid/view/ViewGroup;->getLocationOnScreen([I)V
 
-    .line 781
+    .line 741
     new-instance v6, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {v6, v2, v0}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
-    .line 782
+    .line 742
     const/16 v0, 0x33
 
     iput v0, v6, Landroid/widget/FrameLayout$LayoutParams;->gravity:I
 
-    .line 783
+    .line 743
     aget v0, p0, v4
 
     int-to-float v0, v0
@@ -3451,7 +3281,7 @@
 
     iput p1, v6, Landroid/widget/FrameLayout$LayoutParams;->leftMargin:I
 
-    .line 784
+    .line 744
     aget p0, p0, v5
 
     int-to-float p0, p0
@@ -3466,16 +3296,16 @@
 
     iput p0, v6, Landroid/widget/FrameLayout$LayoutParams;->topMargin:I
 
-    .line 785
+    .line 745
     invoke-virtual {v1, v3, v6}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 786
+    .line 746
     sput-object v3, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dragGhostView:Landroid/view/View;
 
-    .line 787
+    .line 747
     return-void
 
-    .line 730
+    .line 690
     :cond_126
     :goto_126
     return-void
@@ -3484,26 +3314,26 @@
 .method public static showError(I)V
     .registers 3
 
-    .line 239
+    .line 233
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_7
 
-    .line 240
+    .line 234
     invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(I)V
 
-    .line 242
+    .line 236
     :cond_7
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_10
 
-    .line 243
+    .line 237
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 245
+    .line 239
     :cond_10
     const/4 v0, 0x0
 
@@ -3513,62 +3343,62 @@
 
     move-result-object v0
 
-    .line 246
+    .line 240
     if-eqz v0, :cond_1c
 
-    .line 247
+    .line 241
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
 
-    .line 249
+    .line 243
     :cond_1c
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updatePlayPauseLabel()V
 
-    .line 250
+    .line 244
     return-void
 .end method
 
 .method public static showIdle()V
     .registers 2
 
-    .line 200
+    .line 194
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_a
 
-    .line 201
+    .line 195
     const v1, 0x7f0d0110
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    .line 203
+    .line 197
     :cond_a
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_13
 
-    .line 204
+    .line 198
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 206
+    .line 200
     :cond_13
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updatePlayPauseLabel()V
 
-    .line 207
+    .line 201
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->stopProgressUpdates()V
 
-    .line 208
+    .line 202
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshSeekFromPlayer()V
 
-    .line 209
+    .line 203
     return-void
 .end method
 
 .method private static showOverlay(Landroid/app/Activity;)Z
     .registers 9
 
-    .line 312
+    .line 306
     const/4 v0, 0x0
 
     if-eqz p0, :cond_1ad
@@ -3581,11 +3411,11 @@
 
     goto/16 :goto_1ad
 
-    .line 315
+    .line 309
     :cond_b
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dismissOverlay(Z)V
 
-    .line 318
+    .line 312
     :try_start_e
     invoke-static {p0}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
 
@@ -3601,13 +3431,13 @@
     :try_end_1a
     .catchall {:try_start_e .. :try_end_1a} :catchall_1a6
 
-    .line 322
+    .line 316
     nop
 
-    .line 323
+    .line 317
     sput-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayContent:Landroid/view/View;
 
-    .line 324
+    .line 318
     const v2, 0x7f09027a
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3618,7 +3448,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
-    .line 325
+    .line 319
     const v2, 0x7f09027b
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3629,7 +3459,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playPauseBtn:Landroid/widget/TextView;
 
-    .line 326
+    .line 320
     const v2, 0x7f09027d
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3638,7 +3468,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlPanel:Landroid/view/View;
 
-    .line 327
+    .line 321
     const v2, 0x7f09027e
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3647,7 +3477,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistPanel:Landroid/view/View;
 
-    .line 328
+    .line 322
     const v2, 0x7f09027f
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3658,7 +3488,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistList:Landroid/widget/LinearLayout;
 
-    .line 329
+    .line 323
     const v2, 0x7f090282
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3669,7 +3499,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->trackTitleView:Landroid/widget/TextView;
 
-    .line 330
+    .line 324
     const v2, 0x7f090283
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3680,7 +3510,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->timeView:Landroid/widget/TextView;
 
-    .line 331
+    .line 325
     const v2, 0x7f090229
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3691,7 +3521,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->statusView:Landroid/widget/TextView;
 
-    .line 332
+    .line 326
     const v2, 0x7f09022a
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3702,7 +3532,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
-    .line 333
+    .line 327
     const v2, 0x7f090228
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3713,13 +3543,13 @@
 
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->sensitivityView:Lcom/isaigu/gymapp/widget/AmountView;
 
-    .line 335
+    .line 329
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->configureSensitivity()V
 
-    .line 336
+    .line 330
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->configureSeekBar()V
 
-    .line 337
+    .line 331
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playPauseBtn:Landroid/widget/TextView;
 
     new-instance v4, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlayPauseListener;
@@ -3728,7 +3558,7 @@
 
     invoke-static {v2, v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 338
+    .line 332
     const v2, 0x7f09027c
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3741,7 +3571,7 @@
 
     invoke-static {v2, v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 339
+    .line 333
     const v2, 0x7f090280
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3754,7 +3584,7 @@
 
     invoke-static {v2, v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 340
+    .line 334
     const v2, 0x7f090288
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3767,7 +3597,7 @@
 
     invoke-static {v2, v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 341
+    .line 335
     const v2, 0x7f090289
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
@@ -3780,25 +3610,25 @@
 
     invoke-static {v2, v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
 
-    .line 343
+    .line 337
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
 
-    .line 344
+    .line 338
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->rebuildPlaylistViews(Landroid/app/Activity;)V
 
-    .line 345
+    .line 339
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTrackTitle()V
 
-    .line 346
+    .line 340
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshSeekFromPlayer()V
 
-    .line 347
+    .line 341
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 349
+    .line 343
     nop
 
-    .line 350
+    .line 344
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     if-eqz v2, :cond_106
@@ -3811,7 +3641,7 @@
 
     if-eqz v2, :cond_106
 
-    .line 351
+    .line 345
     sget-object v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->seekBar:Lcom/isaigu/gymapp/widget/CircleSeekBar;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->getParent()Landroid/view/ViewParent;
@@ -3820,7 +3650,7 @@
 
     check-cast v2, Landroid/view/View;
 
-    .line 352
+    .line 346
     invoke-virtual {v2}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v4
@@ -3829,7 +3659,7 @@
 
     if-eqz v4, :cond_106
 
-    .line 353
+    .line 347
     invoke-virtual {v2}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v2
@@ -3838,7 +3668,7 @@
 
     goto :goto_107
 
-    .line 356
+    .line 350
     :cond_106
     move-object v2, v3
 
@@ -3847,41 +3677,41 @@
 
     if-eqz v2, :cond_118
 
-    .line 357
+    .line 351
     invoke-virtual {v2, v4}, Landroid/view/View;->setClickable(Z)V
 
-    .line 358
+    .line 352
     invoke-virtual {v2, v0}, Landroid/view/View;->setFocusable(Z)V
 
-    .line 359
+    .line 353
     new-instance v5, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$OverlayDragListener;
 
     invoke-direct {v5}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$OverlayDragListener;-><init>()V
 
     invoke-virtual {v2, v5}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
-    .line 362
+    .line 356
     :cond_118
     const/16 v2, 0xc0
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
-    .line 363
+    .line 357
     const/16 v2, 0x104
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v2
 
-    .line 364
+    .line 358
     new-instance v5, Landroid/widget/FrameLayout;
 
     invoke-direct {v5, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 365
+    .line 359
     invoke-virtual {v5, v0}, Landroid/widget/FrameLayout;->setClipChildren(Z)V
 
-    .line 366
+    .line 360
     new-instance v6, Landroid/widget/FrameLayout$LayoutParams;
 
     const/4 v7, -0x2
@@ -3890,75 +3720,75 @@
 
     invoke-virtual {v5, v1, v6}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 370
+    .line 364
     :try_start_134
     new-instance v1, Landroid/support/v7/app/AlertDialog$Builder;
 
     invoke-direct {v1, p0}, Landroid/support/v7/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 372
+    .line 366
     invoke-virtual {v1, v5}, Landroid/support/v7/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/support/v7/app/AlertDialog$Builder;
 
-    .line 373
+    .line 367
     new-instance v2, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$OverlayDismissListener;
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$OverlayDismissListener;-><init>()V
 
     invoke-virtual {v1, v2}, Landroid/support/v7/app/AlertDialog$Builder;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)Landroid/support/v7/app/AlertDialog$Builder;
 
-    .line 374
+    .line 368
     invoke-virtual {v1}, Landroid/support/v7/app/AlertDialog$Builder;->create()Landroid/support/v7/app/AlertDialog;
 
     move-result-object v1
 
     sput-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 375
+    .line 369
     invoke-virtual {v1, v4}, Landroid/support/v7/app/AlertDialog;->setCancelable(Z)V
 
-    .line 376
+    .line 370
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v1, v0}, Landroid/support/v7/app/AlertDialog;->setCanceledOnTouchOutside(Z)V
 
-    .line 377
+    .line 371
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v1}, Landroid/support/v7/app/AlertDialog;->show()V
 
-    .line 379
+    .line 373
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v1}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
 
     move-result-object v1
 
-    .line 380
+    .line 374
     if-nez v1, :cond_160
 
-    .line 381
+    .line 375
     return v0
 
-    .line 383
+    .line 377
     :cond_160
     const v2, 0x106000d
 
     invoke-virtual {v1, v2}, Landroid/view/Window;->setBackgroundDrawableResource(I)V
 
-    .line 384
+    .line 378
     const v2, 0x800033
 
     invoke-virtual {v1, v2}, Landroid/view/Window;->setGravity(I)V
 
-    .line 385
+    .line 379
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
 
-    .line 386
+    .line 380
     invoke-virtual {v1}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v2
 
-    .line 387
+    .line 381
     const/16 v5, 0x14
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
@@ -3967,7 +3797,7 @@
 
     iput v5, v2, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 388
+    .line 382
     const/16 v5, 0x12c
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
@@ -3976,12 +3806,12 @@
 
     iput p0, v2, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 389
+    .line 383
     const/4 p0, 0x0
 
     iput p0, v2, Landroid/view/WindowManager$LayoutParams;->dimAmount:F
 
-    .line 390
+    .line 384
     iget p0, v2, Landroid/view/WindowManager$LayoutParams;->flags:I
 
     or-int/lit8 p0, p0, 0x8
@@ -3992,53 +3822,53 @@
 
     iput p0, v2, Landroid/view/WindowManager$LayoutParams;->flags:I
 
-    .line 394
+    .line 388
     const/4 p0, 0x2
 
     invoke-virtual {v1, p0}, Landroid/view/Window;->clearFlags(I)V
 
-    .line 395
+    .line 389
     invoke-virtual {v1, v2}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    .line 396
+    .line 390
     sput-boolean v4, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
     :try_end_199
     .catchall {:try_start_134 .. :try_end_199} :catchall_19a
 
-    .line 397
+    .line 391
     return v4
 
-    .line 398
+    .line 392
     :catchall_19a
     move-exception p0
 
-    .line 399
+    .line 393
     const-string v1, "music_player_overlay_show"
 
     invoke-static {v1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 400
+    .line 394
     sput-object v3, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 401
+    .line 395
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearOverlayRefs()V
 
-    .line 402
+    .line 396
     return v0
 
-    .line 319
+    .line 313
     :catchall_1a6
     move-exception p0
 
-    .line 320
+    .line 314
     const-string v1, "music_player_overlay_inflate"
 
     invoke-static {v1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 321
+    .line 315
     return v0
 
-    .line 313
+    .line 307
     :cond_1ad
     :goto_1ad
     return v0
@@ -4047,28 +3877,28 @@
 .method public static showPreparing()V
     .registers 2
 
-    .line 212
+    .line 206
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->statusView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_a
 
-    .line 213
+    .line 207
     const v1, 0x7f0d011b
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(I)V
 
-    .line 215
+    .line 209
     :cond_a
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->levelView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_13
 
-    .line 216
+    .line 210
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 218
+    .line 212
     :cond_13
     return-void
 .end method
@@ -4076,7 +3906,7 @@
 .method private static startCurrentTrack(Z)Z
     .registers 4
 
-    .line 544
+    .line 538
     sget v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
 
     const/4 v1, 0x0
@@ -4093,7 +3923,7 @@
 
     goto :goto_3c
 
-    .line 550
+    .line 544
     :cond_e
     const/4 p0, 0x0
 
@@ -4103,18 +3933,18 @@
 
     move-result-object p0
 
-    .line 551
+    .line 545
     if-nez p0, :cond_1e
 
-    .line 552
+    .line 546
     const p0, 0x7f0d010b
 
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 553
+    .line 547
     return v1
 
-    .line 555
+    .line 549
     :cond_1e
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
 
@@ -4128,38 +3958,38 @@
 
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/MusicPlaylistEntry;->uri:Landroid/net/Uri;
 
-    .line 556
+    .line 550
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 557
+    .line 551
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTrackTitle()V
 
-    .line 558
+    .line 552
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->rebuildPlaylistViews(Landroid/app/Activity;)V
 
-    .line 559
+    .line 553
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->readSensitivity()I
 
     move-result v1
 
     invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startPlayer(Landroid/app/Activity;Landroid/net/Uri;I)V
 
-    .line 560
+    .line 554
     const/4 p0, 0x1
 
     return p0
 
-    .line 545
+    .line 539
     :cond_3c
     :goto_3c
     if-eqz p0, :cond_44
 
-    .line 546
+    .line 540
     const p0, 0x7f0d0112
 
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 548
+    .line 542
     :cond_44
     return v1
 .end method
@@ -4167,48 +3997,48 @@
 .method private static startProgressUpdates()V
     .registers 2
 
-    .line 535
+    .line 529
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->progressRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 536
+    .line 530
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->progressRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 537
+    .line 531
     return-void
 .end method
 
 .method private static stopProgressUpdates()V
     .registers 2
 
-    .line 540
+    .line 534
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->progressRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 541
+    .line 535
     return-void
 .end method
 
 .method private static toast(Landroid/app/Activity;I)V
     .registers 3
 
-    .line 939
+    .line 901
     if-nez p0, :cond_3
 
-    .line 940
+    .line 902
     return-void
 
-    .line 943
+    .line 905
     :cond_3
     const/4 v0, 0x0
 
@@ -4221,14 +4051,14 @@
     :try_end_b
     .catchall {:try_start_4 .. :try_end_b} :catchall_c
 
-    .line 945
+    .line 907
     goto :goto_d
 
-    .line 944
+    .line 906
     :catchall_c
     move-exception p0
 
-    .line 946
+    .line 908
     :goto_d
     return-void
 .end method
@@ -4236,15 +4066,15 @@
 .method private static updatePlayPauseLabel()V
     .registers 2
 
-    .line 527
+    .line 521
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playPauseBtn:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 528
+    .line 522
     return-void
 
-    .line 530
+    .line 524
     :cond_5
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
@@ -4271,7 +4101,7 @@
     :cond_19
     const/4 v0, 0x0
 
-    .line 531
+    .line 525
     :goto_1a
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playPauseBtn:Landroid/widget/TextView;
 
@@ -4287,22 +4117,22 @@
     :goto_23
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 532
+    .line 526
     return-void
 .end method
 
 .method private static updateTimeLabel(II)V
     .registers 4
 
-    .line 509
+    .line 503
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->timeView:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 510
+    .line 504
     return-void
 
-    .line 512
+    .line 506
     :cond_5
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -4330,6 +4160,6 @@
 
     invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 513
+    .line 507
     return-void
 .end method

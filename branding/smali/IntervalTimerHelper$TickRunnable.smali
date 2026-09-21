@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1883
+    .line 1832
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,23 +32,23 @@
 .method public run()V
     .registers 8
 
-    .line 1886
+    .line 1835
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4600()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4100()Z
 
     move-result v0
 
     if-eqz v0, :cond_5f
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4700()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4200()Z
 
     move-result v0
 
     if-eqz v0, :cond_5f
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainingRunning:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4800()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4300()Z
 
     move-result v0
 
@@ -56,27 +56,27 @@
 
     goto :goto_5f
 
-    .line 1889
+    .line 1838
     :cond_13
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v0
 
-    .line 1890
+    .line 1839
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4900()J
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4400()J
 
     move-result-wide v2
 
     sub-long v2, v0, v2
 
-    .line 1891
+    .line 1840
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->lastTickRealtime:J
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4902(J)J
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4402(J)J
 
-    .line 1892
+    .line 1841
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5000()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4500()Z
 
     move-result v0
 
@@ -90,37 +90,37 @@
 
     if-eqz v0, :cond_40
 
-    .line 1893
+    .line 1842
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->tickBlock(J)V
 
-    .line 1894
+    .line 1843
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5100()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4600()V
 
-    .line 1895
+    .line 1844
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5300()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4800()Landroid/os/Handler;
 
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5200()Ljava/lang/Runnable;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4700()Ljava/lang/Runnable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 1896
+    .line 1845
     return-void
 
-    .line 1898
+    .line 1847
     :cond_40
     # -= operator for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5422(J)J
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4922(J)J
 
-    .line 1899
+    .line 1848
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5400()J
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4900()J
 
     move-result-wide v0
 
@@ -130,32 +130,32 @@
 
     if-gtz v6, :cond_50
 
-    .line 1900
+    .line 1849
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onIntervalFinished()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5500()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5000()V
 
-    .line 1902
+    .line 1851
     :cond_50
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5100()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4600()V
 
-    .line 1903
+    .line 1852
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5300()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4800()Landroid/os/Handler;
 
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tickRunnable:Ljava/lang/Runnable;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5200()Ljava/lang/Runnable;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4700()Ljava/lang/Runnable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 1904
+    .line 1853
     return-void
 
-    .line 1887
+    .line 1836
     :cond_5f
     :goto_5f
     return-void

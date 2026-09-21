@@ -99,6 +99,22 @@ def check_player_engine_deps() -> list[str]:
     return errs
 
 
+def check_player_file_picker() -> list[str]:
+    pick = SMALI_DIR / "MusicPlayerHelper$PickListener.smali"
+    if not pick.is_file():
+        return ["MISSING: MusicPlayerHelper$PickListener.smali"]
+    text = pick.read_text(encoding="utf-8")
+    if "startActivityForResult" not in text:
+        return ["MusicPlayerHelper$PickListener: missing startActivityForResult"]
+    before = text.split("startActivityForResult", 1)[0]
+    if "hide()V" not in before:
+        return [
+            "MusicPlayerHelper$PickListener: must call overlayDialog.hide() before SAF picker "
+            "(prevents dismiss crash on file pick)"
+        ]
+    return []
+
+
 def check_stale_player_helper() -> list[str]:
     stale = SMALI_DIR / "MusicPlayerHelper$1.smali"
     if stale.is_file():
@@ -112,6 +128,7 @@ def check_stale_player_helper() -> list[str]:
 def main() -> int:
     errs: list[str] = []
     errs.extend(check_player_engine_deps())
+    errs.extend(check_player_file_picker())
     errs.extend(check_stale_player_helper())
     paths = sorted(SMALI_DIR.glob("*.smali"))
     paths = [p for p in paths if p.name.startswith("MusicSync") or p.name.startswith("MasterStrength")]

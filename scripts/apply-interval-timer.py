@@ -151,27 +151,16 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
         <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerTabBlock" android:background="@android:color/transparent" android:layout_width="0.0dip" android:layout_height="38.0dip" android:layout_weight="1.0" android:minWidth="0.0dip" android:text="@string/interval_timer_tab_block" android:textAllCaps="false" />
     </LinearLayout>
     <LinearLayout android:orientation="vertical" android:background="@color/bg_elevated" android:paddingLeft="16.0dip" android:paddingTop="14.0dip" android:paddingRight="16.0dip" android:paddingBottom="14.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
-        <LinearLayout android:orientation="vertical" android:id="@id/intervalTimerDurationRow" android:layout_width="fill_parent" android:layout_height="wrap_content">
-            <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:id="@id/intervalTimerDurationLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:letterSpacing="0.06" android:textAllCaps="true" android:text="@string/interval_timer_duration" />
-            <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
-                <LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0">
-                    <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerMinutes" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/interval_timer_minutes" />
-                </LinearLayout>
-                <TextView android:textSize="20.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:layout_marginRight="4.0dip" android:text=":" />
-                <LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0">
-                    <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerSeconds" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/interval_timer_seconds" />
-                </LinearLayout>
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/intervalTimerDurationRow" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:id="@id/intervalTimerDurationLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:letterSpacing="0.06" android:minWidth="72.0dip" android:textAllCaps="true" android:text="@string/interval_timer_duration" />
+            <EditText android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerMinutes" android:background="@drawable/modal_field_bg" android:paddingLeft="8.0dip" android:paddingRight="8.0dip" android:layout_width="56.0dip" android:layout_height="40.0dip" android:layout_marginLeft="8.0dip" android:maxLength="3" android:inputType="number" android:selectAllOnFocus="true" />
+            <TextView android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip" android:layout_marginRight="6.0dip" android:text=":" />
+            <EditText android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerSeconds" android:background="@drawable/modal_field_bg" android:paddingLeft="8.0dip" android:paddingRight="8.0dip" android:layout_width="56.0dip" android:layout_height="40.0dip" android:maxLength="2" android:inputType="number" android:selectAllOnFocus="true" />
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/intervalTimerSimplePanel" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:layout_marginLeft="16.0dip">
+                <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:letterSpacing="0.06" android:textAllCaps="true" android:text="@string/interval_timer_repeats" />
+                <EditText android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerLoops" android:background="@drawable/modal_field_bg" android:paddingLeft="8.0dip" android:paddingRight="8.0dip" android:layout_width="64.0dip" android:layout_height="40.0dip" android:layout_marginLeft="8.0dip" android:maxLength="4" android:inputType="number" android:selectAllOnFocus="true" />
+                <TextView android:textSize="10.0sp" android:textColor="@color/text_secondary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:text="@string/interval_timer_loops_hint" />
             </LinearLayout>
-        </LinearLayout>
-        <View android:background="@color/divider" android:layout_width="fill_parent" android:layout_height="1.0dip" android:layout_marginTop="14.0dip" android:layout_marginBottom="14.0dip" />
-        <LinearLayout android:orientation="vertical" android:id="@id/intervalTimerSimplePanel" android:layout_width="fill_parent" android:layout_height="wrap_content">
-            <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:letterSpacing="0.06" android:textAllCaps="true" android:text="@string/interval_timer_repeats" />
-            <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
-                <com.isaigu.gymapp.widget.AmountView android:id="@id/intervalTimerLoops" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-            </LinearLayout>
-            <TextView android:textSize="11.0sp" android:textColor="@color/text_secondary" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/interval_timer_loops_hint" />
         </LinearLayout>
         <LinearLayout android:orientation="vertical" android:id="@id/intervalTimerBlockPanel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
             <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="@color/bg_card" android:paddingLeft="12.0dip" android:paddingTop="8.0dip" android:paddingRight="12.0dip" android:paddingBottom="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
@@ -708,10 +697,6 @@ def main() -> int:
         return 1
 
     (RES / "layout" / DIALOG_LAYOUT_NAME).write_text(DIALOG_LAYOUT, encoding="utf-8")
-    (RES / "layout" / "amount_layout.xml").write_text(COMPACT_AMOUNT_LAYOUT, encoding="utf-8")
-    amount_night = RES / "layout-night" / "amount_layout.xml"
-    if amount_night.parent.is_dir():
-        amount_night.write_text(COMPACT_AMOUNT_LAYOUT, encoding="utf-8")
     overlay_cfg = load_design_config()
     overlay_layout = build_overlay_layout(overlay_cfg)
     overlay_size = overlay_metrics(overlay_cfg)["size_dp"]

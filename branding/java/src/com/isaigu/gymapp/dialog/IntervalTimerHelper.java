@@ -150,8 +150,12 @@ public final class IntervalTimerHelper {
     private static final int RING_MAX = 100;
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
-    /** Frame around dial — room for clock-position control buttons. Must match overlay layout. */
-    private static final int OVERLAY_FRAME_DP = OVERLAY_SIZE_DP + 32;
+    private static final int OVERLAY_CONTROL_BTN_DP = 36;
+    /** Minimum gap between dial outer edge and control button inner edge. */
+    private static final int OVERLAY_BTN_OUTSIDE_GAP_DP = 5;
+    /** Frame around dial — buttons sit outside the ring. Must match apply-interval-timer overlay layout. */
+    private static final int OVERLAY_FRAME_DP = OVERLAY_SIZE_DP
+            + 2 * (OVERLAY_BTN_OUTSIDE_GAP_DP + OVERLAY_CONTROL_BTN_DP);
     /** Same vertical row as {@link MusicPlayerHelper} overlay (opposite side of master panel). */
     private static final int OVERLAY_ROW_Y_DP = 300;
     /** Gap between overlay right edge and the train sidebar (rightLayout) left edge. */
@@ -159,8 +163,6 @@ public final class IntervalTimerHelper {
     /** Fallback sidebar width when rightLayout is not measured yet (weight 0.7 / 10.7). */
     private static final float SIDEBAR_WIDTH_WEIGHT = 0.7f;
     private static final float CONTENT_WIDTH_WEIGHT = 10.0f;
-    private static final int OVERLAY_CONTROL_BTN_DP = 36;
-    private static final float OVERLAY_BTN_RING_INSET_DP = 8f;
     /** Clock-face button angles (deg clockwise from 12 o'clock). */
     private static final float BTN_ANGLE_CLOSE = 45f;
     private static final float BTN_ANGLE_RESET = 90f;
@@ -1677,7 +1679,7 @@ public final class IntervalTimerHelper {
         return (int) (value * density + 0.5f);
     }
 
-    /** Place reset/pause/close on the dial ring like clock numbers (1:30, 3:00, 4:30). */
+    /** Place reset/pause/close outside the dial at clock angles (1:30, 3:00, 4:30). */
     private static void layoutDialControlButtons(Activity activity, View root) {
         if (activity == null || root == null) {
             return;
@@ -1688,7 +1690,8 @@ public final class IntervalTimerHelper {
         int framePx = dp(activity, OVERLAY_FRAME_DP);
         int dialPx = dp(activity, OVERLAY_SIZE_DP);
         int btnPx = dp(activity, OVERLAY_CONTROL_BTN_DP);
-        float radius = (dialPx / 2f) - dp(activity, (int) OVERLAY_BTN_RING_INSET_DP) - (btnPx / 2f);
+        float gapPx = dp(activity, OVERLAY_BTN_OUTSIDE_GAP_DP);
+        float radius = (dialPx / 2f) + gapPx + (btnPx / 2f);
         float cx = framePx / 2f;
         float cy = framePx / 2f;
         placeDialButton(closeBtn, BTN_ANGLE_CLOSE, cx, cy, radius, btnPx);

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1241
+    .line 1339
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,18 +32,18 @@
 .method public onChanged(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
     .registers 7
 
-    .line 1244
+    .line 1342
     const/4 p1, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2902(Z)Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3302(Z)Z
 
-    .line 1245
+    .line 1343
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result p1
 
-    .line 1246
+    .line 1344
     if-lez p1, :cond_13
 
     int-to-long v0, p2
@@ -63,27 +63,27 @@
     :cond_13
     const/4 p2, 0x0
 
-    .line 1247
+    .line 1345
     :goto_14
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
-    invoke-static {p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3000(II)V
+    invoke-static {p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3400(II)V
 
-    .line 1248
+    .line 1346
     return-void
 .end method
 
 .method public onChangedEnd(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
     .registers 5
 
-    .line 1252
+    .line 1350
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result p1
 
-    .line 1253
+    .line 1351
     if-lez p1, :cond_11
 
-    .line 1254
+    .line 1352
     int-to-long v0, p2
 
     int-to-long p1, p1
@@ -96,16 +96,16 @@
 
     long-to-int p1, v0
 
-    .line 1255
+    .line 1353
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 1257
+    .line 1355
     :cond_11
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2902(Z)Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3302(Z)Z
 
-    .line 1258
+    .line 1356
     return-void
 .end method

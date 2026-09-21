@@ -56,6 +56,7 @@ IDS = {
     "musicPlayerItemDown": 0x7F090287,
     "musicPlayerClose": 0x7F090288,
     "musicPlayerInfoBtn": 0x7F090289,
+    "musicPlayerVisualizer": 0x7F09028E,
 }
 
 STRING_IDS = {
@@ -91,13 +92,14 @@ OVERLAY_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
     <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
         <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_centerVertical="true" android:layout_toLeftOf="@id/musicPlayerClose">
             <TextView android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/light_green_color" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/beta_music_player_brand" />
-            <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/musicPlayerInfoBtn" android:background="@drawable/shape_bg_white" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="6.0dip" android:text="i" android:contentDescription="@string/beta_music_player_info_title" android:textAllCaps="false" />
+            <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerInfoBtn" android:background="@drawable/interval_timer_sound_chip" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="6.0dip" android:text="i" android:contentDescription="@string/beta_music_player_info_title" android:textAllCaps="false" />
         </LinearLayout>
         <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerClose" android:background="@drawable/interval_timer_sound_chip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_alignParentRight="true" android:layout_centerVertical="true" android:text="&#215;" android:contentDescription="@string/beta_music_player_close" android:textAllCaps="false" />
     </RelativeLayout>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="192.0dip" android:layout_marginTop="4.0dip">
         <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerPlaylistBtn" android:background="@drawable/interval_timer_sound_chip" android:layout_width="44.0dip" android:layout_height="44.0dip" android:text="&#9776;" android:contentDescription="@string/beta_music_player_playlist" android:textAllCaps="false" />
         <RelativeLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:layout_marginLeft="4.0dip">
+            <com.isaigu.gymapp.widget.MusicVisualizerView android:id="@id/musicPlayerVisualizer" android:layout_width="118.0dip" android:layout_height="118.0dip" android:layout_centerInParent="true" />
             <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/musicPlayerSeek" android:paddingLeft="14.0dip" android:paddingTop="14.0dip" android:paddingRight="14.0dip" android:paddingBottom="10.0dip" android:layout_width="192.0dip" android:layout_height="192.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="18.0dip" app:wheel_reached_width="14.0dip" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="14.0dip" />
             <com.isaigu.gymapp.widget.MyButton android:textSize="28.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerPlayPause" android:background="@drawable/interval_timer_sound_chip" android:layout_width="56.0dip" android:layout_height="56.0dip" android:layout_centerInParent="true" android:text="&#9654;" android:textAllCaps="false" />
         </RelativeLayout>
@@ -280,6 +282,17 @@ def install_smali() -> None:
     for src in sorted((BRANDING / "smali").glob("MusicPlayerHelper*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")
+    for src in sorted((BRANDING / "smali").glob("ModalInfoHelper*.smali")):
+        shutil.copy2(src, DIALOG_DIR / src.name)
+        print(f"installed dialog/{src.name}")
+    widget_dir = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget"
+    widget_dir.mkdir(parents=True, exist_ok=True)
+    viz_src = BRANDING / "smali/widget/MusicVisualizerView.smali"
+    if viz_src.is_file():
+        shutil.copy2(viz_src, widget_dir / "MusicVisualizerView.smali")
+        print("installed widget/MusicVisualizerView.smali")
+    else:
+        raise SystemExit("Missing branding/smali/widget/MusicVisualizerView.smali — run compile-music-sync-java.sh")
     for src in sorted((BRANDING / "smali").glob("MusicPlaylist*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")

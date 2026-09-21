@@ -26,6 +26,7 @@ import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.widget.AmountView;
 import com.isaigu.gymapp.widget.CircleSeekBar;
+import com.isaigu.gymapp.widget.MusicVisualizerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +53,25 @@ public final class MusicPlayerHelper {
     private static final int ID_PLAYLIST_ITEM_HANDLE = 0x7f090285;
     private static final int ID_CLOSE = 0x7f090288;
     private static final int ID_INFO = 0x7f090289;
+    private static final int ID_VISUALIZER = 0x7f09028e;
     private static final int STR_INFO_TITLE = 0x7f0d0172;
     private static final int STR_INFO_BODY = 0x7f0d0173;
+    private static final int COLOR_TEXT_PRIMARY = 0x7f0600e6;
+    private static final int COLOR_TEXT_SECONDARY = 0x7f0600e7;
+    private static final int COLOR_BG_CARD = 0x7f0600c3;
+    private static final int COLOR_LIGHT_GREEN = 0x7f06006f;
 
     private static final int OVERLAY_SIZE_DP = 192;
     private static final int OVERLAY_PANEL_WIDTH_DP = 260;
     private static final int SEEK_MAX = 1000;
     private static final long PROGRESS_TICK_MS = 200L;
-    private static final long DRAG_LONG_PRESS_MS = 350L;
+    private static final long DRAG_LONG_PRESS_MS = 280L;
     private static final float OVERLAY_TAP_SLOP_DP = 10f;
 
     private static android.support.v7.app.AlertDialog overlayDialog;
     private static View overlayContent;
     private static CircleSeekBar seekBar;
+    private static MusicVisualizerView visualizerView;
     private static TextView playPauseBtn;
     private static View controlPanel;
     private static View playlistPanel;
@@ -94,6 +101,8 @@ public final class MusicPlayerHelper {
     private static Runnable pendingDragStart;
     private static PlaylistDragListener activeDragListener;
     private static View dragGhostView;
+    private static View dragSourceRow;
+    private static android.graphics.drawable.Drawable dragSourceBackground;
     private static float dragGhostOffsetX;
     private static float dragGhostOffsetY;
 
@@ -197,6 +206,9 @@ public final class MusicPlayerHelper {
         if (levelView != null) {
             levelView.setVisibility(View.GONE);
         }
+        if (visualizerView != null) {
+            visualizerView.setPlaying(false);
+        }
         updatePlayPauseLabel();
         stopProgressUpdates();
         refreshSeekFromPlayer();
@@ -226,6 +238,9 @@ public final class MusicPlayerHelper {
             levelView.setVisibility(controlsExpanded ? View.VISIBLE : View.GONE);
         }
         updatePlayPauseLabel();
+        if (visualizerView != null) {
+            visualizerView.setPlaying(true);
+        }
         startProgressUpdates();
     }
 
@@ -316,6 +331,7 @@ public final class MusicPlayerHelper {
         }
         overlayContent = content;
         seekBar = (CircleSeekBar) content.findViewById(ID_SEEK);
+        visualizerView = (MusicVisualizerView) content.findViewById(ID_VISUALIZER);
         playPauseBtn = (TextView) content.findViewById(ID_PLAY_PAUSE);
         controlPanel = content.findViewById(ID_PANEL);
         playlistPanel = content.findViewById(ID_PLAYLIST_PANEL);
@@ -656,14 +672,32 @@ public final class MusicPlayerHelper {
 
     private static void clearDragHighlight() {
         removeDragGhost();
+        restoreDragSourceRow();
         if (playlistList == null) {
             dragHighlightIndex = -1;
             return;
         }
         for (int i = 0; i < playlistList.getChildCount(); i++) {
-            playlistList.getChildAt(i).setAlpha(1f);
+            View child = playlistList.getChildAt(i);
+            child.setAlpha(1f);
+            child.setScaleX(1f);
+            child.setScaleY(1f);
         }
         dragHighlightIndex = -1;
+    }
+
+    private static void restoreDragSourceRow() {
+        if (dragSourceRow == null) {
+            return;
+        }
+        dragSourceRow.setAlpha(1f);
+        dragSourceRow.setScaleX(1f);
+        dragSourceRow.setScaleY(1f);
+        if (dragSourceBackground != null) {
+            dragSourceRow.setBackground(dragSourceBackground);
+        }
+        dragSourceRow = null;
+        dragSourceBackground = null;
     }
 
     private static View findPlaylistRow(View handle) {
@@ -683,36 +717,68 @@ public final class MusicPlayerHelper {
         return null;
     }
 
+    private static ViewGroup resolveDragOverlayRoot(View anchor) {
+        if (overlayDialog != null) {
+            try {
+                Window window = overlayDialog.getWindow();
+                if (window != null) {
+                    View decor = window.getDecorView();
+                    if (decor instanceof ViewGroup) {
+                        return (ViewGroup) decor;
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        Activity activity = resolveHostActivity(null, anchor);
+        if (activity != null) {
+            return (ViewGroup) activity.getWindow().getDecorView();
+        }
+        return null;
+    }
+
+    private static int resolveThemeColor(Activity activity, int resId, int fallback) {
+        try {
+            return activity.getResources().getColor(resId);
+        } catch (Throwable ignored) {
+            return fallback;
+        }
+    }
+
     private static void showDragGhost(View row, float rawX, float rawY) {
         removeDragGhost();
-        Activity activity = resolveHostActivity(row);
-        if (activity == null || row == null) {
+        Activity activity = resolveHostActivity(null, row);
+        ViewGroup decor = resolveDragOverlayRoot(row);
+        if (activity == null || row == null || decor == null) {
             return;
         }
-        ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();
         TextView titleView = (TextView) row.findViewById(ID_PLAYLIST_ITEM_TITLE);
         CharSequence label = titleView != null ? titleView.getText() : "";
 
         LinearLayout ghost = new LinearLayout(activity);
         ghost.setOrientation(LinearLayout.HORIZONTAL);
         ghost.setGravity(Gravity.CENTER_VERTICAL);
-        int padH = dp(activity, 8);
-        int padV = dp(activity, 6);
+        int padH = dp(activity, 10);
+        int padV = dp(activity, 8);
         ghost.setPadding(padH, padV, padH, padV);
         android.graphics.drawable.GradientDrawable ghostBg = new android.graphics.drawable.GradientDrawable();
-        ghostBg.setColor(0xFFF8F8F8);
-        ghostBg.setCornerRadius(dp(activity, 8));
-        ghostBg.setStroke(Math.max(1, dp(activity, 1)), 0xFFCCCCCC);
+        ghostBg.setColor(resolveThemeColor(activity, COLOR_BG_CARD, 0xFF252525));
+        ghostBg.setCornerRadius(dp(activity, 10));
+        ghostBg.setStroke(Math.max(2, dp(activity, 2)),
+                resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A));
         ghost.setBackground(ghostBg);
-        ghost.setAlpha(0.95f);
+        ghost.setAlpha(0.98f);
+        ghost.setScaleX(1.06f);
+        ghost.setScaleY(1.06f);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            ghost.setElevation(dp(activity, 10));
+            ghost.setElevation(dp(activity, 18));
+            ghost.setTranslationZ(dp(activity, 18));
         }
 
         TextView ghostTitle = new TextView(activity);
         ghostTitle.setText(label);
         ghostTitle.setTextSize(14f);
-        ghostTitle.setTextColor(0xFF222222);
+        ghostTitle.setTextColor(resolveThemeColor(activity, COLOR_TEXT_PRIMARY, 0xFFE8E8E8));
         ghostTitle.setSingleLine(true);
         ghostTitle.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
         ghostTitle.setLayoutParams(new LinearLayout.LayoutParams(
@@ -720,9 +786,9 @@ public final class MusicPlayerHelper {
 
         TextView ghostHandle = new TextView(activity);
         ghostHandle.setText("\u2630");
-        ghostHandle.setTextSize(16f);
-        ghostHandle.setTextColor(0xFF666666);
-        ghostHandle.setPadding(dp(activity, 6), 0, 0, 0);
+        ghostHandle.setTextSize(18f);
+        ghostHandle.setTextColor(resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A));
+        ghostHandle.setPadding(dp(activity, 8), 0, 0, 0);
 
         ghost.addView(ghostTitle);
         ghost.addView(ghostHandle);
@@ -970,30 +1036,7 @@ public final class MusicPlayerHelper {
             if (activity == null) {
                 return;
             }
-            try {
-                android.support.v7.app.AlertDialog.Builder builder =
-                        new android.support.v7.app.AlertDialog.Builder(activity);
-                builder.setTitle(activity.getString(STR_INFO_TITLE));
-                android.widget.ScrollView scroll = new android.widget.ScrollView(activity);
-                int pad = dp(activity, 16);
-                TextView message = new TextView(activity);
-                message.setText(activity.getString(STR_INFO_BODY));
-                message.setTextSize(14f);
-                message.setTextColor(0xFF333333);
-                message.setLineSpacing(0f, 1.15f);
-                message.setPadding(pad, pad / 2, pad, pad / 2);
-                scroll.addView(message);
-                builder.setView(scroll);
-                builder.setPositiveButton(android.R.string.ok, null);
-                android.support.v7.app.AlertDialog dialog = builder.create();
-                dialog.show();
-                Window window = dialog.getWindow();
-                if (window != null) {
-                    window.setLayout(dp(activity, 320), WindowManager.LayoutParams.WRAP_CONTENT);
-                }
-            } catch (Throwable t) {
-                MusicDiagLog.logError("music_player_info", t);
-            }
+            ModalInfoHelper.show(activity, STR_INFO_TITLE, STR_INFO_BODY);
         }
     }
 
@@ -1080,13 +1123,6 @@ public final class MusicPlayerHelper {
                         highlightDropTarget(resolveDropIndex(lastRawY));
                         return true;
                     }
-                    Activity activity = resolveHostActivity(v);
-                    float slop = activity != null
-                            ? (float) dp(activity, (int) OVERLAY_TAP_SLOP_DP)
-                            : 24f;
-                    if (Math.abs(event.getRawY() - downRawY) > slop) {
-                        cancelPendingDrag();
-                    }
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
@@ -1117,7 +1153,23 @@ public final class MusicPlayerHelper {
             }
             View row = findPlaylistRow(handle);
             if (row != null) {
-                row.setAlpha(0.25f);
+                restoreDragSourceRow();
+                dragSourceRow = row;
+                dragSourceBackground = row.getBackground();
+                row.setAlpha(0.35f);
+                row.setScaleX(0.96f);
+                row.setScaleY(0.96f);
+                Activity activity = resolveHostActivity(handle);
+                if (activity != null) {
+                    android.graphics.drawable.GradientDrawable placeholder =
+                            new android.graphics.drawable.GradientDrawable();
+                    placeholder.setColor(0x22000000);
+                    placeholder.setCornerRadius(dp(activity, 10));
+                    placeholder.setStroke(
+                            Math.max(2, dp(activity, 2)),
+                            resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A));
+                    row.setBackground(placeholder);
+                }
                 showDragGhost(row, rawX, rawY);
             }
             highlightDropTarget(index);
@@ -1169,9 +1221,16 @@ public final class MusicPlayerHelper {
         @Override
         public void run() {
             if (!MusicSync.isRunning() || !MusicSync.isPlayerMode()) {
+                if (visualizerView != null) {
+                    visualizerView.setPlaying(false);
+                }
                 return;
             }
             refreshSeekFromPlayer();
+            if (visualizerView != null) {
+                visualizerView.setPlaying(true);
+                visualizerView.setLiveLevel(MusicSync.getLiveStrength());
+            }
             handler.postDelayed(this, PROGRESS_TICK_MS);
         }
     }

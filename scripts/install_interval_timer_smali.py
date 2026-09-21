@@ -20,6 +20,7 @@ DIALOG_GLOBS = (
     "BlockProgram*.smali",
     "ProgramSegment.smali",
     "BlockProgramEditor*.smali",
+    "ModalInfoHelper*.smali",
 )
 
 REQUIRED_DIALOG = (

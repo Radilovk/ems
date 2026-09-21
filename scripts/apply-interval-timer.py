@@ -75,6 +75,7 @@ IDS = {
     "intervalTimerDurationRow": 0x7F090276,
     "intervalTimerReset": 0x7F090278,
     "intervalTimerConfigScroll": 0x7F090274,
+    "intervalTimerInfoBtn": 0x7F09028B,
 }
 
 STRING_IDS = {
@@ -138,6 +139,8 @@ STRING_IDS = {
     "interval_timer_advanced": 0x7F0D0167,
     "interval_timer_loops_hint": 0x7F0D0168,
     "interval_timer_reset": 0x7F0D0169,
+    "interval_timer_info_title": 0x7F0D0175,
+    "interval_timer_info_body": 0x7F0D0176,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -147,8 +150,8 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
     <TextView android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:letterSpacing="0.01" android:text="@string/interval_timer_title" />
     <TextView android:textSize="12.0sp" android:textColor="@color/light_green_color" android:gravity="center" android:id="@id/intervalTimerStatus" android:background="@color/bg_elevated" android:paddingLeft="12.0dip" android:paddingTop="5.0dip" android:paddingRight="12.0dip" android:paddingBottom="5.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="8.0dip" android:maxLines="2" android:ellipsize="end" android:text="@string/interval_timer_status_idle" />
     <LinearLayout android:orientation="horizontal" android:background="@color/bg_elevated" android:padding="3.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="16.0dip">
-        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerTabInterval" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="38.0dip" android:layout_weight="1.0" android:minWidth="0.0dip" android:text="@string/interval_timer_tab_interval" android:textAllCaps="false" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerTabBlock" android:background="@android:color/transparent" android:layout_width="0.0dip" android:layout_height="38.0dip" android:layout_weight="1.0" android:minWidth="0.0dip" android:text="@string/interval_timer_tab_block" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerTabInterval" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="38.0dip" android:layout_weight="1.0" android:minWidth="0.0dip" android:text="@string/interval_timer_tab_interval" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerTabBlock" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="38.0dip" android:layout_weight="1.0" android:minWidth="0.0dip" android:text="@string/interval_timer_tab_block" android:textAllCaps="false" />
     </LinearLayout>
     <LinearLayout android:orientation="vertical" android:background="@color/bg_elevated" android:paddingLeft="16.0dip" android:paddingTop="14.0dip" android:paddingRight="16.0dip" android:paddingBottom="14.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
         <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/intervalTimerDurationRow" android:layout_width="fill_parent" android:layout_height="wrap_content">
@@ -159,7 +162,7 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
             <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/intervalTimerSimplePanel" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:layout_marginLeft="16.0dip">
                 <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:letterSpacing="0.06" android:textAllCaps="true" android:text="@string/interval_timer_repeats" />
                 <EditText android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerLoops" android:background="@drawable/modal_field_bg" android:paddingLeft="8.0dip" android:paddingRight="8.0dip" android:layout_width="64.0dip" android:layout_height="40.0dip" android:layout_marginLeft="8.0dip" android:maxLength="4" android:inputType="number" android:selectAllOnFocus="true" />
-                <TextView android:textSize="10.0sp" android:textColor="@color/text_secondary" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:text="@string/interval_timer_loops_hint" />
+                <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerInfoBtn" android:background="@drawable/interval_timer_sound_chip" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="8.0dip" android:text="i" android:contentDescription="@string/interval_timer_info_title" android:textAllCaps="false" />
             </LinearLayout>
         </LinearLayout>
         <LinearLayout android:orientation="vertical" android:id="@id/intervalTimerBlockPanel" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
@@ -401,6 +404,8 @@ EN_STRINGS = """
     <string name="interval_timer_advanced">Sound &amp; saved ▾</string>
     <string name="interval_timer_loops_hint">0 = unlimited</string>
     <string name="interval_timer_reset">Restart interval</string>
+    <string name="interval_timer_info_title">How the interval timer works</string>
+    <string name="interval_timer_info_body">Set duration (minutes:seconds) and how many times the interval repeats.\\n\\n• Repeats: enter 0 for unlimited loops, or a number to stop automatically after the last repeat.\\n• Interval mode: the same duration repeats with a signal at each switch.\\n• Blocks mode: run a sequence of impulse blocks; optional RPT repeats the sequence until workout time ends.\\n• Activate arms the timer — it starts when training starts and pauses when training stops.\\n• Sound &amp; saved: choose a signal, save presets, or pick a custom sound file.</string>
 """
 
 BG_STRINGS = """
@@ -463,6 +468,8 @@ BG_STRINGS = """
     <string name="interval_timer_advanced">Звук и запазени ▾</string>
     <string name="interval_timer_loops_hint">0 = безкрайно</string>
     <string name="interval_timer_reset">Рестарт на интервала</string>
+    <string name="interval_timer_info_title">Как работи интервалният таймер</string>
+    <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\\n\\n• Повторения: 0 = безкрайно; число = спира автоматично след последното повторение.\\n• Режим Интервал: еднаква продължителност със сигнал при всяка смяна.\\n• Режим Блокове: последователност от импулсни блокове; RPT повтаря последователността до края на времето.\\n• Активирай въоръжава таймера — стартира с тренировката и спира с нея.\\n• Звук и запазени: изберете сигнал, запазете програми или качете свой звук.</string>
 """
 
 

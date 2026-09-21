@@ -87,6 +87,7 @@ public final class IntervalTimerHelper {
     private static final int ID_RESET = 0x7f090278;
     private static final int ID_PAUSE = 0x7f090292;
     private static final int ID_CLOSE = 0x7f090293;
+    private static final int ID_DIAL_HOST = 0x7f090294;
     private static final int ID_CONFIG_SCROLL = 0x7f090274;
     private static final int ID_INFO = 0x7f09028b;
     private static final int STR_INFO_TITLE = 0x7f0d0175;
@@ -149,6 +150,8 @@ public final class IntervalTimerHelper {
     private static final int RING_MAX = 100;
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
+    /** Frame around dial — room for clock-position control buttons. Must match overlay layout. */
+    private static final int OVERLAY_FRAME_DP = OVERLAY_SIZE_DP + 32;
     /** Same vertical row as {@link MusicPlayerHelper} overlay (opposite side of master panel). */
     private static final int OVERLAY_ROW_Y_DP = 300;
     /** Gap between overlay right edge and the train sidebar (rightLayout) left edge. */
@@ -156,12 +159,12 @@ public final class IntervalTimerHelper {
     /** Fallback sidebar width when rightLayout is not measured yet (weight 0.7 / 10.7). */
     private static final float SIDEBAR_WIDTH_WEIGHT = 0.7f;
     private static final float CONTENT_WIDTH_WEIGHT = 10.0f;
-    private static final int OVERLAY_SIDE_BTN_DP = 44;
-    private static final int OVERLAY_BTN_GAP_DP = 4;
-    private static final int OVERLAY_SIDE_BTN_COUNT = 3;
-    private static final int OVERLAY_WIDTH_DP = OVERLAY_SIZE_DP
-            + (OVERLAY_SIDE_BTN_COUNT * OVERLAY_SIDE_BTN_DP)
-            + (OVERLAY_SIDE_BTN_COUNT * OVERLAY_BTN_GAP_DP);
+    private static final int OVERLAY_CONTROL_BTN_DP = 36;
+    private static final float OVERLAY_BTN_RING_INSET_DP = 8f;
+    /** Clock-face button angles (deg clockwise from 12 o'clock). */
+    private static final float BTN_ANGLE_CLOSE = 45f;
+    private static final float BTN_ANGLE_RESET = 90f;
+    private static final float BTN_ANGLE_PAUSE = 135f;
     /** Compact config panel width — must match apply-interval-timer dialog layout. */
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
 
@@ -881,9 +884,10 @@ public final class IntervalTimerHelper {
         pauseBtnView = (TextView) content.findViewById(ID_PAUSE);
         bindButton(pauseBtnView, new PauseOverlayListener());
         bindButton(content.findViewById(ID_CLOSE), new CloseOverlayListener());
+        layoutDialControlButtons(activity, content);
         updatePauseButtonLabel();
-        int overlayHeightPx = dp(activity, OVERLAY_SIZE_DP);
-        int overlayWidthPx = dp(activity, OVERLAY_WIDTH_DP);
+        int overlayHeightPx = dp(activity, OVERLAY_FRAME_DP);
+        int overlayWidthPx = dp(activity, OVERLAY_FRAME_DP);
         try {
             if (ringView != null) {
                 ringView.setMaxDiameterDp(OVERLAY_SIZE_DP);
@@ -895,9 +899,12 @@ public final class IntervalTimerHelper {
             }
         } catch (Throwable ignored) {
         }
-        content.setClickable(true);
-        content.setFocusable(false);
-        content.setOnTouchListener(new OverlayDragListener());
+        View dialHost = content.findViewById(ID_DIAL_HOST);
+        if (dialHost != null) {
+            dialHost.setClickable(true);
+            dialHost.setFocusable(false);
+            dialHost.setOnTouchListener(new OverlayDragListener());
+        }
         FrameLayout wrapper = new FrameLayout(activity);
         wrapper.setClipChildren(true);
         wrapper.addView(
@@ -1668,6 +1675,41 @@ public final class IntervalTimerHelper {
         }
         float density = activity.getResources().getDisplayMetrics().density;
         return (int) (value * density + 0.5f);
+    }
+
+    /** Place reset/pause/close on the dial ring like clock numbers (1:30, 3:00, 4:30). */
+    private static void layoutDialControlButtons(Activity activity, View root) {
+        if (activity == null || root == null) {
+            return;
+        }
+        View closeBtn = root.findViewById(ID_CLOSE);
+        View resetBtn = root.findViewById(ID_RESET);
+        View pauseBtn = root.findViewById(ID_PAUSE);
+        int framePx = dp(activity, OVERLAY_FRAME_DP);
+        int dialPx = dp(activity, OVERLAY_SIZE_DP);
+        int btnPx = dp(activity, OVERLAY_CONTROL_BTN_DP);
+        float radius = (dialPx / 2f) - dp(activity, (int) OVERLAY_BTN_RING_INSET_DP) - (btnPx / 2f);
+        float cx = framePx / 2f;
+        float cy = framePx / 2f;
+        placeDialButton(closeBtn, BTN_ANGLE_CLOSE, cx, cy, radius, btnPx);
+        placeDialButton(resetBtn, BTN_ANGLE_RESET, cx, cy, radius, btnPx);
+        placeDialButton(pauseBtn, BTN_ANGLE_PAUSE, cx, cy, radius, btnPx);
+    }
+
+    private static void placeDialButton(
+            View button, float degreesFromTop, float cx, float cy, float radius, int btnPx) {
+        if (button == null) {
+            return;
+        }
+        double rad = Math.toRadians(degreesFromTop);
+        int left = Math.round(cx + radius * (float) Math.sin(rad) - btnPx / 2f);
+        int top = Math.round(cy - radius * (float) Math.cos(rad) - btnPx / 2f);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(btnPx, btnPx);
+        lp.gravity = Gravity.TOP | Gravity.START;
+        lp.leftMargin = left;
+        lp.topMargin = top;
+        button.setLayoutParams(lp);
+        button.setElevation(4f);
     }
 
     private static void toast(int resId) {

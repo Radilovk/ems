@@ -68,10 +68,6 @@ public final class MusicPlayerHelper {
     private static final int OVERLAY_SIZE_DP = 192;
     private static final int OVERLAY_PANEL_WIDTH_DP = 260;
     private static final int SEEK_MAX = 1000;
-    /** CircleSeekBar touch arc is 270deg; widget max is inflated so touch at 270deg yields SEEK_MAX. */
-    private static final int SEEK_WIDGET_MAX = (SEEK_MAX * 360) / 270;
-    /** Highest progress value reachable by touch (270deg arc). Position math uses this, not widget max. */
-    private static final int SEEK_TOUCH_MAX = SEEK_MAX;
     private static final long PROGRESS_TICK_MS = 200L;
     private static final long DRAG_LONG_PRESS_MS = 280L;
     private static final long PLAY_DEBOUNCE_MS = 450L;
@@ -582,7 +578,7 @@ public final class MusicPlayerHelper {
             return;
         }
         try {
-            seekBar.setMaxProcess(SEEK_WIDGET_MAX);
+            seekBar.setMaxProcess(SEEK_MAX);
             seekBar.setCurProcess(0);
             seekBar.setClickable(true);
             seekBar.setFocusable(true);
@@ -672,11 +668,11 @@ public final class MusicPlayerHelper {
             seekBar.setCurProcess(0);
             return;
         }
-        int progress = (int) ((position * (long) SEEK_TOUCH_MAX) / duration);
+        int progress = (int) ((position * (long) SEEK_MAX) / duration);
         if (progress < 0) {
             progress = 0;
-        } else if (progress > SEEK_TOUCH_MAX) {
-            progress = SEEK_TOUCH_MAX;
+        } else if (progress > SEEK_MAX) {
+            progress = SEEK_MAX;
         }
         seekBar.setCurProcess(progress);
     }
@@ -686,6 +682,22 @@ public final class MusicPlayerHelper {
             return;
         }
         timeView.setText(formatTime(positionMs) + " / " + formatTime(durationMs));
+    }
+
+    private static int mapSeekProgressToMs(int progress, int durationMs) {
+        if (durationMs <= 0) {
+            return 0;
+        }
+        int clamped = progress;
+        if (clamped < 0) {
+            clamped = 0;
+        } else if (clamped > SEEK_MAX) {
+            clamped = SEEK_MAX;
+        }
+        if (clamped >= SEEK_MAX) {
+            return durationMs;
+        }
+        return (int) ((clamped * (long) durationMs) / SEEK_MAX);
     }
 
     private static String formatTime(int ms) {
@@ -1565,24 +1577,18 @@ public final class MusicPlayerHelper {
         public void onChanged(CircleSeekBar seekbar, int progress) {
             userSeeking = true;
             int duration = MusicSync.getPlaybackDurationMs();
-            int position = duration > 0 ? (int) ((progress * (long) duration) / SEEK_TOUCH_MAX) : 0;
+            int position = mapSeekProgressToMs(progress, duration);
             updateTimeLabel(position, duration);
+            if (duration > 0) {
+                MusicSync.seekPlaybackTo(position);
+            }
         }
 
         @Override
         public void onChangedEnd(CircleSeekBar seekbar, int progress) {
             int duration = MusicSync.getPlaybackDurationMs();
             if (duration > 0) {
-                int clamped = progress;
-                if (clamped < 0) {
-                    clamped = 0;
-                } else if (clamped > SEEK_TOUCH_MAX) {
-                    clamped = SEEK_TOUCH_MAX;
-                }
-                int position = clamped >= SEEK_TOUCH_MAX
-                        ? duration
-                        : (int) ((clamped * (long) duration) / SEEK_TOUCH_MAX);
-                MusicSync.seekPlaybackTo(position);
+                MusicSync.seekPlaybackTo(mapSeekProgressToMs(progress, duration));
             }
             userSeeking = false;
         }

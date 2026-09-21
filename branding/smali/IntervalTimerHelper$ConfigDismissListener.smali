@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1872
+    .line 1914
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onDismiss(Landroid/content/DialogInterface;)V
     .registers 2
 
-    .line 1875
+    .line 1917
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2600()Z
 
@@ -40,24 +40,24 @@
 
     if-eqz p1, :cond_7
 
-    .line 1876
+    .line 1918
     return-void
 
-    .line 1878
+    .line 1920
     :cond_7
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2702(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
 
-    .line 1879
+    .line 1921
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->configContent:Landroid/view/View;
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2802(Landroid/view/View;)Landroid/view/View;
 
-    .line 1880
+    .line 1922
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->clearConfigRefs()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2900()V
 
-    .line 1881
+    .line 1923
     return-void
 .end method

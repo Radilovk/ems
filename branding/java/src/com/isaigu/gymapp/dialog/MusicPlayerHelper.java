@@ -132,8 +132,7 @@ public final class MusicPlayerHelper {
         itemManager = manager;
         button.setClickable(true);
         button.setEnabled(true);
-        button.setFocusable(true);
-        button.setFocusableInTouchMode(true);
+        button.setFocusable(false);
         button.setOnClickListener(new MasterOpenListener(root, manager));
     }
 

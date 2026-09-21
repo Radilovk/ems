@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1346
+    .line 1345
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,10 +32,10 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1349
+    .line 1348
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->closePlayer()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$900()V
 
-    .line 1350
+    .line 1349
     return-void
 .end method

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1104
+    .line 1101
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,18 +32,18 @@
 .method public onChanged(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
     .registers 7
 
-    .line 1107
+    .line 1104
     const/4 p1, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2202(Z)Z
 
-    .line 1108
+    .line 1105
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result p1
 
-    .line 1109
+    .line 1106
     if-lez p1, :cond_13
 
     int-to-long v0, p2
@@ -63,27 +63,27 @@
     :cond_13
     const/4 p2, 0x0
 
-    .line 1110
+    .line 1107
     :goto_14
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
     invoke-static {p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2300(II)V
 
-    .line 1111
+    .line 1108
     return-void
 .end method
 
 .method public onChangedEnd(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
     .registers 5
 
-    .line 1115
+    .line 1112
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result p1
 
-    .line 1116
+    .line 1113
     if-lez p1, :cond_11
 
-    .line 1117
+    .line 1114
     int-to-long v0, p2
 
     int-to-long p1, p1
@@ -96,16 +96,16 @@
 
     long-to-int p1, v0
 
-    .line 1118
+    .line 1115
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 1120
+    .line 1117
     :cond_11
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2202(Z)Z
 
-    .line 1121
+    .line 1118
     return-void
 .end method

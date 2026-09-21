@@ -629,14 +629,6 @@ public final class MusicPlayerHelper {
         dragHighlightIndex = -1;
     }
 
-    private static void cancelPendingDrag() {
-        if (pendingDragStart != null) {
-            handler.removeCallbacks(pendingDragStart);
-            pendingDragStart = null;
-        }
-        activeDragListener = null;
-    }
-
     private static View findPlaylistRow(View handle) {
         if (handle == null) {
             return null;
@@ -644,9 +636,6 @@ public final class MusicPlayerHelper {
         View parent = handle;
         while (parent.getParent() instanceof View) {
             parent = (View) parent.getParent();
-            if (parent == playlistList) {
-                break;
-            }
             if (parent.getParent() == playlistList) {
                 return parent;
             }
@@ -748,6 +737,14 @@ public final class MusicPlayerHelper {
             parent.removeView(dragGhostView);
         }
         dragGhostView = null;
+    }
+
+    private static void cancelPendingDrag() {
+        if (pendingDragStart != null) {
+            handler.removeCallbacks(pendingDragStart);
+            pendingDragStart = null;
+        }
+        activeDragListener = null;
     }
 
     private static int readSensitivity() {

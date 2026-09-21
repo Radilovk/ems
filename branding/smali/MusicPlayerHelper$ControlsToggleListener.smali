@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1161
+    .line 1191
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1164
+    .line 1194
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$500()Z
 
@@ -43,14 +43,14 @@
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->controlsExpanded:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$502(Z)Z
 
-    .line 1165
+    .line 1195
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$600()V
 
-    .line 1166
+    .line 1196
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$700()V
 
-    .line 1167
+    .line 1197
     return-void
 .end method

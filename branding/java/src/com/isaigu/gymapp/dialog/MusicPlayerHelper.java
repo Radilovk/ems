@@ -203,6 +203,36 @@ public final class MusicPlayerHelper {
 
     public static void refreshTransportState() {
         updatePlayPauseLabel();
+        if (visualizerView != null) {
+            boolean playing = MusicSync.isRunning() && MusicSync.isPlayerMode()
+                    && !MusicSync.isPlaybackPaused();
+            visualizerView.setPlaying(playing);
+        }
+    }
+
+    /** Sync player pause/resume from any train row or master start/pause/stop. */
+    public static void syncTrainingState() {
+        if (itemManager == null) {
+            return;
+        }
+        boolean anyRunning = false;
+        try {
+            List<TrainItem> items = itemManager.getItemList();
+            if (items != null) {
+                for (int i = 0; i < items.size(); i++) {
+                    TrainItem item = items.get(i);
+                    if (item == null || item.isEmpty() || item.data == null) {
+                        continue;
+                    }
+                    if (item.data.start) {
+                        anyRunning = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        MusicSync.syncWithTrainingState(anyRunning);
     }
 
     public static void showIdle() {

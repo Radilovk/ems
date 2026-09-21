@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1188
+    .line 1218
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,27 +32,27 @@
 .method public onClick(Landroid/view/View;)V
     .registers 5
 
-    .line 1191
+    .line 1221
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 1192
+    .line 1222
     if-nez p1, :cond_d
 
-    .line 1193
+    .line 1223
     const p1, 0x7f0d010b
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 1194
+    .line 1224
     return-void
 
-    .line 1196
+    .line 1226
     :cond_d
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 1198
+    .line 1228
     :try_start_10
     new-instance v0, Landroid/content/Intent;
 
@@ -60,36 +60,36 @@
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 1199
+    .line 1229
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1200
+    .line 1230
     const-string v1, "audio/*"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1201
+    .line 1231
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 1202
+    .line 1232
     const/16 v2, 0x40
 
     invoke-virtual {v0, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 1203
+    .line 1233
     const-string v2, "android.intent.extra.ALLOW_MULTIPLE"
 
     invoke-virtual {v0, v2, v1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Z)Landroid/content/Intent;
 
-    .line 1204
+    .line 1234
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$902(Z)Z
 
-    .line 1205
+    .line 1235
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()Landroid/support/v7/app/AlertDialog;
 
@@ -99,7 +99,7 @@
 
     if-eqz v1, :cond_41
 
-    .line 1207
+    .line 1237
     :try_start_38
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()Landroid/support/v7/app/AlertDialog;
@@ -110,14 +110,14 @@
     :try_end_3f
     .catchall {:try_start_38 .. :try_end_3f} :catchall_40
 
-    .line 1209
+    .line 1239
     goto :goto_41
 
-    .line 1208
+    .line 1238
     :catchall_40
     move-exception v1
 
-    .line 1211
+    .line 1241
     :cond_41
     :goto_41
     const/16 v1, 0x4255
@@ -127,34 +127,34 @@
     :try_end_46
     .catchall {:try_start_43 .. :try_end_46} :catchall_47
 
-    .line 1217
+    .line 1247
     goto :goto_5a
 
-    .line 1212
+    .line 1242
     :catchall_47
     move-exception p1
 
-    .line 1213
+    .line 1243
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$902(Z)Z
 
-    .line 1214
+    .line 1244
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1100()V
 
-    .line 1215
+    .line 1245
     const-string v0, "player_pick"
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1216
+    .line 1246
     const p1, 0x7f0d0113
 
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 1218
+    .line 1248
     :goto_5a
     return-void
 .end method

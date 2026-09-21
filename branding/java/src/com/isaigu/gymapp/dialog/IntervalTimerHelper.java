@@ -150,7 +150,7 @@ public final class IntervalTimerHelper {
     private static final int RING_MAX = 100;
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
-    private static final int OVERLAY_CONTROL_BTN_DP = 36;
+    private static final int OVERLAY_CONTROL_BTN_DP = 45;
     /** Minimum gap between dial outer edge and control button inner edge. */
     private static final int OVERLAY_BTN_OUTSIDE_GAP_DP = 5;
     /** Frame around dial — buttons sit outside the ring. Must match apply-interval-timer overlay layout. */
@@ -1437,11 +1437,17 @@ public final class IntervalTimerHelper {
             remainingMs = intervalMs;
         }
         lastDisplayedCountdownSec = -1;
-        if (countdownRunning && trainingRunning) {
+        timerPausedByUser = false;
+        if (trainingRunning) {
+            countdownRunning = true;
             lastTickRealtime = SystemClock.elapsedRealtime();
+            handler.removeCallbacks(tickRunnable);
+            handler.post(tickRunnable);
         }
         playSignal();
+        refreshStatusText();
         refreshOverlayText();
+        updatePauseButtonLabel();
     }
 
     private static void onIntervalFinished() {

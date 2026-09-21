@@ -259,9 +259,10 @@ def overlay_metrics(cfg: dict | None = None) -> dict[str, float]:
 def build_overlay_layout(cfg: dict | None = None) -> str:
     m = overlay_metrics(cfg)
     ring = m["size_dp"]
-    btn = 36.0
+    btn = 45.0
     gap = 5.0
     frame = ring + 2.0 * (gap + btn)
+    btn_size = _fmt_dp(btn)
     size = _fmt_dp(ring)
     frame_size = _fmt_dp(frame)
     countdown = _fmt_sp(m["countdown_sp"])
@@ -276,9 +277,9 @@ def build_overlay_layout(cfg: dict | None = None) -> str:
             <TextView android:textSize="{loop}" android:textColor="@color/text_secondary" android:gravity="center" android:id="@id/intervalTimerLoopLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="" />
         </LinearLayout>
     </FrameLayout>
-    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerClose" android:background="@drawable/interval_timer_sound_chip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:text="&#215;" android:textAllCaps="false" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerReset" android:background="@drawable/interval_timer_sound_chip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:text="&#8635;" android:textAllCaps="false" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerPause" android:background="@drawable/interval_timer_sound_chip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:text="&#9208;" android:textAllCaps="false" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerClose" android:background="@drawable/round_circle_drawable_r20_red" android:layout_width="{btn_size}" android:layout_height="{btn_size}" android:text="&#215;" android:textAllCaps="false" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerReset" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="{btn_size}" android:layout_height="{btn_size}" android:text="&#8635;" android:textAllCaps="false" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerPause" android:background="@drawable/interval_timer_sound_chip" android:layout_width="{btn_size}" android:layout_height="{btn_size}" android:text="&#9208;" android:textAllCaps="false" />
 </FrameLayout>
 """
 

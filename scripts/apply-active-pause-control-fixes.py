@@ -206,7 +206,7 @@ LAMBDA_ADD_ALL_REPLACEMENT = """.method static synthetic lambda$addAllPartValue$
     return-void
 
     :cond_1
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
 
     move-result v0
 
@@ -216,12 +216,12 @@ LAMBDA_ADD_ALL_REPLACEMENT = """.method static synthetic lambda$addAllPartValue$
 
     invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
 
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addHz(I)V
 
     return-void
 
     :cond_2
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
 
     move-result v0
 
@@ -231,24 +231,9 @@ LAMBDA_ADD_ALL_REPLACEMENT = """.method static synthetic lambda$addAllPartValue$
 
     invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
 
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addHz(I)V
-
-    return-void
-
-    :cond_3
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_4
-
-    const/4 v0, 0x1
-
-    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
-
 __MA_STRENGTH_BODY__
 
-    :cond_4
+    :cond_3
     return-void
 .end method"""
 
@@ -817,6 +802,16 @@ __MUSIC_SYNC_GUARD__
     return-void
 
     :cond_strength
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
+
+    move-result v0
+
+    if-nez v0, :cond_ma_index_strength
+
     mul-int/lit8 v0, p2, 0x64
 
     div-int/lit8 v0, v0, 0x4b
@@ -839,16 +834,68 @@ __MUSIC_SYNC_GUARD__
 
     const/16 v3, 0x14
 
-    if-le v2, v3, :cond_0
+    if-le v2, v3, :cond_coupled_rate
 
     add-int/lit8 v0, v1, 0x14
 
-    :cond_0
+    :cond_coupled_rate
     iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {{v1, v0}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMainAndPauseStrenthFromSlider(I)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    return-void
+
+    :cond_ma_index_strength
+    mul-int/lit8 v0, p2, 0x64
+
+    div-int/lit8 v0, v0, 0x4b
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    sub-int v2, v0, v1
+
+    const/16 v3, 0x14
+
+    if-le v2, v3, :cond_ma_rate
+
+    add-int/lit8 v0, v1, 0x14
+
+    :cond_ma_rate
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
@@ -893,15 +940,28 @@ def patch_train_item() -> None:
     TRAIN_ITEM.write_text(text, encoding="utf-8")
 
 
+def _lambda_routing_ok(lambda_body: str) -> bool:
+    if "isMainModeSelected" in lambda_body:
+        return False
+    markers = (
+        "isPauseMaSelected()Z",
+        "isPauseHzSelected()Z",
+        "isHzSelected()Z",
+        "isMaSelected()Z",
+    )
+    positions = [lambda_body.find(m) for m in markers]
+    return all(pos >= 0 for pos in positions) and positions == sorted(positions)
+
+
 def patch_train_item_manager() -> None:
     text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
     lambda_body = text.split("lambda$addAllPartValue$6", 1)[-1].split(".end method", 1)[0]
-    if "->isPauseMaSelected()Z" in lambda_body.split("->isMainModeSelected()Z", 1)[0]:
-        print("TrainItemManager: pause index priority already patched")
+    if _lambda_routing_ok(lambda_body):
+        print("TrainItemManager: lambda$6 index routing already correct")
         return
     ma_body = (
         LAMBDA_ADD_ALL_MA_SYNC
-        if "MusicSyncBridge;->onMaStrengthDelta" in lambda_body
+        if "MusicSyncBridge;->onMaStrengthDelta" in text
         else LAMBDA_ADD_ALL_MA_PLAIN
     )
     replacement = LAMBDA_ADD_ALL_REPLACEMENT.replace("__MA_STRENGTH_BODY__", ma_body.rstrip())
@@ -915,19 +975,23 @@ def patch_train_item_manager() -> None:
     if "isPauseMaSelected()Z" not in text.split("lambda$addAllPartValue$6", 1)[-1].split(".method", 1)[0]:
         raise RuntimeError("TrainItemManager lambda$addAllPartValue$6 replacement failed")
     TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
-    print("TrainItemManager: route pause index before main mode")
+    print("TrainItemManager: route pause/hz/ma index for master +/-")
 
 
 def patch_seekbar_listener() -> None:
     pause_ma_id = lookup_public_id("id", "pauseMaValue")
     pause_hz_id = lookup_public_id("id", "pauseHzValue")
     hz_value_id = lookup_public_id("id", "hzValue")
+    manager_text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
     sync_bridge = (
         DECOMPILED
         / "smali_classes2/com/isaigu/gymapp/train/utils/MusicSyncBridge.smali"
     )
     global MUSIC_SYNC_GUARD
-    if not sync_bridge.exists():
+    if (
+        "MusicSyncBridge;->onMaStrengthDelta" not in manager_text
+        and not sync_bridge.exists()
+    ):
         MUSIC_SYNC_GUARD = ""
     listener = build_seekbar_listener(pause_ma_id, pause_hz_id, hz_value_id)
     TRAIN_VIEW_HOLDER_4.write_text(listener.strip() + "\n", encoding="utf-8")

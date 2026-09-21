@@ -11,6 +11,7 @@ import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -92,6 +93,9 @@ public final class MusicPlayerHelper {
     private static int dragHighlightIndex = -1;
     private static Runnable pendingDragStart;
     private static PlaylistDragListener activeDragListener;
+    private static View dragGhostView;
+    private static float dragGhostOffsetX;
+    private static float dragGhostOffsetY;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable progressRunnable = new ProgressTickRunnable();
@@ -614,6 +618,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void clearDragHighlight() {
+        removeDragGhost();
         if (playlistList == null) {
             dragHighlightIndex = -1;
             return;
@@ -630,6 +635,119 @@ public final class MusicPlayerHelper {
             pendingDragStart = null;
         }
         activeDragListener = null;
+    }
+
+    private static View findPlaylistRow(View handle) {
+        if (handle == null) {
+            return null;
+        }
+        View parent = handle;
+        while (parent.getParent() instanceof View) {
+            parent = (View) parent.getParent();
+            if (parent == playlistList) {
+                break;
+            }
+            if (parent.getParent() == playlistList) {
+                return parent;
+            }
+        }
+        if (handle.getParent() instanceof View) {
+            return (View) handle.getParent();
+        }
+        return null;
+    }
+
+    private static void showDragGhost(View row, float rawX, float rawY) {
+        removeDragGhost();
+        Activity activity = resolveHostActivity(row);
+        if (activity == null || row == null) {
+            return;
+        }
+        ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();
+        TextView titleView = (TextView) row.findViewById(ID_PLAYLIST_ITEM_TITLE);
+        CharSequence label = titleView != null ? titleView.getText() : "";
+
+        LinearLayout ghost = new LinearLayout(activity);
+        ghost.setOrientation(LinearLayout.HORIZONTAL);
+        ghost.setGravity(Gravity.CENTER_VERTICAL);
+        int padH = dp(activity, 8);
+        int padV = dp(activity, 6);
+        ghost.setPadding(padH, padV, padH, padV);
+        android.graphics.drawable.GradientDrawable ghostBg = new android.graphics.drawable.GradientDrawable();
+        ghostBg.setColor(0xFFF8F8F8);
+        ghostBg.setCornerRadius(dp(activity, 8));
+        ghostBg.setStroke(Math.max(1, dp(activity, 1)), 0xFFCCCCCC);
+        ghost.setBackground(ghostBg);
+        ghost.setAlpha(0.95f);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            ghost.setElevation(dp(activity, 10));
+        }
+
+        TextView ghostTitle = new TextView(activity);
+        ghostTitle.setText(label);
+        ghostTitle.setTextSize(14f);
+        ghostTitle.setTextColor(0xFF222222);
+        ghostTitle.setSingleLine(true);
+        ghostTitle.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        ghostTitle.setLayoutParams(new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView ghostHandle = new TextView(activity);
+        ghostHandle.setText("\u2630");
+        ghostHandle.setTextSize(16f);
+        ghostHandle.setTextColor(0xFF666666);
+        ghostHandle.setPadding(dp(activity, 6), 0, 0, 0);
+
+        ghost.addView(ghostTitle);
+        ghost.addView(ghostHandle);
+
+        int width = row.getWidth() > 0 ? row.getWidth() : dp(activity, OVERLAY_PANEL_WIDTH_DP - 16);
+        int height = row.getHeight() > 0 ? row.getHeight() : dp(activity, 40);
+
+        int[] rowLoc = new int[2];
+        row.getLocationOnScreen(rowLoc);
+        dragGhostOffsetX = rawX - rowLoc[0];
+        dragGhostOffsetY = rawY - rowLoc[1];
+
+        int[] decorLoc = new int[2];
+        decor.getLocationOnScreen(decorLoc);
+
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(width, height);
+        lp.gravity = Gravity.TOP | Gravity.LEFT;
+        lp.leftMargin = (int) (rawX - decorLoc[0] - dragGhostOffsetX);
+        lp.topMargin = (int) (rawY - decorLoc[1] - dragGhostOffsetY);
+        decor.addView(ghost, lp);
+        dragGhostView = ghost;
+    }
+
+    private static void moveDragGhost(float rawX, float rawY) {
+        if (dragGhostView == null) {
+            return;
+        }
+        ViewGroup parent = (ViewGroup) dragGhostView.getParent();
+        if (parent == null) {
+            return;
+        }
+        int[] decorLoc = new int[2];
+        parent.getLocationOnScreen(decorLoc);
+        ViewGroup.LayoutParams params = dragGhostView.getLayoutParams();
+        if (params instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) params;
+            lp.leftMargin = (int) (rawX - decorLoc[0] - dragGhostOffsetX);
+            lp.topMargin = (int) (rawY - decorLoc[1] - dragGhostOffsetY);
+            dragGhostView.setLayoutParams(lp);
+        }
+    }
+
+    private static void removeDragGhost() {
+        if (dragGhostView == null) {
+            return;
+        }
+        ViewGroup parent = (ViewGroup) dragGhostView.getParent();
+        if (parent != null) {
+            parent.removeView(dragGhostView);
+        }
+        dragGhostView = null;
     }
 
     private static int readSensitivity() {
@@ -819,9 +937,23 @@ public final class MusicPlayerHelper {
                 android.support.v7.app.AlertDialog.Builder builder =
                         new android.support.v7.app.AlertDialog.Builder(activity);
                 builder.setTitle(activity.getString(STR_INFO_TITLE));
-                builder.setMessage(activity.getString(STR_INFO_BODY));
+                android.widget.ScrollView scroll = new android.widget.ScrollView(activity);
+                int pad = dp(activity, 16);
+                TextView message = new TextView(activity);
+                message.setText(activity.getString(STR_INFO_BODY));
+                message.setTextSize(14f);
+                message.setTextColor(0xFF333333);
+                message.setLineSpacing(0f, 1.15f);
+                message.setPadding(pad, pad / 2, pad, pad / 2);
+                scroll.addView(message);
+                builder.setView(scroll);
                 builder.setPositiveButton(android.R.string.ok, null);
-                builder.show();
+                android.support.v7.app.AlertDialog dialog = builder.create();
+                dialog.show();
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    window.setLayout(dp(activity, 320), WindowManager.LayoutParams.WRAP_CONTENT);
+                }
             } catch (Throwable t) {
                 MusicDiagLog.logError("music_player_info", t);
             }
@@ -871,6 +1003,8 @@ public final class MusicPlayerHelper {
     static final class PlaylistDragListener implements View.OnTouchListener {
         private final int index;
         private float downRawY;
+        private float lastRawX;
+        private float lastRawY;
         private boolean dragging;
 
         PlaylistDragListener(int index) {
@@ -882,19 +1016,24 @@ public final class MusicPlayerHelper {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     downRawY = event.getRawY();
+                    lastRawX = event.getRawX();
+                    lastRawY = event.getRawY();
                     dragging = false;
                     dragFromIndex = index;
                     cancelPendingDrag();
                     activeDragListener = this;
-                    pendingDragStart = new DragStartRunnable(this, v);
+                    pendingDragStart = new DragStartRunnable(this, v, lastRawX, lastRawY);
                     handler.postDelayed(pendingDragStart, DRAG_LONG_PRESS_MS);
                     if (v.getParent() != null) {
                         v.getParent().requestDisallowInterceptTouchEvent(true);
                     }
                     return true;
                 case MotionEvent.ACTION_MOVE:
+                    lastRawX = event.getRawX();
+                    lastRawY = event.getRawY();
                     if (dragging) {
-                        highlightDropTarget(resolveDropIndex(event.getRawY()));
+                        moveDragGhost(lastRawX, lastRawY);
+                        highlightDropTarget(resolveDropIndex(lastRawY));
                         return true;
                     }
                     Activity activity = resolveHostActivity(v);
@@ -925,12 +1064,17 @@ public final class MusicPlayerHelper {
             }
         }
 
-        void beginDrag(View v) {
+        void beginDrag(View handle, float rawX, float rawY) {
             dragging = true;
             dragFromIndex = index;
             try {
-                v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                handle.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             } catch (Throwable ignored) {
+            }
+            View row = findPlaylistRow(handle);
+            if (row != null) {
+                row.setAlpha(0.25f);
+                showDragGhost(row, rawX, rawY);
             }
             highlightDropTarget(index);
         }
@@ -939,16 +1083,20 @@ public final class MusicPlayerHelper {
     static final class DragStartRunnable implements Runnable {
         private final PlaylistDragListener listener;
         private final View handle;
+        private final float rawX;
+        private final float rawY;
 
-        DragStartRunnable(PlaylistDragListener listener, View handle) {
+        DragStartRunnable(PlaylistDragListener listener, View handle, float rawX, float rawY) {
             this.listener = listener;
             this.handle = handle;
+            this.rawX = rawX;
+            this.rawY = rawY;
         }
 
         @Override
         public void run() {
             if (activeDragListener == listener) {
-                listener.beginDrag(handle);
+                listener.beginDrag(handle, rawX, rawY);
             }
         }
     }

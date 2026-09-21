@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 976
+    .line 1124
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public run()V
     .registers 4
 
-    .line 979
+    .line 1127
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result v0
@@ -47,14 +47,14 @@
 
     goto :goto_1a
 
-    .line 982
+    .line 1130
     :cond_d
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshSeekFromPlayer()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2100()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2400()V
 
-    .line 983
+    .line 1131
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1300()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1400()Landroid/os/Handler;
 
     move-result-object v0
 
@@ -62,10 +62,10 @@
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 984
+    .line 1132
     return-void
 
-    .line 980
+    .line 1128
     :cond_1a
     :goto_1a
     return-void

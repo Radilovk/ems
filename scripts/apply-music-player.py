@@ -176,7 +176,7 @@ EN_STRINGS = """
     <string name="beta_music_player_close">Close player</string>
     <string name="beta_music_player_brand">Beat Impulse Sync&#174;</string>
     <string name="beta_music_player_info_title">About Beat Impulse Sync</string>
-    <string name="beta_music_player_info_body">Beat Impulse Sync plays music and drives EMS pulses in time with the beat. Add a participant, set the strength ceiling on their row, add tracks, then press Play. Adjust Sensitivity for how strongly music affects pulse intensity. Use the menu button for controls and playlist; hold the handle to reorder tracks; press X to stop.</string>
+    <string name="beta_music_player_info_body">Beat Impulse Sync plays your music and changes EMS pulse strength with the rhythm.\\n\\n1. Add a participant on the train screen.\\n2. Set the strength limit (MA) on their row.\\n3. Add tracks and press Play.\\n4. Sensitivity controls how strongly the music affects pulses.\\n\\nThe menu button opens controls and the playlist. Hold the handle (☰) on a track to drag and reorder. X stops playback and closes the player.</string>
 """
 
 BG_STRINGS = """
@@ -202,7 +202,7 @@ BG_STRINGS = """
     <string name="beta_music_player_close">Затвори плейъра</string>
     <string name="beta_music_player_brand">Beat Impulse Sync&#174;</string>
     <string name="beta_music_player_info_title">За Beat Impulse Sync</string>
-    <string name="beta_music_player_info_body">Beat Impulse Sync пуска музика и синхронизира EMS импулсите с ритъма. Добавете участник, задайте таван на силата на реда му, добавете песни и натиснете Пусни. Регулирайте Чувствителността за сила на синхронизацията. Менюто показва контроли и плейлист; задръжте маркера за пренареждане; X спира и затваря.</string>
+    <string name="beta_music_player_info_body">Beat Impulse Sync пуска музика и променя силата на EMS импулсите според ритъма.\\n\\n1. Добавете участник на екрана за тренировка.\\n2. Задайте лимит на силата (MA) на реда му.\\n3. Добавете песни и натиснете Пусни.\\n4. Чувствителност регулира колко силно музиката влияе на импулсите.\\n\\nБутонът с менюто (☰) отваря контроли и плейлист. Задръжте маркера ☰ до песен и влачете за пренареждане. X спира възпроизвеждането и затваря плейъра.</string>
 """
 
 FRAGMENT_HOOK = """

@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import re
-import shutil
 import sys
 from pathlib import Path
 
@@ -22,7 +21,6 @@ NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/New
 NEW_TRAIN_FRAGMENT_LISTENER = (
     DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment$2.smali"
 )
-BRANDING_SMALI = ROOT / "branding" / "smali"
 PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
 R_ID = DECOMPILED / "smali_classes2/com/isaigu/gymapp/R$id.smali"
@@ -229,9 +227,6 @@ ADD_EMPTY_ITEM_SINGLE_SLOT = """.method private addEmptyItem()V
 
     .line 110
     :cond_3
-    if-nez v0, :cond_4
-
-    .line 111
     const/4 v2, 0x1
 
     iget-object v3, p0, Lcom/isaigu/gymapp/train/TrainItemManager;->itemList:Ljava/util/List;
@@ -243,7 +238,6 @@ ADD_EMPTY_ITEM_SINGLE_SLOT = """.method private addEmptyItem()V
     invoke-interface {v3, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     .line 117
-    :cond_4
     return-void
 .end method
 """
@@ -276,46 +270,6 @@ ALL_ADD_ORIGINAL = """.method public synthetic lambda$onCreateView$2$NewTrainFra
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->addAllPartValue(I)V
 
-    return-void
-.end method"""
-
-ONCREATE_ATTACH_HOOK = """    invoke-direct {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->updateMuscleSelectionVisual()V
-
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/TrainAddParticipantHelper;->attach(Lcom/isaigu/gymapp/fragment/NewTrainFragment;Landroid/view/View;)V
-
-    return-object v0
-.end method"""
-
-ONCREATE_ATTACH_ORIGINAL = """    invoke-direct {p0}, Lcom/isaigu/gymapp/fragment/NewTrainFragment;->updateMuscleSelectionVisual()V
-
-    return-object v0
-.end method"""
-
-ON_DEVICE_CONNECTED_REFRESH = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainAdapter;->notifyDataSetChanged()V
-
-    invoke-static {}, Lcom/isaigu/gymapp/train/TrainAddParticipantHelper;->refresh()V
-
-    .line 71
-    return-void
-.end method"""
-
-ON_DEVICE_CONNECTED_ORIGINAL = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainAdapter;->notifyDataSetChanged()V
-
-    .line 71
-    return-void
-.end method"""
-
-LISTENER_DELETE_REFRESH = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainAdapter;->notifyDataSetChanged()V
-
-    invoke-static {}, Lcom/isaigu/gymapp/train/TrainAddParticipantHelper;->refresh()V
-
-    .line 193
-    return-void
-.end method"""
-
-LISTENER_DELETE_ORIGINAL = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainAdapter;->notifyDataSetChanged()V
-
-    .line 193
     return-void
 .end method"""
 
@@ -447,8 +401,8 @@ def restore_user_item_layout(path: Path) -> None:
 
 def patch_train_item_manager() -> None:
     text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
-    if "if-nez v0, :cond_4" in text and "addEmptyItem()V\n    .locals 0" not in text:
-        print("TrainItemManager: single initial empty slot already patched")
+    if ":cond_3\n    const/4 v2, 0x1\n\n    iget-object v3" in text:
+        print("TrainItemManager: trailing empty add slot already patched")
         return
     if not ADD_EMPTY_ITEM_RE.search(text):
         raise RuntimeError("TrainItemManager.addEmptyItem marker not found")
@@ -456,7 +410,7 @@ def patch_train_item_manager() -> None:
         ADD_EMPTY_ITEM_RE.sub(ADD_EMPTY_ITEM_SINGLE_SLOT + "\n", text, count=1),
         encoding="utf-8",
     )
-    print("TrainItemManager: one empty slot before first user, none after")
+    print("TrainItemManager: trailing empty add slot when fewer than 6 users")
 
 
 def revert_sidebar_alladd_click() -> None:
@@ -587,36 +541,35 @@ def revert_footer_smali() -> None:
         print("TrainViewHolder: reverted footer bind bug, ready for row overlay")
 
 
-def install_train_add_participant_helper() -> None:
-    dest_dir = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train"
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    matches = sorted(BRANDING_SMALI.glob("TrainAddParticipantHelper*.smali"))
-    if not matches:
-        raise RuntimeError(
-            "TrainAddParticipantHelper.smali missing — run scripts/compile-music-sync-java.sh"
-        )
-    for src in matches:
-        shutil.copy2(src, dest_dir / src.name)
-        print(f"installed train/{src.name}")
+def purge_train_add_participant_helper() -> None:
+    """Remove broken 1.1.30 helper hooks/classes — they crashed right after login."""
+    train_dir = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train"
+    for path in train_dir.glob("TrainAddParticipantHelper*.smali"):
+        path.unlink()
+        print(f"removed train/{path.name}")
 
+    helper_attach_re = re.compile(
+        r"\n\s*invoke-static \{p0, v0\}, Lcom/isaigu/gymapp/train/TrainAddParticipantHelper;"
+        r"->attach\(Lcom/isaigu/gymapp/fragment/NewTrainFragment;Landroid/view/View;\)V\n?"
+    )
+    helper_refresh_re = re.compile(
+        r"\n\s*invoke-static \{\}, Lcom/isaigu/gymapp/train/TrainAddParticipantHelper;->refresh\(\)V\n?"
+    )
 
-def patch_new_train_fragment() -> None:
-    text = NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")
-    if "TrainAddParticipantHelper;->attach" not in text:
-        if ONCREATE_ATTACH_ORIGINAL not in text:
-            raise RuntimeError("NewTrainFragment.onCreateView attach marker not found")
-        text = text.replace(ONCREATE_ATTACH_ORIGINAL, ONCREATE_ATTACH_HOOK, 1)
-        print("NewTrainFragment: attach floating add-user helper")
-    if ON_DEVICE_CONNECTED_ORIGINAL in text:
-        text = text.replace(ON_DEVICE_CONNECTED_ORIGINAL, ON_DEVICE_CONNECTED_REFRESH, 1)
-        print("NewTrainFragment: refresh add-user overlay after connect")
-    NEW_TRAIN_FRAGMENT.write_text(text, encoding="utf-8")
+    if NEW_TRAIN_FRAGMENT.is_file():
+        text = NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")
+        new_text = helper_attach_re.sub("\n", text, count=1)
+        new_text = helper_refresh_re.sub("\n", new_text)
+        if new_text != text:
+            NEW_TRAIN_FRAGMENT.write_text(new_text, encoding="utf-8")
+            print("NewTrainFragment: removed TrainAddParticipantHelper hooks")
 
-    listener = NEW_TRAIN_FRAGMENT_LISTENER.read_text(encoding="utf-8")
-    if LISTENER_DELETE_ORIGINAL in listener and "TrainAddParticipantHelper;->refresh" not in listener:
-        listener = listener.replace(LISTENER_DELETE_ORIGINAL, LISTENER_DELETE_REFRESH, 1)
-        NEW_TRAIN_FRAGMENT_LISTENER.write_text(listener, encoding="utf-8")
-        print("NewTrainFragment listener: refresh add-user overlay after delete")
+    if NEW_TRAIN_FRAGMENT_LISTENER.is_file():
+        listener = NEW_TRAIN_FRAGMENT_LISTENER.read_text(encoding="utf-8")
+        new_listener = helper_refresh_re.sub("\n", listener)
+        if new_listener != listener:
+            NEW_TRAIN_FRAGMENT_LISTENER.write_text(new_listener, encoding="utf-8")
+            print("NewTrainFragment listener: removed TrainAddParticipantHelper refresh")
 
 
 def main() -> int:
@@ -635,9 +588,8 @@ def main() -> int:
     patch_train_item_manager()
     revert_sidebar_alladd_click()
     revert_footer_smali()
-    install_train_add_participant_helper()
-    patch_new_train_fragment()
-    print("Train participant UI patches applied (stable layout, floating add-user helper).")
+    purge_train_add_participant_helper()
+    print("Train participant UI patches applied (stable layout, trailing empty add slot).")
     return 0
 
 

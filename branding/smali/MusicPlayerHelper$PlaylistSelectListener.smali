@@ -25,13 +25,13 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 860
+    .line 992
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 861
+    .line 993
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistSelectListener;->index:I
 
-    .line 862
+    .line 994
     return-void
 .end method
 
@@ -40,18 +40,18 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 866
+    .line 998
     iget p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistSelectListener;->index:I
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(I)I
 
-    .line 867
+    .line 999
     const/4 p1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->startCurrentTrack(Z)Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$300(Z)Z
 
-    .line 868
+    .line 1000
     return-void
 .end method

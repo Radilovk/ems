@@ -654,8 +654,18 @@ public class MusicSync {
         lastPushedApplied = -1;
         ensureHandler();
         handler.removeCallbacks(applyRunnable);
-        MasterStrengthControl.setMasterStrength(0, true, false);
+        MasterStrengthControl.sendImpulseLevel(0);
+        MasterStrengthControl.resetApplied();
         maybeUpdateUi();
+    }
+
+    private static void resumeImpulseOutput() {
+        lastPushedApplied = -1;
+        pendingApplied = 0;
+        playerSmoothedSound = 0f;
+        trainingGateOpen = true;
+        pausedByTraining = false;
+        MasterStrengthControl.resetApplied();
     }
 
     public static int getPlaybackPositionMs() {
@@ -691,6 +701,7 @@ public class MusicSync {
             freezeImpulseOutput();
         } else {
             pausedByTraining = false;
+            resumeImpulseOutput();
             engine.resumePlayback();
         }
         MusicPlayerHelper.refreshTransportState();

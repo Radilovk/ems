@@ -68,6 +68,8 @@ public final class MusicPlayerHelper {
     private static final int OVERLAY_SIZE_DP = 192;
     private static final int OVERLAY_PANEL_WIDTH_DP = 260;
     private static final int SEEK_MAX = 1000;
+    /** CircleSeekBar touch arc is 270deg; widget max maps that arc to full track length. */
+    private static final int SEEK_WIDGET_MAX = (SEEK_MAX * 360) / 270;
     private static final long PROGRESS_TICK_MS = 200L;
     private static final long DRAG_LONG_PRESS_MS = 280L;
     private static final long PLAY_DEBOUNCE_MS = 450L;
@@ -114,6 +116,7 @@ public final class MusicPlayerHelper {
     private static ScrollView playlistScrollView;
     private static int dragRowHeightPx;
     private static long lastPlayClickMs;
+    private static int savedSensitivity = 20;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable progressRunnable = new ProgressTickRunnable();
@@ -132,8 +135,7 @@ public final class MusicPlayerHelper {
         itemManager = manager;
         button.setClickable(true);
         button.setEnabled(true);
-        button.setFocusable(true);
-        button.setFocusableInTouchMode(true);
+        button.setFocusable(false);
         button.setOnClickListener(new MasterOpenListener(root, manager));
     }
 
@@ -149,7 +151,13 @@ public final class MusicPlayerHelper {
         MusicSync.setHostActivity(activity);
         MusicSync.setTargetItem(item);
         if (isOverlayShowing()) {
+            hidePlayerOverlay();
             return;
+        }
+        if (overlayDialog != null) {
+            if (reShowOverlay(activity)) {
+                return;
+            }
         }
         loadPlaylist(activity);
         if (!showOverlay(activity)) {
@@ -572,8 +580,10 @@ public final class MusicPlayerHelper {
             return;
         }
         try {
-            seekBar.setMaxProcess(SEEK_MAX);
+            seekBar.setMaxProcess(SEEK_WIDGET_MAX);
             seekBar.setCurProcess(0);
+            seekBar.setClickable(true);
+            seekBar.setFocusable(true);
             seekBar.setOnSeekBarChangeListener(new SeekChangeListener());
         } catch (Throwable ignored) {
         }
@@ -588,7 +598,7 @@ public final class MusicPlayerHelper {
             sensitivityView.setGoods_storage(100);
             sensitivityView.setStep(5);
             sensitivityView.setAmountUnit("%");
-            sensitivityView.setAmount(20);
+            sensitivityView.setAmount(savedSensitivity);
         } catch (Throwable ignored) {
         }
     }
@@ -660,11 +670,11 @@ public final class MusicPlayerHelper {
             seekBar.setCurProcess(0);
             return;
         }
-        int progress = (int) ((position * (long) SEEK_MAX) / duration);
+        int progress = (int) ((position * (long) SEEK_WIDGET_MAX) / duration);
         if (progress < 0) {
             progress = 0;
-        } else if (progress > SEEK_MAX) {
-            progress = SEEK_MAX;
+        } else if (progress > SEEK_WIDGET_MAX) {
+            progress = SEEK_WIDGET_MAX;
         }
         seekBar.setCurProcess(progress);
     }
@@ -1143,12 +1153,57 @@ public final class MusicPlayerHelper {
 
     private static int readSensitivity() {
         if (sensitivityView == null) {
-            return 20;
+            return savedSensitivity;
         }
         try {
             return sensitivityView.getAmount();
         } catch (Throwable ignored) {
-            return 20;
+            return savedSensitivity;
+        }
+    }
+
+    private static void saveSensitivity() {
+        savedSensitivity = readSensitivity();
+    }
+
+    private static void hidePlayerOverlay() {
+        saveSensitivity();
+        stopProgressUpdates();
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            requestTrainingPause();
+            MusicSync.stop();
+        }
+        if (overlayDialog != null) {
+            try {
+                overlayDialog.hide();
+            } catch (Throwable ignored) {
+            }
+        }
+        overlayVisible = false;
+    }
+
+    private static boolean reShowOverlay(Activity activity) {
+        if (overlayDialog == null || activity == null || activity.isFinishing()) {
+            return false;
+        }
+        try {
+            overlayDialog.show();
+            overlayVisible = true;
+            applyExpandedState();
+            refreshTrackTitle();
+            refreshSeekFromPlayer();
+            refreshTransportState();
+            if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+                startProgressUpdates();
+            } else {
+                showIdle();
+            }
+            return true;
+        } catch (Throwable t) {
+            MusicDiagLog.logError("music_player_overlay_reshow", t);
+            overlayDialog = null;
+            clearOverlayRefs();
+            return false;
         }
     }
 
@@ -1174,6 +1229,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void closePlayer() {
+        saveSensitivity();
         requestTrainingStop();
         MusicSync.stop();
         dismissOverlay(false);
@@ -1199,6 +1255,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void clearOverlayRefs() {
+        saveSensitivity();
         overlayContent = null;
         seekBar = null;
         playPauseBtn = null;
@@ -1304,13 +1361,16 @@ public final class MusicPlayerHelper {
             }
             if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
                 if (MusicSync.isPlaybackPaused()) {
-                    MusicSync.togglePlaybackPause();
                     onPlaybackResumedByUser();
+                    MusicSync.togglePlaybackPause();
                 } else {
+                    // Pause playback before stopping training — syncWithTrainingState(false)
+                    // would pause the engine first and break togglePlaybackPause().
                     MusicSync.togglePlaybackPause();
                     onPlaybackPausedByUser();
                 }
                 updatePlayPauseLabel();
+                startProgressUpdates();
                 return;
             }
             if (currentIndex < 0 && !playlist.isEmpty()) {
@@ -1503,7 +1563,7 @@ public final class MusicPlayerHelper {
         public void onChanged(CircleSeekBar seekbar, int progress) {
             userSeeking = true;
             int duration = MusicSync.getPlaybackDurationMs();
-            int position = duration > 0 ? (int) ((progress * (long) duration) / SEEK_MAX) : 0;
+            int position = duration > 0 ? (int) ((progress * (long) duration) / SEEK_WIDGET_MAX) : 0;
             updateTimeLabel(position, duration);
         }
 
@@ -1511,7 +1571,15 @@ public final class MusicPlayerHelper {
         public void onChangedEnd(CircleSeekBar seekbar, int progress) {
             int duration = MusicSync.getPlaybackDurationMs();
             if (duration > 0) {
-                int position = (int) ((progress * (long) duration) / SEEK_MAX);
+                int clamped = progress;
+                if (clamped < 0) {
+                    clamped = 0;
+                } else if (clamped > SEEK_WIDGET_MAX) {
+                    clamped = SEEK_WIDGET_MAX;
+                }
+                int position = clamped >= SEEK_WIDGET_MAX
+                        ? duration
+                        : (int) ((clamped * (long) duration) / SEEK_WIDGET_MAX);
                 MusicSync.seekPlaybackTo(position);
             }
             userSeeking = false;
@@ -1583,6 +1651,7 @@ public final class MusicPlayerHelper {
                 overlayVisible = false;
                 return;
             }
+            saveSensitivity();
             overlayDialog = null;
             overlayVisible = false;
             MusicSync.stop();

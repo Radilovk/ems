@@ -191,6 +191,32 @@ public final class MasterStrengthControl {
         lastApplied = -1;
     }
 
+    /**
+     * Send one impulse level over BLE without changing program strength, ceiling, or UI slider.
+     */
+    public static void sendImpulseLevel(int percent) {
+        percent = clamp(percent);
+        TrainItem item = targetItem;
+        if (item == null || item.data == null || !item.data.connected || !shouldSendBle(item)) {
+            return;
+        }
+        TrainProgram program = item.getTrainProgram();
+        if (program == null) {
+            return;
+        }
+        ProgramDataBean bean = program.matchProgram();
+        if (bean == null) {
+            return;
+        }
+        int savedStrength = bean.strenth;
+        try {
+            bean.strenth = percent;
+            item.onParamsChange();
+        } finally {
+            bean.strenth = savedStrength;
+        }
+    }
+
     /** Update MA label after ceiling change without a new BLE write. */
     public static void refreshSyncLabel() {
         if (!syncActive) {

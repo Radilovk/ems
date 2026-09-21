@@ -202,24 +202,24 @@
 .method private static clamp(I)I
     .registers 2
 
-    .line 206
+    .line 232
     if-gez p0, :cond_4
 
-    .line 207
+    .line 233
     const/4 p0, 0x0
 
     return p0
 
-    .line 209
+    .line 235
     :cond_4
     const/16 v0, 0x64
 
     if-le p0, v0, :cond_9
 
-    .line 210
+    .line 236
     return v0
 
-    .line 212
+    .line 238
     :cond_9
     return p0
 .end method
@@ -321,15 +321,15 @@
 .method public static refreshSyncLabel()V
     .registers 3
 
-    .line 196
+    .line 222
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->syncActive:Z
 
     if-nez v0, :cond_5
 
-    .line 197
+    .line 223
     return-void
 
-    .line 199
+    .line 225
     :cond_5
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->maLabelRef:Ljava/lang/ref/WeakReference;
 
@@ -346,11 +346,11 @@
     :cond_10
     const/4 v0, 0x0
 
-    .line 200
+    .line 226
     :goto_11
     if-eqz v0, :cond_35
 
-    .line 201
+    .line 227
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -379,7 +379,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 203
+    .line 229
     :cond_35
     return-void
 .end method
@@ -415,6 +415,99 @@
     move-result p0
 
     return p0
+.end method
+
+.method public static sendImpulseLevel(I)V
+    .registers 4
+
+    .line 198
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->clamp(I)I
+
+    move-result p0
+
+    .line 199
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->targetItem:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    .line 200
+    if-eqz v0, :cond_36
+
+    iget-object v1, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v1, :cond_36
+
+    iget-object v1, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z
+
+    if-eqz v1, :cond_36
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->shouldSendBle(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_19
+
+    goto :goto_36
+
+    .line 203
+    :cond_19
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v1
+
+    .line 204
+    if-nez v1, :cond_20
+
+    .line 205
+    return-void
+
+    .line 207
+    :cond_20
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    .line 208
+    if-nez v1, :cond_27
+
+    .line 209
+    return-void
+
+    .line 211
+    :cond_27
+    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    .line 213
+    :try_start_29
+    iput p0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    .line 214
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
+    :try_end_2e
+    .catchall {:try_start_29 .. :try_end_2e} :catchall_32
+
+    .line 216
+    iput v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    .line 217
+    nop
+
+    .line 218
+    return-void
+
+    .line 216
+    :catchall_32
+    move-exception p0
+
+    iput v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    .line 217
+    throw p0
+
+    .line 201
+    :cond_36
+    :goto_36
+    return-void
 .end method
 
 .method public static setCeiling(I)V

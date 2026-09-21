@@ -238,6 +238,83 @@ ADD_PAUSE_STRENTH_METHOD = """
 .end method
 """
 
+ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
+.method public addMainAndPauseStrenth(I)V
+    .locals 3
+    .param p1, "value"    # I
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v0
+
+    iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    add-int/2addr v1, p1
+
+    const/16 v2, 0x64
+
+    if-le v1, v2, :cond_main_cap
+
+    const/16 v1, 0x64
+
+    :cond_main_cap
+    if-gez v1, :cond_main_floor
+
+    const/4 v1, 0x0
+
+    :cond_main_floor
+    iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    add-int/2addr v1, p1
+
+    if-le v1, v2, :cond_pause_cap
+
+    const/16 v1, 0x64
+
+    :cond_pause_cap
+    if-gez v1, :cond_pause_floor
+
+    const/4 v1, 0x0
+
+    :cond_pause_floor
+    iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
+
+    return-void
+.end method
+"""
+
+LAMBDA_ADD_ALL_FALLBACK_OLD = """.method static synthetic lambda$addAllPartValue$7(ILcom/isaigu/gymapp/train/model/TrainItem;)V
+    .locals 0
+    .param p0, "value"    # I
+    .param p1, "i"    # Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    .line 72
+    invoke-virtual {p1, p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->addAllPartValue(I)V
+
+    return-void
+.end method"""
+
+LAMBDA_ADD_ALL_FALLBACK_NEW = """.method static synthetic lambda$addAllPartValue$7(ILcom/isaigu/gymapp/train/model/TrainItem;)V
+    .locals 0
+    .param p0, "value"    # I
+    .param p1, "i"    # Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    .line 72
+    invoke-virtual {p1, p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
+
+    return-void
+.end method"""
+
 PAUSE_HZ_SELECTED_INIT = """    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseHzSelected:Z
@@ -1723,6 +1800,22 @@ def patch_train_item() -> None:
         )
         print("TrainItem: updated addPauseStrenth() to use matchProgram()")
 
+    if "addMainAndPauseStrenth(I)V" not in text:
+        marker = ".method public addPauseStrenth(I)V"
+        if marker not in text:
+            marker = ".method public addStrenth(I)V"
+        text = text.replace(marker, ADD_MAIN_AND_PAUSE_STRENTH_METHOD.strip() + "\n\n" + marker, 1)
+        print("TrainItem: added addMainAndPauseStrenth()")
+    else:
+        text = re.sub(
+            r"\.method public addMainAndPauseStrenth\(I\)V.*?\.end method",
+            ADD_MAIN_AND_PAUSE_STRENTH_METHOD.strip(),
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        print("TrainItem: updated addMainAndPauseStrenth()")
+
     if "pauseMaSelected:Z" not in text:
         if "pauseHzSelected:Z" not in text:
             text = text.replace(
@@ -2212,6 +2305,27 @@ def patch_train_item_manager() -> None:
     raise RuntimeError("TrainItemManager lambda marker not found")
 
 
+def patch_train_item_manager_fallback() -> None:
+    text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
+    if "addMainAndPauseStrenth(I)V" in text.split("lambda$addAllPartValue$7", 1)[-1].split(".method", 1)[0]:
+        print("TrainItemManager: master +/- fallback already uses main+pause strength")
+        return
+    if LAMBDA_ADD_ALL_FALLBACK_OLD in text:
+        TRAIN_ITEM_MANAGER.write_text(
+            text.replace(LAMBDA_ADD_ALL_FALLBACK_OLD, LAMBDA_ADD_ALL_FALLBACK_NEW, 1),
+            encoding="utf-8",
+        )
+        print("TrainItemManager: master +/- fallback adjusts main and pause strength")
+        return
+    old = "invoke-virtual {p1, p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->addAllPartValue(I)V"
+    new = "invoke-virtual {p1, p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V"
+    if old in text.split("lambda$addAllPartValue$7", 1)[-1].split(".method", 1)[0]:
+        TRAIN_ITEM_MANAGER.write_text(text.replace(old, new, 1), encoding="utf-8")
+        print("TrainItemManager: master +/- fallback adjusts main and pause strength")
+        return
+    raise RuntimeError("TrainItemManager lambda$addAllPartValue$7 marker not found")
+
+
 def write_listener() -> None:
     (TRAIN_DIR / "TrainPauseMaValueClickListener.smali").write_text(
         PAUSE_MA_CLICK_LISTENER.strip() + "\n",
@@ -2236,6 +2350,7 @@ def main() -> None:
     patch_hz_listener()
     patch_seekbar_listener_simple(pause_ma_id, pause_hz_id)
     patch_train_item_manager()
+    patch_train_item_manager_fallback()
     write_listener()
     print("Active pause avatar button patches applied.")
 

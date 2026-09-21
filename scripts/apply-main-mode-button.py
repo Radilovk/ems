@@ -60,29 +60,6 @@ MAIN_MODE_BTN_USER = (
     f'android:text="@string/{MAIN_MODE_STRING}" android:textAllCaps="true" />'
 )
 
-IS_MAIN_MODE_METHOD = """
-.method public isMainModeSelected()Z
-    .locals 1
-
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    move-result-object v0
-
-    iget v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
-
-    if-nez v0, :cond_not_main
-
-    const/4 v0, 0x1
-
-    return v0
-
-    :cond_not_main
-    const/4 v0, 0x0
-
-    return v0
-.end method
-""".strip()
-
 MAIN_MODE_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainMainModeClickListener;
 .super Ljava/lang/Object;
 .source "TrainMainModeClickListener.java"
@@ -125,81 +102,22 @@ MAIN_MODE_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainMainMo
 .end method
 """
 
-LAMBDA_MAIN_MODE_HEAD_WRONG = """    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+MAIN_MODE_PLUS_MINUS_BLOCK = re.compile(
+    r"\n    :cond_ma\n"
+    r"    invoke-virtual \{p2\}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected\(\)Z\n"
+    r".*?"
+    r"    :cond_main_mode\n"
+    r"    return-void",
+    re.DOTALL,
+)
 
-    move-result v0
-
-    if-eqz v0, :cond_main_mode
-
-    const/4 v0, 0x1
-
-    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
-
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
-
-    return-void
-
-    :cond_main_mode
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z"""
-
-LAMBDA_MAIN_MODE_AFTER_MA = """    :cond_ma
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_main_mode
-
-    const/4 v0, 0x1
-
-    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
-
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
-
-    :cond_main_mode
-    return-void"""
-
-LAMBDA_MAIN_MODE_BROKEN_MUSIC = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
-
-    move-result v0
-
-    if-nez v0, :cond_4
-
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
-
-    :cond_4
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_main_mode
-
-    const/4 v0, 0x1
-
-    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
-
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
-
-    :cond_main_mode
-    return-void
-.end method"""
-
-LAMBDA_MAIN_MODE_BROKEN_INLINE = """    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
-
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_main_mode
-
-    const/4 v0, 0x1
-
-    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
-
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
-
-    :cond_main_mode
-    return-void
-.end method"""
+MAIN_MODE_PLUS_MINUS_HEAD = re.compile(
+    r"    invoke-virtual \{p2\}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected\(\)Z\n"
+    r".*?"
+    r"    :cond_main_mode\n"
+    r"    invoke-virtual \{p2\}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected\(\)Z",
+    re.DOTALL,
+)
 
 
 def next_id_value() -> int:
@@ -383,8 +301,8 @@ def patch_train_item() -> None:
     text = TRAIN_ITEM.read_text(encoding="utf-8")
 
     text = re.sub(
-        r"\.method public isMainModeSelected\(\)Z.*?\.end method",
-        IS_MAIN_MODE_METHOD,
+        r"\n\.method public isMainModeSelected\(\)Z.*?\.end method\n",
+        "\n",
         text,
         count=1,
         flags=re.DOTALL,
@@ -403,12 +321,6 @@ def patch_train_item() -> None:
         count=1,
         flags=re.DOTALL,
     )
-    if "isMainModeSelected()Z" not in text:
-        text = text.replace(
-            ".method public isMaSelected()Z",
-            IS_MAIN_MODE_METHOD + "\n\n.method public isMaSelected()Z",
-            1,
-        )
 
     if "mainModeSelected:Z" in text:
         text = text.replace(".field private mainModeSelected:Z\n\n", "")
@@ -436,85 +348,28 @@ def patch_train_item() -> None:
         print("TrainItem: main mode follows useType=0")
 
     TRAIN_ITEM.write_text(text, encoding="utf-8")
-    print("TrainItem: isMainModeSelected() uses useType")
+    print("TrainItem: cleaned legacy main-mode state")
+
+
+def strip_main_mode_from_plus_minus(text: str) -> str:
+    """+/- routing is index-only; mode buttons must not affect master controls."""
+    original = text
+    if MAIN_MODE_PLUS_MINUS_HEAD.search(text):
+        text = MAIN_MODE_PLUS_MINUS_HEAD.sub(
+            "    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z",
+            text,
+            count=1,
+        )
+    text = MAIN_MODE_PLUS_MINUS_BLOCK.sub("\n    :cond_ma\n    return-void", text)
+    if text != original:
+        print("TrainItemManager: +/- uses index selection only (not mode button)")
+    return text
 
 
 def patch_train_item_manager() -> None:
     text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
-    pause_head = "    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z"
-
-    if LAMBDA_MAIN_MODE_HEAD_WRONG.split("\n", 1)[0] in text:
-        text = text.replace(LAMBDA_MAIN_MODE_HEAD_WRONG, pause_head, 1)
-        print("TrainItemManager: moved main mode routing after avatar indices")
-
-    if LAMBDA_MAIN_MODE_BROKEN_MUSIC in text:
-        text = text.replace(
-            LAMBDA_MAIN_MODE_BROKEN_MUSIC,
-            """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
-
-    move-result v0
-
-    if-nez v0, :cond_ma_return
-
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
-
-    :cond_ma_return
-    return-void
-
-"""
-            + LAMBDA_MAIN_MODE_AFTER_MA
-            + "\n.end method",
-            1,
-        )
-        print("TrainItemManager: fixed music-sync main mode routing")
-
-    if LAMBDA_MAIN_MODE_BROKEN_INLINE in text:
-        text = text.replace(
-            LAMBDA_MAIN_MODE_BROKEN_INLINE,
-            "    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V\n\n    return-void\n\n"
-            + LAMBDA_MAIN_MODE_AFTER_MA
-            + "\n.end method",
-            1,
-        )
-        print("TrainItemManager: fixed inline main mode routing after MA")
-
-    lambda_body = text.split("lambda$addAllPartValue$6", 1)[-1].split(".method", 1)[0]
-    if "isMainModeSelected()Z" in lambda_body:
-        ma_pos = lambda_body.find("isMaSelected()Z")
-        main_pos = lambda_body.find("isMainModeSelected()Z")
-        if ma_pos != -1 and main_pos > ma_pos and ":cond_ma_return" in lambda_body:
-            TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
-            print("TrainItemManager: main mode routing after avatar indices")
-            return
-        if ma_pos != -1 and main_pos > ma_pos and "return-void\n\n    :cond_ma\n" in lambda_body:
-            TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
-            print("TrainItemManager: main mode routing after avatar indices")
-            return
-
-    tail_markers = (
-        (
-            "    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V\n\n    :cond_ma\n    return-void\n.end method",
-            "    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V\n\n    return-void\n\n"
-            + LAMBDA_MAIN_MODE_AFTER_MA
-            + "\n.end method",
-        ),
-        (
-            "    :cond_ma\n    return-void\n.end method",
-            LAMBDA_MAIN_MODE_AFTER_MA + "\n.end method",
-        ),
-    )
-    patched = False
-    for marker, replacement in tail_markers:
-        if marker in text:
-            text = text.replace(marker, replacement, 1)
-            patched = True
-            break
-    if not patched:
-        if "isMainModeSelected()Z" in lambda_body:
-            raise RuntimeError("TrainItemManager lambda has main mode in wrong place")
-        raise RuntimeError("TrainItemManager lambda$addAllPartValue$6 tail marker not found")
+    text = strip_main_mode_from_plus_minus(text)
     TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
-    print("TrainItemManager: route master +/- to main mode when no index selected")
 
 
 def bind_main_mode_click_smali(main_mode_id: int) -> str:
@@ -753,7 +608,7 @@ def main() -> int:
     patch_train_view_holder(main_mode_id, green_bg)
     write_listener()
     strip_listener_sync()
-    print("Main mode button patches applied (useType=0 program mode).")
+    print("Main mode button patches applied (UI + useType=0; +/- stays index-based).")
     return 0
 
 

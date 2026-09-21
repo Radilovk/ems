@@ -23,7 +23,22 @@ ADD_STRENGTH_OLD = """    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
 
+    return-void
+
     :cond_ma
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_main_mode
+
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
+
+    :cond_main_mode
     return-void"""
 
 ADD_STRENGTH_NEW = """    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
@@ -32,28 +47,53 @@ ADD_STRENGTH_NEW = """    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/
 
     move-result v0
 
-    if-nez v0, :cond_ma
+    if-nez v0, :cond_ma_return
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
 
+    :cond_ma_return
+    return-void
+
     :cond_ma
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_main_mode
+
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
+
+    :cond_main_mode
     return-void"""
 
 ADD_STRENGTH_BROKEN = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
 
     move-result v0
 
-    if-eqz v0, :cond_ma
+    if-eqz v0, :cond_ma_return
 
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V"""
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_4
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z"""
 
 ADD_STRENGTH_FIXED = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
 
     move-result v0
 
-    if-nez v0, :cond_ma
+    if-nez v0, :cond_ma_return
 
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V"""
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_ma_return
+    return-void
+
+    :cond_ma
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z"""
 
 ON_CHANGED_END_GUARD = """    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->shouldBlockManualControls()Z
 

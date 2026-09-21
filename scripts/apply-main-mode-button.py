@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add 'Main' (Основен) index-mode button above muscle/cardio/massage mode buttons."""
+"""Add 'Main' (Основен) as the 4th program mode button (useType=0) with muscle/cardio/massage."""
 
 from __future__ import annotations
 
@@ -60,215 +60,28 @@ MAIN_MODE_BTN_USER = (
     f'android:text="@string/{MAIN_MODE_STRING}" android:textAllCaps="true" />'
 )
 
-MAIN_MODE_FIELD = ".field private mainModeSelected:Z\n"
-
-MAIN_MODE_INIT = """    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->maSelected:Z
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseHzSelected:Z
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseMaSelected:Z
-
-    const/4 v0, 0x1
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z"""
-
-MAIN_MODE_METHODS = """
+IS_MAIN_MODE_METHOD = """
 .method public isMainModeSelected()Z
     .locals 1
 
-    iget-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    iget v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
+
+    if-nez v0, :cond_not_main
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_not_main
+    const/4 v0, 0x0
 
     return v0
 .end method
-
-.method public setMainModeSelected(Z)V
-    .locals 1
-    .param p1, "mainModeSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    if-eqz p1, :cond_end
-
-    const/4 v0, 0x0
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
-    :cond_end
-    return-void
-.end method
-
-.method public syncMainModeFromIndexSelection()V
-    .locals 1
-
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_check_hz
-
-    const/4 v0, 0x0
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    return-void
-
-    :cond_check_hz
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_check_pause_ma
-
-    const/4 v0, 0x0
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    return-void
-
-    :cond_check_pause_ma
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_check_pause_hz
-
-    const/4 v0, 0x0
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    return-void
-
-    :cond_check_pause_hz
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseHzSelected()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_enable_main
-
-    const/4 v0, 0x0
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    return-void
-
-    :cond_enable_main
-    const/4 v0, 0x1
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    return-void
-.end method
-"""
-
-SET_MA_SELECTED_OLD = """.method public setMaSelected(Z)V
-    .locals 0
-    .param p1, "maSelected"    # Z
-
-    .line 239
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->maSelected:Z
-
-    .line 240
-    return-void
-.end method"""
-
-SET_MA_SELECTED_NEW = """.method public setMaSelected(Z)V
-    .locals 0
-    .param p1, "maSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->maSelected:Z
-
-    if-eqz p1, :cond_end
-
-    const/4 p1, 0x0
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    :cond_end
-    return-void
-.end method"""
-
-SET_HZ_SELECTED_OLD = """.method public setHzSelected(Z)V
-    .locals 0
-    .param p1, "hzSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
-
-    return-void
-.end method"""
-
-SET_HZ_SELECTED_NEW = """.method public setHzSelected(Z)V
-    .locals 0
-    .param p1, "hzSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
-
-    if-eqz p1, :cond_end
-
-    const/4 p1, 0x0
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    :cond_end
-    return-void
-.end method"""
-
-SET_PAUSE_MA_OLD = """.method public setPauseMaSelected(Z)V
-    .locals 0
-    .param p1, "pauseMaSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseMaSelected:Z
-
-    return-void
-.end method"""
-
-SET_PAUSE_MA_NEW = """.method public setPauseMaSelected(Z)V
-    .locals 0
-    .param p1, "pauseMaSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseMaSelected:Z
-
-    if-eqz p1, :cond_end
-
-    const/4 p1, 0x0
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    :cond_end
-    return-void
-.end method"""
-
-SET_PAUSE_HZ_OLD = """.method public setPauseHzSelected(Z)V
-    .locals 0
-    .param p1, "pauseHzSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseHzSelected:Z
-
-    return-void
-.end method"""
-
-SET_PAUSE_HZ_NEW = """.method public setPauseHzSelected(Z)V
-    .locals 0
-    .param p1, "pauseHzSelected"    # Z
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseHzSelected:Z
-
-    if-eqz p1, :cond_end
-
-    const/4 p1, 0x0
-
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    :cond_end
-    return-void
-.end method"""
+""".strip()
 
 MAIN_MODE_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainMainModeClickListener;
 .super Ljava/lang/Object;
@@ -304,23 +117,15 @@ MAIN_MODE_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainMainMo
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    const/4 v1, 0x1
+    const/4 v1, 0x0
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMainModeSelected(Z)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainMainModeClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setUserType(I)V
 
     return-void
 .end method
 """
 
-SYNC_MAIN_MODE_CALL = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V
-
-"""
-
-LAMBDA_MAIN_MODE_HEAD = """    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+LAMBDA_MAIN_MODE_HEAD_WRONG = """    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
 
     move-result v0
 
@@ -336,6 +141,65 @@ LAMBDA_MAIN_MODE_HEAD = """    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/mod
 
     :cond_main_mode
     invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z"""
+
+LAMBDA_MAIN_MODE_AFTER_MA = """    :cond_ma
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_main_mode
+
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
+
+    :cond_main_mode
+    return-void"""
+
+LAMBDA_MAIN_MODE_BROKEN_MUSIC = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_4
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_4
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_main_mode
+
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
+
+    :cond_main_mode
+    return-void
+.end method"""
+
+LAMBDA_MAIN_MODE_BROKEN_INLINE = """    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_main_mode
+
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
+
+    :cond_main_mode
+    return-void
+.end method"""
 
 
 def next_id_value() -> int:
@@ -517,88 +381,140 @@ def patch_layouts(main_mode_id: int) -> None:
 
 def patch_train_item() -> None:
     text = TRAIN_ITEM.read_text(encoding="utf-8")
-    if "mainModeSelected:Z" not in text:
-        if "pauseMaSelected:Z" in text:
-            text = text.replace(
-                ".field private pauseMaSelected:Z\n",
-                ".field private pauseMaSelected:Z\n\n.field private mainModeSelected:Z\n",
-                1,
-            )
-        else:
-            text = text.replace(
-                ".field private maSelected:Z\n",
-                ".field private maSelected:Z\n\n.field private mainModeSelected:Z\n",
-                1,
-            )
+
+    text = re.sub(
+        r"\.method public isMainModeSelected\(\)Z.*?\.end method",
+        IS_MAIN_MODE_METHOD,
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\.method public setMainModeSelected\(Z\)V.*?\.end method",
+        "",
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\.method public syncMainModeFromIndexSelection\(\)V.*?\.end method",
+        "",
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
     if "isMainModeSelected()Z" not in text:
         text = text.replace(
             ".method public isMaSelected()Z",
-            MAIN_MODE_METHODS.strip() + "\n\n.method public isMaSelected()Z",
+            IS_MAIN_MODE_METHOD + "\n\n.method public isMaSelected()Z",
             1,
         )
-    elif "syncMainModeFromIndexSelection()V" not in text:
-        sync_method = MAIN_MODE_METHODS.split(".method public syncMainModeFromIndexSelection()V", 1)[1]
-        text = text.replace(
-            ".method public isMaSelected()Z",
-            ".method public syncMainModeFromIndexSelection()V" + sync_method + "\n\n.method public isMaSelected()Z",
-            1,
+
+    if "mainModeSelected:Z" in text:
+        text = text.replace(".field private mainModeSelected:Z\n\n", "")
+        text = text.replace(".field private mainModeSelected:Z\n", "")
+        text = re.sub(
+            r"\n\s*iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z\n",
+            "\n",
+            text,
         )
-        print("TrainItem: added syncMainModeFromIndexSelection()")
-    if "setMainModeSelected(Z)V" not in text.split("isMainModeSelected()Z")[0]:
-        pass  # included in MAIN_MODE_METHODS
-    if "->mainModeSelected:Z" not in text.split("<init>", 1)[-1].split(".method", 1)[0]:
-        old2 = """    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseMaSelected:Z
+        text = re.sub(
+            r"\n\s*const/4 v0, 0x1\n\n\s*iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z\n",
+            "\n",
+            text,
+        )
+        text = re.sub(
+            r"\n\s*iput-boolean p1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z\n",
+            "\n",
+            text,
+        )
+        text = re.sub(
+            r"\n\s*const/4 v1, 0x1\n\n\s*iput-boolean v1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z\n",
+            "\n",
+            text,
+        )
+        print("TrainItem: main mode follows useType=0")
 
-    .line 40"""
-        new2 = """    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->pauseMaSelected:Z
-
-    const/4 v0, 0x1
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    .line 40"""
-        old1 = """    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
-
-    .line 40"""
-        new1 = """    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->hzSelected:Z
-
-    const/4 v0, 0x1
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
-
-    .line 40"""
-        if old2 in text:
-            text = text.replace(old2, new2, 1)
-            print("TrainItem.<init>: default mainModeSelected=true")
-        elif old1 in text:
-            text = text.replace(old1, new1, 1)
-            print("TrainItem.<init>: default mainModeSelected=true")
-    for old, new, label in (
-        (SET_MA_SELECTED_OLD, SET_MA_SELECTED_NEW, "setMaSelected"),
-        (SET_HZ_SELECTED_OLD, SET_HZ_SELECTED_NEW, "setHzSelected"),
-        (SET_PAUSE_MA_OLD, SET_PAUSE_MA_NEW, "setPauseMaSelected"),
-        (SET_PAUSE_HZ_OLD, SET_PAUSE_HZ_NEW, "setPauseHzSelected"),
-    ):
-        if "mainModeSelected:Z" in text.split(f".method public {label}", 1)[-1].split(".end method", 1)[0]:
-            continue
-        if old in text:
-            text = text.replace(old, new, 1)
-            print(f"TrainItem: patched {label} clears main mode")
     TRAIN_ITEM.write_text(text, encoding="utf-8")
-    print("TrainItem: mainModeSelected state added")
+    print("TrainItem: isMainModeSelected() uses useType")
 
 
 def patch_train_item_manager() -> None:
     text = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
-    if "isMainModeSelected()Z" in text.split("lambda$addAllPartValue$6", 1)[-1].split(".method", 1)[0]:
-        print("TrainItemManager: main mode routing already patched")
-        return
     pause_head = "    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z"
-    if pause_head not in text:
-        raise RuntimeError("TrainItemManager lambda marker not found")
-    text = text.replace(pause_head, LAMBDA_MAIN_MODE_HEAD, 1)
+
+    if LAMBDA_MAIN_MODE_HEAD_WRONG.split("\n", 1)[0] in text:
+        text = text.replace(LAMBDA_MAIN_MODE_HEAD_WRONG, pause_head, 1)
+        print("TrainItemManager: moved main mode routing after avatar indices")
+
+    if LAMBDA_MAIN_MODE_BROKEN_MUSIC in text:
+        text = text.replace(
+            LAMBDA_MAIN_MODE_BROKEN_MUSIC,
+            """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_ma_return
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_ma_return
+    return-void
+
+"""
+            + LAMBDA_MAIN_MODE_AFTER_MA
+            + "\n.end method",
+            1,
+        )
+        print("TrainItemManager: fixed music-sync main mode routing")
+
+    if LAMBDA_MAIN_MODE_BROKEN_INLINE in text:
+        text = text.replace(
+            LAMBDA_MAIN_MODE_BROKEN_INLINE,
+            "    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V\n\n    return-void\n\n"
+            + LAMBDA_MAIN_MODE_AFTER_MA
+            + "\n.end method",
+            1,
+        )
+        print("TrainItemManager: fixed inline main mode routing after MA")
+
+    lambda_body = text.split("lambda$addAllPartValue$6", 1)[-1].split(".method", 1)[0]
+    if "isMainModeSelected()Z" in lambda_body:
+        ma_pos = lambda_body.find("isMaSelected()Z")
+        main_pos = lambda_body.find("isMainModeSelected()Z")
+        if ma_pos != -1 and main_pos > ma_pos and ":cond_ma_return" in lambda_body:
+            TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
+            print("TrainItemManager: main mode routing after avatar indices")
+            return
+        if ma_pos != -1 and main_pos > ma_pos and "return-void\n\n    :cond_ma\n" in lambda_body:
+            TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
+            print("TrainItemManager: main mode routing after avatar indices")
+            return
+
+    tail_markers = (
+        (
+            "    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V\n\n    :cond_ma\n    return-void\n.end method",
+            "    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V\n\n    return-void\n\n"
+            + LAMBDA_MAIN_MODE_AFTER_MA
+            + "\n.end method",
+        ),
+        (
+            "    :cond_ma\n    return-void\n.end method",
+            LAMBDA_MAIN_MODE_AFTER_MA + "\n.end method",
+        ),
+    )
+    patched = False
+    for marker, replacement in tail_markers:
+        if marker in text:
+            text = text.replace(marker, replacement, 1)
+            patched = True
+            break
+    if not patched:
+        if "isMainModeSelected()Z" in lambda_body:
+            raise RuntimeError("TrainItemManager lambda has main mode in wrong place")
+        raise RuntimeError("TrainItemManager lambda$addAllPartValue$6 tail marker not found")
     TRAIN_ITEM_MANAGER.write_text(text, encoding="utf-8")
-    print("TrainItemManager: route master +/- to main mode first")
+    print("TrainItemManager: route master +/- to main mode when no index selected")
 
 
 def bind_main_mode_click_smali(main_mode_id: int) -> str:
@@ -632,138 +548,162 @@ def bind_main_mode_click_smali(main_mode_id: int) -> str:
 """.strip()
 
 
-def update_main_mode_display_smali(main_mode_id: int, green_bg: int) -> str:
-    return f"""
-.method private updateMainModeDisplay()V
-    .locals 3
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
-
-    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
-
-    move-result-object v0
-
-    const v1, {main_mode_id:#x}
-
-    invoke-virtual {{v0, v1}}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/isaigu/gymapp/widget/MyButton;
-
-    if-nez v0, :cond_0
-
-    return-void
-
-    :cond_0
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
-
-    move-result v1
-
-    if-eqz v1, :cond_gray
-
-    const v1, {green_bg:#x}
-
-    invoke-virtual {{v0, v1}}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V
-
-    goto :goto_0
-
-    :cond_gray
-    const v1, {GRAY_BG:#x}
-
-    invoke-virtual {{v0, v1}}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V
-
-    :goto_0
-    return-void
-.end method
-""".strip()
-
-
-def _insert_sync_before_update_ui(text: str) -> str:
-    block_old = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
-    block_new = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-""" + SYNC_MAIN_MODE_CALL + """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
-    if "syncMainModeFromIndexSelection()V" in text.split("lambda$bindListener$7", 1)[-1].split("return-void", 1)[0]:
-        return text
-    if block_old in text:
-        text = text.replace(block_old, block_new, 1)
-        print("TrainViewHolder MA click: sync main mode after index toggle")
-    return text
-
-
-def sync_before_access100_smali(class_name: str) -> str:
-    return f"""    iget-object v0, p0, Lcom/isaigu/gymapp/train/{class_name};->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    iget-object v1, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V
-
-    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-"""
-
-
-def patch_avatar_index_listeners() -> None:
-    listener_classes = (
-        "TrainHzValueClickListener",
-        "TrainPauseMaValueClickListener",
-        "TrainPauseHzValueClickListener",
-    )
-    for class_name in listener_classes:
-        path = TRAIN_DIR / f"{class_name}.smali"
-        if not path.exists():
-            continue
-        text = path.read_text(encoding="utf-8")
-        if "syncMainModeFromIndexSelection()V" in text:
-            print(f"{path.name}: sync already patched")
-            continue
-        old = f"""    iget-object v0, p0, Lcom/isaigu/gymapp/train/{class_name};->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V"""
-        new = sync_before_access100_smali(class_name)
-        if old not in text:
-            raise RuntimeError(f"sync hook marker not found in {path.name}")
-        text = text.replace(old, new, 1)
-        path.write_text(text, encoding="utf-8")
-        print(f"{path.name}: sync main mode after index toggle")
-
-
-def fix_update_ui_main_mode_hook(text: str) -> str:
-    early_hook = (
-        "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateMainModeDisplay()V\n\n"
+def integrate_mode_button_highlight(text: str, main_mode_id: int, green_bg: int) -> str:
+    gray_reset_marker = (
+        "    .line 240\n"
         "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
         "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->strenthExist:Lcom/isaigu/gymapp/widget/MyButton;\n\n"
         "    const v2, 0x7f0800c3"
     )
-    late_marker = "    :cond_8\n    :goto_4\n    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->paulsecontinue:Lcom/isaigu/gymapp/widget/AmountView2;"
-    late_hook = (
-        "    :cond_8\n    :goto_4\n    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateMainModeDisplay()V\n\n"
+    gray_reset_new = (
+        "    .line 240\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    invoke-virtual {v1}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;\n\n"
+        "    move-result-object v1\n\n"
+        f"    const v2, {main_mode_id:#x}\n\n"
+        "    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;\n\n"
+        "    move-result-object v1\n\n"
+        "    check-cast v1, Lcom/isaigu/gymapp/widget/MyButton;\n\n"
+        f"    const v2, {GRAY_BG:#x}\n\n"
+        "    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V\n\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->strenthExist:Lcom/isaigu/gymapp/widget/MyButton;\n\n"
+        "    const v2, 0x7f0800c3"
+    )
+    if gray_reset_marker in text and f"const v2, {main_mode_id:#x}" not in text.split(gray_reset_marker, 1)[0][-400:]:
+        text = text.replace(gray_reset_marker, gray_reset_new, 1)
+        print("TrainViewHolder.updateUI: reset main mode button with other modes")
+
+    old_tail = (
+        "    .line 252\n"
+        "    :cond_8\n"
+        "    :goto_4\n"
+        "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateMainModeDisplay()V\n\n"
         "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
         "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->paulsecontinue:Lcom/isaigu/gymapp/widget/AmountView2;"
     )
-    if early_hook in text:
-        text = text.replace(
-            early_hook,
-            "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
-            "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->strenthExist:Lcom/isaigu/gymapp/widget/MyButton;\n\n"
-            "    const v2, 0x7f0800c3",
-            1,
-        )
-        print("TrainViewHolder.updateUI: moved main mode highlight after mode buttons")
-    if late_marker in text and "updateMainModeDisplay()V" not in text.split(":goto_4", 1)[-1].split("paulsecontinue", 1)[0]:
-        text = text.replace(late_marker, late_hook, 1)
-        print("TrainViewHolder.updateUI: refresh main mode button after mode buttons")
+    new_tail = (
+        "    .line 252\n"
+        "    :cond_8\n"
+        "    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;\n\n"
+        "    move-result-object v1\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;\n\n"
+        "    iget v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I\n\n"
+        "    if-nez v1, :cond_main_mode_on\n\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    invoke-virtual {v1}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;\n\n"
+        "    move-result-object v1\n\n"
+        f"    const v2, {main_mode_id:#x}\n\n"
+        "    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;\n\n"
+        "    move-result-object v1\n\n"
+        "    check-cast v1, Lcom/isaigu/gymapp/widget/MyButton;\n\n"
+        f"    const v2, {green_bg:#x}\n\n"
+        "    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V\n\n"
+        "    :cond_main_mode_on\n"
+        "    :goto_4\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->paulsecontinue:Lcom/isaigu/gymapp/widget/AmountView2;"
+    )
+    alt_old_tail = (
+        "    .line 252\n"
+        "    :cond_8\n"
+        "    :goto_4\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->paulsecontinue:Lcom/isaigu/gymapp/widget/AmountView2;"
+    )
+    alt_new_tail = (
+        "    .line 252\n"
+        "    :cond_8\n"
+        "    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;\n\n"
+        "    move-result-object v1\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;\n\n"
+        "    iget v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I\n\n"
+        "    if-nez v1, :cond_main_mode_on\n\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    invoke-virtual {v1}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;\n\n"
+        "    move-result-object v1\n\n"
+        f"    const v2, {main_mode_id:#x}\n\n"
+        "    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;\n\n"
+        "    move-result-object v1\n\n"
+        "    check-cast v1, Lcom/isaigu/gymapp/widget/MyButton;\n\n"
+        f"    const v2, {green_bg:#x}\n\n"
+        "    invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V\n\n"
+        "    :cond_main_mode_on\n"
+        "    :goto_4\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->paulsecontinue:Lcom/isaigu/gymapp/widget/AmountView2;"
+    )
+    if old_tail in text:
+        text = text.replace(old_tail, new_tail, 1)
+        print("TrainViewHolder.updateUI: highlight main mode when useType=0")
+    elif alt_old_tail in text and ":cond_main_mode_on" not in text:
+        text = text.replace(alt_old_tail, alt_new_tail, 1)
+        print("TrainViewHolder.updateUI: highlight main mode when useType=0")
+
+    text = re.sub(
+        r"\.method private updateMainModeDisplay\(\)V.*?\.end method\n+",
+        "",
+        text,
+        count=1,
+        flags=re.DOTALL,
+    )
     return text
+
+
+def strip_legacy_sync_calls(text: str) -> str:
+    sync_block = (
+        "    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V\n\n"
+    )
+    sync_block_v1 = (
+        "    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V\n\n"
+    )
+    sync_block_v2 = (
+        "    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V\n\n"
+    )
+    changed = False
+    for block in (sync_block, sync_block_v1, sync_block_v2):
+        if block in text:
+            text = text.replace(block, "")
+            changed = True
+    if changed:
+        print("TrainViewHolder: removed legacy main-mode sync hooks")
+    ma_block_old = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
+    ma_block_new = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
+    if ma_block_old in text:
+        text = text.replace(ma_block_old, ma_block_new, 1)
+        print("TrainViewHolder MA click: removed legacy sync")
+    return text
+
+
+def strip_listener_sync() -> None:
+    sync_line = (
+        "    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V\n\n"
+    )
+    sync_line_v1 = (
+        "    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V\n\n"
+    )
+    sync_line_v2 = (
+        "    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V\n\n"
+    )
+    for path in TRAIN_DIR.glob("Train*ClickListener.smali"):
+        text = path.read_text(encoding="utf-8")
+        original = text
+        for line in (sync_line, sync_line_v1, sync_line_v2):
+            text = text.replace(line, "")
+        if text != original:
+            path.write_text(text, encoding="utf-8")
+            print(f"{path.name}: removed legacy sync hook")
 
 
 def patch_train_view_holder(main_mode_id: int, green_bg: int) -> None:
     text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
     bind = bind_main_mode_click_smali(main_mode_id)
-    display = update_main_mode_display_smali(main_mode_id, green_bg)
 
     if "bindMainModeClick()V" not in text:
         if "bindPauseMaValueClick()V" in text:
@@ -784,21 +724,15 @@ def patch_train_view_holder(main_mode_id: int, green_bg: int) -> None:
             raise RuntimeError("TrainViewHolder bind hook not found")
         print("TrainViewHolder: bind main mode click")
 
-    text = fix_update_ui_main_mode_hook(text)
-    text = _insert_sync_before_update_ui(text)
-
     if bind not in text:
         text = text.replace(
             ".method private bindPauseMaValueClick()V",
             bind + "\n\n.method private bindPauseMaValueClick()V",
             1,
         )
-    if display not in text:
-        text = text.replace(
-            ".method private updatePauseMaDisplay()V",
-            display + "\n\n.method private updatePauseMaDisplay()V",
-            1,
-        )
+
+    text = integrate_mode_button_highlight(text, main_mode_id, green_bg)
+    text = strip_legacy_sync_calls(text)
     TRAIN_VIEW_HOLDER.write_text(text, encoding="utf-8")
 
 
@@ -818,8 +752,8 @@ def main() -> int:
     patch_train_item_manager()
     patch_train_view_holder(main_mode_id, green_bg)
     write_listener()
-    patch_avatar_index_listeners()
-    print("Main mode button patches applied.")
+    strip_listener_sync()
+    print("Main mode button patches applied (useType=0 program mode).")
     return 0
 
 

@@ -7796,7 +7796,7 @@
 
     .line 539
     :cond_f
-    const-string v1, "\u23f8"
+    const-string v1, "II"
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
     :try_end_14

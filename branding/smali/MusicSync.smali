@@ -983,72 +983,59 @@
     .registers 6
 
     .line 112
-    sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
-
-    if-eqz v0, :cond_9
-
-    sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
-
-    if-nez v0, :cond_9
-
-    .line 113
-    return-void
-
-    .line 115
-    :cond_9
     nop
 
-    .line 116
+    .line 113
     const/16 v0, 0x64
 
-    if-gez p0, :cond_10
+    if-gez p0, :cond_7
 
-    .line 117
+    .line 114
     const/4 p0, 0x0
 
-    goto :goto_14
+    goto :goto_b
 
-    .line 118
-    :cond_10
-    if-le p0, v0, :cond_14
+    .line 115
+    :cond_7
+    if-le p0, v0, :cond_b
 
-    .line 119
+    .line 116
     const/16 p0, 0x64
 
-    .line 121
-    :cond_14
-    :goto_14
+    .line 118
+    :cond_b
+    :goto_b
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
 
-    if-eqz v0, :cond_3e
+    if-eqz v0, :cond_35
 
-    .line 122
+    .line 119
     int-to-float p0, p0
 
     const/high16 v0, 0x42c80000    # 100.0f
 
     div-float/2addr p0, v0
 
-    .line 123
+    .line 120
     const v1, 0x3f7851ec    # 0.97f
 
-    .line 124
+    .line 121
     const v2, 0x3f47ae14    # 0.78f
 
-    .line 125
+    .line 122
     sget v3, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerSmoothedSound:F
 
     cmpl-float v3, p0, v3
 
-    if-lez v3, :cond_29
+    if-lez v3, :cond_20
 
-    goto :goto_2c
+    goto :goto_23
 
-    :cond_29
+    :cond_20
     const v1, 0x3f47ae14    # 0.78f
 
-    .line 126
-    :goto_2c
+    .line 123
+    :goto_23
     sget v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerSmoothedSound:F
 
     sget v3, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerSmoothedSound:F
@@ -1061,7 +1048,7 @@
 
     sput v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerSmoothedSound:F
 
-    .line 127
+    .line 124
     sget p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerSmoothedSound:F
 
     mul-float p0, p0, v0
@@ -1070,11 +1057,24 @@
 
     move-result p0
 
-    .line 129
-    :cond_3e
+    .line 126
+    :cond_35
     sput p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
+    .line 127
+    sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
+
+    if-eqz v0, :cond_40
+
+    sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
+
+    if-nez v0, :cond_40
+
+    .line 128
+    return-void
+
     .line 130
+    :cond_40
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->scaleFromSound(I)I
 
     move-result p0

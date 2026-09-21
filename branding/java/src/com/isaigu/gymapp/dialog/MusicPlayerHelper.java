@@ -575,8 +575,22 @@ public final class MusicPlayerHelper {
             seekBar.setMaxProcess(SEEK_MAX);
             seekBar.setCurProcess(0);
             seekBar.setOnSeekBarChangeListener(new SeekChangeListener());
+            seekBar.setClickable(true);
+            seekBar.setFocusable(true);
         } catch (Throwable ignored) {
         }
+    }
+
+    private static boolean isTouchOnSeekBar(MotionEvent event) {
+        if (seekBar == null || event == null || seekBar.getWidth() <= 0 || seekBar.getHeight() <= 0) {
+            return false;
+        }
+        int[] loc = new int[2];
+        seekBar.getLocationOnScreen(loc);
+        float x = event.getRawX();
+        float y = event.getRawY();
+        return x >= loc[0] && x <= loc[0] + seekBar.getWidth()
+                && y >= loc[1] && y <= loc[1] + seekBar.getHeight();
     }
 
     private static void configureSensitivity() {
@@ -1511,7 +1525,15 @@ public final class MusicPlayerHelper {
         public void onChangedEnd(CircleSeekBar seekbar, int progress) {
             int duration = MusicSync.getPlaybackDurationMs();
             if (duration > 0) {
-                int position = (int) ((progress * (long) duration) / SEEK_MAX);
+                int clamped = progress;
+                if (clamped < 0) {
+                    clamped = 0;
+                } else if (clamped > SEEK_MAX) {
+                    clamped = SEEK_MAX;
+                }
+                int position = clamped >= SEEK_MAX
+                        ? duration
+                        : (int) ((clamped * (long) duration) / SEEK_MAX);
                 MusicSync.seekPlaybackTo(position);
             }
             userSeeking = false;
@@ -1529,8 +1551,11 @@ public final class MusicPlayerHelper {
             }
             refreshSeekFromPlayer();
             if (visualizerView != null) {
-                visualizerView.setPlaying(true);
-                visualizerView.setLiveLevel(MusicSync.getLiveStrength());
+                boolean playing = !MusicSync.isPlaybackPaused();
+                visualizerView.setPlaying(playing);
+                if (playing) {
+                    visualizerView.setLiveLevel(MusicSync.getLiveStrength());
+                }
             }
             handler.postDelayed(this, PROGRESS_TICK_MS);
         }
@@ -1540,6 +1565,9 @@ public final class MusicPlayerHelper {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (overlayDialog == null || overlayDialog.getWindow() == null) {
+                return false;
+            }
+            if (isTouchOnSeekBar(event)) {
                 return false;
             }
             WindowManager.LayoutParams lp = overlayDialog.getWindow().getAttributes();

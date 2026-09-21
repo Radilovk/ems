@@ -426,11 +426,11 @@
     .line 511
     const v1, 0x7f0d0113
 
-    if-eqz p0, :cond_34
+    if-eqz p0, :cond_3b
 
     if-nez p1, :cond_b
 
-    goto :goto_34
+    goto :goto_3b
 
     .line 516
     :cond_b
@@ -464,34 +464,43 @@
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
     .line 523
+    sput-boolean p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
+
+    .line 524
+    sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
+
+    .line 525
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getStrengthCeiling()I
 
     move-result p0
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showActive(II)V
-    :try_end_2b
-    .catchall {:try_start_b .. :try_end_2b} :catchall_2c
-
-    .line 527
-    goto :goto_33
-
-    .line 524
-    :catchall_2c
-    move-exception p0
-
-    .line 525
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
 
     .line 526
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onPlaybackStarted()V
+    :try_end_32
+    .catchall {:try_start_b .. :try_end_32} :catchall_33
+
+    .line 530
+    goto :goto_3a
+
+    .line 527
+    :catchall_33
+    move-exception p0
 
     .line 528
-    :goto_33
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
+
+    .line 529
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
+
+    .line 531
+    :goto_3a
     return-void
 
     .line 512
-    :cond_34
-    :goto_34
+    :cond_3b
+    :goto_3b
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
     .line 513
@@ -501,43 +510,43 @@
 .method private static freezeImpulseOutput()V
     .registers 3
 
-    .line 642
+    .line 651
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->liveStrength:I
 
-    .line 643
+    .line 652
     const/4 v1, 0x0
 
     sput v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerSmoothedSound:F
 
-    .line 644
+    .line 653
     sput v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pendingApplied:I
 
-    .line 645
+    .line 654
     const/4 v1, -0x1
 
     sput v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->lastPushedApplied:I
 
-    .line 646
+    .line 655
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 647
+    .line 656
     sget-object v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
     sget-object v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->applyRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 648
+    .line 657
     const/4 v1, 0x1
 
     invoke-static {v0, v1, v0}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(IZZ)V
 
-    .line 649
+    .line 658
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->maybeUpdateUi()V
 
-    .line 650
+    .line 659
     return-void
 .end method
 
@@ -573,10 +582,10 @@
 .method public static getPlaybackDurationMs()I
     .registers 1
 
-    .line 658
+    .line 667
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 659
+    .line 668
     if-eqz v0, :cond_9
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->getDurationMs()I
@@ -595,10 +604,10 @@
 .method public static getPlaybackPositionMs()I
     .registers 1
 
-    .line 653
+    .line 662
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 654
+    .line 663
     if-eqz v0, :cond_9
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolvePlaybackPositionMs()I
@@ -660,10 +669,10 @@
 .method public static isPlaybackPaused()Z
     .registers 2
 
-    .line 663
+    .line 672
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 664
+    .line 673
     if-eqz v0, :cond_14
 
     sget-boolean v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
@@ -844,6 +853,23 @@
     move-result-wide p0
 
     return-wide p0
+.end method
+
+.method public static onPlayerPlaybackStarted()V
+    .registers 1
+
+    .line 534
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
+
+    .line 535
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
+
+    .line 536
+    return-void
 .end method
 
 .method private static openMicrophone()Z
@@ -1340,20 +1366,20 @@
 .method public static seekPlaybackTo(I)V
     .registers 3
 
-    .line 668
+    .line 677
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 669
+    .line 678
     if-eqz v0, :cond_b
 
     sget-boolean v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
 
     if-eqz v1, :cond_b
 
-    .line 670
+    .line 679
     invoke-virtual {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->seekTo(I)V
 
-    .line 672
+    .line 681
     :cond_b
     return-void
 .end method
@@ -1718,23 +1744,23 @@
 .method public static stop()V
     .registers 1
 
-    .line 603
+    .line 612
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerPreparing:Z
 
-    .line 604
+    .line 613
     sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
 
-    .line 605
+    .line 614
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
 
-    .line 606
+    .line 615
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
 
-    .line 607
+    .line 616
     return-void
 .end method
 
@@ -1810,7 +1836,7 @@
 .method public static syncWithTrainingState(Z)V
     .registers 4
 
-    .line 614
+    .line 623
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_45
@@ -1821,17 +1847,17 @@
 
     goto :goto_45
 
-    .line 617
+    .line 626
     :cond_9
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 618
+    .line 627
     if-nez v0, :cond_e
 
-    .line 619
+    .line 628
     return-void
 
-    .line 621
+    .line 630
     :cond_e
     const/4 v1, 0x0
 
@@ -1839,47 +1865,47 @@
 
     if-nez p0, :cond_30
 
-    .line 622
+    .line 631
     sput-boolean v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
 
-    .line 623
+    .line 632
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 624
+    .line 633
     sget-object p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->applyRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 625
+    .line 634
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->isPlaying()Z
 
     move-result p0
 
     if-eqz p0, :cond_29
 
-    .line 626
+    .line 635
     sput-boolean v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
 
-    .line 627
+    .line 636
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->pausePlayback()V
 
-    .line 629
+    .line 638
     :cond_29
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->freezeImpulseOutput()V
 
-    .line 630
+    .line 639
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTransportState()V
 
-    .line 631
+    .line 640
     return-void
 
-    .line 633
+    .line 642
     :cond_30
     sput-boolean v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
 
-    .line 634
+    .line 643
     sget-boolean p0, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
 
     if-eqz p0, :cond_44
@@ -1890,20 +1916,20 @@
 
     if-nez p0, :cond_44
 
-    .line 635
+    .line 644
     sput-boolean v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
 
-    .line 636
+    .line 645
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resumePlayback()V
 
-    .line 637
+    .line 646
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTransportState()V
 
-    .line 639
+    .line 648
     :cond_44
     return-void
 
-    .line 615
+    .line 624
     :cond_45
     :goto_45
     return-void
@@ -1912,10 +1938,10 @@
 .method public static togglePlaybackPause()V
     .registers 3
 
-    .line 675
+    .line 684
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerEngine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 676
+    .line 685
     if-eqz v0, :cond_26
 
     sget-boolean v1, Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
@@ -1928,7 +1954,7 @@
 
     goto :goto_26
 
-    .line 679
+    .line 688
     :cond_d
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->isPlaying()Z
 
@@ -1938,32 +1964,32 @@
 
     if-eqz v1, :cond_1d
 
-    .line 680
+    .line 689
     sput-boolean v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
 
-    .line 681
+    .line 690
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->pausePlayback()V
 
-    .line 682
+    .line 691
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->freezeImpulseOutput()V
 
     goto :goto_22
 
-    .line 684
+    .line 693
     :cond_1d
     sput-boolean v2, Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
 
-    .line 685
+    .line 694
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resumePlayback()V
 
-    .line 687
+    .line 696
     :goto_22
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshTransportState()V
 
-    .line 688
+    .line 697
     return-void
 
-    .line 677
+    .line 686
     :cond_26
     :goto_26
     return-void

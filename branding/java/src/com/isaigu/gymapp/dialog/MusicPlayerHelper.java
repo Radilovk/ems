@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -69,6 +70,7 @@ public final class MusicPlayerHelper {
     private static final int SEEK_MAX = 1000;
     private static final long PROGRESS_TICK_MS = 200L;
     private static final long DRAG_LONG_PRESS_MS = 280L;
+    private static final long PLAY_DEBOUNCE_MS = 450L;
     private static final float OVERLAY_TAP_SLOP_DP = 10f;
 
     private static android.support.v7.app.AlertDialog overlayDialog;
@@ -111,6 +113,7 @@ public final class MusicPlayerHelper {
     private static float dragGhostOffsetY;
     private static ScrollView playlistScrollView;
     private static int dragRowHeightPx;
+    private static long lastPlayClickMs;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable progressRunnable = new ProgressTickRunnable();
@@ -212,15 +215,135 @@ public final class MusicPlayerHelper {
 
     /** Sync player pause/resume from any train row or master start/pause/stop. */
     public static void syncTrainingState() {
-        boolean targetRunning = false;
+        boolean targetRunning = isTargetTrainingRunning();
+        if (targetRunning) {
+            tryStartFromTrainingSync();
+        }
+        MusicSync.syncWithTrainingState(targetRunning);
+    }
+
+    /** Master all-stop / reset — stop music sync entirely, not just pause. */
+    public static void onTrainingFullStop() {
+        syncTrainingState();
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            MusicSync.stop();
+            showIdle();
+        }
+    }
+
+    static boolean isOverlayOpen() {
+        return isOverlayShowing();
+    }
+
+    static boolean hasPlaylistTracks() {
+        return !playlist.isEmpty();
+    }
+
+    /** Training started from master/row while player overlay is open — mirror start. */
+    static void tryStartFromTrainingSync() {
+        if (MusicSync.isPlayerPreparing()) {
+            return;
+        }
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            return;
+        }
+        if (!isOverlayShowing() || playlist.isEmpty()) {
+            return;
+        }
+        if (currentIndex < 0) {
+            currentIndex = 0;
+        }
+        startCurrentTrack(false);
+    }
+
+    public static void onPlaybackStarted() {
+        MusicSync.onPlayerPlaybackStarted();
+        requestTrainingStart();
+    }
+
+    public static void onPlaybackPausedByUser() {
+        requestTrainingPause();
+    }
+
+    public static void onPlaybackResumedByUser() {
+        requestTrainingStart();
+    }
+
+    public static void onPlaybackEndedNaturally() {
+        requestTrainingPause();
+    }
+
+    private static boolean isTargetTrainingRunning() {
         try {
             TrainItem target = resolveTargetItem(itemManager);
-            if (target != null && target.data != null && target.data.start) {
-                targetRunning = true;
+            return target != null && target.data != null && target.data.start;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private static void requestTrainingStart() {
+        if (itemManager == null) {
+            return;
+        }
+        try {
+            TrainItem target = resolveTargetItem(itemManager);
+            if (target != null && target.data != null && target.data.connected && !target.data.start) {
+                target.start();
+                return;
+            }
+            if (!isAnyTrainingRunning()) {
+                itemManager.startAll();
             }
         } catch (Throwable ignored) {
         }
-        MusicSync.syncWithTrainingState(targetRunning);
+    }
+
+    private static void requestTrainingPause() {
+        if (itemManager == null) {
+            return;
+        }
+        try {
+            TrainItem target = resolveTargetItem(itemManager);
+            if (target != null && target.data != null && target.data.start) {
+                target.stop();
+                return;
+            }
+            if (isAnyTrainingRunning()) {
+                itemManager.stopAll();
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void requestTrainingStop() {
+        if (itemManager == null) {
+            return;
+        }
+        try {
+            itemManager.stopAll();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static boolean isAnyTrainingRunning() {
+        if (itemManager == null) {
+            return false;
+        }
+        try {
+            List<TrainItem> items = itemManager.getItemList();
+            if (items == null) {
+                return false;
+            }
+            for (int i = 0; i < items.size(); i++) {
+                TrainItem item = items.get(i);
+                if (item != null && !item.isEmpty() && item.data != null && item.data.start) {
+                    return true;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     public static void showIdle() {
@@ -610,6 +733,15 @@ public final class MusicPlayerHelper {
     private static boolean startCurrentTrack(boolean fromUser) {
         if (MusicSync.isPlayerPreparing()) {
             return false;
+        }
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            if (MusicSync.isPlaybackPaused()) {
+                MusicSync.togglePlaybackPause();
+                if (fromUser) {
+                    onPlaybackResumedByUser();
+                }
+            }
+            return true;
         }
         if (currentIndex < 0 || currentIndex >= playlist.size()) {
             if (fromUser) {
@@ -1042,6 +1174,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void closePlayer() {
+        requestTrainingStop();
         MusicSync.stop();
         dismissOverlay(false);
     }
@@ -1161,11 +1294,22 @@ public final class MusicPlayerHelper {
     static final class PlayPauseListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            long now = SystemClock.elapsedRealtime();
+            if (now - lastPlayClickMs < PLAY_DEBOUNCE_MS) {
+                return;
+            }
+            lastPlayClickMs = now;
             if (MusicSync.isPlayerPreparing()) {
                 return;
             }
             if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
-                MusicSync.togglePlaybackPause();
+                if (MusicSync.isPlaybackPaused()) {
+                    MusicSync.togglePlaybackPause();
+                    onPlaybackResumedByUser();
+                } else {
+                    MusicSync.togglePlaybackPause();
+                    onPlaybackPausedByUser();
+                }
                 updatePlayPauseLabel();
                 return;
             }

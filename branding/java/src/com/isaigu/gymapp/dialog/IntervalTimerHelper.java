@@ -149,6 +149,8 @@ public final class IntervalTimerHelper {
     /** Same vertical row as {@link MusicPlayerHelper} overlay (opposite side of master panel). */
     private static final int OVERLAY_ROW_Y_DP = 300;
     private static final int OVERLAY_EDGE_MARGIN_DP = 20;
+    /** Extra inset from the right edge (moves dial left on screen). */
+    private static final int OVERLAY_EXTRA_LEFT_INSET_DP = 20;
     private static final int OVERLAY_RESET_BTN_DP = 44;
     private static final int OVERLAY_RESET_GAP_DP = 4;
     private static final int OVERLAY_WIDTH_DP =
@@ -849,7 +851,8 @@ public final class IntervalTimerHelper {
             lp.height = overlayHeightPx;
             int marginPx = dp(activity, OVERLAY_EDGE_MARGIN_DP);
             int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
-            lp.x = Math.max(marginPx, screenWidth - overlayWidthPx - marginPx);
+            int extraLeftPx = dp(activity, OVERLAY_EXTRA_LEFT_INSET_DP);
+            lp.x = Math.max(marginPx, screenWidth - overlayWidthPx - marginPx - extraLeftPx);
             lp.y = dp(activity, OVERLAY_ROW_Y_DP);
             lp.dimAmount = 0f;
             lp.flags = (lp.flags

@@ -520,11 +520,19 @@ public class MusicSync {
             running = true;
             setSyncActive(true);
             liveStrength = 0;
+            trainingGateOpen = true;
+            pausedByTraining = false;
             MusicPlayerHelper.showActive(0, getStrengthCeiling());
+            MusicPlayerHelper.onPlaybackStarted();
         } catch (Throwable t) {
             stopCaptureOnly();
             MusicPlayerHelper.showError(ERROR_PLAYER);
         }
+    }
+
+    public static void onPlayerPlaybackStarted() {
+        trainingGateOpen = true;
+        pausedByTraining = false;
     }
 
     static final class PlayerPrepareTask implements Runnable {
@@ -588,6 +596,7 @@ public class MusicSync {
             if (MusicPlayerHelper.advanceToNextTrack()) {
                 return;
             }
+            MusicPlayerHelper.onPlaybackEndedNaturally();
             stop();
             MusicPlayerHelper.showIdle();
         }

@@ -25,13 +25,13 @@
 .method constructor <init>(Landroid/app/Activity;)V
     .registers 2
 
-    .line 1648
+    .line 1651
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1649
+    .line 1652
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockEditListener;->activity:Landroid/app/Activity;
 
-    .line 1650
+    .line 1653
     return-void
 .end method
 
@@ -40,16 +40,16 @@
 .method public onClick(Landroid/view/View;)V
     .registers 5
 
-    .line 1654
+    .line 1657
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockEditListener;->activity:Landroid/app/Activity;
 
-    .line 1656
+    .line 1659
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$800()Ljava/util/ArrayList;
 
     move-result-object v0
 
-    .line 1657
+    .line 1660
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()Lcom/isaigu/gymapp/train/TrainItemManager;
 
@@ -63,9 +63,9 @@
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$BlockEditDoneRunnable;-><init>()V
 
-    .line 1654
+    .line 1657
     invoke-static {p1, v0, v1, v2}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->show(Landroid/app/Activity;Ljava/util/ArrayList;Lcom/isaigu/gymapp/train/model/TrainItem;Ljava/lang/Runnable;)V
 
-    .line 1659
+    .line 1662
     return-void
 .end method

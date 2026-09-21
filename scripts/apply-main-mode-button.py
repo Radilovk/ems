@@ -43,7 +43,7 @@ LAYOUTS = (
 MAIN_MODE_BTN_NEW = (
     '<com.isaigu.gymapp.widget.MyButton android:textSize="@dimen/ui_mode_button_text_size" '
     'android:textStyle="bold" android:textColor="@color/mode_button_text" '
-    f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/{GREEN_BG_NAME}" '
+    f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/round_corner_drawable_r10_gray" '
     'android:layout_width="120.0dip" '
     f'android:layout_height="{MODE_BTN_HEIGHT}" '
     f'android:layout_margin="{MODE_BTN_MARGIN_NEW}" '
@@ -53,7 +53,7 @@ MAIN_MODE_BTN_NEW = (
 MAIN_MODE_BTN_USER = (
     '<com.isaigu.gymapp.widget.MyButton android:textSize="@dimen/ui_mode_button_text_size" '
     'android:textStyle="bold" android:textColor="@color/mode_button_text" '
-    f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/{GREEN_BG_NAME}" '
+    f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/round_corner_drawable_r10_gray" '
     'android:layout_width="100.0dip" '
     f'android:layout_height="{MODE_BTN_HEIGHT}" '
     f'android:layout_margin="{MODE_BTN_MARGIN_USER}" '
@@ -102,6 +102,68 @@ MAIN_MODE_METHODS = """
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
     :cond_end
+    return-void
+.end method
+
+.method public syncMainModeFromIndexSelection()V
+    .locals 1
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_check_hz
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
+
+    return-void
+
+    :cond_check_hz
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isHzSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_check_pause_ma
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
+
+    return-void
+
+    :cond_check_pause_ma
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_check_pause_hz
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
+
+    return-void
+
+    :cond_check_pause_hz
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseHzSelected()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_enable_main
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
+
+    return-void
+
+    :cond_enable_main
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->mainModeSelected:Z
+
     return-void
 .end method
 """
@@ -250,12 +312,12 @@ MAIN_MODE_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainMainMo
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainMainModeClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
     return-void
 .end method
+"""
+
+SYNC_MAIN_MODE_CALL = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V
+
 """
 
 LAMBDA_MAIN_MODE_HEAD = """    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected()Z
@@ -430,6 +492,12 @@ def patch_layouts(main_mode_id: int) -> None:
                 text = text.replace(marker, insert + "\n            " + marker, 1)
                 changed = True
                 print(f"patched {layout_dir}/{name}: added {MAIN_MODE_ID_NAME}")
+            if f'@id/{MAIN_MODE_ID_NAME}' in text:
+                text = text.replace(
+                    f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/{GREEN_BG_NAME}"',
+                    f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/round_corner_drawable_r10_gray"',
+                )
+                changed = True
             for view_id in ("strenthExist", "youyangyundong", "anmo", MAIN_MODE_ID_NAME):
                 pattern = rf'(<com\.isaigu\.gymapp\.widget\.MyButton[^>]*android:id="@id/{view_id}"[^>]*/>)'
                 while True:
@@ -468,6 +536,14 @@ def patch_train_item() -> None:
             MAIN_MODE_METHODS.strip() + "\n\n.method public isMaSelected()Z",
             1,
         )
+    elif "syncMainModeFromIndexSelection()V" not in text:
+        sync_method = MAIN_MODE_METHODS.split(".method public syncMainModeFromIndexSelection()V", 1)[1]
+        text = text.replace(
+            ".method public isMaSelected()Z",
+            ".method public syncMainModeFromIndexSelection()V" + sync_method + "\n\n.method public isMaSelected()Z",
+            1,
+        )
+        print("TrainItem: added syncMainModeFromIndexSelection()")
     if "setMainModeSelected(Z)V" not in text.split("isMainModeSelected()Z")[0]:
         pass  # included in MAIN_MODE_METHODS
     if "->mainModeSelected:Z" not in text.split("<init>", 1)[-1].split(".method", 1)[0]:
@@ -605,6 +681,85 @@ def update_main_mode_display_smali(main_mode_id: int, green_bg: int) -> str:
 """.strip()
 
 
+def _insert_sync_before_update_ui(text: str) -> str:
+    block_old = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
+    block_new = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+""" + SYNC_MAIN_MODE_CALL + """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateUI()V"""
+    if "syncMainModeFromIndexSelection()V" in text.split("lambda$bindListener$7", 1)[-1].split("return-void", 1)[0]:
+        return text
+    if block_old in text:
+        text = text.replace(block_old, block_new, 1)
+        print("TrainViewHolder MA click: sync main mode after index toggle")
+    return text
+
+
+def sync_before_access100_smali(class_name: str) -> str:
+    return f"""    iget-object v0, p0, Lcom/isaigu/gymapp/train/{class_name};->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    iget-object v1, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/model/TrainItem;->syncMainModeFromIndexSelection()V
+
+    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+"""
+
+
+def patch_avatar_index_listeners() -> None:
+    listener_classes = (
+        "TrainHzValueClickListener",
+        "TrainPauseMaValueClickListener",
+        "TrainPauseHzValueClickListener",
+    )
+    for class_name in listener_classes:
+        path = TRAIN_DIR / f"{class_name}.smali"
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "syncMainModeFromIndexSelection()V" in text:
+            print(f"{path.name}: sync already patched")
+            continue
+        old = f"""    iget-object v0, p0, Lcom/isaigu/gymapp/train/{class_name};->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V"""
+        new = sync_before_access100_smali(class_name)
+        if old not in text:
+            raise RuntimeError(f"sync hook marker not found in {path.name}")
+        text = text.replace(old, new, 1)
+        path.write_text(text, encoding="utf-8")
+        print(f"{path.name}: sync main mode after index toggle")
+
+
+def fix_update_ui_main_mode_hook(text: str) -> str:
+    early_hook = (
+        "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateMainModeDisplay()V\n\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->strenthExist:Lcom/isaigu/gymapp/widget/MyButton;\n\n"
+        "    const v2, 0x7f0800c3"
+    )
+    late_marker = "    :cond_8\n    :goto_4\n    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->paulsecontinue:Lcom/isaigu/gymapp/widget/AmountView2;"
+    late_hook = (
+        "    :cond_8\n    :goto_4\n    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateMainModeDisplay()V\n\n"
+        "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->paulsecontinue:Lcom/isaigu/gymapp/widget/AmountView2;"
+    )
+    if early_hook in text:
+        text = text.replace(
+            early_hook,
+            "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+            "    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->strenthExist:Lcom/isaigu/gymapp/widget/MyButton;\n\n"
+            "    const v2, 0x7f0800c3",
+            1,
+        )
+        print("TrainViewHolder.updateUI: moved main mode highlight after mode buttons")
+    if late_marker in text and "updateMainModeDisplay()V" not in text.split(":goto_4", 1)[-1].split("paulsecontinue", 1)[0]:
+        text = text.replace(late_marker, late_hook, 1)
+        print("TrainViewHolder.updateUI: refresh main mode button after mode buttons")
+    return text
+
+
 def patch_train_view_holder(main_mode_id: int, green_bg: int) -> None:
     text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
     bind = bind_main_mode_click_smali(main_mode_id)
@@ -629,16 +784,8 @@ def patch_train_view_holder(main_mode_id: int, green_bg: int) -> None:
             raise RuntimeError("TrainViewHolder bind hook not found")
         print("TrainViewHolder: bind main mode click")
 
-    if "updateMainModeDisplay()V" not in text:
-        marker = "    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->strenthExist:Lcom/isaigu/gymapp/widget/MyButton;\n\n    const v2, 0x7f0800c3"
-        if marker not in text:
-            raise RuntimeError("TrainViewHolder updateUI mode button marker not found")
-        text = text.replace(
-            marker,
-            "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateMainModeDisplay()V\n\n" + marker,
-            1,
-        )
-        print("TrainViewHolder.updateUI: refresh main mode button")
+    text = fix_update_ui_main_mode_hook(text)
+    text = _insert_sync_before_update_ui(text)
 
     if bind not in text:
         text = text.replace(
@@ -671,6 +818,7 @@ def main() -> int:
     patch_train_item_manager()
     patch_train_view_holder(main_mode_id, green_bg)
     write_listener()
+    patch_avatar_index_listeners()
     print("Main mode button patches applied.")
     return 0
 

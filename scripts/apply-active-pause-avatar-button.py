@@ -240,7 +240,7 @@ ADD_PAUSE_STRENTH_METHOD = """
 
 ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 .method public addMainAndPauseStrenth(I)V
-    .locals 6
+    .locals 7
     .param p1, "value"    # I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -278,47 +278,28 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
     :cond_has_main
     if-lez v1, :cond_from_zero
 
-    mul-int v4, v3, v2
+    mul-int v5, v3, v2
 
-    div-int v5, v4, v1
+    move v6, v1
 
-    goto :cond_bump
+    div-int/lit8 v6, v6, 0x2
+
+    add-int/2addr v5, v6
+
+    div-int v5, v5, v1
+
+    goto :cond_pause_clamp
 
     :cond_from_zero
-    if-nez v2, :cond_bootstrap
+    if-nez v2, :cond_keep_pause
 
     move v5, v3
 
     goto :cond_pause_clamp
 
-    :cond_bootstrap
+    :cond_keep_pause
     move v5, v2
 
-    goto :cond_pause_clamp
-
-    :cond_bump
-    if-lez p1, :cond_bump_up_done
-
-    if-le v3, v1, :cond_bump_up_done
-
-    if-ne v5, v2, :cond_bump_up_done
-
-    if-ge v2, v4, :cond_bump_up_done
-
-    add-int/lit8 v5, v5, 0x1
-
-    :cond_bump_up_done
-    if-gez p1, :cond_bump_down_done
-
-    if-ge v3, v1, :cond_bump_down_done
-
-    if-ne v5, v2, :cond_bump_down_done
-
-    if-lez v2, :cond_bump_down_done
-
-    add-int/lit8 v5, v5, -0x1
-
-    :cond_bump_down_done
     :cond_pause_clamp
     if-le v5, v4, :cond_pause_cap
 

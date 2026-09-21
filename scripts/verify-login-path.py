@@ -58,6 +58,14 @@ def main() -> int:
         if not (DIALOG / name).is_file():
             fail(f"missing dialog/{name}")
 
+    footer = DECOMPILED / "res/layout/train_add_participant_footer.xml"
+    if not footer.is_file():
+        fail("train_add_participant_footer.xml missing (add-user button layout)")
+
+    vh = TRAIN / "TrainViewHolder.smali"
+    if vh.is_file() and "if-eqz v0, :cond_footer_done" in vh.read_text(encoding="utf-8"):
+        fail("TrainViewHolder still has inverted isFooter bind guard")
+
     print("Login path smali/layout checks passed.")
     return 0
 

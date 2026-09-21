@@ -704,7 +704,7 @@
 
     int-to-float v4, v4
 
-    const v6, 0x3e3851ec    # 0.18f
+    const v6, 0x3eb851ec    # 0.36f
 
     mul-float v4, v4, v6
 
@@ -715,7 +715,7 @@
 
     int-to-float v1, v1
 
-    const v2, 0x3ee147ae    # 0.44f
+    const v2, 0x3efae148    # 0.49f
 
     mul-float v1, v1, v2
 
@@ -724,7 +724,7 @@
 
     move-result-object v2
 
-    const v6, 0x400ccccd    # 2.2f
+    const v6, 0x40333333    # 2.8f
 
     invoke-static {v2, v6}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->dp(Landroid/content/Context;F)F
 

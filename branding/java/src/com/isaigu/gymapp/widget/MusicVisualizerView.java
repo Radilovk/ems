@@ -128,9 +128,9 @@ public final class MusicVisualizerView extends View implements Runnable {
         }
         float cx = w * 0.5f;
         float cy = h * 0.5f;
-        float inner = Math.min(w, h) * 0.18f;
-        float outer = Math.min(w, h) * 0.44f;
-        float barWidth = dp(getContext(), 2.2f);
+        float inner = Math.min(w, h) * 0.36f;
+        float outer = Math.min(w, h) * 0.49f;
+        float barWidth = dp(getContext(), 2.8f);
         barPaint.setStrokeWidth(barWidth);
 
         for (int i = 0; i < BAR_COUNT; i++) {

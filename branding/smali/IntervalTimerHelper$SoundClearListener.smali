@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1762
+    .line 1711
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,43 +32,43 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 1765
+    .line 1714
     const/4 p1, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2002(I)I
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1502(I)I
 
-    .line 1766
+    .line 1715
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500()Landroid/widget/Spinner;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2000()Landroid/widget/Spinner;
 
     move-result-object v0
 
     if-eqz v0, :cond_18
 
-    .line 1767
+    .line 1716
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1902(Z)Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1402(Z)Z
 
-    .line 1768
+    .line 1717
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500()Landroid/widget/Spinner;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2000()Landroid/widget/Spinner;
 
     move-result-object v0
 
     invoke-virtual {v0, p1}, Landroid/widget/Spinner;->setSelection(I)V
 
-    .line 1769
+    .line 1718
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1902(Z)Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1402(Z)Z
 
-    .line 1771
+    .line 1720
     :cond_18
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1400()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()V
 
-    .line 1772
+    .line 1721
     return-void
 .end method

@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -34,7 +35,6 @@ import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
-import com.isaigu.gymapp.widget.AmountView;
 import com.isaigu.gymapp.widget.TimerRingView;
 
 /**
@@ -162,9 +162,9 @@ public final class IntervalTimerHelper {
     private static android.support.v7.app.AlertDialog overlayDialog;
     private static View configContent;
     private static View overlayContent;
-    private static AmountView minutesView;
-    private static AmountView secondsView;
-    private static AmountView loopsView;
+    private static EditText minutesView;
+    private static EditText secondsView;
+    private static EditText loopsView;
     private static TextView durationLabelView;
     private static View durationRow;
     private static View tabIntervalBtn;
@@ -225,7 +225,6 @@ public final class IntervalTimerHelper {
     private static TextView blockDurationView;
     private static Switch blockRepeatSwitch;
     private static Spinner presetSpinner;
-    private static boolean ignoreAmountCallback;
     private static boolean advancedExpanded;
 
     private IntervalTimerHelper() {
@@ -248,7 +247,7 @@ public final class IntervalTimerHelper {
         blockProgramMode = preset.blockMode;
         blockProgramRepeat = preset.blockRepeat;
         blockSegments = preset.blocks != null ? new ArrayList<>(preset.blocks) : new ArrayList<>();
-        syncAmountViewsFromValues();
+        syncDurationFieldsFromValues();
         if (blockRepeatSwitch != null) {
             blockRepeatSwitch.setChecked(blockProgramRepeat);
         }
@@ -470,6 +469,7 @@ public final class IntervalTimerHelper {
             return;
         }
         int totalSec = readDurationTotalSec();
+        syncDurationFieldsFromValues();
         int minutes = totalSec / 60;
         int seconds = totalSec % 60;
         selectedSound = readSoundSelection();
@@ -676,18 +676,14 @@ public final class IntervalTimerHelper {
         soundClearBtn = content.findViewById(ID_SOUND_CLEAR);
         durationRow = content.findViewById(ID_DURATION_ROW);
         durationLabelView = (TextView) content.findViewById(ID_DURATION_LABEL);
-        minutesView = (AmountView) content.findViewById(ID_MINUTES);
-        secondsView = (AmountView) content.findViewById(ID_SECONDS);
-        loopsView = (AmountView) content.findViewById(ID_LOOPS);
+        minutesView = (EditText) content.findViewById(ID_MINUTES);
+        secondsView = (EditText) content.findViewById(ID_SECONDS);
+        loopsView = (EditText) content.findViewById(ID_LOOPS);
         tabIntervalBtn = content.findViewById(ID_TAB_INTERVAL);
         tabBlockBtn = content.findViewById(ID_TAB_BLOCK);
         advancedPanel = content.findViewById(ID_ADVANCED_PANEL);
         advancedToggle = content.findViewById(ID_ADVANCED_TOGGLE);
-        configureDurationPicker(minutesView, 0, DURATION_MAX_SEC / 60, 1, savedMinutes);
-        configureDurationPicker(secondsView, 0, 59, 1, savedSeconds);
-        configureDurationPicker(loopsView, 0, LOOPS_MAX, 1, maxLoops);
-        attachAmountListeners();
-        syncAmountViewsFromValues();
+        syncDurationFieldsFromValues();
         bindButton(tabIntervalBtn, new TabIntervalListener());
         bindButton(tabBlockBtn, new TabBlockListener());
         bindButton(advancedToggle, new AdvancedToggleListener());
@@ -1160,7 +1156,7 @@ public final class IntervalTimerHelper {
         refreshBlockSummary();
     }
 
-    private static void syncAmountViewsFromValues() {
+    private static void syncDurationFieldsFromValues() {
         int totalSec = savedMinutes * 60 + savedSeconds;
         if (totalSec < DURATION_MIN_SEC) {
             totalSec = DURATION_MIN_SEC;
@@ -1170,9 +1166,8 @@ public final class IntervalTimerHelper {
         }
         savedMinutes = totalSec / 60;
         savedSeconds = totalSec % 60;
-        ignoreAmountCallback = true;
-        setAmountQuiet(minutesView, savedMinutes);
-        setAmountQuiet(secondsView, savedSeconds);
+        setEditQuiet(minutesView, savedMinutes);
+        setEditQuiet(secondsView, savedSeconds);
         int loops = maxLoops;
         if (loops < 0) {
             loops = 0;
@@ -1180,23 +1175,22 @@ public final class IntervalTimerHelper {
         if (loops > LOOPS_MAX) {
             loops = LOOPS_MAX;
         }
-        setAmountQuiet(loopsView, loops);
-        ignoreAmountCallback = false;
+        setEditQuiet(loopsView, loops);
     }
 
-    private static void setAmountQuiet(AmountView view, int value) {
+    private static void setEditQuiet(EditText view, int value) {
         if (view == null) {
             return;
         }
         try {
-            view.setAmount(value);
+            view.setText(String.valueOf(value));
         } catch (Throwable ignored) {
         }
     }
 
     private static int readDurationTotalSec() {
-        int minutes = readAmount(minutesView, 0, DURATION_MAX_SEC / 60);
-        int seconds = readAmount(secondsView, 0, 59);
+        int minutes = readEditField(minutesView, 0, DURATION_MAX_SEC / 60);
+        int seconds = readEditField(secondsView, 0, 59);
         int totalSec = minutes * 60 + seconds;
         if (totalSec < DURATION_MIN_SEC) {
             totalSec = DURATION_MIN_SEC;
@@ -1516,15 +1510,19 @@ public final class IntervalTimerHelper {
     }
 
     private static int readLoopsInput() {
-        return readAmount(loopsView, 0, LOOPS_MAX);
+        return readEditField(loopsView, 0, LOOPS_MAX);
     }
 
-    private static int readAmount(AmountView view, int min, int max) {
+    private static int readEditField(EditText view, int min, int max) {
         if (view == null) {
             return min;
         }
         try {
-            int value = view.getAmount();
+            String raw = view.getText() != null ? view.getText().toString().trim() : "";
+            if (raw.length() == 0) {
+                return min;
+            }
+            int value = Integer.parseInt(raw);
             if (value < min) {
                 return min;
             }
@@ -1534,35 +1532,6 @@ public final class IntervalTimerHelper {
             return value;
         } catch (Throwable ignored) {
             return min;
-        }
-    }
-
-    private static void configureDurationPicker(
-            AmountView view, int min, int max, int step, int defaultValue) {
-        if (view == null) {
-            return;
-        }
-        try {
-            view.setMin(min);
-            view.setGoods_storage(max);
-            view.setStep(step);
-            view.setAmountUnit("");
-            view.setAmount(defaultValue);
-        } catch (Throwable ignored) {
-        }
-    }
-
-    private static void attachAmountListeners() {
-        AmountView.OnAmountChangeListener durationListener = new DurationAmountListener();
-        AmountView.OnAmountChangeListener loopsListener = new LoopsAmountListener();
-        if (minutesView != null) {
-            minutesView.setOnAmountChangeListener(durationListener);
-        }
-        if (secondsView != null) {
-            secondsView.setOnAmountChangeListener(durationListener);
-        }
-        if (loopsView != null) {
-            loopsView.setOnAmountChangeListener(loopsListener);
         }
     }
 
@@ -1605,26 +1574,6 @@ public final class IntervalTimerHelper {
         @Override
         public void onClick(View v) {
             selectModeTab(true);
-        }
-    }
-
-    static final class DurationAmountListener implements AmountView.OnAmountChangeListener {
-        @Override
-        public void onAmountChange(View view, int amount) {
-            if (ignoreAmountCallback) {
-                return;
-            }
-            readDurationTotalSec();
-        }
-    }
-
-    static final class LoopsAmountListener implements AmountView.OnAmountChangeListener {
-        @Override
-        public void onAmountChange(View view, int amount) {
-            if (ignoreAmountCallback) {
-                return;
-            }
-            maxLoops = readAmount(loopsView, 0, LOOPS_MAX);
         }
     }
 

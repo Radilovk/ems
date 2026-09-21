@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 974
+    .line 936
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 977
+    .line 939
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result p1
@@ -45,13 +45,13 @@
 
     if-eqz p1, :cond_10
 
-    .line 978
+    .line 940
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->togglePlaybackPause()V
 
-    .line 979
+    .line 941
     return-void
 
-    .line 981
+    .line 943
     :cond_10
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100()I
@@ -71,19 +71,19 @@
 
     if-nez p1, :cond_24
 
-    .line 982
+    .line 944
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(I)I
 
-    .line 984
+    .line 946
     :cond_24
     const/4 p1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->startCurrentTrack(Z)Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$300(Z)Z
 
-    .line 985
+    .line 947
     return-void
 .end method

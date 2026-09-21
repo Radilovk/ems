@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1776
+    .line 1781
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
     .registers 7
 
-    .line 1779
+    .line 1784
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2800()Landroid/support/v7/app/AlertDialog;
 
@@ -55,7 +55,7 @@
 
     goto/16 :goto_ac
 
-    .line 1782
+    .line 1787
     :cond_13
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2800()Landroid/support/v7/app/AlertDialog;
@@ -70,7 +70,7 @@
 
     move-result-object p1
 
-    .line 1783
+    .line 1788
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v1
@@ -89,14 +89,14 @@
 
     if-eq v1, p1, :cond_2f
 
-    .line 1814
+    .line 1819
     return v0
 
-    .line 1812
+    .line 1817
     :cond_2f
     return v2
 
-    .line 1792
+    .line 1797
     :cond_30
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
@@ -109,7 +109,7 @@
 
     sub-float/2addr p1, v0
 
-    .line 1793
+    .line 1798
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v0
@@ -121,7 +121,7 @@
 
     sub-float/2addr v0, v1
 
-    .line 1794
+    .line 1799
     const/4 v1, 0x0
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
@@ -129,10 +129,10 @@
 
     move-result-object v1
 
-    .line 1795
+    .line 1800
     if-eqz v1, :cond_51
 
-    .line 1796
+    .line 1801
     const/16 v3, 0xa
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->dp(Landroid/app/Activity;I)I
@@ -144,11 +144,11 @@
 
     goto :goto_53
 
-    .line 1797
+    .line 1802
     :cond_51
     const/high16 v1, 0x41c00000    # 24.0f
 
-    .line 1798
+    .line 1803
     :goto_53
     mul-float p1, p1, p1
 
@@ -162,15 +162,15 @@
 
     if-lez p1, :cond_61
 
-    .line 1799
+    .line 1804
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayMoved:Z
     invoke-static {v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3302(Z)Z
 
-    .line 1801
+    .line 1806
     :cond_61
     nop
 
-    .line 1802
+    .line 1807
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result p1
@@ -184,7 +184,7 @@
 
     float-to-int p1, p1
 
-    .line 1803
+    .line 1808
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result p2
@@ -198,14 +198,14 @@
 
     float-to-int p2, p2
 
-    .line 1801
+    .line 1806
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->moveOverlayWindow(II)V
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3500(II)V
 
-    .line 1804
+    .line 1809
     return v2
 
-    .line 1807
+    .line 1812
     :cond_7a
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayMoved:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3300()Z
@@ -214,15 +214,15 @@
 
     if-nez p1, :cond_83
 
-    .line 1808
+    .line 1813
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->openOverlaySettings()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3600()V
 
-    .line 1810
+    .line 1815
     :cond_83
     return v2
 
-    .line 1785
+    .line 1790
     :cond_84
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
@@ -237,7 +237,7 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayTouchDx:F
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2902(F)F
 
-    .line 1786
+    .line 1791
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v1
@@ -251,7 +251,7 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayTouchDy:F
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3002(F)F
 
-    .line 1787
+    .line 1792
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result p1
@@ -259,7 +259,7 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDownRawX:F
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3102(F)F
 
-    .line 1788
+    .line 1793
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result p1
@@ -267,14 +267,14 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayDownRawY:F
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3202(F)F
 
-    .line 1789
+    .line 1794
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->overlayMoved:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3302(Z)Z
 
-    .line 1790
+    .line 1795
     return v2
 
-    .line 1780
+    .line 1785
     :cond_ac
     :goto_ac
     return v0

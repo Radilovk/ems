@@ -212,27 +212,15 @@ public final class MusicPlayerHelper {
 
     /** Sync player pause/resume from any train row or master start/pause/stop. */
     public static void syncTrainingState() {
-        if (itemManager == null) {
-            return;
-        }
-        boolean anyRunning = false;
+        boolean targetRunning = false;
         try {
-            List<TrainItem> items = itemManager.getItemList();
-            if (items != null) {
-                for (int i = 0; i < items.size(); i++) {
-                    TrainItem item = items.get(i);
-                    if (item == null || item.isEmpty() || item.data == null) {
-                        continue;
-                    }
-                    if (item.data.start) {
-                        anyRunning = true;
-                        break;
-                    }
-                }
+            TrainItem target = resolveTargetItem(itemManager);
+            if (target != null && target.data != null && target.data.start) {
+                targetRunning = true;
             }
         } catch (Throwable ignored) {
         }
-        MusicSync.syncWithTrainingState(anyRunning);
+        MusicSync.syncWithTrainingState(targetRunning);
     }
 
     public static void showIdle() {

@@ -146,6 +146,9 @@ public final class IntervalTimerHelper {
     private static final int RING_MAX = 100;
     /** Triple compact dial (64dp × 3). Must match apply-interval-timer overlay_metrics. */
     private static final int OVERLAY_SIZE_DP = 192;
+    /** Same vertical row as {@link MusicPlayerHelper} overlay (opposite side of master panel). */
+    private static final int OVERLAY_ROW_Y_DP = 300;
+    private static final int OVERLAY_EDGE_MARGIN_DP = 20;
     private static final int OVERLAY_RESET_BTN_DP = 44;
     private static final int OVERLAY_RESET_GAP_DP = 4;
     private static final int OVERLAY_WIDTH_DP =
@@ -844,8 +847,10 @@ public final class IntervalTimerHelper {
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.width = overlayWidthPx;
             lp.height = overlayHeightPx;
-            lp.x = dp(activity, 20);
-            lp.y = dp(activity, 88);
+            int marginPx = dp(activity, OVERLAY_EDGE_MARGIN_DP);
+            int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+            lp.x = Math.max(marginPx, screenWidth - overlayWidthPx - marginPx);
+            lp.y = dp(activity, OVERLAY_ROW_Y_DP);
             lp.dimAmount = 0f;
             lp.flags = (lp.flags
                     | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE

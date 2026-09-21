@@ -536,7 +536,7 @@ public final class IntervalTimerHelper {
             if (timerPausedByUser) {
                 pauseBtnView.setText("\u25B6");
             } else {
-                pauseBtnView.setText("\u23F8");
+                pauseBtnView.setText("II");
             }
         } catch (Throwable ignored) {
         }

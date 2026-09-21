@@ -32,12 +32,28 @@ ADD_STRENGTH_NEW = """    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/
 
     move-result v0
 
-    if-eqz v0, :cond_ma
+    if-nez v0, :cond_ma
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
 
     :cond_ma
     return-void"""
+
+ADD_STRENGTH_BROKEN = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_ma
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V"""
+
+ADD_STRENGTH_FIXED = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_ma
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V"""
 
 ON_CHANGED_END_GUARD = """    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->shouldBlockManualControls()Z
 
@@ -65,6 +81,10 @@ CHANGE_PART_GUARD = """    invoke-static {}, Lcom/isaigu/gymapp/train/utils/Musi
 
 
 def patch_train_item_manager(text: str) -> str:
+    if ADD_STRENGTH_BROKEN in text:
+        text = text.replace(ADD_STRENGTH_BROKEN, ADD_STRENGTH_FIXED, 1)
+        print("TrainItemManager: fixed inverted MA +/- music sync branch")
+        return text
     if "MusicSyncBridge;->onMaStrengthDelta" in text:
         print("TrainItemManager: MA +/- ceiling hook already applied")
         return text

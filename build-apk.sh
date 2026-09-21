@@ -129,6 +129,17 @@ fi
 cp "${SIGNED_APK}" "${OUT_APK}"
 echo "Copied ${SIGNED_APK} -> ${OUT_APK}"
 
+APKSIGNER_BIN=""
+if command -v apksigner >/dev/null 2>&1; then
+  APKSIGNER_BIN="apksigner"
+elif [[ -x "${TOOLS}/android-sdk/build-tools/34.0.0/apksigner" ]]; then
+  APKSIGNER_BIN="${TOOLS}/android-sdk/build-tools/34.0.0/apksigner"
+fi
+if [[ -n "${APKSIGNER_BIN}" ]]; then
+  "${APKSIGNER_BIN}" verify --verbose "${OUT_APK}" >/dev/null
+  echo "apksigner verify: OK"
+fi
+
 # Broken builds (missing BETA music stack) were ~8.76MB; healthy builds ~8.78MB+.
 MIN_APK_BYTES="${MIN_APK_BYTES:-8765000}"
 APK_BYTES="$(wc -c < "${OUT_APK}")"

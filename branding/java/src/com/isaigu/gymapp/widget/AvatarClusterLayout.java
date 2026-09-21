@@ -2,6 +2,7 @@ package com.isaigu.gymapp.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -143,6 +144,16 @@ public class AvatarClusterLayout extends RelativeLayout {
             lp.addRule(ALIGN_PARENT_LEFT, 0);
         }
         view.setLayoutParams(lp);
+
+        TextView label = (TextView) view;
+        int textSizeRes = getResources().getIdentifier(
+                "ui_ma_text_size", "dimen", getContext().getPackageName());
+        if (textSizeRes != 0) {
+            label.setTextSize(
+                    TypedValue.COMPLEX_UNIT_PX,
+                    getResources().getDimension(textSizeRes));
+        }
+        label.getPaint().setFakeBoldText(true);
     }
 
     private int id(String name) {

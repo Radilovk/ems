@@ -1346,6 +1346,144 @@ def next_id_value() -> int:
     return max(ids) + 1
 
 
+def lookup_public_id(kind: str, name: str) -> int:
+    public_text = PUBLIC_XML.read_text(encoding="utf-8")
+    match = re.search(rf'type="{kind}" name="{name}" id="(0x[0-9a-f]+)"', public_text)
+    if not match:
+        raise RuntimeError(f"{kind}/{name} not found in public.xml")
+    return int(match.group(1), 16)
+
+
+def ensure_index_button_typography_smali(
+    dimen_id: int, hz_id: int, pause_ma_id: int, pause_hz_id: int
+) -> str:
+    return f"""
+.method private ensureIndexButtonTypography()V
+    .locals 5
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->context:Landroid/content/Context;
+
+    invoke-virtual {{v0}}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    const v1, {dimen_id:#x}
+
+    invoke-virtual {{v0, v1}}, Landroid/content/res/Resources;->getDimension(I)F
+
+    move-result v0
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->ma:Landroid/widget/TextView;
+
+    const/4 v2, 0x0
+
+    invoke-virtual {{v1, v2, v0}}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    invoke-virtual {{v1}}, Landroid/widget/TextView;->getPaint()Landroid/text/TextPaint;
+
+    move-result-object v3
+
+    const/4 v4, 0x1
+
+    invoke-virtual {{v3, v4}}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    const v3, {hz_id:#x}
+
+    invoke-virtual {{v1, v3}}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
+
+    move-result-object v1
+
+    check-cast v1, Landroid/widget/TextView;
+
+    if-eqz v1, :cond_hz
+
+    invoke-virtual {{v1, v2, v0}}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    invoke-virtual {{v1}}, Landroid/widget/TextView;->getPaint()Landroid/text/TextPaint;
+
+    move-result-object v3
+
+    invoke-virtual {{v3, v4}}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    :cond_hz
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    const v3, {pause_ma_id:#x}
+
+    invoke-virtual {{v1, v3}}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
+
+    move-result-object v1
+
+    check-cast v1, Landroid/widget/TextView;
+
+    if-eqz v1, :cond_pause_ma
+
+    invoke-virtual {{v1, v2, v0}}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    invoke-virtual {{v1}}, Landroid/widget/TextView;->getPaint()Landroid/text/TextPaint;
+
+    move-result-object v3
+
+    invoke-virtual {{v3, v4}}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    :cond_pause_ma
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;->getRoot()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    const v3, {pause_hz_id:#x}
+
+    invoke-virtual {{v1, v3}}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
+
+    move-result-object v1
+
+    check-cast v1, Landroid/widget/TextView;
+
+    if-eqz v1, :cond_end
+
+    invoke-virtual {{v1, v2, v0}}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    invoke-virtual {{v1}}, Landroid/widget/TextView;->getPaint()Landroid/text/TextPaint;
+
+    move-result-object v3
+
+    invoke-virtual {{v3, v4}}, Landroid/text/TextPaint;->setFakeBoldText(Z)V
+
+    :cond_end
+    return-void
+.end method
+""".strip()
+
+
+UPDATE_UI_TYPOGRAPHY_OLD = """    :goto_7
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateTime()V
+
+    .line 288
+    return-void"""
+
+UPDATE_UI_TYPOGRAPHY_NEW = """    :goto_7
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->ensureIndexButtonTypography()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->updateTime()V
+
+    .line 288
+    return-void"""
+
+
 def register_id(name: str, resource_id: int) -> int:
     public_text = PUBLIC_XML.read_text(encoding="utf-8")
     match = re.search(rf'type="id" name="{name}" id="(0x[0-9a-f]+)"', public_text)
@@ -1711,7 +1849,45 @@ def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int, yellow_bg: int) 
         else:
             raise RuntimeError("TrainViewHolder ma click patch marker not found")
 
+    text = patch_index_button_typography(text, pause_ma_id, pause_hz_id)
+
     TRAIN_VIEW_HOLDER.write_text(text, encoding="utf-8")
+
+
+def patch_index_button_typography(
+    text: str, pause_ma_id: int, pause_hz_id: int
+) -> str:
+    dimen_id = lookup_public_id("dimen", "ui_ma_text_size")
+    hz_id = lookup_public_id("id", "hzValue")
+    typography = ensure_index_button_typography_smali(
+        dimen_id, hz_id, pause_ma_id, pause_hz_id
+    )
+
+    if "ensureIndexButtonTypography()V" not in text:
+        text = text.replace(
+            ".method private updateTime()V",
+            typography + "\n\n.method private updateTime()V",
+            1,
+        )
+        print("TrainViewHolder: added ensureIndexButtonTypography()")
+    else:
+        text = re.sub(
+            r"\.method private ensureIndexButtonTypography\(\)V.*?\.end method",
+            typography,
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+
+    if UPDATE_UI_TYPOGRAPHY_NEW in text:
+        print("TrainViewHolder.updateUI: index typography lock already patched")
+    elif UPDATE_UI_TYPOGRAPHY_OLD in text:
+        text = text.replace(UPDATE_UI_TYPOGRAPHY_OLD, UPDATE_UI_TYPOGRAPHY_NEW, 1)
+        print("TrainViewHolder.updateUI: locks index button typography")
+    else:
+        raise RuntimeError("TrainViewHolder updateUI typography patch marker not found")
+
+    return text
 
 
 def patch_hz_listener() -> None:

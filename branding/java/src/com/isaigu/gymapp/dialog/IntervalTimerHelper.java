@@ -86,7 +86,7 @@ public final class IntervalTimerHelper {
     private static final int ID_RESET = 0x7f090278;
     private static final int ID_CONFIG_SCROLL = 0x7f090274;
     /** Max config panel height before scrolling — keeps activate button reachable. */
-    private static final int CONFIG_DIALOG_MAX_HEIGHT_DP = 520;
+    private static final int CONFIG_DIALOG_MAX_HEIGHT_DP = 420;
 
     private static final int STR_STATUS_IDLE = 0x7f0d0120;
     private static final int STR_STATUS_ARMED = 0x7f0d0121;
@@ -144,7 +144,7 @@ public final class IntervalTimerHelper {
     private static final int OVERLAY_WIDTH_DP =
             OVERLAY_SIZE_DP + OVERLAY_RESET_BTN_DP + OVERLAY_RESET_GAP_DP;
     /** Compact config panel width — must match apply-interval-timer dialog layout. */
-    private static final int CONFIG_DIALOG_WIDTH_DP = 280;
+    private static final int CONFIG_DIALOG_WIDTH_DP = 480;
 
     private static final String PREFS = "interval_timer";
     private static final String KEY_MINUTES = "minutes";
@@ -741,6 +741,7 @@ public final class IntervalTimerHelper {
                         ? dialogHeight
                         : WindowManager.LayoutParams.WRAP_CONTENT;
                 window.setLayout(widthPx, heightPx);
+                window.setGravity(Gravity.CENTER);
             }
         } catch (Throwable ignored) {
         }

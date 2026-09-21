@@ -162,7 +162,7 @@ def patch_version_name() -> None:
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionCode: \d+",
-        "versionCode: 103",
+        "versionCode: 104",
         text,
         count=1,
     )
@@ -179,10 +179,10 @@ def patch_version_name() -> None:
     apktool_yml.write_text(updated, encoding="utf-8")
     release_version = ROOT / "RELEASE_VERSION"
     release_version.write_text(
-        "versionName=1.1.22-xems-pro\nversionCode=103\n",
+        "versionName=1.1.22-xems-pro\nversionCode=104\n",
         encoding="utf-8",
     )
-    print("patched versionCode -> 103, versionName -> 1.1.22-xems-pro (PR219 base, code>102 for upgrade)")
+    print("patched versionCode -> 104, versionName -> 1.1.22-xems-pro")
 
 
 def copy_branding_layouts() -> None:

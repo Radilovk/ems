@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.train.utils.MasterStrengthControl;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.widget.AmountView;
@@ -140,31 +141,39 @@ public final class MusicPlayerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        boolean wasPicking = pickingFile;
         pickingFile = false;
-        if (requestCode != PICK_AUDIO || resultCode != Activity.RESULT_OK || data == null) {
-            return;
-        }
-        Activity activity = resolveHostActivity(null, overlayContent);
-        if (activity == null) {
-            return;
-        }
-        ClipData clip = data.getClipData();
-        if (clip != null && clip.getItemCount() > 0) {
-            for (int i = 0; i < clip.getItemCount(); i++) {
-                Uri uri = clip.getItemAt(i).getUri();
-                if (uri != null) {
-                    grantUri(activity, data, uri);
-                    addTrack(activity, uri);
-                }
+        try {
+            if (requestCode != PICK_AUDIO || resultCode != Activity.RESULT_OK || data == null) {
+                return;
             }
-            return;
+            Activity activity = resolveHostActivity(null, overlayContent);
+            if (activity == null) {
+                return;
+            }
+            controlsExpanded = true;
+            ClipData clip = data.getClipData();
+            if (clip != null && clip.getItemCount() > 0) {
+                for (int i = 0; i < clip.getItemCount(); i++) {
+                    Uri uri = clip.getItemAt(i).getUri();
+                    if (uri != null) {
+                        grantUri(activity, data, uri);
+                        addTrackSafe(activity, uri);
+                    }
+                }
+                return;
+            }
+            Uri uri = data.getData();
+            if (uri == null) {
+                return;
+            }
+            grantUri(activity, data, uri);
+            addTrackSafe(activity, uri);
+        } finally {
+            if (wasPicking) {
+                restoreOverlayAfterPick();
+            }
         }
-        Uri uri = data.getData();
-        if (uri == null) {
-            return;
-        }
-        grantUri(activity, data, uri);
-        addTrack(activity, uri);
     }
 
     private static boolean isOverlayShowing() {
@@ -551,6 +560,15 @@ public final class MusicPlayerHelper {
         return true;
     }
 
+    private static void addTrackSafe(Activity activity, Uri uri) {
+        try {
+            addTrack(activity, uri);
+        } catch (Throwable t) {
+            MusicDiagLog.logError("player_add_track", t);
+            showError(0x7f0d0113);
+        }
+    }
+
     private static void addTrack(Activity activity, Uri uri) {
         if (uri == null || activity == null) {
             return;
@@ -561,9 +579,68 @@ public final class MusicPlayerHelper {
             currentIndex = playlist.size() - 1;
         }
         persistPlaylist(activity);
-        rebuildPlaylistViews(activity);
-        refreshTrackTitle();
-        resizeOverlayWindow();
+        if (isOverlayShowing()) {
+            rebuildPlaylistViews(activity);
+            refreshTrackTitle();
+            resizeOverlayWindow();
+        }
+    }
+
+    private static void restoreOverlayAfterPick() {
+        Activity activity = resolveHostActivity(null, overlayContent);
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        try {
+            controlsExpanded = true;
+            applyExpandedState();
+            if (overlayDialog != null && overlayContent != null) {
+                if (!overlayDialog.isShowing()) {
+                    overlayDialog.show();
+                    overlayVisible = true;
+                    Window window = overlayDialog.getWindow();
+                    if (window != null) {
+                        window.setBackgroundDrawableResource(android.R.color.transparent);
+                        WindowManager.LayoutParams lp = window.getAttributes();
+                        lp.dimAmount = 0f;
+                        lp.flags = (lp.flags
+                                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+                                & ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                        window.setAttributes(lp);
+                    }
+                }
+                rebuildPlaylistViews(activity);
+                refreshTrackTitle();
+                resizeOverlayWindow();
+                return;
+            }
+            TrainItem item = MasterStrengthControl.getTarget();
+            if (item == null) {
+                item = resolveTargetItem(itemManager);
+            }
+            if (item != null) {
+                show(activity, item);
+                controlsExpanded = true;
+                applyExpandedState();
+                rebuildPlaylistViews(activity);
+                refreshTrackTitle();
+            }
+        } catch (Throwable t) {
+            MusicDiagLog.logError("music_player_restore_pick", t);
+            TrainItem item = MasterStrengthControl.getTarget();
+            if (item == null) {
+                item = resolveTargetItem(itemManager);
+            }
+            if (item != null) {
+                try {
+                    show(activity, item);
+                    controlsExpanded = true;
+                    applyExpandedState();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
     }
 
     private static void movePlaylistItem(int from, int to) {
@@ -827,7 +904,8 @@ public final class MusicPlayerHelper {
 
     private static void resizeOverlayWindow() {
         Activity activity = resolveHostActivity(null, overlayContent);
-        if (activity == null || overlayDialog == null || overlayContent == null) {
+        if (activity == null || overlayDialog == null || overlayContent == null
+                || !overlayDialog.isShowing()) {
             return;
         }
         int overlayWidthPx = dp(activity, OVERLAY_PANEL_WIDTH_DP);
@@ -1173,6 +1251,7 @@ public final class MusicPlayerHelper {
         @Override
         public void onDismiss(android.content.DialogInterface d) {
             if (pickingFile) {
+                overlayVisible = false;
                 return;
             }
             overlayDialog = null;

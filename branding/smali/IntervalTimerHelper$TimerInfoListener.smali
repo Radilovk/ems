@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1743
+    .line 1749
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,12 +32,12 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 1746
+    .line 1752
     const/4 v0, 0x0
 
     if-eqz p1, :cond_c
 
-    .line 1747
+    .line 1753
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object p1
@@ -48,31 +48,31 @@
 
     goto :goto_10
 
-    .line 1748
+    .line 1754
     :cond_c
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 1749
+    .line 1755
     :goto_10
     if-nez p1, :cond_16
 
-    .line 1750
+    .line 1756
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 1752
+    .line 1758
     :cond_16
     if-nez p1, :cond_19
 
-    .line 1753
+    .line 1759
     return-void
 
-    .line 1755
+    .line 1761
     :cond_19
     const v0, 0x7f0d0175
 
@@ -80,6 +80,6 @@
 
     invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
 
-    .line 1756
+    .line 1762
     return-void
 .end method

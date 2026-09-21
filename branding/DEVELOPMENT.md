@@ -1,12 +1,13 @@
 # XEMS Pro — ръководство за разработка
 
 Документ за следваща развойна дейност по APK брандинга, train UI и паралелни API-та.
-Актуализирано: 2026-09-19.
+Актуализирано: 2026-09-21.
 
 ## Канонични файлове
 
 | Файл | Назначение |
 |------|------------|
+| **`branding/UI-PITFALLS.md`** | **Чести UI/функционални грешки** (seek, overlay touch, timer buttons, swipe delete, sync) — прочети преди нова BETA функция |
 | `branding/ui-map.yaml` | Структура на екраните, train row колони, критични `@id`, build pipeline |
 | `branding/train-controls-map.yaml` | Пълен каталог на контроли (stop, Hz, сила, pause, BLE път) |
 | `branding/design-config.yaml` | Числови размери на train row (dp/sp, weights) |

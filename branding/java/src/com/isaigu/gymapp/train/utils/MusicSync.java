@@ -60,10 +60,14 @@ public class MusicSync {
     private static volatile int pendingApplied;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
 
+    public static boolean isTrainingGateOpen() {
+        return trainingGateOpen;
+    }
+
     private static final Runnable applyRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!running) {
+            if (!running || !trainingGateOpen) {
                 return;
             }
             int value = pendingApplied;
@@ -105,6 +109,9 @@ public class MusicSync {
     }
 
     private static void pushSoundLevel(int soundPercent) {
+        if (playerMode && !trainingGateOpen) {
+            return;
+        }
         int level = soundPercent;
         if (level < 0) {
             level = 0;
@@ -613,6 +620,8 @@ public class MusicSync {
         }
         if (!anyTrainingRunning) {
             trainingGateOpen = false;
+            ensureHandler();
+            handler.removeCallbacks(applyRunnable);
             if (engine.isPlaying()) {
                 pausedByTraining = true;
                 engine.pausePlayback();
@@ -636,7 +645,7 @@ public class MusicSync {
         lastPushedApplied = -1;
         ensureHandler();
         handler.removeCallbacks(applyRunnable);
-        MasterStrengthControl.setMasterStrength(0, true);
+        MasterStrengthControl.setMasterStrength(0, true, false);
         maybeUpdateUi();
     }
 

@@ -107,6 +107,14 @@ public final class MasterStrengthControl {
 
     /** @param updateUi false for high-rate music player drive (BLE only, UI throttled elsewhere) */
     public static void setMasterStrength(int percent, boolean updateUi) {
+        setMasterStrength(percent, updateUi, true);
+    }
+
+    /**
+     * @param sendBle false to update bean/UI only (e.g. freeze on training pause without
+     *                enqueueing strength commands behind stop)
+     */
+    public static void setMasterStrength(int percent, boolean updateUi, boolean sendBle) {
         percent = clamp(percent);
         if (percent == lastApplied) {
             return;
@@ -143,9 +151,19 @@ public final class MasterStrengthControl {
             }
         }
 
-        if (item.data != null && item.data.connected) {
+        if (sendBle && item.data != null && item.data.connected && shouldSendBle(item)) {
             item.onParamsChange();
         }
+    }
+
+    private static boolean shouldSendBle(TrainItem item) {
+        if (!syncActive) {
+            return true;
+        }
+        if (!MusicSync.isTrainingGateOpen()) {
+            return false;
+        }
+        return item.data == null || item.data.start;
     }
 
     public static TrainItem getTarget() {

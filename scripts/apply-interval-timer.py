@@ -279,7 +279,7 @@ def build_overlay_layout(cfg: dict | None = None) -> str:
     </FrameLayout>
     <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerClose" android:background="@drawable/round_circle_drawable_r20_red" android:layout_width="{btn_size}" android:layout_height="{btn_size}" android:text="&#215;" android:textAllCaps="false" />
     <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerReset" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="{btn_size}" android:layout_height="{btn_size}" android:text="&#8635;" android:textAllCaps="false" />
-    <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/intervalTimerPause" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="{btn_size}" android:layout_height="{btn_size}" android:text="&#9208;" android:textAllCaps="false" />
+    <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/intervalTimerPause" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="{btn_size}" android:layout_height="{btn_size}" android:letterSpacing="-0.08" android:text="II" android:textAllCaps="false" />
 </FrameLayout>
 """
 

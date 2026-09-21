@@ -240,7 +240,7 @@ ADD_PAUSE_STRENTH_METHOD = """
 
 ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 .method public addMainAndPauseStrenth(I)V
-    .locals 3
+    .locals 5
     .param p1, "value"    # I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -253,37 +253,58 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    add-int/2addr v1, p1
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    const/16 v2, 0x64
+    add-int v3, v1, p1
 
-    if-le v1, v2, :cond_main_cap
+    const/16 v4, 0x64
 
-    const/16 v1, 0x64
+    if-le v3, v4, :cond_main_cap
+
+    move v3, v4
 
     :cond_main_cap
-    if-gez v1, :cond_main_floor
+    if-gez v3, :cond_main_floor
 
-    const/4 v1, 0x0
+    const/4 v3, 0x0
 
     :cond_main_floor
-    iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    if-nez v3, :cond_has_main
 
-    iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    const/4 v2, 0x0
 
-    add-int/2addr v1, p1
+    goto :cond_store
 
-    if-le v1, v2, :cond_pause_cap
+    :cond_has_main
+    if-gtz v1, :cond_ratio
 
-    const/16 v1, 0x64
+    if-nez v2, :cond_store
+
+    move v2, v3
+
+    goto :cond_store
+
+    :cond_ratio
+    mul-int v4, v3, v2
+
+    div-int v2, v4, v1
+
+    const/16 v4, 0x64
+
+    if-le v2, v4, :cond_pause_cap
+
+    move v2, v4
 
     :cond_pause_cap
-    if-gez v1, :cond_pause_floor
+    if-gez v2, :cond_pause_floor
 
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
     :cond_pause_floor
-    iput v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    :cond_store
+    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iput v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 

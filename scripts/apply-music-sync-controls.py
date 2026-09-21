@@ -55,6 +55,24 @@ ADD_STRENGTH_FIXED = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/uti
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V"""
 
+ADD_STRENGTH_OLD_COND4 = """    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_4"""
+
+ADD_STRENGTH_NEW_COND4 = """    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_4
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_4"""
+
 ON_CHANGED_END_GUARD = """    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->shouldBlockManualControls()Z
 
     move-result v0
@@ -88,15 +106,19 @@ def patch_train_item_manager(text: str) -> str:
     if "MusicSyncBridge;->onMaStrengthDelta" in text:
         print("TrainItemManager: MA +/- ceiling hook already applied")
         return text
-    if ADD_STRENGTH_OLD not in text:
-        raise RuntimeError("TrainItemManager.addAllPartValue MA marker not found")
-    text = text.replace(ADD_STRENGTH_OLD, ADD_STRENGTH_NEW, 1)
-    print("TrainItemManager: route MA +/- to music sync ceiling during sync")
-    return text
+    if ADD_STRENGTH_OLD in text:
+        text = text.replace(ADD_STRENGTH_OLD, ADD_STRENGTH_NEW, 1)
+        print("TrainItemManager: route MA +/- to music sync ceiling during sync")
+        return text
+    if ADD_STRENGTH_OLD_COND4 in text:
+        text = text.replace(ADD_STRENGTH_OLD_COND4, ADD_STRENGTH_NEW_COND4, 1)
+        print("TrainItemManager: route MA +/- to music sync ceiling during sync")
+        return text
+    raise RuntimeError("TrainItemManager.addAllPartValue MA marker not found")
 
 
 def patch_circle_slider(text: str) -> str:
-    if "cond_sync_block_slider" in text:
+    if "cond_sync_block_slider" in text or "cond_allow_slider_end" in text:
         print("TrainViewHolder$4: manual slider block already applied")
         return text
     marker = ".method public onChangedEnd(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V\n    .locals 4\n"

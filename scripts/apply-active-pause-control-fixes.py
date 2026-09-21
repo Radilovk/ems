@@ -904,7 +904,7 @@ def patch_train_item_manager() -> None:
         if "MusicSyncBridge;->onMaStrengthDelta" in lambda_body
         else LAMBDA_ADD_ALL_MA_PLAIN
     )
-    replacement = LAMBDA_ADD_ALL_REPLACEMENT.replace("__MA_STRENGTH_BODY__", ma_body.strip())
+    replacement = LAMBDA_ADD_ALL_REPLACEMENT.replace("__MA_STRENGTH_BODY__", ma_body.rstrip())
     text = re.sub(
         r"\.method static synthetic lambda\$addAllPartValue\$6\(Ljava/util/concurrent/atomic/AtomicBoolean;ILcom/isaigu/gymapp/train/model/TrainItem;\)V.*?\.end method",
         replacement.strip(),

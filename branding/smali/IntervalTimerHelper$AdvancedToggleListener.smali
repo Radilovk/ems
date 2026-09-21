@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1714
+    .line 1756
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 1717
+    .line 1759
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedExpanded:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200()Z
 
@@ -43,7 +43,7 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedExpanded:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$202(Z)Z
 
-    .line 1718
+    .line 1760
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedPanel:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$300()Landroid/view/View;
 
@@ -51,7 +51,7 @@
 
     if-eqz v0, :cond_20
 
-    .line 1719
+    .line 1761
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->advancedPanel:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$300()Landroid/view/View;
 
@@ -74,7 +74,7 @@
     :goto_1d
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 1721
+    .line 1763
     :cond_20
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
@@ -83,6 +83,6 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshAdvancedToggleLabel(Landroid/app/Activity;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$400(Landroid/app/Activity;)V
 
-    .line 1722
+    .line 1764
     return-void
 .end method

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1859
+    .line 1901
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,13 +32,13 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 1862
+    .line 1904
     const/4 p1, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1802(I)I
 
-    .line 1863
+    .line 1905
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2300()Landroid/widget/Spinner;
 
@@ -46,11 +46,11 @@
 
     if-eqz v0, :cond_18
 
-    .line 1864
+    .line 1906
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1702(Z)Z
 
-    .line 1865
+    .line 1907
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->soundSpinner:Landroid/widget/Spinner;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2300()Landroid/widget/Spinner;
 
@@ -58,17 +58,17 @@
 
     invoke-virtual {v0, p1}, Landroid/widget/Spinner;->setSelection(I)V
 
-    .line 1866
+    .line 1908
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->ignoreSpinnerCallback:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1702(Z)Z
 
-    .line 1868
+    .line 1910
     :cond_18
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSoundUi()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000()V
 
-    .line 1869
+    .line 1911
     return-void
 .end method

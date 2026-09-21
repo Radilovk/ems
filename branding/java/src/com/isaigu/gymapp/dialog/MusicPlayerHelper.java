@@ -12,10 +12,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -107,6 +109,8 @@ public final class MusicPlayerHelper {
     private static android.graphics.drawable.Drawable dragSourceBackground;
     private static float dragGhostOffsetX;
     private static float dragGhostOffsetY;
+    private static ScrollView playlistScrollView;
+    private static int dragRowHeightPx;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable progressRunnable = new ProgressTickRunnable();
@@ -344,6 +348,7 @@ public final class MusicPlayerHelper {
         controlPanel = content.findViewById(ID_PANEL);
         playlistPanel = content.findViewById(ID_PLAYLIST_PANEL);
         playlistList = (LinearLayout) content.findViewById(ID_PLAYLIST_LIST);
+        playlistScrollView = findAncestorScrollView(playlistList);
         trackTitleView = (TextView) content.findViewById(ID_TRACK_TITLE);
         timeView = (TextView) content.findViewById(ID_TIME);
         statusView = (TextView) content.findViewById(ID_STATUS);
@@ -676,6 +681,24 @@ public final class MusicPlayerHelper {
         }
     }
 
+    private static ScrollView findAncestorScrollView(View view) {
+        if (view == null) {
+            return null;
+        }
+        for (ViewParent parent = view.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof ScrollView) {
+                return (ScrollView) parent;
+            }
+        }
+        return null;
+    }
+
+    private static void lockPlaylistScroll(boolean lock) {
+        if (playlistScrollView != null) {
+            playlistScrollView.requestDisallowInterceptTouchEvent(lock);
+        }
+    }
+
     private static int resolveDropIndex(float rawY) {
         if (playlistList == null || playlistList.getChildCount() == 0) {
             return dragFromIndex >= 0 ? dragFromIndex : 0;
@@ -685,48 +708,129 @@ public final class MusicPlayerHelper {
             View child = playlistList.getChildAt(i);
             int[] loc = new int[2];
             child.getLocationOnScreen(loc);
-            int mid = loc[1] + child.getHeight() / 2;
-            if (rawY < mid) {
+            int top = loc[1];
+            int bottom = top + Math.max(child.getHeight(), dragRowHeightPx);
+            if (rawY >= top && rawY <= bottom) {
+                int mid = top + (bottom - top) / 2;
+                return rawY < mid ? i : Math.min(i + 1, childCount - 1);
+            }
+            if (rawY < top) {
                 return i;
             }
         }
         return childCount - 1;
     }
 
-    private static void highlightDropTarget(int index) {
-        if (playlistList == null || index == dragHighlightIndex) {
+    private static void updateDragHover(int toIndex) {
+        if (playlistList == null || dragFromIndex < 0) {
             return;
         }
-        clearDragHighlight();
-        dragHighlightIndex = index;
-        if (index >= 0 && index < playlistList.getChildCount()) {
-            playlistList.getChildAt(index).setAlpha(0.65f);
+        int count = playlistList.getChildCount();
+        if (count == 0) {
+            return;
         }
-        if (dragFromIndex >= 0 && dragFromIndex < playlistList.getChildCount()) {
-            playlistList.getChildAt(dragFromIndex).setAlpha(0.45f);
+        if (toIndex < 0) {
+            toIndex = 0;
+        }
+        if (toIndex >= count) {
+            toIndex = count - 1;
+        }
+        if (toIndex == dragHighlightIndex) {
+            return;
+        }
+        dragHighlightIndex = toIndex;
+        int from = dragFromIndex;
+        int rowH = dragRowHeightPx;
+        if (rowH <= 0) {
+            Activity activity = resolveHostActivity(null, overlayContent);
+            rowH = activity != null ? dp(activity, 44) : 132;
+        }
+        for (int i = 0; i < count; i++) {
+            View child = playlistList.getChildAt(i);
+            float shift = 0f;
+            if (from < toIndex) {
+                if (i > from && i <= toIndex) {
+                    shift = -rowH;
+                }
+            } else if (from > toIndex) {
+                if (i >= toIndex && i < from) {
+                    shift = rowH;
+                }
+            }
+            child.animate().translationY(shift).setDuration(90L).start();
+            if (child != dragSourceRow) {
+                child.setAlpha(1f);
+            }
+        }
+    }
+
+    private static void autoScrollPlaylist(float rawY) {
+        if (playlistScrollView == null) {
+            return;
+        }
+        Activity activity = resolveHostActivity(null, overlayContent);
+        int edge = activity != null ? dp(activity, 40) : 120;
+        int[] loc = new int[2];
+        playlistScrollView.getLocationOnScreen(loc);
+        int top = loc[1];
+        int bottom = top + playlistScrollView.getHeight();
+        if (rawY < top + edge) {
+            playlistScrollView.scrollBy(0, -16);
+        } else if (rawY > bottom - edge) {
+            playlistScrollView.scrollBy(0, 16);
+        }
+    }
+
+    private static void resetPlaylistRowTransforms() {
+        if (playlistList == null) {
+            return;
+        }
+        for (int i = 0; i < playlistList.getChildCount(); i++) {
+            View child = playlistList.getChildAt(i);
+            child.animate().cancel();
+            child.setTranslationY(0f);
+            child.setAlpha(1f);
+            child.setScaleX(1f);
+            child.setScaleY(1f);
+            child.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private static void finishDragReorder(int fromIndex, int toIndex) {
+        removeDragGhost();
+        resetPlaylistRowTransforms();
+        restoreDragSourceRow();
+        lockPlaylistScroll(false);
+        dragHighlightIndex = -1;
+        dragFromIndex = -1;
+        dragRowHeightPx = 0;
+        activeDragListener = null;
+        if (fromIndex != toIndex) {
+            movePlaylistItem(fromIndex, toIndex);
+        } else {
+            Activity activity = resolveHostActivity(null, overlayContent);
+            if (activity != null) {
+                rebuildPlaylistViews(activity);
+            }
         }
     }
 
     private static void clearDragHighlight() {
         removeDragGhost();
+        resetPlaylistRowTransforms();
         restoreDragSourceRow();
-        if (playlistList == null) {
-            dragHighlightIndex = -1;
-            return;
-        }
-        for (int i = 0; i < playlistList.getChildCount(); i++) {
-            View child = playlistList.getChildAt(i);
-            child.setAlpha(1f);
-            child.setScaleX(1f);
-            child.setScaleY(1f);
-        }
+        lockPlaylistScroll(false);
         dragHighlightIndex = -1;
+        dragFromIndex = -1;
+        dragRowHeightPx = 0;
+        activeDragListener = null;
     }
 
     private static void restoreDragSourceRow() {
         if (dragSourceRow == null) {
             return;
         }
+        dragSourceRow.setVisibility(View.VISIBLE);
         dragSourceRow.setAlpha(1f);
         dragSourceRow.setScaleX(1f);
         dragSourceRow.setScaleY(1f);
@@ -1161,7 +1265,8 @@ public final class MusicPlayerHelper {
                     lastRawY = event.getRawY();
                     if (dragging) {
                         moveDragGhost(lastRawX, lastRawY);
-                        highlightDropTarget(resolveDropIndex(lastRawY));
+                        updateDragHover(resolveDropIndex(lastRawY));
+                        autoScrollPlaylist(lastRawY);
                         return true;
                     }
                     return true;
@@ -1170,15 +1275,12 @@ public final class MusicPlayerHelper {
                     cancelPendingDrag();
                     if (dragging) {
                         int toIndex = resolveDropIndex(event.getRawY());
-                        clearDragHighlight();
                         dragging = false;
-                        dragFromIndex = -1;
-                        if (toIndex != index) {
-                            movePlaylistItem(index, toIndex);
-                        }
+                        finishDragReorder(index, toIndex);
                         resizeOverlayWindow();
                         return true;
                     }
+                    lockPlaylistScroll(false);
                     return false;
                 default:
                     return false;
@@ -1188,6 +1290,10 @@ public final class MusicPlayerHelper {
         void beginDrag(View handle, float rawX, float rawY) {
             dragging = true;
             dragFromIndex = index;
+            if (playlistScrollView == null) {
+                playlistScrollView = findAncestorScrollView(playlistList);
+            }
+            lockPlaylistScroll(true);
             try {
                 handle.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             } catch (Throwable ignored) {
@@ -1197,23 +1303,15 @@ public final class MusicPlayerHelper {
                 restoreDragSourceRow();
                 dragSourceRow = row;
                 dragSourceBackground = row.getBackground();
-                row.setAlpha(0.35f);
-                row.setScaleX(0.96f);
-                row.setScaleY(0.96f);
+                dragRowHeightPx = row.getHeight();
                 Activity activity = resolveHostActivity(handle);
-                if (activity != null) {
-                    android.graphics.drawable.GradientDrawable placeholder =
-                            new android.graphics.drawable.GradientDrawable();
-                    placeholder.setColor(0x22000000);
-                    placeholder.setCornerRadius(dp(activity, 10));
-                    placeholder.setStroke(
-                            Math.max(2, dp(activity, 2)),
-                            resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A));
-                    row.setBackground(placeholder);
+                if (dragRowHeightPx <= 0 && activity != null) {
+                    dragRowHeightPx = dp(activity, 44);
                 }
+                row.setVisibility(View.INVISIBLE);
                 showDragGhost(row, rawX, rawY);
             }
-            highlightDropTarget(index);
+            updateDragHover(index);
         }
     }
 

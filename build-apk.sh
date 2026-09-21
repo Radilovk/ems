@@ -88,8 +88,6 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   bash "${ROOT}/scripts/compile-interval-timer-java.sh"
   python3 "${ROOT}/scripts/apply-interval-timer.py"
   python3 "${ROOT}/scripts/apply-music-training-sync.py"
-  python3 "${ROOT}/scripts/apply-train-participant-ui.py"
-  python3 "${ROOT}/scripts/apply-train-empty-slot-swipe-fix.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
   python3 "${ROOT}/scripts/remove-segment-program-gear.py"
   python3 "${ROOT}/scripts/apply-diag-logging.py"
@@ -139,11 +137,13 @@ VERSION_CODE=""
 if [[ -f "${DECOMPILED}/apktool.yml" ]]; then
   VERSION_NAME="$(grep '^  versionName:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionName: //')"
   VERSION_CODE="$(grep '^  versionCode:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionCode: //')"
-  cat > "${ROOT}/RELEASE_VERSION" <<EOF
-versionName=${VERSION_NAME}
+  release_version="${ROOT}/RELEASE_VERSION"
+  release_text="versionName=${VERSION_NAME}
 versionCode=${VERSION_CODE}
-builtAt=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-EOF
+"
+  if [[ ! -f "${release_version}" ]] || [[ "$(cat "${release_version}")" != "${release_text}" ]]; then
+    printf '%s' "${release_text}" > "${release_version}"
+  fi
 fi
 
 echo ""
@@ -161,16 +161,19 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   if ! git diff --quiet -- "${ROOT}/RELEASE_VERSION" 2>/dev/null || ! git diff --cached --quiet -- "${ROOT}/RELEASE_VERSION" 2>/dev/null; then
     version_dirty=1
   fi
-  if [[ "${apk_dirty}" -eq 1 || "${version_dirty}" -eq 1 ]]; then
+  if [[ "${version_dirty}" -eq 1 ]]; then
     echo ""
     if [[ "${SKIP_APK_COMMIT_CHECK:-0}" == "1" ]]; then
-      echo "WARN: Built APK is not committed (SKIP_APK_COMMIT_CHECK=1)."
+      echo "WARN: RELEASE_VERSION is not committed (SKIP_APK_COMMIT_CHECK=1)."
     else
-      echo "ERROR: Built APK is not committed. Users cannot download the new version until you:"
+      echo "ERROR: RELEASE_VERSION is not committed. Users cannot download the new version until you:"
       echo "  git add xems27.apk RELEASE_VERSION"
       echo "  git commit -m \"Build ${VERSION_NAME}\""
       echo "  git push"
       exit 1
     fi
+  elif [[ "${apk_dirty}" -eq 1 ]]; then
+    echo ""
+    echo "WARN: xems27.apk bytes differ (normal after resign); version ${VERSION_NAME} (${VERSION_CODE}) is committed."
   fi
 fi

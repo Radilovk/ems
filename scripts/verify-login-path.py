@@ -30,8 +30,6 @@ def main() -> int:
             fail(f"new_train_fragment_layout.xml missing @{view_id} (ViewBinding NPE on login)")
 
     user_row = USER_ROW_LAYOUT.read_text(encoding="utf-8") if USER_ROW_LAYOUT.is_file() else ""
-    if "@id/trainAddParticipantWrap" not in user_row:
-        fail("new_user_train_control_item_layout.xml missing trainAddParticipantWrap overlay")
     if user_row.lstrip().startswith("<RelativeLayout"):
         fail("user row layout root must stay LinearLayout for ViewBinding")
 
@@ -68,8 +66,6 @@ def main() -> int:
     adapter = TRAIN / "TrainAdapter.smali"
     if adapter.is_file():
         ad_text = adapter.read_text(encoding="utf-8")
-        if "updateAddParticipantButton(Z)V" not in ad_text:
-            fail("TrainAdapter missing last-row add-user visibility patch")
         if "shouldShowAddFooter()Z" in ad_text:
             fail("TrainAdapter still uses footer add-user row")
 
@@ -80,9 +76,6 @@ def main() -> int:
             fail("TrainViewHolder still has footer-row wiring")
         if "if-eqz v0, :cond_footer_done" in vh_text or "if-nez v0, :cond_footer_done" in vh_text:
             fail("TrainViewHolder still has isFooter bind guard (breaks user data bind)")
-        if "initAddParticipantButton()V" not in vh_text:
-            fail("TrainViewHolder missing row add-user overlay wiring")
-
     footer = DECOMPILED / "res/layout/train_add_participant_footer.xml"
     if footer.is_file():
         fail("train_add_participant_footer.xml must not exist (use row overlay instead)")

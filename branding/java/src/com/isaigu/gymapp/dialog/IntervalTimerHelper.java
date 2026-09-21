@@ -44,6 +44,7 @@ import com.isaigu.gymapp.widget.TimerRingView;
 public final class IntervalTimerHelper {
     static final int BUTTON_ID = 0x7f090230;
     static final int ALL_STOP_ID = 0x7f09003c;
+    static final int RIGHT_LAYOUT_ID = 0x7f090155;
     static final int DIALOG_LAYOUT_ID = 0x7f0b0079;
     static final int OVERLAY_LAYOUT_ID = 0x7f0b007a;
     static final int SPINNER_ITEM_LAYOUT_ID = 0x7f0b007b;
@@ -148,9 +149,11 @@ public final class IntervalTimerHelper {
     private static final int OVERLAY_SIZE_DP = 192;
     /** Same vertical row as {@link MusicPlayerHelper} overlay (opposite side of master panel). */
     private static final int OVERLAY_ROW_Y_DP = 300;
-    private static final int OVERLAY_EDGE_MARGIN_DP = 20;
-    /** Extra inset from the right edge (moves dial left on screen). */
-    private static final int OVERLAY_EXTRA_LEFT_INSET_DP = 20;
+    /** Gap between overlay right edge and the train sidebar (rightLayout) left edge. */
+    private static final int OVERLAY_SIDEBAR_GAP_DP = 40;
+    /** Fallback sidebar width when rightLayout is not measured yet (weight 0.7 / 10.7). */
+    private static final float SIDEBAR_WIDTH_WEIGHT = 0.7f;
+    private static final float CONTENT_WIDTH_WEIGHT = 10.0f;
     private static final int OVERLAY_RESET_BTN_DP = 44;
     private static final int OVERLAY_RESET_GAP_DP = 4;
     private static final int OVERLAY_WIDTH_DP =
@@ -849,10 +852,7 @@ public final class IntervalTimerHelper {
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.width = overlayWidthPx;
             lp.height = overlayHeightPx;
-            int marginPx = dp(activity, OVERLAY_EDGE_MARGIN_DP);
-            int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
-            int extraLeftPx = dp(activity, OVERLAY_EXTRA_LEFT_INSET_DP);
-            lp.x = Math.max(marginPx, screenWidth - overlayWidthPx - marginPx - extraLeftPx);
+            lp.x = resolveOverlayX(activity, overlayWidthPx);
             lp.y = dp(activity, OVERLAY_ROW_Y_DP);
             lp.dimAmount = 0f;
             lp.flags = (lp.flags
@@ -1574,6 +1574,21 @@ public final class IntervalTimerHelper {
         view.setClickable(true);
         view.setFocusable(true);
         view.setOnClickListener(listener);
+    }
+
+    /** Place timer dial fully left of the master-button sidebar, with a fixed gap. */
+    private static int resolveOverlayX(Activity activity, int overlayWidthPx) {
+        int gapPx = dp(activity, OVERLAY_SIDEBAR_GAP_DP);
+        View sidebar = panelRoot != null ? panelRoot.findViewById(RIGHT_LAYOUT_ID) : null;
+        if (sidebar != null && sidebar.getWidth() > 0) {
+            int[] loc = new int[2];
+            sidebar.getLocationOnScreen(loc);
+            return Math.max(0, loc[0] - overlayWidthPx - gapPx);
+        }
+        int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+        float totalWeight = CONTENT_WIDTH_WEIGHT + SIDEBAR_WIDTH_WEIGHT;
+        int sidebarEstimatePx = Math.round(screenWidth * SIDEBAR_WIDTH_WEIGHT / totalWeight);
+        return Math.max(0, screenWidth - sidebarEstimatePx - overlayWidthPx - gapPx);
     }
 
     private static int dp(Activity activity, int value) {

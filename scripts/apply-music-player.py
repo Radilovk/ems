@@ -56,8 +56,8 @@ IDS = {
     "musicPlayerItemDown": 0x7F090287,
     "musicPlayerClose": 0x7F090288,
     "musicPlayerInfoBtn": 0x7F090289,
-    "musicPlayerVisualizer": 0x7F090290,
-    "musicPlayerLoading": 0x7F090291,
+    "musicPlayerVisualizer": 0x7F09028E,
+    "musicPlayerLoading": 0x7F09028F,
 }
 
 STRING_IDS = {
@@ -138,7 +138,7 @@ PLAYLIST_ITEM_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 MASTER_BUTTON_BLOCK = """        <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.15" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerBtn" android:background="@drawable/light_green_button_drawable_r30" android:focusable="false" android:focusableInTouchMode="false" android:layout_width="50.0dip" android:layout_height="50.0dip" android:text="&#9835;" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="22.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerBtn" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="50.0dip" android:layout_height="50.0dip" android:text="&#9835;" android:textAllCaps="false" />
         <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.15" />
 """
 

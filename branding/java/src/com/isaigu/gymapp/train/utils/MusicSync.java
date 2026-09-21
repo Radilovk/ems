@@ -109,6 +109,9 @@ public class MusicSync {
     }
 
     private static void pushSoundLevel(int soundPercent) {
+        if (playerMode && !trainingGateOpen) {
+            return;
+        }
         int level = soundPercent;
         if (level < 0) {
             level = 0;
@@ -124,9 +127,6 @@ public class MusicSync {
             level = Math.round(playerSmoothedSound * 100f);
         }
         liveStrength = level;
-        if (playerMode && !trainingGateOpen) {
-            return;
-        }
         int applied = MasterStrengthControl.scaleFromSound(level);
         if (applied == lastPushedApplied && applied == pendingApplied) {
             return;
@@ -586,7 +586,7 @@ public class MusicSync {
     static final class PlayerSyncListener implements MusicPlayerEngine.Listener {
         @Override
         public void onWaveformLevel(int soundPercent) {
-            if (running && playerMode && !pausedByTraining) {
+            if (running && playerMode && trainingGateOpen && !pausedByTraining) {
                 pushSoundLevel(soundPercent);
             }
         }

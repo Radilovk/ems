@@ -240,7 +240,7 @@ ADD_PAUSE_STRENTH_METHOD = """
 
 ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 .method public addMainAndPauseStrenth(I)V
-    .locals 5
+    .locals 6
     .param p1, "value"    # I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -271,40 +271,69 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
     :cond_main_floor
     if-nez v3, :cond_has_main
 
-    const/4 v2, 0x0
+    const/4 v5, 0x0
 
     goto :cond_store
 
     :cond_has_main
-    if-gtz v1, :cond_ratio
+    if-lez v1, :cond_from_zero
 
-    if-nez v2, :cond_store
-
-    move v2, v3
-
-    goto :cond_store
-
-    :cond_ratio
     mul-int v4, v3, v2
 
-    div-int v2, v4, v1
+    div-int v5, v4, v1
 
-    const/16 v4, 0x64
+    goto :cond_bump
 
-    if-le v2, v4, :cond_pause_cap
+    :cond_from_zero
+    if-nez v2, :cond_bootstrap
 
-    move v2, v4
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_bootstrap
+    move v5, v2
+
+    goto :cond_pause_clamp
+
+    :cond_bump
+    if-lez p1, :cond_bump_up_done
+
+    if-le v3, v1, :cond_bump_up_done
+
+    if-ne v5, v2, :cond_bump_up_done
+
+    if-ge v2, v4, :cond_bump_up_done
+
+    add-int/lit8 v5, v5, 0x1
+
+    :cond_bump_up_done
+    if-gez p1, :cond_bump_down_done
+
+    if-ge v3, v1, :cond_bump_down_done
+
+    if-ne v5, v2, :cond_bump_down_done
+
+    if-lez v2, :cond_bump_down_done
+
+    add-int/lit8 v5, v5, -0x1
+
+    :cond_bump_down_done
+    :cond_pause_clamp
+    if-le v5, v4, :cond_pause_cap
+
+    move v5, v4
 
     :cond_pause_cap
-    if-gez v2, :cond_pause_floor
+    if-gez v5, :cond_pause_floor
 
-    const/4 v2, 0x0
+    const/4 v5, 0x0
 
     :cond_pause_floor
     :cond_store
     iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iput v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iput v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 

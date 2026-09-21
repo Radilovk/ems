@@ -237,19 +237,15 @@ def shrink_mode_button(tag: str, *, user_layout: bool) -> str:
     height = MODE_BTN_HEIGHT
     margin = MODE_BTN_MARGIN_USER if user_layout else MODE_BTN_MARGIN_NEW
     tag = re.sub(r'android:layout_height="[\d.]+dip"', f'android:layout_height="{height}"', tag)
-    if user_layout:
+    tag = re.sub(r'\s*android:layout_marginLeft="[\d.]+dip"', "", tag)
+    tag = re.sub(r'\s*android:layout_marginRight="[\d.]+dip"', "", tag)
+    if re.search(r'android:layout_margin="', tag):
         tag = re.sub(r'android:layout_margin="[\d.]+dip"', f'android:layout_margin="{margin}"', tag)
-        tag = re.sub(
-            r'android:layout_marginLeft="[\d.]+dip" android:layout_marginRight="[\d.]+dip"',
-            f'android:layout_marginLeft="{margin}" android:layout_marginRight="{margin}"',
-            tag,
-        )
     else:
-        tag = re.sub(r'android:layout_margin="[\d.]+dip"', f'android:layout_margin="{margin}"', tag)
-        tag = re.sub(
-            r'android:layout_marginLeft="[\d.]+dip" android:layout_marginRight="[\d.]+dip"',
-            f'android:layout_marginLeft="{margin}" android:layout_marginRight="{margin}"',
-            tag,
+        tag = tag.replace(
+            'android:textStyle="bold"',
+            f'android:textStyle="bold" android:layout_margin="{margin}"',
+            1,
         )
     return tag
 

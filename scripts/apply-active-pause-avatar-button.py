@@ -169,8 +169,17 @@ ADD_PAUSE_HZ_METHOD = """
 
     move-result-object v0
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
+    move-result-object v0
+
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v1, :cond_active_pause
+
+    return-void
+
+    :cond_active_pause
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
     add-int/2addr v1, p1
@@ -763,18 +772,6 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iput-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     goto :cond_clear
 
@@ -1850,6 +1847,15 @@ def patch_train_item() -> None:
             raise RuntimeError("TrainItem.addHz marker not found")
         text = text.replace(marker, ADD_PAUSE_HZ_METHOD.strip() + "\n\n" + marker, 1)
         print("TrainItem: added addPauseHz()")
+    else:
+        text = re.sub(
+            r"\.method public addPauseHz\(I\)V.*?\.end method",
+            ADD_PAUSE_HZ_METHOD.strip(),
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        print("TrainItem: updated addPauseHz() active-pause guard")
 
     if "addPauseStrenth(I)V" not in text:
         marker = ".method public addPauseHz(I)V"

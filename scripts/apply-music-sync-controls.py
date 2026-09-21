@@ -3,7 +3,17 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
+
+MAIN_MODE_PLUS_MINUS_BLOCK = re.compile(
+    r"\n    :cond_ma\n"
+    r"    invoke-virtual \{p2\}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMainModeSelected\(\)Z\n"
+    r".*?"
+    r"    :cond_main_mode\n"
+    r"    return-void",
+    re.DOTALL,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 TRAIN_ITEM_MANAGER = (
@@ -32,9 +42,12 @@ ADD_STRENGTH_NEW = """    invoke-virtual {p0, v0}, Ljava/util/concurrent/atomic/
 
     move-result v0
 
-    if-nez v0, :cond_ma
+    if-nez v0, :cond_ma_return
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    :cond_ma_return
+    return-void
 
     :cond_ma
     return-void"""
@@ -43,7 +56,7 @@ ADD_STRENGTH_BROKEN = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/ut
 
     move-result v0
 
-    if-eqz v0, :cond_ma
+    if-eqz v0, :cond_ma_return
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V"""
 
@@ -51,7 +64,7 @@ ADD_STRENGTH_FIXED = """    invoke-static {p2, p1}, Lcom/isaigu/gymapp/train/uti
 
     move-result v0
 
-    if-nez v0, :cond_ma
+    if-nez v0, :cond_ma_return
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V"""
 
@@ -104,15 +117,21 @@ def patch_train_item_manager(text: str) -> str:
         print("TrainItemManager: fixed inverted MA +/- music sync branch")
         return text
     if "MusicSyncBridge;->onMaStrengthDelta" in text:
-        print("TrainItemManager: MA +/- ceiling hook already applied")
+        if MAIN_MODE_PLUS_MINUS_BLOCK.search(text):
+            text = MAIN_MODE_PLUS_MINUS_BLOCK.sub("\n    :cond_ma\n    return-void", text)
+            print("TrainItemManager: stripped main-mode +/- from music sync hook")
+        else:
+            print("TrainItemManager: MA +/- ceiling hook already applied")
         return text
     if ADD_STRENGTH_OLD in text:
         text = text.replace(ADD_STRENGTH_OLD, ADD_STRENGTH_NEW, 1)
         print("TrainItemManager: route MA +/- to music sync ceiling during sync")
+        text = MAIN_MODE_PLUS_MINUS_BLOCK.sub("\n    :cond_ma\n    return-void", text)
         return text
     if ADD_STRENGTH_OLD_COND4 in text:
         text = text.replace(ADD_STRENGTH_OLD_COND4, ADD_STRENGTH_NEW_COND4, 1)
         print("TrainItemManager: route MA +/- to music sync ceiling during sync")
+        text = MAIN_MODE_PLUS_MINUS_BLOCK.sub("\n    :cond_ma\n    return-void", text)
         return text
     raise RuntimeError("TrainItemManager.addAllPartValue MA marker not found")
 
@@ -142,14 +161,11 @@ def patch_change_part(text: str) -> str:
 
 
 def main() -> int:
-    paths = [
+    for path, patcher in (
         (TRAIN_ITEM_MANAGER, patch_train_item_manager),
         (TRAIN_VH4, patch_circle_slider),
         (NEW_TRAIN, patch_change_part),
-    ]
-    for path, patcher in paths:
-        if not path.is_file():
-            raise SystemExit(f"Missing: {path}")
+    ):
         text = path.read_text(encoding="utf-8")
         path.write_text(patcher(text), encoding="utf-8")
     return 0

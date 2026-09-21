@@ -42,7 +42,7 @@ LAYOUTS = (
 
 MAIN_MODE_BTN_NEW = (
     '<com.isaigu.gymapp.widget.MyButton android:textSize="@dimen/ui_mode_button_text_size" '
-    'android:textStyle="bold" android:textColor="@color/mode_button_text" '
+    'android:textStyle="bold" android:textColor="@color/mode_button_text_active" '
     f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/round_corner_drawable_r10_gray" '
     'android:layout_width="120.0dip" '
     f'android:layout_height="{MODE_BTN_HEIGHT}" '
@@ -52,7 +52,7 @@ MAIN_MODE_BTN_NEW = (
 
 MAIN_MODE_BTN_USER = (
     '<com.isaigu.gymapp.widget.MyButton android:textSize="@dimen/ui_mode_button_text_size" '
-    'android:textStyle="bold" android:textColor="@color/mode_button_text" '
+    'android:textStyle="bold" android:textColor="@color/mode_button_text_active" '
     f'android:id="@id/{MAIN_MODE_ID_NAME}" android:background="@drawable/round_corner_drawable_r10_gray" '
     'android:layout_width="100.0dip" '
     f'android:layout_height="{MODE_BTN_HEIGHT}" '

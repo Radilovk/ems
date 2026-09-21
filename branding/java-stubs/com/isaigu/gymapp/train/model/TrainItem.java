@@ -27,5 +27,7 @@ public class TrainItem {
 
     public void setPauseHzSelected(boolean selected) {}
 
+    public void start() {}
+
     public void stop() {}
 }

@@ -109,9 +109,6 @@ public class MusicSync {
     }
 
     private static void pushSoundLevel(int soundPercent) {
-        if (playerMode && !trainingGateOpen) {
-            return;
-        }
         int level = soundPercent;
         if (level < 0) {
             level = 0;
@@ -127,6 +124,9 @@ public class MusicSync {
             level = Math.round(playerSmoothedSound * 100f);
         }
         liveStrength = level;
+        if (playerMode && !trainingGateOpen) {
+            return;
+        }
         int applied = MasterStrengthControl.scaleFromSound(level);
         if (applied == lastPushedApplied && applied == pendingApplied) {
             return;
@@ -520,11 +520,19 @@ public class MusicSync {
             running = true;
             setSyncActive(true);
             liveStrength = 0;
+            trainingGateOpen = true;
+            pausedByTraining = false;
             MusicPlayerHelper.showActive(0, getStrengthCeiling());
+            MusicPlayerHelper.onPlaybackStarted();
         } catch (Throwable t) {
             stopCaptureOnly();
             MusicPlayerHelper.showError(ERROR_PLAYER);
         }
+    }
+
+    public static void onPlayerPlaybackStarted() {
+        trainingGateOpen = true;
+        pausedByTraining = false;
     }
 
     static final class PlayerPrepareTask implements Runnable {
@@ -578,7 +586,7 @@ public class MusicSync {
     static final class PlayerSyncListener implements MusicPlayerEngine.Listener {
         @Override
         public void onWaveformLevel(int soundPercent) {
-            if (running && playerMode && trainingGateOpen && !pausedByTraining) {
+            if (running && playerMode && !pausedByTraining) {
                 pushSoundLevel(soundPercent);
             }
         }
@@ -588,6 +596,7 @@ public class MusicSync {
             if (MusicPlayerHelper.advanceToNextTrack()) {
                 return;
             }
+            MusicPlayerHelper.onPlaybackEndedNaturally();
             stop();
             MusicPlayerHelper.showIdle();
         }

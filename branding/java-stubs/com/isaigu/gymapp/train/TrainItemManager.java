@@ -9,4 +9,10 @@ public class TrainItemManager {
     public Stream<TrainItem> notEmptyItems() { return null; }
 
     public List<TrainItem> getItemList() { return null; }
+
+    public void startAll() {}
+
+    public void stopAll() {}
+
+    public void resetAll() {}
 }

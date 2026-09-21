@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1161
+    .line 1308
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,53 +30,100 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 8
 
-    .line 1164
+    .line 1311
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    .line 1312
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->lastPlayClickMs:J
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100()J
+
+    move-result-wide v2
+
+    sub-long v2, v0, v2
+
+    const-wide/16 v4, 0x1c2
+
+    cmp-long p1, v2, v4
+
+    if-gez p1, :cond_11
+
+    .line 1313
+    return-void
+
+    .line 1315
+    :cond_11
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->lastPlayClickMs:J
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(J)J
+
+    .line 1316
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isPlayerPreparing()Z
 
     move-result p1
 
-    if-eqz p1, :cond_7
+    if-eqz p1, :cond_1b
 
-    .line 1165
+    .line 1317
     return-void
 
-    .line 1167
-    :cond_7
+    .line 1319
+    :cond_1b
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result p1
 
-    if-eqz p1, :cond_1a
+    if-eqz p1, :cond_3e
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isPlayerMode()Z
 
     move-result p1
 
-    if-eqz p1, :cond_1a
+    if-eqz p1, :cond_3e
 
-    .line 1168
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->togglePlaybackPause()V
-
-    .line 1169
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updatePlayPauseLabel()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100()V
-
-    .line 1170
-    return-void
-
-    .line 1172
-    :cond_1a
-    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$200()I
+    .line 1320
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isPlaybackPaused()Z
 
     move-result p1
 
-    if-gez p1, :cond_2e
+    if-eqz p1, :cond_34
+
+    .line 1321
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->togglePlaybackPause()V
+
+    .line 1322
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onPlaybackResumedByUser()V
+
+    goto :goto_3a
+
+    .line 1324
+    :cond_34
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->togglePlaybackPause()V
+
+    .line 1325
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onPlaybackPausedByUser()V
+
+    .line 1327
+    :goto_3a
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updatePlayPauseLabel()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$200()V
+
+    .line 1328
+    return-void
+
+    .line 1330
+    :cond_3e
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$300()I
+
+    move-result p1
+
+    if-gez p1, :cond_52
 
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlist:Ljava/util/ArrayList;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$300()Ljava/util/ArrayList;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()Ljava/util/ArrayList;
 
     move-result-object p1
 
@@ -84,21 +131,21 @@
 
     move-result p1
 
-    if-nez p1, :cond_2e
+    if-nez p1, :cond_52
 
-    .line 1173
+    .line 1331
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentIndex:I
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$202(I)I
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$302(I)I
 
-    .line 1175
-    :cond_2e
+    .line 1333
+    :cond_52
     const/4 p1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->startCurrentTrack(Z)Z
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400(Z)Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$500(Z)Z
 
-    .line 1176
+    .line 1334
     return-void
 .end method

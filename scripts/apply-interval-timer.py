@@ -340,7 +340,7 @@ ALL_STOP_HOOK_NEW = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/My
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingStop()V
 
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onTrainingFullStop()V
 
     .line 100
     return-void
@@ -640,16 +640,23 @@ def patch_new_train_fragment(text: str) -> str:
     if ALL_STOP_HOOK_OLD in text:
         text = text.replace(ALL_STOP_HOOK_OLD, ALL_STOP_HOOK_NEW, 1)
         print("NewTrainFragment: interval + music hook on allStop")
-    elif "MusicPlayerHelper;->syncTrainingState" in text and "onTrainingStop" in text:
+    elif "MusicPlayerHelper;->onTrainingFullStop" in text:
         print("NewTrainFragment: allStop training sync already applied")
+    elif "MusicPlayerHelper;->syncTrainingState" in text and "onTrainingStop" in text:
+        text = text.replace(
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V\n\n    .line 100",
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onTrainingFullStop()V\n\n    .line 100",
+            1,
+        )
+        print("NewTrainFragment: upgraded allStop to onTrainingFullStop")
     elif "IntervalTimerHelper;->onTrainingStop" in text:
         text = text.replace(
             "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingStop()V\n\n    .line 100",
             "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingStop()V\n\n"
-            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V\n\n    .line 100",
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onTrainingFullStop()V\n\n    .line 100",
             1,
         )
-        print("NewTrainFragment: added music sync to allStop hook")
+        print("NewTrainFragment: added onTrainingFullStop to allStop hook")
     else:
         raise RuntimeError("NewTrainFragment lambda$onCreateView$1 marker not found")
 

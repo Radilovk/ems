@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1589
+    .line 1591
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public run()V
     .registers 4
 
-    .line 1592
+    .line 1594
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result v0
@@ -47,12 +47,12 @@
 
     goto :goto_33
 
-    .line 1598
+    .line 1600
     :cond_d
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshSeekFromPlayer()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3800()V
 
-    .line 1599
+    .line 1601
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3700()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -60,7 +60,7 @@
 
     if-eqz v0, :cond_29
 
-    .line 1600
+    .line 1602
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3700()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -70,7 +70,7 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
 
-    .line 1601
+    .line 1603
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3700()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -82,7 +82,7 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setLiveLevel(I)V
 
-    .line 1603
+    .line 1605
     :cond_29
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1800()Landroid/os/Handler;
@@ -93,10 +93,10 @@
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 1604
+    .line 1606
     return-void
 
-    .line 1593
+    .line 1595
     :cond_33
     :goto_33
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
@@ -106,7 +106,7 @@
 
     if-eqz v0, :cond_41
 
-    .line 1594
+    .line 1596
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3700()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -116,7 +116,7 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
 
-    .line 1596
+    .line 1598
     :cond_41
     return-void
 .end method

@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1561
+    .line 1563
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,18 +32,18 @@
 .method public onChanged(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
     .registers 7
 
-    .line 1564
+    .line 1566
     const/4 p1, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
 
-    .line 1565
+    .line 1567
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result p1
 
-    .line 1566
+    .line 1568
     if-lez p1, :cond_13
 
     int-to-long v0, p2
@@ -52,7 +52,7 @@
 
     mul-long v0, v0, v2
 
-    const-wide/16 v2, 0x535
+    const-wide/16 v2, 0x3e8
 
     div-long/2addr v0, v2
 
@@ -63,57 +63,57 @@
     :cond_13
     const/4 p2, 0x0
 
-    .line 1567
+    .line 1569
     :goto_14
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
     invoke-static {p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3600(II)V
 
-    .line 1568
+    .line 1570
     return-void
 .end method
 
 .method public onChangedEnd(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
     .registers 6
 
-    .line 1572
+    .line 1574
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result p1
 
-    .line 1573
+    .line 1575
     const/4 v0, 0x0
 
     if-lez p1, :cond_20
 
-    .line 1574
+    .line 1576
     nop
 
-    .line 1575
-    const/16 v1, 0x535
+    .line 1577
+    const/16 v1, 0x3e8
 
     if-gez p2, :cond_e
 
-    .line 1576
+    .line 1578
     const/4 p2, 0x0
 
     goto :goto_12
 
-    .line 1577
+    .line 1579
     :cond_e
     if-le p2, v1, :cond_12
 
-    .line 1578
-    const/16 p2, 0x535
-
     .line 1580
+    const/16 p2, 0x3e8
+
+    .line 1582
     :cond_12
     :goto_12
     if-lt p2, v1, :cond_15
 
-    .line 1581
+    .line 1583
     goto :goto_1d
 
-    .line 1582
+    .line 1584
     :cond_15
     int-to-long v1, p2
 
@@ -121,21 +121,21 @@
 
     mul-long v1, v1, p1
 
-    const-wide/16 p1, 0x535
+    const-wide/16 p1, 0x3e8
 
     div-long/2addr v1, p1
 
     long-to-int p1, v1
 
-    .line 1583
+    .line 1585
     :goto_1d
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 1585
+    .line 1587
     :cond_20
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
 
-    .line 1586
+    .line 1588
     return-void
 .end method

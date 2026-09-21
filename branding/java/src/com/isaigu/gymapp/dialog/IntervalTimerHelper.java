@@ -85,6 +85,8 @@ public final class IntervalTimerHelper {
     private static final int ID_DURATION_LABEL = 0x7f090275;
     private static final int ID_DURATION_ROW = 0x7f090276;
     private static final int ID_RESET = 0x7f090278;
+    private static final int ID_PAUSE = 0x7f090292;
+    private static final int ID_CLOSE = 0x7f090293;
     private static final int ID_CONFIG_SCROLL = 0x7f090274;
     private static final int ID_INFO = 0x7f09028b;
     private static final int STR_INFO_TITLE = 0x7f0d0175;
@@ -154,10 +156,12 @@ public final class IntervalTimerHelper {
     /** Fallback sidebar width when rightLayout is not measured yet (weight 0.7 / 10.7). */
     private static final float SIDEBAR_WIDTH_WEIGHT = 0.7f;
     private static final float CONTENT_WIDTH_WEIGHT = 10.0f;
-    private static final int OVERLAY_RESET_BTN_DP = 44;
-    private static final int OVERLAY_RESET_GAP_DP = 4;
-    private static final int OVERLAY_WIDTH_DP =
-            OVERLAY_SIZE_DP + OVERLAY_RESET_BTN_DP + OVERLAY_RESET_GAP_DP;
+    private static final int OVERLAY_SIDE_BTN_DP = 44;
+    private static final int OVERLAY_BTN_GAP_DP = 4;
+    private static final int OVERLAY_SIDE_BTN_COUNT = 3;
+    private static final int OVERLAY_WIDTH_DP = OVERLAY_SIZE_DP
+            + (OVERLAY_SIDE_BTN_COUNT * OVERLAY_SIDE_BTN_DP)
+            + (OVERLAY_SIDE_BTN_COUNT * OVERLAY_BTN_GAP_DP);
     /** Compact config panel width — must match apply-interval-timer dialog layout. */
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
 
@@ -195,6 +199,7 @@ public final class IntervalTimerHelper {
     private static View soundPickBtn;
     private static View soundClearBtn;
     private static TimerRingView ringView;
+    private static TextView pauseBtnView;
 
     private static View allStopButton;
     private static View panelRoot;
@@ -207,6 +212,8 @@ public final class IntervalTimerHelper {
     private static boolean armed;
     private static boolean overlayVisible;
     private static boolean countdownRunning;
+    /** User paused countdown only; training/impulses keep running. */
+    private static boolean timerPausedByUser;
     private static boolean trainingRunning;
     private static boolean pickingSignal;
     private static boolean ignoreSpinnerCallback;
@@ -404,7 +411,7 @@ public final class IntervalTimerHelper {
             if (running) {
                 BlockProgramRunner.onTrainingStart();
                 lastDisplayedCountdownSec = -1;
-                if (!countdownRunning) {
+                if (!countdownRunning && !timerPausedByUser) {
                     countdownRunning = true;
                     lastTickRealtime = SystemClock.elapsedRealtime();
                     handler.removeCallbacks(tickRunnable);
@@ -416,11 +423,12 @@ public final class IntervalTimerHelper {
             }
             refreshStatusText();
             refreshOverlayText();
+            updatePauseButtonLabel();
             updateOverlayVisibility();
             return;
         }
         if (running) {
-            if (!countdownRunning) {
+            if (!countdownRunning && !timerPausedByUser) {
                 if (currentLoop <= 0) {
                     currentLoop = 1;
                     remainingMs = intervalMs;
@@ -437,6 +445,7 @@ public final class IntervalTimerHelper {
         }
         refreshStatusText();
         refreshOverlayText();
+        updatePauseButtonLabel();
         updateOverlayVisibility();
     }
 
@@ -461,6 +470,7 @@ public final class IntervalTimerHelper {
     private static void resetAll() {
         armed = false;
         countdownRunning = false;
+        timerPausedByUser = false;
         trainingRunning = false;
         currentLoop = 0;
         remainingMs = intervalMs;
@@ -472,6 +482,59 @@ public final class IntervalTimerHelper {
         dismissConfigDialog(false);
         dismissOverlayDialog(false);
         refreshStatusText();
+    }
+
+    /** Stop timer function but keep saved config (duration, loops, sound, presets). */
+    private static void disarmTimerKeepSettings() {
+        armed = false;
+        countdownRunning = false;
+        timerPausedByUser = false;
+        currentLoop = 0;
+        remainingMs = intervalMs;
+        overlayVisible = false;
+        lastDisplayedCountdownSec = -1;
+        handler.removeCallbacks(tickRunnable);
+        releaseSignalPlayer();
+        BlockProgramRunner.reset();
+        dismissOverlayDialog(false);
+        refreshStatusText();
+        updatePauseButtonLabel();
+    }
+
+    private static void toggleTimerPause() {
+        if (!armed) {
+            return;
+        }
+        if (timerPausedByUser) {
+            timerPausedByUser = false;
+            if (trainingRunning) {
+                countdownRunning = true;
+                lastTickRealtime = SystemClock.elapsedRealtime();
+                handler.removeCallbacks(tickRunnable);
+                handler.post(tickRunnable);
+            }
+        } else if (countdownRunning) {
+            timerPausedByUser = true;
+            countdownRunning = false;
+            handler.removeCallbacks(tickRunnable);
+        }
+        refreshStatusText();
+        refreshOverlayText();
+        updatePauseButtonLabel();
+    }
+
+    private static void updatePauseButtonLabel() {
+        if (pauseBtnView == null) {
+            return;
+        }
+        try {
+            if (timerPausedByUser) {
+                pauseBtnView.setText("\u25B6");
+            } else {
+                pauseBtnView.setText("\u23F8");
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     private static boolean hasLoadedTraining() {
@@ -519,6 +582,7 @@ public final class IntervalTimerHelper {
             armed = true;
             overlayVisible = true;
             countdownRunning = false;
+            timerPausedByUser = false;
             refreshStatusText();
             dismissConfigDialog(false);
             handler.post(new FinishArmRunnable());
@@ -537,6 +601,7 @@ public final class IntervalTimerHelper {
         armed = true;
         overlayVisible = true;
         countdownRunning = false;
+        timerPausedByUser = false;
         refreshStatusText();
         dismissConfigDialog(false);
         handler.post(new FinishArmRunnable());
@@ -813,6 +878,10 @@ public final class IntervalTimerHelper {
         countdownView = (TextView) content.findViewById(ID_COUNTDOWN);
         loopLabelView = (TextView) content.findViewById(ID_LOOP_LABEL);
         bindButton(content.findViewById(ID_RESET), new ResetOverlayListener());
+        pauseBtnView = (TextView) content.findViewById(ID_PAUSE);
+        bindButton(pauseBtnView, new PauseOverlayListener());
+        bindButton(content.findViewById(ID_CLOSE), new CloseOverlayListener());
+        updatePauseButtonLabel();
         int overlayHeightPx = dp(activity, OVERLAY_SIZE_DP);
         int overlayWidthPx = dp(activity, OVERLAY_WIDTH_DP);
         try {
@@ -870,6 +939,7 @@ public final class IntervalTimerHelper {
             ringView = null;
             countdownView = null;
             loopLabelView = null;
+            pauseBtnView = null;
             return false;
         }
     }
@@ -938,6 +1008,7 @@ public final class IntervalTimerHelper {
                 ringView = null;
                 countdownView = null;
                 loopLabelView = null;
+                pauseBtnView = null;
             }
         }
     }
@@ -1697,6 +1768,20 @@ public final class IntervalTimerHelper {
         @Override
         public void onClick(View v) {
             resetCurrentInterval();
+        }
+    }
+
+    static final class PauseOverlayListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            toggleTimerPause();
+        }
+    }
+
+    static final class CloseOverlayListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            disarmTimerKeepSettings();
         }
     }
 

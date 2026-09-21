@@ -57,6 +57,7 @@ IDS = {
     "musicPlayerClose": 0x7F090288,
     "musicPlayerInfoBtn": 0x7F090289,
     "musicPlayerVisualizer": 0x7F09028E,
+    "musicPlayerLoading": 0x7F09028F,
 }
 
 STRING_IDS = {
@@ -99,8 +100,9 @@ OVERLAY_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
     <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="192.0dip" android:layout_marginTop="4.0dip">
         <com.isaigu.gymapp.widget.MyButton android:textSize="18.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerPlaylistBtn" android:background="@drawable/interval_timer_sound_chip" android:layout_width="44.0dip" android:layout_height="44.0dip" android:text="&#9776;" android:contentDescription="@string/beta_music_player_playlist" android:textAllCaps="false" />
         <RelativeLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:layout_marginLeft="4.0dip">
-            <com.isaigu.gymapp.widget.MusicVisualizerView android:id="@id/musicPlayerVisualizer" android:layout_width="118.0dip" android:layout_height="118.0dip" android:layout_centerInParent="true" />
+            <com.isaigu.gymapp.widget.MusicVisualizerView android:id="@id/musicPlayerVisualizer" android:layout_width="164.0dip" android:layout_height="164.0dip" android:layout_centerInParent="true" />
             <com.isaigu.gymapp.widget.CircleSeekBar android:id="@id/musicPlayerSeek" android:paddingLeft="14.0dip" android:paddingTop="14.0dip" android:paddingRight="14.0dip" android:paddingBottom="10.0dip" android:layout_width="192.0dip" android:layout_height="192.0dip" android:layout_centerInParent="true" android:rotation="180.0" app:wave_bg_color="@color/blume_color" app:wheel_pointer_color="@color/grown_color" app:wheel_pointer_radius="18.0dip" app:wheel_reached_width="14.0dip" app:wheel_scroll_only_one_circle="true" app:wheel_unreached_color="@color/seekbar_back_gray" app:wheel_unreached_width="14.0dip" />
+            <ProgressBar android:id="@id/musicPlayerLoading" android:visibility="gone" android:layout_width="48.0dip" android:layout_height="48.0dip" android:layout_centerInParent="true" android:indeterminate="true" style="?android:attr/progressBarStyle" />
             <com.isaigu.gymapp.widget.MyButton android:textSize="28.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/musicPlayerPlayPause" android:background="@drawable/interval_timer_sound_chip" android:layout_width="56.0dip" android:layout_height="56.0dip" android:layout_centerInParent="true" android:text="&#9654;" android:textAllCaps="false" />
         </RelativeLayout>
     </LinearLayout>
@@ -177,8 +179,8 @@ EN_STRINGS = """
     <string name="beta_music_player_drag_hint">Hold and drag to reorder tracks</string>
     <string name="beta_music_player_close">Close player</string>
     <string name="beta_music_player_brand">Beat Impulse Sync&#174;</string>
-    <string name="beta_music_player_info_title">About Beat Impulse Sync</string>
-    <string name="beta_music_player_info_body">Beat Impulse Sync plays your music and changes EMS pulse strength with the rhythm.\\n\\n1. Add a participant on the train screen.\\n2. Set the strength limit (MA) on their row.\\n3. Add tracks and press Play.\\n4. Sensitivity controls how strongly the music affects pulses.\\n\\nThe menu button opens controls and the playlist. Hold the handle (☰) on a track to drag and reorder. X stops playback and closes the player.</string>
+    <string name="beta_music_player_info_title">Beat Impulse Sync — help</string>
+    <string name="beta_music_player_info_body">The player plays music and syncs EMS pulse strength with the beat.\\n\\n1. Add a participant on the Train screen.\\n2. Set the strength limit (MA) with the circle slider on their row.\\n3. Add tracks to the playlist and press Play.\\n4. Sensitivity controls how strongly the music affects pulses.\\n\\n☰ opens settings and the playlist. Hold ☰ next to a track to reorder it. ✕ stops playback and closes the player.</string>
 """
 
 BG_STRINGS = """
@@ -203,8 +205,8 @@ BG_STRINGS = """
     <string name="beta_music_player_drag_hint">Задръж и плъзни за подредба</string>
     <string name="beta_music_player_close">Затвори плейъра</string>
     <string name="beta_music_player_brand">Beat Impulse Sync&#174;</string>
-    <string name="beta_music_player_info_title">За Beat Impulse Sync</string>
-    <string name="beta_music_player_info_body">Beat Impulse Sync пуска музика и променя силата на EMS импулсите според ритъма.\\n\\n1. Добавете участник на екрана за тренировка.\\n2. Задайте лимит на силата (MA) на реда му.\\n3. Добавете песни и натиснете Пусни.\\n4. Чувствителност регулира колко силно музиката влияе на импулсите.\\n\\nБутонът с менюто (☰) отваря контроли и плейлист. Задръжте маркера ☰ до песен и влачете за пренареждане. X спира възпроизвеждането и затваря плейъра.</string>
+    <string name="beta_music_player_info_title">Beat Impulse Sync — помощ</string>
+    <string name="beta_music_player_info_body">Плейърът пуска музика и синхронизира силата на EMS импулсите с ритъма на песента.\\n\\n1. Добавете участник на екрана „Тренировка“.\\n2. Задайте ограничение на силата (MA) от кръговия слайдер на реда му.\\n3. Добавете песни в плейлиста и натиснете ▶.\\n4. „Чувствителност“ определя колко силно музиката влияе на импулсите.\\n\\n☰ отваря настройки и плейлист. Задръжте ☰ до песен, за да я пренаредите. ✕ спира възпроизвеждането и затваря плейъра.</string>
 """
 
 FRAGMENT_HOOK = """

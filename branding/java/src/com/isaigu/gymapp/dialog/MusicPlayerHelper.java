@@ -54,6 +54,7 @@ public final class MusicPlayerHelper {
     private static final int ID_CLOSE = 0x7f090288;
     private static final int ID_INFO = 0x7f090289;
     private static final int ID_VISUALIZER = 0x7f09028e;
+    private static final int ID_LOADING = 0x7f09028f;
     private static final int STR_INFO_TITLE = 0x7f0d0172;
     private static final int STR_INFO_BODY = 0x7f0d0173;
     private static final int COLOR_TEXT_PRIMARY = 0x7f0600e6;
@@ -73,6 +74,7 @@ public final class MusicPlayerHelper {
     private static CircleSeekBar seekBar;
     private static MusicVisualizerView visualizerView;
     private static TextView playPauseBtn;
+    private static View playLoadingView;
     private static View controlPanel;
     private static View playlistPanel;
     private static LinearLayout playlistList;
@@ -209,6 +211,7 @@ public final class MusicPlayerHelper {
         if (visualizerView != null) {
             visualizerView.setPlaying(false);
         }
+        setPlayLoadingUi(false);
         updatePlayPauseLabel();
         stopProgressUpdates();
         refreshSeekFromPlayer();
@@ -221,6 +224,7 @@ public final class MusicPlayerHelper {
         if (levelView != null) {
             levelView.setVisibility(View.GONE);
         }
+        setPlayLoadingUi(true);
     }
 
     public static void showActive(int appliedStrength, int ceiling) {
@@ -237,6 +241,7 @@ public final class MusicPlayerHelper {
             levelView.setText(appliedStrength + "% / " + ceiling + "%");
             levelView.setVisibility(controlsExpanded ? View.VISIBLE : View.GONE);
         }
+        setPlayLoadingUi(false);
         updatePlayPauseLabel();
         if (visualizerView != null) {
             visualizerView.setPlaying(true);
@@ -251,6 +256,7 @@ public final class MusicPlayerHelper {
         if (levelView != null) {
             levelView.setVisibility(View.GONE);
         }
+        setPlayLoadingUi(false);
         Activity activity = resolveHostActivity(null, overlayContent);
         if (activity != null) {
             toast(activity, resId);
@@ -333,6 +339,8 @@ public final class MusicPlayerHelper {
         seekBar = (CircleSeekBar) content.findViewById(ID_SEEK);
         visualizerView = (MusicVisualizerView) content.findViewById(ID_VISUALIZER);
         playPauseBtn = (TextView) content.findViewById(ID_PLAY_PAUSE);
+        playLoadingView = content.findViewById(ID_LOADING);
+        stylePlayLoadingSpinner(activity);
         controlPanel = content.findViewById(ID_PANEL);
         playlistPanel = content.findViewById(ID_PLAYLIST_PANEL);
         playlistList = (LinearLayout) content.findViewById(ID_PLAYLIST_LIST);
@@ -533,8 +541,34 @@ public final class MusicPlayerHelper {
         return min + ":" + secStr;
     }
 
+    private static void setPlayLoadingUi(boolean loading) {
+        if (playPauseBtn != null) {
+            playPauseBtn.setEnabled(!loading);
+            playPauseBtn.setVisibility(loading ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (playLoadingView != null) {
+            playLoadingView.setVisibility(loading ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private static void stylePlayLoadingSpinner(Activity activity) {
+        if (!(playLoadingView instanceof android.widget.ProgressBar) || activity == null) {
+            return;
+        }
+        android.widget.ProgressBar spinner = (android.widget.ProgressBar) playLoadingView;
+        try {
+            android.graphics.drawable.Drawable indeterminate = spinner.getIndeterminateDrawable();
+            if (indeterminate != null) {
+                indeterminate.setColorFilter(
+                        resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
     private static void updatePlayPauseLabel() {
-        if (playPauseBtn == null) {
+        if (playPauseBtn == null || MusicSync.isPlayerPreparing()) {
             return;
         }
         boolean playing = MusicSync.isRunning() && MusicSync.isPlayerMode() && !MusicSync.isPlaybackPaused();
@@ -551,6 +585,9 @@ public final class MusicPlayerHelper {
     }
 
     private static boolean startCurrentTrack(boolean fromUser) {
+        if (MusicSync.isPlayerPreparing()) {
+            return false;
+        }
         if (currentIndex < 0 || currentIndex >= playlist.size()) {
             if (fromUser) {
                 showError(0x7f0d0112);
@@ -1002,8 +1039,12 @@ public final class MusicPlayerHelper {
     static final class PlayPauseListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            if (MusicSync.isPlayerPreparing()) {
+                return;
+            }
             if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
                 MusicSync.togglePlaybackPause();
+                updatePlayPauseLabel();
                 return;
             }
             if (currentIndex < 0 && !playlist.isEmpty()) {

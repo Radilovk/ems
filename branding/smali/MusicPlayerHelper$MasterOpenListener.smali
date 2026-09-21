@@ -27,16 +27,16 @@
 .method constructor <init>(Landroid/view/View;Lcom/isaigu/gymapp/train/TrainItemManager;)V
     .registers 3
 
-    .line 980
+    .line 1017
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 981
+    .line 1018
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
 
-    .line 982
+    .line 1019
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 983
+    .line 1020
     return-void
 .end method
 
@@ -45,7 +45,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 987
+    .line 1024
     if-eqz p1, :cond_3
 
     goto :goto_5
@@ -58,10 +58,10 @@
 
     move-result-object p1
 
-    .line 988
+    .line 1025
     if-nez p1, :cond_13
 
-    .line 989
+    .line 1026
     const/4 p1, 0x0
 
     const v0, 0x7f0d010b
@@ -69,36 +69,36 @@
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;I)V
 
-    .line 990
+    .line 1027
     return-void
 
-    .line 992
+    .line 1029
     :cond_13
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 993
+    .line 1030
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 994
+    .line 1031
     if-nez v0, :cond_25
 
-    .line 995
+    .line 1032
     const v0, 0x7f0d011a
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;I)V
 
-    .line 996
+    .line 1033
     return-void
 
-    .line 998
+    .line 1035
     :cond_25
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 999
+    .line 1036
     return-void
 .end method

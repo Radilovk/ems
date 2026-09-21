@@ -43,6 +43,7 @@ public class MusicSync {
     private static Activity hostActivity;
     private static int sensitivity = 20;
     private static boolean playerMode;
+    private static volatile boolean playerPreparing;
     static boolean running;
     static volatile int liveStrength;
 
@@ -471,11 +472,19 @@ public class MusicSync {
                 new PermissionCallback());
     }
 
+    public static boolean isPlayerPreparing() {
+        return playerPreparing;
+    }
+
     public static void startPlayer(Activity activity, Uri uri, int min) {
         if (activity == null || uri == null) {
             return;
         }
+        if (playerPreparing) {
+            return;
+        }
         hostActivity = activity;
+        playerPreparing = true;
         stopCaptureOnly();
         setSensitivity(min);
         MasterStrengthControl.ensureMaMode();
@@ -487,6 +496,7 @@ public class MusicSync {
     }
 
     private static void finishStartPlayer(Activity activity, Uri uri, int[] envelope) {
+        playerPreparing = false;
         if (activity == null || uri == null) {
             MusicPlayerHelper.showError(ERROR_PLAYER);
             return;
@@ -548,6 +558,7 @@ public class MusicSync {
     static final class PlayerPrepareFailure implements Runnable {
         @Override
         public void run() {
+            playerPreparing = false;
             stopCaptureOnly();
             MusicPlayerHelper.showError(ERROR_PLAYER);
         }
@@ -578,6 +589,7 @@ public class MusicSync {
     }
 
     public static void stop() {
+        playerPreparing = false;
         stopCaptureOnly();
     }
 

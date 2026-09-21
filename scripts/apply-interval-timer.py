@@ -396,7 +396,7 @@ EN_STRINGS = """
     <string name="timer_preset_delete_confirm">Delete this saved program?</string>
     <string name="timer_preset_empty_name">Enter a name</string>
     <string name="interval_timer_tab_interval">Interval</string>
-    <string name="interval_timer_tab_block">Blocks</string>
+    <string name="interval_timer_tab_block">Programs</string>
     <string name="interval_timer_duration">Duration</string>
     <string name="interval_timer_duration_train">Workout time</string>
     <string name="interval_timer_repeats">Repeats</string>
@@ -404,8 +404,8 @@ EN_STRINGS = """
     <string name="interval_timer_advanced">Sound &amp; saved ▾</string>
     <string name="interval_timer_loops_hint">0 = unlimited</string>
     <string name="interval_timer_reset">Restart interval</string>
-    <string name="interval_timer_info_title">How the interval timer works</string>
-    <string name="interval_timer_info_body">Set duration (minutes:seconds) and how many times the interval repeats.\\n\\n• Repeats: enter 0 for unlimited loops, or a number to stop automatically after the last repeat.\\n• Interval mode: the same duration repeats with a signal at each switch.\\n• Blocks mode: run a sequence of impulse blocks; optional RPT repeats the sequence until workout time ends.\\n• Activate arms the timer — it starts when training starts and pauses when training stops.\\n• Sound &amp; saved: choose a signal, save presets, or pick a custom sound file.</string>
+    <string name="interval_timer_info_title">How the timer works</string>
+    <string name="interval_timer_info_body">Set duration (min:sec) and number of repeats.\\n\\n• Repeats — 0 means endless cycles. Any other number stops the timer after the last repeat.\\n• Interval — the same interval repeats; you hear a signal at each switch.\\n• Programs — ready-made workouts built from several intervals with different settings (MA, Hz, width). RPT repeats the program until workout time runs out.\\n• Activate — turns the timer on. It starts with training and stops when training pauses or ends.\\n• Sound &amp; saved — pick a signal, save presets, or use your own sound file.</string>
 """
 
 BG_STRINGS = """
@@ -460,7 +460,7 @@ BG_STRINGS = """
     <string name="timer_preset_delete_confirm">Изтрий тази запазена програма?</string>
     <string name="timer_preset_empty_name">Въведи име</string>
     <string name="interval_timer_tab_interval">Интервал</string>
-    <string name="interval_timer_tab_block">Блокове</string>
+    <string name="interval_timer_tab_block">Програми</string>
     <string name="interval_timer_duration">Продължителност</string>
     <string name="interval_timer_duration_train">Време на тренировка</string>
     <string name="interval_timer_repeats">Повторения</string>
@@ -468,8 +468,8 @@ BG_STRINGS = """
     <string name="interval_timer_advanced">Звук и запазени ▾</string>
     <string name="interval_timer_loops_hint">0 = безкрайно</string>
     <string name="interval_timer_reset">Рестарт на интервала</string>
-    <string name="interval_timer_info_title">Как работи интервалният таймер</string>
-    <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\\n\\n• Повторения: 0 = безкрайно; число = спира автоматично след последното повторение.\\n• Режим Интервал: еднаква продължителност със сигнал при всяка смяна.\\n• Режим Блокове: последователност от импулсни блокове; RPT повтаря последователността до края на времето.\\n• Активирай въоръжава таймера — стартира с тренировката и спира с нея.\\n• Звук и запазени: изберете сигнал, запазете програми или качете свой звук.</string>
+    <string name="interval_timer_info_title">Как работи таймерът</string>
+    <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\\n\\n• Повторения — 0 означава безкраен цикъл. При число таймерът спира след последното повторение.\\n• Интервал — един и същ интервал се повтаря; при всяка смяна чувате сигнал.\\n• Програми — готови тренировъчни програми от няколко интервала с различни настройки (MA, Hz, ширина). RPT повтаря програмата до края на зададеното време.\\n• Активирай — включва таймера. Той тръгва заедно със старт на тренировката и спира при пауза или край.\\n• Звук и запазени — избор на сигнал, запазване на настройки или собствен звуков файл.</string>
 """
 
 

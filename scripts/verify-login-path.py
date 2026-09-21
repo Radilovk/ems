@@ -12,6 +12,7 @@ DIALOG = DECOMPILED / "smali_classes2/com/isaigu/gymapp/dialog"
 TRAIN = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train"
 FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment"
 LAYOUT = DECOMPILED / "res/layout/new_train_fragment_layout.xml"
+USER_ROW_LAYOUT = DECOMPILED / "res/layout/new_user_train_control_item_layout.xml"
 
 
 def fail(msg: str) -> None:
@@ -27,6 +28,12 @@ def main() -> int:
     for view_id in ("allAdd", "allPerson", "allminus", "allStartPause", "allStop"):
         if f'@id/{view_id}' not in layout:
             fail(f"new_train_fragment_layout.xml missing @{view_id} (ViewBinding NPE on login)")
+
+    user_row = USER_ROW_LAYOUT.read_text(encoding="utf-8") if USER_ROW_LAYOUT.is_file() else ""
+    if "@id/trainAddParticipantWrap" not in user_row:
+        fail("new_user_train_control_item_layout.xml missing trainAddParticipantWrap overlay")
+    if user_row.lstrip().startswith("<RelativeLayout"):
+        fail("user row layout root must stay LinearLayout for ViewBinding")
 
     nf = FRAGMENT / "NewTrainFragment.smali"
     if nf.is_file():
@@ -58,13 +65,27 @@ def main() -> int:
         if not (DIALOG / name).is_file():
             fail(f"missing dialog/{name}")
 
-    footer = DECOMPILED / "res/layout/train_add_participant_footer.xml"
-    if not footer.is_file():
-        fail("train_add_participant_footer.xml missing (add-user button layout)")
+    adapter = TRAIN / "TrainAdapter.smali"
+    if adapter.is_file():
+        ad_text = adapter.read_text(encoding="utf-8")
+        if "updateAddParticipantButton(Z)V" not in ad_text:
+            fail("TrainAdapter missing last-row add-user visibility patch")
+        if "shouldShowAddFooter()Z" in ad_text:
+            fail("TrainAdapter still uses footer add-user row")
 
     vh = TRAIN / "TrainViewHolder.smali"
-    if vh.is_file() and "if-eqz v0, :cond_footer_done" in vh.read_text(encoding="utf-8"):
-        fail("TrainViewHolder still has inverted isFooter bind guard")
+    if vh.is_file():
+        vh_text = vh.read_text(encoding="utf-8")
+        if "isFooter:Z" in vh_text or "bindFooterAddListener" in vh_text:
+            fail("TrainViewHolder still has footer-row wiring")
+        if "if-eqz v0, :cond_footer_done" in vh_text or "if-nez v0, :cond_footer_done" in vh_text:
+            fail("TrainViewHolder still has isFooter bind guard (breaks user data bind)")
+        if "initAddParticipantButton()V" not in vh_text:
+            fail("TrainViewHolder missing row add-user overlay wiring")
+
+    footer = DECOMPILED / "res/layout/train_add_participant_footer.xml"
+    if footer.is_file():
+        fail("train_add_participant_footer.xml must not exist (use row overlay instead)")
 
     print("Login path smali/layout checks passed.")
     return 0

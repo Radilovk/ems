@@ -144,7 +144,7 @@ public final class IntervalTimerHelper {
     private static final int OVERLAY_WIDTH_DP =
             OVERLAY_SIZE_DP + OVERLAY_RESET_BTN_DP + OVERLAY_RESET_GAP_DP;
     /** Compact config panel width — must match apply-interval-timer dialog layout. */
-    private static final int CONFIG_DIALOG_WIDTH_DP = 328;
+    private static final int CONFIG_DIALOG_WIDTH_DP = 344;
 
     private static final String PREFS = "interval_timer";
     private static final String KEY_MINUTES = "minutes";

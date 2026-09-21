@@ -88,8 +88,6 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   bash "${ROOT}/scripts/compile-interval-timer-java.sh"
   python3 "${ROOT}/scripts/apply-interval-timer.py"
   python3 "${ROOT}/scripts/apply-music-training-sync.py"
-  python3 "${ROOT}/scripts/apply-train-participant-ui.py"
-  python3 "${ROOT}/scripts/apply-train-empty-slot-swipe-fix.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
   python3 "${ROOT}/scripts/remove-segment-program-gear.py"
   python3 "${ROOT}/scripts/apply-diag-logging.py"
@@ -139,11 +137,13 @@ VERSION_CODE=""
 if [[ -f "${DECOMPILED}/apktool.yml" ]]; then
   VERSION_NAME="$(grep '^  versionName:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionName: //')"
   VERSION_CODE="$(grep '^  versionCode:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionCode: //')"
-  cat > "${ROOT}/RELEASE_VERSION" <<EOF
-versionName=${VERSION_NAME}
+  release_version="${ROOT}/RELEASE_VERSION"
+  release_text="versionName=${VERSION_NAME}
 versionCode=${VERSION_CODE}
-builtAt=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-EOF
+"
+  if [[ ! -f "${release_version}" ]] || [[ "$(cat "${release_version}")" != "${release_text}" ]]; then
+    printf '%s' "${release_text}" > "${release_version}"
+  fi
 fi
 
 echo ""

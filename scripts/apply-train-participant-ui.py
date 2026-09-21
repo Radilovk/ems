@@ -28,6 +28,7 @@ VALUES_DEFAULT = RES / "values/strings.xml"
 VALUES_BG = ROOT / "translations/values-bg/strings.xml"
 VALUES_BG_DECOMPILED = RES / "values-bg/strings.xml"
 
+STRING_ID = 0x7F0D0174
 STRING_NAME = "train_add_participant"
 ADD_BTN_ID = 0x7F09028A
 ADD_BTN_NAME = "trainAddParticipantBtn"
@@ -80,7 +81,7 @@ BINDING_STUBS = """
 
 SIDEBAR_CONTROLS = """
         <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.15" />
-        <com.isaigu.gymapp.widget.MyButton android:id="@id/allAdd" android:background="@mipmap/add" android:focusable="false" android:focusableInTouchMode="false" android:layout_width="50.0dip" android:layout_height="50.0dip" />
+        <com.isaigu.gymapp.widget.MyButton android:id="@id/allAdd" android:background="@mipmap/add" android:layout_width="50.0dip" android:layout_height="50.0dip" />
         <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.1" />
         <com.isaigu.gymapp.widget.MyButton android:textSize="10.0sp" android:textColor="@color/white_color" android:id="@id/allPerson" android:background="@mipmap/zhukongduan" android:paddingTop="21.0dip" android:layout_width="55.0dip" android:layout_height="55.0dip" android:text="@string/maincontrol" />
         <View android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="0.1" />
@@ -498,17 +499,7 @@ HELPER_REFRESH_RE = re.compile(
 )
 
 
-def next_string_id() -> int:
-    ids: list[int] = []
-    public = PUBLIC_XML.read_text(encoding="utf-8") if PUBLIC_XML.is_file() else ""
-    ids.extend(int(value, 16) for value in re.findall(r"0x7f0d[0-9a-f]+", public))
-    if not ids:
-        raise RuntimeError("could not determine next string id")
-    return max(ids) + 1
-
-
 def register_ids() -> None:
-    string_id = next_string_id()
     ids_text = IDS_XML.read_text(encoding="utf-8")
     for name in (ADD_BTN_NAME, CARD_NAME, WRAP_NAME):
         if name not in ids_text:
@@ -522,7 +513,7 @@ def register_ids() -> None:
         ("id", ADD_BTN_NAME, ADD_BTN_ID),
         ("id", CARD_NAME, CARD_ID),
         ("id", WRAP_NAME, WRAP_ID),
-        ("string", STRING_NAME, string_id),
+        ("string", STRING_NAME, STRING_ID),
     ):
         if name not in public:
             public = public.replace(
@@ -591,8 +582,7 @@ def restore_empty_layout(path: Path) -> None:
         f"\\1<FrameLayout android:background=\"@drawable/shape_bg_white\" "
         f'android:layout_width="{ADD_CIRCLE_OUTER_DP}" android:layout_height="{ADD_CIRCLE_OUTER_DP}">\n'
         f'        <Button android:id="@id/typeButton" android:background="@mipmap/add3" '
-        f'android:clickable="false" android:focusable="false" android:focusableInTouchMode="false" '
-        f'android:layout_width="{ADD_CIRCLE_INNER_DP}" '
+        f'android:clickable="false" android:layout_width="{ADD_CIRCLE_INNER_DP}" '
         f'android:layout_height="{ADD_CIRCLE_INNER_DP}" android:layout_gravity="center" />\n'
         f"    </FrameLayout>"
     )
@@ -681,69 +671,12 @@ def purge_train_add_participant_helper() -> None:
             print("NewTrainFragment listener: removed TrainAddParticipantHelper refresh")
 
 
-BIND_EMPTY_LISTENER_ORIGINAL = """.method private bindEmptyListener()V
-    .locals 2
-
-    .line 188
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->itemView:Landroid/view/View;
-
-    new-instance v1, Lcom/isaigu/gymapp/train/-$$Lambda$TrainViewHolder$ERzM4vl4JE2XmpD4TpYuFbGJwy4;
-
-    invoke-direct {v1, p0}, Lcom/isaigu/gymapp/train/-$$Lambda$TrainViewHolder$ERzM4vl4JE2XmpD4TpYuFbGJwy4;-><init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 189
-    return-void
-.end method"""
-
-BIND_EMPTY_LISTENER_NO_FOCUS = """.method private bindEmptyListener()V
-    .locals 2
-
-    .line 188
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->itemView:Landroid/view/View;
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setFocusable(Z)V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setFocusableInTouchMode(Z)V
-
-    new-instance v1, Lcom/isaigu/gymapp/train/-$$Lambda$TrainViewHolder$ERzM4vl4JE2XmpD4TpYuFbGJwy4;
-
-    invoke-direct {v1, p0}, Lcom/isaigu/gymapp/train/-$$Lambda$TrainViewHolder$ERzM4vl4JE2XmpD4TpYuFbGJwy4;-><init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 189
-    return-void
-.end method"""
-
-
-def apply_sidebar_alladd_dialog() -> None:
+def revert_sidebar_alladd_click() -> None:
     path = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
     text = path.read_text(encoding="utf-8")
     if ALL_ADD_DIALOG_PATCH in text:
-        print("NewTrainFragment: sidebar allAdd opens add-user dialog already")
-        return
-    if ALL_ADD_ORIGINAL not in text:
-        raise RuntimeError("NewTrainFragment allAdd click handler marker not found")
-    path.write_text(text.replace(ALL_ADD_ORIGINAL, ALL_ADD_DIALOG_PATCH, 1), encoding="utf-8")
-    print("NewTrainFragment: sidebar allAdd opens add-user dialog")
-
-
-def patch_bind_empty_listener() -> None:
-    text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
-    if "bindEmptyListener()V\n    .locals 2\n\n    .line 188\n    iget-object v0" in text and "setFocusableInTouchMode(Z)V" in text:
-        print("TrainViewHolder: empty-slot single-tap focus fix already applied")
-        return
-    if BIND_EMPTY_LISTENER_ORIGINAL not in text:
-        raise RuntimeError("TrainViewHolder.bindEmptyListener marker not found")
-    TRAIN_VIEW_HOLDER.write_text(
-        text.replace(BIND_EMPTY_LISTENER_ORIGINAL, BIND_EMPTY_LISTENER_NO_FOCUS, 1),
-        encoding="utf-8",
-    )
-    print("TrainViewHolder: empty-slot single-tap focus fix")
+        path.write_text(text.replace(ALL_ADD_DIALOG_PATCH, ALL_ADD_ORIGINAL, 1), encoding="utf-8")
+        print("NewTrainFragment: restored sidebar allAdd MA+ handler")
 
 
 def revert_footer_smali() -> None:
@@ -933,9 +866,8 @@ def main() -> int:
     for path in USER_ITEM_LAYOUTS:
         patch_user_item_layout(path)
     patch_train_item_manager()
-    apply_sidebar_alladd_dialog()
+    revert_sidebar_alladd_click()
     patch_train_view_holder()
-    patch_bind_empty_listener()
     patch_train_adapter()
     print("Train participant UI patches applied (row overlay, sidebar intact).")
     return 0

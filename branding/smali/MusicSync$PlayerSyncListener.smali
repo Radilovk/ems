@@ -77,27 +77,34 @@
     .line 589
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
-    if-eqz v0, :cond_13
+    if-eqz v0, :cond_19
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1300()Z
 
     move-result v0
 
-    if-eqz v0, :cond_13
+    if-eqz v0, :cond_19
+
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_19
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1400()Z
 
     move-result v0
 
-    if-nez v0, :cond_13
+    if-nez v0, :cond_19
 
     .line 590
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$700(I)V
 
     .line 592
-    :cond_13
+    :cond_19
     return-void
 .end method

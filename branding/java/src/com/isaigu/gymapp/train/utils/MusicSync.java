@@ -50,6 +50,10 @@ public class MusicSync {
     private static volatile double smoothedRms;
     private static volatile double trackedPeakRms = 300.0;
     private static volatile float playerSmoothedSound;
+    /** True when playback was paused because training stopped (auto-resume on training start). */
+    private static boolean pausedByTraining;
+    /** False while no train row is running — blocks impulse drive even if music plays. */
+    private static boolean trainingGateOpen = true;
     private static long lastUiMs;
     private static long lastBleMs;
     private static int lastPushedApplied = -1;
@@ -109,8 +113,8 @@ public class MusicSync {
         }
         if (playerMode) {
             float target = level / 100f;
-            float attack = 0.92f;
-            float release = 0.62f;
+            float attack = 0.97f;
+            float release = 0.78f;
             float rate = target > playerSmoothedSound ? attack : release;
             playerSmoothedSound += (target - playerSmoothedSound) * rate;
             level = Math.round(playerSmoothedSound * 100f);
@@ -567,7 +571,7 @@ public class MusicSync {
     static final class PlayerSyncListener implements MusicPlayerEngine.Listener {
         @Override
         public void onWaveformLevel(int soundPercent) {
-            if (running && playerMode) {
+            if (running && playerMode && trainingGateOpen && !pausedByTraining) {
                 pushSoundLevel(soundPercent);
             }
         }
@@ -590,7 +594,50 @@ public class MusicSync {
 
     public static void stop() {
         playerPreparing = false;
+        pausedByTraining = false;
+        trainingGateOpen = true;
         stopCaptureOnly();
+    }
+
+    /**
+     * Pause player sync and zero impulses when training stops; resume when training starts again.
+     * Called from train start/stop hooks (master and per-row controls).
+     */
+    public static void syncWithTrainingState(boolean anyTrainingRunning) {
+        if (!running || !playerMode) {
+            return;
+        }
+        MusicPlayerEngine engine = playerEngine;
+        if (engine == null) {
+            return;
+        }
+        if (!anyTrainingRunning) {
+            trainingGateOpen = false;
+            if (engine.isPlaying()) {
+                pausedByTraining = true;
+                engine.pausePlayback();
+            }
+            freezeImpulseOutput();
+            MusicPlayerHelper.refreshTransportState();
+            return;
+        }
+        trainingGateOpen = true;
+        if (pausedByTraining && !engine.isPlaying()) {
+            pausedByTraining = false;
+            engine.resumePlayback();
+            MusicPlayerHelper.refreshTransportState();
+        }
+    }
+
+    private static void freezeImpulseOutput() {
+        liveStrength = 0;
+        playerSmoothedSound = 0f;
+        pendingApplied = 0;
+        lastPushedApplied = -1;
+        ensureHandler();
+        handler.removeCallbacks(applyRunnable);
+        MasterStrengthControl.setMasterStrength(0, true);
+        maybeUpdateUi();
     }
 
     public static int getPlaybackPositionMs() {
@@ -621,8 +668,11 @@ public class MusicSync {
             return;
         }
         if (engine.isPlaying()) {
+            pausedByTraining = false;
             engine.pausePlayback();
+            freezeImpulseOutput();
         } else {
+            pausedByTraining = false;
             engine.resumePlayback();
         }
         MusicPlayerHelper.refreshTransportState();

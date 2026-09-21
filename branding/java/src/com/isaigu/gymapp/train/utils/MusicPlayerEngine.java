@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public final class MusicPlayerEngine {
     private static final int WINDOW_MS = 20;
     /** Sync poll interval (ms). */
     private static final int SYNC_POLL_MS = 16;
-    /** Small fixed output latency compensation for MediaPlayer. */
-    private static final int SYNC_OFFSET_MS = 30;
+    /** Fallback output latency when device properties are unavailable. */
+    private static final int SYNC_OFFSET_FALLBACK_MS = 30;
     private static final int PCM_WINDOW_FRAMES = 256;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -38,6 +39,7 @@ public final class MusicPlayerEngine {
     private Listener listener;
     private int[] envelope;
     private volatile boolean tracking;
+    private int syncOffsetMs = SYNC_OFFSET_FALLBACK_MS;
 
     /**
      * Decode file off the UI thread. Envelope buckets are stamped from decoder PTS
@@ -272,6 +274,7 @@ public final class MusicPlayerEngine {
         player.setOnCompletionListener(new CompletionHandler(this));
         player.setOnErrorListener(new ErrorHandler(this));
         player.prepare();
+        syncOffsetMs = AudioOutputLatency.estimatePlaybackOffsetMs(context);
         player.start();
         tracking = true;
         syncRunnable = new SyncRunnable(this);
@@ -301,7 +304,7 @@ public final class MusicPlayerEngine {
         if (envelope == null || envelope.length == 0) {
             return 0;
         }
-        int lookupMs = positionMs + SYNC_OFFSET_MS;
+        int lookupMs = positionMs + syncOffsetMs;
         if (lookupMs < 0) {
             lookupMs = 0;
         }
@@ -434,6 +437,7 @@ public final class MusicPlayerEngine {
 
     static final class SyncRunnable implements Runnable {
         private final MusicPlayerEngine engine;
+        private long nextPollUptimeMs;
 
         SyncRunnable(MusicPlayerEngine engine) {
             this.engine = engine;
@@ -450,9 +454,22 @@ public final class MusicPlayerEngine {
                 target.dispatchLevel(target.resolveEnvelopeIndex(positionMs));
             } catch (Throwable ignored) {
             }
-            if (target.tracking) {
-                target.handler.postDelayed(this, SYNC_POLL_MS);
+            if (!target.tracking) {
+                return;
             }
+            long now = SystemClock.uptimeMillis();
+            if (nextPollUptimeMs <= 0L) {
+                nextPollUptimeMs = now;
+            }
+            nextPollUptimeMs += SYNC_POLL_MS;
+            if (nextPollUptimeMs < now) {
+                nextPollUptimeMs = now;
+            }
+            long delay = nextPollUptimeMs - now;
+            if (delay < 1L) {
+                delay = 1L;
+            }
+            target.handler.postDelayed(this, delay);
         }
     }
 

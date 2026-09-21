@@ -319,6 +319,8 @@ START_PAUSE_HOOK_NEW = """.method public synthetic lambda$onCreateView$0$NewTrai
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncTrainingState()V
 
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V
+
     return-void
 .end method"""
 
@@ -337,6 +339,8 @@ ALL_STOP_HOOK_OLD = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/My
 ALL_STOP_HOOK_NEW = """    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MyButton;->setBackgroundResource(I)V
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingStop()V
+
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V
 
     .line 100
     return-void
@@ -555,18 +559,27 @@ TIMER_SYNC_HOOK = (
     "\n    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;"
     "->syncTrainingState()V\n"
 )
+MUSIC_SYNC_HOOK = (
+    "\n    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;"
+    "->syncTrainingState()V\n"
+)
+TRAINING_SYNC_HOOK = TIMER_SYNC_HOOK + MUSIC_SYNC_HOOK
 
 
 def patch_train_item_timer_sync(text: str) -> str:
     if "IntervalTimerHelper;->syncTrainingState" in text:
-        print("TrainItem: per-row timer sync already applied")
+        if "MusicPlayerHelper;->syncTrainingState" not in text:
+            text = text.replace(TIMER_SYNC_HOOK, TRAINING_SYNC_HOOK)
+            print("TrainItem: added music player sync to per-row hooks")
+        else:
+            print("TrainItem: per-row training sync already applied")
         return text
     start_old = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
 
     .line 95
     return-void"""
     start_new = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
-""" + TIMER_SYNC_HOOK + """
+""" + TRAINING_SYNC_HOOK + """
     .line 95
     return-void"""
     stop_old = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
@@ -578,7 +591,7 @@ def patch_train_item_timer_sync(text: str) -> str:
 
     return-void"""
     stop_new = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
-""" + TIMER_SYNC_HOOK + """    :try_end_0
+""" + TRAINING_SYNC_HOOK + """    :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     .line 161
@@ -589,16 +602,24 @@ def patch_train_item_timer_sync(text: str) -> str:
         raise RuntimeError("TrainItem.start/stop timer sync markers not found")
     text = text.replace(start_old, start_new, 1)
     text = text.replace(stop_old, stop_new, 1)
-    print("TrainItem.start/stop: sync interval timer with per-row controls")
+    print("TrainItem.start/stop: sync interval timer and music player with per-row controls")
     return text
 
 
 def patch_new_train_fragment(text: str) -> str:
     if START_PAUSE_HOOK_OLD in text:
         text = text.replace(START_PAUSE_HOOK_OLD, START_PAUSE_HOOK_NEW, 1)
-        print("NewTrainFragment: interval hook on allStartPause")
+        print("NewTrainFragment: interval + music hook on allStartPause")
+    elif "MusicPlayerHelper;->syncTrainingState" in text:
+        print("NewTrainFragment: start/pause training sync already applied")
     elif "IntervalTimerHelper;->syncTrainingState" in text:
-        print("NewTrainFragment: start/pause hook already applied")
+        text = text.replace(
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncTrainingState()V\n\n    return-void",
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->syncTrainingState()V\n\n"
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V\n\n    return-void",
+            1,
+        )
+        print("NewTrainFragment: added music sync to allStartPause hook")
     elif START_PAUSE_HOOK_LEGACY in text:
         text = text.replace(
             START_PAUSE_HOOK_LEGACY,
@@ -618,9 +639,17 @@ def patch_new_train_fragment(text: str) -> str:
 
     if ALL_STOP_HOOK_OLD in text:
         text = text.replace(ALL_STOP_HOOK_OLD, ALL_STOP_HOOK_NEW, 1)
-        print("NewTrainFragment: interval hook on allStop")
+        print("NewTrainFragment: interval + music hook on allStop")
+    elif "MusicPlayerHelper;->syncTrainingState" in text and "onTrainingStop" in text:
+        print("NewTrainFragment: allStop training sync already applied")
     elif "IntervalTimerHelper;->onTrainingStop" in text:
-        print("NewTrainFragment: allStop hook already applied")
+        text = text.replace(
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingStop()V\n\n    .line 100",
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onTrainingStop()V\n\n"
+            "    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->syncTrainingState()V\n\n    .line 100",
+            1,
+        )
+        print("NewTrainFragment: added music sync to allStop hook")
     else:
         raise RuntimeError("NewTrainFragment lambda$onCreateView$1 marker not found")
 

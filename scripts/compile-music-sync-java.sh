@@ -67,7 +67,9 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/dialog/MusicSyncHelper*.class' \
      -o -path '*/dialog/MusicPlayerHelper*.class' \
      -o -path '*/dialog/MusicPlaylist*.class' \
-     -o -path '*/dialog/MusicTrackLabel.class' \) -print | sort)
+     -o -path '*/dialog/MusicTrackLabel.class' \
+     -o -path '*/dialog/ModalInfoHelper*.class' \
+     -o -path '*/widget/MusicVisualizerView*.class' \) -print | sort)
 (
   cd "${CLASSES_DIR}"
   "${D8}" \
@@ -89,11 +91,19 @@ find "${BRANDING_SMALI}" -name 'MusicSyncBridge.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicPlayerHelper*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicPlaylist*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicTrackLabel*.smali' -delete
+find "${BRANDING_SMALI}" -name 'ModalInfoHelper*.smali' -delete
+find "${BRANDING_SMALI}/widget" -name 'MusicVisualizerView*.smali' -delete 2>/dev/null || true
 find "${BRANDING_SMALI}" -name 'MusicPlayerEngine*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicDiagLog.smali' -delete
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
   echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicPlaylist*.smali' -o -name 'MusicTrackLabel*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'AudioOutputLatency.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicDiagLog.smali' \) -print0)
+done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicPlaylist*.smali' -o -name 'MusicTrackLabel*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'ModalInfoHelper*.smali' -o -name 'AudioOutputLatency.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicDiagLog.smali' \) -print0)
+
+mkdir -p "${BRANDING_SMALI}/widget"
+while IFS= read -r -d '' file; do
+  cp "${file}" "${BRANDING_SMALI}/widget/$(basename "${file}")"
+  echo "  -> widget/$(basename "${file}")"
+done < <(find "${SMALI_OUT}" -path '*/widget/MusicVisualizerView*.smali' -print0)
 
 echo "Music-sync Java compile complete."

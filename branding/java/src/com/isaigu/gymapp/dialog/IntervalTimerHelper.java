@@ -85,6 +85,13 @@ public final class IntervalTimerHelper {
     private static final int ID_DURATION_ROW = 0x7f090276;
     private static final int ID_RESET = 0x7f090278;
     private static final int ID_CONFIG_SCROLL = 0x7f090274;
+    private static final int ID_INFO = 0x7f09028b;
+    private static final int STR_INFO_TITLE = 0x7f0d0175;
+    private static final int STR_INFO_BODY = 0x7f0d0176;
+    private static final int DRAWABLE_TAB_ACTIVE = 0x7f080091;
+    private static final int DRAWABLE_TAB_INACTIVE = 0x7f0800e4;
+    private static final int COLOR_TEXT_PRIMARY = 0x7f0600e6;
+    private static final int COLOR_WHITE = 0x7f0600be;
     /** Max config panel height before scrolling — keeps activate button reachable. */
     private static final int CONFIG_DIALOG_MAX_HEIGHT_DP = 420;
 
@@ -686,6 +693,7 @@ public final class IntervalTimerHelper {
         syncDurationFieldsFromValues();
         bindButton(tabIntervalBtn, new TabIntervalListener());
         bindButton(tabBlockBtn, new TabBlockListener());
+        bindButton(content.findViewById(ID_INFO), new TimerInfoListener());
         bindButton(advancedToggle, new AdvancedToggleListener());
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         bindButton(content.findViewById(ID_SOUND_PREVIEW), new SoundPreviewListener());
@@ -1142,11 +1150,27 @@ public final class IntervalTimerHelper {
     }
 
     private static void refreshModeTabHighlight() {
-        if (tabIntervalBtn != null) {
-            tabIntervalBtn.setAlpha(blockProgramMode ? 0.55f : 1f);
+        styleModeTab(tabIntervalBtn, !blockProgramMode);
+        styleModeTab(tabBlockBtn, blockProgramMode);
+    }
+
+    private static void styleModeTab(View tab, boolean active) {
+        if (tab == null) {
+            return;
         }
-        if (tabBlockBtn != null) {
-            tabBlockBtn.setAlpha(blockProgramMode ? 1f : 0.55f);
+        tab.setAlpha(1f);
+        try {
+            tab.setBackgroundResource(active ? DRAWABLE_TAB_ACTIVE : DRAWABLE_TAB_INACTIVE);
+        } catch (Throwable ignored) {
+        }
+        if (tab instanceof TextView) {
+            TextView textView = (TextView) tab;
+            int colorRes = active ? COLOR_WHITE : COLOR_TEXT_PRIMARY;
+            try {
+                textView.setTextColor(tab.getContext().getResources().getColor(colorRes));
+            } catch (Throwable ignored) {
+                textView.setTextColor(active ? 0xFFFFFFFF : 0xFF3A3A3A);
+            }
         }
     }
 
@@ -1574,6 +1598,22 @@ public final class IntervalTimerHelper {
         @Override
         public void onClick(View v) {
             selectModeTab(true);
+        }
+    }
+
+    static final class TimerInfoListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Activity activity = v != null
+                    ? MusicSyncHelper.resolveActivity(v.getContext())
+                    : resolveActivity(null);
+            if (activity == null) {
+                activity = resolveActivity(null);
+            }
+            if (activity == null) {
+                return;
+            }
+            ModalInfoHelper.show(activity, STR_INFO_TITLE, STR_INFO_BODY);
         }
     }
 

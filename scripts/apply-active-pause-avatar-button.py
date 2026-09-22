@@ -153,6 +153,7 @@ def _init_avatar_button_dims() -> None:
     PAUSE_HZ_VALUE_VIEW = (
         '<TextView android:textColor="@color/white_color" android:textSize="@dimen/ui_ma_text_size" '
         'android:textStyle="bold" android:gravity="center" android:id="@id/pauseHzValue" '
+        'android:clickable="true" android:focusable="true" '
         'android:background="@drawable/light_black_button_drawable_r30" '
         f'android:layout_width="{size}" android:layout_height="{size}" '
         'android:layout_alignParentRight="true" android:layout_alignParentBottom="true" '
@@ -586,7 +587,7 @@ def update_pause_ma_display_smali(pause_ma_id: int) -> str:
 def bind_pause_hz_value_click_smali(pause_hz_id: int) -> str:
     return f"""
 .method private bindPauseHzValueClick()V
-    .locals 3
+    .locals 4
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;
 
@@ -602,6 +603,25 @@ def bind_pause_hz_value_click_smali(pause_hz_id: int) -> str:
 
     if-eqz v0, :cond_end
 
+    const/4 v1, 0x1
+
+    invoke-virtual {{v0, v1}}, Landroid/view/View;->setClickable(Z)V
+
+    invoke-virtual {{v0, v1}}, Landroid/view/View;->setFocusable(Z)V
+
+    invoke-virtual {{v0}}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
+
+    move-result-object v1
+
+    instance-of v2, v1, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;
+
+    if-eqz v2, :cond_listener
+
+    check-cast v1, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;
+
+    invoke-virtual {{v1, v0}}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->bringChildToFront(Landroid/view/View;)V
+
+    :cond_listener
     new-instance v1, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;
 
     invoke-direct {{v1, p0}}, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;-><init>(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
@@ -770,46 +790,8 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     move-result v1
 
-    if-eqz v1, :cond_disable
+    if-eqz v1, :cond_enable
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-nez v2, :cond_black_to_yellow
-
-    const/4 v2, 0x1
-
-    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
-    const/4 v2, 0x0
-
-    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    goto :cond_clear
-
-    :cond_black_to_yellow
-    const/4 v2, 0x1
-
-    iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    goto :cond_clear
-
-    :cond_disable
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
@@ -826,13 +808,43 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
-    iput-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iput-boolean v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    goto :cond_clear
+
+    :cond_enable
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v2, :cond_already_on
+
+    const/4 v2, 0x1
+
+    iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    :cond_already_on
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 
     :cond_clear
     const/4 v1, 0x0
@@ -854,6 +866,12 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 

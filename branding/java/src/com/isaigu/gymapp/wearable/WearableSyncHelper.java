@@ -75,6 +75,7 @@ public final class WearableSyncHelper {
     private static final int STR_HA_ENTITIES_EMPTY = 0x7f0d0190;
     private static final int STR_HA_ENTITIES_OK = 0x7f0d0191;
     private static final int STR_HA_ENTITIES_NEED_PULSOID = 0x7f0d0192;
+    private static final int STR_HA_ENTITIES_NO_VALUE = 0x7f0d0193;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -419,8 +420,10 @@ public final class WearableSyncHelper {
         sb.append('\n');
         sb.append(entities);
         sb.append('\n');
-        if (NotifyHaServer.hasHeartRateEntity()) {
+        if (NotifyHaServer.hasHeartRateValue()) {
             sb.append(activity.getString(STR_HA_ENTITIES_OK));
+        } else if (NotifyHaServer.hasHeartRateEntity()) {
+            sb.append(activity.getString(STR_HA_ENTITIES_NO_VALUE));
         } else {
             sb.append(activity.getString(STR_HA_ENTITIES_NEED_PULSOID));
         }
@@ -476,7 +479,8 @@ public final class WearableSyncHelper {
         if (NotifyWearableBridge.isListeningActive()) {
             if (NotifyHaServer.isRunning()) {
                 statusView.setText(activity.getString(
-                        STR_STATUS_HA_LISTENING, NotifyHaServer.getLocalUrl()));
+                        STR_STATUS_HA_LISTENING,
+                        NotifyHaServer.getLanUrl(activity)));
             } else if (bandConnected) {
                 statusView.setText(activity.getString(STR_STATUS_CONNECTED));
             } else {

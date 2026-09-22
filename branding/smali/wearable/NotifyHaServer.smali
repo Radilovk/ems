@@ -24,6 +24,8 @@
 
 .field private static boundPort:I
 
+.field private static cachedLanUrl:Ljava/lang/String;
+
 .field private static final entityHistory:Ljava/util/Map;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -50,25 +52,28 @@
 .method static constructor <clinit>()V
     .registers 2
 
-    .line 30
+    .line 35
     new-instance v0, Ljava/util/LinkedHashMap;
 
     invoke-direct {v0}, Ljava/util/LinkedHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
-    .line 38
+    .line 43
     const-string v0, ""
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->lastEntity:Ljava/lang/String;
 
-    .line 39
+    .line 44
     const/16 v1, 0x1fbb
 
     sput v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
 
-    .line 40
+    .line 45
     sput-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->bindError:Ljava/lang/String;
+
+    .line 46
+    sput-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
 
     return-void
 .end method
@@ -76,7 +81,7 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 42
+    .line 48
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -85,7 +90,7 @@
 .method static synthetic access$100()Z
     .registers 1
 
-    .line 25
+    .line 30
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->running:Z
 
     return v0
@@ -94,7 +99,7 @@
 .method static synthetic access$200()Ljava/net/ServerSocket;
     .registers 1
 
-    .line 25
+    .line 30
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
 
     return-object v0
@@ -103,7 +108,7 @@
 .method static synthetic access$300(Ljava/net/Socket;)V
     .registers 1
 
-    .line 25
+    .line 30
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->handleClient(Ljava/net/Socket;)V
 
     return-void
@@ -112,15 +117,15 @@
 .method private static decodePath(Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
-    .line 346
+    .line 513
     if-nez p0, :cond_5
 
-    .line 347
+    .line 514
     const-string p0, ""
 
     return-object p0
 
-    .line 349
+    .line 516
     :cond_5
     const/16 v0, 0x3f
 
@@ -128,18 +133,36 @@
 
     move-result v0
 
-    .line 350
+    .line 517
     if-ltz v0, :cond_12
 
-    .line 351
+    .line 518
     const/4 v1, 0x0
 
     invoke-virtual {p0, v1, v0}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 353
+    .line 521
     :cond_12
+    :try_start_12
+    const-string v0, "UTF-8"
+
+    invoke-static {p0, v0}, Ljava/net/URLDecoder;->decode(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+    :try_end_18
+    .catchall {:try_start_12 .. :try_end_18} :catchall_19
+
+    .line 523
+    goto :goto_1a
+
+    .line 522
+    :catchall_19
+    move-exception v0
+
+    .line 524
+    :goto_1a
     const-string v0, "%2F"
 
     const-string v1, "/"
@@ -160,15 +183,15 @@
 .method private static escapeJson(Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
-    .line 357
+    .line 528
     if-nez p0, :cond_5
 
-    .line 358
+    .line 529
     const-string p0, ""
 
     return-object p0
 
-    .line 360
+    .line 531
     :cond_5
     const-string v0, "\\"
 
@@ -189,15 +212,119 @@
     return-object p0
 .end method
 
-.method private static extractState(Ljava/lang/String;)Ljava/lang/String;
-    .registers 5
+.method private static extractFromAttributes(Lorg/json/JSONObject;)Ljava/lang/String;
+    .registers 9
 
-    .line 283
+    .line 409
+    const-string v0, ""
+
+    const-string v1, "attributes"
+
+    :try_start_4
+    invoke-virtual {p0, v1}, Lorg/json/JSONObject;->isNull(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_b
+
+    .line 410
+    return-object v0
+
+    .line 412
+    :cond_b
+    invoke-virtual {p0, v1}, Lorg/json/JSONObject;->getJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
+
+    move-result-object p0
+
+    .line 413
+    const/4 v1, 0x6
+
+    const-string v2, "heart_rate"
+
+    const-string v3, "heartrate"
+
+    const-string v4, "heartRate"
+
+    const-string v5, "bpm"
+
+    const-string v6, "value"
+
+    const-string v7, "hr"
+
+    filled-new-array/range {v2 .. v7}, [Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 416
+    const/4 v3, 0x0
+
+    :goto_21
+    if-ge v3, v1, :cond_3e
+
+    .line 417
+    aget-object v4, v2, v3
+
+    .line 418
+    invoke-virtual {p0, v4}, Lorg/json/JSONObject;->isNull(Ljava/lang/String;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_2c
+
+    .line 419
+    goto :goto_3b
+
+    .line 421
+    :cond_2c
+    invoke-virtual {p0, v4}, Lorg/json/JSONObject;->get(Ljava/lang/String;)Ljava/lang/Object;
+
+    move-result-object v4
+
+    invoke-static {v4}, Ljava/lang/String;->valueOf(Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 422
+    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseHeartRate(Ljava/lang/String;)I
+
+    move-result v5
+    :try_end_38
+    .catchall {:try_start_4 .. :try_end_38} :catchall_3f
+
+    if-lez v5, :cond_3b
+
+    .line 423
+    return-object v4
+
+    .line 416
+    :cond_3b
+    :goto_3b
+    add-int/lit8 v3, v3, 0x1
+
+    goto :goto_21
+
+    .line 427
+    :cond_3e
+    goto :goto_40
+
+    .line 426
+    :catchall_3f
+    move-exception p0
+
+    .line 428
+    :goto_40
+    return-object v0
+.end method
+
+.method private static extractState(Ljava/lang/String;)Ljava/lang/String;
+    .registers 6
+
+    .line 382
     const-string v0, "state"
 
     const-string v1, ""
 
-    if-eqz p0, :cond_2a
+    if-eqz p0, :cond_4c
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -205,65 +332,144 @@
 
     if-nez v2, :cond_d
 
-    goto :goto_2a
+    goto :goto_4c
 
-    .line 287
+    .line 386
     :cond_d
     :try_start_d
     new-instance v2, Lorg/json/JSONObject;
 
     invoke-direct {v2, p0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 288
+    .line 387
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->extractFromAttributes(Lorg/json/JSONObject;)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 388
+    invoke-virtual {v3}, Ljava/lang/String;->length()I
+
+    move-result v4
+
+    if-lez v4, :cond_1d
+
+    .line 389
+    return-object v3
+
+    .line 391
+    :cond_1d
     invoke-virtual {v2, v0}, Lorg/json/JSONObject;->isNull(Ljava/lang/String;)Z
 
     move-result v3
 
-    if-nez v3, :cond_23
+    if-nez v3, :cond_3c
 
-    .line 289
+    .line 392
     invoke-virtual {v2, v0}, Lorg/json/JSONObject;->get(Ljava/lang/String;)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 290
-    if-eqz v0, :cond_22
+    .line 393
+    if-eqz v0, :cond_2e
 
     invoke-static {v0}, Ljava/lang/String;->valueOf(Ljava/lang/Object;)Ljava/lang/String;
 
-    move-result-object v1
-    :try_end_22
-    .catchall {:try_start_d .. :try_end_22} :catchall_24
+    move-result-object v0
 
-    :cond_22
-    return-object v1
+    goto :goto_2f
 
-    .line 293
-    :cond_23
-    goto :goto_25
+    :cond_2e
+    move-object v0, v1
 
-    .line 292
-    :catchall_24
+    .line 394
+    :goto_2f
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_3c
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isUnavailableState(Ljava/lang/String;)Z
+
+    move-result v2
+    :try_end_39
+    .catchall {:try_start_d .. :try_end_39} :catchall_3d
+
+    if-nez v2, :cond_3c
+
+    .line 395
+    return-object v0
+
+    .line 399
+    :cond_3c
+    goto :goto_3e
+
+    .line 398
+    :catchall_3d
     move-exception v0
 
-    .line 294
-    :goto_25
+    .line 400
+    :goto_3e
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object p0
 
+    .line 401
+    const-string v0, "{"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4b
+
+    .line 402
+    return-object v1
+
+    .line 404
+    :cond_4b
     return-object p0
 
-    .line 284
-    :cond_2a
-    :goto_2a
+    .line 383
+    :cond_4c
+    :goto_4c
     return-object v1
+.end method
+
+.method private static formatEntityState(Ljava/lang/String;)Ljava/lang/String;
+    .registers 2
+
+    .line 189
+    if-eqz p0, :cond_e
+
+    invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-nez v0, :cond_d
+
+    goto :goto_e
+
+    .line 192
+    :cond_d
+    return-object p0
+
+    .line 190
+    :cond_e
+    :goto_e
+    const-string p0, "(\u043f\u0440\u0430\u0437\u043d\u043e)"
+
+    return-object p0
 .end method
 
 .method public static getBindError()Ljava/lang/String;
     .registers 1
 
-    .line 99
+    .line 113
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->bindError:Ljava/lang/String;
 
     return-object v0
@@ -272,7 +478,7 @@
 .method public static getBoundPort()I
     .registers 1
 
-    .line 95
+    .line 109
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
 
     return v0
@@ -289,12 +495,12 @@
         }
     .end annotation
 
-    .line 144
+    .line 181
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 145
+    .line 182
     sget-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
     invoke-interface {v1}, Ljava/util/Map;->values()Ljava/util/Collection;
@@ -310,7 +516,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_39
+    if-eqz v2, :cond_3d
 
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -318,7 +524,7 @@
 
     check-cast v2, Lcom/isaigu/gymapp/wearable/HaEntityRecord;
 
-    .line 146
+    .line 183
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -335,6 +541,10 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/wearable/HaEntityRecord;->state:Ljava/lang/String;
 
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->formatEntityState(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
     invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
@@ -343,18 +553,18 @@
 
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 147
+    .line 184
     goto :goto_f
 
-    .line 148
-    :cond_39
+    .line 185
+    :cond_3d
     return-object v0
 .end method
 
 .method public static getEntityListText()Ljava/lang/String;
     .registers 6
 
-    .line 124
+    .line 161
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->isEmpty()Z
@@ -363,18 +573,18 @@
 
     if-eqz v0, :cond_b
 
-    .line 125
+    .line 162
     const-string v0, ""
 
     return-object v0
 
-    .line 127
+    .line 164
     :cond_b
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 128
+    .line 165
     sget-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
     invoke-interface {v1}, Ljava/util/Map;->values()Ljava/util/Collection;
@@ -390,7 +600,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_61
+    if-eqz v2, :cond_65
 
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -398,19 +608,19 @@
 
     check-cast v2, Lcom/isaigu/gymapp/wearable/HaEntityRecord;
 
-    .line 129
+    .line 166
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->length()I
 
     move-result v3
 
     if-lez v3, :cond_31
 
-    .line 130
+    .line 167
     const/16 v3, 0xa
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 132
+    .line 169
     :cond_31
     invoke-virtual {v2}, Lcom/isaigu/gymapp/wearable/HaEntityRecord;->shortName()Ljava/lang/String;
 
@@ -418,24 +628,28 @@
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 133
+    .line 170
     const/16 v3, 0x3d
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 134
+    .line 171
     iget-object v2, v2, Lcom/isaigu/gymapp/wearable/HaEntityRecord;->state:Ljava/lang/String;
 
-    .line 135
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->formatEntityState(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 172
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v3
 
     const/16 v4, 0x1c
 
-    if-le v3, v4, :cond_5d
+    if-le v3, v4, :cond_61
 
-    .line 136
+    .line 173
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -456,15 +670,15 @@
 
     move-result-object v2
 
-    .line 138
-    :cond_5d
+    .line 175
+    :cond_61
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 139
+    .line 176
     goto :goto_1a
 
-    .line 140
-    :cond_61
+    .line 177
+    :cond_65
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -475,16 +689,64 @@
 .method public static getHaHrCount()I
     .registers 1
 
-    .line 87
+    .line 101
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->haHrCount:I
 
     return v0
 .end method
 
+.method public static getLanUrl(Landroid/content/Context;)Ljava/lang/String;
+    .registers 2
+
+    .line 121
+    sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
+
+    if-eqz v0, :cond_d
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-lez v0, :cond_d
+
+    .line 122
+    sget-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
+
+    return-object p0
+
+    .line 124
+    :cond_d
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->refreshLanUrl(Landroid/content/Context;)V
+
+    .line 125
+    sget-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
+
+    if-eqz p0, :cond_1d
+
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result p0
+
+    if-lez p0, :cond_1d
+
+    .line 126
+    sget-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
+
+    return-object p0
+
+    .line 128
+    :cond_1d
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->getLocalUrl()Ljava/lang/String;
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
 .method public static getLastEntity()Ljava/lang/String;
     .registers 1
 
-    .line 91
+    .line 105
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->lastEntity:Ljava/lang/String;
 
     return-object v0
@@ -493,7 +755,7 @@
 .method public static getLocalUrl()Ljava/lang/String;
     .registers 2
 
-    .line 103
+    .line 117
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -516,7 +778,7 @@
 .method public static getPostCount()I
     .registers 1
 
-    .line 83
+    .line 97
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->postCount:I
 
     return v0
@@ -525,7 +787,7 @@
 .method private static handleClient(Ljava/net/Socket;)V
     .registers 13
 
-    .line 182
+    .line 269
     const-string v0, "/api/states/"
 
     :try_start_2
@@ -533,12 +795,12 @@
 
     move-result-object v1
 
-    .line 183
+    .line 270
     invoke-virtual {p0}, Ljava/net/Socket;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v2
 
-    .line 184
+    .line 271
     new-instance v3, Ljava/io/BufferedReader;
 
     new-instance v4, Ljava/io/InputStreamReader;
@@ -549,17 +811,17 @@
 
     invoke-direct {v3, v4}, Ljava/io/BufferedReader;-><init>(Ljava/io/Reader;)V
 
-    .line 186
+    .line 273
     invoke-virtual {v3}, Ljava/io/BufferedReader;->readLine()Ljava/lang/String;
 
     move-result-object v4
     :try_end_1a
-    .catchall {:try_start_2 .. :try_end_1a} :catchall_105
+    .catchall {:try_start_2 .. :try_end_1a} :catchall_109
 
-    .line 187
+    .line 274
     const-string v5, "text/plain"
 
-    if-eqz v4, :cond_f8
+    if-eqz v4, :cond_fc
 
     :try_start_1e
     invoke-virtual {v4}, Ljava/lang/String;->length()I
@@ -568,39 +830,39 @@
 
     if-nez v6, :cond_26
 
-    goto/16 :goto_f8
+    goto/16 :goto_fc
 
-    .line 191
+    .line 278
     :cond_26
     nop
 
-    .line 192
+    .line 279
     nop
 
-    .line 193
+    .line 280
     const/16 v6, 0x20
 
     invoke-virtual {v4, v6}, Ljava/lang/String;->indexOf(I)I
 
     move-result v7
 
-    .line 194
+    .line 281
     invoke-virtual {v4, v6}, Ljava/lang/String;->lastIndexOf(I)I
 
     move-result v6
     :try_end_32
-    .catchall {:try_start_1e .. :try_end_32} :catchall_105
+    .catchall {:try_start_1e .. :try_end_32} :catchall_109
 
-    .line 195
+    .line 282
     const-string v8, ""
 
     const/4 v9, 0x0
 
-    if-lez v7, :cond_50
+    if-lez v7, :cond_52
 
-    if-le v6, v7, :cond_50
+    if-le v6, v7, :cond_52
 
-    .line 196
+    .line 283
     :try_start_39
     invoke-virtual {v4, v9, v7}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
@@ -610,11 +872,13 @@
 
     move-result-object v8
 
-    invoke-virtual {v8}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
+    sget-object v10, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {v8, v10}, Ljava/lang/String;->toUpperCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v8
 
-    .line 197
+    .line 284
     add-int/lit8 v7, v7, 0x1
 
     invoke-virtual {v4, v7, v6}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -625,49 +889,51 @@
 
     move-result-object v4
 
-    goto :goto_51
+    goto :goto_53
 
-    .line 199
-    :cond_50
+    .line 286
+    :cond_52
     move-object v4, v8
 
-    :goto_51
+    :goto_53
     const/4 v6, 0x0
 
-    .line 201
-    :goto_52
+    .line 288
+    :goto_54
     invoke-virtual {v3}, Ljava/io/BufferedReader;->readLine()Ljava/lang/String;
 
     move-result-object v7
 
-    if-eqz v7, :cond_7a
+    if-eqz v7, :cond_7e
 
-    .line 202
+    .line 289
     invoke-virtual {v7}, Ljava/lang/String;->length()I
 
     move-result v10
 
-    if-nez v10, :cond_5f
+    if-nez v10, :cond_61
 
-    .line 203
-    goto :goto_7a
+    .line 290
+    goto :goto_7e
 
-    .line 205
-    :cond_5f
-    invoke-virtual {v7}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    .line 292
+    :cond_61
+    sget-object v10, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {v7, v10}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v10
 
-    .line 206
+    .line 293
     const-string v11, "content-length:"
 
     invoke-virtual {v10, v11}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v10
 
-    if-eqz v10, :cond_79
+    if-eqz v10, :cond_7d
 
-    .line 207
+    .line 294
     const/16 v6, 0xf
 
     invoke-virtual {v7, v6}, Ljava/lang/String;->substring(I)Ljava/lang/String;
@@ -682,40 +948,40 @@
 
     move-result v6
 
-    .line 209
-    :cond_79
-    goto :goto_52
+    .line 296
+    :cond_7d
+    goto :goto_54
 
-    .line 210
-    :cond_7a
-    :goto_7a
+    .line 297
+    :cond_7e
+    :goto_7e
     invoke-static {v1, v6}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->readBody(Ljava/io/InputStream;I)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 211
+    .line 298
     const-string v3, "GET"
 
     invoke-virtual {v3, v8}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
-    :try_end_84
-    .catchall {:try_start_39 .. :try_end_84} :catchall_105
+    :try_end_88
+    .catchall {:try_start_39 .. :try_end_88} :catchall_109
 
     const-string v6, "application/json"
 
     const/16 v7, 0xc8
 
-    if-eqz v3, :cond_a5
+    if-eqz v3, :cond_a9
 
-    :try_start_8a
+    :try_start_8e
     const-string v3, "/api/"
 
     invoke-virtual {v3, v4}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-nez v3, :cond_9a
+    if-nez v3, :cond_9e
 
     const-string v3, "/api"
 
@@ -723,43 +989,43 @@
 
     move-result v3
 
-    if-eqz v3, :cond_a5
+    if-eqz v3, :cond_a9
 
-    .line 212
-    :cond_9a
+    .line 299
+    :cond_9e
     const-string v0, "{\"message\":\"API running.\"}"
 
     invoke-static {v2, v7, v6, v0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->writeResponse(Ljava/io/OutputStream;ILjava/lang/String;Ljava/lang/String;)V
-    :try_end_9f
-    .catchall {:try_start_8a .. :try_end_9f} :catchall_105
+    :try_end_a3
+    .catchall {:try_start_8e .. :try_end_a3} :catchall_109
 
-    .line 227
-    :try_start_9f
+    .line 314
+    :try_start_a3
     invoke-virtual {p0}, Ljava/net/Socket;->close()V
-    :try_end_a2
-    .catch Ljava/io/IOException; {:try_start_9f .. :try_end_a2} :catch_a3
+    :try_end_a6
+    .catch Ljava/io/IOException; {:try_start_a3 .. :try_end_a6} :catch_a7
 
-    .line 229
-    goto :goto_a4
+    .line 316
+    goto :goto_a8
 
-    .line 228
-    :catch_a3
+    .line 315
+    :catch_a7
     move-exception p0
 
-    .line 213
-    :goto_a4
+    .line 300
+    :goto_a8
     return-void
 
-    .line 215
-    :cond_a5
-    :try_start_a5
+    .line 302
+    :cond_a9
+    :try_start_a9
     const-string v3, "POST"
 
     invoke-virtual {v3, v8}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-nez v3, :cond_b5
+    if-nez v3, :cond_b9
 
     const-string v3, "PUT"
 
@@ -767,17 +1033,17 @@
 
     move-result v3
 
-    if-eqz v3, :cond_ed
+    if-eqz v3, :cond_f1
 
-    .line 216
-    :cond_b5
+    .line 303
+    :cond_b9
     invoke-virtual {v4, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_ed
+    if-eqz v3, :cond_f1
 
-    .line 217
+    .line 304
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -790,10 +1056,10 @@
 
     move-result-object v0
 
-    .line 218
+    .line 305
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->handleStatePost(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 219
+    .line 306
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -802,7 +1068,7 @@
 
     invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 220
+    .line 307
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->escapeJson(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
@@ -817,112 +1083,112 @@
 
     move-result-object v0
 
-    .line 219
+    .line 306
     invoke-static {v2, v7, v6, v0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->writeResponse(Ljava/io/OutputStream;ILjava/lang/String;Ljava/lang/String;)V
-    :try_end_e7
-    .catchall {:try_start_a5 .. :try_end_e7} :catchall_105
+    :try_end_eb
+    .catchall {:try_start_a9 .. :try_end_eb} :catchall_109
 
-    .line 227
-    :try_start_e7
+    .line 314
+    :try_start_eb
     invoke-virtual {p0}, Ljava/net/Socket;->close()V
-    :try_end_ea
-    .catch Ljava/io/IOException; {:try_start_e7 .. :try_end_ea} :catch_eb
+    :try_end_ee
+    .catch Ljava/io/IOException; {:try_start_eb .. :try_end_ee} :catch_ef
 
-    .line 229
-    goto :goto_ec
+    .line 316
+    goto :goto_f0
 
-    .line 228
-    :catch_eb
+    .line 315
+    :catch_ef
     move-exception p0
 
-    .line 221
-    :goto_ec
+    .line 308
+    :goto_f0
     return-void
 
-    .line 223
-    :cond_ed
+    .line 310
+    :cond_f1
     const/16 v0, 0x194
 
-    :try_start_ef
+    :try_start_f3
     const-string v1, "not found"
 
     invoke-static {v2, v0, v5, v1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->writeResponse(Ljava/io/OutputStream;ILjava/lang/String;Ljava/lang/String;)V
-    :try_end_f4
-    .catchall {:try_start_ef .. :try_end_f4} :catchall_105
+    :try_end_f8
+    .catchall {:try_start_f3 .. :try_end_f8} :catchall_109
 
-    .line 227
-    :try_start_f4
+    .line 314
+    :try_start_f8
     invoke-virtual {p0}, Ljava/net/Socket;->close()V
-    :try_end_f7
-    .catch Ljava/io/IOException; {:try_start_f4 .. :try_end_f7} :catch_10a
+    :try_end_fb
+    .catch Ljava/io/IOException; {:try_start_f8 .. :try_end_fb} :catch_10e
 
-    goto :goto_109
+    goto :goto_10d
 
-    .line 188
-    :cond_f8
-    :goto_f8
+    .line 275
+    :cond_fc
+    :goto_fc
     const/16 v0, 0x190
 
-    :try_start_fa
+    :try_start_fe
     const-string v1, "bad request"
 
     invoke-static {v2, v0, v5, v1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->writeResponse(Ljava/io/OutputStream;ILjava/lang/String;Ljava/lang/String;)V
-    :try_end_ff
-    .catchall {:try_start_fa .. :try_end_ff} :catchall_105
+    :try_end_103
+    .catchall {:try_start_fe .. :try_end_103} :catchall_109
 
-    .line 227
-    :try_start_ff
+    .line 314
+    :try_start_103
     invoke-virtual {p0}, Ljava/net/Socket;->close()V
-    :try_end_102
-    .catch Ljava/io/IOException; {:try_start_ff .. :try_end_102} :catch_103
+    :try_end_106
+    .catch Ljava/io/IOException; {:try_start_103 .. :try_end_106} :catch_107
 
-    .line 229
-    goto :goto_104
+    .line 316
+    goto :goto_108
 
-    .line 228
-    :catch_103
+    .line 315
+    :catch_107
     move-exception p0
 
-    .line 189
-    :goto_104
+    .line 276
+    :goto_108
     return-void
 
-    .line 224
-    :catchall_105
+    .line 311
+    :catchall_109
     move-exception v0
 
-    .line 227
-    :try_start_106
+    .line 314
+    :try_start_10a
     invoke-virtual {p0}, Ljava/net/Socket;->close()V
-    :try_end_109
-    .catch Ljava/io/IOException; {:try_start_106 .. :try_end_109} :catch_10a
+    :try_end_10d
+    .catch Ljava/io/IOException; {:try_start_10a .. :try_end_10d} :catch_10e
 
-    .line 229
-    :goto_109
-    goto :goto_10c
+    .line 316
+    :goto_10d
+    goto :goto_110
 
-    .line 228
-    :catch_10a
+    .line 315
+    :catch_10e
     move-exception p0
 
-    .line 230
+    .line 317
     nop
 
-    .line 231
-    :goto_10c
+    .line 318
+    :goto_110
     return-void
 .end method
 
 .method private static handleStatePost(Ljava/lang/String;Ljava/lang/String;)V
-    .registers 5
+    .registers 4
 
-    .line 253
+    .line 352
     if-nez p0, :cond_4
 
-    .line 254
+    .line 353
     const-string p0, ""
 
-    .line 256
+    .line 355
     :cond_4
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->postCount:I
 
@@ -930,44 +1196,42 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->postCount:I
 
-    .line 257
+    .line 356
     sput-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->lastEntity:Ljava/lang/String;
 
-    .line 258
+    .line 357
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->extractState(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p1
 
-    .line 259
+    .line 358
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->rememberEntity(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 260
+    .line 359
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isHeartRateEntity(Ljava/lang/String;)Z
 
     move-result v0
 
     const-string v1, "ha:"
 
-    const/4 v2, -0x1
+    if-eqz v0, :cond_3a
 
-    if-eqz v0, :cond_3b
-
-    .line 261
-    invoke-static {p1, v2}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseIntSafe(Ljava/lang/String;I)I
+    .line 360
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseHeartRate(Ljava/lang/String;)I
 
     move-result p1
 
-    .line 262
-    if-lez p1, :cond_3a
+    .line 361
+    if-lez p1, :cond_39
 
-    .line 263
+    .line 362
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->haHrCount:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->haHrCount:I
 
-    .line 264
+    .line 363
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -982,35 +1246,37 @@
 
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onHeartRate(ILjava/lang/String;)V
 
-    .line 266
-    :cond_3a
+    .line 365
+    :cond_39
     goto :goto_6a
 
-    :cond_3b
+    :cond_3a
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isBatteryEntity(Ljava/lang/String;)Z
 
     move-result v0
 
     if-eqz v0, :cond_4f
 
-    .line 267
-    invoke-static {p1, v2}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseIntSafe(Ljava/lang/String;I)I
+    .line 366
+    const/4 v0, -0x1
+
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseIntSafe(Ljava/lang/String;I)I
 
     move-result p1
 
-    .line 268
+    .line 367
     if-ltz p1, :cond_69
 
     const/16 v0, 0x64
 
     if-gt p1, v0, :cond_69
 
-    .line 269
+    .line 368
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBattery(I)V
 
     goto :goto_69
 
-    .line 271
+    .line 370
     :cond_4f
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isConnectedEntity(Ljava/lang/String;)Z
 
@@ -1018,19 +1284,19 @@
 
     if-eqz v0, :cond_69
 
-    .line 272
+    .line 371
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isTruthyState(Ljava/lang/String;)Z
 
     move-result v0
 
     if-eqz v0, :cond_5f
 
-    .line 273
+    .line 372
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandConnected()V
 
     goto :goto_6a
 
-    .line 274
+    .line 373
     :cond_5f
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isFalsyState(Ljava/lang/String;)Z
 
@@ -1038,17 +1304,17 @@
 
     if-eqz p1, :cond_6a
 
-    .line 275
+    .line 374
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandDisconnected()V
 
     goto :goto_6a
 
-    .line 271
+    .line 370
     :cond_69
     :goto_69
     nop
 
-    .line 278
+    .line 377
     :cond_6a
     :goto_6a
     new-instance p1, Ljava/lang/StringBuilder;
@@ -1065,17 +1331,17 @@
 
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onRawEvent(Ljava/lang/String;)V
 
-    .line 279
+    .line 378
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 280
+    .line 379
     return-void
 .end method
 
 .method public static hasHeartRateEntity()Z
     .registers 2
 
-    .line 115
+    .line 140
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->keySet()Ljava/util/Set;
@@ -1099,34 +1365,109 @@
 
     check-cast v1, Ljava/lang/String;
 
-    .line 116
+    .line 141
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isHeartRateEntity(Ljava/lang/String;)Z
 
     move-result v1
 
     if-eqz v1, :cond_1e
 
-    .line 117
+    .line 142
     const/4 v0, 0x1
 
     return v0
 
-    .line 119
+    .line 144
     :cond_1e
     goto :goto_a
 
-    .line 120
+    .line 145
     :cond_1f
     const/4 v0, 0x0
 
     return v0
 .end method
 
+.method public static hasHeartRateValue()Z
+    .registers 4
+
+    .line 149
+    sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
+
+    invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :goto_a
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v1
+
+    const/4 v2, 0x1
+
+    if-eqz v1, :cond_2a
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Lcom/isaigu/gymapp/wearable/HaEntityRecord;
+
+    .line 150
+    iget-object v3, v1, Lcom/isaigu/gymapp/wearable/HaEntityRecord;->entityId:Ljava/lang/String;
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->isHeartRateEntity(Ljava/lang/String;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_20
+
+    .line 151
+    goto :goto_a
+
+    .line 153
+    :cond_20
+    iget-object v1, v1, Lcom/isaigu/gymapp/wearable/HaEntityRecord;->state:Ljava/lang/String;
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseHeartRate(Ljava/lang/String;)I
+
+    move-result v1
+
+    if-lez v1, :cond_29
+
+    .line 154
+    return v2
+
+    .line 156
+    :cond_29
+    goto :goto_a
+
+    .line 157
+    :cond_2a
+    sget v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->haHrCount:I
+
+    if-lez v0, :cond_2f
+
+    goto :goto_30
+
+    :cond_2f
+    const/4 v2, 0x0
+
+    :goto_30
+    return v2
+.end method
+
 .method private static isBatteryEntity(Ljava/lang/String;)Z
     .registers 2
 
-    .line 304
-    invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    .line 471
+    sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object p0
 
@@ -1142,19 +1483,21 @@
 .method private static isConnectedEntity(Ljava/lang/String;)Z
     .registers 2
 
-    .line 308
-    invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    .line 475
+    sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 309
+    .line 476
     const-string v0, "_connected"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-nez v0, :cond_17
+    if-nez v0, :cond_19
 
     const-string v0, ".connected"
 
@@ -1162,52 +1505,54 @@
 
     move-result p0
 
-    if-eqz p0, :cond_15
+    if-eqz p0, :cond_17
 
-    goto :goto_17
-
-    :cond_15
-    const/4 p0, 0x0
-
-    goto :goto_18
+    goto :goto_19
 
     :cond_17
-    :goto_17
+    const/4 p0, 0x0
+
+    goto :goto_1a
+
+    :cond_19
+    :goto_19
     const/4 p0, 0x1
 
-    :goto_18
+    :goto_1a
     return p0
 .end method
 
 .method private static isFalsyState(Ljava/lang/String;)Z
     .registers 3
 
-    .line 322
+    .line 489
     const/4 v0, 0x0
 
     if-nez p0, :cond_4
 
-    .line 323
+    .line 490
     return v0
 
-    .line 325
+    .line 492
     :cond_4
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object p0
 
-    invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    sget-object v1, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 326
+    .line 493
     const-string v1, "0"
 
     invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
     const-string v1, "false"
 
@@ -1215,7 +1560,7 @@
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
     const-string v1, "off"
 
@@ -1223,7 +1568,7 @@
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
     const-string v1, "disconnected"
 
@@ -1231,87 +1576,150 @@
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
-    .line 327
+    .line 494
     const-string v1, "no"
 
     invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result p0
 
-    if-eqz p0, :cond_35
+    if-eqz p0, :cond_37
 
-    :cond_34
+    :cond_36
     const/4 v0, 0x1
 
-    .line 326
-    :cond_35
+    .line 493
+    :cond_37
     return v0
 .end method
 
 .method private static isHeartRateEntity(Ljava/lang/String;)Z
-    .registers 2
+    .registers 4
 
-    .line 298
-    invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    .line 456
+    const/4 v0, 0x0
+
+    if-eqz p0, :cond_57
+
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-nez v1, :cond_a
+
+    goto :goto_57
+
+    .line 459
+    :cond_a
+    sget-object v1, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 299
-    const-string v0, "heartrate"
+    .line 460
+    const-string v1, "heartrate"
 
-    invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    invoke-virtual {p0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
-    move-result v0
+    move-result v1
 
-    if-nez v0, :cond_27
+    const/4 v2, 0x1
 
-    const-string v0, "heart_rate"
+    if-nez v1, :cond_56
 
-    invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    const-string v1, "heart_rate"
 
-    move-result v0
+    invoke-virtual {p0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
-    if-nez v0, :cond_27
+    move-result v1
 
-    .line 300
-    const-string v0, "_hr"
+    if-nez v1, :cond_56
 
-    invoke-virtual {p0, v0}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
+    .line 461
+    const-string v1, "heart-rate"
 
-    move-result v0
+    invoke-virtual {p0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
-    if-nez v0, :cond_27
+    move-result v1
 
-    const-string v0, "_hr_"
+    if-nez v1, :cond_56
 
-    invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    const-string v1, "heartr"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_32
+
+    goto :goto_56
+
+    .line 464
+    :cond_32
+    const-string v1, "_hr"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_55
+
+    const-string v1, "_hr_"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_43
+
+    goto :goto_55
+
+    .line 467
+    :cond_43
+    const-string v1, "heart"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_54
+
+    const-string v1, "rate"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result p0
 
-    if-eqz p0, :cond_25
+    if-eqz p0, :cond_54
 
-    goto :goto_27
+    const/4 v0, 0x1
 
-    :cond_25
-    const/4 p0, 0x0
+    :cond_54
+    return v0
 
-    goto :goto_28
+    .line 465
+    :cond_55
+    :goto_55
+    return v2
 
-    :cond_27
-    :goto_27
-    const/4 p0, 0x1
+    .line 462
+    :cond_56
+    :goto_56
+    return v2
 
-    .line 299
-    :goto_28
-    return p0
+    .line 457
+    :cond_57
+    :goto_57
+    return v0
 .end method
 
 .method public static isRunning()Z
     .registers 1
 
-    .line 79
+    .line 93
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->running:Z
 
     return v0
@@ -1320,32 +1728,34 @@
 .method private static isTruthyState(Ljava/lang/String;)Z
     .registers 3
 
-    .line 313
+    .line 480
     const/4 v0, 0x0
 
     if-nez p0, :cond_4
 
-    .line 314
+    .line 481
     return v0
 
-    .line 316
+    .line 483
     :cond_4
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object p0
 
-    invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    sget-object v1, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 317
+    .line 484
     const-string v1, "1"
 
     invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
     const-string v1, "true"
 
@@ -1353,7 +1763,7 @@
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
     const-string v1, "on"
 
@@ -1361,7 +1771,7 @@
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
     const-string v1, "connected"
 
@@ -1369,10 +1779,81 @@
 
     move-result v1
 
-    if-nez v1, :cond_34
+    if-nez v1, :cond_36
 
-    .line 318
+    .line 485
     const-string v1, "yes"
+
+    invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_37
+
+    :cond_36
+    const/4 v0, 0x1
+
+    .line 484
+    :cond_37
+    return v0
+.end method
+
+.method private static isUnavailableState(Ljava/lang/String;)Z
+    .registers 3
+
+    .line 432
+    const/4 v0, 0x1
+
+    if-nez p0, :cond_4
+
+    .line 433
+    return v0
+
+    .line 435
+    :cond_4
+    invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object p0
+
+    sget-object v1, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 436
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-eqz v1, :cond_37
+
+    const-string v1, "unknown"
+
+    invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_37
+
+    const-string v1, "unavailable"
+
+    invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_37
+
+    .line 437
+    const-string v1, "null"
+
+    invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_37
+
+    const-string v1, "none"
 
     invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -1380,48 +1861,108 @@
 
     if-eqz p0, :cond_35
 
-    :cond_34
-    const/4 v0, 0x1
+    goto :goto_37
 
-    .line 317
     :cond_35
+    const/4 v0, 0x0
+
+    goto :goto_38
+
+    :cond_37
+    :goto_37
+    nop
+
+    .line 436
+    :goto_38
     return v0
+.end method
+
+.method private static parseHeartRate(Ljava/lang/String;)I
+    .registers 4
+
+    .line 441
+    const/4 v0, -0x1
+
+    if-nez p0, :cond_4
+
+    .line 442
+    return v0
+
+    .line 444
+    :cond_4
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseIntSafe(Ljava/lang/String;I)I
+
+    move-result v1
+
+    .line 445
+    if-lez v1, :cond_b
+
+    .line 446
+    return v1
+
+    .line 448
+    :cond_b
+    const-string v1, "[^0-9]"
+
+    const-string v2, ""
+
+    invoke-virtual {p0, v1, v2}, Ljava/lang/String;->replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 449
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-nez v1, :cond_1a
+
+    .line 450
+    return v0
+
+    .line 452
+    :cond_1a
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->parseIntSafe(Ljava/lang/String;I)I
+
+    move-result p0
+
+    return p0
 .end method
 
 .method private static parseIntSafe(Ljava/lang/String;I)I
     .registers 4
 
-    .line 364
+    .line 535
     if-nez p0, :cond_3
 
-    .line 365
+    .line 536
     return p1
 
-    .line 368
+    .line 539
     :cond_3
     :try_start_3
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object p0
 
-    .line 369
+    .line 540
     const/16 v0, 0x2e
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(I)I
 
     move-result v0
 
-    .line 370
+    .line 541
     if-lez v0, :cond_14
 
-    .line 371
+    .line 542
     const/4 v1, 0x0
 
     invoke-virtual {p0, v1, v0}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 373
+    .line 544
     :cond_14
     invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
 
@@ -1431,11 +1972,11 @@
 
     return p0
 
-    .line 374
+    .line 545
     :catchall_19
     move-exception p0
 
-    .line 375
+    .line 546
     return p1
 .end method
 
@@ -1447,59 +1988,53 @@
         }
     .end annotation
 
-    .line 234
-    if-gtz p1, :cond_5
-
-    .line 235
-    const-string p0, ""
-
-    return-object p0
-
-    .line 237
-    :cond_5
+    .line 321
     const/high16 v0, 0x10000
 
-    if-le p1, v0, :cond_b
+    if-le p1, v0, :cond_6
 
-    .line 238
+    .line 322
     const/high16 p1, 0x10000
 
-    .line 240
-    :cond_b
-    new-array v0, p1, [B
-
-    .line 241
+    .line 324
+    :cond_6
     const/4 v1, 0x0
 
+    if-lez p1, :cond_21
+
+    .line 325
+    new-array v0, p1, [B
+
+    .line 326
     const/4 v2, 0x0
 
-    .line 242
-    :goto_f
-    if-ge v2, p1, :cond_1c
+    .line 327
+    :goto_c
+    if-ge v2, p1, :cond_19
 
-    .line 243
+    .line 328
     sub-int v3, p1, v2
 
     invoke-virtual {p0, v0, v2, v3}, Ljava/io/InputStream;->read([BII)I
 
     move-result v3
 
-    .line 244
-    if-gez v3, :cond_1a
+    .line 329
+    if-gez v3, :cond_17
 
-    .line 245
-    goto :goto_1c
+    .line 330
+    goto :goto_19
 
-    .line 247
-    :cond_1a
+    .line 332
+    :cond_17
     add-int/2addr v2, v3
 
-    .line 248
-    goto :goto_f
+    .line 333
+    goto :goto_c
 
-    .line 249
-    :cond_1c
-    :goto_1c
+    .line 334
+    :cond_19
+    :goto_19
     new-instance p0, Ljava/lang/String;
 
     sget-object p1, Ljava/nio/charset/StandardCharsets;->UTF_8:Ljava/nio/charset/Charset;
@@ -1507,12 +2042,318 @@
     invoke-direct {p0, v0, v1, v2, p1}, Ljava/lang/String;-><init>([BIILjava/nio/charset/Charset;)V
 
     return-object p0
+
+    .line 336
+    :cond_21
+    invoke-virtual {p0}, Ljava/io/InputStream;->available()I
+
+    move-result p1
+
+    .line 337
+    const-string v2, ""
+
+    if-gtz p1, :cond_2a
+
+    .line 338
+    return-object v2
+
+    .line 340
+    :cond_2a
+    if-le p1, v0, :cond_2d
+
+    .line 341
+    goto :goto_2e
+
+    .line 340
+    :cond_2d
+    move v0, p1
+
+    .line 343
+    :goto_2e
+    new-array p1, v0, [B
+
+    .line 344
+    invoke-virtual {p0, p1}, Ljava/io/InputStream;->read([B)I
+
+    move-result p0
+
+    .line 345
+    if-gtz p0, :cond_37
+
+    .line 346
+    return-object v2
+
+    .line 348
+    :cond_37
+    new-instance v0, Ljava/lang/String;
+
+    sget-object v2, Ljava/nio/charset/StandardCharsets;->UTF_8:Ljava/nio/charset/Charset;
+
+    invoke-direct {v0, p1, v1, p0, v2}, Ljava/lang/String;-><init>([BIILjava/nio/charset/Charset;)V
+
+    return-object v0
+.end method
+
+.method private static refreshLanUrl(Landroid/content/Context;)V
+    .registers 8
+
+    .line 208
+    const-string v0, ":"
+
+    const-string v1, "http://"
+
+    const-string v2, "."
+
+    const-string v3, ""
+
+    sput-object v3, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
+
+    .line 210
+    :try_start_a
+    invoke-static {}, Ljava/net/NetworkInterface;->getNetworkInterfaces()Ljava/util/Enumeration;
+
+    move-result-object v3
+
+    .line 211
+    :cond_e
+    :goto_e
+    if-eqz v3, :cond_70
+
+    invoke-interface {v3}, Ljava/util/Enumeration;->hasMoreElements()Z
+
+    move-result v4
+
+    if-eqz v4, :cond_70
+
+    .line 212
+    invoke-interface {v3}, Ljava/util/Enumeration;->nextElement()Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Ljava/net/NetworkInterface;
+
+    .line 213
+    if-eqz v4, :cond_e
+
+    invoke-virtual {v4}, Ljava/net/NetworkInterface;->isUp()Z
+
+    move-result v5
+
+    if-eqz v5, :cond_e
+
+    invoke-virtual {v4}, Ljava/net/NetworkInterface;->isLoopback()Z
+
+    move-result v5
+
+    if-eqz v5, :cond_2b
+
+    .line 214
+    goto :goto_e
+
+    .line 216
+    :cond_2b
+    invoke-virtual {v4}, Ljava/net/NetworkInterface;->getInetAddresses()Ljava/util/Enumeration;
+
+    move-result-object v4
+
+    .line 217
+    :cond_2f
+    :goto_2f
+    invoke-interface {v4}, Ljava/util/Enumeration;->hasMoreElements()Z
+
+    move-result v5
+
+    if-eqz v5, :cond_6f
+
+    .line 218
+    invoke-interface {v4}, Ljava/util/Enumeration;->nextElement()Ljava/lang/Object;
+
+    move-result-object v5
+
+    check-cast v5, Ljava/net/InetAddress;
+
+    .line 219
+    if-eqz v5, :cond_2f
+
+    invoke-virtual {v5}, Ljava/net/InetAddress;->isLoopbackAddress()Z
+
+    move-result v6
+
+    if-nez v6, :cond_2f
+
+    instance-of v6, v5, Ljava/net/Inet4Address;
+
+    if-nez v6, :cond_48
+
+    .line 221
+    goto :goto_2f
+
+    .line 223
+    :cond_48
+    invoke-virtual {v5}, Ljava/net/InetAddress;->getHostAddress()Ljava/lang/String;
+
+    move-result-object v5
+
+    .line 224
+    if-eqz v5, :cond_6e
+
+    invoke-virtual {v5}, Ljava/lang/String;->length()I
+
+    move-result v6
+
+    if-lez v6, :cond_6e
+
+    .line 225
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    sget v4, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    sput-object v3, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
+    :try_end_6d
+    .catchall {:try_start_a .. :try_end_6d} :catchall_71
+
+    .line 226
+    return-void
+
+    .line 228
+    :cond_6e
+    goto :goto_2f
+
+    .line 229
+    :cond_6f
+    goto :goto_e
+
+    .line 231
+    :cond_70
+    goto :goto_72
+
+    .line 230
+    :catchall_71
+    move-exception v3
+
+    .line 232
+    :goto_72
+    if-eqz p0, :cond_ce
+
+    .line 234
+    nop
+
+    .line 235
+    :try_start_75
+    invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object p0
+
+    const-string v3, "wifi"
+
+    invoke-virtual {p0, v3}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+
+    move-result-object p0
+
+    check-cast p0, Landroid/net/wifi/WifiManager;
+
+    .line 236
+    if-eqz p0, :cond_cc
+
+    invoke-virtual {p0}, Landroid/net/wifi/WifiManager;->getConnectionInfo()Landroid/net/wifi/WifiInfo;
+
+    move-result-object v3
+
+    if-eqz v3, :cond_cc
+
+    .line 237
+    invoke-virtual {p0}, Landroid/net/wifi/WifiManager;->getConnectionInfo()Landroid/net/wifi/WifiInfo;
+
+    move-result-object p0
+
+    invoke-virtual {p0}, Landroid/net/wifi/WifiInfo;->getIpAddress()I
+
+    move-result p0
+
+    .line 238
+    if-eqz p0, :cond_cc
+
+    .line 239
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    and-int/lit16 v1, p0, 0xff
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    shr-int/lit8 v1, p0, 0x8
+
+    and-int/lit16 v1, v1, 0xff
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    shr-int/lit8 v1, p0, 0x10
+
+    and-int/lit16 v1, v1, 0xff
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    shr-int/lit8 p0, p0, 0x18
+
+    and-int/lit16 p0, p0, 0xff
+
+    invoke-virtual {v3, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    sget p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
+
+    invoke-virtual {v3, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p0
+
+    sput-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->cachedLanUrl:Ljava/lang/String;
+    :try_end_cc
+    .catchall {:try_start_75 .. :try_end_cc} :catchall_cd
+
+    .line 246
+    :cond_cc
+    goto :goto_ce
+
+    .line 245
+    :catchall_cd
+    move-exception p0
+
+    .line 248
+    :cond_ce
+    :goto_ce
+    return-void
 .end method
 
 .method private static rememberEntity(Ljava/lang/String;Ljava/lang/String;)V
     .registers 6
 
-    .line 152
+    .line 196
     if-eqz p0, :cond_3d
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -1523,7 +2364,7 @@
 
     goto :goto_3d
 
-    .line 155
+    .line 199
     :cond_9
     if-eqz p1, :cond_c
 
@@ -1532,7 +2373,7 @@
     :cond_c
     const-string p1, ""
 
-    .line 156
+    .line 200
     :goto_e
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
@@ -1546,7 +2387,7 @@
 
     invoke-interface {v0, p0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 157
+    .line 201
     :goto_1c
     sget-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
@@ -1558,7 +2399,7 @@
 
     if-le p0, p1, :cond_3c
 
-    .line 158
+    .line 202
     sget-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
     invoke-interface {p0}, Ljava/util/Map;->keySet()Ljava/util/Set;
@@ -1575,19 +2416,19 @@
 
     check-cast p0, Ljava/lang/String;
 
-    .line 159
+    .line 203
     sget-object p1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
     invoke-interface {p1, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 160
+    .line 204
     goto :goto_1c
 
-    .line 161
+    .line 205
     :cond_3c
     return-void
 
-    .line 153
+    .line 197
     :cond_3d
     :goto_3d
     return-void
@@ -1600,36 +2441,36 @@
 
     monitor-enter v0
 
-    .line 107
+    .line 132
     const/4 v1, 0x0
 
     :try_start_4
     sput v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->postCount:I
 
-    .line 108
+    .line 133
     sput v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->haHrCount:I
 
-    .line 109
+    .line 134
     const-string v1, ""
 
     sput-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->lastEntity:Ljava/lang/String;
 
-    .line 110
+    .line 135
     sget-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->entityHistory:Ljava/util/Map;
 
     invoke-interface {v1}, Ljava/util/Map;->clear()V
 
-    .line 111
+    .line 136
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
     :try_end_14
     .catchall {:try_start_4 .. :try_end_14} :catchall_16
 
-    .line 112
+    .line 137
     monitor-exit v0
 
     return-void
 
-    .line 106
+    .line 131
     :catchall_16
     move-exception v1
 
@@ -1639,141 +2480,153 @@
 .end method
 
 .method public static declared-synchronized start(Landroid/content/Context;)V
-    .registers 6
+    .registers 7
 
     const-class v0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;
 
     monitor-enter v0
 
-    .line 45
+    .line 51
     :try_start_3
     sget-boolean v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->running:Z
-    :try_end_5
-    .catchall {:try_start_3 .. :try_end_5} :catchall_5c
 
-    if-eqz v1, :cond_9
+    if-eqz v1, :cond_f
 
-    .line 46
+    .line 52
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->refreshLanUrl(Landroid/content/Context;)V
+
+    .line 53
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaForegroundService;->start(Landroid/content/Context;)V
+    :try_end_d
+    .catchall {:try_start_3 .. :try_end_d} :catchall_68
+
+    .line 54
     monitor-exit v0
 
     return-void
 
-    .line 48
-    :cond_9
-    :try_start_9
+    .line 56
+    :cond_f
+    :try_start_f
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getHaPort(Landroid/content/Context;)I
 
-    move-result p0
+    move-result v1
 
-    sput p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
-
-    .line 49
-    const-string p0, ""
-
-    sput-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->bindError:Ljava/lang/String;
-    :try_end_13
-    .catchall {:try_start_9 .. :try_end_13} :catchall_5c
-
-    .line 51
-    const/4 p0, 0x0
-
-    :try_start_14
-    new-instance v1, Ljava/net/ServerSocket;
-
-    sget v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
-
-    const/16 v3, 0x10
-
-    const-string v4, "0.0.0.0"
-
-    invoke-static {v4}, Ljava/net/InetAddress;->getByName(Ljava/lang/String;)Ljava/net/InetAddress;
-
-    move-result-object v4
-
-    invoke-direct {v1, v2, v3, v4}, Ljava/net/ServerSocket;-><init>(IILjava/net/InetAddress;)V
-
-    sput-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
-
-    .line 52
-    const/4 v1, 0x1
-
-    sput-boolean v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->running:Z
-
-    .line 53
-    new-instance v2, Ljava/lang/Thread;
-
-    new-instance v3, Lcom/isaigu/gymapp/wearable/NotifyHaServer$AcceptLoop;
-
-    invoke-direct {v3, p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer$AcceptLoop;-><init>(Lcom/isaigu/gymapp/wearable/NotifyHaServer$1;)V
-
-    const-string v4, "xems-ha-server"
-
-    invoke-direct {v2, v3, v4}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
-
-    sput-object v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->acceptThread:Ljava/lang/Thread;
-
-    .line 54
-    invoke-virtual {v2, v1}, Ljava/lang/Thread;->setDaemon(Z)V
-
-    .line 55
-    sget-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->acceptThread:Ljava/lang/Thread;
-
-    invoke-virtual {v1}, Ljava/lang/Thread;->start()V
-
-    .line 56
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
-    :try_end_41
-    .catch Ljava/io/IOException; {:try_start_14 .. :try_end_41} :catch_42
-    .catchall {:try_start_14 .. :try_end_41} :catchall_5c
-
-    .line 62
-    goto :goto_5a
+    sput v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
 
     .line 57
-    :catch_42
-    move-exception v1
+    const-string v1, ""
+
+    sput-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->bindError:Ljava/lang/String;
 
     .line 58
-    const/4 v2, 0x0
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->refreshLanUrl(Landroid/content/Context;)V
+    :try_end_1c
+    .catchall {:try_start_f .. :try_end_1c} :catchall_68
 
-    :try_start_44
+    .line 60
+    const/4 v1, 0x0
+
+    :try_start_1d
+    new-instance v2, Ljava/net/ServerSocket;
+
+    sget v3, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->boundPort:I
+
+    const/16 v4, 0x10
+
+    const-string v5, "0.0.0.0"
+
+    invoke-static {v5}, Ljava/net/InetAddress;->getByName(Ljava/lang/String;)Ljava/net/InetAddress;
+
+    move-result-object v5
+
+    invoke-direct {v2, v3, v4, v5}, Ljava/net/ServerSocket;-><init>(IILjava/net/InetAddress;)V
+
+    sput-object v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
+
+    .line 61
+    const/4 v2, 0x1
+
     sput-boolean v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->running:Z
 
-    .line 59
-    invoke-virtual {v1}, Ljava/io/IOException;->getMessage()Ljava/lang/String;
+    .line 62
+    new-instance v3, Ljava/lang/Thread;
+
+    new-instance v4, Lcom/isaigu/gymapp/wearable/NotifyHaServer$AcceptLoop;
+
+    invoke-direct {v4, v1}, Lcom/isaigu/gymapp/wearable/NotifyHaServer$AcceptLoop;-><init>(Lcom/isaigu/gymapp/wearable/NotifyHaServer$1;)V
+
+    const-string v5, "xems-ha-server"
+
+    invoke-direct {v3, v4, v5}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
+
+    sput-object v3, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->acceptThread:Ljava/lang/Thread;
+
+    .line 63
+    invoke-virtual {v3, v2}, Ljava/lang/Thread;->setDaemon(Z)V
+
+    .line 64
+    sget-object v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->acceptThread:Ljava/lang/Thread;
+
+    invoke-virtual {v2}, Ljava/lang/Thread;->start()V
+
+    .line 65
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaForegroundService;->start(Landroid/content/Context;)V
+
+    .line 66
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
+    :try_end_4d
+    .catch Ljava/io/IOException; {:try_start_1d .. :try_end_4d} :catch_4e
+    .catchall {:try_start_1d .. :try_end_4d} :catchall_68
+
+    .line 72
+    goto :goto_66
+
+    .line 67
+    :catch_4e
+    move-exception p0
+
+    .line 68
+    const/4 v2, 0x0
+
+    :try_start_50
+    sput-boolean v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->running:Z
+
+    .line 69
+    invoke-virtual {p0}, Ljava/io/IOException;->getMessage()Ljava/lang/String;
 
     move-result-object v2
 
-    if-eqz v2, :cond_51
+    if-eqz v2, :cond_5d
 
-    invoke-virtual {v1}, Ljava/io/IOException;->getMessage()Ljava/lang/String;
+    invoke-virtual {p0}, Ljava/io/IOException;->getMessage()Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object p0
 
-    goto :goto_53
+    goto :goto_5f
 
-    :cond_51
-    const-string v1, "bind failed"
+    :cond_5d
+    const-string p0, "bind failed"
 
-    :goto_53
-    sput-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->bindError:Ljava/lang/String;
+    :goto_5f
+    sput-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->bindError:Ljava/lang/String;
 
-    .line 60
-    sput-object p0, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
+    .line 70
+    sput-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
 
-    .line 61
+    .line 71
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
-    :try_end_5a
-    .catchall {:try_start_44 .. :try_end_5a} :catchall_5c
+    :try_end_66
+    .catchall {:try_start_50 .. :try_end_66} :catchall_68
 
-    .line 63
-    :goto_5a
+    .line 73
+    :goto_66
     monitor-exit v0
 
     return-void
 
-    .line 44
-    :catchall_5c
+    .line 50
+    :catchall_68
     move-exception p0
 
     monitor-exit v0
@@ -1788,58 +2641,70 @@
 
     monitor-enter v0
 
-    .line 66
+    .line 76
     const/4 v1, 0x0
 
     :try_start_4
     sput-boolean v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->running:Z
 
-    .line 67
+    .line 77
     sget-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
     :try_end_8
-    .catchall {:try_start_4 .. :try_end_8} :catchall_1b
+    .catchall {:try_start_4 .. :try_end_8} :catchall_24
 
     const/4 v2, 0x0
 
     if-eqz v1, :cond_14
 
-    .line 69
+    .line 79
     :try_start_b
     sget-object v1, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
 
     invoke-virtual {v1}, Ljava/net/ServerSocket;->close()V
     :try_end_10
     .catch Ljava/io/IOException; {:try_start_b .. :try_end_10} :catch_11
-    .catchall {:try_start_b .. :try_end_10} :catchall_1b
+    .catchall {:try_start_b .. :try_end_10} :catchall_24
 
-    .line 71
+    .line 81
     goto :goto_12
 
-    .line 70
+    .line 80
     :catch_11
     move-exception v1
 
-    .line 72
+    .line 82
     :goto_12
     :try_start_12
     sput-object v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->serverSocket:Ljava/net/ServerSocket;
 
-    .line 74
+    .line 84
     :cond_14
     sput-object v2, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->acceptThread:Ljava/lang/Thread;
 
-    .line 75
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
-    :try_end_19
-    .catchall {:try_start_12 .. :try_end_19} :catchall_1b
+    .line 85
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
-    .line 76
+    move-result-object v1
+
+    .line 86
+    if-eqz v1, :cond_1f
+
+    .line 87
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NotifyHaForegroundService;->stop(Landroid/content/Context;)V
+
+    .line 89
+    :cond_1f
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
+    :try_end_22
+    .catchall {:try_start_12 .. :try_end_22} :catchall_24
+
+    .line 90
     monitor-exit v0
 
     return-void
 
-    .line 65
-    :catchall_1b
+    .line 75
+    :catchall_24
     move-exception v1
 
     monitor-exit v0
@@ -1855,14 +2720,14 @@
         }
     .end annotation
 
-    .line 332
+    .line 499
     sget-object v0, Ljava/nio/charset/StandardCharsets;->UTF_8:Ljava/nio/charset/Charset;
 
     invoke-virtual {p3, v0}, Ljava/lang/String;->getBytes(Ljava/nio/charset/Charset;)[B
 
     move-result-object p3
 
-    .line 333
+    .line 500
     const/16 v0, 0xc8
 
     if-ne p1, v0, :cond_d
@@ -1883,7 +2748,7 @@
     :cond_14
     const-string v0, "Bad Request"
 
-    .line 334
+    .line 501
     :goto_16
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -1923,7 +2788,7 @@
 
     move-result-object p1
 
-    .line 340
+    .line 507
     sget-object p2, Ljava/nio/charset/StandardCharsets;->UTF_8:Ljava/nio/charset/Charset;
 
     invoke-virtual {p1, p2}, Ljava/lang/String;->getBytes(Ljava/nio/charset/Charset;)[B
@@ -1932,12 +2797,12 @@
 
     invoke-virtual {p0, p1}, Ljava/io/OutputStream;->write([B)V
 
-    .line 341
+    .line 508
     invoke-virtual {p0, p3}, Ljava/io/OutputStream;->write([B)V
 
-    .line 342
+    .line 509
     invoke-virtual {p0}, Ljava/io/OutputStream;->flush()V
 
-    .line 343
+    .line 510
     return-void
 .end method

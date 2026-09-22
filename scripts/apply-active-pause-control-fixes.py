@@ -1181,11 +1181,17 @@ def patch_train_item() -> None:
         )
         print("TrainItem: updated sendCoupledStrengthRefresh()")
 
-    if COUPLED_BLE_FLUSH_PLAIN in text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]:
-        text = text.replace(COUPLED_BLE_FLUSH_PLAIN, COUPLED_BLE_FLUSH, 2)
-        print("TrainItem.addMainAndPauseStrenth: coupled strength refresh")
-    elif "sendCoupledStrengthRefresh()V" in add_main_body:
+    add_main_method = (
+        ".method public addMainAndPauseStrenth(I)V" + add_main_body + ".end method"
+    )
+    if "sendCoupledStrengthRefresh()V" in add_main_body:
         print("TrainItem.addMainAndPauseStrenth: coupled strength refresh already applied")
+    elif COUPLED_BLE_FLUSH_PLAIN in add_main_body:
+        new_add_main_method = add_main_method.replace(
+            COUPLED_BLE_FLUSH_PLAIN, COUPLED_BLE_FLUSH, 1
+        )
+        text = text.replace(add_main_method, new_add_main_method, 1)
+        print("TrainItem.addMainAndPauseStrenth: coupled strength refresh")
     else:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth BLE refresh marker not found")
 

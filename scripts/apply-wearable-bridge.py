@@ -15,6 +15,12 @@ BRANDING_SMALI = ROOT / "branding" / "smali" / "wearable"
 WEARABLE_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/wearable"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
+MANIFEST = DECOMPILED / "AndroidManifest.xml"
+NOTIFY_PACKAGE = "com.mc.xiaomi1"
+NOTIFY_QUERIES = f"""    <queries>
+        <package android:name="{NOTIFY_PACKAGE}"/>
+    </queries>
+"""
 PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
 VALUES_DEFAULT = RES / "values/strings.xml"
@@ -159,7 +165,7 @@ EN_STRINGS = """
     <string name="wearable_sync_info_title">Watch sync — help</string>
     <string name="wearable_sync_info_body">Requires Notify for Xiaomi (com.mc.xiaomi1) with the band already paired.\\n\\nIn Notify app:\\n• Smart assistant → Tasker integration → ON (password optional — leave empty if not set)\\n• Heart monitor → mode „Notify app mode“ (required for live BPM)\\n• Close Mi Fitness / Zepp — only one app can connect to the band\\n• Disable battery optimization for Notify and XEMS\\n\\nIn XEMS:\\n1. Tap ♥ on the train sidebar.\\n2. Enable sync, set HR limit.\\n3. Activate dial, then tap Connect band (↻).\\n4. Start EMS — live BPM appears on the floating ring.\\n\\nTap the dial for settings. Drag to move. × closes and stops sync.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
-    <string name="wearable_sync_notify_missing">Install Notify for Xiaomi and pair your band first</string>
+    <string name="wearable_sync_notify_missing">Notify for Xiaomi not detected — check it is installed (Huawei: allow app visibility)</string>
     <string name="wearable_sync_status_listening">Connecting to Notify…</string>
     <string name="wearable_sync_status_connected">Band connected — waiting for pulse</string>
 """
@@ -181,7 +187,7 @@ BG_STRINGS = """
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
     <string name="wearable_sync_info_body">Изисква Notify for Xiaomi (com.mc.xiaomi1) с вече сдвоена гривна.\\n\\nВ Notify:\\n• Smart assistant → Tasker integration → ВКЛ (паролата е по избор — остави празна, ако не е зададена)\\n• Heart monitor → режим „Notify app mode“ (задължително за live пулс)\\n• Затвори Mi Fitness / Zepp — само едно приложение може да е свързано с гривната\\n• Изключи оптимизация на батерията за Notify и XEMS\\n\\nВ XEMS:\\n1. Натисни ♥ в дясната лента.\\n2. Включи синхрона, задай праг на пулса.\\n3. Активирай циферблата, после натисни Свържи гривната (↻).\\n4. Стартирай EMS — live BPM се показва на плаващия пръстен.\\n\\nДокосни циферблата за настройки. Плъзни за преместване. × затваря и спира синхрона.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
-    <string name="wearable_sync_notify_missing">Инсталирай Notify for Xiaomi и сдвои гривната</string>
+    <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
     <string name="wearable_sync_status_listening">Свързване с Notify…</string>
     <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
 """
@@ -201,6 +207,18 @@ START_WEARABLE_NEW = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/T
 
     .line 95
     return-void"""
+
+
+def patch_manifest(text: str) -> str:
+    if NOTIFY_PACKAGE in text:
+        print("AndroidManifest: Notify package query already present")
+        return text
+    marker = "    <application "
+    if marker not in text:
+        raise RuntimeError("AndroidManifest: <application> tag missing")
+    text = text.replace(marker, NOTIFY_QUERIES + "\n" + marker, 1)
+    print("AndroidManifest: added <queries> for Notify for Xiaomi")
+    return text
 
 
 def install_smali() -> None:
@@ -356,6 +374,11 @@ def main() -> int:
     patch_strings(VALUES_BG_DECOMPILED, BG_STRINGS, "BG")
     for layout in FRAGMENT_LAYOUTS:
         patch_fragment_layout(layout)
+    if MANIFEST.is_file():
+        MANIFEST.write_text(
+            patch_manifest(MANIFEST.read_text(encoding="utf-8")),
+            encoding="utf-8",
+        )
     install_smali()
     NEW_TRAIN_FRAGMENT.write_text(
         patch_new_train_fragment(NEW_TRAIN_FRAGMENT.read_text(encoding="utf-8")),

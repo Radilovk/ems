@@ -458,7 +458,7 @@ public final class WearableSyncHelper {
             stepView.setText(String.valueOf(WearableConfig.getStrengthStep(activity)));
         }
         overlayVisible = WearableConfig.isArmed(activity);
-        if (overlayVisible && NotifyWearableBridge.isNotifyInstalled(activity)) {
+        if (overlayVisible) {
             NotifyWearableBridge.beginListening(activity);
         }
     }

@@ -169,17 +169,8 @@ ADD_PAUSE_HZ_METHOD = """
 
     move-result-object v0
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    move-result-object v0
-
-    iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-nez v1, :cond_active_pause
-
-    return-void
-
-    :cond_active_pause
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
     add-int/2addr v1, p1
@@ -287,8 +278,17 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
     :cond_main_floor
     iget-boolean v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v5, :cond_only_main
+    if-nez v5, :cond_active_pause
 
+    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
+
+    return-void
+
+    :cond_active_pause
     if-nez v3, :cond_has_main
 
     const/4 v5, 0x0
@@ -335,15 +335,6 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
     iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     iput v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
-
-    return-void
-
-    :cond_only_main
-    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 
@@ -695,16 +686,8 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v2, :cond_black
+    if-nez v2, :cond_yellow
 
-    :cond_yellow
-    const v2, {yellow_bg:#x}
-
-    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
-
-    goto :goto_0
-
-    :cond_black
     iget-object v3, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     const/4 v2, 0x0
@@ -712,6 +695,13 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
     invoke-virtual {{v3, v2}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
     const v2, {BLACK_BG:#x}
+
+    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
+
+    goto :goto_0
+
+    :cond_yellow
+    const v2, {yellow_bg:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
@@ -766,8 +756,29 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     move-result v1
 
-    if-eqz v1, :cond_disable
+    if-eqz v1, :cond_enable
 
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v2
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iput-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    goto :cond_clear
+
+    :cond_enable
     iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -780,55 +791,20 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v2, :cond_enable_yellow
+    if-nez v2, :cond_already_on
 
-    const/4 v2, 0x1
-
-    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
-    const/4 v2, 0x0
-
-    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    goto :cond_clear
-
-    :cond_enable_yellow
     const/4 v2, 0x1
 
     iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    const/4 v1, 0x0
+    :cond_already_on
+    const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    goto :cond_clear
-
-    :cond_disable
     const/4 v1, 0x0
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v0
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    const/4 v1, 0x0
-
-    iput-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     :cond_clear
     const/4 v1, 0x0
@@ -1274,6 +1250,10 @@ UPDATE_UI_SEEKBAR_PAUSE = """    iget-object v1, p0, Lcom/isaigu/gymapp/train/Tr
     move-result v2
 
     if-eqz v2, :cond_pause_ma_seek
+
+    iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v2, :cond_pause_ma_seek
 
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
@@ -1870,15 +1850,6 @@ def patch_train_item() -> None:
             raise RuntimeError("TrainItem.addHz marker not found")
         text = text.replace(marker, ADD_PAUSE_HZ_METHOD.strip() + "\n\n" + marker, 1)
         print("TrainItem: added addPauseHz()")
-    else:
-        text = re.sub(
-            r"\.method public addPauseHz\(I\)V.*?\.end method",
-            ADD_PAUSE_HZ_METHOD.strip(),
-            text,
-            count=1,
-            flags=re.DOTALL,
-        )
-        print("TrainItem: updated addPauseHz() active-pause guard")
 
     if "addPauseStrenth(I)V" not in text:
         marker = ".method public addPauseHz(I)V"
@@ -1993,19 +1964,19 @@ def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int, yellow_bg: int) 
         ):
             text = re.sub(pattern, block, text, count=1, flags=re.DOTALL)
 
-    seek_active_pause_guard = """    if-eqz v2, :cond_pause_ma_seek
+    seek_active_pause_old = """    if-eqz v2, :cond_pause_ma_seek
+
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
+    seek_active_pause_new = """    if-eqz v2, :cond_pause_ma_seek
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     if-nez v2, :cond_pause_ma_seek
 
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
-    seek_active_pause_clean = """    if-eqz v2, :cond_pause_ma_seek
-
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
-    if seek_active_pause_guard in text:
-        text = text.replace(seek_active_pause_guard, seek_active_pause_clean, 1)
-        print("TrainViewHolder.updateUI: pause MA seekbar follows index selection only")
+    if seek_active_pause_old in text and "activePause:Z" not in text.split(":cond_pause_ma_seek", 1)[0][-200:]:
+        text = text.replace(seek_active_pause_old, seek_active_pause_new, 1)
+        print("TrainViewHolder.updateUI: ignore pause MA seekbar when active pause off")
 
     if ":cond_pause_ma_seek" in text:
         print("TrainViewHolder.updateUI: pause ma/hz seekbar routing already patched")

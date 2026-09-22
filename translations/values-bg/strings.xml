@@ -424,10 +424,13 @@
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">Изисква Notify for Xiaomi (com.mc.xiaomi1) с вече сдвоена гривна.\n\nВ Notify:\n• Smart assistant → Tasker integration → ВКЛ (паролата е по избор — остави празна, ако не е зададена)\n• Heart monitor → режим „Notify app mode“ (задължително за live пулс)\n• Затвори Mi Fitness / Zepp — само едно приложение може да е свързано с гривната\n• Изключи оптимизация на батерията за Notify и XEMS\n\nВ XEMS:\n1. Натисни ♥ в дясната лента.\n2. Включи синхрона, задай праг на пулса.\n3. Активирай циферблата, после натисни Свържи гривната (↻).\n4. Стартирай EMS — live BPM се показва на плаващия пръстен.\n\nДокосни циферблата за настройки. Плъзни за преместване. × затваря и спира синхрона.</string>
+    <string name="wearable_sync_info_body">ВАЖНО: Notify може да показва live пулс на екрана, но да НЕ го изпраща към XEMS. Това са два различни режима.\n\nВ NOTIFY (задължително):\n1. ☰ → Smart assistant → Tasker integration → ВКЛ\n2. ☰ → Smart assistant → Heart monitor (или Пулс → ⚙):\n   • Режим = „Notify app mode“ (НЕ „Band only“ / само непрекъснат)\n   • Следене на пулс ВКЛ, най-къс интервал\n3. На главния екран на Notify виждаш live BPM\n4. Спри Mi Fitness; разреши Notify на заден фон (Huawei батерия)\n\nВ XEMS: ♥ → Активирай → Свържи → изчакай 30–60 сек.\nПод циферблата: HR събития + батерия %.\nHR=0, батерия OK → грешен Heart monitor режим.\nИ двете 0 → Tasker integration изключен или Notify блокиран.\n\nАлтернатива: Gadgetbridge + Realtime HR (първо разкачи гривната от Notify).</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
     <string name="wearable_sync_status_listening">Свързване с Notify…</string>
     <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
+    <string name="wearable_sync_open_notify">Отвори Notify</string>
+    <string name="wearable_sync_diag_waiting">HR събития: %1$d · батерия: %2$s</string>
+    <string name="wearable_sync_diag_hint">Notify вижда пулса, но не го излъчва — включи „Notify app mode“ в Heart monitor</string>
 
 </resources>

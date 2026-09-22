@@ -8,6 +8,8 @@
 
 .field private static final KEY_AUTO_REDUCE:Ljava/lang/String; = "auto_reduce"
 
+.field private static final KEY_BAND_MAC:Ljava/lang/String; = "band_mac"
+
 .field private static final KEY_ENABLED:Ljava/lang/String; = "enabled"
 
 .field private static final KEY_HR_THRESHOLD:Ljava/lang/String; = "hr_threshold"
@@ -23,16 +25,35 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 16
+    .line 17
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
 .end method
 
+.method public static getBandMac(Landroid/content/Context;)Ljava/lang/String;
+    .registers 3
+
+    .line 50
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    const-string v0, "band_mac"
+
+    const-string v1, ""
+
+    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
 .method public static getHrThreshold(Landroid/content/Context;)I
     .registers 3
 
-    .line 36
+    .line 37
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -51,7 +72,7 @@
 .method public static getStrengthStep(Landroid/content/Context;)I
     .registers 3
 
-    .line 40
+    .line 41
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -70,7 +91,7 @@
 .method public static getTaskerPassword(Landroid/content/Context;)Ljava/lang/String;
     .registers 3
 
-    .line 44
+    .line 45
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -89,7 +110,7 @@
 .method public static isArmed(Landroid/content/Context;)Z
     .registers 3
 
-    .line 28
+    .line 29
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -108,7 +129,7 @@
 .method public static isAutoReduceEnabled(Landroid/content/Context;)Z
     .registers 3
 
-    .line 32
+    .line 33
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -127,7 +148,7 @@
 .method public static isEnabled(Landroid/content/Context;)Z
     .registers 3
 
-    .line 24
+    .line 25
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -146,12 +167,12 @@
 .method private static prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
     .registers 3
 
-    .line 19
+    .line 20
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object p0
 
-    .line 20
+    .line 21
     const-string v0, "wearable_bridge"
 
     const/4 v1, 0x0
@@ -160,14 +181,14 @@
 
     move-result-object p0
 
-    .line 19
+    .line 20
     return-object p0
 .end method
 
 .method public static setArmed(Landroid/content/Context;Z)V
     .registers 3
 
-    .line 52
+    .line 58
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -184,14 +205,14 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 53
+    .line 59
     return-void
 .end method
 
 .method public static setAutoReduceEnabled(Landroid/content/Context;Z)V
     .registers 3
 
-    .line 56
+    .line 62
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -208,14 +229,14 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 57
+    .line 63
     return-void
 .end method
 
 .method public static setEnabled(Landroid/content/Context;Z)V
     .registers 3
 
-    .line 48
+    .line 54
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -232,31 +253,31 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 49
+    .line 55
     return-void
 .end method
 
 .method public static setHrThreshold(Landroid/content/Context;I)V
     .registers 3
 
-    .line 60
+    .line 66
     const/16 v0, 0x50
 
     if-ge p1, v0, :cond_6
 
-    .line 61
+    .line 67
     const/16 p1, 0x50
 
-    .line 63
+    .line 69
     :cond_6
     const/16 v0, 0xdc
 
     if-le p1, v0, :cond_c
 
-    .line 64
+    .line 70
     const/16 p1, 0xdc
 
-    .line 66
+    .line 72
     :cond_c
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -274,31 +295,31 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 67
+    .line 73
     return-void
 .end method
 
 .method public static setStrengthStep(Landroid/content/Context;I)V
     .registers 3
 
-    .line 70
+    .line 76
     const/4 v0, 0x1
 
     if-ge p1, v0, :cond_4
 
-    .line 71
+    .line 77
     const/4 p1, 0x1
 
-    .line 73
+    .line 79
     :cond_4
     const/16 v0, 0x14
 
     if-le p1, v0, :cond_a
 
-    .line 74
+    .line 80
     const/16 p1, 0x14
 
-    .line 76
+    .line 82
     :cond_a
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -316,6 +337,6 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 77
+    .line 83
     return-void
 .end method

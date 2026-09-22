@@ -12,6 +12,7 @@ public final class WearableConfig {
     private static final String KEY_HR_THRESHOLD = "hr_threshold";
     private static final String KEY_STRENGTH_STEP = "strength_step";
     private static final String KEY_TASKER_PASSWORD = "tasker_password";
+    private static final String KEY_BAND_MAC = "band_mac";
 
     private WearableConfig() {}
 
@@ -42,6 +43,11 @@ public final class WearableConfig {
 
     public static String getTaskerPassword(Context context) {
         return prefs(context).getString(KEY_TASKER_PASSWORD, "");
+    }
+
+    /** Optional Gadgetbridge device MAC (e.g. D0:62:2C:26:49:60). */
+    public static String getBandMac(Context context) {
+        return prefs(context).getString(KEY_BAND_MAC, "");
     }
 
     public static void setEnabled(Context context, boolean enabled) {

@@ -39,6 +39,7 @@ public final class WearableSyncHelper {
     private static final int ID_ACTIVATE = 0x7f0902a4;
     private static final int ID_CONNECT = 0x7f0902a5;
     private static final int ID_INFO = 0x7f0902a6;
+    private static final int ID_OPEN_NOTIFY = 0x7f0902a7;
     private static final int ID_RING = 0x7f09029a;
     private static final int ID_HR_VALUE = 0x7f09029b;
     private static final int ID_SUB_LABEL = 0x7f09029c;
@@ -65,6 +66,9 @@ public final class WearableSyncHelper {
     private static final int STR_NOTIFY_MISSING = 0x7f0d0187;
     private static final int STR_STATUS_LISTENING = 0x7f0d0188;
     private static final int STR_STATUS_CONNECTED = 0x7f0d0189;
+    private static final int STR_OPEN_NOTIFY = 0x7f0d018a;
+    private static final int STR_DIAG_WAITING = 0x7f0d018b;
+    private static final int STR_DIAG_HINT = 0x7f0d018c;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -148,6 +152,10 @@ public final class WearableSyncHelper {
         handler.post(new RefreshOverlayRunnable());
     }
 
+    public static void updateDiagnostics() {
+        handler.post(new RefreshOverlayRunnable());
+    }
+
     public static void showNotifyMissing() {
         Activity activity = resolveActivity(null);
         if (activity == null) {
@@ -205,6 +213,7 @@ public final class WearableSyncHelper {
         thresholdView = (EditText) content.findViewById(ID_THRESHOLD);
         stepView = (EditText) content.findViewById(ID_STEP);
         bindButton(content.findViewById(ID_CONNECT), new ConnectListener());
+        bindButton(content.findViewById(ID_OPEN_NOTIFY), new OpenNotifyListener());
         bindButton(content.findViewById(ID_INFO), new ConfigInfoListener());
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         loadConfigIntoUi(activity);
@@ -369,11 +378,23 @@ public final class WearableSyncHelper {
                 ringView.setElapsedFraction(0f);
             }
             if (subLabelView != null && activity != null) {
-                subLabelView.setText(bandConnected
-                        ? activity.getString(STR_STATUS_WAITING)
-                        : activity.getString(STR_STATUS_DISCONNECTED));
+                subLabelView.setText(buildWaitingLabel(activity));
             }
         }
+    }
+
+    private static String buildWaitingLabel(Activity activity) {
+        if (!bandConnected) {
+            return activity.getString(STR_STATUS_DISCONNECTED);
+        }
+        int hrEvents = NotifyWearableBridge.getHrEventCount();
+        int battery = NotifyWearableBridge.getLastBattery();
+        String batteryPart = battery >= 0 ? battery + "%" : "--";
+        String diag = activity.getString(STR_DIAG_WAITING, hrEvents, batteryPart);
+        if (hrEvents == 0 && NotifyWearableBridge.getBatteryEventCount() == 0) {
+            return diag + "\n" + activity.getString(STR_DIAG_HINT);
+        }
+        return diag;
     }
 
     private static String buildSubLabel(Activity activity) {
@@ -696,6 +717,16 @@ public final class WearableSyncHelper {
         public void onClick(View v) {
             NotifyWearableBridge.requestConnect();
             toast(resolveActivity(v), STR_CONNECT);
+        }
+    }
+
+    static final class OpenNotifyListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Activity activity = resolveActivity(v);
+            if (activity != null) {
+                NotifyWearableBridge.openNotifyApp(activity);
+            }
         }
     }
 

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import com.isaigu.gymapp.train.TrainItemManager;
@@ -15,15 +17,53 @@ import java.util.List;
 /** Notify for Xiaomi Tasker intent bridge — session lifecycle + HR receiver. */
 public final class NotifyWearableBridge {
     public static final String NOTIFY_PACKAGE = "com.mc.xiaomi1";
+    public static final String GB_PACKAGE = "nodomain.freeyourgadget.gadgetbridge";
+    public static final String GB_PACKAGE_NIGHTLY =
+            "nodomain.freeyourgadget.gadgetbridge.nightly";
+
     public static final String ACTION_HR_ENABLE = "com.mc.xiaomi.taskerHeartEnable";
+    public static final String ACTION_HR_ENABLE_LEGACY = "com.mc.miband.taskerHeartEnable";
     public static final String ACTION_HR_DISABLE = "com.mc.xiaomi.taskerHeartDisable";
+    public static final String ACTION_HR_DISABLE_LEGACY = "com.mc.miband.taskerHeartDisable";
     public static final String ACTION_CONNECT = "com.mc.xiaomi.connectToBand";
+    public static final String ACTION_CONNECT_LEGACY = "com.mc.miband.connectToBand";
     public static final String ACTION_RECONNECT = "com.mc.xiaomi.reconnectToBand";
+    public static final String ACTION_RECONNECT_LEGACY = "com.mc.miband.reconnectToBand";
     public static final String ACTION_BATTERY_READ = "com.mc.xiaomi.tasker.batteryRead";
+    public static final String ACTION_BATTERY_READ_LEGACY = "com.mc.miband.tasker.batteryRead";
+    public static final String ACTION_NOTIFY_MODE_ENABLE = "com.mc.xiaomi.setNotifyMode.enable";
+    public static final String ACTION_NOTIFY_MODE_ENABLE_LEGACY = "com.mc.miband.setNotifyMode.enable";
+    public static final String ACTION_SLEEP_HEART_ENABLE = "com.mc.xiaomi.sleepHeartEnable";
+    public static final String ACTION_SLEEP_HEART_ENABLE_LEGACY = "com.mc.miband.sleepHeartEnable";
+    public static final String ACTION_SYNC_DATA = "com.mc.xiaomi.syncData";
+    public static final String ACTION_SYNC_DATA_LEGACY = "com.mc.miband.syncData";
+    public static final String ACTION_GB_START_HR =
+            "nodomain.freeyourgadget.gadgetbridge.command.START_REALTIME_HR";
+    public static final String ACTION_GB_STOP_HR =
+            "nodomain.freeyourgadget.gadgetbridge.command.STOP_REALTIME_HR";
 
     private static final long AUTO_REDUCE_COOLDOWN_MS = 10000L;
+    private static final long KEEPALIVE_INTERVAL_MS = 15000L;
+    private static final long CONNECT_STEP_DELAY_MS = 400L;
     private static final int RECEIVER_EXPORTED_FLAG = 0x2;
     private static final int FLAG_INCLUDE_STOPPED_PACKAGES = 0x20;
+
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private static final Runnable keepaliveRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!listeningActive) {
+                return;
+            }
+            Context context = WearableSyncHelper.getContext();
+            if (context != null) {
+                sendHrEnableSequence(context, false);
+                sendNotifyIntent(context, ACTION_BATTERY_READ);
+                sendNotifyIntent(context, ACTION_BATTERY_READ_LEGACY);
+            }
+            mainHandler.postDelayed(this, KEEPALIVE_INTERVAL_MS);
+        }
+    };
 
     private static TrainItemManager itemManager;
     private static NotifyHrReceiver receiver;
@@ -33,6 +73,11 @@ public final class NotifyWearableBridge {
     private static int lastHr = -1;
     private static int lastBattery = -1;
     private static long lastAutoReduceMs;
+    private static int hrEventCount;
+    private static int batteryEventCount;
+    private static String lastEventAction = "";
+    private static long lastEventTimeMs;
+    private static String lastHrSource = "";
 
     private NotifyWearableBridge() {}
 
@@ -57,23 +102,30 @@ public final class NotifyWearableBridge {
     }
 
     public static boolean isNotifyInstalled(Context context) {
-        if (context == null) {
+        return isPackageInstalled(context, NOTIFY_PACKAGE);
+    }
+
+    public static boolean isGadgetbridgeInstalled(Context context) {
+        return isPackageInstalled(context, GB_PACKAGE)
+                || isPackageInstalled(context, GB_PACKAGE_NIGHTLY);
+    }
+
+    private static boolean isPackageInstalled(Context context, String packageName) {
+        if (context == null || packageName == null) {
             return false;
         }
         PackageManager pm = context.getPackageManager();
         try {
-            pm.getPackageInfo(NOTIFY_PACKAGE, 0);
+            pm.getPackageInfo(packageName, 0);
             return true;
         } catch (PackageManager.NameNotFoundException ignored) {
         } catch (Throwable ignored) {
         }
         try {
-            if (pm.getLaunchIntentForPackage(NOTIFY_PACKAGE) != null) {
-                return true;
-            }
+            return pm.getLaunchIntentForPackage(packageName) != null;
         } catch (Throwable ignored) {
+            return false;
         }
-        return false;
     }
 
     /** Start Notify connection + HR monitor (call on Activate / Connect). */
@@ -81,15 +133,34 @@ public final class NotifyWearableBridge {
         if (context == null || !WearableConfig.isEnabled(context)) {
             return;
         }
-        // Do not abort when isNotifyInstalled is false: Android 11+ package visibility
-        // (common on Huawei + microG) can hide Notify even when it is installed.
         registerReceiver(context);
-        sendNotifyIntent(context, ACTION_CONNECT);
-        sendNotifyIntent(context, ACTION_HR_ENABLE);
-        sendNotifyIntent(context, ACTION_BATTERY_READ);
         listeningActive = true;
         lastHr = -1;
+        hrEventCount = 0;
+        batteryEventCount = 0;
+        lastEventAction = "";
+        lastEventTimeMs = 0L;
+        lastHrSource = "";
+        wakeNotifyApp(context);
+        scheduleConnectSequence(context);
+        startKeepalive();
         WearableSyncHelper.updateHeartRate(-1, bandConnected);
+        WearableSyncHelper.updateDiagnostics();
+    }
+
+    public static void openNotifyApp(Context context) {
+        if (context == null) {
+            return;
+        }
+        try {
+            Intent launch = context.getPackageManager()
+                    .getLaunchIntentForPackage(NOTIFY_PACKAGE);
+            if (launch != null) {
+                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(launch);
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     public static void requestConnect() {
@@ -99,6 +170,8 @@ public final class NotifyWearableBridge {
         }
         beginListening(context);
         sendNotifyIntent(context, ACTION_RECONNECT);
+        sendNotifyIntent(context, ACTION_RECONNECT_LEGACY);
+        WearableSyncHelper.updateDiagnostics();
     }
 
     public static void stopListening(Context context) {
@@ -107,18 +180,31 @@ public final class NotifyWearableBridge {
             return;
         }
         sendNotifyIntent(context, ACTION_HR_DISABLE);
+        sendNotifyIntent(context, ACTION_HR_DISABLE_LEGACY);
+        sendGadgetbridgeStop(context);
+        stopKeepalive();
         unregisterReceiver(context);
         listeningActive = false;
         lastHr = -1;
         WearableSyncHelper.updateHeartRate(-1, bandConnected);
+        WearableSyncHelper.updateDiagnostics();
     }
 
-    static void onHeartRate(int hr) {
+    static void onRawEvent(String action) {
+        lastEventAction = action != null ? action : "";
+        lastEventTimeMs = System.currentTimeMillis();
+        WearableSyncHelper.updateDiagnostics();
+    }
+
+    static void onHeartRate(int hr, String sourceAction) {
         if (!listeningActive || hr < 40 || hr > 220) {
             return;
         }
+        hrEventCount++;
         lastHr = hr;
+        lastHrSource = sourceAction != null ? sourceAction : "";
         WearableSyncHelper.updateHeartRate(hr, bandConnected);
+        WearableSyncHelper.updateDiagnostics();
         Context context = WearableSyncHelper.getContext();
         if (context != null && WearableConfig.isAutoReduceEnabled(context)
                 && isAnyTrainingRunning()) {
@@ -129,17 +215,21 @@ public final class NotifyWearableBridge {
     static void onBandConnected() {
         bandConnected = true;
         WearableSyncHelper.updateHeartRate(lastHr, true);
+        WearableSyncHelper.updateDiagnostics();
     }
 
     static void onBandDisconnected() {
         bandConnected = false;
         WearableSyncHelper.updateHeartRate(lastHr, false);
+        WearableSyncHelper.updateDiagnostics();
     }
 
     static void onBattery(int level) {
         if (level >= 0 && level <= 100) {
+            batteryEventCount++;
             lastBattery = level;
             WearableSyncHelper.updateBattery(level);
+            WearableSyncHelper.updateDiagnostics();
         }
     }
 
@@ -155,7 +245,34 @@ public final class NotifyWearableBridge {
         return bandConnected;
     }
 
+    public static int getHrEventCount() {
+        return hrEventCount;
+    }
+
+    public static int getBatteryEventCount() {
+        return batteryEventCount;
+    }
+
+    public static int getLastBattery() {
+        return lastBattery;
+    }
+
+    public static String getLastEventAction() {
+        return lastEventAction;
+    }
+
+    public static long getLastEventTimeMs() {
+        return lastEventTimeMs;
+    }
+
+    public static String getLastHrSource() {
+        return lastHrSource;
+    }
+
     static void sendNotifyIntent(Context context, String action) {
+        if (context == null || action == null) {
+            return;
+        }
         Intent intent = new Intent(action);
         intent.setPackage(NOTIFY_PACKAGE);
         intent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -163,25 +280,155 @@ public final class NotifyWearableBridge {
         if (password != null && password.length() > 0) {
             intent.putExtra("password", password);
         }
-        context.sendBroadcast(intent);
+        try {
+            context.sendBroadcast(intent);
+        } catch (Throwable ignored) {
+        }
+        try {
+            context.sendOrderedBroadcast(intent, null);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void sendGadgetbridgeStart(Context context) {
+        if (!isGadgetbridgeInstalled(context)) {
+            return;
+        }
+        String packageName = isPackageInstalled(context, GB_PACKAGE_NIGHTLY)
+                ? GB_PACKAGE_NIGHTLY
+                : GB_PACKAGE;
+        Intent intent = new Intent(ACTION_GB_START_HR);
+        intent.setPackage(packageName);
+        intent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
+        String mac = WearableConfig.getBandMac(context);
+        if (mac != null && mac.length() > 0) {
+            intent.putExtra("device", mac);
+        }
+        try {
+            context.sendBroadcast(intent);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void sendGadgetbridgeStop(Context context) {
+        if (!isGadgetbridgeInstalled(context)) {
+            return;
+        }
+        String packageName = isPackageInstalled(context, GB_PACKAGE_NIGHTLY)
+                ? GB_PACKAGE_NIGHTLY
+                : GB_PACKAGE;
+        Intent intent = new Intent(ACTION_GB_STOP_HR);
+        intent.setPackage(packageName);
+        intent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
+        String mac = WearableConfig.getBandMac(context);
+        if (mac != null && mac.length() > 0) {
+            intent.putExtra("device", mac);
+        }
+        try {
+            context.sendBroadcast(intent);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void wakeNotifyApp(Context context) {
+        try {
+            Intent launch = context.getPackageManager()
+                    .getLaunchIntentForPackage(NOTIFY_PACKAGE);
+            if (launch != null) {
+                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                context.startActivity(launch);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void scheduleConnectSequence(final Context context) {
+        final Context app = appContext(context);
+        final String[] steps = new String[] {
+                ACTION_NOTIFY_MODE_ENABLE,
+                ACTION_NOTIFY_MODE_ENABLE_LEGACY,
+                ACTION_CONNECT,
+                ACTION_CONNECT_LEGACY,
+                ACTION_SLEEP_HEART_ENABLE,
+                ACTION_SLEEP_HEART_ENABLE_LEGACY,
+                ACTION_HR_ENABLE,
+                ACTION_HR_ENABLE_LEGACY,
+                ACTION_BATTERY_READ,
+                ACTION_BATTERY_READ_LEGACY,
+                ACTION_SYNC_DATA,
+                ACTION_SYNC_DATA_LEGACY,
+        };
+        for (int i = 0; i < steps.length; i++) {
+            final String action = steps[i];
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!listeningActive) {
+                        return;
+                    }
+                    sendNotifyIntent(app, action);
+                }
+            }, CONNECT_STEP_DELAY_MS * (i + 1));
+        }
+        mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!listeningActive) {
+                    return;
+                }
+                sendGadgetbridgeStart(app);
+            }
+        }, CONNECT_STEP_DELAY_MS * (steps.length + 2));
+    }
+
+    private static void sendHrEnableSequence(Context context, boolean includeConnect) {
+        if (includeConnect) {
+            sendNotifyIntent(context, ACTION_CONNECT);
+            sendNotifyIntent(context, ACTION_CONNECT_LEGACY);
+        }
+        sendNotifyIntent(context, ACTION_HR_ENABLE);
+        sendNotifyIntent(context, ACTION_HR_ENABLE_LEGACY);
+        sendNotifyIntent(context, ACTION_SLEEP_HEART_ENABLE);
+        sendNotifyIntent(context, ACTION_SLEEP_HEART_ENABLE_LEGACY);
+        sendGadgetbridgeStart(context);
+    }
+
+    private static void startKeepalive() {
+        mainHandler.removeCallbacks(keepaliveRunnable);
+        mainHandler.postDelayed(keepaliveRunnable, KEEPALIVE_INTERVAL_MS);
+    }
+
+    private static void stopKeepalive() {
+        mainHandler.removeCallbacks(keepaliveRunnable);
+    }
+
+    private static Context appContext(Context context) {
+        return context.getApplicationContext();
     }
 
     private static void registerReceiver(Context context) {
         if (receiverRegistered) {
             return;
         }
+        Context app = appContext(context);
         if (receiver == null) {
             receiver = new NotifyHrReceiver();
         }
         IntentFilter filter = new IntentFilter();
         filter.addAction(NotifyHrReceiver.ACTION_HEART_RATE);
+        filter.addAction(NotifyHrReceiver.ACTION_HEART_RATE_LEGACY);
         filter.addAction(NotifyHrReceiver.ACTION_CONNECTED);
+        filter.addAction(NotifyHrReceiver.ACTION_CONNECTED_LEGACY);
         filter.addAction(NotifyHrReceiver.ACTION_DISCONNECTED);
+        filter.addAction(NotifyHrReceiver.ACTION_DISCONNECTED_LEGACY);
         filter.addAction(NotifyHrReceiver.ACTION_BATTERY);
+        filter.addAction(NotifyHrReceiver.ACTION_BATTERY_LEGACY);
+        filter.addAction(NotifyHrReceiver.ACTION_GB_REALTIME_HR);
         if (Build.VERSION.SDK_INT >= 33) {
-            context.registerReceiver(receiver, filter, RECEIVER_EXPORTED_FLAG);
+            app.registerReceiver(receiver, filter, RECEIVER_EXPORTED_FLAG);
         } else {
-            context.registerReceiver(receiver, filter);
+            app.registerReceiver(receiver, filter);
         }
         receiverRegistered = true;
     }
@@ -191,7 +438,7 @@ public final class NotifyWearableBridge {
             return;
         }
         try {
-            context.unregisterReceiver(receiver);
+            appContext(context).unregisterReceiver(receiver);
         } catch (Throwable ignored) {
         }
         receiverRegistered = false;

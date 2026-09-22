@@ -60,14 +60,20 @@ public final class NotifyWearableBridge {
         if (context == null) {
             return false;
         }
+        PackageManager pm = context.getPackageManager();
         try {
-            context.getPackageManager().getPackageInfo(NOTIFY_PACKAGE, 0);
+            pm.getPackageInfo(NOTIFY_PACKAGE, 0);
             return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
+        } catch (PackageManager.NameNotFoundException ignored) {
         } catch (Throwable ignored) {
-            return false;
         }
+        try {
+            if (pm.getLaunchIntentForPackage(NOTIFY_PACKAGE) != null) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     /** Start Notify connection + HR monitor (call on Activate / Connect). */
@@ -75,10 +81,8 @@ public final class NotifyWearableBridge {
         if (context == null || !WearableConfig.isEnabled(context)) {
             return;
         }
-        if (!isNotifyInstalled(context)) {
-            WearableSyncHelper.showNotifyMissing();
-            return;
-        }
+        // Do not abort when isNotifyInstalled is false: Android 11+ package visibility
+        // (common on Huawei + microG) can hide Notify even when it is installed.
         registerReceiver(context);
         sendNotifyIntent(context, ACTION_CONNECT);
         sendNotifyIntent(context, ACTION_HR_ENABLE);

@@ -1143,19 +1143,13 @@
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayVisible:Z
 
     .line 461
-    if-eqz v0, :cond_48
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isNotifyInstalled(Landroid/content/Context;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_48
+    if-eqz v0, :cond_42
 
     .line 462
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->beginListening(Landroid/content/Context;)V
 
     .line 464
-    :cond_48
+    :cond_42
     return-void
 .end method
 

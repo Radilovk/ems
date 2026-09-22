@@ -249,7 +249,7 @@ __MA_STRENGTH_BODY__
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v0, :cond_coupled
+    if-nez v0, :cond_coupled
 
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
 
@@ -872,7 +872,7 @@ __MUSIC_SYNC_GUARD__
 
     move-result v0
 
-    if-eqz v0, :cond_ma_index_strength
+    if-nez v0, :cond_ma_index_strength
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
@@ -888,50 +888,7 @@ __MUSIC_SYNC_GUARD__
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v0, :cond_ma_index_strength
-
-    mul-int/lit8 v0, p2, 0x64
-
-    div-int/lit8 v0, v0, 0x4b
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    move-result-object v1
-
-    iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
-
-    sub-int v2, v0, v1
-
-    const/16 v3, 0x14
-
-    if-le v2, v3, :cond_coupled_rate
-
-    add-int/lit8 v0, v1, 0x14
-
-    :cond_coupled_rate
-    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    invoke-virtual {{v1, v0}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMainAndPauseStrenthFromSlider(I)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
-
-    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
-
-    return-void
+    if-nez v0, :cond_coupled_slider_end
 
     :cond_ma_index_strength
     mul-int/lit8 v0, p2, 0x64
@@ -974,6 +931,50 @@ __MUSIC_SYNC_GUARD__
     move-result-object v1
 
     iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$100(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-static {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->access$200(Lcom/isaigu/gymapp/train/TrainViewHolder;)V
+
+    return-void
+
+    :cond_coupled_slider_end
+    mul-int/lit8 v0, p2, 0x64
+
+    div-int/lit8 v0, v0, 0x4b
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-virtual {{v1}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
+
+    iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    sub-int v2, v0, v1
+
+    const/16 v3, 0x14
+
+    if-le v2, v3, :cond_coupled_rate
+
+    add-int/lit8 v0, v1, 0x14
+
+    :cond_coupled_rate
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {{v1, v0}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMainAndPauseStrenthFromSlider(I)V
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
@@ -1027,6 +1028,8 @@ def _lambda_routing_ok(lambda_body: str) -> bool:
     if "addMainAndPauseStrenth(I)V" not in cond_3_tail:
         return False
     if ":cond_coupled" not in cond_3_tail:
+        return False
+    if "if-nez v0, :cond_coupled" not in cond_3_tail:
         return False
     if "activePause:Z" not in cond_3_tail.split(":cond_coupled", 1)[0]:
         return False

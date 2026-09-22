@@ -67,6 +67,8 @@ public final class WearableSyncHelper {
     private static final int STR_STATUS_LISTENING = 0x7f0d0188;
     private static final int STR_STATUS_CONNECTED = 0x7f0d0189;
     private static final int STR_OPEN_NOTIFY = 0x7f0d018a;
+    private static final int STR_DIAG_WAITING = 0x7f0d018b;
+    private static final int STR_DIAG_HINT = 0x7f0d018c;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -147,6 +149,10 @@ public final class WearableSyncHelper {
 
     public static void updateBattery(int level) {
         displayedBattery = level;
+        handler.post(new RefreshOverlayRunnable());
+    }
+
+    public static void updateDiagnostics() {
         handler.post(new RefreshOverlayRunnable());
     }
 
@@ -372,11 +378,23 @@ public final class WearableSyncHelper {
                 ringView.setElapsedFraction(0f);
             }
             if (subLabelView != null && activity != null) {
-                subLabelView.setText(bandConnected
-                        ? activity.getString(STR_STATUS_WAITING)
-                        : activity.getString(STR_STATUS_DISCONNECTED));
+                subLabelView.setText(buildWaitingLabel(activity));
             }
         }
+    }
+
+    private static String buildWaitingLabel(Activity activity) {
+        if (!bandConnected) {
+            return activity.getString(STR_STATUS_DISCONNECTED);
+        }
+        int hrEvents = NotifyWearableBridge.getHrEventCount();
+        int battery = NotifyWearableBridge.getLastBattery();
+        String batteryPart = battery >= 0 ? battery + "%" : "--";
+        String diag = activity.getString(STR_DIAG_WAITING, hrEvents, batteryPart);
+        if (hrEvents == 0 && NotifyWearableBridge.getBatteryEventCount() == 0) {
+            return diag + "\n" + activity.getString(STR_DIAG_HINT);
+        }
+        return diag;
     }
 
     private static String buildSubLabel(Activity activity) {

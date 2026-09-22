@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 737
+    .line 755
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,36 +32,36 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 740
+    .line 758
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$500(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 741
+    .line 759
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayVisible:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$702(Z)Z
 
-    .line 742
+    .line 760
     if-eqz p1, :cond_10
 
-    .line 743
+    .line 761
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setArmed(Landroid/content/Context;Z)V
 
-    .line 744
+    .line 762
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->stopListening(Landroid/content/Context;)V
 
-    .line 746
+    .line 764
     :cond_10
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dismissOverlayDialog(Z)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800(Z)V
 
-    .line 747
+    .line 765
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshStatusText()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$900()V
 
-    .line 748
+    .line 766
     return-void
 .end method

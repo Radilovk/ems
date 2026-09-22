@@ -526,10 +526,14 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
 | Проблем | Решение |
 |---|---|
-| Няма `heartRateGot` | Включи Tasker integration; режим „Notify app mode“ |
-| HR твърде бавен | Стартирай workout на гривната или continuous HR |
-| Notify не е на преден план | `connectToBand` преди тренировка |
+| „Свързана, изчакване на пулс“ (connected ✓, HR ✗) | Notify показва пулс, но **не го излъчва** — режимът е „Band only“ / непрекъснат, не „Notify app mode“. Провери ☰ → Smart assistant → **Heart monitor** |
+| HR събития = 0, батерия OK | Само `connected`/`batteryStatGot` работят → смени Heart monitor режима |
+| HR и батерия = 0 | Tasker integration изключен, парола грешна, или Huawei блокира Notify на заден фон |
+| Няма `heartRateGot` изобщо | Тествай с Tasker/Automate (Intent `com.mc.xiaomi.heartRateGot`). Ако и там е 0 → Band 8 + Notify не поддържа broadcast на този firmware |
+| HR твърде бавен | Най-къс интервал в Heart monitor; дръж Notify на преден план |
+| Notify не е на преден план | `connectToBand` + отвори Notify преди тренировка |
 | Auth key изтекъл | „Вземете ключ за удостоверяване“ в Notify |
+| Notify пътят не работи | **Gadgetbridge** + `REALTIME_HR` broadcast (разкачи гривната от Notify първо) |
 
 ---
 

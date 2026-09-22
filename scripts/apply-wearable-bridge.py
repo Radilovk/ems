@@ -19,20 +19,33 @@ MANIFEST = DECOMPILED / "AndroidManifest.xml"
 NOTIFY_PACKAGE = "com.mc.xiaomi1"
 NOTIFY_QUERIES = f"""    <queries>
         <package android:name="{NOTIFY_PACKAGE}"/>
+        <package android:name="nodomain.freeyourgadget.gadgetbridge"/>
+        <package android:name="nodomain.freeyourgadget.gadgetbridge.nightly"/>
         <intent>
             <action android:name="com.mc.xiaomi.heartRateGot"/>
         </intent>
         <intent>
+            <action android:name="com.mc.miband.heartRateGot"/>
+        </intent>
+        <intent>
             <action android:name="com.mc.xiaomi.connected"/>
+        </intent>
+        <intent>
+            <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
         </intent>
     </queries>
 """
 NOTIFY_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
             <intent-filter>
                 <action android:name="com.mc.xiaomi.heartRateGot"/>
+                <action android:name="com.mc.miband.heartRateGot"/>
                 <action android:name="com.mc.xiaomi.connected"/>
+                <action android:name="com.mc.miband.connected"/>
                 <action android:name="com.mc.xiaomi.disconnected"/>
+                <action android:name="com.mc.miband.disconnected"/>
                 <action android:name="com.mc.xiaomi.batteryStatGot"/>
+                <action android:name="com.mc.miband.batteryStatGot"/>
+                <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
             </intent-filter>
         </receiver>
 """
@@ -88,6 +101,8 @@ STRING_IDS = {
     "wearable_sync_status_listening": 0x7F0D0188,
     "wearable_sync_status_connected": 0x7F0D0189,
     "wearable_sync_open_notify": 0x7F0D018A,
+    "wearable_sync_diag_waiting": 0x7F0D018B,
+    "wearable_sync_diag_hint": 0x7F0D018C,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -181,12 +196,14 @@ EN_STRINGS = """
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
     <string name="wearable_sync_info_title">Watch sync — help</string>
-    <string name="wearable_sync_info_body">XEMS talks to Notify via the official Tasker API — no remote access needed.\\n\\nSETUP IN NOTIFY (one time):\\n1. Open Notify → menu ☰ → Smart assistant → Tasker integration → ON\\n2. Menu ☰ → Features → Heart monitor:\\n   • Heart monitor ON\\n   • Mode = „Notify app mode“ (NOT Band only)\\n   • Shortest interval (1 min or Continuous)\\n3. Main screen must show live heart rate when band is worn\\n4. Close Mi Fitness; disable battery saver for Notify + XEMS\\n\\nIN XEMS: ♥ → Open Notify (check settings) → Activate dial → Connect band.\\nWear the band; first BPM may take 30–60 s.\\n\\n„Waiting for pulse“ = Notify is connected but not sending HR yet — fix Heart monitor mode in Notify.</string>
+    <string name="wearable_sync_info_body">IMPORTANT: Notify can show live HR on its screen but still NOT send it to XEMS. Those are two different modes.\\n\\nIN NOTIFY (required):\\n1. ☰ → Smart assistant → Tasker integration → ON\\n2. ☰ → Smart assistant → Heart monitor (or Pulse screen ⚙):\\n   • Mode = „Notify app mode“ (NOT „Band only“ / continuous-only)\\n   • Heart monitor ON, shortest interval\\n3. Main Notify screen shows live BPM while worn\\n4. Kill Mi Fitness; allow Notify in background (Huawei battery settings)\\n\\nIN XEMS: ♥ → Activate dial → Connect band → wait 30–60 s.\\nDiagnostics under the dial show HR event count and battery %.\\nIf HR events stay 0 but battery works: Heart monitor mode is wrong.\\nIf both stay 0: Tasker integration off or Notify blocked.\\n\\nAlternative: Gadgetbridge with Realtime HR broadcast (disconnect band from Notify first).</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi not detected — check it is installed (Huawei: allow app visibility)</string>
     <string name="wearable_sync_status_listening">Connecting to Notify…</string>
     <string name="wearable_sync_status_connected">Band connected — waiting for pulse</string>
     <string name="wearable_sync_open_notify">Open Notify</string>
+    <string name="wearable_sync_diag_waiting">HR events: %1$d · battery: %2$s</string>
+    <string name="wearable_sync_diag_hint">Notify sees HR but does not broadcast it — set Heart monitor to Notify app mode</string>
 """
 
 BG_STRINGS = """
@@ -204,12 +221,14 @@ BG_STRINGS = """
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">Notify показва пулс вътрешно, но XEMS го получава само при „Notify app mode“ + Tasker integration.\\n\\nВ NOTIFY (задължително):\\n1. ☰ → Smart assistant → Tasker integration → ВКЛ\\n2. Екран Пулс → ⚙ (горе вдясно) или ☰ → Smart assistant → Heart monitor:\\n   • Режим = „Notify app mode“ (НЕ „Band only“ / само гривна)\\n3. Пулс → Следене на пулс ВКЛ, Непрекъснат е ОК\\n4. На главния екран виждаш live пулс\\n\\nВ XEMS: ♥ → Свържи → изчакай 30–60 сек.\\n\\n„Свързана, изчакване на пулс“ = connected работи, heartRateGot не — липсва Notify app mode.</string>
+    <string name="wearable_sync_info_body">ВАЖНО: Notify може да показва live пулс на екрана, но да НЕ го изпраща към XEMS. Това са два различни режима.\\n\\nВ NOTIFY (задължително):\\n1. ☰ → Smart assistant → Tasker integration → ВКЛ\\n2. ☰ → Smart assistant → Heart monitor (или Пулс → ⚙):\\n   • Режим = „Notify app mode“ (НЕ „Band only“ / само непрекъснат)\\n   • Следене на пулс ВКЛ, най-къс интервал\\n3. На главния екран на Notify виждаш live BPM\\n4. Спри Mi Fitness; разреши Notify на заден фон (Huawei батерия)\\n\\nВ XEMS: ♥ → Активирай → Свържи → изчакай 30–60 сек.\\nПод циферблата: HR събития + батерия %.\\nHR=0, батерия OK → грешен Heart monitor режим.\\nИ двете 0 → Tasker integration изключен или Notify блокиран.\\n\\nАлтернатива: Gadgetbridge + Realtime HR (първо разкачи гривната от Notify).</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
     <string name="wearable_sync_status_listening">Свързване с Notify…</string>
     <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
     <string name="wearable_sync_open_notify">Отвори Notify</string>
+    <string name="wearable_sync_diag_waiting">HR събития: %1$d · батерия: %2$s</string>
+    <string name="wearable_sync_diag_hint">Notify вижда пулса, но не го излъчва — включи „Notify app mode“ в Heart monitor</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
@@ -298,12 +317,26 @@ def patch_strings(path: Path, block: str, label: str) -> None:
     if not path.is_file():
         return
     text = path.read_text(encoding="utf-8")
-    if "wearable_sync_title" in text:
-        print(f"{path.name}: wearable strings already present")
+    if "wearable_sync_title" not in text:
+        text = text.replace("</resources>", block + "\n</resources>", 1)
+        path.write_text(text, encoding="utf-8")
+        print(f"{path.name}: added {label} wearable strings")
         return
-    text = text.replace("</resources>", block + "\n</resources>", 1)
-    path.write_text(text, encoding="utf-8")
-    print(f"{path.name}: added {label} wearable strings")
+    added = 0
+    for line in block.strip().splitlines():
+        name_match = re.search(r'name="([^"]+)"', line)
+        if not name_match:
+            continue
+        name = name_match.group(1)
+        if name in text:
+            continue
+        text = text.replace("</resources>", "    " + line.strip() + "\n</resources>", 1)
+        added += 1
+    if added:
+        path.write_text(text, encoding="utf-8")
+        print(f"{path.name}: added {added} missing {label} wearable strings")
+    else:
+        print(f"{path.name}: wearable strings up to date")
 
 
 def write_layouts() -> None:

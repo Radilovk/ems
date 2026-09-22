@@ -469,10 +469,10 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
 ### Фаза 1 — Live HR (MVP, Notify)
 
-- [ ] `WearableConfig` + settings toggle
-- [ ] `taskerHeartEnable`/`Disable` при train start/stop
-- [ ] `heartRateGot` receiver → UI label
-- [ ] Опционално: HR > праг → `addStrenth(-5)` (default OFF)
+- [x] `WearableConfig` + enabled by default
+- [x] `taskerHeartEnable`/`Disable` при train start/stop
+- [x] `heartRateGot` receiver → UI label (master sidebar)
+- [x] Опционално: HR > праг → `addStrenth(-5)` (default OFF)
 - [ ] Тест с Band 8 (`D0:62:2C:26:49:60`)
 
 ### Фаза 2 — SpO₂ и sync

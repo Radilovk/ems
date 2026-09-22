@@ -9,6 +9,7 @@ public final class NotifyHrReceiver extends BroadcastReceiver {
     public static final String ACTION_HEART_RATE = "com.mc.xiaomi.heartRateGot";
     public static final String ACTION_CONNECTED = "com.mc.xiaomi.connected";
     public static final String ACTION_DISCONNECTED = "com.mc.xiaomi.disconnected";
+    public static final String ACTION_BATTERY = "com.mc.xiaomi.batteryStatGot";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -22,6 +23,8 @@ public final class NotifyHrReceiver extends BroadcastReceiver {
             NotifyWearableBridge.onBandConnected();
         } else if (ACTION_DISCONNECTED.equals(action)) {
             NotifyWearableBridge.onBandDisconnected();
+        } else if (ACTION_BATTERY.equals(action)) {
+            NotifyWearableBridge.onBattery(intent.getIntExtra("value", -1));
         }
     }
 }

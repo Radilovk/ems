@@ -3,6 +3,7 @@ package com.isaigu.gymapp.wearable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.view.View;
 
@@ -17,16 +18,20 @@ public final class NotifyWearableBridge {
     public static final String ACTION_HR_ENABLE = "com.mc.xiaomi.taskerHeartEnable";
     public static final String ACTION_HR_DISABLE = "com.mc.xiaomi.taskerHeartDisable";
     public static final String ACTION_CONNECT = "com.mc.xiaomi.connectToBand";
+    public static final String ACTION_RECONNECT = "com.mc.xiaomi.reconnectToBand";
+    public static final String ACTION_BATTERY_READ = "com.mc.xiaomi.tasker.batteryRead";
 
     private static final long AUTO_REDUCE_COOLDOWN_MS = 10000L;
     private static final int RECEIVER_EXPORTED_FLAG = 0x2;
+    private static final int FLAG_INCLUDE_STOPPED_PACKAGES = 0x20;
 
     private static TrainItemManager itemManager;
     private static NotifyHrReceiver receiver;
     private static boolean receiverRegistered;
-    private static boolean sessionActive;
+    private static boolean listeningActive;
     private static boolean bandConnected;
     private static int lastHr = -1;
+    private static int lastBattery = -1;
     private static long lastAutoReduceMs;
 
     private NotifyWearableBridge() {}
@@ -41,41 +46,78 @@ public final class NotifyWearableBridge {
             return;
         }
         itemManager = WearableSyncHelper.getItemManager();
-        boolean anyRunning = isAnyTrainingRunning();
-        if (anyRunning && !sessionActive) {
-            startSession(context);
-        } else if (!anyRunning && sessionActive) {
-            stopSession(context);
+        if (WearableConfig.isArmed(context)) {
+            beginListening(context);
         }
-        WearableSyncHelper.onTrainingRunningChanged(anyRunning);
+        WearableSyncHelper.onTrainingRunningChanged(isAnyTrainingRunning());
     }
 
     public static void onTrainingFullStop() {
-        Context context = WearableSyncHelper.getContext();
+        WearableSyncHelper.onTrainingRunningChanged(false);
+    }
+
+    public static boolean isNotifyInstalled(Context context) {
         if (context == null) {
-            sessionActive = false;
-            WearableSyncHelper.onTrainingRunningChanged(false);
+            return false;
+        }
+        try {
+            context.getPackageManager().getPackageInfo(NOTIFY_PACKAGE, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    /** Start Notify connection + HR monitor (call on Activate / Connect). */
+    public static void beginListening(Context context) {
+        if (context == null || !WearableConfig.isEnabled(context)) {
             return;
         }
-        stopSession(context);
-        WearableSyncHelper.onTrainingRunningChanged(false);
+        if (!isNotifyInstalled(context)) {
+            WearableSyncHelper.showNotifyMissing();
+            return;
+        }
+        registerReceiver(context);
+        sendNotifyIntent(context, ACTION_CONNECT);
+        sendNotifyIntent(context, ACTION_HR_ENABLE);
+        sendNotifyIntent(context, ACTION_BATTERY_READ);
+        listeningActive = true;
+        lastHr = -1;
+        WearableSyncHelper.updateHeartRate(-1, bandConnected);
     }
 
     public static void requestConnect() {
         Context context = WearableSyncHelper.getContext();
-        if (context != null) {
-            sendNotifyIntent(context, ACTION_CONNECT);
+        if (context == null) {
+            return;
         }
+        beginListening(context);
+        sendNotifyIntent(context, ACTION_RECONNECT);
+    }
+
+    public static void stopListening(Context context) {
+        if (context == null) {
+            listeningActive = false;
+            return;
+        }
+        sendNotifyIntent(context, ACTION_HR_DISABLE);
+        unregisterReceiver(context);
+        listeningActive = false;
+        lastHr = -1;
+        WearableSyncHelper.updateHeartRate(-1, bandConnected);
     }
 
     static void onHeartRate(int hr) {
-        if (!sessionActive || hr < 40 || hr > 220) {
+        if (!listeningActive || hr < 40 || hr > 220) {
             return;
         }
         lastHr = hr;
         WearableSyncHelper.updateHeartRate(hr, bandConnected);
         Context context = WearableSyncHelper.getContext();
-        if (context != null && WearableConfig.isAutoReduceEnabled(context)) {
+        if (context != null && WearableConfig.isAutoReduceEnabled(context)
+                && isAnyTrainingRunning()) {
             maybeAutoReduce(hr);
         }
     }
@@ -90,33 +132,34 @@ public final class NotifyWearableBridge {
         WearableSyncHelper.updateHeartRate(lastHr, false);
     }
 
-    static boolean isSessionActive() {
-        return sessionActive;
+    static void onBattery(int level) {
+        if (level >= 0 && level <= 100) {
+            lastBattery = level;
+            WearableSyncHelper.updateBattery(level);
+        }
     }
 
-    static int getLastHeartRate() {
+    public static boolean isListeningActive() {
+        return listeningActive;
+    }
+
+    public static int getLastHeartRate() {
         return lastHr;
     }
 
-    static boolean isBandConnected() {
+    public static boolean isBandConnected() {
         return bandConnected;
     }
 
-    private static void startSession(Context context) {
-        registerReceiver(context);
-        sendNotifyIntent(context, ACTION_CONNECT);
-        sendNotifyIntent(context, ACTION_HR_ENABLE);
-        sessionActive = true;
-        lastHr = -1;
-        WearableSyncHelper.updateHeartRate(-1, bandConnected);
-    }
-
-    private static void stopSession(Context context) {
-        sendNotifyIntent(context, ACTION_HR_DISABLE);
-        unregisterReceiver(context);
-        sessionActive = false;
-        lastHr = -1;
-        WearableSyncHelper.updateHeartRate(-1, bandConnected);
+    static void sendNotifyIntent(Context context, String action) {
+        Intent intent = new Intent(action);
+        intent.setPackage(NOTIFY_PACKAGE);
+        intent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
+        String password = WearableConfig.getTaskerPassword(context);
+        if (password != null && password.length() > 0) {
+            intent.putExtra("password", password);
+        }
+        context.sendBroadcast(intent);
     }
 
     private static void registerReceiver(Context context) {
@@ -130,6 +173,7 @@ public final class NotifyWearableBridge {
         filter.addAction(NotifyHrReceiver.ACTION_HEART_RATE);
         filter.addAction(NotifyHrReceiver.ACTION_CONNECTED);
         filter.addAction(NotifyHrReceiver.ACTION_DISCONNECTED);
+        filter.addAction(NotifyHrReceiver.ACTION_BATTERY);
         if (Build.VERSION.SDK_INT >= 33) {
             context.registerReceiver(receiver, filter, RECEIVER_EXPORTED_FLAG);
         } else {
@@ -147,16 +191,6 @@ public final class NotifyWearableBridge {
         } catch (Throwable ignored) {
         }
         receiverRegistered = false;
-    }
-
-    static void sendNotifyIntent(Context context, String action) {
-        Intent intent = new Intent(action);
-        intent.setPackage(NOTIFY_PACKAGE);
-        String password = WearableConfig.getTaskerPassword(context);
-        if (password != null && password.length() > 0) {
-            intent.putExtra("password", password);
-        }
-        context.sendBroadcast(intent);
     }
 
     private static boolean isAnyTrainingRunning() {

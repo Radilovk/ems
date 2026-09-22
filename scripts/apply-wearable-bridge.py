@@ -62,6 +62,9 @@ STRING_IDS = {
     "wearable_sync_info_title": 0x7F0D0184,
     "wearable_sync_info_body": 0x7F0D0185,
     "wearable_sync_toast_armed": 0x7F0D0186,
+    "wearable_sync_notify_missing": 0x7F0D0187,
+    "wearable_sync_status_listening": 0x7F0D0188,
+    "wearable_sync_status_connected": 0x7F0D0189,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -142,7 +145,7 @@ WEARABLE_ATTACH_HOOK = """
 EN_STRINGS = """
     <string name="wearable_sync_title">Watch sync — heart rate</string>
     <string name="wearable_sync_status_idle">Configure and activate</string>
-    <string name="wearable_sync_status_armed">Armed — starts with training</string>
+    <string name="wearable_sync_status_armed">Dial armed — tap Connect band</string>
     <string name="wearable_sync_status_active">Live sync during training</string>
     <string name="wearable_sync_status_waiting">Waiting for pulse…</string>
     <string name="wearable_sync_status_disconnected">Band disconnected</string>
@@ -154,14 +157,17 @@ EN_STRINGS = """
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
     <string name="wearable_sync_info_title">Watch sync — help</string>
-    <string name="wearable_sync_info_body">Requires Notify for Xiaomi with Tasker integration enabled and heart monitor set to Notify app mode.\\n\\n1. Tap ♥ on the train sidebar to open settings.\\n2. Set HR limit and optional auto-reduce step.\\n3. Activate dial — the floating ring appears when training starts.\\n4. During EMS, live BPM is shown on the dial; the ring fills toward your limit.\\n\\nTap the dial to reopen settings. Drag to move. × closes the dial.</string>
+    <string name="wearable_sync_info_body">Requires Notify for Xiaomi (com.mc.xiaomi1) with the band already paired.\\n\\nIn Notify app:\\n• Smart assistant → Tasker integration → ON (password optional — leave empty if not set)\\n• Heart monitor → mode „Notify app mode“ (required for live BPM)\\n• Close Mi Fitness / Zepp — only one app can connect to the band\\n• Disable battery optimization for Notify and XEMS\\n\\nIn XEMS:\\n1. Tap ♥ on the train sidebar.\\n2. Enable sync, set HR limit.\\n3. Activate dial, then tap Connect band (↻).\\n4. Start EMS — live BPM appears on the floating ring.\\n\\nTap the dial for settings. Drag to move. × closes and stops sync.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
+    <string name="wearable_sync_notify_missing">Install Notify for Xiaomi and pair your band first</string>
+    <string name="wearable_sync_status_listening">Connecting to Notify…</string>
+    <string name="wearable_sync_status_connected">Band connected — waiting for pulse</string>
 """
 
 BG_STRINGS = """
     <string name="wearable_sync_title">Синхрон с гривна — пулс</string>
     <string name="wearable_sync_status_idle">Настрой и активирай</string>
-    <string name="wearable_sync_status_armed">Готов — стартира с тренировката</string>
+    <string name="wearable_sync_status_armed">Циферблатът е готов — натисни Свържи гривната</string>
     <string name="wearable_sync_status_active">Live синхрон по време на EMS</string>
     <string name="wearable_sync_status_waiting">Изчакване на пулс…</string>
     <string name="wearable_sync_status_disconnected">Гривната е изключена</string>
@@ -173,8 +179,11 @@ BG_STRINGS = """
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">Изисква Notify for Xiaomi с включена Tasker интеграция и режим „Notify app mode“ за пулс.\\n\\n1. Натисни ♥ в дясната лента на тренировката.\\n2. Задай праг на пулса и по желание авто-намаляване на силата.\\n3. Активирай циферблата — плаващият пръстен се появява при старт на EMS.\\n4. По време на тренировка се показва live BPM; пръстенът се запълва към зададения праг.\\n\\nДокосни циферблата за настройки. Плъзни за преместване. × затваря циферблата.</string>
+    <string name="wearable_sync_info_body">Изисква Notify for Xiaomi (com.mc.xiaomi1) с вече сдвоена гривна.\\n\\nВ Notify:\\n• Smart assistant → Tasker integration → ВКЛ (паролата е по избор — остави празна, ако не е зададена)\\n• Heart monitor → режим „Notify app mode“ (задължително за live пулс)\\n• Затвори Mi Fitness / Zepp — само едно приложение може да е свързано с гривната\\n• Изключи оптимизация на батерията за Notify и XEMS\\n\\nВ XEMS:\\n1. Натисни ♥ в дясната лента.\\n2. Включи синхрона, задай праг на пулса.\\n3. Активирай циферблата, после натисни Свържи гривната (↻).\\n4. Стартирай EMS — live BPM се показва на плаващия пръстен.\\n\\nДокосни циферблата за настройки. Плъзни за преместване. × затваря и спира синхрона.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
+    <string name="wearable_sync_notify_missing">Инсталирай Notify for Xiaomi и сдвои гривната</string>
+    <string name="wearable_sync_status_listening">Свързване с Notify…</string>
+    <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V

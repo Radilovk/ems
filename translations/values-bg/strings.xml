@@ -409,4 +409,22 @@
     <string name="interval_timer_loops_hint">0 = безкрайно</string>
     <string name="interval_timer_info_title">Как работи таймерът</string>
     <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\n\n• Повторения — 0 означава безкраен цикъл. При число таймерът спира след последното повторение.\n• Интервал — един и същ интервал се повтаря; при всяка смяна чувате сигнал.\n• Програми — готови тренировъчни програми от няколко интервала с различни настройки (MA, Hz, ширина). RPT повтаря програмата до края на зададеното време.\n• Активирай — включва таймера. Той тръгва заедно със старт на тренировката и спира при пауза или край.\n• Звук и запазени — избор на сигнал, запазване на настройки или собствен звуков файл.</string>
+
+    <string name="wearable_sync_title">Синхрон с гривна — пулс</string>
+    <string name="wearable_sync_status_idle">Настрой и активирай</string>
+    <string name="wearable_sync_status_armed">Готов — стартира с тренировката</string>
+    <string name="wearable_sync_status_active">Live синхрон по време на EMS</string>
+    <string name="wearable_sync_status_waiting">Изчакване на пулс…</string>
+    <string name="wearable_sync_status_disconnected">Гривната е изключена</string>
+    <string name="wearable_sync_bpm">уд/мин</string>
+    <string name="wearable_sync_enabled">Синхрон с Notify for Xiaomi</string>
+    <string name="wearable_sync_auto_reduce">Авто-намаляване на сила над прага</string>
+    <string name="wearable_sync_threshold">Праг пулс</string>
+    <string name="wearable_sync_strength_step">Стъпка</string>
+    <string name="wearable_sync_connect">Свържи гривната</string>
+    <string name="wearable_sync_activate">Активирай циферблат</string>
+    <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
+    <string name="wearable_sync_info_body">Изисква Notify for Xiaomi с включена Tasker интеграция и режим „Notify app mode“ за пулс.\n\n1. Натисни ♥ в дясната лента на тренировката.\n2. Задай праг на пулса и по желание авто-намаляване на силата.\n3. Активирай циферблата — плаващият пръстен се появява при старт на EMS.\n4. По време на тренировка се показва live BPM; пръстенът се запълва към зададения праг.\n\nДокосни циферблата за настройки. Плъзни за преместване. × затваря циферблата.</string>
+    <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
+
 </resources>

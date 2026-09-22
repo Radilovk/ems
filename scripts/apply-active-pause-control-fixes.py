@@ -30,7 +30,7 @@ ROW_LAYOUTS = (
 
 SET_MAIN_FROM_SLIDER = """
 .method public setMainAndPauseStrenthFromSlider(I)V
-    .locals 8
+    .locals 7
     .param p1, "strength"    # I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -39,13 +39,11 @@ SET_MAIN_FROM_SLIDER = """
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    move-result-object v6
+    move-result-object v0
 
-    iget-object v7, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iget v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
-
-    iget v2, v7, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     move v3, p1
 
@@ -61,7 +59,7 @@ SET_MAIN_FROM_SLIDER = """
     const/4 v3, 0x0
 
     :cond_main_floor
-    iget-boolean v5, v7, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-boolean v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     if-nez v5, :cond_only_main
 
@@ -83,11 +81,11 @@ SET_MAIN_FROM_SLIDER = """
 
     mul-int v5, v3, v2
 
-    move v0, v1
+    move v6, v1
 
-    div-int/lit8 v0, v0, 0x2
+    div-int/lit8 v6, v6, 0x2
 
-    add-int/2addr v5, v0
+    add-int/2addr v5, v6
 
     div-int v5, v5, v1
 
@@ -107,14 +105,14 @@ SET_MAIN_FROM_SLIDER = """
     const/4 v5, 0x0
 
     :cond_pause_floor
-    iput v3, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iput v5, v7, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iput v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     goto :cond_done
 
     :cond_only_main
-    iput v3, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     :cond_done
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
@@ -287,21 +285,6 @@ LAMBDA_ADD_ALL_REPLACEMENT = """.method static synthetic lambda$addAllPartValue$
     return-void
 
     :cond_2
-    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    move-result-object v0
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-nez v0, :cond_coupled
-
-    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
-
-    return-void
-
-    :cond_coupled
     invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
 
     move-result v0
@@ -315,7 +298,22 @@ LAMBDA_ADD_ALL_REPLACEMENT = """.method static synthetic lambda$addAllPartValue$
 __MA_STRENGTH_BODY__
 
     :cond_3
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v0, :cond_coupled
+
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    return-void
+
+    :cond_coupled
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
 
     return-void
 .end method"""
@@ -923,6 +921,16 @@ __MUSIC_SYNC_GUARD__
     :cond_strength
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
+    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
+
+    move-result v0
+
+    if-nez v0, :cond_ma_index_strength
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
     invoke-virtual {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     move-result-object v0
@@ -1062,13 +1070,7 @@ def patch_train_item() -> None:
         raise RuntimeError("TrainItem.setUserType patch marker not found")
 
     add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
-    if (
-        "programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"
-        in add_main_body
-        and "->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;" in add_main_body
-    ):
-        print("TrainItem.addMainAndPauseStrenth: coupled pause via programDataBean already patched")
-    elif "cond_scale_pause" in add_main_body:
+    if "cond_scale_pause" in add_main_body:
         print("TrainItem.addMainAndPauseStrenth: coupled scale already patched")
     elif COUPLED_PAUSE_SCALE_OLD in add_main_body:
         text = text.replace(COUPLED_PAUSE_SCALE_OLD, COUPLED_PAUSE_SCALE_NEW, 1)
@@ -1082,17 +1084,20 @@ def patch_train_item() -> None:
 def _lambda_routing_ok(lambda_body: str) -> bool:
     if "isMainModeSelected" in lambda_body:
         return False
-    coupled_idx = lambda_body.find(":cond_coupled")
-    ma_idx = lambda_body.find("isMaSelected()Z")
-    if coupled_idx < 0 or ma_idx < 0 or coupled_idx > ma_idx:
+    if ":cond_4" in lambda_body:
         return False
-    coupled_head = lambda_body[:coupled_idx]
+    cond_3_tail = lambda_body.split(":cond_3", 1)[-1]
+    if "addMainAndPauseStrenth(I)V" not in cond_3_tail:
+        return False
+    if ":cond_coupled" not in cond_3_tail:
+        return False
+    if "if-nez v0, :cond_coupled" not in cond_3_tail:
+        return False
+    active_pause_head = cond_3_tail.split(":cond_coupled", 1)[0]
     if (
         "programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z"
-        not in coupled_head
+        not in active_pause_head
     ):
-        return False
-    if "addMainAndPauseStrenth(I)V" not in coupled_head:
         return False
     markers = (
         "isPauseMaSelected()Z",
@@ -1257,10 +1262,9 @@ def patch_master_strength_control() -> None:
         ".method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V"
     )
     ensure_ma_body = text.split(ensure_ma_marker, 1)[-1].split(".end method", 1)[0]
-    ma_selected_idx = ensure_ma_body.find("setMaSelected(Z)V")
-    active_pause_idx = ensure_ma_body.find("ProgramDataBean;->activePause:Z")
-    if active_pause_idx >= 0 and (
-        ma_selected_idx < 0 or active_pause_idx < ma_selected_idx
+    if (
+        "ProgramDataBean;->activePause:Z" in ensure_ma_body
+        and ":cond_do_ma" in ensure_ma_body
     ):
         print("MasterStrengthControl.ensureMaMode: active-pause guard already applied")
     elif ENSURE_MA_MODE_BODY_OLD in ensure_ma_body:

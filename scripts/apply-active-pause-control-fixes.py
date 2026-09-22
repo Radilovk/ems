@@ -72,6 +72,13 @@ SET_MAIN_FROM_SLIDER = """
     :cond_has_main
     if-lez v1, :cond_from_zero
 
+    if-nez v2, :cond_scale_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_scale_pause
     mul-int v5, v3, v2
 
     move v6, v1
@@ -126,6 +133,13 @@ COUPLED_STRENGTH_NOTIFY = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/mo
 COUPLED_PAUSE_SCALE_OLD = """    :cond_has_main
     if-lez v1, :cond_from_zero
 
+    if-nez v2, :cond_scale_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_scale_pause
     mul-int v5, v3, v2
 
     move v6, v1
@@ -150,32 +164,7 @@ COUPLED_PAUSE_SCALE_OLD = """    :cond_has_main
 
     :cond_pause_clamp"""
 
-COUPLED_PAUSE_SCALE_NEW = """    :cond_has_main
-    if-lez v1, :cond_from_zero
-
-    mul-int v5, v3, v2
-
-    move v6, v1
-
-    div-int/lit8 v6, v6, 0x2
-
-    add-int/2addr v5, v6
-
-    div-int v5, v5, v1
-
-    goto :cond_pause_clamp
-
-    :cond_from_zero
-    if-nez v2, :cond_keep_pause
-
-    move v5, v3
-
-    goto :cond_pause_clamp
-
-    :cond_keep_pause
-    move v5, v2
-
-    :cond_pause_clamp"""
+COUPLED_PAUSE_SCALE_NEW = COUPLED_PAUSE_SCALE_OLD
 
 SET_USER_TYPE_OLD = """.method public setUserType(I)V
     .locals 1
@@ -685,6 +674,13 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
     :cond_preview_has_main
     if-lez v2, :cond_preview_from_zero
 
+    if-nez v0, :cond_preview_scale
+
+    move v4, v3
+
+    goto :cond_preview_pause
+
+    :cond_preview_scale
     mul-int v4, v3, v0
 
     div-int/lit8 v5, v2, 0x2
@@ -1065,7 +1061,7 @@ __MUSIC_SYNC_GUARD__
 
 def patch_train_item() -> None:
     text = TRAIN_ITEM.read_text(encoding="utf-8")
-    if "setMainAndPauseStrenthFromSlider(I)V" not in text:
+    if ".method public setMainAndPauseStrenthFromSlider(I)V" not in text:
         marker = ".method public addMainAndPauseStrenth(I)V"
         if marker not in text:
             raise RuntimeError("TrainItem.addMainAndPauseStrenth marker not found")
@@ -1090,15 +1086,9 @@ def patch_train_item() -> None:
         raise RuntimeError("TrainItem.setUserType patch marker not found")
 
     add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
-    if "cond_scale_pause" in add_main_body:
-        text = text.replace(COUPLED_PAUSE_SCALE_NEW, COUPLED_PAUSE_SCALE_OLD, 1)
-        print("TrainItem.addMainAndPauseStrenth: restored proportional coupled scale")
-    elif "cond_keep_pause" not in add_main_body and COUPLED_PAUSE_SCALE_OLD in add_main_body:
-        raise RuntimeError("TrainItem.addMainAndPauseStrenth missing proportional scale markers")
-    elif "cond_keep_pause" in add_main_body:
-        print("TrainItem.addMainAndPauseStrenth: proportional coupled scale OK")
-    else:
-        raise RuntimeError("TrainItem.addMainAndPauseStrenth scale patch marker not found")
+    if "setMainAndPauseStrenthFromSlider(I)V" not in add_main_body:
+        raise RuntimeError("TrainItem.addMainAndPauseStrenth must delegate to setMainAndPauseStrenthFromSlider")
+    print("TrainItem.addMainAndPauseStrenth: delegates to setMainAndPauseStrenthFromSlider")
 
     if ".method private sendCoupledStrengthRefresh()V" in text:
         text = re.sub(
@@ -1120,8 +1110,14 @@ def patch_train_item() -> None:
     if COUPLED_STRENGTH_NOTIFY not in add_main_body:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth missing sendPulse notify tail")
 
-    slider_body = text.split("setMainAndPauseStrenthFromSlider(I)V", 1)[-1].split(".end method", 1)[0]
-    if "sendPulse()V" in slider_body:
+    slider_match = re.search(
+        r"\.method public setMainAndPauseStrenthFromSlider\(I\)V.*?\.end method",
+        text,
+        flags=re.DOTALL,
+    )
+    if not slider_match:
+        raise RuntimeError("TrainItem.setMainAndPauseStrenthFromSlider missing")
+    if "sendPulse()V" in slider_match.group(0):
         raise RuntimeError(
             "TrainItem.setMainAndPauseStrenthFromSlider must not sendPulse; slider uses onItemChange"
         )
@@ -1233,15 +1229,15 @@ ENSURE_MA_MODE_BODY_NEW = """    :cond_3
 
     if-eqz v0, :cond_do_ma
 
-    iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
 
     if-eqz v1, :cond_do_ma
 
     iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v0, :cond_do_ma
-
-    goto :goto_13
+    if-nez v0, :goto_13
 
     :cond_do_ma
     const/4 v0, 0x1
@@ -1266,7 +1262,9 @@ RELEASE_MA_MODE_METHOD = """
 
     if-eqz v1, :cond_1
 
-    iget-object v2, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v2
 
     if-eqz v2, :cond_1
 
@@ -1317,10 +1315,12 @@ def patch_master_strength_control() -> None:
         ".method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V"
     )
     ensure_ma_body = text.split(ensure_ma_marker, 1)[-1].split(".end method", 1)[0]
-    if (
-        "ProgramDataBean;->activePause:Z" in ensure_ma_body
-        and ":cond_do_ma" in ensure_ma_body
-    ):
+    ensure_ma_ok = (
+        "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" in ensure_ma_body
+        and "if-nez v0, :goto_13" in ensure_ma_body
+        and "activePause:Z" in ensure_ma_body
+    )
+    if ensure_ma_ok:
         print("MasterStrengthControl.ensureMaMode: active-pause guard already applied")
     elif ENSURE_MA_MODE_BODY_OLD in ensure_ma_body:
         text = text.replace(ENSURE_MA_MODE_BODY_OLD, ENSURE_MA_MODE_BODY_NEW, 1)
@@ -1330,14 +1330,49 @@ def patch_master_strength_control() -> None:
             1,
         )
         print("MasterStrengthControl.ensureMaMode: skip MA mode during yellow active pause")
+    elif "programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;" in ensure_ma_body:
+        text = text.replace(ENSURE_MA_MODE_BODY_NEW.replace(
+            "invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;",
+            "iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;",
+        ), ENSURE_MA_MODE_BODY_NEW, 1)
+        print("MasterStrengthControl.ensureMaMode: upgraded to matchProgram activePause guard")
+    elif (
+        "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" in ensure_ma_body
+        and "if-eqz v0, :cond_do_ma" in ensure_ma_body
+    ):
+        text = text.replace(
+            """    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v0, :cond_do_ma
+
+    goto :goto_13""",
+            """    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v0, :goto_13""",
+            1,
+        )
+        print("MasterStrengthControl.ensureMaMode: fixed inverted activePause branch")
     else:
         raise RuntimeError("MasterStrengthControl.ensureMaMode patch marker not found")
-    if "releaseMaModeForActivePause()V" not in text:
+    release_marker = ".method public static releaseMaModeForActivePause()V"
+    release_body = ""
+    if release_marker in text:
+        release_body = text.split(release_marker, 1)[-1].split(".end method", 1)[0]
+    if release_marker not in text:
         marker = ".method public static getCeiling()I"
         if marker not in text:
             raise RuntimeError("MasterStrengthControl.getCeiling marker not found")
         text = text.replace(marker, RELEASE_MA_MODE_METHOD.strip() + "\n\n" + marker, 1)
         print("MasterStrengthControl: added releaseMaModeForActivePause()")
+    elif "setMaSelected(Z)V" not in release_body:
+        text = re.sub(
+            r"\.method public static releaseMaModeForActivePause\(\)V.*?\.end method",
+            RELEASE_MA_MODE_METHOD.strip(),
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        print("MasterStrengthControl: fixed releaseMaModeForActivePause clear")
     else:
         print("MasterStrengthControl.releaseMaModeForActivePause: already present")
     MASTER_STRENGTH_CONTROL.write_text(text, encoding="utf-8")

@@ -256,7 +256,7 @@ ADD_PAUSE_STRENTH_METHOD = """
 
 ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 .method public addMainAndPauseStrenth(I)V
-    .locals 7
+    .locals 3
     .param p1, "value"    # I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -269,81 +269,21 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 
     iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    add-int/2addr v1, p1
 
-    add-int v3, v1, p1
+    const/16 v2, 0x64
 
-    const/16 v4, 0x64
+    if-le v1, v2, :cond_main_cap
 
-    if-le v3, v4, :cond_main_cap
-
-    move v3, v4
+    move v1, v2
 
     :cond_main_cap
-    if-gez v3, :cond_main_floor
+    if-gez v1, :cond_main_floor
 
-    const/4 v3, 0x0
+    const/4 v1, 0x0
 
     :cond_main_floor
-    iget-boolean v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-eqz v5, :cond_only_main
-
-    if-nez v3, :cond_has_main
-
-    const/4 v5, 0x0
-
-    goto :cond_store
-
-    :cond_has_main
-    if-lez v1, :cond_from_zero
-
-    mul-int v5, v3, v2
-
-    move v6, v1
-
-    div-int/lit8 v6, v6, 0x2
-
-    add-int/2addr v5, v6
-
-    div-int v5, v5, v1
-
-    goto :cond_pause_clamp
-
-    :cond_from_zero
-    if-nez v2, :cond_keep_pause
-
-    move v5, v3
-
-    goto :cond_pause_clamp
-
-    :cond_keep_pause
-    move v5, v2
-
-    :cond_pause_clamp
-    if-le v5, v4, :cond_pause_cap
-
-    move v5, v4
-
-    :cond_pause_cap
-    if-gez v5, :cond_pause_floor
-
-    const/4 v5, 0x0
-
-    :cond_pause_floor
-    :cond_store
-    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
-
-    iput v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
-
-    return-void
-
-    :cond_only_main
-    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMainAndPauseStrenthFromSlider(I)V
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 
@@ -698,12 +638,6 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
     if-eqz v2, :cond_black
 
     :cond_yellow
-    iget-object v3, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    const/4 v4, 0x0
-
-    invoke-virtual {{v3, v4}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
-
     const v2, {yellow_bg:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
@@ -761,7 +695,7 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 3
+    .locals 4
     .param p1, "v"    # Landroid/view/View;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
@@ -803,6 +737,17 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
+    iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+
+    if-lez v2, :cond_yellow_skip_bootstrap
+
+    iget v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    if-nez v3, :cond_yellow_skip_bootstrap
+
+    iput v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    :cond_yellow_skip_bootstrap
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V

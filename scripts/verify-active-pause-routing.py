@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -16,6 +17,11 @@ TRAIN_ITEM_MANAGER = (
     DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainItemManager.smali"
 )
 SLIDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder$4.smali"
+TRAIN_VIEW_HOLDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder.smali"
+MASTER_STRENGTH_CONTROL = (
+    DECOMPILED
+    / "smali_classes2/com/isaigu/gymapp/train/utils/MasterStrengthControl.smali"
+)
 
 ROUTES = (
     "pause_ma",
@@ -31,7 +37,10 @@ def scale_pause(main_old: int, pause_old: int, main_new: int) -> int:
     if main_new == 0:
         return 0
     if main_old > 0:
-        pause_new = (main_new * pause_old + main_old // 2) // main_old
+        if pause_old == 0:
+            pause_new = main_new
+        else:
+            pause_new = (main_new * pause_old + main_old // 2) // main_old
     elif pause_old == 0:
         pause_new = main_new
     else:
@@ -87,18 +96,41 @@ def check_smali() -> list[str]:
         return ["TrainItemManager.smali missing"]
     if not SLIDER.exists():
         return ["TrainViewHolder$4.smali missing"]
+    if not MASTER_STRENGTH_CONTROL.exists():
+        return ["MasterStrengthControl.smali missing"]
 
     item = TRAIN_ITEM.read_text(encoding="utf-8")
     manager = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
     slider = SLIDER.read_text(encoding="utf-8")
 
-    slider_body = item.split("setMainAndPauseStrenthFromSlider(I)V", 1)[-1].split(".end method", 1)[0]
-    if "sendPulse()V" in slider_body:
-        errors.append("setMainAndPauseStrenthFromSlider must not call sendPulse (slider uses onItemChange)")
+    slider_match = re.search(
+        r"\.method public setMainAndPauseStrenthFromSlider\(I\)V.*?\.end method",
+        item,
+        flags=re.DOTALL,
+    )
+    if not slider_match:
+        errors.append("setMainAndPauseStrenthFromSlider missing")
+    else:
+        slider_body = slider_match.group(0)
+        if "sendPulse()V" in slider_body:
+            errors.append("setMainAndPauseStrenthFromSlider must not call sendPulse (slider uses onItemChange)")
+        if ":cond_scale_pause" not in slider_body:
+            errors.append("setMainAndPauseStrenthFromSlider missing zero-pause coupled bootstrap")
 
     coupled_body = item.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
     if "sendPulse()V" not in coupled_body:
         errors.append("addMainAndPauseStrenth must call sendPulse for +/- controls")
+    if "setMainAndPauseStrenthFromSlider(I)V" not in coupled_body:
+        errors.append("addMainAndPauseStrenth must delegate to setMainAndPauseStrenthFromSlider")
+    if not TRAIN_VIEW_HOLDER.exists():
+        errors.append("TrainViewHolder.smali missing")
+    else:
+        holder = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
+        display_hz = holder.split("updatePauseHzDisplay()V", 1)[-1].split(".end method", 1)[0]
+        if ":cond_yellow" in display_hz and "setMaSelected(Z)V" in display_hz.split(":cond_yellow", 1)[1].split(
+            ":cond_black", 1
+        )[0]:
+            errors.append("updatePauseHzDisplay must not clear maSelected in yellow mode")
 
     lambda_body = manager.split("lambda$addAllPartValue$6", 1)[-1].split(".end method", 1)[0]
     markers = (
@@ -132,6 +164,30 @@ def check_smali() -> list[str]:
     slider_positions = [on_changed_end.find(marker) for marker in slider_markers]
     if any(pos < 0 for pos in slider_positions) or slider_positions != sorted(slider_positions):
         errors.append("slider onChangedEnd routing order is wrong")
+
+    master = MASTER_STRENGTH_CONTROL.read_text(encoding="utf-8")
+    ensure_body = master.split(
+        ".method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V",
+        1,
+    )[-1].split(".end method", 1)[0]
+    if "activePause:Z" not in ensure_body:
+        errors.append("MasterStrengthControl.ensureMaMode missing activePause guard")
+    else:
+        active_pause_head = ensure_body.split("activePause:Z", 1)[1].split(
+            "setMaSelected(Z)V", 1
+        )[0]
+        if "if-nez v0, :goto_13" not in active_pause_head:
+            errors.append(
+                "MasterStrengthControl.ensureMaMode must skip MA mode when activePause is on"
+            )
+        if "if-eqz v0, :cond_do_ma" in active_pause_head:
+            errors.append("MasterStrengthControl.ensureMaMode activePause branch is inverted")
+
+    release_body = master.split("releaseMaModeForActivePause()V", 1)[-1].split(
+        ".end method", 1
+    )[0]
+    if "setMaSelected(Z)V" not in release_body:
+        errors.append("MasterStrengthControl.releaseMaModeForActivePause must clear maSelected")
 
     return errors
 
@@ -176,6 +232,8 @@ def check_coupled_math() -> list[str]:
         (0, 0, 35, 35),
         (0, 25, 40, 25),
         (80, 10, 100, 13),
+        (50, 0, 55, 55),
+        (30, 0, 31, 31),
     ]
     for main_old, pause_old, main_new, expected in cases:
         got = scale_pause(main_old, pause_old, main_new)

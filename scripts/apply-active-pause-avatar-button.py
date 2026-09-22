@@ -665,6 +665,10 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setVisibility(I)V
 
+    const/4 v2, 0x1
+
+    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setClickable(Z)V
+
     iget-object v2, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -780,7 +784,7 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v2, :cond_enable_yellow
+    if-nez v2, :cond_black_to_yellow
 
     const/4 v2, 0x1
 
@@ -792,7 +796,7 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     goto :cond_clear
 
-    :cond_enable_yellow
+    :cond_black_to_yellow
     const/4 v2, 0x1
 
     iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z

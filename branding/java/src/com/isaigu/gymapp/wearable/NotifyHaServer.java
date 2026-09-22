@@ -13,10 +13,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Minimal Home Assistant REST shim so Notify can POST sensor states to XEMS.
@@ -24,11 +20,7 @@ import java.util.Map;
  */
 public final class NotifyHaServer {
     private static final int DEFAULT_PORT = 8123;
-    private static final int MAX_ENTITY_HISTORY = 24;
     private static final String API_RUNNING_JSON = "{\"message\":\"API running.\"}";
-
-    private static final Map<String, HaEntityRecord> entityHistory =
-            new LinkedHashMap<String, HaEntityRecord>();
 
     private static volatile boolean running;
     private static ServerSocket serverSocket;
@@ -101,63 +93,6 @@ public final class NotifyHaServer {
 
     public static String getLocalUrl() {
         return "http://127.0.0.1:" + boundPort;
-    }
-
-    public static synchronized void resetSession() {
-        postCount = 0;
-        haHrCount = 0;
-        lastEntity = "";
-        entityHistory.clear();
-        WearableSyncHelper.updateDiagnostics();
-    }
-
-    public static boolean hasHeartRateEntity() {
-        for (String key : entityHistory.keySet()) {
-            if (isHeartRateEntity(key)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static String getEntityListText() {
-        if (entityHistory.isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (HaEntityRecord record : entityHistory.values()) {
-            if (sb.length() > 0) {
-                sb.append('\n');
-            }
-            sb.append(record.shortName());
-            sb.append('=');
-            String state = record.state;
-            if (state.length() > 28) {
-                state = state.substring(0, 28) + "...";
-            }
-            sb.append(state);
-        }
-        return sb.toString();
-    }
-
-    public static List<String> getEntityLines() {
-        ArrayList<String> lines = new ArrayList<String>();
-        for (HaEntityRecord record : entityHistory.values()) {
-            lines.add(record.shortName() + " = " + record.state);
-        }
-        return lines;
-    }
-
-    private static void rememberEntity(String entityId, String state) {
-        if (entityId == null || entityId.length() == 0) {
-            return;
-        }
-        String value = state != null ? state : "";
-        entityHistory.put(entityId, new HaEntityRecord(entityId, value, System.currentTimeMillis()));
-        while (entityHistory.size() > MAX_ENTITY_HISTORY) {
-            String oldest = entityHistory.keySet().iterator().next();
-            entityHistory.remove(oldest);
-        }
     }
 
     private static final class AcceptLoop implements Runnable {
@@ -256,7 +191,6 @@ public final class NotifyHaServer {
         postCount++;
         lastEntity = entityId;
         String state = extractState(body);
-        rememberEntity(entityId, state);
         if (isHeartRateEntity(entityId)) {
             int hr = parseIntSafe(state, -1);
             if (hr > 0) {
@@ -296,8 +230,7 @@ public final class NotifyHaServer {
 
     private static boolean isHeartRateEntity(String entityId) {
         String lower = entityId.toLowerCase();
-        return lower.contains("heartrate") || lower.contains("heart_rate")
-                || lower.endsWith("_hr") || lower.contains("_hr_");
+        return lower.contains("heartrate") || lower.contains("heart_rate");
     }
 
     private static boolean isBatteryEntity(String entityId) {

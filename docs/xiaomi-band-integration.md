@@ -1,8 +1,8 @@
 # Интеграция XEMS ↔ Xiaomi Smart Band 8 / 10
 
-Версия: 1.0  
+Версия: 1.1  
 Дата: 2026-09-22  
-Статус: Спецификация за бъдеща разработка (не имплементирано в APK)
+Статус: Фаза 1 имплементирана в APK v1.1.23+ (live HR display)
 
 ---
 
@@ -14,7 +14,16 @@ XEMS да получава данни от **Xiaomi Smart Band 8** или **Smar
 - визуализация на пулс и здравни метрики в UI;
 - бъдещи правила за безопасност (SpO₂, стрес).
 
-**Важно:** EMS костюмът остава на **отделна BLE връзка**. Гривната се управлява от **Gadgetbridge**; XEMS комуникира с Gadgetbridge през **Android Intent API**.
+**Важно:** EMS костюмът остава на **отделна BLE връзка**. Гривната се управлява от companion app; XEMS комуникира през **Android Intent API**.
+
+### Препоръчан път: Notify for Xiaomi
+
+Ако гривната вече е свързана в **Notify for Xiaomi** (както на скрийшотите), използвай **Notify** — не е нужен Gadgetbridge. Notify има документиран Tasker Intent API: live HR, акселерометър, connect/disconnect, workout triggers.
+
+| Път | Кога да го избереш |
+|---|---|
+| **Notify for Xiaomi** (препоръчано) | Вече имаш Band 8 в Notify; auth key е наличен |
+| **Gadgetbridge** (алтернатива) | Open-source предпочитание; няма Notify |
 
 ---
 
@@ -37,60 +46,80 @@ XEMS да получава данни от **Xiaomi Smart Band 8** или **Smar
 | Жироскоп | На чипа | На чипа |
 | GPS | Не (connected GPS от телефон) | Не |
 
-### Достъп от XEMS (protobuf / Gadgetbridge)
+### Достъп от XEMS
 
-| Данни | Live към XEMS | Бележка |
-|---|---|---|
-| Пулс (HR) | **Да** | Intent `REALTIME_HR` |
-| SpO₂ | Sync | `ACTIVITY_SYNC` + `TYPE_SPO2` |
-| Стрес | Sync | `TYPE_STRESS` |
-| Стъпки / калории | Sync / partial realtime | Не за EMS v1 |
-| Акселерометър raw | **Не** (v1) | В разработка в GB за Band 10 |
-| Жироскоп raw | **Не** | Няма публичен API |
+| Данни | Notify | Gadgetbridge | Бележка |
+|---|---|---|---|
+| Пулс (HR) | **Да** | **Да** | Notify: `heartRateGot`; GB: `REALTIME_HR` |
+| SpO₂ | Sync / export | Sync | **Не live** в двата случая |
+| Стрес | Sync | Sync | Не за EMS v1 |
+| Стъпки | **Да** (`stepsGot`) | Sync | Не за EMS v1 |
+| Акселерометър | **Да** (`sensorData`) | **Не** (v1) | Notify: `sensorStart` → x,y,z |
+| Жироскоп | **Не** | **Не** | Няма публичен API |
 
 ---
 
 ## 3. Архитектура
 
 ```
-┌─────────────────┐     BLE (proprietary)     ┌──────────────────┐
-│ Xiaomi Band 8/10│ ◄──────────────────────► │   Gadgetbridge   │
-└─────────────────┘                           │  (един BLE клиент)│
-                                              └────────┬─────────┘
-                                                       │ Android Intents
-                                                       ▼
-┌─────────────────┐     BLE (EMS protocol)    ┌──────────────────┐
-│   EMS костюм    │ ◄──────────────────────► │    XEMS App      │
-└─────────────────┘                           │  WearableBridge  │
-                                              │  TrainItem API   │
-                                              └──────────────────┘
+┌─────────────────┐     BLE (proprietary)     ┌──────────────────────┐
+│ Xiaomi Band 8/10│ ◄──────────────────────► │ Notify for Xiaomi    │
+└─────────────────┘                           │ (един BLE клиент)    │
+                                              └──────────┬───────────┘
+                                                         │ Android Intents
+                                                         ▼
+┌─────────────────┐     BLE (EMS protocol)    ┌──────────────────────┐
+│   EMS костюм    │ ◄──────────────────────► │ XEMS App             │
+└─────────────────┘                           │ NotifyWearableBridge │
+                                              │ TrainItem API        │
+                                              └──────────────────────┘
 ```
+
+Алтернатива: замени **Notify** с **Gadgetbridge** — същият Intent pattern, различни action names (виж §5B).
 
 ### Принципи
 
-1. **Един BLE клиент за гривната** — Gadgetbridge; XEMS не се свързва директно с Band.
+1. **Един BLE клиент за гривната** — Notify (или Gadgetbridge); XEMS не се свързва директно с Band.
 2. **Един BLE клиент за костюма** — съществуващият `CommandSender` / FastBle път.
 3. Android поддържа **множество BLE връзки** — няма конфликт между гривна и костюм.
-4. **iOS** — Gadgetbridge е Android-only; тази интеграция е **само Android**.
+4. **iOS** — Notify и Gadgetbridge са Android-only; тази интеграция е **само Android**.
 
 ---
 
 ## 4. Предварителни изисквания (потребител)
 
-### 4.1 Софтуер на телефона
+### 4.1A Notify for Xiaomi (препоръчано)
+
+| Компонент | Изискване |
+|---|---|
+| XEMS | Версия с `NotifyWearableBridge` (бъдеща) |
+| Notify for Xiaomi | v23.x+ (потребителят има **23.6.4**) |
+| Tasker integration | Включена в Notify |
+
+**Настройка в Notify (еднократно):**
+
+1. Гривната вече е добавена (пример: **Xiaomi Smart Band 8**, MAC `D0:62:2C:26:49:60`, firmware `2.3.14`).
+2. **Auth key** е видим в Основни настройки — не го споделяй публично.
+3. **Smart assistant → Tasker integration** → включи.
+4. **Heart monitor** → режим **„Notify app mode“** (задължително за `heartRateGot`).
+5. По желание: парола за Tasker intents (XEMS трябва да я подава като extra `password`).
+
+**По време на EMS тренировка:** XEMS изпраща `taskerHeartEnable` при старт и `taskerHeartDisable` при стоп.
+
+### 4.1B Gadgetbridge (алтернатива)
 
 | Компонент | Изискване |
 |---|---|
 | XEMS | Версия с `WearableBridge` (бъдеща) |
-| Gadgetbridge | Mainline или Nightly (за най-нов Intent API) |
+| Gadgetbridge | Mainline или Nightly |
 | Mi Fitness | Еднократно за auth token |
 
-### 4.2 Pairing на гривната
+### 4.2 Pairing (Gadgetbridge път)
 
 1. Инсталирай **Mi Fitness**, свържи Band 8/10.
-2. Извлечи **auth key** (виж [huami-token](https://codeberg.org/argrento/huami-token) или Gadgetbridge wiki).
-3. В Gadgetbridge: Add device → въведи MAC + auth key.
-4. Можеш да деинсталираш Mi Fitness след успешен pairing в Gadgetbridge.
+2. Извлечи **auth key** (виж [huami-token](https://codeberg.org/argrento/huami-token)).
+3. В Gadgetbridge: Add device → MAC + auth key.
+4. Можеш да деинсталираш Mi Fitness след успешен pairing.
 
 ### 4.3 Активиране на Intent API в Gadgetbridge
 
@@ -113,9 +142,110 @@ XEMS трябва да приема broadcast-и от всички вариан�
 
 ---
 
-## 5. Gadgetbridge Intent API (референция)
+## 5. Notify for Xiaomi Intent API (референция)
 
-### 5.1 Live пулс — broadcast
+**Package за изпращане към Notify:** `com.mc.xiaomi1`  
+**Prefix на actions:** `com.mc.xiaomi.*` (не `com.mc.miband`)
+
+Официална документация: https://www.mibandnotify.com/help/tasker_xiaomi_help.php
+
+### 5.1 Live пулс — получаване
+
+**Action:** `com.mc.xiaomi.heartRateGot`
+
+| Extra | Тип | Описание |
+|---|---|---|
+| `value` | int | BPM |
+
+- Изисква heart monitor режим **„Notify app mode“**.
+- Излъчва се след всяко измерване от Notify.
+- Типичен интервал: **~5–30 s** в покой; по-често при workout mode.
+
+### 5.2 Live пулс — старт / стоп
+
+Изпращай към package `com.mc.xiaomi1`:
+
+| Action | Описание |
+|---|---|
+| `com.mc.xiaomi.taskerHeartEnable` | Включи heart monitor |
+| `com.mc.xiaomi.taskerHeartDisable` | Изключи heart monitor |
+
+```kotlin
+fun enableNotifyHr(context: Context) {
+    val intent = Intent("com.mc.xiaomi.taskerHeartEnable")
+        .setPackage("com.mc.xiaomi1")
+    context.sendBroadcast(intent)
+}
+```
+
+### 5.3 Акселерометър (уникално за Notify)
+
+| Action | Описание |
+|---|---|
+| `com.mc.xiaomi.tasker.sensorStart` | Старт мониторинг |
+| `com.mc.xiaomi.tasker.sensorStop` | Стоп |
+
+**Broadcast:** `com.mc.xiaomi.tasker.sensorData`
+
+| Extra | Тип |
+|---|---|
+| `time` | long (ms) |
+| `x`, `y`, `z` | int |
+
+Полезно за бъдещи жестове (flick → ±сила). **Жироскоп няма.**
+
+### 5.4 Други полезни events
+
+| Action | Extra | Описание |
+|---|---|---|
+| `com.mc.xiaomi.connected` | — | Гривна свързана |
+| `com.mc.xiaomi.disconnected` | — | Гривна изключена |
+| `com.mc.xiaomi.batteryStatGot` | `value` (int) | Батерия % |
+| `com.mc.xiaomi.stepsGot` | `value` (int) | Стъпки днес |
+| `com.mc.xiaomi.tasker.trigger.workoutStarted` | — | Workout на гривната |
+| `com.mc.xiaomi.tasker.trigger.workoutFinished` | — | Workout приключен |
+
+### 5.5 Команди за свързване / sync
+
+| Action | Описание |
+|---|---|
+| `com.mc.xiaomi.connectToBand` | Свържи ако не е свързана |
+| `com.mc.xiaomi.reconnectToBand` | Force reconnect |
+| `com.mc.xiaomi.syncData` | Sync стъпки/сън/HR history |
+
+### 5.6 adb примери (debug)
+
+```bash
+# Включи HR monitor
+adb shell am broadcast \
+  -a com.mc.xiaomi.taskerHeartEnable \
+  com.mc.xiaomi1
+
+# Слушай HR (в отделен тест app / logcat)
+# Action: com.mc.xiaomi.heartRateGot, extra: value
+
+# Старт акселерометър
+adb shell am broadcast \
+  -a com.mc.xiaomi.tasker.sensorStart \
+  com.mc.xiaomi1
+```
+
+### 5.7 Notify vs Gadgetbridge
+
+| Критерий | Notify | Gadgetbridge |
+|---|---|---|
+| Вече настроен Band 8 | **Да** (потребителят) | Не |
+| Live HR Intent | Да | Да |
+| Акселерометър Intent | **Да** | Не (v1) |
+| Open source | Не | Да |
+| PRO функции | Някои sync опции | Безплатно |
+| Auth key UI | **Вградено** | Ръчно |
+
+---
+
+## 5B. Gadgetbridge Intent API (алтернатива)
+
+### 5B.1 Live пулс — broadcast
 
 **Action:** `nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR`
 
@@ -129,7 +259,7 @@ XEMS трябва да приема broadcast-и от всички вариан�
 - Default: **изключено** — трябва toggle per-device в Developer settings.
 - Типичен интервал: **~2–6 s** в покой, по-често при движение.
 
-### 5.2 Live пулс — старт / стоп
+### 5B.2 Live пулс — старт / стоп
 
 | Action | Extra |
 |---|---|
@@ -140,7 +270,7 @@ XEMS трябва да приема broadcast-и от всички вариан�
 
 **Забележка:** Първото четене може да отнеме **~10–15 s** след START (тествано на Band 10).
 
-### 5.3 Синхронизация на здравни данни
+### 5B.3 Синхронизация на здравни данни
 
 **Trigger:** `nodomain.freeyourgadget.gadgetbridge.command.ACTIVITY_SYNC`
 
@@ -162,7 +292,7 @@ XEMS трябва да приема broadcast-и от всички вариан�
 
 SpO₂ **не е live** — синхронизира се след измерване на гривната (обикновено на ~10 min в покой).
 
-### 5.4 BLE свързаност (опционално)
+### 5B.4 BLE свързаност (опционално)
 
 | Action | Описание |
 |---|---|
@@ -170,7 +300,7 @@ SpO₂ **не е live** — синхронизира се след измерв�
 | `BLUETOOTH_DISCONNECT` | Прекъсване |
 | `BLUETOOTH_CONNECTED` | Broadcast при connect |
 
-### 5.5 adb примери (debug)
+### 5B.5 adb примери (debug)
 
 ```bash
 # Старт live HR
@@ -189,7 +319,7 @@ adb shell am broadcast \
 
 ---
 
-## 6. XEMS модул: `WearableBridge`
+## 6. XEMS модул: `NotifyWearableBridge`
 
 Планиран нов модул в Android приложението (smali patch или native layer при миграция).
 
@@ -197,28 +327,29 @@ adb shell am broadcast \
 
 | Компонент | Роля |
 |---|---|
-| `WearableConfig` | MAC, enabled, HR прагове, package name GB |
-| `GadgetbridgeIntentReceiver` | `BroadcastReceiver` за REALTIME_HR, SYNC_FINISH |
-| `WearableSessionManager` | Lifecycle: start/stop HR при train start/stop |
+| `WearableConfig` | enabled, HR прагове, Notify package (`com.mc.xiaomi1`) |
+| `NotifyHrReceiver` | `BroadcastReceiver` за `heartRateGot`, `connected` |
+| `WearableSessionManager` | Lifecycle: `taskerHeartEnable`/`Disable` при train start/stop |
 | `WearableRuleEngine` | Правила → `TrainItem` команди |
-| `WearableUiBinder` | Показване HR/SpO₂ в Train UI |
+| `WearableUiBinder` | Показване HR в Train UI |
 
-### 6.2 Жизнен цикъл
+За Gadgetbridge път: `GadgetbridgeIntentReceiver` + `START/STOP_REALTIME_HR` (същата архитектура).
+
+### 6.2 Жизнен цикъл (Notify)
 
 ```
 [User starts training]
     → WearableSessionManager.start()
-    → send START_REALTIME_HR intent
-    → register REALTIME_HR receiver
+    → send taskerHeartEnable to com.mc.xiaomi1
+    → register heartRateGot receiver
 
 [Each HR sample]
-    → WearableRuleEngine.onHeartRate(bpm, timestamp)
-    → maybe TrainItem.addStrenth() / stop() / UI update
+    → WearableRuleEngine.onHeartRate(bpm)
+    → maybe TrainItem.addStrenth() / UI update
 
 [User stops training]
-    → send STOP_REALTIME_HR intent
+    → send taskerHeartDisable
     → unregister receiver
-    → optional ACTIVITY_SYNC for SpO2
 ```
 
 ### 6.3 Mapping към EMS API
@@ -274,35 +405,38 @@ onSpO2Synced(value):
 
 ## 8. Имплементация (Android / smali)
 
-### 8.1 BroadcastReceiver (Kotlin референция)
+### 8.1 BroadcastReceiver (Kotlin референция — Notify)
 
 ```kotlin
-class GadgetbridgeHrReceiver(
-    private val onHr: (Int, Long, String) -> Unit
+class NotifyHrReceiver(
+    private val onHr: (Int) -> Unit
 ) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != ACTION_REALTIME_HR) return
-        val hr = intent.getIntExtra("hr", -1)
+        if (intent.action != ACTION_HEART_RATE) return
+        val hr = intent.getIntExtra("value", -1)
         if (hr <= 0) return
-        val ts = intent.getLongExtra("timestamp", System.currentTimeMillis())
-        val mac = intent.getStringExtra("device") ?: return
-        onHr(hr, ts, mac)
+        onHr(hr)
     }
 
     companion object {
-        const val ACTION_REALTIME_HR =
-            "nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"
+        const val ACTION_HEART_RATE = "com.mc.xiaomi.heartRateGot"
+        const val NOTIFY_PACKAGE = "com.mc.xiaomi1"
     }
 }
 ```
 
-### 8.2 Старт на сесия
+### 8.2 Старт на сесия (Notify)
 
 ```kotlin
-fun startWearableHrSession(context: Context, bandMac: String) {
-    val intent = Intent("nodomain.freeyourgadget.gadgetbridge.command.START_REALTIME_HR")
-        .putExtra("device", bandMac)
-        .setPackage(gadgetbridgePackage) // optional: direct delivery
+fun startNotifyHrSession(context: Context) {
+    val intent = Intent("com.mc.xiaomi.taskerHeartEnable")
+        .setPackage(NotifyHrReceiver.NOTIFY_PACKAGE)
+    context.sendBroadcast(intent)
+}
+
+fun stopNotifyHrSession(context: Context) {
+    val intent = Intent("com.mc.xiaomi.taskerHeartDisable")
+        .setPackage(NotifyHrReceiver.NOTIFY_PACKAGE)
     context.sendBroadcast(intent)
 }
 ```
@@ -310,7 +444,7 @@ fun startWearableHrSession(context: Context, bandMac: String) {
 ### 8.3 Регистрация (динамична)
 
 ```kotlin
-val filter = IntentFilter(GadgetbridgeHrReceiver.ACTION_REALTIME_HR)
+val filter = IntentFilter(NotifyHrReceiver.ACTION_HEART_RATE)
 context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 ```
 
@@ -321,9 +455,9 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 | Настройка | Тип | Default |
 |---|---|---|
 | Wearable enabled | bool | false |
-| Band MAC address | string | — |
-| Gadgetbridge package | string | mainline |
-| HR auto-reduce enabled | bool | true |
+| Companion app | enum | `notify` / `gadgetbridge` |
+| Notify package | string | `com.mc.xiaomi1` |
+| HR auto-reduce enabled | bool | **false** (MVP: само показване) |
 | HR threshold % | int | 85 |
 | Strength step | int | 5 |
 | SpO₂ safety stop | bool | true |
@@ -333,13 +467,13 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
 ## 9. Фази на разработка
 
-### Фаза 1 — Live HR (MVP)
+### Фаза 1 — Live HR (MVP, Notify)
 
-- [ ] `WearableConfig` + settings UI
-- [ ] `START/STOP_REALTIME_HR` при train start/stop
-- [ ] `REALTIME_HR` receiver → UI label
-- [ ] Правило: HR > праг → `addStrenth(-5)`
-- [ ] Тест с Band 8 и Band 10
+- [x] `WearableConfig` + enabled by default
+- [x] `taskerHeartEnable`/`Disable` при train start/stop
+- [x] `heartRateGot` receiver → UI label (master sidebar)
+- [x] Опционално: HR > праг → `addStrenth(-5)` (default OFF)
+- [ ] Тест с Band 8 (`D0:62:2C:26:49:60`)
 
 ### Фаза 2 — SpO₂ и sync
 
@@ -353,11 +487,11 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 - [ ] Лог на HR по време на сесия (export)
 - [ ] Вибрация на гривната при HR alert (PebbleKit / GB notification)
 
-### Фаза 4 — Бъдеще (зависи от Gadgetbridge)
+### Фаза 4 — Бъдеще
 
-- [ ] Accel stream (~100 Hz) — Band 10 / 9 Pro internal API
+- [ ] Accel stream via Notify `sensorStart` / `sensorData`
 - [ ] Жестове: flick → ±сила (без gyro)
-- [ ] Директен protobuf client (без Gadgetbridge) — **не препоръчвам** без силна причина
+- [ ] Workout triggers (`workoutStarted`/`Finished`) за auto-sync
 
 ---
 
@@ -377,26 +511,25 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
 ## 11. Тестване
 
-### 11.1 Checklist
+### 11.1 Checklist (Notify)
 
-- [ ] Gadgetbridge свързан, HR се вижда в GB UI
-- [ ] Intent API enabled (global + per device)
-- [ ] `adb` START_REALTIME_HR → получаваш broadcast в тест app
-- [ ] XEMS train start → START intent изпратен
+- [ ] Notify свързан, Band 8 видим в профили
+- [ ] Tasker integration включена в Notify
+- [ ] Heart monitor = **„Notify app mode“**
+- [ ] `adb` `taskerHeartEnable` → получаваш `heartRateGot`
+- [ ] XEMS train start → HR enable intent изпратен
 - [ ] HR се показва в train UI
-- [ ] При симулиран висок HR (или бягане) → силата намалява
-- [ ] Train stop → STOP intent, receiver unregister
+- [ ] Train stop → `taskerHeartDisable`, receiver unregister
 - [ ] EMS костюм работи едновременно (няма BLE конфликт)
-- [ ] Band 8 и Band 10 smoke test
 
 ### 11.2 Известни проблеми
 
 | Проблем | Решение |
 |---|---|
-| Няма HR broadcast | Провери Intent toggle; рестартирай GB сесия |
-| GB убива HR след reconnect | Повтори START_REALTIME_HR |
-| Mi Fitness token изтекъл | Re-pair, нов auth key |
-| Firmware 2.1.8 на Band 8 sync bug | Update firmware (issue #5805) |
+| Няма `heartRateGot` | Включи Tasker integration; режим „Notify app mode“ |
+| HR твърде бавен | Стартирай workout на гривната или continuous HR |
+| Notify не е на преден план | `connectToBand` преди тренировка |
+| Auth key изтекъл | „Вземете ключ за удостоверяване“ в Notify |
 
 ---
 
@@ -404,8 +537,9 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
 - **Жироскоп** — не се поддържа към 3rd party apps (Band 8 и 10).
 - **Live SpO₂** — не; само sync / on-demand на гривната.
-- **iOS** — не се поддържа (няма Gadgetbridge).
-- **Директен BLE** към Xiaomi без Gadgetbridge — изисква reverse engineering на protobuf; висока поддръжка.
+- **iOS** — не се поддържа.
+- **Директен BLE** към Xiaomi без companion app — reverse engineering на protobuf; висока поддръжка.
+- **Notify** е closed-source — зависимост от developer updates.
 - **Множество гривни** — филтрирай по `device` MAC в receiver.
 
 ---
@@ -414,6 +548,8 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
 | Ресурс | URL |
 |---|---|
+| Notify Tasker API (Xiaomi) | https://www.mibandnotify.com/help/tasker_xiaomi_help.php |
+| Notify send intent tutorial | https://www.mibandnotify.com/help/tasker_send_intent_tutorial.php |
 | Gadgetbridge Intents | https://gadgetbridge.org/internals/automations/intents/ |
 | Xiaomi protobuf devices | https://gadgetbridge.org/basics/topics/xiaomi-protobuf/ |
 | Gadgetbridge Xiaomi devices | https://gadgetbridge.org/gadgets/wearables/xiaomi/ |
@@ -430,3 +566,4 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 | Версия | Дата | Промени |
 |---|---|---|
 | 1.0 | 2026-09-22 | Първоначална спецификация Band 8/10 + Gadgetbridge Intent API |
+| 1.1 | 2026-09-22 | Notify for Xiaomi като препоръчан път; Tasker Intent API референция |

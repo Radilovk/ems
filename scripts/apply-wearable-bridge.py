@@ -35,6 +35,11 @@ NOTIFY_QUERIES = f"""    <queries>
         </intent>
     </queries>
 """
+NOTIFY_SERVICE = """        <service android:exported="false" android:name="com.isaigu.gymapp.wearable.NotifyHaForegroundService"/>
+"""
+NOTIFY_PERMISSIONS = """    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+"""
 NOTIFY_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
             <intent-filter>
                 <action android:name="com.mc.xiaomi.heartRateGot"/>
@@ -105,6 +110,11 @@ STRING_IDS = {
     "wearable_sync_diag_hint": 0x7F0D018C,
     "wearable_sync_diag_ha": 0x7F0D018D,
     "wearable_sync_status_ha_listening": 0x7F0D018E,
+    "wearable_sync_ha_entities_title": 0x7F0D018F,
+    "wearable_sync_ha_entities_empty": 0x7F0D0190,
+    "wearable_sync_ha_entities_ok": 0x7F0D0191,
+    "wearable_sync_ha_entities_need_pulsoid": 0x7F0D0192,
+    "wearable_sync_ha_entities_no_value": 0x7F0D0193,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -208,6 +218,11 @@ EN_STRINGS = """
     <string name="wearable_sync_diag_hint">Configure Notify → Home Assistant → Standard sync to XEMS URL</string>
     <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · battery: %4$s</string>
     <string name="wearable_sync_status_ha_listening">HA server %1$s — set this URL in Notify</string>
+    <string name="wearable_sync_ha_entities_title">HA entities (after Sync now):</string>
+    <string name="wearable_sync_ha_entities_empty">No HA posts yet — open Notify, show fresh pulse, tap Sync now</string>
+    <string name="wearable_sync_ha_entities_ok">heartrate found — HA path works</string>
+    <string name="wearable_sync_ha_entities_need_pulsoid">no heartrate entity — Pulsoid needed</string>
+    <string name="wearable_sync_ha_entities_no_value">heartRate entity exists but value empty — Notify does not send live pulse → Pulsoid</string>
 """
 
 BG_STRINGS = """
@@ -235,6 +250,11 @@ BG_STRINGS = """
     <string name="wearable_sync_diag_hint">Настрой Notify → Home Assistant → Standard sync към URL на XEMS</string>
     <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · батерия: %4$s</string>
     <string name="wearable_sync_status_ha_listening">HA сървър %1$s — сложи този URL в Notify</string>
+    <string name="wearable_sync_ha_entities_title">HA обекти (след Sync now):</string>
+    <string name="wearable_sync_ha_entities_empty">Няма HA posts — отвори Notify, покажи свеж пулс, Sync now</string>
+    <string name="wearable_sync_ha_entities_ok">heartrate намерен — HA пътят работи</string>
+    <string name="wearable_sync_ha_entities_need_pulsoid">няма heartrate обект — нужен Pulsoid</string>
+    <string name="wearable_sync_ha_entities_no_value">heartRate обект има, стойност празна — Notify не праща live пулс → Pulsoid</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
@@ -254,11 +274,28 @@ START_WEARABLE_NEW = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/T
     return-void"""
 
 
+def _application_marker(text: str) -> str:
+    for marker in ("    <application ", "<application "):
+        if marker in text:
+            return marker
+    raise RuntimeError("AndroidManifest: <application> tag missing")
+
+
 def patch_manifest(text: str) -> str:
-    if NOTIFY_PACKAGE not in text:
-        marker = "    <application "
+    if "android.permission.FOREGROUND_SERVICE" not in text:
+        marker = _application_marker(text)
+        text = text.replace(marker, NOTIFY_PERMISSIONS + "\n" + marker, 1)
+        print("AndroidManifest: added foreground service permissions")
+    if "com.isaigu.gymapp.wearable.NotifyHaForegroundService" not in text:
+        marker = "    </application>"
         if marker not in text:
-            raise RuntimeError("AndroidManifest: <application> tag missing")
+            marker = "</application>"
+        if marker not in text:
+            raise RuntimeError("AndroidManifest: </application> missing")
+        text = text.replace(marker, NOTIFY_SERVICE + marker, 1)
+        print("AndroidManifest: registered NotifyHaForegroundService")
+    if NOTIFY_PACKAGE not in text:
+        marker = _application_marker(text)
         text = text.replace(marker, NOTIFY_QUERIES + "\n" + marker, 1)
         print("AndroidManifest: added <queries> for Notify for Xiaomi")
     else:

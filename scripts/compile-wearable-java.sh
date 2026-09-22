@@ -22,6 +22,8 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSyncHelper.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHaServer.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/HaEntityRecord.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHaForegroundService.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"

@@ -434,5 +434,10 @@
     <string name="wearable_sync_diag_hint">Настрой Notify → Home Assistant → Standard sync към URL на XEMS</string>
     <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · батерия: %4$s</string>
     <string name="wearable_sync_status_ha_listening">HA сървър %1$s — сложи този URL в Notify</string>
+    <string name="wearable_sync_ha_entities_title">HA обекти (след Sync now):</string>
+    <string name="wearable_sync_ha_entities_empty">Няма HA posts — отвори Notify, покажи свеж пулс, Sync now</string>
+    <string name="wearable_sync_ha_entities_ok">heartrate намерен — HA пътят работи</string>
+    <string name="wearable_sync_ha_entities_need_pulsoid">няма heartrate обект — нужен Pulsoid</string>
+    <string name="wearable_sync_ha_entities_no_value">heartRate обект има, стойност празна — Notify не праща live пулс → Pulsoid</string>
 
 </resources>

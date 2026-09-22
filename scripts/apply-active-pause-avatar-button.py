@@ -779,8 +779,19 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
 
     iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v2, :cond_select_hz
+    if-eqz v2, :cond_enable_yellow
 
+    const/4 v2, 0x1
+
+    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
+
+    goto :cond_clear
+
+    :cond_enable_yellow
     const/4 v2, 0x1
 
     iput-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
@@ -788,17 +799,6 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
-
-    goto :cond_clear
-
-    :cond_select_hz
-    const/4 v1, 0x1
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
-
-    const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseMaSelected(Z)V
 

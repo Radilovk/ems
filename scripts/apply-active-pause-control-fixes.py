@@ -1229,15 +1229,15 @@ ENSURE_MA_MODE_BODY_NEW = """    :cond_3
 
     if-eqz v0, :cond_do_ma
 
-    iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v1
 
     if-eqz v1, :cond_do_ma
 
     iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v0, :cond_do_ma
-
-    goto :goto_13
+    if-nez v0, :goto_13
 
     :cond_do_ma
     const/4 v0, 0x1
@@ -1262,11 +1262,21 @@ RELEASE_MA_MODE_METHOD = """
 
     if-eqz v1, :cond_1
 
-    iget-object v2, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v2
 
     if-eqz v2, :cond_1
 
     iget-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v1, :cond_1
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_2
 
     :cond_1
     return-void
@@ -1305,10 +1315,12 @@ def patch_master_strength_control() -> None:
         ".method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V"
     )
     ensure_ma_body = text.split(ensure_ma_marker, 1)[-1].split(".end method", 1)[0]
-    if (
-        "ProgramDataBean;->activePause:Z" in ensure_ma_body
-        and ":cond_do_ma" in ensure_ma_body
-    ):
+    ensure_ma_ok = (
+        "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" in ensure_ma_body
+        and "if-nez v0, :goto_13" in ensure_ma_body
+        and "activePause:Z" in ensure_ma_body
+    )
+    if ensure_ma_ok:
         print("MasterStrengthControl.ensureMaMode: active-pause guard already applied")
     elif ENSURE_MA_MODE_BODY_OLD in ensure_ma_body:
         text = text.replace(ENSURE_MA_MODE_BODY_OLD, ENSURE_MA_MODE_BODY_NEW, 1)
@@ -1318,14 +1330,49 @@ def patch_master_strength_control() -> None:
             1,
         )
         print("MasterStrengthControl.ensureMaMode: skip MA mode during yellow active pause")
+    elif "programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;" in ensure_ma_body:
+        text = text.replace(ENSURE_MA_MODE_BODY_NEW.replace(
+            "invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;",
+            "iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;",
+        ), ENSURE_MA_MODE_BODY_NEW, 1)
+        print("MasterStrengthControl.ensureMaMode: upgraded to matchProgram activePause guard")
+    elif (
+        "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" in ensure_ma_body
+        and "if-eqz v0, :cond_do_ma" in ensure_ma_body
+    ):
+        text = text.replace(
+            """    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v0, :cond_do_ma
+
+    goto :goto_13""",
+            """    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v0, :goto_13""",
+            1,
+        )
+        print("MasterStrengthControl.ensureMaMode: fixed inverted activePause branch")
     else:
         raise RuntimeError("MasterStrengthControl.ensureMaMode patch marker not found")
-    if "releaseMaModeForActivePause()V" not in text:
+    release_marker = ".method public static releaseMaModeForActivePause()V"
+    release_body = ""
+    if release_marker in text:
+        release_body = text.split(release_marker, 1)[-1].split(".end method", 1)[0]
+    if release_marker not in text:
         marker = ".method public static getCeiling()I"
         if marker not in text:
             raise RuntimeError("MasterStrengthControl.getCeiling marker not found")
         text = text.replace(marker, RELEASE_MA_MODE_METHOD.strip() + "\n\n" + marker, 1)
         print("MasterStrengthControl: added releaseMaModeForActivePause()")
+    elif "setMaSelected(Z)V" not in release_body:
+        text = re.sub(
+            r"\.method public static releaseMaModeForActivePause\(\)V.*?\.end method",
+            RELEASE_MA_MODE_METHOD.strip(),
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        print("MasterStrengthControl: fixed releaseMaModeForActivePause clear")
     else:
         print("MasterStrengthControl.releaseMaModeForActivePause: already present")
     MASTER_STRENGTH_CONTROL.write_text(text, encoding="utf-8")

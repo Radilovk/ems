@@ -18,6 +18,10 @@ TRAIN_ITEM_MANAGER = (
 )
 SLIDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder$4.smali"
 TRAIN_VIEW_HOLDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder.smali"
+MASTER_STRENGTH_CONTROL = (
+    DECOMPILED
+    / "smali_classes2/com/isaigu/gymapp/train/utils/MasterStrengthControl.smali"
+)
 
 ROUTES = (
     "pause_ma",
@@ -92,6 +96,8 @@ def check_smali() -> list[str]:
         return ["TrainItemManager.smali missing"]
     if not SLIDER.exists():
         return ["TrainViewHolder$4.smali missing"]
+    if not MASTER_STRENGTH_CONTROL.exists():
+        return ["MasterStrengthControl.smali missing"]
 
     item = TRAIN_ITEM.read_text(encoding="utf-8")
     manager = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
@@ -158,6 +164,30 @@ def check_smali() -> list[str]:
     slider_positions = [on_changed_end.find(marker) for marker in slider_markers]
     if any(pos < 0 for pos in slider_positions) or slider_positions != sorted(slider_positions):
         errors.append("slider onChangedEnd routing order is wrong")
+
+    master = MASTER_STRENGTH_CONTROL.read_text(encoding="utf-8")
+    ensure_body = master.split(
+        ".method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V",
+        1,
+    )[-1].split(".end method", 1)[0]
+    if "activePause:Z" not in ensure_body:
+        errors.append("MasterStrengthControl.ensureMaMode missing activePause guard")
+    else:
+        active_pause_head = ensure_body.split("activePause:Z", 1)[1].split(
+            "setMaSelected(Z)V", 1
+        )[0]
+        if "if-nez v0, :goto_13" not in active_pause_head:
+            errors.append(
+                "MasterStrengthControl.ensureMaMode must skip MA mode when activePause is on"
+            )
+        if "if-eqz v0, :cond_do_ma" in active_pause_head:
+            errors.append("MasterStrengthControl.ensureMaMode activePause branch is inverted")
+
+    release_body = master.split("releaseMaModeForActivePause()V", 1)[-1].split(
+        ".end method", 1
+    )[0]
+    if "setMaSelected(Z)V" not in release_body:
+        errors.append("MasterStrengthControl.releaseMaModeForActivePause must clear maSelected")
 
     return errors
 

@@ -94,6 +94,11 @@ public class AvatarClusterLayout extends RelativeLayout {
         applyCornerButton("hzValue", btn, vert, edge, true, false, true);
         applyCornerButton("pauseHzValue", btn, vert, edge, false, true, true);
 
+        bringIndexButtonToFront("ma");
+        bringIndexButtonToFront("pauseMaValue");
+        bringIndexButtonToFront("hzValue");
+        bringIndexButtonToFront("pauseHzValue");
+
         int iconId = id("userIcon");
         if (iconId != 0) {
             ImageView icon = findViewById(iconId);
@@ -154,6 +159,17 @@ public class AvatarClusterLayout extends RelativeLayout {
                     getResources().getDimension(textSizeRes));
         }
         label.getPaint().setFakeBoldText(true);
+    }
+
+    private void bringIndexButtonToFront(String name) {
+        int viewId = id(name);
+        if (viewId == 0) {
+            return;
+        }
+        View view = findViewById(viewId);
+        if (view != null) {
+            bringChildToFront(view);
+        }
     }
 
     private int id(String name) {

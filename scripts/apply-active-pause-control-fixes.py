@@ -18,6 +18,9 @@ TRAIN_ITEM_MANAGER = (
 TRAIN_VIEW_HOLDER_4 = (
     DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder$4.smali"
 )
+TRAIN_VIEW_HOLDER = (
+    DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder.smali"
+)
 ROW_LAYOUTS = (
     "new_user_train_control_item_layout.xml",
     "user_train_control_item_layout.xml",
@@ -872,8 +875,11 @@ __MUSIC_SYNC_GUARD__
 
     move-result v0
 
-    if-eqz v0, :cond_ma_index_strength
+    if-eqz v0, :cond_check_coupled
 
+    goto :cond_ma_index_strength
+
+    :cond_check_coupled
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
     invoke-virtual {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -888,8 +894,11 @@ __MUSIC_SYNC_GUARD__
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v0, :cond_ma_index_strength
+    if-eqz v0, :cond_coupled_slider
 
+    goto :cond_ma_index_strength
+
+    :cond_coupled_slider
     mul-int/lit8 v0, p2, 0x64
 
     div-int/lit8 v0, v0, 0x4b
@@ -1095,6 +1104,25 @@ def patch_seekbar_listener() -> None:
     print("TrainViewHolder$4: active-pause-aware circle slider")
 
 
+def patch_bind_pause_clicks() -> None:
+    text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
+    bind_rebind_new = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindPauseMaValueClick()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindPauseHzValueClick()V
+
+    .line 195
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindNotEmpty()V"""
+    if bind_rebind_new in text:
+        print("TrainViewHolder.bind: pause click rebind already patched")
+        return
+    bind_rebind_old = """    .line 195
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindNotEmpty()V"""
+    if bind_rebind_old not in text:
+        raise RuntimeError("TrainViewHolder.bind pause rebind marker not found")
+    TRAIN_VIEW_HOLDER.write_text(text.replace(bind_rebind_old, bind_rebind_new, 1), encoding="utf-8")
+    print("TrainViewHolder.bind: rebind pause ma/hz clicks on recycle")
+
+
 def patch_main_mode_button_text_color() -> None:
     changed = False
     tag_pattern = re.compile(
@@ -1136,6 +1164,7 @@ def main() -> int:
     patch_train_item_manager()
     patch_add_all_part_value()
     patch_seekbar_listener()
+    patch_bind_pause_clicks()
     patch_main_mode_button_text_color()
     print("Active pause control fixes applied.")
     return 0

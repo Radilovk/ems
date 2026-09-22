@@ -348,6 +348,7 @@ public class MusicSync {
         liveStrength = 0;
         resetAudioLevels();
         setSyncActive(false);
+        MasterStrengthControl.releaseMaModeForActivePause();
     }
 
     static void startCapture() {

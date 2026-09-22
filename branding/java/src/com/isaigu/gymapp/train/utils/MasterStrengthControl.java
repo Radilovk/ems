@@ -179,10 +179,33 @@ public final class MasterStrengthControl {
             return;
         }
         try {
+            TrainProgram program = item.getTrainProgram();
+            if (program != null
+                    && program.programDataBean != null
+                    && program.programDataBean.activePause) {
+                return;
+            }
             item.setMaSelected(true);
             item.setHzSelected(false);
             item.setPauseMaSelected(false);
             item.setPauseHzSelected(false);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Undo music-sync MA selection when yellow active-pause coupled mode is active. */
+    public static void releaseMaModeForActivePause() {
+        TrainItem item = targetItem;
+        if (item == null) {
+            return;
+        }
+        try {
+            TrainProgram program = item.getTrainProgram();
+            if (program != null
+                    && program.programDataBean != null
+                    && program.programDataBean.activePause) {
+                item.setMaSelected(false);
+            }
         } catch (Throwable ignored) {
         }
     }

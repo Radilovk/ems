@@ -770,8 +770,11 @@ __MUSIC_SYNC_GUARD__
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v1, :cond_pause_ma_end
+    if-nez v1, :cond_pause_ma_active
 
+    return-void
+
+    :cond_pause_ma_active
     mul-int/lit8 v1, p2, 0x64
 
     div-int/lit8 v1, v1, 0x4b
@@ -835,8 +838,11 @@ __MUSIC_SYNC_GUARD__
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v1, :cond_pause_hz_end
+    if-nez v1, :cond_pause_hz_active
 
+    return-void
+
+    :cond_pause_hz_active
     mul-int/lit8 v1, p2, 0x78
 
     div-int/lit8 v1, v1, 0x4b
@@ -1204,8 +1210,11 @@ def patch_seekbar_listener() -> None:
     ):
         MUSIC_SYNC_GUARD = ""
     listener = build_seekbar_listener(pause_ma_id, pause_hz_id, hz_value_id)
-    if "activePause:Z" not in listener.split("onChangedEnd", 1)[1]:
+    on_changed_end = listener.split("onChangedEnd", 1)[1]
+    if "activePause:Z" not in on_changed_end:
         raise RuntimeError("TrainViewHolder$4.onChangedEnd missing activePause guards on pause paths")
+    if ":cond_pause_ma_active" not in on_changed_end or ":cond_pause_hz_active" not in on_changed_end:
+        raise RuntimeError("TrainViewHolder$4.onChangedEnd missing pause no-op guards")
     TRAIN_VIEW_HOLDER_4.write_text(listener.strip() + "\n", encoding="utf-8")
     print("TrainViewHolder$4: active-pause-aware circle slider")
 

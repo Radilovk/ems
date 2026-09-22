@@ -115,6 +115,7 @@ fi
 
 # Last: train control routing (depends on music-sync smali when BETA_MUSIC=1).
 python3 "${ROOT}/scripts/apply-active-pause-control-fixes.py"
+python3 "${ROOT}/scripts/verify-active-pause-routing.py"
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign

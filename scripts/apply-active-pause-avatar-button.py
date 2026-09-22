@@ -698,6 +698,12 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
     if-eqz v2, :cond_black
 
     :cond_yellow
+    iget-object v3, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    const/4 v4, 0x0
+
+    invoke-virtual {{v3, v4}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
     const v2, {yellow_bg:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V

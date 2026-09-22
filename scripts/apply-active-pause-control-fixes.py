@@ -70,13 +70,6 @@ SET_MAIN_FROM_SLIDER = """
     goto :cond_pause_clamp
 
     :cond_has_main
-    if-nez v2, :cond_scale_pause
-
-    move v5, v3
-
-    goto :cond_pause_clamp
-
-    :cond_scale_pause
     if-lez v1, :cond_from_zero
 
     mul-int v5, v3, v2
@@ -92,6 +85,13 @@ SET_MAIN_FROM_SLIDER = """
     goto :cond_pause_clamp
 
     :cond_from_zero
+    if-nez v2, :cond_keep_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_keep_pause
     move v5, v2
 
     :cond_pause_clamp
@@ -115,13 +115,13 @@ SET_MAIN_FROM_SLIDER = """
     iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     :cond_done
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
-
     return-void
 .end method
 """
+
+COUPLED_STRENGTH_NOTIFY = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
+
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V"""
 
 COUPLED_PAUSE_SCALE_OLD = """    :cond_has_main
     if-lez v1, :cond_from_zero
@@ -151,13 +151,6 @@ COUPLED_PAUSE_SCALE_OLD = """    :cond_has_main
     :cond_pause_clamp"""
 
 COUPLED_PAUSE_SCALE_NEW = """    :cond_has_main
-    if-nez v2, :cond_scale_pause
-
-    move v5, v3
-
-    goto :cond_pause_clamp
-
-    :cond_scale_pause
     if-lez v1, :cond_from_zero
 
     mul-int v5, v3, v2
@@ -173,6 +166,13 @@ COUPLED_PAUSE_SCALE_NEW = """    :cond_has_main
     goto :cond_pause_clamp
 
     :cond_from_zero
+    if-nez v2, :cond_keep_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_keep_pause
     move v5, v2
 
     :cond_pause_clamp"""
@@ -302,7 +302,9 @@ __MA_STRENGTH_BODY__
 
     move-result-object v0
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v0
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -642,7 +644,9 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v0
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -679,13 +683,6 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
     goto :cond_preview_pause
 
     :cond_preview_has_main
-    if-nez v0, :cond_preview_scale
-
-    move v4, v3
-
-    goto :cond_preview_pause
-
-    :cond_preview_scale
     if-lez v2, :cond_preview_from_zero
 
     mul-int v4, v3, v0
@@ -699,6 +696,13 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
     goto :cond_preview_pause
 
     :cond_preview_from_zero
+    if-nez v0, :cond_preview_keep
+
+    move v4, v3
+
+    goto :cond_preview_pause
+
+    :cond_preview_keep
     move v4, v0
 
     :cond_preview_pause
@@ -764,6 +768,13 @@ __MUSIC_SYNC_GUARD__
 
     move-result-object v0
 
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v1, :cond_pause_ma_active
+
+    return-void
+
+    :cond_pause_ma_active
     mul-int/lit8 v1, p2, 0x64
 
     div-int/lit8 v1, v1, 0x4b
@@ -825,6 +836,13 @@ __MUSIC_SYNC_GUARD__
 
     move-result-object v0
 
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v1, :cond_pause_hz_active
+
+    return-void
+
+    :cond_pause_hz_active
     mul-int/lit8 v1, p2, 0x78
 
     div-int/lit8 v1, v1, 0x4b
@@ -937,7 +955,9 @@ __MUSIC_SYNC_GUARD__
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v0
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -1071,12 +1091,40 @@ def patch_train_item() -> None:
 
     add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
     if "cond_scale_pause" in add_main_body:
-        print("TrainItem.addMainAndPauseStrenth: coupled scale already patched")
-    elif COUPLED_PAUSE_SCALE_OLD in add_main_body:
-        text = text.replace(COUPLED_PAUSE_SCALE_OLD, COUPLED_PAUSE_SCALE_NEW, 1)
-        print("TrainItem.addMainAndPauseStrenth: couple pause from zero baseline")
+        text = text.replace(COUPLED_PAUSE_SCALE_NEW, COUPLED_PAUSE_SCALE_OLD, 1)
+        print("TrainItem.addMainAndPauseStrenth: restored proportional coupled scale")
+    elif "cond_keep_pause" not in add_main_body and COUPLED_PAUSE_SCALE_OLD in add_main_body:
+        raise RuntimeError("TrainItem.addMainAndPauseStrenth missing proportional scale markers")
+    elif "cond_keep_pause" in add_main_body:
+        print("TrainItem.addMainAndPauseStrenth: proportional coupled scale OK")
     else:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth scale patch marker not found")
+
+    if ".method private sendCoupledStrengthRefresh()V" in text:
+        text = re.sub(
+            r"\n?\.method private sendCoupledStrengthRefresh\(\)V.*?\.end method",
+            "",
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+        print("TrainItem: removed sendCoupledStrengthRefresh helper")
+    if "sendCoupledStrengthRefresh()V" in text:
+        text = text.replace(
+            "sendCoupledStrengthRefresh()V",
+            "sendPulse()V",
+        )
+        print("TrainItem: coupled strength uses sendPulse like single-index paths")
+
+    add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
+    if COUPLED_STRENGTH_NOTIFY not in add_main_body:
+        raise RuntimeError("TrainItem.addMainAndPauseStrenth missing sendPulse notify tail")
+
+    slider_body = text.split("setMainAndPauseStrenthFromSlider(I)V", 1)[-1].split(".end method", 1)[0]
+    if "sendPulse()V" in slider_body:
+        raise RuntimeError(
+            "TrainItem.setMainAndPauseStrenthFromSlider must not sendPulse; slider uses onItemChange"
+        )
 
     TRAIN_ITEM.write_text(text, encoding="utf-8")
 
@@ -1094,8 +1142,10 @@ def _lambda_routing_ok(lambda_body: str) -> bool:
     if "if-nez v0, :cond_coupled" not in cond_3_tail:
         return False
     active_pause_head = cond_3_tail.split(":cond_coupled", 1)[0]
+    if "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" not in active_pause_head:
+        return False
     if (
-        "programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z"
+        "ProgramDataBean;->activePause:Z"
         not in active_pause_head
     ):
         return False
@@ -1160,6 +1210,11 @@ def patch_seekbar_listener() -> None:
     ):
         MUSIC_SYNC_GUARD = ""
     listener = build_seekbar_listener(pause_ma_id, pause_hz_id, hz_value_id)
+    on_changed_end = listener.split("onChangedEnd", 1)[1]
+    if "activePause:Z" not in on_changed_end:
+        raise RuntimeError("TrainViewHolder$4.onChangedEnd missing activePause guards on pause paths")
+    if ":cond_pause_ma_active" not in on_changed_end or ":cond_pause_hz_active" not in on_changed_end:
+        raise RuntimeError("TrainViewHolder$4.onChangedEnd missing pause no-op guards")
     TRAIN_VIEW_HOLDER_4.write_text(listener.strip() + "\n", encoding="utf-8")
     print("TrainViewHolder$4: active-pause-aware circle slider")
 

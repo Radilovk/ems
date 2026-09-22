@@ -31,7 +31,10 @@ def scale_pause(main_old: int, pause_old: int, main_new: int) -> int:
     if main_new == 0:
         return 0
     if main_old > 0:
-        pause_new = (main_new * pause_old + main_old // 2) // main_old
+        if pause_old == 0:
+            pause_new = main_new
+        else:
+            pause_new = (main_new * pause_old + main_old // 2) // main_old
     elif pause_old == 0:
         pause_new = main_new
     else:
@@ -95,10 +98,14 @@ def check_smali() -> list[str]:
     slider_body = item.split("setMainAndPauseStrenthFromSlider(I)V", 1)[-1].split(".end method", 1)[0]
     if "sendPulse()V" in slider_body:
         errors.append("setMainAndPauseStrenthFromSlider must not call sendPulse (slider uses onItemChange)")
+    if ":cond_scale_pause" not in slider_body:
+        errors.append("setMainAndPauseStrenthFromSlider missing zero-pause coupled bootstrap")
 
     coupled_body = item.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
     if "sendPulse()V" not in coupled_body:
         errors.append("addMainAndPauseStrenth must call sendPulse for +/- controls")
+    if ":cond_scale_pause" not in coupled_body:
+        errors.append("addMainAndPauseStrenth missing zero-pause coupled bootstrap")
 
     lambda_body = manager.split("lambda$addAllPartValue$6", 1)[-1].split(".end method", 1)[0]
     markers = (
@@ -176,6 +183,8 @@ def check_coupled_math() -> list[str]:
         (0, 0, 35, 35),
         (0, 25, 40, 25),
         (80, 10, 100, 13),
+        (50, 0, 55, 55),
+        (30, 0, 31, 31),
     ]
     for main_old, pause_old, main_new, expected in cases:
         got = scale_pause(main_old, pause_old, main_new)

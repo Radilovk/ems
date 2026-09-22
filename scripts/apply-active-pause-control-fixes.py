@@ -72,6 +72,13 @@ SET_MAIN_FROM_SLIDER = """
     :cond_has_main
     if-lez v1, :cond_from_zero
 
+    if-nez v2, :cond_scale_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_scale_pause
     mul-int v5, v3, v2
 
     move v6, v1
@@ -126,6 +133,13 @@ COUPLED_STRENGTH_NOTIFY = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/mo
 COUPLED_PAUSE_SCALE_OLD = """    :cond_has_main
     if-lez v1, :cond_from_zero
 
+    if-nez v2, :cond_scale_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_scale_pause
     mul-int v5, v3, v2
 
     move v6, v1
@@ -150,32 +164,7 @@ COUPLED_PAUSE_SCALE_OLD = """    :cond_has_main
 
     :cond_pause_clamp"""
 
-COUPLED_PAUSE_SCALE_NEW = """    :cond_has_main
-    if-lez v1, :cond_from_zero
-
-    mul-int v5, v3, v2
-
-    move v6, v1
-
-    div-int/lit8 v6, v6, 0x2
-
-    add-int/2addr v5, v6
-
-    div-int v5, v5, v1
-
-    goto :cond_pause_clamp
-
-    :cond_from_zero
-    if-nez v2, :cond_keep_pause
-
-    move v5, v3
-
-    goto :cond_pause_clamp
-
-    :cond_keep_pause
-    move v5, v2
-
-    :cond_pause_clamp"""
+COUPLED_PAUSE_SCALE_NEW = COUPLED_PAUSE_SCALE_OLD
 
 SET_USER_TYPE_OLD = """.method public setUserType(I)V
     .locals 1
@@ -685,6 +674,13 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
     :cond_preview_has_main
     if-lez v2, :cond_preview_from_zero
 
+    if-nez v0, :cond_preview_scale
+
+    move v4, v3
+
+    goto :cond_preview_pause
+
+    :cond_preview_scale
     mul-int v4, v3, v0
 
     div-int/lit8 v5, v2, 0x2
@@ -1091,12 +1087,11 @@ def patch_train_item() -> None:
 
     add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
     if "cond_scale_pause" in add_main_body:
-        text = text.replace(COUPLED_PAUSE_SCALE_NEW, COUPLED_PAUSE_SCALE_OLD, 1)
-        print("TrainItem.addMainAndPauseStrenth: restored proportional coupled scale")
-    elif "cond_keep_pause" not in add_main_body and COUPLED_PAUSE_SCALE_OLD in add_main_body:
-        raise RuntimeError("TrainItem.addMainAndPauseStrenth missing proportional scale markers")
+        print("TrainItem.addMainAndPauseStrenth: coupled scale with zero-pause bootstrap OK")
     elif "cond_keep_pause" in add_main_body:
-        print("TrainItem.addMainAndPauseStrenth: proportional coupled scale OK")
+        raise RuntimeError(
+            "TrainItem.addMainAndPauseStrenth missing zero-pause bootstrap; rebuild from avatar-button patch"
+        )
     else:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth scale patch marker not found")
 

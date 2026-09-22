@@ -62,6 +62,9 @@ public final class WearableSyncHelper {
     private static final int STR_INFO_TITLE = 0x7f0d0184;
     private static final int STR_INFO_BODY = 0x7f0d0185;
     private static final int STR_TOAST_ARMED = 0x7f0d0186;
+    private static final int STR_NOTIFY_MISSING = 0x7f0d0187;
+    private static final int STR_STATUS_LISTENING = 0x7f0d0188;
+    private static final int STR_STATUS_CONNECTED = 0x7f0d0189;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -98,6 +101,7 @@ public final class WearableSyncHelper {
     private static boolean overlayVisible;
     private static boolean trainingRunning;
     private static int displayedHr = -1;
+    private static int displayedBattery = -1;
     private static boolean bandConnected;
 
     private static float overlayTouchDx;
@@ -137,6 +141,24 @@ public final class WearableSyncHelper {
         displayedHr = hr;
         bandConnected = connected;
         handler.post(new RefreshOverlayRunnable());
+    }
+
+    public static void updateBattery(int level) {
+        displayedBattery = level;
+        handler.post(new RefreshOverlayRunnable());
+    }
+
+    public static void showNotifyMissing() {
+        Activity activity = resolveActivity(null);
+        if (activity == null) {
+            return;
+        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                toast(activity, STR_NOTIFY_MISSING);
+            }
+        });
     }
 
     static Context getContext() {
@@ -221,11 +243,8 @@ public final class WearableSyncHelper {
             return;
         }
         toast(activity, STR_TOAST_ARMED);
-        if (NotifyWearableBridge.isSessionActive()) {
-            refreshOverlayDisplay();
-        } else {
-            NotifyWearableBridge.requestConnect();
-        }
+        NotifyWearableBridge.requestConnect();
+        refreshOverlayDisplay();
         dismissConfigDialog(false);
     }
 
@@ -318,7 +337,7 @@ public final class WearableSyncHelper {
         Activity activity = resolveActivity(null);
         Context context = activity != null ? activity : getContext();
         int threshold = context != null ? WearableConfig.getHrThreshold(context) : 170;
-        if (!trainingRunning || !NotifyWearableBridge.isSessionActive()) {
+        if (!NotifyWearableBridge.isListeningActive()) {
             hrValueView.setText("--");
             hrValueView.setTextColor(0xFFAAAAAA);
             if (subLabelView != null && activity != null) {
@@ -341,7 +360,7 @@ public final class WearableSyncHelper {
                 ringView.invalidate();
             }
             if (subLabelView != null && activity != null) {
-                subLabelView.setText(activity.getString(STR_BPM));
+                subLabelView.setText(buildSubLabel(activity));
             }
         } else {
             hrValueView.setText("...");
@@ -355,6 +374,14 @@ public final class WearableSyncHelper {
                         : activity.getString(STR_STATUS_DISCONNECTED));
             }
         }
+    }
+
+    private static String buildSubLabel(Activity activity) {
+        String bpm = activity.getString(STR_BPM);
+        if (displayedBattery >= 0 && displayedBattery <= 100) {
+            return bpm + " · " + displayedBattery + "%";
+        }
+        return bpm;
     }
 
     private static int colorForHeartRate(float fraction) {
@@ -395,7 +422,15 @@ public final class WearableSyncHelper {
             statusView.setText(activity.getString(STR_STATUS_IDLE));
             return;
         }
-        if (NotifyWearableBridge.isSessionActive()) {
+        if (NotifyWearableBridge.isListeningActive()) {
+            if (bandConnected) {
+                statusView.setText(activity.getString(STR_STATUS_CONNECTED));
+            } else {
+                statusView.setText(activity.getString(STR_STATUS_LISTENING));
+            }
+            return;
+        }
+        if (trainingRunning && WearableConfig.isArmed(activity)) {
             statusView.setText(activity.getString(STR_STATUS_ACTIVE));
             return;
         }
@@ -423,6 +458,9 @@ public final class WearableSyncHelper {
             stepView.setText(String.valueOf(WearableConfig.getStrengthStep(activity)));
         }
         overlayVisible = WearableConfig.isArmed(activity);
+        if (overlayVisible && NotifyWearableBridge.isNotifyInstalled(activity)) {
+            NotifyWearableBridge.beginListening(activity);
+        }
     }
 
     private static void saveConfigFromUi(Activity activity) {
@@ -690,6 +728,7 @@ public final class WearableSyncHelper {
             overlayVisible = false;
             if (activity != null) {
                 WearableConfig.setArmed(activity, false);
+                NotifyWearableBridge.stopListening(activity);
             }
             dismissOverlayDialog(false);
             refreshStatusText();

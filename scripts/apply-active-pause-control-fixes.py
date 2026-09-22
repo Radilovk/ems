@@ -61,7 +61,7 @@ SET_MAIN_FROM_SLIDER = """
     :cond_main_floor
     iget-boolean v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v5, :cond_only_main
+    if-eqz v5, :cond_only_main
 
     if-nez v3, :cond_has_main
 

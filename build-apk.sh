@@ -144,12 +144,14 @@ if [[ -f "${DECOMPILED}/apktool.yml" ]]; then
   VERSION_NAME="$(grep '^  versionName:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionName: //')"
   VERSION_CODE="$(grep '^  versionCode:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionCode: //')"
   release_version="${ROOT}/RELEASE_VERSION"
+  APK_SHA256="$(sha256sum "${OUT_APK}" | awk '{print $1}')"
+  BUILT_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   release_text="versionName=${VERSION_NAME}
 versionCode=${VERSION_CODE}
+builtAt=${BUILT_AT}
+apkSha256=${APK_SHA256}
 "
-  if [[ ! -f "${release_version}" ]] || [[ "$(cat "${release_version}")" != "${release_text}" ]]; then
-    printf '%s' "${release_text}" > "${release_version}"
-  fi
+  printf '%s' "${release_text}" > "${release_version}"
 fi
 
 echo ""
@@ -180,6 +182,11 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
     fi
   elif [[ "${apk_dirty}" -eq 1 ]]; then
     echo ""
-    echo "WARN: xems27.apk bytes differ (normal after resign); version ${VERSION_NAME} (${VERSION_CODE}) is committed."
+    echo "ERROR: xems27.apk binary differs from git (version ${VERSION_NAME} / ${VERSION_CODE})."
+    echo "  Commits that only bump RELEASE_VERSION leave a stale APK — rebuild and commit both:"
+    echo "  git add xems27.apk RELEASE_VERSION"
+    echo "  git commit -m \"Build ${VERSION_NAME} (${VERSION_CODE})\""
+    echo "  git push"
+    exit 1
   fi
 fi

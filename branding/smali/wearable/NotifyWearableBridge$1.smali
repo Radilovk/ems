@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 32
+    .line 33
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public run()V
     .registers 4
 
-    .line 35
+    .line 36
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->listeningActive:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$000()Z
 
@@ -40,29 +40,29 @@
 
     if-nez v0, :cond_7
 
-    .line 36
+    .line 37
     return-void
 
-    .line 38
+    .line 39
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 39
+    .line 40
     if-eqz v0, :cond_17
 
-    .line 40
+    .line 41
     const-string v1, "com.mc.xiaomi.taskerHeartEnable"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->sendNotifyIntent(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 41
+    .line 42
     const-string v1, "com.mc.xiaomi.tasker.batteryRead"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->sendNotifyIntent(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 43
+    .line 44
     :cond_17
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->keepaliveHandler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Landroid/os/Handler;
@@ -73,6 +73,6 @@
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 44
+    .line 45
     return-void
 .end method

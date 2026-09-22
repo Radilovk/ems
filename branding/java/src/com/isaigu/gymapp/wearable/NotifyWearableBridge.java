@@ -22,6 +22,7 @@ public final class NotifyWearableBridge {
     public static final String ACTION_CONNECT = "com.mc.xiaomi.connectToBand";
     public static final String ACTION_RECONNECT = "com.mc.xiaomi.reconnectToBand";
     public static final String ACTION_BATTERY_READ = "com.mc.xiaomi.tasker.batteryRead";
+    public static final String ACTION_NOTIFY_MODE_ENABLE = "com.mc.xiaomi.setNotifyMode.enable";
 
     private static final long AUTO_REDUCE_COOLDOWN_MS = 10000L;
     private static final long KEEPALIVE_INTERVAL_MS = 30000L;
@@ -103,6 +104,7 @@ public final class NotifyWearableBridge {
         // Do not abort when isNotifyInstalled is false: Android 11+ package visibility
         // (common on Huawei + microG) can hide Notify even when it is installed.
         registerReceiver(context);
+        sendNotifyIntent(context, ACTION_NOTIFY_MODE_ENABLE);
         sendNotifyIntent(context, ACTION_CONNECT);
         sendNotifyIntent(context, ACTION_HR_ENABLE);
         sendNotifyIntent(context, ACTION_BATTERY_READ);

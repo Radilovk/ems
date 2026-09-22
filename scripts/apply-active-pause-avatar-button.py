@@ -1266,10 +1266,6 @@ UPDATE_UI_SEEKBAR_PAUSE = """    iget-object v1, p0, Lcom/isaigu/gymapp/train/Tr
 
     if-eqz v2, :cond_pause_ma_seek
 
-    iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-nez v2, :cond_pause_ma_seek
-
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     mul-int/lit8 v2, v2, 0x4b
@@ -1988,19 +1984,19 @@ def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int, yellow_bg: int) 
         ):
             text = re.sub(pattern, block, text, count=1, flags=re.DOTALL)
 
-    seek_active_pause_old = """    if-eqz v2, :cond_pause_ma_seek
-
-    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
-    seek_active_pause_new = """    if-eqz v2, :cond_pause_ma_seek
+    seek_active_pause_guard = """    if-eqz v2, :cond_pause_ma_seek
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     if-nez v2, :cond_pause_ma_seek
 
     iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
-    if seek_active_pause_old in text and "activePause:Z" not in text.split(":cond_pause_ma_seek", 1)[0][-200:]:
-        text = text.replace(seek_active_pause_old, seek_active_pause_new, 1)
-        print("TrainViewHolder.updateUI: ignore pause MA seekbar when active pause off")
+    seek_active_pause_clean = """    if-eqz v2, :cond_pause_ma_seek
+
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I"""
+    if seek_active_pause_guard in text:
+        text = text.replace(seek_active_pause_guard, seek_active_pause_clean, 1)
+        print("TrainViewHolder.updateUI: pause MA seekbar follows index selection only")
 
     if ":cond_pause_ma_seek" in text:
         print("TrainViewHolder.updateUI: pause ma/hz seekbar routing already patched")

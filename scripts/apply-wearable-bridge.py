@@ -103,6 +103,8 @@ STRING_IDS = {
     "wearable_sync_open_notify": 0x7F0D018A,
     "wearable_sync_diag_waiting": 0x7F0D018B,
     "wearable_sync_diag_hint": 0x7F0D018C,
+    "wearable_sync_diag_ha": 0x7F0D018D,
+    "wearable_sync_status_ha_listening": 0x7F0D018E,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -196,14 +198,16 @@ EN_STRINGS = """
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
     <string name="wearable_sync_info_title">Watch sync — help</string>
-    <string name="wearable_sync_info_body">IMPORTANT: Notify can show live HR on its screen but still NOT send it to XEMS. Those are two different modes.\\n\\nIN NOTIFY (required):\\n1. ☰ → Smart assistant → Tasker integration → ON\\n2. ☰ → Smart assistant → Heart monitor (or Pulse screen ⚙):\\n   • Mode = „Notify app mode“ (NOT „Band only“ / continuous-only)\\n   • Heart monitor ON, shortest interval\\n3. Main Notify screen shows live BPM while worn\\n4. Kill Mi Fitness; allow Notify in background (Huawei battery settings)\\n\\nIN XEMS: ♥ → Activate dial → Connect band → wait 30–60 s.\\nDiagnostics under the dial show HR event count and battery %.\\nIf HR events stay 0 but battery works: Heart monitor mode is wrong.\\nIf both stay 0: Tasker integration off or Notify blocked.\\n\\nAlternative: Gadgetbridge with Realtime HR broadcast (disconnect band from Notify first).</string>
+    <string name="wearable_sync_info_body">PRIMARY PATH — Fake Home Assistant server in XEMS (port 8123):\\n\\n1. XEMS ♥ → Activate dial (starts HA server at http://127.0.0.1:8123)\\n2. Notify → Integrations → Home Assistant → ON\\n   • URL: http://127.0.0.1:8123 (or http://PHONE_LAN_IP:8123 if localhost fails)\\n   • Token: any text (e.g. xems-test)\\n   • Identifier: xems\\n   • Mode: Standard → Sync now\\n3. Wear band; watch dial diagnostics: HA posts / HA HR should increase\\n\\nEntities: sensor.xems_heartrate, sensor.xems_battery, sensor.xems_connected\\n\\nIf HA HR stays 0 after 10 min: try LAN IP, disable battery saver for Notify + XEMS.\\nFallback: Pulsoid WebSocket integration (cloud).\\nTasker heartRateGot is kept but unreliable on Band 8.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi not detected — check it is installed (Huawei: allow app visibility)</string>
     <string name="wearable_sync_status_listening">Connecting to Notify…</string>
     <string name="wearable_sync_status_connected">Band connected — waiting for pulse</string>
     <string name="wearable_sync_open_notify">Open Notify</string>
     <string name="wearable_sync_diag_waiting">HR events: %1$d · battery: %2$s</string>
-    <string name="wearable_sync_diag_hint">Notify sees HR but does not broadcast it — set Heart monitor to Notify app mode</string>
+    <string name="wearable_sync_diag_hint">Configure Notify → Home Assistant → Standard sync to XEMS URL</string>
+    <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · battery: %4$s</string>
+    <string name="wearable_sync_status_ha_listening">HA server %1$s — set this URL in Notify</string>
 """
 
 BG_STRINGS = """
@@ -221,14 +225,16 @@ BG_STRINGS = """
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">ВАЖНО: Notify може да показва live пулс на екрана, но да НЕ го изпраща към XEMS. Това са два различни режима.\\n\\nВ NOTIFY (задължително):\\n1. ☰ → Smart assistant → Tasker integration → ВКЛ\\n2. ☰ → Smart assistant → Heart monitor (или Пулс → ⚙):\\n   • Режим = „Notify app mode“ (НЕ „Band only“ / само непрекъснат)\\n   • Следене на пулс ВКЛ, най-къс интервал\\n3. На главния екран на Notify виждаш live BPM\\n4. Спри Mi Fitness; разреши Notify на заден фон (Huawei батерия)\\n\\nВ XEMS: ♥ → Активирай → Свържи → изчакай 30–60 сек.\\nПод циферблата: HR събития + батерия %.\\nHR=0, батерия OK → грешен Heart monitor режим.\\nИ двете 0 → Tasker integration изключен или Notify блокиран.\\n\\nАлтернатива: Gadgetbridge + Realtime HR (първо разкачи гривната от Notify).</string>
+    <string name="wearable_sync_info_body">ОСНОВЕН ПЪТ — фалшив Home Assistant сървър в XEMS (порт 8123):\\n\\n1. XEMS ♥ → Активирай циферблат (стартира HA сървър на http://127.0.0.1:8123)\\n2. Notify → Integrations → Home Assistant → ВКЛ\\n   • URL: http://127.0.0.1:8123 (или http://LAN_IP_НА_ТЕЛЕФОНА:8123)\\n   • Token: произволен (напр. xems-test)\\n   • Identifier: xems\\n   • Режим: Standard → Sync now\\n3. Носи гривната; гледай диагностиката: HA posts / HA HR трябва да растат\\n\\nСензори: sensor.xems_heartrate, sensor.xems_battery, sensor.xems_connected\\n\\nАко HA HR=0 след 10 мин: пробвай LAN IP; изключи оптимизация на батерията.\\nРезервен път: Pulsoid WebSocket (облак).\\nTasker heartRateGot остава, но е ненадежден на Band 8.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
     <string name="wearable_sync_status_listening">Свързване с Notify…</string>
     <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
     <string name="wearable_sync_open_notify">Отвори Notify</string>
     <string name="wearable_sync_diag_waiting">HR събития: %1$d · батерия: %2$s</string>
-    <string name="wearable_sync_diag_hint">Notify вижда пулса, но не го излъчва — включи „Notify app mode“ в Heart monitor</string>
+    <string name="wearable_sync_diag_hint">Настрой Notify → Home Assistant → Standard sync към URL на XEMS</string>
+    <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · батерия: %4$s</string>
+    <string name="wearable_sync_status_ha_listening">HA сървър %1$s — сложи този URL в Notify</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V

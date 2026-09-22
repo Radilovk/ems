@@ -424,13 +424,15 @@
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">ВАЖНО: Notify може да показва live пулс на екрана, но да НЕ го изпраща към XEMS. Това са два различни режима.\n\nВ NOTIFY (задължително):\n1. ☰ → Smart assistant → Tasker integration → ВКЛ\n2. ☰ → Smart assistant → Heart monitor (или Пулс → ⚙):\n   • Режим = „Notify app mode“ (НЕ „Band only“ / само непрекъснат)\n   • Следене на пулс ВКЛ, най-къс интервал\n3. На главния екран на Notify виждаш live BPM\n4. Спри Mi Fitness; разреши Notify на заден фон (Huawei батерия)\n\nВ XEMS: ♥ → Активирай → Свържи → изчакай 30–60 сек.\nПод циферблата: HR събития + батерия %.\nHR=0, батерия OK → грешен Heart monitor режим.\nИ двете 0 → Tasker integration изключен или Notify блокиран.\n\nАлтернатива: Gadgetbridge + Realtime HR (първо разкачи гривната от Notify).</string>
+    <string name="wearable_sync_info_body">ОСНОВЕН ПЪТ — фалшив Home Assistant сървър в XEMS (порт 8123):\n\n1. XEMS ♥ → Активирай циферблат (стартира HA сървър на http://127.0.0.1:8123)\n2. Notify → Integrations → Home Assistant → ВКЛ\n   • URL: http://127.0.0.1:8123 (или http://LAN_IP_НА_ТЕЛЕФОНА:8123)\n   • Token: произволен (напр. xems-test)\n   • Identifier: xems\n   • Режим: Standard → Sync now\n3. Носи гривната; гледай диагностиката: HA posts / HA HR трябва да растат\n\nСензори: sensor.xems_heartrate, sensor.xems_battery, sensor.xems_connected\n\nАко HA HR=0 след 10 мин: пробвай LAN IP; изключи оптимизация на батерията.\nРезервен път: Pulsoid WebSocket (облак).\nTasker heartRateGot остава, но е ненадежден на Band 8.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
     <string name="wearable_sync_status_listening">Свързване с Notify…</string>
     <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
     <string name="wearable_sync_open_notify">Отвори Notify</string>
     <string name="wearable_sync_diag_waiting">HR събития: %1$d · батерия: %2$s</string>
-    <string name="wearable_sync_diag_hint">Notify вижда пулса, но не го излъчва — включи „Notify app mode“ в Heart monitor</string>
+    <string name="wearable_sync_diag_hint">Настрой Notify → Home Assistant → Standard sync към URL на XEMS</string>
+    <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · батерия: %4$s</string>
+    <string name="wearable_sync_status_ha_listening">HA сървър %1$s — сложи този URL в Notify</string>
 
 </resources>

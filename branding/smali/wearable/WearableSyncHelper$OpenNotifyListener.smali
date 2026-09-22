@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 723
+    .line 730
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,19 +32,19 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 726
+    .line 733
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$500(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 727
+    .line 734
     if-eqz p1, :cond_9
 
-    .line 728
+    .line 735
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->openNotifyApp(Landroid/content/Context;)V
 
-    .line 730
+    .line 737
     :cond_9
     return-void
 .end method

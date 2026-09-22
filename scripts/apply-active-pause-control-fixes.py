@@ -65,6 +65,13 @@ SET_MAIN_FROM_SLIDER = """
     goto :cond_pause_clamp
 
     :cond_has_main
+    if-nez v2, :cond_scale_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_scale_pause
     if-lez v1, :cond_from_zero
 
     mul-int v5, v3, v2
@@ -80,13 +87,6 @@ SET_MAIN_FROM_SLIDER = """
     goto :cond_pause_clamp
 
     :cond_from_zero
-    if-nez v2, :cond_keep_pause
-
-    move v5, v3
-
-    goto :cond_pause_clamp
-
-    :cond_keep_pause
     move v5, v2
 
     :cond_pause_clamp
@@ -117,6 +117,60 @@ SET_MAIN_FROM_SLIDER = """
     return-void
 .end method
 """
+
+COUPLED_PAUSE_SCALE_OLD = """    :cond_has_main
+    if-lez v1, :cond_from_zero
+
+    mul-int v5, v3, v2
+
+    move v6, v1
+
+    div-int/lit8 v6, v6, 0x2
+
+    add-int/2addr v5, v6
+
+    div-int v5, v5, v1
+
+    goto :cond_pause_clamp
+
+    :cond_from_zero
+    if-nez v2, :cond_keep_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_keep_pause
+    move v5, v2
+
+    :cond_pause_clamp"""
+
+COUPLED_PAUSE_SCALE_NEW = """    :cond_has_main
+    if-nez v2, :cond_scale_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_scale_pause
+    if-lez v1, :cond_from_zero
+
+    mul-int v5, v3, v2
+
+    move v6, v1
+
+    div-int/lit8 v6, v6, 0x2
+
+    add-int/2addr v5, v6
+
+    div-int v5, v5, v1
+
+    goto :cond_pause_clamp
+
+    :cond_from_zero
+    move v5, v2
+
+    :cond_pause_clamp"""
 
 SET_USER_TYPE_OLD = """.method public setUserType(I)V
     .locals 1
@@ -243,9 +297,7 @@ __MA_STRENGTH_BODY__
 
     move-result-object v0
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    move-result-object v0
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -585,9 +637,7 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    move-result-object v0
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -624,6 +674,13 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
     goto :cond_preview_pause
 
     :cond_preview_has_main
+    if-nez v0, :cond_preview_scale
+
+    move v4, v3
+
+    goto :cond_preview_pause
+
+    :cond_preview_scale
     if-lez v2, :cond_preview_from_zero
 
     mul-int v4, v3, v0
@@ -637,13 +694,6 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
     goto :cond_preview_pause
 
     :cond_preview_from_zero
-    if-nez v0, :cond_preview_keep
-
-    move v4, v3
-
-    goto :cond_preview_pause
-
-    :cond_preview_keep
     move v4, v0
 
     :cond_preview_pause
@@ -882,9 +932,7 @@ __MUSIC_SYNC_GUARD__
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    move-result-object v0
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -1016,6 +1064,15 @@ def patch_train_item() -> None:
     else:
         raise RuntimeError("TrainItem.setUserType patch marker not found")
 
+    add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
+    if "cond_scale_pause" in add_main_body:
+        print("TrainItem.addMainAndPauseStrenth: coupled scale already patched")
+    elif COUPLED_PAUSE_SCALE_OLD in add_main_body:
+        text = text.replace(COUPLED_PAUSE_SCALE_OLD, COUPLED_PAUSE_SCALE_NEW, 1)
+        print("TrainItem.addMainAndPauseStrenth: couple pause from zero baseline")
+    else:
+        raise RuntimeError("TrainItem.addMainAndPauseStrenth scale patch marker not found")
+
     TRAIN_ITEM.write_text(text, encoding="utf-8")
 
 
@@ -1031,7 +1088,11 @@ def _lambda_routing_ok(lambda_body: str) -> bool:
         return False
     if "if-nez v0, :cond_coupled" not in cond_3_tail:
         return False
-    if "activePause:Z" not in cond_3_tail.split(":cond_coupled", 1)[0]:
+    active_pause_head = cond_3_tail.split(":cond_coupled", 1)[0]
+    if (
+        "programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z"
+        not in active_pause_head
+    ):
         return False
     markers = (
         "isPauseMaSelected()Z",

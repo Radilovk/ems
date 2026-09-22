@@ -58,11 +58,6 @@ SET_MAIN_FROM_SLIDER = """
 
     if-nez v5, :cond_only_main
 
-    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
-
-    goto :cond_done
-
-    :cond_only_main
     if-nez v3, :cond_has_main
 
     const/4 v5, 0x0
@@ -108,6 +103,11 @@ SET_MAIN_FROM_SLIDER = """
     iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     iput v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+
+    goto :cond_done
+
+    :cond_only_main
+    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     :cond_done
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
@@ -519,6 +519,16 @@ def build_seekbar_listener(pause_ma_id: int, pause_hz_id: int, hz_value_id: int)
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
+    iget-object v0, v0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-virtual {{v0}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isMaSelected()Z
+
+    move-result v0
+
+    if-nez v0, :cond_main_done
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
+
     invoke-virtual {{v0}}, Lcom/isaigu/gymapp/train/TrainViewHolder;->getData()Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     move-result-object v0
@@ -651,7 +661,7 @@ __MUSIC_SYNC_GUARD__
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v0, :cond_pause_ma_end
+    if-eqz v0, :cond_pause_ma_end
 
     mul-int/lit8 v0, p2, 0x64
 
@@ -726,7 +736,7 @@ __MUSIC_SYNC_GUARD__
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v0, :cond_pause_hz_end
+    if-eqz v0, :cond_pause_hz_end
 
     mul-int/lit8 v0, p2, 0x78
 

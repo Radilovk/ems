@@ -134,7 +134,6 @@ public final class NotifyWearableBridge {
             return;
         }
         registerReceiver(context);
-        NotifyHaServer.resetSession();
         listeningActive = true;
         lastHr = -1;
         hrEventCount = 0;
@@ -270,14 +269,6 @@ public final class NotifyWearableBridge {
 
     public static String getLastHrSource() {
         return lastHrSource;
-    }
-
-    public static String getHaEntityListText() {
-        return NotifyHaServer.getEntityListText();
-    }
-
-    public static boolean hasHaHeartRateEntity() {
-        return NotifyHaServer.hasHeartRateEntity();
     }
 
     static void sendNotifyIntent(Context context, String action) {

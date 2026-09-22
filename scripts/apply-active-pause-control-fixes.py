@@ -1161,7 +1161,7 @@ def patch_train_item() -> None:
     else:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth scale patch marker not found")
 
-    if "sendCoupledStrengthRefresh()V" not in text:
+    if ".method private sendCoupledStrengthRefresh()V" not in text:
         marker = ".method public setMainAndPauseStrenthFromSlider(I)V"
         if marker not in text:
             marker = ".method public addMainAndPauseStrenth(I)V"

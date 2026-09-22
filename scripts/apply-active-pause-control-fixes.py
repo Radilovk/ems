@@ -115,7 +115,7 @@ SET_MAIN_FROM_SLIDER = """
     iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     :cond_done
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendCoupledStrengthRefresh()V
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
 
@@ -123,78 +123,7 @@ SET_MAIN_FROM_SLIDER = """
 .end method
 """
 
-SEND_COUPLED_STRENGTH_REFRESH = """
-.method private sendCoupledStrengthRefresh()V
-    .locals 8
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->connected:Z
-
-    if-nez v0, :cond_done
-
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
-
-    move-result-object v1
-
-    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-nez v0, :cond_fallback
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/CommandSender;->clearPendingCommands()V
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
-
-    iget v3, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
-
-    invoke-virtual {v0, v1, v2, v3}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendDuration(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)V
-
-    iget v8, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
-
-    if-gez v8, :cond_pause_floor
-
-    const/4 v8, 0x0
-
-    :cond_pause_floor
-    const/16 v0, 0x64
-
-    if-le v8, v0, :cond_pause_cap
-
-    const/16 v8, 0x64
-
-    :cond_pause_cap
-    iget-object v3, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->sender:Lcom/isaigu/gymapp/train/model/CommandSender;
-
-    iget-object v5, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
-
-    iget v6, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
-
-    iget v7, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
-
-    move-object v4, v1
-
-    invoke-virtual/range {v3 .. v8}, Lcom/isaigu/gymapp/train/model/CommandSender;->sendActivePause(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZIII)V
-
-    goto :cond_done
-
-    :cond_fallback
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
-
-    :cond_done
-    return-void
-.end method"""
-
-COUPLED_BLE_FLUSH = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendCoupledStrengthRefresh()V
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V"""
-
-COUPLED_BLE_FLUSH_PLAIN = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
+COUPLED_STRENGTH_NOTIFY = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V"""
 
@@ -1161,39 +1090,25 @@ def patch_train_item() -> None:
     else:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth scale patch marker not found")
 
-    if ".method private sendCoupledStrengthRefresh()V" not in text:
-        marker = ".method public setMainAndPauseStrenthFromSlider(I)V"
-        if marker not in text:
-            marker = ".method public addMainAndPauseStrenth(I)V"
-        text = text.replace(
-            marker,
-            SEND_COUPLED_STRENGTH_REFRESH.strip() + "\n\n" + marker,
-            1,
-        )
-        print("TrainItem: added sendCoupledStrengthRefresh()")
-    else:
+    if ".method private sendCoupledStrengthRefresh()V" in text:
         text = re.sub(
-            r"\.method private sendCoupledStrengthRefresh\(\)V.*?\.end method",
-            SEND_COUPLED_STRENGTH_REFRESH.strip(),
+            r"\n?\.method private sendCoupledStrengthRefresh\(\)V.*?\.end method",
+            "",
             text,
             count=1,
             flags=re.DOTALL,
         )
-        print("TrainItem: updated sendCoupledStrengthRefresh()")
-
-    add_main_method = (
-        ".method public addMainAndPauseStrenth(I)V" + add_main_body + ".end method"
-    )
-    if "sendCoupledStrengthRefresh()V" in add_main_body:
-        print("TrainItem.addMainAndPauseStrenth: coupled strength refresh already applied")
-    elif COUPLED_BLE_FLUSH_PLAIN in add_main_body:
-        new_add_main_method = add_main_method.replace(
-            COUPLED_BLE_FLUSH_PLAIN, COUPLED_BLE_FLUSH, 1
+        print("TrainItem: removed sendCoupledStrengthRefresh helper")
+    if "sendCoupledStrengthRefresh()V" in text:
+        text = text.replace(
+            "sendCoupledStrengthRefresh()V",
+            "sendPulse()V",
         )
-        text = text.replace(add_main_method, new_add_main_method, 1)
-        print("TrainItem.addMainAndPauseStrenth: coupled strength refresh")
-    else:
-        raise RuntimeError("TrainItem.addMainAndPauseStrenth BLE refresh marker not found")
+        print("TrainItem: coupled strength uses sendPulse like single-index paths")
+
+    add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
+    if COUPLED_STRENGTH_NOTIFY not in add_main_body:
+        raise RuntimeError("TrainItem.addMainAndPauseStrenth missing sendPulse notify tail")
 
     TRAIN_ITEM.write_text(text, encoding="utf-8")
 

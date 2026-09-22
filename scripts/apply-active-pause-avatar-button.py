@@ -336,7 +336,7 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 
     iput v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendCoupledStrengthRefresh()V
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
 

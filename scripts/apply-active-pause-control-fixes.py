@@ -176,7 +176,7 @@ LAMBDA_ADD_ALL_MA_PLAIN = """    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/tra
     return-void"""
 
 LAMBDA_ADD_ALL_REPLACEMENT = """.method static synthetic lambda$addAllPartValue$6(Ljava/util/concurrent/atomic/AtomicBoolean;ILcom/isaigu/gymapp/train/model/TrainItem;)V
-    .locals 1
+    .locals 2
     .param p0, "anySelected"    # Ljava/util/concurrent/atomic/AtomicBoolean;
     .param p1, "value"    # I
     .param p2, "i"    # Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -239,6 +239,23 @@ LAMBDA_ADD_ALL_REPLACEMENT = """.method static synthetic lambda$addAllPartValue$
 __MA_STRENGTH_BODY__
 
     :cond_3
+    invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v0
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v0, :cond_coupled
+
+    invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
+
+    return-void
+
+    :cond_coupled
     invoke-virtual {p2, p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
 
     return-void
@@ -855,7 +872,7 @@ __MUSIC_SYNC_GUARD__
 
     move-result v0
 
-    if-nez v0, :cond_ma_index_strength
+    if-eqz v0, :cond_ma_index_strength
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder$4;->this$0:Lcom/isaigu/gymapp/train/TrainViewHolder;
 
@@ -871,7 +888,7 @@ __MUSIC_SYNC_GUARD__
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v0, :cond_ma_index_strength
+    if-eqz v0, :cond_ma_index_strength
 
     mul-int/lit8 v0, p2, 0x64
 
@@ -1006,7 +1023,12 @@ def _lambda_routing_ok(lambda_body: str) -> bool:
         return False
     if ":cond_4" in lambda_body:
         return False
-    if "addMainAndPauseStrenth(I)V" not in lambda_body.split(":cond_3", 1)[-1]:
+    cond_3_tail = lambda_body.split(":cond_3", 1)[-1]
+    if "addMainAndPauseStrenth(I)V" not in cond_3_tail:
+        return False
+    if ":cond_coupled" not in cond_3_tail:
+        return False
+    if "activePause:Z" not in cond_3_tail.split(":cond_coupled", 1)[0]:
         return False
     markers = (
         "isPauseMaSelected()Z",

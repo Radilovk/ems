@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import com.isaigu.gymapp.train.TrainItemManager;
@@ -22,8 +24,25 @@ public final class NotifyWearableBridge {
     public static final String ACTION_BATTERY_READ = "com.mc.xiaomi.tasker.batteryRead";
 
     private static final long AUTO_REDUCE_COOLDOWN_MS = 10000L;
+    private static final long KEEPALIVE_INTERVAL_MS = 30000L;
     private static final int RECEIVER_EXPORTED_FLAG = 0x2;
     private static final int FLAG_INCLUDE_STOPPED_PACKAGES = 0x20;
+
+    private static final Handler keepaliveHandler = new Handler(Looper.getMainLooper());
+    private static final Runnable keepaliveRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!listeningActive) {
+                return;
+            }
+            Context context = WearableSyncHelper.getContext();
+            if (context != null) {
+                sendNotifyIntent(context, ACTION_HR_ENABLE);
+                sendNotifyIntent(context, ACTION_BATTERY_READ);
+            }
+            keepaliveHandler.postDelayed(this, KEEPALIVE_INTERVAL_MS);
+        }
+    };
 
     private static TrainItemManager itemManager;
     private static NotifyHrReceiver receiver;
@@ -89,7 +108,23 @@ public final class NotifyWearableBridge {
         sendNotifyIntent(context, ACTION_BATTERY_READ);
         listeningActive = true;
         lastHr = -1;
+        startKeepalive();
         WearableSyncHelper.updateHeartRate(-1, bandConnected);
+    }
+
+    public static void openNotifyApp(Context context) {
+        if (context == null) {
+            return;
+        }
+        try {
+            Intent launch = context.getPackageManager()
+                    .getLaunchIntentForPackage(NOTIFY_PACKAGE);
+            if (launch != null) {
+                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(launch);
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     public static void requestConnect() {
@@ -107,6 +142,7 @@ public final class NotifyWearableBridge {
             return;
         }
         sendNotifyIntent(context, ACTION_HR_DISABLE);
+        stopKeepalive();
         unregisterReceiver(context);
         listeningActive = false;
         lastHr = -1;
@@ -166,10 +202,24 @@ public final class NotifyWearableBridge {
         context.sendBroadcast(intent);
     }
 
+    private static void startKeepalive() {
+        keepaliveHandler.removeCallbacks(keepaliveRunnable);
+        keepaliveHandler.postDelayed(keepaliveRunnable, KEEPALIVE_INTERVAL_MS);
+    }
+
+    private static void stopKeepalive() {
+        keepaliveHandler.removeCallbacks(keepaliveRunnable);
+    }
+
+    private static Context appContext(Context context) {
+        return context.getApplicationContext();
+    }
+
     private static void registerReceiver(Context context) {
         if (receiverRegistered) {
             return;
         }
+        Context app = appContext(context);
         if (receiver == null) {
             receiver = new NotifyHrReceiver();
         }
@@ -179,9 +229,9 @@ public final class NotifyWearableBridge {
         filter.addAction(NotifyHrReceiver.ACTION_DISCONNECTED);
         filter.addAction(NotifyHrReceiver.ACTION_BATTERY);
         if (Build.VERSION.SDK_INT >= 33) {
-            context.registerReceiver(receiver, filter, RECEIVER_EXPORTED_FLAG);
+            app.registerReceiver(receiver, filter, RECEIVER_EXPORTED_FLAG);
         } else {
-            context.registerReceiver(receiver, filter);
+            app.registerReceiver(receiver, filter);
         }
         receiverRegistered = true;
     }
@@ -191,7 +241,7 @@ public final class NotifyWearableBridge {
             return;
         }
         try {
-            context.unregisterReceiver(receiver);
+            appContext(context).unregisterReceiver(receiver);
         } catch (Throwable ignored) {
         }
         receiverRegistered = false;

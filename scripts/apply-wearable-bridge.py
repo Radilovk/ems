@@ -19,7 +19,22 @@ MANIFEST = DECOMPILED / "AndroidManifest.xml"
 NOTIFY_PACKAGE = "com.mc.xiaomi1"
 NOTIFY_QUERIES = f"""    <queries>
         <package android:name="{NOTIFY_PACKAGE}"/>
+        <intent>
+            <action android:name="com.mc.xiaomi.heartRateGot"/>
+        </intent>
+        <intent>
+            <action android:name="com.mc.xiaomi.connected"/>
+        </intent>
     </queries>
+"""
+NOTIFY_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
+            <intent-filter>
+                <action android:name="com.mc.xiaomi.heartRateGot"/>
+                <action android:name="com.mc.xiaomi.connected"/>
+                <action android:name="com.mc.xiaomi.disconnected"/>
+                <action android:name="com.mc.xiaomi.batteryStatGot"/>
+            </intent-filter>
+        </receiver>
 """
 PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
@@ -49,6 +64,7 @@ IDS = {
     "wearableSyncActivate": 0x7F0902A4,
     "wearableSyncConnect": 0x7F0902A5,
     "wearableSyncInfoBtn": 0x7F0902A6,
+    "wearableSyncOpenNotify": 0x7F0902A7,
 }
 
 STRING_IDS = {
@@ -71,6 +87,7 @@ STRING_IDS = {
     "wearable_sync_notify_missing": 0x7F0D0187,
     "wearable_sync_status_listening": 0x7F0D0188,
     "wearable_sync_status_connected": 0x7F0D0189,
+    "wearable_sync_open_notify": 0x7F0D018A,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -97,7 +114,8 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
-        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenNotify" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/wearable_sync_open_notify" android:textAllCaps="false" />
     </LinearLayout>
     <com.isaigu.gymapp.widget.MyButton android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncActivate" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="52.0dip" android:layout_marginTop="12.0dip" android:text="@string/wearable_sync_activate" android:textAllCaps="false" />
 </LinearLayout>
@@ -163,11 +181,12 @@ EN_STRINGS = """
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
     <string name="wearable_sync_info_title">Watch sync — help</string>
-    <string name="wearable_sync_info_body">Requires Notify for Xiaomi (com.mc.xiaomi1) with the band already paired.\\n\\nIn Notify app:\\n• Smart assistant → Tasker integration → ON (password optional — leave empty if not set)\\n• Heart monitor → mode „Notify app mode“ (required for live BPM)\\n• Close Mi Fitness / Zepp — only one app can connect to the band\\n• Disable battery optimization for Notify and XEMS\\n\\nIn XEMS:\\n1. Tap ♥ on the train sidebar.\\n2. Enable sync, set HR limit.\\n3. Activate dial, then tap Connect band (↻).\\n4. Start EMS — live BPM appears on the floating ring.\\n\\nTap the dial for settings. Drag to move. × closes and stops sync.</string>
+    <string name="wearable_sync_info_body">XEMS talks to Notify via the official Tasker API — no remote access needed.\\n\\nSETUP IN NOTIFY (one time):\\n1. Open Notify → menu ☰ → Smart assistant → Tasker integration → ON\\n2. Menu ☰ → Features → Heart monitor:\\n   • Heart monitor ON\\n   • Mode = „Notify app mode“ (NOT Band only)\\n   • Shortest interval (1 min or Continuous)\\n3. Main screen must show live heart rate when band is worn\\n4. Close Mi Fitness; disable battery saver for Notify + XEMS\\n\\nIN XEMS: ♥ → Open Notify (check settings) → Activate dial → Connect band.\\nWear the band; first BPM may take 30–60 s.\\n\\n„Waiting for pulse“ = Notify is connected but not sending HR yet — fix Heart monitor mode in Notify.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi not detected — check it is installed (Huawei: allow app visibility)</string>
     <string name="wearable_sync_status_listening">Connecting to Notify…</string>
     <string name="wearable_sync_status_connected">Band connected — waiting for pulse</string>
+    <string name="wearable_sync_open_notify">Open Notify</string>
 """
 
 BG_STRINGS = """
@@ -185,11 +204,12 @@ BG_STRINGS = """
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">Изисква Notify for Xiaomi (com.mc.xiaomi1) с вече сдвоена гривна.\\n\\nВ Notify:\\n• Smart assistant → Tasker integration → ВКЛ (паролата е по избор — остави празна, ако не е зададена)\\n• Heart monitor → режим „Notify app mode“ (задължително за live пулс)\\n• Затвори Mi Fitness / Zepp — само едно приложение може да е свързано с гривната\\n• Изключи оптимизация на батерията за Notify и XEMS\\n\\nВ XEMS:\\n1. Натисни ♥ в дясната лента.\\n2. Включи синхрона, задай праг на пулса.\\n3. Активирай циферблата, после натисни Свържи гривната (↻).\\n4. Стартирай EMS — live BPM се показва на плаващия пръстен.\\n\\nДокосни циферблата за настройки. Плъзни за преместване. × затваря и спира синхрона.</string>
+    <string name="wearable_sync_info_body">XEMS говори с Notify през официалния Tasker API — не е нужен отдалечен достъп.\\n\\nНАСТРОЙКА В NOTIFY (веднъж):\\n1. Отвори Notify → меню ☰ → Smart assistant → Tasker integration → ВКЛ\\n2. Меню ☰ → Features → Heart monitor:\\n   • Heart monitor ВКЛ\\n   • Режим = „Notify app mode“ (НЕ Band only)\\n   • Най-къс интервал (1 min или Continuous)\\n3. На главния екран трябва да виждаш live пулс с гривна на китката\\n4. Затвори Mi Fitness; без оптимизация на батерията за Notify + XEMS\\n\\nВ XEMS: ♥ → Отвори Notify (провери настройките) → Активирай → Свържи.\\nПървият пулс може да отнеме 30–60 сек.\\n\\n„Изчакване на пулс“ = Notify е свързан, но не изпраща HR — оправи Heart monitor mode в Notify.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
     <string name="wearable_sync_status_listening">Свързване с Notify…</string>
     <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
+    <string name="wearable_sync_open_notify">Отвори Notify</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
@@ -210,14 +230,22 @@ START_WEARABLE_NEW = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/T
 
 
 def patch_manifest(text: str) -> str:
-    if NOTIFY_PACKAGE in text:
+    if NOTIFY_PACKAGE not in text:
+        marker = "    <application "
+        if marker not in text:
+            raise RuntimeError("AndroidManifest: <application> tag missing")
+        text = text.replace(marker, NOTIFY_QUERIES + "\n" + marker, 1)
+        print("AndroidManifest: added <queries> for Notify for Xiaomi")
+    else:
         print("AndroidManifest: Notify package query already present")
-        return text
-    marker = "    <application "
-    if marker not in text:
-        raise RuntimeError("AndroidManifest: <application> tag missing")
-    text = text.replace(marker, NOTIFY_QUERIES + "\n" + marker, 1)
-    print("AndroidManifest: added <queries> for Notify for Xiaomi")
+    if "com.isaigu.gymapp.wearable.NotifyHrReceiver" not in text:
+        marker = "    </application>"
+        if marker not in text:
+            raise RuntimeError("AndroidManifest: </application> missing")
+        text = text.replace(marker, NOTIFY_RECEIVER + marker, 1)
+        print("AndroidManifest: registered NotifyHrReceiver")
+    else:
+        print("AndroidManifest: NotifyHrReceiver already present")
     return text
 
 

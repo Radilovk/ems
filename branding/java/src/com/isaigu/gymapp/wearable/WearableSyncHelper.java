@@ -69,6 +69,8 @@ public final class WearableSyncHelper {
     private static final int STR_OPEN_NOTIFY = 0x7f0d018a;
     private static final int STR_DIAG_WAITING = 0x7f0d018b;
     private static final int STR_DIAG_HINT = 0x7f0d018c;
+    private static final int STR_DIAG_HA = 0x7f0d018d;
+    private static final int STR_STATUS_HA_LISTENING = 0x7f0d018e;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -388,10 +390,12 @@ public final class WearableSyncHelper {
             return activity.getString(STR_STATUS_DISCONNECTED);
         }
         int hrEvents = NotifyWearableBridge.getHrEventCount();
+        int haHr = NotifyHaServer.getHaHrCount();
+        int haPosts = NotifyHaServer.getPostCount();
         int battery = NotifyWearableBridge.getLastBattery();
         String batteryPart = battery >= 0 ? battery + "%" : "--";
-        String diag = activity.getString(STR_DIAG_WAITING, hrEvents, batteryPart);
-        if (hrEvents == 0 && NotifyWearableBridge.getBatteryEventCount() == 0) {
+        String diag = activity.getString(STR_DIAG_HA, hrEvents, haHr, haPosts, batteryPart);
+        if (hrEvents == 0 && haHr == 0 && NotifyWearableBridge.getBatteryEventCount() == 0) {
             return diag + "\n" + activity.getString(STR_DIAG_HINT);
         }
         return diag;
@@ -444,7 +448,10 @@ public final class WearableSyncHelper {
             return;
         }
         if (NotifyWearableBridge.isListeningActive()) {
-            if (bandConnected) {
+            if (NotifyHaServer.isRunning()) {
+                statusView.setText(activity.getString(
+                        STR_STATUS_HA_LISTENING, NotifyHaServer.getLocalUrl()));
+            } else if (bandConnected) {
                 statusView.setText(activity.getString(STR_STATUS_CONNECTED));
             } else {
                 statusView.setText(activity.getString(STR_STATUS_LISTENING));

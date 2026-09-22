@@ -141,6 +141,7 @@ public final class NotifyWearableBridge {
         lastEventAction = "";
         lastEventTimeMs = 0L;
         lastHrSource = "";
+        NotifyHaServer.start(context);
         wakeNotifyApp(context);
         scheduleConnectSequence(context);
         startKeepalive();
@@ -182,6 +183,7 @@ public final class NotifyWearableBridge {
         sendNotifyIntent(context, ACTION_HR_DISABLE);
         sendNotifyIntent(context, ACTION_HR_DISABLE_LEGACY);
         sendGadgetbridgeStop(context);
+        NotifyHaServer.stop();
         stopKeepalive();
         unregisterReceiver(context);
         listeningActive = false;

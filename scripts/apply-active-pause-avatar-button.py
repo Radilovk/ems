@@ -695,8 +695,16 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v2, :cond_yellow
+    if-eqz v2, :cond_black
 
+    :cond_yellow
+    const v2, {yellow_bg:#x}
+
+    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
+
+    goto :goto_0
+
+    :cond_black
     iget-object v3, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     const/4 v2, 0x0
@@ -704,13 +712,6 @@ def update_pause_hz_display_smali(pause_hz_id: int, yellow_bg: int) -> str:
     invoke-virtual {{v3, v2}}, Lcom/isaigu/gymapp/train/model/TrainItem;->setPauseHzSelected(Z)V
 
     const v2, {BLACK_BG:#x}
-
-    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
-
-    goto :goto_0
-
-    :cond_yellow
-    const v2, {yellow_bg:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
 

@@ -18,6 +18,11 @@ TRAIN_ITEM_MANAGER = (
 TRAIN_VIEW_HOLDER_4 = (
     DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder$4.smali"
 )
+MASTER_STRENGTH_CONTROL = (
+    DECOMPILED
+    / "smali_classes2/com/isaigu/gymapp/train/utils/MasterStrengthControl.smali"
+)
+MUSIC_SYNC = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils/MusicSync.smali"
 ROW_LAYOUTS = (
     "new_user_train_control_item_layout.xml",
     "user_train_control_item_layout.xml",
@@ -1159,6 +1164,163 @@ def patch_seekbar_listener() -> None:
     print("TrainViewHolder$4: active-pause-aware circle slider")
 
 
+ENSURE_MA_MODE_BODY_OLD = """    :cond_3
+    const/4 v0, 0x1
+
+    :try_start_4
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V"""
+
+ENSURE_MA_MODE_BODY_NEW = """    :cond_3
+    :try_start_4
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_do_ma
+
+    iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    if-eqz v1, :cond_do_ma
+
+    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v0, :cond_do_ma
+
+    goto :goto_13
+
+    :cond_do_ma
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V"""
+
+RELEASE_MA_MODE_METHOD = """
+.method public static releaseMaModeForActivePause()V
+    .registers 3
+
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->targetItem:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    if-nez v0, :cond_0
+
+    return-void
+
+    :cond_0
+    :try_start_1
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_1
+
+    iget-object v2, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    if-eqz v2, :cond_1
+
+    iget-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v1, :cond_1
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_2
+
+    :cond_1
+    return-void
+
+    :catchall_2
+    move-exception v0
+
+    return-void
+.end method"""
+
+STOP_CAPTURE_SYNC_HOOK_OLD = """    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSyncActive(Z)V
+
+    .line 351
+    return-void
+.end method
+
+.method public static syncWithTrainingState(Z)V"""
+
+STOP_CAPTURE_SYNC_HOOK_NEW = """    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSyncActive(Z)V
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->releaseMaModeForActivePause()V
+
+    .line 351
+    return-void
+.end method
+
+.method public static syncWithTrainingState(Z)V"""
+
+
+def patch_master_strength_control() -> None:
+    if not MASTER_STRENGTH_CONTROL.exists():
+        print("MasterStrengthControl.smali missing; skip active-pause MA guard")
+        return
+    text = MASTER_STRENGTH_CONTROL.read_text(encoding="utf-8")
+    ensure_ma_marker = (
+        ".method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V"
+    )
+    ensure_ma_body = text.split(ensure_ma_marker, 1)[-1].split(".end method", 1)[0]
+    if (
+        "ProgramDataBean;->activePause:Z" in ensure_ma_body
+        and ":cond_do_ma" in ensure_ma_body
+    ):
+        print("MasterStrengthControl.ensureMaMode: active-pause guard already applied")
+    elif ENSURE_MA_MODE_BODY_OLD in ensure_ma_body:
+        text = text.replace(ENSURE_MA_MODE_BODY_OLD, ENSURE_MA_MODE_BODY_NEW, 1)
+        text = text.replace(
+            ensure_ma_marker + "\n    .registers 2",
+            ensure_ma_marker + "\n    .registers 3",
+            1,
+        )
+        print("MasterStrengthControl.ensureMaMode: skip MA mode during yellow active pause")
+    else:
+        raise RuntimeError("MasterStrengthControl.ensureMaMode patch marker not found")
+    if "releaseMaModeForActivePause()V" not in text:
+        marker = ".method public static getCeiling()I"
+        if marker not in text:
+            raise RuntimeError("MasterStrengthControl.getCeiling marker not found")
+        text = text.replace(marker, RELEASE_MA_MODE_METHOD.strip() + "\n\n" + marker, 1)
+        print("MasterStrengthControl: added releaseMaModeForActivePause()")
+    else:
+        print("MasterStrengthControl.releaseMaModeForActivePause: already present")
+    MASTER_STRENGTH_CONTROL.write_text(text, encoding="utf-8")
+
+
+def patch_music_sync_stop() -> None:
+    if not MUSIC_SYNC.exists():
+        print("MusicSync.smali missing; skip releaseMaModeForActivePause hook")
+        return
+    text = MUSIC_SYNC.read_text(encoding="utf-8")
+    if "releaseMaModeForActivePause()V" in text.split("stopCaptureOnly()V", 1)[-1].split(
+        ".method public static syncWithTrainingState", 1
+    )[0]:
+        print("MusicSync.stopCaptureOnly: releaseMaModeForActivePause already hooked")
+        return
+    if STOP_CAPTURE_SYNC_HOOK_OLD in text:
+        text = text.replace(STOP_CAPTURE_SYNC_HOOK_OLD, STOP_CAPTURE_SYNC_HOOK_NEW, 1)
+    else:
+        updated, count = re.subn(
+            r"    invoke-static \{v0\}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSyncActive\(Z\)V\n\n"
+            r"    \.line \d+\n"
+            r"    return-void\n\.end method\n\n"
+            r"\.method public static syncWithTrainingState\(Z\)V",
+            "    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSyncActive(Z)V\n\n"
+            "    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->releaseMaModeForActivePause()V\n\n"
+            "    .line 351\n"
+            "    return-void\n.end method\n\n"
+            ".method public static syncWithTrainingState(Z)V",
+            text,
+            count=1,
+        )
+        if count != 1:
+            raise RuntimeError("MusicSync.stopCaptureOnly patch marker not found")
+        text = updated
+    MUSIC_SYNC.write_text(text, encoding="utf-8")
+    print("MusicSync.stopCaptureOnly: restore yellow coupled routing after sync")
+
+
 def patch_main_mode_button_text_color() -> None:
     changed = False
     tag_pattern = re.compile(
@@ -1200,6 +1362,8 @@ def main() -> int:
     patch_train_item_manager()
     patch_add_all_part_value()
     patch_seekbar_listener()
+    patch_master_strength_control()
+    patch_music_sync_stop()
     patch_main_mode_button_text_color()
     print("Active pause control fixes applied.")
     return 0

@@ -71,6 +71,10 @@ public final class WearableSyncHelper {
     private static final int STR_DIAG_HINT = 0x7f0d018c;
     private static final int STR_DIAG_HA = 0x7f0d018d;
     private static final int STR_STATUS_HA_LISTENING = 0x7f0d018e;
+    private static final int STR_HA_ENTITIES_TITLE = 0x7f0d018f;
+    private static final int STR_HA_ENTITIES_EMPTY = 0x7f0d0190;
+    private static final int STR_HA_ENTITIES_OK = 0x7f0d0191;
+    private static final int STR_HA_ENTITIES_NEED_PULSOID = 0x7f0d0192;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -395,10 +399,32 @@ public final class WearableSyncHelper {
         int battery = NotifyWearableBridge.getLastBattery();
         String batteryPart = battery >= 0 ? battery + "%" : "--";
         String diag = activity.getString(STR_DIAG_HA, hrEvents, haHr, haPosts, batteryPart);
+        String section = buildHaEntitySection(activity);
         if (hrEvents == 0 && haHr == 0 && NotifyWearableBridge.getBatteryEventCount() == 0) {
-            return diag + "\n" + activity.getString(STR_DIAG_HINT);
+            return diag + "\n" + activity.getString(STR_DIAG_HINT) + "\n" + section;
         }
-        return diag;
+        return diag + "\n" + section;
+    }
+
+    private static String buildHaEntitySection(Activity activity) {
+        if (activity == null) {
+            return "";
+        }
+        String entities = NotifyHaServer.getEntityListText();
+        if (entities == null || entities.length() == 0) {
+            return activity.getString(STR_HA_ENTITIES_EMPTY);
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(activity.getString(STR_HA_ENTITIES_TITLE));
+        sb.append('\n');
+        sb.append(entities);
+        sb.append('\n');
+        if (NotifyHaServer.hasHeartRateEntity()) {
+            sb.append(activity.getString(STR_HA_ENTITIES_OK));
+        } else {
+            sb.append(activity.getString(STR_HA_ENTITIES_NEED_PULSOID));
+        }
+        return sb.toString();
     }
 
     private static String buildSubLabel(Activity activity) {
@@ -695,7 +721,10 @@ public final class WearableSyncHelper {
         if (activity == null) {
             return;
         }
-        ModalInfoHelper.show(activity, STR_INFO_TITLE, STR_INFO_BODY);
+        String body = activity.getString(STR_INFO_BODY)
+                + "\n\n"
+                + buildHaEntitySection(activity);
+        ModalInfoHelper.show(activity, activity.getString(STR_INFO_TITLE), body);
     }
 
     private static final class RefreshOverlayRunnable implements Runnable {

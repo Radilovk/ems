@@ -176,7 +176,12 @@ def check_smali() -> list[str]:
         active_pause_head = ensure_body.split("activePause:Z", 1)[1].split(
             "setMaSelected(Z)V", 1
         )[0]
-        if "if-nez v0, :goto_13" not in active_pause_head:
+        legacy_guard = "if-nez v0, :goto_13" in active_pause_head
+        early_return_guard = (
+            "if-eqz v0," in active_pause_head
+            and "return-void" in active_pause_head
+        )
+        if not legacy_guard and not early_return_guard:
             errors.append(
                 "MasterStrengthControl.ensureMaMode must skip MA mode when activePause is on"
             )

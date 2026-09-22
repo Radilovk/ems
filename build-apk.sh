@@ -90,6 +90,8 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   bash "${ROOT}/scripts/compile-interval-timer-java.sh"
   python3 "${ROOT}/scripts/apply-interval-timer.py"
   python3 "${ROOT}/scripts/apply-music-training-sync.py"
+  bash "${ROOT}/scripts/compile-wearable-java.sh"
+  python3 "${ROOT}/scripts/apply-wearable-bridge.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
   python3 "${ROOT}/scripts/apply-train-swipe-delete-fix.py"
   python3 "${ROOT}/scripts/remove-segment-program-gear.py"
@@ -109,6 +111,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
     exit 1
   fi
   python3 "${ROOT}/scripts/verify-interval-timer-smali.py"
+  python3 "${ROOT}/scripts/verify-wearable-smali.py"
 else
   echo "BETA music sync disabled (BETA_MUSIC=0)."
 fi

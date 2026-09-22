@@ -367,22 +367,6 @@
 
     invoke-direct/range {v3 .. v10}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->applyCornerButton(Ljava/lang/String;IIIZZZ)V
 
-    const-string v4, "ma"
-
-    invoke-direct {p0, v4}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->bringIndexButtonToFront(Ljava/lang/String;)V
-
-    const-string v4, "pauseMaValue"
-
-    invoke-direct {p0, v4}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->bringIndexButtonToFront(Ljava/lang/String;)V
-
-    const-string v4, "hzValue"
-
-    invoke-direct {p0, v4}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->bringIndexButtonToFront(Ljava/lang/String;)V
-
-    const-string v4, "pauseHzValue"
-
-    invoke-direct {p0, v4}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->bringIndexButtonToFront(Ljava/lang/String;)V
-
     .line 97
     const-string p1, "userIcon"
 
@@ -408,30 +392,6 @@
 
     .line 104
     :cond_6a
-    return-void
-.end method
-
-.method private bringIndexButtonToFront(Ljava/lang/String;)V
-    .registers 3
-
-    invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->id(Ljava/lang/String;)I
-
-    move-result v0
-
-    if-nez v0, :cond_0
-
-    return-void
-
-    :cond_0
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->findViewById(I)Landroid/view/View;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_1
-
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/AvatarClusterLayout;->bringChildToFront(Landroid/view/View;)V
-
-    :cond_1
     return-void
 .end method
 

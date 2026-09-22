@@ -8,7 +8,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
-WEARABLE = DECOMPILED / "smali_classes2/com/isaigu/gymapp/wearable/NotifyWearableBridge.smali"
+WEARABLE = DECOMPILED / "smali_classes2/com/isaigu/gymapp/wearable/WearableSyncHelper.smali"
+LAYOUT = DECOMPILED / "res/layout/wearable_sync_dialog.xml"
 NEW_TRAIN = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
 
@@ -16,7 +17,9 @@ TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainIte
 def main() -> int:
     errors = []
     if not WEARABLE.exists():
-        errors.append("NotifyWearableBridge.smali missing")
+        errors.append("WearableSyncHelper.smali missing")
+    if not LAYOUT.exists():
+        errors.append("wearable_sync_dialog.xml missing")
     if not NEW_TRAIN.exists():
         errors.append("NewTrainFragment.smali missing")
     else:

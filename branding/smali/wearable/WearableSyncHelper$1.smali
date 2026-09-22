@@ -1,11 +1,11 @@
-.class synthetic Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$1;
+.class synthetic Lcom/isaigu/gymapp/wearable/WearableSyncHelper$1;
 .super Ljava/lang/Object;
-.source "NotifyWearableBridge.java"
+.source "WearableSyncHelper.java"
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;
+    value = Lcom/isaigu/gymapp/wearable/WearableSyncHelper;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;

@@ -4,6 +4,8 @@
 
 
 # static fields
+.field private static final KEY_ARMED:Ljava/lang/String; = "armed"
+
 .field private static final KEY_AUTO_REDUCE:Ljava/lang/String; = "auto_reduce"
 
 .field private static final KEY_ENABLED:Ljava/lang/String; = "enabled"
@@ -21,7 +23,7 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 15
+    .line 16
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,7 +32,7 @@
 .method public static getHrThreshold(Landroid/content/Context;)I
     .registers 3
 
-    .line 31
+    .line 36
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -49,7 +51,7 @@
 .method public static getStrengthStep(Landroid/content/Context;)I
     .registers 3
 
-    .line 35
+    .line 40
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -68,7 +70,7 @@
 .method public static getTaskerPassword(Landroid/content/Context;)Ljava/lang/String;
     .registers 3
 
-    .line 39
+    .line 44
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -84,10 +86,29 @@
     return-object p0
 .end method
 
+.method public static isArmed(Landroid/content/Context;)Z
+    .registers 3
+
+    .line 28
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    const-string v0, "armed"
+
+    const/4 v1, 0x0
+
+    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result p0
+
+    return p0
+.end method
+
 .method public static isAutoReduceEnabled(Landroid/content/Context;)Z
     .registers 3
 
-    .line 27
+    .line 32
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -106,7 +127,7 @@
 .method public static isEnabled(Landroid/content/Context;)Z
     .registers 3
 
-    .line 23
+    .line 24
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -125,12 +146,12 @@
 .method private static prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
     .registers 3
 
-    .line 18
+    .line 19
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object p0
 
-    .line 19
+    .line 20
     const-string v0, "wearable_bridge"
 
     const/4 v1, 0x0
@@ -139,6 +160,162 @@
 
     move-result-object p0
 
-    .line 18
+    .line 19
     return-object p0
+.end method
+
+.method public static setArmed(Landroid/content/Context;Z)V
+    .registers 3
+
+    .line 52
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    const-string v0, "armed"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 53
+    return-void
+.end method
+
+.method public static setAutoReduceEnabled(Landroid/content/Context;Z)V
+    .registers 3
+
+    .line 56
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    const-string v0, "auto_reduce"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 57
+    return-void
+.end method
+
+.method public static setEnabled(Landroid/content/Context;Z)V
+    .registers 3
+
+    .line 48
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    const-string v0, "enabled"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 49
+    return-void
+.end method
+
+.method public static setHrThreshold(Landroid/content/Context;I)V
+    .registers 3
+
+    .line 60
+    const/16 v0, 0x50
+
+    if-ge p1, v0, :cond_6
+
+    .line 61
+    const/16 p1, 0x50
+
+    .line 63
+    :cond_6
+    const/16 v0, 0xdc
+
+    if-le p1, v0, :cond_c
+
+    .line 64
+    const/16 p1, 0xdc
+
+    .line 66
+    :cond_c
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    const-string v0, "hr_threshold"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 67
+    return-void
+.end method
+
+.method public static setStrengthStep(Landroid/content/Context;I)V
+    .registers 3
+
+    .line 70
+    const/4 v0, 0x1
+
+    if-ge p1, v0, :cond_4
+
+    .line 71
+    const/4 p1, 0x1
+
+    .line 73
+    :cond_4
+    const/16 v0, 0x14
+
+    if-le p1, v0, :cond_a
+
+    .line 74
+    const/16 p1, 0x14
+
+    .line 76
+    :cond_a
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    const-string v0, "strength_step"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 77
+    return-void
 .end method

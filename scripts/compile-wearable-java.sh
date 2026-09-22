@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compile Notify wearable bridge classes from Java to smali.
+# Compile Notify wearable bridge + sync UI from Java to smali.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -13,17 +13,20 @@ BRANDING_SMALI="${ROOT}/branding/smali/wearable"
 ANDROID_JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 D8="${ROOT}/android-sdk/build-tools/30.0.3/d8"
 BAKSMALI="${ROOT}/tools/baksmali.jar"
+INTERVAL_CLASSES="${ROOT}/build/interval-timer-java/classes"
+MUSIC_CLASSES="${ROOT}/build/music-sync-java/classes"
 
 WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableConfig.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHrReceiver.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSyncHelper.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"
 
 if [[ ! -f "${ANDROID_JAR}" ]]; then
-  if [[ -f "${BRANDING_SMALI}/NotifyWearableBridge.smali" ]]; then
+  if [[ -f "${BRANDING_SMALI}/WearableSyncHelper.smali" ]]; then
     echo "Android SDK not found — using prebuilt wearable smali"
     exit 0
   fi
@@ -31,14 +34,17 @@ if [[ ! -f "${ANDROID_JAR}" ]]; then
   exit 1
 fi
 
+bash "${ROOT}/scripts/compile-music-sync-java.sh"
+bash "${ROOT}/scripts/compile-interval-timer-java.sh"
+
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 
-echo "Compiling wearable bridge classes..."
+echo "Compiling wearable bridge + sync UI classes..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
 javac \
   --release 8 \
-  -classpath "${ANDROID_JAR}:${JAVA_STUBS}" \
+  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${MUSIC_CLASSES}:${INTERVAL_CLASSES}" \
   -d "${CLASSES_DIR}" \
   "${STUB_FILES[@]}" \
   "${WEARABLE_JAVA[@]}"
@@ -68,8 +74,8 @@ while IFS= read -r -d '' file; do
   echo "  -> wearable/$(basename "${file}")"
 done < <(find "${SMALI_OUT}/com/isaigu/gymapp/wearable" -name '*.smali' -print0)
 
-if [[ ! -f "${BRANDING_SMALI}/NotifyWearableBridge.smali" ]]; then
-  echo "ERROR: NotifyWearableBridge.smali not produced"
+if [[ ! -f "${BRANDING_SMALI}/WearableSyncHelper.smali" ]]; then
+  echo "ERROR: WearableSyncHelper.smali not produced"
   exit 1
 fi
 

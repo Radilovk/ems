@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -16,6 +17,7 @@ TRAIN_ITEM_MANAGER = (
     DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainItemManager.smali"
 )
 SLIDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder$4.smali"
+TRAIN_VIEW_HOLDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder.smali"
 
 ROUTES = (
     "pause_ma",
@@ -95,17 +97,34 @@ def check_smali() -> list[str]:
     manager = TRAIN_ITEM_MANAGER.read_text(encoding="utf-8")
     slider = SLIDER.read_text(encoding="utf-8")
 
-    slider_body = item.split("setMainAndPauseStrenthFromSlider(I)V", 1)[-1].split(".end method", 1)[0]
-    if "sendPulse()V" in slider_body:
-        errors.append("setMainAndPauseStrenthFromSlider must not call sendPulse (slider uses onItemChange)")
-    if ":cond_scale_pause" not in slider_body:
-        errors.append("setMainAndPauseStrenthFromSlider missing zero-pause coupled bootstrap")
+    slider_match = re.search(
+        r"\.method public setMainAndPauseStrenthFromSlider\(I\)V.*?\.end method",
+        item,
+        flags=re.DOTALL,
+    )
+    if not slider_match:
+        errors.append("setMainAndPauseStrenthFromSlider missing")
+    else:
+        slider_body = slider_match.group(0)
+        if "sendPulse()V" in slider_body:
+            errors.append("setMainAndPauseStrenthFromSlider must not call sendPulse (slider uses onItemChange)")
+        if ":cond_scale_pause" not in slider_body:
+            errors.append("setMainAndPauseStrenthFromSlider missing zero-pause coupled bootstrap")
 
     coupled_body = item.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
     if "sendPulse()V" not in coupled_body:
         errors.append("addMainAndPauseStrenth must call sendPulse for +/- controls")
-    if ":cond_scale_pause" not in coupled_body:
-        errors.append("addMainAndPauseStrenth missing zero-pause coupled bootstrap")
+    if "setMainAndPauseStrenthFromSlider(I)V" not in coupled_body:
+        errors.append("addMainAndPauseStrenth must delegate to setMainAndPauseStrenthFromSlider")
+    if not TRAIN_VIEW_HOLDER.exists():
+        errors.append("TrainViewHolder.smali missing")
+    else:
+        holder = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
+        display_hz = holder.split("updatePauseHzDisplay()V", 1)[-1].split(".end method", 1)[0]
+        if ":cond_yellow" in display_hz and "setMaSelected(Z)V" in display_hz.split(":cond_yellow", 1)[1].split(
+            ":cond_black", 1
+        )[0]:
+            errors.append("updatePauseHzDisplay must not clear maSelected in yellow mode")
 
     lambda_body = manager.split("lambda$addAllPartValue$6", 1)[-1].split(".end method", 1)[0]
     markers = (

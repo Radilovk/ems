@@ -1061,7 +1061,7 @@ __MUSIC_SYNC_GUARD__
 
 def patch_train_item() -> None:
     text = TRAIN_ITEM.read_text(encoding="utf-8")
-    if "setMainAndPauseStrenthFromSlider(I)V" not in text:
+    if ".method public setMainAndPauseStrenthFromSlider(I)V" not in text:
         marker = ".method public addMainAndPauseStrenth(I)V"
         if marker not in text:
             raise RuntimeError("TrainItem.addMainAndPauseStrenth marker not found")
@@ -1086,14 +1086,9 @@ def patch_train_item() -> None:
         raise RuntimeError("TrainItem.setUserType patch marker not found")
 
     add_main_body = text.split("addMainAndPauseStrenth(I)V", 1)[-1].split(".end method", 1)[0]
-    if "cond_scale_pause" in add_main_body:
-        print("TrainItem.addMainAndPauseStrenth: coupled scale with zero-pause bootstrap OK")
-    elif "cond_keep_pause" in add_main_body:
-        raise RuntimeError(
-            "TrainItem.addMainAndPauseStrenth missing zero-pause bootstrap; rebuild from avatar-button patch"
-        )
-    else:
-        raise RuntimeError("TrainItem.addMainAndPauseStrenth scale patch marker not found")
+    if "setMainAndPauseStrenthFromSlider(I)V" not in add_main_body:
+        raise RuntimeError("TrainItem.addMainAndPauseStrenth must delegate to setMainAndPauseStrenthFromSlider")
+    print("TrainItem.addMainAndPauseStrenth: delegates to setMainAndPauseStrenthFromSlider")
 
     if ".method private sendCoupledStrengthRefresh()V" in text:
         text = re.sub(
@@ -1115,8 +1110,14 @@ def patch_train_item() -> None:
     if COUPLED_STRENGTH_NOTIFY not in add_main_body:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth missing sendPulse notify tail")
 
-    slider_body = text.split("setMainAndPauseStrenthFromSlider(I)V", 1)[-1].split(".end method", 1)[0]
-    if "sendPulse()V" in slider_body:
+    slider_match = re.search(
+        r"\.method public setMainAndPauseStrenthFromSlider\(I\)V.*?\.end method",
+        text,
+        flags=re.DOTALL,
+    )
+    if not slider_match:
+        raise RuntimeError("TrainItem.setMainAndPauseStrenthFromSlider missing")
+    if "sendPulse()V" in slider_match.group(0):
         raise RuntimeError(
             "TrainItem.setMainAndPauseStrenthFromSlider must not sendPulse; slider uses onItemChange"
         )
@@ -1266,14 +1267,6 @@ RELEASE_MA_MODE_METHOD = """
     if-eqz v2, :cond_1
 
     iget-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
-
-    if-eqz v1, :cond_1
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_2
 
     :cond_1
     return-void

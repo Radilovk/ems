@@ -256,7 +256,7 @@ ADD_PAUSE_STRENTH_METHOD = """
 
 ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 .method public addMainAndPauseStrenth(I)V
-    .locals 8
+    .locals 7
     .param p1, "value"    # I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -265,13 +265,11 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    move-result-object v6
+    move-result-object v0
 
-    iget-object v7, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    iget v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iget v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
-
-    iget v2, v7, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iget v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     add-int v3, v1, p1
 
@@ -287,7 +285,7 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
     const/4 v3, 0x0
 
     :cond_main_floor
-    iget-boolean v5, v7, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-boolean v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     if-nez v5, :cond_only_main
 
@@ -298,28 +296,28 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
     goto :cond_store
 
     :cond_has_main
-    if-nez v2, :cond_scale_pause
-
-    move v5, v3
-
-    goto :cond_pause_clamp
-
-    :cond_scale_pause
     if-lez v1, :cond_from_zero
 
     mul-int v5, v3, v2
 
-    move v0, v1
+    move v6, v1
 
-    div-int/lit8 v0, v0, 0x2
+    div-int/lit8 v6, v6, 0x2
 
-    add-int/2addr v5, v0
+    add-int/2addr v5, v6
 
     div-int v5, v5, v1
 
     goto :cond_pause_clamp
 
     :cond_from_zero
+    if-nez v2, :cond_keep_pause
+
+    move v5, v3
+
+    goto :cond_pause_clamp
+
+    :cond_keep_pause
     move v5, v2
 
     :cond_pause_clamp
@@ -334,9 +332,9 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
 
     :cond_pause_floor
     :cond_store
-    iput v3, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    iput v5, v7, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
+    iput v5, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 
@@ -345,7 +343,7 @@ ADD_MAIN_AND_PAUSE_STRENTH_METHOD = """
     return-void
 
     :cond_only_main
-    iput v3, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
+    iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
 
@@ -838,8 +836,6 @@ PAUSE_HZ_CLICK_LISTENER = """.class public Lcom/isaigu/gymapp/train/TrainPauseHz
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->setHzSelected(Z)V
-
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->releaseMaModeForActivePause()V
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainPauseHzValueClickListener;->holder:Lcom/isaigu/gymapp/train/TrainViewHolder;
 

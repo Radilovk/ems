@@ -115,10 +115,6 @@ SET_MAIN_FROM_SLIDER = """
     iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     :cond_done
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
-
-    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
-
     return-void
 .end method
 """
@@ -772,6 +768,10 @@ __MUSIC_SYNC_GUARD__
 
     move-result-object v0
 
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v1, :cond_pause_ma_end
+
     mul-int/lit8 v1, p2, 0x64
 
     div-int/lit8 v1, v1, 0x4b
@@ -832,6 +832,10 @@ __MUSIC_SYNC_GUARD__
     invoke-virtual {{v0}}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
+
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v1, :cond_pause_hz_end
 
     mul-int/lit8 v1, p2, 0x78
 
@@ -1110,6 +1114,12 @@ def patch_train_item() -> None:
     if COUPLED_STRENGTH_NOTIFY not in add_main_body:
         raise RuntimeError("TrainItem.addMainAndPauseStrenth missing sendPulse notify tail")
 
+    slider_body = text.split("setMainAndPauseStrenthFromSlider(I)V", 1)[-1].split(".end method", 1)[0]
+    if "sendPulse()V" in slider_body:
+        raise RuntimeError(
+            "TrainItem.setMainAndPauseStrenthFromSlider must not sendPulse; slider uses onItemChange"
+        )
+
     TRAIN_ITEM.write_text(text, encoding="utf-8")
 
 
@@ -1194,6 +1204,8 @@ def patch_seekbar_listener() -> None:
     ):
         MUSIC_SYNC_GUARD = ""
     listener = build_seekbar_listener(pause_ma_id, pause_hz_id, hz_value_id)
+    if "activePause:Z" not in listener.split("onChangedEnd", 1)[1]:
+        raise RuntimeError("TrainViewHolder$4.onChangedEnd missing activePause guards on pause paths")
     TRAIN_VIEW_HOLDER_4.write_text(listener.strip() + "\n", encoding="utf-8")
     print("TrainViewHolder$4: active-pause-aware circle slider")
 

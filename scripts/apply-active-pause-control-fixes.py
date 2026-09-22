@@ -110,6 +110,8 @@ SET_MAIN_FROM_SLIDER = """
     iput v3, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     :cond_done
+    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->sendPulse()V
+
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
 
     return-void

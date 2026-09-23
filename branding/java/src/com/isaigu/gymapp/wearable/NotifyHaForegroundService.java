@@ -11,10 +11,11 @@ import android.os.Build;
 import android.os.IBinder;
 
 import com.isaigu.gymapp.MainActivity;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
 
-/** Keeps the Gadgetbridge HR receiver alive while the dial is armed (Huawei battery saver). */
+/** Keeps direct BLE HR alive while the dial is connected (Huawei battery saver). */
 public final class NotifyHaForegroundService extends Service {
-    private static final String CHANNEL_ID = "xems_gb_hr";
+    private static final String CHANNEL_ID = "xems_ble_hr";
     private static final int NOTIFICATION_ID = 0x7e060001;
 
     public static void start(Context context) {
@@ -77,14 +78,20 @@ public final class NotifyHaForegroundService extends Service {
                 CHANNEL_ID,
                 "XEMS pulse sync",
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Keeps Gadgetbridge HR sync active during training");
+        channel.setDescription("Keeps direct BLE heart rate active during training");
         channel.setShowBadge(false);
         manager.createNotificationChannel(channel);
     }
 
     private Notification buildNotification() {
-        String pkg = NotifyWearableBridge.getResolvedGadgetbridgePackage(this);
-        String text = "Gadgetbridge HR: " + (pkg != null ? pkg : "not installed");
+        String text;
+        if (WearableConfig.isDirectBleMode(this)) {
+            text = "Direct BLE: " + NotifyWearableBridge.getBleState()
+                    + " · " + XiaomiBandBleClient.getBuildTag();
+        } else {
+            String pkg = NotifyWearableBridge.getResolvedGadgetbridgePackage(this);
+            text = "Gadgetbridge HR: " + (pkg != null ? pkg : "not installed");
+        }
         Intent launch = new Intent(this, MainActivity.class);
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;

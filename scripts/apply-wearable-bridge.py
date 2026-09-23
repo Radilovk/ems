@@ -438,6 +438,26 @@ def patch_new_train_fragment(text: str) -> str:
                 raise RuntimeError("NewTrainFragment: IntervalTimerHelper attach hook missing")
             text = text.replace(interval_marker, interval_marker + WEARABLE_ATTACH_HOOK, 1)
             print("NewTrainFragment: wearable attach on onCreateView")
+    if "NotifyWearableBridge;->detachTrainingHost" not in text:
+        destroy_marker = (
+            "    invoke-super {p0}, Landroid/support/v4/app/Fragment;->onDestroy()V\n\n"
+            "    .line 217\n"
+            "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()"
+            "Lorg/greenrobot/eventbus/EventBus;\n"
+        )
+        destroy_hook = (
+            "    invoke-super {p0}, Landroid/support/v4/app/Fragment;->onDestroy()V\n\n"
+            "    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;"
+            "->detachTrainingHost()V\n\n"
+            "    .line 217\n"
+            "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()"
+            "Lorg/greenrobot/eventbus/EventBus;\n"
+        )
+        if destroy_marker in text:
+            text = text.replace(destroy_marker, destroy_hook, 1)
+            print("NewTrainFragment: detachTrainingHost on onDestroy")
+        else:
+            print("WARN: NewTrainFragment.onDestroy marker not found — skip detach hook")
     return text
 
 

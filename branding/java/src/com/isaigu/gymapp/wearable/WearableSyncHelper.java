@@ -131,6 +131,7 @@ public final class WearableSyncHelper {
         if (root == null || manager == null) {
             return;
         }
+        dismissStaleUi();
         panelRoot = root;
         itemManager = manager;
         View button = root.findViewById(BUTTON_ID);
@@ -140,7 +141,74 @@ public final class WearableSyncHelper {
         button.setClickable(true);
         button.setEnabled(true);
         button.setFocusable(true);
+        button.bringToFront();
         button.setOnClickListener(new MasterOpenListener());
+        onTrainingHostReady();
+    }
+
+    /** Restore dial UI after activity recreate; do not auto-connect BLE (EMS needs Bluetooth). */
+    public static void onTrainingHostReady() {
+        Activity activity = resolveActivity(null);
+        if (activity == null || !WearableConfig.isEnabled(activity)) {
+            return;
+        }
+        if (!WearableConfig.isArmed(activity)) {
+            overlayVisible = false;
+            return;
+        }
+        overlayVisible = true;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Activity act = resolveActivity(null);
+                if (act == null || act.isFinishing()) {
+                    return;
+                }
+                if (overlayDialog == null || !overlayDialog.isShowing()) {
+                    showOverlayDialog();
+                }
+            }
+        });
+    }
+
+    /** Stop band BLE and tear down floating UI when training host is destroyed. */
+    public static void detachTrainingHost() {
+        Context context = getContext();
+        if (context != null) {
+            NotifyWearableBridge.stopListening(context);
+        }
+        dismissStaleUi();
+        panelRoot = null;
+        itemManager = null;
+    }
+
+    private static void dismissStaleUi() {
+        if (overlayDialog != null) {
+            try {
+                overlayDialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            overlayDialog = null;
+            overlayContent = null;
+            ringView = null;
+            hrValueView = null;
+            subLabelView = null;
+        }
+        if (configDialog != null) {
+            try {
+                configDialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            configDialog = null;
+            configContent = null;
+            statusView = null;
+            enabledSwitch = null;
+            autoReduceSwitch = null;
+            thresholdView = null;
+            stepView = null;
+            bandMacView = null;
+            authKeyView = null;
+        }
     }
 
     public static void onTrainingRunningChanged(boolean running) {
@@ -558,9 +626,6 @@ public final class WearableSyncHelper {
                     ? View.GONE : View.VISIBLE);
         }
         overlayVisible = WearableConfig.isArmed(activity);
-        if (overlayVisible) {
-            NotifyWearableBridge.beginListening(activity);
-        }
     }
 
     private static void saveConfigFromUi(Activity activity) {

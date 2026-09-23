@@ -53,6 +53,7 @@ NOTIFY_RECEIVER = """        <receiver android:exported="true" android:name="com
                 <action android:name="com.mc.miband.batteryStatGot"/>
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED"/>
+                <action android:name="nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_DISCONNECTED"/>
             </intent-filter>
         </receiver>
 """
@@ -123,6 +124,8 @@ STRING_IDS = {
     "wearable_sync_band_mac": 0x7F0D0195,
     "wearable_sync_diag_gb": 0x7F0D0196,
     "wearable_sync_status_gb_listening": 0x7F0D0197,
+    "wearable_sync_diag_gb_meta": 0x7F0D0198,
+    "wearable_sync_diag_gb_hint": 0x7F0D0199,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -221,7 +224,7 @@ EN_STRINGS = """
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
     <string name="wearable_sync_info_title">Watch sync — help</string>
-    <string name="wearable_sync_info_body">PRIMARY PATH — Fake Home Assistant server in XEMS (port 8123):\\n\\n1. XEMS ♥ → Activate dial (starts HA server at http://127.0.0.1:8123)\\n2. Notify → Integrations → Home Assistant → ON\\n   • URL: http://127.0.0.1:8123 (or http://PHONE_LAN_IP:8123 if localhost fails)\\n   • Token: any text (e.g. xems-test)\\n   • Identifier: xems\\n   • Mode: Standard → Sync now\\n3. Wear band; watch dial diagnostics: HA posts / HA HR should increase\\n\\nEntities: sensor.xems_heartrate, sensor.xems_battery, sensor.xems_connected\\n\\nIf HA HR stays 0 after 10 min: try LAN IP, disable battery saver for Notify + XEMS.\\nFallback: Pulsoid WebSocket integration (cloud).\\nTasker heartRateGot is kept but unreliable on Band 8.</string>
+    <string name="wearable_sync_info_body">GADGETBRIDGE PATH (recommended if GB is installed):\\n\\n1. Unpair band from Notify — only one BLE client.\\n2. GB global: Settings → Developer → Intent API → Bluetooth + commands ON.\\n3. GB per-device (Band 8): Device settings → Developer → Intent API:\\n   • Realtime HR broadcast (REALTIME_HR)\\n   • Start/stop realtime HR (START_REALTIME_HR)\\n4. XEMS ♥ → MAC D0:62:2C:26:49:60 → Activate dial → Connect.\\n5. In GB start Live activity (heart icon) OR wait ~15s for first HR.\\n6. Diagnostics: GB cmds &gt; 0, last: REALTIME_HR, GB HR increases.\\n\\nRequires GB nightly with PR #6473/#6475 (0.93+). If GB HR stays 0 with cmds sent: update GB or use Pulsoid.\\n\\nNOTIFY PATH (if no GB): fake HA server on port 8123 — see docs/xiaomi-band-integration.md.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi not detected — check it is installed (Huawei: allow app visibility)</string>
     <string name="wearable_sync_status_listening">Connecting to Notify…</string>
@@ -240,6 +243,8 @@ EN_STRINGS = """
     <string name="wearable_sync_band_mac">Band MAC</string>
     <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · battery: %5$s</string>
     <string name="wearable_sync_status_gb_listening">Gadgetbridge — enable Intent API on band, then Connect</string>
+    <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · last: %2$s · %3$s</string>
+    <string name="wearable_sync_diag_gb_hint">No GB HR yet. Check: (1) per-device Intent API → realtime HR broadcast + START_REALTIME_HR, (2) global Intent API → Bluetooth, (3) Live activity in GB, (4) wait 15s, (5) update GB nightly.</string>
 """
 
 BG_STRINGS = """
@@ -257,7 +262,7 @@ BG_STRINGS = """
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">ОСНОВЕН ПЪТ — фалшив Home Assistant сървър в XEMS (порт 8123):\\n\\n1. XEMS ♥ → Активирай циферблат (стартира HA сървър на http://127.0.0.1:8123)\\n2. Notify → Integrations → Home Assistant → ВКЛ\\n   • URL: http://127.0.0.1:8123 (или http://LAN_IP_НА_ТЕЛЕФОНА:8123)\\n   • Token: произволен (напр. xems-test)\\n   • Identifier: xems\\n   • Режим: Standard → Sync now\\n3. Носи гривната; гледай диагностиката: HA posts / HA HR трябва да растат\\n\\nСензори: sensor.xems_heartrate, sensor.xems_battery, sensor.xems_connected\\n\\nАко HA HR=0 след 10 мин: пробвай LAN IP; изключи оптимизация на батерията.\\nРезервен път: Pulsoid WebSocket (облак).\\nTasker heartRateGot остава, но е ненадежден на Band 8.</string>
+    <string name="wearable_sync_info_body">ПЪТ GADGETBRIDGE (препоръчителен, ако GB е инсталиран):\\n\\n1. Разкачи гривната от Notify — само един BLE клиент.\\n2. GB глобално: Настройки → Developer → Intent API → Bluetooth + команди ВКЛ.\\n3. GB на гривната (Band 8): Device settings → Developer → Intent API:\\n   • Realtime HR broadcast (REALTIME_HR)\\n   • Start/stop realtime HR (START_REALTIME_HR)\\n4. XEMS ♥ → MAC D0:62:2C:26:49:60 → Активирай циферблат → Свържи.\\n5. В GB стартирай Live activity (сърце) ИЛИ изчакай ~15s за първи пулс.\\n6. Диагностика: GB cmds &gt; 0, последно: REALTIME_HR, GB HR расте.\\n\\nНужен GB nightly с PR #6473/#6475 (0.93+). Ако GB HR=0 при изпратени cmds: обнови GB или Pulsoid.\\n\\nПЪТ NOTIFY (без GB): фалшив HA сървър порт 8123 — виж docs/xiaomi-band-integration.md.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
     <string name="wearable_sync_status_listening">Свързване с Notify…</string>
@@ -276,6 +281,8 @@ BG_STRINGS = """
     <string name="wearable_sync_band_mac">MAC гривна</string>
     <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · батерия: %5$s</string>
     <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
+    <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · последно: %2$s · %3$s</string>
+    <string name="wearable_sync_diag_gb_hint">Няма GB HR. Провери: (1) на гривната Intent API → realtime HR broadcast + START_REALTIME_HR, (2) глобално Intent API → Bluetooth, (3) Live activity в GB, (4) изчакай 15s, (5) обнови GB nightly.</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V

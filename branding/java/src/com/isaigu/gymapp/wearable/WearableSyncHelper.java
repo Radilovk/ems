@@ -82,6 +82,8 @@ public final class WearableSyncHelper {
     private static final int STR_BAND_MAC = 0x7f0d0195;
     private static final int STR_DIAG_GB = 0x7f0d0196;
     private static final int STR_STATUS_GB_LISTENING = 0x7f0d0197;
+    private static final int STR_DIAG_GB_META = 0x7f0d0198;
+    private static final int STR_DIAG_GB_HINT = 0x7f0d0199;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -400,7 +402,8 @@ public final class WearableSyncHelper {
     }
 
     private static String buildWaitingLabel(Activity activity) {
-        if (!bandConnected) {
+        boolean gbMode = NotifyWearableBridge.isGadgetbridgeInstalled(activity);
+        if (!bandConnected && !gbMode) {
             return activity.getString(STR_STATUS_DISCONNECTED);
         }
         int gbHr = NotifyWearableBridge.getGbHrEventCount();
@@ -419,11 +422,37 @@ public final class WearableSyncHelper {
             diag = activity.getString(STR_DIAG_HA, taskerHr + gbHr, haHr, haPosts, batteryPart);
         }
         String section = buildHaEntitySection(activity);
-        if (gbHr == 0 && taskerHr == 0 && haHr == 0
+        StringBuilder sb = new StringBuilder(diag);
+        if (gbMode) {
+            sb.append('\n');
+            sb.append(activity.getString(
+                    STR_DIAG_GB_META,
+                    NotifyWearableBridge.getGbCommandCount(),
+                    shortAction(NotifyWearableBridge.getLastEventAction()),
+                    NotifyWearableBridge.getGbPackageLabel(activity)));
+            if (gbHr == 0) {
+                sb.append('\n');
+                sb.append(activity.getString(STR_DIAG_GB_HINT));
+            }
+        } else if (gbHr == 0 && taskerHr == 0 && haHr == 0
                 && NotifyWearableBridge.getBatteryEventCount() == 0) {
-            return diag + "\n" + activity.getString(STR_DIAG_HINT) + "\n" + section;
+            sb.append('\n').append(activity.getString(STR_DIAG_HINT));
         }
-        return diag + "\n" + section;
+        if (!gbMode) {
+            sb.append('\n').append(section);
+        }
+        return sb.toString();
+    }
+
+    private static String shortAction(String action) {
+        if (action == null || action.length() == 0) {
+            return "--";
+        }
+        int slash = action.lastIndexOf('.');
+        if (slash >= 0 && slash < action.length() - 1) {
+            return action.substring(slash + 1);
+        }
+        return action;
     }
 
     private static String buildHaEntitySection(Activity activity) {
@@ -783,8 +812,12 @@ public final class WearableSyncHelper {
     static final class ConnectListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            Activity activity = resolveActivity(v);
+            if (activity != null) {
+                saveConfigFromUi(activity);
+            }
             NotifyWearableBridge.requestConnect();
-            toast(resolveActivity(v), STR_CONNECT);
+            toast(activity, STR_CONNECT);
         }
     }
 
@@ -808,8 +841,12 @@ public final class WearableSyncHelper {
     static final class OverlayConnectListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            Activity activity = resolveActivity(v);
+            if (activity != null) {
+                saveConfigFromUi(activity);
+            }
             NotifyWearableBridge.requestConnect();
-            toast(resolveActivity(v), STR_CONNECT);
+            toast(activity, STR_CONNECT);
         }
     }
 

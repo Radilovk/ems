@@ -24,6 +24,10 @@ public final class NotifyWearableBridge {
             "nodomain.freeyourgadget.gadgetbridge.nightly_nopebble";
     public static final String ACTION_GB_CONNECTED =
             "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED";
+    public static final String ACTION_GB_CONNECT =
+            "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECT";
+    public static final String ACTION_GB_DISCONNECTED =
+            "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_DISCONNECTED";
 
     public static final String ACTION_HR_ENABLE = "com.mc.xiaomi.taskerHeartEnable";
     public static final String ACTION_HR_ENABLE_LEGACY = "com.mc.miband.taskerHeartEnable";
@@ -48,7 +52,8 @@ public final class NotifyWearableBridge {
 
     private static final long AUTO_REDUCE_COOLDOWN_MS = 10000L;
     private static final long KEEPALIVE_INTERVAL_MS = 15000L;
-    private static final long CONNECT_STEP_DELAY_MS = 400L;
+    private static final long CONNECT_STEP_DELAY_MS = 500L;
+    private static final long GB_FIRST_HR_DELAY_MS = 14000L;
     private static final int RECEIVER_EXPORTED_FLAG = 0x2;
     private static final int FLAG_INCLUDE_STOPPED_PACKAGES = 0x20;
 
@@ -83,6 +88,7 @@ public final class NotifyWearableBridge {
     private static long lastAutoReduceMs;
     private static int hrEventCount;
     private static int gbHrEventCount;
+    private static int gbCommandCount;
     private static int batteryEventCount;
     private static String lastEventAction = "";
     private static long lastEventTimeMs;
@@ -157,6 +163,7 @@ public final class NotifyWearableBridge {
         registerReceiver(context);
         if (isGadgetbridgeInstalled(context)) {
             NotifyHaServer.stop();
+            NotifyHaForegroundService.start(context);
         } else {
             NotifyHaServer.resetSession();
             NotifyHaServer.start(context);
@@ -165,12 +172,14 @@ public final class NotifyWearableBridge {
         lastHr = -1;
         hrEventCount = 0;
         gbHrEventCount = 0;
+        gbCommandCount = 0;
         batteryEventCount = 0;
         lastEventAction = "";
         lastEventTimeMs = 0L;
         lastHrSource = "";
         if (isGadgetbridgeInstalled(context)) {
-            sendGadgetbridgeStart(context);
+            onBandConnected();
+            scheduleGadgetbridgeSequence(context);
         } else {
             wakeNotifyApp(context);
             scheduleConnectSequence(context);
@@ -216,7 +225,7 @@ public final class NotifyWearableBridge {
         }
         beginListening(context);
         if (isGadgetbridgeInstalled(context)) {
-            sendGadgetbridgeStart(context);
+            scheduleGadgetbridgeSequence(context);
         } else {
             sendNotifyIntent(context, ACTION_RECONNECT);
             sendNotifyIntent(context, ACTION_RECONNECT_LEGACY);
@@ -233,6 +242,7 @@ public final class NotifyWearableBridge {
         sendNotifyIntent(context, ACTION_HR_DISABLE_LEGACY);
         sendGadgetbridgeStop(context);
         NotifyHaServer.stop();
+        NotifyHaForegroundService.stop(context);
         stopKeepalive();
         unregisterReceiver(context);
         listeningActive = false;
@@ -307,6 +317,32 @@ public final class NotifyWearableBridge {
         return gbHrEventCount;
     }
 
+    public static int getGbCommandCount() {
+        return gbCommandCount;
+    }
+
+    public static String getResolvedGadgetbridgePackage(Context context) {
+        return resolveGadgetbridgePackage(context);
+    }
+
+    public static String getGbPackageLabel(Context context) {
+        String pkg = resolveGadgetbridgePackage(context);
+        if (pkg == null) {
+            return "--";
+        }
+        if (GB_PACKAGE_NIGHTLY_NO_PEBBLE.equals(pkg)) {
+            return "GB nightly_nopebble";
+        }
+        if (GB_PACKAGE_NIGHTLY.equals(pkg)) {
+            return "GB nightly";
+        }
+        if (GB_PACKAGE.equals(pkg)) {
+            return "GB mainline";
+        }
+        int dot = pkg.lastIndexOf('.');
+        return dot >= 0 ? pkg.substring(dot + 1) : pkg;
+    }
+
     public static int getBatteryEventCount() {
         return batteryEventCount;
     }
@@ -356,40 +392,96 @@ public final class NotifyWearableBridge {
         }
     }
 
-    private static void sendGadgetbridgeStart(Context context) {
+    private static void scheduleGadgetbridgeSequence(final Context context) {
+        final Context app = appContext(context);
+        final String[] steps = new String[] {
+                ACTION_GB_CONNECT,
+                ACTION_GB_START_HR,
+        };
+        for (int i = 0; i < steps.length; i++) {
+            final String action = steps[i];
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!listeningActive) {
+                        return;
+                    }
+                    sendGadgetbridgeCommand(app, action);
+                }
+            }, CONNECT_STEP_DELAY_MS * (i + 1));
+        }
+        final long[] retryDelays = new long[] {
+                GB_FIRST_HR_DELAY_MS,
+                GB_FIRST_HR_DELAY_MS + 10000L,
+                GB_FIRST_HR_DELAY_MS + 25000L,
+                GB_FIRST_HR_DELAY_MS + 45000L,
+        };
+        for (int i = 0; i < retryDelays.length; i++) {
+            final long delay = retryDelays[i];
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!listeningActive) {
+                        return;
+                    }
+                    sendGadgetbridgeCommand(app, ACTION_GB_START_HR);
+                }
+            }, delay);
+        }
+    }
+
+    private static void sendGadgetbridgeCommand(Context context, String action) {
         String packageName = resolveGadgetbridgePackage(context);
-        if (packageName == null) {
+        if (packageName == null || action == null) {
             return;
         }
-        Intent intent = new Intent(ACTION_GB_START_HR);
+        String mac = normalizeMac(WearableConfig.getBandMac(context));
+        Intent intent = new Intent(action);
         intent.setPackage(packageName);
         intent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
-        String mac = WearableConfig.getBandMac(context);
-        if (mac != null && mac.length() > 0) {
-            intent.putExtra("device", mac);
+        if (mac.length() > 0) {
+            if (ACTION_GB_CONNECT.equals(action)) {
+                intent.putExtra("EXTRA_DEVICE_ADDRESS", mac);
+            } else {
+                intent.putExtra("device", mac);
+            }
         }
+        gbCommandCount++;
         try {
             context.sendBroadcast(intent);
+        } catch (Throwable ignored) {
+        }
+        try {
+            context.sendOrderedBroadcast(intent, null);
         } catch (Throwable ignored) {
         }
     }
 
+    private static void sendGadgetbridgeStart(Context context) {
+        sendGadgetbridgeCommand(context, ACTION_GB_START_HR);
+    }
+
     private static void sendGadgetbridgeStop(Context context) {
-        String packageName = resolveGadgetbridgePackage(context);
-        if (packageName == null) {
-            return;
+        sendGadgetbridgeCommand(context, ACTION_GB_STOP_HR);
+    }
+
+    static String normalizeMac(String mac) {
+        if (mac == null) {
+            return "";
         }
-        Intent intent = new Intent(ACTION_GB_STOP_HR);
-        intent.setPackage(packageName);
-        intent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
-        String mac = WearableConfig.getBandMac(context);
-        if (mac != null && mac.length() > 0) {
-            intent.putExtra("device", mac);
+        String compact = mac.replace(":", "").replace("-", "").replace(" ", "").toUpperCase();
+        if (compact.length() != 12) {
+            return mac.trim();
         }
-        try {
-            context.sendBroadcast(intent);
-        } catch (Throwable ignored) {
+        StringBuilder sb = new StringBuilder(17);
+        for (int i = 0; i < 12; i += 2) {
+            if (sb.length() > 0) {
+                sb.append(':');
+            }
+            sb.append(compact.charAt(i));
+            sb.append(compact.charAt(i + 1));
         }
+        return sb.toString();
     }
 
     private static void wakeNotifyApp(Context context) {
@@ -488,6 +580,7 @@ public final class NotifyWearableBridge {
         filter.addAction(NotifyHrReceiver.ACTION_BATTERY_LEGACY);
         filter.addAction(NotifyHrReceiver.ACTION_GB_REALTIME_HR);
         filter.addAction(ACTION_GB_CONNECTED);
+        filter.addAction(ACTION_GB_DISCONNECTED);
         if (Build.VERSION.SDK_INT >= 33) {
             app.registerReceiver(receiver, filter, RECEIVER_EXPORTED_FLAG);
         } else {

@@ -18,6 +18,8 @@
 
 .field public static final ACTION_GB_CONNECTED:Ljava/lang/String; = "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED"
 
+.field public static final ACTION_GB_DISCONNECTED:Ljava/lang/String; = "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_DISCONNECTED"
+
 .field public static final ACTION_GB_REALTIME_HR:Ljava/lang/String; = "nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"
 
 .field public static final ACTION_HEART_RATE:Ljava/lang/String; = "com.mc.xiaomi.heartRateGot"
@@ -38,12 +40,12 @@
 .method private static deviceMatchesConfigured(Landroid/content/Context;Landroid/content/Intent;)Z
     .registers 4
 
-    .line 73
+    .line 82
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 74
+    .line 83
     const/4 v0, 0x1
 
     if-eqz p0, :cond_30
@@ -60,7 +62,7 @@
 
     goto :goto_30
 
-    .line 77
+    .line 86
     :cond_12
     const-string v1, "device"
 
@@ -68,30 +70,31 @@
 
     move-result-object v1
 
-    .line 78
+    .line 87
     if-nez v1, :cond_20
 
-    .line 79
+    .line 88
     const-string v1, "EXTRA_DEVICE_ADDRESS"
 
     invoke-virtual {p1, v1}, Landroid/content/Intent;->getStringExtra(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 81
+    .line 90
     :cond_20
     if-nez v1, :cond_23
 
-    .line 82
+    .line 91
     return v0
 
-    .line 84
+    .line 93
     :cond_23
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
+    .line 94
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p1
 
@@ -99,9 +102,10 @@
 
     move-result p0
 
+    .line 93
     return p0
 
-    .line 75
+    .line 84
     :cond_30
     :goto_30
     return v0
@@ -110,7 +114,7 @@
 .method private static isBatteryAction(Ljava/lang/String;)Z
     .registers 2
 
-    .line 69
+    .line 78
     const-string v0, "com.mc.xiaomi.batteryStatGot"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -145,7 +149,7 @@
 .method private static isConnectedAction(Ljava/lang/String;)Z
     .registers 2
 
-    .line 61
+    .line 70
     const-string v0, "com.mc.xiaomi.connected"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -180,7 +184,7 @@
 .method private static isDisconnectedAction(Ljava/lang/String;)Z
     .registers 2
 
-    .line 65
+    .line 74
     const-string v0, "com.mc.xiaomi.disconnected"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -215,7 +219,7 @@
 .method private static isHeartRateAction(Ljava/lang/String;)Z
     .registers 2
 
-    .line 55
+    .line 64
     const-string v0, "com.mc.xiaomi.heartRateGot"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -224,7 +228,7 @@
 
     if-nez v0, :cond_1b
 
-    .line 56
+    .line 65
     const-string v0, "com.mc.miband.heartRateGot"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -233,7 +237,7 @@
 
     if-nez v0, :cond_1b
 
-    .line 57
+    .line 66
     const-string v0, "nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -253,37 +257,15 @@
     :goto_1b
     const/4 p0, 0x1
 
-    .line 55
+    .line 64
     :goto_1c
     return p0
-.end method
-
-.method private static normalizeMac(Ljava/lang/String;)Ljava/lang/String;
-    .registers 3
-
-    .line 88
-    const-string v0, ""
-
-    if-eqz p0, :cond_e
-
-    const-string v1, ":"
-
-    invoke-virtual {p0, v1, v0}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
-
-    move-result-object p0
-
-    invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
-
-    move-result-object v0
-
-    :cond_e
-    return-object v0
 .end method
 
 .method private static parseHeartRate(Landroid/content/Intent;)I
     .registers 3
 
-    .line 92
+    .line 98
     const-string v0, "value"
 
     const/4 v1, -0x1
@@ -292,13 +274,13 @@
 
     move-result v0
 
-    .line 93
+    .line 99
     if-lez v0, :cond_a
 
-    .line 94
+    .line 100
     return v0
 
-    .line 96
+    .line 102
     :cond_a
     const-string v0, "hr"
 
@@ -306,13 +288,13 @@
 
     move-result v0
 
-    .line 97
+    .line 103
     if-lez v0, :cond_13
 
-    .line 98
+    .line 104
     return v0
 
-    .line 100
+    .line 106
     :cond_13
     const-string v0, "heart"
 
@@ -320,13 +302,13 @@
 
     move-result v0
 
-    .line 101
+    .line 107
     if-lez v0, :cond_1c
 
-    .line 102
+    .line 108
     return v0
 
-    .line 104
+    .line 110
     :cond_1c
     const-string v0, "bpm"
 
@@ -334,7 +316,7 @@
 
     move-result p0
 
-    .line 105
+    .line 111
     if-lez p0, :cond_25
 
     move v1, p0
@@ -346,128 +328,161 @@
 
 # virtual methods
 .method public onReceive(Landroid/content/Context;Landroid/content/Intent;)V
-    .registers 5
+    .registers 6
 
-    .line 24
+    .line 26
     if-nez p2, :cond_3
 
-    .line 25
+    .line 27
     return-void
 
-    .line 27
+    .line 29
     :cond_3
     invoke-virtual {p2}, Landroid/content/Intent;->getAction()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 28
+    .line 30
     if-nez v0, :cond_a
 
-    .line 29
+    .line 31
     return-void
 
-    .line 31
+    .line 33
     :cond_a
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onRawEvent(Ljava/lang/String;)V
 
-    .line 32
+    .line 34
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->isHeartRateAction(Ljava/lang/String;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_2c
+    if-eqz v1, :cond_35
 
-    .line 33
+    .line 35
     const-string v1, "nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result v1
+    move-result v2
 
-    if-eqz v1, :cond_22
+    if-eqz v2, :cond_22
 
-    .line 34
+    .line 36
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->deviceMatchesConfigured(Landroid/content/Context;Landroid/content/Intent;)Z
 
     move-result p1
 
     if-nez p1, :cond_22
 
-    .line 35
+    .line 37
     return-void
 
-    .line 37
+    .line 39
     :cond_22
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->parseHeartRate(Landroid/content/Intent;)I
 
     move-result p1
 
-    .line 38
-    if-lez p1, :cond_2b
-
-    .line 39
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onHeartRate(ILjava/lang/String;)V
+    .line 40
+    if-lez p1, :cond_34
 
     .line 41
-    :cond_2b
-    goto :goto_62
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    :cond_2c
+    move-result p2
+
+    if-eqz p2, :cond_31
+
+    .line 42
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandConnected()V
+
+    .line 44
+    :cond_31
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onHeartRate(ILjava/lang/String;)V
+
+    .line 46
+    :cond_34
+    goto :goto_7d
+
+    :cond_35
     const-string v1, "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_3e
+    if-eqz v1, :cond_47
 
-    .line 42
+    .line 47
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->deviceMatchesConfigured(Landroid/content/Context;Landroid/content/Intent;)Z
 
     move-result p1
 
-    if-eqz p1, :cond_62
+    if-eqz p1, :cond_7d
 
-    .line 43
+    .line 48
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandConnected()V
 
-    goto :goto_62
+    goto :goto_7d
 
-    .line 45
-    :cond_3e
+    .line 50
+    :cond_47
+    const-string v1, "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_DISCONNECTED"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_59
+
+    .line 51
+    invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->deviceMatchesConfigured(Landroid/content/Context;Landroid/content/Intent;)Z
+
+    move-result p1
+
+    if-eqz p1, :cond_7d
+
+    .line 52
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandDisconnected()V
+
+    goto :goto_7d
+
+    .line 54
+    :cond_59
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->isConnectedAction(Ljava/lang/String;)Z
 
     move-result p1
 
-    if-eqz p1, :cond_48
+    if-eqz p1, :cond_63
 
-    .line 46
+    .line 55
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandConnected()V
 
-    goto :goto_62
+    goto :goto_7d
 
-    .line 47
-    :cond_48
+    .line 56
+    :cond_63
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->isDisconnectedAction(Ljava/lang/String;)Z
 
     move-result p1
 
-    if-eqz p1, :cond_52
+    if-eqz p1, :cond_6d
 
-    .line 48
+    .line 57
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandDisconnected()V
 
-    goto :goto_62
+    goto :goto_7d
 
-    .line 49
-    :cond_52
+    .line 58
+    :cond_6d
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyHrReceiver;->isBatteryAction(Ljava/lang/String;)Z
 
     move-result p1
 
-    if-eqz p1, :cond_62
+    if-eqz p1, :cond_7d
 
-    .line 50
+    .line 59
     const/4 p1, -0x1
 
     const-string v0, "value"
@@ -478,8 +493,8 @@
 
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBattery(I)V
 
-    .line 52
-    :cond_62
-    :goto_62
+    .line 61
+    :cond_7d
+    :goto_7d
     return-void
 .end method

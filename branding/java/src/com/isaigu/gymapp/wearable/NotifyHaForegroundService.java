@@ -83,8 +83,13 @@ public final class NotifyHaForegroundService extends Service {
     }
 
     private Notification buildNotification() {
-        String lanUrl = NotifyHaServer.getLanUrl(this);
-        String text = "Notify HA sync: " + lanUrl;
+        String text;
+        if (NotifyWearableBridge.isGadgetbridgeInstalled(this)) {
+            String pkg = NotifyWearableBridge.getResolvedGadgetbridgePackage(this);
+            text = "Gadgetbridge HR: " + (pkg != null ? pkg : "GB");
+        } else {
+            text = "Notify HA sync: " + NotifyHaServer.getLanUrl(this);
+        }
         Intent launch = new Intent(this, MainActivity.class);
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;

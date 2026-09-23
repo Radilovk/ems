@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$2;
+.class Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$4;
 .super Ljava/lang/Object;
 .source "NotifyWearableBridge.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->scheduleGadgetbridgeSequence(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->scheduleConnectSequence(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -32,10 +32,10 @@
         }
     .end annotation
 
-    .line 403
-    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$2;->val$app:Landroid/content/Context;
+    .line 518
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$4;->val$app:Landroid/content/Context;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$2;->val$action:Ljava/lang/String;
+    iput-object p2, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$4;->val$action:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -47,7 +47,7 @@
 .method public run()V
     .registers 3
 
-    .line 406
+    .line 521
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->listeningActive:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$000()Z
 
@@ -55,18 +55,17 @@
 
     if-nez v0, :cond_7
 
-    .line 407
+    .line 522
     return-void
 
-    .line 409
+    .line 524
     :cond_7
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$2;->val$app:Landroid/content/Context;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$4;->val$app:Landroid/content/Context;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$2;->val$action:Ljava/lang/String;
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$4;->val$action:Ljava/lang/String;
 
-    # invokes: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->sendGadgetbridgeCommand(Landroid/content/Context;Ljava/lang/String;)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$400(Landroid/content/Context;Ljava/lang/String;)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->sendNotifyIntent(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 410
+    .line 525
     return-void
 .end method

@@ -2,7 +2,7 @@
 
 Версия: 1.1  
 Дата: 2026-09-22  
-Статус: Спецификация за бъдеща разработка (не имплементирано в APK)
+Статус: Фаза 1 имплементирана в APK v1.1.23+ (live HR display)
 
 ---
 
@@ -123,12 +123,21 @@ XEMS да получава данни от **Xiaomi Smart Band 8** или **Smar
 
 ### 4.3 Активиране на Intent API в Gadgetbridge
 
-**Глобално:** Settings → Developer options → Intent API → включи нужните категории.
+**Важно:** „Intent API включен“ в глобалните настройки **не е достатъчно** за live пулс. Нужни са **и** глобални **и** per-device toggles (виж checklist §11.3).
 
-**Per device:** Device settings → Developer settings → включи:
-- Realtime HR broadcast (за `REALTIME_HR`)
-- Start/stop realtime HR commands (за `START_REALTIME_HR` / `STOP_REALTIME_HR`)
-- Activity sync (за SpO₂)
+**Глобално:** Settings → Developer options → Intent API:
+- **Bluetooth Intent API** (за `BLUETOOTH_CONNECT` / `BLUETOOTH_CONNECTED`)
+- Категории за broadcast команди (activity sync и др., по желание)
+
+**Per device (Band 8):** Device specific settings → Developer settings → Intent API:
+- **Realtime HR broadcast** → `nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR`
+- **Start/stop realtime HR** → `START_REALTIME_HR` / `STOP_REALTIME_HR`
+
+**Версия на Gadgetbridge:** Live HR broadcast е добавен в PR [#6473](https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/6473) и START/STOP в PR [#6475](https://codeberg.org/Freeyourgadget/Gadgetbridge/pulls/6475) (юли 2025). Нужен е **GB nightly 0.93+** (package `nodomain.freeyourgadget.gadgetbridge.nightly_nopebble` или `nightly`). Стар mainline **няма** `REALTIME_HR`.
+
+**Един BLE клиент:** Разкачи гривната от Notify преди GB. Двата companion app-а не могат да държат Band 8 едновременно.
+
+**Първо измерване:** След `START_REALTIME_HR` първият пулс идва след **~14 s** (тествано на Band 10). Алтернатива: стартирай **Live activity** в GB UI (сърце) — тогава broadcast-ите текат докато сесията е активна.
 
 ### 4.4 Package names на Gadgetbridge
 
@@ -136,9 +145,10 @@ XEMS да получава данни от **Xiaomi Smart Band 8** или **Smar
 |---|---|
 | Mainline | `nodomain.freeyourgadget.gadgetbridge` |
 | Nightly | `nodomain.freeyourgadget.gadgetbridge.nightly` |
+| Nightly No Pebble | `nodomain.freeyourgadget.gadgetbridge.nightly_nopebble` |
 | Bangle.js build | `com.espruino.gadgetbridge.banglejs` |
 
-XEMS трябва да приема broadcast-и от всички варианти или да конфигурира package в настройки.
+XEMS auto-detect: `nightly_nopebble` → `nightly` → `mainline`.
 
 ---
 
@@ -469,10 +479,10 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 
 ### Фаза 1 — Live HR (MVP, Notify)
 
-- [ ] `WearableConfig` + settings toggle
-- [ ] `taskerHeartEnable`/`Disable` при train start/stop
-- [ ] `heartRateGot` receiver → UI label
-- [ ] Опционално: HR > праг → `addStrenth(-5)` (default OFF)
+- [x] `WearableConfig` + enabled by default
+- [x] `taskerHeartEnable`/`Disable` при train start/stop
+- [x] `heartRateGot` receiver → UI label (master sidebar)
+- [x] Опционално: HR > праг → `addStrenth(-5)` (default OFF)
 - [ ] Тест с Band 8 (`D0:62:2C:26:49:60`)
 
 ### Фаза 2 — SpO₂ и sync
@@ -522,14 +532,59 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 - [ ] Train stop → `taskerHeartDisable`, receiver unregister
 - [ ] EMS костюм работи едновременно (няма BLE конфликт)
 
-### 11.2 Известни проблеми
+### 11.3 Checklist (Gadgetbridge + XEMS v1.1.34+)
+
+**Подготовка (еднократно)**
+
+- [ ] Деинсталирай/разкачи гривната от **Notify for Xiaomi**
+- [ ] GB nightly (`nightly_nopebble` или `nightly`) — версия **0.93+**
+- [ ] Band 8 в GB: свързана, firmware 2.3.14, auth key OK
+- [ ] GB глобално: Settings → Developer → **Intent API** → **Bluetooth Intent API** ВКЛ
+- [ ] GB на гривната: Device settings → Developer → Intent API:
+  - [ ] **Realtime HR broadcast** ВКЛ
+  - [ ] **Start/stop realtime HR** ВКЛ
+- [ ] Huawei: изключи оптимизация на батерията за **XEMS** и **Gadgetbridge**
+- [ ] XEMS: ♥ → MAC `D0:62:2C:26:49:60` → **Активирай циферблат** → **Свържи гривната**
+
+**По време на тест**
+
+- [ ] В GB: стартирай **Live activity** (икона сърце) ИЛИ изчакай 15–30 s
+- [ ] XEMS циферблат показва диагностика (не „Гривната е изключена“ в GB режим):
+  - `GB cmds: N` (N > 0) — XEMS изпраща CONNECT + START
+  - `последно: REALTIME_HR` — GB broadcast получен
+  - `GB HR: N` (N > 0) — пулсът се показва на циферблата
+- [ ] EMS костюм работи паралелно (отделен BLE)
+
+**ADB верификация (по избор)**
+
+```bash
+# Стартирай realtime HR (смени package и MAC)
+adb shell am broadcast -a nodomain.freeyourgadget.gadgetbridge.command.START_REALTIME_HR \
+  -e device "D0:62:2C:26:49:60" \
+  nodomain.freeyourgadget.gadgetbridge.nightly_nopebble
+
+# Слушай broadcast (отделен терминал)
+adb shell am monitor -a nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR
+```
+
+Ако `am monitor` **не** вижда `REALTIME_HR` при активен пулс в GB UI → GB build-ът няма PR #6473 или per-device toggle е изключен.
+
+### 11.4 Известни проблеми
 
 | Проблем | Решение |
 |---|---|
-| Няма `heartRateGot` | Включи Tasker integration; режим „Notify app mode“ |
-| HR твърде бавен | Стартирай workout на гривната или continuous HR |
-| Notify не е на преден план | `connectToBand` преди тренировка |
+| „Свързана, изчакване на пулс“ (connected ✓, HR ✗) | Notify показва пулс, но **не го излъчва** — режимът е „Band only“ / непрекъснат, не „Notify app mode“. Провери ☰ → Smart assistant → **Heart monitor** |
+| HR събития = 0, батерия OK | Само `connected`/`batteryStatGot` работят → смени Heart monitor режима |
+| HR и батерия = 0 | Tasker integration изключен, парола грешна, или Huawei блокира Notify на заден фон |
+| Няма `heartRateGot` изобщо | Тествай с Tasker/Automate (Intent `com.mc.xiaomi.heartRateGot`). Ако и там е 0 → Band 8 + Notify не поддържа broadcast на този firmware |
+| HR твърде бавен | Най-къс интервал в Heart monitor; дръж Notify на преден план |
+| Notify не е на преден план | `connectToBand` + отвори Notify преди тренировка |
 | Auth key изтекъл | „Вземете ключ за удостоверяване“ в Notify |
+| Notify пътят не работи | **Gadgetbridge** + `REALTIME_HR` broadcast (разкачи гривната от Notify първо) |
+| GB показва пулс, XEMS „изключена“ / HR=0 | v1.1.33 bug (скрива диагностика); обнови до **v1.1.34+**. Провери per-device Intent API toggles, не само глобалния |
+| GB cmds > 0, last ≠ REALTIME_HR | Стартирай Live activity в GB; изчакай 15s; обнови GB nightly |
+| GB cmds = 0 | MAC грешен; GB package не открит; Huawei убива XEMS на заден фон — foreground service в v1.1.34 |
+| API включен, но няма HR | Глобален Intent API ≠ per-device realtime HR broadcast + START_REALTIME_HR |
 
 ---
 
@@ -567,3 +622,4 @@ context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
 |---|---|---|
 | 1.0 | 2026-09-22 | Първоначална спецификация Band 8/10 + Gadgetbridge Intent API |
 | 1.1 | 2026-09-22 | Notify for Xiaomi като препоръчан път; Tasker Intent API референция |
+| 1.2 | 2026-09-23 | GB audit: per-device vs global Intent API; checklist §11.3; v1.1.34 fixes |

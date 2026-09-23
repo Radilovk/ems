@@ -409,4 +409,29 @@
     <string name="interval_timer_loops_hint">0 = безкрайно</string>
     <string name="interval_timer_info_title">Как работи таймерът</string>
     <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\n\n• Повторения — 0 означава безкраен цикъл. При число таймерът спира след последното повторение.\n• Интервал — един и същ интервал се повтаря; при всяка смяна чувате сигнал.\n• Програми — готови тренировъчни програми от няколко интервала с различни настройки (MA, Hz, ширина). RPT повтаря програмата до края на зададеното време.\n• Активирай — включва таймера. Той тръгва заедно със старт на тренировката и спира при пауза или край.\n• Звук и запазени — избор на сигнал, запазване на настройки или собствен звуков файл.</string>
+
+    <string name="wearable_sync_title">Gadgetbridge — пулс</string>
+    <string name="wearable_sync_status_idle">Настрой и активирай</string>
+    <string name="wearable_sync_status_armed">Циферблатът е готов — натисни Свържи гривната</string>
+    <string name="wearable_sync_status_active">Live синхрон по време на EMS</string>
+    <string name="wearable_sync_status_waiting">Изчакване на пулс…</string>
+    <string name="wearable_sync_status_disconnected">Гривната е изключена</string>
+    <string name="wearable_sync_bpm">уд/мин</string>
+    <string name="wearable_sync_enabled">Пулс синхрон през Gadgetbridge</string>
+    <string name="wearable_sync_auto_reduce">Авто-намаляване на сила над прага</string>
+    <string name="wearable_sync_threshold">Праг пулс</string>
+    <string name="wearable_sync_strength_step">Стъпка</string>
+    <string name="wearable_sync_connect">Свържи гривната</string>
+    <string name="wearable_sync_activate">Активирай циферблат</string>
+    <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
+    <string name="wearable_sync_info_body">1. Инсталирай Gadgetbridge nightly (nightly_nopebble).\n2. Свържи Band 8 само в GB — премахни Notify/други BLE клиенти.\n3. GB глобално: Настройки → Developer → Intent API → Bluetooth ВКЛ.\n4. GB на гривната: Device settings → Developer → Intent API:\n   • Realtime HR broadcast (REALTIME_HR)\n   • Start/stop realtime HR (START_REALTIME_HR)\n5. XEMS ♥ → правилен MAC → Активирай циферблат → Свържи.\n6. В GB стартирай Live activity ИЛИ изчакай ~15s.\n7. Диагностика: GB cmds &gt; 0, последно: REALTIME_HR, GB HR &gt; 0.\n\nАко GB cmds работят, но GB HR=0: включи per-device realtime HR broadcast.</string>
+    <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
+    <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
+    <string name="wearable_sync_open_gb">Отвори GB</string>
+    <string name="wearable_sync_band_mac">MAC гривна</string>
+    <string name="wearable_sync_diag_gb">GB HR: %1$d</string>
+    <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
+    <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · последно: %2$s · %3$s</string>
+    <string name="wearable_sync_diag_gb_hint">Няма GB HR. Включи на гривната Intent API → realtime HR broadcast + START_REALTIME_HR. Стартирай Live activity в GB или изчакай 15s.</string>
+
 </resources>

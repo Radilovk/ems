@@ -16,7 +16,8 @@ import java.util.Random;
 
 /**
  * Direct BLE client for Xiaomi Band 8 (encrypted V1 protocol on service 0xFE95).
- * Protocol flow: auth → Gadgetbridge post-auth init → encrypted realtime START → keepalive.
+ * Protocol flow: auth → post-auth init → HR sensor config (8/11) → one realtime START (8/45)
+ * → wait for 8/47 on 0051. No START keepalive — resending START restarts measurement.
  */
 public final class XiaomiBandBleClient {
     public interface Listener {
@@ -32,14 +33,16 @@ public final class XiaomiBandBleClient {
     private static final int AUTH_CMD_AUTH = 27;
     private static final int AUTH_CMD_SEND_USERID = 5;
     private static final int HEALTH_CMD_TYPE = 8;
+    private static final int HEALTH_CMD_CONFIG_HEART_RATE_SET = 11;
     private static final int HEALTH_CMD_REALTIME_START = 45;
     private static final int HEALTH_CMD_REALTIME_STOP = 46;
     private static final int HEALTH_CMD_REALTIME_EVENT = 47;
 
-    private static final String BLE_BUILD_TAG = "v1.1.47";
+    private static final String BLE_BUILD_TAG = "v1.1.48-hrfix";
     private static final long AUTH_TIMEOUT_MS = 45000L;
-    private static final long KEEPALIVE_FIRST_MS = 1000L;
-    private static final long KEEPALIVE_INTERVAL_MS = 2000L;
+    private static final long STALL_CHECK_MS = 5000L;
+    private static final long FIRST_HR_TIMEOUT_MS = 8000L;
+    private static final long STALL_TIMEOUT_MS = 15000L;
 
     private static XiaomiBandBleClient instance;
 
@@ -67,7 +70,9 @@ public final class XiaomiBandBleClient {
     private int notifyEventCount;
     private String lastState = "idle";
     private Runnable authTimeoutRunnable;
-    private Runnable keepaliveRunnable;
+    private Runnable stallCheckRunnable;
+    private long streamStartMs;
+    private long lastHrEventMs;
     private Runnable reconnectRunnable;
     private boolean gattServicesReady;
     private boolean userRequestedDisconnect;
@@ -159,7 +164,9 @@ public final class XiaomiBandBleClient {
         session = null;
         chunkMap.clear();
         postAuthInit.reset();
-        stopKeepalive();
+        stopStallWatch();
+        streamStartMs = 0L;
+        lastHrEventMs = 0L;
         gattServicesReady = false;
         cancelAuthTimeout();
         writeQueue.clear();
@@ -224,7 +231,7 @@ public final class XiaomiBandBleClient {
         userRequestedDisconnect = true;
         cancelReconnect();
         cancelAuthTimeout();
-        stopKeepalive();
+        stopStallWatch();
         if (realtimeStarted && authenticated) {
             sendRealtimeStop();
         }
@@ -289,7 +296,7 @@ public final class XiaomiBandBleClient {
         realtimeStarted = false;
         gattServicesReady = false;
         postAuthInit.reset();
-        stopKeepalive();
+        stopStallWatch();
         cancelAuthTimeout();
         writeQueue.clear();
         setState("disconnected");
@@ -398,7 +405,23 @@ public final class XiaomiBandBleClient {
         writeQueue.enqueueCommand(XiaomiBandFraming.buildPlainFrame(cmd));
     }
 
+    private void sendHeartRateConfig() {
+        byte[] hrCfg = XiaomiBandProto.concat(
+                XiaomiBandProto.protoFieldVarint(1, 0),
+                XiaomiBandProto.protoFieldVarint(2, 1));
+        byte[] health = XiaomiBandProto.protoFieldMessage(8, hrCfg);
+        byte[] payload = XiaomiBandProto.protoFieldMessage(10, health);
+        byte[] cmd = makeTypedCommand(
+                HEALTH_CMD_TYPE, HEALTH_CMD_CONFIG_HEART_RATE_SET, payload);
+        log("health", "CONFIG_HEART_RATE_SET enabled interval=1");
+        sendCommand(cmd);
+    }
+
     private void sendRealtimeStart() {
+        if (realtimeStarted) {
+            log("health", "skip duplicate START");
+            return;
+        }
         if (authenticated && session != null && !frameEncrypt) {
             frameEncrypt = true;
             log("auth", "force frameEncrypt before realtime");
@@ -408,6 +431,8 @@ public final class XiaomiBandBleClient {
         byte[] cmd = makeCommand(HEALTH_CMD_TYPE, HEALTH_CMD_REALTIME_START, null);
         sendCommand(cmd);
         realtimeStarted = true;
+        streamStartMs = System.currentTimeMillis();
+        lastHrEventMs = 0L;
     }
 
     private void sendRealtimeStop() {
@@ -421,9 +446,13 @@ public final class XiaomiBandBleClient {
         if (!authenticated || !realtimeActive) {
             return;
         }
+        if (realtimeStarted) {
+            return;
+        }
+        sendHeartRateConfig();
         sendRealtimeStart();
-        setState("streaming");
-        startKeepalive();
+        setState("starting");
+        startStallWatch();
     }
 
     private void sendCommand(byte[] protoBytes) {
@@ -498,17 +527,11 @@ public final class XiaomiBandBleClient {
 
     private byte[] decrypt(byte[] data) {
         XiaomiBandCrypto.SessionKeys s = session;
-        for (int sign : new int[] {0, -1, 1}) {
-            int idx = Math.max(0, s.decIndex + sign);
-            try {
-                byte[] plain = XiaomiBandCrypto.aesCcmDecrypt(
-                        s.decKey, s.decNonce, idx, data);
-                s.decIndex = idx + 1;
-                return plain;
-            } catch (Throwable ignored) {
-            }
+        if (s == null) {
+            throw new RuntimeException("no session");
         }
-        throw new RuntimeException("decrypt failed");
+        // Watch-to-phone frames always use counter 0 in the CCM nonce.
+        return XiaomiBandCrypto.aesCcmDecrypt(s.decKey, s.decNonce, 0, data);
     }
 
     private void handleCommand(byte[] raw) {
@@ -553,10 +576,14 @@ public final class XiaomiBandBleClient {
         if (subtype == AUTH_CMD_AUTH) {
             frameEncrypt = true;
             authenticated = true;
+            if (session != null) {
+                session.encIndex = 1;
+                session.decIndex = 0;
+            }
             cancelAuthTimeout();
             setState("authenticated");
             notifyConnected(true);
-            log("auth", "success frameEncrypt=true");
+            log("auth", "success frameEncrypt=true encIndex=1");
             postAuthInit.start();
         }
     }
@@ -614,8 +641,14 @@ public final class XiaomiBandBleClient {
         int hr = intField(rt, 4);
         int steps = intField(rt, 1);
         log("hr", "raw hr=" + hr + " steps=" + steps);
+        lastHrEventMs = System.currentTimeMillis();
+        if (hr == 0) {
+            setState("measuring");
+            return;
+        }
         if (hr > 0 && hr <= 220) {
             hrEventCount++;
+            setState("streaming");
             if (listener != null) {
                 listener.onHeartRate(hr);
             }
@@ -649,31 +682,41 @@ public final class XiaomiBandBleClient {
         if (!realtimeActive || !authenticated || !realtimeStarted) {
             return;
         }
-        log("health", "keepalive START");
-        sendRealtimeStart();
-        scheduleKeepalive();
+        long now = System.currentTimeMillis();
+        if (lastHrEventMs == 0L && streamStartMs > 0L
+                && now - streamStartMs > FIRST_HR_TIMEOUT_MS) {
+            log("health", "no first 8/47 — reconnect");
+            scheduleReconnect();
+            return;
+        }
+        if (lastHrEventMs > 0L && now - lastHrEventMs > STALL_TIMEOUT_MS) {
+            log("health", "HR stall — reconnect");
+            scheduleReconnect();
+            return;
+        }
+        scheduleStallCheck();
     }
 
-    private void startKeepalive() {
-        stopKeepalive();
-        keepaliveRunnable = new XiaomiBandKeepaliveTask(this);
+    private void startStallWatch() {
+        stopStallWatch();
+        stallCheckRunnable = new XiaomiBandKeepaliveTask(this);
         android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-        handler.postDelayed(keepaliveRunnable, KEEPALIVE_FIRST_MS);
+        handler.postDelayed(stallCheckRunnable, STALL_CHECK_MS);
     }
 
-    private void scheduleKeepalive() {
-        if (keepaliveRunnable == null) {
+    private void scheduleStallCheck() {
+        if (stallCheckRunnable == null) {
             return;
         }
         android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-        handler.postDelayed(keepaliveRunnable, KEEPALIVE_INTERVAL_MS);
+        handler.postDelayed(stallCheckRunnable, STALL_CHECK_MS);
     }
 
-    private void stopKeepalive() {
-        if (keepaliveRunnable != null) {
+    private void stopStallWatch() {
+        if (stallCheckRunnable != null) {
             android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
-            handler.removeCallbacks(keepaliveRunnable);
-            keepaliveRunnable = null;
+            handler.removeCallbacks(stallCheckRunnable);
+            stallCheckRunnable = null;
         }
     }
 

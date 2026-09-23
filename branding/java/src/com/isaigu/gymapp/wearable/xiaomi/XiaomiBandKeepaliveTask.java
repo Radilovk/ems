@@ -1,6 +1,6 @@
 package com.isaigu.gymapp.wearable.xiaomi;
 
-/** Resend realtime START while streaming (band drops session without keepalive). */
+/** Periodic stall check — never resends START (that kills the measurement window). */
 final class XiaomiBandKeepaliveTask implements Runnable {
     private final XiaomiBandBleClient client;
 

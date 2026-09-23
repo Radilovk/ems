@@ -76,6 +76,7 @@ public final class WearableSyncHelper {
     private static final int STR_STATUS_BLE = 0x7f0d019b;
     private static final int STR_DIAG_BLE = 0x7f0d019c;
     private static final int STR_BT_PERMISSION = 0x7f0d019d;
+    private static final int STR_STATUS_BT_PERM = 0x7f0d019e;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -181,8 +182,14 @@ public final class WearableSyncHelper {
             @Override
             public void run() {
                 toast(activity, STR_BT_PERMISSION);
+                WearableBlePermissions.openAppSettings(activity);
             }
         });
+    }
+
+    static void dismissOverlayForPermissions() {
+        dismissOverlayDialog(false);
+        overlayVisible = false;
     }
 
     static Context getContext() {
@@ -269,6 +276,20 @@ public final class WearableSyncHelper {
         WearableConfig.setArmed(activity, true);
         overlayVisible = true;
         refreshStatusText();
+        dismissConfigDialog(false);
+        if (WearableConfig.isDirectBleMode(activity)
+                && !WearableBlePermissions.hasAllBlePermissions(activity)) {
+            WearableBlePermissions.ensureConnectPermission(activity, new ArmAfterPermission());
+            return;
+        }
+        finishArm(activity);
+    }
+
+    private static void finishArm(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        overlayVisible = true;
         if (!showOverlayDialog()) {
             toast(activity, STR_STATUS_IDLE);
             return;
@@ -276,7 +297,6 @@ public final class WearableSyncHelper {
         toast(activity, STR_TOAST_ARMED);
         NotifyWearableBridge.requestConnect(activity);
         refreshOverlayDisplay();
-        dismissConfigDialog(false);
     }
 
     private static boolean showOverlayDialog() {
@@ -481,6 +501,11 @@ public final class WearableSyncHelper {
         }
         if (!WearableConfig.isEnabled(activity)) {
             statusView.setText(activity.getString(STR_STATUS_IDLE));
+            return;
+        }
+        if (WearableConfig.isDirectBleMode(activity)
+                && !WearableBlePermissions.hasAllBlePermissions(activity)) {
+            statusView.setText(activity.getString(STR_STATUS_BT_PERM));
             return;
         }
         if (NotifyWearableBridge.isListeningActive()) {
@@ -775,6 +800,13 @@ public final class WearableSyncHelper {
         @Override
         public void onClick(View v) {
             armFromConfig();
+        }
+    }
+
+    static final class ArmAfterPermission implements Runnable {
+        @Override
+        public void run() {
+            finishArm(resolveActivity(null));
         }
     }
 

@@ -2,7 +2,10 @@ package com.isaigu.gymapp.wearable;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 
 import android.support.v4.content.ContextCompat;
 
@@ -32,8 +35,21 @@ public final class WearableBlePermissions {
         return hasAllBlePermissions(context);
     }
 
+    /** Ask once at MainActivity startup so connect does not hit SecurityException mid-GATT. */
+    public static void requestAtStartup(Activity activity) {
+        if (activity == null || Build.VERSION.SDK_INT < 31) {
+            return;
+        }
+        if (hasAllBlePermissions(activity)) {
+            return;
+        }
+        String[] perms = new String[] {PERM_CONNECT, PERM_SCAN};
+        AndroidUtils.requestPermission(activity, perms, PERMISSION_REQUEST, null);
+    }
+
     public static void ensureConnectPermission(Activity activity, Runnable onGranted) {
         if (activity == null) {
+            WearableSyncHelper.showBluetoothPermissionDenied();
             return;
         }
         if (hasAllBlePermissions(activity)) {
@@ -48,9 +64,23 @@ public final class WearableBlePermissions {
             }
             return;
         }
+        WearableSyncHelper.dismissOverlayForPermissions();
         String[] perms = new String[] {PERM_CONNECT, PERM_SCAN};
         AndroidUtils.requestPermission(activity, perms, PERMISSION_REQUEST,
                 new PermissionCallback(onGranted));
+    }
+
+    public static void openAppSettings(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.parse("package:" + activity.getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent);
+        } catch (Throwable ignored) {
+        }
     }
 
     static final class PermissionCallback implements AndroidUtils.RequestPermissionCallback {
@@ -69,9 +99,7 @@ public final class WearableBlePermissions {
                 }
                 return;
             }
-            if (!granted) {
-                WearableSyncHelper.showBluetoothPermissionDenied();
-            }
+            WearableSyncHelper.showBluetoothPermissionDenied();
         }
     }
 }

@@ -189,6 +189,10 @@ public final class WearableSyncHelper {
         return panelRoot != null ? panelRoot.getContext() : null;
     }
 
+    public static Activity resolveActivityForPermissions() {
+        return resolveActivity(null);
+    }
+
     static TrainItemManager getItemManager() {
         return itemManager;
     }
@@ -404,7 +408,12 @@ public final class WearableSyncHelper {
     private static String buildWaitingLabel(Activity activity) {
         if (WearableConfig.isDirectBleMode(activity)) {
             int hr = NotifyWearableBridge.getGbHrEventCount();
-            return activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState());
+            StringBuilder sb = new StringBuilder(
+                    activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState()));
+            sb.append('\n');
+            sb.append("notify=");
+            sb.append(NotifyWearableBridge.getBleNotifyCount());
+            return sb.toString();
         }
         int gbHr = NotifyWearableBridge.getGbHrEventCount();
         StringBuilder sb = new StringBuilder(activity.getString(STR_DIAG_GB, gbHr));
@@ -732,6 +741,16 @@ public final class WearableSyncHelper {
 
     private static void showInfo(Activity activity) {
         if (activity == null) {
+            return;
+        }
+        if (WearableConfig.isDirectBleMode(activity)) {
+            String log = WearableBleDiagLog.getRecentText();
+            if (log == null || log.length() == 0) {
+                log = activity.getString(STR_INFO_BODY);
+            }
+            String path = WearableBleDiagLog.getLogFileHint(activity);
+            ModalInfoHelper.show(activity, "BLE диагностика",
+                    log + "\n\n---\nФайл: " + path);
             return;
         }
         ModalInfoHelper.show(activity, activity.getString(STR_INFO_TITLE),

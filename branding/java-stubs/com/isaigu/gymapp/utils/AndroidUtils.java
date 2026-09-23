@@ -10,4 +10,8 @@ public class AndroidUtils {
     public static void requestPermission(Activity activity, String permission, int requestCode,
                                          RequestPermissionCallback callback) {
     }
+
+    public static void requestPermission(Activity activity, String[] permissions, int requestCode,
+                                         RequestPermissionCallback callback) {
+    }
 }

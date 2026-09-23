@@ -31,7 +31,7 @@ NOTIFY_PERMISSIONS = """    <uses-permission android:name="android.permission.FO
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
 """
 GB_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
             <intent-filter>
@@ -216,7 +216,7 @@ EN_STRINGS = """
     <string name="wearable_sync_auth_key">Auth key</string>
     <string name="wearable_sync_status_ble">Direct BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
-    <string name="wearable_sync_bt_permission">Bluetooth permission required — allow Nearby devices</string>
+    <string name="wearable_sync_bt_permission">Allow Bluetooth + Nearby devices (CONNECT and SCAN)</string>
 """
 
 BG_STRINGS = """
@@ -246,7 +246,7 @@ BG_STRINGS = """
     <string name="wearable_sync_auth_key">Auth key</string>
     <string name="wearable_sync_status_ble">Директен BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
-    <string name="wearable_sync_bt_permission">Нужно е Bluetooth разрешение — позволи „Устройства наблизо“</string>
+    <string name="wearable_sync_bt_permission">Позволи Bluetooth + Устройства наблизо (CONNECT и SCAN)</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V

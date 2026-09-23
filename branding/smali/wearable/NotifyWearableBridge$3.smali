@@ -30,7 +30,7 @@
         }
     .end annotation
 
-    .line 394
+    .line 408
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$3;->val$app:Landroid/content/Context;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,7 +43,7 @@
 .method public run()V
     .registers 3
 
-    .line 397
+    .line 411
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->listeningActive:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$000()Z
 
@@ -51,10 +51,10 @@
 
     if-nez v0, :cond_7
 
-    .line 398
+    .line 412
     return-void
 
-    .line 400
+    .line 414
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$3;->val$app:Landroid/content/Context;
 
@@ -63,6 +63,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->sendGadgetbridgeCommand(Landroid/content/Context;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$800(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 401
+    .line 415
     return-void
 .end method

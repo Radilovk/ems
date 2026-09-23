@@ -24,8 +24,8 @@ REALTIME_START = (
     / "smali_classes2/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandRealtimeStartRunnable.smali"
 )
 RELEASE = ROOT / "RELEASE_VERSION"
-EXPECTED_VERSION = "1.1.51-ble"
-BUILD_TAG = "v1.1.51-ble"
+EXPECTED_VERSION = "1.1.52-ble"
+BUILD_TAG = "v1.1.52-ble"
 
 
 def apk_strings() -> str:
@@ -65,7 +65,6 @@ def main() -> int:
         checks.append(f"build tag {BUILD_TAG} in APK")
 
     for needle, label in (
-        ("link", "ping device info"),
         ("no first 8/47", "retry START once"),
         ("CONFIG_HEART_RATE_SET", "HR config before START"),
         ("EmsBleCoexist", "EMS BLE coexist"),
@@ -74,6 +73,11 @@ def main() -> int:
             errors.append(f"APK dex missing marker: {label}")
         else:
             checks.append(label)
+
+    if "sendLinkPing" in dex_blob:
+        errors.append("APK dex still contains forbidden sendLinkPing")
+    else:
+        checks.append("link ping removed from APK")
 
     if "keepalive START" in dex_blob:
         errors.append("APK still contains forbidden keepalive START string")
@@ -84,10 +88,10 @@ def main() -> int:
             errors.append("XiaomiBandBleClient.smali missing realtimeStartRetries")
         else:
             checks.append("START retry field in smali")
-        if "sendLinkPing" not in smali:
-            errors.append("XiaomiBandBleClient.smali missing sendLinkPing")
+        if "sendLinkPing" in smali:
+            errors.append("XiaomiBandBleClient.smali still contains sendLinkPing")
         else:
-            checks.append("link ping in smali")
+            checks.append("link ping removed from smali")
     else:
         errors.append("XiaomiBandBleClient.smali missing in decompiled tree")
 

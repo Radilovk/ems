@@ -228,6 +228,14 @@ public final class NotifyWearableBridge {
         return XiaomiBandBleClient.getInstance().getNotifyEventCount();
     }
 
+    public static int getBleNotifyCount51() {
+        return XiaomiBandBleClient.getInstance().getNotifyCount51();
+    }
+
+    public static int getBleNotifyCount52() {
+        return XiaomiBandBleClient.getInstance().getNotifyCount52();
+    }
+
     public static String getBleLastNotifyChar() {
         return XiaomiBandBleClient.getInstance().getLastNotifyChar();
     }

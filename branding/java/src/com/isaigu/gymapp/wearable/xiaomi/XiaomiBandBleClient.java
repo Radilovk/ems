@@ -41,7 +41,7 @@ public final class XiaomiBandBleClient {
     private static final int SYSTEM_CMD_TYPE = 2;
     private static final int SYSTEM_CMD_DEVICE_INFO = 2;
 
-    private static final String BLE_BUILD_TAG = "v1.1.51-ble";
+    private static final String BLE_BUILD_TAG = "v1.1.52-ble";
     private static final long AUTH_TIMEOUT_MS = 45000L;
     private static final long STALL_CHECK_MS = 3000L;
     private static final long FIRST_HR_TIMEOUT_MS = 12000L;
@@ -72,6 +72,8 @@ public final class XiaomiBandBleClient {
     private String targetMac = "";
     private int hrEventCount;
     private int notifyEventCount;
+    private int notifyCount51;
+    private int notifyCount52;
     private String lastState = "idle";
     private Runnable authTimeoutRunnable;
     private Runnable stallCheckRunnable;
@@ -102,6 +104,14 @@ public final class XiaomiBandBleClient {
 
     public int getNotifyEventCount() {
         return notifyEventCount;
+    }
+
+    public int getNotifyCount51() {
+        return notifyCount51;
+    }
+
+    public int getNotifyCount52() {
+        return notifyCount52;
     }
 
     public String getLastState() {
@@ -152,6 +162,7 @@ public final class XiaomiBandBleClient {
         WearableBleDiagLog.init(context);
         WearableBleDiagLog.clear();
         log("build", BLE_BUILD_TAG);
+        com.isaigu.gymapp.wearable.WearableBlePermissions.logPermissionState(context);
         appContext = context.getApplicationContext();
         targetMac = mac != null ? mac.trim() : "";
         authKey = parseAuthKey(authKeyHex);
@@ -167,6 +178,8 @@ public final class XiaomiBandBleClient {
         realtimeStarted = false;
         hrEventCount = 0;
         notifyEventCount = 0;
+        notifyCount51 = 0;
+        notifyCount52 = 0;
         session = null;
         chunkMap.clear();
         postAuthInit.reset();
@@ -360,6 +373,11 @@ public final class XiaomiBandBleClient {
     void onGattNotify(String charLabel, byte[] data) {
         lastNotifyChar = charLabel != null ? charLabel : "";
         notifyEventCount++;
+        if ("51".equals(charLabel)) {
+            notifyCount51++;
+        } else if ("52".equals(charLabel)) {
+            notifyCount52++;
+        }
         handleNotify(data);
     }
 
@@ -739,22 +757,7 @@ public final class XiaomiBandBleClient {
             scheduleReconnect();
             return;
         }
-        sendLinkPing();
         scheduleStallCheck();
-    }
-
-    private void sendLinkPing() {
-        if (!authenticated || gatt == null) {
-            return;
-        }
-        log("link", "ping device info");
-        sendInitCommand(SYSTEM_CMD_TYPE, SYSTEM_CMD_DEVICE_INFO, null);
-        try {
-            if (gatt != null) {
-                gatt.readRemoteRssi();
-            }
-        } catch (Throwable ignored) {
-        }
     }
 
     private void startStallWatch() {

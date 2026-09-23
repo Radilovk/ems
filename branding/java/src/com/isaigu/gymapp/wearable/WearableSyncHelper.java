@@ -243,11 +243,13 @@ public final class WearableSyncHelper {
         if (activity == null) {
             return;
         }
+        if (WearableBlePermissions.hasAllBlePermissions(activity)) {
+            return;
+        }
         handler.post(new Runnable() {
             @Override
             public void run() {
                 toast(activity, STR_BT_PERMISSION);
-                WearableBlePermissions.openAppSettings(activity);
             }
         });
     }
@@ -512,8 +514,10 @@ public final class WearableSyncHelper {
         StringBuilder sb = new StringBuilder(
                 activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState()));
         sb.append('\n');
-        sb.append("notify=");
-        sb.append(NotifyWearableBridge.getBleNotifyCount());
+        sb.append("n51=");
+        sb.append(NotifyWearableBridge.getBleNotifyCount51());
+        sb.append(" n52=");
+        sb.append(NotifyWearableBridge.getBleNotifyCount52());
         sb.append(" ch=");
         sb.append(NotifyWearableBridge.getBleLastNotifyChar());
         sb.append(" · ");

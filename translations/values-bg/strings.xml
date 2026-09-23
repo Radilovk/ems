@@ -410,7 +410,7 @@
     <string name="interval_timer_info_title">Как работи таймерът</string>
     <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\n\n• Повторения — 0 означава безкраен цикъл. При число таймерът спира след последното повторение.\n• Интервал — един и същ интервал се повтаря; при всяка смяна чувате сигнал.\n• Програми — готови тренировъчни програми от няколко интервала с различни настройки (MA, Hz, ширина). RPT повтаря програмата до края на зададеното време.\n• Активирай — включва таймера. Той тръгва заедно със старт на тренировката и спира при пауза или край.\n• Звук и запазени — избор на сигнал, запазване на настройки или собствен звуков файл.</string>
 
-    <string name="wearable_sync_title">Gadgetbridge — пулс</string>
+    <string name="wearable_sync_title">XEMS — пулс синхрон</string>
     <string name="wearable_sync_status_idle">Настрой и активирай</string>
     <string name="wearable_sync_status_armed">Циферблатът е готов — натисни Свържи гривната</string>
     <string name="wearable_sync_status_active">Live синхрон по време на EMS</string>
@@ -423,14 +423,14 @@
     <string name="wearable_sync_strength_step">Стъпка</string>
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
-    <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
-    <string name="wearable_sync_info_body">Директен BLE (препоръчано):\n1. Разкачи гривната от Gadgetbridge/Notify (един BLE клиент).\n2. Копирай auth key от GB → Authentication.\n3. XEMS ♥ → MAC + auth key (32 hex) → Активирай циферблат → Свържи.\n4. Носи гривната плътно; първи пулс след ~5–15s.\n\nРезервен път (Gadgetbridge): остави auth key празен и ползвай GB Intent API.</string>
+    <string name="wearable_sync_info_title">Директен BLE — помощ</string>
+    <string name="wearable_sync_info_body">Само директен BLE (без Gadgetbridge):\n1. Спри Mi Fitness и Gadgetbridge — само XEMS ползва гривната.\n2. Auth key: 32 hex от Mi Fitness. MAC = твоята гривна.\n3. Позволи Bluetooth CONNECT + SCAN за XEMS.\n4. Активирай циферблат → Свържи → authenticated → streaming.\n5. Първи пулс ~10–15s с гривна на китката.\n6. Натисни i на циферблата за BLE лог.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
-    <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
-    <string name="wearable_sync_open_gb">Отвори GB</string>
+    <string name="wearable_sync_notify_missing">Auth key задължителен — 32 hex символа</string>
+    <string name="wearable_sync_open_gb"> </string>
     <string name="wearable_sync_band_mac">MAC гривна</string>
     <string name="wearable_sync_diag_gb">GB HR: %1$d</string>
-    <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
+    <string name="wearable_sync_status_gb_listening">Директен BLE — свържи гривната</string>
     <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · последно: %2$s · %3$s</string>
     <string name="wearable_sync_diag_gb_hint">Няма GB HR. Включи на гривната Intent API → realtime HR broadcast + START_REALTIME_HR. Стартирай Live activity в GB или изчакай 15s.</string>
     <string name="wearable_sync_auth_key">Auth key</string>

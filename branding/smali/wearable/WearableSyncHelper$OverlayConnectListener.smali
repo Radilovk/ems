@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 928
+    .line 932
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,45 +32,45 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 931
+    .line 935
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$000(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 932
+    .line 936
     if-eqz p1, :cond_13
 
-    .line 933
+    .line 937
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->saveConfigFromUi(Landroid/app/Activity;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1000(Landroid/app/Activity;)V
 
-    .line 934
+    .line 938
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->validateDirectBleConfig(Landroid/app/Activity;)Ljava/lang/String;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1100(Landroid/app/Activity;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 935
+    .line 939
     if-eqz v0, :cond_13
 
-    .line 936
+    .line 940
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastMessage(Landroid/app/Activity;Ljava/lang/String;)V
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$400(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 937
+    .line 941
     return-void
 
-    .line 940
+    .line 944
     :cond_13
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->requestConnect(Landroid/app/Activity;)V
 
-    .line 941
+    .line 945
     const v0, 0x7f0d0182
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toast(Landroid/app/Activity;I)V
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$500(Landroid/app/Activity;I)V
 
-    .line 942
+    .line 946
     return-void
 .end method

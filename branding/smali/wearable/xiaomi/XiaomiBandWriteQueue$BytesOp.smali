@@ -18,20 +18,25 @@
 
 
 # instance fields
+.field private final command:Z
+
 .field private final frame:[B
 
 
 # direct methods
-.method constructor <init>([B)V
-    .registers 2
+.method constructor <init>([BZ)V
+    .registers 3
 
-    .line 87
+    .line 132
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 88
+    .line 133
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$BytesOp;->frame:[B
 
-    .line 89
+    .line 134
+    iput-boolean p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$BytesOp;->command:Z
+
+    .line 135
     return-void
 .end method
 
@@ -40,7 +45,7 @@
 .method public execute(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)Z
     .registers 5
 
-    .line 94
+    .line 145
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$BytesOp;->frame:[B
 
     invoke-virtual {p3, p1, p2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeFrameNow(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;[B)Z
@@ -48,4 +53,13 @@
     move-result p1
 
     return p1
+.end method
+
+.method public needsBandAck()Z
+    .registers 2
+
+    .line 139
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$BytesOp;->command:Z
+
+    return v0
 .end method

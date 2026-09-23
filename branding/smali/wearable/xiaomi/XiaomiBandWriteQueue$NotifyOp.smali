@@ -27,16 +27,16 @@
 .method constructor <init>(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
     .registers 3
 
-    .line 102
+    .line 153
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 103
+    .line 154
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 104
+    .line 155
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 105
+    .line 156
     return-void
 .end method
 
@@ -45,7 +45,7 @@
 .method public execute(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)Z
     .registers 6
 
-    .line 111
+    .line 167
     const/4 p2, 0x0
 
     :try_start_1
@@ -57,10 +57,10 @@
     :try_end_7
     .catchall {:try_start_1 .. :try_end_7} :catchall_42
 
-    .line 115
+    .line 171
     nop
 
-    .line 116
+    .line 172
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
 
     # getter for: Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->CCCD:Ljava/util/UUID;
@@ -72,10 +72,10 @@
 
     move-result-object v0
 
-    .line 117
+    .line 173
     if-nez v0, :cond_31
 
-    .line 118
+    .line 174
     new-instance p1, Ljava/lang/StringBuilder;
 
     invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
@@ -100,17 +100,17 @@
 
     invoke-virtual {p3, v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 119
+    .line 175
     return p2
 
-    .line 122
+    .line 178
     :cond_31
     :try_start_31
     sget-object v1, Landroid/bluetooth/BluetoothGattDescriptor;->ENABLE_NOTIFICATION_VALUE:[B
 
     invoke-virtual {v0, v1}, Landroid/bluetooth/BluetoothGattDescriptor;->setValue([B)Z
 
-    .line 123
+    .line 179
     invoke-virtual {p1, v0}, Landroid/bluetooth/BluetoothGatt;->writeDescriptor(Landroid/bluetooth/BluetoothGattDescriptor;)Z
 
     move-result p1
@@ -119,27 +119,36 @@
 
     return p1
 
-    .line 124
+    .line 180
     :catchall_3b
     move-exception p1
 
-    .line 125
+    .line 181
     const-string v0, "notify_cccd"
 
     invoke-virtual {p3, v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 126
+    .line 182
     return p2
 
-    .line 112
+    .line 168
     :catchall_42
     move-exception p1
 
-    .line 113
+    .line 169
     const-string v0, "notify_enable"
 
     invoke-virtual {p3, v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 114
+    .line 170
     return p2
+.end method
+
+.method public needsBandAck()Z
+    .registers 2
+
+    .line 160
+    const/4 v0, 0x0
+
+    return v0
 .end method

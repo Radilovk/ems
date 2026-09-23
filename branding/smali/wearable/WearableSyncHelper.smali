@@ -549,7 +549,7 @@
 .method private static applyOpaqueWindow(Landroid/support/v7/app/AlertDialog;)V
     .registers 2
 
-    .line 646
+    .line 651
     if-eqz p0, :cond_16
 
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
@@ -560,7 +560,7 @@
 
     goto :goto_16
 
-    .line 650
+    .line 655
     :cond_9
     :try_start_9
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
@@ -573,18 +573,18 @@
     :try_end_13
     .catchall {:try_start_9 .. :try_end_13} :catchall_14
 
-    .line 652
+    .line 657
     goto :goto_15
 
-    .line 651
+    .line 656
     :catchall_14
     move-exception p0
 
-    .line 653
+    .line 658
     :goto_15
     return-void
 
-    .line 647
+    .line 652
     :cond_16
     :goto_16
     return-void
@@ -719,22 +719,22 @@
 .method private static bindButton(Landroid/view/View;Landroid/view/View$OnClickListener;)V
     .registers 3
 
-    .line 750
+    .line 755
     if-nez p0, :cond_3
 
-    .line 751
+    .line 756
     return-void
 
-    .line 753
+    .line 758
     :cond_3
     const/4 v0, 0x1
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setClickable(Z)V
 
-    .line 754
+    .line 759
     invoke-virtual {p0, p1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 755
+    .line 760
     return-void
 .end method
 
@@ -955,58 +955,58 @@
 .method private static dismissConfigDialog(Z)V
     .registers 2
 
-    .line 610
+    .line 615
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_1e
 
-    .line 612
+    .line 617
     :try_start_4
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->dismiss()V
     :try_end_7
     .catchall {:try_start_4 .. :try_end_7} :catchall_8
 
-    .line 614
+    .line 619
     goto :goto_9
 
-    .line 613
+    .line 618
     :catchall_8
     move-exception v0
 
-    .line 615
+    .line 620
     :goto_9
     if-nez p0, :cond_1e
 
-    .line 616
+    .line 621
     const/4 p0, 0x0
 
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 617
+    .line 622
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->configContent:Landroid/view/View;
 
-    .line 618
+    .line 623
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->statusView:Landroid/widget/TextView;
 
-    .line 619
+    .line 624
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->enabledSwitch:Landroid/widget/Switch;
 
-    .line 620
+    .line 625
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->autoReduceSwitch:Landroid/widget/Switch;
 
-    .line 621
+    .line 626
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->thresholdView:Landroid/widget/EditText;
 
-    .line 622
+    .line 627
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->stepView:Landroid/widget/EditText;
 
-    .line 623
+    .line 628
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->bandMacView:Landroid/widget/EditText;
 
-    .line 624
+    .line 629
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->authKeyView:Landroid/widget/EditText;
 
-    .line 627
+    .line 632
     :cond_1e
     return-void
 .end method
@@ -1014,46 +1014,46 @@
 .method private static dismissOverlayDialog(Z)V
     .registers 2
 
-    .line 630
+    .line 635
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_16
 
-    .line 632
+    .line 637
     :try_start_4
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->dismiss()V
     :try_end_7
     .catchall {:try_start_4 .. :try_end_7} :catchall_8
 
-    .line 634
+    .line 639
     goto :goto_9
 
-    .line 633
+    .line 638
     :catchall_8
     move-exception v0
 
-    .line 635
+    .line 640
     :goto_9
     if-nez p0, :cond_16
 
-    .line 636
+    .line 641
     const/4 p0, 0x0
 
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 637
+    .line 642
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayContent:Landroid/view/View;
 
-    .line 638
+    .line 643
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->ringView:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    .line 639
+    .line 644
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->hrValueView:Landroid/widget/TextView;
 
-    .line 640
+    .line 645
     sput-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->subLabelView:Landroid/widget/TextView;
 
-    .line 643
+    .line 648
     :cond_16
     return-void
 .end method
@@ -1076,13 +1076,13 @@
 .method private static dp(Landroid/app/Activity;I)I
     .registers 2
 
-    .line 742
+    .line 747
     if-nez p0, :cond_3
 
-    .line 743
+    .line 748
     return p1
 
-    .line 745
+    .line 750
     :cond_3
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -1094,7 +1094,7 @@
 
     iget p0, p0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 746
+    .line 751
     int-to-float p1, p1
 
     mul-float p1, p1, p0
@@ -1187,14 +1187,14 @@
 .method private static layoutDialControlButtons(Landroid/app/Activity;Landroid/view/View;)V
     .registers 12
 
-    .line 683
+    .line 688
     if-eqz p0, :cond_59
 
     if-nez p1, :cond_5
 
     goto :goto_59
 
-    .line 686
+    .line 691
     :cond_5
     const v0, 0x7f09029d
 
@@ -1202,42 +1202,42 @@
 
     move-result-object v1
 
-    .line 687
+    .line 692
     const v0, 0x7f0902a5
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 688
+    .line 693
     const v2, 0x7f09029e
 
     invoke-virtual {p1, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object p1
 
-    .line 689
+    .line 694
     const/16 v2, 0x124
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v2
 
-    .line 690
+    .line 695
     const/16 v3, 0xc0
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v3
 
-    .line 691
+    .line 696
     const/16 v4, 0x2d
 
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v8
 
-    .line 692
+    .line 697
     const/4 v4, 0x5
 
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dp(Landroid/app/Activity;I)I
@@ -1246,7 +1246,7 @@
 
     int-to-float p0, p0
 
-    .line 693
+    .line 698
     int-to-float v3, v3
 
     const/high16 v4, 0x40000000    # 2.0f
@@ -1261,15 +1261,15 @@
 
     add-float/2addr p0, v3
 
-    .line 694
+    .line 699
     int-to-float v2, v2
 
     div-float v9, v2, v4
 
-    .line 695
+    .line 700
     nop
 
-    .line 696
+    .line 701
     const/high16 v2, 0x42340000    # 45.0f
 
     move v3, v9
@@ -1282,7 +1282,7 @@
 
     invoke-static/range {v1 .. v6}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->placeDialButton(Landroid/view/View;FFFFI)V
 
-    .line 697
+    .line 702
     const/high16 v3, 0x42b40000    # 90.0f
 
     move-object v2, v0
@@ -1295,7 +1295,7 @@
 
     invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->placeDialButton(Landroid/view/View;FFFFI)V
 
-    .line 698
+    .line 703
     const/high16 v4, 0x43070000    # 135.0f
 
     move-object v3, p1
@@ -1306,10 +1306,10 @@
 
     invoke-static/range {v3 .. v8}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->placeDialButton(Landroid/view/View;FFFFI)V
 
-    .line 699
+    .line 704
     return-void
 
-    .line 684
+    .line 689
     :cond_59
     :goto_59
     return-void
@@ -1412,27 +1412,67 @@
 
     .line 553
     :cond_4d
+    sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->configContent:Landroid/view/View;
+
+    if-eqz v0, :cond_59
+
+    const v1, 0x7f0902a8
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+
+    move-result-object v0
+
+    goto :goto_5a
+
+    :cond_59
+    const/4 v0, 0x0
+
+    .line 554
+    :goto_5a
+    if-eqz v0, :cond_69
+
+    .line 555
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isDirectBleMode(Landroid/content/Context;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_65
+
+    .line 556
+    const/16 v1, 0x8
+
+    goto :goto_66
+
+    :cond_65
+    const/4 v1, 0x0
+
+    .line 555
+    :goto_66
+    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+
+    .line 558
+    :cond_69
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isArmed(Landroid/content/Context;)Z
 
     move-result v0
 
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayVisible:Z
 
-    .line 554
-    if-eqz v0, :cond_58
+    .line 559
+    if-eqz v0, :cond_74
 
-    .line 555
+    .line 560
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->beginListening(Landroid/content/Context;)V
 
-    .line 557
-    :cond_58
+    .line 562
+    :cond_74
     return-void
 .end method
 
 .method private static moveOverlayWindow(II)V
     .registers 3
 
-    .line 656
+    .line 661
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_25
@@ -1445,7 +1485,7 @@
 
     goto :goto_25
 
-    .line 660
+    .line 665
     :cond_b
     :try_start_b
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
@@ -1458,13 +1498,13 @@
 
     move-result-object v0
 
-    .line 661
+    .line 666
     iput p0, v0, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 662
+    .line 667
     iput p1, v0, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 663
+    .line 668
     sget-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {p0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
@@ -1475,18 +1515,18 @@
     :try_end_22
     .catchall {:try_start_b .. :try_end_22} :catchall_23
 
-    .line 665
+    .line 670
     goto :goto_24
 
-    .line 664
+    .line 669
     :catchall_23
     move-exception p0
 
-    .line 666
+    .line 671
     :goto_24
     return-void
 
-    .line 657
+    .line 662
     :cond_25
     :goto_25
     return-void
@@ -1514,39 +1554,39 @@
 .method private static openOverlaySettings()V
     .registers 1
 
-    .line 602
+    .line 607
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 603
+    .line 608
     if-nez v0, :cond_8
 
-    .line 604
+    .line 609
     return-void
 
-    .line 606
+    .line 611
     :cond_8
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showConfigDialog(Landroid/app/Activity;)V
 
-    .line 607
+    .line 612
     return-void
 .end method
 
 .method private static placeDialButton(Landroid/view/View;FFFFI)V
     .registers 12
 
-    .line 703
+    .line 708
     instance-of v0, p0, Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 704
+    .line 709
     return-void
 
-    .line 706
+    .line 711
     :cond_5
     float-to-double v0, p1
 
@@ -1554,7 +1594,7 @@
 
     move-result-wide v0
 
-    .line 707
+    .line 712
     float-to-double v2, p4
 
     invoke-static {v0, v1}, Ljava/lang/Math;->sin(D)D
@@ -1575,7 +1615,7 @@
 
     sub-float/2addr p2, p1
 
-    .line 708
+    .line 713
     invoke-static {v0, v1}, Ljava/lang/Math;->cos(D)D
 
     move-result-wide v0
@@ -1588,12 +1628,12 @@
 
     sub-float/2addr p3, p1
 
-    .line 709
+    .line 714
     new-instance p1, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {p1, p5, p5}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
-    .line 710
+    .line 715
     float-to-int p2, p2
 
     const/4 p4, 0x0
@@ -1604,7 +1644,7 @@
 
     iput p2, p1, Landroid/widget/FrameLayout$LayoutParams;->leftMargin:I
 
-    .line 711
+    .line 716
     float-to-int p2, p3
 
     invoke-static {p4, p2}, Ljava/lang/Math;->max(II)I
@@ -1613,23 +1653,23 @@
 
     iput p2, p1, Landroid/widget/FrameLayout$LayoutParams;->topMargin:I
 
-    .line 712
+    .line 717
     invoke-virtual {p0, p1}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 713
+    .line 718
     return-void
 .end method
 
 .method private static readIntField(Landroid/widget/EditText;III)I
     .registers 4
 
-    .line 584
+    .line 589
     if-nez p0, :cond_3
 
-    .line 585
+    .line 590
     return p1
 
-    .line 588
+    .line 593
     :cond_3
     :try_start_3
     invoke-virtual {p0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -1650,28 +1690,28 @@
     :try_end_13
     .catchall {:try_start_3 .. :try_end_13} :catchall_1a
 
-    .line 589
+    .line 594
     if-ge p0, p2, :cond_16
 
-    .line 590
+    .line 595
     return p2
 
-    .line 592
+    .line 597
     :cond_16
     if-le p0, p3, :cond_19
 
-    .line 593
+    .line 598
     return p3
 
-    .line 595
+    .line 600
     :cond_19
     return p0
 
-    .line 596
+    .line 601
     :catchall_1a
     move-exception p0
 
-    .line 597
+    .line 602
     return p1
 .end method
 
@@ -2099,7 +2139,7 @@
 .method private static resolveActivity(Landroid/view/View;)Landroid/app/Activity;
     .registers 3
 
-    .line 716
+    .line 721
     const/4 v0, 0x0
 
     if-eqz p0, :cond_8
@@ -2113,11 +2153,11 @@
     :cond_8
     move-object p0, v0
 
-    .line 717
+    .line 722
     :goto_9
     if-nez p0, :cond_15
 
-    .line 718
+    .line 723
     sget-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayContent:Landroid/view/View;
 
     if-eqz p0, :cond_14
@@ -2131,12 +2171,12 @@
     :cond_14
     move-object p0, v0
 
-    .line 720
+    .line 725
     :cond_15
     :goto_15
     if-nez p0, :cond_21
 
-    .line 721
+    .line 726
     sget-object p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->panelRoot:Landroid/view/View;
 
     if-eqz p0, :cond_20
@@ -2150,24 +2190,24 @@
     :cond_20
     move-object p0, v0
 
-    .line 723
+    .line 728
     :cond_21
     :goto_21
     instance-of v1, p0, Landroid/content/ContextWrapper;
 
     if-eqz v1, :cond_33
 
-    .line 724
+    .line 729
     instance-of v1, p0, Landroid/app/Activity;
 
     if-eqz v1, :cond_2c
 
-    .line 725
+    .line 730
     check-cast p0, Landroid/app/Activity;
 
     return-object p0
 
-    .line 727
+    .line 732
     :cond_2c
     check-cast p0, Landroid/content/ContextWrapper;
 
@@ -2177,40 +2217,40 @@
 
     goto :goto_21
 
-    .line 729
+    .line 734
     :cond_33
     instance-of v1, p0, Landroid/app/Activity;
 
     if-eqz v1, :cond_3a
 
-    .line 730
+    .line 735
     check-cast p0, Landroid/app/Activity;
 
     return-object p0
 
-    .line 733
+    .line 738
     :cond_3a
     :try_start_3a
     instance-of v1, p0, Lcom/isaigu/gymapp/MainActivity;
 
     if-eqz v1, :cond_41
 
-    .line 734
+    .line 739
     check-cast p0, Lcom/isaigu/gymapp/MainActivity;
     :try_end_40
     .catchall {:try_start_3a .. :try_end_40} :catchall_42
 
     return-object p0
 
-    .line 737
+    .line 742
     :cond_41
     goto :goto_43
 
-    .line 736
+    .line 741
     :catchall_42
     move-exception p0
 
-    .line 738
+    .line 743
     :goto_43
     return-object v0
 .end method
@@ -2231,14 +2271,14 @@
 .method private static resolveOverlayX(Landroid/app/Activity;I)I
     .registers 7
 
-    .line 669
+    .line 674
     const/16 v0, 0x28
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dp(Landroid/app/Activity;I)I
 
     move-result v0
 
-    .line 670
+    .line 675
     sget-object v1, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->panelRoot:Landroid/view/View;
 
     if-eqz v1, :cond_12
@@ -2254,7 +2294,7 @@
     :cond_12
     const/4 v1, 0x0
 
-    .line 671
+    .line 676
     :goto_13
     const/4 v2, 0x0
 
@@ -2266,15 +2306,15 @@
 
     if-lez v3, :cond_2b
 
-    .line 672
+    .line 677
     const/4 p0, 0x2
 
     new-array p0, p0, [I
 
-    .line 673
+    .line 678
     invoke-virtual {v1, p0}, Landroid/view/View;->getLocationOnScreen([I)V
 
-    .line 674
+    .line 679
     aget p0, p0, v2
 
     sub-int/2addr p0, p1
@@ -2287,7 +2327,7 @@
 
     return p0
 
-    .line 676
+    .line 681
     :cond_2b
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -2299,10 +2339,10 @@
 
     iget p0, p0, Landroid/util/DisplayMetrics;->widthPixels:I
 
-    .line 677
+    .line 682
     const v1, 0x412b3333    # 10.7f
 
-    .line 678
+    .line 683
     int-to-float v3, p0
 
     const v4, 0x3f333333    # 0.7f
@@ -2315,7 +2355,7 @@
 
     move-result v1
 
-    .line 679
+    .line 684
     sub-int/2addr p0, v1
 
     sub-int/2addr p0, p1
@@ -2332,45 +2372,45 @@
 .method private static saveConfigFromUi(Landroid/app/Activity;)V
     .registers 5
 
-    .line 560
+    .line 565
     if-nez p0, :cond_3
 
-    .line 561
+    .line 566
     return-void
 
-    .line 563
+    .line 568
     :cond_3
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->enabledSwitch:Landroid/widget/Switch;
 
     if-eqz v0, :cond_e
 
-    .line 564
+    .line 569
     invoke-virtual {v0}, Landroid/widget/Switch;->isChecked()Z
 
     move-result v0
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setEnabled(Landroid/content/Context;Z)V
 
-    .line 566
+    .line 571
     :cond_e
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->autoReduceSwitch:Landroid/widget/Switch;
 
     if-eqz v0, :cond_19
 
-    .line 567
+    .line 572
     invoke-virtual {v0}, Landroid/widget/Switch;->isChecked()Z
 
     move-result v0
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAutoReduceEnabled(Landroid/content/Context;Z)V
 
-    .line 569
+    .line 574
     :cond_19
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->thresholdView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_2a
 
-    .line 570
+    .line 575
     const/16 v1, 0xaa
 
     const/16 v2, 0x50
@@ -2383,13 +2423,13 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setHrThreshold(Landroid/content/Context;I)V
 
-    .line 572
+    .line 577
     :cond_2a
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->stepView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_39
 
-    .line 573
+    .line 578
     const/4 v1, 0x5
 
     const/4 v2, 0x1
@@ -2402,13 +2442,13 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setStrengthStep(Landroid/content/Context;I)V
 
-    .line 575
+    .line 580
     :cond_39
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->bandMacView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_4c
 
-    .line 576
+    .line 581
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
@@ -2423,13 +2463,13 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 578
+    .line 583
     :cond_4c
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->authKeyView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_5f
 
-    .line 579
+    .line 584
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
@@ -2444,7 +2484,7 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 581
+    .line 586
     :cond_5f
     return-void
 .end method
@@ -2844,13 +2884,13 @@
 .method private static showInfo(Landroid/app/Activity;)V
     .registers 4
 
-    .line 768
+    .line 773
     if-nez p0, :cond_3
 
-    .line 769
+    .line 774
     return-void
 
-    .line 771
+    .line 776
     :cond_3
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isDirectBleMode(Landroid/content/Context;)Z
 
@@ -2860,12 +2900,12 @@
 
     if-eqz v0, :cond_3a
 
-    .line 772
+    .line 777
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->getRecentText()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 773
+    .line 778
     if-eqz v0, :cond_18
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -2874,19 +2914,19 @@
 
     if-nez v2, :cond_1c
 
-    .line 774
+    .line 779
     :cond_18
     invoke-virtual {p0, v1}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 776
+    .line 781
     :cond_1c
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->getLogFileHint(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 777
+    .line 782
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -2907,10 +2947,10 @@
 
     invoke-static {p0, v1, v0}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 
-    .line 779
+    .line 784
     return-void
 
-    .line 781
+    .line 786
     :cond_3a
     const v0, 0x7f0d0184
 
@@ -2918,15 +2958,15 @@
 
     move-result-object v0
 
-    .line 782
+    .line 787
     invoke-virtual {p0, v1}, Landroid/app/Activity;->getString(I)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 781
+    .line 786
     invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 
-    .line 783
+    .line 788
     return-void
 .end method
 
@@ -3309,13 +3349,13 @@
 .method private static toast(Landroid/app/Activity;I)V
     .registers 3
 
-    .line 758
+    .line 763
     if-nez p0, :cond_3
 
-    .line 759
+    .line 764
     return-void
 
-    .line 762
+    .line 767
     :cond_3
     const/4 v0, 0x0
 
@@ -3328,14 +3368,14 @@
     :try_end_b
     .catchall {:try_start_4 .. :try_end_b} :catchall_c
 
-    .line 764
+    .line 769
     goto :goto_d
 
-    .line 763
+    .line 768
     :catchall_c
     move-exception p0
 
-    .line 765
+    .line 770
     :goto_d
     return-void
 .end method

@@ -205,7 +205,7 @@ EN_STRINGS = """
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
     <string name="wearable_sync_info_title">Gadgetbridge sync — help</string>
-    <string name="wearable_sync_info_body">Direct BLE checklist:\\n1. Force-stop Gadgetbridge + Notify; only XEMS may use the band.\\n2. Phone: allow Bluetooth CONNECT + SCAN (Nearby devices) for XEMS.\\n3. Auth key from GB → Authentication (32 hex). MAC must match.\\n4. Activate dial → Connect → wait authenticated → streaming.\\n5. Wear band on wrist; first HR ~10–15s. Band screen may show no Mi/GB app — normal for direct BLE.\\n6. Tap i on dial for BLE log if HR stays 0.\\n\\nFallback: leave auth key empty → Gadgetbridge must stay connected.</string>
+    <string name="wearable_sync_info_body">Direct BLE checklist:\\n1. Force-stop Mi Fitness, Notify and any other band app; only XEMS may use the band.\\n2. Phone: allow Bluetooth CONNECT + SCAN (Nearby devices) for XEMS.\\n3. Auth key: 32 hex chars from Mi Fitness / auth key extractor. MAC must match.\\n4. Activate dial → Connect → wait authenticated → streaming.\\n5. Wear band on wrist; first HR ~10–15s. Band screen may show no companion app — normal.\\n6. Tap i on dial for BLE log if HR stays 0.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
     <string name="wearable_sync_notify_missing">Gadgetbridge not installed — install nightly_nopebble from F-Droid</string>
     <string name="wearable_sync_open_gb">Open GB</string>
@@ -236,7 +236,7 @@ BG_STRINGS = """
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
-    <string name="wearable_sync_info_body">Директен BLE — checklist:\\n1. Спри Gadgetbridge + Notify (Force stop); само XEMS ползва гривната.\\n2. Телефон: позволи Bluetooth CONNECT + SCAN (Устройства наблизо) за XEMS.\\n3. Auth key от GB → Authentication (32 hex). MAC трябва да съвпада.\\n4. Активирай циферблат → Свържи → изчакай authenticated → streaming.\\n5. Носи гривната на китката; първи пулс ~10–15s. На гривната може да пише „няма приложение“ — нормално при direct BLE.\\n6. Натисни i на циферблата за BLE лог, ако HR=0.\\n\\nРезервен път: празен auth key → Gadgetbridge трябва да е свързан.</string>
+    <string name="wearable_sync_info_body">Директен BLE — checklist:\\n1. Спри Mi Fitness, Notify и други приложения (Force stop); само XEMS ползва гривната.\\n2. Телефон: позволи Bluetooth CONNECT + SCAN (Устройства наблизо) за XEMS.\\n3. Auth key: 32 hex символа от Mi Fitness / auth key extractor. MAC трябва да съвпада.\\n4. Активирай циферблат → Свържи → изчакай authenticated → streaming.\\n5. Носи гривната на китката; първи пулс ~10–15s. На гривната може да пише „няма приложение“ — нормално.\\n6. Натисни i на циферблата за BLE лог, ако HR=0.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
     <string name="wearable_sync_open_gb">Отвори GB</string>

@@ -4,7 +4,7 @@
 
 
 # static fields
-.field private static final CHANNEL_ID:Ljava/lang/String; = "xems_gb_hr"
+.field private static final CHANNEL_ID:Ljava/lang/String; = "xems_ble_hr"
 
 .field private static final NOTIFICATION_ID:I = 0x7e060001
 
@@ -13,7 +13,7 @@
 .method public constructor <init>()V
     .registers 1
 
-    .line 16
+    .line 17
     invoke-direct {p0}, Landroid/app/Service;-><init>()V
 
     return-void
@@ -22,12 +22,52 @@
 .method private buildNotification()Landroid/app/Notification;
     .registers 6
 
-    .line 86
+    .line 88
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isDirectBleMode(Landroid/content/Context;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_28
+
+    .line 89
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "Direct BLE: "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getBleState()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, " \u00b7 "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 90
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->getBuildTag()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_42
+
+    .line 92
+    :cond_28
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getResolvedGadgetbridgePackage(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 87
+    .line 93
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -36,117 +76,118 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    if-eqz v0, :cond_11
+    if-eqz v0, :cond_39
 
-    goto :goto_13
+    goto :goto_3b
 
-    :cond_11
+    :cond_39
     const-string v0, "not installed"
 
-    :goto_13
+    :goto_3b
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 88
+    .line 95
+    :goto_42
     new-instance v1, Landroid/content/Intent;
 
     const-class v2, Lcom/isaigu/gymapp/MainActivity;
 
     invoke-direct {v1, p0, v2}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
-    .line 89
+    .line 96
     const/high16 v2, 0x30000000
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 90
+    .line 97
     const/high16 v2, 0x8000000
 
-    .line 91
+    .line 98
     sget v3, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v4, 0x17
 
-    if-lt v3, v4, :cond_30
+    if-lt v3, v4, :cond_58
 
-    .line 92
+    .line 99
     const/high16 v2, 0xc000000
 
-    .line 94
-    :cond_30
+    .line 101
+    :cond_58
     const/4 v3, 0x0
 
     invoke-static {p0, v3, v1, v2}, Landroid/app/PendingIntent;->getActivity(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;
 
     move-result-object v1
 
-    .line 95
+    .line 102
     sget v2, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v3, 0x1a
 
-    if-lt v2, v3, :cond_43
+    if-lt v2, v3, :cond_6b
 
-    .line 96
+    .line 103
     new-instance v2, Landroid/app/Notification$Builder;
 
-    const-string v3, "xems_gb_hr"
+    const-string v3, "xems_ble_hr"
 
     invoke-direct {v2, p0, v3}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;Ljava/lang/String;)V
 
-    goto :goto_48
+    goto :goto_70
 
-    .line 97
-    :cond_43
+    .line 104
+    :cond_6b
     new-instance v2, Landroid/app/Notification$Builder;
 
     invoke-direct {v2, p0}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 98
-    :goto_48
+    .line 105
+    :goto_70
     const-string v3, "XEMS \u2014 \u043f\u0443\u043b\u0441 \u0441\u0438\u043d\u0445\u0440\u043e\u043d"
 
     invoke-virtual {v2, v3}, Landroid/app/Notification$Builder;->setContentTitle(Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
 
     move-result-object v3
 
-    .line 99
+    .line 106
     invoke-virtual {v3, v0}, Landroid/app/Notification$Builder;->setContentText(Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
 
     move-result-object v0
 
     const v3, 0x1080039
 
-    .line 100
+    .line 107
     invoke-virtual {v0, v3}, Landroid/app/Notification$Builder;->setSmallIcon(I)Landroid/app/Notification$Builder;
 
     move-result-object v0
 
-    .line 101
+    .line 108
     const/4 v3, 0x1
 
     invoke-virtual {v0, v3}, Landroid/app/Notification$Builder;->setOngoing(Z)Landroid/app/Notification$Builder;
 
     move-result-object v0
 
-    .line 102
+    .line 109
     invoke-virtual {v0, v1}, Landroid/app/Notification$Builder;->setContentIntent(Landroid/app/PendingIntent;)Landroid/app/Notification$Builder;
 
-    .line 103
+    .line 110
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x15
 
-    if-lt v0, v1, :cond_6a
+    if-lt v0, v1, :cond_92
 
-    .line 104
+    .line 111
     invoke-virtual {v2, v3}, Landroid/app/Notification$Builder;->setVisibility(I)Landroid/app/Notification$Builder;
 
-    .line 106
-    :cond_6a
+    .line 113
+    :cond_92
     invoke-virtual {v2}, Landroid/app/Notification$Builder;->build()Landroid/app/Notification;
 
     move-result-object v0
@@ -157,17 +198,17 @@
 .method private ensureChannel()V
     .registers 6
 
-    .line 69
+    .line 70
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x1a
 
     if-ge v0, v1, :cond_7
 
-    .line 70
+    .line 71
     return-void
 
-    .line 72
+    .line 73
     :cond_7
     const-string v0, "notification"
 
@@ -177,64 +218,64 @@
 
     check-cast v0, Landroid/app/NotificationManager;
 
-    .line 73
+    .line 74
     if-nez v0, :cond_12
 
-    .line 74
+    .line 75
     return-void
 
-    .line 76
+    .line 77
     :cond_12
     new-instance v1, Landroid/app/NotificationChannel;
 
     const/4 v2, 0x2
 
-    const-string v3, "xems_gb_hr"
+    const-string v3, "xems_ble_hr"
 
     const-string v4, "XEMS pulse sync"
 
     invoke-direct {v1, v3, v4, v2}, Landroid/app/NotificationChannel;-><init>(Ljava/lang/String;Ljava/lang/CharSequence;I)V
 
-    .line 80
-    const-string v2, "Keeps Gadgetbridge HR sync active during training"
+    .line 81
+    const-string v2, "Keeps direct BLE heart rate active during training"
 
     invoke-virtual {v1, v2}, Landroid/app/NotificationChannel;->setDescription(Ljava/lang/String;)V
 
-    .line 81
+    .line 82
     const/4 v2, 0x0
 
     invoke-virtual {v1, v2}, Landroid/app/NotificationChannel;->setShowBadge(Z)V
 
-    .line 82
+    .line 83
     invoke-virtual {v0, v1}, Landroid/app/NotificationManager;->createNotificationChannel(Landroid/app/NotificationChannel;)V
 
-    .line 83
+    .line 84
     return-void
 .end method
 
 .method public static start(Landroid/content/Context;)V
     .registers 4
 
-    .line 21
+    .line 22
     if-nez p0, :cond_3
 
-    .line 22
+    .line 23
     return-void
 
-    .line 24
+    .line 25
     :cond_3
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object p0
 
-    .line 25
+    .line 26
     new-instance v0, Landroid/content/Intent;
 
     const-class v1, Lcom/isaigu/gymapp/wearable/NotifyHaForegroundService;
 
     invoke-direct {v0, p0, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
-    .line 27
+    .line 28
     :try_start_e
     sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
 
@@ -242,26 +283,26 @@
 
     if-lt v1, v2, :cond_18
 
-    .line 28
+    .line 29
     invoke-virtual {p0, v0}, Landroid/content/Context;->startForegroundService(Landroid/content/Intent;)Landroid/content/ComponentName;
 
     goto :goto_1b
 
-    .line 30
+    .line 31
     :cond_18
     invoke-virtual {p0, v0}, Landroid/content/Context;->startService(Landroid/content/Intent;)Landroid/content/ComponentName;
     :try_end_1b
     .catchall {:try_start_e .. :try_end_1b} :catchall_1c
 
-    .line 33
+    .line 34
     :goto_1b
     goto :goto_1d
 
-    .line 32
+    .line 33
     :catchall_1c
     move-exception p0
 
-    .line 34
+    .line 35
     :goto_1d
     return-void
 .end method
@@ -269,13 +310,13 @@
 .method public static stop(Landroid/content/Context;)V
     .registers 4
 
-    .line 37
+    .line 38
     if-nez p0, :cond_3
 
-    .line 38
+    .line 39
     return-void
 
-    .line 41
+    .line 42
     :cond_3
     :try_start_3
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
@@ -284,7 +325,7 @@
 
     new-instance v1, Landroid/content/Intent;
 
-    .line 42
+    .line 43
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object p0
@@ -293,19 +334,19 @@
 
     invoke-direct {v1, p0, v2}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
-    .line 41
+    .line 42
     invoke-virtual {v0, v1}, Landroid/content/Context;->stopService(Landroid/content/Intent;)Z
     :try_end_15
     .catchall {:try_start_3 .. :try_end_15} :catchall_16
 
-    .line 44
+    .line 45
     goto :goto_17
 
-    .line 43
+    .line 44
     :catchall_16
     move-exception p0
 
-    .line 45
+    .line 46
     :goto_17
     return-void
 .end method
@@ -315,7 +356,7 @@
 .method public onBind(Landroid/content/Intent;)Landroid/os/IBinder;
     .registers 2
 
-    .line 65
+    .line 66
     const/4 p1, 0x0
 
     return-object p1
@@ -324,23 +365,23 @@
 .method public onCreate()V
     .registers 1
 
-    .line 49
+    .line 50
     invoke-super {p0}, Landroid/app/Service;->onCreate()V
 
-    .line 50
+    .line 51
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaForegroundService;->ensureChannel()V
 
-    .line 51
+    .line 52
     return-void
 .end method
 
 .method public onStartCommand(Landroid/content/Intent;II)I
     .registers 4
 
-    .line 55
+    .line 56
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaForegroundService;->ensureChannel()V
 
-    .line 57
+    .line 58
     const p1, 0x7e060001
 
     :try_start_6
@@ -352,14 +393,14 @@
     :try_end_d
     .catchall {:try_start_6 .. :try_end_d} :catchall_e
 
-    .line 59
+    .line 60
     goto :goto_f
 
-    .line 58
+    .line 59
     :catchall_e
     move-exception p1
 
-    .line 60
+    .line 61
     :goto_f
     const/4 p1, 0x1
 

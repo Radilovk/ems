@@ -108,10 +108,13 @@ public final class NotifyWearableBridge {
             return;
         }
         itemManager = WearableSyncHelper.getItemManager();
-        if (WearableConfig.isArmed(context)) {
-            beginListening(context);
-        }
+        WearableSyncHelper.onTrainingHostReady();
         WearableSyncHelper.onTrainingRunningChanged(isAnyTrainingRunning());
+    }
+
+    /** Release BLE + foreground service when training host is destroyed (EMS needs Bluetooth). */
+    public static void detachTrainingHost() {
+        WearableSyncHelper.detachTrainingHost();
     }
 
     public static void onTrainingFullStop() {
@@ -166,7 +169,6 @@ public final class NotifyWearableBridge {
         lastEventTimeMs = 0L;
         if (WearableConfig.isDirectBleMode(context)) {
             directBleActive = true;
-            NotifyHaForegroundService.start(context);
             XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
             client.setListener(bleListener);
             WearableSyncHelper.updateHeartRate(-1, bandConnected);
@@ -179,7 +181,6 @@ public final class NotifyWearableBridge {
             return;
         }
         registerReceiver(context);
-        NotifyHaForegroundService.start(context);
         onBandConnected();
         scheduleGadgetbridgeSequence(context);
         startKeepalive();
@@ -237,6 +238,7 @@ public final class NotifyWearableBridge {
         }
         beginListening(context);
         if (WearableConfig.isDirectBleMode(context)) {
+            NotifyHaForegroundService.start(context);
             XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
             client.setListener(bleListener);
             String mac = normalizeMac(WearableConfig.getBandMac(context));
@@ -245,6 +247,7 @@ public final class NotifyWearableBridge {
             lastEventAction = "BLE:connect";
             lastEventTimeMs = System.currentTimeMillis();
         } else {
+            NotifyHaForegroundService.start(context);
             scheduleGadgetbridgeSequence(context);
         }
         WearableSyncHelper.updateDiagnostics();

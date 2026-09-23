@@ -16,7 +16,8 @@ import java.util.Random;
 
 /**
  * Direct BLE client for Xiaomi Band 8 (encrypted V1 protocol on service 0xFE95).
- * Protocol flow matches miband-7-pro-monitor: auth → realtime START → keepalive.
+ * Protocol flow: auth → Gadgetbridge post-auth init (clock, device info, user info)
+ * → realtime START → keepalive.
  */
 public final class XiaomiBandBleClient {
     public interface Listener {
@@ -37,7 +38,7 @@ public final class XiaomiBandBleClient {
     private static final int HEALTH_CMD_REALTIME_EVENT = 47;
 
     private static final long AUTH_TIMEOUT_MS = 45000L;
-    private static final long KEEPALIVE_INTERVAL_MS = 15000L;
+    private static final long KEEPALIVE_INTERVAL_MS = 8000L;
 
     private static XiaomiBandBleClient instance;
 
@@ -45,6 +46,7 @@ public final class XiaomiBandBleClient {
     private final Map<Integer, byte[]> chunkMap = new HashMap<Integer, byte[]>();
     private final XiaomiBandGattCallback gattCallback = new XiaomiBandGattCallback(this);
     private final XiaomiBandWriteQueue writeQueue = new XiaomiBandWriteQueue(this);
+    private final XiaomiBandPostAuthInit postAuthInit = new XiaomiBandPostAuthInit(this);
 
     private Context appContext;
     private Listener listener;
@@ -125,7 +127,7 @@ public final class XiaomiBandBleClient {
         if (context == null) {
             return;
         }
-        if (!com.isaigu.gymapp.wearable.WearableBlePermissions.hasAllBlePermissions(context)) {
+        if (!com.isaigu.gymapp.wearable.WearableBlePermissions.gateGattOrNotify(context)) {
             setState("no_bt_permission");
             return;
         }
@@ -147,6 +149,7 @@ public final class XiaomiBandBleClient {
         session = null;
         chunkMap.clear();
         stopKeepalive();
+        postAuthInit.reset();
         writeQueue.clear();
         disconnectGatt();
         if (!isValidMac(targetMac)) {
@@ -176,6 +179,15 @@ public final class XiaomiBandBleClient {
         } catch (Throwable t) {
             setState("connect_fail");
             return;
+        }
+        try {
+            int bondState = device.getBondState();
+            log("connect", "bond=" + bondState);
+            if (bondState == BluetoothDevice.BOND_NONE) {
+                device.createBond();
+            }
+        } catch (Throwable t) {
+            logError("createBond", t);
         }
         try {
             if (Build.VERSION.SDK_INT >= 23) {
@@ -217,9 +229,21 @@ public final class XiaomiBandBleClient {
 
     public void startRealtime() {
         realtimeActive = true;
-        if (authenticated) {
+        if (authenticated && postAuthInit.isComplete()) {
             beginRealtimeStreaming();
         }
+    }
+
+    void onPostAuthInitComplete() {
+        setState("initialized");
+        if (realtimeActive) {
+            beginRealtimeStreaming();
+        }
+    }
+
+    void sendInitCommand(int type, int subtype, byte[] commandExtra) {
+        byte[] cmd = makeTypedCommand(type, subtype, commandExtra);
+        sendCommand(cmd);
     }
 
     void onGattConnected(BluetoothGatt g) {
@@ -240,6 +264,7 @@ public final class XiaomiBandBleClient {
         authenticated = false;
         realtimeStarted = false;
         stopKeepalive();
+        postAuthInit.reset();
         writeQueue.clear();
         setState("disconnected");
         notifyConnected(false);
@@ -382,6 +407,7 @@ public final class XiaomiBandBleClient {
         XiaomiBandFraming.Frame frame = XiaomiBandFraming.parseFrame(data);
         if ("ack".equals(frame.kind)) {
             writeQueue.onBandAck();
+            postAuthInit.onCommandAcked();
             return;
         }
         if ("chunk_start".equals(frame.kind)) {
@@ -452,8 +478,16 @@ public final class XiaomiBandBleClient {
             handleAuth(cmd, subtype);
             return;
         }
-        if (type == HEALTH_CMD_TYPE && subtype == HEALTH_CMD_REALTIME_EVENT) {
-            handleRealtimeStats(cmd);
+        if (type == HEALTH_CMD_TYPE) {
+            if (subtype == HEALTH_CMD_REALTIME_EVENT) {
+                handleRealtimeStats(cmd);
+            } else if (subtype == 0) {
+                log("init", "userInfo ack");
+            }
+            return;
+        }
+        if (type == 2) {
+            log("init", "system sub=" + subtype);
         }
     }
 
@@ -475,9 +509,7 @@ public final class XiaomiBandBleClient {
             setState("authenticated");
             notifyConnected(true);
             log("auth", "success frameEncrypt=" + frameEncrypt);
-            if (realtimeActive) {
-                beginRealtimeStreaming();
-            }
+            postAuthInit.start();
         }
     }
 
@@ -558,10 +590,14 @@ public final class XiaomiBandBleClient {
     }
 
     private static byte[] makeCommand(int type, int subtype, byte[] extra) {
+        return makeTypedCommand(type, subtype, extra);
+    }
+
+    private static byte[] makeTypedCommand(int type, int subtype, byte[] extra) {
         byte[] msg = XiaomiBandProto.concat(
                 XiaomiBandProto.protoFieldVarint(1, type),
                 XiaomiBandProto.protoFieldVarint(2, subtype));
-        if (extra != null) {
+        if (extra != null && extra.length > 0) {
             msg = XiaomiBandProto.concat(msg, extra);
         }
         return msg;

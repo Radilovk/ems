@@ -24,10 +24,10 @@
 .method static varargs concat([[B)[B
     .registers 7
 
-    .line 108
+    .line 114
     nop
 
-    .line 109
+    .line 115
     const/4 v0, 0x0
 
     const/4 v1, 0x0
@@ -39,26 +39,26 @@
 
     if-ge v1, v3, :cond_e
 
-    .line 110
+    .line 116
     aget-object v3, p0, v1
 
     array-length v3, v3
 
     add-int/2addr v2, v3
 
-    .line 109
+    .line 115
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_4
 
-    .line 112
+    .line 118
     :cond_e
     new-array v1, v2, [B
 
-    .line 113
+    .line 119
     nop
 
-    .line 114
+    .line 120
     const/4 v2, 0x0
 
     const/4 v3, 0x0
@@ -68,7 +68,7 @@
 
     if-ge v2, v4, :cond_25
 
-    .line 115
+    .line 121
     aget-object v4, p0, v2
 
     aget-object v5, p0, v2
@@ -77,19 +77,19 @@
 
     invoke-static {v4, v0, v1, v3, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 116
+    .line 122
     aget-object v4, p0, v2
 
     array-length v4, v4
 
     add-int/2addr v3, v4
 
-    .line 114
+    .line 120
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_13
 
-    .line 118
+    .line 124
     :cond_25
     return-object v1
 .end method
@@ -97,7 +97,7 @@
 .method private static fieldTag(II)[B
     .registers 2
 
-    .line 122
+    .line 128
     shl-int/lit8 p0, p0, 0x3
 
     or-int/2addr p0, p1
@@ -112,7 +112,7 @@
 .method static protoFieldBytes(I[B)[B
     .registers 5
 
-    .line 49
+    .line 55
     const/4 v0, 0x3
 
     new-array v0, v0, [[B
@@ -149,7 +149,7 @@
 .method static protoFieldFloat(IF)[B
     .registers 4
 
-    .line 57
+    .line 63
     const/4 v0, 0x4
 
     invoke-static {v0}, Ljava/nio/ByteBuffer;->allocate(I)Ljava/nio/ByteBuffer;
@@ -162,10 +162,10 @@
 
     move-result-object v0
 
-    .line 58
+    .line 64
     invoke-virtual {v0, p1}, Ljava/nio/ByteBuffer;->putFloat(F)Ljava/nio/ByteBuffer;
 
-    .line 59
+    .line 65
     const/4 p1, 0x2
 
     new-array p1, p1, [[B
@@ -198,8 +198,26 @@
 .method static protoFieldMessage(I[B)[B
     .registers 2
 
-    .line 53
+    .line 59
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldBytes(I[B)[B
+
+    move-result-object p0
+
+    return-object p0
+.end method
+
+.method static protoFieldSint32(II)[B
+    .registers 3
+
+    .line 50
+    shl-int/lit8 v0, p1, 0x1
+
+    shr-int/lit8 p1, p1, 0x1f
+
+    xor-int/2addr p1, v0
+
+    .line 51
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object p0
 
@@ -209,7 +227,7 @@
 .method static protoFieldString(ILjava/lang/String;)[B
     .registers 2
 
-    .line 63
+    .line 69
     invoke-virtual {p1}, Ljava/lang/String;->getBytes()[B
 
     move-result-object p1
@@ -265,45 +283,24 @@
         }
     .end annotation
 
-    .line 67
+    .line 73
     new-instance v0, Ljava/util/HashMap;
 
     invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
 
-    .line 68
+    .line 74
     const/4 v1, 0x0
 
     const/4 v2, 0x0
 
-    .line 69
+    .line 75
     :goto_7
     array-length v3, p0
 
     if-ge v2, v3, :cond_77
 
-    .line 70
-    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
-
-    move-result-object v2
-
-    .line 71
-    iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
-
-    .line 72
-    iget v4, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
-
-    ushr-int/lit8 v4, v4, 0x3
-
-    .line 73
-    iget v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
-
-    and-int/lit8 v2, v2, 0x7
-
-    .line 75
-    if-nez v2, :cond_27
-
     .line 76
-    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
 
     move-result-object v2
 
@@ -311,13 +308,34 @@
     iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
 
     .line 78
+    iget v4, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
+
+    ushr-int/lit8 v4, v4, 0x3
+
+    .line 79
+    iget v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
+
+    and-int/lit8 v2, v2, 0x7
+
+    .line 81
+    if-nez v2, :cond_27
+
+    .line 82
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
+
+    move-result-object v2
+
+    .line 83
+    iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
+
+    .line 84
     iget v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
 
     invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v2
 
-    .line 79
+    .line 85
     goto :goto_54
 
     :cond_27
@@ -325,30 +343,30 @@
 
     if-ne v2, v5, :cond_3b
 
-    .line 80
+    .line 86
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
 
     move-result-object v2
 
-    .line 81
+    .line 87
     iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
 
-    .line 82
+    .line 88
     iget v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
 
-    .line 83
+    .line 89
     new-array v5, v2, [B
 
-    .line 84
+    .line 90
     invoke-static {p0, v3, v5, v1, v2}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 85
+    .line 91
     add-int/2addr v3, v2
 
-    .line 86
+    .line 92
     nop
 
-    .line 87
+    .line 93
     move-object v2, v5
 
     goto :goto_54
@@ -358,7 +376,7 @@
 
     if-ne v2, v5, :cond_71
 
-    .line 88
+    .line 94
     const/4 v2, 0x4
 
     invoke-static {p0, v3, v2}, Ljava/nio/ByteBuffer;->wrap([BII)Ljava/nio/ByteBuffer;
@@ -371,7 +389,7 @@
 
     move-result-object v2
 
-    .line 89
+    .line 95
     invoke-virtual {v2}, Ljava/nio/ByteBuffer;->getFloat()F
 
     move-result v2
@@ -380,13 +398,13 @@
 
     move-result-object v2
 
-    .line 90
+    .line 96
     add-int/lit8 v3, v3, 0x4
 
-    .line 91
+    .line 97
     nop
 
-    .line 97
+    .line 103
     :goto_54
     invoke-static {v4}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
@@ -398,43 +416,43 @@
 
     check-cast v5, Ljava/util/List;
 
-    .line 98
+    .line 104
     if-nez v5, :cond_6c
 
-    .line 99
+    .line 105
     new-instance v5, Ljava/util/ArrayList;
 
     invoke-direct {v5}, Ljava/util/ArrayList;-><init>()V
 
-    .line 100
+    .line 106
     invoke-static {v4}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v4
 
     invoke-interface {v0, v4, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 102
+    .line 108
     :cond_6c
     invoke-interface {v5, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 103
+    .line 109
     move v2, v3
 
     goto :goto_7
 
-    .line 91
+    .line 97
     :cond_71
     const/4 v4, 0x1
 
     if-ne v2, v4, :cond_77
 
-    .line 92
+    .line 98
     add-int/lit8 v2, v3, 0x8
 
-    .line 93
+    .line 99
     goto :goto_7
 
-    .line 104
+    .line 110
     :cond_77
     return-object v0
 .end method
@@ -450,14 +468,14 @@
         }
     .end annotation
 
-    .line 126
+    .line 132
     invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
 
     move-result v0
 
     new-array v0, v0, [B
 
-    .line 127
+    .line 133
     const/4 v1, 0x0
 
     :goto_7
@@ -467,7 +485,7 @@
 
     if-ge v1, v2, :cond_1c
 
-    .line 128
+    .line 134
     invoke-virtual {p0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v2
@@ -480,12 +498,12 @@
 
     aput-byte v2, v0, v1
 
-    .line 127
+    .line 133
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_7
 
-    .line 130
+    .line 136
     :cond_1c
     return-object v0
 .end method

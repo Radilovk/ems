@@ -232,8 +232,7 @@ public final class NotifyWearableBridge {
 
     private static void performConnect(Context context) {
         if (WearableConfig.isDirectBleMode(context)
-                && !WearableBlePermissions.hasAllBlePermissions(context)) {
-            WearableSyncHelper.showBluetoothPermissionDenied();
+                && !WearableBlePermissions.gateGattOrNotify(context)) {
             return;
         }
         beginListening(context);

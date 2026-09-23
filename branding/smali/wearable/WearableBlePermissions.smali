@@ -103,6 +103,55 @@
     return-void
 .end method
 
+.method public static gateGattOrNotify(Landroid/content/Context;)Z
+    .registers 3
+
+    .line 75
+    const/4 v0, 0x0
+
+    if-nez p0, :cond_4
+
+    .line 76
+    return v0
+
+    .line 78
+    :cond_4
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->hasAllBlePermissions(Landroid/content/Context;)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_c
+
+    .line 79
+    const/4 p0, 0x1
+
+    return p0
+
+    .line 81
+    :cond_c
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
+
+    move-result-object p0
+
+    .line 82
+    if-eqz p0, :cond_17
+
+    .line 83
+    const/4 v1, 0x0
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->ensureConnectPermission(Landroid/app/Activity;Ljava/lang/Runnable;)V
+
+    goto :goto_1a
+
+    .line 85
+    :cond_17
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showBluetoothPermissionDenied()V
+
+    .line 87
+    :goto_1a
+    return v0
+.end method
+
 .method public static hasAllBlePermissions(Landroid/content/Context;)Z
     .registers 5
 
@@ -172,13 +221,13 @@
 .method public static openAppSettings(Landroid/app/Activity;)V
     .registers 4
 
-    .line 74
+    .line 91
     if-nez p0, :cond_3
 
-    .line 75
+    .line 92
     return-void
 
-    .line 78
+    .line 95
     :cond_3
     :try_start_3
     new-instance v0, Landroid/content/Intent;
@@ -187,7 +236,7 @@
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 79
+    .line 96
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -212,24 +261,24 @@
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setData(Landroid/net/Uri;)Landroid/content/Intent;
 
-    .line 80
+    .line 97
     const/high16 v1, 0x10000000
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 81
+    .line 98
     invoke-virtual {p0, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
     :try_end_2e
     .catchall {:try_start_3 .. :try_end_2e} :catchall_2f
 
-    .line 83
+    .line 100
     goto :goto_30
 
-    .line 82
+    .line 99
     :catchall_2f
     move-exception p0
 
-    .line 84
+    .line 101
     :goto_30
     return-void
 .end method

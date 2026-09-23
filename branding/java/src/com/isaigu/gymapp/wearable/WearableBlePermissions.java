@@ -70,6 +70,23 @@ public final class WearableBlePermissions {
                 new PermissionCallback(onGranted));
     }
 
+    /** Block GATT until CONNECT + SCAN are granted (Android 12+). */
+    public static boolean gateGattOrNotify(Context context) {
+        if (context == null) {
+            return false;
+        }
+        if (hasAllBlePermissions(context)) {
+            return true;
+        }
+        Activity activity = WearableSyncHelper.resolveActivityForPermissions();
+        if (activity != null) {
+            ensureConnectPermission(activity, null);
+        } else {
+            WearableSyncHelper.showBluetoothPermissionDenied();
+        }
+        return false;
+    }
+
     public static void openAppSettings(Activity activity) {
         if (activity == null) {
             return;

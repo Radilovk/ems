@@ -25,9 +25,10 @@ GB_QUERIES = """    <queries>
         </intent>
     </queries>
 """
-NOTIFY_SERVICE = """        <service android:exported="false" android:name="com.isaigu.gymapp.wearable.NotifyHaForegroundService"/>
+NOTIFY_SERVICE = """        <service android:exported="false" android:foregroundServiceType="connectedDevice" android:name="com.isaigu.gymapp.wearable.NotifyHaForegroundService"/>
 """
 NOTIFY_PERMISSIONS = """    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
@@ -101,6 +102,7 @@ STRING_IDS = {
     "wearable_sync_auth_key": 0x7F0D019A,
     "wearable_sync_status_ble": 0x7F0D019B,
     "wearable_sync_diag_ble": 0x7F0D019C,
+    "wearable_sync_bt_permission": 0x7F0D019D,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -214,6 +216,7 @@ EN_STRINGS = """
     <string name="wearable_sync_auth_key">Auth key</string>
     <string name="wearable_sync_status_ble">Direct BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
+    <string name="wearable_sync_bt_permission">Bluetooth permission required — allow Nearby devices</string>
 """
 
 BG_STRINGS = """
@@ -243,6 +246,7 @@ BG_STRINGS = """
     <string name="wearable_sync_auth_key">Auth key</string>
     <string name="wearable_sync_status_ble">Директен BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
+    <string name="wearable_sync_bt_permission">Нужно е Bluetooth разрешение — позволи „Устройства наблизо“</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V

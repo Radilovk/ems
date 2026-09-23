@@ -113,18 +113,50 @@ public final class XiaomiBandBleClient {
         session = null;
         chunkMap.clear();
         disconnectGatt();
+        if (!isValidMac(targetMac)) {
+            setState("bad_mac");
+            return;
+        }
         setState("connecting");
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter == null) {
             setState("no_bluetooth");
             return;
         }
-        BluetoothDevice device = adapter.getRemoteDevice(targetMac);
-        if (Build.VERSION.SDK_INT >= 23) {
-            gatt = device.connectGatt(appContext, false, gattCallback,
-                    BluetoothDevice.TRANSPORT_LE);
-        } else {
-            gatt = device.connectGatt(appContext, false, gattCallback);
+        try {
+            if (!adapter.isEnabled()) {
+                setState("no_bluetooth");
+                return;
+            }
+        } catch (Throwable ignored) {
+        }
+        BluetoothDevice device;
+        try {
+            device = adapter.getRemoteDevice(targetMac);
+        } catch (IllegalArgumentException e) {
+            setState("bad_mac");
+            return;
+        } catch (Throwable t) {
+            setState("connect_fail");
+            return;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= 23) {
+                gatt = device.connectGatt(appContext, false, gattCallback,
+                        BluetoothDevice.TRANSPORT_LE);
+            } else {
+                gatt = device.connectGatt(appContext, false, gattCallback);
+            }
+        } catch (SecurityException e) {
+            setState("no_bt_permission");
+            return;
+        } catch (Throwable t) {
+            setState("connect_fail");
+            return;
+        }
+        if (gatt == null) {
+            setState("connect_fail");
+            return;
         }
         scheduleAuthTimeout();
     }
@@ -479,6 +511,13 @@ public final class XiaomiBandBleClient {
         if (listener != null) {
             listener.onConnected(connected);
         }
+    }
+
+    private static boolean isValidMac(String mac) {
+        if (mac == null || mac.length() == 0) {
+            return false;
+        }
+        return mac.matches("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}");
     }
 
     private static byte[] parseAuthKey(String hex) {

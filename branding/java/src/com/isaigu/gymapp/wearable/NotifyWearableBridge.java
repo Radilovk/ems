@@ -1,5 +1,6 @@
 package com.isaigu.gymapp.wearable;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -205,10 +206,24 @@ public final class NotifyWearableBridge {
     }
 
     public static void requestConnect() {
-        Context context = WearableSyncHelper.getContext();
+        requestConnect(null);
+    }
+
+    public static void requestConnect(Activity activity) {
+        Context context = activity != null ? activity : WearableSyncHelper.getContext();
         if (context == null) {
             return;
         }
+        if (WearableConfig.isDirectBleMode(context)) {
+            if (activity != null && !WearableBlePermissions.hasConnectPermission(activity)) {
+                WearableBlePermissions.ensureConnectPermission(activity, new ConnectAfterPermission());
+                return;
+            }
+        }
+        performConnect(context);
+    }
+
+    private static void performConnect(Context context) {
         beginListening(context);
         if (WearableConfig.isDirectBleMode(context)) {
             XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
@@ -222,6 +237,16 @@ public final class NotifyWearableBridge {
             scheduleGadgetbridgeSequence(context);
         }
         WearableSyncHelper.updateDiagnostics();
+    }
+
+    static final class ConnectAfterPermission implements Runnable {
+        @Override
+        public void run() {
+            Context context = WearableSyncHelper.getContext();
+            if (context != null) {
+                performConnect(context);
+            }
+        }
     }
 
     public static void stopListening(Context context) {

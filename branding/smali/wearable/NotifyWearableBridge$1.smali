@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 44
+    .line 45
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public run()V
     .registers 4
 
-    .line 47
+    .line 48
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->listeningActive:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$000()Z
 
@@ -40,23 +40,23 @@
 
     if-nez v0, :cond_7
 
-    .line 48
+    .line 49
     return-void
 
-    .line 50
+    .line 51
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 51
+    .line 52
     if-eqz v0, :cond_10
 
-    .line 52
+    .line 53
     # invokes: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->sendGadgetbridgeStart(Landroid/content/Context;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100(Landroid/content/Context;)V
 
-    .line 54
+    .line 55
     :cond_10
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->mainHandler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$200()Landroid/os/Handler;
@@ -67,6 +67,6 @@
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 55
+    .line 56
     return-void
 .end method

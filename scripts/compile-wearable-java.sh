@@ -17,6 +17,7 @@ INTERVAL_CLASSES="${ROOT}/build/interval-timer-java/classes"
 MUSIC_CLASSES="${ROOT}/build/music-sync-java/classes"
 
 WEARABLE_JAVA=(
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBlePermissions.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableConfig.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHrReceiver.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"

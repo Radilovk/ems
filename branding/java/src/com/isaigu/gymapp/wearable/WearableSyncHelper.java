@@ -75,6 +75,7 @@ public final class WearableSyncHelper {
     private static final int STR_AUTH_KEY = 0x7f0d019a;
     private static final int STR_STATUS_BLE = 0x7f0d019b;
     private static final int STR_DIAG_BLE = 0x7f0d019c;
+    private static final int STR_BT_PERMISSION = 0x7f0d019d;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -171,6 +172,19 @@ public final class WearableSyncHelper {
         });
     }
 
+    public static void showBluetoothPermissionDenied() {
+        Activity activity = resolveActivity(null);
+        if (activity == null) {
+            return;
+        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                toast(activity, STR_BT_PERMISSION);
+            }
+        });
+    }
+
     static Context getContext() {
         return panelRoot != null ? panelRoot.getContext() : null;
     }
@@ -256,7 +270,7 @@ public final class WearableSyncHelper {
             return;
         }
         toast(activity, STR_TOAST_ARMED);
-        NotifyWearableBridge.requestConnect();
+        NotifyWearableBridge.requestConnect(activity);
         refreshOverlayDisplay();
         dismissConfigDialog(false);
     }
@@ -752,7 +766,7 @@ public final class WearableSyncHelper {
             if (activity != null) {
                 saveConfigFromUi(activity);
             }
-            NotifyWearableBridge.requestConnect();
+            NotifyWearableBridge.requestConnect(activity);
             toast(activity, STR_CONNECT);
         }
     }
@@ -771,7 +785,7 @@ public final class WearableSyncHelper {
             if (activity != null) {
                 saveConfigFromUi(activity);
             }
-            NotifyWearableBridge.requestConnect();
+            NotifyWearableBridge.requestConnect(activity);
             toast(activity, STR_CONNECT);
         }
     }

@@ -134,6 +134,10 @@ public final class WearableSyncHelper {
         dismissStaleUi();
         panelRoot = root;
         itemManager = manager;
+        try {
+            com.isaigu.gymapp.ai.AiSession.attach(root, manager);
+        } catch (Throwable ignored) {
+        }
         View button = root.findViewById(BUTTON_ID);
         if (button == null) {
             return;

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 160
+    .line 164
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 163
+    .line 167
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
@@ -42,7 +42,7 @@
 
     move-result-object v0
 
-    .line 164
+    .line 168
     if-eqz v0, :cond_d
 
     invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
@@ -51,12 +51,12 @@
 
     if-eqz v0, :cond_e
 
-    .line 170
+    .line 174
     :cond_d
     :goto_d
     return-void
 
-    .line 167
+    .line 171
     :cond_e
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100()Landroid/support/v7/app/AlertDialog;
@@ -76,7 +76,7 @@
 
     if-nez v0, :cond_d
 
-    .line 168
+    .line 172
     :cond_1e
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showOverlayDialog()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$200()Z

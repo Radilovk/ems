@@ -180,6 +180,10 @@ public final class NotifyWearableBridge {
         hrEventCount++;
         lastHr = hr;
         WearableSyncHelper.updateHeartRate(hr, bandConnected);
+        try {
+            com.isaigu.gymapp.ai.AiSession.onHeartRate(hr);
+        } catch (Throwable ignored) {
+        }
         WearableSyncHelper.updateDiagnostics();
         Context context = WearableSyncHelper.getContext();
         if (context != null && WearableConfig.isAutoReduceEnabled(context)

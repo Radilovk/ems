@@ -49,7 +49,12 @@ public final class WearableConfig {
 
     /** Optional Gadgetbridge device MAC (e.g. D0:62:2C:26:49:60). */
     public static String getBandMac(Context context) {
-        return prefs(context).getString(KEY_BAND_MAC, "");
+        return prefs(context).getString(KEY_BAND_MAC, "D0:62:2C:26:49:60");
+    }
+
+    public static void setBandMac(Context context, String mac) {
+        prefs(context).edit().putString(KEY_BAND_MAC,
+                mac != null ? mac.trim() : "").apply();
     }
 
     public static int getHaPort(Context context) {

@@ -16,6 +16,8 @@ public final class NotifyHrReceiver extends BroadcastReceiver {
     public static final String ACTION_BATTERY_LEGACY = "com.mc.miband.batteryStatGot";
     public static final String ACTION_GB_REALTIME_HR =
             "nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR";
+    public static final String ACTION_GB_CONNECTED =
+            "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -28,9 +30,17 @@ public final class NotifyHrReceiver extends BroadcastReceiver {
         }
         NotifyWearableBridge.onRawEvent(action);
         if (isHeartRateAction(action)) {
+            if (ACTION_GB_REALTIME_HR.equals(action)
+                    && !deviceMatchesConfigured(context, intent)) {
+                return;
+            }
             int hr = parseHeartRate(intent);
             if (hr > 0) {
                 NotifyWearableBridge.onHeartRate(hr, action);
+            }
+        } else if (ACTION_GB_CONNECTED.equals(action)) {
+            if (deviceMatchesConfigured(context, intent)) {
+                NotifyWearableBridge.onBandConnected();
             }
         } else if (isConnectedAction(action)) {
             NotifyWearableBridge.onBandConnected();
@@ -57,6 +67,25 @@ public final class NotifyHrReceiver extends BroadcastReceiver {
 
     private static boolean isBatteryAction(String action) {
         return ACTION_BATTERY.equals(action) || ACTION_BATTERY_LEGACY.equals(action);
+    }
+
+    private static boolean deviceMatchesConfigured(Context context, Intent intent) {
+        String configured = WearableConfig.getBandMac(context);
+        if (configured == null || configured.trim().length() == 0) {
+            return true;
+        }
+        String mac = intent.getStringExtra("device");
+        if (mac == null) {
+            mac = intent.getStringExtra("EXTRA_DEVICE_ADDRESS");
+        }
+        if (mac == null) {
+            return true;
+        }
+        return normalizeMac(configured).equals(normalizeMac(mac));
+    }
+
+    private static String normalizeMac(String mac) {
+        return mac != null ? mac.replace(":", "").toUpperCase() : "";
     }
 
     private static int parseHeartRate(Intent intent) {

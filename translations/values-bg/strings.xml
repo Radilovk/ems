@@ -439,5 +439,9 @@
     <string name="wearable_sync_ha_entities_ok">heartrate намерен — HA пътят работи</string>
     <string name="wearable_sync_ha_entities_need_pulsoid">няма heartrate обект — нужен Pulsoid</string>
     <string name="wearable_sync_ha_entities_no_value">heartRate обект има, стойност празна — Notify не праща live пулс → Pulsoid</string>
+    <string name="wearable_sync_open_gb">Отвори GB</string>
+    <string name="wearable_sync_band_mac">MAC гривна</string>
+    <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · батерия: %5$s</string>
+    <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
 
 </resources>

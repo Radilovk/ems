@@ -157,12 +157,29 @@ def patch_app_theme() -> None:
     styles_path.write_text(text, encoding="utf-8")
 
 
+def read_release_version() -> tuple[str, int]:
+    release_version = ROOT / "RELEASE_VERSION"
+    if not release_version.is_file():
+        raise RuntimeError("RELEASE_VERSION missing — set versionName/versionCode before build")
+    version_name = None
+    version_code = None
+    for line in release_version.read_text(encoding="utf-8").splitlines():
+        if line.startswith("versionName="):
+            version_name = line.split("=", 1)[1].strip()
+        elif line.startswith("versionCode="):
+            version_code = int(line.split("=", 1)[1].strip())
+    if not version_name or version_code is None:
+        raise RuntimeError("RELEASE_VERSION must contain versionName= and versionCode=")
+    return version_name, version_code
+
+
 def patch_version_name() -> None:
+    version_name, version_code = read_release_version()
     apktool_yml = DECOMPILED / "apktool.yml"
     text = apktool_yml.read_text(encoding="utf-8")
     updated, count = re.subn(
         r"versionCode: \d+",
-        "versionCode: 173",
+        f"versionCode: {version_code}",
         text,
         count=1,
     )
@@ -170,19 +187,14 @@ def patch_version_name() -> None:
         raise RuntimeError("failed to patch versionCode in apktool.yml")
     updated, count = re.subn(
         r"versionName: .+",
-        "versionName: 1.1.48-hrfix",
+        f"versionName: {version_name}",
         updated,
         count=1,
     )
     if count != 1:
         raise RuntimeError("failed to patch versionName in apktool.yml")
     apktool_yml.write_text(updated, encoding="utf-8")
-    release_version = ROOT / "RELEASE_VERSION"
-    release_version.write_text(
-        "versionName=1.1.48-hrfix\nversionCode=173\n",
-        encoding="utf-8",
-    )
-    print("patched versionCode -> 173, versionName -> 1.1.48-hrfix")
+    print(f"patched versionCode -> {version_code}, versionName -> {version_name}")
 
 
 def copy_branding_layouts() -> None:

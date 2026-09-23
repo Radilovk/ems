@@ -38,7 +38,7 @@ public final class XiaomiBandBleClient {
     private static final int HEALTH_CMD_REALTIME_STOP = 46;
     private static final int HEALTH_CMD_REALTIME_EVENT = 47;
 
-    private static final String BLE_BUILD_TAG = "v1.1.48-hrfix";
+    private static final String BLE_BUILD_TAG = "v1.1.50-ble";
     private static final long AUTH_TIMEOUT_MS = 45000L;
     private static final long STALL_CHECK_MS = 5000L;
     private static final long FIRST_HR_TIMEOUT_MS = 8000L;

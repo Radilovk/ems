@@ -16,15 +16,6 @@ WEARABLE_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/wearable"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
 MANIFEST = DECOMPILED / "AndroidManifest.xml"
-GB_QUERIES = """    <queries>
-        <package android:name="nodomain.freeyourgadget.gadgetbridge"/>
-        <package android:name="nodomain.freeyourgadget.gadgetbridge.nightly"/>
-        <package android:name="nodomain.freeyourgadget.gadgetbridge.nightly_nopebble"/>
-        <intent>
-            <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
-        </intent>
-    </queries>
-"""
 NOTIFY_SERVICE = """        <service android:exported="false" android:foregroundServiceType="connectedDevice" android:name="com.isaigu.gymapp.wearable.NotifyHaForegroundService"/>
 """
 NOTIFY_PERMISSIONS = """    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -32,14 +23,6 @@ NOTIFY_PERMISSIONS = """    <uses-permission android:name="android.permission.FO
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
-"""
-GB_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
-            <intent-filter>
-                <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
-                <action android:name="nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED"/>
-                <action android:name="nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_DISCONNECTED"/>
-            </intent-filter>
-        </receiver>
 """
 PUBLIC_XML = RES / "values/public.xml"
 IDS_XML = RES / "values/ids.xml"
@@ -130,17 +113,14 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
         </LinearLayout>
         <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
             <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="88.0dip" android:textAllCaps="true" android:text="@string/wearable_sync_band_mac" />
-            <EditText android:textSize="13.0sp" android:textColor="@color/text_primary" android:id="@id/wearableSyncBandMac" android:background="@drawable/modal_field_bg" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:maxLength="17" android:inputType="text" android:text="D0:62:2C:26:49:60" />
+            <EditText android:textSize="13.0sp" android:textColor="@color/text_primary" android:id="@id/wearableSyncBandMac" android:background="@drawable/modal_field_bg" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:maxLength="17" android:inputType="text" android:hint="AA:BB:CC:DD:EE:FF" />
         </LinearLayout>
         <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
             <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="88.0dip" android:textAllCaps="true" android:text="@string/wearable_sync_auth_key" />
             <EditText android:textSize="11.0sp" android:textColor="@color/text_primary" android:id="@id/wearableSyncAuthKey" android:background="@drawable/modal_field_bg" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:maxLength="32" android:inputType="textNoSuggestions" android:fontFamily="monospace" />
         </LinearLayout>
     </LinearLayout>
-    <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
-        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenGb" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/wearable_sync_open_gb" android:textAllCaps="false" />
-    </LinearLayout>
+    <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginTop="12.0dip" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
     <com.isaigu.gymapp.widget.MyButton android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncActivate" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="52.0dip" android:layout_marginTop="12.0dip" android:text="@string/wearable_sync_activate" android:textAllCaps="false" />
 </LinearLayout>
 </ScrollView>
@@ -191,30 +171,30 @@ WEARABLE_ATTACH_HOOK = """
 """
 
 EN_STRINGS = """
-    <string name="wearable_sync_title">Gadgetbridge — heart rate</string>
-    <string name="wearable_sync_status_idle">Configure and activate</string>
+    <string name="wearable_sync_title">Direct BLE — heart rate</string>
+    <string name="wearable_sync_status_idle">Enter auth key + MAC, then activate</string>
     <string name="wearable_sync_status_armed">Dial armed — tap Connect band</string>
-    <string name="wearable_sync_status_active">Live sync during training</string>
+    <string name="wearable_sync_status_active">Live BLE sync during training</string>
     <string name="wearable_sync_status_waiting">Waiting for pulse…</string>
     <string name="wearable_sync_status_disconnected">Band disconnected</string>
     <string name="wearable_sync_bpm">bpm</string>
-    <string name="wearable_sync_enabled">Direct BLE pulse (auth key)</string>
+    <string name="wearable_sync_enabled">Enable pulse sync</string>
     <string name="wearable_sync_auto_reduce">Auto-reduce strength above threshold</string>
     <string name="wearable_sync_threshold">HR limit</string>
     <string name="wearable_sync_strength_step">Step</string>
-    <string name="wearable_sync_connect">Connect band</string>
+    <string name="wearable_sync_connect">Connect band (BLE)</string>
     <string name="wearable_sync_activate">Activate dial</string>
-    <string name="wearable_sync_info_title">Gadgetbridge sync — help</string>
-    <string name="wearable_sync_info_body">Direct BLE checklist:\\n1. Force-stop Mi Fitness, Notify and any other band app; only XEMS may use the band.\\n2. Phone: allow Bluetooth CONNECT + SCAN (Nearby devices) for XEMS.\\n3. Auth key: 32 hex chars from Mi Fitness / auth key extractor. MAC must match.\\n4. Activate dial → Connect → wait authenticated → streaming.\\n5. Wear band on wrist; first HR ~10–15s. Band screen may show no companion app — normal.\\n6. Tap i on dial for BLE log if HR stays 0.</string>
+    <string name="wearable_sync_info_title">Direct BLE — help</string>
+    <string name="wearable_sync_info_body">Direct BLE only (no Gadgetbridge):\\n1. Force-stop Mi Fitness and other band apps — only XEMS uses the band.\\n2. Auth key: 32 hex chars from Mi Fitness. MAC must match your band.\\n3. Allow Bluetooth CONNECT + SCAN for XEMS.\\n4. Activate dial → Connect → authenticated → streaming.\\n5. First HR ~10–15s with band on wrist.\\n6. Tap i on dial for BLE log.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
-    <string name="wearable_sync_notify_missing">Gadgetbridge not installed — install nightly_nopebble from F-Droid</string>
-    <string name="wearable_sync_open_gb">Open GB</string>
+    <string name="wearable_sync_notify_missing">Auth key required — 32 hex chars</string>
+    <string name="wearable_sync_open_gb"> </string>
     <string name="wearable_sync_band_mac">Band MAC</string>
-    <string name="wearable_sync_diag_gb">GB HR: %1$d</string>
-    <string name="wearable_sync_status_gb_listening">Gadgetbridge — enable Intent API on band, then Connect</string>
-    <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · last: %2$s · %3$s</string>
-    <string name="wearable_sync_diag_gb_hint">No GB HR yet. Enable per-device Intent API → realtime HR broadcast + START_REALTIME_HR. Start Live activity in GB or wait 15s.</string>
-    <string name="wearable_sync_auth_key">Auth key</string>
+    <string name="wearable_sync_diag_gb">HR: %1$d</string>
+    <string name="wearable_sync_status_gb_listening">Direct BLE — connect band</string>
+    <string name="wearable_sync_diag_gb_meta"> </string>
+    <string name="wearable_sync_diag_gb_hint"> </string>
+    <string name="wearable_sync_auth_key">Auth key (32 hex)</string>
     <string name="wearable_sync_status_ble">Direct BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
     <string name="wearable_sync_bt_permission">Allow Bluetooth + Nearby devices (CONNECT and SCAN)</string>
@@ -222,30 +202,30 @@ EN_STRINGS = """
 """
 
 BG_STRINGS = """
-    <string name="wearable_sync_title">Gadgetbridge — пулс</string>
-    <string name="wearable_sync_status_idle">Настрой и активирай</string>
+    <string name="wearable_sync_title">Директен BLE — пулс</string>
+    <string name="wearable_sync_status_idle">Въведи auth key + MAC, после активирай</string>
     <string name="wearable_sync_status_armed">Циферблатът е готов — натисни Свържи гривната</string>
-    <string name="wearable_sync_status_active">Live синхрон по време на EMS</string>
+    <string name="wearable_sync_status_active">Live BLE синхрон по време на EMS</string>
     <string name="wearable_sync_status_waiting">Изчакване на пулс…</string>
     <string name="wearable_sync_status_disconnected">Гривната е изключена</string>
     <string name="wearable_sync_bpm">уд/мин</string>
-    <string name="wearable_sync_enabled">Директен BLE пулс (auth key)</string>
+    <string name="wearable_sync_enabled">Включи синхрон на пулс</string>
     <string name="wearable_sync_auto_reduce">Авто-намаляване на сила над прага</string>
     <string name="wearable_sync_threshold">Праг пулс</string>
     <string name="wearable_sync_strength_step">Стъпка</string>
-    <string name="wearable_sync_connect">Свържи гривната</string>
+    <string name="wearable_sync_connect">Свържи гривната (BLE)</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
-    <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
-    <string name="wearable_sync_info_body">Директен BLE — checklist:\\n1. Спри Mi Fitness, Notify и други приложения (Force stop); само XEMS ползва гривната.\\n2. Телефон: позволи Bluetooth CONNECT + SCAN (Устройства наблизо) за XEMS.\\n3. Auth key: 32 hex символа от Mi Fitness / auth key extractor. MAC трябва да съвпада.\\n4. Активирай циферблат → Свържи → изчакай authenticated → streaming.\\n5. Носи гривната на китката; първи пулс ~10–15s. На гривната може да пише „няма приложение“ — нормално.\\n6. Натисни i на циферблата за BLE лог, ако HR=0.</string>
+    <string name="wearable_sync_info_title">Директен BLE — помощ</string>
+    <string name="wearable_sync_info_body">Само директен BLE (без Gadgetbridge):\\n1. Спри Mi Fitness и други приложения — само XEMS ползва гривната.\\n2. Auth key: 32 hex от Mi Fitness. MAC = твоята гривна.\\n3. Позволи Bluetooth CONNECT + SCAN за XEMS.\\n4. Активирай циферблат → Свържи → authenticated → streaming.\\n5. Първи пулс ~10–15s с гривна на китката.\\n6. Натисни i на циферблата за BLE лог.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
-    <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
-    <string name="wearable_sync_open_gb">Отвори GB</string>
+    <string name="wearable_sync_notify_missing">Auth key задължителен — 32 hex символа</string>
+    <string name="wearable_sync_open_gb"> </string>
     <string name="wearable_sync_band_mac">MAC гривна</string>
-    <string name="wearable_sync_diag_gb">GB HR: %1$d</string>
-    <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
-    <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · последно: %2$s · %3$s</string>
-    <string name="wearable_sync_diag_gb_hint">Няма GB HR. Включи на гривната Intent API → realtime HR broadcast + START_REALTIME_HR. Стартирай Live activity в GB или изчакай 15s.</string>
-    <string name="wearable_sync_auth_key">Auth key</string>
+    <string name="wearable_sync_diag_gb">HR: %1$d</string>
+    <string name="wearable_sync_status_gb_listening">Директен BLE — свържи гривната</string>
+    <string name="wearable_sync_diag_gb_meta"> </string>
+    <string name="wearable_sync_diag_gb_hint"> </string>
+    <string name="wearable_sync_auth_key">Auth key (32 hex)</string>
     <string name="wearable_sync_status_ble">Директен BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
     <string name="wearable_sync_bt_permission">Позволи Bluetooth + Устройства наблизо (CONNECT и SCAN)</string>
@@ -289,20 +269,7 @@ def patch_manifest(text: str) -> str:
             raise RuntimeError("AndroidManifest: </application> missing")
         text = text.replace(marker, NOTIFY_SERVICE + marker, 1)
         print("AndroidManifest: registered NotifyHaForegroundService")
-    if "nodomain.freeyourgadget.gadgetbridge.nightly_nopebble" not in text:
-        marker = _application_marker(text)
-        text = text.replace(marker, GB_QUERIES + "\n" + marker, 1)
-        print("AndroidManifest: added <queries> for Gadgetbridge")
-    else:
-        print("AndroidManifest: Gadgetbridge package query already present")
-    if "com.isaigu.gymapp.wearable.NotifyHrReceiver" not in text:
-        marker = "    </application>"
-        if marker not in text:
-            raise RuntimeError("AndroidManifest: </application> missing")
-        text = text.replace(marker, GB_RECEIVER + marker, 1)
-        print("AndroidManifest: registered NotifyHrReceiver (GB only)")
-    else:
-        print("AndroidManifest: NotifyHrReceiver already present")
+    print("AndroidManifest: direct BLE only (no Gadgetbridge queries/receiver)")
     return text
 
 

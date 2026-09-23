@@ -224,7 +224,7 @@ public final class WearableSyncHelper {
         handler.post(new RefreshOverlayRunnable());
     }
 
-    public static void showGadgetbridgeMissing() {
+    public static void showAuthKeyRequired() {
         Activity activity = resolveActivity(null);
         if (activity == null) {
             return;
@@ -232,7 +232,8 @@ public final class WearableSyncHelper {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                toast(activity, STR_GB_MISSING);
+                toastMessage(activity,
+                        "Въведи auth key (32 hex) и MAC на гривната");
             }
         });
     }
@@ -247,6 +248,19 @@ public final class WearableSyncHelper {
             public void run() {
                 toast(activity, STR_BT_PERMISSION);
                 WearableBlePermissions.openAppSettings(activity);
+            }
+        });
+    }
+
+    public static void toastBleError(final String message) {
+        final Activity activity = resolveActivity(null);
+        if (activity == null || message == null || message.length() == 0) {
+            return;
+        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                toastMessage(activity, message);
             }
         });
     }
@@ -306,7 +320,6 @@ public final class WearableSyncHelper {
         bandMacView = (EditText) content.findViewById(ID_BAND_MAC);
         authKeyView = (EditText) content.findViewById(ID_AUTH_KEY);
         bindButton(content.findViewById(ID_CONNECT), new ConnectListener());
-        bindButton(content.findViewById(ID_OPEN_GB), new OpenGadgetbridgeListener());
         bindButton(content.findViewById(ID_INFO), new ConfigInfoListener());
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         loadConfigIntoUi(activity);
@@ -337,6 +350,11 @@ public final class WearableSyncHelper {
             return;
         }
         saveConfigFromUi(activity);
+        String configError = validateDirectBleConfig(activity);
+        if (configError != null) {
+            toastMessage(activity, configError);
+            return;
+        }
         WearableConfig.setArmed(activity, true);
         overlayVisible = true;
         refreshStatusText();
@@ -490,41 +508,19 @@ public final class WearableSyncHelper {
     }
 
     private static String buildWaitingLabel(Activity activity) {
-        if (WearableConfig.isDirectBleMode(activity)) {
-            int hr = NotifyWearableBridge.getGbHrEventCount();
-            StringBuilder sb = new StringBuilder(
-                    activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState()));
-            sb.append('\n');
-            sb.append("notify=");
-            sb.append(NotifyWearableBridge.getBleNotifyCount());
-            sb.append(" · ");
-            sb.append(NotifyWearableBridge.getBleBuildTag());
-            return sb.toString();
-        }
-        int gbHr = NotifyWearableBridge.getGbHrEventCount();
-        StringBuilder sb = new StringBuilder(activity.getString(STR_DIAG_GB, gbHr));
+        int hr = NotifyWearableBridge.getGbHrEventCount();
+        StringBuilder sb = new StringBuilder(
+                activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState()));
         sb.append('\n');
-        sb.append(activity.getString(
-                STR_DIAG_GB_META,
-                NotifyWearableBridge.getGbCommandCount(),
-                shortAction(NotifyWearableBridge.getLastEventAction()),
-                NotifyWearableBridge.getGbPackageLabel(activity)));
-        if (gbHr == 0) {
+        sb.append("notify=");
+        sb.append(NotifyWearableBridge.getBleNotifyCount());
+        sb.append(" · ");
+        sb.append(NotifyWearableBridge.getBleBuildTag());
+        if (!WearableConfig.isConfigured(activity)) {
             sb.append('\n');
-            sb.append(activity.getString(STR_DIAG_GB_HINT));
+            sb.append("auth key + MAC задължителни");
         }
         return sb.toString();
-    }
-
-    private static String shortAction(String action) {
-        if (action == null || action.length() == 0) {
-            return "--";
-        }
-        int slash = action.lastIndexOf('.');
-        if (slash >= 0 && slash < action.length() - 1) {
-            return action.substring(slash + 1);
-        }
-        return action;
     }
 
     private static String buildSubLabel(Activity activity) {
@@ -557,6 +553,29 @@ public final class WearableSyncHelper {
         }
     }
 
+    private static String validateDirectBleConfig(Activity activity) {
+        if (activity == null) {
+            return "Няма активен екран";
+        }
+        String key = WearableConfig.getAuthKey(activity);
+        String clean = key != null
+                ? key.replace(" ", "").replace(":", "").replace("-", "") : "";
+        if (clean.startsWith("0x") || clean.startsWith("0X")) {
+            clean = clean.substring(2);
+        }
+        if (clean.length() == 0) {
+            return "Auth key задължителен — 32 hex от Mi Fitness";
+        }
+        if (clean.length() != 32) {
+            return "Auth key: точно 32 hex символа (0-9, A-F)";
+        }
+        String mac = WearableConfig.getBandMac(activity);
+        if (mac == null || mac.replace(":", "").replace("-", "").trim().length() < 12) {
+            return "MAC гривна: формат AA:BB:CC:DD:EE:FF";
+        }
+        return null;
+    }
+
     private static void refreshStatusText() {
         if (statusView == null) {
             return;
@@ -566,21 +585,22 @@ public final class WearableSyncHelper {
             return;
         }
         if (!WearableConfig.isEnabled(activity)) {
-            statusView.setText(activity.getString(STR_STATUS_IDLE));
+            statusView.setText(NotifyWearableBridge.getBleBuildTag()
+                    + " — " + activity.getString(STR_STATUS_IDLE));
             return;
         }
-        if (WearableConfig.isDirectBleMode(activity)
-                && !WearableBlePermissions.hasAllBlePermissions(activity)) {
+        if (!WearableConfig.isConfigured(activity)) {
+            statusView.setText(NotifyWearableBridge.getBleBuildTag()
+                    + " — въведи auth key + MAC");
+            return;
+        }
+        if (!WearableBlePermissions.hasAllBlePermissions(activity)) {
             statusView.setText(activity.getString(STR_STATUS_BT_PERM));
             return;
         }
         if (NotifyWearableBridge.isListeningActive()) {
-            if (WearableConfig.isDirectBleMode(activity)) {
-                statusView.setText(activity.getString(STR_STATUS_BLE,
-                        NotifyWearableBridge.getBleState()));
-            } else {
-                statusView.setText(activity.getString(STR_STATUS_GB_LISTENING));
-            }
+            statusView.setText(activity.getString(STR_STATUS_BLE,
+                    NotifyWearableBridge.getBleState()));
             return;
         }
         if (trainingRunning && WearableConfig.isArmed(activity)) {
@@ -591,7 +611,8 @@ public final class WearableSyncHelper {
             statusView.setText(activity.getString(STR_STATUS_ARMED));
             return;
         }
-        statusView.setText(activity.getString(STR_STATUS_IDLE));
+        statusView.setText(NotifyWearableBridge.getBleBuildTag()
+                + " — " + activity.getString(STR_STATUS_IDLE));
     }
 
     private static void loadConfigIntoUi(Activity activity) {
@@ -615,11 +636,6 @@ public final class WearableSyncHelper {
         }
         if (authKeyView != null) {
             authKeyView.setText(WearableConfig.getAuthKey(activity));
-        }
-        View openGbBtn = configContent != null ? configContent.findViewById(ID_OPEN_GB) : null;
-        if (openGbBtn != null) {
-            openGbBtn.setVisibility(WearableConfig.isDirectBleMode(activity)
-                    ? View.GONE : View.VISIBLE);
         }
         overlayVisible = WearableConfig.isArmed(activity);
     }
@@ -832,22 +848,27 @@ public final class WearableSyncHelper {
         }
     }
 
+    private static void toastMessage(Activity activity, String message) {
+        if (activity == null || message == null || message.length() == 0) {
+            return;
+        }
+        try {
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+        } catch (Throwable ignored) {
+        }
+    }
+
     private static void showInfo(Activity activity) {
         if (activity == null) {
             return;
         }
-        if (WearableConfig.isDirectBleMode(activity)) {
-            String log = WearableBleDiagLog.getRecentText();
-            if (log == null || log.length() == 0) {
-                log = activity.getString(STR_INFO_BODY);
-            }
-            String path = WearableBleDiagLog.getLogFileHint(activity);
-            ModalInfoHelper.show(activity, "BLE диагностика",
-                    log + "\n\n---\nФайл: " + path);
-            return;
+        String log = WearableBleDiagLog.getRecentText();
+        if (log == null || log.length() == 0) {
+            log = activity.getString(STR_INFO_BODY);
         }
-        ModalInfoHelper.show(activity, activity.getString(STR_INFO_TITLE),
-                activity.getString(STR_INFO_BODY));
+        String path = WearableBleDiagLog.getLogFileHint(activity);
+        ModalInfoHelper.show(activity, "BLE диагностика",
+                log + "\n\n---\nФайл: " + path);
     }
 
     private static final class RefreshOverlayRunnable implements Runnable {
@@ -884,6 +905,11 @@ public final class WearableSyncHelper {
             Activity activity = resolveActivity(v);
             if (activity != null) {
                 saveConfigFromUi(activity);
+                String configError = validateDirectBleConfig(activity);
+                if (configError != null) {
+                    toastMessage(activity, configError);
+                    return;
+                }
             }
             NotifyWearableBridge.requestConnect(activity);
             toast(activity, STR_CONNECT);
@@ -903,6 +929,11 @@ public final class WearableSyncHelper {
             Activity activity = resolveActivity(v);
             if (activity != null) {
                 saveConfigFromUi(activity);
+                String configError = validateDirectBleConfig(activity);
+                if (configError != null) {
+                    toastMessage(activity, configError);
+                    return;
+                }
             }
             NotifyWearableBridge.requestConnect(activity);
             toast(activity, STR_CONNECT);
@@ -947,16 +978,6 @@ public final class WearableSyncHelper {
             stepView = null;
             bandMacView = null;
             authKeyView = null;
-        }
-    }
-
-    static final class OpenGadgetbridgeListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            Activity activity = resolveActivity(v);
-            if (activity != null) {
-                NotifyWearableBridge.openGadgetbridgeApp(activity);
-            }
         }
     }
 

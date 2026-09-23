@@ -1,4 +1,4 @@
-# BLE пулс v1.1.48-hrfix
+# BLE пулс v1.1.49-hrfix (и v1.1.48)
 
 ## Проблем
 
@@ -7,7 +7,7 @@
 първото `8/47` никога не идва. UI показваше `BLE HR: 0 · disconnected`, докато
 логът изглеждаше „streaming“.
 
-## Промени в `XiaomiBandBleClient` (build `v1.1.48-hrfix`)
+## Промени в `XiaomiBandBleClient` (build `v1.1.49-hrfix`)
 
 | Преди | След |
 | ----- | ---- |

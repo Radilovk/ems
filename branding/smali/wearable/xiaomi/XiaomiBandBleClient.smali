@@ -22,7 +22,7 @@
 
 .field private static final AUTH_TIMEOUT_MS:J = 0xafc8L
 
-.field private static final BLE_BUILD_TAG:Ljava/lang/String; = "v1.1.48-hrfix"
+.field private static final BLE_BUILD_TAG:Ljava/lang/String; = "v1.1.50-ble"
 
 .field private static final FIRST_HR_TIMEOUT_MS:J = 0x1f40L
 
@@ -675,7 +675,7 @@
     .registers 1
 
     .line 90
-    const-string v0, "v1.1.48-hrfix"
+    const-string v0, "v1.1.50-ble"
 
     return-object v0
 .end method
@@ -2664,7 +2664,7 @@
     .line 148
     const-string v2, "build"
 
-    const-string v4, "v1.1.48-hrfix"
+    const-string v4, "v1.1.50-ble"
 
     invoke-virtual {p0, v2, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 

@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/wearable/WearableSyncHelper$2;
+.class Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;
 .super Ljava/lang/Object;
 .source "WearableSyncHelper.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showAuthKeyRequired()V
+    value = Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastBleError(Ljava/lang/String;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,18 +20,22 @@
 # instance fields
 .field final synthetic val$activity:Landroid/app/Activity;
 
+.field final synthetic val$message:Ljava/lang/String;
+
 
 # direct methods
-.method constructor <init>(Landroid/app/Activity;)V
-    .registers 2
+.method constructor <init>(Landroid/app/Activity;Ljava/lang/String;)V
+    .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
         }
     .end annotation
 
-    .line 232
-    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$2;->val$activity:Landroid/app/Activity;
+    .line 260
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$message:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -43,14 +47,14 @@
 .method public run()V
     .registers 3
 
-    .line 235
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$2;->val$activity:Landroid/app/Activity;
+    .line 263
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
 
-    const-string v1, "\u0412\u044a\u0432\u0435\u0434\u0438 auth key (32 hex) \u0438 MAC \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$message:Ljava/lang/String;
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastMessage(Landroid/app/Activity;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$400(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 237
+    .line 264
     return-void
 .end method

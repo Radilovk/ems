@@ -3,7 +3,7 @@ package com.isaigu.gymapp.wearable;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/** Persisted settings for Gadgetbridge wearable sync. */
+/** Persisted settings for direct BLE wearable sync. */
 public final class WearableConfig {
     private static final String PREFS = "wearable_bridge";
     private static final String KEY_ENABLED = "enabled";
@@ -41,9 +41,9 @@ public final class WearableConfig {
         return prefs(context).getInt(KEY_STRENGTH_STEP, 5);
     }
 
-    /** Gadgetbridge device MAC (e.g. D0:62:2C:26:49:60). */
+    /** Band BLE MAC (e.g. D0:62:2C:26:49:60). */
     public static String getBandMac(Context context) {
-        return prefs(context).getString(KEY_BAND_MAC, "D0:62:2C:26:49:60");
+        return prefs(context).getString(KEY_BAND_MAC, "");
     }
 
     public static void setBandMac(Context context, String mac) {
@@ -51,7 +51,7 @@ public final class WearableConfig {
                 mac != null ? mac.trim() : "").apply();
     }
 
-    /** 16-byte auth key as 32 hex chars (from Gadgetbridge / Mi Fitness). */
+    /** 16-byte auth key as 32 hex chars (from Mi Fitness / auth key extractor). */
     public static String getAuthKey(Context context) {
         return prefs(context).getString(KEY_AUTH_KEY, "");
     }
@@ -62,6 +62,14 @@ public final class WearableConfig {
     }
 
     public static boolean isDirectBleMode(Context context) {
+        return isConfigured(context);
+    }
+
+    /** True when auth key (32 hex) and MAC are set for direct BLE. */
+    public static boolean isConfigured(Context context) {
+        if (context == null) {
+            return false;
+        }
         String key = getAuthKey(context);
         if (key == null) {
             return false;
@@ -70,7 +78,11 @@ public final class WearableConfig {
         if (clean.startsWith("0x") || clean.startsWith("0X")) {
             clean = clean.substring(2);
         }
-        return clean.length() == 32;
+        if (clean.length() != 32) {
+            return false;
+        }
+        String mac = getBandMac(context);
+        return mac != null && mac.replace(":", "").replace("-", "").trim().length() >= 12;
     }
 
     public static void setEnabled(Context context, boolean enabled) {

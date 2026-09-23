@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 867
+    .line 888
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,10 +32,10 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 870
+    .line 891
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->armFromConfig()V
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$700()V
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
 
-    .line 871
+    .line 892
     return-void
 .end method

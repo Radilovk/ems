@@ -84,14 +84,8 @@ public final class NotifyHaForegroundService extends Service {
     }
 
     private Notification buildNotification() {
-        String text;
-        if (WearableConfig.isDirectBleMode(this)) {
-            text = "Direct BLE: " + NotifyWearableBridge.getBleState()
-                    + " · " + XiaomiBandBleClient.getBuildTag();
-        } else {
-            String pkg = NotifyWearableBridge.getResolvedGadgetbridgePackage(this);
-            text = "Gadgetbridge HR: " + (pkg != null ? pkg : "not installed");
-        }
+        String text = "Direct BLE: " + NotifyWearableBridge.getBleState()
+                + " · " + XiaomiBandBleClient.getBuildTag();
         Intent launch = new Intent(this, MainActivity.class);
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;

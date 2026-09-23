@@ -22,6 +22,14 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSyncHelper.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHaForegroundService.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteTask.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandKeepaliveTask.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthTimeoutTask.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"
@@ -69,10 +77,14 @@ rm -rf "${SMALI_OUT}"
 java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 
 echo "Installing smali..."
-rm -f "${BRANDING_SMALI}"/*.smali
+rm -rf "${BRANDING_SMALI}"
+mkdir -p "${BRANDING_SMALI}"
 while IFS= read -r -d '' file; do
-  cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
-  echo "  -> wearable/$(basename "${file}")"
+  rel="${file#${SMALI_OUT}/com/isaigu/gymapp/wearable/}"
+  dest="${BRANDING_SMALI}/${rel}"
+  mkdir -p "$(dirname "${dest}")"
+  cp "${file}" "${dest}"
+  echo "  -> wearable/${rel}"
 done < <(find "${SMALI_OUT}/com/isaigu/gymapp/wearable" -name '*.smali' -print0)
 
 if [[ ! -f "${BRANDING_SMALI}/WearableSyncHelper.smali" ]]; then

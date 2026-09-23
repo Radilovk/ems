@@ -48,8 +48,7 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
 
     @Override
     public void onMtuChanged(BluetoothGatt g, int mtu, int status) {
-        client.log("gatt", "mtu=" + mtu + " status=" + status);
-        client.onGattConnected(g);
+        client.onMtuChanged(g, mtu, status);
     }
 
     @Override

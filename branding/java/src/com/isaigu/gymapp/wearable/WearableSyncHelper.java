@@ -433,6 +433,8 @@ public final class WearableSyncHelper {
             sb.append('\n');
             sb.append("notify=");
             sb.append(NotifyWearableBridge.getBleNotifyCount());
+            sb.append(" · ");
+            sb.append(NotifyWearableBridge.getBleBuildTag());
             return sb.toString();
         }
         int gbHr = NotifyWearableBridge.getGbHrEventCount();

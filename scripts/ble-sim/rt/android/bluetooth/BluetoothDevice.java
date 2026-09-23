@@ -1,0 +1,2 @@
+package android.bluetooth; public class BluetoothDevice { public static final int TRANSPORT_LE=2; public static BluetoothGatt LAST; public int getBondState(){return 12;}
+ public BluetoothGatt connectGatt(android.content.Context c, boolean a, BluetoothGattCallback cb){return connectGatt(c,a,cb,2);} public BluetoothGatt connectGatt(android.content.Context c, boolean a, BluetoothGattCallback cb,int t){ LAST=new BluetoothGatt(); LAST.cb=cb; BluetoothGatt.EV.add(new Object[]{"connected"}); return LAST;} }

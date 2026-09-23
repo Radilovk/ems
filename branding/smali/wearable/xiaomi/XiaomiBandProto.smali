@@ -15,6 +15,7 @@
 .method private constructor <init>()V
     .registers 1
 
+    .prologue
     .line 12
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -24,131 +25,130 @@
 .method static varargs concat([[B)[B
     .registers 7
 
-    .line 114
-    nop
-
-    .line 115
-    const/4 v0, 0x0
-
+    .prologue
     const/4 v1, 0x0
 
-    const/4 v2, 0x0
+    .line 114
+    move v0, v1
 
-    :goto_4
+    move v2, v1
+
+    .line 115
+    :goto_3
     array-length v3, p0
 
-    if-ge v1, v3, :cond_e
+    if-ge v0, v3, :cond_d
 
     .line 116
-    aget-object v3, p0, v1
+    aget-object v3, p0, v0
 
     array-length v3, v3
 
     add-int/2addr v2, v3
 
     .line 115
-    add-int/lit8 v1, v1, 0x1
+    add-int/lit8 v0, v0, 0x1
 
-    goto :goto_4
+    goto :goto_3
 
     .line 118
-    :cond_e
-    new-array v1, v2, [B
+    :cond_d
+    new-array v3, v2, [B
 
-    .line 119
-    nop
+    move v0, v1
+
+    move v2, v1
 
     .line 120
-    const/4 v2, 0x0
-
-    const/4 v3, 0x0
-
-    :goto_13
+    :goto_11
     array-length v4, p0
 
-    if-ge v2, v4, :cond_25
+    if-ge v0, v4, :cond_23
 
     .line 121
-    aget-object v4, p0, v2
+    aget-object v4, p0, v0
 
-    aget-object v5, p0, v2
+    aget-object v5, p0, v0
 
     array-length v5, v5
 
-    invoke-static {v4, v0, v1, v3, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
+    invoke-static {v4, v1, v3, v2, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
     .line 122
-    aget-object v4, p0, v2
+    aget-object v4, p0, v0
 
     array-length v4, v4
 
-    add-int/2addr v3, v4
+    add-int/2addr v2, v4
 
     .line 120
-    add-int/lit8 v2, v2, 0x1
+    add-int/lit8 v0, v0, 0x1
 
-    goto :goto_13
+    goto :goto_11
 
     .line 124
-    :cond_25
-    return-object v1
+    :cond_23
+    return-object v3
 .end method
 
 .method private static fieldTag(II)[B
-    .registers 2
+    .registers 3
 
+    .prologue
     .line 128
-    shl-int/lit8 p0, p0, 0x3
+    shl-int/lit8 v0, p0, 0x3
 
-    or-int/2addr p0, p1
+    or-int/2addr v0, p1
 
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintEncode(I)[B
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintEncode(I)[B
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method static protoFieldBytes(I[B)[B
-    .registers 5
+    .registers 6
+
+    .prologue
+    const/4 v3, 0x2
 
     .line 55
     const/4 v0, 0x3
 
     new-array v0, v0, [[B
 
-    const/4 v1, 0x2
+    const/4 v1, 0x0
 
-    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->fieldTag(II)[B
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->fieldTag(II)[B
 
-    move-result-object p0
+    move-result-object v2
 
-    const/4 v2, 0x0
+    aput-object v2, v0, v1
 
-    aput-object p0, v0, v2
+    const/4 v1, 0x1
 
-    array-length p0, p1
+    array-length v2, p1
 
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintEncode(I)[B
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintEncode(I)[B
 
-    move-result-object p0
+    move-result-object v2
 
-    const/4 v2, 0x1
+    aput-object v2, v0, v1
 
-    aput-object p0, v0, v2
-
-    aput-object p1, v0, v1
+    aput-object p1, v0, v3
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method static protoFieldFloat(IF)[B
-    .registers 4
+    .registers 6
 
+    .prologue
     .line 63
     const/4 v0, 0x4
 
@@ -166,108 +166,112 @@
     invoke-virtual {v0, p1}, Ljava/nio/ByteBuffer;->putFloat(F)Ljava/nio/ByteBuffer;
 
     .line 65
-    const/4 p1, 0x2
+    const/4 v1, 0x2
 
-    new-array p1, p1, [[B
+    new-array v1, v1, [[B
 
-    const/4 v1, 0x5
+    const/4 v2, 0x0
 
-    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->fieldTag(II)[B
+    const/4 v3, 0x5
 
-    move-result-object p0
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->fieldTag(II)[B
 
-    const/4 v1, 0x0
+    move-result-object v3
 
-    aput-object p0, p1, v1
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x1
 
     invoke-virtual {v0}, Ljava/nio/ByteBuffer;->array()[B
 
-    move-result-object p0
+    move-result-object v0
 
-    const/4 v0, 0x1
+    aput-object v0, v1, v2
 
-    aput-object p0, p1, v0
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+    move-result-object v0
 
-    move-result-object p0
-
-    return-object p0
+    return-object v0
 .end method
 
 .method static protoFieldMessage(I[B)[B
-    .registers 2
+    .registers 3
 
+    .prologue
     .line 59
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldBytes(I[B)[B
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method static protoFieldSint32(II)[B
-    .registers 3
+    .registers 4
 
+    .prologue
     .line 50
     shl-int/lit8 v0, p1, 0x1
 
-    shr-int/lit8 p1, p1, 0x1f
+    shr-int/lit8 v1, p1, 0x1f
 
-    xor-int/2addr p1, v0
+    xor-int/2addr v0, v1
 
     .line 51
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method static protoFieldString(ILjava/lang/String;)[B
-    .registers 2
+    .registers 3
 
+    .prologue
     .line 69
     invoke-virtual {p1}, Ljava/lang/String;->getBytes()[B
 
-    move-result-object p1
+    move-result-object v0
 
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldBytes(I[B)[B
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldBytes(I[B)[B
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method static protoFieldVarint(II)[B
-    .registers 4
+    .registers 5
+
+    .prologue
+    const/4 v2, 0x0
 
     .line 45
     const/4 v0, 0x2
 
     new-array v0, v0, [[B
 
-    const/4 v1, 0x0
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->fieldTag(II)[B
 
-    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->fieldTag(II)[B
+    move-result-object v1
 
-    move-result-object p0
+    aput-object v1, v0, v2
 
-    aput-object p0, v0, v1
+    const/4 v1, 0x1
 
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintEncode(I)[B
 
-    move-result-object p0
+    move-result-object v2
 
-    const/4 p1, 0x1
-
-    aput-object p0, v0, p1
+    aput-object v2, v0, v1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method static protoParse([B)Ljava/util/Map;
@@ -275,186 +279,186 @@
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "([B)",
-            "Ljava/util/Map<",
+            "Ljava/util/Map",
+            "<",
             "Ljava/lang/Integer;",
-            "Ljava/util/List<",
+            "Ljava/util/List",
+            "<",
             "Ljava/lang/Object;",
             ">;>;"
         }
     .end annotation
 
-    .line 73
-    new-instance v0, Ljava/util/HashMap;
-
-    invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
-
-    .line 74
+    .prologue
     const/4 v1, 0x0
 
-    const/4 v2, 0x0
+    .line 73
+    new-instance v4, Ljava/util/HashMap;
+
+    invoke-direct {v4}, Ljava/util/HashMap;-><init>()V
+
+    move v0, v1
 
     .line 75
     :goto_7
-    array-length v3, p0
+    array-length v2, p0
 
-    if-ge v2, v3, :cond_77
+    if-ge v0, v2, :cond_77
 
     .line 76
-    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
 
-    move-result-object v2
+    move-result-object v0
 
     .line 77
-    iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
+    iget v2, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
 
     .line 78
-    iget v4, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
+    iget v3, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
 
-    ushr-int/lit8 v4, v4, 0x3
+    ushr-int/lit8 v5, v3, 0x3
 
     .line 79
-    iget v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
 
-    and-int/lit8 v2, v2, 0x7
+    and-int/lit8 v0, v0, 0x7
 
     .line 81
-    if-nez v2, :cond_27
+    if-nez v0, :cond_44
 
     .line 82
-    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
 
-    move-result-object v2
+    move-result-object v0
 
     .line 83
-    iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
+    iget v2, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
 
     .line 84
-    iget v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
 
-    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    move-result-object v2
+    move-result-object v0
 
-    .line 85
-    goto :goto_54
-
-    :cond_27
-    const/4 v5, 0x2
-
-    if-ne v2, v5, :cond_3b
-
-    .line 86
-    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
-
-    move-result-object v2
-
-    .line 87
-    iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
-
-    .line 88
-    iget v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
-
-    .line 89
-    new-array v5, v2, [B
-
-    .line 90
-    invoke-static {p0, v3, v5, v1, v2}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
-
-    .line 91
-    add-int/2addr v3, v2
-
-    .line 92
-    nop
-
-    .line 93
-    move-object v2, v5
-
-    goto :goto_54
-
-    :cond_3b
-    const/4 v5, 0x5
-
-    if-ne v2, v5, :cond_71
-
-    .line 94
-    const/4 v2, 0x4
-
-    invoke-static {p0, v3, v2}, Ljava/nio/ByteBuffer;->wrap([BII)Ljava/nio/ByteBuffer;
-
-    move-result-object v2
-
-    sget-object v5, Ljava/nio/ByteOrder;->LITTLE_ENDIAN:Ljava/nio/ByteOrder;
-
-    invoke-virtual {v2, v5}, Ljava/nio/ByteBuffer;->order(Ljava/nio/ByteOrder;)Ljava/nio/ByteBuffer;
-
-    move-result-object v2
-
-    .line 95
-    invoke-virtual {v2}, Ljava/nio/ByteBuffer;->getFloat()F
-
-    move-result v2
-
-    invoke-static {v2}, Ljava/lang/Float;->valueOf(F)Ljava/lang/Float;
-
-    move-result-object v2
-
-    .line 96
-    add-int/lit8 v3, v3, 0x4
-
-    .line 97
-    nop
+    move-object v3, v0
 
     .line 103
-    :goto_54
-    invoke-static {v4}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    :goto_27
+    invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    move-result-object v5
+    move-result-object v0
 
-    invoke-interface {v0, v5}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-interface {v4, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
-    move-result-object v5
+    move-result-object v0
 
-    check-cast v5, Ljava/util/List;
+    check-cast v0, Ljava/util/List;
 
     .line 104
-    if-nez v5, :cond_6c
+    if-nez v0, :cond_3f
 
     .line 105
-    new-instance v5, Ljava/util/ArrayList;
+    new-instance v0, Ljava/util/ArrayList;
 
-    invoke-direct {v5}, Ljava/util/ArrayList;-><init>()V
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     .line 106
-    invoke-static {v4}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    move-result-object v4
+    move-result-object v5
 
-    invoke-interface {v0, v4, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-interface {v4, v5, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     .line 108
-    :cond_6c
-    invoke-interface {v5, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    :cond_3f
+    invoke-interface {v0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    move v0, v2
 
     .line 109
-    move v2, v3
-
     goto :goto_7
 
-    .line 97
-    :cond_71
-    const/4 v4, 0x1
+    .line 85
+    :cond_44
+    const/4 v3, 0x2
 
-    if-ne v2, v4, :cond_77
+    if-ne v0, v3, :cond_57
+
+    .line 86
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
+
+    move-result-object v0
+
+    .line 87
+    iget v2, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
+
+    .line 88
+    iget v3, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
+
+    .line 89
+    new-array v0, v3, [B
+
+    .line 90
+    invoke-static {p0, v2, v0, v1, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
+
+    .line 91
+    add-int/2addr v2, v3
+
+    move-object v3, v0
+
+    .line 93
+    goto :goto_27
+
+    :cond_57
+    const/4 v3, 0x5
+
+    if-ne v0, v3, :cond_71
+
+    .line 94
+    const/4 v0, 0x4
+
+    invoke-static {p0, v2, v0}, Ljava/nio/ByteBuffer;->wrap([BII)Ljava/nio/ByteBuffer;
+
+    move-result-object v0
+
+    sget-object v3, Ljava/nio/ByteOrder;->LITTLE_ENDIAN:Ljava/nio/ByteOrder;
+
+    invoke-virtual {v0, v3}, Ljava/nio/ByteBuffer;->order(Ljava/nio/ByteOrder;)Ljava/nio/ByteBuffer;
+
+    move-result-object v0
+
+    .line 95
+    invoke-virtual {v0}, Ljava/nio/ByteBuffer;->getFloat()F
+
+    move-result v0
+
+    invoke-static {v0}, Ljava/lang/Float;->valueOf(F)Ljava/lang/Float;
+
+    move-result-object v0
+
+    .line 96
+    add-int/lit8 v2, v2, 0x4
+
+    move-object v3, v0
+
+    .line 97
+    goto :goto_27
+
+    :cond_71
+    const/4 v3, 0x1
+
+    if-ne v0, v3, :cond_77
 
     .line 98
-    add-int/lit8 v2, v3, 0x8
+    add-int/lit8 v0, v2, 0x8
 
     .line 99
     goto :goto_7
 
     .line 110
     :cond_77
-    return-object v0
+    return-object v4
 .end method
 
 .method private static toBytes(Ljava/util/ArrayList;)[B
@@ -462,132 +466,139 @@
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
-            "Ljava/util/ArrayList<",
+            "Ljava/util/ArrayList",
+            "<",
             "Ljava/lang/Byte;",
             ">;)[B"
         }
     .end annotation
 
+    .prologue
     .line 132
     invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
 
     move-result v0
 
-    new-array v0, v0, [B
+    new-array v2, v0, [B
 
     .line 133
-    const/4 v1, 0x0
+    const/4 v0, 0x0
 
-    :goto_7
+    move v1, v0
+
+    :goto_8
     invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
 
-    move-result v2
+    move-result v0
 
-    if-ge v1, v2, :cond_1c
+    if-ge v1, v0, :cond_1e
 
     .line 134
     invoke-virtual {p0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
-    move-result-object v2
+    move-result-object v0
 
-    check-cast v2, Ljava/lang/Byte;
+    check-cast v0, Ljava/lang/Byte;
 
-    invoke-virtual {v2}, Ljava/lang/Byte;->byteValue()B
+    invoke-virtual {v0}, Ljava/lang/Byte;->byteValue()B
 
-    move-result v2
+    move-result v0
 
-    aput-byte v2, v0, v1
+    aput-byte v0, v2, v1
 
     .line 133
-    add-int/lit8 v1, v1, 0x1
+    add-int/lit8 v0, v1, 0x1
 
-    goto :goto_7
+    move v1, v0
+
+    goto :goto_8
 
     .line 136
-    :cond_1c
-    return-object v0
+    :cond_1e
+    return-object v2
 .end method
 
 .method static varintDecode([BI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
-    .registers 6
+    .registers 7
+
+    .prologue
+    const/4 v1, 0x0
 
     .line 31
-    nop
+    move v0, v1
 
-    .line 32
-    const/4 v0, 0x0
-
-    const/4 v1, 0x0
+    move v2, v1
 
     .line 33
     :goto_3
-    array-length v2, p0
+    array-length v1, p0
 
-    if-ge p1, v2, :cond_1a
+    if-ge p1, v1, :cond_1f
 
     .line 34
-    add-int/lit8 v2, p1, 0x1
+    add-int/lit8 v3, p1, 0x1
 
-    aget-byte p1, p0, p1
+    aget-byte v1, p0, p1
 
-    and-int/lit16 p1, p1, 0xff
+    and-int/lit16 v4, v1, 0xff
 
     .line 35
-    and-int/lit8 v3, p1, 0x7f
+    and-int/lit8 v1, v4, 0x7f
 
-    shl-int/2addr v3, v1
+    shl-int/2addr v1, v0
 
-    or-int/2addr v0, v3
+    or-int/2addr v1, v2
 
     .line 36
-    add-int/lit8 v1, v1, 0x7
+    add-int/lit8 v0, v0, 0x7
 
     .line 37
-    and-int/lit16 p1, p1, 0x80
+    and-int/lit16 v2, v4, 0x80
 
-    if-nez p1, :cond_18
-
-    .line 38
-    move p1, v2
-
-    goto :goto_1a
-
-    .line 40
-    :cond_18
-    move p1, v2
-
-    goto :goto_3
+    if-nez v2, :cond_1c
 
     .line 41
-    :cond_1a
-    :goto_1a
-    new-instance p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
+    :goto_16
+    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;
 
-    invoke-direct {p0, v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;-><init>(II)V
+    invoke-direct {v0, v1, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;-><init>(II)V
 
-    return-object p0
+    return-object v0
+
+    :cond_1c
+    move v2, v1
+
+    move p1, v3
+
+    .line 40
+    goto :goto_3
+
+    :cond_1f
+    move v1, v2
+
+    move v3, p1
+
+    goto :goto_16
 .end method
 
 .method static varintEncode(I)[B
     .registers 3
 
+    .prologue
     .line 15
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 16
-    nop
-
     .line 18
-    :goto_6
+    :goto_5
     and-int/lit8 v1, p0, 0x7f
 
     .line 19
     ushr-int/lit8 p0, p0, 0x7
 
     .line 20
-    if-eqz p0, :cond_17
+    if-eqz p0, :cond_16
 
     .line 21
     or-int/lit16 v1, v1, 0x80
@@ -600,26 +611,22 @@
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 26
-    goto :goto_6
+    goto :goto_5
 
     .line 23
-    :cond_17
-    int-to-byte p0, v1
+    :cond_16
+    int-to-byte v1, v1
 
-    invoke-static {p0}, Ljava/lang/Byte;->valueOf(B)Ljava/lang/Byte;
+    invoke-static {v1}, Ljava/lang/Byte;->valueOf(B)Ljava/lang/Byte;
 
-    move-result-object p0
+    move-result-object v1
 
-    invoke-virtual {v0, p0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
-    .line 24
-    nop
+    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     .line 27
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->toBytes(Ljava/util/ArrayList;)[B
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method

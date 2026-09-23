@@ -1,0 +1,1 @@
+package android.util; public class Log { public static int i(String a,String b){ System.err.println("  LOG "+b); return 0;} public static int w(String a,String b){return i(a,b);} public static int e(String a,String b){return i(a,b);} public static int d(String a,String b){return i(a,b);} }

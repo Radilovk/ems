@@ -30,10 +30,18 @@ final class XiaomiBandWriteQueue {
     }
 
     void enqueueAck(byte[] frame) {
+        enqueueAckTo(null, frame);
+    }
+
+    /**
+     * ACK/chunk-ACK for an inbound frame. Must be written to the characteristic the frame
+     * arrived on (Gadgetbridge XiaomiCharacteristic.sendAck) — the band waits for it there.
+     */
+    void enqueueAckTo(BluetoothGattCharacteristic target, byte[] frame) {
         if (frame == null) {
             return;
         }
-        queue.add(new BytesOp(frame, false));
+        queue.add(new BytesOp(frame, false, target));
         pump();
     }
 
@@ -41,7 +49,7 @@ final class XiaomiBandWriteQueue {
         if (frame == null) {
             return;
         }
-        queue.add(new BytesOp(frame, true));
+        queue.add(new BytesOp(frame, true, null));
         pump();
     }
 
@@ -64,8 +72,23 @@ final class XiaomiBandWriteQueue {
     void onBandAck() {
         if (waitingBandAck) {
             waitingBandAck = false;
+            client.cancelBandAckTimeout();
             pump();
         }
+    }
+
+    /** Band never ACKed the last command — do not stall the queue forever. */
+    boolean onBandAckTimeout() {
+        if (!waitingBandAck) {
+            return false;
+        }
+        waitingBandAck = false;
+        pump();
+        return true;
+    }
+
+    boolean isWaitingBandAck() {
+        return waitingBandAck;
     }
 
     void onWriteFinished() {
@@ -109,6 +132,7 @@ final class XiaomiBandWriteQueue {
             }
             if (needsBandAck) {
                 waitingBandAck = true;
+                client.scheduleBandAckTimeout();
             }
         } catch (Throwable t) {
             client.logError("write_queue", t);
@@ -128,10 +152,12 @@ final class XiaomiBandWriteQueue {
     private static final class BytesOp implements WriteOp {
         private final byte[] frame;
         private final boolean command;
+        private final BluetoothGattCharacteristic target;
 
-        BytesOp(byte[] frame, boolean command) {
+        BytesOp(byte[] frame, boolean command, BluetoothGattCharacteristic target) {
             this.frame = frame;
             this.command = command;
+            this.target = target;
         }
 
         @Override
@@ -142,7 +168,7 @@ final class XiaomiBandWriteQueue {
         @Override
         public boolean execute(BluetoothGatt gatt, BluetoothGattCharacteristic writeChar,
                 XiaomiBandBleClient client) {
-            return client.writeFrameNow(gatt, writeChar, frame);
+            return client.writeFrameNow(gatt, target != null ? target : writeChar, frame);
         }
     }
 

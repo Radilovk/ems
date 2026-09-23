@@ -1,0 +1,1 @@
+package android.content; public class Context { public Context getApplicationContext(){return this;} public java.io.File getExternalFilesDir(String s){return null;} public java.io.File getFilesDir(){return new java.io.File("/tmp/simfiles");} }

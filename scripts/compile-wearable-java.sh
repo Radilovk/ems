@@ -36,6 +36,8 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandKeepaliveTask.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandReconnectTask.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAckTimeoutTask.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandMtuFallbackTask.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"

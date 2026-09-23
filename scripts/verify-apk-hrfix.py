@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify v1.1.51-ble HR fix markers in built APK / smali."""
+"""Verify v1.1.53-ble HR fix markers in built APK / smali."""
 
 from __future__ import annotations
 
@@ -24,8 +24,8 @@ REALTIME_START = (
     / "smali_classes2/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandRealtimeStartRunnable.smali"
 )
 RELEASE = ROOT / "RELEASE_VERSION"
-EXPECTED_VERSION = "1.1.52-ble"
-BUILD_TAG = "v1.1.52-ble"
+EXPECTED_VERSION = "1.1.53-ble"
+BUILD_TAG = "v1.1.53-ble"
 
 
 def apk_strings() -> str:
@@ -66,7 +66,8 @@ def main() -> int:
 
     for needle, label in (
         ("no first 8/47", "retry START once"),
-        ("CONFIG_HEART_RATE_SET", "HR config before START"),
+        ("band ACK timeout", "band ACK timeout (no queue stall)"),
+        ("discovering anyway", "MTU callback fallback"),
         ("EmsBleCoexist", "EMS BLE coexist"),
     ):
         if needle not in dex_blob:
@@ -78,6 +79,11 @@ def main() -> int:
         errors.append("APK dex still contains forbidden sendLinkPing")
     else:
         checks.append("link ping removed from APK")
+
+    if "CONFIG_HEART_RATE_SET" in dex_blob:
+        errors.append("APK still overwrites the band HR config (CONFIG_HEART_RATE_SET)")
+    else:
+        checks.append("no HR config overwrite")
 
     if "keepalive START" in dex_blob:
         errors.append("APK still contains forbidden keepalive START string")

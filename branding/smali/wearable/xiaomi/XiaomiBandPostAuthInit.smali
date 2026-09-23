@@ -35,6 +35,7 @@
 .method constructor <init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)V
     .registers 3
 
+    .prologue
     .line 25
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -53,7 +54,18 @@
 .method private sendClockSync()V
     .registers 13
 
-    .line 68
+    .prologue
+    const/4 v11, 0x4
+
+    const/4 v10, 0x0
+
+    const/4 v9, 0x3
+
+    const/4 v8, 0x1
+
+    const/4 v7, 0x2
+
+    .line 63
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
     const-string v1, "init"
@@ -62,20 +74,33 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 69
+    .line 64
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v0
 
-    .line 70
+    .line 65
     invoke-virtual {v0}, Ljava/util/Calendar;->getTimeZone()Ljava/util/TimeZone;
 
     move-result-object v1
 
-    .line 71
+    .line 66
     const/16 v2, 0xf
 
     invoke-virtual {v0, v2}, Ljava/util/Calendar;->get(I)I
+
+    move-result v2
+
+    div-int/lit16 v2, v2, 0x3e8
+
+    div-int/lit8 v2, v2, 0x3c
+
+    div-int/lit8 v2, v2, 0xf
+
+    .line 67
+    const/16 v3, 0x10
+
+    invoke-virtual {v0, v3}, Ljava/util/Calendar;->get(I)I
 
     move-result v3
 
@@ -83,216 +108,196 @@
 
     div-int/lit8 v3, v3, 0x3c
 
-    div-int/2addr v3, v2
+    div-int/lit8 v3, v3, 0xf
 
-    .line 72
-    const/16 v4, 0x10
+    .line 68
+    new-array v4, v9, [[B
 
-    invoke-virtual {v0, v4}, Ljava/util/Calendar;->get(I)I
+    .line 69
+    invoke-virtual {v0, v8}, Ljava/util/Calendar;->get(I)I
 
-    move-result v4
+    move-result v5
 
-    div-int/lit16 v4, v4, 0x3e8
-
-    div-int/lit8 v4, v4, 0x3c
-
-    div-int/2addr v4, v2
-
-    .line 73
-    const/4 v2, 0x3
-
-    new-array v5, v2, [[B
-
-    .line 74
-    const/4 v6, 0x1
-
-    invoke-virtual {v0, v6}, Ljava/util/Calendar;->get(I)I
-
-    move-result v7
-
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v7
-
-    const/4 v8, 0x0
-
-    aput-object v7, v5, v8
-
-    .line 75
-    const/4 v7, 0x2
-
-    invoke-virtual {v0, v7}, Ljava/util/Calendar;->get(I)I
-
-    move-result v9
-
-    add-int/2addr v9, v6
-
-    invoke-static {v7, v9}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v9
-
-    aput-object v9, v5, v6
-
-    .line 76
-    const/4 v9, 0x5
-
-    invoke-virtual {v0, v9}, Ljava/util/Calendar;->get(I)I
-
-    move-result v9
-
-    invoke-static {v2, v9}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v9
-
-    aput-object v9, v5, v7
-
-    .line 73
-    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+    invoke-static {v8, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v5
 
-    .line 77
-    const/4 v9, 0x4
+    aput-object v5, v4, v10
 
-    new-array v10, v9, [[B
+    .line 70
+    invoke-virtual {v0, v7}, Ljava/util/Calendar;->get(I)I
 
-    .line 78
-    const/16 v11, 0xb
+    move-result v5
 
-    invoke-virtual {v0, v11}, Ljava/util/Calendar;->get(I)I
+    add-int/lit8 v5, v5, 0x1
 
-    move-result v11
+    invoke-static {v7, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
-    invoke-static {v6, v11}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+    move-result-object v5
 
-    move-result-object v11
+    aput-object v5, v4, v8
 
-    aput-object v11, v10, v8
+    const/4 v5, 0x5
 
-    .line 79
-    const/16 v11, 0xc
+    .line 71
+    invoke-virtual {v0, v5}, Ljava/util/Calendar;->get(I)I
 
-    invoke-virtual {v0, v11}, Ljava/util/Calendar;->get(I)I
+    move-result v5
 
-    move-result v11
+    invoke-static {v9, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
-    invoke-static {v7, v11}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+    move-result-object v5
 
-    move-result-object v11
+    aput-object v5, v4, v7
 
-    aput-object v11, v10, v6
+    .line 68
+    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
-    .line 80
-    const/16 v11, 0xd
+    move-result-object v4
 
-    invoke-virtual {v0, v11}, Ljava/util/Calendar;->get(I)I
+    .line 72
+    new-array v5, v11, [[B
 
-    move-result v11
+    const/16 v6, 0xb
 
-    invoke-static {v2, v11}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+    .line 73
+    invoke-virtual {v0, v6}, Ljava/util/Calendar;->get(I)I
 
-    move-result-object v11
+    move-result v6
 
-    aput-object v11, v10, v7
+    invoke-static {v8, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
-    .line 81
-    const/16 v11, 0xe
+    move-result-object v6
 
-    invoke-virtual {v0, v11}, Ljava/util/Calendar;->get(I)I
+    aput-object v6, v5, v10
+
+    const/16 v6, 0xc
+
+    .line 74
+    invoke-virtual {v0, v6}, Ljava/util/Calendar;->get(I)I
+
+    move-result v6
+
+    invoke-static {v7, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+
+    move-result-object v6
+
+    aput-object v6, v5, v8
+
+    const/16 v6, 0xd
+
+    .line 75
+    invoke-virtual {v0, v6}, Ljava/util/Calendar;->get(I)I
+
+    move-result v6
+
+    invoke-static {v9, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+
+    move-result-object v6
+
+    aput-object v6, v5, v7
+
+    const/16 v6, 0xe
+
+    .line 76
+    invoke-virtual {v0, v6}, Ljava/util/Calendar;->get(I)I
 
     move-result v0
 
-    invoke-static {v9, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+    invoke-static {v11, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v0
 
-    aput-object v0, v10, v2
+    aput-object v0, v5, v9
+
+    .line 72
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+
+    move-result-object v0
 
     .line 77
-    invoke-static {v10}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+    new-array v5, v9, [[B
 
-    move-result-object v0
+    .line 78
+    invoke-static {v8, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldSint32(II)[B
 
-    .line 82
-    new-array v10, v2, [[B
+    move-result-object v2
 
-    .line 83
-    invoke-static {v6, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldSint32(II)[B
+    aput-object v2, v5, v10
 
-    move-result-object v3
+    .line 79
+    invoke-static {v7, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldSint32(II)[B
 
-    aput-object v3, v10, v8
+    move-result-object v2
 
-    .line 84
-    invoke-static {v7, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldSint32(II)[B
+    aput-object v2, v5, v8
 
-    move-result-object v3
-
-    aput-object v3, v10, v6
-
-    .line 85
+    .line 80
     invoke-virtual {v1}, Ljava/util/TimeZone;->getID()Ljava/lang/String;
 
     move-result-object v1
 
-    invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldString(ILjava/lang/String;)[B
+    invoke-static {v9, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldString(ILjava/lang/String;)[B
 
     move-result-object v1
 
-    aput-object v1, v10, v7
+    aput-object v1, v5, v7
+
+    .line 77
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+
+    move-result-object v1
+
+    .line 81
+    new-array v2, v9, [[B
 
     .line 82
-    invoke-static {v10}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+    invoke-static {v8, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
-    move-result-object v1
+    move-result-object v3
 
-    .line 86
-    new-array v3, v2, [[B
+    aput-object v3, v2, v10
 
-    .line 87
-    invoke-static {v6, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
-
-    move-result-object v4
-
-    aput-object v4, v3, v8
-
-    .line 88
+    .line 83
     invoke-static {v7, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    aput-object v0, v3, v6
+    aput-object v0, v2, v8
 
-    .line 89
-    invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
+    .line 84
+    invoke-static {v9, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    aput-object v0, v3, v7
+    aput-object v0, v2, v7
+
+    .line 81
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+
+    move-result-object v0
+
+    .line 85
+    invoke-static {v11, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
+
+    move-result-object v0
 
     .line 86
-    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
-
-    move-result-object v0
-
-    .line 90
-    invoke-static {v9, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
-
-    move-result-object v0
-
-    .line 91
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
-    invoke-virtual {v1, v7, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendInitCommand(II[B)V
+    invoke-virtual {v1, v7, v9, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendInitCommand(II[B)V
 
-    .line 92
+    .line 87
     return-void
 .end method
 
 .method private sendDeviceInfoRequest()V
-    .registers 4
+    .registers 5
 
-    .line 95
+    .prologue
+    const/4 v3, 0x2
+
+    .line 90
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
     const-string v1, "init"
@@ -301,23 +306,32 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 96
+    .line 91
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
-    const/4 v1, 0x2
+    const/4 v1, 0x0
 
-    const/4 v2, 0x0
+    invoke-virtual {v0, v3, v3, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendInitCommand(II[B)V
 
-    invoke-virtual {v0, v1, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendInitCommand(II[B)V
-
-    .line 97
+    .line 92
     return-void
 .end method
 
 .method private sendUserInfo()V
     .registers 9
 
-    .line 100
+    .prologue
+    const/4 v7, 0x4
+
+    const/4 v6, 0x3
+
+    const/4 v3, 0x2
+
+    const/4 v5, 0x0
+
+    const/4 v4, 0x1
+
+    .line 95
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
     const-string v1, "init"
@@ -326,132 +340,134 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 101
+    .line 96
     const/16 v0, 0x9
 
-    new-array v1, v0, [[B
+    new-array v0, v0, [[B
+
+    const/16 v1, 0xaf
+
+    .line 97
+    invoke-static {v4, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+
+    move-result-object v1
+
+    aput-object v1, v0, v5
+
+    const/high16 v1, 0x42960000    # 75.0f
+
+    .line 98
+    invoke-static {v3, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldFloat(IF)[B
+
+    move-result-object v1
+
+    aput-object v1, v0, v4
+
+    const v1, 0x12fa6c5
+
+    .line 99
+    invoke-static {v6, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+
+    move-result-object v1
+
+    aput-object v1, v0, v3
+
+    .line 100
+    invoke-static {v7, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+
+    move-result-object v1
+
+    aput-object v1, v0, v6
+
+    const/4 v1, 0x5
+
+    const/16 v2, 0xaf
+
+    .line 101
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+
+    move-result-object v1
+
+    aput-object v1, v0, v7
+
+    const/4 v1, 0x5
+
+    const/4 v2, 0x6
+
+    const/16 v3, 0x1f4
 
     .line 102
-    const/4 v2, 0x1
-
-    const/16 v3, 0xaf
-
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
-    move-result-object v4
+    move-result-object v2
 
-    const/4 v5, 0x0
+    aput-object v2, v0, v1
 
-    aput-object v4, v1, v5
+    const/4 v1, 0x6
+
+    const/4 v2, 0x7
+
+    const/16 v3, 0x1f40
 
     .line 103
-    const/4 v4, 0x2
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
-    const/high16 v6, 0x42960000    # 75.0f
+    move-result-object v2
 
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldFloat(IF)[B
+    aput-object v2, v0, v1
 
-    move-result-object v6
+    const/4 v1, 0x7
 
-    aput-object v6, v1, v2
+    const/16 v2, 0x9
 
-    .line 104
-    const/4 v6, 0x3
-
-    const v7, 0x12fa6c5
-
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v7
-
-    aput-object v7, v1, v4
-
-    .line 105
-    const/4 v4, 0x4
-
-    invoke-static {v4, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v7
-
-    aput-object v7, v1, v6
-
-    .line 106
-    const/4 v6, 0x5
-
-    invoke-static {v6, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v3
-
-    aput-object v3, v1, v4
-
-    .line 107
-    const/4 v3, 0x6
-
-    const/16 v4, 0x1f4
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v4
-
-    aput-object v4, v1, v6
-
-    .line 108
-    const/4 v4, 0x7
-
-    const/16 v6, 0x1f40
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
-
-    move-result-object v6
-
-    aput-object v6, v1, v3
-
-    .line 109
     const/16 v3, 0xc
 
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+    .line 104
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
-    move-result-object v0
+    move-result-object v2
 
-    aput-object v0, v1, v4
+    aput-object v2, v0, v1
 
-    .line 110
-    const/16 v0, 0xb
+    const/16 v1, 0x8
+
+    const/16 v2, 0xb
 
     const/16 v3, 0x1e
 
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+    .line 105
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
+
+    move-result-object v2
+
+    aput-object v2, v0, v1
+
+    .line 96
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v0
 
-    const/16 v3, 0x8
-
-    aput-object v0, v1, v3
-
-    .line 101
-    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
+    .line 106
+    invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 111
-    invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
-
-    move-result-object v0
-
-    .line 112
+    .line 107
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
-    .line 113
-    const/16 v2, 0xa
+    const/16 v2, 0x8
 
-    invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
+    const/16 v3, 0xa
+
+    .line 108
+    invoke-static {v3, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 112
-    invoke-virtual {v1, v3, v5, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendInitCommand(II[B)V
+    .line 107
+    invoke-virtual {v1, v2, v5, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendInitCommand(II[B)V
 
-    .line 114
+    .line 109
     return-void
 .end method
 
@@ -460,6 +476,7 @@
 .method isComplete()Z
     .registers 3
 
+    .prologue
     .line 30
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
 
@@ -473,94 +490,27 @@
 
     const/4 v0, 0x1
 
-    goto :goto_c
+    :goto_a
+    return v0
 
     :cond_b
     const/4 v0, 0x0
 
-    :goto_c
-    return v0
+    goto :goto_a
 .end method
 
 .method onCommandAcked()V
-    .registers 4
+    .registers 1
 
-    .line 46
-    iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->active:Z
-
-    if-nez v0, :cond_5
-
-    .line 47
-    return-void
-
-    .line 49
-    :cond_5
-    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
-
-    const/4 v1, 0x1
-
-    if-nez v0, :cond_10
-
-    .line 50
-    iput v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
-
-    .line 51
-    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->sendDeviceInfoRequest()V
-
-    .line 52
-    return-void
-
-    .line 54
-    :cond_10
-    const/4 v2, 0x2
-
-    if-ne v0, v1, :cond_19
-
-    .line 55
-    iput v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
-
-    .line 56
-    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->sendUserInfo()V
-
-    .line 57
-    return-void
-
-    .line 59
-    :cond_19
-    if-ne v0, v2, :cond_2f
-
+    .prologue
     .line 60
-    const/4 v0, 0x3
-
-    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
-
-    .line 61
-    const/4 v0, 0x0
-
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->active:Z
-
-    .line 62
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
-
-    const-string v1, "init"
-
-    const-string v2, "post-auth done"
-
-    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 63
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->onPostAuthInitComplete()V
-
-    .line 65
-    :cond_2f
     return-void
 .end method
 
 .method reset()V
     .registers 2
 
+    .prologue
     .line 34
     const/4 v0, 0x3
 
@@ -576,19 +526,20 @@
 .end method
 
 .method start()V
-    .registers 4
+    .registers 6
 
-    .line 39
-    const/4 v0, 0x0
+    .prologue
+    const/4 v4, 0x1
 
-    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
+    const/4 v3, 0x0
 
-    .line 40
-    const/4 v0, 0x1
+    .line 44
+    iput v3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
 
-    iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->active:Z
+    .line 45
+    iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->active:Z
 
-    .line 41
+    .line 46
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
     const-string v1, "init"
@@ -597,9 +548,45 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 42
+    .line 47
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->sendClockSync()V
 
-    .line 43
+    .line 48
+    iput v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
+
+    .line 49
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->sendDeviceInfoRequest()V
+
+    .line 50
+    const/4 v0, 0x2
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
+
+    .line 51
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->sendUserInfo()V
+
+    .line 52
+    const/4 v0, 0x3
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->step:I
+
+    .line 53
+    iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->active:Z
+
+    .line 54
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
+
+    const-string v1, "init"
+
+    const-string v2, "post-auth queued"
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 55
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->onPostAuthInitComplete()V
+
+    .line 56
     return-void
 .end method

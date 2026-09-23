@@ -16,6 +16,8 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
     private static final String SERVICE_UUID = "0000fe95-0000-1000-8000-00805f9b34fb";
     private static final String CHAR_READ = "00000051-0000-1000-8000-00805f9b34fb";
     private static final String CHAR_WRITE = "00000052-0000-1000-8000-00805f9b34fb";
+    private static final String CHAR_ACTIVITY = "00000053-0000-1000-8000-00805f9b34fb";
+    private static final String CHAR_UPLOAD = "00000055-0000-1000-8000-00805f9b34fb";
 
     private final XiaomiBandBleClient client;
 
@@ -69,7 +71,7 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
             return;
         }
         client.onGattCharsReady(g, read, write);
-        client.beginNotificationSetup(g, read, write);
+        client.beginNotificationSetup(g, read, write, service);
     }
 
     @Override
@@ -99,5 +101,24 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
             client.log("gatt", "desc_write_fail status=" + status);
         }
         client.onGattWriteDone();
+    }
+
+    static BluetoothGattCharacteristic findOptionalChar(BluetoothGattService service, String uuid) {
+        if (service == null || uuid == null) {
+            return null;
+        }
+        try {
+            return service.getCharacteristic(UUID.fromString(uuid));
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    static String charActivityUuid() {
+        return CHAR_ACTIVITY;
+    }
+
+    static String charUploadUuid() {
+        return CHAR_UPLOAD;
     }
 }

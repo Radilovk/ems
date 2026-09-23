@@ -7,13 +7,17 @@ import android.bluetooth.BluetoothGattDescriptor;
 import java.util.ArrayList;
 import java.util.UUID;
 
-/** Serialized GATT writes — ACK + commands must not overlap (Gadgetbridge / miband-7-pro pattern). */
+/**
+ * Serialized GATT writes with band-ACK gating for encrypted commands.
+ * ACK replies to inbound frames bypass the band-ACK wait.
+ */
 final class XiaomiBandWriteQueue {
     private static final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     private final XiaomiBandBleClient client;
     private final ArrayList<WriteOp> queue = new ArrayList<WriteOp>();
     private boolean busy;
+    private boolean waitingBandAck;
 
     XiaomiBandWriteQueue(XiaomiBandBleClient client) {
         this.client = client;
@@ -22,13 +26,22 @@ final class XiaomiBandWriteQueue {
     void clear() {
         queue.clear();
         busy = false;
+        waitingBandAck = false;
     }
 
-    void enqueueBytes(byte[] frame) {
+    void enqueueAck(byte[] frame) {
         if (frame == null) {
             return;
         }
-        queue.add(new BytesOp(frame));
+        queue.add(new BytesOp(frame, false));
+        pump();
+    }
+
+    void enqueueCommand(byte[] frame) {
+        if (frame == null) {
+            return;
+        }
+        queue.add(new BytesOp(frame, true));
         pump();
     }
 
@@ -48,13 +61,36 @@ final class XiaomiBandWriteQueue {
         pump();
     }
 
+    void onBandAck() {
+        if (waitingBandAck) {
+            waitingBandAck = false;
+            pump();
+        }
+    }
+
     void onWriteFinished() {
         busy = false;
         pump();
     }
 
+    /** Commands wait for band ACK; inbound ACK replies may run anytime. */
+    private WriteOp pollNextOp() {
+        for (int i = 0; i < queue.size(); i++) {
+            WriteOp op = queue.get(i);
+            if (!op.needsBandAck() || !waitingBandAck) {
+                queue.remove(i);
+                return op;
+            }
+        }
+        return null;
+    }
+
     private void pump() {
         if (busy || queue.isEmpty()) {
+            return;
+        }
+        WriteOp op = pollNextOp();
+        if (op == null) {
             return;
         }
         BluetoothGatt gatt = client.getGatt();
@@ -62,30 +98,45 @@ final class XiaomiBandWriteQueue {
         if (gatt == null || writeChar == null) {
             return;
         }
-        WriteOp op = queue.remove(0);
         busy = true;
         try {
+            boolean needsBandAck = op.needsBandAck();
             if (!op.execute(gatt, writeChar, client)) {
                 busy = false;
+                waitingBandAck = false;
                 pump();
+                return;
+            }
+            if (needsBandAck) {
+                waitingBandAck = true;
             }
         } catch (Throwable t) {
             client.logError("write_queue", t);
             busy = false;
+            waitingBandAck = false;
             pump();
         }
     }
 
     private interface WriteOp {
+        boolean needsBandAck();
+
         boolean execute(BluetoothGatt gatt, BluetoothGattCharacteristic writeChar,
                 XiaomiBandBleClient client);
     }
 
     private static final class BytesOp implements WriteOp {
         private final byte[] frame;
+        private final boolean command;
 
-        BytesOp(byte[] frame) {
+        BytesOp(byte[] frame, boolean command) {
             this.frame = frame;
+            this.command = command;
+        }
+
+        @Override
+        public boolean needsBandAck() {
+            return command;
         }
 
         @Override
@@ -102,6 +153,11 @@ final class XiaomiBandWriteQueue {
         NotifyOp(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             this.gatt = gatt;
             this.characteristic = characteristic;
+        }
+
+        @Override
+        public boolean needsBandAck() {
+            return false;
         }
 
         @Override
@@ -133,6 +189,11 @@ final class XiaomiBandWriteQueue {
 
         RunnableOp(Runnable runnable) {
             this.runnable = runnable;
+        }
+
+        @Override
+        public boolean needsBandAck() {
+            return false;
         }
 
         @Override

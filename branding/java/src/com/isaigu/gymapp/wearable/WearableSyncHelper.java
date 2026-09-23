@@ -550,6 +550,11 @@ public final class WearableSyncHelper {
         if (authKeyView != null) {
             authKeyView.setText(WearableConfig.getAuthKey(activity));
         }
+        View openGbBtn = configContent != null ? configContent.findViewById(ID_OPEN_GB) : null;
+        if (openGbBtn != null) {
+            openGbBtn.setVisibility(WearableConfig.isDirectBleMode(activity)
+                    ? View.GONE : View.VISIBLE);
+        }
         overlayVisible = WearableConfig.isArmed(activity);
         if (overlayVisible) {
             NotifyWearableBridge.beginListening(activity);

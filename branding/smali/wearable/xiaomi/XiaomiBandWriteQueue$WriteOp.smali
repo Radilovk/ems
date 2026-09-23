@@ -17,3 +17,6 @@
 # virtual methods
 .method public abstract execute(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)Z
 .end method
+
+.method public abstract needsBandAck()Z
+.end method

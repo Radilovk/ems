@@ -108,10 +108,13 @@ public final class NotifyWearableBridge {
             return;
         }
         itemManager = WearableSyncHelper.getItemManager();
-        if (WearableConfig.isArmed(context)) {
-            beginListening(context);
-        }
+        WearableSyncHelper.onTrainingHostReady();
         WearableSyncHelper.onTrainingRunningChanged(isAnyTrainingRunning());
+    }
+
+    /** Release BLE + foreground service when training host is destroyed (EMS needs Bluetooth). */
+    public static void detachTrainingHost() {
+        WearableSyncHelper.detachTrainingHost();
     }
 
     public static void onTrainingFullStop() {
@@ -158,6 +161,7 @@ public final class NotifyWearableBridge {
             return;
         }
         listeningActive = true;
+        WearableBleDiagLog.init(context);
         lastHr = -1;
         gbHrEventCount = 0;
         gbCommandCount = 0;
@@ -165,7 +169,6 @@ public final class NotifyWearableBridge {
         lastEventTimeMs = 0L;
         if (WearableConfig.isDirectBleMode(context)) {
             directBleActive = true;
-            NotifyHaForegroundService.start(context);
             XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
             client.setListener(bleListener);
             WearableSyncHelper.updateHeartRate(-1, bandConnected);
@@ -178,7 +181,6 @@ public final class NotifyWearableBridge {
             return;
         }
         registerReceiver(context);
-        NotifyHaForegroundService.start(context);
         onBandConnected();
         scheduleGadgetbridgeSequence(context);
         startKeepalive();
@@ -210,13 +212,19 @@ public final class NotifyWearableBridge {
     }
 
     public static void requestConnect(Activity activity) {
+        if (activity == null) {
+            activity = WearableSyncHelper.resolveActivityForPermissions();
+        }
         Context context = activity != null ? activity : WearableSyncHelper.getContext();
         if (context == null) {
             return;
         }
         if (WearableConfig.isDirectBleMode(context)) {
-            if (activity != null && !WearableBlePermissions.hasConnectPermission(activity)) {
-                WearableBlePermissions.ensureConnectPermission(activity, new ConnectAfterPermission());
+            if (!WearableBlePermissions.hasAllBlePermissions(context)) {
+                if (activity != null) {
+                    WearableBlePermissions.ensureConnectPermission(activity,
+                            new ConnectAfterPermission());
+                }
                 return;
             }
         }
@@ -224,8 +232,13 @@ public final class NotifyWearableBridge {
     }
 
     private static void performConnect(Context context) {
+        if (WearableConfig.isDirectBleMode(context)
+                && !WearableBlePermissions.gateGattOrNotify(context)) {
+            return;
+        }
         beginListening(context);
         if (WearableConfig.isDirectBleMode(context)) {
+            NotifyHaForegroundService.start(context);
             XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
             client.setListener(bleListener);
             String mac = normalizeMac(WearableConfig.getBandMac(context));
@@ -234,6 +247,7 @@ public final class NotifyWearableBridge {
             lastEventAction = "BLE:connect";
             lastEventTimeMs = System.currentTimeMillis();
         } else {
+            NotifyHaForegroundService.start(context);
             scheduleGadgetbridgeSequence(context);
         }
         WearableSyncHelper.updateDiagnostics();
@@ -329,6 +343,17 @@ public final class NotifyWearableBridge {
 
     public static String getBleState() {
         return bleState;
+    }
+
+    public static int getBleNotifyCount() {
+        if (directBleActive) {
+            return XiaomiBandBleClient.getInstance().getNotifyEventCount();
+        }
+        return 0;
+    }
+
+    public static String getBleBuildTag() {
+        return XiaomiBandBleClient.getBuildTag();
     }
 
     public static int getGbCommandCount() {

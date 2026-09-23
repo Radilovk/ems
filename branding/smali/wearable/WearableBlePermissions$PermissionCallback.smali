@@ -25,13 +25,13 @@
 .method constructor <init>(Ljava/lang/Runnable;)V
     .registers 2
 
-    .line 45
+    .line 106
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 46
+    .line 107
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableBlePermissions$PermissionCallback;->onGranted:Ljava/lang/Runnable;
 
-    .line 47
+    .line 108
     return-void
 .end method
 
@@ -40,25 +40,36 @@
 .method public onRequestPermission(Ljava/lang/String;IZ)V
     .registers 4
 
-    .line 51
-    if-eqz p3, :cond_a
+    .line 112
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
 
-    .line 52
+    move-result-object p1
+
+    .line 113
+    if-eqz p1, :cond_14
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->hasAllBlePermissions(Landroid/content/Context;)Z
+
+    move-result p1
+
+    if-eqz p1, :cond_14
+
+    .line 114
     iget-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableBlePermissions$PermissionCallback;->onGranted:Ljava/lang/Runnable;
 
-    if-eqz p1, :cond_9
+    if-eqz p1, :cond_13
 
-    .line 53
+    .line 115
     invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
-    .line 55
-    :cond_9
+    .line 117
+    :cond_13
     return-void
 
-    .line 57
-    :cond_a
+    .line 119
+    :cond_14
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showBluetoothPermissionDenied()V
 
-    .line 58
+    .line 120
     return-void
 .end method

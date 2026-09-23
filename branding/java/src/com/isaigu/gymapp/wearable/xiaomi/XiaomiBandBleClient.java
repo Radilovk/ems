@@ -4,10 +4,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
+
+import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Random;
 
 /**
  * Direct BLE client for Xiaomi Band 8 (encrypted V1 protocol on service 0xFE95).
- * Ported from miband-7-pro-monitor / Gadgetbridge XiaomiAuthService.
+ * Protocol flow: auth → Gadgetbridge post-auth init → encrypted realtime START → keepalive.
  */
 public final class XiaomiBandBleClient {
     public interface Listener {
@@ -35,17 +36,18 @@ public final class XiaomiBandBleClient {
     private static final int HEALTH_CMD_REALTIME_STOP = 46;
     private static final int HEALTH_CMD_REALTIME_EVENT = 47;
 
-    private static final long KEEPALIVE_MS = 15000L;
-    private static final long AUTH_TIMEOUT_MS = 30000L;
+    private static final String BLE_BUILD_TAG = "v1.1.47";
+    private static final long AUTH_TIMEOUT_MS = 45000L;
+    private static final long KEEPALIVE_FIRST_MS = 1000L;
+    private static final long KEEPALIVE_INTERVAL_MS = 2000L;
 
     private static XiaomiBandBleClient instance;
 
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final Random random = new Random();
-    private final Object writeLock = new Object();
     private final Map<Integer, byte[]> chunkMap = new HashMap<Integer, byte[]>();
     private final XiaomiBandGattCallback gattCallback = new XiaomiBandGattCallback(this);
-
+    private final XiaomiBandWriteQueue writeQueue = new XiaomiBandWriteQueue(this);
+    private final XiaomiBandPostAuthInit postAuthInit = new XiaomiBandPostAuthInit(this);
     private Context appContext;
     private Listener listener;
     private BluetoothGatt gatt;
@@ -59,11 +61,16 @@ public final class XiaomiBandBleClient {
     private boolean chunkEncrypted;
     private boolean authenticated;
     private boolean realtimeActive;
+    private boolean realtimeStarted;
     private String targetMac = "";
     private int hrEventCount;
+    private int notifyEventCount;
     private String lastState = "idle";
-    private Runnable keepaliveRunnable;
     private Runnable authTimeoutRunnable;
+    private Runnable keepaliveRunnable;
+    private Runnable reconnectRunnable;
+    private boolean gattServicesReady;
+    private boolean userRequestedDisconnect;
 
     private XiaomiBandBleClient() {}
 
@@ -74,8 +81,16 @@ public final class XiaomiBandBleClient {
         return instance;
     }
 
+    public static String getBuildTag() {
+        return BLE_BUILD_TAG;
+    }
+
     public int getHrEventCount() {
         return hrEventCount;
+    }
+
+    public int getNotifyEventCount() {
+        return notifyEventCount;
     }
 
     public String getLastState() {
@@ -94,10 +109,38 @@ public final class XiaomiBandBleClient {
         this.listener = listener;
     }
 
+    BluetoothGatt getGatt() {
+        return gatt;
+    }
+
+    BluetoothGattCharacteristic getWriteCharacteristic() {
+        return charWrite;
+    }
+
+    void log(String event, String detail) {
+        WearableBleDiagLog.log(event, detail);
+    }
+
+    void logHex(String event, byte[] data, int maxBytes) {
+        WearableBleDiagLog.logHex(event, data, maxBytes);
+    }
+
+    void logError(String event, Throwable t) {
+        String msg = t != null ? t.getClass().getSimpleName() + ": " + t.getMessage() : "null";
+        WearableBleDiagLog.log("ERR:" + event, msg);
+    }
+
     public void connect(Context context, String mac, String authKeyHex) {
         if (context == null) {
             return;
         }
+        if (!com.isaigu.gymapp.wearable.WearableBlePermissions.gateGattOrNotify(context)) {
+            setState("no_bt_permission");
+            return;
+        }
+        WearableBleDiagLog.init(context);
+        WearableBleDiagLog.clear();
+        log("build", BLE_BUILD_TAG);
         appContext = context.getApplicationContext();
         targetMac = mac != null ? mac.trim() : "";
         authKey = parseAuthKey(authKeyHex);
@@ -106,18 +149,27 @@ public final class XiaomiBandBleClient {
             return;
         }
         random.nextBytes(phoneNonce);
+        userRequestedDisconnect = false;
+        cancelReconnect();
         authenticated = false;
         frameEncrypt = false;
-        realtimeActive = false;
+        realtimeStarted = false;
         hrEventCount = 0;
+        notifyEventCount = 0;
         session = null;
         chunkMap.clear();
+        postAuthInit.reset();
+        stopKeepalive();
+        gattServicesReady = false;
+        cancelAuthTimeout();
+        writeQueue.clear();
         disconnectGatt();
         if (!isValidMac(targetMac)) {
             setState("bad_mac");
             return;
         }
         setState("connecting");
+        log("connect", "mac=" + targetMac);
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter == null) {
             setState("no_bluetooth");
@@ -141,6 +193,10 @@ public final class XiaomiBandBleClient {
             return;
         }
         try {
+            log("connect", "bond=" + device.getBondState());
+        } catch (Throwable ignored) {
+        }
+        try {
             if (Build.VERSION.SDK_INT >= 23) {
                 gatt = device.connectGatt(appContext, false, gattCallback,
                         BluetoothDevice.TRANSPORT_LE);
@@ -148,9 +204,11 @@ public final class XiaomiBandBleClient {
                 gatt = device.connectGatt(appContext, false, gattCallback);
             }
         } catch (SecurityException e) {
+            logError("connectGatt", e);
             setState("no_bt_permission");
             return;
         } catch (Throwable t) {
+            logError("connectGatt", t);
             setState("connect_fail");
             return;
         }
@@ -162,13 +220,18 @@ public final class XiaomiBandBleClient {
     }
 
     public void disconnect() {
-        stopKeepalive();
+        log("gatt", "disconnect requested");
+        userRequestedDisconnect = true;
+        cancelReconnect();
         cancelAuthTimeout();
-        if (realtimeActive) {
+        stopKeepalive();
+        if (realtimeStarted && authenticated) {
             sendRealtimeStop();
         }
         realtimeActive = false;
+        realtimeStarted = false;
         authenticated = false;
+        writeQueue.clear();
         disconnectGatt();
         setState("disconnected");
         notifyConnected(false);
@@ -176,30 +239,98 @@ public final class XiaomiBandBleClient {
 
     public void startRealtime() {
         realtimeActive = true;
-        if (!authenticated || charWrite == null) {
-            return;
+        if (authenticated && postAuthInit.isComplete()) {
+            beginRealtimeStreaming();
         }
-        sendRealtimeStart();
-        startKeepalive();
-        setState("streaming");
+    }
+
+    void onPostAuthInitComplete() {
+        setState("initialized");
+        if (realtimeActive) {
+            beginRealtimeStreaming();
+        }
+    }
+
+    void sendInitCommand(int type, int subtype, byte[] commandExtra) {
+        byte[] cmd = makeTypedCommand(type, subtype, commandExtra);
+        sendCommand(cmd);
+    }
+
+    void onMtuChanged(BluetoothGatt g, int mtu, int status) {
+        log("gatt", "mtu=" + mtu + " status=" + status);
+        beginServiceDiscovery(g);
     }
 
     void onGattConnected(BluetoothGatt g) {
+        gatt = g;
+        beginServiceDiscovery(g);
+    }
+
+    private void beginServiceDiscovery(BluetoothGatt g) {
+        if (g == null || gattServicesReady) {
+            log("gatt", "skip discover (ready=" + gattServicesReady + ")");
+            return;
+        }
+        gatt = g;
         setState("discovering");
-        g.discoverServices();
+        try {
+            g.discoverServices();
+        } catch (SecurityException e) {
+            logError("discoverServices", e);
+            setState("no_bt_permission");
+        } catch (Throwable t) {
+            logError("discoverServices", t);
+            setState("service_fail");
+        }
     }
 
     void onGattDisconnected() {
         authenticated = false;
-        realtimeActive = false;
+        realtimeStarted = false;
+        gattServicesReady = false;
+        postAuthInit.reset();
+        stopKeepalive();
+        cancelAuthTimeout();
+        writeQueue.clear();
         setState("disconnected");
         notifyConnected(false);
+        if (!userRequestedDisconnect && realtimeActive && appContext != null) {
+            log("gatt", "unexpected drop — reconnect in 2s");
+            scheduleReconnect();
+        }
     }
 
     void onGattCharsReady(BluetoothGatt g, BluetoothGattCharacteristic read,
             BluetoothGattCharacteristic write) {
         charRead = read;
         charWrite = write;
+        gatt = g;
+        log("gatt", "chars 51/52 ready");
+    }
+
+    void beginNotificationSetup(BluetoothGatt g, BluetoothGattCharacteristic read,
+            BluetoothGattCharacteristic write, BluetoothGattService service) {
+        if (gattServicesReady) {
+            log("gatt", "skip duplicate notify setup");
+            return;
+        }
+        gattServicesReady = true;
+        writeQueue.enqueueEnableNotify(g, read);
+        writeQueue.enqueueEnableNotify(g, write);
+        BluetoothGattCharacteristic activity = XiaomiBandGattCallback.findOptionalChar(
+                service, XiaomiBandGattCallback.charActivityUuid());
+        BluetoothGattCharacteristic upload = XiaomiBandGattCallback.findOptionalChar(
+                service, XiaomiBandGattCallback.charUploadUuid());
+        if (activity != null) {
+            writeQueue.enqueueEnableNotify(g, activity);
+            log("gatt", "notify 53 enabled");
+        }
+        if (upload != null) {
+            writeQueue.enqueueEnableNotify(g, upload);
+            log("gatt", "notify 55 enabled");
+        }
+        log("gatt", "notify 51/52 enabled");
+        writeQueue.enqueueRunnable(new XiaomiBandAuthStartRunnable(this));
     }
 
     void onGattState(String state) {
@@ -211,44 +342,34 @@ public final class XiaomiBandBleClient {
     }
 
     void onGattNotify(byte[] data) {
+        notifyEventCount++;
         handleNotify(data);
     }
 
     void onGattWriteDone() {
-        synchronized (writeLock) {
-            writeLock.notifyAll();
-        }
+        writeQueue.onWriteFinished();
     }
 
-    void onKeepaliveTick() {
-        if (authenticated && realtimeActive) {
-            sendRealtimeStart();
-            mainHandler.postDelayed(keepaliveRunnable, KEEPALIVE_MS);
+    boolean writeFrameNow(BluetoothGatt gattRef, BluetoothGattCharacteristic writeChar,
+            byte[] frame) {
+        if (gattRef == null || writeChar == null || frame == null) {
+            return false;
         }
-    }
-
-    void onAuthTimeout() {
-        if (!authenticated) {
-            setState("auth_timeout");
-            disconnect();
-        }
-    }
-
-    void writeRaw(byte[] frame) {
-        if (charWrite == null || gatt == null) {
-            return;
-        }
-        charWrite.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        charWrite.setValue(frame);
+        writeChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        writeChar.setValue(frame);
         try {
-            gatt.writeCharacteristic(charWrite);
-        } catch (Throwable ignored) {
-            charWrite.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-            charWrite.setValue(frame);
-            try {
-                gatt.writeCharacteristic(charWrite);
-            } catch (Throwable ignored2) {
+            if (gattRef.writeCharacteristic(writeChar)) {
+                return true;
             }
+        } catch (Throwable ignored) {
+        }
+        writeChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+        writeChar.setValue(frame);
+        try {
+            return gattRef.writeCharacteristic(writeChar);
+        } catch (Throwable t) {
+            logError("writeFrame", t);
+            return false;
         }
     }
 
@@ -269,21 +390,40 @@ public final class XiaomiBandBleClient {
     }
 
     private void sendAuthPhoneNonce() {
+        log("auth", "send phone nonce");
         byte[] phoneNonceMsg = XiaomiBandProto.protoFieldBytes(1, phoneNonce);
         byte[] authMsg = XiaomiBandProto.protoFieldMessage(30, phoneNonceMsg);
         byte[] payload = XiaomiBandProto.protoFieldMessage(3, authMsg);
         byte[] cmd = makeCommand(AUTH_CMD_TYPE, AUTH_CMD_NONCE, payload);
-        enqueueWrite(XiaomiBandFraming.buildPlainFrame(cmd));
+        writeQueue.enqueueCommand(XiaomiBandFraming.buildPlainFrame(cmd));
     }
 
     private void sendRealtimeStart() {
+        if (authenticated && session != null && !frameEncrypt) {
+            frameEncrypt = true;
+            log("auth", "force frameEncrypt before realtime");
+        }
+        int encIdx = session != null ? session.encIndex : -1;
+        log("health", "realtime START enc=" + frameEncrypt + " encIdx=" + encIdx);
         byte[] cmd = makeCommand(HEALTH_CMD_TYPE, HEALTH_CMD_REALTIME_START, null);
         sendCommand(cmd);
+        realtimeStarted = true;
     }
 
     private void sendRealtimeStop() {
+        log("health", "realtime STOP");
         byte[] cmd = makeCommand(HEALTH_CMD_TYPE, HEALTH_CMD_REALTIME_STOP, null);
         sendCommand(cmd);
+        realtimeStarted = false;
+    }
+
+    private void beginRealtimeStreaming() {
+        if (!authenticated || !realtimeActive) {
+            return;
+        }
+        sendRealtimeStart();
+        setState("streaming");
+        startKeepalive();
     }
 
     private void sendCommand(byte[] protoBytes) {
@@ -297,25 +437,31 @@ public final class XiaomiBandBleClient {
             } else {
                 frame = XiaomiBandFraming.buildPlainFrame(protoBytes);
             }
-            enqueueWrite(frame);
+            writeQueue.enqueueCommand(frame);
         } catch (Throwable t) {
+            logError("sendCommand", t);
             setState("send_fail");
         }
     }
 
     private void handleNotify(byte[] data) {
         XiaomiBandFraming.Frame frame = XiaomiBandFraming.parseFrame(data);
+        if ("ack".equals(frame.kind)) {
+            writeQueue.onBandAck();
+            postAuthInit.onCommandAcked();
+            return;
+        }
         if ("chunk_start".equals(frame.kind)) {
             chunkNum = frame.numChunks;
             chunkEncrypted = frame.encrypted;
             chunkMap.clear();
-            enqueueWrite(XiaomiBandFraming.CHUNK_START_ACK);
+            writeQueue.enqueueAck(XiaomiBandFraming.CHUNK_START_ACK);
             return;
         }
         if ("chunk_data".equals(frame.kind)) {
             chunkMap.put(frame.chunkId, frame.payload);
             if (chunkMap.size() == chunkNum) {
-                enqueueWrite(XiaomiBandFraming.CHUNK_END_ACK);
+                writeQueue.enqueueAck(XiaomiBandFraming.CHUNK_END_ACK);
                 byte[] payload = new byte[0];
                 for (int i = 1; i <= chunkNum; i++) {
                     byte[] part = chunkMap.get(i);
@@ -326,7 +472,8 @@ public final class XiaomiBandBleClient {
                 if (chunkEncrypted && session != null) {
                     try {
                         payload = decrypt(payload);
-                    } catch (Throwable ignored) {
+                    } catch (Throwable t) {
+                        logError("chunk_decrypt", t);
                     }
                 }
                 handleCommand(payload);
@@ -334,12 +481,14 @@ public final class XiaomiBandBleClient {
             return;
         }
         if ("single".equals(frame.kind)) {
-            enqueueWrite(XiaomiBandFraming.ACK_FRAME);
+            writeQueue.enqueueAck(XiaomiBandFraming.ACK_FRAME);
             byte[] payload = frame.payload;
             if (frame.encrypted && session != null) {
                 try {
                     payload = decrypt(payload);
-                } catch (Throwable ignored) {
+                } catch (Throwable t) {
+                    logError("decrypt", t);
+                    logHex("decrypt_fail", payload, 32);
                     return;
                 }
             }
@@ -366,11 +515,25 @@ public final class XiaomiBandBleClient {
         Map<Integer, java.util.List<Object>> cmd = XiaomiBandProto.protoParse(raw);
         int type = intField(cmd, 1);
         int subtype = intField(cmd, 2);
+        log("cmd", "type=" + type + " sub=" + subtype);
         if (type == AUTH_CMD_TYPE) {
+            if (authenticated && (subtype == AUTH_CMD_NONCE || subtype == AUTH_CMD_AUTH
+                    || subtype == AUTH_CMD_SEND_USERID)) {
+                log("auth", "ignore echo sub=" + subtype);
+                return;
+            }
             handleAuth(cmd, subtype);
-        } else if (type == HEALTH_CMD_TYPE && subtype == HEALTH_CMD_REALTIME_EVENT) {
-            handleRealtimeStats(cmd);
+            return;
         }
+        if (type == HEALTH_CMD_TYPE) {
+            if (subtype == HEALTH_CMD_REALTIME_EVENT) {
+                handleRealtimeStats(cmd);
+            } else {
+                log("health", "sub=" + subtype);
+            }
+            return;
+        }
+        log("cmd", "unhandled type=" + type);
     }
 
     private void handleAuth(Map<Integer, java.util.List<Object>> cmd, int subtype) {
@@ -378,20 +541,23 @@ public final class XiaomiBandBleClient {
             try {
                 handleWatchNonce(cmd);
             } catch (Throwable t) {
+                logError("auth_nonce", t);
                 setState("auth_fail");
             }
             return;
         }
-        if (subtype == AUTH_CMD_AUTH || subtype == AUTH_CMD_SEND_USERID) {
-            frameEncrypt = subtype == AUTH_CMD_AUTH;
+        if (subtype == AUTH_CMD_SEND_USERID) {
+            log("auth", "userid step (not final)");
+            return;
+        }
+        if (subtype == AUTH_CMD_AUTH) {
+            frameEncrypt = true;
             authenticated = true;
             cancelAuthTimeout();
             setState("authenticated");
             notifyConnected(true);
-            if (realtimeActive) {
-                sendRealtimeStart();
-                startKeepalive();
-            }
+            log("auth", "success frameEncrypt=true");
+            postAuthInit.start();
         }
     }
 
@@ -412,6 +578,7 @@ public final class XiaomiBandBleClient {
             throw new RuntimeException("missing nonce/hmac");
         }
         session = XiaomiBandCrypto.computeSessionKeys(authKey, phoneNonce, watchNonce);
+        frameEncrypt = true;
         byte[] expected = XiaomiBandCrypto.hmacSha256(
                 session.decKey, XiaomiBandProto.concat(watchNonce, phoneNonce));
         if (!XiaomiBandCrypto.bytesEqual(expected, watchHmac)) {
@@ -428,22 +595,26 @@ public final class XiaomiBandBleClient {
         byte[] authMsg = XiaomiBandProto.protoFieldMessage(32, step3);
         byte[] payload = XiaomiBandProto.protoFieldMessage(3, authMsg);
         byte[] protoCmd = makeCommand(AUTH_CMD_TYPE, AUTH_CMD_AUTH, payload);
-        enqueueWrite(XiaomiBandFraming.buildPlainFrame(protoCmd));
+        writeQueue.enqueueCommand(XiaomiBandFraming.buildPlainFrame(protoCmd));
     }
 
     private void handleRealtimeStats(Map<Integer, java.util.List<Object>> cmd) {
         byte[] healthBytes = bytesField(cmd, 10);
         if (healthBytes == null) {
+            log("hr", "no health field");
             return;
         }
         Map<Integer, java.util.List<Object>> health = XiaomiBandProto.protoParse(healthBytes);
         byte[] rtBytes = bytesField(health, 39);
         if (rtBytes == null) {
+            log("hr", "no realTimeStats field");
             return;
         }
         Map<Integer, java.util.List<Object>> rt = XiaomiBandProto.protoParse(rtBytes);
         int hr = intField(rt, 4);
-        if (hr >= 40 && hr <= 220) {
+        int steps = intField(rt, 1);
+        log("hr", "raw hr=" + hr + " steps=" + steps);
+        if (hr > 0 && hr <= 220) {
             hrEventCount++;
             if (listener != null) {
                 listener.onHeartRate(hr);
@@ -461,28 +632,47 @@ public final class XiaomiBandBleClient {
     }
 
     private static byte[] makeCommand(int type, int subtype, byte[] extra) {
+        return makeTypedCommand(type, subtype, extra);
+    }
+
+    private static byte[] makeTypedCommand(int type, int subtype, byte[] extra) {
         byte[] msg = XiaomiBandProto.concat(
                 XiaomiBandProto.protoFieldVarint(1, type),
                 XiaomiBandProto.protoFieldVarint(2, subtype));
-        if (extra != null) {
+        if (extra != null && extra.length > 0) {
             msg = XiaomiBandProto.concat(msg, extra);
         }
         return msg;
     }
 
-    private void enqueueWrite(byte[] frame) {
-        mainHandler.post(new XiaomiBandWriteTask(this, frame));
+    void onKeepaliveTick() {
+        if (!realtimeActive || !authenticated || !realtimeStarted) {
+            return;
+        }
+        log("health", "keepalive START");
+        sendRealtimeStart();
+        scheduleKeepalive();
     }
 
     private void startKeepalive() {
         stopKeepalive();
         keepaliveRunnable = new XiaomiBandKeepaliveTask(this);
-        mainHandler.postDelayed(keepaliveRunnable, KEEPALIVE_MS);
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.postDelayed(keepaliveRunnable, KEEPALIVE_FIRST_MS);
+    }
+
+    private void scheduleKeepalive() {
+        if (keepaliveRunnable == null) {
+            return;
+        }
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.postDelayed(keepaliveRunnable, KEEPALIVE_INTERVAL_MS);
     }
 
     private void stopKeepalive() {
         if (keepaliveRunnable != null) {
-            mainHandler.removeCallbacks(keepaliveRunnable);
+            android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+            handler.removeCallbacks(keepaliveRunnable);
             keepaliveRunnable = null;
         }
     }
@@ -490,18 +680,63 @@ public final class XiaomiBandBleClient {
     private void scheduleAuthTimeout() {
         cancelAuthTimeout();
         authTimeoutRunnable = new XiaomiBandAuthTimeoutTask(this);
-        mainHandler.postDelayed(authTimeoutRunnable, AUTH_TIMEOUT_MS);
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.postDelayed(authTimeoutRunnable, AUTH_TIMEOUT_MS);
     }
 
     private void cancelAuthTimeout() {
         if (authTimeoutRunnable != null) {
-            mainHandler.removeCallbacks(authTimeoutRunnable);
+            android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+            handler.removeCallbacks(authTimeoutRunnable);
             authTimeoutRunnable = null;
+        }
+    }
+
+    void onReconnectTick() {
+        if (userRequestedDisconnect || !realtimeActive || appContext == null) {
+            return;
+        }
+        log("gatt", "reconnecting");
+        connect(appContext, targetMac, bytesToHex(authKey));
+    }
+
+    private void scheduleReconnect() {
+        cancelReconnect();
+        reconnectRunnable = new XiaomiBandReconnectTask(this);
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.postDelayed(reconnectRunnable, 2000L);
+    }
+
+    private void cancelReconnect() {
+        if (reconnectRunnable != null) {
+            android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+            handler.removeCallbacks(reconnectRunnable);
+            reconnectRunnable = null;
+        }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        if (bytes == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (int i = 0; i < bytes.length; i++) {
+            sb.append(String.format("%02x", bytes[i] & 0xff));
+        }
+        return sb.toString();
+    }
+
+    void onAuthTimeout() {
+        if (!authenticated) {
+            log("auth", "timeout");
+            setState("auth_timeout");
+            disconnect();
         }
     }
 
     private void setState(String state) {
         lastState = state != null ? state : "";
+        log("state", lastState);
         if (listener != null) {
             listener.onState(lastState);
         }

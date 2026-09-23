@@ -31,7 +31,7 @@ NOTIFY_PERMISSIONS = """    <uses-permission android:name="android.permission.FO
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
 """
 GB_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
             <intent-filter>
@@ -103,6 +103,7 @@ STRING_IDS = {
     "wearable_sync_status_ble": 0x7F0D019B,
     "wearable_sync_diag_ble": 0x7F0D019C,
     "wearable_sync_bt_permission": 0x7F0D019D,
+    "wearable_sync_status_bt_perm": 0x7F0D019E,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -204,7 +205,7 @@ EN_STRINGS = """
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
     <string name="wearable_sync_info_title">Gadgetbridge sync — help</string>
-    <string name="wearable_sync_info_body">Direct BLE (recommended):\\n1. Disconnect band from Gadgetbridge/Notify (one BLE client).\\n2. Copy auth key from GB → Authentication.\\n3. XEMS ♥ → MAC + auth key (32 hex) → Activate dial → Connect.\\n4. Wear band snugly; first HR in ~5–15s.\\n\\nFallback (Gadgetbridge): leave auth key empty and use GB Intent API.</string>
+    <string name="wearable_sync_info_body">Direct BLE checklist:\\n1. Force-stop Mi Fitness, Notify and any other band app; only XEMS may use the band.\\n2. Phone: allow Bluetooth CONNECT + SCAN (Nearby devices) for XEMS.\\n3. Auth key: 32 hex chars from Mi Fitness / auth key extractor. MAC must match.\\n4. Activate dial → Connect → wait authenticated → streaming.\\n5. Wear band on wrist; first HR ~10–15s. Band screen may show no companion app — normal.\\n6. Tap i on dial for BLE log if HR stays 0.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
     <string name="wearable_sync_notify_missing">Gadgetbridge not installed — install nightly_nopebble from F-Droid</string>
     <string name="wearable_sync_open_gb">Open GB</string>
@@ -216,7 +217,8 @@ EN_STRINGS = """
     <string name="wearable_sync_auth_key">Auth key</string>
     <string name="wearable_sync_status_ble">Direct BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
-    <string name="wearable_sync_bt_permission">Bluetooth permission required — allow Nearby devices</string>
+    <string name="wearable_sync_bt_permission">Allow Bluetooth + Nearby devices (CONNECT and SCAN)</string>
+    <string name="wearable_sync_status_bt_perm">Allow Bluetooth permissions in Settings → XEMS</string>
 """
 
 BG_STRINGS = """
@@ -234,7 +236,7 @@ BG_STRINGS = """
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
-    <string name="wearable_sync_info_body">Директен BLE (препоръчано):\\n1. Разкачи гривната от Gadgetbridge/Notify (един BLE клиент).\\n2. Копирай auth key от GB → Authentication.\\n3. XEMS ♥ → MAC + auth key (32 hex) → Активирай циферблат → Свържи.\\n4. Носи гривната плътно; първи пулс след ~5–15s.\\n\\nРезервен път (Gadgetbridge): остави auth key празен и ползвай GB Intent API.</string>
+    <string name="wearable_sync_info_body">Директен BLE — checklist:\\n1. Спри Mi Fitness, Notify и други приложения (Force stop); само XEMS ползва гривната.\\n2. Телефон: позволи Bluetooth CONNECT + SCAN (Устройства наблизо) за XEMS.\\n3. Auth key: 32 hex символа от Mi Fitness / auth key extractor. MAC трябва да съвпада.\\n4. Активирай циферблат → Свържи → изчакай authenticated → streaming.\\n5. Носи гривната на китката; първи пулс ~10–15s. На гривната може да пише „няма приложение“ — нормално.\\n6. Натисни i на циферблата за BLE лог, ако HR=0.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
     <string name="wearable_sync_open_gb">Отвори GB</string>
@@ -246,7 +248,8 @@ BG_STRINGS = """
     <string name="wearable_sync_auth_key">Auth key</string>
     <string name="wearable_sync_status_ble">Директен BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
-    <string name="wearable_sync_bt_permission">Нужно е Bluetooth разрешение — позволи „Устройства наблизо“</string>
+    <string name="wearable_sync_bt_permission">Позволи Bluetooth + Устройства наблизо (CONNECT и SCAN)</string>
+    <string name="wearable_sync_status_bt_perm">Позволи Bluetooth в Настройки → XEMS</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
@@ -435,6 +438,26 @@ def patch_new_train_fragment(text: str) -> str:
                 raise RuntimeError("NewTrainFragment: IntervalTimerHelper attach hook missing")
             text = text.replace(interval_marker, interval_marker + WEARABLE_ATTACH_HOOK, 1)
             print("NewTrainFragment: wearable attach on onCreateView")
+    if "NotifyWearableBridge;->detachTrainingHost" not in text:
+        destroy_marker = (
+            "    invoke-super {p0}, Landroid/support/v4/app/Fragment;->onDestroy()V\n\n"
+            "    .line 217\n"
+            "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()"
+            "Lorg/greenrobot/eventbus/EventBus;\n"
+        )
+        destroy_hook = (
+            "    invoke-super {p0}, Landroid/support/v4/app/Fragment;->onDestroy()V\n\n"
+            "    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;"
+            "->detachTrainingHost()V\n\n"
+            "    .line 217\n"
+            "    invoke-static {}, Lorg/greenrobot/eventbus/EventBus;->getDefault()"
+            "Lorg/greenrobot/eventbus/EventBus;\n"
+        )
+        if destroy_marker in text:
+            text = text.replace(destroy_marker, destroy_hook, 1)
+            print("NewTrainFragment: detachTrainingHost on onDestroy")
+        else:
+            print("WARN: NewTrainFragment.onDestroy marker not found — skip detach hook")
     return text
 
 

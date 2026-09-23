@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showGadgetbridgeMissing()V
+    value = Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->onTrainingHostReady()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,22 +17,11 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$activity:Landroid/app/Activity;
-
-
 # direct methods
-.method constructor <init>(Landroid/app/Activity;)V
-    .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
-    .line 167
-    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$1;->val$activity:Landroid/app/Activity;
-
+    .line 160
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,16 +30,58 @@
 
 # virtual methods
 .method public run()V
-    .registers 3
+    .registers 2
+
+    .line 163
+    const/4 v0, 0x0
+
+    # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$000(Landroid/view/View;)Landroid/app/Activity;
+
+    move-result-object v0
+
+    .line 164
+    if-eqz v0, :cond_22
+
+    invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_e
+
+    goto :goto_22
+
+    .line 167
+    :cond_e
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100()Landroid/support/v7/app/AlertDialog;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_1e
+
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100()Landroid/support/v7/app/AlertDialog;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->isShowing()Z
+
+    move-result v0
+
+    if-nez v0, :cond_21
+
+    .line 168
+    :cond_1e
+    # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showOverlayDialog()Z
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$200()Z
 
     .line 170
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$1;->val$activity:Landroid/app/Activity;
+    :cond_21
+    return-void
 
-    const v1, 0x7f0d0187
-
-    # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toast(Landroid/app/Activity;I)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100(Landroid/app/Activity;I)V
-
-    .line 171
+    .line 165
+    :cond_22
+    :goto_22
     return-void
 .end method

@@ -18,6 +18,7 @@ MUSIC_CLASSES="${ROOT}/build/music-sync-java/classes"
 
 WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBlePermissions.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBleDiagLog.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableConfig.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHrReceiver.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"
@@ -28,9 +29,12 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteTask.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandKeepaliveTask.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthTimeoutTask.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthStartRunnable.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandKeepaliveTask.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandReconnectTask.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"

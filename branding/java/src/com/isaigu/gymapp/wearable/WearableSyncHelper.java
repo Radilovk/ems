@@ -76,6 +76,7 @@ public final class WearableSyncHelper {
     private static final int STR_STATUS_BLE = 0x7f0d019b;
     private static final int STR_DIAG_BLE = 0x7f0d019c;
     private static final int STR_BT_PERMISSION = 0x7f0d019d;
+    private static final int STR_STATUS_BT_PERM = 0x7f0d019e;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -130,6 +131,7 @@ public final class WearableSyncHelper {
         if (root == null || manager == null) {
             return;
         }
+        dismissStaleUi();
         panelRoot = root;
         itemManager = manager;
         View button = root.findViewById(BUTTON_ID);
@@ -139,7 +141,70 @@ public final class WearableSyncHelper {
         button.setClickable(true);
         button.setEnabled(true);
         button.setFocusable(true);
+        button.bringToFront();
         button.setOnClickListener(new MasterOpenListener());
+        onTrainingHostReady();
+    }
+
+    /** Restore dial UI after activity recreate; do not auto-connect BLE (EMS needs Bluetooth). */
+    public static void onTrainingHostReady() {
+        Activity activity = resolveActivity(null);
+        if (activity == null || !WearableConfig.isEnabled(activity)) {
+            return;
+        }
+        if (!WearableConfig.isArmed(activity)) {
+            overlayVisible = false;
+            return;
+        }
+        overlayVisible = true;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Activity act = resolveActivity(null);
+                if (act == null || act.isFinishing()) {
+                    return;
+                }
+                if (overlayDialog == null || !overlayDialog.isShowing()) {
+                    showOverlayDialog();
+                }
+            }
+        });
+    }
+
+    /** Tear down floating UI refs when training host is destroyed; keep BLE if user armed dial. */
+    public static void detachTrainingHost() {
+        dismissStaleUi();
+        panelRoot = null;
+        itemManager = null;
+    }
+
+    private static void dismissStaleUi() {
+        if (overlayDialog != null) {
+            try {
+                overlayDialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            overlayDialog = null;
+            overlayContent = null;
+            ringView = null;
+            hrValueView = null;
+            subLabelView = null;
+        }
+        if (configDialog != null) {
+            try {
+                configDialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            configDialog = null;
+            configContent = null;
+            statusView = null;
+            enabledSwitch = null;
+            autoReduceSwitch = null;
+            thresholdView = null;
+            stepView = null;
+            bandMacView = null;
+            authKeyView = null;
+        }
     }
 
     public static void onTrainingRunningChanged(boolean running) {
@@ -181,12 +246,22 @@ public final class WearableSyncHelper {
             @Override
             public void run() {
                 toast(activity, STR_BT_PERMISSION);
+                WearableBlePermissions.openAppSettings(activity);
             }
         });
     }
 
+    static void dismissOverlayForPermissions() {
+        dismissOverlayDialog(false);
+        overlayVisible = false;
+    }
+
     static Context getContext() {
         return panelRoot != null ? panelRoot.getContext() : null;
+    }
+
+    public static Activity resolveActivityForPermissions() {
+        return resolveActivity(null);
     }
 
     static TrainItemManager getItemManager() {
@@ -265,6 +340,20 @@ public final class WearableSyncHelper {
         WearableConfig.setArmed(activity, true);
         overlayVisible = true;
         refreshStatusText();
+        dismissConfigDialog(false);
+        if (WearableConfig.isDirectBleMode(activity)
+                && !WearableBlePermissions.hasAllBlePermissions(activity)) {
+            WearableBlePermissions.ensureConnectPermission(activity, new ArmAfterPermission());
+            return;
+        }
+        finishArm(activity);
+    }
+
+    private static void finishArm(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        overlayVisible = true;
         if (!showOverlayDialog()) {
             toast(activity, STR_STATUS_IDLE);
             return;
@@ -272,7 +361,6 @@ public final class WearableSyncHelper {
         toast(activity, STR_TOAST_ARMED);
         NotifyWearableBridge.requestConnect(activity);
         refreshOverlayDisplay();
-        dismissConfigDialog(false);
     }
 
     private static boolean showOverlayDialog() {
@@ -404,7 +492,14 @@ public final class WearableSyncHelper {
     private static String buildWaitingLabel(Activity activity) {
         if (WearableConfig.isDirectBleMode(activity)) {
             int hr = NotifyWearableBridge.getGbHrEventCount();
-            return activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState());
+            StringBuilder sb = new StringBuilder(
+                    activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState()));
+            sb.append('\n');
+            sb.append("notify=");
+            sb.append(NotifyWearableBridge.getBleNotifyCount());
+            sb.append(" · ");
+            sb.append(NotifyWearableBridge.getBleBuildTag());
+            return sb.toString();
         }
         int gbHr = NotifyWearableBridge.getGbHrEventCount();
         StringBuilder sb = new StringBuilder(activity.getString(STR_DIAG_GB, gbHr));
@@ -474,6 +569,11 @@ public final class WearableSyncHelper {
             statusView.setText(activity.getString(STR_STATUS_IDLE));
             return;
         }
+        if (WearableConfig.isDirectBleMode(activity)
+                && !WearableBlePermissions.hasAllBlePermissions(activity)) {
+            statusView.setText(activity.getString(STR_STATUS_BT_PERM));
+            return;
+        }
         if (NotifyWearableBridge.isListeningActive()) {
             if (WearableConfig.isDirectBleMode(activity)) {
                 statusView.setText(activity.getString(STR_STATUS_BLE,
@@ -516,10 +616,12 @@ public final class WearableSyncHelper {
         if (authKeyView != null) {
             authKeyView.setText(WearableConfig.getAuthKey(activity));
         }
-        overlayVisible = WearableConfig.isArmed(activity);
-        if (overlayVisible) {
-            NotifyWearableBridge.beginListening(activity);
+        View openGbBtn = configContent != null ? configContent.findViewById(ID_OPEN_GB) : null;
+        if (openGbBtn != null) {
+            openGbBtn.setVisibility(WearableConfig.isDirectBleMode(activity)
+                    ? View.GONE : View.VISIBLE);
         }
+        overlayVisible = WearableConfig.isArmed(activity);
     }
 
     private static void saveConfigFromUi(Activity activity) {
@@ -734,6 +836,16 @@ public final class WearableSyncHelper {
         if (activity == null) {
             return;
         }
+        if (WearableConfig.isDirectBleMode(activity)) {
+            String log = WearableBleDiagLog.getRecentText();
+            if (log == null || log.length() == 0) {
+                log = activity.getString(STR_INFO_BODY);
+            }
+            String path = WearableBleDiagLog.getLogFileHint(activity);
+            ModalInfoHelper.show(activity, "BLE диагностика",
+                    log + "\n\n---\nФайл: " + path);
+            return;
+        }
         ModalInfoHelper.show(activity, activity.getString(STR_INFO_TITLE),
                 activity.getString(STR_INFO_BODY));
     }
@@ -756,6 +868,13 @@ public final class WearableSyncHelper {
         @Override
         public void onClick(View v) {
             armFromConfig();
+        }
+    }
+
+    static final class ArmAfterPermission implements Runnable {
+        @Override
+        public void run() {
+            finishArm(resolveActivity(null));
         }
     }
 

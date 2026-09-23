@@ -436,6 +436,7 @@
     <string name="wearable_sync_auth_key">Auth key</string>
     <string name="wearable_sync_status_ble">Директен BLE — %1$s</string>
     <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
-    <string name="wearable_sync_bt_permission">Нужно е Bluetooth разрешение — позволи „Устройства наблизо“</string>
+    <string name="wearable_sync_bt_permission">Позволи Bluetooth + Устройства наблизо (CONNECT и SCAN)</string>
+    <string name="wearable_sync_status_bt_perm">Позволи Bluetooth в Настройки → XEMS</string>
 
 </resources>

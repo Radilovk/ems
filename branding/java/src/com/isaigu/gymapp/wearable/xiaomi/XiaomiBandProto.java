@@ -45,6 +45,12 @@ final class XiaomiBandProto {
         return concat(fieldTag(fieldNumber, 0), varintEncode(value));
     }
 
+    /** Protobuf sint32 (zigzag-encoded varint). */
+    static byte[] protoFieldSint32(int fieldNumber, int value) {
+        int zigzag = (value << 1) ^ (value >> 31);
+        return protoFieldVarint(fieldNumber, zigzag);
+    }
+
     static byte[] protoFieldBytes(int fieldNumber, byte[] value) {
         return concat(fieldTag(fieldNumber, 2), varintEncode(value.length), value);
     }

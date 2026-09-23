@@ -21,13 +21,14 @@ REQUIRED_XIAOMI = [
     "XiaomiBandCrypto.smali",
     "XiaomiBandFraming.smali",
     "XiaomiBandProto.smali",
-    "XiaomiBandWriteTask.smali",
-    "XiaomiBandKeepaliveTask.smali",
+    "XiaomiBandWriteQueue.smali",
+    "XiaomiBandAuthStartRunnable.smali",
     "XiaomiBandAuthTimeoutTask.smali",
 ]
 
 REQUIRED_WEARABLE = [
     "WearableBlePermissions.smali",
+    "WearableBleDiagLog.smali",
     "NotifyWearableBridge.smali",
     "NotifyWearableBridge$ConnectAfterPermission.smali",
     "WearableBlePermissions$PermissionCallback.smali",

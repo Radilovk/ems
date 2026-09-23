@@ -24,15 +24,15 @@
 .method constructor <init>(II)V
     .registers 3
 
-    .line 137
+    .line 143
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 138
+    .line 144
     iput p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->value:I
 
-    .line 139
+    .line 145
     iput p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto$IntResult;->pos:I
 
-    .line 140
+    .line 146
     return-void
 .end method

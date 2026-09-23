@@ -1,5 +1,9 @@
 # Интеграция XEMS ↔ Xiaomi Smart Band 8 / 10
 
+> **Остаряло.** Работещият път от v1.1.53-ble е директната BLE връзка с auth key — виж
+> [xiaomi-band8-direct-ble.md](xiaomi-band8-direct-ble.md). Пътищата през Notify / Tasker / Gadgetbridge
+> по-долу са запазени само за история.
+
 Версия: 1.1  
 Дата: 2026-09-22  
 Статус: Фаза 1 имплементирана в APK v1.1.23+ (live HR display)

@@ -16,21 +16,10 @@ WEARABLE_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/wearable"
 NEW_TRAIN_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/NewTrainFragment.smali"
 TRAIN_ITEM = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem.smali"
 MANIFEST = DECOMPILED / "AndroidManifest.xml"
-NOTIFY_PACKAGE = "com.mc.xiaomi1"
-NOTIFY_QUERIES = f"""    <queries>
-        <package android:name="{NOTIFY_PACKAGE}"/>
+GB_QUERIES = """    <queries>
         <package android:name="nodomain.freeyourgadget.gadgetbridge"/>
         <package android:name="nodomain.freeyourgadget.gadgetbridge.nightly"/>
         <package android:name="nodomain.freeyourgadget.gadgetbridge.nightly_nopebble"/>
-        <intent>
-            <action android:name="com.mc.xiaomi.heartRateGot"/>
-        </intent>
-        <intent>
-            <action android:name="com.mc.miband.heartRateGot"/>
-        </intent>
-        <intent>
-            <action android:name="com.mc.xiaomi.connected"/>
-        </intent>
         <intent>
             <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
         </intent>
@@ -41,16 +30,8 @@ NOTIFY_SERVICE = """        <service android:exported="false" android:name="com.
 NOTIFY_PERMISSIONS = """    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 """
-NOTIFY_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
+GB_RECEIVER = """        <receiver android:exported="true" android:name="com.isaigu.gymapp.wearable.NotifyHrReceiver">
             <intent-filter>
-                <action android:name="com.mc.xiaomi.heartRateGot"/>
-                <action android:name="com.mc.miband.heartRateGot"/>
-                <action android:name="com.mc.xiaomi.connected"/>
-                <action android:name="com.mc.miband.connected"/>
-                <action android:name="com.mc.xiaomi.disconnected"/>
-                <action android:name="com.mc.miband.disconnected"/>
-                <action android:name="com.mc.xiaomi.batteryStatGot"/>
-                <action android:name="com.mc.miband.batteryStatGot"/>
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED"/>
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_DISCONNECTED"/>
@@ -108,18 +89,6 @@ STRING_IDS = {
     "wearable_sync_info_body": 0x7F0D0185,
     "wearable_sync_toast_armed": 0x7F0D0186,
     "wearable_sync_notify_missing": 0x7F0D0187,
-    "wearable_sync_status_listening": 0x7F0D0188,
-    "wearable_sync_status_connected": 0x7F0D0189,
-    "wearable_sync_open_notify": 0x7F0D018A,
-    "wearable_sync_diag_waiting": 0x7F0D018B,
-    "wearable_sync_diag_hint": 0x7F0D018C,
-    "wearable_sync_diag_ha": 0x7F0D018D,
-    "wearable_sync_status_ha_listening": 0x7F0D018E,
-    "wearable_sync_ha_entities_title": 0x7F0D018F,
-    "wearable_sync_ha_entities_empty": 0x7F0D0190,
-    "wearable_sync_ha_entities_ok": 0x7F0D0191,
-    "wearable_sync_ha_entities_need_pulsoid": 0x7F0D0192,
-    "wearable_sync_ha_entities_no_value": 0x7F0D0193,
     "wearable_sync_open_gb": 0x7F0D0194,
     "wearable_sync_band_mac": 0x7F0D0195,
     "wearable_sync_diag_gb": 0x7F0D0196,
@@ -156,9 +125,8 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
-        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginRight="4.0dip" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenNotify" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="4.0dip" android:layout_marginRight="4.0dip" android:text="@string/wearable_sync_open_notify" android:textAllCaps="false" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenGb" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="4.0dip" android:text="@string/wearable_sync_open_gb" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenGb" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/wearable_sync_open_gb" android:textAllCaps="false" />
     </LinearLayout>
     <com.isaigu.gymapp.widget.MyButton android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncActivate" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="52.0dip" android:layout_marginTop="12.0dip" android:text="@string/wearable_sync_activate" android:textAllCaps="false" />
 </LinearLayout>
@@ -210,79 +178,55 @@ WEARABLE_ATTACH_HOOK = """
 """
 
 EN_STRINGS = """
-    <string name="wearable_sync_title">Watch sync — heart rate</string>
+    <string name="wearable_sync_title">Gadgetbridge — heart rate</string>
     <string name="wearable_sync_status_idle">Configure and activate</string>
     <string name="wearable_sync_status_armed">Dial armed — tap Connect band</string>
     <string name="wearable_sync_status_active">Live sync during training</string>
     <string name="wearable_sync_status_waiting">Waiting for pulse…</string>
     <string name="wearable_sync_status_disconnected">Band disconnected</string>
     <string name="wearable_sync_bpm">bpm</string>
-    <string name="wearable_sync_enabled">Sync with Notify for Xiaomi</string>
+    <string name="wearable_sync_enabled">Pulse sync via Gadgetbridge</string>
     <string name="wearable_sync_auto_reduce">Auto-reduce strength above threshold</string>
     <string name="wearable_sync_threshold">HR limit</string>
     <string name="wearable_sync_strength_step">Step</string>
     <string name="wearable_sync_connect">Connect band</string>
     <string name="wearable_sync_activate">Activate dial</string>
-    <string name="wearable_sync_info_title">Watch sync — help</string>
-    <string name="wearable_sync_info_body">GADGETBRIDGE PATH (recommended if GB is installed):\\n\\n1. Unpair band from Notify — only one BLE client.\\n2. GB global: Settings → Developer → Intent API → Bluetooth + commands ON.\\n3. GB per-device (Band 8): Device settings → Developer → Intent API:\\n   • Realtime HR broadcast (REALTIME_HR)\\n   • Start/stop realtime HR (START_REALTIME_HR)\\n4. XEMS ♥ → MAC D0:62:2C:26:49:60 → Activate dial → Connect.\\n5. In GB start Live activity (heart icon) OR wait ~15s for first HR.\\n6. Diagnostics: GB cmds &gt; 0, last: REALTIME_HR, GB HR increases.\\n\\nRequires GB nightly with PR #6473/#6475 (0.93+). If GB HR stays 0 with cmds sent: update GB or use Pulsoid.\\n\\nNOTIFY PATH (if no GB): fake HA server on port 8123 — see docs/xiaomi-band-integration.md.</string>
+    <string name="wearable_sync_info_title">Gadgetbridge sync — help</string>
+    <string name="wearable_sync_info_body">1. Install Gadgetbridge nightly (nightly_nopebble).\\n2. Pair Band 8 in GB only — remove Notify/other BLE clients.\\n3. GB global: Settings → Developer → Intent API → Bluetooth ON.\\n4. GB per-device: Device settings → Developer → Intent API:\\n   • Realtime HR broadcast (REALTIME_HR)\\n   • Start/stop realtime HR (START_REALTIME_HR)\\n5. XEMS ♥ → correct MAC → Activate dial → Connect.\\n6. In GB start Live activity OR wait ~15s.\\n7. Diagnostics: GB cmds &gt; 0, last: REALTIME_HR, GB HR &gt; 0.\\n\\nIf GB cmds work but GB HR=0: enable per-device realtime HR broadcast toggle.</string>
     <string name="wearable_sync_toast_armed">Watch dial armed</string>
-    <string name="wearable_sync_notify_missing">Notify for Xiaomi not detected — check it is installed (Huawei: allow app visibility)</string>
-    <string name="wearable_sync_status_listening">Connecting to Notify…</string>
-    <string name="wearable_sync_status_connected">Band connected — waiting for pulse</string>
-    <string name="wearable_sync_open_notify">Open Notify</string>
-    <string name="wearable_sync_diag_waiting">HR events: %1$d · battery: %2$s</string>
-    <string name="wearable_sync_diag_hint">Configure Notify → Home Assistant → Standard sync to XEMS URL</string>
-    <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · battery: %4$s</string>
-    <string name="wearable_sync_status_ha_listening">HA server %1$s — set this URL in Notify</string>
-    <string name="wearable_sync_ha_entities_title">HA entities (after Sync now):</string>
-    <string name="wearable_sync_ha_entities_empty">No HA posts yet — open Notify, show fresh pulse, tap Sync now</string>
-    <string name="wearable_sync_ha_entities_ok">heartrate found — HA path works</string>
-    <string name="wearable_sync_ha_entities_need_pulsoid">no heartrate entity — Pulsoid needed</string>
-    <string name="wearable_sync_ha_entities_no_value">heartRate entity exists but value empty — Notify does not send live pulse → Pulsoid</string>
+    <string name="wearable_sync_notify_missing">Gadgetbridge not installed — install nightly_nopebble from F-Droid</string>
     <string name="wearable_sync_open_gb">Open GB</string>
     <string name="wearable_sync_band_mac">Band MAC</string>
-    <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · battery: %5$s</string>
+    <string name="wearable_sync_diag_gb">GB HR: %1$d</string>
     <string name="wearable_sync_status_gb_listening">Gadgetbridge — enable Intent API on band, then Connect</string>
     <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · last: %2$s · %3$s</string>
-    <string name="wearable_sync_diag_gb_hint">No GB HR yet. Check: (1) per-device Intent API → realtime HR broadcast + START_REALTIME_HR, (2) global Intent API → Bluetooth, (3) Live activity in GB, (4) wait 15s, (5) update GB nightly.</string>
+    <string name="wearable_sync_diag_gb_hint">No GB HR yet. Enable per-device Intent API → realtime HR broadcast + START_REALTIME_HR. Start Live activity in GB or wait 15s.</string>
 """
 
 BG_STRINGS = """
-    <string name="wearable_sync_title">Синхрон с гривна — пулс</string>
+    <string name="wearable_sync_title">Gadgetbridge — пулс</string>
     <string name="wearable_sync_status_idle">Настрой и активирай</string>
     <string name="wearable_sync_status_armed">Циферблатът е готов — натисни Свържи гривната</string>
     <string name="wearable_sync_status_active">Live синхрон по време на EMS</string>
     <string name="wearable_sync_status_waiting">Изчакване на пулс…</string>
     <string name="wearable_sync_status_disconnected">Гривната е изключена</string>
     <string name="wearable_sync_bpm">уд/мин</string>
-    <string name="wearable_sync_enabled">Синхрон с Notify for Xiaomi</string>
+    <string name="wearable_sync_enabled">Пулс синхрон през Gadgetbridge</string>
     <string name="wearable_sync_auto_reduce">Авто-намаляване на сила над прага</string>
     <string name="wearable_sync_threshold">Праг пулс</string>
     <string name="wearable_sync_strength_step">Стъпка</string>
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
-    <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">ПЪТ GADGETBRIDGE (препоръчителен, ако GB е инсталиран):\\n\\n1. Разкачи гривната от Notify — само един BLE клиент.\\n2. GB глобално: Настройки → Developer → Intent API → Bluetooth + команди ВКЛ.\\n3. GB на гривната (Band 8): Device settings → Developer → Intent API:\\n   • Realtime HR broadcast (REALTIME_HR)\\n   • Start/stop realtime HR (START_REALTIME_HR)\\n4. XEMS ♥ → MAC D0:62:2C:26:49:60 → Активирай циферблат → Свържи.\\n5. В GB стартирай Live activity (сърце) ИЛИ изчакай ~15s за първи пулс.\\n6. Диагностика: GB cmds &gt; 0, последно: REALTIME_HR, GB HR расте.\\n\\nНужен GB nightly с PR #6473/#6475 (0.93+). Ако GB HR=0 при изпратени cmds: обнови GB или Pulsoid.\\n\\nПЪТ NOTIFY (без GB): фалшив HA сървър порт 8123 — виж docs/xiaomi-band-integration.md.</string>
+    <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
+    <string name="wearable_sync_info_body">1. Инсталирай Gadgetbridge nightly (nightly_nopebble).\\n2. Свържи Band 8 само в GB — премахни Notify/други BLE клиенти.\\n3. GB глобално: Настройки → Developer → Intent API → Bluetooth ВКЛ.\\n4. GB на гривната: Device settings → Developer → Intent API:\\n   • Realtime HR broadcast (REALTIME_HR)\\n   • Start/stop realtime HR (START_REALTIME_HR)\\n5. XEMS ♥ → правилен MAC → Активирай циферблат → Свържи.\\n6. В GB стартирай Live activity ИЛИ изчакай ~15s.\\n7. Диагностика: GB cmds &gt; 0, последно: REALTIME_HR, GB HR &gt; 0.\\n\\nАко GB cmds работят, но GB HR=0: включи per-device realtime HR broadcast.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
-    <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
-    <string name="wearable_sync_status_listening">Свързване с Notify…</string>
-    <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
-    <string name="wearable_sync_open_notify">Отвори Notify</string>
-    <string name="wearable_sync_diag_waiting">HR събития: %1$d · батерия: %2$s</string>
-    <string name="wearable_sync_diag_hint">Настрой Notify → Home Assistant → Standard sync към URL на XEMS</string>
-    <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · батерия: %4$s</string>
-    <string name="wearable_sync_status_ha_listening">HA сървър %1$s — сложи този URL в Notify</string>
-    <string name="wearable_sync_ha_entities_title">HA обекти (след Sync now):</string>
-    <string name="wearable_sync_ha_entities_empty">Няма HA posts — отвори Notify, покажи свеж пулс, Sync now</string>
-    <string name="wearable_sync_ha_entities_ok">heartrate намерен — HA пътят работи</string>
-    <string name="wearable_sync_ha_entities_need_pulsoid">няма heartrate обект — нужен Pulsoid</string>
-    <string name="wearable_sync_ha_entities_no_value">heartRate обект има, стойност празна — Notify не праща live пулс → Pulsoid</string>
+    <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
     <string name="wearable_sync_open_gb">Отвори GB</string>
     <string name="wearable_sync_band_mac">MAC гривна</string>
-    <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · батерия: %5$s</string>
+    <string name="wearable_sync_diag_gb">GB HR: %1$d</string>
     <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
     <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · последно: %2$s · %3$s</string>
-    <string name="wearable_sync_diag_gb_hint">Няма GB HR. Провери: (1) на гривната Intent API → realtime HR broadcast + START_REALTIME_HR, (2) глобално Intent API → Bluetooth, (3) Live activity в GB, (4) изчакай 15s, (5) обнови GB nightly.</string>
+    <string name="wearable_sync_diag_gb_hint">Няма GB HR. Включи на гривната Intent API → realtime HR broadcast + START_REALTIME_HR. Стартирай Live activity в GB или изчакай 15s.</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V
@@ -322,18 +266,18 @@ def patch_manifest(text: str) -> str:
             raise RuntimeError("AndroidManifest: </application> missing")
         text = text.replace(marker, NOTIFY_SERVICE + marker, 1)
         print("AndroidManifest: registered NotifyHaForegroundService")
-    if NOTIFY_PACKAGE not in text:
+    if "nodomain.freeyourgadget.gadgetbridge.nightly_nopebble" not in text:
         marker = _application_marker(text)
-        text = text.replace(marker, NOTIFY_QUERIES + "\n" + marker, 1)
-        print("AndroidManifest: added <queries> for Notify for Xiaomi")
+        text = text.replace(marker, GB_QUERIES + "\n" + marker, 1)
+        print("AndroidManifest: added <queries> for Gadgetbridge")
     else:
-        print("AndroidManifest: Notify package query already present")
+        print("AndroidManifest: Gadgetbridge package query already present")
     if "com.isaigu.gymapp.wearable.NotifyHrReceiver" not in text:
         marker = "    </application>"
         if marker not in text:
             raise RuntimeError("AndroidManifest: </application> missing")
-        text = text.replace(marker, NOTIFY_RECEIVER + marker, 1)
-        print("AndroidManifest: registered NotifyHrReceiver")
+        text = text.replace(marker, GB_RECEIVER + marker, 1)
+        print("AndroidManifest: registered NotifyHrReceiver (GB only)")
     else:
         print("AndroidManifest: NotifyHrReceiver already present")
     return text

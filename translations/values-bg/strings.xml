@@ -410,40 +410,28 @@
     <string name="interval_timer_info_title">Как работи таймерът</string>
     <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\n\n• Повторения — 0 означава безкраен цикъл. При число таймерът спира след последното повторение.\n• Интервал — един и същ интервал се повтаря; при всяка смяна чувате сигнал.\n• Програми — готови тренировъчни програми от няколко интервала с различни настройки (MA, Hz, ширина). RPT повтаря програмата до края на зададеното време.\n• Активирай — включва таймера. Той тръгва заедно със старт на тренировката и спира при пауза или край.\n• Звук и запазени — избор на сигнал, запазване на настройки или собствен звуков файл.</string>
 
-    <string name="wearable_sync_title">Синхрон с гривна — пулс</string>
+    <string name="wearable_sync_title">Gadgetbridge — пулс</string>
     <string name="wearable_sync_status_idle">Настрой и активирай</string>
     <string name="wearable_sync_status_armed">Циферблатът е готов — натисни Свържи гривната</string>
     <string name="wearable_sync_status_active">Live синхрон по време на EMS</string>
     <string name="wearable_sync_status_waiting">Изчакване на пулс…</string>
     <string name="wearable_sync_status_disconnected">Гривната е изключена</string>
     <string name="wearable_sync_bpm">уд/мин</string>
-    <string name="wearable_sync_enabled">Синхрон с Notify for Xiaomi</string>
+    <string name="wearable_sync_enabled">Пулс синхрон през Gadgetbridge</string>
     <string name="wearable_sync_auto_reduce">Авто-намаляване на сила над прага</string>
     <string name="wearable_sync_threshold">Праг пулс</string>
     <string name="wearable_sync_strength_step">Стъпка</string>
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
-    <string name="wearable_sync_info_title">Синхрон с гривна — помощ</string>
-    <string name="wearable_sync_info_body">ПЪТ GADGETBRIDGE (препоръчителен, ако GB е инсталиран):\n\n1. Разкачи гривната от Notify — само един BLE клиент.\n2. GB глобално: Настройки → Developer → Intent API → Bluetooth + команди ВКЛ.\n3. GB на гривната (Band 8): Device settings → Developer → Intent API:\n   • Realtime HR broadcast (REALTIME_HR)\n   • Start/stop realtime HR (START_REALTIME_HR)\n4. XEMS ♥ → MAC D0:62:2C:26:49:60 → Активирай циферблат → Свържи.\n5. В GB стартирай Live activity (сърце) ИЛИ изчакай ~15s за първи пулс.\n6. Диагностика: GB cmds &gt; 0, последно: REALTIME_HR, GB HR расте.\n\nНужен GB nightly с PR #6473/#6475 (0.93+). Ако GB HR=0 при изпратени cmds: обнови GB или Pulsoid.\n\nПЪТ NOTIFY (без GB): фалшив HA сървър порт 8123 — виж docs/xiaomi-band-integration.md.</string>
+    <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
+    <string name="wearable_sync_info_body">1. Инсталирай Gadgetbridge nightly (nightly_nopebble).\n2. Свържи Band 8 само в GB — премахни Notify/други BLE клиенти.\n3. GB глобално: Настройки → Developer → Intent API → Bluetooth ВКЛ.\n4. GB на гривната: Device settings → Developer → Intent API:\n   • Realtime HR broadcast (REALTIME_HR)\n   • Start/stop realtime HR (START_REALTIME_HR)\n5. XEMS ♥ → правилен MAC → Активирай циферблат → Свържи.\n6. В GB стартирай Live activity ИЛИ изчакай ~15s.\n7. Диагностика: GB cmds &gt; 0, последно: REALTIME_HR, GB HR &gt; 0.\n\nАко GB cmds работят, но GB HR=0: включи per-device realtime HR broadcast.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
-    <string name="wearable_sync_notify_missing">Notify for Xiaomi не е открит — провери инсталацията (Huawei: видимост на приложения)</string>
-    <string name="wearable_sync_status_listening">Свързване с Notify…</string>
-    <string name="wearable_sync_status_connected">Гривната е свързана — изчакване на пулс</string>
-    <string name="wearable_sync_open_notify">Отвори Notify</string>
-    <string name="wearable_sync_diag_waiting">HR събития: %1$d · батерия: %2$s</string>
-    <string name="wearable_sync_diag_hint">Настрой Notify → Home Assistant → Standard sync към URL на XEMS</string>
-    <string name="wearable_sync_diag_ha">Tasker HR: %1$d · HA HR: %2$d · HA posts: %3$d · батерия: %4$s</string>
-    <string name="wearable_sync_status_ha_listening">HA сървър %1$s — сложи този URL в Notify</string>
-    <string name="wearable_sync_ha_entities_title">HA обекти (след Sync now):</string>
-    <string name="wearable_sync_ha_entities_empty">Няма HA posts — отвори Notify, покажи свеж пулс, Sync now</string>
-    <string name="wearable_sync_ha_entities_ok">heartrate намерен — HA пътят работи</string>
-    <string name="wearable_sync_ha_entities_need_pulsoid">няма heartrate обект — нужен Pulsoid</string>
-    <string name="wearable_sync_ha_entities_no_value">heartRate обект има, стойност празна — Notify не праща live пулс → Pulsoid</string>
+    <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
     <string name="wearable_sync_open_gb">Отвори GB</string>
     <string name="wearable_sync_band_mac">MAC гривна</string>
-    <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · батерия: %5$s</string>
+    <string name="wearable_sync_diag_gb">GB HR: %1$d</string>
     <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
     <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · последно: %2$s · %3$s</string>
-    <string name="wearable_sync_diag_gb_hint">Няма GB HR. Провери: (1) на гривната Intent API → realtime HR broadcast + START_REALTIME_HR, (2) глобално Intent API → Bluetooth, (3) Live activity в GB, (4) изчакай 15s, (5) обнови GB nightly.</string>
+    <string name="wearable_sync_diag_gb_hint">Няма GB HR. Включи на гривната Intent API → realtime HR broadcast + START_REALTIME_HR. Стартирай Live activity в GB или изчакай 15s.</string>
 
 </resources>

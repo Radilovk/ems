@@ -4,7 +4,7 @@
 
 
 # static fields
-.field private static final CHANNEL_ID:Ljava/lang/String; = "xems_ha_server"
+.field private static final CHANNEL_ID:Ljava/lang/String; = "xems_gb_hr"
 
 .field private static final NOTIFICATION_ID:I = 0x7e060001
 
@@ -22,19 +22,12 @@
 .method private buildNotification()Landroid/app/Notification;
     .registers 6
 
-    .line 87
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isGadgetbridgeInstalled(Landroid/content/Context;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_21
-
-    .line 88
+    .line 86
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getResolvedGadgetbridgePackage(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 89
+    .line 87
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -43,141 +36,117 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    if-eqz v0, :cond_17
+    if-eqz v0, :cond_11
 
-    goto :goto_19
+    goto :goto_13
 
-    :cond_17
-    const-string v0, "GB"
+    :cond_11
+    const-string v0, "not installed"
 
-    :goto_19
+    :goto_13
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 90
-    goto :goto_36
-
-    .line 91
-    :cond_21
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v1, "Notify HA sync: "
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->getLanUrl(Landroid/content/Context;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 93
-    :goto_36
+    .line 88
     new-instance v1, Landroid/content/Intent;
 
     const-class v2, Lcom/isaigu/gymapp/MainActivity;
 
     invoke-direct {v1, p0, v2}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
-    .line 94
+    .line 89
     const/high16 v2, 0x30000000
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 95
+    .line 90
     const/high16 v2, 0x8000000
 
-    .line 96
+    .line 91
     sget v3, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v4, 0x17
 
-    if-lt v3, v4, :cond_4c
+    if-lt v3, v4, :cond_30
 
-    .line 97
+    .line 92
     const/high16 v2, 0xc000000
 
-    .line 99
-    :cond_4c
+    .line 94
+    :cond_30
     const/4 v3, 0x0
 
     invoke-static {p0, v3, v1, v2}, Landroid/app/PendingIntent;->getActivity(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;
 
     move-result-object v1
 
-    .line 100
+    .line 95
     sget v2, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v3, 0x1a
 
-    if-lt v2, v3, :cond_5f
+    if-lt v2, v3, :cond_43
 
-    .line 101
+    .line 96
     new-instance v2, Landroid/app/Notification$Builder;
 
-    const-string v3, "xems_ha_server"
+    const-string v3, "xems_gb_hr"
 
     invoke-direct {v2, p0, v3}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;Ljava/lang/String;)V
 
-    goto :goto_64
+    goto :goto_48
 
-    .line 102
-    :cond_5f
+    .line 97
+    :cond_43
     new-instance v2, Landroid/app/Notification$Builder;
 
     invoke-direct {v2, p0}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 103
-    :goto_64
+    .line 98
+    :goto_48
     const-string v3, "XEMS \u2014 \u043f\u0443\u043b\u0441 \u0441\u0438\u043d\u0445\u0440\u043e\u043d"
 
     invoke-virtual {v2, v3}, Landroid/app/Notification$Builder;->setContentTitle(Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
 
     move-result-object v3
 
-    .line 104
+    .line 99
     invoke-virtual {v3, v0}, Landroid/app/Notification$Builder;->setContentText(Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
 
     move-result-object v0
 
     const v3, 0x1080039
 
-    .line 105
+    .line 100
     invoke-virtual {v0, v3}, Landroid/app/Notification$Builder;->setSmallIcon(I)Landroid/app/Notification$Builder;
 
     move-result-object v0
 
-    .line 106
+    .line 101
     const/4 v3, 0x1
 
     invoke-virtual {v0, v3}, Landroid/app/Notification$Builder;->setOngoing(Z)Landroid/app/Notification$Builder;
 
     move-result-object v0
 
-    .line 107
+    .line 102
     invoke-virtual {v0, v1}, Landroid/app/Notification$Builder;->setContentIntent(Landroid/app/PendingIntent;)Landroid/app/Notification$Builder;
 
-    .line 108
+    .line 103
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x15
 
-    if-lt v0, v1, :cond_86
+    if-lt v0, v1, :cond_6a
 
-    .line 109
+    .line 104
     invoke-virtual {v2, v3}, Landroid/app/Notification$Builder;->setVisibility(I)Landroid/app/Notification$Builder;
 
-    .line 111
-    :cond_86
+    .line 106
+    :cond_6a
     invoke-virtual {v2}, Landroid/app/Notification$Builder;->build()Landroid/app/Notification;
 
     move-result-object v0
@@ -220,14 +189,14 @@
 
     const/4 v2, 0x2
 
-    const-string v3, "xems_ha_server"
+    const-string v3, "xems_gb_hr"
 
     const-string v4, "XEMS pulse sync"
 
     invoke-direct {v1, v3, v4, v2}, Landroid/app/NotificationChannel;-><init>(Ljava/lang/String;Ljava/lang/CharSequence;I)V
 
     .line 80
-    const-string v2, "Keeps HA server reachable for Notify for Xiaomi"
+    const-string v2, "Keeps Gadgetbridge HR sync active during training"
 
     invoke-virtual {v1, v2}, Landroid/app/NotificationChannel;->setDescription(Ljava/lang/String;)V
 

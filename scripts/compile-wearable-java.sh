@@ -21,8 +21,6 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHrReceiver.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSyncHelper.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHaServer.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/wearable/HaEntityRecord.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHaForegroundService.java"
 )
 

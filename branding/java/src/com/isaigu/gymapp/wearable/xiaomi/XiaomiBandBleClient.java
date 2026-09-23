@@ -41,7 +41,7 @@ public final class XiaomiBandBleClient {
     private static final int SYSTEM_CMD_TYPE = 2;
     private static final int SYSTEM_CMD_DEVICE_INFO = 2;
 
-    private static final String BLE_BUILD_TAG = "v1.1.53-ble";
+    private static final String BLE_BUILD_TAG = "v1.1.54-ble";
     private static final long AUTH_TIMEOUT_MS = 45000L;
     private static final long STALL_CHECK_MS = 3000L;
     private static final long FIRST_HR_TIMEOUT_MS = 12000L;
@@ -50,6 +50,10 @@ public final class XiaomiBandBleClient {
     private static final long BAND_ACK_TIMEOUT_MS = 3000L;
     private static final long MTU_FALLBACK_MS = 2500L;
     private static final int DEFAULT_ATT_MTU = 23;
+    /** Every decrypted command from the band: epochMs,type,sub,payloadHex */
+    private static final String RAW_FILE = "band-raw.csv";
+    /** Every 8/47 realtime event, all fields: epochMs,dtMs,steps,calories,f3,hr,f5,standing,extra */
+    private static final String REALTIME_FILE = "band-realtime.csv";
 
     private static final android.os.Handler mainHandler =
             new android.os.Handler(android.os.Looper.getMainLooper());
@@ -97,6 +101,7 @@ public final class XiaomiBandBleClient {
     private BluetoothGatt mtuPendingGatt;
     private boolean discoveryRequested;
     private int attMtu = DEFAULT_ATT_MTU;
+    private long lastRealtimeEventMs;
 
     private XiaomiBandBleClient() {}
 
@@ -175,6 +180,11 @@ public final class XiaomiBandBleClient {
         WearableBleDiagLog.init(context);
         WearableBleDiagLog.clear();
         log("build", BLE_BUILD_TAG);
+        String sessionMark = "# session " + System.currentTimeMillis() + " " + BLE_BUILD_TAG;
+        WearableBleDiagLog.appendRaw(RAW_FILE, sessionMark);
+        WearableBleDiagLog.appendRaw(REALTIME_FILE, sessionMark
+                + " | epochMs,dtMs,steps,calories,f3,hr,f5,standing,extra");
+        lastRealtimeEventMs = 0L;
         com.isaigu.gymapp.wearable.WearableBlePermissions.logPermissionState(context);
         appContext = context.getApplicationContext();
         targetMac = mac != null ? mac.trim() : "";
@@ -672,6 +682,10 @@ public final class XiaomiBandBleClient {
         int type = intField(cmd, 1);
         int subtype = intField(cmd, 2);
         log("cmd", "type=" + type + " sub=" + subtype);
+        if (type != AUTH_CMD_TYPE) {
+            WearableBleDiagLog.appendRaw(RAW_FILE, System.currentTimeMillis() + ","
+                    + type + "," + subtype + "," + bytesToHex(raw));
+        }
         if (type == AUTH_CMD_TYPE) {
             if (authenticated && (subtype == AUTH_CMD_NONCE || subtype == AUTH_CMD_AUTH
                     || subtype == AUTH_CMD_SEND_USERID)) {
@@ -689,7 +703,8 @@ public final class XiaomiBandBleClient {
             }
             return;
         }
-        log("cmd", "unhandled type=" + type);
+        log("cmd", "unhandled type=" + type + " sub=" + subtype);
+        logHex("cmd_raw", raw, 48);
     }
 
     private void handleAuth(Map<Integer, java.util.List<Object>> cmd, int subtype) {
@@ -773,7 +788,24 @@ public final class XiaomiBandBleClient {
         Map<Integer, java.util.List<Object>> rt = XiaomiBandProto.protoParse(rtBytes);
         int hr = intField(rt, 4);
         int steps = intField(rt, 1);
-        log("hr", "raw hr=" + hr + " steps=" + steps);
+        long nowMs = System.currentTimeMillis();
+        long dtMs = lastRealtimeEventMs > 0L ? nowMs - lastRealtimeEventMs : 0L;
+        lastRealtimeEventMs = nowMs;
+        StringBuilder extra = new StringBuilder();
+        for (Map.Entry<Integer, java.util.List<Object>> e : rt.entrySet()) {
+            int f = e.getKey();
+            if (f >= 1 && f <= 6) {
+                continue;
+            }
+            extra.append(f).append('=').append(e.getValue().get(0) instanceof byte[]
+                    ? bytesToHex((byte[]) e.getValue().get(0)) : String.valueOf(e.getValue().get(0)))
+                    .append(';');
+        }
+        WearableBleDiagLog.appendRaw(REALTIME_FILE, nowMs + "," + dtMs + "," + steps + ","
+                + intField(rt, 2) + "," + intField(rt, 3) + "," + hr + "," + intField(rt, 5) + ","
+                + intField(rt, 6) + "," + extra);
+        log("hr", "raw hr=" + hr + " steps=" + steps + " cal=" + intField(rt, 2)
+                + " f3=" + intField(rt, 3) + " f5=" + intField(rt, 5) + " dt=" + dtMs + "ms");
         lastHrEventMs = System.currentTimeMillis();
         if (hr == 0) {
             setState("measuring");

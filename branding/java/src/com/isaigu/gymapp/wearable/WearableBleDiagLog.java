@@ -38,7 +38,18 @@ public final class WearableBleDiagLog {
                 ring.remove(0);
             }
         }
-        appendToFile(line);
+        appendToFile(LOG_NAME, line);
+    }
+
+    /**
+     * Append one line to a separate raw-data file next to the log (no ring buffer, no logcat).
+     * Used for band-raw.csv / band-realtime.csv.
+     */
+    public static void appendRaw(String fileName, String line) {
+        if (fileName == null || line == null) {
+            return;
+        }
+        appendToFile(fileName, line);
     }
 
     public static void logHex(String event, byte[] data, int maxBytes) {
@@ -106,7 +117,7 @@ public final class WearableBleDiagLog {
         return new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date());
     }
 
-    private static void appendToFile(String text) {
+    private static void appendToFile(String name, String text) {
         Context ctx = appContext;
         if (ctx == null || text == null) {
             return;
@@ -121,14 +132,14 @@ public final class WearableBleDiagLog {
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
-                File file = new File(dir, LOG_NAME);
+                File file = new File(dir, name);
                 if (file.exists() && file.length() > MAX_LOG_BYTES) {
-                    File old = new File(dir, LOG_NAME + ".old");
+                    File old = new File(dir, name + ".old");
                     if ( old.exists()) {
                         old.delete();
                     }
                     file.renameTo(old);
-                    file = new File(dir, LOG_NAME);
+                    file = new File(dir, name);
                 }
                 FileOutputStream out = new FileOutputStream(file, true);
                 out.write((text + "\n").getBytes("UTF-8"));

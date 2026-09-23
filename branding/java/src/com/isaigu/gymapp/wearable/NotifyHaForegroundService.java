@@ -12,9 +12,9 @@ import android.os.IBinder;
 
 import com.isaigu.gymapp.MainActivity;
 
-/** Keeps the fake HA REST server alive while the watch dial is armed (Huawei battery saver). */
+/** Keeps the Gadgetbridge HR receiver alive while the dial is armed (Huawei battery saver). */
 public final class NotifyHaForegroundService extends Service {
-    private static final String CHANNEL_ID = "xems_ha_server";
+    private static final String CHANNEL_ID = "xems_gb_hr";
     private static final int NOTIFICATION_ID = 0x7e060001;
 
     public static void start(Context context) {
@@ -77,14 +77,14 @@ public final class NotifyHaForegroundService extends Service {
                 CHANNEL_ID,
                 "XEMS pulse sync",
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Keeps HA server reachable for Notify for Xiaomi");
+        channel.setDescription("Keeps Gadgetbridge HR sync active during training");
         channel.setShowBadge(false);
         manager.createNotificationChannel(channel);
     }
 
     private Notification buildNotification() {
-        String lanUrl = NotifyHaServer.getLanUrl(this);
-        String text = "Notify HA sync: " + lanUrl;
+        String pkg = NotifyWearableBridge.getResolvedGadgetbridgePackage(this);
+        String text = "Gadgetbridge HR: " + (pkg != null ? pkg : "not installed");
         Intent launch = new Intent(this, MainActivity.class);
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;

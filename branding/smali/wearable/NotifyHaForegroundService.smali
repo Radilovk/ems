@@ -4,7 +4,7 @@
 
 
 # static fields
-.field private static final CHANNEL_ID:Ljava/lang/String; = "xems_ha_server"
+.field private static final CHANNEL_ID:Ljava/lang/String; = "xems_gb_hr"
 
 .field private static final NOTIFICATION_ID:I = 0x7e060001
 
@@ -20,10 +20,10 @@
 .end method
 
 .method private buildNotification()Landroid/app/Notification;
-    .registers 5
+    .registers 6
 
     .line 86
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyHaServer;->getLanUrl(Landroid/content/Context;)Ljava/lang/String;
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getResolvedGadgetbridgePackage(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -32,10 +32,18 @@
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v2, "Notify HA sync: "
+    const-string v2, "Gadgetbridge HR: "
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
+    if-eqz v0, :cond_11
+
+    goto :goto_13
+
+    :cond_11
+    const-string v0, "not installed"
+
+    :goto_13
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
@@ -55,26 +63,20 @@
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
     .line 90
-    nop
+    const/high16 v2, 0x8000000
 
     .line 91
-    sget v2, Landroid/os/Build$VERSION;->SDK_INT:I
+    sget v3, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    const/16 v3, 0x17
+    const/16 v4, 0x17
 
-    if-lt v2, v3, :cond_2b
+    if-lt v3, v4, :cond_30
 
     .line 92
     const/high16 v2, 0xc000000
 
-    goto :goto_2d
-
-    .line 91
-    :cond_2b
-    const/high16 v2, 0x8000000
-
     .line 94
-    :goto_2d
+    :cond_30
     const/4 v3, 0x0
 
     invoke-static {p0, v3, v1, v2}, Landroid/app/PendingIntent;->getActivity(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;
@@ -86,25 +88,25 @@
 
     const/16 v3, 0x1a
 
-    if-lt v2, v3, :cond_40
+    if-lt v2, v3, :cond_43
 
     .line 96
     new-instance v2, Landroid/app/Notification$Builder;
 
-    const-string v3, "xems_ha_server"
+    const-string v3, "xems_gb_hr"
 
     invoke-direct {v2, p0, v3}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;Ljava/lang/String;)V
 
-    goto :goto_45
+    goto :goto_48
 
     .line 97
-    :cond_40
+    :cond_43
     new-instance v2, Landroid/app/Notification$Builder;
 
     invoke-direct {v2, p0}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;)V
 
     .line 98
-    :goto_45
+    :goto_48
     const-string v3, "XEMS \u2014 \u043f\u0443\u043b\u0441 \u0441\u0438\u043d\u0445\u0440\u043e\u043d"
 
     invoke-virtual {v2, v3}, Landroid/app/Notification$Builder;->setContentTitle(Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
@@ -138,13 +140,13 @@
 
     const/16 v1, 0x15
 
-    if-lt v0, v1, :cond_67
+    if-lt v0, v1, :cond_6a
 
     .line 104
     invoke-virtual {v2, v3}, Landroid/app/Notification$Builder;->setVisibility(I)Landroid/app/Notification$Builder;
 
     .line 106
-    :cond_67
+    :cond_6a
     invoke-virtual {v2}, Landroid/app/Notification$Builder;->build()Landroid/app/Notification;
 
     move-result-object v0
@@ -187,14 +189,14 @@
 
     const/4 v2, 0x2
 
-    const-string v3, "xems_ha_server"
+    const-string v3, "xems_gb_hr"
 
     const-string v4, "XEMS pulse sync"
 
     invoke-direct {v1, v3, v4, v2}, Landroid/app/NotificationChannel;-><init>(Ljava/lang/String;Ljava/lang/CharSequence;I)V
 
     .line 80
-    const-string v2, "Keeps HA server reachable for Notify for Xiaomi"
+    const-string v2, "Keeps Gadgetbridge HR sync active during training"
 
     invoke-virtual {v1, v2}, Landroid/app/NotificationChannel;->setDescription(Ljava/lang/String;)V
 

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showNotifyMissing()V
+    value = Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showGadgetbridgeMissing()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -30,7 +30,7 @@
         }
     .end annotation
 
-    .line 178
+    .line 161
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$1;->val$activity:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,7 +43,7 @@
 .method public run()V
     .registers 3
 
-    .line 181
+    .line 164
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$1;->val$activity:Landroid/app/Activity;
 
     const v1, 0x7f0d0187
@@ -51,6 +51,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toast(Landroid/app/Activity;I)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100(Landroid/app/Activity;I)V
 
-    .line 182
+    .line 165
     return-void
 .end method

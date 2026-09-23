@@ -3,7 +3,7 @@ package com.isaigu.gymapp.wearable;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/** Persisted settings for Notify / wearable bridge. */
+/** Persisted settings for Gadgetbridge wearable sync. */
 public final class WearableConfig {
     private static final String PREFS = "wearable_bridge";
     private static final String KEY_ENABLED = "enabled";
@@ -11,10 +11,7 @@ public final class WearableConfig {
     private static final String KEY_AUTO_REDUCE = "auto_reduce";
     private static final String KEY_HR_THRESHOLD = "hr_threshold";
     private static final String KEY_STRENGTH_STEP = "strength_step";
-    private static final String KEY_TASKER_PASSWORD = "tasker_password";
     private static final String KEY_BAND_MAC = "band_mac";
-    private static final String KEY_HA_PORT = "ha_port";
-    private static final int DEFAULT_HA_PORT = 8123;
 
     private WearableConfig() {}
 
@@ -43,11 +40,7 @@ public final class WearableConfig {
         return prefs(context).getInt(KEY_STRENGTH_STEP, 5);
     }
 
-    public static String getTaskerPassword(Context context) {
-        return prefs(context).getString(KEY_TASKER_PASSWORD, "");
-    }
-
-    /** Optional Gadgetbridge device MAC (e.g. D0:62:2C:26:49:60). */
+    /** Gadgetbridge device MAC (e.g. D0:62:2C:26:49:60). */
     public static String getBandMac(Context context) {
         return prefs(context).getString(KEY_BAND_MAC, "D0:62:2C:26:49:60");
     }
@@ -55,14 +48,6 @@ public final class WearableConfig {
     public static void setBandMac(Context context, String mac) {
         prefs(context).edit().putString(KEY_BAND_MAC,
                 mac != null ? mac.trim() : "").apply();
-    }
-
-    public static int getHaPort(Context context) {
-        int port = prefs(context).getInt(KEY_HA_PORT, DEFAULT_HA_PORT);
-        if (port < 1024 || port > 65535) {
-            return DEFAULT_HA_PORT;
-        }
-        return port;
     }
 
     public static void setEnabled(Context context, boolean enabled) {

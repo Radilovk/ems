@@ -6,6 +6,12 @@ import java.util.*;
 public class AiSim {
     static int failures = 0;
     static void check(boolean ok, String what) { if (!ok) { failures++; System.out.println("  FAIL: " + what); } }
+    /** ACTIVE rests: seconds the operator waits after "ready" before pressing continue. */
+    static int continueAfterS = 5;
+    /** Optional user pause: at plan second pauseAtS for pauseLenS (−1 = none). */
+    static int pauseAtS = -1, pauseLenS = 0;
+    static double minReentry = 1.0, idleWhileWaiting = 0;
+    static int earlyContinueAccepted = 0, longOffActive = 0;
 
     /** gain = bpm per unit of output fraction at steady state; bandLossAtS < 0 = never. */
     static AiEngine run(String name, Goal goal, Mode mode, Operator op, double gain, int bandLossAtS,
@@ -24,6 +30,8 @@ public class AiSim {
         double maxFrac = 0; int silentDuringPause = 0, pauseTicks = 0;
         long checkpointAt = -1;
         Set<Integer> hzSeen = new TreeSet<>();
+        long readySince = -1, pauseUntil = -1; boolean paused = false;
+        minReentry = 1.0; idleWhileWaiting = 0; earlyContinueAccepted = 0; longOffActive = 0;
         for (int step = 0; step < 4 * 60 * 60 * 4; step++) {
             t += 250;
             long rel = (t - 1_000_000L) / 1000;
@@ -36,6 +44,7 @@ public class AiSim {
                     check(cmd.frac <= plan.phiMax + 1e-9, name + " frac " + cmd.frac + " > phiMax");
                     check(cmd.offS >= 1, name + " offS < 1");
                     if (cmd.hz >= 20) {
+                        if (mode == Mode.ACTIVE && cmd.offS > 4) longOffActive++;
                         check(cmd.onS <= 6, name + " tetanic on > 6 s");
                         check(cmd.rampUpMs >= 300 && cmd.rampUpMs <= 500, name + " ramp_up " + cmd.rampUpMs);
                     }
@@ -51,8 +60,23 @@ public class AiSim {
                 boolean lost = bandLossAtS > 0 && rel >= bandLossAtS;
                 if (!lost) e.onHr(t, (int) Math.round(hr + rnd.nextGaussian()));
             }
+            double elapsedBefore = e.getElapsedPlanS();
+            boolean waitingBefore = e.isRestReady();
             e.tick(t);
+            if (waitingBefore && e.isRestReady()) idleWhileWaiting += e.getElapsedPlanS() - elapsedBefore;
+            minReentry = Math.min(minReentry, e.getReentry());
             AiEngine.State s = e.getState();
+            if (s == AiEngine.State.REST && !e.isRestReady() && e.continueBlock(t)) earlyContinueAccepted++;
+            if (e.isRestReady()) {
+                if (readySince < 0) readySince = t;
+                if (t - readySince >= continueAfterS * 1000L) { e.continueBlock(t); readySince = -1; }
+            } else readySince = -1;
+            if (pauseAtS > 0 && !paused && rel >= pauseAtS && s == AiEngine.State.RUN) {
+                e.userPause(t); paused = true; pauseUntil = t + pauseLenS * 1000L;
+            }
+            if (paused && pauseUntil > 0 && t >= pauseUntil && e.getState() == AiEngine.State.USER_PAUSE) {
+                e.resume(t); pauseUntil = -1;
+            }
             if (s == AiEngine.State.CHECKPOINT) {
                 if (checkpointAt < 0) checkpointAt = t;
                 if (t - checkpointAt > 5000) { e.answerCheckpoint(6, t); checkpointAt = -1; }
@@ -66,6 +90,9 @@ public class AiSim {
             if (s == AiEngine.State.DONE || s == AiEngine.State.STOPPED) break;
         }
         check(silentDuringPause == 0, name + " output during STIM_PAUSE");
+        check(earlyContinueAccepted == 0, name + " continue accepted before the rest threshold");
+        check(idleWhileWaiting < 1e-6, name + " plan clock ran while waiting for continue");
+        check(mode != Mode.ACTIVE || longOffActive == 0, name + " ACTIVE tetanic pause > 4 s");
         System.out.printf("%-22s state=%-8s blocks=%2d maxFrac=%.2f q=%.0f/%.0f (plan %.0f) u=%.2f capHits=%d L1..u=%d/%d/%d/%d/%d corridor=%s hrr60=%s flags=%s hz=%s%n",
             name, e.getState(), e.getBlocks().size(), maxFrac, e.getQUsed()/1e6, e.getQBudget()/1e6, plan.qPlan/1e6, e.getU(), e.getCapHits(),
             e.getLCount(1), e.getLCount(2), e.getLCount(3), e.getLCount(4), e.getLCount(5),
@@ -96,6 +123,28 @@ public class AiSim {
         e = run("MASSAGE passive", Goal.MASSAGE, Mode.PASSIVE, Operator.TRAINER, 20, -1, -1, v);
         e = run("DRAIN passive", Goal.DRAIN, Mode.PASSIVE, Operator.TRAINER, 10, -1, -1, v);
         e = run("CELLULITE passive", Goal.CELLULITE, Mode.PASSIVE, Operator.TRAINER, 20, -1, -1, v);
+        for (int g : new int[] {170, 200, 230}) {
+            e = run("TONE high-resp " + g, Goal.TONE, Mode.ACTIVE, Operator.TRAINER, g, -1, -1, v);
+        }
+        continueAfterS = 180;
+        e = run("TONE wait 3 min/rest", Goal.TONE, Mode.ACTIVE, Operator.TRAINER, 60, -1, -1, v);
+        check(e.getState() == AiEngine.State.DONE, "long waits still finish");
+        check(minReentry < 0.9 && e.getTotalIdleS() > 0, "long wait → re-entry ramp");
+        continueAfterS = 5;
+        pauseAtS = 400; pauseLenS = 300;
+        e = run("TONE user pause 5 min", Goal.TONE, Mode.ACTIVE, Operator.TRAINER, 60, -1, -1, v);
+        check(minReentry <= 0.6 + 1e-9, "5 min pause → re-entry 0.6");
+        pauseAtS = -1;
+        // §2 resting HR: 30 s window.
+        AiRestHr r = new AiRestHr(true);
+        long t0 = 0; int n = 0;
+        for (long t = 0; t <= 60000 && r.getStatus() != AiRestHr.Status.DONE; t += 1000) {
+            if (t % 3000 == 0) r.onSample(t, 64 + (n++ % 3));
+            r.tick(t);
+            t0 = t;
+        }
+        System.out.printf("REST_HR 30 s             status=%s hr=%d sd=%.1f at %d s%n", r.getStatus(), r.getHrRest(), r.getSigma(), t0 / 1000);
+        check(r.getStatus() == AiRestHr.Status.DONE && t0 <= 32000, "rest HR done in ~30 s");
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");
         System.exit(failures == 0 ? 0 : 1);
     }

@@ -1,199 +1,61 @@
-.class synthetic Lcom/isaigu/gymapp/ai/AiUi$31;
+.class Lcom/isaigu/gymapp/ai/AiUi$31;
 .super Ljava/lang/Object;
 .source "AiUi.java"
 
+# interfaces
+.implements Landroid/view/View$OnClickListener;
+
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/ai/AiUi;
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/isaigu/gymapp/ai/AiUi;->cr10Scale(Landroid/content/Context;IILcom/isaigu/gymapp/ai/AiUi$SegmentCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
-    accessFlags = 0x1008
+    accessFlags = 0x0
     name = null
 .end annotation
 
 
-# static fields
-.field static final synthetic $SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
+# instance fields
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-.field static final synthetic $SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
+.field final synthetic val$v:I
 
 
 # direct methods
-.method static constructor <clinit>()V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;I)V
     .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 1773
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AiModel$Goal;
+    .line 1730
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    move-result-object v0
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$v:I
 
-    array-length v0, v0
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    new-array v0, v0, [I
-
-    sput-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
-
-    :try_start_9
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->TONE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x1
-
-    aput v2, v0, v1
-    :try_end_14
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_9 .. :try_end_14} :catch_6c
-
-    :goto_14
-    :try_start_14
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->FAT:Lcom/isaigu/gymapp/ai/AiModel$Goal;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x2
-
-    aput v2, v0, v1
-    :try_end_1f
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_14 .. :try_end_1f} :catch_6a
-
-    :goto_1f
-    :try_start_1f
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->MASSAGE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x3
-
-    aput v2, v0, v1
-    :try_end_2a
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_1f .. :try_end_2a} :catch_68
-
-    :goto_2a
-    :try_start_2a
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->DRAIN:Lcom/isaigu/gymapp/ai/AiModel$Goal;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x4
-
-    aput v2, v0, v1
-    :try_end_35
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_2a .. :try_end_35} :catch_66
-
-    .line 164
-    :goto_35
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->values()[Lcom/isaigu/gymapp/ai/AiSession$Stage;
-
-    move-result-object v0
-
-    array-length v0, v0
-
-    new-array v0, v0, [I
-
-    sput-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
-
-    :try_start_3e
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REST_HR:Lcom/isaigu/gymapp/ai/AiSession$Stage;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x1
-
-    aput v2, v0, v1
-    :try_end_49
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_3e .. :try_end_49} :catch_64
-
-    :goto_49
-    :try_start_49
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->PLAN:Lcom/isaigu/gymapp/ai/AiSession$Stage;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x2
-
-    aput v2, v0, v1
-    :try_end_54
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_49 .. :try_end_54} :catch_62
-
-    :goto_54
-    :try_start_54
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$31;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AiSession$Stage;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x3
-
-    aput v2, v0, v1
-    :try_end_5f
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_54 .. :try_end_5f} :catch_60
-
-    :goto_5f
     return-void
+.end method
 
-    :catch_60
-    move-exception v0
 
-    goto :goto_5f
+# virtual methods
+.method public onClick(Landroid/view/View;)V
+    .registers 4
 
-    :catch_62
-    move-exception v0
+    .prologue
+    .line 1733
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    goto :goto_54
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$v:I
 
-    :catch_64
-    move-exception v0
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
 
-    goto :goto_49
-
-    .line 1773
-    :catch_66
-    move-exception v0
-
-    goto :goto_35
-
-    :catch_68
-    move-exception v0
-
-    goto :goto_2a
-
-    :catch_6a
-    move-exception v0
-
-    goto :goto_1f
-
-    :catch_6c
-    move-exception v0
-
-    goto :goto_14
+    .line 1734
+    return-void
 .end method

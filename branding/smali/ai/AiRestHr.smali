@@ -12,7 +12,7 @@
 
 
 # static fields
-.field public static final EXTEND_MS:J = 0xea60L
+.field public static final EXTEND_MS:J = 0x3a98L
 
 .field public static final MAX_EXTENSIONS:I = 0x2
 
@@ -22,7 +22,7 @@
 
 .field public static final STALE_MS:J = 0x2710L
 
-.field public static final WINDOW_MS:J = 0x1d4c0L
+.field public static final WINDOW_MS:J = 0x7530L
 
 
 # instance fields
@@ -92,13 +92,13 @@
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->status:Lcom/isaigu/gymapp/ai/AiRestHr$Status;
 
     .line 38
-    const-wide/32 v2, 0x1d4c0
+    const-wide/16 v2, 0x7530
 
-    if-eqz p1, :cond_22
+    if-eqz p1, :cond_21
 
     const-wide/16 v0, 0x0
 
-    :goto_1e
+    :goto_1d
     add-long/2addr v0, v2
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->targetMs:J
@@ -107,20 +107,20 @@
     return-void
 
     .line 38
-    :cond_22
-    const-wide/32 v0, 0xea60
+    :cond_21
+    const-wide/16 v0, 0x3a98
 
-    goto :goto_1e
+    goto :goto_1d
 .end method
 
 .method private finish(J)V
-    .registers 9
+    .registers 7
 
     .prologue
-    const-wide/32 v4, 0xea60
-
     .line 130
-    invoke-direct {p0, v4, v5}, Lcom/isaigu/gymapp/ai/AiRestHr;->lastWindow(J)Ljava/util/List;
+    const-wide/16 v0, 0x7530
+
+    invoke-direct {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiRestHr;->lastWindow(J)Ljava/util/List;
 
     move-result-object v0
 
@@ -131,14 +131,14 @@
 
     const/4 v2, 0x3
 
-    if-ge v1, v2, :cond_f
+    if-ge v1, v2, :cond_e
 
     .line 147
-    :goto_e
+    :goto_d
     return-void
 
     .line 134
-    :cond_f
+    :cond_e
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiRestHr;->median(Ljava/util/List;)I
 
     move-result v1
@@ -166,22 +166,22 @@
 
     cmpg-double v0, v0, v2
 
-    if-gtz v0, :cond_2e
+    if-gtz v0, :cond_2d
 
     .line 138
     sget-object v0, Lcom/isaigu/gymapp/ai/AiRestHr$Status;->DONE:Lcom/isaigu/gymapp/ai/AiRestHr$Status;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->status:Lcom/isaigu/gymapp/ai/AiRestHr$Status;
 
-    goto :goto_e
+    goto :goto_d
 
     .line 141
-    :cond_2e
+    :cond_2d
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->extensions:I
 
     const/4 v1, 0x2
 
-    if-ge v0, v1, :cond_3f
+    if-ge v0, v1, :cond_40
 
     .line 142
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->extensions:I
@@ -193,19 +193,21 @@
     .line 143
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->targetMs:J
 
-    add-long/2addr v0, v4
+    const-wide/16 v2, 0x3a98
+
+    add-long/2addr v0, v2
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->targetMs:J
 
-    goto :goto_e
+    goto :goto_d
 
     .line 146
-    :cond_3f
+    :cond_40
     sget-object v0, Lcom/isaigu/gymapp/ai/AiRestHr$Status;->UNSTABLE:Lcom/isaigu/gymapp/ai/AiRestHr$Status;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiRestHr;->status:Lcom/isaigu/gymapp/ai/AiRestHr$Status;
 
-    goto :goto_e
+    goto :goto_d
 .end method
 
 .method private lastWindow(J)Ljava/util/List;
@@ -755,7 +757,7 @@
 
     .prologue
     .line 75
-    const-wide/32 v0, 0xea60
+    const-wide/16 v0, 0x7530
 
     invoke-direct {p0, v0, v1}, Lcom/isaigu/gymapp/ai/AiRestHr;->lastWindow(J)Ljava/util/List;
 
@@ -766,19 +768,19 @@
 
     move-result v1
 
-    if-eqz v1, :cond_f
+    if-eqz v1, :cond_e
 
     const/4 v0, -0x1
 
-    :goto_e
+    :goto_d
     return v0
 
-    :cond_f
+    :cond_e
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiRestHr;->median(Ljava/util/List;)I
 
     move-result v0
 
-    goto :goto_e
+    goto :goto_d
 .end method
 
 .method public onSample(JI)V

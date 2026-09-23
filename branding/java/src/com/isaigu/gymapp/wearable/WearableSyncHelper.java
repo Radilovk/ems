@@ -237,7 +237,8 @@ public final class WearableSyncHelper {
             @Override
             public void run() {
                 toastMessage(activity,
-                        "Въведи auth key (32 hex) и MAC на гривната");
+                        WearableUi.tr("Въведи MAC и ключа на гривната в Настройки → Гривна",
+                                "Enter the band MAC and key in Settings → Band"));
             }
         });
     }
@@ -323,8 +324,10 @@ public final class WearableSyncHelper {
         autoReduceSwitch = (Switch) content.findViewById(ID_AUTO_REDUCE);
         thresholdView = (EditText) content.findViewById(ID_THRESHOLD);
         stepView = (EditText) content.findViewById(ID_STEP);
-        bandMacView = (EditText) content.findViewById(ID_BAND_MAC);
-        authKeyView = (EditText) content.findViewById(ID_AUTH_KEY);
+        // MAC and auth key live only in Settings → Band: hide their rows here.
+        hideBandRows(activity, content);
+        bandMacView = null;
+        authKeyView = null;
         bindButton(content.findViewById(ID_CONNECT), new ConnectListener());
         bindButton(content.findViewById(ID_INFO), new ConfigInfoListener());
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
@@ -349,6 +352,33 @@ public final class WearableSyncHelper {
         } catch (Throwable ignored) {
         }
         configDialog.show();
+    }
+
+    private static void hideBandRows(Activity activity, View content) {
+        View mac = content.findViewById(ID_BAND_MAC);
+        View key = content.findViewById(ID_AUTH_KEY);
+        android.view.ViewGroup box = null;
+        for (View f : new View[] {mac, key}) {
+            if (f != null && f.getParent() instanceof View) {
+                View rowView = (View) f.getParent();
+                rowView.setVisibility(View.GONE);
+                if (rowView.getParent() instanceof android.view.ViewGroup) {
+                    box = (android.view.ViewGroup) rowView.getParent();
+                }
+            }
+        }
+        if (box == null) {
+            return;
+        }
+        String macText = WearableConfig.getBandMac(activity);
+        boolean ok = WearableConfig.isConfigured(activity);
+        TextView line = WearableUi.text(activity, (ok
+                ? WearableUi.tr("Гривна: ", "Band: ") + NotifyWearableBridge.normalizeMac(macText) + " · "
+                + WearableUi.tr("ключ ✓", "key ✓")
+                : WearableUi.tr("Гривната не е настроена", "Band not set up"))
+                + WearableUi.tr("  ·  MAC и ключ: Настройки → Гривна", "  ·  MAC and key: Settings → Band"),
+                12f, ok ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT, true);
+        box.addView(line, WearableUi.matchWrap(activity, 12));
     }
 
     /** Band picker next to MAC, live auth-key check, "Band data" button — built in code. */
@@ -419,9 +449,8 @@ public final class WearableSyncHelper {
                 WearableUi.tr(
                         "1. Спри Mi Fitness / Notify / Gadgetbridge (принудително спиране) — гривната"
                                 + " приема само едно приложение.\n"
-                                + "2. MAC: бутон „Избери“ показва сдвоените устройства.\n"
-                                + "3. Auth key: 32 символа от Notify или Mi Fitness (става зелен, когато е"
-                                + " правилен).\n"
+                                + "2–3. MAC и ключ (32 символа от Notify / Mi Fitness) се въвеждат веднъж в"
+                                + " Настройки → Гривна и важат за всички модули.\n"
                                 + "4. „Активирай циферблат“ → кръгът се свързва сам. Първият пулс идва"
                                 + " след около 10–15 s с гривната на китката.\n"
                                 + "5. Цвят на кръга = зона спрямо „Праг пулс“: сиво <60%, зелено 60–70%,"
@@ -431,8 +460,8 @@ public final class WearableSyncHelper {
                                 + "7. Бутон i на кръга → „Данни от гривната“: всички сурови стойности и"
                                 + " споделяне на записа.",
                         "1. Force-stop Mi Fitness / Notify / Gadgetbridge — the band accepts one app.\n"
-                                + "2. MAC: tap Choose to list paired devices.\n"
-                                + "3. Auth key: 32 chars from Notify or Mi Fitness (turns green when valid).\n"
+                                + "2–3. MAC and key (32 chars from Notify / Mi Fitness) are entered once in"
+                                + " Settings → Band and used by every module.\n"
                                 + "4. Activate dial → it connects by itself. First HR after ~10–15 s.\n"
                                 + "5. Dial colour = zone vs HR limit: grey <60%, green 60–70%, yellow"
                                 + " 70–80%, orange 80–90%, red ≥90%.\n"
@@ -686,14 +715,17 @@ public final class WearableSyncHelper {
             clean = clean.substring(2);
         }
         if (clean.length() == 0) {
-            return "Auth key задължителен — 32 hex от Mi Fitness";
+            return WearableUi.tr("Няма ключ — въведи го в Настройки → Гривна",
+                    "No key — enter it in Settings → Band");
         }
         if (clean.length() != 32) {
-            return "Auth key: точно 32 hex символа (0-9, A-F)";
+            return WearableUi.tr("Ключът е невалиден — поправи го в Настройки → Гривна",
+                    "Invalid key — fix it in Settings → Band");
         }
         String mac = WearableConfig.getBandMac(activity);
         if (mac == null || mac.replace(":", "").replace("-", "").trim().length() < 12) {
-            return "MAC гривна: формат AA:BB:CC:DD:EE:FF";
+            return WearableUi.tr("Няма MAC — въведи го в Настройки → Гривна",
+                    "No MAC — enter it in Settings → Band");
         }
         return null;
     }
@@ -712,7 +744,7 @@ public final class WearableSyncHelper {
             text = WearableUi.tr("Изключено", "Off");
             color = WearableUi.COLOR_MUTED;
         } else if (!WearableConfig.isConfigured(activity)) {
-            text = WearableUi.tr("Избери гривната и въведи auth key", "Choose the band and enter the auth key");
+            text = WearableUi.tr("Настрой гривната: Настройки → Гривна", "Set up the band: Settings → Band");
         } else if (!WearableBlePermissions.hasAllBlePermissions(activity)) {
             text = activity.getString(STR_STATUS_BT_PERM);
             color = WearableUi.COLOR_ERROR;

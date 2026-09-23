@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 591
+    .line 601
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$8;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$8;->val$key:Ljava/lang/String;
@@ -53,7 +53,7 @@
     .registers 5
 
     .prologue
-    .line 594
+    .line 604
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$8;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
@@ -68,12 +68,12 @@
 
     invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 595
+    .line 605
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$8;->val$verdict:Landroid/widget/LinearLayout;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->renderVerdict(Landroid/widget/LinearLayout;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
 
-    .line 596
+    .line 606
     return-void
 .end method

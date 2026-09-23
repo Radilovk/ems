@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * §2 CALIB_REST_HR — resting HR over a 120 s window (median / SD of the last 60 s),
- * with sample validation, stale handling and up to two 60 s extensions.
+ * §2 CALIB_REST_HR — resting HR over a 30 s window (median / SD of the whole window),
+ * with sample validation, stale handling and up to two 15 s extensions.
  */
 public final class AiRestHr {
-    public static final long WINDOW_MS = 120000L;
-    public static final long EXTEND_MS = 60000L;
+    public static final long WINDOW_MS = 30000L;
+    public static final long EXTEND_MS = 15000L;
     public static final int MAX_EXTENSIONS = 2;
     public static final long STALE_MS = 10000L;
     public static final double SIGMA_MAX = 3.0;
@@ -70,9 +70,9 @@ public final class AiRestHr {
         return dtHrMs;
     }
 
-    /** Current median of the last 60 s (for live display), or -1. */
+    /** Current median of the last 30 s (for live display), or -1. */
     public int liveMedian() {
-        List<Integer> w = lastWindow(60000L);
+        List<Integer> w = lastWindow(WINDOW_MS);
         return w.isEmpty() ? -1 : median(w);
     }
 
@@ -127,7 +127,7 @@ public final class AiRestHr {
     }
 
     private void finish(long nowMs) {
-        List<Integer> w = lastWindow(60000L);
+        List<Integer> w = lastWindow(WINDOW_MS);
         if (w.size() < 3) {
             return;
         }

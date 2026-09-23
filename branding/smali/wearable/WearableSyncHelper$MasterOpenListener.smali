@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 984
+    .line 1016
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 2
 
     .prologue
-    .line 987
+    .line 1019
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toggleMasterPanel()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1000()V
 
-    .line 988
+    .line 1020
     return-void
 .end method

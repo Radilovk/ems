@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.isaigu.gymapp.ai.AiModel.Goal;
 import com.isaigu.gymapp.ai.AiModel.Mode;
 import com.isaigu.gymapp.ai.AiModel.Operator;
-import com.isaigu.gymapp.wearable.NotifyWearableBridge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -158,6 +157,17 @@ final class AiUi {
             return;
         }
         show(activity, stepForStage(st));
+    }
+
+    /** Bring the dashboard back (e.g. after the main screen paused the session). */
+    static void show() {
+        try {
+            if (dialog != null && dialog.isShowing()) {
+                return;
+            }
+            open(AiSession.activityOf(null));
+        } catch (Throwable ignored) {
+        }
     }
 
     private static int stepForStage(AiSession.Stage st) {
@@ -732,6 +742,11 @@ final class AiUi {
         row.addView(side, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         body.addView(scroll(a, row));
         setupFooter(a, AiText.t("Към плана", "To the plan"), true);
+        // The band comes from Settings → Band; no need to start the HR dial first.
+        final boolean configured = AiSession.isBandConfigured(a);
+        if (configured && !AiSession.isBandStreaming()) {
+            AiSession.acquireBand(AiSession.activityOf(body));
+        }
 
         refreshers.add(new Runnable() {
             @Override
@@ -742,19 +757,21 @@ final class AiUi {
                     AiSession.beginRestHr();
                     r = AiSession.getRestHr();
                 }
-                String key = r == null ? "noband" : r.getStatus().name();
+                String key = r == null ? (configured ? "noband" : "nocfg") : r.getStatus().name();
                 if (!key.equals(actions.getTag())) {
                     actions.setTag(key);
                     actions.removeAllViews();
                     if (r == null) {
-                        TextView connect = pillButton(a, AiText.t("Свържи гривната", "Connect band"), AiViews.CYAN);
-                        connect.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                NotifyWearableBridge.requestConnect(AiSession.activityOf(v));
-                            }
-                        });
-                        actions.addView(connect);
+                        if (configured) {
+                            TextView connect = pillButton(a, AiText.t("Свържи отново", "Reconnect"), AiViews.CYAN);
+                            connect.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    AiSession.reconnectBand(AiSession.activityOf(v));
+                                }
+                            });
+                            actions.addView(connect);
+                        }
                         if (!self) {
                             TextView noBand = pillButton(a, AiText.t("Без гривна", "Without band"), AiViews.MUTED);
                             noBand.setOnClickListener(new View.OnClickListener() {
@@ -766,7 +783,7 @@ final class AiUi {
                             });
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            lp.leftMargin = dp(a, 12);
+                            lp.leftMargin = configured ? dp(a, 12) : 0;
                             actions.addView(noBand, lp);
                         }
                     } else if (r.getStatus() == AiRestHr.Status.UNSTABLE) {
@@ -788,11 +805,22 @@ final class AiUi {
                 boolean done = false;
                 if (r == null) {
                     ring.setValue(0);
-                    status.setText(AiText.t("Чакам пулс от гривната", "Waiting for band HR"));
-                    detail.setText(self
-                            ? AiText.t("Самостоятелната сесия изисква гривна.", "A self session requires the band.")
-                            : AiText.t("Свържи гривната от ♥ или продължи без пулс — тогава управлява само планът.",
-                            "Connect the band via ♥ or continue without HR — then only the plan controls."));
+                    if (!configured) {
+                        status.setText(AiText.t("Гривната не е настроена", "Band not set up"));
+                        detail.setText(AiText.t("Въведи MAC и ключа веднъж в Настройки → Гривна.",
+                                "Enter the MAC and key once in Settings → Band.")
+                                + (self ? "" : AiText.t(" Или продължи без пулс — управлява само планът.",
+                                " Or continue without HR — then only the plan controls.")));
+                    } else {
+                        status.setText(AiSession.isBandLinkUp()
+                                ? AiText.t("Свързване с гривната…", "Connecting to the band…")
+                                : AiText.t("Чакам пулс от гривната", "Waiting for band HR"));
+                        detail.setText(self
+                                ? AiText.t("Самостоятелната сесия изисква гривна. Първият пулс идва до ~15 s.",
+                                "A self session requires the band. First HR within ~15 s.")
+                                : AiText.t("Първият пулс идва до ~15 s. Или продължи без пулс — управлява само планът.",
+                                "First HR within ~15 s. Or continue without HR — then only the plan controls."));
+                    }
                     timeLeft.setText("");
                 } else {
                     ring.setValue(r.getMeasuredMs() / (float) r.getTargetMs());
@@ -1241,10 +1269,18 @@ final class AiUi {
         });
     }
 
+    // ACTIVE rest card (updated every refresh)
+    private static AiViews.Ring restRing;
+    private static TextView restTime;
+    private static TextView restNote;
+    private static TextView restHr;
+
     private static void renderOverlay(final Context a, FrameLayout overlay, final AiEngine e, long now) {
         AiEngine.State st = e.getState();
+        boolean activeRest = st == AiEngine.State.REST && e.isManualContinue();
         String key = st == AiEngine.State.CHECKPOINT ? "cp"
                 : st == AiEngine.State.STIM_PAUSE ? ("checkpoint".equals(e.getPauseReason()) ? "cp" : "sp" + e.canResume())
+                : activeRest ? "rest" + e.isRestReady()
                 : null;
         if (key == null) {
             overlay.setVisibility(View.GONE);
@@ -1253,6 +1289,16 @@ final class AiUi {
         }
         overlay.setVisibility(View.VISIBLE);
         if (key.equals(overlay.getTag())) {
+            if (activeRest) {
+                updateRestCard(e, now);
+            }
+            return;
+        }
+        if (activeRest) {
+            overlay.setTag(key);
+            overlay.removeAllViews();
+            buildRestCard(a, overlay, e);
+            updateRestCard(e, now);
             return;
         }
         overlay.setTag(key);
@@ -1297,6 +1343,87 @@ final class AiUi {
         }
         overlay.addView(box, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+    }
+
+    /**
+     * ACTIVE: rest between blocks. Starts by itself; the next block starts only by hand and only
+     * once the rest threshold is met (time, muscle recovery and HR). Waiting longer is fine —
+     * the plan clock stands still and the first cycles after a long pause are softer.
+     */
+    private static void buildRestCard(final Context a, FrameLayout overlay, final AiEngine e) {
+        boolean ready = e.isRestReady();
+        LinearLayout box = horizontal(a);
+        box.setGravity(Gravity.CENTER_VERTICAL);
+        box.setPadding(dp(a, 36), dp(a, 28), dp(a, 36), dp(a, 28));
+        box.setBackgroundDrawable(gradientStroke(a, AiViews.CARD, 24));
+        FrameLayout ringBox = new FrameLayout(a);
+        restRing = new AiViews.Ring(a, 12);
+        restRing.setColor(ready ? AiViews.OK : AiViews.CYAN, !ready);
+        ringBox.addView(restRing, new FrameLayout.LayoutParams(dp(a, 210), dp(a, 210)));
+        LinearLayout c = vertical(a);
+        c.setGravity(Gravity.CENTER);
+        restTime = text(a, "", 44, AiViews.TEXT, true);
+        restTime.setGravity(Gravity.CENTER);
+        c.addView(restTime);
+        restHr = text(a, "", 14, AiViews.MUTED, false);
+        restHr.setGravity(Gravity.CENTER);
+        c.addView(restHr);
+        ringBox.addView(c, new FrameLayout.LayoutParams(dp(a, 210), dp(a, 210)));
+        box.addView(ringBox);
+        LinearLayout side = vertical(a);
+        side.setPadding(dp(a, 30), 0, 0, 0);
+        side.addView(text(a, ready ? AiText.t("Готово за следващия блок", "Ready for the next block")
+                : AiText.t("Почивка между блоковете", "Rest between blocks"), 26,
+                ready ? AiViews.OK : AiViews.TEXT, true));
+        restNote = text(a, "", 15, AiViews.MUTED, false);
+        restNote.setPadding(0, dp(a, 8), 0, 0);
+        side.addView(restNote);
+        TextView go = primaryButton(a, AiText.t("▶  Следващ блок", "▶  Next block"));
+        go.setEnabled(ready);
+        go.setAlpha(ready ? 1f : 0.35f);
+        go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AiSession.continueBlock();
+            }
+        });
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(a, 300), dp(a, 58));
+        lp.topMargin = dp(a, 22);
+        side.addView(go, lp);
+        box.addView(side, new LinearLayout.LayoutParams(dp(a, 440), ViewGroup.LayoutParams.WRAP_CONTENT));
+        overlay.addView(box, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+    }
+
+    private static void updateRestCard(AiEngine e, long now) {
+        if (restRing == null) {
+            return;
+        }
+        double restS = e.getRestS(now);
+        double hr = e.getHrS();
+        boolean fresh = hr > 0 && e.getHrAgeMs(now) < 10000L;
+        restHr.setText(fresh ? Math.round(hr) + " " + AiText.t("уд/мин", "bpm") : "");
+        if (e.isRestReady()) {
+            double over = e.getRestOverS(now);
+            restRing.setValue(1f);
+            restTime.setText("+" + AiText.mmss(over));
+            restNote.setText(over >= AiEngine.LONG_PAUSE_S
+                    ? AiText.t("Дълга пауза — AI ще започне по-меко и ще вдигне силата за няколко импулса. Времето на плана стои.",
+                    "Long pause — AI starts softer and ramps back over a few pulses. The plan clock is on hold.")
+                    : AiText.t("Мускулите и пулсът са възстановени. Натисни, когато си в позиция.",
+                    "Muscles and HR have recovered. Tap when in position."));
+            return;
+        }
+        double left = e.getRestRemainingS(now);
+        restRing.setValue((float) (restS / Math.max(1.0, restS + left)));
+        restTime.setText(AiText.mmss(left));
+        String note = AiText.t("Мускулна умора ", "Muscle fatigue ")
+                + Math.round(100 * e.getFatigue() / Math.max(1e-6, e.getFatigueMax())) + "%";
+        if (!e.isRestHrOk()) {
+            note += AiText.t(" · чакам пулсът да падне под ", " · waiting for HR below ")
+                    + e.getProfile().hrAt(e.getProfile().xRec);
+        }
+        restNote.setText(note + AiText.t(". Следващият блок се пуска само ръчно.", ". The next block starts only by hand."));
     }
 
     // ================================================================ 8 · report

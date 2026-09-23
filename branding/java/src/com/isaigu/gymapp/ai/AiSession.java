@@ -14,6 +14,7 @@ import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MasterStrengthControl;
 import com.isaigu.gymapp.wearable.NotifyWearableBridge;
 import com.isaigu.gymapp.wearable.WearableBleDiagLog;
+import com.isaigu.gymapp.wearable.WearableConfig;
 
 import java.util.List;
 
@@ -51,6 +52,12 @@ public final class AiSession {
     private static AiEngine.CycleCmd lastAppliedCycle;
     private static int lastBandHr = -1;
     private static long lastBandHrMs;
+
+    // Last values written to the rows — anything else came from the main training screen.
+    private static AiEngine.CycleCmd written;
+    private static int writtenPercent = -1;
+    private static long lastGuardToastMs;
+    private static final long GUARD_TOAST_GAP_MS = 4000L;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable ticker = new Ticker();
@@ -138,7 +145,71 @@ public final class AiSession {
     }
 
     public static boolean isBandStreaming() {
-        return NotifyWearableBridge.isListeningActive() && getLastBandHrAgeMs() < 10000L;
+        return getLastBandHrAgeMs() < 10000L;
+    }
+
+    /** True while the AI drives the output (calibration stimulation or a running plan). */
+    public static boolean ownsOutput() {
+        return (stage == Stage.RUNNING && engine != null
+                && engine.getState() != AiEngine.State.DONE
+                && engine.getState() != AiEngine.State.STOPPED
+                && engine.getState() != AiEngine.State.RECOVERY)
+                || (stage == Stage.CALIB && calibStimOn);
+    }
+
+    /** MAC + auth key saved in Settings → Band. */
+    public static boolean isBandConfigured(Context context) {
+        try {
+            return context != null && WearableConfig.isConfigured(context);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** Connect the band from the saved settings — independent of the HR dial. */
+    public static void acquireBand(Activity activity) {
+        try {
+            if (activity != null && isBandConfigured(activity)) {
+                NotifyWearableBridge.acquire(activity, NotifyWearableBridge.OWNER_AI);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "acquireBand: " + t);
+        }
+    }
+
+    public static void reconnectBand(Activity activity) {
+        try {
+            if (activity != null && isBandConfigured(activity)) {
+                NotifyWearableBridge.reconnect(activity, NotifyWearableBridge.OWNER_AI);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "reconnectBand: " + t);
+        }
+    }
+
+    public static boolean isBandLinkUp() {
+        try {
+            return NotifyWearableBridge.isLinkUp();
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    public static String bandState() {
+        try {
+            return NotifyWearableBridge.getBleState();
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    private static void releaseBand() {
+        try {
+            Context c = panelRoot != null ? panelRoot.getContext() : null;
+            NotifyWearableBridge.release(c, NotifyWearableBridge.OWNER_AI);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "releaseBand: " + t);
+        }
     }
 
     /** Returns an error text if another automatic mode owns the output, else null. */
@@ -276,12 +347,25 @@ public final class AiSession {
         stopTicker();
         AiRamp.clear();
         stage = Stage.IDLE;
+        written = null;
+        writtenPercent = -1;
+        releaseBand();
     }
 
     public static void reduce() {
         if (engine != null) {
             engine.reduce(System.currentTimeMillis());
             forceApplyCurrent();
+        }
+    }
+
+    /** ACTIVE: next block after the rest threshold (manual start only). */
+    public static void continueBlock() {
+        if (engine == null) {
+            return;
+        }
+        if (engine.continueBlock(System.currentTimeMillis())) {
+            ensureDeviceRunning();
         }
     }
 
@@ -293,6 +377,7 @@ public final class AiSession {
         if (engine.getState() == AiEngine.State.USER_PAUSE
                 || engine.getState() == AiEngine.State.STIM_PAUSE) {
             engine.resume(now);
+            ensureDeviceRunning();
         } else {
             engine.userPause(now);
             zeroOutput();
@@ -342,6 +427,9 @@ public final class AiSession {
             restHr.tick(now);
             return;
         }
+        if (stage == Stage.CALIB && calibStimOn) {
+            guardManualChanges(now);
+        }
         if (stage == Stage.CALIB && soloAutoRamp && calibStimOn) {
             soloAccum += SOLO_CALIB_STEP_PER_S * dtS;
             if (soloAccum >= 1.0) {
@@ -358,6 +446,7 @@ public final class AiSession {
         if (engine == null) {
             return;
         }
+        guardManualChanges(now);
         AiEngine.State before = engine.getState();
         engine.tick(now);
         AiEngine.State after = engine.getState();
@@ -462,9 +551,138 @@ public final class AiSession {
         writeAll(c, 0);
     }
 
+    /**
+     * The main training screen stays usable, but while the AI drives the output its controls
+     * must not change the running plan behind the engine's back:
+     * <ul>
+     *   <li>Hz / pulse width / ON / OFF / active pause (impulse↔impulse) → reverted at once;</li>
+     *   <li>strength up → reverted (never above the AI output);</li>
+     *   <li>strength down → accepted as the human "reduce" (G13), proportionally;</li>
+     *   <li>stop on the main screen → AI pause (resume from the AI dashboard).</li>
+     * </ul>
+     */
+    private static void guardManualChanges(long now) {
+        if (written == null || writtenPercent < 0 || manager == null) {
+            return;
+        }
+        List<TrainItem> list = manager.getItemList();
+        if (list == null) {
+            return;
+        }
+        boolean params = false;
+        int lowest = writtenPercent;
+        boolean higher = false;
+        boolean stoppedByUser = false;
+        for (int i = 0; i < list.size(); i++) {
+            TrainItem item = list.get(i);
+            if (item == null || item.isEmpty() || item.getTrainProgram() == null) {
+                continue;
+            }
+            ProgramDataBean b = item.getTrainProgram().matchProgram();
+            if (b == null) {
+                continue;
+            }
+            if (b.hz != written.hz || b.pulseWidth != written.pwUs
+                    || b.pulseContinue != Math.max(1, written.onS)
+                    || b.pulsePause != Math.max(1, written.offS) || b.activePause) {
+                params = true;
+            }
+            if (b.strenth > writtenPercent) {
+                higher = true;
+            } else if (b.strenth < lowest) {
+                lowest = b.strenth;
+            }
+            if (item == leader() && item.data != null && !item.data.start) {
+                stoppedByUser = true;
+            }
+        }
+        if (stage == Stage.CALIB) {
+            if (params || higher || lowest < writtenPercent) {
+                // Calibration: the trainer may use the main ± as well; SOLO only downwards.
+                int target = higher && input.operator == AiModel.Operator.TRAINER
+                        ? maxRowStrength(list) : lowest;
+                calibPercent = Math.max(0, Math.min(100, target));
+                applyCalibration();
+                if (params) {
+                    notifyGuard(AiText.t("Параметрите се управляват от AI.",
+                            "Parameters are controlled by the AI."), now);
+                }
+            }
+            return;
+        }
+        if (engine == null) {
+            return;
+        }
+        AiEngine.State st = engine.getState();
+        if (stoppedByUser && (st == AiEngine.State.RUN || st == AiEngine.State.REST
+                || st == AiEngine.State.CHECKPOINT)) {
+            engine.userPause(now);
+            zeroOutput();
+            notifyGuard(AiText.t("Спряно от основния екран — AI е на пауза. Продължи от AI.",
+                    "Stopped from the main screen — AI paused. Resume in AI."), now);
+            AiUi.show();
+            return;
+        }
+        if (lowest < writtenPercent && writtenPercent > 0 && st == AiEngine.State.RUN) {
+            engine.reduceTo((double) lowest / writtenPercent, now);
+            forceApplyCurrent();
+            notifyGuard(AiText.t("Намалено ръчно — AI го приема като „Намали“.",
+                    "Reduced manually — AI takes it as \u201cReduce\u201d."), now);
+            return;
+        }
+        if (params || higher || lowest < writtenPercent) {
+            writeAll(written, writtenPercent);
+            notifyGuard(params
+                    ? AiText.t("AI управлява честота, импулс и пауза — ръчната промяна е отменена.",
+                            "AI controls frequency, pulse and pause — manual change undone.")
+                    : AiText.t("AI управлява силата. Използвай „Намали“ или СТОП.",
+                            "AI controls strength. Use Reduce or STOP."), now);
+        }
+    }
+
+    private static int maxRowStrength(List<TrainItem> list) {
+        int max = 0;
+        for (int i = 0; i < list.size(); i++) {
+            TrainItem item = list.get(i);
+            if (item != null && !item.isEmpty() && item.getTrainProgram() != null
+                    && item.getTrainProgram().matchProgram() != null) {
+                max = Math.max(max, item.getTrainProgram().matchProgram().strenth);
+            }
+        }
+        return max;
+    }
+
+    private static void notifyGuard(String text, long now) {
+        WearableBleDiagLog.log("ai", "guard: " + text);
+        if (now - lastGuardToastMs < GUARD_TOAST_GAP_MS || panelRoot == null) {
+            return;
+        }
+        lastGuardToastMs = now;
+        try {
+            android.widget.Toast.makeText(panelRoot.getContext(), text,
+                    android.widget.Toast.LENGTH_SHORT).show();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** After a pause from the main screen the device may be stopped: start it again. */
+    private static void ensureDeviceRunning() {
+        TrainItem l = leader();
+        if (l == null || l.data == null || l.data.start) {
+            return;
+        }
+        try {
+            manager.startAll();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "startAll: " + t);
+        }
+    }
+
     private static void writeAll(AiEngine.CycleCmd c, int percent) {
         AiRamp.set(c.rampUpMs, c.rampDownMs);
         percent = Math.max(0, Math.min(100, percent));
+        written = c;
+        writtenPercent = percent;
         if (manager == null) {
             return;
         }

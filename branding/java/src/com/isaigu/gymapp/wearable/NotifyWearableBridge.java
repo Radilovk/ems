@@ -8,11 +8,23 @@ import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
-/** Wearable HR bridge — direct BLE only (auth key + MAC). No Gadgetbridge. */
+/**
+ * Wearable HR bridge — direct BLE only (auth key + MAC). No Gadgetbridge.
+ * One shared band connection for every module: each user ({@link #OWNER_DIAL}, {@link #OWNER_AI},
+ * {@link #OWNER_SETTINGS}) acquires it and releases it; the link closes when the last one releases.
+ * MAC and auth key come only from {@link WearableConfig} (Settings → Band).
+ */
 public final class NotifyWearableBridge {
     private static final long AUTO_REDUCE_COOLDOWN_MS = 10000L;
+    public static final String OWNER_DIAL = "dial";
+    public static final String OWNER_AI = "ai";
+    public static final String OWNER_SETTINGS = "settings";
+
+    private static final Set<String> owners = new LinkedHashSet<String>();
 
     private static TrainItemManager itemManager;
     private static boolean listeningActive;
@@ -87,7 +99,11 @@ public final class NotifyWearableBridge {
     }
 
     public static void beginListening(Context context) {
-        if (context == null || !WearableConfig.isEnabled(context)) {
+        if (context == null) {
+            return;
+        }
+        // The HR-dial switch only governs the dial; AI and Settings use the band on their own.
+        if (!WearableConfig.isEnabled(context) && owners.size() == 1 && owners.contains(OWNER_DIAL)) {
             return;
         }
         if (!WearableConfig.isConfigured(context)) {
@@ -110,7 +126,59 @@ public final class NotifyWearableBridge {
         requestConnect(null);
     }
 
+    /** HR dial (↻ / activate): take a share of the link and (re)connect. */
     public static void requestConnect(Activity activity) {
+        owners.add(OWNER_DIAL);
+        connect(activity);
+    }
+
+    /**
+     * Take a share of the band link for {@code owner}. Connects only when no link is up yet,
+     * so a module never interrupts the stream another one is using.
+     */
+    public static void acquire(Activity activity, String owner) {
+        if (owner == null) {
+            return;
+        }
+        owners.add(owner);
+        if (listeningActive && isLinkUp()) {
+            return;
+        }
+        connect(activity);
+    }
+
+    /** Take a share and force a fresh connection (explicit "reconnect" by the user). */
+    public static void reconnect(Activity activity, String owner) {
+        if (owner != null) {
+            owners.add(owner);
+        }
+        connect(activity);
+    }
+
+    /** Give back {@code owner}'s share; the link closes when nobody uses it any more. */
+    public static void release(Context context, String owner) {
+        if (owner == null || !owners.remove(owner)) {
+            return;
+        }
+        if (owners.isEmpty()) {
+            disconnect(context);
+        }
+    }
+
+    public static boolean isOwnedBy(String owner) {
+        return owners.contains(owner);
+    }
+
+    /** Connected or on the way there (not idle, stopped or failed). */
+    public static boolean isLinkUp() {
+        String s = bleState != null ? bleState : "";
+        if (s.length() == 0 || "idle".equals(s) || "stopped".equals(s) || "disconnected".equals(s)) {
+            return false;
+        }
+        return !WearableUi.isErrorState(s);
+    }
+
+    private static void connect(Activity activity) {
         if (activity == null) {
             activity = WearableSyncHelper.resolveActivityForPermissions();
         }
@@ -163,7 +231,13 @@ public final class NotifyWearableBridge {
         }
     }
 
+    /** HR dial closed: release its share; AI / Settings keep the link if they still use it. */
     public static void stopListening(Context context) {
+        release(context, OWNER_DIAL);
+        WearableSyncHelper.updateDiagnostics();
+    }
+
+    private static void disconnect(Context context) {
         XiaomiBandBleClient.getInstance().disconnect();
         bleState = "stopped";
         NotifyHaForegroundService.stop(context);
@@ -186,7 +260,13 @@ public final class NotifyWearableBridge {
         }
         WearableSyncHelper.updateDiagnostics();
         Context context = WearableSyncHelper.getContext();
-        if (context != null && WearableConfig.isAutoReduceEnabled(context)
+        boolean aiRunning = false;
+        try {
+            aiRunning = com.isaigu.gymapp.ai.AiSession.ownsOutput();
+        } catch (Throwable ignored) {
+        }
+        // The dial's auto-reduce must not touch the output while the AI drives it.
+        if (!aiRunning && context != null && WearableConfig.isAutoReduceEnabled(context)
                 && isAnyTrainingRunning()) {
             maybeAutoReduce(hr);
         }

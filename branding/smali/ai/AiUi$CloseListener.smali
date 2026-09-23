@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 252
+    .line 262
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,33 +34,33 @@
     .registers 4
 
     .prologue
-    .line 255
+    .line 265
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v0
 
-    .line 256
+    .line 266
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     if-ne v0, v1, :cond_c
 
-    .line 258
+    .line 268
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->dismiss()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$000()V
 
-    .line 264
+    .line 274
     :goto_b
     return-void
 
-    .line 261
+    .line 271
     :cond_c
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->close()V
 
-    .line 262
+    .line 272
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->dismiss()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$000()V
 
-    .line 263
+    .line 273
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->styleSideButton()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$100()V
 

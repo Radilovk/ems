@@ -56,6 +56,8 @@ public final class AiEngine {
         public double d;
         public double tauHr;
         public double v;
+        /** ACTIVE: block ended by HR above the corridor (not by fatigue). */
+        public boolean hrEnded;
     }
 
     public static final long TICK_EXPECT_MS = 250L;
@@ -67,6 +69,14 @@ public final class AiEngine {
     public static final long RECOVERY_MS = 60000L;           // §10 HRR_60
     public static final double U_MIN = 0.6;
     public static final double REDUCE_STEP = 0.10;           // G13
+    /** [D] Idle beyond the rest threshold (or a user pause) that counts as a "long pause". */
+    public static final double LONG_PAUSE_S = 30.0;
+    /** [D] Re-entry after a long pause: φ × reentry, reentry = clamp(1 − idle/600, 0.6, 0.9), +0.1 per cycle. */
+    public static final double REENTRY_MIN = 0.6;
+    public static final double REENTRY_STEP = 0.1;
+    /** [D] ACTIVE: HR this far above x_hi for this many cycles ends the block (instead of longer pauses). */
+    public static final double HR_BLOCK_END_E = 0.05;
+    public static final int HR_BLOCK_END_CYCLES = 1;
 
     private final SessionInput in;
     private final Profile prof;
@@ -127,6 +137,14 @@ public final class AiEngine {
     private int mainBlocks;
     private double sessionMaxX = -10;
     private long restStartMs;
+    /** ACTIVE: rest threshold met; the next block waits for {@link #continueBlock(long)}. */
+    private boolean restReady;
+    private long restReadyMs = -1L;
+    private long userPauseStartMs = -1L;
+    private double reentry = 1.0;
+    private boolean endBlockRequested;
+    private int hrEndCycles;
+    private double totalIdleS;
     private final List<double[]> restHr = new ArrayList<double[]>();
     private final Map<String, Double> rRef = new HashMap<String, Double>();
     private final Map<String, Double> tauRef = new HashMap<String, Double>();
@@ -195,23 +213,68 @@ public final class AiEngine {
         action("reduce", nowMs);
     }
 
+    /** Human reduce from the main screen: output × ratio (0..1), no automatic return (G13). */
+    public void reduceTo(double ratio, long nowMs) {
+        uUser = Math.max(0.1, uUser * clamp(ratio, 0, 1));
+        action("reduce", nowMs);
+    }
+
     public void userPause(long nowMs) {
         if (state == State.RUN || state == State.REST) {
             resumeState = state;
             state = State.USER_PAUSE;
+            userPauseStartMs = nowMs;
             action("user_pause", nowMs);
         }
+    }
+
+    /**
+     * ACTIVE: start the next block after a rest. Allowed only once the rest threshold is met
+     * ({@link #isRestReady()}); the time waited beyond it is taken into account (re-entry ramp).
+     */
+    public boolean continueBlock(long nowMs) {
+        if (state != State.REST || !restReady) {
+            return false;
+        }
+        double idleS = restReadyMs > 0 ? (nowMs - restReadyMs) / 1000.0 : 0;
+        closeRestStats((nowMs - restStartMs) / 1000.0, nowMs);
+        applyIdle(idleS, nowMs);
+        restReady = false;
+        restReadyMs = -1L;
+        state = State.RUN;
+        action("continue", nowMs);
+        return true;
+    }
+
+    /** A long idle period: muscles and HR cooled down → soften the first cycles back. */
+    private void applyIdle(double idleS, long nowMs) {
+        if (idleS < LONG_PAUSE_S) {
+            return;
+        }
+        totalIdleS += idleS;
+        double r = clamp(1.0 - idleS / 600.0, REENTRY_MIN, 0.9);
+        reentry = Math.min(reentry, r);
+        action("reentry", nowMs);
     }
 
     /** Resume from USER_PAUSE, or confirm a STIM_PAUSE once {@link #canResume()} is true. */
     public void resume(long nowMs) {
         if (state == State.USER_PAUSE) {
             state = resumeState;
+            double idleS = userPauseStartMs > 0 ? (nowMs - userPauseStartMs) / 1000.0 : 0;
+            userPauseStartMs = -1L;
             action("resume", nowMs);
+            if (idleS >= LONG_PAUSE_S && state == State.RUN && inBlock) {
+                // HR and fatigue baselines of the interrupted block are gone: start a new one.
+                beginBlock(nowMs);
+            }
+            applyIdle(idleS, nowMs);
         } else if (state == State.STIM_PAUSE && canResume) {
             state = State.REST;          // re-enter through a rest so fatigue/HR are checked
             restStartMs = nowMs;
             restHr.clear();
+            restReady = false;
+            restReadyMs = -1L;
             canResume = false;
             stimPauseRecoverSinceMs = -1L;
             action("resume", nowMs);
@@ -274,7 +337,7 @@ public final class AiEngine {
         if (ph.blockMode == BlockMode.FATIGUE_DRIVEN) {
             if (!inBlock) {
                 beginBlock(nowMs);
-            } else if (fatigue >= fMaxEff
+            } else if (fatigue >= fMaxEff || endBlockRequested
                     || (nowMs - blockStartMs) / 1000.0 >= AiPlanner.T_BLOCK_MAX_S) {
                 endBlock(nowMs);
                 return silent(nowMs);
@@ -284,6 +347,10 @@ public final class AiEngine {
             return silent(nowMs);
         }
         controlPerCycle(ph, nowMs);
+        if (endBlockRequested && inBlock) {
+            endBlock(nowMs);                                // ACTIVE: HR above corridor → rest now
+            return silent(nowMs);
+        }
 
         CycleSpec spec = (ph.b != null && useB) ? ph.b : ph.a;
         if (ph.b != null) {
@@ -296,7 +363,7 @@ public final class AiEngine {
         c.segmentB = ph.b != null && spec == ph.b;
         double sigma = c.segmentB ? currentSigmaB(ph) : spec.sigma;
         int off = spec.offS;
-        if (spec.isTetanic() && offFactor > 1.0 && isControlPhase(ph)) {
+        if (spec.isTetanic() && offFactor > 1.0 && isControlPhase(ph) && !in.isTraining()) {
             off = (int) Math.ceil(Math.max(spec.offS, 1) * offFactor);   // L3
         }
         c.offS = AiPlanner.deviceOffS(off);
@@ -310,6 +377,9 @@ public final class AiEngine {
             action("budget_cooldown", nowMs);
             jumpToCooldown(nowMs);
             return onCycle(nowMs);
+        }
+        if (c.frac > 0 && reentry < 1.0) {
+            reentry = Math.min(1.0, reentry + REENTRY_STEP);
         }
         current = c;
         currentSpec = spec;
@@ -335,16 +405,26 @@ public final class AiEngine {
         integrate(nowMs, dtS);
         guards(nowMs, dtS);
 
-        if (state == State.RUN || state == State.REST) {
+        boolean waiting = state == State.REST && restReady;
+        if (state == State.RUN || (state == State.REST && !waiting)) {
+            // The plan clock does not run while an ACTIVE rest waits for the manual continue.
             phaseElapsedS += dtS;
             trackCorridor(dtS);
         }
         if (state == State.REST) {
             tickRest(nowMs);
             if (phaseElapsedS >= phase().durationS) {
-                // Rest runs into the phase end: continue with the next phase.
-                state = State.RUN;
-                inBlock = false;
+                if (in.isTraining()) {
+                    // ACTIVE: the rest still ends manually; the next cycle moves to the next phase.
+                    phaseElapsedS = phase().durationS;
+                    if (!restReady && restMinReached(nowMs)) {
+                        markRestReady(nowMs);
+                    }
+                } else {
+                    // Rest runs into the phase end: continue with the next phase.
+                    state = State.RUN;
+                    inBlock = false;
+                }
             }
         }
         if (state == State.CHECKPOINT && in.operator == Operator.SELF
@@ -451,6 +531,7 @@ public final class AiEngine {
         b.tBlockS = (nowMs - blockStartMs) / 1000.0;
         b.q = blockQ;
         b.fEnd = fatigue;
+        b.hrEnded = endBlockRequested && fatigue < fMaxEff;
         b.dHr = (blockStartHr > 0 && blockMaxHr > 0) ? blockMaxHr - blockStartHr : Double.NaN;
         if (b.q > 0 && !Double.isNaN(b.dHr)) {
             b.r = b.dHr / (b.q / 1e6);
@@ -473,16 +554,19 @@ public final class AiEngine {
         state = State.REST;
         restStartMs = nowMs;
         restHr.clear();
-        action("rest", nowMs);
+        restReady = false;
+        restReadyMs = -1L;
+        endBlockRequested = false;
+        hrEndCycles = 0;
+        action(b.hrEnded ? "hr_block_end" : "rest", nowMs);
     }
 
     private void tickRest(long nowMs) {
-        double restS = (nowMs - restStartMs) / 1000.0;
-        boolean hrOk = true;
-        if (useHrControl() && !frozen && hr.getHrS() > 0) {
-            hrOk = prof.xOf(hr.getHrS()) <= prof.xRec;               // L2
+        if (restReady) {
+            return;                                                   // ACTIVE: waits for continue
         }
-        boolean ready = fatigue <= plan.fRec && hrOk && restS >= tRestMinS;
+        double restS = (nowMs - restStartMs) / 1000.0;
+        boolean ready = restRecovered() && restS >= tRestMinS;
         boolean timeout = restS >= AiPlanner.T_REST_MAX_S;
         if (!ready && !timeout) {
             return;
@@ -491,8 +575,30 @@ public final class AiEngine {
             phiScale *= 0.9;                                          // §6.4
             action("rest_timeout", nowMs);
         }
+        if (in.isTraining()) {
+            markRestReady(nowMs);
+            return;
+        }
         closeRestStats(restS, nowMs);
         state = State.RUN;
+    }
+
+    private boolean restRecovered() {
+        boolean hrOk = true;
+        if (useHrControl() && !frozen && hr.getHrS() > 0) {
+            hrOk = prof.xOf(hr.getHrS()) <= prof.xRec;               // L2
+        }
+        return fatigue <= plan.fRec && hrOk;
+    }
+
+    private boolean restMinReached(long nowMs) {
+        return (nowMs - restStartMs) / 1000.0 >= tRestMinS;
+    }
+
+    private void markRestReady(long nowMs) {
+        restReady = true;
+        restReadyMs = nowMs;
+        action("rest_ready", nowMs);
     }
 
     private void closeRestStats(double restS, long nowMs) {
@@ -630,7 +736,9 @@ public final class AiEngine {
         if (prof.cRate < 1.0) {
             return;          // c_rate 0.5: block-level decisions only (L1/L2)
         }
-        double newOff = ctrlActive ? clamp(1 + 4 * eHi, 1.0, 2.5) : 1.0;    // L3
+        // L3 (longer pause between impulses) only in PASSIVE. ACTIVE keeps the pauses short;
+        // a lasting HR excess ends the block instead, so the long pause falls between blocks.
+        double newOff = ctrlActive && !in.isTraining() ? clamp(1 + 4 * eHi, 1.0, 2.5) : 1.0;
         if (newOff > offFactor + 1e-9) {
             lCount[3]++;
             action("l3_longer_pause", nowMs);
@@ -645,9 +753,17 @@ public final class AiEngine {
             }
             sigmaB = s;
         }
-        if (eHi > 0.10) {                                                    // u (MAIN only)
+        if (in.isTraining() && inBlock && eHi > HR_BLOCK_END_E) {
+            if (++hrEndCycles >= HR_BLOCK_END_CYCLES) {
+                endBlockRequested = true;
+            }
+        } else {
+            hrEndCycles = 0;
+        }
+        boolean uPhase = ph.id == PhaseId.MAIN || in.isTraining();
+        if (eHi > 0.10) {                                                    // u
             highCycles++;
-            if (highCycles >= 2 && ph.id == PhaseId.MAIN && u > U_MIN) {
+            if (highCycles >= 2 && uPhase && u > U_MIN) {
                 u = Math.max(U_MIN, u - 0.05);
                 lCount[5]++;
                 action("u_down", nowMs);
@@ -677,6 +793,7 @@ public final class AiEngine {
         if (isControlPhase(ph)) {
             phi = Math.min(phi, phiCapBand);                                 // G12
         }
+        phi *= reentry;                                                      // after a long pause
         double dPlan = phi * sigma * ceilingScale;
         double dHr = dPlan * u;
         double c = cHr();
@@ -806,6 +923,7 @@ public final class AiEngine {
         if (state == State.REST || state == State.CHECKPOINT) {
             state = State.RUN;
         }
+        restReady = false;
         action("phase:" + PhaseId.COOLDOWN, nowMs);
     }
 
@@ -868,6 +986,62 @@ public final class AiEngine {
 
     public State getState() {
         return state;
+    }
+
+    /** ACTIVE rest: threshold met, waiting for {@link #continueBlock(long)}. */
+    public boolean isRestReady() {
+        return state == State.REST && restReady;
+    }
+
+    public boolean isManualContinue() {
+        return in.isTraining();
+    }
+
+    public double getRestS(long nowMs) {
+        return state == State.REST ? (nowMs - restStartMs) / 1000.0 : 0;
+    }
+
+    /** Waiting beyond the rest threshold (ACTIVE), seconds. */
+    public double getRestOverS(long nowMs) {
+        return isRestReady() && restReadyMs > 0 ? (nowMs - restReadyMs) / 1000.0 : 0;
+    }
+
+    /**
+     * Estimated seconds until the rest threshold: max(t_rest_min − t, τ_r·ln(F/F_rec)).
+     * HR recovery cannot be predicted; {@link #isRestHrOk()} tells whether it is met.
+     */
+    public double getRestRemainingS(long nowMs) {
+        if (state != State.REST || restReady) {
+            return 0;
+        }
+        double t = Math.max(0, tRestMinS - getRestS(nowMs));
+        if (fatigue > plan.fRec && plan.fRec > 0) {
+            t = Math.max(t, plan.tauR * Math.log(fatigue / plan.fRec));
+        }
+        return Math.min(t, Math.max(0, AiPlanner.T_REST_MAX_S - getRestS(nowMs)));
+    }
+
+    public boolean isRestHrOk() {
+        if (!useHrControl() || frozen || hr.getHrS() <= 0) {
+            return true;
+        }
+        return prof.xOf(hr.getHrS()) <= prof.xRec;
+    }
+
+    public double getRestMinS() {
+        return tRestMinS;
+    }
+
+    public double getFatigueRec() {
+        return plan.fRec;
+    }
+
+    public double getReentry() {
+        return reentry;
+    }
+
+    public double getTotalIdleS() {
+        return totalIdleS;
     }
 
     public String getPauseReason() {

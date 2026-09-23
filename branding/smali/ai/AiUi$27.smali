@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->stepper(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/ai/AiUi;->segmented(Landroid/content/Context;[Ljava/lang/String;I[ZLcom/isaigu/gymapp/ai/AiUi$SegmentCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,12 +18,14 @@
 
 
 # instance fields
-.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+.field final synthetic val$idx:I
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;I)V
+    .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1533
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+    .line 1642
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$idx:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,13 +49,13 @@
     .registers 4
 
     .prologue
-    .line 1536
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+    .line 1645
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    const/4 v1, -0x1
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$idx:I
 
-    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;->onDelta(I)V
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
 
-    .line 1537
+    .line 1646
     return-void
 .end method

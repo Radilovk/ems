@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 774
+    .line 791
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16$3;->this$0:Lcom/isaigu/gymapp/ai/AiUi$16;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,18 +40,18 @@
     .registers 3
 
     .prologue
-    .line 777
+    .line 794
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getRestHr()Lcom/isaigu/gymapp/ai/AiRestHr;
 
     move-result-object v0
 
-    .line 778
+    .line 795
     if-eqz v0, :cond_9
 
-    .line 779
+    .line 796
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiRestHr;->acceptUnstable()V
 
-    .line 781
+    .line 798
     :cond_9
     return-void
 .end method

@@ -5,6 +5,8 @@
 - TrainItem$2.onFinish (ON phase starts): AiSession.onPulseCycle(item), next to BlockProgramRunner
 - CommandUtil / ProtocolController ramp bytes: AiRamp.inputByte()/outputByte() instead of the
   constant 0 written by remove-ramp.py (AiRamp returns 0 unless a Smart Session runs).
+- SettingFragment.onCreateView: WearableSettingsSection.attach(activity, root) after the theme
+  switch — Settings → Band is the only place for the band MAC and auth key.
 Sidebar button and HR feed are wired from WearableSyncHelper / NotifyWearableBridge (Java).
 """
 
@@ -21,6 +23,16 @@ DEST = DECOMPILED / "smali_classes2/com/isaigu/gymapp/ai"
 TRAIN_ITEM_2 = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/model/TrainItem$2.smali"
 COMMAND_UTIL = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils/CommandUtil.smali"
 PROTOCOL_CONTROLLER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/ble/ProtocolController.smali"
+SETTING_FRAGMENT = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/SettingFragment.smali"
+
+THEME_HOOK = (
+    "    invoke-static {v1, v0}, Lcom/isaigu/gymapp/utils/ThemeUtils;"
+    "->bindThemeSwitch(Landroid/app/Activity;Landroid/view/View;)V\n"
+)
+BAND_SETTINGS_HOOK = (
+    "\n    invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;"
+    "->attach(Landroid/app/Activity;Landroid/view/View;)V\n"
+)
 
 BLOCK_HOOK = (
     "    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;"
@@ -126,6 +138,18 @@ def patch_ramp(path: Path, zero: str, ai: str, label: str) -> None:
     print(f"{label}: ramp bytes routed through AiRamp")
 
 
+def patch_settings() -> None:
+    text = SETTING_FRAGMENT.read_text(encoding="utf-8")
+    if "WearableSettingsSection;->attach" in text:
+        print("SettingFragment: band section already hooked")
+        return
+    if THEME_HOOK not in text:
+        raise SystemExit("SettingFragment: bindThemeSwitch hook not found (apply-theme-toggle.py changed?)")
+    text = text.replace(THEME_HOOK, THEME_HOOK + BAND_SETTINGS_HOOK, 1)
+    SETTING_FRAGMENT.write_text(text, encoding="utf-8")
+    print("SettingFragment: Settings → Band section hooked")
+
+
 def main() -> int:
     if not DECOMPILED.is_dir():
         print("Decompiled tree missing; run build-apk.sh", file=sys.stderr)
@@ -134,6 +158,7 @@ def main() -> int:
     patch_cycle_hook()
     patch_ramp(COMMAND_UTIL, RAMP_ZERO_COMMAND, RAMP_AI_COMMAND, "CommandUtil")
     patch_ramp(PROTOCOL_CONTROLLER, RAMP_ZERO_PROTO, RAMP_AI_PROTO, "ProtocolController")
+    patch_settings()
     return 0
 
 

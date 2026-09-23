@@ -78,6 +78,10 @@ final class AiText {
         }
         if ("rest".equals(code)) return t("Мускулна умора — почивка", "Muscle fatigue — rest");
         if ("rest_timeout".equals(code)) return t("Дълга почивка — следващият блок е по-мек", "Long rest — next block softer");
+        if ("rest_ready".equals(code)) return t("Почивката стига — следващият блок е с бутон", "Rest done — start the next block by hand");
+        if ("continue".equals(code)) return t("Следващ блок", "Next block");
+        if ("reentry".equals(code)) return t("След дълга пауза — по-меко начало", "After a long pause — softer start");
+        if ("hr_block_end".equals(code)) return t("Пулсът е над коридора — блокът приключва, почивка", "HR above corridor — block ends, rest");
         if ("l3_longer_pause".equals(code)) return t("Пулсът е над коридора — по-дълга пауза", "HR above corridor — longer pause");
         if ("l4_softer_b".equals(code)) return t("Пулсът е висок — по-мек сегмент B", "HR high — softer segment B");
         if ("u_down".equals(code)) return t("Пулсът остава висок — по-ниска сила", "HR stays high — lower strength");

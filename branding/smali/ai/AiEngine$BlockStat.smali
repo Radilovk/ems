@@ -21,6 +21,8 @@
 
 .field public fEnd:D
 
+.field public hrEnded:Z
+
 .field public index:I
 
 .field public phase:Lcom/isaigu/gymapp/ai/AiModel$PhaseId;

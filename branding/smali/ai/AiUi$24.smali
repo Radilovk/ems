@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenReport(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->buildRestCard(Landroid/content/Context;Landroid/widget/FrameLayout;Lcom/isaigu/gymapp/ai/AiEngine;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,23 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$e:Lcom/isaigu/gymapp/ai/AiEngine;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
-    .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
     .prologue
-    .line 1321
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$24;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
-
+    .line 1384
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,19 +31,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 2
 
     .prologue
-    .line 1324
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
+    .line 1387
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->continueBlock()V
 
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$24;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
-
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->shareReport(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$900(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
-
-    .line 1325
+    .line 1388
     return-void
 .end method

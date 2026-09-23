@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 545
+    .line 555
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$total:I
@@ -49,7 +49,7 @@
     .registers 5
 
     .prologue
-    .line 548
+    .line 558
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
@@ -64,7 +64,7 @@
 
     move-result v0
 
-    .line 549
+    .line 559
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -73,12 +73,12 @@
 
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
 
-    .line 550
+    .line 560
     const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
-    .line 551
+    .line 561
     return-void
 .end method

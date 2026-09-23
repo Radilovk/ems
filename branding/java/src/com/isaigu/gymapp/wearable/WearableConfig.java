@@ -12,6 +12,7 @@ public final class WearableConfig {
     private static final String KEY_HR_THRESHOLD = "hr_threshold";
     private static final String KEY_STRENGTH_STEP = "strength_step";
     private static final String KEY_BAND_MAC = "band_mac";
+    private static final String KEY_AUTH_KEY = "auth_key";
 
     private WearableConfig() {}
 
@@ -48,6 +49,28 @@ public final class WearableConfig {
     public static void setBandMac(Context context, String mac) {
         prefs(context).edit().putString(KEY_BAND_MAC,
                 mac != null ? mac.trim() : "").apply();
+    }
+
+    /** 16-byte auth key as 32 hex chars (from Gadgetbridge / Mi Fitness). */
+    public static String getAuthKey(Context context) {
+        return prefs(context).getString(KEY_AUTH_KEY, "");
+    }
+
+    public static void setAuthKey(Context context, String key) {
+        prefs(context).edit().putString(KEY_AUTH_KEY,
+                key != null ? key.trim() : "").apply();
+    }
+
+    public static boolean isDirectBleMode(Context context) {
+        String key = getAuthKey(context);
+        if (key == null) {
+            return false;
+        }
+        String clean = key.replace(" ", "").replace(":", "").replace("-", "");
+        if (clean.startsWith("0x") || clean.startsWith("0X")) {
+            clean = clean.substring(2);
+        }
+        return clean.length() == 32;
     }
 
     public static void setEnabled(Context context, boolean enabled) {

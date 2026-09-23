@@ -417,14 +417,14 @@
     <string name="wearable_sync_status_waiting">Изчакване на пулс…</string>
     <string name="wearable_sync_status_disconnected">Гривната е изключена</string>
     <string name="wearable_sync_bpm">уд/мин</string>
-    <string name="wearable_sync_enabled">Пулс синхрон през Gadgetbridge</string>
+    <string name="wearable_sync_enabled">Директен BLE пулс (auth key)</string>
     <string name="wearable_sync_auto_reduce">Авто-намаляване на сила над прага</string>
     <string name="wearable_sync_threshold">Праг пулс</string>
     <string name="wearable_sync_strength_step">Стъпка</string>
     <string name="wearable_sync_connect">Свържи гривната</string>
     <string name="wearable_sync_activate">Активирай циферблат</string>
     <string name="wearable_sync_info_title">Gadgetbridge синхрон — помощ</string>
-    <string name="wearable_sync_info_body">1. Инсталирай Gadgetbridge nightly (nightly_nopebble).\n2. Свържи Band 8 само в GB — премахни Notify/други BLE клиенти.\n3. GB глобално: Настройки → Developer → Intent API → Bluetooth ВКЛ.\n4. GB на гривната: Device settings → Developer → Intent API:\n   • Realtime HR broadcast (REALTIME_HR)\n   • Start/stop realtime HR (START_REALTIME_HR)\n5. XEMS ♥ → правилен MAC → Активирай циферблат → Свържи.\n6. В GB стартирай Live activity ИЛИ изчакай ~15s.\n7. Диагностика: GB cmds &gt; 0, последно: REALTIME_HR, GB HR &gt; 0.\n\nАко GB cmds работят, но GB HR=0: включи per-device realtime HR broadcast.</string>
+    <string name="wearable_sync_info_body">Директен BLE (препоръчано):\n1. Разкачи гривната от Gadgetbridge/Notify (един BLE клиент).\n2. Копирай auth key от GB → Authentication.\n3. XEMS ♥ → MAC + auth key (32 hex) → Активирай циферблат → Свържи.\n4. Носи гривната плътно; първи пулс след ~5–15s.\n\nРезервен път (Gadgetbridge): остави auth key празен и ползвай GB Intent API.</string>
     <string name="wearable_sync_toast_armed">Циферблатът е активиран</string>
     <string name="wearable_sync_notify_missing">Gadgetbridge не е инсталиран — инсталирай nightly_nopebble от F-Droid</string>
     <string name="wearable_sync_open_gb">Отвори GB</string>
@@ -433,5 +433,8 @@
     <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
     <string name="wearable_sync_diag_gb_meta">GB cmds: %1$d · последно: %2$s · %3$s</string>
     <string name="wearable_sync_diag_gb_hint">Няма GB HR. Включи на гривната Intent API → realtime HR broadcast + START_REALTIME_HR. Стартирай Live activity в GB или изчакай 15s.</string>
+    <string name="wearable_sync_auth_key">Auth key</string>
+    <string name="wearable_sync_status_ble">Директен BLE — %1$s</string>
+    <string name="wearable_sync_diag_ble">BLE HR: %1$d · %2$s</string>
 
 </resources>

@@ -41,6 +41,7 @@ public final class WearableSyncHelper {
     private static final int ID_INFO = 0x7f0902a6;
     private static final int ID_OPEN_GB = 0x7f0902a8;
     private static final int ID_BAND_MAC = 0x7f0902a9;
+    private static final int ID_AUTH_KEY = 0x7f0902aa;
     private static final int ID_RING = 0x7f09029a;
     private static final int ID_HR_VALUE = 0x7f09029b;
     private static final int ID_SUB_LABEL = 0x7f09029c;
@@ -71,6 +72,9 @@ public final class WearableSyncHelper {
     private static final int STR_STATUS_GB_LISTENING = 0x7f0d0197;
     private static final int STR_DIAG_GB_META = 0x7f0d0198;
     private static final int STR_DIAG_GB_HINT = 0x7f0d0199;
+    private static final int STR_AUTH_KEY = 0x7f0d019a;
+    private static final int STR_STATUS_BLE = 0x7f0d019b;
+    private static final int STR_DIAG_BLE = 0x7f0d019c;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -101,6 +105,7 @@ public final class WearableSyncHelper {
     private static EditText thresholdView;
     private static EditText stepView;
     private static EditText bandMacView;
+    private static EditText authKeyView;
     private static TimerRingView ringView;
     private static TextView hrValueView;
     private static TextView subLabelView;
@@ -210,6 +215,7 @@ public final class WearableSyncHelper {
         thresholdView = (EditText) content.findViewById(ID_THRESHOLD);
         stepView = (EditText) content.findViewById(ID_STEP);
         bandMacView = (EditText) content.findViewById(ID_BAND_MAC);
+        authKeyView = (EditText) content.findViewById(ID_AUTH_KEY);
         bindButton(content.findViewById(ID_CONNECT), new ConnectListener());
         bindButton(content.findViewById(ID_OPEN_GB), new OpenGadgetbridgeListener());
         bindButton(content.findViewById(ID_INFO), new ConfigInfoListener());
@@ -382,6 +388,10 @@ public final class WearableSyncHelper {
     }
 
     private static String buildWaitingLabel(Activity activity) {
+        if (WearableConfig.isDirectBleMode(activity)) {
+            int hr = NotifyWearableBridge.getGbHrEventCount();
+            return activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState());
+        }
         int gbHr = NotifyWearableBridge.getGbHrEventCount();
         StringBuilder sb = new StringBuilder(activity.getString(STR_DIAG_GB, gbHr));
         sb.append('\n');
@@ -451,7 +461,12 @@ public final class WearableSyncHelper {
             return;
         }
         if (NotifyWearableBridge.isListeningActive()) {
-            statusView.setText(activity.getString(STR_STATUS_GB_LISTENING));
+            if (WearableConfig.isDirectBleMode(activity)) {
+                statusView.setText(activity.getString(STR_STATUS_BLE,
+                        NotifyWearableBridge.getBleState()));
+            } else {
+                statusView.setText(activity.getString(STR_STATUS_GB_LISTENING));
+            }
             return;
         }
         if (trainingRunning && WearableConfig.isArmed(activity)) {
@@ -484,6 +499,9 @@ public final class WearableSyncHelper {
         if (bandMacView != null) {
             bandMacView.setText(WearableConfig.getBandMac(activity));
         }
+        if (authKeyView != null) {
+            authKeyView.setText(WearableConfig.getAuthKey(activity));
+        }
         overlayVisible = WearableConfig.isArmed(activity);
         if (overlayVisible) {
             NotifyWearableBridge.beginListening(activity);
@@ -508,6 +526,9 @@ public final class WearableSyncHelper {
         }
         if (bandMacView != null) {
             WearableConfig.setBandMac(activity, bandMacView.getText().toString().trim());
+        }
+        if (authKeyView != null) {
+            WearableConfig.setAuthKey(activity, authKeyView.getText().toString().trim());
         }
     }
 
@@ -552,6 +573,7 @@ public final class WearableSyncHelper {
                 thresholdView = null;
                 stepView = null;
                 bandMacView = null;
+                authKeyView = null;
             }
         }
     }
@@ -791,6 +813,7 @@ public final class WearableSyncHelper {
             thresholdView = null;
             stepView = null;
             bandMacView = null;
+            authKeyView = null;
         }
     }
 

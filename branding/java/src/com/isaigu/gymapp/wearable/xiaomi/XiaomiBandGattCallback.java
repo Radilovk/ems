@@ -31,6 +31,13 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
             client.log("gatt", "connected status=" + status);
             if (Build.VERSION.SDK_INT >= 21) {
                 try {
+                    g.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+                } catch (Throwable t) {
+                    client.logError("conn_priority", t);
+                }
+            }
+            if (Build.VERSION.SDK_INT >= 21) {
+                try {
                     g.requestMtu(512);
                     return;
                 } catch (Throwable t) {

@@ -16,7 +16,7 @@ import java.util.Random;
 
 /**
  * Direct BLE client for Xiaomi Band 8 (encrypted V1 protocol on service 0xFE95).
- * Protocol flow matches miband-7-pro-monitor: auth → encrypted realtime START → keepalive.
+ * Protocol flow: auth → Gadgetbridge post-auth init → encrypted realtime START → keepalive.
  */
 public final class XiaomiBandBleClient {
     public interface Listener {
@@ -36,9 +36,10 @@ public final class XiaomiBandBleClient {
     private static final int HEALTH_CMD_REALTIME_STOP = 46;
     private static final int HEALTH_CMD_REALTIME_EVENT = 47;
 
-    private static final String BLE_BUILD_TAG = "v1.1.46";
+    private static final String BLE_BUILD_TAG = "v1.1.47";
     private static final long AUTH_TIMEOUT_MS = 45000L;
-    private static final long KEEPALIVE_INTERVAL_MS = 8000L;
+    private static final long KEEPALIVE_FIRST_MS = 1000L;
+    private static final long KEEPALIVE_INTERVAL_MS = 2000L;
 
     private static XiaomiBandBleClient instance;
 
@@ -46,6 +47,7 @@ public final class XiaomiBandBleClient {
     private final Map<Integer, byte[]> chunkMap = new HashMap<Integer, byte[]>();
     private final XiaomiBandGattCallback gattCallback = new XiaomiBandGattCallback(this);
     private final XiaomiBandWriteQueue writeQueue = new XiaomiBandWriteQueue(this);
+    private final XiaomiBandPostAuthInit postAuthInit = new XiaomiBandPostAuthInit(this);
     private Context appContext;
     private Listener listener;
     private BluetoothGatt gatt;
@@ -156,6 +158,7 @@ public final class XiaomiBandBleClient {
         notifyEventCount = 0;
         session = null;
         chunkMap.clear();
+        postAuthInit.reset();
         stopKeepalive();
         gattServicesReady = false;
         cancelAuthTimeout();
@@ -236,9 +239,21 @@ public final class XiaomiBandBleClient {
 
     public void startRealtime() {
         realtimeActive = true;
-        if (authenticated) {
+        if (authenticated && postAuthInit.isComplete()) {
             beginRealtimeStreaming();
         }
+    }
+
+    void onPostAuthInitComplete() {
+        setState("initialized");
+        if (realtimeActive) {
+            beginRealtimeStreaming();
+        }
+    }
+
+    void sendInitCommand(int type, int subtype, byte[] commandExtra) {
+        byte[] cmd = makeTypedCommand(type, subtype, commandExtra);
+        sendCommand(cmd);
     }
 
     void onMtuChanged(BluetoothGatt g, int mtu, int status) {
@@ -273,6 +288,7 @@ public final class XiaomiBandBleClient {
         authenticated = false;
         realtimeStarted = false;
         gattServicesReady = false;
+        postAuthInit.reset();
         stopKeepalive();
         cancelAuthTimeout();
         writeQueue.clear();
@@ -301,6 +317,18 @@ public final class XiaomiBandBleClient {
         gattServicesReady = true;
         writeQueue.enqueueEnableNotify(g, read);
         writeQueue.enqueueEnableNotify(g, write);
+        BluetoothGattCharacteristic activity = XiaomiBandGattCallback.findOptionalChar(
+                service, XiaomiBandGattCallback.charActivityUuid());
+        BluetoothGattCharacteristic upload = XiaomiBandGattCallback.findOptionalChar(
+                service, XiaomiBandGattCallback.charUploadUuid());
+        if (activity != null) {
+            writeQueue.enqueueEnableNotify(g, activity);
+            log("gatt", "notify 53 enabled");
+        }
+        if (upload != null) {
+            writeQueue.enqueueEnableNotify(g, upload);
+            log("gatt", "notify 55 enabled");
+        }
         log("gatt", "notify 51/52 enabled");
         writeQueue.enqueueRunnable(new XiaomiBandAuthStartRunnable(this));
     }
@@ -375,7 +403,8 @@ public final class XiaomiBandBleClient {
             frameEncrypt = true;
             log("auth", "force frameEncrypt before realtime");
         }
-        log("health", "realtime START enc=" + frameEncrypt);
+        int encIdx = session != null ? session.encIndex : -1;
+        log("health", "realtime START enc=" + frameEncrypt + " encIdx=" + encIdx);
         byte[] cmd = makeCommand(HEALTH_CMD_TYPE, HEALTH_CMD_REALTIME_START, null);
         sendCommand(cmd);
         realtimeStarted = true;
@@ -419,6 +448,7 @@ public final class XiaomiBandBleClient {
         XiaomiBandFraming.Frame frame = XiaomiBandFraming.parseFrame(data);
         if ("ack".equals(frame.kind)) {
             writeQueue.onBandAck();
+            postAuthInit.onCommandAcked();
             return;
         }
         if ("chunk_start".equals(frame.kind)) {
@@ -527,9 +557,7 @@ public final class XiaomiBandBleClient {
             setState("authenticated");
             notifyConnected(true);
             log("auth", "success frameEncrypt=true");
-            if (realtimeActive) {
-                beginRealtimeStreaming();
-            }
+            postAuthInit.start();
         }
     }
 
@@ -629,7 +657,8 @@ public final class XiaomiBandBleClient {
     private void startKeepalive() {
         stopKeepalive();
         keepaliveRunnable = new XiaomiBandKeepaliveTask(this);
-        scheduleKeepalive();
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.postDelayed(keepaliveRunnable, KEEPALIVE_FIRST_MS);
     }
 
     private void scheduleKeepalive() {

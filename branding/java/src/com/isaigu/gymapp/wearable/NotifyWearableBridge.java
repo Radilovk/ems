@@ -349,6 +349,10 @@ public final class NotifyWearableBridge {
         return 0;
     }
 
+    public static String getBleBuildTag() {
+        return XiaomiBandBleClient.getBuildTag();
+    }
+
     public static int getGbCommandCount() {
         return gbCommandCount;
     }

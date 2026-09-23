@@ -37,6 +37,7 @@ public final class XiaomiBandBleClient {
     private static final int HEALTH_CMD_REALTIME_STOP = 46;
     private static final int HEALTH_CMD_REALTIME_EVENT = 47;
 
+    private static final String BLE_BUILD_TAG = "v1.1.43";
     private static final long AUTH_TIMEOUT_MS = 45000L;
     private static final long KEEPALIVE_INTERVAL_MS = 8000L;
 
@@ -68,6 +69,7 @@ public final class XiaomiBandBleClient {
     private String lastState = "idle";
     private Runnable authTimeoutRunnable;
     private Runnable keepaliveRunnable;
+    private boolean gattServicesReady;
 
     private XiaomiBandBleClient() {}
 
@@ -76,6 +78,10 @@ public final class XiaomiBandBleClient {
             instance = new XiaomiBandBleClient();
         }
         return instance;
+    }
+
+    public static String getBuildTag() {
+        return BLE_BUILD_TAG;
     }
 
     public int getHrEventCount() {
@@ -133,6 +139,7 @@ public final class XiaomiBandBleClient {
         }
         WearableBleDiagLog.init(context);
         WearableBleDiagLog.clear();
+        log("build", BLE_BUILD_TAG);
         appContext = context.getApplicationContext();
         targetMac = mac != null ? mac.trim() : "";
         authKey = parseAuthKey(authKeyHex);
@@ -150,6 +157,8 @@ public final class XiaomiBandBleClient {
         chunkMap.clear();
         stopKeepalive();
         postAuthInit.reset();
+        gattServicesReady = false;
+        cancelAuthTimeout();
         writeQueue.clear();
         disconnectGatt();
         if (!isValidMac(targetMac)) {
@@ -181,13 +190,8 @@ public final class XiaomiBandBleClient {
             return;
         }
         try {
-            int bondState = device.getBondState();
-            log("connect", "bond=" + bondState);
-            if (bondState == BluetoothDevice.BOND_NONE) {
-                device.createBond();
-            }
-        } catch (Throwable t) {
-            logError("createBond", t);
+            log("connect", "bond=" + device.getBondState());
+        } catch (Throwable ignored) {
         }
         try {
             if (Build.VERSION.SDK_INT >= 23) {
@@ -246,7 +250,21 @@ public final class XiaomiBandBleClient {
         sendCommand(cmd);
     }
 
+    void onMtuChanged(BluetoothGatt g, int mtu, int status) {
+        log("gatt", "mtu=" + mtu + " status=" + status);
+        beginServiceDiscovery(g);
+    }
+
     void onGattConnected(BluetoothGatt g) {
+        gatt = g;
+        beginServiceDiscovery(g);
+    }
+
+    private void beginServiceDiscovery(BluetoothGatt g) {
+        if (g == null || gattServicesReady) {
+            log("gatt", "skip discover (ready=" + gattServicesReady + ")");
+            return;
+        }
         gatt = g;
         setState("discovering");
         try {
@@ -263,8 +281,10 @@ public final class XiaomiBandBleClient {
     void onGattDisconnected() {
         authenticated = false;
         realtimeStarted = false;
+        gattServicesReady = false;
         stopKeepalive();
         postAuthInit.reset();
+        cancelAuthTimeout();
         writeQueue.clear();
         setState("disconnected");
         notifyConnected(false);
@@ -280,6 +300,11 @@ public final class XiaomiBandBleClient {
 
     void beginNotificationSetup(BluetoothGatt g, BluetoothGattCharacteristic read,
             BluetoothGattCharacteristic write, BluetoothGattService service) {
+        if (gattServicesReady) {
+            log("gatt", "skip duplicate notify setup");
+            return;
+        }
+        gattServicesReady = true;
         writeQueue.enqueueEnableNotify(g, read);
         writeQueue.enqueueEnableNotify(g, write);
         BluetoothGattCharacteristic activity = XiaomiBandGattCallback.findOptionalChar(

@@ -208,8 +208,7 @@ row_controls:
       effect: suit battery
     - id: setting
       handler: TrainViewHolder$1 → EditUserProgramDataDialog
-      parallel_api: partial
-      entry: MusicSyncHelper.setTargetItem(TrainItem)
+      parallel_api: none
 
   impulse_timers:
     - id: paulsecontinue
@@ -313,11 +312,8 @@ gear_dialog:
     - activePauseSwitch
     - pauseStrengthAmount
     - pauseHzAmount
-    - musicMinStrength
-    - musicSyncStart
-    - musicSyncStop
-  parallel_api: partial
-  entry: MusicSyncHelper.bind, MusicSyncHelper.setTargetItem
+  parallel_api: none
+  note: microphone music-sync controls removed (player only, MusicPlayerHelper)
 
 # ── EXISTING PARALLEL APIs (reference implementations) ───────────────────────
 

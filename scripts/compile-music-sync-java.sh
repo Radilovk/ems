@@ -62,7 +62,6 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/train/utils/MusicUriSource.class' \
      -o -path '*/train/utils/SoundEnvelopeMapper.class' \
      -o -path '*/train/utils/MusicDiagLog.class' \
-     -o -path '*/dialog/MusicSyncHelper*.class' \
      -o -path '*/dialog/MusicPlayerHelper*.class' \
      -o -path '*/dialog/MusicPlaylist*.class' \
      -o -path '*/dialog/MusicTrackLabel.class' \

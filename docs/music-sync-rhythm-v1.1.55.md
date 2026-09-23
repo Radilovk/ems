@@ -48,3 +48,14 @@ The mic dialog still overrides sensitivity with its own "min" field.
 - `verify-active-pause-routing.py` accepts both the d8 guard form and the dx form
   (`if-nez v0, :label` → `return-void`). See `music-sync-ble-pacing-v1.1.54.md` for the
   dx toolchain.
+
+## v1.1.56-sync: microphone mode removed
+
+- Removed `MusicSyncHelper`, the mic capture path in `MusicSync` (AudioRecord, permission
+  request, real-time rhythm tracker) and the gear-dialog mic UI (`apply-beta-features.py`).
+  The script now only installs the MusicSync core smali and one shared string.
+- `RECORD_AUDIO` is no longer declared (`apply-security-hardening.py` strips it).
+  `verify-beta-safety.py` fails the build if it reappears or if any smali references
+  `MusicSyncHelper`.
+- `resolveActivity(Context)` moved to `MusicPlayerHelper`. The prebuilt
+  `IntervalTimerHelper` smali was retargeted: same static signature, new owner class.

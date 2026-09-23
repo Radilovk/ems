@@ -46,7 +46,7 @@ public final class MasterStrengthControl {
         return lastApplied < 0 ? 0 : lastApplied;
     }
 
-    /** Manual ceiling from circle-slider position (set before mic / protocol drive). */
+    /** Manual ceiling from circle-slider position (set before player / protocol drive). */
     public static int captureCeilingFromSlider() {
         TrainItem item = targetItem;
         if (item == null) {

@@ -2,7 +2,7 @@ package com.isaigu.gymapp.train.utils;
 
 import java.util.Arrays;
 
-/** Perceptual (log/dB) loudness mapping for music → impulse strength (mic and player). */
+/** Perceptual (log/dB) loudness mapping for music → impulse strength. */
 public final class SoundEnvelopeMapper {
     private SoundEnvelopeMapper() {
     }

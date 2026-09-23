@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mic → MasterStrengthControl.setMasterStrength (no PDU hook)."""
+"""Music player → MasterStrengthControl.setMasterStrength (no PDU hook)."""
 
 import re
 import sys
@@ -54,7 +54,7 @@ RULES = [
 GLOBAL_RULES = [
     (
         r"MasterStrengthControl;->setMasterStrength\(I(?:Z)?\)V",
-        "mic calls control channel",
+        "player calls control channel",
     ),
 ]
 

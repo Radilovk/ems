@@ -47,10 +47,6 @@ check_manifest_diff() {
     echo "OK: AndroidManifest.xml unchanged"
     return 0
   fi
-  if [[ "${changes}" == '+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>' ]]; then
-    echo "OK: AndroidManifest.xml — only RECORD_AUDIO permission added"
-    return 0
-  fi
   echo "FAIL: AndroidManifest.xml unexpected changes:" >&2
   echo "${changes}" >&2
   return 1

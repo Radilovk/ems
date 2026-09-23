@@ -2,6 +2,8 @@ package com.isaigu.gymapp.dialog;
 
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -423,6 +425,21 @@ public final class MusicPlayerHelper {
         updatePlayPauseLabel();
     }
 
+    /** Unwrap a (dialog/themed) context to its host Activity. */
+    public static Activity resolveActivity(Context context) {
+        while (context != null) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            if (context instanceof ContextWrapper) {
+                context = ((ContextWrapper) context).getBaseContext();
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
     static Activity resolveHostActivity(View view) {
         return resolveHostActivity(null, view);
     }
@@ -432,13 +449,13 @@ public final class MusicPlayerHelper {
             return preferred;
         }
         if (overlayDialog != null) {
-            Activity fromDialog = MusicSyncHelper.resolveActivity(overlayDialog.getContext());
+            Activity fromDialog = resolveActivity(overlayDialog.getContext());
             if (fromDialog != null) {
                 return fromDialog;
             }
         }
         if (view != null) {
-            Activity fromView = MusicSyncHelper.resolveActivity(view.getContext());
+            Activity fromView = resolveActivity(view.getContext());
             if (fromView != null) {
                 return fromView;
             }

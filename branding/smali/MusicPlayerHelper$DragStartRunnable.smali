@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 1700
+    .line 1717
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1701
+    .line 1718
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$DragStartRunnable;->listener:Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
 
-    .line 1702
+    .line 1719
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$DragStartRunnable;->handle:Landroid/view/View;
 
-    .line 1703
+    .line 1720
     iput p3, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$DragStartRunnable;->rawX:F
 
-    .line 1704
+    .line 1721
     iput p4, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$DragStartRunnable;->rawY:F
 
-    .line 1705
+    .line 1722
     return-void
 .end method
 
@@ -57,7 +57,7 @@
     .registers 5
 
     .prologue
-    .line 1709
+    .line 1726
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->activeDragListener:Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2000()Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
 
@@ -67,7 +67,7 @@
 
     if-ne v0, v1, :cond_13
 
-    .line 1710
+    .line 1727
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$DragStartRunnable;->listener:Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$DragStartRunnable;->handle:Landroid/view/View;
@@ -78,7 +78,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlaylistDragListener;->beginDrag(Landroid/view/View;FF)V
 
-    .line 1712
+    .line 1729
     :cond_13
     return-void
 .end method

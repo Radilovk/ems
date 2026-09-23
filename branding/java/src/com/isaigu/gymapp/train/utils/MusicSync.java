@@ -3,40 +3,24 @@ package com.isaigu.gymapp.train.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.v4.content.ContextCompat;
 
-import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.dialog.MusicPlayerHelper;
-import com.isaigu.gymapp.dialog.MusicSyncHelper;
 import com.isaigu.gymapp.train.model.TrainItem;
-import com.isaigu.gymapp.utils.AndroidUtils;
 
 /**
- * Low-latency mic / player → {@link MasterStrengthControl#setMasterStrength(int)}.
+ * Music player → {@link MasterStrengthControl#setMasterStrength(int)}.
  * BLE pacing: at most one strength update in the suit's command queue; newer levels
  * overwrite the pending one, so lag never accumulates. Send→ACK time is measured and
  * used by the player as look-ahead so impulses land with the heard audio.
  */
 public class MusicSync {
-    static final int PERMISSION_REQUEST = 0x4254;
-    static final int ERROR_DENIED = 0x7f0d010d;
-    static final int ERROR_MIC = 0x7f0d010e;
     static final int ERROR_PLAYER = 0x7f0d0113;
 
-    private static final double ATTACK = 0.94;
-    private static final double RELEASE = 0.32;
-    private static final double PEAK_DECAY = 0.978;
-    private static final int AUDIO_BUFFER_SAMPLES = 128;
     private static final long UI_INTERVAL_MS = 80L;
-    private static final long READ_YIELD_MS = 5L;
     /** Look-ahead before the first ACK is measured; replaced by the measured value. */
     private static final int BLE_LATENCY_INITIAL_MS = 50;
     /** Send→ACK samples above this are link stalls, not the steady latency. */
@@ -60,18 +44,8 @@ public class MusicSync {
     /** Smoothness 100 = 0 → ceiling rise takes this long; falls are never limited. */
     private static final int RISE_TIME_MAX_MS = 600;
 
-    /** Mic rhythm: bass band for onset detection (phone mics roll off below ~100 Hz). */
-    private static final double MIC_BASS_CUTOFF_HZ = 180.0;
-    private static final double MIC_ONSET_SLOW_MS = 90.0;
-    private static final double MIC_ONSET_MIN_PEAK_DB = 3.0;
-    private static final double MIC_ONSET_PEAK_DECAY_PER_MS = 0.9995;
-    private static final double ONSET_GATE = 0.15;
-    private static final double ONSET_DECAY_PER_20MS = 0.72;
-
-    private static AudioRecord audioRecord;
     private static MusicPlayerEngine playerEngine;
     private static Handler handler;
-    private static Thread audioThread;
     private static Activity hostActivity;
     private static int sensitivity = DEFAULT_SENSITIVITY;
     /** 0 = impulse follows loudness, 100 = only beats (bass onsets). */
@@ -80,19 +54,11 @@ public class MusicSync {
     private static int smoothness = DEFAULT_SMOOTHNESS;
     private static float slewLevel;
     private static long slewLastMs;
-    private static double micLp1;
-    private static double micLp2;
-    private static double micSlowDb;
-    private static double micPeakFlux = MIC_ONSET_MIN_PEAK_DB;
-    private static double micRhythm;
-    private static boolean micOnsetPrimed;
     private static boolean playerMode;
     private static volatile boolean playerPreparing;
     static boolean running;
     static volatile int liveStrength;
 
-    private static volatile double smoothedRms;
-    private static volatile double trackedPeakRms = 300.0;
     private static volatile float playerSmoothedSound;
     /** True when playback was paused because training stopped (auto-resume on training start). */
     private static boolean pausedByTraining;
@@ -107,7 +73,6 @@ public class MusicSync {
     private static long sendStartMs;
     private static volatile double bleLatencyMs = BLE_LATENCY_INITIAL_MS;
     private static int bleLatencySamples;
-    private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
 
     public static boolean isTrainingGateOpen() {
         return trainingGateOpen;
@@ -237,16 +202,8 @@ public class MusicSync {
     }
 
     private static void resetAudioLevels() {
-        smoothedRms = 0.0;
-        trackedPeakRms = 300.0;
         slewLevel = 0f;
         slewLastMs = 0L;
-        micLp1 = 0.0;
-        micLp2 = 0.0;
-        micSlowDb = 0.0;
-        micPeakFlux = MIC_ONSET_MIN_PEAK_DB;
-        micRhythm = 0.0;
-        micOnsetPrimed = false;
         lastUiMs = 0L;
         lastPushedApplied = -1;
         pendingApplied = -1;
@@ -321,87 +278,6 @@ public class MusicSync {
         return level > 0 && limited < 1 ? 1 : limited;
     }
 
-    private static Context permissionContext() {
-        if (hostActivity != null) {
-            return hostActivity;
-        }
-        return MainActivity.getInstance();
-    }
-
-    static boolean hasRecordPermission() {
-        Context ctx = permissionContext();
-        return ctx != null
-                && ContextCompat.checkSelfPermission(ctx, "android.permission.RECORD_AUDIO") == 0;
-    }
-
-    static void releaseAudio() {
-        AudioRecord rec = audioRecord;
-        audioRecord = null;
-        if (rec == null) {
-            return;
-        }
-        try {
-            if (rec.getState() == AudioRecord.STATE_INITIALIZED
-                    && rec.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
-                rec.stop();
-            }
-        } catch (Throwable ignored) {
-        }
-        try {
-            rec.release();
-        } catch (Throwable ignored) {
-        }
-    }
-
-    private static boolean tryOpen(int source, int rate) {
-        try {
-            int minBuf = AudioRecord.getMinBufferSize(
-                    rate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-            if (minBuf <= 0) {
-                return false;
-            }
-            int bufSize = minBuf;
-            AudioRecord rec;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                AudioFormat format = new AudioFormat.Builder()
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setSampleRate(rate)
-                        .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                        .build();
-                rec = new AudioRecord.Builder()
-                        .setAudioSource(source)
-                        .setAudioFormat(format)
-                        .setBufferSizeInBytes(bufSize)
-                        .build();
-            } else {
-                rec = new AudioRecord(source, rate, AudioFormat.CHANNEL_IN_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT, bufSize);
-            }
-            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
-                rec.release();
-                return false;
-            }
-            audioRecord = rec;
-            return true;
-        } catch (Throwable ignored) {
-            return false;
-        }
-    }
-
-    private static boolean openMicrophone() {
-        int[][] configs = new int[][]{
-                {MediaRecorder.AudioSource.MIC, 16000},
-                {MediaRecorder.AudioSource.MIC, 44100},
-                {MediaRecorder.AudioSource.DEFAULT, 16000},
-        };
-        for (int i = 0; i < configs.length; i++) {
-            if (tryOpen(configs[i][0], configs[i][1])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static int getStrengthCeiling() {
         return MasterStrengthControl.getCeiling();
     }
@@ -420,78 +296,6 @@ public class MusicSync {
         return value;
     }
 
-    private static double measureRms(short[] buffer, int count) {
-        long sumSq = 0L;
-        for (int i = 0; i < count; i++) {
-            sumSq += (long) buffer[i] * buffer[i];
-        }
-        return Math.sqrt((double) sumSq / count);
-    }
-
-    private static void updateEnvelope(double rms) {
-        if (rms > smoothedRms) {
-            smoothedRms += ATTACK * (rms - smoothedRms);
-        } else {
-            smoothedRms += RELEASE * (rms - smoothedRms);
-        }
-        if (rms > trackedPeakRms) {
-            trackedPeakRms = rms;
-        } else {
-            trackedPeakRms = trackedPeakRms * PEAK_DECAY + rms * (1.0 - PEAK_DECAY);
-        }
-        if (trackedPeakRms < 80.0) {
-            trackedPeakRms = 80.0;
-        }
-    }
-
-    private static int envelopeToSoundPercent(double rms) {
-        updateEnvelope(rms);
-        return clampPercent(SoundEnvelopeMapper.rmsToPercent(smoothedRms, trackedPeakRms, sensitivity));
-    }
-
-    private static int sampleSoundPercent(AudioRecord rec) {
-        if (rec == null) {
-            return liveStrength;
-        }
-        int read = rec.read(audioBuffer, 0, audioBuffer.length);
-        if (read <= 0) {
-            return liveStrength;
-        }
-        int loud = envelopeToSoundPercent(measureRms(audioBuffer, read));
-        int rhythm = micRhythmPercent(audioBuffer, read, rec.getSampleRate());
-        return mixLevels(loud, rhythm);
-    }
-
-    /** Real-time version of the player's onset curve: bass-energy jumps, held and decayed. */
-    private static int micRhythmPercent(short[] buffer, int count, int sampleRate) {
-        if (sampleRate < 8000) {
-            sampleRate = 16000;
-        }
-        double alpha = 1.0 - Math.exp(-2.0 * Math.PI * MIC_BASS_CUTOFF_HZ / sampleRate);
-        double sumBass = 0.0;
-        for (int i = 0; i < count; i++) {
-            micLp1 += alpha * (buffer[i] - micLp1);
-            micLp2 += alpha * (micLp1 - micLp2);
-            sumBass += micLp2 * micLp2;
-        }
-        double db = 10.0 * Math.log10(sumBass / count + 1.0);
-        double dtMs = count * 1000.0 / sampleRate;
-        if (!micOnsetPrimed) {
-            micSlowDb = db;
-            micOnsetPrimed = true;
-        }
-        double flux = Math.max(0.0, db - micSlowDb);
-        micSlowDb += Math.min(1.0, dtMs / MIC_ONSET_SLOW_MS) * (db - micSlowDb);
-        micPeakFlux = Math.max(Math.max(flux, MIC_ONSET_MIN_PEAK_DB),
-                micPeakFlux * Math.pow(MIC_ONSET_PEAK_DECAY_PER_MS, dtMs));
-        double onset = Math.min(1.0, flux / micPeakFlux);
-        if (onset < ONSET_GATE) {
-            onset = 0.0;
-        }
-        micRhythm = Math.max(onset, micRhythm * Math.pow(ONSET_DECAY_PER_20MS, dtMs / 20.0));
-        return (int) Math.round(micRhythm * 100.0);
-    }
-
     private static void maybeUpdateUi() {
         long now = SystemClock.elapsedRealtime();
         if (now - lastUiMs < UI_INTERVAL_MS) {
@@ -500,7 +304,6 @@ public class MusicSync {
         lastUiMs = now;
         final int applied = getEffectiveStrength();
         final int ceiling = getStrengthCeiling();
-        MusicSyncHelper.showActive(applied, ceiling);
         MusicPlayerHelper.showActive(applied, ceiling);
     }
 
@@ -515,14 +318,6 @@ public class MusicSync {
     private static void stopCaptureOnly() {
         running = false;
         playerMode = false;
-        Thread thread = audioThread;
-        audioThread = null;
-        if (thread != null) {
-            try {
-                thread.join(400L);
-            } catch (Throwable ignored) {
-            }
-        }
         if (handler != null) {
             handler.removeCallbacks(flushRunnable);
             handler.removeCallbacks(writeCompleteRunnable);
@@ -531,72 +326,11 @@ public class MusicSync {
             MusicDiagLog.log("ble-pacing", "latencyMs=" + getBleLatencyMs()
                     + " samples=" + bleLatencySamples);
         }
-        releaseAudio();
         releasePlayer();
         liveStrength = 0;
         resetAudioLevels();
         setSyncActive(false);
         MasterStrengthControl.releaseMaModeForActivePause();
-    }
-
-    static void startCapture() {
-        if (!hasRecordPermission()) {
-            MusicSyncHelper.showError(ERROR_DENIED);
-            return;
-        }
-        releaseAudio();
-        MasterStrengthControl.ensureMaMode();
-        resetAudioLevels();
-        MasterStrengthControl.captureCeilingFromSlider();
-        try {
-            if (!openMicrophone()) {
-                MusicSyncHelper.showError(ERROR_MIC);
-                return;
-            }
-            AudioRecord rec = audioRecord;
-            if (rec == null || rec.getState() != AudioRecord.STATE_INITIALIZED) {
-                MusicSyncHelper.showError(ERROR_MIC);
-                return;
-            }
-            rec.startRecording();
-            if (rec.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
-                releaseAudio();
-                MusicSyncHelper.showError(ERROR_MIC);
-                return;
-            }
-            running = true;
-            setSyncActive(true);
-            liveStrength = 0;
-            MusicSyncHelper.showActive(0, getStrengthCeiling());
-            audioThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    android.os.Process.setThreadPriority(
-                            android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-                    while (running) {
-                        AudioRecord r = audioRecord;
-                        if (r == null) {
-                            break;
-                        }
-                        pushSoundLevel(sampleSoundPercent(r));
-                        try {
-                            Thread.sleep(READ_YIELD_MS);
-                        } catch (InterruptedException e) {
-                            break;
-                        }
-                    }
-                }
-            }, "MusicSyncMic");
-            audioThread.start();
-        } catch (SecurityException se) {
-            running = false;
-            releaseAudio();
-            MusicSyncHelper.showError(ERROR_DENIED);
-        } catch (Throwable t) {
-            running = false;
-            releaseAudio();
-            MusicSyncHelper.showError(ERROR_MIC);
-        }
     }
 
     public static boolean isRunning() {
@@ -643,9 +377,6 @@ public class MusicSync {
 
     public static void setHostActivity(Activity activity) {
         hostActivity = activity;
-    }
-
-    public static void setTargetMacAddress(String macAddress) {
     }
 
     public static void setSensitivity(int min) {
@@ -719,24 +450,6 @@ public class MusicSync {
         } catch (Throwable t) {
             MusicDiagLog.logError("music_settings_save", t);
         }
-    }
-
-    public static void start(Activity activity, int min, int unusedMax) {
-        if (activity == null) {
-            return;
-        }
-        hostActivity = activity;
-        stopCaptureOnly();
-        loadSettings(activity);
-        setSensitivity(min);
-        MasterStrengthControl.ensureMaMode();
-        if (hasRecordPermission()) {
-            startCapture();
-            return;
-        }
-        MusicSyncHelper.showPermission();
-        AndroidUtils.requestPermission(activity, "android.permission.RECORD_AUDIO", PERMISSION_REQUEST,
-                new PermissionCallback());
     }
 
     public static boolean isPlayerPreparing() {
@@ -966,14 +679,4 @@ public class MusicSync {
         MusicPlayerHelper.refreshTransportState();
     }
 
-    static final class PermissionCallback implements AndroidUtils.RequestPermissionCallback {
-        @Override
-        public void onRequestPermission(String permission, int requestCode, boolean granted) {
-            if (granted) {
-                startCapture();
-            } else {
-                MusicSyncHelper.showError(ERROR_DENIED);
-            }
-        }
-    }
 }

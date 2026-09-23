@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1737
+    .line 1754
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 1740
+    .line 1757
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result v0
@@ -47,7 +47,7 @@
 
     if-nez v0, :cond_1b
 
-    .line 1741
+    .line 1758
     :cond_c
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
@@ -56,7 +56,7 @@
 
     if-eqz v0, :cond_1a
 
-    .line 1742
+    .line 1759
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -66,17 +66,17 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
 
-    .line 1752
+    .line 1769
     :cond_1a
     :goto_1a
     return-void
 
-    .line 1746
+    .line 1763
     :cond_1b
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshSeekFromPlayer()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4300()V
 
-    .line 1747
+    .line 1764
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -84,7 +84,7 @@
 
     if-eqz v0, :cond_37
 
-    .line 1748
+    .line 1765
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -94,7 +94,7 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
 
-    .line 1749
+    .line 1766
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
@@ -106,7 +106,7 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setLiveLevel(I)V
 
-    .line 1751
+    .line 1768
     :cond_37
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2200()Landroid/os/Handler;

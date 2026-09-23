@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1502
+    .line 1519
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1503
+    .line 1520
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PresetListener;->index:I
 
-    .line 1504
+    .line 1521
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 3
 
     .prologue
-    .line 1508
+    .line 1525
     iget v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PresetListener;->index:I
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyPreset(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1100(I)V
 
-    .line 1509
+    .line 1526
     return-void
 .end method

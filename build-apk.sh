@@ -64,6 +64,7 @@ python3 "${ROOT}/scripts/apply-login-fix.py"
 python3 "${ROOT}/scripts/apply-active-pause-avatar-button.py"
 python3 "${ROOT}/scripts/apply-main-mode-button.py"
 bash "${ROOT}/scripts/compile-avatar-cluster-java.sh"
+bash "${ROOT}/scripts/compile-channel-scale-java.sh"
 python3 "${ROOT}/scripts/apply-avatar-proportional-lock.py"
 python3 "${ROOT}/scripts/apply-active-pause-pulse-labels.py"
 python3 "${ROOT}/scripts/remove-ramp.py"
@@ -120,6 +121,8 @@ fi
 # Last: train control routing (depends on music-sync smali when BETA_MUSIC=1).
 python3 "${ROOT}/scripts/apply-active-pause-control-fixes.py"
 python3 "${ROOT}/scripts/verify-active-pause-routing.py"
+python3 "${ROOT}/scripts/apply-arms-channel-scale.py"
+python3 "${ROOT}/scripts/verify-arms-channel-scale.py"
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign

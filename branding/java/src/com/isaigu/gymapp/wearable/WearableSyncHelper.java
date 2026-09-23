@@ -40,6 +40,8 @@ public final class WearableSyncHelper {
     private static final int ID_CONNECT = 0x7f0902a5;
     private static final int ID_INFO = 0x7f0902a6;
     private static final int ID_OPEN_NOTIFY = 0x7f0902a7;
+    private static final int ID_OPEN_GB = 0x7f0902a8;
+    private static final int ID_BAND_MAC = 0x7f0902a9;
     private static final int ID_RING = 0x7f09029a;
     private static final int ID_HR_VALUE = 0x7f09029b;
     private static final int ID_SUB_LABEL = 0x7f09029c;
@@ -76,6 +78,10 @@ public final class WearableSyncHelper {
     private static final int STR_HA_ENTITIES_OK = 0x7f0d0191;
     private static final int STR_HA_ENTITIES_NEED_PULSOID = 0x7f0d0192;
     private static final int STR_HA_ENTITIES_NO_VALUE = 0x7f0d0193;
+    private static final int STR_OPEN_GB = 0x7f0d0194;
+    private static final int STR_BAND_MAC = 0x7f0d0195;
+    private static final int STR_DIAG_GB = 0x7f0d0196;
+    private static final int STR_STATUS_GB_LISTENING = 0x7f0d0197;
 
     private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int CONFIG_DIALOG_WIDTH_DP = 480;
@@ -105,6 +111,7 @@ public final class WearableSyncHelper {
     private static Switch autoReduceSwitch;
     private static EditText thresholdView;
     private static EditText stepView;
+    private static EditText bandMacView;
     private static TimerRingView ringView;
     private static TextView hrValueView;
     private static TextView subLabelView;
@@ -219,8 +226,10 @@ public final class WearableSyncHelper {
         autoReduceSwitch = (Switch) content.findViewById(ID_AUTO_REDUCE);
         thresholdView = (EditText) content.findViewById(ID_THRESHOLD);
         stepView = (EditText) content.findViewById(ID_STEP);
+        bandMacView = (EditText) content.findViewById(ID_BAND_MAC);
         bindButton(content.findViewById(ID_CONNECT), new ConnectListener());
         bindButton(content.findViewById(ID_OPEN_NOTIFY), new OpenNotifyListener());
+        bindButton(content.findViewById(ID_OPEN_GB), new OpenGadgetbridgeListener());
         bindButton(content.findViewById(ID_INFO), new ConfigInfoListener());
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         loadConfigIntoUi(activity);
@@ -394,14 +403,24 @@ public final class WearableSyncHelper {
         if (!bandConnected) {
             return activity.getString(STR_STATUS_DISCONNECTED);
         }
-        int hrEvents = NotifyWearableBridge.getHrEventCount();
+        int gbHr = NotifyWearableBridge.getGbHrEventCount();
+        int taskerHr = NotifyWearableBridge.getHrEventCount() - gbHr;
+        if (taskerHr < 0) {
+            taskerHr = 0;
+        }
         int haHr = NotifyHaServer.getHaHrCount();
         int haPosts = NotifyHaServer.getPostCount();
         int battery = NotifyWearableBridge.getLastBattery();
         String batteryPart = battery >= 0 ? battery + "%" : "--";
-        String diag = activity.getString(STR_DIAG_HA, hrEvents, haHr, haPosts, batteryPart);
+        String diag;
+        if (NotifyWearableBridge.isGadgetbridgeInstalled(activity)) {
+            diag = activity.getString(STR_DIAG_GB, gbHr, taskerHr, haHr, haPosts, batteryPart);
+        } else {
+            diag = activity.getString(STR_DIAG_HA, taskerHr + gbHr, haHr, haPosts, batteryPart);
+        }
         String section = buildHaEntitySection(activity);
-        if (hrEvents == 0 && haHr == 0 && NotifyWearableBridge.getBatteryEventCount() == 0) {
+        if (gbHr == 0 && taskerHr == 0 && haHr == 0
+                && NotifyWearableBridge.getBatteryEventCount() == 0) {
             return diag + "\n" + activity.getString(STR_DIAG_HINT) + "\n" + section;
         }
         return diag + "\n" + section;
@@ -477,7 +496,9 @@ public final class WearableSyncHelper {
             return;
         }
         if (NotifyWearableBridge.isListeningActive()) {
-            if (NotifyHaServer.isRunning()) {
+            if (NotifyWearableBridge.isGadgetbridgeInstalled(activity)) {
+                statusView.setText(activity.getString(STR_STATUS_GB_LISTENING));
+            } else if (NotifyHaServer.isRunning()) {
                 statusView.setText(activity.getString(
                         STR_STATUS_HA_LISTENING,
                         NotifyHaServer.getLanUrl(activity)));
@@ -515,6 +536,9 @@ public final class WearableSyncHelper {
         if (stepView != null) {
             stepView.setText(String.valueOf(WearableConfig.getStrengthStep(activity)));
         }
+        if (bandMacView != null) {
+            bandMacView.setText(WearableConfig.getBandMac(activity));
+        }
         overlayVisible = WearableConfig.isArmed(activity);
         if (overlayVisible) {
             NotifyWearableBridge.beginListening(activity);
@@ -536,6 +560,9 @@ public final class WearableSyncHelper {
         }
         if (stepView != null) {
             WearableConfig.setStrengthStep(activity, readIntField(stepView, 5, 1, 20));
+        }
+        if (bandMacView != null) {
+            WearableConfig.setBandMac(activity, bandMacView.getText().toString().trim());
         }
     }
 
@@ -579,6 +606,7 @@ public final class WearableSyncHelper {
                 autoReduceSwitch = null;
                 thresholdView = null;
                 stepView = null;
+                bandMacView = null;
             }
         }
     }
@@ -821,6 +849,17 @@ public final class WearableSyncHelper {
             autoReduceSwitch = null;
             thresholdView = null;
             stepView = null;
+            bandMacView = null;
+        }
+    }
+
+    static final class OpenGadgetbridgeListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Activity activity = resolveActivity(v);
+            if (activity != null) {
+                NotifyWearableBridge.openGadgetbridgeApp(activity);
+            }
         }
     }
 

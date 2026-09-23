@@ -21,6 +21,7 @@ NOTIFY_QUERIES = f"""    <queries>
         <package android:name="{NOTIFY_PACKAGE}"/>
         <package android:name="nodomain.freeyourgadget.gadgetbridge"/>
         <package android:name="nodomain.freeyourgadget.gadgetbridge.nightly"/>
+        <package android:name="nodomain.freeyourgadget.gadgetbridge.nightly_nopebble"/>
         <intent>
             <action android:name="com.mc.xiaomi.heartRateGot"/>
         </intent>
@@ -51,6 +52,7 @@ NOTIFY_RECEIVER = """        <receiver android:exported="true" android:name="com
                 <action android:name="com.mc.xiaomi.batteryStatGot"/>
                 <action android:name="com.mc.miband.batteryStatGot"/>
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.action.REALTIME_HR"/>
+                <action android:name="nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED"/>
             </intent-filter>
         </receiver>
 """
@@ -83,6 +85,8 @@ IDS = {
     "wearableSyncConnect": 0x7F0902A5,
     "wearableSyncInfoBtn": 0x7F0902A6,
     "wearableSyncOpenNotify": 0x7F0902A7,
+    "wearableSyncOpenGb": 0x7F0902A8,
+    "wearableSyncBandMac": 0x7F0902A9,
 }
 
 STRING_IDS = {
@@ -115,6 +119,10 @@ STRING_IDS = {
     "wearable_sync_ha_entities_ok": 0x7F0D0191,
     "wearable_sync_ha_entities_need_pulsoid": 0x7F0D0192,
     "wearable_sync_ha_entities_no_value": 0x7F0D0193,
+    "wearable_sync_open_gb": 0x7F0D0194,
+    "wearable_sync_band_mac": 0x7F0D0195,
+    "wearable_sync_diag_gb": 0x7F0D0196,
+    "wearable_sync_status_gb_listening": 0x7F0D0197,
 }
 
 DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
@@ -139,10 +147,15 @@ DIALOG_LAYOUT = """<?xml version="1.0" encoding="utf-8"?>
             <EditText android:textSize="16.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncStep" android:background="@drawable/modal_field_bg" android:layout_width="56.0dip" android:layout_height="40.0dip" android:layout_marginLeft="8.0dip" android:maxLength="2" android:inputType="number" android:text="5" />
             <com.isaigu.gymapp.widget.MyButton android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncInfoBtn" android:background="@drawable/interval_timer_sound_chip" android:layout_width="28.0dip" android:layout_height="28.0dip" android:layout_marginLeft="8.0dip" android:text="i" android:contentDescription="@string/wearable_sync_info_title" android:textAllCaps="false" />
         </LinearLayout>
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
+            <TextView android:textSize="11.0sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="88.0dip" android:textAllCaps="true" android:text="@string/wearable_sync_band_mac" />
+            <EditText android:textSize="13.0sp" android:textColor="@color/text_primary" android:id="@id/wearableSyncBandMac" android:background="@drawable/modal_field_bg" android:layout_width="0.0dip" android:layout_height="40.0dip" android:layout_weight="1.0" android:layout_marginLeft="8.0dip" android:maxLength="17" android:inputType="text" android:text="D0:62:2C:26:49:60" />
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip">
-        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginRight="6.0dip" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
-        <com.isaigu.gymapp.widget.MyButton android:textSize="13.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenNotify" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="6.0dip" android:text="@string/wearable_sync_open_notify" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:id="@id/wearableSyncConnect" android:background="@drawable/light_yellow_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginRight="4.0dip" android:text="@string/wearable_sync_connect" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenNotify" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="4.0dip" android:layout_marginRight="4.0dip" android:text="@string/wearable_sync_open_notify" android:textAllCaps="false" />
+        <com.isaigu.gymapp.widget.MyButton android:textSize="12.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncOpenGb" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="0.0dip" android:layout_height="42.0dip" android:layout_weight="1.0" android:layout_marginLeft="4.0dip" android:text="@string/wearable_sync_open_gb" android:textAllCaps="false" />
     </LinearLayout>
     <com.isaigu.gymapp.widget.MyButton android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/white_color" android:gravity="center" android:id="@id/wearableSyncActivate" android:background="@drawable/light_green_button_drawable_r30" android:layout_width="fill_parent" android:layout_height="52.0dip" android:layout_marginTop="12.0dip" android:text="@string/wearable_sync_activate" android:textAllCaps="false" />
 </LinearLayout>
@@ -223,6 +236,10 @@ EN_STRINGS = """
     <string name="wearable_sync_ha_entities_ok">heartrate found — HA path works</string>
     <string name="wearable_sync_ha_entities_need_pulsoid">no heartrate entity — Pulsoid needed</string>
     <string name="wearable_sync_ha_entities_no_value">heartRate entity exists but value empty — Notify does not send live pulse → Pulsoid</string>
+    <string name="wearable_sync_open_gb">Open GB</string>
+    <string name="wearable_sync_band_mac">Band MAC</string>
+    <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · battery: %5$s</string>
+    <string name="wearable_sync_status_gb_listening">Gadgetbridge — enable Intent API on band, then Connect</string>
 """
 
 BG_STRINGS = """
@@ -255,6 +272,10 @@ BG_STRINGS = """
     <string name="wearable_sync_ha_entities_ok">heartrate намерен — HA пътят работи</string>
     <string name="wearable_sync_ha_entities_need_pulsoid">няма heartrate обект — нужен Pulsoid</string>
     <string name="wearable_sync_ha_entities_no_value">heartRate обект има, стойност празна — Notify не праща live пулс → Pulsoid</string>
+    <string name="wearable_sync_open_gb">Отвори GB</string>
+    <string name="wearable_sync_band_mac">MAC гривна</string>
+    <string name="wearable_sync_diag_gb">GB HR: %1$d · Tasker: %2$d · HA HR: %3$d · HA posts: %4$d · батерия: %5$s</string>
+    <string name="wearable_sync_status_gb_listening">Gadgetbridge — включи Intent API на гривната, после Свържи</string>
 """
 
 START_WEARABLE_OLD = """    invoke-direct {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onTrainItemChange()V

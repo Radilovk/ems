@@ -141,6 +141,7 @@ public final class NotifyWearableBridge {
             return;
         }
         beginListening(context);
+        EmsBleCoexist.pauseEmsBle();
         NotifyHaForegroundService.start(context);
         XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
         client.setListener(bleListener);
@@ -225,6 +226,10 @@ public final class NotifyWearableBridge {
 
     public static int getBleNotifyCount() {
         return XiaomiBandBleClient.getInstance().getNotifyEventCount();
+    }
+
+    public static String getBleLastNotifyChar() {
+        return XiaomiBandBleClient.getInstance().getLastNotifyChar();
     }
 
     public static String getBleBuildTag() {

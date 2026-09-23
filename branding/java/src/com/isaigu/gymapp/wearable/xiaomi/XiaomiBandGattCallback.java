@@ -87,8 +87,10 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
         if (data == null || data.length == 0) {
             return;
         }
+        String label = shortCharLabel(characteristic);
+        client.log("notify", label + " len=" + data.length);
         client.logHex("notify", data, 24);
-        client.onGattNotify(Arrays.copyOf(data, data.length));
+        client.onGattNotify(label, Arrays.copyOf(data, data.length));
     }
 
     @Override
@@ -126,5 +128,25 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
 
     static String charUploadUuid() {
         return CHAR_UPLOAD;
+    }
+
+    private static String shortCharLabel(BluetoothGattCharacteristic characteristic) {
+        if (characteristic == null || characteristic.getUuid() == null) {
+            return "??";
+        }
+        String uuid = characteristic.getUuid().toString().toLowerCase();
+        if (uuid.startsWith("00000051")) {
+            return "51";
+        }
+        if (uuid.startsWith("00000052")) {
+            return "52";
+        }
+        if (uuid.startsWith("00000053")) {
+            return "53";
+        }
+        if (uuid.startsWith("00000055")) {
+            return "55";
+        }
+        return uuid.length() >= 8 ? uuid.substring(4, 8) : uuid;
     }
 }

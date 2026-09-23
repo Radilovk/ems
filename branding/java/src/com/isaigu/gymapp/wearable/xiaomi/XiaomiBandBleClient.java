@@ -38,11 +38,15 @@ public final class XiaomiBandBleClient {
     private static final int HEALTH_CMD_REALTIME_STOP = 46;
     private static final int HEALTH_CMD_REALTIME_EVENT = 47;
 
-    private static final String BLE_BUILD_TAG = "v1.1.50-ble";
+    private static final int SYSTEM_CMD_TYPE = 2;
+    private static final int SYSTEM_CMD_DEVICE_INFO = 2;
+
+    private static final String BLE_BUILD_TAG = "v1.1.51-ble";
     private static final long AUTH_TIMEOUT_MS = 45000L;
-    private static final long STALL_CHECK_MS = 5000L;
-    private static final long FIRST_HR_TIMEOUT_MS = 8000L;
+    private static final long STALL_CHECK_MS = 3000L;
+    private static final long FIRST_HR_TIMEOUT_MS = 12000L;
     private static final long STALL_TIMEOUT_MS = 15000L;
+    private static final long CONFIG_TO_START_DELAY_MS = 400L;
 
     private static XiaomiBandBleClient instance;
 
@@ -76,6 +80,8 @@ public final class XiaomiBandBleClient {
     private Runnable reconnectRunnable;
     private boolean gattServicesReady;
     private boolean userRequestedDisconnect;
+    private int realtimeStartRetries;
+    private String lastNotifyChar = "";
 
     private XiaomiBandBleClient() {}
 
@@ -168,6 +174,7 @@ public final class XiaomiBandBleClient {
         streamStartMs = 0L;
         lastHrEventMs = 0L;
         gattServicesReady = false;
+        realtimeStartRetries = 0;
         cancelAuthTimeout();
         writeQueue.clear();
         disconnectGatt();
@@ -299,12 +306,14 @@ public final class XiaomiBandBleClient {
         stopStallWatch();
         cancelAuthTimeout();
         writeQueue.clear();
-        setState("disconnected");
         notifyConnected(false);
         if (!userRequestedDisconnect && realtimeActive && appContext != null) {
+            setState("reconnecting");
             log("gatt", "unexpected drop — reconnect in 2s");
             scheduleReconnect();
+            return;
         }
+        setState("disconnected");
     }
 
     void onGattCharsReady(BluetoothGatt g, BluetoothGattCharacteristic read,
@@ -348,9 +357,14 @@ public final class XiaomiBandBleClient {
         sendAuthPhoneNonce();
     }
 
-    void onGattNotify(byte[] data) {
+    void onGattNotify(String charLabel, byte[] data) {
+        lastNotifyChar = charLabel != null ? charLabel : "";
         notifyEventCount++;
         handleNotify(data);
+    }
+
+    public String getLastNotifyChar() {
+        return lastNotifyChar;
     }
 
     void onGattWriteDone() {
@@ -450,8 +464,16 @@ public final class XiaomiBandBleClient {
             return;
         }
         sendHeartRateConfig();
-        sendRealtimeStart();
         setState("starting");
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.postDelayed(new XiaomiBandRealtimeStartRunnable(this), CONFIG_TO_START_DELAY_MS);
+    }
+
+    void onConfigToStartDelay() {
+        if (!authenticated || !realtimeActive || realtimeStarted) {
+            return;
+        }
+        sendRealtimeStart();
         startStallWatch();
     }
 
@@ -514,7 +536,7 @@ public final class XiaomiBandBleClient {
             byte[] payload = frame.payload;
             if (frame.encrypted && session != null) {
                 try {
-                    payload = decrypt(payload);
+                    payload = decryptInbound(payload);
                 } catch (Throwable t) {
                     logError("decrypt", t);
                     logHex("decrypt_fail", payload, 32);
@@ -525,13 +547,26 @@ public final class XiaomiBandBleClient {
         }
     }
 
-    private byte[] decrypt(byte[] data) {
+    private byte[] decryptInbound(byte[] data) {
         XiaomiBandCrypto.SessionKeys s = session;
         if (s == null) {
             throw new RuntimeException("no session");
         }
-        // Watch-to-phone frames always use counter 0 in the CCM nonce.
-        return XiaomiBandCrypto.aesCcmDecrypt(s.decKey, s.decNonce, 0, data);
+        try {
+            return XiaomiBandCrypto.aesCcmDecrypt(s.decKey, s.decNonce, 0, data);
+        } catch (Throwable first) {
+            if (data.length > 8) {
+                int counter = (data[0] & 0xff) | ((data[1] & 0xff) << 8);
+                byte[] trimmed = new byte[data.length - 2];
+                System.arraycopy(data, 2, trimmed, 0, trimmed.length);
+                return XiaomiBandCrypto.aesCcmDecrypt(s.decKey, s.decNonce, counter, trimmed);
+            }
+            throw first;
+        }
+    }
+
+    private byte[] decrypt(byte[] data) {
+        return decryptInbound(data);
     }
 
     private void handleCommand(byte[] raw) {
@@ -685,6 +720,16 @@ public final class XiaomiBandBleClient {
         long now = System.currentTimeMillis();
         if (lastHrEventMs == 0L && streamStartMs > 0L
                 && now - streamStartMs > FIRST_HR_TIMEOUT_MS) {
+            if (realtimeStartRetries < 1 && gatt != null) {
+                realtimeStartRetries++;
+                log("health", "no first 8/47 — retry START once");
+                realtimeStarted = false;
+                sendHeartRateConfig();
+                sendRealtimeStart();
+                streamStartMs = System.currentTimeMillis();
+                scheduleStallCheck();
+                return;
+            }
             log("health", "no first 8/47 — reconnect");
             scheduleReconnect();
             return;
@@ -694,7 +739,22 @@ public final class XiaomiBandBleClient {
             scheduleReconnect();
             return;
         }
+        sendLinkPing();
         scheduleStallCheck();
+    }
+
+    private void sendLinkPing() {
+        if (!authenticated || gatt == null) {
+            return;
+        }
+        log("link", "ping device info");
+        sendInitCommand(SYSTEM_CMD_TYPE, SYSTEM_CMD_DEVICE_INFO, null);
+        try {
+            if (gatt != null) {
+                gatt.readRemoteRssi();
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     private void startStallWatch() {

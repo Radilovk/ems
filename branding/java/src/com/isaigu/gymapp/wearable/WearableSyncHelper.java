@@ -514,6 +514,8 @@ public final class WearableSyncHelper {
         sb.append('\n');
         sb.append("notify=");
         sb.append(NotifyWearableBridge.getBleNotifyCount());
+        sb.append(" ch=");
+        sb.append(NotifyWearableBridge.getBleLastNotifyChar());
         sb.append(" · ");
         sb.append(NotifyWearableBridge.getBleBuildTag());
         if (!WearableConfig.isConfigured(activity)) {

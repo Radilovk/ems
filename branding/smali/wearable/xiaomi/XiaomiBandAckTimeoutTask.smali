@@ -1,6 +1,6 @@
-.class final Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRealtimeStartRunnable;
+.class final Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAckTimeoutTask;
 .super Ljava/lang/Object;
-.source "XiaomiBandRealtimeStartRunnable.java"
+.source "XiaomiBandAckTimeoutTask.java"
 
 # interfaces
 .implements Ljava/lang/Runnable;
@@ -19,7 +19,7 @@
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 8
-    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRealtimeStartRunnable;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAckTimeoutTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
     .line 9
     return-void
@@ -32,9 +32,9 @@
 
     .prologue
     .line 13
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRealtimeStartRunnable;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAckTimeoutTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->onConfigToStartDelay()V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->onBandAckTimeout()V
 
     .line 14
     return-void

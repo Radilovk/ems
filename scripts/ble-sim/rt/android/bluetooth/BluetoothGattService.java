@@ -1,0 +1,1 @@
+package android.bluetooth; public class BluetoothGattService { public final java.util.Map<String,BluetoothGattCharacteristic> m=new java.util.HashMap<String,BluetoothGattCharacteristic>(); public BluetoothGattCharacteristic getCharacteristic(java.util.UUID u){return m.get(u.toString());} }

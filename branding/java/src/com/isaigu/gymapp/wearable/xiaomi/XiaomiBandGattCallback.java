@@ -38,6 +38,7 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
             }
             if (Build.VERSION.SDK_INT >= 21) {
                 try {
+                    client.scheduleMtuFallback(g);
                     g.requestMtu(512);
                     return;
                 } catch (Throwable t) {
@@ -90,7 +91,7 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
         String label = shortCharLabel(characteristic);
         client.log("notify", label + " len=" + data.length);
         client.logHex("notify", data, 24);
-        client.onGattNotify(label, Arrays.copyOf(data, data.length));
+        client.onGattNotify(label, characteristic, Arrays.copyOf(data, data.length));
     }
 
     @Override

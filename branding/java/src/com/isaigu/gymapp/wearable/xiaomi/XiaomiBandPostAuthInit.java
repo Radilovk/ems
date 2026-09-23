@@ -35,33 +35,28 @@ final class XiaomiBandPostAuthInit {
         active = false;
     }
 
+    /**
+     * Queue clock sync → device info → user info. The write queue sends them one at a time,
+     * each after the band's ACK (Gadgetbridge pattern), so realtime START queued afterwards
+     * cannot overtake them.
+     */
     void start() {
         step = STEP_CLOCK;
         active = true;
         client.log("init", "post-auth start");
         sendClockSync();
+        step = STEP_DEVICE_INFO;
+        sendDeviceInfoRequest();
+        step = STEP_USER_INFO;
+        sendUserInfo();
+        step = STEP_DONE;
+        active = false;
+        client.log("init", "post-auth queued");
+        client.onPostAuthInitComplete();
     }
 
     void onCommandAcked() {
-        if (!active) {
-            return;
-        }
-        if (step == STEP_CLOCK) {
-            step = STEP_DEVICE_INFO;
-            sendDeviceInfoRequest();
-            return;
-        }
-        if (step == STEP_DEVICE_INFO) {
-            step = STEP_USER_INFO;
-            sendUserInfo();
-            return;
-        }
-        if (step == STEP_USER_INFO) {
-            step = STEP_DONE;
-            active = false;
-            client.log("init", "post-auth done");
-            client.onPostAuthInitComplete();
-        }
+        // Sequencing is handled by the write queue's band-ACK gating.
     }
 
     private void sendClockSync() {

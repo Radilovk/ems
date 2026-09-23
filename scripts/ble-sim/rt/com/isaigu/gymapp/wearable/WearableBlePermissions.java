@@ -1,0 +1,1 @@
+package com.isaigu.gymapp.wearable; public final class WearableBlePermissions { public static boolean gateGattOrNotify(android.content.Context c){return true;} public static void logPermissionState(android.content.Context c){} public static boolean hasAllBlePermissions(android.content.Context c){return true;} }

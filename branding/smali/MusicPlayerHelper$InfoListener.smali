@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1413
+    .prologue
+    .line 1553
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,27 +31,28 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 5
 
-    .line 1416
+    .prologue
+    .line 1556
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v0
 
-    .line 1417
-    if-nez p1, :cond_7
+    .line 1557
+    if-nez v0, :cond_7
 
-    .line 1418
+    .line 1561
+    :goto_6
     return-void
 
-    .line 1420
+    .line 1560
     :cond_7
-    const v0, 0x7f0d0172
+    const v1, 0x7f0d0172
 
-    const v1, 0x7f0d0173
+    const v2, 0x7f0d0173
 
-    invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
 
-    .line 1421
-    return-void
+    goto :goto_6
 .end method

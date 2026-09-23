@@ -67,7 +67,8 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/dialog/MusicPlaylist*.class' \
      -o -path '*/dialog/MusicTrackLabel.class' \
      -o -path '*/dialog/ModalInfoHelper*.class' \
-     -o -path '*/widget/MusicVisualizerView*.class' \) -print | sort)
+     -o -path '*/widget/MusicVisualizerView*.class' \
+     -o -path '*/widget/MusicImpulseMeterView*.class' \) -print | sort)
 (
   cd "${CLASSES_DIR}"
   "${D8}" \
@@ -91,6 +92,7 @@ find "${BRANDING_SMALI}" -name 'MusicPlaylist*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicTrackLabel*.smali' -delete
 find "${BRANDING_SMALI}" -name 'ModalInfoHelper*.smali' -delete
 find "${BRANDING_SMALI}/widget" -name 'MusicVisualizerView*.smali' -delete 2>/dev/null || true
+find "${BRANDING_SMALI}/widget" -name 'MusicImpulseMeterView*.smali' -delete 2>/dev/null || true
 find "${BRANDING_SMALI}" -name 'MusicPlayerEngine*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicDiagLog.smali' -delete
 while IFS= read -r -d '' file; do
@@ -102,6 +104,6 @@ mkdir -p "${BRANDING_SMALI}/widget"
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/widget/$(basename "${file}")"
   echo "  -> widget/$(basename "${file}")"
-done < <(find "${SMALI_OUT}" -path '*/widget/MusicVisualizerView*.smali' -print0)
+done < <(find "${SMALI_OUT}" \( -path '*/widget/MusicVisualizerView*.smali' -o -path '*/widget/MusicImpulseMeterView*.smali' \) -print0)
 
 echo "Music-sync Java compile complete."

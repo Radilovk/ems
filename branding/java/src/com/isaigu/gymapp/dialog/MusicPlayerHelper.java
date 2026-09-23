@@ -29,6 +29,7 @@ import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.widget.AmountView;
 import com.isaigu.gymapp.widget.CircleSeekBar;
+import com.isaigu.gymapp.widget.MusicImpulseMeterView;
 import com.isaigu.gymapp.widget.MusicVisualizerView;
 
 import java.util.ArrayList;
@@ -50,8 +51,15 @@ public final class MusicPlayerHelper {
     private static final int ID_TRACK_TITLE = 0x7f090282;
     private static final int ID_TIME = 0x7f090283;
     private static final int ID_STATUS = 0x7f090229;
-    private static final int ID_LEVEL = 0x7f09022a;
     private static final int ID_SENSITIVITY = 0x7f090228;
+    private static final int ID_SETTINGS_BTN = 0x7f0902c0;
+    private static final int ID_METER = 0x7f0902c2;
+    private static final int ID_RHYTHM = 0x7f0902c3;
+    private static final int ID_FLOOR = 0x7f0902c4;
+    private static final int ID_SMOOTH = 0x7f0902c5;
+    private static final int ID_PRESET_SOFT = 0x7f0902c6;
+    private static final int ID_PRESET_BALANCED = 0x7f0902c7;
+    private static final int ID_PRESET_BEAT = 0x7f0902c8;
     private static final int ID_PLAYLIST_ITEM_TITLE = 0x7f090284;
     private static final int ID_PLAYLIST_ITEM_HANDLE = 0x7f090285;
     private static final int ID_CLOSE = 0x7f090288;
@@ -66,7 +74,7 @@ public final class MusicPlayerHelper {
     private static final int COLOR_LIGHT_GREEN = 0x7f06006f;
 
     private static final int OVERLAY_SIZE_DP = 192;
-    private static final int OVERLAY_PANEL_WIDTH_DP = 260;
+    private static final int OVERLAY_PANEL_WIDTH_DP = 300;
     private static final int SEEK_MAX = 1000;
     private static final long PROGRESS_TICK_MS = 200L;
     private static final long DRAG_LONG_PRESS_MS = 280L;
@@ -85,13 +93,20 @@ public final class MusicPlayerHelper {
     private static TextView trackTitleView;
     private static TextView timeView;
     private static TextView statusView;
-    private static TextView levelView;
     private static AmountView sensitivityView;
+    private static AmountView rhythmView;
+    private static AmountView floorView;
+    private static AmountView smoothView;
+    private static TextView[] presetViews = new TextView[0];
+    private static View settingsButton;
+    private static View playlistButton;
+    private static MusicImpulseMeterView meterView;
 
     private static TrainItemManager itemManager;
     private static final ArrayList<MusicPlaylistEntry> playlist = new ArrayList<MusicPlaylistEntry>();
     private static int currentIndex = -1;
-    private static boolean controlsExpanded;
+    private static boolean settingsExpanded;
+    private static boolean playlistExpanded;
     private static boolean pickingFile;
     private static boolean userSeeking;
     private static boolean overlayVisible;
@@ -114,7 +129,13 @@ public final class MusicPlayerHelper {
     private static ScrollView playlistScrollView;
     private static int dragRowHeightPx;
     private static long lastPlayClickMs;
-    private static int savedSensitivity = 20;
+
+    /** Presets: {rhythm mix, floor %, smoothness}; sensitivity is left as the user set it. */
+    private static final int[][] PRESETS = {
+            {20, 30, 50},
+            {MusicSync.DEFAULT_RHYTHM_MIX, MusicSync.DEFAULT_FLOOR, MusicSync.DEFAULT_SMOOTHNESS},
+            {85, 10, 0},
+    };
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable progressRunnable = new ProgressTickRunnable();
@@ -148,6 +169,10 @@ public final class MusicPlayerHelper {
         }
         MusicSync.setHostActivity(activity);
         MusicSync.setTargetItem(item);
+        if (!MusicSync.isRunning()) {
+            // Preview the row's slider ceiling on the meter; re-captured on Play.
+            com.isaigu.gymapp.train.utils.MasterStrengthControl.captureCeilingFromSlider();
+        }
         if (isOverlayShowing()) {
             hidePlayerOverlay();
             return;
@@ -158,6 +183,7 @@ public final class MusicPlayerHelper {
             }
         }
         loadPlaylist(activity);
+        MusicSync.loadSettings(activity);
         if (!showOverlay(activity)) {
             toast(activity, 0x7f0d0113);
         }
@@ -173,7 +199,7 @@ public final class MusicPlayerHelper {
         if (activity == null) {
             return;
         }
-        controlsExpanded = true;
+        playlistExpanded = true;
         applyExpandedState();
         ClipData clip = data.getClipData();
         if (clip != null && clip.getItemCount() > 0) {
@@ -356,9 +382,6 @@ public final class MusicPlayerHelper {
         if (statusView != null) {
             statusView.setText(0x7f0d0110);
         }
-        if (levelView != null) {
-            levelView.setVisibility(View.GONE);
-        }
         if (visualizerView != null) {
             visualizerView.setPlaying(false);
         }
@@ -372,25 +395,13 @@ public final class MusicPlayerHelper {
         if (statusView != null) {
             statusView.setText(0x7f0d011b);
         }
-        if (levelView != null) {
-            levelView.setVisibility(View.GONE);
-        }
         setPlayLoadingUi(true);
     }
 
+    /** Strength values are drawn live by {@link MusicImpulseMeterView}. */
     public static void showActive(int appliedStrength, int ceiling) {
-        if (appliedStrength < 0) {
-            appliedStrength = 0;
-        }
-        if (ceiling < 1) {
-            ceiling = 1;
-        }
         if (statusView != null) {
             statusView.setText(0x7f0d0111);
-        }
-        if (levelView != null) {
-            levelView.setText(appliedStrength + "% / " + ceiling + "%");
-            levelView.setVisibility(controlsExpanded ? View.VISIBLE : View.GONE);
         }
         setPlayLoadingUi(false);
         updatePlayPauseLabel();
@@ -403,9 +414,6 @@ public final class MusicPlayerHelper {
     public static void showError(int resId) {
         if (statusView != null) {
             statusView.setText(resId);
-        }
-        if (levelView != null) {
-            levelView.setVisibility(View.GONE);
         }
         setPlayLoadingUi(false);
         Activity activity = resolveHostActivity(null, overlayContent);
@@ -499,13 +507,27 @@ public final class MusicPlayerHelper {
         trackTitleView = (TextView) content.findViewById(ID_TRACK_TITLE);
         timeView = (TextView) content.findViewById(ID_TIME);
         statusView = (TextView) content.findViewById(ID_STATUS);
-        levelView = (TextView) content.findViewById(ID_LEVEL);
         sensitivityView = (AmountView) content.findViewById(ID_SENSITIVITY);
+        rhythmView = (AmountView) content.findViewById(ID_RHYTHM);
+        floorView = (AmountView) content.findViewById(ID_FLOOR);
+        smoothView = (AmountView) content.findViewById(ID_SMOOTH);
+        meterView = (MusicImpulseMeterView) content.findViewById(ID_METER);
+        settingsButton = content.findViewById(ID_SETTINGS_BTN);
+        playlistButton = content.findViewById(ID_PLAYLIST_BTN);
+        presetViews = new TextView[]{
+                (TextView) content.findViewById(ID_PRESET_SOFT),
+                (TextView) content.findViewById(ID_PRESET_BALANCED),
+                (TextView) content.findViewById(ID_PRESET_BEAT),
+        };
 
-        configureSensitivity();
+        configureSettings();
         configureSeekBar();
         bindButton(playPauseBtn, new PlayPauseListener());
-        bindButton(content.findViewById(ID_PLAYLIST_BTN), new ControlsToggleListener());
+        bindButton(playlistButton, new PanelToggleListener(false));
+        bindButton(settingsButton, new PanelToggleListener(true));
+        for (int i = 0; i < presetViews.length; i++) {
+            bindButton(presetViews[i], new PresetListener(i));
+        }
         bindButton(content.findViewById(ID_ADD_TRACK), new PickListener());
         bindButton(content.findViewById(ID_CLOSE), new CloseListener());
         bindButton(content.findViewById(ID_INFO), new InfoListener());
@@ -587,31 +609,97 @@ public final class MusicPlayerHelper {
         }
     }
 
-    private static void configureSensitivity() {
-        if (sensitivityView == null) {
+    private static void configureSettings() {
+        configureAmount(sensitivityView, 0, 100, 5, MusicSync.getSensitivity(), SettingChangeListener.SENSITIVITY);
+        configureAmount(rhythmView, 0, 100, 10, MusicSync.getRhythmMix(), SettingChangeListener.RHYTHM);
+        configureAmount(floorView, 0, 80, 5, MusicSync.getFloorPercent(), SettingChangeListener.FLOOR);
+        configureAmount(smoothView, 0, 100, 10, MusicSync.getSmoothness(), SettingChangeListener.SMOOTH);
+        refreshPresetHighlight();
+    }
+
+    private static void configureAmount(AmountView view, int min, int max, int step, int value, int which) {
+        if (view == null) {
             return;
         }
         try {
-            sensitivityView.setMin(0);
-            sensitivityView.setGoods_storage(100);
-            sensitivityView.setStep(5);
-            sensitivityView.setAmountUnit("%");
-            sensitivityView.setAmount(savedSensitivity);
+            view.setMin(min);
+            view.setGoods_storage(max);
+            view.setStep(step);
+            view.setAmountUnit("%");
+            view.setAmount(value);
+            view.setOnAmountChangeListener(new SettingChangeListener(which));
         } catch (Throwable ignored) {
         }
     }
 
+    private static void setAmountSafe(AmountView view, int value) {
+        if (view == null) {
+            return;
+        }
+        try {
+            view.setAmount(value);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void applyPreset(int index) {
+        if (index < 0 || index >= PRESETS.length) {
+            return;
+        }
+        int[] preset = PRESETS[index];
+        MusicSync.setRhythmMix(preset[0]);
+        MusicSync.setFloorPercent(preset[1]);
+        MusicSync.setSmoothness(preset[2]);
+        setAmountSafe(rhythmView, preset[0]);
+        setAmountSafe(floorView, preset[1]);
+        setAmountSafe(smoothView, preset[2]);
+        persistSettings();
+        refreshPresetHighlight();
+    }
+
+    /** Highlight the preset chip that matches the current values (none after manual edits). */
+    private static void refreshPresetHighlight() {
+        for (int i = 0; i < presetViews.length; i++) {
+            TextView chip = presetViews[i];
+            if (chip == null) {
+                continue;
+            }
+            int[] preset = PRESETS[i];
+            boolean active = MusicSync.getRhythmMix() == preset[0]
+                    && MusicSync.getFloorPercent() == preset[1]
+                    && MusicSync.getSmoothness() == preset[2];
+            Activity activity = resolveHostActivity(null, chip);
+            chip.setTextColor(active
+                    ? resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A)
+                    : resolveThemeColor(activity, COLOR_TEXT_SECONDARY, 0xFF9E9E9E));
+            chip.setSelected(active);
+        }
+    }
+
+    private static void persistSettings() {
+        MusicSync.saveSettings(resolveHostActivity(null, overlayContent));
+    }
+
     private static void applyExpandedState() {
-        int visibility = controlsExpanded ? View.VISIBLE : View.GONE;
         if (controlPanel != null) {
-            controlPanel.setVisibility(visibility);
+            controlPanel.setVisibility(settingsExpanded ? View.VISIBLE : View.GONE);
         }
         if (playlistPanel != null) {
-            playlistPanel.setVisibility(visibility);
+            playlistPanel.setVisibility(playlistExpanded ? View.VISIBLE : View.GONE);
         }
-        if (levelView != null && !controlsExpanded) {
-            levelView.setVisibility(View.GONE);
+        markToggle(settingsButton, settingsExpanded);
+        markToggle(playlistButton, playlistExpanded);
+    }
+
+    private static void markToggle(View button, boolean open) {
+        if (!(button instanceof TextView)) {
+            return;
         }
+        Activity activity = resolveHostActivity(null, button);
+        ((TextView) button).setTextColor(open
+                ? resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A)
+                : resolveThemeColor(activity, COLOR_TEXT_PRIMARY, 0xFFFFFFFF));
+        button.setSelected(open);
     }
 
     private static void rebuildPlaylistViews(Activity activity) {
@@ -782,7 +870,7 @@ public final class MusicPlayerHelper {
         MusicSync.setHostActivity(activity);
         refreshTrackTitle();
         rebuildPlaylistViews(activity);
-        MusicSync.startPlayer(activity, uri, readSensitivity());
+        MusicSync.startPlayer(activity, uri);
         return true;
     }
 
@@ -1053,6 +1141,9 @@ public final class MusicPlayerHelper {
     }
 
     private static int resolveThemeColor(Activity activity, int resId, int fallback) {
+        if (activity == null) {
+            return fallback;
+        }
         try {
             return activity.getResources().getColor(resId);
         } catch (Throwable ignored) {
@@ -1165,23 +1256,8 @@ public final class MusicPlayerHelper {
         activeDragListener = null;
     }
 
-    private static int readSensitivity() {
-        if (sensitivityView == null) {
-            return savedSensitivity;
-        }
-        try {
-            return sensitivityView.getAmount();
-        } catch (Throwable ignored) {
-            return savedSensitivity;
-        }
-    }
-
-    private static void saveSensitivity() {
-        savedSensitivity = readSensitivity();
-    }
-
     private static void hidePlayerOverlay() {
-        saveSensitivity();
+        persistSettings();
         stopProgressUpdates();
         if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
             requestTrainingPause();
@@ -1243,7 +1319,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void closePlayer() {
-        saveSensitivity();
+        persistSettings();
         requestTrainingStop();
         MusicSync.stop();
         dismissOverlay(false);
@@ -1269,7 +1345,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void clearOverlayRefs() {
-        saveSensitivity();
+        persistSettings();
         overlayContent = null;
         seekBar = null;
         playPauseBtn = null;
@@ -1279,8 +1355,14 @@ public final class MusicPlayerHelper {
         trackTitleView = null;
         timeView = null;
         statusView = null;
-        levelView = null;
         sensitivityView = null;
+        rhythmView = null;
+        floorView = null;
+        smoothView = null;
+        presetViews = new TextView[0];
+        settingsButton = null;
+        playlistButton = null;
+        meterView = null;
     }
 
     private static void moveOverlayWindow(int x, int y) {
@@ -1394,12 +1476,70 @@ public final class MusicPlayerHelper {
         }
     }
 
-    static final class ControlsToggleListener implements View.OnClickListener {
+    /** ⚙ toggles settings, ☰ toggles the playlist; independent so both can stay open. */
+    static final class PanelToggleListener implements View.OnClickListener {
+        private final boolean settings;
+
+        PanelToggleListener(boolean settings) {
+            this.settings = settings;
+        }
+
         @Override
         public void onClick(View view) {
-            controlsExpanded = !controlsExpanded;
+            if (settings) {
+                settingsExpanded = !settingsExpanded;
+            } else {
+                playlistExpanded = !playlistExpanded;
+            }
             applyExpandedState();
             resizeOverlayWindow();
+        }
+    }
+
+    static final class PresetListener implements View.OnClickListener {
+        private final int index;
+
+        PresetListener(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public void onClick(View view) {
+            applyPreset(index);
+        }
+    }
+
+    /** Live settings: applied to the running sync immediately and persisted. */
+    static final class SettingChangeListener implements AmountView.OnAmountChangeListener {
+        static final int SENSITIVITY = 0;
+        static final int RHYTHM = 1;
+        static final int FLOOR = 2;
+        static final int SMOOTH = 3;
+
+        private final int which;
+
+        SettingChangeListener(int which) {
+            this.which = which;
+        }
+
+        @Override
+        public void onAmountChange(View view, int amount) {
+            switch (which) {
+                case SENSITIVITY:
+                    MusicSync.setSensitivity(amount);
+                    break;
+                case RHYTHM:
+                    MusicSync.setRhythmMix(amount);
+                    break;
+                case FLOOR:
+                    MusicSync.setFloorPercent(amount);
+                    break;
+                default:
+                    MusicSync.setSmoothness(amount);
+                    break;
+            }
+            persistSettings();
+            refreshPresetHighlight();
         }
     }
 
@@ -1659,7 +1799,6 @@ public final class MusicPlayerHelper {
                 overlayVisible = false;
                 return;
             }
-            saveSensitivity();
             overlayDialog = null;
             overlayVisible = false;
             MusicSync.stop();

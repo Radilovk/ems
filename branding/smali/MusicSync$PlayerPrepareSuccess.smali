@@ -20,29 +20,29 @@
 # instance fields
 .field private final activity:Landroid/app/Activity;
 
-.field private final envelope:[I
+.field private final envelope:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
 .field private final uri:Landroid/net/Uri;
 
 
 # direct methods
-.method constructor <init>(Landroid/app/Activity;Landroid/net/Uri;[I)V
+.method constructor <init>(Landroid/app/Activity;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;)V
     .registers 4
 
     .prologue
-    .line 669
+    .line 822
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 670
+    .line 823
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->activity:Landroid/app/Activity;
 
-    .line 671
+    .line 824
     iput-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->uri:Landroid/net/Uri;
 
-    .line 672
-    iput-object p3, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->envelope:[I
+    .line 825
+    iput-object p3, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->envelope:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
-    .line 673
+    .line 826
     return-void
 .end method
 
@@ -52,16 +52,16 @@
     .registers 4
 
     .prologue
-    .line 677
+    .line 830
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->activity:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->uri:Landroid/net/Uri;
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->envelope:[I
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;->envelope:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
-    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->finishStartPlayer(Landroid/app/Activity;Landroid/net/Uri;[I)V
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$700(Landroid/app/Activity;Landroid/net/Uri;[I)V
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->finishStartPlayer(Landroid/app/Activity;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;)V
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$600(Landroid/app/Activity;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;)V
 
-    .line 678
+    .line 831
     return-void
 .end method

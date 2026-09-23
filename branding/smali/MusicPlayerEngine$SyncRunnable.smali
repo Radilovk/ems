@@ -28,13 +28,13 @@
     .registers 2
 
     .prologue
-    .line 440
+    .line 486
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 441
+    .line 487
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 442
+    .line 488
     return-void
 .end method
 
@@ -46,10 +46,10 @@
     .prologue
     const-wide/16 v0, 0x1
 
-    .line 446
+    .line 492
     iget-object v4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 447
+    .line 493
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
@@ -64,26 +64,26 @@
 
     if-eqz v2, :cond_16
 
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:[I
-    invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$200(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)[I
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
+    invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$200(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
     move-result-object v2
 
     if-nez v2, :cond_17
 
-    .line 471
+    .line 517
     :cond_16
     :goto_16
     return-void
 
-    .line 451
+    .line 497
     :cond_17
     :try_start_17
     invoke-virtual {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolvePlaybackPositionMs()I
 
     move-result v2
 
-    .line 452
+    .line 498
     invoke-virtual {v4, v2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolveEnvelopeIndex(I)I
 
     move-result v2
@@ -92,7 +92,7 @@
     :try_end_22
     .catch Ljava/lang/Throwable; {:try_start_17 .. :try_end_22} :catch_55
 
-    .line 455
+    .line 501
     :goto_22
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
@@ -101,12 +101,12 @@
 
     if-eqz v2, :cond_16
 
-    .line 458
+    .line 504
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v2
 
-    .line 459
+    .line 505
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
     const-wide/16 v8, 0x0
@@ -115,10 +115,10 @@
 
     if-gtz v5, :cond_36
 
-    .line 460
+    .line 506
     iput-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
-    .line 462
+    .line 508
     :cond_36
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
@@ -128,28 +128,28 @@
 
     iput-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
-    .line 463
+    .line 509
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
     cmp-long v5, v6, v2
 
     if-gez v5, :cond_45
 
-    .line 464
+    .line 510
     iput-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
-    .line 466
+    .line 512
     :cond_45
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
     sub-long v2, v6, v2
 
-    .line 467
+    .line 513
     cmp-long v5, v2, v0
 
     if-gez v5, :cond_57
 
-    .line 470
+    .line 516
     :goto_4d
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/os/Handler;
@@ -160,7 +160,7 @@
 
     goto :goto_16
 
-    .line 453
+    .line 499
     :catch_55
     move-exception v2
 

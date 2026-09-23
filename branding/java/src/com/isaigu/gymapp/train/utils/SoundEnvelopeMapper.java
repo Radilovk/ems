@@ -1,9 +1,8 @@
 package com.isaigu.gymapp.train.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 
-/** Perceptual (log/dB) loudness mapping for music → impulse strength. */
+/** Perceptual (log/dB) loudness mapping for music → impulse strength (mic and player). */
 public final class SoundEnvelopeMapper {
     private SoundEnvelopeMapper() {
     }
@@ -43,42 +42,29 @@ public final class SoundEnvelopeMapper {
     }
 
     /** Robust peak: high percentile avoids one spike squashing the whole track. */
-    public static double percentilePeak(ArrayList<Double> values, double percentile) {
-        if (values == null || values.isEmpty()) {
+    public static double percentilePeak(float[] values, int count, double percentile) {
+        if (values == null || count <= 0) {
             return 80.0;
         }
-        ArrayList<Double> sorted = new ArrayList<Double>();
-        for (int i = 0; i < values.size(); i++) {
-            double v = values.get(i);
-            if (v > 0.0) {
-                sorted.add(v);
+        float[] sorted = new float[count];
+        int n = 0;
+        for (int i = 0; i < count && i < values.length; i++) {
+            if (values[i] > 0f) {
+                sorted[n++] = values[i];
             }
         }
-        if (sorted.isEmpty()) {
+        if (n == 0) {
             return 80.0;
         }
-        Collections.sort(sorted);
-        int index = (int) Math.round((percentile / 100.0) * (sorted.size() - 1));
+        Arrays.sort(sorted, 0, n);
+        int index = (int) Math.round((percentile / 100.0) * (n - 1));
         if (index < 0) {
             index = 0;
         }
-        if (index >= sorted.size()) {
-            index = sorted.size() - 1;
+        if (index >= n) {
+            index = n - 1;
         }
-        double peak = sorted.get(index);
-        if (peak < 80.0) {
-            peak = 80.0;
-        }
-        return peak;
-    }
-
-    public static void fillPercentLevels(
-            ArrayList<Integer> timeline,
-            ArrayList<Double> rawRms,
-            int sensitivity) {
-        double peak = percentilePeak(rawRms, 96.0);
-        for (int i = 0; i < timeline.size(); i++) {
-            timeline.set(i, rmsToPercent(rawRms.get(i), peak, sensitivity));
-        }
+        double peak = sorted[index];
+        return peak < 80.0 ? 80.0 : peak;
     }
 }

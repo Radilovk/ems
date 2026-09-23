@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 90
+    .line 123
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 1
 
     .prologue
-    .line 93
+    .line 126
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->handleWriteComplete()V
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()V
 
-    .line 94
+    .line 127
     return-void
 .end method

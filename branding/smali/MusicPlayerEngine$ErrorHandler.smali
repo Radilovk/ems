@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 490
+    .line 536
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 491
+    .line 537
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$ErrorHandler;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 492
+    .line 538
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 5
 
     .prologue
-    .line 496
+    .line 542
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$ErrorHandler;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->dispatchError()V
 
-    .line 497
+    .line 543
     const/4 v0, 0x1
 
     return v0

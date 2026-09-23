@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 814
+    .line 969
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,17 +34,17 @@
     .registers 5
 
     .prologue
-    .line 817
+    .line 972
     if-eqz p3, :cond_6
 
-    .line 818
+    .line 973
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->startCapture()V
 
-    .line 822
+    .line 977
     :goto_5
     return-void
 
-    .line 820
+    .line 975
     :cond_6
     const v0, 0x7f0d010d
 

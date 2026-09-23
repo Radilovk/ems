@@ -323,8 +323,8 @@
     <string name="beta_music_error_mic">Микрофонът не може да стартира на това устройство</string>
 
     <string name="beta_music_player_title">БЕТА — Музикален плейър</string>
-    <string name="beta_music_player_status_idle">Статус: спряно</string>
-    <string name="beta_music_player_status_active">Статус: възпроизвеждане — синхронизиран импулс</string>
+    <string name="beta_music_player_status_idle">Спряно</string>
+    <string name="beta_music_player_status_active">Свири — импулсът следва музиката</string>
     <string name="beta_music_player_no_file">Няма избран файл</string>
     <string name="beta_music_player_error">Файлът не може да се пусне</string>
     <string name="beta_music_player_pick">Избери аудио файл</string>
@@ -333,7 +333,7 @@
     <string name="beta_music_player_sensitivity">Чувствителност (%)</string>
     <string name="beta_music_player_hint">Задай таван с кръговия слайдер, избери песен и натисни Пусни. PCM синхрон — без закъснение от микрофона.</string>
     <string name="beta_music_player_no_user">Първо добави свързан потребител</string>
-    <string name="beta_music_player_preparing">Подготовка на файла…</string>
+    <string name="beta_music_player_preparing">Анализ на песента…</string>
     <string name="interval_timer_title">Интервален таймер</string>
     <string name="interval_timer_status_idle">Настрой и активирай</string>
     <string name="interval_timer_status_armed">Активиран — стартира с тренировка</string>
@@ -405,7 +405,16 @@
     <string name="train_add_participant">Добави потребител</string>
     <string name="beta_music_player_brand">Beat Impulse Sync&#174;</string>
     <string name="beta_music_player_info_title">Beat Impulse Sync — помощ</string>
-    <string name="beta_music_player_info_body">Плейърът пуска музика и синхронизира силата на EMS импулсите с ритъма на песента.\n\n1. Добавете участник на екрана „Тренировка“.\n2. Задайте ограничение на силата (MA) от кръговия слайдер на реда му.\n3. Добавете песни в плейлиста и натиснете ▶.\n4. „Чувствителност“ определя колко силно музиката влияе на импулсите.\n\n☰ отваря настройки и плейлист. Задръжте ☰ до песен, за да я пренаредите. ✕ спира възпроизвеждането и затваря плейъра.</string>
+    <string name="beta_music_player_info_body">Плейърът пуска музика и управлява силата на EMS импулса според нея.\n\n1. Добавете участник на екрана „Тренировка“.\n2. Задайте ограничение на силата (MA) от кръговия слайдер на реда му — това е таванът.\n3. Добавете песни с ☰ и натиснете ▶.\n\n⚙ Настройки (важат веднага):\n• Ритъм — 0% следва силата на звука, 100% само ударите (бас/барабан).\n• Минимум — най-ниската сила, докато свири музика, в % от тавана.\n• Мекота — колко плавно се покачва силата; спадът е мигновен.\n• Чувствителност — контраст между тихите и силните части.\nГотови режими: Плавно / Баланс / Удари.\n\nИндикатор: ♪ ниво на музиката, ⚡ сила към костюма (оцветено = минимум, черта = таван). BLE показва измереното забавяне до костюма — плейърът го компенсира сам.\n\nЗадръжте ☰ до песен, за да я пренаредите. ✕ спира и затваря.</string>
+    <string name="beta_music_player_settings">Настройки</string>
+    <string name="beta_music_player_rhythm">Ритъм</string>
+    <string name="beta_music_player_floor">Минимум</string>
+    <string name="beta_music_player_smooth">Мекота</string>
+    <string name="beta_music_player_sensitivity_label">Чувствителност</string>
+    <string name="beta_music_player_preset_soft">Плавно</string>
+    <string name="beta_music_player_preset_balanced">Баланс</string>
+    <string name="beta_music_player_preset_beat">Удари</string>
+    <string name="beta_music_player_settings_hint">Ритъм 0% = следва силата на звука, 100% = само ударите. Минимум = % от тавана, докато свири музика. Мекота = по-плавно покачване.</string>
     <string name="interval_timer_loops_hint">0 = безкрайно</string>
     <string name="interval_timer_info_title">Как работи таймерът</string>
     <string name="interval_timer_info_body">Задайте продължителност (мин:сек) и брой повторения.\n\n• Повторения — 0 означава безкраен цикъл. При число таймерът спира след последното повторение.\n• Интервал — един и същ интервал се повтаря; при всяка смяна чувате сигнал.\n• Програми — готови тренировъчни програми от няколко интервала с различни настройки (MA, Hz, ширина). RPT повтаря програмата до края на зададеното време.\n• Активирай — включва таймера. Той тръгва заедно със старт на тренировката и спира при пауза или край.\n• Звук и запазени — избор на сигнал, запазване на настройки или собствен звуков файл.</string>

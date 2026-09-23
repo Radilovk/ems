@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 681
+    .line 834
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,21 +34,21 @@
     .registers 2
 
     .prologue
-    .line 684
+    .line 837
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerPreparing:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$802(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$702(Z)Z
 
-    .line 685
+    .line 838
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$900()V
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$800()V
 
-    .line 686
+    .line 839
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 687
+    .line 840
     return-void
 .end method

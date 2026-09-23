@@ -27,16 +27,17 @@
 .method constructor <init>(Landroid/app/Activity;Landroid/net/Uri;)V
     .registers 3
 
-    .line 543
+    .prologue
+    .line 512
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 544
+    .line 513
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->activity:Landroid/app/Activity;
 
-    .line 545
+    .line 514
     iput-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->uri:Landroid/net/Uri;
 
-    .line 546
+    .line 515
     return-void
 .end method
 
@@ -45,27 +46,23 @@
 .method public run()V
     .registers 6
 
-    .line 551
+    .prologue
+    .line 520
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->activity:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->uri:Landroid/net/Uri;
 
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->sensitivity:I
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$800()I
-
-    move-result v2
-
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->buildEnvelope(Landroid/content/Context;Landroid/net/Uri;I)[I
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->buildEnvelope(Landroid/content/Context;Landroid/net/Uri;)Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
     move-result-object v0
 
-    .line 552
+    .line 521
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 553
+    .line 522
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$900()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200()Landroid/os/Handler;
 
     move-result-object v1
 
@@ -75,25 +72,26 @@
 
     iget-object v4, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->uri:Landroid/net/Uri;
 
-    invoke-direct {v2, v3, v4, v0}, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;-><init>(Landroid/app/Activity;Landroid/net/Uri;[I)V
+    invoke-direct {v2, v3, v4, v0}, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareSuccess;-><init>(Landroid/app/Activity;Landroid/net/Uri;Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;)V
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-    :try_end_1f
-    .catchall {:try_start_0 .. :try_end_1f} :catchall_20
+    :try_end_1b
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_1b} :catch_1c
 
-    .line 557
-    goto :goto_30
+    .line 527
+    :goto_1b
+    return-void
 
-    .line 554
-    :catchall_20
+    .line 523
+    :catch_1c
     move-exception v0
 
-    .line 555
+    .line 524
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 556
+    .line 525
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$900()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200()Landroid/os/Handler;
 
     move-result-object v0
 
@@ -103,7 +101,5 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 558
-    :goto_30
-    return-void
+    goto :goto_1b
 .end method

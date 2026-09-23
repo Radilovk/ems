@@ -11,10 +11,11 @@ import android.os.Looper;
 import android.os.SystemClock;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
- * Decode audio file to RMS envelope, play via MediaPlayer, drive sync from playback position.
+ * Decode audio file to loudness + rhythm envelopes, play via MediaPlayer, drive sync from
+ * playback position.
  */
 public final class MusicPlayerEngine {
     public interface Listener {
@@ -29,23 +30,35 @@ public final class MusicPlayerEngine {
     private static final int WINDOW_MS = 20;
     /** Sync poll interval (ms). */
     private static final int SYNC_POLL_MS = 16;
-    /** Fallback output latency when device properties are unavailable. */
-    private static final int SYNC_OFFSET_FALLBACK_MS = 30;
-    private static final int PCM_WINDOW_FRAMES = 256;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private SyncRunnable syncRunnable;
     private MediaPlayer player;
     private Listener listener;
-    private int[] envelope;
+    private Envelope envelope;
     private volatile boolean tracking;
-    private int syncOffsetMs = SYNC_OFFSET_FALLBACK_MS;
+
+    /** Pre-analysed track: raw loudness per bucket + rhythm (onset) curve 0..1. */
+    public static final class Envelope {
+        final float[] loudRms;
+        final float[] rhythm;
+        final int length;
+        final double peakRms;
+
+        Envelope(float[] loudRms, float[] rhythm, int length, double peakRms) {
+            this.loudRms = loudRms;
+            this.rhythm = rhythm;
+            this.length = length;
+            this.peakRms = peakRms;
+        }
+    }
 
     /**
-     * Decode file off the UI thread. Envelope buckets are stamped from decoder PTS
-     * so playback lookup stays aligned for the whole track (no duration drift).
+     * Decode file off the UI thread. Every PCM frame is stamped with its own time
+     * (buffer PTS + frame offset), so 20 ms buckets are dense and aligned for the whole
+     * track. Loudness stays raw so sensitivity can be changed live during playback.
      */
-    public static int[] buildEnvelope(Context context, Uri uri, int sensitivity) throws Exception {
+    public static Envelope buildEnvelope(Context context, Uri uri) throws Exception {
         MediaExtractor extractor = new MediaExtractor();
         extractor.setDataSource(context, uri, null);
         int trackIndex = -1;
@@ -63,21 +76,15 @@ public final class MusicPlayerEngine {
         }
         extractor.selectTrack(trackIndex);
         MediaFormat format = extractor.getTrackFormat(trackIndex);
-        int channelCount = readIntFormat(format, MediaFormat.KEY_CHANNEL_COUNT, 1);
-        if (channelCount < 1) {
-            channelCount = 1;
-        }
+        int channelCount = Math.max(1, readIntFormat(format, MediaFormat.KEY_CHANNEL_COUNT, 1));
+        int sampleRate = readIntFormat(format, MediaFormat.KEY_SAMPLE_RATE, 44100);
 
         String mime = format.getString(MediaFormat.KEY_MIME);
         MediaCodec codec = MediaCodec.createDecoderByType(mime);
         codec.configure(format, null, null, 0);
         codec.start();
 
-        ArrayList<Integer> timeline = new ArrayList<Integer>();
-        ArrayList<Double> rawRms = new ArrayList<Double>();
-        long framesInWindow = 0L;
-        long windowSumSq = 0L;
-        long lastPtsUs = 0L;
+        EnvelopeBuilder builder = new EnvelopeBuilder(sampleRate);
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
         boolean inputDone = false;
         boolean outputDone = false;
@@ -102,17 +109,19 @@ public final class MusicPlayerEngine {
             }
 
             int outIndex = codec.dequeueOutputBuffer(info, 10000L);
-            if (outIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                continue;
-            }
-            if (outIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED
+            if (outIndex == MediaCodec.INFO_TRY_AGAIN_LATER
                     || outIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                 continue;
             }
+            if (outIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                MediaFormat outFormat = codec.getOutputFormat();
+                channelCount = Math.max(1,
+                        readIntFormat(outFormat, MediaFormat.KEY_CHANNEL_COUNT, channelCount));
+                sampleRate = readIntFormat(outFormat, MediaFormat.KEY_SAMPLE_RATE, sampleRate);
+                builder.setSampleRate(sampleRate);
+                continue;
+            }
             if (outIndex >= 0) {
-                if (info.size > 0) {
-                    lastPtsUs = info.presentationTimeUs;
-                }
                 ByteBuffer out = codec.getOutputBuffer(outIndex);
                 if (out == null) {
                     out = codec.getOutputBuffers()[outIndex];
@@ -122,20 +131,13 @@ public final class MusicPlayerEngine {
                     out.limit(info.offset + info.size);
                     ByteBuffer slice = out.slice().order(ByteOrder.LITTLE_ENDIAN);
                     int frameBytes = channelCount * 2;
+                    long frameIndex = 0L;
                     while (slice.remaining() >= frameBytes) {
-                        long frameSumSq = 0L;
+                        int sum = 0;
                         for (int ch = 0; ch < channelCount; ch++) {
-                            int sample = slice.getShort();
-                            frameSumSq += (long) sample * sample;
+                            sum += slice.getShort();
                         }
-                        windowSumSq += frameSumSq;
-                        framesInWindow++;
-                        if (framesInWindow >= PCM_WINDOW_FRAMES) {
-                            double rms = windowRms(windowSumSq, framesInWindow);
-                            writeBucket(timeline, rawRms, lastPtsUs, rms);
-                            framesInWindow = 0L;
-                            windowSumSq = 0L;
-                        }
+                        builder.addFrame(info.presentationTimeUs, frameIndex++, sum / channelCount);
                     }
                 }
                 codec.releaseOutputBuffer(outIndex, false);
@@ -145,102 +147,146 @@ public final class MusicPlayerEngine {
             }
         }
 
-        if (framesInWindow > 0L) {
-            double rms = windowRms(windowSumSq, framesInWindow);
-            writeBucket(timeline, rawRms, lastPtsUs, rms);
-        }
-
         codec.stop();
         codec.release();
         extractor.release();
-
-        if (timeline.isEmpty()) {
-            return new int[]{0};
-        }
-        normalizeTimeline(timeline, rawRms, sensitivity);
-        int[] result = new int[timeline.size()];
-        for (int i = 0; i < timeline.size(); i++) {
-            result[i] = timeline.get(i);
-        }
-        return result;
-    }
-
-    private static void writeBucket(
-            ArrayList<Integer> timeline,
-            ArrayList<Double> rawRms,
-            long ptsUs,
-            double rms) {
-        int bucketIndex = ptsToBucketIndex(ptsUs);
-        if (bucketIndex < 0) {
-            bucketIndex = 0;
-        }
-        while (timeline.size() <= bucketIndex) {
-            timeline.add(0);
-            rawRms.add(0.0);
-        }
-        double existing = rawRms.get(bucketIndex);
-        if (rms > existing) {
-            rawRms.set(bucketIndex, rms);
-        }
+        return builder.finish();
     }
 
     /**
-     * Map raw RMS buckets to 0–100% using track peak, noise gate, and power curve
-     * (same idea as mic {@link MusicSync#envelopeToSoundPercent}).
+     * Streams mono PCM into 20 ms buckets: full-band RMS and bass (~150 Hz, 2-pole) energy.
+     * {@link #finish()} turns bass/full-band energy jumps into a decaying onset curve.
      */
-    private static void normalizeTimeline(
-            ArrayList<Integer> timeline,
-            ArrayList<Double> rawRms,
-            int sensitivity) {
-        double peak = 0.0;
-        for (int i = 0; i < rawRms.size(); i++) {
-            double rms = rawRms.get(i);
-            if (rms > peak) {
-                peak = rms;
+    static final class EnvelopeBuilder {
+        private static final double BASS_CUTOFF_HZ = 150.0;
+        /** Slow reference for onset detection: EMA per bucket (~90 ms time constant). */
+        private static final double ONSET_SLOW_ALPHA = 0.2;
+        private static final double ONSET_BASS_WEIGHT = 0.7;
+        /** Onsets below this fraction of the track's strong hits are ignored. */
+        private static final float ONSET_GATE = 0.15f;
+        /** Hit decay per 20 ms bucket, so a beat has body instead of a 20 ms spike. */
+        private static final float ONSET_DECAY = 0.72f;
+
+        private int sampleRate;
+        private double bassAlpha;
+        private double lp1;
+        private double lp2;
+        private int bucket = -1;
+        private double sumSq;
+        private double sumBass;
+        private int frames;
+        private float[] loud = new float[4096];
+        private float[] bass = new float[4096];
+        private int count;
+
+        EnvelopeBuilder(int sampleRate) {
+            setSampleRate(sampleRate);
+        }
+
+        void setSampleRate(int rate) {
+            sampleRate = rate >= 8000 ? rate : 44100;
+            bassAlpha = 1.0 - Math.exp(-2.0 * Math.PI * BASS_CUTOFF_HZ / sampleRate);
+        }
+
+        void addFrame(long bufferPtsUs, long frameIndex, int sample) {
+            long ptsUs = bufferPtsUs + frameIndex * 1000000L / sampleRate;
+            int index = ptsUs <= 0L ? 0 : (int) (ptsUs / (WINDOW_MS * 1000L));
+            if (index != bucket) {
+                flush();
+                bucket = index;
             }
-        }
-        if (peak < 80.0) {
-            peak = 80.0;
-        }
-
-        double gateRatio = 0.18 - (sensitivity / 100.0) * 0.14;
-        if (gateRatio < 0.05) {
-            gateRatio = 0.05;
-        }
-        double noiseGate = Math.max(35.0, peak * gateRatio);
-        double span = peak - noiseGate;
-        if (span < 25.0) {
-            span = 25.0;
+            lp1 += bassAlpha * (sample - lp1);
+            lp2 += bassAlpha * (lp1 - lp2);
+            sumSq += (double) sample * sample;
+            sumBass += lp2 * lp2;
+            frames++;
         }
 
-        for (int i = 0; i < timeline.size(); i++) {
-            double rms = rawRms.get(i);
-            int level = 0;
-            if (rms > noiseGate) {
-                double normalized = (rms - noiseGate) / span;
-                if (normalized < 0.0) {
-                    normalized = 0.0;
-                } else if (normalized > 1.0) {
-                    normalized = 1.0;
+        private void flush() {
+            if (bucket < 0 || frames == 0) {
+                return;
+            }
+            ensureCapacity(bucket + 1);
+            float rms = (float) Math.sqrt(sumSq / frames);
+            float bassEnergy = (float) (sumBass / frames);
+            // Fill decoder gaps with the previous bucket so the curve never drops to 0.
+            for (int i = count; i < bucket; i++) {
+                loud[i] = count > 0 ? loud[count - 1] : rms;
+                bass[i] = count > 0 ? bass[count - 1] : bassEnergy;
+            }
+            if (bucket >= count || rms > loud[bucket]) {
+                loud[bucket] = rms;
+                bass[bucket] = bassEnergy;
+            }
+            if (bucket + 1 > count) {
+                count = bucket + 1;
+            }
+            sumSq = 0.0;
+            sumBass = 0.0;
+            frames = 0;
+        }
+
+        private void ensureCapacity(int size) {
+            if (size <= loud.length) {
+                return;
+            }
+            int next = Math.max(size, loud.length * 2);
+            loud = Arrays.copyOf(loud, next);
+            bass = Arrays.copyOf(bass, next);
+        }
+
+        Envelope finish() {
+            flush();
+            if (count == 0) {
+                return new Envelope(new float[]{0f}, new float[]{0f}, 1, 80.0);
+            }
+            float[] flux = new float[count];
+            double slowBass = energyDb(bass[0]);
+            double slowFull = energyDb((double) loud[0] * loud[0]);
+            for (int i = 0; i < count; i++) {
+                double bassDb = energyDb(bass[i]);
+                double fullDb = energyDb((double) loud[i] * loud[i]);
+                double value = ONSET_BASS_WEIGHT * Math.max(0.0, bassDb - slowBass)
+                        + (1.0 - ONSET_BASS_WEIGHT) * Math.max(0.0, fullDb - slowFull);
+                flux[i] = (float) value;
+                slowBass += ONSET_SLOW_ALPHA * (bassDb - slowBass);
+                slowFull += ONSET_SLOW_ALPHA * (fullDb - slowFull);
+            }
+            // Strong hit = 95th percentile of non-zero onsets (at least 1 dB jump).
+            double strongHit = Math.max(1.0, percentileOfPositive(flux, count, 95.0));
+            float[] rhythm = new float[count];
+            float held = 0f;
+            for (int i = 0; i < count; i++) {
+                float onset = (float) Math.min(1.0, flux[i] / strongHit);
+                if (onset < ONSET_GATE) {
+                    onset = 0f;
                 }
-                normalized = Math.pow(normalized, 1.35);
-                level = (int) Math.round(normalized * 100.0);
-                if (level < 0) {
-                    level = 0;
-                } else if (level > 100) {
-                    level = 100;
+                held = Math.max(onset, held * ONSET_DECAY);
+                rhythm[i] = held;
+            }
+            double peak = SoundEnvelopeMapper.percentilePeak(loud, count, 96.0);
+            return new Envelope(loud, rhythm, count, peak);
+        }
+
+        private static double percentileOfPositive(float[] values, int count, double percentile) {
+            float[] sorted = new float[count];
+            int n = 0;
+            for (int i = 0; i < count; i++) {
+                if (values[i] > 0f) {
+                    sorted[n++] = values[i];
                 }
             }
-            timeline.set(i, level);
+            if (n == 0) {
+                return 0.0;
+            }
+            Arrays.sort(sorted, 0, n);
+            int index = (int) Math.round((percentile / 100.0) * (n - 1));
+            return sorted[Math.max(0, Math.min(n - 1, index))];
         }
-    }
 
-    private static int ptsToBucketIndex(long ptsUs) {
-        if (ptsUs < 0L) {
-            ptsUs = 0L;
+        private static double energyDb(double energy) {
+            return 10.0 * Math.log10(energy + 1.0);
         }
-        long ptsMs = ptsUs / 1000L;
-        return (int) (ptsMs / WINDOW_MS);
     }
 
     private static int readIntFormat(MediaFormat format, String key, int fallback) {
@@ -254,14 +300,7 @@ public final class MusicPlayerEngine {
         }
     }
 
-    private static double windowRms(long sumSq, long frames) {
-        if (frames <= 0L) {
-            return 0.0;
-        }
-        return Math.sqrt((double) sumSq / frames);
-    }
-
-    public void startPlayback(Context context, Uri uri, int[] preparedEnvelope, Listener callback)
+    public void startPlayback(Context context, Uri uri, Envelope preparedEnvelope, Listener callback)
             throws Exception {
         release();
         listener = callback;
@@ -274,7 +313,6 @@ public final class MusicPlayerEngine {
         player.setOnCompletionListener(new CompletionHandler(this));
         player.setOnErrorListener(new ErrorHandler(this));
         player.prepare();
-        syncOffsetMs = AudioOutputLatency.estimatePlaybackOffsetMs(context);
         player.start();
         tracking = true;
         syncRunnable = new SyncRunnable(this);
@@ -295,7 +333,11 @@ public final class MusicPlayerEngine {
             if (index >= envelope.length) {
                 index = envelope.length - 1;
             }
-            listener.onWaveformLevel(envelope[index]);
+            // Mapped at play time: sensitivity and rhythm mix apply live.
+            int loud = SoundEnvelopeMapper.rmsToPercent(
+                    envelope.loudRms[index], envelope.peakRms, MusicSync.getSensitivity());
+            int rhythm = Math.round(envelope.rhythm[index] * 100f);
+            listener.onWaveformLevel(MusicSync.mixLevels(loud, rhythm));
         } catch (Throwable ignored) {
         }
     }
@@ -304,7 +346,9 @@ public final class MusicPlayerEngine {
         if (envelope == null || envelope.length == 0) {
             return 0;
         }
-        int lookupMs = positionMs + syncOffsetMs;
+        // getCurrentPosition() tracks the presented (heard) frame; look ahead by the
+        // measured BLE send→ACK time so the impulse lands with that audio.
+        int lookupMs = positionMs + MusicSync.getPlayerLeadMs();
         if (lookupMs < 0) {
             lookupMs = 0;
         }

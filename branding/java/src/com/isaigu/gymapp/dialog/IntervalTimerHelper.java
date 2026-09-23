@@ -671,14 +671,14 @@ public final class IntervalTimerHelper {
             return hostActivity;
         }
         if (configDialog != null) {
-            Activity fromConfig = MusicSyncHelper.resolveActivity(configDialog.getContext());
+            Activity fromConfig = MusicPlayerHelper.resolveActivity(configDialog.getContext());
             if (fromConfig != null) {
                 hostActivity = fromConfig;
                 return fromConfig;
             }
         }
         if (overlayDialog != null) {
-            Activity fromOverlay = MusicSyncHelper.resolveActivity(overlayDialog.getContext());
+            Activity fromOverlay = MusicPlayerHelper.resolveActivity(overlayDialog.getContext());
             if (fromOverlay != null) {
                 hostActivity = fromOverlay;
                 return fromOverlay;
@@ -1750,7 +1750,7 @@ public final class IntervalTimerHelper {
         @Override
         public void onClick(View v) {
             Activity activity = v != null
-                    ? MusicSyncHelper.resolveActivity(v.getContext())
+                    ? MusicPlayerHelper.resolveActivity(v.getContext())
                     : resolveActivity(null);
             if (activity == null) {
                 activity = resolveActivity(null);

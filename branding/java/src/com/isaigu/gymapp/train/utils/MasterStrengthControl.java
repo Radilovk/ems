@@ -18,6 +18,8 @@ public final class MasterStrengthControl {
     private static WeakReference<CircleSeekBar> seekBarRef;
     private static WeakReference<TextView> maLabelRef;
     private static int ceiling = 100;
+    /** Minimum strength while music plays, as % of {@link #ceiling}. */
+    private static int floorPercent;
     private static int lastApplied = -1;
     private static boolean syncActive;
 
@@ -44,7 +46,7 @@ public final class MasterStrengthControl {
         return lastApplied < 0 ? 0 : lastApplied;
     }
 
-    /** Manual ceiling from circle-slider position (set before mic / protocol drive). */
+    /** Manual ceiling from circle-slider position (set before player / protocol drive). */
     public static int captureCeilingFromSlider() {
         TrainItem item = targetItem;
         if (item == null) {
@@ -92,9 +94,30 @@ public final class MasterStrengthControl {
         return syncActive;
     }
 
-    /** Map raw sound level 0–100% onto [0, ceiling]. */
+    public static int getFloorPercent() {
+        return floorPercent;
+    }
+
+    public static void setFloorPercent(int percent) {
+        floorPercent = Math.min(clamp(percent), 90);
+    }
+
+    /** Absolute floor strength (0–100%) for the current ceiling. */
+    public static int getFloorStrength() {
+        return ceiling * floorPercent / 100;
+    }
+
+    /**
+     * Map sound level 0–100% onto [floor, ceiling]; level 0 (silence) stays 0 so a paused or
+     * silent track never holds the suit at the floor.
+     */
     public static int scaleFromSound(int soundPercent) {
-        return clamp(ceiling * clamp(soundPercent) / 100);
+        int level = clamp(soundPercent);
+        if (level == 0) {
+            return 0;
+        }
+        int floor = getFloorStrength();
+        return clamp(floor + Math.round((ceiling - floor) * level / 100f));
     }
 
     /**

@@ -18,6 +18,8 @@ REMOVED_PERMISSIONS = (
     "android.permission.SYSTEM_ALERT_WINDOW",
     "android.permission.REQUEST_INSTALL_PACKAGES",
     "android.permission.CHANGE_CONFIGURATION",
+    # Music sync is player-only; the microphone mode was removed.
+    "android.permission.RECORD_AUDIO",
 )
 
 # Install-time grant mode (targetSdk 22): fewer install warnings, no runtime prompts.
@@ -52,15 +54,6 @@ def patch_manifest(text: str) -> str:
         if re.search(pattern, text):
             text = re.sub(pattern, "\n", text, count=1)
             print(f"manifest: removed deprecated {perm}")
-
-    if "RECORD_AUDIO" not in text:
-        text = text.replace(
-            '<uses-permission android:name="android.permission.INTERNET"/>',
-            '<uses-permission android:name="android.permission.INTERNET"/>\n'
-            '    <uses-permission android:name="android.permission.RECORD_AUDIO"/>',
-            1,
-        )
-        print("manifest: ensured RECORD_AUDIO declared")
 
     seen: set[str] = set()
     lines = text.splitlines(keepends=True)

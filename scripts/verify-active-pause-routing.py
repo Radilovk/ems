@@ -181,7 +181,9 @@ def check_smali() -> list[str]:
             "if-eqz v0," in active_pause_head
             and "return-void" in active_pause_head
         )
-        if not legacy_guard and not early_return_guard:
+        if not legacy_guard and not early_return_guard and not branches_to_return(
+            ensure_body, active_pause_head
+        ):
             errors.append(
                 "MasterStrengthControl.ensureMaMode must skip MA mode when activePause is on"
             )
@@ -195,6 +197,23 @@ def check_smali() -> list[str]:
         errors.append("MasterStrengthControl.releaseMaModeForActivePause must clear maSelected")
 
     return errors
+
+
+def branches_to_return(body: str, head: str) -> bool:
+    """dx form: `if-nez v0, :label` where the label's block is just `return-void`."""
+    match = re.search(r"if-nez v0, (:\w+)", head)
+    if not match:
+        return False
+    lines = body.split("\n")
+    for i, line in enumerate(lines):
+        if line.strip() != match.group(1):
+            continue
+        for follow in lines[i + 1:]:
+            stripped = follow.strip()
+            if not stripped or stripped.startswith((":", ".line")):
+                continue
+            return stripped == "return-void"
+    return False
 
 
 def check_routing_matrix() -> list[str]:

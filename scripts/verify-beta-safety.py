@@ -50,6 +50,14 @@ def main() -> int:
             if needle in text:
                 errors.append(f"{path.relative_to(ROOT)}: forbidden reference '{needle}'")
 
+    # Microphone mode was removed: no permission and no references to its UI class.
+    manifest = DECOMPILED / "AndroidManifest.xml"
+    if manifest.exists() and "RECORD_AUDIO" in manifest.read_text(encoding="utf-8"):
+        errors.append("AndroidManifest.xml: RECORD_AUDIO must not be declared (mic mode removed)")
+    for smali in DECOMPILED.glob("smali*/com/isaigu/gymapp/**/*.smali"):
+        if "MusicSyncHelper" in smali.read_text(encoding="utf-8"):
+            errors.append(f"{smali.relative_to(DECOMPILED)}: references removed MusicSyncHelper")
+
     if errors:
         print("BETA safety check FAILED:", file=sys.stderr)
         for line in errors:

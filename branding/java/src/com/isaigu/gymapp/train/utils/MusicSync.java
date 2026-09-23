@@ -19,8 +19,10 @@ import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.utils.AndroidUtils;
 
 /**
- * Low-latency mic → {@link MasterStrengthControl#setMasterStrength(int)}.
- * Coalesced handler.post apply on main thread; short sleep in mic loop to avoid CPU spin.
+ * Low-latency mic / player → {@link MasterStrengthControl#setMasterStrength(int)}.
+ * BLE pacing: at most one strength update in the suit's command queue; newer levels
+ * overwrite the pending one, so lag never accumulates. Send→ACK time is measured and
+ * used by the player as look-ahead so impulses land with the heard audio.
  */
 public class MusicSync {
     static final int PERMISSION_REQUEST = 0x4254;
@@ -33,8 +35,17 @@ public class MusicSync {
     private static final double PEAK_DECAY = 0.978;
     private static final int AUDIO_BUFFER_SAMPLES = 128;
     private static final long UI_INTERVAL_MS = 80L;
-    private static final long BLE_MIN_INTERVAL_MS = 16L;
     private static final long READ_YIELD_MS = 5L;
+    /** Look-ahead before the first ACK is measured; replaced by the measured value. */
+    private static final int BLE_LATENCY_INITIAL_MS = 50;
+    /** Send→ACK samples above this are link stalls, not the steady latency. */
+    private static final long BLE_LATENCY_OUTLIER_MS = 1000L;
+    /** Give up waiting for an ACK (callback lost / sender replaced) after this. */
+    private static final long BLE_ACK_STUCK_MS = 1500L;
+    private static final double BLE_LATENCY_EMA = 0.2;
+    /** Average age of the player's latest level (half of its 16 ms poll). */
+    private static final int PLAYER_POLL_AGE_MS = 8;
+    private static final int PLAYER_LEAD_MAX_MS = 400;
 
     private static AudioRecord audioRecord;
     private static MusicPlayerEngine playerEngine;
@@ -55,31 +66,136 @@ public class MusicSync {
     /** False while no train row is running — blocks impulse drive even if music plays. */
     private static boolean trainingGateOpen = true;
     private static long lastUiMs;
-    private static long lastBleMs;
     private static int lastPushedApplied = -1;
-    private static volatile int pendingApplied;
+    /** Latest level waiting for the BLE pipe to drain; -1 = none. */
+    private static volatile int pendingApplied = -1;
+    /** A strength update is in the suit's command queue and not yet ACKed. */
+    private static boolean awaitingAck;
+    private static long sendStartMs;
+    private static volatile double bleLatencyMs = BLE_LATENCY_INITIAL_MS;
+    private static int bleLatencySamples;
     private static final short[] audioBuffer = new short[AUDIO_BUFFER_SAMPLES];
 
     public static boolean isTrainingGateOpen() {
         return trainingGateOpen;
     }
 
-    private static final Runnable applyRunnable = new Runnable() {
+    private static final Runnable flushRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!running || !trainingGateOpen) {
-                return;
-            }
-            int value = pendingApplied;
-            if (value == lastPushedApplied) {
-                return;
-            }
-            lastPushedApplied = value;
-            lastBleMs = SystemClock.elapsedRealtime();
-            MasterStrengthControl.setMasterStrength(value, true);
-            maybeUpdateUi();
+            flushPending();
         }
     };
+
+    private static final Runnable writeCompleteRunnable = new Runnable() {
+        @Override
+        public void run() {
+            handleWriteComplete();
+        }
+    };
+
+    private static boolean isMainThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
+    }
+
+    private static boolean isTargetSenderBusy() {
+        TrainItem item = MasterStrengthControl.getTarget();
+        return item != null && item.isSenderBusy();
+    }
+
+    /** Queue the latest level; any thread. Older unsent levels are dropped. */
+    private static void submitApplied(int value) {
+        pendingApplied = value;
+        if (isMainThread()) {
+            flushPending();
+            return;
+        }
+        ensureHandler();
+        handler.removeCallbacks(flushRunnable);
+        handler.post(flushRunnable);
+    }
+
+    /** Main thread: send the pending level only when the suit's command queue is empty. */
+    private static void flushPending() {
+        if (!running || !trainingGateOpen) {
+            pendingApplied = -1;
+            return;
+        }
+        if (awaitingAck) {
+            if (SystemClock.elapsedRealtime() - sendStartMs < BLE_ACK_STUCK_MS) {
+                return;
+            }
+            awaitingAck = false;
+        }
+        if (isTargetSenderBusy()) {
+            // Other commands in flight; onBleWriteComplete() retries.
+            return;
+        }
+        int value = pendingApplied;
+        if (value < 0) {
+            return;
+        }
+        pendingApplied = -1;
+        if (value == lastPushedApplied) {
+            return;
+        }
+        lastPushedApplied = value;
+        MasterStrengthControl.setMasterStrength(value, true);
+        if (isTargetSenderBusy()) {
+            awaitingAck = true;
+            sendStartMs = SystemClock.elapsedRealtime();
+        }
+        maybeUpdateUi();
+    }
+
+    /**
+     * Hook from CommandSender write callback (success or failure), after the next queued
+     * command was started. Any thread.
+     */
+    public static void onBleWriteComplete() {
+        if (!running) {
+            return;
+        }
+        if (isMainThread()) {
+            handleWriteComplete();
+            return;
+        }
+        ensureHandler();
+        handler.post(writeCompleteRunnable);
+    }
+
+    private static void handleWriteComplete() {
+        if (awaitingAck) {
+            if (isTargetSenderBusy()) {
+                // One strength update is several packets; wait for the last ACK.
+                return;
+            }
+            awaitingAck = false;
+            long rtt = SystemClock.elapsedRealtime() - sendStartMs;
+            if (rtt > 0L && rtt < BLE_LATENCY_OUTLIER_MS) {
+                if (bleLatencySamples == 0) {
+                    bleLatencyMs = rtt;
+                } else {
+                    bleLatencyMs += BLE_LATENCY_EMA * (rtt - bleLatencyMs);
+                }
+                bleLatencySamples++;
+            }
+        }
+        if (pendingApplied >= 0) {
+            flushPending();
+        }
+    }
+
+    /** Smoothed send→ACK time of one strength update (ms). */
+    public static int getBleLatencyMs() {
+        return (int) Math.round(bleLatencyMs);
+    }
+
+    /** Player look-ahead: level sent now should match audio heard when it reaches the suit. */
+    public static int getPlayerLeadMs() {
+        int lead = getBleLatencyMs() + PLAYER_POLL_AGE_MS;
+        return lead > PLAYER_LEAD_MAX_MS ? PLAYER_LEAD_MAX_MS : lead;
+    }
 
     static void ensureHandler() {
         if (handler == null) {
@@ -91,9 +207,9 @@ public class MusicSync {
         smoothedRms = 0.0;
         trackedPeakRms = 300.0;
         lastUiMs = 0L;
-        lastBleMs = 0L;
         lastPushedApplied = -1;
-        pendingApplied = 0;
+        pendingApplied = -1;
+        awaitingAck = false;
         MasterStrengthControl.resetApplied();
     }
 
@@ -128,26 +244,10 @@ public class MusicSync {
         }
         liveStrength = level;
         int applied = MasterStrengthControl.scaleFromSound(level);
-        if (applied == lastPushedApplied && applied == pendingApplied) {
+        if (applied == lastPushedApplied && pendingApplied < 0) {
             return;
         }
-        pendingApplied = applied;
-        if (playerMode) {
-            ensureHandler();
-            handler.removeCallbacks(applyRunnable);
-            applyRunnable.run();
-            return;
-        }
-        long now = SystemClock.elapsedRealtime();
-        if (now - lastBleMs < BLE_MIN_INTERVAL_MS && applied != 0) {
-            int delta = Math.abs(applied - lastPushedApplied);
-            if (delta < 2 && applied != 0) {
-                return;
-            }
-        }
-        ensureHandler();
-        handler.removeCallbacks(applyRunnable);
-        handler.post(applyRunnable);
+        submitApplied(applied);
     }
 
     private static Context permissionContext() {
@@ -341,7 +441,12 @@ public class MusicSync {
             }
         }
         if (handler != null) {
-            handler.removeCallbacks(applyRunnable);
+            handler.removeCallbacks(flushRunnable);
+            handler.removeCallbacks(writeCompleteRunnable);
+        }
+        if (bleLatencySamples > 0) {
+            MusicDiagLog.log("ble-pacing", "latencyMs=" + getBleLatencyMs()
+                    + " samples=" + bleLatencySamples);
         }
         releaseAudio();
         releasePlayer();
@@ -435,10 +540,7 @@ public class MusicSync {
         MasterStrengthControl.adjustCeiling(delta);
         int applied = MasterStrengthControl.scaleFromSound(liveStrength);
         lastPushedApplied = -1;
-        pendingApplied = applied;
-        ensureHandler();
-        handler.removeCallbacks(applyRunnable);
-        applyRunnable.run();
+        submitApplied(applied);
         MasterStrengthControl.refreshSyncLabel();
         maybeUpdateUi();
         return true;
@@ -525,6 +627,7 @@ public class MusicSync {
             pausedByTraining = false;
             MusicPlayerHelper.showActive(0, getStrengthCeiling());
             MusicPlayerHelper.onPlaybackStarted();
+            MusicDiagLog.log("ble-pacing", "player start leadMs=" + getPlayerLeadMs());
         } catch (Throwable t) {
             stopCaptureOnly();
             MusicPlayerHelper.showError(ERROR_PLAYER);
@@ -631,7 +734,7 @@ public class MusicSync {
         if (!anyTrainingRunning) {
             trainingGateOpen = false;
             ensureHandler();
-            handler.removeCallbacks(applyRunnable);
+            handler.removeCallbacks(flushRunnable);
             if (engine.isPlaying()) {
                 pausedByTraining = true;
                 engine.pausePlayback();
@@ -651,10 +754,10 @@ public class MusicSync {
     private static void freezeImpulseOutput() {
         liveStrength = 0;
         playerSmoothedSound = 0f;
-        pendingApplied = 0;
+        pendingApplied = -1;
         lastPushedApplied = -1;
         ensureHandler();
-        handler.removeCallbacks(applyRunnable);
+        handler.removeCallbacks(flushRunnable);
         MasterStrengthControl.sendImpulseLevel(0);
         MasterStrengthControl.resetApplied();
         maybeUpdateUi();
@@ -662,7 +765,7 @@ public class MusicSync {
 
     private static void resumeImpulseOutput() {
         lastPushedApplied = -1;
-        pendingApplied = 0;
+        pendingApplied = -1;
         playerSmoothedSound = 0f;
         trainingGateOpen = true;
         pausedByTraining = false;

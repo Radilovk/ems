@@ -309,7 +309,6 @@ def install_smali() -> None:
         "MasterStrengthControl.smali",
         "MusicSyncBridge.smali",
         "SoundEnvelopeMapper.smali",
-        "AudioOutputLatency.smali",
         "MusicUriSource.smali",
     )
     for name in utils_smali:
@@ -317,7 +316,7 @@ def install_smali() -> None:
         if src.is_file():
             shutil.copy2(src, UTILS_DIR / name)
             print(f"installed train/utils/{name}")
-        elif name in ("AudioOutputLatency.smali", "MusicUriSource.smali"):
+        elif name == "MusicUriSource.smali":
             raise SystemExit(f"Missing {name} — run compile-music-sync-java.sh")
     for src in sorted((BRANDING / "smali").glob("MusicSync$*.smali")):
         shutil.copy2(src, UTILS_DIR / src.name)

@@ -19,6 +19,11 @@ public class TrainItem {
 
     public void onParamsChange() {}
 
+    /** Added by apply-music-training-sync.py: BLE write in flight or commands queued. */
+    public boolean isSenderBusy() {
+        return false;
+    }
+
     public void setMaSelected(boolean selected) {}
 
     public void setHzSelected(boolean selected) {}

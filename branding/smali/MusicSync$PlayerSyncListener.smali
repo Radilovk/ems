@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 587
+    .prologue
+    .line 690
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,79 +33,82 @@
 .method public onError()V
     .registers 2
 
-    .line 607
+    .prologue
+    .line 710
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 608
+    .line 711
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 609
+    .line 712
     return-void
 .end method
 
 .method public onPlaybackEnded()V
     .registers 2
 
-    .line 597
+    .prologue
+    .line 700
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->advanceToNextTrack()Z
 
     move-result v0
 
     if-eqz v0, :cond_7
 
-    .line 598
+    .line 706
+    :goto_6
     return-void
 
-    .line 600
+    .line 703
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onPlaybackEndedNaturally()V
 
-    .line 601
+    .line 704
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 602
+    .line 705
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
-    .line 603
-    return-void
+    goto :goto_6
 .end method
 
 .method public onWaveformLevel(I)V
     .registers 3
 
-    .line 590
+    .prologue
+    .line 693
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_19
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerMode:Z
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1300()Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1000()Z
 
     move-result v0
 
     if-eqz v0, :cond_19
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->trainingGateOpen:Z
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000()Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1100()Z
 
     move-result v0
 
     if-eqz v0, :cond_19
 
     # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->pausedByTraining:Z
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1400()Z
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1200()Z
 
     move-result v0
 
     if-nez v0, :cond_19
 
-    .line 591
+    .line 694
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->pushSoundLevel(I)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$700(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$400(I)V
 
-    .line 593
+    .line 696
     :cond_19
     return-void
 .end method

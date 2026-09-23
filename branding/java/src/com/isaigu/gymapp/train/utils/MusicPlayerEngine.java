@@ -29,8 +29,6 @@ public final class MusicPlayerEngine {
     private static final int WINDOW_MS = 20;
     /** Sync poll interval (ms). */
     private static final int SYNC_POLL_MS = 16;
-    /** Fallback output latency when device properties are unavailable. */
-    private static final int SYNC_OFFSET_FALLBACK_MS = 30;
     private static final int PCM_WINDOW_FRAMES = 256;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -39,7 +37,6 @@ public final class MusicPlayerEngine {
     private Listener listener;
     private int[] envelope;
     private volatile boolean tracking;
-    private int syncOffsetMs = SYNC_OFFSET_FALLBACK_MS;
 
     /**
      * Decode file off the UI thread. Envelope buckets are stamped from decoder PTS
@@ -274,7 +271,6 @@ public final class MusicPlayerEngine {
         player.setOnCompletionListener(new CompletionHandler(this));
         player.setOnErrorListener(new ErrorHandler(this));
         player.prepare();
-        syncOffsetMs = AudioOutputLatency.estimatePlaybackOffsetMs(context);
         player.start();
         tracking = true;
         syncRunnable = new SyncRunnable(this);
@@ -304,7 +300,9 @@ public final class MusicPlayerEngine {
         if (envelope == null || envelope.length == 0) {
             return 0;
         }
-        int lookupMs = positionMs + syncOffsetMs;
+        // getCurrentPosition() tracks the presented (heard) frame; look ahead by the
+        // measured BLE send→ACK time so the impulse lands with that audio.
+        int lookupMs = positionMs + MusicSync.getPlayerLeadMs();
         if (lookupMs < 0) {
             lookupMs = 0;
         }

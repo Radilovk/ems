@@ -48,6 +48,7 @@ RULES = [
     ("MasterStrengthControl.smali", r"CircleSeekBar;->setCurProcess\(I\)V", "moves circle slider"),
     ("MasterStrengthControl.smali", r"TrainItem;->onParamsChange\(\)V", "BLE via onParamsChange"),
     ("MusicSync.smali", r"\.method public static isRunning\(\)Z", "isRunning()"),
+    ("MusicSync.smali", r"\.method public static onBleWriteComplete\(\)V", "BLE write-complete hook"),
 ]
 
 GLOBAL_RULES = [
@@ -91,11 +92,26 @@ def check_player_engine_deps() -> list[str]:
     if engine.is_file():
         text = engine.read_text(encoding="utf-8")
         installed = {p.name for p in UTILS_DIR.glob("*.smali")}
-        for cls in ("AudioOutputLatency", "MusicUriSource"):
+        for cls in ("MusicUriSource",):
             if cls in text and f"{cls}.smali" not in installed:
                 errs.append(f"MusicPlayerEngine references {cls} but smali not installed")
     if not (UTILS_DIR / "SoundEnvelopeMapper.smali").is_file():
         errs.append("MISSING in APK: train/utils/SoundEnvelopeMapper.smali")
+    return errs
+
+
+def check_ble_pacing_hooks() -> list[str]:
+    model = UTILS_DIR.parent / "model"
+    callback = model / "CommandSender$1.smali"
+    if not callback.is_file():
+        return ["MISSING: CommandSender$1 (run build first)"]
+    errs: list[str] = []
+    if callback.read_text(encoding="utf-8").count("MusicSync;->onBleWriteComplete()V") != 2:
+        errs.append("CommandSender$1: onWriteSuccess/onWriteFailure must call MusicSync.onBleWriteComplete()")
+    if "isBusy()Z" not in (model / "CommandSender.smali").read_text(encoding="utf-8"):
+        errs.append("CommandSender: MISSING isBusy()")
+    if ".method public isSenderBusy()Z" not in (model / "TrainItem.smali").read_text(encoding="utf-8"):
+        errs.append("TrainItem: MISSING isSenderBusy() (MusicSync pacing would crash)")
     return errs
 
 
@@ -128,6 +144,7 @@ def check_stale_player_helper() -> list[str]:
 def main() -> int:
     errs: list[str] = []
     errs.extend(check_player_engine_deps())
+    errs.extend(check_ble_pacing_hooks())
     errs.extend(check_player_file_picker())
     errs.extend(check_stale_player_helper())
     paths = sorted(SMALI_DIR.glob("*.smali"))

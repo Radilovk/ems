@@ -31,7 +31,6 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthTimeoutTask.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthStartRunnable.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandTask.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue.java"
 )
 

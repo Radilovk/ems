@@ -158,6 +158,7 @@ public final class NotifyWearableBridge {
             return;
         }
         listeningActive = true;
+        WearableBleDiagLog.init(context);
         lastHr = -1;
         gbHrEventCount = 0;
         gbCommandCount = 0;
@@ -210,13 +211,19 @@ public final class NotifyWearableBridge {
     }
 
     public static void requestConnect(Activity activity) {
+        if (activity == null) {
+            activity = WearableSyncHelper.resolveActivityForPermissions();
+        }
         Context context = activity != null ? activity : WearableSyncHelper.getContext();
         if (context == null) {
             return;
         }
         if (WearableConfig.isDirectBleMode(context)) {
-            if (activity != null && !WearableBlePermissions.hasConnectPermission(activity)) {
-                WearableBlePermissions.ensureConnectPermission(activity, new ConnectAfterPermission());
+            if (!WearableBlePermissions.hasAllBlePermissions(context)) {
+                if (activity != null) {
+                    WearableBlePermissions.ensureConnectPermission(activity,
+                            new ConnectAfterPermission());
+                }
                 return;
             }
         }
@@ -329,6 +336,13 @@ public final class NotifyWearableBridge {
 
     public static String getBleState() {
         return bleState;
+    }
+
+    public static int getBleNotifyCount() {
+        if (directBleActive) {
+            return XiaomiBandBleClient.getInstance().getNotifyEventCount();
+        }
+        return 0;
     }
 
     public static int getGbCommandCount() {

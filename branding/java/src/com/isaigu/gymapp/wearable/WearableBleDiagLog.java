@@ -94,6 +94,44 @@ public final class WearableBleDiagLog {
         }
     }
 
+    /** Last {@code maxBytes} of a diag file (raw CSV / log) for sharing; "" if missing. */
+    public static String readTail(Context context, String fileName, int maxBytes) {
+        Context ctx = context != null ? context : appContext;
+        if (ctx == null || fileName == null) {
+            return "";
+        }
+        try {
+            File dir = ctx.getExternalFilesDir("diag-logs");
+            if (dir == null) {
+                dir = new File(ctx.getFilesDir(), "diag-logs");
+            }
+            File file = new File(dir, fileName);
+            if (!file.exists()) {
+                return "";
+            }
+            long len = file.length();
+            long start = Math.max(0L, len - maxBytes);
+            java.io.RandomAccessFile raf = new java.io.RandomAccessFile(file, "r");
+            try {
+                raf.seek(start);
+                byte[] buf = new byte[(int) (len - start)];
+                raf.readFully(buf);
+                String text = new String(buf, "UTF-8");
+                if (start > 0) {
+                    int nl = text.indexOf('\n');
+                    if (nl >= 0) {
+                        text = text.substring(nl + 1);
+                    }
+                }
+                return text;
+            } finally {
+                raf.close();
+            }
+        } catch (Throwable ignored) {
+            return "";
+        }
+    }
+
     public static String getLogFileHint(Context context) {
         Context ctx = context != null ? context : appContext;
         if (ctx == null) {

@@ -1,4 +1,4 @@
-.class final Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConfigInfoListener;
+.class final Lcom/isaigu/gymapp/wearable/WearableSyncHelper$LiveDataListener;
 .super Ljava/lang/Object;
 .source "WearableSyncHelper.java"
 
@@ -13,7 +13,7 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "ConfigInfoListener"
+    name = "LiveDataListener"
 .end annotation
 
 
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1018
+    .line 1032
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,15 +34,23 @@
     .registers 3
 
     .prologue
-    .line 1021
+    .line 1035
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$000(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showHelp(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1500(Landroid/app/Activity;)V
+    .line 1036
+    if-eqz v0, :cond_9
 
-    .line 1022
+    .line 1037
+    # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->saveConfigFromUi(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1300(Landroid/app/Activity;)V
+
+    .line 1039
+    :cond_9
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->show(Landroid/app/Activity;)V
+
+    .line 1040
     return-void
 .end method

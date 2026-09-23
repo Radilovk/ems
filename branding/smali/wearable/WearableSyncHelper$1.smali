@@ -21,6 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
+    .prologue
     .line 160
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -32,6 +33,7 @@
 .method public run()V
     .registers 2
 
+    .prologue
     .line 163
     const/4 v0, 0x0
 
@@ -41,7 +43,7 @@
     move-result-object v0
 
     .line 164
-    if-eqz v0, :cond_22
+    if-eqz v0, :cond_d
 
     invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
 
@@ -49,7 +51,10 @@
 
     if-eqz v0, :cond_e
 
-    goto :goto_22
+    .line 170
+    :cond_d
+    :goto_d
+    return-void
 
     .line 167
     :cond_e
@@ -69,19 +74,12 @@
 
     move-result v0
 
-    if-nez v0, :cond_21
+    if-nez v0, :cond_d
 
     .line 168
     :cond_1e
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showOverlayDialog()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$200()Z
 
-    .line 170
-    :cond_21
-    return-void
-
-    .line 165
-    :cond_22
-    :goto_22
-    return-void
+    goto :goto_d
 .end method

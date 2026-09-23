@@ -87,26 +87,26 @@
     .registers 10
 
     .prologue
-    .line 121
+    .line 159
     sget-object v1, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appContext:Landroid/content/Context;
 
-    .line 122
+    .line 160
     if-eqz v1, :cond_6
 
     if-nez p1, :cond_7
 
-    .line 151
+    .line 189
     :cond_6
     :goto_6
     return-void
 
-    .line 125
+    .line 163
     :cond_7
     sget-object v2, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->lock:Ljava/lang/Object;
 
     monitor-enter v2
 
-    .line 128
+    .line 166
     :try_start_a
     const-string v0, "diag-logs"
 
@@ -114,10 +114,10 @@
 
     move-result-object v0
 
-    .line 129
+    .line 167
     if-nez v0, :cond_96
 
-    .line 130
+    .line 168
     new-instance v0, Ljava/io/File;
 
     invoke-virtual {v1}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
@@ -130,7 +130,7 @@
 
     move-object v1, v0
 
-    .line 132
+    .line 170
     :goto_1e
     invoke-virtual {v1}, Ljava/io/File;->exists()Z
 
@@ -138,16 +138,16 @@
 
     if-nez v0, :cond_27
 
-    .line 133
+    .line 171
     invoke-virtual {v1}, Ljava/io/File;->mkdirs()Z
 
-    .line 135
+    .line 173
     :cond_27
     new-instance v0, Ljava/io/File;
 
     invoke-direct {v0, v1, p0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 136
+    .line 174
     invoke-virtual {v0}, Ljava/io/File;->exists()Z
 
     move-result v3
@@ -164,7 +164,7 @@
 
     if-lez v3, :cond_66
 
-    .line 137
+    .line 175
     new-instance v3, Ljava/io/File;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -187,26 +187,26 @@
 
     invoke-direct {v3, v1, v4}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 138
+    .line 176
     invoke-virtual {v3}, Ljava/io/File;->exists()Z
 
     move-result v4
 
     if-eqz v4, :cond_5e
 
-    .line 139
+    .line 177
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 141
+    .line 179
     :cond_5e
     invoke-virtual {v0, v3}, Ljava/io/File;->renameTo(Ljava/io/File;)Z
 
-    .line 142
+    .line 180
     new-instance v0, Ljava/io/File;
 
     invoke-direct {v0, v1, p0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 144
+    .line 182
     :cond_66
     new-instance v1, Ljava/io/FileOutputStream;
 
@@ -214,7 +214,7 @@
 
     invoke-direct {v1, v0, v3}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;Z)V
 
-    .line 145
+    .line 183
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -241,16 +241,16 @@
 
     invoke-virtual {v1, v0}, Ljava/io/FileOutputStream;->write([B)V
 
-    .line 146
+    .line 184
     invoke-virtual {v1}, Ljava/io/FileOutputStream;->flush()V
 
-    .line 147
+    .line 185
     invoke-virtual {v1}, Ljava/io/FileOutputStream;->close()V
     :try_end_8e
     .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_8e} :catch_94
     .catchall {:try_start_a .. :try_end_8e} :catchall_91
 
-    .line 150
+    .line 188
     :goto_8e
     :try_start_8e
     monitor-exit v2
@@ -266,7 +266,7 @@
 
     throw v0
 
-    .line 148
+    .line 186
     :catch_94
     move-exception v0
 
@@ -314,7 +314,7 @@
     .registers 4
 
     .prologue
-    .line 113
+    .line 151
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -366,27 +366,27 @@
     .registers 4
 
     .prologue
-    .line 98
+    .line 136
     if-eqz p0, :cond_7
 
-    .line 99
+    .line 137
     :goto_2
     if-nez p0, :cond_a
 
-    .line 100
+    .line 138
     const-string v0, "diag-logs/wearable-ble.log"
 
-    .line 109
+    .line 147
     :goto_6
     return-object v0
 
-    .line 98
+    .line 136
     :cond_7
     sget-object p0, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appContext:Landroid/content/Context;
 
     goto :goto_2
 
-    .line 103
+    .line 141
     :cond_a
     :try_start_a
     const-string v0, "diag-logs"
@@ -395,10 +395,10 @@
 
     move-result-object v0
 
-    .line 104
+    .line 142
     if-eqz v0, :cond_1f
 
-    .line 105
+    .line 143
     new-instance v1, Ljava/io/File;
 
     const-string v2, "wearable-ble.log"
@@ -413,11 +413,11 @@
 
     goto :goto_6
 
-    .line 107
+    .line 145
     :catch_1e
     move-exception v0
 
-    .line 109
+    .line 147
     :cond_1f
     new-instance v0, Ljava/io/File;
 
@@ -748,11 +748,183 @@
     goto :goto_a
 .end method
 
+.method public static readTail(Landroid/content/Context;Ljava/lang/String;I)Ljava/lang/String;
+    .registers 13
+
+    .prologue
+    const-wide/16 v8, 0x0
+
+    .line 99
+    if-eqz p0, :cond_b
+
+    .line 100
+    :goto_4
+    if-eqz p0, :cond_8
+
+    if-nez p1, :cond_e
+
+    .line 101
+    :cond_8
+    const-string v0, ""
+
+    .line 131
+    :goto_a
+    return-object v0
+
+    .line 99
+    :cond_b
+    sget-object p0, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appContext:Landroid/content/Context;
+
+    goto :goto_4
+
+    .line 104
+    :cond_e
+    :try_start_e
+    const-string v0, "diag-logs"
+
+    invoke-virtual {p0, v0}, Landroid/content/Context;->getExternalFilesDir(Ljava/lang/String;)Ljava/io/File;
+
+    move-result-object v0
+
+    .line 105
+    if-nez v0, :cond_21
+
+    .line 106
+    new-instance v0, Ljava/io/File;
+
+    invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
+
+    move-result-object v1
+
+    const-string v2, "diag-logs"
+
+    invoke-direct {v0, v1, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 108
+    :cond_21
+    new-instance v1, Ljava/io/File;
+
+    invoke-direct {v1, v0, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 109
+    invoke-virtual {v1}, Ljava/io/File;->exists()Z
+
+    move-result v0
+
+    if-nez v0, :cond_2f
+
+    .line 110
+    const-string v0, ""
+
+    goto :goto_a
+
+    .line 112
+    :cond_2f
+    invoke-virtual {v1}, Ljava/io/File;->length()J
+
+    move-result-wide v2
+
+    .line 113
+    const-wide/16 v4, 0x0
+
+    int-to-long v6, p2
+
+    sub-long v6, v2, v6
+
+    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v4
+
+    .line 114
+    new-instance v6, Ljava/io/RandomAccessFile;
+
+    const-string v0, "r"
+
+    invoke-direct {v6, v1, v0}, Ljava/io/RandomAccessFile;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    :try_end_43
+    .catch Ljava/lang/Throwable; {:try_start_e .. :try_end_43} :catch_6b
+
+    .line 116
+    :try_start_43
+    invoke-virtual {v6, v4, v5}, Ljava/io/RandomAccessFile;->seek(J)V
+
+    .line 117
+    sub-long v0, v2, v4
+
+    long-to-int v0, v0
+
+    new-array v1, v0, [B
+
+    .line 118
+    invoke-virtual {v6, v1}, Ljava/io/RandomAccessFile;->readFully([B)V
+
+    .line 119
+    new-instance v0, Ljava/lang/String;
+
+    const-string v2, "UTF-8"
+
+    invoke-direct {v0, v1, v2}, Ljava/lang/String;-><init>([BLjava/lang/String;)V
+
+    .line 120
+    cmp-long v1, v4, v8
+
+    if-lez v1, :cond_67
+
+    .line 121
+    const/16 v1, 0xa
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->indexOf(I)I
+
+    move-result v1
+
+    .line 122
+    if-ltz v1, :cond_67
+
+    .line 123
+    add-int/lit8 v1, v1, 0x1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+    :try_end_66
+    .catchall {:try_start_43 .. :try_end_66} :catchall_6f
+
+    move-result-object v0
+
+    .line 128
+    :cond_67
+    :try_start_67
+    invoke-virtual {v6}, Ljava/io/RandomAccessFile;->close()V
+    :try_end_6a
+    .catch Ljava/lang/Throwable; {:try_start_67 .. :try_end_6a} :catch_6b
+
+    goto :goto_a
+
+    .line 130
+    :catch_6b
+    move-exception v0
+
+    .line 131
+    const-string v0, ""
+
+    goto :goto_a
+
+    .line 128
+    :catchall_6f
+    move-exception v0
+
+    :try_start_70
+    invoke-virtual {v6}, Ljava/io/RandomAccessFile;->close()V
+
+    .line 129
+    throw v0
+    :try_end_74
+    .catch Ljava/lang/Throwable; {:try_start_70 .. :try_end_74} :catch_6b
+.end method
+
 .method private static timestamp()Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 117
+    .line 155
     new-instance v0, Ljava/text/SimpleDateFormat;
 
     const-string v1, "HH:mm:ss.SSS"

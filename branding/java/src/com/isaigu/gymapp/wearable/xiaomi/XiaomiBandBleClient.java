@@ -41,7 +41,7 @@ public final class XiaomiBandBleClient {
     private static final int SYSTEM_CMD_TYPE = 2;
     private static final int SYSTEM_CMD_DEVICE_INFO = 2;
 
-    private static final String BLE_BUILD_TAG = "v1.1.54-ble";
+    private static final String BLE_BUILD_TAG = "v1.1.55-ble";
     private static final long AUTH_TIMEOUT_MS = 45000L;
     private static final long STALL_CHECK_MS = 3000L;
     private static final long FIRST_HR_TIMEOUT_MS = 12000L;
@@ -102,6 +102,13 @@ public final class XiaomiBandBleClient {
     private boolean discoveryRequested;
     private int attMtu = DEFAULT_ATT_MTU;
     private long lastRealtimeEventMs;
+    private long firstRealtimeEventMs;
+    private int realtimeEventCount;
+    private int lastSteps = -1;
+    private int lastCalories = -1;
+    private int lastF3 = -1;
+    private int lastF5 = -1;
+    private int lastRawHr = -1;
 
     private XiaomiBandBleClient() {}
 
@@ -130,6 +137,43 @@ public final class XiaomiBandBleClient {
 
     public int getNotifyCount52() {
         return notifyCount52;
+    }
+
+    /** Snapshot of the latest 8/47 realtime event for the live data panel. */
+    public long getLastRealtimeEventMs() {
+        return lastRealtimeEventMs;
+    }
+
+    public int getRealtimeEventCount() {
+        return realtimeEventCount;
+    }
+
+    /** Average events per second since the first 8/47 of this session (0 if unknown). */
+    public float getRealtimeEventRate() {
+        if (realtimeEventCount < 2 || lastRealtimeEventMs <= firstRealtimeEventMs) {
+            return 0f;
+        }
+        return (realtimeEventCount - 1) * 1000f / (lastRealtimeEventMs - firstRealtimeEventMs);
+    }
+
+    public int getLastSteps() {
+        return lastSteps;
+    }
+
+    public int getLastCalories() {
+        return lastCalories;
+    }
+
+    public int getLastF3() {
+        return lastF3;
+    }
+
+    public int getLastF5() {
+        return lastF5;
+    }
+
+    public int getLastRawHr() {
+        return lastRawHr;
     }
 
     public String getLastState() {
@@ -185,6 +229,13 @@ public final class XiaomiBandBleClient {
         WearableBleDiagLog.appendRaw(REALTIME_FILE, sessionMark
                 + " | epochMs,dtMs,steps,calories,f3,hr,f5,standing,extra");
         lastRealtimeEventMs = 0L;
+        firstRealtimeEventMs = 0L;
+        realtimeEventCount = 0;
+        lastSteps = -1;
+        lastCalories = -1;
+        lastF3 = -1;
+        lastF5 = -1;
+        lastRawHr = -1;
         com.isaigu.gymapp.wearable.WearableBlePermissions.logPermissionState(context);
         appContext = context.getApplicationContext();
         targetMac = mac != null ? mac.trim() : "";
@@ -791,6 +842,15 @@ public final class XiaomiBandBleClient {
         long nowMs = System.currentTimeMillis();
         long dtMs = lastRealtimeEventMs > 0L ? nowMs - lastRealtimeEventMs : 0L;
         lastRealtimeEventMs = nowMs;
+        if (firstRealtimeEventMs == 0L) {
+            firstRealtimeEventMs = nowMs;
+        }
+        realtimeEventCount++;
+        lastSteps = steps;
+        lastCalories = intField(rt, 2);
+        lastF3 = intField(rt, 3);
+        lastF5 = intField(rt, 5);
+        lastRawHr = hr;
         StringBuilder extra = new StringBuilder();
         for (Map.Entry<Integer, java.util.List<Object>> e : rt.entrySet()) {
             int f = e.getKey();

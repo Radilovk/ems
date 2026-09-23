@@ -24,7 +24,7 @@
 
 .field private static final BAND_ACK_TIMEOUT_MS:J = 0xbb8L
 
-.field private static final BLE_BUILD_TAG:Ljava/lang/String; = "v1.1.54-ble"
+.field private static final BLE_BUILD_TAG:Ljava/lang/String; = "v1.1.55-ble"
 
 .field private static final CONFIG_TO_START_DELAY_MS:J = 0x190L
 
@@ -116,6 +116,8 @@
 
 .field private discoveryRequested:Z
 
+.field private firstRealtimeEventMs:J
+
 .field private frameEncrypt:Z
 
 .field private gatt:Landroid/bluetooth/BluetoothGatt;
@@ -126,13 +128,23 @@
 
 .field private hrEventCount:I
 
+.field private lastCalories:I
+
+.field private lastF3:I
+
+.field private lastF5:I
+
 .field private lastHrEventMs:J
 
 .field private lastNotifyChar:Ljava/lang/String;
 
+.field private lastRawHr:I
+
 .field private lastRealtimeEventMs:J
 
 .field private lastState:Ljava/lang/String;
+
+.field private lastSteps:I
 
 .field private listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
@@ -153,6 +165,8 @@
 .field private final random:Ljava/util/Random;
 
 .field private realtimeActive:Z
+
+.field private realtimeEventCount:I
 
 .field private realtimeStartRetries:I
 
@@ -195,10 +209,12 @@
 .end method
 
 .method private constructor <init>()V
-    .registers 2
+    .registers 3
 
     .prologue
-    .line 106
+    const/4 v1, -0x1
+
+    .line 113
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 63
@@ -291,7 +307,22 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->attMtu:I
 
-    .line 106
+    .line 107
+    iput v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastSteps:I
+
+    .line 108
+    iput v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastCalories:I
+
+    .line 109
+    iput v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF3:I
+
+    .line 110
+    iput v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF5:I
+
+    .line 111
+    iput v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRawHr:I
+
+    .line 113
     return-void
 .end method
 
@@ -299,7 +330,7 @@
     .registers 5
 
     .prologue
-    .line 538
+    .line 589
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
     if-eqz v0, :cond_8
@@ -308,23 +339,23 @@
 
     if-nez v0, :cond_9
 
-    .line 546
+    .line 597
     :cond_8
     :goto_8
     return-void
 
-    .line 541
+    .line 592
     :cond_9
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
     if-nez v0, :cond_8
 
-    .line 544
+    .line 595
     const-string v0, "starting"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 545
+    .line 596
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRealtimeStartRunnable;
@@ -342,7 +373,7 @@
     .registers 5
 
     .prologue
-    .line 359
+    .line 410
     if-eqz p1, :cond_a
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gattServicesReady:Z
@@ -353,7 +384,7 @@
 
     if-eqz v0, :cond_37
 
-    .line 360
+    .line 411
     :cond_a
     const-string v0, "gatt"
 
@@ -397,32 +428,32 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 377
+    .line 428
     :goto_36
     return-void
 
-    .line 364
+    .line 415
     :cond_37
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->discoveryRequested:Z
 
-    .line 365
+    .line 416
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuFallbackTask:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 366
+    .line 417
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 367
+    .line 418
     const-string v0, "discovering"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 369
+    .line 420
     :try_start_48
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothGatt;->discoverServices()Z
     :try_end_4b
@@ -431,32 +462,32 @@
 
     goto :goto_36
 
-    .line 370
+    .line 421
     :catch_4c
     move-exception v0
 
-    .line 371
+    .line 422
     const-string v1, "discoverServices"
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 372
+    .line 423
     const-string v0, "no_bt_permission"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
     goto :goto_36
 
-    .line 373
+    .line 424
     :catch_58
     move-exception v0
 
-    .line 374
+    .line 425
     const-string v1, "discoverServices"
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 375
+    .line 426
     const-string v0, "service_fail"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
@@ -478,12 +509,12 @@
 
     const/4 v2, 0x0
 
-    .line 824
+    .line 884
     const/4 v0, 0x5
 
     new-array v0, v0, [[B
 
-    .line 825
+    .line 885
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v1
@@ -492,7 +523,7 @@
 
     const/high16 v1, 0x41f00000    # 30.0f
 
-    .line 826
+    .line 886
     invoke-static {v4, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldFloat(IF)[B
 
     move-result-object v1
@@ -501,7 +532,7 @@
 
     const-string v1, "XEMS"
 
-    .line 827
+    .line 887
     invoke-static {v5, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldString(ILjava/lang/String;)[B
 
     move-result-object v1
@@ -510,7 +541,7 @@
 
     const/16 v1, 0xe0
 
-    .line 828
+    .line 888
     invoke-static {v6, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v1
@@ -521,14 +552,14 @@
 
     const-string v2, "EN"
 
-    .line 829
+    .line 889
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldString(ILjava/lang/String;)[B
 
     move-result-object v1
 
     aput-object v1, v0, v6
 
-    .line 824
+    .line 884
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v0
@@ -554,7 +585,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 1006
+    .line 1066
     invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v0
@@ -565,7 +596,7 @@
 
     check-cast v0, Ljava/util/List;
 
-    .line 1007
+    .line 1067
     if-eqz v0, :cond_1b
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -582,11 +613,11 @@
 
     if-nez v1, :cond_1d
 
-    .line 1008
+    .line 1068
     :cond_1b
     const/4 v0, 0x0
 
-    .line 1010
+    .line 1070
     :goto_1c
     return-object v0
 
@@ -606,17 +637,17 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 936
+    .line 996
     if-nez p0, :cond_6
 
-    .line 937
+    .line 997
     const-string v0, ""
 
-    .line 943
+    .line 1003
     :goto_5
     return-object v0
 
-    .line 939
+    .line 999
     :cond_6
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -628,13 +659,13 @@
 
     move v0, v1
 
-    .line 940
+    .line 1000
     :goto_f
     array-length v3, p0
 
     if-ge v0, v3, :cond_2b
 
-    .line 941
+    .line 1001
     const-string v3, "%02x"
 
     const/4 v4, 0x1
@@ -657,12 +688,12 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 940
+    .line 1000
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_f
 
-    .line 943
+    .line 1003
     :cond_2b
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -675,12 +706,12 @@
     .registers 3
 
     .prologue
-    .line 905
+    .line 965
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authTimeoutRunnable:Ljava/lang/Runnable;
 
     if-eqz v0, :cond_15
 
-    .line 906
+    .line 966
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -689,17 +720,17 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    .line 907
+    .line 967
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authTimeoutRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 908
+    .line 968
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authTimeoutRunnable:Ljava/lang/Runnable;
 
-    .line 910
+    .line 970
     :cond_15
     return-void
 .end method
@@ -708,12 +739,12 @@
     .registers 3
 
     .prologue
-    .line 928
+    .line 988
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->reconnectRunnable:Ljava/lang/Runnable;
 
     if-eqz v0, :cond_15
 
-    .line 929
+    .line 989
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -722,17 +753,17 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    .line 930
+    .line 990
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->reconnectRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 931
+    .line 991
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->reconnectRunnable:Ljava/lang/Runnable;
 
-    .line 933
+    .line 993
     :cond_15
     return-void
 .end method
@@ -741,22 +772,22 @@
     .registers 2
 
     .prologue
-    .line 575
+    .line 626
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkMaps:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->clear()V
 
-    .line 576
+    .line 627
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkCounts:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->clear()V
 
-    .line 577
+    .line 628
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkEncryptedByChar:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->clear()V
 
-    .line 578
+    .line 629
     return-void
 .end method
 
@@ -764,7 +795,7 @@
     .registers 3
 
     .prologue
-    .line 677
+    .line 728
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->decryptInbound([B)[B
 
     move-result-object v0
@@ -778,13 +809,13 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 659
+    .line 710
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
-    .line 660
+    .line 711
     if-nez v1, :cond_d
 
-    .line 661
+    .line 712
     new-instance v0, Ljava/lang/RuntimeException;
 
     const-string v1, "no session"
@@ -793,7 +824,7 @@
 
     throw v0
 
-    .line 664
+    .line 715
     :cond_d
     :try_start_d
     iget-object v0, v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->decKey:[B
@@ -808,22 +839,22 @@
 
     move-result-object v0
 
-    .line 670
+    .line 721
     :goto_16
     return-object v0
 
-    .line 665
+    .line 716
     :catch_17
     move-exception v0
 
-    .line 666
+    .line 717
     array-length v2, p1
 
     const/16 v3, 0x8
 
     if-le v2, v3, :cond_3c
 
-    .line 667
+    .line 718
     aget-byte v0, p1, v5
 
     and-int/lit16 v0, v0, 0xff
@@ -838,21 +869,21 @@
 
     or-int/2addr v0, v2
 
-    .line 668
+    .line 719
     array-length v2, p1
 
     add-int/lit8 v2, v2, -0x2
 
     new-array v2, v2, [B
 
-    .line 669
+    .line 720
     const/4 v3, 0x2
 
     array-length v4, v2
 
     invoke-static {p1, v3, v2, v5, v4}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 670
+    .line 721
     iget-object v3, v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->decKey:[B
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->decNonce:[B
@@ -863,7 +894,7 @@
 
     goto :goto_16
 
-    .line 672
+    .line 723
     :cond_3c
     throw v0
 .end method
@@ -874,12 +905,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 488
+    .line 539
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     if-eqz v0, :cond_11
 
-    .line 490
+    .line 541
     :try_start_5
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
@@ -887,7 +918,7 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_a} :catch_18
 
-    .line 494
+    .line 545
     :goto_a
     :try_start_a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
@@ -896,27 +927,27 @@
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_f} :catch_16
 
-    .line 497
+    .line 548
     :goto_f
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 499
+    .line 550
     :cond_11
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->charRead:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 500
+    .line 551
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->charWrite:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 501
+    .line 552
     return-void
 
-    .line 495
+    .line 546
     :catch_16
     move-exception v0
 
     goto :goto_f
 
-    .line 491
+    .line 542
     :catch_18
     move-exception v0
 
@@ -927,8 +958,8 @@
     .registers 1
 
     .prologue
-    .line 116
-    const-string v0, "v1.1.54-ble"
+    .line 123
+    const-string v0, "v1.1.55-ble"
 
     return-object v0
 .end method
@@ -937,7 +968,7 @@
     .registers 2
 
     .prologue
-    .line 109
+    .line 116
     const-class v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
     monitor-enter v1
@@ -947,14 +978,14 @@
 
     if-nez v0, :cond_e
 
-    .line 110
+    .line 117
     new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->instance:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 
-    .line 112
+    .line 119
     :cond_e
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->instance:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
     :try_end_10
@@ -964,7 +995,7 @@
 
     return-object v0
 
-    .line 109
+    .line 116
     :catchall_12
     move-exception v0
 
@@ -991,45 +1022,45 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 711
+    .line 762
     const/16 v0, 0x1a
 
     if-ne p2, v0, :cond_15
 
-    .line 713
+    .line 764
     :try_start_5
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->handleWatchNonce(Ljava/util/Map;)V
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_8} :catch_9
 
-    .line 737
+    .line 788
     :cond_8
     :goto_8
     return-void
 
-    .line 714
+    .line 765
     :catch_9
     move-exception v0
 
-    .line 715
+    .line 766
     const-string v1, "auth_nonce"
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 716
+    .line 767
     const-string v0, "auth_fail"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
     goto :goto_8
 
-    .line 720
+    .line 771
     :cond_15
     const/4 v0, 0x5
 
     if-ne p2, v0, :cond_20
 
-    .line 721
+    .line 772
     const-string v0, "auth"
 
     const-string v1, "userid step (not final)"
@@ -1038,55 +1069,55 @@
 
     goto :goto_8
 
-    .line 724
+    .line 775
     :cond_20
     const/16 v0, 0x1b
 
     if-ne p2, v0, :cond_8
 
-    .line 725
+    .line 776
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->frameEncrypt:Z
 
-    .line 726
+    .line 777
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
-    .line 727
+    .line 778
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     if-eqz v0, :cond_35
 
-    .line 728
+    .line 779
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     iput v2, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->encIndex:I
 
-    .line 729
+    .line 780
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     const/4 v1, 0x0
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->decIndex:I
 
-    .line 731
+    .line 782
     :cond_35
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelAuthTimeout()V
 
-    .line 732
+    .line 783
     const-string v0, "authenticated"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 733
+    .line 784
     invoke-direct {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyConnected(Z)V
 
-    .line 734
+    .line 785
     const-string v0, "auth"
 
     const-string v1, "success frameEncrypt=true encIndex=1"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 735
+    .line 786
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->postAuthInit:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->start()V
@@ -1100,24 +1131,24 @@
     .prologue
     const/4 v8, 0x1
 
-    .line 681
+    .line 732
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoParse([B)Ljava/util/Map;
 
     move-result-object v0
 
-    .line 682
+    .line 733
     invoke-static {v0, v8}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
 
     move-result v1
 
-    .line 683
+    .line 734
     const/4 v2, 0x2
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
 
     move-result v2
 
-    .line 684
+    .line 735
     const-string v3, "cmd"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -1150,10 +1181,10 @@
 
     invoke-virtual {p0, v3, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 685
+    .line 736
     if-eq v1, v8, :cond_6a
 
-    .line 686
+    .line 737
     const-string v3, "band-raw.csv"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -1194,7 +1225,7 @@
 
     move-result-object v4
 
-    .line 687
+    .line 738
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bytesToHex([B)Ljava/lang/String;
 
     move-result-object v5
@@ -1207,14 +1238,14 @@
 
     move-result-object v4
 
-    .line 686
+    .line 737
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appendRaw(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 689
+    .line 740
     :cond_6a
     if-ne v1, v8, :cond_98
 
-    .line 690
+    .line 741
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
     if-eqz v1, :cond_94
@@ -1231,7 +1262,7 @@
 
     if-ne v2, v1, :cond_94
 
-    .line 692
+    .line 743
     :cond_7b
     const-string v0, "auth"
 
@@ -1255,33 +1286,33 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 708
+    .line 759
     :goto_93
     return-void
 
-    .line 695
+    .line 746
     :cond_94
     invoke-direct {p0, v0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->handleAuth(Ljava/util/Map;I)V
 
     goto :goto_93
 
-    .line 698
+    .line 749
     :cond_98
     const/16 v3, 0x8
 
     if-ne v1, v3, :cond_bd
 
-    .line 699
+    .line 750
     const/16 v1, 0x2f
 
     if-ne v2, v1, :cond_a4
 
-    .line 700
+    .line 751
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->handleRealtimeStats(Ljava/util/Map;)V
 
     goto :goto_93
 
-    .line 702
+    .line 753
     :cond_a4
     const-string v0, "health"
 
@@ -1307,7 +1338,7 @@
 
     goto :goto_93
 
-    .line 706
+    .line 757
     :cond_bd
     const-string v0, "cmd"
 
@@ -1341,7 +1372,7 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 707
+    .line 758
     const-string v0, "cmd_raw"
 
     const/16 v1, 0x30
@@ -1359,7 +1390,7 @@
 
     const/4 v8, 0x0
 
-    .line 581
+    .line 632
     if-eqz p3, :cond_8
 
     array-length v0, p3
@@ -1368,16 +1399,16 @@
 
     if-ge v0, v1, :cond_9
 
-    .line 656
+    .line 707
     :cond_8
     :goto_8
     return-void
 
-    .line 584
+    .line 635
     :cond_9
     if-eqz p1, :cond_52
 
-    .line 585
+    .line 636
     :goto_b
     const-string v0, "51"
 
@@ -1385,12 +1416,12 @@
 
     move-result v6
 
-    .line 586
+    .line 637
     invoke-static {p3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming;->parseFrame([B)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
 
     move-result-object v2
 
-    .line 587
+    .line 638
     const-string v0, "ack"
 
     iget-object v1, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;->kind:Ljava/lang/String;
@@ -1401,12 +1432,12 @@
 
     if-eqz v0, :cond_55
 
-    .line 588
+    .line 639
     iget v0, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;->result:I
 
     if-eqz v0, :cond_47
 
-    .line 589
+    .line 640
     const-string v0, "ack"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1441,26 +1472,26 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 591
+    .line 642
     :cond_47
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->onBandAck()V
 
-    .line 592
+    .line 643
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->postAuthInit:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->onCommandAcked()V
 
     goto :goto_8
 
-    .line 584
+    .line 635
     :cond_52
     const-string p1, ""
 
     goto :goto_b
 
-    .line 595
+    .line 646
     :cond_55
     const-string v0, "chunk_start"
 
@@ -1472,7 +1503,7 @@
 
     if-eqz v0, :cond_87
 
-    .line 596
+    .line 647
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkCounts:Ljava/util/Map;
 
     iget v1, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;->numChunks:I
@@ -1483,7 +1514,7 @@
 
     invoke-interface {v0, p1, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 597
+    .line 648
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkEncryptedByChar:Ljava/util/Map;
 
     iget-boolean v1, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;->encrypted:Z
@@ -1494,7 +1525,7 @@
 
     invoke-interface {v0, p1, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 598
+    .line 649
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkMaps:Ljava/util/Map;
 
     new-instance v1, Ljava/util/HashMap;
@@ -1503,7 +1534,7 @@
 
     invoke-interface {v0, p1, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 599
+    .line 650
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming;->CHUNK_START_ACK:[B
@@ -1512,7 +1543,7 @@
 
     goto :goto_8
 
-    .line 602
+    .line 653
     :cond_87
     const-string v0, "chunk_data"
 
@@ -1524,7 +1555,7 @@
 
     if-eqz v0, :cond_16a
 
-    .line 603
+    .line 654
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkMaps:Ljava/util/Map;
 
     invoke-interface {v0, p1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1533,7 +1564,7 @@
 
     check-cast v0, Ljava/util/Map;
 
-    .line 604
+    .line 655
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkCounts:Ljava/util/Map;
 
     invoke-interface {v1, p1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1542,7 +1573,7 @@
 
     check-cast v1, Ljava/lang/Integer;
 
-    .line 605
+    .line 656
     if-eqz v0, :cond_ad
 
     if-eqz v1, :cond_ad
@@ -1555,7 +1586,7 @@
 
     if-le v3, v5, :cond_d3
 
-    .line 606
+    .line 657
     :cond_ad
     const-string v0, "chunk"
 
@@ -1593,7 +1624,7 @@
 
     goto/16 :goto_8
 
-    .line 609
+    .line 660
     :cond_d3
     iget v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;->chunkId:I
 
@@ -1605,7 +1636,7 @@
 
     invoke-interface {v0, v3, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 610
+    .line 661
     invoke-interface {v0}, Ljava/util/Map;->size()I
 
     move-result v2
@@ -1616,21 +1647,21 @@
 
     if-ne v2, v3, :cond_8
 
-    .line 611
+    .line 662
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     sget-object v3, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming;->CHUNK_END_ACK:[B
 
     invoke-virtual {v2, p2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueAckTo(Landroid/bluetooth/BluetoothGattCharacteristic;[B)V
 
-    .line 612
+    .line 663
     new-array v2, v8, [B
 
     move v3, v4
 
     move-object v5, v2
 
-    .line 613
+    .line 664
     :goto_f3
     invoke-virtual {v1}, Ljava/lang/Integer;->intValue()I
 
@@ -1638,7 +1669,7 @@
 
     if-gt v3, v2, :cond_114
 
-    .line 614
+    .line 665
     invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v2
@@ -1649,10 +1680,10 @@
 
     check-cast v2, [B
 
-    .line 615
+    .line 666
     if-eqz v2, :cond_110
 
-    .line 616
+    .line 667
     const/4 v7, 0x2
 
     new-array v7, v7, [[B
@@ -1665,7 +1696,7 @@
 
     move-result-object v5
 
-    .line 613
+    .line 664
     :cond_110
     add-int/lit8 v2, v3, 0x1
 
@@ -1673,18 +1704,18 @@
 
     goto :goto_f3
 
-    .line 619
+    .line 670
     :cond_114
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkMaps:Ljava/util/Map;
 
     invoke-interface {v0, p1}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 620
+    .line 671
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkCounts:Ljava/util/Map;
 
     invoke-interface {v0, p1}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 621
+    .line 672
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->chunkEncryptedByChar:Ljava/util/Map;
 
     invoke-interface {v0, p1}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1693,10 +1724,10 @@
 
     check-cast v0, Ljava/lang/Boolean;
 
-    .line 622
+    .line 673
     if-nez v6, :cond_14d
 
-    .line 623
+    .line 674
     const-string v0, "chunk"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1733,7 +1764,7 @@
 
     goto/16 :goto_8
 
-    .line 626
+    .line 677
     :cond_14d
     if-eqz v0, :cond_15d
 
@@ -1747,7 +1778,7 @@
 
     if-eqz v0, :cond_15d
 
-    .line 628
+    .line 679
     :try_start_159
     invoke-direct {p0, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->decrypt([B)[B
     :try_end_15c
@@ -1755,24 +1786,24 @@
 
     move-result-object v5
 
-    .line 634
+    .line 685
     :cond_15d
     invoke-direct {p0, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->handleCommand([B)V
 
     goto/16 :goto_8
 
-    .line 629
+    .line 680
     :catch_162
     move-exception v0
 
-    .line 630
+    .line 681
     const-string v1, "chunk_decrypt"
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto/16 :goto_8
 
-    .line 638
+    .line 689
     :cond_16a
     const-string v0, "single"
 
@@ -1784,17 +1815,17 @@
 
     if-eqz v0, :cond_8
 
-    .line 639
+    .line 690
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming;->ACK_FRAME:[B
 
     invoke-virtual {v0, p2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueAckTo(Landroid/bluetooth/BluetoothGattCharacteristic;[B)V
 
-    .line 640
+    .line 691
     if-nez v6, :cond_19d
 
-    .line 641
+    .line 692
     const-string v0, "notify"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1825,11 +1856,11 @@
 
     goto/16 :goto_8
 
-    .line 644
+    .line 695
     :cond_19d
     iget-object v0, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;->payload:[B
 
-    .line 645
+    .line 696
     iget-boolean v1, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;->encrypted:Z
 
     if-eqz v1, :cond_1ab
@@ -1838,7 +1869,7 @@
 
     if-eqz v1, :cond_1ab
 
-    .line 647
+    .line 698
     :try_start_1a7
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->decryptInbound([B)[B
     :try_end_1aa
@@ -1846,22 +1877,22 @@
 
     move-result-object v0
 
-    .line 654
+    .line 705
     :cond_1ab
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->handleCommand([B)V
 
     goto/16 :goto_8
 
-    .line 648
+    .line 699
     :catch_1b0
     move-exception v1
 
-    .line 649
+    .line 700
     const-string v2, "decrypt"
 
     invoke-virtual {p0, v2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 650
+    .line 701
     const-string v1, "decrypt_fail"
 
     const/16 v2, 0x20
@@ -1887,45 +1918,45 @@
     .end annotation
 
     .prologue
-    .line 777
+    .line 828
     const/16 v0, 0xa
 
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bytesField(Ljava/util/Map;I)[B
 
     move-result-object v0
 
-    .line 778
+    .line 829
     if-nez v0, :cond_10
 
-    .line 779
+    .line 830
     const-string v0, "hr"
 
     const-string v1, "no health field"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 821
+    .line 881
     :cond_f
     :goto_f
     return-void
 
-    .line 782
+    .line 833
     :cond_10
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoParse([B)Ljava/util/Map;
 
     move-result-object v0
 
-    .line 783
+    .line 834
     const/16 v1, 0x27
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bytesField(Ljava/util/Map;I)[B
 
     move-result-object v0
 
-    .line 784
+    .line 835
     if-nez v0, :cond_24
 
-    .line 785
+    .line 836
     const-string v0, "hr"
 
     const-string v1, "no realTimeStats field"
@@ -1934,39 +1965,39 @@
 
     goto :goto_f
 
-    .line 788
+    .line 839
     :cond_24
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoParse([B)Ljava/util/Map;
 
     move-result-object v4
 
-    .line 789
+    .line 840
     const/4 v0, 0x4
 
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
 
     move-result v5
 
-    .line 790
+    .line 841
     const/4 v0, 0x1
 
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
 
     move-result v6
 
-    .line 791
+    .line 842
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v8
 
-    .line 792
+    .line 843
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRealtimeEventMs:J
 
     const-wide/16 v2, 0x0
 
     cmp-long v0, v0, v2
 
-    if-lez v0, :cond_a2
+    if-lez v0, :cond_cb
 
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRealtimeEventMs:J
 
@@ -1974,16 +2005,69 @@
 
     move-wide v2, v0
 
-    .line 793
+    .line 844
     :goto_43
     iput-wide v8, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRealtimeEventMs:J
 
-    .line 794
+    .line 845
+    iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->firstRealtimeEventMs:J
+
+    const-wide/16 v10, 0x0
+
+    cmp-long v0, v0, v10
+
+    if-nez v0, :cond_4f
+
+    .line 846
+    iput-wide v8, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->firstRealtimeEventMs:J
+
+    .line 848
+    :cond_4f
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeEventCount:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeEventCount:I
+
+    .line 849
+    iput v6, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastSteps:I
+
+    .line 850
+    const/4 v0, 0x2
+
+    invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastCalories:I
+
+    .line 851
+    const/4 v0, 0x3
+
+    invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF3:I
+
+    .line 852
+    const/4 v0, 0x5
+
+    invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF5:I
+
+    .line 853
+    iput v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRawHr:I
+
+    .line 854
     new-instance v7, Ljava/lang/StringBuilder;
 
     invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 795
+    .line 855
     invoke-interface {v4}, Ljava/util/Map;->entrySet()Ljava/util/Set;
 
     move-result-object v0
@@ -1992,13 +2076,13 @@
 
     move-result-object v10
 
-    :cond_52
-    :goto_52
+    :cond_7b
+    :goto_7b
     invoke-interface {v10}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_b6
+    if-eqz v0, :cond_e0
 
     invoke-interface {v10}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -2006,7 +2090,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 796
+    .line 856
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
@@ -2017,17 +2101,17 @@
 
     move-result v1
 
-    .line 797
+    .line 857
     const/4 v11, 0x1
 
-    if-lt v1, v11, :cond_6e
+    if-lt v1, v11, :cond_97
 
     const/4 v11, 0x6
 
-    if-le v1, v11, :cond_52
+    if-le v1, v11, :cond_7b
 
-    .line 800
-    :cond_6e
+    .line 860
+    :cond_97
     invoke-virtual {v7, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -2052,9 +2136,9 @@
 
     instance-of v1, v1, [B
 
-    if-eqz v1, :cond_a6
+    if-eqz v1, :cond_d0
 
-    .line 801
+    .line 861
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v0
@@ -2073,29 +2157,29 @@
 
     move-result-object v0
 
-    .line 800
-    :goto_98
+    .line 860
+    :goto_c1
     invoke-virtual {v11, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
     const/16 v1, 0x3b
 
-    .line 802
+    .line 862
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    goto :goto_52
+    goto :goto_7b
 
-    .line 792
-    :cond_a2
+    .line 843
+    :cond_cb
     const-wide/16 v0, 0x0
 
     move-wide v2, v0
 
-    goto :goto_43
+    goto/16 :goto_43
 
-    .line 801
-    :cond_a6
+    .line 861
+    :cond_d0
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v0
@@ -2112,10 +2196,10 @@
 
     move-result-object v0
 
-    goto :goto_98
+    goto :goto_c1
 
-    .line 804
-    :cond_b6
+    .line 864
+    :cond_e0
     const-string v0, "band-realtime.csv"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -2154,7 +2238,7 @@
 
     const/4 v8, 0x2
 
-    .line 805
+    .line 865
     invoke-static {v4, v8}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
 
     move-result v8
@@ -2213,7 +2297,7 @@
 
     const/4 v8, 0x6
 
-    .line 806
+    .line 866
     invoke-static {v4, v8}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
 
     move-result v8
@@ -2236,10 +2320,10 @@
 
     move-result-object v1
 
-    .line 804
+    .line 864
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appendRaw(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 807
+    .line 867
     const-string v0, "hr"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -2290,7 +2374,7 @@
 
     const/4 v6, 0x3
 
-    .line 808
+    .line 868
     invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->intField(Ljava/util/Map;I)I
 
     move-result v6
@@ -2335,52 +2419,52 @@
 
     move-result-object v1
 
-    .line 807
+    .line 867
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 809
+    .line 869
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastHrEventMs:J
 
-    .line 810
-    if-nez v5, :cond_19a
+    .line 870
+    if-nez v5, :cond_1c4
 
-    .line 811
+    .line 871
     const-string v0, "measuring"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
     goto/16 :goto_f
 
-    .line 814
-    :cond_19a
+    .line 874
+    :cond_1c4
     if-lez v5, :cond_f
 
     const/16 v0, 0xdc
 
     if-gt v5, v0, :cond_f
 
-    .line 815
+    .line 875
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->hrEventCount:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->hrEventCount:I
 
-    .line 816
+    .line 876
     const-string v0, "streaming"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 817
+    .line 877
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
     if-eqz v0, :cond_f
 
-    .line 818
+    .line 878
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
     invoke-interface {v0, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;->onHeartRate(I)V
@@ -2418,15 +2502,15 @@
 
     const/4 v5, 0x1
 
-    .line 740
+    .line 791
     invoke-static {p1, v8}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bytesField(Ljava/util/Map;I)[B
 
     move-result-object v0
 
-    .line 741
+    .line 792
     if-nez v0, :cond_12
 
-    .line 742
+    .line 793
     new-instance v0, Ljava/lang/RuntimeException;
 
     const-string v1, "no auth"
@@ -2435,23 +2519,23 @@
 
     throw v0
 
-    .line 744
+    .line 795
     :cond_12
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoParse([B)Ljava/util/Map;
 
     move-result-object v0
 
-    .line 745
+    .line 796
     const/16 v1, 0x1f
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bytesField(Ljava/util/Map;I)[B
 
     move-result-object v0
 
-    .line 746
+    .line 797
     if-nez v0, :cond_26
 
-    .line 747
+    .line 798
     new-instance v0, Ljava/lang/RuntimeException;
 
     const-string v1, "no watchNonce"
@@ -2460,28 +2544,28 @@
 
     throw v0
 
-    .line 749
+    .line 800
     :cond_26
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoParse([B)Ljava/util/Map;
 
     move-result-object v0
 
-    .line 750
+    .line 801
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bytesField(Ljava/util/Map;I)[B
 
     move-result-object v1
 
-    .line 751
+    .line 802
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bytesField(Ljava/util/Map;I)[B
 
     move-result-object v0
 
-    .line 752
+    .line 803
     if-eqz v1, :cond_36
 
     if-nez v0, :cond_3e
 
-    .line 753
+    .line 804
     :cond_36
     new-instance v0, Ljava/lang/RuntimeException;
 
@@ -2491,7 +2575,7 @@
 
     throw v0
 
-    .line 755
+    .line 806
     :cond_3e
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authKey:[B
 
@@ -2503,10 +2587,10 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
-    .line 756
+    .line 807
     iput-boolean v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->frameEncrypt:Z
 
-    .line 757
+    .line 808
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->decKey:[B
@@ -2519,24 +2603,24 @@
 
     aput-object v4, v3, v5
 
-    .line 758
+    .line 809
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v3
 
-    .line 757
+    .line 808
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto;->hmacSha256([B[B)[B
 
     move-result-object v2
 
-    .line 759
+    .line 810
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto;->bytesEqual([B[B)Z
 
     move-result v0
 
     if-nez v0, :cond_6c
 
-    .line 760
+    .line 811
     new-instance v0, Ljava/lang/RuntimeException;
 
     const-string v1, "hmac mismatch"
@@ -2545,7 +2629,7 @@
 
     throw v0
 
-    .line 762
+    .line 813
     :cond_6c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
@@ -2559,22 +2643,22 @@
 
     aput-object v1, v2, v5
 
-    .line 763
+    .line 814
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v1
 
-    .line 762
+    .line 813
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto;->hmacSha256([B[B)[B
 
     move-result-object v0
 
-    .line 764
+    .line 815
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->buildAuthDeviceInfo()[B
 
     move-result-object v1
 
-    .line 765
+    .line 816
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->encKey:[B
@@ -2587,48 +2671,48 @@
 
     move-result-object v1
 
-    .line 767
+    .line 818
     new-array v2, v6, [[B
 
-    .line 768
+    .line 819
     invoke-static {v5, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldBytes(I[B)[B
 
     move-result-object v0
 
     aput-object v0, v2, v7
 
-    .line 769
+    .line 820
     invoke-static {v6, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldBytes(I[B)[B
 
     move-result-object v0
 
     aput-object v0, v2, v5
 
-    .line 767
+    .line 818
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v0
 
-    .line 770
+    .line 821
     const/16 v1, 0x20
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 771
+    .line 822
     invoke-static {v8, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 772
+    .line 823
     const/16 v1, 0x1b
 
     invoke-static {v5, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->makeCommand(II[B)[B
 
     move-result-object v0
 
-    .line 773
+    .line 824
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming;->buildPlainFrame([B)[B
@@ -2637,7 +2721,7 @@
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueCommand([B)V
 
-    .line 774
+    .line 825
     return-void
 .end method
 
@@ -2659,7 +2743,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 998
+    .line 1058
     invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v0
@@ -2670,7 +2754,7 @@
 
     check-cast v0, Ljava/util/List;
 
-    .line 999
+    .line 1059
     if-eqz v0, :cond_1b
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -2690,7 +2774,7 @@
     :cond_1b
     move v0, v1
 
-    .line 1002
+    .line 1062
     :goto_1c
     return v0
 
@@ -2712,7 +2796,7 @@
     .registers 2
 
     .prologue
-    .line 969
+    .line 1029
     if-eqz p0, :cond_8
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -2721,11 +2805,11 @@
 
     if-nez v0, :cond_a
 
-    .line 970
+    .line 1030
     :cond_8
     const/4 v0, 0x0
 
-    .line 972
+    .line 1032
     :goto_9
     return v0
 
@@ -2743,7 +2827,7 @@
     .registers 4
 
     .prologue
-    .line 833
+    .line 893
     invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->makeTypedCommand(II[B)[B
 
     move-result-object v0
@@ -2761,36 +2845,36 @@
 
     const/4 v2, 0x1
 
-    .line 837
+    .line 897
     new-array v0, v3, [[B
 
-    .line 838
+    .line 898
     invoke-static {v2, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v1
 
     aput-object v1, v0, v4
 
-    .line 839
+    .line 899
     invoke-static {v3, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v1
 
     aput-object v1, v0, v2
 
-    .line 837
+    .line 897
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v0
 
-    .line 840
+    .line 900
     if-eqz p2, :cond_24
 
     array-length v1, p2
 
     if-lez v1, :cond_24
 
-    .line 841
+    .line 901
     new-array v1, v3, [[B
 
     aput-object v0, v1, v4
@@ -2801,7 +2885,7 @@
 
     move-result-object v0
 
-    .line 843
+    .line 903
     :cond_24
     return-object v0
 .end method
@@ -2810,17 +2894,17 @@
     .registers 3
 
     .prologue
-    .line 963
+    .line 1023
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
     if-eqz v0, :cond_9
 
-    .line 964
+    .line 1024
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
     invoke-interface {v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;->onConnected(Z)V
 
-    .line 966
+    .line 1026
     :cond_9
     return-void
 .end method
@@ -2833,16 +2917,16 @@
 
     const/16 v6, 0x10
 
-    .line 976
+    .line 1036
     if-nez p0, :cond_7
 
     move-object v0, v1
 
-    .line 993
+    .line 1053
     :goto_6
     return-object v0
 
-    .line 979
+    .line 1039
     :cond_7
     const-string v0, " "
 
@@ -2868,7 +2952,7 @@
 
     move-result-object v0
 
-    .line 980
+    .line 1040
     const-string v2, "0x"
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -2885,7 +2969,7 @@
 
     if-eqz v2, :cond_34
 
-    .line 981
+    .line 1041
     :cond_2f
     const/4 v2, 0x2
 
@@ -2893,7 +2977,7 @@
 
     move-result-object v0
 
-    .line 983
+    .line 1043
     :cond_34
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -2905,20 +2989,20 @@
 
     move-object v0, v1
 
-    .line 984
+    .line 1044
     goto :goto_6
 
-    .line 986
+    .line 1046
     :cond_3e
     new-array v2, v6, [B
 
-    .line 988
+    .line 1048
     const/4 v3, 0x0
 
     :goto_41
     if-ge v3, v6, :cond_59
 
-    .line 989
+    .line 1049
     mul-int/lit8 v4, v3, 0x2
 
     mul-int/lit8 v5, v3, 0x2
@@ -2942,7 +3026,7 @@
     :try_end_56
     .catch Ljava/lang/Throwable; {:try_start_49 .. :try_end_56} :catch_5b
 
-    .line 988
+    .line 1048
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_41
@@ -2950,16 +3034,16 @@
     :cond_59
     move-object v0, v2
 
-    .line 991
+    .line 1051
     goto :goto_6
 
-    .line 992
+    .line 1052
     :catch_5b
     move-exception v0
 
     move-object v0, v1
 
-    .line 993
+    .line 1053
     goto :goto_6
 .end method
 
@@ -2967,17 +3051,17 @@
     .registers 5
 
     .prologue
-    .line 898
+    .line 958
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelAuthTimeout()V
 
-    .line 899
+    .line 959
     new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthTimeoutTask;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthTimeoutTask;-><init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authTimeoutRunnable:Ljava/lang/Runnable;
 
-    .line 900
+    .line 960
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -2986,14 +3070,14 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    .line 901
+    .line 961
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authTimeoutRunnable:Ljava/lang/Runnable;
 
     const-wide/32 v2, 0xafc8
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 902
+    .line 962
     return-void
 .end method
 
@@ -3001,17 +3085,17 @@
     .registers 5
 
     .prologue
-    .line 921
+    .line 981
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelReconnect()V
 
-    .line 922
+    .line 982
     new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandReconnectTask;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandReconnectTask;-><init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->reconnectRunnable:Ljava/lang/Runnable;
 
-    .line 923
+    .line 983
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -3020,14 +3104,14 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    .line 924
+    .line 984
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->reconnectRunnable:Ljava/lang/Runnable;
 
     const-wide/16 v2, 0x7d0
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 925
+    .line 985
     return-void
 .end method
 
@@ -3035,16 +3119,16 @@
     .registers 5
 
     .prologue
-    .line 882
+    .line 942
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stallCheckRunnable:Ljava/lang/Runnable;
 
     if-nez v0, :cond_5
 
-    .line 887
+    .line 947
     :goto_4
     return-void
 
-    .line 885
+    .line 945
     :cond_5
     new-instance v0, Landroid/os/Handler;
 
@@ -3054,7 +3138,7 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    .line 886
+    .line 946
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stallCheckRunnable:Ljava/lang/Runnable;
 
     const-wide/16 v2, 0xbb8
@@ -3070,42 +3154,42 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 504
+    .line 555
     const-string v0, "auth"
 
     const-string v1, "send phone nonce"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 505
+    .line 556
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->phoneNonce:[B
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldBytes(I[B)[B
 
     move-result-object v0
 
-    .line 506
+    .line 557
     const/16 v1, 0x1e
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 507
+    .line 558
     const/4 v1, 0x3
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 508
+    .line 559
     const/16 v1, 0x1a
 
     invoke-static {v2, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->makeCommand(II[B)[B
 
     move-result-object v0
 
-    .line 509
+    .line 560
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming;->buildPlainFrame([B)[B
@@ -3114,7 +3198,7 @@
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueCommand([B)V
 
-    .line 510
+    .line 561
     return-void
 .end method
 
@@ -3122,7 +3206,7 @@
     .registers 5
 
     .prologue
-    .line 559
+    .line 610
     :try_start_0
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->frameEncrypt:Z
 
@@ -3132,7 +3216,7 @@
 
     if-eqz v0, :cond_30
 
-    .line 560
+    .line 611
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->encKey:[B
@@ -3149,7 +3233,7 @@
 
     move-result-object v0
 
-    .line 562
+    .line 613
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     iget v2, v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->encIndex:I
@@ -3158,7 +3242,7 @@
 
     iput v2, v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->encIndex:I
 
-    .line 563
+    .line 614
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
     iget v1, v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->encIndex:I
@@ -3169,17 +3253,17 @@
 
     move-result-object v0
 
-    .line 567
+    .line 618
     :goto_2a
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueCommand([B)V
 
-    .line 572
+    .line 623
     :goto_2f
     return-void
 
-    .line 565
+    .line 616
     :cond_30
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming;->buildPlainFrame([B)[B
     :try_end_33
@@ -3189,16 +3273,16 @@
 
     goto :goto_2a
 
-    .line 568
+    .line 619
     :catch_35
     move-exception v0
 
-    .line 569
+    .line 620
     const-string v1, "sendCommand"
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 570
+    .line 621
     const-string v0, "send_fail"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
@@ -3212,23 +3296,23 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 513
+    .line 564
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
     if-eqz v0, :cond_d
 
-    .line 514
+    .line 565
     const-string v0, "health"
 
     const-string v1, "skip duplicate START"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 528
+    .line 579
     :goto_c
     return-void
 
-    .line 517
+    .line 568
     :cond_d
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
@@ -3242,17 +3326,17 @@
 
     if-nez v0, :cond_22
 
-    .line 518
+    .line 569
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->frameEncrypt:Z
 
-    .line 519
+    .line 570
     const-string v0, "auth"
 
     const-string v1, "force frameEncrypt before realtime"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 521
+    .line 572
     :cond_22
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
@@ -3262,7 +3346,7 @@
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;->encIndex:I
 
-    .line 522
+    .line 573
     :goto_2a
     const-string v1, "health"
 
@@ -3298,7 +3382,7 @@
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 523
+    .line 574
     const/16 v0, 0x8
 
     const/16 v1, 0x2d
@@ -3309,27 +3393,27 @@
 
     move-result-object v0
 
-    .line 524
+    .line 575
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendCommand([B)V
 
-    .line 525
+    .line 576
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
-    .line 526
+    .line 577
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->streamStartMs:J
 
-    .line 527
+    .line 578
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastHrEventMs:J
 
     goto :goto_c
 
-    .line 521
+    .line 572
     :cond_67
     const/4 v0, -0x1
 
@@ -3340,14 +3424,14 @@
     .registers 4
 
     .prologue
-    .line 531
+    .line 582
     const-string v0, "health"
 
     const-string v1, "realtime STOP"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 532
+    .line 583
     const/16 v0, 0x8
 
     const/16 v1, 0x2e
@@ -3358,15 +3442,15 @@
 
     move-result-object v0
 
-    .line 533
+    .line 584
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendCommand([B)V
 
-    .line 534
+    .line 585
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
-    .line 535
+    .line 586
     return-void
 .end method
 
@@ -3374,36 +3458,36 @@
     .registers 4
 
     .prologue
-    .line 955
+    .line 1015
     if-eqz p1, :cond_17
 
     :goto_2
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastState:Ljava/lang/String;
 
-    .line 956
+    .line 1016
     const-string v0, "state"
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastState:Ljava/lang/String;
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 957
+    .line 1017
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
     if-eqz v0, :cond_16
 
-    .line 958
+    .line 1018
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastState:Ljava/lang/String;
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;->onState(Ljava/lang/String;)V
 
-    .line 960
+    .line 1020
     :cond_16
     return-void
 
-    .line 955
+    .line 1015
     :cond_17
     const-string p1, ""
 
@@ -3414,17 +3498,17 @@
     .registers 5
 
     .prologue
-    .line 875
+    .line 935
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stopStallWatch()V
 
-    .line 876
+    .line 936
     new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandKeepaliveTask;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandKeepaliveTask;-><init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stallCheckRunnable:Ljava/lang/Runnable;
 
-    .line 877
+    .line 937
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -3433,14 +3517,14 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    .line 878
+    .line 938
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stallCheckRunnable:Ljava/lang/Runnable;
 
     const-wide/16 v2, 0xbb8
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 879
+    .line 939
     return-void
 .end method
 
@@ -3448,12 +3532,12 @@
     .registers 3
 
     .prologue
-    .line 890
+    .line 950
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stallCheckRunnable:Ljava/lang/Runnable;
 
     if-eqz v0, :cond_15
 
-    .line 891
+    .line 951
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -3462,17 +3546,17 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    .line 892
+    .line 952
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stallCheckRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 893
+    .line 953
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stallCheckRunnable:Ljava/lang/Runnable;
 
-    .line 895
+    .line 955
     :cond_15
     return-void
 .end method
@@ -3483,90 +3567,90 @@
     .registers 8
 
     .prologue
-    .line 411
+    .line 462
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gattServicesReady:Z
 
     if-eqz v0, :cond_c
 
-    .line 412
+    .line 463
     const-string v0, "gatt"
 
     const-string v1, "skip duplicate notify setup"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 432
+    .line 483
     :goto_b
     return-void
 
-    .line 415
+    .line 466
     :cond_c
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gattServicesReady:Z
 
-    .line 416
+    .line 467
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0, p1, p2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueEnableNotify(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
-    .line 417
+    .line 468
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0, p1, p3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueEnableNotify(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
-    .line 419
+    .line 470
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback;->charActivityUuid()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 418
+    .line 469
     invoke-static {p4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback;->findOptionalChar(Landroid/bluetooth/BluetoothGattService;Ljava/lang/String;)Landroid/bluetooth/BluetoothGattCharacteristic;
 
     move-result-object v0
 
-    .line 421
+    .line 472
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback;->charUploadUuid()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 420
+    .line 471
     invoke-static {p4, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback;->findOptionalChar(Landroid/bluetooth/BluetoothGattService;Ljava/lang/String;)Landroid/bluetooth/BluetoothGattCharacteristic;
 
     move-result-object v1
 
-    .line 422
+    .line 473
     if-eqz v0, :cond_37
 
-    .line 423
+    .line 474
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v2, p1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueEnableNotify(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
-    .line 424
+    .line 475
     const-string v0, "gatt"
 
     const-string v2, "notify 53 enabled"
 
     invoke-virtual {p0, v0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 426
+    .line 477
     :cond_37
     if-eqz v1, :cond_45
 
-    .line 427
+    .line 478
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0, p1, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->enqueueEnableNotify(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
-    .line 428
+    .line 479
     const-string v0, "gatt"
 
     const-string v1, "notify 55 enabled"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 430
+    .line 481
     :cond_45
     const-string v0, "gatt"
 
@@ -3574,7 +3658,7 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 431
+    .line 482
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthStartRunnable;
@@ -3590,64 +3674,66 @@
     .registers 3
 
     .prologue
-    .line 343
+    .line 394
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bandAckTimeoutTask:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 344
+    .line 395
     return-void
 .end method
 
 .method public connect(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
-    .registers 12
+    .registers 13
 
     .prologue
-    const/16 v5, 0x17
+    const/16 v8, 0x17
 
     const-wide/16 v6, 0x0
 
+    const/4 v5, -0x1
+
     const/4 v4, 0x0
 
-    .line 173
-    if-nez p1, :cond_8
+    .line 217
+    if-nez p1, :cond_9
 
-    .line 274
-    :goto_7
+    .line 325
+    :goto_8
     return-void
 
-    .line 176
-    :cond_8
+    .line 220
+    :cond_9
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->gateGattOrNotify(Landroid/content/Context;)Z
 
     move-result v0
 
-    if-nez v0, :cond_14
+    if-nez v0, :cond_15
 
-    .line 177
+    .line 221
     const-string v0, "no_bt_permission"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto :goto_7
+    goto :goto_8
 
-    .line 180
-    :cond_14
+    .line 224
+    :cond_15
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->init(Landroid/content/Context;)V
 
-    .line 181
+    .line 225
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->clear()V
 
-    .line 182
+    .line 226
     const-string v0, "build"
 
-    const-string v1, "v1.1.54-ble"
+    const-string v1, "v1.1.55-ble"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 183
+    .line 227
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -3672,7 +3758,7 @@
 
     move-result-object v0
 
-    const-string v1, "v1.1.54-ble"
+    const-string v1, "v1.1.55-ble"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -3682,12 +3768,12 @@
 
     move-result-object v0
 
-    .line 184
+    .line 228
     const-string v1, "band-raw.csv"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appendRaw(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 185
+    .line 229
     const-string v1, "band-realtime.csv"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3710,40 +3796,61 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->appendRaw(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 187
+    .line 231
     iput-wide v6, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRealtimeEventMs:J
 
-    .line 188
+    .line 232
+    iput-wide v6, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->firstRealtimeEventMs:J
+
+    .line 233
+    iput v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeEventCount:I
+
+    .line 234
+    iput v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastSteps:I
+
+    .line 235
+    iput v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastCalories:I
+
+    .line 236
+    iput v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF3:I
+
+    .line 237
+    iput v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF5:I
+
+    .line 238
+    iput v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRawHr:I
+
+    .line 239
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->logPermissionState(Landroid/content/Context;)V
 
-    .line 189
+    .line 240
     invoke-virtual {p1}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->appContext:Landroid/content/Context;
 
-    .line 190
-    if-eqz p2, :cond_8c
+    .line 241
+    if-eqz p2, :cond_9b
 
     invoke-virtual {p2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
-    :goto_72
+    :goto_81
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->targetMac:Ljava/lang/String;
 
-    .line 191
+    .line 242
     invoke-static {p3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->parseAuthKey(Ljava/lang/String;)[B
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authKey:[B
 
-    .line 192
+    .line 243
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authKey:[B
 
-    if-eqz v0, :cond_85
+    if-eqz v0, :cond_94
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authKey:[B
 
@@ -3751,135 +3858,135 @@
 
     const/16 v1, 0x10
 
-    if-eq v0, v1, :cond_8f
+    if-eq v0, v1, :cond_9e
 
-    .line 193
-    :cond_85
+    .line 244
+    :cond_94
     const-string v0, "bad_auth_key"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 190
-    :cond_8c
+    .line 241
+    :cond_9b
     const-string v0, ""
 
-    goto :goto_72
+    goto :goto_81
 
-    .line 196
-    :cond_8f
+    .line 247
+    :cond_9e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->random:Ljava/util/Random;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->phoneNonce:[B
 
     invoke-virtual {v0, v1}, Ljava/util/Random;->nextBytes([B)V
 
-    .line 197
+    .line 248
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->userRequestedDisconnect:Z
 
-    .line 198
+    .line 249
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelReconnect()V
 
-    .line 199
+    .line 250
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
-    .line 200
+    .line 251
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->frameEncrypt:Z
 
-    .line 201
+    .line 252
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
-    .line 202
+    .line 253
     iput v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->hrEventCount:I
 
-    .line 203
+    .line 254
     iput v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyEventCount:I
 
-    .line 204
+    .line 255
     iput v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyCount51:I
 
-    .line 205
+    .line 256
     iput v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyCount52:I
 
-    .line 206
+    .line 257
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->session:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto$SessionKeys;
 
-    .line 207
+    .line 258
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->clearChunks()V
 
-    .line 208
+    .line 259
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->discoveryRequested:Z
 
-    .line 209
-    iput v5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->attMtu:I
+    .line 260
+    iput v8, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->attMtu:I
 
-    .line 210
+    .line 261
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelBandAckTimeout()V
 
-    .line 211
+    .line 262
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuFallbackTask:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 212
+    .line 263
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->postAuthInit:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->reset()V
 
-    .line 213
+    .line 264
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stopStallWatch()V
 
-    .line 214
+    .line 265
     iput-wide v6, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->streamStartMs:J
 
-    .line 215
+    .line 266
     iput-wide v6, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastHrEventMs:J
 
-    .line 216
+    .line 267
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gattServicesReady:Z
 
-    .line 217
+    .line 268
     iput v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStartRetries:I
 
-    .line 218
+    .line 269
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelAuthTimeout()V
 
-    .line 219
+    .line 270
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->clear()V
 
-    .line 220
+    .line 271
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->disconnectGatt()V
 
-    .line 221
+    .line 272
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->targetMac:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->isValidMac(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-nez v0, :cond_e7
+    if-nez v0, :cond_f6
 
-    .line 222
+    .line 273
     const-string v0, "bad_mac"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 225
-    :cond_e7
+    .line 276
+    :cond_f6
     const-string v0, "connecting"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 226
+    .line 277
     const-string v0, "connect"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -3904,57 +4011,57 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 227
+    .line 278
     invoke-static {}, Landroid/bluetooth/BluetoothAdapter;->getDefaultAdapter()Landroid/bluetooth/BluetoothAdapter;
 
     move-result-object v0
 
-    .line 228
-    if-nez v0, :cond_113
+    .line 279
+    if-nez v0, :cond_122
 
-    .line 229
+    .line 280
     const-string v0, "no_bluetooth"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 233
-    :cond_113
-    :try_start_113
+    .line 284
+    :cond_122
+    :try_start_122
     invoke-virtual {v0}, Landroid/bluetooth/BluetoothAdapter;->isEnabled()Z
 
     move-result v1
 
-    if-nez v1, :cond_121
+    if-nez v1, :cond_130
 
-    .line 234
+    .line 285
     const-string v1, "no_bluetooth"
 
     invoke-direct {p0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
-    :try_end_11e
-    .catch Ljava/lang/Throwable; {:try_start_113 .. :try_end_11e} :catch_120
+    :try_end_12d
+    .catch Ljava/lang/Throwable; {:try_start_122 .. :try_end_12d} :catch_12f
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 237
-    :catch_120
+    .line 288
+    :catch_12f
     move-exception v1
 
-    .line 241
-    :cond_121
-    :try_start_121
+    .line 292
+    :cond_130
+    :try_start_130
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->targetMac:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Landroid/bluetooth/BluetoothAdapter;->getRemoteDevice(Ljava/lang/String;)Landroid/bluetooth/BluetoothDevice;
-    :try_end_126
-    .catch Ljava/lang/IllegalArgumentException; {:try_start_121 .. :try_end_126} :catch_15e
-    .catch Ljava/lang/Throwable; {:try_start_121 .. :try_end_126} :catch_166
+    :try_end_135
+    .catch Ljava/lang/IllegalArgumentException; {:try_start_130 .. :try_end_135} :catch_16d
+    .catch Ljava/lang/Throwable; {:try_start_130 .. :try_end_135} :catch_175
 
     move-result-object v0
 
-    .line 250
-    :try_start_127
+    .line 301
+    :try_start_136
     const-string v1, "connect"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3980,17 +4087,17 @@
     move-result-object v2
 
     invoke-virtual {p0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_143
-    .catch Ljava/lang/Throwable; {:try_start_127 .. :try_end_143} :catch_199
+    :try_end_152
+    .catch Ljava/lang/Throwable; {:try_start_136 .. :try_end_152} :catch_1a8
 
-    .line 254
-    :goto_143
-    :try_start_143
+    .line 305
+    :goto_152
+    :try_start_152
     sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    if-lt v1, v5, :cond_16e
+    if-lt v1, v8, :cond_17d
 
-    .line 255
+    .line 306
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->appContext:Landroid/content/Context;
 
     const/4 v2, 0x0
@@ -4004,48 +4111,48 @@
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
-    :try_end_153
-    .catch Ljava/lang/SecurityException; {:try_start_143 .. :try_end_153} :catch_17a
-    .catch Ljava/lang/Throwable; {:try_start_143 .. :try_end_153} :catch_187
+    :try_end_162
+    .catch Ljava/lang/SecurityException; {:try_start_152 .. :try_end_162} :catch_189
+    .catch Ljava/lang/Throwable; {:try_start_152 .. :try_end_162} :catch_196
 
-    .line 269
-    :goto_153
+    .line 320
+    :goto_162
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    if-nez v0, :cond_194
+    if-nez v0, :cond_1a3
 
-    .line 270
+    .line 321
     const-string v0, "connect_fail"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 242
-    :catch_15e
+    .line 293
+    :catch_16d
     move-exception v0
 
-    .line 243
+    .line 294
     const-string v0, "bad_mac"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 245
-    :catch_166
+    .line 296
+    :catch_175
     move-exception v0
 
-    .line 246
+    .line 297
     const-string v0, "connect_fail"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 258
-    :cond_16e
-    :try_start_16e
+    .line 309
+    :cond_17d
+    :try_start_17d
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->appContext:Landroid/content/Context;
 
     const/4 v2, 0x0
@@ -4057,55 +4164,55 @@
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
-    :try_end_179
-    .catch Ljava/lang/SecurityException; {:try_start_16e .. :try_end_179} :catch_17a
-    .catch Ljava/lang/Throwable; {:try_start_16e .. :try_end_179} :catch_187
+    :try_end_188
+    .catch Ljava/lang/SecurityException; {:try_start_17d .. :try_end_188} :catch_189
+    .catch Ljava/lang/Throwable; {:try_start_17d .. :try_end_188} :catch_196
 
-    goto :goto_153
+    goto :goto_162
 
-    .line 260
-    :catch_17a
+    .line 311
+    :catch_189
     move-exception v0
 
-    .line 261
+    .line 312
     const-string v1, "connectGatt"
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 262
+    .line 313
     const-string v0, "no_bt_permission"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 264
-    :catch_187
+    .line 315
+    :catch_196
     move-exception v0
 
-    .line 265
+    .line 316
     const-string v1, "connectGatt"
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 266
+    .line 317
     const-string v0, "connect_fail"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 273
-    :cond_194
+    .line 324
+    :cond_1a3
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->scheduleAuthTimeout()V
 
-    goto/16 :goto_7
+    goto/16 :goto_8
 
-    .line 251
-    :catch_199
+    .line 302
+    :catch_1a8
     move-exception v1
 
-    goto :goto_143
+    goto :goto_152
 .end method
 
 .method public disconnect()V
@@ -4114,28 +4221,28 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 277
+    .line 328
     const-string v0, "gatt"
 
     const-string v1, "disconnect requested"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 278
+    .line 329
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->userRequestedDisconnect:Z
 
-    .line 279
+    .line 330
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelReconnect()V
 
-    .line 280
+    .line 331
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelAuthTimeout()V
 
-    .line 281
+    .line 332
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stopStallWatch()V
 
-    .line 282
+    .line 333
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
     if-eqz v0, :cond_1f
@@ -4144,36 +4251,36 @@
 
     if-eqz v0, :cond_1f
 
-    .line 283
+    .line 334
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendRealtimeStop()V
 
-    .line 285
+    .line 336
     :cond_1f
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeActive:Z
 
-    .line 286
+    .line 337
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
-    .line 287
+    .line 338
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
-    .line 288
+    .line 339
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->clear()V
 
-    .line 289
+    .line 340
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->disconnectGatt()V
 
-    .line 290
+    .line 341
     const-string v0, "disconnected"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 291
+    .line 342
     invoke-direct {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyConnected(Z)V
 
-    .line 292
+    .line 343
     return-void
 .end method
 
@@ -4181,7 +4288,7 @@
     .registers 2
 
     .prologue
-    .line 152
+    .line 196
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     return-object v0
@@ -4191,8 +4298,38 @@
     .registers 2
 
     .prologue
-    .line 120
+    .line 127
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->hrEventCount:I
+
+    return v0
+.end method
+
+.method public getLastCalories()I
+    .registers 2
+
+    .prologue
+    .line 164
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastCalories:I
+
+    return v0
+.end method
+
+.method public getLastF3()I
+    .registers 2
+
+    .prologue
+    .line 168
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF3:I
+
+    return v0
+.end method
+
+.method public getLastF5()I
+    .registers 2
+
+    .prologue
+    .line 172
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastF5:I
 
     return v0
 .end method
@@ -4201,27 +4338,57 @@
     .registers 2
 
     .prologue
-    .line 454
+    .line 505
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastNotifyChar:Ljava/lang/String;
 
     return-object v0
+.end method
+
+.method public getLastRawHr()I
+    .registers 2
+
+    .prologue
+    .line 176
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRawHr:I
+
+    return v0
+.end method
+
+.method public getLastRealtimeEventMs()J
+    .registers 3
+
+    .prologue
+    .line 144
+    iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRealtimeEventMs:J
+
+    return-wide v0
 .end method
 
 .method public getLastState()Ljava/lang/String;
     .registers 2
 
     .prologue
-    .line 136
+    .line 180
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastState:Ljava/lang/String;
 
     return-object v0
+.end method
+
+.method public getLastSteps()I
+    .registers 2
+
+    .prologue
+    .line 160
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastSteps:I
+
+    return v0
 .end method
 
 .method public getNotifyCount51()I
     .registers 2
 
     .prologue
-    .line 128
+    .line 135
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyCount51:I
 
     return v0
@@ -4231,7 +4398,7 @@
     .registers 2
 
     .prologue
-    .line 132
+    .line 139
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyCount52:I
 
     return v0
@@ -4241,17 +4408,78 @@
     .registers 2
 
     .prologue
-    .line 124
+    .line 131
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyEventCount:I
 
     return v0
+.end method
+
+.method public getRealtimeEventCount()I
+    .registers 2
+
+    .prologue
+    .line 148
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeEventCount:I
+
+    return v0
+.end method
+
+.method public getRealtimeEventRate()F
+    .registers 7
+
+    .prologue
+    .line 153
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeEventCount:I
+
+    const/4 v1, 0x2
+
+    if-lt v0, v1, :cond_d
+
+    iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRealtimeEventMs:J
+
+    iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->firstRealtimeEventMs:J
+
+    cmp-long v0, v0, v2
+
+    if-gtz v0, :cond_f
+
+    .line 154
+    :cond_d
+    const/4 v0, 0x0
+
+    .line 156
+    :goto_e
+    return v0
+
+    :cond_f
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeEventCount:I
+
+    add-int/lit8 v0, v0, -0x1
+
+    int-to-float v0, v0
+
+    const/high16 v1, 0x447a0000    # 1000.0f
+
+    mul-float/2addr v0, v1
+
+    iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastRealtimeEventMs:J
+
+    iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->firstRealtimeEventMs:J
+
+    sub-long/2addr v2, v4
+
+    long-to-float v1, v2
+
+    div-float/2addr v0, v1
+
+    goto :goto_e
 .end method
 
 .method getWriteCharacteristic()Landroid/bluetooth/BluetoothGattCharacteristic;
     .registers 2
 
     .prologue
-    .line 156
+    .line 200
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->charWrite:Landroid/bluetooth/BluetoothGattCharacteristic;
 
     return-object v0
@@ -4261,7 +4489,7 @@
     .registers 2
 
     .prologue
-    .line 140
+    .line 184
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
     return v0
@@ -4271,7 +4499,7 @@
     .registers 2
 
     .prologue
-    .line 144
+    .line 188
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     if-eqz v0, :cond_a
@@ -4295,10 +4523,10 @@
     .registers 3
 
     .prologue
-    .line 160
+    .line 204
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 161
+    .line 205
     return-void
 .end method
 
@@ -4306,7 +4534,7 @@
     .registers 6
 
     .prologue
-    .line 168
+    .line 212
     if-eqz p2, :cond_3c
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -4343,7 +4571,7 @@
 
     move-result-object v0
 
-    .line 169
+    .line 213
     :goto_25
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -4365,10 +4593,10 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 170
+    .line 214
     return-void
 
-    .line 168
+    .line 212
     :cond_3c
     const-string v0, "null"
 
@@ -4379,10 +4607,10 @@
     .registers 4
 
     .prologue
-    .line 164
+    .line 208
     invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->logHex(Ljava/lang/String;[BI)V
 
-    .line 165
+    .line 209
     return-void
 .end method
 
@@ -4390,27 +4618,27 @@
     .registers 3
 
     .prologue
-    .line 947
+    .line 1007
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
     if-nez v0, :cond_13
 
-    .line 948
+    .line 1008
     const-string v0, "auth"
 
     const-string v1, "timeout"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 949
+    .line 1009
     const-string v0, "auth_timeout"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 950
+    .line 1010
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->disconnect()V
 
-    .line 952
+    .line 1012
     :cond_13
     return-void
 .end method
@@ -4419,7 +4647,7 @@
     .registers 3
 
     .prologue
-    .line 347
+    .line 398
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->onBandAckTimeout()Z
@@ -4428,19 +4656,19 @@
 
     if-eqz v0, :cond_14
 
-    .line 348
+    .line 399
     const-string v0, "ack"
 
     const-string v1, "band ACK timeout \u2014 continuing"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 349
+    .line 400
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->postAuthInit:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->onCommandAcked()V
 
-    .line 351
+    .line 402
     :cond_14
     return-void
 .end method
@@ -4449,7 +4677,7 @@
     .registers 2
 
     .prologue
-    .line 549
+    .line 600
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
     if-eqz v0, :cond_c
@@ -4462,16 +4690,16 @@
 
     if-eqz v0, :cond_d
 
-    .line 554
+    .line 605
     :cond_c
     :goto_c
     return-void
 
-    .line 552
+    .line 603
     :cond_d
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendRealtimeStart()V
 
-    .line 553
+    .line 604
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->startStallWatch()V
 
     goto :goto_c
@@ -4481,23 +4709,23 @@
     .registers 6
 
     .prologue
-    .line 403
+    .line 454
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->charRead:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 404
+    .line 455
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->charWrite:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 405
+    .line 456
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 406
+    .line 457
     const-string v0, "gatt"
 
     const-string v1, "chars 51/52 ready"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 407
+    .line 458
     return-void
 .end method
 
@@ -4505,13 +4733,13 @@
     .registers 2
 
     .prologue
-    .line 354
+    .line 405
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 355
+    .line 406
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->beginServiceDiscovery(Landroid/bluetooth/BluetoothGatt;)V
 
-    .line 356
+    .line 407
     return-void
 .end method
 
@@ -4521,51 +4749,51 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 380
+    .line 431
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
-    .line 381
+    .line 432
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
-    .line 382
+    .line 433
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->gattServicesReady:Z
 
-    .line 383
+    .line 434
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->discoveryRequested:Z
 
-    .line 384
+    .line 435
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelBandAckTimeout()V
 
-    .line 385
+    .line 436
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuFallbackTask:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 386
+    .line 437
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->clearChunks()V
 
-    .line 387
+    .line 438
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->postAuthInit:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit;->reset()V
 
-    .line 388
+    .line 439
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->stopStallWatch()V
 
-    .line 389
+    .line 440
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->cancelAuthTimeout()V
 
-    .line 390
+    .line 441
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->clear()V
 
-    .line 391
+    .line 442
     invoke-direct {p0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyConnected(Z)V
 
-    .line 392
+    .line 443
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->userRequestedDisconnect:Z
 
     if-nez v0, :cond_45
@@ -4578,26 +4806,26 @@
 
     if-eqz v0, :cond_45
 
-    .line 393
+    .line 444
     const-string v0, "reconnecting"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 394
+    .line 445
     const-string v0, "gatt"
 
     const-string v1, "unexpected drop \u2014 reconnect in 2s"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 395
+    .line 446
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->scheduleReconnect()V
 
-    .line 399
+    .line 450
     :goto_44
     return-void
 
-    .line 398
+    .line 449
     :cond_45
     const-string v0, "disconnected"
 
@@ -4610,7 +4838,7 @@
     .registers 5
 
     .prologue
-    .line 443
+    .line 494
     if-eqz p1, :cond_1d
 
     move-object v0, p1
@@ -4618,14 +4846,14 @@
     :goto_3
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastNotifyChar:Ljava/lang/String;
 
-    .line 444
+    .line 495
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyEventCount:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyEventCount:I
 
-    .line 445
+    .line 496
     const-string v0, "51"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -4634,28 +4862,28 @@
 
     if-eqz v0, :cond_20
 
-    .line 446
+    .line 497
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyCount51:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyCount51:I
 
-    .line 450
+    .line 501
     :cond_19
     :goto_19
     invoke-direct {p0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->handleNotify(Ljava/lang/String;Landroid/bluetooth/BluetoothGattCharacteristic;[B)V
 
-    .line 451
+    .line 502
     return-void
 
-    .line 443
+    .line 494
     :cond_1d
     const-string v0, ""
 
     goto :goto_3
 
-    .line 447
+    .line 498
     :cond_20
     const-string v0, "52"
 
@@ -4665,7 +4893,7 @@
 
     if-eqz v0, :cond_19
 
-    .line 448
+    .line 499
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->notifyCount52:I
 
     add-int/lit8 v0, v0, 0x1
@@ -4679,10 +4907,10 @@
     .registers 1
 
     .prologue
-    .line 439
+    .line 490
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendAuthPhoneNonce()V
 
-    .line 440
+    .line 491
     return-void
 .end method
 
@@ -4690,10 +4918,10 @@
     .registers 2
 
     .prologue
-    .line 435
+    .line 486
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 436
+    .line 487
     return-void
 .end method
 
@@ -4701,12 +4929,12 @@
     .registers 2
 
     .prologue
-    .line 458
+    .line 509
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->writeQueue:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->onWriteFinished()V
 
-    .line 459
+    .line 510
     return-void
 .end method
 
@@ -4716,7 +4944,7 @@
     .prologue
     const-wide/16 v6, 0x0
 
-    .line 847
+    .line 907
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeActive:Z
 
     if-eqz v0, :cond_e
@@ -4729,18 +4957,18 @@
 
     if-nez v0, :cond_f
 
-    .line 872
+    .line 932
     :cond_e
     :goto_e
     return-void
 
-    .line 850
+    .line 910
     :cond_f
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 851
+    .line 911
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastHrEventMs:J
 
     cmp-long v2, v2, v6
@@ -4763,7 +4991,7 @@
 
     if-lez v2, :cond_5a
 
-    .line 853
+    .line 913
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStartRetries:I
 
     const/4 v1, 0x1
@@ -4774,41 +5002,41 @@
 
     if-eqz v0, :cond_4f
 
-    .line 854
+    .line 914
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStartRetries:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStartRetries:I
 
-    .line 855
+    .line 915
     const-string v0, "health"
 
     const-string v1, "no first 8/47 \u2014 retry START once"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 856
+    .line 916
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeStarted:Z
 
-    .line 857
+    .line 917
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendRealtimeStart()V
 
-    .line 858
+    .line 918
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->streamStartMs:J
 
-    .line 859
+    .line 919
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->scheduleStallCheck()V
 
     goto :goto_e
 
-    .line 862
+    .line 922
     :cond_4f
     const-string v0, "health"
 
@@ -4816,12 +5044,12 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 863
+    .line 923
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->scheduleReconnect()V
 
     goto :goto_e
 
-    .line 866
+    .line 926
     :cond_5a
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->lastHrEventMs:J
 
@@ -4839,19 +5067,19 @@
 
     if-lez v0, :cond_74
 
-    .line 867
+    .line 927
     const-string v0, "health"
 
     const-string v1, "HR stall \u2014 reconnect"
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 868
+    .line 928
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->scheduleReconnect()V
 
     goto :goto_e
 
-    .line 871
+    .line 931
     :cond_74
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->scheduleStallCheck()V
 
@@ -4862,7 +5090,7 @@
     .registers 7
 
     .prologue
-    .line 314
+    .line 365
     const-string v0, "gatt"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -4895,26 +5123,26 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 315
+    .line 366
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuFallbackTask:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 316
+    .line 367
     if-nez p3, :cond_2f
 
     if-lez p2, :cond_2f
 
-    .line 317
+    .line 368
     iput p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->attMtu:I
 
-    .line 319
+    .line 370
     :cond_2f
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->beginServiceDiscovery(Landroid/bluetooth/BluetoothGatt;)V
 
-    .line 320
+    .line 371
     return-void
 .end method
 
@@ -4922,7 +5150,7 @@
     .registers 3
 
     .prologue
-    .line 330
+    .line 381
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->discoveryRequested:Z
 
     if-nez v0, :cond_e
@@ -4937,12 +5165,12 @@
 
     if-eq v0, v1, :cond_f
 
-    .line 335
+    .line 386
     :cond_e
     :goto_e
     return-void
 
-    .line 333
+    .line 384
     :cond_f
     const-string v0, "gatt"
 
@@ -4950,7 +5178,7 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 334
+    .line 385
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuPendingGatt:Landroid/bluetooth/BluetoothGatt;
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->beginServiceDiscovery(Landroid/bluetooth/BluetoothGatt;)V
@@ -4962,20 +5190,20 @@
     .registers 2
 
     .prologue
-    .line 302
+    .line 353
     const-string v0, "initialized"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->setState(Ljava/lang/String;)V
 
-    .line 303
+    .line 354
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeActive:Z
 
     if-eqz v0, :cond_c
 
-    .line 304
+    .line 355
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->beginRealtimeStreaming()V
 
-    .line 306
+    .line 357
     :cond_c
     return-void
 .end method
@@ -4984,7 +5212,7 @@
     .registers 4
 
     .prologue
-    .line 913
+    .line 973
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->userRequestedDisconnect:Z
 
     if-nez v0, :cond_c
@@ -4997,12 +5225,12 @@
 
     if-nez v0, :cond_d
 
-    .line 918
+    .line 978
     :cond_c
     :goto_c
     return-void
 
-    .line 916
+    .line 976
     :cond_d
     const-string v0, "gatt"
 
@@ -5010,7 +5238,7 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 917
+    .line 977
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->appContext:Landroid/content/Context;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->targetMac:Ljava/lang/String;
@@ -5030,14 +5258,14 @@
     .registers 5
 
     .prologue
-    .line 338
+    .line 389
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bandAckTimeoutTask:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 339
+    .line 390
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->bandAckTimeoutTask:Ljava/lang/Runnable;
@@ -5046,7 +5274,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 340
+    .line 391
     return-void
 .end method
 
@@ -5054,17 +5282,17 @@
     .registers 6
 
     .prologue
-    .line 324
+    .line 375
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuPendingGatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 325
+    .line 376
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuFallbackTask:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 326
+    .line 377
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mainHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->mtuFallbackTask:Ljava/lang/Runnable;
@@ -5073,7 +5301,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 327
+    .line 378
     return-void
 .end method
 
@@ -5081,15 +5309,15 @@
     .registers 5
 
     .prologue
-    .line 309
+    .line 360
     invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->makeTypedCommand(II[B)[B
 
     move-result-object v0
 
-    .line 310
+    .line 361
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->sendCommand([B)V
 
-    .line 311
+    .line 362
     return-void
 .end method
 
@@ -5097,10 +5325,10 @@
     .registers 2
 
     .prologue
-    .line 148
+    .line 192
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;
 
-    .line 149
+    .line 193
     return-void
 .end method
 
@@ -5108,12 +5336,12 @@
     .registers 2
 
     .prologue
-    .line 295
+    .line 346
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->realtimeActive:Z
 
-    .line 296
+    .line 347
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->authenticated:Z
 
     if-eqz v0, :cond_12
@@ -5126,10 +5354,10 @@
 
     if-eqz v0, :cond_12
 
-    .line 297
+    .line 348
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->beginRealtimeStreaming()V
 
-    .line 299
+    .line 350
     :cond_12
     return-void
 .end method
@@ -5142,7 +5370,7 @@
 
     const/4 v1, 0x0
 
-    .line 463
+    .line 514
     if-eqz p1, :cond_8
 
     if-eqz p2, :cond_8
@@ -5152,12 +5380,12 @@
     :cond_8
     move v0, v1
 
-    .line 483
+    .line 534
     :cond_9
     :goto_9
     return v0
 
-    .line 466
+    .line 517
     :cond_a
     array-length v2, p3
 
@@ -5167,7 +5395,7 @@
 
     if-le v2, v3, :cond_3c
 
-    .line 467
+    .line 518
     const-string v2, "write"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -5210,14 +5438,14 @@
 
     invoke-virtual {p0, v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 469
+    .line 520
     :cond_3c
     invoke-virtual {p2, v0}, Landroid/bluetooth/BluetoothGattCharacteristic;->setWriteType(I)V
 
-    .line 470
+    .line 521
     invoke-virtual {p2, p3}, Landroid/bluetooth/BluetoothGattCharacteristic;->setValue([B)Z
 
-    .line 472
+    .line 523
     :try_start_42
     invoke-virtual {p1, p2}, Landroid/bluetooth/BluetoothGatt;->writeCharacteristic(Landroid/bluetooth/BluetoothGattCharacteristic;)Z
     :try_end_45
@@ -5227,16 +5455,16 @@
 
     if-nez v2, :cond_9
 
-    .line 477
+    .line 528
     :goto_48
     const/4 v0, 0x2
 
     invoke-virtual {p2, v0}, Landroid/bluetooth/BluetoothGattCharacteristic;->setWriteType(I)V
 
-    .line 478
+    .line 529
     invoke-virtual {p2, p3}, Landroid/bluetooth/BluetoothGattCharacteristic;->setValue([B)Z
 
-    .line 480
+    .line 531
     :try_start_4f
     invoke-virtual {p1, p2}, Landroid/bluetooth/BluetoothGatt;->writeCharacteristic(Landroid/bluetooth/BluetoothGattCharacteristic;)Z
     :try_end_52
@@ -5246,21 +5474,21 @@
 
     goto :goto_9
 
-    .line 481
+    .line 532
     :catch_54
     move-exception v0
 
-    .line 482
+    .line 533
     const-string v2, "writeFrame"
 
     invoke-virtual {p0, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     move v0, v1
 
-    .line 483
+    .line 534
     goto :goto_9
 
-    .line 475
+    .line 526
     :catch_5c
     move-exception v0
 

@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 970
+    .prologue
+    .line 1094
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,60 +31,61 @@
 
 # virtual methods
 .method public onDismiss(Landroid/content/DialogInterface;)V
-    .registers 3
+    .registers 4
 
-    .line 974
-    const/4 p1, 0x0
+    .prologue
+    const/4 v1, 0x0
 
+    .line 1098
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$000(Landroid/view/View;)Landroid/app/Activity;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$000(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 975
+    .line 1099
     if-eqz v0, :cond_a
 
-    .line 976
+    .line 1100
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->saveConfigFromUi(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1000(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1300(Landroid/app/Activity;)V
 
-    .line 978
+    .line 1102
     :cond_a
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->configDialog:Landroid/support/v7/app/AlertDialog;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1602(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2102(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
 
-    .line 979
+    .line 1103
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->configContent:Landroid/view/View;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1702(Landroid/view/View;)Landroid/view/View;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2202(Landroid/view/View;)Landroid/view/View;
 
-    .line 980
+    .line 1104
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->statusView:Landroid/widget/TextView;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1802(Landroid/widget/TextView;)Landroid/widget/TextView;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2302(Landroid/widget/TextView;)Landroid/widget/TextView;
 
-    .line 981
+    .line 1105
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->enabledSwitch:Landroid/widget/Switch;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1902(Landroid/widget/Switch;)Landroid/widget/Switch;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2402(Landroid/widget/Switch;)Landroid/widget/Switch;
 
-    .line 982
+    .line 1106
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->autoReduceSwitch:Landroid/widget/Switch;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2002(Landroid/widget/Switch;)Landroid/widget/Switch;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2502(Landroid/widget/Switch;)Landroid/widget/Switch;
 
-    .line 983
+    .line 1107
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->thresholdView:Landroid/widget/EditText;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2102(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2602(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 984
+    .line 1108
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->stepView:Landroid/widget/EditText;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2202(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2702(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 985
+    .line 1109
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->bandMacView:Landroid/widget/EditText;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2302(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1602(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 986
+    .line 1110
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->authKeyView:Landroid/widget/EditText;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2402(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2802(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 987
+    .line 1111
     return-void
 .end method

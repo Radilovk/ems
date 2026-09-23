@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify v1.1.54-ble HR fix markers in built APK / smali."""
+"""Verify v1.1.55-ble HR fix markers in built APK / smali."""
 
 from __future__ import annotations
 
@@ -24,8 +24,8 @@ REALTIME_START = (
     / "smali_classes2/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandRealtimeStartRunnable.smali"
 )
 RELEASE = ROOT / "RELEASE_VERSION"
-EXPECTED_VERSION = "1.1.54-ble"
-BUILD_TAG = "v1.1.54-ble"
+EXPECTED_VERSION = "1.1.55-ble"
+BUILD_TAG = "v1.1.55-ble"
 
 
 def apk_strings() -> str:

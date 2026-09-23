@@ -30,6 +30,7 @@
         }
     .end annotation
 
+    .prologue
     .line 249
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$3;->val$activity:Landroid/app/Activity;
 
@@ -43,6 +44,7 @@
 .method public run()V
     .registers 3
 
+    .prologue
     .line 252
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$3;->val$activity:Landroid/app/Activity;
 

@@ -1,9 +1,9 @@
-.class final Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConfigInfoListener;
+.class final Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ArmAfterPermission;
 .super Ljava/lang/Object;
 .source "WearableSyncHelper.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -13,7 +13,7 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "ConfigInfoListener"
+    name = "ArmAfterPermission"
 .end annotation
 
 
@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 825
+    .line 806
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,18 +29,20 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public run()V
     .registers 2
 
-    .line 828
+    .line 809
+    const/4 v0, 0x0
+
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$500(Landroid/view/View;)Landroid/app/Activity;
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$500(Landroid/view/View;)Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v0
 
-    # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showInfo(Landroid/app/Activity;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800(Landroid/app/Activity;)V
+    # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->finishArm(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$600(Landroid/app/Activity;)V
 
-    .line 829
+    .line 810
     return-void
 .end method

@@ -231,6 +231,11 @@ public final class NotifyWearableBridge {
     }
 
     private static void performConnect(Context context) {
+        if (WearableConfig.isDirectBleMode(context)
+                && !WearableBlePermissions.hasAllBlePermissions(context)) {
+            WearableSyncHelper.showBluetoothPermissionDenied();
+            return;
+        }
         beginListening(context);
         if (WearableConfig.isDirectBleMode(context)) {
             XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();

@@ -122,6 +122,10 @@ public final class XiaomiBandBleClient {
         if (context == null) {
             return;
         }
+        if (!com.isaigu.gymapp.wearable.WearableBlePermissions.hasAllBlePermissions(context)) {
+            setState("no_bt_permission");
+            return;
+        }
         WearableBleDiagLog.init(context);
         WearableBleDiagLog.clear();
         appContext = context.getApplicationContext();

@@ -27,6 +27,7 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
     public void onConnectionStateChange(BluetoothGatt g, int status, int newState) {
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             client.log("gatt", "connected status=" + status);
+            client.onGattLinkUp(g);
             if (Build.VERSION.SDK_INT >= 21) {
                 try {
                     g.requestMtu(512);
@@ -40,7 +41,7 @@ public final class XiaomiBandGattCallback extends BluetoothGattCallback {
         }
         if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             client.log("gatt", "disconnected status=" + status);
-            client.onGattDisconnected();
+            client.onGattDisconnected(status);
         }
     }
 

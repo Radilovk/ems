@@ -30,7 +30,7 @@
         }
     .end annotation
 
-    .line 249
+    .line 245
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$3;->val$activity:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,7 +43,7 @@
 .method public run()V
     .registers 3
 
-    .line 252
+    .line 248
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$3;->val$activity:Landroid/app/Activity;
 
     const v1, 0x7f0d019d
@@ -51,11 +51,11 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toast(Landroid/app/Activity;I)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$400(Landroid/app/Activity;I)V
 
-    .line 253
+    .line 249
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$3;->val$activity:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->openAppSettings(Landroid/app/Activity;)V
 
-    .line 254
+    .line 250
     return-void
 .end method

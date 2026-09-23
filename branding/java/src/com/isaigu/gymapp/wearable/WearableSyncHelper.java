@@ -171,12 +171,8 @@ public final class WearableSyncHelper {
         });
     }
 
-    /** Stop band BLE and tear down floating UI when training host is destroyed. */
+    /** Tear down floating UI refs when training host is destroyed; keep BLE if user armed dial. */
     public static void detachTrainingHost() {
-        Context context = getContext();
-        if (context != null) {
-            NotifyWearableBridge.stopListening(context);
-        }
         dismissStaleUi();
         panelRoot = null;
         itemManager = null;

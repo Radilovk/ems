@@ -14,7 +14,7 @@ D8="${ROOT}/android-sdk/build-tools/30.0.3/d8"
 BAKSMALI="${ROOT}/tools/baksmali.jar"
 
 SOURCES=(
-  XemsLicense.java XemsLicenseToken.java XemsLicenseClient.java XemsLicenseSection.java
+  XemsLang.java XemsLicense.java XemsLicenseToken.java XemsLicenseClient.java
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}"
@@ -33,23 +33,30 @@ for f in "${SOURCES[@]}"; do
   ARGS+=("${SRC_DIR}/${f}")
 done
 
-javac --release 8 -classpath "${ANDROID_JAR}" -d "${CLASSES_DIR}" "${ARGS[@]}"
+JAVA_STUBS="${ROOT}/branding/java-stubs"
+javac --release 8 -classpath "${ANDROID_JAR}:${JAVA_STUBS}" -d "${CLASSES_DIR}" "${ARGS[@]}"
 
-(
+if (
   cd "${CLASSES_DIR}"
   "${D8}" --min-api 21 --lib "${ANDROID_JAR}" --output "${DEX_DIR}" \
     com/isaigu/gymapp/widget/XemsLicense*.class
-)
-
-java -jar "${BAKSMALI}" d "${DEX_DIR}/classes.dex" -o "${SMALI_OUT}"
-
-for f in XemsLicense XemsLicenseToken XemsLicenseClient XemsLicenseSection; do
-  src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
-  [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
-  # inner classes
-  for inner in "${SMALI_OUT}/com/isaigu/gymapp/widget/${f}"\$*.smali; do
-    [[ -f "$inner" ]] && cp "$inner" "${BRANDING_SMALI}/$(basename "$inner")"
+); then
+  java -jar "${BAKSMALI}" d "${DEX_DIR}/classes.dex" -o "${SMALI_OUT}"
+  for f in XemsLicense XemsLicenseToken XemsLicenseClient; do
+    src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
+    [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
+    for inner in "${SMALI_OUT}/com/isaigu/gymapp/widget/${f}"\$*.smali; do
+      [[ -f "$inner" ]] && cp "$inner" "${BRANDING_SMALI}/$(basename "$inner")"
+    done
   done
-done
-
-echo "XemsLicense smali updated in ${BRANDING_SMALI}"
+  echo "XemsLicense smali updated in ${BRANDING_SMALI}"
+else
+  echo "WARN: d8 failed for XemsLicense stack — keeping prebuilt smali in ${BRANDING_SMALI}"
+  for f in XemsLicense XemsLicenseToken XemsLicenseClient; do
+    [[ -f "${BRANDING_SMALI}/${f}.smali" ]] || {
+      echo "ERROR: missing prebuilt ${BRANDING_SMALI}/${f}.smali"
+      exit 1
+    }
+  done
+fi
+echo "XemsLicense classes ready in ${CLASSES_DIR}"

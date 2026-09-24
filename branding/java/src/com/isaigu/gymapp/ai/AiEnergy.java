@@ -55,6 +55,15 @@ public final class AiEnergy {
     public static final int ARMS = 4;
     public static final double ARMS_SENT = 0.05;
 
+    /** What the arms channel really gets (0.05, or 1 with the "arms_full" licence feature). */
+    static double armsSent() {
+        try {
+            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsFactor();
+        } catch (Throwable t) {
+            return ARMS_SENT;
+        }
+    }
+
     /** What is delivered now (or averaged over the cycle). */
     public static final class Stim {
         /** Per-channel % (PartStrenthBean.buwei), may be null → all channels at 100 %. */
@@ -221,7 +230,7 @@ public final class AiEnergy {
                 continue;
             }
             double chPct = s.channels != null ? (ch < s.channels.length ? s.channels[ch] : 0) : 100;
-            double sent = (chPct / 100.0) * (ch == ARMS ? ARMS_SENT : 1.0);
+            double sent = (chPct / 100.0) * (ch == ARMS ? armsSent() : 1.0);
             double tol = s.toleratedCharge != null && ch < s.toleratedCharge.length ? s.toleratedCharge[ch] : 0;
             double part = 0;
             if (s.onShare > 0 && s.hz > 0) {

@@ -17,8 +17,20 @@ public final class ChannelStrengthScale {
 
     public static float scaleOutput(int channelIndex, float encodedValue) {
         if (channelIndex == ARMS_CHANNEL_INDEX) {
-            return encodedValue * ARMS_SCALE;
+            return encodedValue * armsFactor();
         }
         return encodedValue;
+    }
+
+    /** 0.05, or 1 (step 1:1, normal strength) when the licence turns on "arms_full". */
+    public static float armsFactor() {
+        try {
+            if (com.isaigu.gymapp.widget.XemsLicense.hasFeature(
+                    com.isaigu.gymapp.widget.XemsLicense.FEAT_ARMS_FULL)) {
+                return 1f;
+            }
+        } catch (Throwable ignored) {
+        }
+        return ARMS_SCALE;
     }
 }

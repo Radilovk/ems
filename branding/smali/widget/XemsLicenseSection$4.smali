@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 181
+    .line 185
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$4;->val$srv:Landroid/widget/EditText;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$4;->val$adv:Landroid/widget/TextView;
@@ -49,7 +49,7 @@
     .registers 5
 
     .prologue
-    .line 184
+    .line 188
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$4;->val$srv:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -62,7 +62,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->setServer(Ljava/lang/String;)V
 
-    .line 185
+    .line 189
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$4;->val$adv:Landroid/widget/TextView;
 
     const-string v1, "\u0421\u044a\u0440\u0432\u044a\u0440 \u2713 \u0437\u0430\u043f\u0430\u0437\u0435\u043d"
@@ -75,6 +75,6 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 186
+    .line 190
     return-void
 .end method

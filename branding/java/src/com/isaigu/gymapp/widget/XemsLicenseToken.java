@@ -16,7 +16,8 @@ import java.util.Map;
  * <pre>
  * token   = base64url(payload JSON) "." base64url(signature)
  * payload = {"v":1, "lic":"L-2026-000123", "dev":"&lt;device id&gt;", "plan":"pro",
- *            "mods":["timer","music","pulse","ai","band"], "iat":1790000000, "exp":1821536000}
+ *            "mods":["timer","music","pulse","ai","band"], "feat":["arms_full"],
+ *            "iat":1790000000, "exp":1821536000}
  * signature = ECDSA P-256 / SHA-256 (DER) over the ASCII of the first part
  * </pre>
  * exp = 0 means no end date. The public key is {@link XemsLicense#SERVER_PUBLIC_KEY}.
@@ -28,6 +29,8 @@ public final class XemsLicenseToken {
     public String device = "";
     public String plan = "";
     public List<String> modules = new ArrayList<String>();
+    /** Feature switches, e.g. "arms_full". */
+    public List<String> features = new ArrayList<String>();
     public long issuedS;
     public long expiresS;
 
@@ -63,6 +66,12 @@ public final class XemsLicenseToken {
             if (mods instanceof List) {
                 for (Object m : (List<?>) mods) {
                     t.modules.add(str(m));
+                }
+            }
+            Object feats = p.get("feat");
+            if (feats instanceof List) {
+                for (Object f : (List<?>) feats) {
+                    t.features.add(str(f));
                 }
             }
             if (deviceId != null && t.device.length() > 0 && !t.device.equals(deviceId)) {

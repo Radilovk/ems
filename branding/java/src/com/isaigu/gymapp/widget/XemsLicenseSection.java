@@ -67,6 +67,10 @@ public final class XemsLicenseSection {
             lp.rightMargin = XemsUi.dp(a, 6);
             chips.addView(chip, lp);
         }
+        if (XemsLicense.hasFeature(XemsLicense.FEAT_ARMS_FULL)) {
+            TextView chip = XemsUi.chip(a, tr("✓ Ръце 1:1", "✓ Arms 1:1"), true, XemsUi.AMBER);
+            chips.addView(chip);
+        }
         android.widget.HorizontalScrollView scroll = new android.widget.HorizontalScrollView(a);
         scroll.setHorizontalScrollBarEnabled(false);
         scroll.addView(chips);
@@ -217,8 +221,10 @@ public final class XemsLicenseSection {
 
     static String statusDetail() {
         String src = XemsLicense.source();
+        String arms = XemsLicense.hasFeature(XemsLicense.FEAT_ARMS_FULL)
+                ? tr(" · ръцете с нормална сила (стъпка 1:1)", " · arms at normal strength (step 1:1)") : "";
         if ("code".equals(src)) {
-            return tr("Отключено с код · без срок", "Unlocked with a code · no end date");
+            return tr("Отключено с код · без срок", "Unlocked with a code · no end date") + arms;
         }
         if ("server".equals(src)) {
             long exp = XemsLicense.expiresS();
@@ -227,7 +233,8 @@ public final class XemsLicenseSection {
                     : tr("до ", "until ") + new SimpleDateFormat("dd.MM.yyyy", Locale.US).format(new Date(exp * 1000L));
             int grace = XemsLicense.graceDaysLeft();
             return (plan.length() > 0 ? tr("План ", "Plan ") + plan + " · " : "") + until
-                    + (grace >= 0 ? tr(" · изтекъл, работи още ", " · expired, works ") + grace + tr(" дни", " more days") : "");
+                    + (grace >= 0 ? tr(" · изтекъл, работи още ", " · expired, works ") + grace + tr(" дни", " more days") : "")
+                    + arms;
         }
         return tr("Тренировка без допълнителните модули. Въведи ключ, за да ги отключиш.",
                 "Training without the add-on modules. Enter a key to unlock them.");

@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 139
+    .line 143
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,10 +40,10 @@
     .registers 7
 
     .prologue
-    .line 142
+    .line 146
     if-eqz p2, :cond_e
 
-    .line 143
+    .line 147
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$upText:Landroid/widget/TextView;
@@ -54,15 +54,15 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 151
+    .line 155
     :goto_d
     return-void
 
-    .line 144
+    .line 148
     :cond_e
     if-nez p1, :cond_20
 
-    .line 145
+    .line 149
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$upText:Landroid/widget/TextView;
@@ -79,7 +79,7 @@
 
     goto :goto_d
 
-    .line 147
+    .line 151
     :cond_20
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;
 
@@ -107,7 +107,7 @@
 
     move-result-object v2
 
-    .line 148
+    .line 152
     iget-object v0, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->notes:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -145,10 +145,10 @@
 
     move-result-object v0
 
-    .line 147
+    .line 151
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 149
+    .line 153
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$upBtn:Landroid/widget/TextView;
@@ -165,7 +165,7 @@
 
     goto :goto_d
 
-    .line 148
+    .line 152
     :cond_73
     const-string v0, ""
 

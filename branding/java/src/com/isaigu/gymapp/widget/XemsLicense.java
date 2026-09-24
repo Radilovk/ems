@@ -35,8 +35,13 @@ public final class XemsLicense {
     public static final String BAND = "band";
     public static final String[] ALL = {TIMER, MUSIC, PULSE, AI, BAND};
 
+    /** Feature (not a module): the arms channel goes out 1:1 instead of ×0.05. */
+    public static final String FEAT_ARMS_FULL = "arms_full";
+
     /** Offline key that unlocks every module. */
     static final String LOCAL_CODE = "0123";
+    /** Offline key: base app, arms channel at normal strength (step 1:1, no multiplier). */
+    static final String LOCAL_CODE_ARMS = "RENI123";
     /** X.509 / base64 public key of the license server (ECDSA P-256). Empty until the server exists. */
     static final String SERVER_PUBLIC_KEY = "";
     /** License server base address, e.g. https://license.example.com — empty until it exists. */
@@ -49,6 +54,7 @@ public final class XemsLicense {
     static final String K_SOURCE = "source";          // "" base, "code", "server"
     static final String K_TOKEN = "token";
     static final String K_MODS = "mods";
+    static final String K_FEATS = "feats";
     static final String K_PLAN = "plan";
     static final String K_LIC = "lic";
     static final String K_EXP = "exp";
@@ -58,6 +64,7 @@ public final class XemsLicense {
 
     private static Context app;
     private static volatile Set<String> unlocked = new HashSet<String>();
+    private static volatile Set<String> features = new HashSet<String>();
     private static volatile boolean loaded;
 
     private XemsLicense() {}
@@ -80,6 +87,11 @@ public final class XemsLicense {
 
     public static boolean has(String module) {
         return unlocked.contains(module);
+    }
+
+    /** Feature switch (e.g. {@link #FEAT_ARMS_FULL}); off until the licence turns it on. */
+    public static boolean hasFeature(String feature) {
+        return features.contains(feature);
     }
 
     public static boolean has(Context c, String module) {
@@ -172,16 +184,33 @@ public final class XemsLicense {
 
     // ================================================================ changes
 
-    /** Offline code: true when {@code key} unlocks everything locally. */
+    /**
+     * Offline codes (case does not matter): {@link #LOCAL_CODE} = every module;
+     * {@link #LOCAL_CODE_ARMS} = base app with the arms channel at normal strength.
+     * True when {@code key} is one of them (and it is applied).
+     */
     public static boolean applyLocalCode(String key) {
-        if (!LOCAL_CODE.equals(key == null ? "" : key.trim())) {
+        String k = key == null ? "" : key.trim().toUpperCase(java.util.Locale.US);
+        List<String> mods;
+        List<String> feats;
+        String plan;
+        if (LOCAL_CODE.equals(k)) {
+            mods = Arrays.asList(ALL);
+            feats = new ArrayList<String>();
+            plan = "full";
+        } else if (LOCAL_CODE_ARMS.equals(k)) {
+            mods = new ArrayList<String>();
+            feats = Arrays.asList(FEAT_ARMS_FULL);
+            plan = "base+arms";
+        } else {
             return false;
         }
         prefs().edit()
                 .putString(K_KEY, key.trim())
                 .putString(K_SOURCE, "code")
-                .putString(K_MODS, join(Arrays.asList(ALL)))
-                .putString(K_PLAN, "full")
+                .putString(K_MODS, join(mods))
+                .putString(K_FEATS, join(feats))
+                .putString(K_PLAN, plan)
                 .putString(K_LIC, "local")
                 .putLong(K_EXP, 0)
                 .remove(K_TOKEN)
@@ -201,6 +230,7 @@ public final class XemsLicense {
                 .putString(K_SOURCE, "server")
                 .putString(K_TOKEN, token)
                 .putString(K_MODS, join(t.modules))
+                .putString(K_FEATS, join(t.features))
                 .putString(K_PLAN, t.plan)
                 .putString(K_LIC, t.license)
                 .putLong(K_EXP, t.expiresS)
@@ -221,7 +251,7 @@ public final class XemsLicense {
     /** Back to the base app (empty key + Activate). */
     public static void reset() {
         prefs().edit()
-                .remove(K_KEY).remove(K_SOURCE).remove(K_TOKEN).remove(K_MODS)
+                .remove(K_KEY).remove(K_SOURCE).remove(K_TOKEN).remove(K_MODS).remove(K_FEATS)
                 .remove(K_PLAN).remove(K_LIC).remove(K_EXP).remove(K_CHECKED)
                 .apply();
         reload();
@@ -239,22 +269,25 @@ public final class XemsLicense {
             return;
         }
         SharedPreferences p = prefs();
-        unlocked = decide(p.getString(K_SOURCE, ""), p.getString(K_MODS, ""), p.getLong(K_EXP, 0),
-                System.currentTimeMillis() / 1000L);
+        long now = System.currentTimeMillis() / 1000L;
+        unlocked = decide(p.getString(K_SOURCE, ""), p.getString(K_MODS, ""), p.getLong(K_EXP, 0), now);
+        features = decideList(p.getString(K_SOURCE, ""), p.getString(K_FEATS, ""), p.getLong(K_EXP, 0), now);
         loaded = true;
     }
 
-    /** The rule (pure, testable): code = everything; server = its modules until end date + grace. */
+    /** The rule (pure, testable): the saved list, while the licence is valid (end date + grace). */
     static Set<String> decide(String source, String modsCsv, long expS, long nowS) {
+        return decideList(source, modsCsv, expS, nowS);
+    }
+
+    static Set<String> decideList(String source, String csv, long expS, long nowS) {
         Set<String> out = new HashSet<String>();
-        if ("code".equals(source)) {
-            out.addAll(Arrays.asList(ALL));
-        } else if ("server".equals(source)) {
-            if (expS == 0 || nowS <= expS + GRACE_DAYS * 86400L) {
-                for (String m : modsCsv.split(",")) {
-                    if (m.trim().length() > 0) {
-                        out.add(m.trim());
-                    }
+        boolean valid = "code".equals(source)
+                || ("server".equals(source) && (expS == 0 || nowS <= expS + GRACE_DAYS * 86400L));
+        if (valid && csv != null) {
+            for (String m : csv.split(",")) {
+                if (m.trim().length() > 0) {
+                    out.add(m.trim());
                 }
             }
         }

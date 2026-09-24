@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 124
+    .line 128
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$upText:Landroid/widget/TextView;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$a:Landroid/app/Activity;
@@ -53,15 +53,15 @@
     .registers 7
 
     .prologue
-    .line 127
+    .line 131
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->lastUpdate()Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
     move-result-object v0
 
-    .line 128
+    .line 132
     if-eqz v0, :cond_37
 
-    .line 129
+    .line 133
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$upText:Landroid/widget/TextView;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -98,7 +98,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 130
+    .line 134
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$a:Landroid/app/Activity;
 
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2$1;
@@ -107,11 +107,11 @@
 
     invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 
-    .line 153
+    .line 157
     :goto_36
     return-void
 
-    .line 138
+    .line 142
     :cond_37
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$upText:Landroid/widget/TextView;
 
@@ -125,7 +125,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 139
+    .line 143
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2;->val$a:Landroid/app/Activity;
 
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsLicenseSection$2$2;

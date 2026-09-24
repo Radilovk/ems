@@ -72,6 +72,9 @@ public final class BandAppInstall {
 
     /** Band link is up (from NotifyWearableBridge): check the app a moment later. */
     static void onBandConnected() {
+        if (!com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND)) {
+            return;
+        }
         main.removeCallbacks(autoCheck);
         main.postDelayed(autoCheck, pendingManual ? 800L : AUTO_DELAY_MS);
     }

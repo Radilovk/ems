@@ -51,6 +51,9 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
 
     /** Called when the band link comes up (and on every connect). */
     public static void start() {
+        if (!com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND)) {
+            return;                                 // band remote / band app need the band module
+        }
         XiaomiBandRemote.setListener(INSTANCE);
         com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.setListener(INSTANCE);
         lastSent = "";

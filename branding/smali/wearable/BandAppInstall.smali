@@ -156,15 +156,15 @@
     .prologue
     const/4 v4, 0x7
 
-    .line 119
+    .line 122
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->read(Landroid/content/Context;)[B
 
     move-result-object v1
 
-    .line 120
+    .line 123
     if-nez v1, :cond_13
 
-    .line 121
+    .line 124
     const-string v0, "\u0424\u0430\u0439\u043b\u044a\u0442 \u043d\u0430 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u043b\u0438\u043f\u0441\u0432\u0430 \u0432 \u0442\u0430\u0437\u0438 \u0432\u0435\u0440\u0441\u0438\u044f"
 
     const-string v1, "The band app file is missing from this build"
@@ -175,12 +175,12 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
 
-    .line 130
+    .line 133
     :cond_12
     :goto_12
     return-void
 
-    .line 125
+    .line 128
     :cond_13
     const-string v2, "install"
 
@@ -213,7 +213,7 @@
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 126
+    .line 129
     const-string v0, "\u0418\u043d\u0441\u0442\u0430\u043b\u0438\u0440\u0430\u043d\u0435 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430\u2026"
 
     const-string v2, "Installing on the band\u2026"
@@ -224,7 +224,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
 
-    .line 127
+    .line 130
     const-string v0, "com.xems.band"
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/BandAppInstall$Progress;
@@ -241,7 +241,7 @@
 
     if-nez v0, :cond_12
 
-    .line 128
+    .line 131
     const-string v0, "\u041d\u0443\u0436\u043d\u0430 \u0435 \u0432\u0440\u044a\u0437\u043a\u0430 Band 9 / 10"
 
     const-string v1, "Needs a Band 9 / 10 link"
@@ -254,7 +254,7 @@
 
     goto :goto_12
 
-    .line 125
+    .line 128
     :cond_5b
     const-string v0, "manual"
 
@@ -278,12 +278,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 98
+    .line 101
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 99
+    .line 102
     if-eqz v1, :cond_13
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->classicLinkUp()Z
@@ -298,29 +298,29 @@
 
     if-eqz v2, :cond_14
 
-    .line 116
+    .line 119
     :cond_13
     :goto_13
     return-void
 
-    .line 102
+    .line 105
     :cond_14
     sget-boolean v2, Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
 
-    .line 103
+    .line 106
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
 
-    .line 104
+    .line 107
     sget-object v3, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
 
     sget-object v4, Lcom/isaigu/gymapp/wearable/BandAppInstall;->connectTimeout:Ljava/lang/Runnable;
 
     invoke-virtual {v3, v4}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 105
+    .line 108
     if-nez v2, :cond_44
 
-    .line 106
+    .line 109
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandAppVersion(Landroid/content/Context;)I
 
     move-result v3
@@ -335,14 +335,14 @@
 
     if-ge v3, v4, :cond_13
 
-    .line 109
+    .line 112
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->training()Z
 
     move-result v3
 
     if-eqz v3, :cond_3e
 
-    .line 110
+    .line 113
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandAppInstall;->autoCheck:Ljava/lang/Runnable;
@@ -353,7 +353,7 @@
 
     goto :goto_13
 
-    .line 113
+    .line 116
     :cond_3e
     sget v3, Lcom/isaigu/gymapp/wearable/BandAppInstall;->autoTries:I
 
@@ -361,7 +361,7 @@
 
     sput v3, Lcom/isaigu/gymapp/wearable/BandAppInstall;->autoTries:I
 
-    .line 115
+    .line 118
     :cond_44
     if-nez v2, :cond_47
 
@@ -377,12 +377,12 @@
     .registers 2
 
     .prologue
-    .line 93
+    .line 96
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
 
-    .line 94
+    .line 97
     instance-of v1, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
     if-eqz v1, :cond_10
@@ -408,12 +408,12 @@
     .registers 4
 
     .prologue
-    .line 81
+    .line 84
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 82
+    .line 85
     if-lez p0, :cond_29
 
     if-eqz v0, :cond_29
@@ -424,10 +424,10 @@
 
     if-eq p0, v1, :cond_29
 
-    .line 83
+    .line 86
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandAppVersion(Landroid/content/Context;I)V
 
-    .line 84
+    .line 87
     const-string v0, "install"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -450,7 +450,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 86
+    .line 89
     :cond_29
     return-void
 .end method
@@ -460,34 +460,46 @@
 
     .prologue
     .line 75
+    const-string v0, "band"
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->has(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_9
+
+    .line 80
+    :goto_8
+    return-void
+
+    .line 78
+    :cond_9
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandAppInstall;->autoCheck:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 76
+    .line 79
     sget-object v2, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
 
     sget-object v3, Lcom/isaigu/gymapp/wearable/BandAppInstall;->autoCheck:Ljava/lang/Runnable;
 
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
 
-    if-eqz v0, :cond_15
+    if-eqz v0, :cond_1e
 
     const-wide/16 v0, 0x320
 
-    :goto_11
+    :goto_1a
     invoke-virtual {v2, v3, v0, v1}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 77
-    return-void
+    goto :goto_8
 
-    .line 76
-    :cond_15
+    :cond_1e
     const-wide/16 v0, 0x1770
 
-    goto :goto_11
+    goto :goto_1a
 .end method
 
 .method static read(Landroid/content/Context;)[B
@@ -496,8 +508,8 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 157
-    .line 159
+    .line 160
+    .line 162
     :try_start_1
     invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
 
@@ -512,18 +524,18 @@
 
     move-result-object v1
 
-    .line 160
+    .line 163
     :try_start_b
     new-instance v2, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v2}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 161
+    .line 164
     const/16 v3, 0x2000
 
     new-array v3, v3, [B
 
-    .line 163
+    .line 166
     :goto_14
     invoke-virtual {v1, v3}, Ljava/io/InputStream;->read([B)I
 
@@ -531,7 +543,7 @@
 
     if-lez v4, :cond_26
 
-    .line 164
+    .line 167
     const/4 v5, 0x0
 
     invoke-virtual {v2, v3, v5, v4}, Ljava/io/ByteArrayOutputStream;->write([BII)V
@@ -541,26 +553,26 @@
 
     goto :goto_14
 
-    .line 167
+    .line 170
     :catch_1f
     move-exception v2
 
-    .line 170
+    .line 173
     :goto_20
     if-eqz v1, :cond_25
 
-    .line 172
+    .line 175
     :try_start_22
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
     :try_end_25
     .catch Ljava/lang/Exception; {:try_start_22 .. :try_end_25} :catch_3b
 
-    .line 168
+    .line 171
     :cond_25
     :goto_25
     return-object v0
 
-    .line 166
+    .line 169
     :cond_26
     :try_start_26
     invoke-virtual {v2}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
@@ -570,10 +582,10 @@
 
     move-result-object v0
 
-    .line 170
+    .line 173
     if-eqz v1, :cond_25
 
-    .line 172
+    .line 175
     :try_start_2c
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
     :try_end_2f
@@ -581,13 +593,13 @@
 
     goto :goto_25
 
-    .line 173
+    .line 176
     :catch_30
     move-exception v1
 
     goto :goto_25
 
-    .line 170
+    .line 173
     :catchall_32
     move-exception v1
 
@@ -598,18 +610,18 @@
     :goto_35
     if-eqz v3, :cond_3a
 
-    .line 172
+    .line 175
     :try_start_37
     invoke-virtual {v3}, Ljava/io/InputStream;->close()V
     :try_end_3a
     .catch Ljava/lang/Exception; {:try_start_37 .. :try_end_3a} :catch_3d
 
-    .line 176
+    .line 179
     :cond_3a
     :goto_3a
     throw v2
 
-    .line 173
+    .line 176
     :catch_3b
     move-exception v1
 
@@ -620,7 +632,7 @@
 
     goto :goto_3a
 
-    .line 170
+    .line 173
     :catchall_3f
     move-exception v0
 
@@ -630,7 +642,7 @@
 
     goto :goto_35
 
-    .line 167
+    .line 170
     :catch_43
     move-exception v1
 
@@ -663,22 +675,22 @@
     .registers 6
 
     .prologue
-    .line 137
+    .line 140
     :try_start_0
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->bind(Landroid/widget/TextView;)V
 
-    .line 138
+    .line 141
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->isBusy()Z
 
     move-result v0
 
     if-eqz v0, :cond_a
 
-    .line 154
+    .line 157
     :goto_9
     return-void
 
-    .line 141
+    .line 144
     :cond_a
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->classicLinkUp()Z
 
@@ -686,37 +698,37 @@
 
     if-eqz v0, :cond_1e
 
-    .line 142
+    .line 145
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
 
-    .line 143
+    .line 146
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->check()V
     :try_end_16
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_16} :catch_17
 
     goto :goto_9
 
-    .line 151
+    .line 154
     :catch_17
     move-exception v0
 
-    .line 152
+    .line 155
     const-string v1, "BandAppInstall.start"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_9
 
-    .line 146
+    .line 149
     :cond_1e
     const/4 v0, 0x1
 
     :try_start_1f
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
 
-    .line 147
+    .line 150
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043d\u0435 \u0441 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430\u2026"
 
     const-string v1, "Connecting to the band\u2026"
@@ -727,17 +739,17 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
 
-    .line 148
+    .line 151
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->requestConnect(Landroid/app/Activity;)V
 
-    .line 149
+    .line 152
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandAppInstall;->connectTimeout:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 150
+    .line 153
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandAppInstall;->connectTimeout:Ljava/lang/Runnable;
@@ -826,7 +838,7 @@
     .registers 2
 
     .prologue
-    .line 89
+    .line 92
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v0

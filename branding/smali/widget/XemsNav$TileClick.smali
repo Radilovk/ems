@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 579
+    .line 621
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 580
+    .line 622
     iput p1, p0, Lcom/isaigu/gymapp/widget/XemsNav$TileClick;->module:I
 
-    .line 581
+    .line 623
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 586
+    .line 628
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/widget/XemsNav$TileClick;->module:I
 
@@ -51,15 +51,15 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 590
+    .line 632
     :goto_5
     return-void
 
-    .line 587
+    .line 629
     :catch_6
     move-exception v0
 
-    .line 588
+    .line 630
     const-string v1, "XemsNav.module"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

@@ -265,6 +265,10 @@ public final class NotifyWearableBridge {
         if (context == null) {
             return;
         }
+        com.isaigu.gymapp.widget.XemsLicense.init(context);
+        if (!com.isaigu.gymapp.widget.XemsLicense.needsBand()) {
+            return;                                 // base app: no module uses the band
+        }
         if (!WearableConfig.isConfigured(context)) {
             WearableSyncHelper.showAuthKeyRequired();
             return;

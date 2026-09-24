@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 232
+    .line 235
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 233
+    .line 236
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$SetText;->s:Ljava/lang/String;
 
-    .line 234
+    .line 237
     return-void
 .end method
 
@@ -42,13 +42,13 @@
     .registers 3
 
     .prologue
-    .line 238
+    .line 241
     # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->statusView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$400()Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 239
+    .line 242
     if-eqz v0, :cond_11
 
     invoke-virtual {v0}, Landroid/widget/TextView;->isAttachedToWindow()Z
@@ -57,12 +57,12 @@
 
     if-eqz v1, :cond_11
 
-    .line 240
+    .line 243
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$SetText;->s:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 242
+    .line 245
     :cond_11
     return-void
 .end method

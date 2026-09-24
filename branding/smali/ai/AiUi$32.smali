@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Landroid/widget/CompoundButton$OnCheckedChangeListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiUi$ToggleCallback;)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/ai/AiUi;->stepper(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,11 @@
 
 
 # instance fields
-.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;)V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)V
     .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -31,8 +31,8 @@
     .end annotation
 
     .prologue
-    .line 1755
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$32;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+    .line 1756
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$32;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,15 +41,17 @@
 
 
 # virtual methods
-.method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
+.method public onClick(Landroid/view/View;)V
     .registers 4
 
     .prologue
-    .line 1758
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$32;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
-
-    invoke-interface {v0, p2}, Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;->onToggle(Z)V
-
     .line 1759
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$32;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+
+    const/4 v1, -0x1
+
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;->onDelta(I)V
+
+    .line 1760
     return-void
 .end method

@@ -3,7 +3,7 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+.implements Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
 
 
 # annotations
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 524
+    .line 528
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -41,27 +41,26 @@
 
 
 # virtual methods
-.method public onSelect(I)V
+.method public onToggle(Z)V
     .registers 4
 
     .prologue
-    .line 527
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .line 531
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->values()[Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+    if-eqz p1, :cond_9
 
-    move-result-object v1
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->AUTO:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
-    aget-object v1, v1, p1
+    :goto_6
+    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
-
-    .line 528
-    const/4 v0, 0x0
-
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
-
-    .line 529
+    .line 532
     return-void
+
+    .line 531
+    :cond_9
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+
+    goto :goto_6
 .end method

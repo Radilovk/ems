@@ -27,9 +27,9 @@ public final class AiModel {
     public enum BlockMode { FATIGUE_DRIVEN, CONTINUOUS }
 
     /**
-     * What happens between impulses: AUTO (the plan decides per goal and phase), PASSIVE
-     * (silence — full relaxation) or ACTIVE (a weak low-frequency impulse keeps the muscle
-     * working: impulse ↔ impulse).
+     * Double impulse (active pause between impulses): AUTO = on where the AI programs it,
+     * PASSIVE = off (silence between impulses). ACTIVE is kept only for stored preferences and
+     * behaves like AUTO — where and how is always the AI's decision.
      */
     public enum PauseMode { AUTO, PASSIVE, ACTIVE }
 
@@ -182,5 +182,12 @@ public final class AiModel {
         public double fMax;
         public double fRec;
         public double tauR;
+        /** Double impulse on at the start (programmed cycles use their pause). */
+        public boolean pauseOn;
+        /** The plan has cycles with a programmed active pause (so it can be switched live). */
+        public boolean pauseAvailable;
+        /** Q_plan with the double impulse on / off (the budget follows a live switch). */
+        public double qPlanPauseOn;
+        public double qPlanPauseOff;
     }
 }

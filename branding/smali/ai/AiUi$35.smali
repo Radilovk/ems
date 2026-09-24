@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/ai/AiUi$31;
+.class Lcom/isaigu/gymapp/ai/AiUi$35;
 .super Ljava/lang/Object;
 .source "AiUi.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->segmented(Landroid/content/Context;[Ljava/lang/String;I[ZLcom/isaigu/gymapp/ai/AiUi$SegmentCallback;)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/ai/AiUi;->cr10Scale(Landroid/content/Context;IILcom/isaigu/gymapp/ai/AiUi$SegmentCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,7 +20,7 @@
 # instance fields
 .field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-.field final synthetic val$idx:I
+.field final synthetic val$v:I
 
 
 # direct methods
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1738
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+    .line 1829
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$idx:I
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$v:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,13 +49,13 @@
     .registers 4
 
     .prologue
-    .line 1741
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+    .line 1832
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$idx:I
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$v:I
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
 
-    .line 1742
+    .line 1833
     return-void
 .end method

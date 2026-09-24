@@ -379,6 +379,22 @@ public final class AiSession {
         }
     }
 
+    /** Give back a reduce step (never above the plan / calibration). */
+    public static void increase() {
+        if (engine != null) {
+            engine.increase(System.currentTimeMillis());
+            forceApplyCurrent();
+        }
+    }
+
+    /** Double impulse (active pause) on / off during the session. */
+    public static void setActivePause(boolean on) {
+        if (engine != null) {
+            engine.setActivePause(on, System.currentTimeMillis());
+            forceApplyCurrent();
+        }
+    }
+
     /** ACTIVE: next block after the rest threshold (manual start only). */
     public static void continueBlock() {
         if (engine == null) {

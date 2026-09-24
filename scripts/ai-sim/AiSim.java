@@ -179,9 +179,8 @@ public class AiSim {
                     check(c.pauseSigma > 0 && c.pauseSigma <= 0.6, g + " pause strength " + c.pauseSigma);
                 }
             }
-            for (Phase ph : pp.phases) {
-                check(!ph.a.hasActivePause() && (ph.b == null || !ph.b.hasActivePause()), g + " PASSIVE must have no active pause");
-            }
+            check(!pp.pauseOn, g + " switched off → no double impulse");
+            check(pa.pauseOn == pa.pauseAvailable && au.pauseOn == au.pauseAvailable, g + " switched on → used where programmed");
             if (g != Goal.DRAIN) {
                 check(active > 0, g + " ACTIVE must fill some pauses");
                 // Fatigue-driven blocks rest earlier when the pause works too, so the session
@@ -224,6 +223,32 @@ public class AiSim {
             if (k == 1) check(sawPause, "FAT active: engine sends the active pause");
         }
         check(q[1] > q[0], "engine dose with active pause " + q[1] + " > passive " + q[0]);
+        // Live controls: + only gives back a reduce; the double impulse switches live.
+        {
+            SessionInput in = new SessionInput();
+            in.goal = Goal.FAT; in.mode = Mode.ACTIVE; in.pause = PauseMode.AUTO;
+            Profile prof = AiPlanner.derive(in, 68, 1.5, 3000);
+            AiEngine e = new AiEngine(in, prof, AiPlanner.build(in, prof));
+            long t = 1_000_000L; e.start(t); e.onHr(t, 80); e.tick(t + 250);
+            check(!e.canIncrease(), "no + before any reduce (never above the plan)");
+            e.reduce(t + 500);
+            check(e.canIncrease(), "+ available after a reduce");
+            e.increase(t + 750);
+            check(Math.abs(e.getUUser() - 1.0) < 1e-9 && !e.canIncrease(), "+ stops at the plan level");
+            check(e.isActivePauseAvailable() && e.isActivePauseOn(), "FAT: double impulse available and on");
+            double b0 = e.getQBudget();
+            e.setActivePause(false, t + 1000);
+            AiEngine.CycleCmd c = e.onCycle(t + 1250);
+            check(!e.isActivePauseOn() && c.pauseHz == 0, "switched off live → no pause in the next cycle");
+            double want = b0 * e.getPlan().qPlanPauseOff / e.getPlan().qPlanPauseOn;
+            check(Math.abs(e.getQBudget() - want) < 1e-6 * Math.max(1, want), "budget follows the switch");
+            SessionInput dr = new SessionInput();
+            dr.goal = Goal.DRAIN; dr.mode = Mode.PASSIVE;
+            Profile dp = AiPlanner.derive(dr, 68, 1.5, 3000);
+            AiEngine d = new AiEngine(dr, dp, AiPlanner.build(dr, dp));
+            d.start(t);
+            check(!d.isActivePauseAvailable(), "drainage: no double impulse control");
+        }
         // Energy: the pause adds evoked O2 cost.
         AiEnergy.Stim on = new AiEnergy.Stim(); on.strengthPct = 60; on.hz = 85; on.pwUs = 350; on.onShare = 0.5;
         AiEnergy.Stim both = new AiEnergy.Stim(); both.strengthPct = 60; both.hz = 85; both.pwUs = 350; both.onShare = 0.5;

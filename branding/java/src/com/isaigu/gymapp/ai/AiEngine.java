@@ -113,6 +113,8 @@ public final class AiEngine {
     // multipliers (arbiter inputs)
     private double u = 1.0;          // HR controller
     private double uUser = 1.0;      // G13
+    /** Double impulse (active pause) in use; switchable live when the plan programs it. */
+    private boolean pauseOn;
     private double phiScale = 1.0;   // after rest_max
     private double ceilingScale = 1.0; // CR10 checkpoints
     private double phiCapBand = 1.0; // G12
@@ -179,6 +181,7 @@ public final class AiEngine {
         this.prof = profile;
         this.plan = plan;
         this.qBudget = plan.qBudget;
+        this.pauseOn = plan.pauseOn;
         this.fMaxEff = plan.fMax;
         this.flags.addAll(profile.flags);
     }
@@ -214,6 +217,77 @@ public final class AiEngine {
     public void reduce(long nowMs) {
         uUser = Math.max(0.1, uUser - REDUCE_STEP);
         action("reduce", nowMs);
+    }
+
+    /**
+     * Give back a step taken by "reduce" — never above the plan / calibration (uUser ≤ 1),
+     * and only while HR is not above the corridor.
+     */
+    public void increase(long nowMs) {
+        if (!canIncrease()) {
+            return;
+        }
+        uUser = Math.min(1.0, uUser + REDUCE_STEP);
+        action("increase", nowMs);
+    }
+
+    /** "+" makes sense: strength was reduced, stimulation runs, not cool-down, HR not high. */
+    public boolean canIncrease() {
+        if (uUser >= 1.0 - 1e-6 || (state != State.RUN && state != State.REST)) {
+            return false;
+        }
+        if (phase().id == PhaseId.COOLDOWN) {
+            return false;
+        }
+        double hrS = hr.getHrS();
+        return !(prof.hrAvailable && hrS > 0 && !frozen && prof.xOf(hrS) > prof.xHi);
+    }
+
+    /** "−" makes sense while stimulating (or resting before the next block). */
+    public boolean canReduce() {
+        return uUser > 0.1 + 1e-6 && (state == State.RUN || state == State.REST);
+    }
+
+    /** The plan has programmed double-impulse cycles still ahead (not only the cool-down). */
+    public boolean isActivePauseAvailable() {
+        if (!plan.pauseAvailable || state == State.DONE || state == State.STOPPED) {
+            return false;
+        }
+        for (int i = phaseIdx; i < plan.phases.size(); i++) {
+            Phase ph = plan.phases.get(i);
+            if (ph.a.hasActivePause() || (ph.b != null && ph.b.hasActivePause())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isActivePauseOn() {
+        return pauseOn;
+    }
+
+    /** Live switch; the dose budget follows the plan computed for the new setting. */
+    public void setActivePause(boolean on, long nowMs) {
+        if (on == pauseOn || (on && !isActivePauseAvailable())) {
+            return;
+        }
+        double from = pauseOn ? plan.qPlanPauseOn : plan.qPlanPauseOff;
+        double to = on ? plan.qPlanPauseOn : plan.qPlanPauseOff;
+        if (from > 0 && to > 0) {
+            qBudget *= to / from;
+        }
+        pauseOn = on;
+        // Takes effect in the running cycle too.
+        if (current != null) {
+            if (on && currentSpec != null && currentSpec.hasActivePause() && current.frac > 0) {
+                current.pauseHz = currentSpec.pauseHz;
+                current.pauseSigma = currentSpec.pauseSigma;
+            } else if (!on) {
+                current.pauseHz = 0;
+                current.pauseSigma = 0;
+            }
+        }
+        action(on ? "pause_on" : "pause_off", nowMs);
     }
 
     /** Human reduce from the main screen: output × ratio (0..1), no automatic return (G13). */
@@ -384,14 +458,15 @@ public final class AiEngine {
         }
         c.offS = AiPlanner.deviceOffS(off);
         c.frac = arbiter(ph, sigma);
-        if (spec.hasActivePause()) {
+        if (pauseOn && spec.hasActivePause()) {
             c.pauseHz = spec.pauseHz;
             c.pauseSigma = spec.pauseSigma;
         }
         applyRamps(c, spec);
 
         // G6 dose budget: never start a cycle that would exceed it; go to cool-down instead.
-        double dose = AiPlanner.cycleDose(spec, c.frac) + AiPlanner.pauseDose(spec, c.frac, c.offS);
+        double dose = AiPlanner.cycleDose(spec, c.frac)
+                + (c.pauseHz > 0 ? AiPlanner.pauseDose(spec, c.frac, c.offS) : 0);
         if (ph.id != PhaseId.COOLDOWN && qUsed + dose > qBudget) {
             flags.add("BUDGET");
             action("budget_cooldown", nowMs);

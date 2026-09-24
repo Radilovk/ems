@@ -23,6 +23,10 @@
 
 .field public fRec:D
 
+.field public pauseAvailable:Z
+
+.field public pauseOn:Z
+
 .field public final phases:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -39,6 +43,10 @@
 .field public qBudget:D
 
 .field public qPlan:D
+
+.field public qPlanPauseOff:D
+
+.field public qPlanPauseOn:D
 
 .field public tauR:D
 

@@ -80,6 +80,9 @@ final class AiText {
         if ("rest_timeout".equals(code)) return t("Дълга почивка — следващият блок е по-мек", "Long rest — next block softer");
         if ("rest_ready".equals(code)) return t("Почивката стига — следващият блок е с бутон", "Rest done — start the next block by hand");
         if ("continue".equals(code)) return t("Следващ блок", "Next block");
+        if ("increase".equals(code)) return t("Силата е увеличена +10%", "Strength raised +10%");
+        if ("pause_on".equals(code)) return t("Двоен импулс — включен", "Double impulse — on");
+        if ("pause_off".equals(code)) return t("Двоен импулс — изключен", "Double impulse — off");
         if ("reentry".equals(code)) return t("След дълга пауза — по-меко начало", "After a long pause — softer start");
         if ("hr_block_end".equals(code)) return t("Пулсът е над коридора — блокът приключва, почивка", "HR above corridor — block ends, rest");
         if ("l3_longer_pause".equals(code)) return t("Пулсът е над коридора — по-дълга пауза", "HR above corridor — longer pause");
@@ -150,33 +153,20 @@ final class AiText {
         return f;
     }
 
-    /** One line under the "between impulses" choice. */
-    static String pauseHint(AiModel.Goal g, AiModel.PauseMode m) {
-        if (!AiModel.activePauseAllowed(g)) {
-            return t("Дренажът иска пълно отпускане между контракциите — паузата е спокойна.",
-                    "Drainage needs full relaxation between contractions — the pause stays at rest.");
-        }
-        if (m == AiModel.PauseMode.PASSIVE) {
-            return t("Тишина между импулсите — пълно възстановяване.",
-                    "Silence between impulses — full recovery.");
-        }
-        if (m == AiModel.PauseMode.ACTIVE) {
-            return t("Слаб импулс с ниска честота и в паузата — мускулът не спира, по-голямо натоварване.",
-                    "A weak low-frequency impulse in the pause too — the muscle keeps working, more load.");
-        }
+    /** One line under the double-impulse switch: what the AI programs for this goal. */
+    static String pauseHint(AiModel.Goal g) {
         switch (g) {
             case TONE:
-                return t("Активна в загрявката, спокойна в силовата част.",
-                        "Active in the warm-up, at rest in the strength part.");
+                return t("В загрявката; силовата част остава с пълна почивка.",
+                        "In the warm-up; the strength part keeps full rest.");
             case FAT:
-                return t("Активна в загрявката и основната част — повече изгаряне.",
-                        "Active in the warm-up and main part — more burn.");
+                return t("В загрявката и основната част — повече изгаряне.",
+                        "In the warm-up and main part — more burn.");
             case CELLULITE:
-                return t("Активна (8 Hz) в силовата част, спокойна в ниските честоти.",
-                        "Active (8 Hz) in the strength part, at rest at low frequencies.");
+                return t("В силовата част, 8 Hz — стимул за тъканта.",
+                        "In the strength part, 8 Hz — a tissue stimulus.");
             case MASSAGE:
-                return t("Активна: бавен ритъм между импулсите.",
-                        "Active: a slow rhythm between impulses.");
+                return t("Бавен ритъм между импулсите.", "A slow rhythm between impulses.");
             default:
                 return "";
         }

@@ -215,7 +215,9 @@ public final class AiPlanner {
         plan.fMax = fp[0];
         plan.fRec = fp[1];
         plan.tauR = fp[2];
-        plan.qPlan = simulateDose(plan);
+        plan.qPlanPauseOn = simulateDose(plan, true);
+        plan.qPlanPauseOff = simulateDose(plan, false);
+        plan.qPlan = plan.pauseOn ? plan.qPlanPauseOn : plan.qPlanPauseOff;
         plan.qBudget = plan.qPlan * (1.0 + (self ? 0.0 : BUDGET_BETA));
         return plan;
     }
@@ -240,22 +242,25 @@ public final class AiPlanner {
      * The main strength phase of TONE keeps the passive pause for full recovery between sets.
      */
     static void applyPause(Plan plan, SessionInput in) {
+        boolean any = false;
         for (Phase ph : plan.phases) {
             setPause(ph, ph.a, in);
+            any |= ph.a.hasActivePause();
             if (ph.b != null) {
                 setPause(ph, ph.b, in);
+                any |= ph.b.hasActivePause();
             }
         }
+        plan.pauseAvailable = any;
+        plan.pauseOn = any && in.pause != AiModel.PauseMode.PASSIVE;
     }
 
     private static void setPause(Phase ph, CycleSpec c, SessionInput in) {
         c.pauseHz = 0;
         c.pauseSigma = 0;
+        // Always programmed where it helps; the on/off switch (setup or live) decides use.
         if (!AiModel.activePauseAllowed(in.goal) || c.offS < ACTIVE_PAUSE_MIN_OFF_S
-                || ph.id == PhaseId.COOLDOWN || in.pause == AiModel.PauseMode.PASSIVE) {
-            return;
-        }
-        if (in.pause == AiModel.PauseMode.AUTO && !autoActive(in.goal, ph, c)) {
+                || ph.id == PhaseId.COOLDOWN || !autoActive(in.goal, ph, c)) {
             return;
         }
         boolean tetanic = c.isTetanic();
@@ -362,6 +367,10 @@ public final class AiPlanner {
      * Q_plan: run the plan at u = 1 through the same cycle / fatigue / rest rules the engine uses.
      */
     public static double simulateDose(Plan plan) {
+        return simulateDose(plan, plan.pauseOn);
+    }
+
+    public static double simulateDose(Plan plan, boolean pauseOn) {
         double q = 0;
         for (Phase ph : plan.phases) {
             double t = 0;
@@ -387,7 +396,7 @@ public final class AiPlanner {
                 f += fatigueWeight(c.hz) * rho * c.onS;
                 int off = deviceOffS(c.offS);
                 f *= Math.exp(-off / plan.tauR);
-                if (c.hasActivePause()) {
+                if (pauseOn && c.hasActivePause()) {
                     q += pauseDose(c, rho, off);
                     f += fatigueWeight(c.pauseHz) * rho * c.pauseSigma * off;
                 }

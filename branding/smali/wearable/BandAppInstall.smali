@@ -17,7 +17,7 @@
 
 .field public static final PACKAGE:Ljava/lang/String; = "com.xems.band"
 
-.field public static final VERSION:I = 0x1
+.field public static final VERSION:I = 0x2
 
 .field private static final main:Landroid/os/Handler;
 
@@ -334,7 +334,7 @@
     .line 47
     const-string v1, "com.xems.band"
 
-    const/4 v2, 0x1
+    const/4 v2, 0x2
 
     new-instance v3, Lcom/isaigu/gymapp/wearable/BandAppInstall$Progress;
 

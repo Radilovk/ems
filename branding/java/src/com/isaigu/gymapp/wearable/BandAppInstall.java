@@ -19,7 +19,7 @@ import java.io.InputStream;
 public final class BandAppInstall {
     public static final String ASSET = "xems-band.rpk";
     public static final String PACKAGE = "com.xems.band";
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
 
     private static final Handler main = new Handler(Looper.getMainLooper());
 

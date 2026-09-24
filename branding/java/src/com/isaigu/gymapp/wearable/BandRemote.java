@@ -240,20 +240,33 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = true;
         }
         String key = title + "|" + sub + "|" + playing + "|" + (dur > 0 ? pos / 5 : 0);
-        if (!force && key.equals(lastSent) && now - lastSentMs < 20000L) {
-            return;
+        boolean changed = !key.equals(lastSent);
+        if (force || changed || now - lastSentMs >= 20000L) {
+            lastSent = key;
+            lastSentMs = now;
+            link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
         }
-        lastSent = key;
-        lastSentMs = now;
-        link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
-        sendApp(title, sub, playing, hr, limit);
+        // The band app counts down by itself; a fresh state every few seconds keeps HR and charts live.
+        if (force || changed || now - lastAppMs >= APP_MS) {
+            lastAppMs = now;
+            sendApp(title, sub, playing, hr, limit, trainMs, pos, dur);
+        }
     }
+
+    private static final long APP_MS = 4000L;
+    private static long lastAppMs;
+    private static final int HISTORY_BARS = 30;
+    private static final long HISTORY_MS = 3L * 60L * 1000L;
 
     private static String lastMode = "";
     private static boolean lastRestReady;
 
-    /** The same state for the XEMS app on the band (only once it has said hello). */
-    private static void sendApp(String title, String sub, boolean playing, int hr, int limit) {
+    /**
+     * The same state for the XEMS app on the band (only once it has said hello), with what its
+     * screens draw: phase timeline and countdown, strength, HR history and time in zones.
+     */
+    private static void sendApp(String title, String sub, boolean playing, int hr, int limit,
+            long trainMs, int pos, int dur) {
         if (!com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.isLinked()) {
             return;
         }
@@ -270,23 +283,88 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         }
         lastMode = mode;
         lastRestReady = restReady;
+        long now = System.currentTimeMillis();
         try {
             org.json.JSONObject o = new org.json.JSONObject();
             o.put("t", "state");
+            o.put("v", 2);
             o.put("mode", mode);
             o.put("hr", Math.max(0, hr));
             o.put("z", hr > 0 ? WearableUi.zoneFor(hr, limit) : 0);
+            o.put("lim", limit);
             o.put("title", ai || XemsPanel.isRunning() ? sub : title);
             o.put("sub", ai || XemsPanel.isRunning() ? "" : sub);
             o.put("kcal", Math.max(0, Math.round(kcal)));
             o.put("run", playing);
             org.json.JSONObject can = new org.json.JSONObject();
-            can.put("plus", ai ? e.canIncrease() : XemsPanel.isRunning());
-            can.put("minus", ai ? e.canReduce() : XemsPanel.isRunning());
+            can.put("plus", ai ? e.canIncrease() : XemsPanel.isRunning() || musicOnly());
+            can.put("minus", ai ? e.canReduce() : XemsPanel.isRunning() || musicOnly());
             can.put("dbl", ai && e.isActivePauseAvailable());
             o.put("can", can);
             o.put("dbl", ai && e.isActivePauseOn());
             o.put("vib", vib);
+
+            long elapsedS;
+            if (ai) {
+                AiEngine.State st = e.getState();
+                o.put("st", restReady ? "ready" : st == AiEngine.State.REST ? "rest"
+                        : st == AiEngine.State.RUN ? "run" : "pause");
+                AiModel.Phase ph = e.phase();
+                o.put("ph", phaseName(ph.id));
+                o.put("pi", e.getPhaseIndex());
+                o.put("pd", ph.durationS);
+                o.put("pl", Math.max(0, Math.round(ph.durationS - e.getPhaseElapsedS())));
+                if (st == AiEngine.State.REST) {
+                    o.put("rl", Math.max(0, Math.round(e.getRestRemainingS(now))));
+                }
+                org.json.JSONArray pds = new org.json.JSONArray();
+                org.json.JSONArray pns = new org.json.JSONArray();
+                for (AiModel.Phase p : e.getPlan().phases) {
+                    pds.put(p.durationS);
+                    pns.put(phaseName(p.id));
+                }
+                o.put("pds", pds);
+                o.put("pns", pns);
+                o.put("u", (int) Math.round(e.getUUser() * 100));
+                elapsedS = Math.round(e.getElapsedPlanS());
+                o.put("tot", e.getPlan().totalS);
+            } else if ("music".equals(mode)) {
+                o.put("st", playing ? "run" : "pause");
+                o.put("pos", pos);
+                o.put("dur", dur);
+                elapsedS = trainMs / 1000;
+            } else {
+                o.put("st", playing ? "run" : "idle".equals(mode) ? "idle" : "pause");
+                elapsedS = trainMs / 1000;
+            }
+            o.put("el", elapsedS);
+
+            // HR: last 3 min in 30 bars, and over the session average / peak / time in zones.
+            HrHistory.Series recent = HrHistory.since(now, HISTORY_MS);
+            org.json.JSONArray hh = new org.json.JSONArray();
+            for (int b = 0; b < HISTORY_BARS; b++) {
+                long from = now - HISTORY_MS + b * (HISTORY_MS / HISTORY_BARS);
+                long to = from + HISTORY_MS / HISTORY_BARS;
+                int sum = 0;
+                int n = 0;
+                for (int i = 0; i < recent.size(); i++) {
+                    if (recent.t[i] >= from && recent.t[i] < to) {
+                        sum += recent.hr[i];
+                        n++;
+                    }
+                }
+                hh.put(n > 0 ? sum / n : 0);
+            }
+            o.put("hh", hh);
+            HrHistory.Series session = HrHistory.since(now, elapsedS > 0 ? (elapsedS + 5) * 1000L : HISTORY_MS);
+            o.put("avg", session.avg());
+            o.put("max", session.max());
+            long[] zm = session.zoneMs(limit);
+            org.json.JSONArray zt = new org.json.JSONArray();
+            for (int z = 1; z <= 5; z++) {
+                zt.put(zm[z] / 1000);
+            }
+            o.put("zt", zt);
             com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.send(o.toString());
         } catch (Throwable t) {
             WearableBleDiagLog.log("applink", "state: " + t);

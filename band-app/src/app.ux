@@ -1,28 +1,39 @@
 <script>
 /**
  * XEMS on the wrist. One link to the XEMS tablet app (system.interconnect), shared by the
- * pages through the app object: live state in, commands out.
+ * page through the app object: live state in, commands out.
  *
  * Messages are JSON (both directions):
- *   band → XEMS  {t:'hello'} on start, then {t:'cmd', a:'toggle'|'plus'|'minus'|'double'|'stop'}
- *   XEMS → band  {t:'state', mode:'ai'|'manual'|'music'|'idle', hr, z, title, sub, kcal,
- *                 run, can:{plus,minus,dbl}, dbl, vib:'short'|'long'|''}
+ *   band → XEMS  {t:'hello'} on start (repeated until XEMS answers),
+ *                {t:'cmd', a:'toggle'|'plus'|'minus'|'double'|'stop'}
+ *   XEMS → band  {t:'state', v:2, mode:'ai'|'manual'|'music'|'idle', st:'run'|'pause'|'rest'|'ready'|'idle',
+ *                 hr, z, lim, title, sub, kcal, run, can:{plus,minus,dbl}, dbl, vib:'short'|'long'|'',
+ *                 ph, pi, pd, pl, rl, pds[], pns[], u, el, tot, pos, dur, hh[30], avg, max, zt[5]}
+ *   Times are seconds; the band counts them down itself between messages (rx = arrival time).
  */
 import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
 
 export default {
   state: null,
-  lastMs: 0,
+  rx: 0,
   listeners: [],
   conn: null,
+  helloTimer: null,
 
   onCreate() {
     this.open()
+    // Until XEMS answers, say hello every 4 s (the link may open after the app).
+    this.helloTimer = setInterval(() => {
+      if (this.silence() > 12) {
+        this.send({ t: 'hello' })
+      }
+    }, 4000)
   },
 
   onDestroy() {
     this.listeners = []
+    clearInterval(this.helloTimer)
   },
 
   open() {
@@ -52,9 +63,9 @@ export default {
       return
     }
     this.state = m
-    this.lastMs = Date.now()
+    this.rx = Date.now()
     if (m.vib) {
-      vibrator.vibrate({ mode: m.vib === 'long' ? 'long' : 'short' })
+      this.buzz(m.vib)
     }
     this.notify()
   },
@@ -72,12 +83,18 @@ export default {
 
   command(a) {
     this.send({ t: 'cmd', a: a })
-    vibrator.vibrate({ mode: 'short' })
+    this.buzz('short')
+  },
+
+  buzz(kind) {
+    try {
+      vibrator.vibrate({ mode: kind === 'long' ? 'long' : 'short' })
+    } catch (e) {}
   },
 
   /** Seconds since XEMS last spoke (large when never). */
   silence() {
-    return this.lastMs ? (Date.now() - this.lastMs) / 1000 : 9999
+    return this.rx ? (Date.now() - this.rx) / 1000 : 9999
   },
 
   watch(fn) {

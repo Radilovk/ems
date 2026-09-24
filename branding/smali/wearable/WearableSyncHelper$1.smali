@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 173
+    .line 175
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 176
+    .line 178
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
@@ -42,7 +42,7 @@
 
     move-result-object v0
 
-    .line 177
+    .line 179
     if-eqz v0, :cond_d
 
     invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
@@ -51,12 +51,12 @@
 
     if-eqz v0, :cond_e
 
-    .line 187
+    .line 189
     :cond_d
     :goto_d
     return-void
 
-    .line 181
+    .line 183
     :cond_e
     :try_start_e
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
@@ -77,7 +77,7 @@
 
     if-nez v0, :cond_d
 
-    .line 182
+    .line 184
     :cond_1e
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showOverlayDialog()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$200()Z
@@ -86,11 +86,11 @@
 
     goto :goto_d
 
-    .line 184
+    .line 186
     :catch_22
     move-exception v0
 
-    .line 185
+    .line 187
     const-string v1, "WearableSyncHelper.showDial"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

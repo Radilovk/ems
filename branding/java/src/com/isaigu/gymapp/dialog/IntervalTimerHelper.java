@@ -187,6 +187,16 @@ public final class IntervalTimerHelper {
     private IntervalTimerHelper() {
     }
 
+    /** Timer activated (waiting for training start or counting). */
+    public static boolean isArmed() {
+        return armed;
+    }
+
+    /** Countdown ticking and not paused by the user. */
+    public static boolean isCounting() {
+        return armed && countdownRunning && !timerPausedByUser;
+    }
+
     static String tr(String bg, String en) {
         try {
             return "en".equals(Locale.getDefault().getLanguage()) ? en : bg;

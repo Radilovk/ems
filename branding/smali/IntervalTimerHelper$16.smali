@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1000
+    .line 1010
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 6
 
     .prologue
-    .line 1003
+    .line 1013
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$500()Ljava/lang/String;
 
@@ -57,7 +57,7 @@
 
     if-lez v0, :cond_45
 
-    .line 1004
+    .line 1014
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$a:Landroid/app/Activity;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
@@ -69,11 +69,11 @@
 
     move-result-object v0
 
-    .line 1005
+    .line 1015
     :goto_14
     if-eqz v0, :cond_47
 
-    .line 1006
+    .line 1016
     iget-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
@@ -82,12 +82,12 @@
 
     move-result-object v0
 
-    .line 1007
+    .line 1017
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$a:Landroid/app/Activity;
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/TimerPresetStorage;->upsert(Landroid/content/Context;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    .line 1008
+    .line 1018
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -117,21 +117,21 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toastText(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2100(Ljava/lang/String;)V
 
-    .line 1009
+    .line 1019
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
 
-    .line 1022
+    .line 1032
     :goto_44
     return-void
 
-    .line 1004
+    .line 1014
     :cond_45
     const/4 v0, 0x0
 
     goto :goto_14
 
-    .line 1012
+    .line 1022
     :cond_47
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;->val$a:Landroid/app/Activity;
 

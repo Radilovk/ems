@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1030
+    .line 1040
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$17;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,15 +45,15 @@
     .registers 3
 
     .prologue
-    .line 1033
+    .line 1043
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1034
+    .line 1044
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$17;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->applyPreset(Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    .line 1035
+    .line 1045
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$17;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
@@ -61,10 +61,10 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 1036
+    .line 1046
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
 
-    .line 1037
+    .line 1047
     return-void
 .end method

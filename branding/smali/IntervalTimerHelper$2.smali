@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 645
+    .line 655
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 648
+    .line 658
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100()Z
 
@@ -44,11 +44,11 @@
 
     if-eqz v0, :cond_8
 
-    .line 653
+    .line 663
     :goto_7
     return-void
 
-    .line 651
+    .line 661
     :cond_8
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$000(Landroid/app/Activity;)Landroid/app/Activity;
@@ -58,7 +58,7 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->saveSettings(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200(Landroid/app/Activity;)V
 
-    .line 652
+    .line 662
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$302(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 

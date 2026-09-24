@@ -1,6 +1,7 @@
 import { signToken, sha256Hex } from './crypto.js';
 import { resolveEntitlements, PLANS } from './plans.js';
 import { adminHtml } from './admin.js';
+import { LIMITS, limitsSummary } from './limits.js';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
 
@@ -143,16 +144,6 @@ async function handleUpdate(url, env) {
 async function serveRelease(request, env, path) {
   const key = path.replace(/^\/releases\//, '');
   if (!key || key.includes('..')) return new Response('Not found', { status: 404 });
-  if (env.RELEASES) {
-    const obj = await env.RELEASES.get(key);
-    if (obj) {
-      const headers = new Headers();
-      headers.set('Content-Type', 'application/vnd.android.package-archive');
-      headers.set('Cache-Control', 'public, max-age=86400');
-      if (obj.etag) headers.set('ETag', obj.etag);
-      return new Response(obj.body, { headers });
-    }
-  }
   const rel = await env.DB.prepare('SELECT object_key FROM releases WHERE object_key = ? OR object_key LIKE ?').bind(key, `%${key}`).first();
   if (rel?.object_key?.startsWith('https://')) {
     return Response.redirect(rel.object_key, 302);
@@ -238,6 +229,10 @@ async function adminApi(request, env, path) {
     return json({ ok: true, activations: rows.results });
   }
 
+  if (route === 'limits' && request.method === 'GET') {
+    return json({ ok: true, limits: limitsSummary() });
+  }
+
   if (route === 'releases' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM releases ORDER BY version_code DESC').all();
     return json({ ok: true, releases: rows.results });
@@ -269,11 +264,62 @@ async function adminApi(request, env, path) {
     return json({ ok: true, version_code, version_name, sha256, size });
   }
 
+  if (route === 'devices' && request.method === 'GET') {
+    const rows = await env.DB.prepare(
+      `SELECT a.*, l.customer, l.plan, l.status AS license_status
+       FROM activations a JOIN licenses l ON l.id = a.license_id
+       ORDER BY a.last_seen DESC LIMIT 300`,
+    ).all();
+    return json({ ok: true, devices: rows.results });
+  }
+
+  if (route === 'audit' && request.method === 'GET') {
+    const rows = await env.DB.prepare('SELECT * FROM audit ORDER BY ts DESC LIMIT 150').all();
+    return json({ ok: true, audit: rows.results });
+  }
+
+  if (route === 'releases/verify' && request.method === 'POST') {
+    const b = await request.json();
+    const object_key = String(b.object_key || b.url || '').trim();
+    if (!object_key) return json({ ok: false, error: 'missing_url', message: 'URL is required' }, 400);
+    const fetched = await fetchReleaseMeta(object_key);
+    if (!fetched.ok) return json({ ok: false, error: fetched.error, message: fetched.message }, 400);
+    return json({ ok: true, sha256: fetched.sha256, size: fetched.size });
+  }
+
+  if (route.match(/^releases\/\d+$/) && request.method === 'PATCH') {
+    const version_code = +route.split('/')[1];
+    const b = await request.json();
+    const sets = [];
+    const vals = [];
+    if (b.mandatory !== undefined) { sets.push('mandatory = ?'); vals.push(b.mandatory ? 1 : 0); }
+    if (b.notes !== undefined) { sets.push('notes = ?'); vals.push(String(b.notes)); }
+    if (!sets.length) return json({ ok: false, error: 'nothing_to_update' }, 400);
+    vals.push(version_code);
+    await env.DB.prepare(`UPDATE releases SET ${sets.join(', ')} WHERE version_code = ?`).bind(...vals).run();
+    await audit(env, 'update_release', null, null, String(version_code));
+    return json({ ok: true });
+  }
+
+  if (route.match(/^releases\/\d+$/) && request.method === 'DELETE') {
+    const version_code = +route.split('/')[1];
+    await env.DB.prepare('DELETE FROM releases WHERE version_code = ?').bind(version_code).run();
+    await audit(env, 'delete_release', null, null, String(version_code));
+    return json({ ok: true });
+  }
+
   if (route === 'stats' && request.method === 'GET') {
     const licenses = await env.DB.prepare("SELECT COUNT(*) AS n FROM licenses WHERE status='active'").first();
     const devices = await env.DB.prepare("SELECT COUNT(*) AS n FROM activations WHERE status='active'").first();
     const releases = await env.DB.prepare('SELECT MAX(version_code) AS v FROM releases').first();
-    return json({ ok: true, active_licenses: licenses?.n || 0, active_devices: devices?.n || 0, latest_version: releases?.v || 0 });
+    const latest = await env.DB.prepare('SELECT version_name FROM releases ORDER BY version_code DESC LIMIT 1').first();
+    return json({
+      ok: true,
+      active_licenses: licenses?.n || 0,
+      active_devices: devices?.n || 0,
+      latest_version: releases?.v || 0,
+      latest_version_name: latest?.version_name || '',
+    });
   }
 
   return json({ ok: false, error: 'not_found' }, 404);
@@ -372,10 +418,17 @@ async function fetchReleaseMeta(url) {
     if (!res.ok) {
       return { ok: false, error: 'fetch_failed', message: `HTTP ${res.status} for ${url}` };
     }
+    const cl = parseInt(res.headers.get('content-length') || '0', 10);
+    if (cl > LIMITS.maxApkBytes) {
+      return { ok: false, error: 'too_large', message: `APK над ${LIMITS.maxApkBytes / (1024 * 1024)} MB` };
+    }
     const buf = await res.arrayBuffer();
     const size = buf.byteLength;
     if (size < 1_000_000) {
       return { ok: false, error: 'too_small', message: 'File looks too small to be a valid APK' };
+    }
+    if (size > LIMITS.maxApkBytes) {
+      return { ok: false, error: 'too_large', message: `APK над ${LIMITS.maxApkBytes / (1024 * 1024)} MB` };
     }
     const sha256 = await sha256Hex(new Uint8Array(buf));
     return { ok: true, sha256, size };

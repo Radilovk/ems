@@ -8,9 +8,14 @@
 Влез с потребител/парола (Basic auth). От там:
 - създаваш лицензни ключове за клиенти
 - управляваш костюми (MAC) по лиценз
-- **регистрираш нов APK** за OTA обновяване на таблетите (форма „Ново издание“)
+- **регистрираш нов APK** за OTA (APK файлът е в GitHub, сървърът сочи таблетите към него)
 
-CMD е нужен **само** за първоначален deploy на Cloudflare (веднъж от разработчик).
+## OTA обновяване (GitHub)
+
+1. `xems27.apk` в `main` на репото `Radilovk/ems`
+2. Админ → **Обновления (APK)** → version code/name + URL:
+   `https://github.com/Radilovk/ems/raw/main/xems27.apk`
+3. **Провери URL** → **Регистрирай версия**
 
 ## API
 
@@ -28,37 +33,20 @@ CMD е нужен **само** за първоначален deploy на Cloudfl
 ```bash
 cd server
 npm install
-npx wrangler d1 migrations apply xems-license --remote   # първо схемата (0002 добавя ems)
+npx wrangler d1 migrations apply xems-license --remote
 npx wrangler deploy
 ```
 
-Миграциите вървят **преди** кода: новият код пише в колоните `licenses.ems`, `activations.ems_local` и `activations.setup`.
-
 Секрети (не в git):
 ```bash
-npx wrangler secret put LICENSE_PRIVATE_KEY   # PKCS8 PEM
+npx wrangler secret put LICENSE_PRIVATE_KEY
 npx wrangler secret put ADMIN_PASSWORD
-npx wrangler secret put ADMIN_USER            # default: admin
+npx wrangler secret put ADMIN_USER
 ```
 
-## Структура
+## Разходи
 
-- `src/index.js` — Worker (API + admin)
-- `src/crypto.js` — ECDSA P-256 подпис (съвместим с Android)
-- `src/plans.js` — планове → модули
-- `migrations/` — D1 schema
-
-## Разход
-
-- Cloudflare Workers free tier (100k req/ден)
-- D1 free tier (5M reads/ден)
-- R2 не е активиран — APK се хоства от GitHub raw URL
-
-## Първи ключ
-
-Създай от админ панела или:
-```bash
-curl -u admin:PASSWORD -X POST https://license.biocode-bg.com/admin/api/licenses/create \
-  -H 'Content-Type: application/json' \
-  -d '{"customer":"Зала","plan":"full","max_devices":3,"expires_days":365}'
-```
+- **APK:** GitHub (безплатно)
+- **Сървър:** Workers + D1 free tier — $0 при нормална употреба
+- Billing → Notifications → alert при **$1**
+- Провери Workers plan: Free, не Paid ($5/мес)

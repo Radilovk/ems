@@ -131,6 +131,7 @@ public final class NotifyWearableBridge {
 
     private static void onTrainingFullStopImpl() {
         WearableSyncHelper.onTrainingRunningChanged(false);
+        BandRemote.onManualStop();
     }
 
     public static void beginListening(Context context) {

@@ -14,9 +14,10 @@
 import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
 import brightness from '@system.brightness'
+import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 5
+const APP_VERSION = 6
 
 export default {
   state: null,
@@ -111,6 +112,7 @@ export default {
     }
     this.state = m
     this.rx = Date.now()
+    this.checkSummary(m)
     if (m.vib) {
       this.buzz(m.vib)
     }
@@ -136,7 +138,39 @@ export default {
     if (tm.run) {
       this.countdown('tm', (tm.left || 0) - age)
     }
-    this.keepOn(!!(s.run || tm.run || mu.play))
+    const running = !!(s.run || tm.run || mu.play || (m.tr || {}).run)
+    this.keepOn(running)
+    this.zoneBuzz(running ? s.z || 0 : 0)
+  },
+
+  lastZone: 0,
+
+  /** Entering Z4: one buzz, Z5: two — the wearer feels the zone without looking. */
+  zoneBuzz(z) {
+    if (z > this.lastZone && z >= 4) {
+      this.buzz('short')
+      if (z >= 5) {
+        setTimeout(() => this.buzz('short'), 350)
+      }
+    }
+    this.lastZone = z
+  },
+
+  summary: null,
+  lastSum: -1,
+
+  /** XEMS reports a finished session (kept for 90 s): open its summary once. */
+  checkSummary(m) {
+    const sum = m.sum
+    if (!sum || sum.n === this.lastSum) {
+      return
+    }
+    this.lastSum = sum.n
+    this.summary = sum
+    this.buzz('long')
+    try {
+      router.push({ uri: '/pages/summary' })
+    } catch (e) {}
   },
 
   /** Short buzz at 3, 2, 1 s left; long at the end. Once per second per source. */

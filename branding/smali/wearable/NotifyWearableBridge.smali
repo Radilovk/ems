@@ -633,7 +633,7 @@
     .registers 1
 
     .prologue
-    .line 414
+    .line 419
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->getBuildTag()Ljava/lang/String;
 
     move-result-object v0
@@ -645,7 +645,7 @@
     .registers 1
 
     .prologue
-    .line 410
+    .line 415
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
@@ -661,7 +661,7 @@
     .registers 1
 
     .prologue
-    .line 398
+    .line 403
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
@@ -677,7 +677,7 @@
     .registers 1
 
     .prologue
-    .line 402
+    .line 407
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
@@ -693,7 +693,7 @@
     .registers 1
 
     .prologue
-    .line 406
+    .line 411
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
@@ -709,7 +709,7 @@
     .registers 1
 
     .prologue
-    .line 394
+    .line 399
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
 
     return-object v0
@@ -719,7 +719,7 @@
     .registers 1
 
     .prologue
-    .line 418
+    .line 423
     const/4 v0, 0x0
 
     return v0
@@ -729,7 +729,7 @@
     .registers 1
 
     .prologue
-    .line 386
+    .line 391
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
@@ -745,7 +745,7 @@
     .registers 2
 
     .prologue
-    .line 426
+    .line 431
     const-string v0, "--"
 
     return-object v0
@@ -755,7 +755,7 @@
     .registers 1
 
     .prologue
-    .line 430
+    .line 435
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->lastEventAction:Ljava/lang/String;
 
     return-object v0
@@ -765,7 +765,7 @@
     .registers 2
 
     .prologue
-    .line 434
+    .line 439
     sget-wide v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->lastEventTimeMs:J
 
     return-wide v0
@@ -775,7 +775,7 @@
     .registers 1
 
     .prologue
-    .line 378
+    .line 383
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->lastHr:I
 
     return v0
@@ -785,7 +785,7 @@
     .registers 2
 
     .prologue
-    .line 422
+    .line 427
     const/4 v0, 0x0
 
     return-object v0
@@ -797,19 +797,19 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 457
+    .line 462
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-nez v0, :cond_b
 
-    .line 458
+    .line 463
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 460
+    .line 465
     :cond_b
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
@@ -817,11 +817,11 @@
 
     move v0, v1
 
-    .line 479
+    .line 484
     :goto_10
     return v0
 
-    .line 464
+    .line 469
     :cond_11
     :try_start_11
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->itemManager:Lcom/isaigu/gymapp/train/TrainItemManager;
@@ -830,18 +830,18 @@
 
     move-result-object v3
 
-    .line 465
+    .line 470
     if-nez v3, :cond_1b
 
     move v0, v1
 
-    .line 466
+    .line 471
     goto :goto_10
 
     :cond_1b
     move v2, v1
 
-    .line 468
+    .line 473
     :goto_1c
     invoke-interface {v3}, Ljava/util/List;->size()I
 
@@ -849,14 +849,14 @@
 
     if-ge v2, v0, :cond_41
 
-    .line 469
+    .line 474
     invoke-interface {v3, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 470
+    .line 475
     if-eqz v0, :cond_34
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -869,7 +869,7 @@
 
     if-nez v4, :cond_38
 
-    .line 468
+    .line 473
     :cond_34
     add-int/lit8 v0, v2, 0x1
 
@@ -877,7 +877,7 @@
 
     goto :goto_1c
 
-    .line 473
+    .line 478
     :cond_38
     iget-object v0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -887,19 +887,19 @@
 
     if-eqz v0, :cond_34
 
-    .line 474
+    .line 479
     const/4 v0, 0x1
 
     goto :goto_10
 
-    .line 477
+    .line 482
     :catch_40
     move-exception v0
 
     :cond_41
     move v0, v1
 
-    .line 479
+    .line 484
     goto :goto_10
 .end method
 
@@ -907,7 +907,7 @@
     .registers 1
 
     .prologue
-    .line 382
+    .line 387
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bandConnected:Z
 
     return v0
@@ -917,7 +917,7 @@
     .registers 1
 
     .prologue
-    .line 390
+    .line 395
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->listeningActive:Z
 
     return v0
@@ -1003,7 +1003,7 @@
     .registers 1
 
     .prologue
-    .line 374
+    .line 379
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->listeningActive:Z
 
     return v0
@@ -1029,17 +1029,17 @@
     .prologue
     const/16 v4, 0xc
 
-    .line 438
+    .line 443
     if-nez p0, :cond_7
 
-    .line 439
+    .line 444
     const-string v0, ""
 
-    .line 453
+    .line 458
     :goto_6
     return-object v0
 
-    .line 441
+    .line 446
     :cond_7
     const-string v0, ":"
 
@@ -1069,21 +1069,21 @@
 
     move-result-object v1
 
-    .line 442
+    .line 447
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v0
 
     if-eq v0, v4, :cond_2e
 
-    .line 443
+    .line 448
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_6
 
-    .line 445
+    .line 450
     :cond_2e
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -1091,25 +1091,25 @@
 
     invoke-direct {v2, v0}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 446
+    .line 451
     const/4 v0, 0x0
 
     :goto_36
     if-ge v0, v4, :cond_56
 
-    .line 447
+    .line 452
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v3
 
     if-lez v3, :cond_43
 
-    .line 448
+    .line 453
     const/16 v3, 0x3a
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 450
+    .line 455
     :cond_43
     invoke-virtual {v1, v0}, Ljava/lang/String;->charAt(I)C
 
@@ -1117,7 +1117,7 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 451
+    .line 456
     add-int/lit8 v3, v0, 0x1
 
     invoke-virtual {v1, v3}, Ljava/lang/String;->charAt(I)C
@@ -1126,12 +1126,12 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 446
+    .line 451
     add-int/lit8 v0, v0, 0x2
 
     goto :goto_36
 
-    .line 453
+    .line 458
     :cond_56
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1153,22 +1153,29 @@
     :try_start_3
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->start()V
     :try_end_6
-    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_6} :catch_f
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_6} :catch_12
 
-    .line 363
+    .line 364
     :goto_6
+    :try_start_6
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->onBandConnected()V
+    :try_end_9
+    .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_9} :catch_2c
+
+    .line 368
+    :goto_9
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->lastHr:I
 
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateHeartRate(IZ)V
 
-    .line 364
+    .line 369
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 365
+    .line 370
     return-void
 
     .line 360
-    :catch_f
+    :catch_12
     move-exception v0
 
     .line 361
@@ -1195,6 +1202,35 @@
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
     goto :goto_6
+
+    .line 365
+    :catch_2c
+    move-exception v0
+
+    .line 366
+    const-string v1, "install"
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "auto: "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_9
 .end method
 
 .method static onBandDisconnected()V
@@ -1203,18 +1239,18 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 368
+    .line 373
     sput-boolean v1, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bandConnected:Z
 
-    .line 369
+    .line 374
     sget v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->lastHr:I
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateHeartRate(IZ)V
 
-    .line 370
+    .line 375
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 371
+    .line 376
     return-void
 .end method
 

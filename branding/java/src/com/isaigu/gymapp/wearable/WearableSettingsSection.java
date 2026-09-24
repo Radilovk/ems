@@ -144,12 +144,12 @@ public final class WearableSettingsSection {
         if (classic) {
             LinearLayout appRow = row(a);
             appRow.setPadding(0, WearableUi.dp(a, 12), 0, 0);
-            final TextView appStatus = WearableUi.text(a,
-                    WearableUi.tr("XEMS на гривната: пулс, блок, старт/пауза, сила ±",
-                            "XEMS on the band: HR, block, start/pause, strength ±"), 13f, mutedCol, false);
+            final TextView appStatus = WearableUi.text(a, BandAppInstall.statusText(a), 13f, mutedCol, false);
+            BandAppInstall.bind(appStatus);
             appRow.addView(appStatus, new LinearLayout.LayoutParams(0,
                     ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            TextView install = WearableUi.button(a, WearableUi.tr("Инсталирай", "Install"),
+            TextView install = WearableUi.button(a, WearableConfig.getBandAppVersion(a) >= BandAppInstall.VERSION
+                    ? WearableUi.tr("Преинсталирай", "Reinstall") : WearableUi.tr("Инсталирай", "Install"),
                     WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
             install.setOnClickListener(new View.OnClickListener() {
                 @Override

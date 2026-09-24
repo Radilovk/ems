@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 408
+    .line 414
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 409
+    .line 415
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Push;->force:Z
 
-    .line 410
+    .line 416
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 415
+    .line 421
     :try_start_0
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Push;->force:Z
 
@@ -50,15 +50,15 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 419
+    .line 425
     :goto_5
     return-void
 
-    .line 416
+    .line 422
     :catch_6
     move-exception v0
 
-    .line 417
+    .line 423
     const-string v1, "BandRemote.push"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

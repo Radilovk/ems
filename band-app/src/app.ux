@@ -4,7 +4,7 @@
  * page through the app object: live state in, commands out.
  *
  * Messages are JSON (both directions):
- *   band → XEMS  {t:'hello'} on start (repeated until XEMS answers),
+ *   band → XEMS  {t:'hello', v:APP_VERSION} on start (repeated until XEMS answers),
  *                {t:'cmd', a:'toggle'|'plus'|'minus'|'double'|'stop'}
  *   XEMS → band  {t:'state', v:2, mode:'ai'|'manual'|'music'|'idle', st:'run'|'pause'|'rest'|'ready'|'idle',
  *                 hr, z, lim, title, sub, kcal, run, can:{plus,minus,dbl}, dbl, vib:'short'|'long'|'',
@@ -13,6 +13,9 @@
  */
 import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
+
+/** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
+const APP_VERSION = 2
 
 export default {
   state: null,
@@ -26,7 +29,7 @@ export default {
     // Until XEMS answers, say hello every 4 s (the link may open after the app).
     this.helloTimer = setInterval(() => {
       if (this.silence() > 12) {
-        this.send({ t: 'hello' })
+        this.hello()
       }
     }, 4000)
   },
@@ -41,10 +44,10 @@ export default {
       const conn = interconnect.instance()
       this.conn = conn
       conn.onmessage = (msg) => this.receive(msg && msg.data)
-      conn.onopen = () => this.send({ t: 'hello' })
+      conn.onopen = () => this.hello()
       conn.onclose = () => this.notify()
       conn.onerror = () => this.notify()
-      this.send({ t: 'hello' })
+      this.hello()
     } catch (e) {
       console.log('xems: interconnect ' + e)
     }
@@ -68,6 +71,10 @@ export default {
       this.buzz(m.vib)
     }
     this.notify()
+  },
+
+  hello() {
+    this.send({ t: 'hello', v: APP_VERSION })
   },
 
   send(obj) {

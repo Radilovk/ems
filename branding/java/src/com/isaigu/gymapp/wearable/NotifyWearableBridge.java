@@ -360,6 +360,11 @@ public final class NotifyWearableBridge {
         } catch (Throwable t) {
             WearableBleDiagLog.log("remote", "start: " + t);
         }
+        try {
+            BandAppInstall.onBandConnected();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("install", "auto: " + t);
+        }
         WearableSyncHelper.updateHeartRate(lastHr, true);
         WearableSyncHelper.updateDiagnostics();
     }

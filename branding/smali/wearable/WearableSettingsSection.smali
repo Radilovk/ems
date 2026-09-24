@@ -930,69 +930,76 @@
 
     move-result v7
 
-    if-nez v7, :cond_2d4
+    if-nez v7, :cond_2da
 
     .line 143
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->usesClassic(Ljava/lang/String;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_2d4
+    if-eqz v1, :cond_2da
 
     :cond_1fb
     move v1, v3
 
     .line 144
     :goto_1fc
-    if-eqz v1, :cond_247
+    if-eqz v1, :cond_24d
 
     .line 145
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
 
-    move-result-object v1
+    move-result-object v7
 
     .line 146
     invoke-static {p0, v13}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
-    move-result v7
+    move-result v1
 
-    invoke-virtual {v1, v2, v7, v2, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    invoke-virtual {v7, v2, v1, v2, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
     .line 147
-    const-string v7, "XEMS \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430: \u043f\u0443\u043b\u0441, \u0431\u043b\u043e\u043a, \u0441\u0442\u0430\u0440\u0442/\u043f\u0430\u0443\u0437\u0430, \u0441\u0438\u043b\u0430 \u00b1"
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->statusText(Landroid/content/Context;)Ljava/lang/String;
 
-    const-string v8, "XEMS on the band: HR, block, start/pause, strength \u00b1"
-
-    .line 148
-    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v7
+    move-result-object v1
 
     const/high16 v8, 0x41500000    # 13.0f
 
-    .line 147
-    invoke-static {p0, v7, v8, v5, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v7
-
-    .line 150
-    new-instance v8, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/4 v9, -0x2
-
-    invoke-direct {v8, v2, v9, v11}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    invoke-virtual {v1, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 152
-    const-string v8, "\u0418\u043d\u0441\u0442\u0430\u043b\u0438\u0440\u0430\u0439"
-
-    const-string v9, "Install"
-
-    invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {p0, v1, v8, v5, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v8
 
+    .line 148
+    invoke-static {v8}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->bind(Landroid/widget/TextView;)V
+
+    .line 149
+    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v9, -0x2
+
+    invoke-direct {v1, v2, v9, v11}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v7, v8, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 151
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandAppVersion(Landroid/content/Context;)I
+
+    move-result v1
+
+    const/4 v9, 0x2
+
+    if-lt v1, v9, :cond_2dd
+
+    .line 152
+    const-string v1, "\u041f\u0440\u0435\u0438\u043d\u0441\u0442\u0430\u043b\u0438\u0440\u0430\u0439"
+
+    const-string v9, "Reinstall"
+
+    invoke-static {v1, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    :goto_22e
     const-string v9, "bg_screen"
 
     const v10, -0xd5d5d6
@@ -1002,30 +1009,30 @@
 
     move-result v9
 
-    .line 152
-    invoke-static {p0, v8, v9, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
+    .line 151
+    invoke-static {p0, v1, v9, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
 
-    move-result-object v4
+    move-result-object v1
 
     .line 154
-    new-instance v8, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;
+    new-instance v4, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;
 
-    invoke-direct {v8, p0, v7}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;-><init>(Landroid/app/Activity;Landroid/widget/TextView;)V
+    invoke-direct {v4, p0, v8}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;-><init>(Landroid/app/Activity;Landroid/widget/TextView;)V
 
-    invoke-virtual {v4, v8}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    invoke-virtual {v1, v4}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     .line 160
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;
 
-    move-result-object v7
+    move-result-object v4
 
-    invoke-virtual {v1, v4, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v7, v1, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 161
-    invoke-virtual {v6, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    invoke-virtual {v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 163
-    :cond_247
+    :cond_24d
     const-string v1, ""
 
     const/high16 v4, 0x41500000    # 13.0f
@@ -1169,11 +1176,23 @@
 
     goto/16 :goto_d
 
-    :cond_2d4
+    :cond_2da
     move v1, v2
 
     .line 143
     goto/16 :goto_1fc
+
+    .line 152
+    :cond_2dd
+    const-string v1, "\u0418\u043d\u0441\u0442\u0430\u043b\u0438\u0440\u0430\u0439"
+
+    const-string v9, "Install"
+
+    invoke-static {v1, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    goto/16 :goto_22e
 .end method
 
 .method private static colorFields()V

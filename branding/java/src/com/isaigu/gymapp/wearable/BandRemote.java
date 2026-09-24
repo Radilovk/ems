@@ -85,7 +85,13 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
 
     static void handleApp(String json) {
         String t = jsonField(json, "t");
-        if ("cmd".equals(t)) {
+        if ("hello".equals(t)) {
+            String v = jsonField(json, "v");
+            try {
+                BandAppInstall.onAppHello(v != null ? Integer.parseInt(v) : 0);
+            } catch (NumberFormatException ignored) {
+            }
+        } else if ("cmd".equals(t)) {
             String a = jsonField(json, "a");
             WearableBleDiagLog.log("applink", "cmd " + a);
             if ("toggle".equals(a)) {

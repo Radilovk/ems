@@ -105,6 +105,17 @@ public final class WearableConfig {
         prefs(context).edit().putBoolean("band_remote", on).apply();
     }
 
+    /** Version of the XEMS app last installed on (or reported by) the band; 0 = none known. */
+    public static int getBandAppVersion(Context context) {
+        return context == null ? 0 : prefs(context).getInt("band_app_ver", 0);
+    }
+
+    public static void setBandAppVersion(Context context, int version) {
+        if (context != null) {
+            prefs(context).edit().putInt("band_app_ver", version).apply();
+        }
+    }
+
     /** 0 auto (by band name), 1 BLE (Band 8 and older), 2 Bluetooth Classic SPP (Band 9 / 10). */
     public static int getBandTransport(Context context) {
         if (context == null) {

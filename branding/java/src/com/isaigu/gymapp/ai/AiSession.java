@@ -43,6 +43,7 @@ public final class AiSession {
     private static AiModel.Plan plan;
     private static AiEngine engine;
     private static AiEnergy energy;
+    private static boolean epocClosed;
 
     private static int calibPercent;
     private static boolean calibStimOn;
@@ -306,7 +307,8 @@ public final class AiSession {
         soloAutoRamp = false;
         saveInput(context);
         engine = new AiEngine(input, profile, plan);
-        energy = profile.hrAvailable ? new AiEnergy(profile.hrRest, profile.hrMax) : new AiEnergy();
+        energy = AiEnergy.forSession(input, profile);
+        epocClosed = false;
         long now = System.currentTimeMillis();
         engine.start(now);
         setWorkLengthAll(plan.totalS + 1800);
@@ -482,6 +484,10 @@ public final class AiSession {
         }
         AiEngine.State st = engine.getState();
         if (st == AiEngine.State.DONE || st == AiEngine.State.STOPPED) {
+            if (!epocClosed) {
+                epocClosed = true;
+                energy.closeEpoc();            // rest of the fast post-exercise O2 debt
+            }
             return;
         }
         double hr = engine.getHrAgeMs(now) < 10000L ? engine.getHrS() : -1;
@@ -490,9 +496,18 @@ public final class AiSession {
         energy.tick(now, hr, frac, c != null ? c.hz : 0);
     }
 
-    /** Estimated kcal of this session (HR + stimulation work), −1 before the start. */
+    /** Estimated kcal of this session (total), −1 before the start. */
     public static double getKcal() {
         return energy != null ? energy.getKcal() : -1;
+    }
+
+    /** kcal above resting metabolism. */
+    public static double getActiveKcal() {
+        return energy != null ? energy.getActiveKcal() : -1;
+    }
+
+    public static AiEnergy getEnergy() {
+        return energy;
     }
 
     // ================================================================ device driver
@@ -784,6 +799,7 @@ public final class AiSession {
             input.fitness = AiModel.Fitness.valueOf(p.getString("fitness", "MID"));
             input.operator = AiModel.Operator.valueOf(p.getString("operator", "TRAINER"));
             input.age = p.getInt("age", 35);
+            input.weightKg = p.getInt("weight_kg", 75);
             int t = p.getInt("total_s", 0);
             input.totalSeconds = t > 0 ? t : null;
         } catch (Throwable ignored) {
@@ -806,6 +822,7 @@ public final class AiSession {
                     .putString("fitness", input.fitness.name())
                     .putString("operator", input.operator.name())
                     .putInt("age", input.age)
+                    .putInt("weight_kg", (int) Math.round(input.weightKg))
                     .putInt("total_s", input.totalSeconds != null ? input.totalSeconds : 0)
                     .apply();
         } catch (Throwable ignored) {

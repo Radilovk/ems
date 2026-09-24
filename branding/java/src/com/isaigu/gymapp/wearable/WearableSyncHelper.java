@@ -609,6 +609,7 @@ public final class WearableSyncHelper {
             hrValueView.setTextColor(WearableUi.COLOR_MUTED);
             setSubLabel(WearableUi.tr("натисни ↻", "tap ↻"), WearableUi.COLOR_MUTED);
             if (ringView != null) {
+                ringView.setBeatBpm(0);
                 ringView.setElapsedFraction(0f);
             }
             return;
@@ -623,17 +624,25 @@ public final class WearableSyncHelper {
             boolean stale = age > WearableUi.STALE_MS;
             hrValueView.setText(String.valueOf(displayedHr));
             hrValueView.setTextColor(stale ? WearableUi.COLOR_MUTED : zoneColor);
-            float fraction = threshold > 0 ? displayedHr / (float) threshold : 0f;
-            if (fraction > 1f) {
-                fraction = 1f;
-            }
+            // Gauge 40 bpm … ceiling + 8: corridor rest→limit in green, ceiling as a red tick.
             HrGuardCore g = HrGuard.core();
-            if (g.isCalibrating()) {
-                fraction = (float) g.getCalibProgress();
-            }
+            float lo = 40f;
+            float hi = Math.max(g.getCap(), threshold + 12) + 8f;
+            float fraction = Math.max(0f, Math.min(1f, (displayedHr - lo) / (hi - lo)));
             if (ringView != null) {
-                ringView.setElapsedFraction(fraction);
-                ringView.invalidate();
+                if (g.isCalibrating()) {
+                    ringView.setProgressColor(WearableUi.COLOR_WAIT);
+                    ringView.setBand(-1f, -1f);
+                    ringView.setMarker(-1f);
+                    ringView.setElapsedFraction((float) g.getCalibProgress());
+                } else {
+                    ringView.setProgressColor(stale ? WearableUi.COLOR_MUTED : zoneColor);
+                    int rest = g.getRestHr() > 0 ? g.getRestHr() : 60;
+                    ringView.setBand((rest - lo) / (hi - lo), (threshold - lo) / (hi - lo));
+                    ringView.setMarker((threshold + 12 - lo) / (hi - lo));
+                    ringView.setElapsedFraction(fraction);
+                }
+                ringView.setBeatBpm(stale ? 0 : displayedHr);
             }
             if (stale) {
                 setSubLabel(WearableUi.ageText(age), WearableUi.COLOR_WAIT);
@@ -654,6 +663,7 @@ public final class WearableSyncHelper {
         hrValueView.setTextColor(WearableUi.isErrorState(state)
                 ? WearableUi.COLOR_ERROR : WearableUi.COLOR_WAIT);
         if (ringView != null) {
+            ringView.setBeatBpm(0);
             ringView.setElapsedFraction(0f);
         }
         String label = WearableUi.stateText(state);

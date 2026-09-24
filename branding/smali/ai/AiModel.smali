@@ -40,7 +40,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 63
+    .line 65
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->TONE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     if-eq p0, v1, :cond_9
@@ -49,7 +49,7 @@
 
     if-ne p0, v1, :cond_a
 
-    .line 66
+    .line 68
     :cond_9
     :goto_9
     return v0

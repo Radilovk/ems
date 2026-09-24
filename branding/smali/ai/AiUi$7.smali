@@ -20,12 +20,10 @@
 # instance fields
 .field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-.field final synthetic val$total:I
-
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;I)V
-    .registers 3
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
+    .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -33,10 +31,8 @@
     .end annotation
 
     .prologue
-    .line 555
+    .line 556
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
-    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$total:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,32 +42,39 @@
 
 # virtual methods
 .method public onDelta(I)V
-    .registers 5
+    .registers 12
 
     .prologue
-    .line 558
+    .line 559
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
+    const-wide/16 v2, 0x23
 
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$total:I
+    const-wide/16 v4, 0xc8
 
-    mul-int/lit8 v2, p1, 0x3c
-
-    add-int/2addr v1, v2
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiPlanner;->clampSeconds(Lcom/isaigu/gymapp/ai/AiModel$Goal;I)I
-
-    move-result v0
-
-    .line 559
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    iget-wide v6, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    move-result-object v0
+    invoke-static {v6, v7}, Ljava/lang/Math;->round(D)J
 
-    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
+    move-result-wide v6
+
+    int-to-long v8, p1
+
+    add-long/2addr v6, v8
+
+    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->min(JJ)J
+
+    move-result-wide v4
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v2
+
+    long-to-double v2, v2
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
     .line 560
     const/4 v0, 0x1

@@ -33,10 +33,12 @@
 
 .field public totalSeconds:Ljava/lang/Integer;
 
+.field public weightKg:D
+
 
 # direct methods
 .method public constructor <init>()V
-    .registers 2
+    .registers 3
 
     .prologue
     .line 43
@@ -62,17 +64,22 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    .line 48
+    .line 49
+    const-wide v0, 0x4052c00000000000L    # 75.0
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
+
+    .line 50
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->MID:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    .line 51
+    .line 53
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Operator;->TRAINER:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
-    .line 52
+    .line 54
     new-instance v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiModel$Screening;-><init>()V
@@ -88,7 +95,7 @@
     .registers 3
 
     .prologue
-    .line 57
+    .line 59
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;

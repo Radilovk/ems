@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1030
+    .line 1040
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 1030
+    .line 1040
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$RefreshOverlayRunnable;-><init>()V
 
     return-void
@@ -44,10 +44,10 @@
     .registers 1
 
     .prologue
-    .line 1033
+    .line 1043
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshOverlayDisplay()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
 
-    .line 1034
+    .line 1044
     return-void
 .end method

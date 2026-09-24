@@ -31,15 +31,15 @@
     .registers 3
 
     .prologue
-    .line 108
+    .line 110
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 106
+    .line 108
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
 
-    .line 108
+    .line 110
     return-void
 .end method
 
@@ -47,30 +47,30 @@
     .registers 10
 
     .prologue
-    .line 110
+    .line 112
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 106
+    .line 108
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
 
-    .line 111
+    .line 113
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
-    .line 112
+    .line 114
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pwUs:I
 
-    .line 113
+    .line 115
     iput p3, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->onS:I
 
-    .line 114
+    .line 116
     iput p4, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->offS:I
 
-    .line 115
+    .line 117
     iput-wide p5, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
 
-    .line 116
+    .line 118
     return-void
 .end method
 
@@ -80,7 +80,7 @@
     .registers 9
 
     .prologue
-    .line 119
+    .line 121
     new-instance v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
@@ -102,7 +102,7 @@
     .registers 3
 
     .prologue
-    .line 123
+    .line 125
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
     const/16 v1, 0x14

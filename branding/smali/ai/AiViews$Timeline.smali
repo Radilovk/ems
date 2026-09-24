@@ -48,55 +48,55 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;)V
-    .registers 4
+    .registers 5
 
     .prologue
     const/4 v1, 0x1
 
-    .line 157
+    .line 216
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 148
+    .line 207
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->seg:Landroid/graphics/Paint;
 
-    .line 149
+    .line 208
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->dim:Landroid/graphics/Paint;
 
-    .line 150
+    .line 209
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->cursor:Landroid/graphics/Paint;
 
-    .line 151
+    .line 210
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->parts:Ljava/util/List;
 
-    .line 152
+    .line 211
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->colors:Ljava/util/List;
 
-    .line 153
+    .line 212
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->progress:F
 
-    .line 158
+    .line 217
     const/high16 v0, 0x40c00000    # 6.0f
 
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -113,21 +113,27 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->radius:F
 
-    .line 159
+    .line 218
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->dim:Landroid/graphics/Paint;
 
-    const/high16 v1, -0x67000000
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->BG:I
+
+    const/16 v2, 0x99
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiViews;->alpha(II)I
+
+    move-result v1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 160
+    .line 219
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->cursor:Landroid/graphics/Paint;
 
-    const v1, -0xd0b08
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 161
+    .line 220
     return-void
 .end method
 
@@ -137,7 +143,7 @@
     .prologue
     const/16 v3, 0xff
 
-    .line 203
+    .line 262
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -148,7 +154,7 @@
 
     move-result v0
 
-    .line 204
+    .line 263
     shr-int/lit8 v1, p0, 0x8
 
     and-int/lit16 v1, v1, 0xff
@@ -159,7 +165,7 @@
 
     move-result v1
 
-    .line 205
+    .line 264
     and-int/lit16 v2, p0, 0xff
 
     add-int/lit8 v2, v2, 0x28
@@ -168,7 +174,7 @@
 
     move-result v2
 
-    .line 206
+    .line 265
     const/high16 v3, -0x1000000
 
     shl-int/lit8 v0, v0, 0x10
@@ -190,21 +196,21 @@
     .registers 15
 
     .prologue
-    .line 183
+    .line 242
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->getWidth()I
 
     move-result v0
 
     int-to-float v9, v0
 
-    .line 184
+    .line 243
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->getHeight()I
 
     move-result v0
 
     int-to-float v10, v0
 
-    .line 185
+    .line 244
     const/high16 v0, 0x40400000    # 3.0f
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->getResources()Landroid/content/res/Resources;
@@ -219,7 +225,7 @@
 
     mul-float v11, v0, v1
 
-    .line 186
+    .line 245
     const/4 v0, 0x0
 
     move v8, v0
@@ -233,7 +239,7 @@
 
     if-ge v8, v0, :cond_80
 
-    .line 187
+    .line 246
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->parts:Ljava/util/List;
 
     invoke-interface {v0, v8}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -242,7 +248,7 @@
 
     check-cast v0, [F
 
-    .line 188
+    .line 247
     const/4 v1, 0x0
 
     aget v1, v0, v1
@@ -258,7 +264,7 @@
     :goto_35
     add-float/2addr v1, v2
 
-    .line 189
+    .line 248
     const/4 v2, 0x1
 
     aget v0, v0, v2
@@ -282,7 +288,7 @@
     :goto_49
     sub-float v3, v2, v0
 
-    .line 190
+    .line 249
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->colors:Ljava/util/List;
 
     invoke-interface {v0, v8}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -295,7 +301,7 @@
 
     move-result v5
 
-    .line 191
+    .line 250
     iget-object v12, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->seg:Landroid/graphics/Paint;
 
     new-instance v0, Landroid/graphics/LinearGradient;
@@ -314,7 +320,7 @@
 
     invoke-virtual {v12, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 192
+    .line 251
     new-instance v0, Landroid/graphics/RectF;
 
     const/4 v2, 0x0
@@ -329,26 +335,26 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 186
+    .line 245
     add-int/lit8 v0, v8, 0x1
 
     move v8, v0
 
     goto :goto_1a
 
-    .line 188
+    .line 247
     :cond_7c
     const/4 v1, 0x0
 
     goto :goto_35
 
-    .line 189
+    .line 248
     :cond_7e
     const/4 v0, 0x0
 
     goto :goto_49
 
-    .line 194
+    .line 253
     :cond_80
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->progress:F
 
@@ -358,7 +364,7 @@
 
     if-ltz v0, :cond_c9
 
-    .line 195
+    .line 254
     const/4 v0, 0x0
 
     const/high16 v1, 0x3f800000    # 1.0f
@@ -375,7 +381,7 @@
 
     mul-float/2addr v0, v9
 
-    .line 196
+    .line 255
     new-instance v1, Landroid/graphics/RectF;
 
     const/4 v2, 0x0
@@ -390,7 +396,7 @@
 
     invoke-virtual {p1, v1, v2, v3, v4}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 197
+    .line 256
     const/high16 v1, 0x40400000    # 3.0f
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->getResources()Landroid/content/res/Resources;
@@ -405,7 +411,7 @@
 
     mul-float/2addr v1, v2
 
-    .line 198
+    .line 257
     new-instance v2, Landroid/graphics/RectF;
 
     const/high16 v3, 0x40000000    # 2.0f
@@ -430,7 +436,7 @@
 
     invoke-virtual {p1, v2, v1, v1, v0}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 200
+    .line 259
     :cond_c9
     return-void
 .end method
@@ -441,17 +447,17 @@
     .prologue
     const/4 v8, 0x1
 
-    .line 164
+    .line 223
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->parts:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 165
+    .line 224
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->colors:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 166
+    .line 225
     iget v0, p1, Lcom/isaigu/gymapp/ai/AiModel$Plan;->totalS:I
 
     invoke-static {v8, v0}, Ljava/lang/Math;->max(II)I
@@ -460,10 +466,10 @@
 
     int-to-float v2, v0
 
-    .line 167
+    .line 226
     const/4 v0, 0x0
 
-    .line 168
+    .line 227
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phases:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -485,7 +491,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AiModel$Phase;
 
-    .line 169
+    .line 228
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->parts:Ljava/util/List;
 
     const/4 v5, 0x2
@@ -510,7 +516,7 @@
 
     invoke-interface {v4, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 170
+    .line 229
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->colors:Ljava/util/List;
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->id:Lcom/isaigu/gymapp/ai/AiModel$PhaseId;
@@ -525,7 +531,7 @@
 
     invoke-interface {v4, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 171
+    .line 230
     iget v0, v0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->durationS:I
 
     int-to-float v0, v0
@@ -534,14 +540,14 @@
 
     move v1, v0
 
-    .line 172
+    .line 231
     goto :goto_1a
 
-    .line 173
+    .line 232
     :cond_4f
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->invalidate()V
 
-    .line 174
+    .line 233
     return-void
 .end method
 
@@ -549,12 +555,12 @@
     .registers 2
 
     .prologue
-    .line 177
+    .line 236
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->progress:F
 
-    .line 178
+    .line 237
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Timeline;->invalidate()V
 
-    .line 179
+    .line 238
     return-void
 .end method

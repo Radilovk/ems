@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 444
+    .line 446
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$g:Lcom/isaigu/gymapp/ai/AiModel$Goal;
@@ -49,14 +49,14 @@
     .registers 4
 
     .prologue
-    .line 447
+    .line 449
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$g:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    .line 448
+    .line 450
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$g:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
@@ -69,14 +69,14 @@
 
     if-nez v0, :cond_18
 
-    .line 449
+    .line 451
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Mode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    .line 451
+    .line 453
     :cond_18
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$g:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
@@ -90,7 +90,7 @@
 
     if-ne v0, v1, :cond_2a
 
-    .line 452
+    .line 454
     :cond_24
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -98,7 +98,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    .line 454
+    .line 456
     :cond_2a
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$1;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -106,12 +106,12 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
 
-    .line 455
+    .line 457
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
-    .line 456
+    .line 458
     return-void
 .end method

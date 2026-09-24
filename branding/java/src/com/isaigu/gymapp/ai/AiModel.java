@@ -45,6 +45,8 @@ public final class AiModel {
         public Mode mode = Mode.ACTIVE;
         public Sex sex = Sex.MALE;
         public int age = 35;
+        /** For the energy model only (kcal). */
+        public double weightKg = 75;
         public Fitness fitness = Fitness.MID;
         /** null → template default. */
         public Integer totalSeconds;

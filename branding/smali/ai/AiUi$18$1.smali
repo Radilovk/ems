@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/ai/AiUi$16$1;
+.class Lcom/isaigu/gymapp/ai/AiUi$18$1;
 .super Ljava/lang/Object;
 .source "AiUi.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi$16;->run()V
+    value = Lcom/isaigu/gymapp/ai/AiUi$18;->run()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,16 +18,16 @@
 
 
 # instance fields
-.field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$16;
+.field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$18;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$16;)V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$18;)V
     .registers 2
 
     .prologue
-    .line 767
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16$1;->this$0:Lcom/isaigu/gymapp/ai/AiUi$16;
+    .line 1034
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$18$1;->this$0:Lcom/isaigu/gymapp/ai/AiUi$18;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,13 +40,13 @@
     .registers 3
 
     .prologue
-    .line 770
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
+    .line 1037
+    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->reconnectBand(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->startCalibrationStim(Landroid/content/Context;)V
 
-    .line 771
+    .line 1038
     return-void
 .end method

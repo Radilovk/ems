@@ -83,11 +83,12 @@ final class AiUi {
             return;
         }
         Context c = sidebar.getContext();
+        AiViews.applyTheme(c);
         TextView b = new TextView(c);
         b.setTag(BTN_TAG);
         b.setText("AI");
         b.setGravity(Gravity.CENTER);
-        b.setTextColor(Color.WHITE);
+        b.setTextColor(AiViews.VIOLET);
         b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
         b.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         b.setLetterSpacing(0.04f);
@@ -117,12 +118,12 @@ final class AiUi {
             return;
         }
         boolean live = AiSession.getStage() == AiSession.Stage.RUNNING;
-        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
-                new int[] {AiViews.VIOLET, AiViews.CYAN});
+        // Same look as the other sidebar buttons: white disc, coloured glyph; green ring while live.
+        GradientDrawable g = new GradientDrawable();
+        g.setColor(0xFFFFFFFF);
         g.setShape(GradientDrawable.OVAL);
-        if (live) {
-            g.setStroke(dp(sideButton.getContext(), 3), AiViews.OK);
-        }
+        g.setStroke(dp(sideButton.getContext(), live ? 3 : 1), live ? AiViews.CYAN : 0x33000000);
+        sideButton.setTextColor(AiViews.VIOLET);
         sideButton.setBackgroundDrawable(g);
     }
 
@@ -189,6 +190,7 @@ final class AiUi {
     }
 
     private static void buildShell(Activity a) {
+        AiViews.applyTheme(a);
         dialog = new Dialog(a);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
@@ -203,10 +205,10 @@ final class AiUi {
         LinearLayout header = new LinearLayout(a);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        TextView pill = text(a, "AI", 15, Color.WHITE, true);
+        TextView pill = text(a, "AI", 15, AiViews.ON_ACCENT, true);
         pill.setGravity(Gravity.CENTER);
-        GradientDrawable pg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[] {AiViews.VIOLET, AiViews.CYAN});
+        GradientDrawable pg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[] {AiViews.VIOLET, AiViews.ACCENT_DARK});
         pg.setCornerRadius(dp(a, 12));
         pill.setBackgroundDrawable(pg);
         pill.setPadding(dp(a, 12), dp(a, 5), dp(a, 12), dp(a, 5));
@@ -347,10 +349,10 @@ final class AiUi {
             boolean cur = i == step;
             GradientDrawable g = cur
                     ? new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                    new int[] {AiViews.VIOLET, AiViews.CYAN})
+                    new int[] {AiViews.VIOLET, AiViews.ORANGE})
                     : new GradientDrawable();
             if (!cur) {
-                g.setColor(i < step ? 0x88FFFFFF : 0x26FFFFFF);
+                g.setColor(i < step ? AiViews.CYAN : AiViews.alpha(AiViews.TEXT, 0x30));
             }
             g.setCornerRadius(dp(a, 4));
             d.setBackgroundDrawable(g);
@@ -550,6 +552,14 @@ final class AiUi {
                         go(STEP_PROFILE);
                     }
                 })), weight(a, 0));
+        r2.addView(labeled(a, AiText.t("Тегло", "Weight"), stepper(a, Math.round(in.weightKg) + "", "kg",
+                new StepperCallback() {
+                    @Override
+                    public void onDelta(int d) {
+                        in.weightKg = Math.max(35, Math.min(200, Math.round(in.weightKg) + d));
+                        go(STEP_PROFILE);
+                    }
+                })), weight(a, 16));
         final int total = in.totalSeconds != null ? in.totalSeconds : AiPlanner.defaultSeconds(in.goal);
         r2.addView(labeled(a, AiText.t("Продължителност", "Duration"),
                 stepper(a, (total / 60) + "", AiText.t("минути", "minutes"), new StepperCallback() {
@@ -1089,7 +1099,7 @@ final class AiUi {
         LinearLayout phaseCard = card(a);
         final TextView phaseName = text(a, "", 30, AiViews.TEXT, true);
         final TextView phaseLeft = text(a, "", 16, AiViews.MUTED, false);
-        final TextView stateChip = text(a, "", 13, 0xFF0E1015, true);
+        final TextView stateChip = text(a, "", 13, AiViews.ON_ACCENT, true);
         stateChip.setPadding(dp(a, 12), dp(a, 5), dp(a, 12), dp(a, 5));
         phaseCard.addView(stateChip, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -1152,7 +1162,7 @@ final class AiUi {
         ticker.setGravity(Gravity.CENTER_VERTICAL);
         View dot = new View(a);
         GradientDrawable dg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[] {AiViews.VIOLET, AiViews.CYAN});
+                new int[] {AiViews.VIOLET, AiViews.ORANGE});
         dg.setShape(GradientDrawable.OVAL);
         dot.setBackgroundDrawable(dg);
         ticker.addView(dot, new LinearLayout.LayoutParams(dp(a, 12), dp(a, 12)));
@@ -1166,7 +1176,7 @@ final class AiUi {
 
         // Overlay layer for checkpoints and stimulation pauses.
         final FrameLayout overlay = new FrameLayout(a);
-        overlay.setBackgroundColor(0xE60E1015);
+        overlay.setBackgroundColor(AiViews.alpha(AiViews.BG, 0xE6));
         overlay.setVisibility(View.GONE);
         overlay.setClickable(true);
         stack.addView(overlay, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1190,7 +1200,7 @@ final class AiUi {
                 AiSession.reduce();
             }
         });
-        TextView stopBtn = text(a, AiText.t("СТОП", "STOP"), 22, Color.WHITE, true);
+        TextView stopBtn = text(a, AiText.t("СТОП", "STOP"), 22, AiViews.ON_ACCENT, true);
         stopBtn.setGravity(Gravity.CENTER);
         stopBtn.setBackgroundDrawable(rounded(AiViews.DANGER, dp(a, 29), 0, 0));
         stopBtn.setOnClickListener(new View.OnClickListener() {
@@ -1219,9 +1229,10 @@ final class AiUi {
                 phaseLeft.setText(AiText.t("остават ", "remaining ") + AiText.mmss(ph.durationS - e.getPhaseElapsedS())
                         + (e.isInBlock() ? AiText.t(" · блок ", " · block ") + (e.getBlocks().size() + 1) : ""));
                 stateChip.setText(AiText.state(st, e.getPauseReason()));
-                int chipCol = st == AiEngine.State.RUN ? AiViews.OK
-                        : st == AiEngine.State.REST ? AiViews.CYAN
-                        : st == AiEngine.State.STIM_PAUSE ? AiViews.DANGER : AiViews.WARN;
+                // App semantics: green = impulse, amber = pause, red = stop.
+                int chipCol = st == AiEngine.State.RUN ? AiViews.CYAN
+                        : st == AiEngine.State.REST ? AiViews.WARN
+                        : st == AiEngine.State.STIM_PAUSE ? AiViews.DANGER : AiViews.MUTED;
                 stateChip.setBackgroundDrawable(rounded(chipCol, dp(a, 14), 0, 0));
                 tl.setProgress((float) (e.getElapsedPlanS() / Math.max(1, plan.totalS)));
                 total.setText(AiText.mmss(e.getElapsedPlanS()) + " / " + AiText.mmss(plan.totalS));
@@ -1261,7 +1272,8 @@ final class AiUi {
                 doseBar.setMarker((float) (plan.qPlan / Math.max(1e-6, e.getQBudget())));
                 doseVal.setText(Math.round(100 * e.getQUsed() / Math.max(1e-6, plan.qPlan)) + AiText.t("% от плана", "% of plan"));
                 double kcal = AiSession.getKcal();
-                kcalVal.setText(kcal >= 0 ? "🔥 " + Math.round(kcal) + " kcal" : "");
+                kcalVal.setText(kcal >= 0 ? Math.round(kcal) + " kcal  ·  "
+                        + AiText.t("активни ", "active ") + Math.round(AiSession.getActiveKcal()) : "");
                 ctrlVal.setText(AiText.t("Корекция по пулса ", "HR correction ") + Math.round(e.getU() * 100) + "%"
                         + (e.getUUser() < 1 ? AiText.t(" · ръчно ", " · manual ") + Math.round(e.getUUser() * 100) + "%" : "")
                         + (e.getCeilingScale() < 1 ? AiText.t(" · усещане ", " · sensation ") + Math.round(e.getCeilingScale() * 100) + "%" : ""));
@@ -1488,7 +1500,8 @@ final class AiUi {
                 bigTile(a, tiles, AiText.t("Възстановяване 60 s", "Recovery 60 s"), hrr, "");
                 bigTile(a, tiles, AiText.t("Доза", "Dose"), Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan)) + "", "%");
                 double kc = AiSession.getKcal();
-                bigTile(a, tiles, AiText.t("Калории", "Calories"), kc >= 0 ? Math.round(kc) + "" : "—", kc >= 0 ? " kcal" : "");
+                bigTile(a, tiles, AiText.t("Калории", "Calories"), kc >= 0 ? Math.round(kc) + "" : "—",
+                        kc >= 0 ? " kcal · " + AiText.t("акт. ", "act. ") + Math.round(AiSession.getActiveKcal()) : "");
 
                 LinearLayout ctl = card(a);
                 ctl.addView(sectionLabel(a, AiText.t("Решения на AI", "AI decisions")));
@@ -1539,7 +1552,11 @@ final class AiUi {
                 .append(" · dose ").append(Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan))).append("% of plan")
                 .append(" · corridor ").append(Double.isNaN(e.getCorridorShare()) ? "-" : Math.round(100 * e.getCorridorShare()) + "%")
                 .append(" · HRR60 ").append(Double.isNaN(e.getHrr60()) ? "-" : Math.round(e.getHrr60()))
-                .append(" · kcal ").append(AiSession.getKcal() >= 0 ? Math.round(AiSession.getKcal()) + "" : "-").append('\n');
+                .append(" · kcal ").append(AiSession.getKcal() >= 0 ? Math.round(AiSession.getKcal()) + "" : "-")
+                .append(" (active ").append(Math.round(Math.max(0, AiSession.getActiveKcal())))
+                .append(AiSession.getEnergy() != null ? String.format(Locale.US, ", VO2max %.0f, %.0f kg",
+                        AiSession.getEnergy().getVo2max(), AiSession.getEnergy().getWeightKg()) : "")
+                .append(")\n");
         sb.append("L1 ").append(e.getLCount(1)).append(" L2 ").append(e.getLCount(2)).append(" L3 ").append(e.getLCount(3))
                 .append(" L4 ").append(e.getLCount(4)).append(" u ").append(e.getLCount(5)).append(" cap ").append(e.getCapHits())
                 .append(" flags ").append(e.getFlags()).append("\n\nblocks: #,phase,t_block,t_rest,q,F_end,dHR,R,D,tau,V\n");
@@ -1637,12 +1654,13 @@ final class AiUi {
             final int idx = i;
             boolean en = enabled == null || enabled[i];
             boolean sel = i == selected;
-            TextView t = text(a, labels[i], 15, sel ? Color.WHITE : (en ? AiViews.TEXT : 0x55FFFFFF), sel);
+            TextView t = text(a, labels[i], 15, sel ? AiViews.ON_ACCENT
+                    : (en ? AiViews.TEXT : AiViews.alpha(AiViews.TEXT, 0x55)), sel);
             t.setGravity(Gravity.CENTER);
             t.setPadding(dp(a, 14), dp(a, 13), dp(a, 14), dp(a, 13));
             if (sel) {
-                GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                        new int[] {AiViews.VIOLET, 0xFF5A6CFF});
+                GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                        new int[] {AiViews.VIOLET, AiViews.ACCENT_DARK});
                 g.setCornerRadius(dp(a, 12));
                 t.setBackgroundDrawable(g);
             }
@@ -1724,13 +1742,16 @@ final class AiUi {
         for (int i = 0; i <= 10; i++) {
             final int v = i;
             boolean target = i >= lo && i <= hi;
-            TextView t = text(a, String.valueOf(i), cb != null ? 20 : 15, target ? Color.WHITE : AiViews.MUTED, true);
+            // Each value carries its place on the app's heat scale (green → red).
+            int heat = heat(i / 10f);
+            TextView t = text(a, String.valueOf(i), cb != null ? 20 : 15, target ? AiViews.ON_ACCENT : AiViews.TEXT, true);
             t.setGravity(Gravity.CENTER);
-            GradientDrawable g = target
-                    ? new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[] {AiViews.VIOLET, AiViews.CYAN})
-                    : new GradientDrawable();
-            if (!target) {
-                g.setColor(i >= 9 ? 0x33FF4D4F : AiViews.CARD2);
+            GradientDrawable g = new GradientDrawable();
+            if (target) {
+                g.setColor(heat);
+            } else {
+                g.setColor(AiViews.alpha(heat, 0x22));
+                g.setStroke(dp(a, 1), AiViews.alpha(heat, 0x88));
             }
             g.setShape(GradientDrawable.OVAL);
             t.setBackgroundDrawable(g);
@@ -1850,10 +1871,11 @@ final class AiUi {
     }
 
     private static TextView primaryButton(Context a, String label) {
-        TextView b = text(a, label, 17, Color.WHITE, true);
+        // As the app's active tab: solid red pill.
+        TextView b = text(a, label, 17, AiViews.ON_ACCENT, true);
         b.setGravity(Gravity.CENTER);
-        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[] {AiViews.VIOLET, AiViews.CYAN});
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[] {AiViews.VIOLET, AiViews.ACCENT_DARK});
         g.setCornerRadius(dp(a, 29));
         b.setBackgroundDrawable(g);
         return b;
@@ -1863,7 +1885,8 @@ final class AiUi {
         TextView b = text(a, label, 16, AiViews.TEXT, true);
         b.setGravity(Gravity.CENTER);
         b.setPadding(dp(a, 26), 0, dp(a, 26), 0);
-        b.setBackgroundDrawable(rounded(0x00000000, dp(a, 27), 0x40FFFFFF, 1));
+        // As the app's other tabs: surface pill with a hairline.
+        b.setBackgroundDrawable(rounded(AiViews.CARD2, dp(a, 27), AiViews.STROKE, 1));
         return b;
     }
 
@@ -1889,10 +1912,10 @@ final class AiUi {
         return g;
     }
 
-    /** Card with a violet→cyan gradient border (selected state). */
+    /** Card with a red → orange border (selected state). */
     private static android.graphics.drawable.Drawable gradientStroke(Context a, int fill, int radiusDp) {
         GradientDrawable outer = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
-                new int[] {AiViews.VIOLET, AiViews.CYAN});
+                new int[] {AiViews.VIOLET, AiViews.ORANGE});
         outer.setCornerRadius(dp(a, radiusDp));
         GradientDrawable inner = new GradientDrawable();
         inner.setColor(fill);
@@ -1907,11 +1930,27 @@ final class AiUi {
     private static int goalColor(Goal g) {
         switch (g) {
             case TONE: return AiViews.VIOLET;
-            case FAT: return 0xFFFF6B3D;
-            case MASSAGE: return 0xFF26C6DA;
-            case DRAIN: return 0xFF4F7BFF;
-            default: return 0xFFE040FB;
+            case FAT: return AiViews.ORANGE;
+            case MASSAGE: return AiViews.CYAN;
+            case DRAIN: return 0xFF42A5F5;
+            default: return AiViews.PINK;
         }
+    }
+
+    /** 0..1 on the app's heat scale: green → yellow → orange → red. */
+    private static int heat(float f) {
+        int[] c = AiViews.heatGradient();
+        f = Math.max(0f, Math.min(1f, f)) * (c.length - 1);
+        int i = Math.min(c.length - 2, (int) f);
+        float t = f - i;
+        return mix(c[i], c[i + 1], t);
+    }
+
+    private static int mix(int a, int b, float t) {
+        int r = (int) (((a >> 16) & 0xFF) * (1 - t) + ((b >> 16) & 0xFF) * t);
+        int g = (int) (((a >> 8) & 0xFF) * (1 - t) + ((b >> 8) & 0xFF) * t);
+        int bl = (int) ((a & 0xFF) * (1 - t) + (b & 0xFF) * t);
+        return 0xFF000000 | (r << 16) | (g << 8) | bl;
     }
 
     private static int lighten(int c) {

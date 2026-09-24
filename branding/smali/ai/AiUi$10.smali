@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 620
+    .line 622
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$verdict:Landroid/widget/LinearLayout;
@@ -49,19 +49,19 @@
     .registers 3
 
     .prologue
-    .line 623
+    .line 625
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->alcoholOrStress48h:Z
+    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->feverOrIllness:Z
 
-    .line 624
+    .line 626
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$verdict:Landroid/widget/LinearLayout;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->renderVerdict(Landroid/widget/LinearLayout;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
 
-    .line 625
+    .line 627
     return-void
 .end method

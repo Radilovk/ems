@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 129
+    .line 130
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,13 +34,13 @@
     .registers 3
 
     .prologue
-    .line 132
+    .line 133
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->open(Landroid/app/Activity;)V
 
-    .line 133
+    .line 134
     return-void
 .end method

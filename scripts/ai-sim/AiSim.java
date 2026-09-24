@@ -156,6 +156,26 @@ public class AiSim {
         if (print) log.forEach(x -> System.out.println("    " + x));
     }
 
+    /** 20 min at 50 % HRR, then 60 s recovery + EPOC. Sanity bands from ACSM MET tables. */
+    static void energy(String name, Sex sex, int age, double w, Fitness fit, int rest, boolean med) {
+        SessionInput in = new SessionInput();
+        in.sex = sex; in.age = age; in.weightKg = w; in.fitness = fit;
+        in.screening.hrLoweringMedication = med;
+        Profile p = AiPlanner.derive(in, rest, 1.0, 3000);
+        AiEnergy e = AiEnergy.forSession(in, p);
+        long t = 0;
+        double hr = rest + 0.5 * (p.hrMax - rest);
+        for (int s = 0; s <= 1200; s++) { e.tick(t, hr, 0.6, 85); t += 1000; }
+        double atEnd = e.getKcal();
+        for (int s = 0; s < 60; s++) { e.tick(t, rest + 10, 0, 0); t += 1000; }
+        e.closeEpoc();
+        double perMin = atEnd / 20.0;
+        System.out.printf("%-26s VO2rest=%.2f VO2max=%.1f HRmax=%d  20 min: %.0f kcal (%.1f/min), +recovery %.0f, active %.0f%n",
+            name, e.getVo2rest(), e.getVo2max(), p.hrMax, atEnd, perMin, e.getKcal() - atEnd, e.getActiveKcal());
+        check(perMin > 3 && perMin < 15, name + " kcal/min out of the physiological range");
+        check(e.getVo2rest() > 2.3 && e.getVo2rest() < 4.5, name + " VO2rest");
+    }
+
     public static void main(String[] a) {
         boolean v = a.length > 0;
         AiEngine e;
@@ -204,6 +224,9 @@ public class AiSim {
         guard("PULSE extreme", 200, 0, false, v);
         guard("PULSE trainer 150", 110, 150, false, v);
         guard("PULSE twitch 5 Hz", 110, 0, true, v);
+        energy("M 40y 80kg MID rest 65", Sex.MALE, 40, 80, Fitness.MID, 65, false);
+        energy("F 30y 60kg HIGH rest 55", Sex.FEMALE, 30, 60, Fitness.HIGH, 55, false);
+        energy("M 60y 95kg LOW rest 78 med", Sex.MALE, 60, 95, Fitness.LOW, 78, true);
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");
         System.exit(failures == 0 ? 0 : 1);
     }

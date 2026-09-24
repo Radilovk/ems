@@ -30,60 +30,66 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;)V
-    .registers 4
+    .registers 5
 
     .prologue
     const/4 v1, 0x1
 
-    .line 220
+    .line 279
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 212
+    .line 271
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->back:Landroid/graphics/Paint;
 
-    .line 213
+    .line 272
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->fill:Landroid/graphics/Paint;
 
-    .line 214
+    .line 273
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->mark:Landroid/graphics/Paint;
 
-    .line 216
+    .line 275
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->marker:F
 
-    .line 217
-    const v0, -0x83b201
+    .line 276
+    sget v0, Lcom/isaigu/gymapp/ai/AiViews;->VIOLET:I
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->color:I
 
-    .line 221
+    .line 280
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->back:Landroid/graphics/Paint;
 
-    const v1, 0x14ffffff
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->TEXT:I
+
+    const/16 v2, 0x1c
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiViews;->alpha(II)I
+
+    move-result v1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 222
+    .line 281
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->mark:Landroid/graphics/Paint;
 
-    const v1, -0xd0b08
+    sget v1, Lcom/isaigu/gymapp/ai/AiViews;->TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 223
+    .line 282
     return-void
 .end method
 
@@ -91,7 +97,7 @@
     .registers 3
 
     .prologue
-    .line 255
+    .line 314
     const v0, 0xffffff
 
     and-int/2addr v0, p0
@@ -113,24 +119,24 @@
 
     const/4 v1, 0x0
 
-    .line 238
+    .line 297
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Bar;->getWidth()I
 
     move-result v0
 
     int-to-float v3, v0
 
-    .line 239
+    .line 298
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Bar;->getHeight()I
 
     move-result v0
 
     int-to-float v8, v0
 
-    .line 240
+    .line 299
     div-float v9, v8, v11
 
-    .line 241
+    .line 300
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0, v1, v1, v3, v8}, Landroid/graphics/RectF;-><init>(FFFF)V
@@ -139,14 +145,14 @@
 
     invoke-virtual {p1, v0, v9, v9, v2}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 242
+    .line 301
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->value:F
 
     cmpl-float v0, v0, v1
 
     if-lez v0, :cond_46
 
-    .line 243
+    .line 302
     iget-object v10, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->fill:Landroid/graphics/Paint;
 
     new-instance v0, Landroid/graphics/LinearGradient;
@@ -169,7 +175,7 @@
 
     invoke-virtual {v10, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 245
+    .line 304
     new-instance v0, Landroid/graphics/RectF;
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->value:F
@@ -186,7 +192,7 @@
 
     invoke-virtual {p1, v0, v9, v9, v2}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 247
+    .line 306
     :cond_46
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->marker:F
 
@@ -202,12 +208,12 @@
 
     if-gtz v0, :cond_72
 
-    .line 248
+    .line 307
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->marker:F
 
     mul-float/2addr v0, v3
 
-    .line 249
+    .line 308
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Bar;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -220,7 +226,7 @@
 
     mul-float v4, v11, v1
 
-    .line 250
+    .line 309
     div-float v1, v4, v11
 
     sub-float v1, v0, v1
@@ -239,7 +245,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 252
+    .line 311
     :cond_72
     return-void
 .end method
@@ -248,7 +254,7 @@
     .registers 5
 
     .prologue
-    .line 226
+    .line 285
     const/4 v0, 0x0
 
     const/high16 v1, 0x3f800000    # 1.0f
@@ -263,13 +269,13 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->value:F
 
-    .line 227
+    .line 286
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->color:I
 
-    .line 228
+    .line 287
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Bar;->invalidate()V
 
-    .line 229
+    .line 288
     return-void
 .end method
 
@@ -277,12 +283,12 @@
     .registers 2
 
     .prologue
-    .line 232
+    .line 291
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiViews$Bar;->marker:F
 
-    .line 233
+    .line 292
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiViews$Bar;->invalidate()V
 
-    .line 234
+    .line 293
     return-void
 .end method

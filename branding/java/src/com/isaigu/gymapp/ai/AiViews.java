@@ -14,24 +14,77 @@ import java.util.List;
 
 /** Canvas-drawn widgets for the Smart Session UI (no resources needed). */
 final class AiViews {
-    static final int BG = 0xFF0E1015;
-    static final int CARD = 0xFF171A21;
-    static final int CARD2 = 0xFF1F232C;
-    static final int STROKE = 0x1FFFFFFF;
-    static final int TEXT = 0xFFF2F4F8;
-    static final int MUTED = 0xFF8B93A1;
-    static final int VIOLET = 0xFF7C4DFF;
-    static final int CYAN = 0xFF00D1FF;
-    static final int OK = 0xFF2ECC71;
-    static final int WARN = 0xFFFFB020;
-    static final int DANGER = 0xFFFF4D4F;
+    // Theme tokens — filled from the app's colors (light / dark) by applyTheme(); dark defaults.
+    static int BG = 0xFF121212;
+    static int CARD = 0xFF1E1E1E;
+    static int CARD2 = 0xFF2A2A2A;
+    static int STROKE = 0xFF444444;
+    static int TEXT = 0xFFE8E8E8;
+    static int MUTED = 0xFFB0B0B0;
+    /** Brand accent (app red: active tab, primary actions, strength). */
+    static int VIOLET = 0xFFE53935;
+    static int ACCENT_DARK = 0xFFB71C1C;
+    /** Impulse / recovery green (app impulse_accent). */
+    static int CYAN = 0xFF81C784;
+    static int OK = 0xFF66BB6A;
+    static int WARN = 0xFFF9A825;
+    static int DANGER = 0xFFEF5350;
+    static int ORANGE = 0xFFF57C00;
+    /** X logo pink (metabolic phase). */
+    static int PINK = 0xFFFF2D95;
+    static int ON_ACCENT = 0xFFFFFFFF;
+    static boolean dark = true;
+
+    /** Read the app's theme colors (values / values-night) so the AI screens match the rest. */
+    static void applyTheme(Context c) {
+        if (c == null) {
+            return;
+        }
+        BG = color(c, "bg_screen", BG);
+        CARD = color(c, "bg_card", CARD);
+        CARD2 = color(c, "bg_surface", CARD2);
+        STROKE = color(c, "card_stroke", STROKE);
+        TEXT = color(c, "text_primary", TEXT);
+        MUTED = color(c, "text_secondary", MUTED);
+        VIOLET = color(c, "accent_primary", VIOLET);
+        ACCENT_DARK = color(c, "accent_primary_dark", ACCENT_DARK);
+        CYAN = color(c, "impulse_accent", CYAN);
+        OK = color(c, "light_green_color", OK);
+        WARN = color(c, "ma_badge_pause_bg", WARN);
+        DANGER = color(c, "pause_accent", DANGER);
+        ORANGE = color(c, "light_orange_exister", ORANGE);
+        ON_ACCENT = color(c, "text_on_accent", ON_ACCENT);
+        dark = luminance(BG) < 0.4;
+    }
+
+    static int color(Context c, String name, int fallback) {
+        try {
+            int id = c.getResources().getIdentifier(name, "color", c.getPackageName());
+            return id != 0 ? c.getResources().getColor(id) : fallback;
+        } catch (Throwable t) {
+            return fallback;
+        }
+    }
+
+    static int alpha(int color, int a) {
+        return (color & 0x00FFFFFF) | ((a & 0xFF) << 24);
+    }
+
+    static double luminance(int c) {
+        return (0.299 * ((c >> 16) & 0xFF) + 0.587 * ((c >> 8) & 0xFF) + 0.114 * (c & 0xFF)) / 255.0;
+    }
+
+    /** App dial gradient (as on the avatar ring): green → yellow → orange → red. */
+    static int[] heatGradient() {
+        return new int[] {CYAN, 0xFFFDD835, ORANGE, VIOLET};
+    }
 
     static int phaseColor(AiModel.PhaseId id) {
         switch (id) {
-            case WARMUP: return 0xFF4F7BFF;
+            case WARMUP: return WARN;
             case MAIN: return VIOLET;
-            case METABOLIC: return 0xFFE040FB;
-            default: return 0xFF26C6DA;
+            case METABOLIC: return PINK;
+            default: return CYAN;
         }
     }
 
@@ -60,14 +113,14 @@ final class AiViews {
             stroke = strokeDp * c.getResources().getDisplayMetrics().density;
             track.setStyle(Paint.Style.STROKE);
             track.setStrokeWidth(stroke);
-            track.setColor(0x14FFFFFF);
+            track.setColor(alpha(TEXT, 0x1C));
             track.setStrokeCap(Paint.Cap.ROUND);
             arc.setStyle(Paint.Style.STROKE);
             arc.setStrokeWidth(stroke);
             arc.setStrokeCap(Paint.Cap.ROUND);
             band.setStyle(Paint.Style.STROKE);
             band.setStrokeWidth(stroke * 0.45f);
-            band.setColor(0x6632D583);
+            band.setColor(alpha(CYAN, 0x70));
             band.setStrokeCap(Paint.Cap.ROUND);
             tick.setStyle(Paint.Style.STROKE);
             tick.setStrokeWidth(stroke * 0.35f);
@@ -117,8 +170,14 @@ final class AiViews {
                         false, band);
             }
             if (gradient) {
+                // Heat gradient over the 270° gauge (starts at 135°), as on the app's avatar ring.
+                int[] hc = heatGradient();
                 SweepGradient sg = new SweepGradient(w / 2f, h / 2f,
-                        new int[] {CYAN, VIOLET, 0xFFE040FB, CYAN}, null);
+                        new int[] {hc[0], hc[1], hc[2], hc[3], hc[3]},
+                        new float[] {0f, 0.25f, 0.5f, 0.75f, 1f});
+                android.graphics.Matrix m = new android.graphics.Matrix();
+                m.setRotate(start, w / 2f, h / 2f);
+                sg.setLocalMatrix(m);
                 arc.setShader(sg);
             } else {
                 arc.setShader(null);
@@ -156,7 +215,7 @@ final class AiViews {
         Timeline(Context c) {
             super(c);
             radius = 6 * c.getResources().getDisplayMetrics().density;
-            dim.setColor(0x99000000);
+            dim.setColor(alpha(BG, 0x99));
             cursor.setColor(TEXT);
         }
 
@@ -218,7 +277,7 @@ final class AiViews {
 
         Bar(Context c) {
             super(c);
-            back.setColor(0x14FFFFFF);
+            back.setColor(alpha(TEXT, 0x1C));
             mark.setColor(TEXT);
         }
 

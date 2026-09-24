@@ -17,7 +17,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 9
+const APP_VERSION = 8
 
 export default {
   state: null,

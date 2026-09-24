@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 91
+    .line 94
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$1;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 4
 
     .prologue
-    .line 94
+    .line 97
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$1;->val$a:Landroid/app/Activity;
 
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
@@ -55,6 +55,6 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->show(Landroid/app/Activity;Landroid/widget/EditText;)V
 
-    .line 95
+    .line 98
     return-void
 .end method

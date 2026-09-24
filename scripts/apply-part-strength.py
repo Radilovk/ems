@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Selected muscle groups: + / − and the avatar slider change only their impulse strength.
 
-Main index → main impulse, second impulse index → second impulse, neither → both together,
-exactly the usual rule, narrowed to the selected channels (PartStrength). While channels are
-selected only strength changes (an Hz / pause Hz selection does not take + / − or the slider).
+No second impulse → the main impulse; second impulse on → both together (the unit has one
+percent per channel for both). While channels are selected only strength changes (MA / Hz /
+pause selections do not take + / − or the slider).
 
 Patches (idempotent; each site is checked and the build stops if it is not found):
   TrainItemManager.lambda$addAllPartValue$6  + / −: selected channels first
   TrainViewHolder$4.onChangedEnd              slider release: selected channels first
   TrainViewHolder.updateUI                    slider shows the selected channels' level
-  CommandSender.sendActivePause               second impulse packet with its own channel values
 """
 from __future__ import annotations
 
@@ -119,23 +118,6 @@ def patch_display() -> None:
     print("patched TrainViewHolder.updateUI: slider shows the selected channels")
 
 
-def patch_second_pdu() -> None:
-    path = DEC / "train" / "model" / "CommandSender.smali"
-    text = path.read_text(encoding="utf-8")
-    a, b = method_span(text, ".method public sendActivePause(")
-    body = text[a:b]
-    if MARK in body:
-        print("CommandSender: second impulse channels already routed")
-        return
-    old = ("Lcom/isaigu/gymapp/train/utils/CommandUtil;->getPartsParamsPduWithStrength("
-           "Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B")
-    if body.count(old) != 1:
-        raise RuntimeError("CommandSender.sendActivePause: channel packet call not found once")
-    body = body.replace(old, f"{PS}->secondPdu(Lcom/isaigu/gymapp/bean/ProgramDataBean;[ZI)[B")
-    path.write_text(text[:a] + body + text[b:], encoding="utf-8")
-    print("patched CommandSender.sendActivePause: second impulse with its own channel values")
-
-
 def main() -> None:
     if not SRC.is_file():
         raise FileNotFoundError(f"{SRC} missing")
@@ -145,7 +127,6 @@ def main() -> None:
     patch_manager()
     patch_slider_end()
     patch_display()
-    patch_second_pdu()
 
 
 if __name__ == "__main__":

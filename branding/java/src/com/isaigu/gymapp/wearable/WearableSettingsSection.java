@@ -48,10 +48,13 @@ public final class WearableSettingsSection {
         if (a == null || !(root instanceof ViewGroup)) {
             return;
         }
-        ViewGroup parent = (ViewGroup) root;
+        ViewGroup parent = com.isaigu.gymapp.widget.XemsUi.scrollContent(a, root);
+        if (parent == null) {
+            return;
+        }
         View old = parent.findViewWithTag(TAG);
-        if (old != null) {
-            parent.removeView(old);
+        if (old != null && old.getParent() instanceof ViewGroup) {
+            ((ViewGroup) old.getParent()).removeView(old);
         }
         // Band settings only when a module that uses the band is unlocked (pulse, AI, band app)
         if (!com.isaigu.gymapp.widget.XemsLicense.needsBand()) {
@@ -119,6 +122,19 @@ public final class WearableSettingsSection {
         });
         keyRow.addView(eye, sideButton(a));
         card.addView(keyRow);
+        // From what this tablet already knows: saved bands (MAC + key) and the clipboard
+        TextView fromSaved = WearableUi.button(a, WearableUi.tr("От запазените / постави", "From saved / paste"),
+                WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
+        fromSaved.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSaved(a);
+            }
+        });
+        LinearLayout.LayoutParams fsp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 48));
+        fsp.topMargin = WearableUi.dp(a, 10);
+        card.addView(fromSaved, fsp);
 
         // Radio: Band 8 and older use BLE; Band 8 Pro / 9 / 10 use Bluetooth Classic (SPP).
         // Picked from the paired band's name; the manual choice appears only when the name is
@@ -251,6 +267,62 @@ public final class WearableSettingsSection {
         if (sel >= 0 && sel <= keyView.length()) {
             keyView.setSelection(sel);
         }
+    }
+
+    /** Saved bands (fills MAC + key) and, when the clipboard holds a key, "paste key". */
+    static void showSaved(final Activity a) {
+        // the band set up before saving existed goes in the list too
+        String curMac = WearableConfig.getBandMac(a);
+        WearableConfig.rememberBand(a, curMac, WearableConfig.getAuthKey(a),
+                com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, curMac));
+        final java.util.List<String[]> bands = WearableConfig.savedBands(a);
+        String clip = "";
+        try {
+            android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                    a.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            if (cm != null && cm.hasPrimaryClip() && cm.getPrimaryClip().getItemCount() > 0) {
+                CharSequence t = cm.getPrimaryClip().getItemAt(0).coerceToText(a);
+                clip = t != null ? t.toString().replaceAll("[^0-9a-fA-F]", "") : "";
+            }
+        } catch (Throwable ignored) {
+        }
+        final String clipKey = clip.length() == 32 ? clip.toLowerCase(java.util.Locale.US) : "";
+        final java.util.List<String> labels = new java.util.ArrayList<String>();
+        for (String[] b : bands) {
+            String name = b[2].length() > 0 ? b[2] : WearableUi.tr("Гривна", "Band");
+            labels.add(name + "\n" + b[0] + " · " + WearableUi.tr("ключ …", "key …")
+                    + b[1].substring(Math.max(0, b[1].length() - 4)));
+        }
+        if (clipKey.length() > 0) {
+            labels.add(WearableUi.tr("Постави ключа от клипборда (…", "Paste the key from the clipboard (…")
+                    + clipKey.substring(28) + ")");
+        }
+        if (labels.isEmpty()) {
+            android.widget.Toast.makeText(a, WearableUi.tr(
+                    "Няма запазени гривни. Въведи MAC и ключ веднъж — после ще са тук.",
+                    "No saved bands yet. Enter MAC and key once — then they are here."),
+                    android.widget.Toast.LENGTH_LONG).show();
+            return;
+        }
+        new android.app.AlertDialog.Builder(a)
+                .setTitle(WearableUi.tr("Гривна от запазените", "Band from saved"))
+                .setItems(labels.toArray(new String[0]), new android.content.DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(android.content.DialogInterface d, int which) {
+                        if (which < bands.size()) {
+                            if (macView != null) {
+                                macView.setText(bands.get(which)[0]);
+                            }
+                            if (keyView != null) {
+                                keyView.setText(bands.get(which)[1]);
+                            }
+                        } else if (keyView != null) {
+                            keyView.setText(clipKey);
+                        }
+                    }
+                })
+                .setNegativeButton(WearableUi.tr("Затвори", "Close"), null)
+                .show();
     }
 
     static boolean isValidKey(String key) {
@@ -435,6 +507,20 @@ public final class WearableSettingsSection {
             }
             if (isValidKey(key) || key.length() == 0) {
                 WearableConfig.setAuthKey(activity, key);
+            }
+            if (isValidMac(mac)) {
+                String norm = NotifyWearableBridge.normalizeMac(mac);
+                if (isValidKey(key)) {
+                    // a complete pair: remember it for next time (another band, reinstall)
+                    WearableConfig.rememberBand(activity, norm, key,
+                            com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(activity, norm));
+                } else if (key.length() == 0 && keyView != null) {
+                    // a known band was picked: its key comes with it
+                    String saved = WearableConfig.savedKeyFor(activity, norm);
+                    if (saved.length() == 32) {
+                        keyView.setText(saved);
+                    }
+                }
             }
             refreshStatus(activity);
         }

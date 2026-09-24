@@ -6,37 +6,26 @@ import com.isaigu.gymapp.bean.TrainProgram;
 import com.isaigu.gymapp.dialog.ActivePauseStorage;
 import com.isaigu.gymapp.train.model.TrainItem;
 
-import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * Selected muscle groups (channels) on the training screen: + / − and the avatar slider change the
- * impulse strength of those channels only. The usual rule is kept, just narrowed to them:
+ * impulse strength of those channels only.
  * <ul>
- *   <li>main impulse index selected (MA) — the main impulse only;</li>
- *   <li>second impulse index selected (pause MA) — the second impulse only;</li>
- *   <li>neither — both impulses together (main only when there is no second impulse).</li>
+ *   <li>no second impulse — the main impulse;</li>
+ *   <li>second impulse on — both impulses together.</li>
  * </ul>
- * While channels are selected only strength changes: an Hz / pause Hz selection does not route
- * + / − or the slider to the frequency.
+ * The unit has one percent per channel for both impulses (sent once with the main strength and
+ * once with the second one), so a channel's two impulses always move together. While channels are
+ * selected only strength changes: MA / Hz / pause selections do not take + / − or the slider.
  *
- * <p>A channel's real strength is {@code part% × strength / 100}; the unit gets the same channel
- * percent for both impulses, once with the main strength and once with the second one. To change
- * one impulse of some channels alone, the second impulse gets its own channel percents here
- * (starting as a copy of the main ones) and {@link #secondPdu} sends them. When selected channels
- * go above their impulse's strength, that strength goes up and the other channels' percent is
- * scaled so their real strength stays. With nothing selected the original code runs unchanged.
+ * <p>A channel's real strength is {@code (int)(part% / 100f × strength)}. When the selected
+ * channels go above the main strength, it goes up and the other channels' percent is set so their
+ * output stays exactly the same; the second impulse strength rises in the same ratio, so the
+ * other channels' second impulse stays too. With nothing selected the original code runs.
  */
 public final class PartStrength {
     /** Same safety as the master slider: at most +20 in one release. */
     static final int MAX_RAISE = 20;
-
-    static final int MAIN = 1;
-    static final int SECOND = 2;
-    static final int BOTH = 3;
-
-    /** Second impulse channel percents per program (the main ones stay in strenthBean.buwei). */
-    private static final Map<ProgramDataBean, int[]> SECOND_PARTS = new WeakHashMap<ProgramDataBean, int[]>();
 
     private PartStrength() {}
 
@@ -50,13 +39,7 @@ public final class PartStrength {
             if (sel == null) {
                 return false;
             }
-            int mode = mode(item, b);
-            if (mode == MAIN || mode == BOTH) {
-                changeMain(b, sel, delta, false);
-            }
-            if (mode == SECOND || mode == BOTH) {
-                changeSecond(item, b, sel, delta, false);
-            }
+            change(item, b, sel, delta);
             item.addAllPartValue(0, true);          // nothing added: just send and refresh
             return true;
         } catch (Throwable t) {
@@ -74,18 +57,11 @@ public final class PartStrength {
             if (sel == null) {
                 return false;
             }
-            int mode = mode(item, b);
-            int now = level(item, b, sel, mode);
+            int now = level(b, sel);
             int to = Math.min(clamp(level), now + MAX_RAISE);
-            int delta = to - now;
             // the strongest selected channel goes to the slider; the other selected ones move by
             // the same step (their differences stay, as with + / −)
-            if (mode == MAIN || mode == BOTH) {
-                changeMain(b, sel, delta, false);
-            }
-            if (mode == SECOND || mode == BOTH) {
-                changeSecond(item, b, sel, delta, false);
-            }
+            change(item, b, sel, to - now);
             item.addAllPartValue(0, true);
             return true;
         } catch (Throwable t) {
@@ -101,80 +77,67 @@ public final class PartStrength {
             if (sel == null) {
                 return current;
             }
-            return level(item, b, sel, mode(item, b)) * 75 / 100;
+            return level(b, sel) * 75 / 100;
         } catch (Throwable t) {
             return current;
         }
     }
 
-    // ================================================================ second impulse packet
-
-    /**
-     * Channel packet for the second impulse: the second impulse's own channel percents when
-     * some were changed, else exactly the app's usual packet.
-     */
-    public static byte[] secondPdu(ProgramDataBean b, boolean[] partsDisabled, int strength) {
-        int[] second = b != null ? SECOND_PARTS.get(b) : null;
-        if (second == null || b.strenthBean == null || b.strenthBean.buwei == null) {
-            return CommandUtil.getPartsParamsPduWithStrength(b, partsDisabled, strength);
-        }
-        int[] main = b.strenthBean.buwei;
-        b.strenthBean.buwei = second;
-        try {
-            return CommandUtil.getPartsParamsPduWithStrength(b, partsDisabled, strength);
-        } finally {
-            b.strenthBean.buwei = main;
-        }
-    }
-
     // ================================================================ internals
 
-    static int mode(TrainItem item, ProgramDataBean b) {
-        if (item.isPauseMaSelected() && b.activePause) {
-            return SECOND;
-        }
-        if (item.isMaSelected() || !b.activePause) {
-            return MAIN;
-        }
-        return BOTH;
-    }
-
-    /** What the slider stands for: the strongest selected channel of the impulse in play. */
-    static int level(TrainItem item, ProgramDataBean b, boolean[] sel, int mode) {
-        int[] parts = mode == SECOND ? secondParts(b, false) : b.strenthBean.buwei;
-        int strength = mode == SECOND ? b.pauseStrenthPercent : b.strenth;
+    /** What the slider stands for: the strongest selected channel (main impulse). */
+    static int level(ProgramDataBean b, boolean[] sel) {
+        int[] parts = b.strenthBean.buwei;
         int max = 0;
         for (int i = 0; i < parts.length; i++) {
             if (sel[i]) {
-                max = Math.max(max, real(parts[i], strength));
+                max = Math.max(max, real(parts[i], b.strenth));
             }
         }
         return max;
     }
 
-    /** Main impulse of the selected channels: +delta, or =value when absolute. */
-    static void changeMain(ProgramDataBean b, boolean[] sel, int value, boolean absolute) {
-        if (b.activePause) {
-            secondParts(b, true);                  // second impulse keeps its channel values
-        }
+    /** Selected channels +delta; the second impulse (when on) follows in the same ratio. */
+    static void change(TrainItem item, ProgramDataBean b, boolean[] sel, int delta) {
         int[] parts = b.strenthBean.buwei;
-        b.strenth = apply(parts, b.strenth, sel, value, absolute, !MusicSync.isRunning());
-    }
-
-    /** Second impulse of the selected channels: +delta, or =value when absolute. */
-    static void changeSecond(TrainItem item, ProgramDataBean b, boolean[] sel, int value, boolean absolute) {
-        if (!b.activePause) {
-            return;
+        int before = b.strenth;
+        int pause = b.pauseStrenthPercent;
+        int[] second = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            second[i] = real(parts[i], pause);
         }
-        int[] parts = secondParts(b, true);
-        int before = b.pauseStrenthPercent;
-        b.pauseStrenthPercent = apply(parts, before, sel, value, absolute, true);
-        if (b.pauseStrenthPercent != before) {
+        b.strenth = apply(parts, before, sel, delta, false, !MusicSync.isRunning());
+        if (b.activePause && b.strenth != before && before > 0) {
+            // other channels got a smaller percent for a bigger strength: raise the second impulse
+            // strength about the same ratio — the value that keeps their second impulse closest
+            b.pauseStrenthPercent = bestPause(parts, sel, second, pause * (double) b.strenth / before);
             try {
                 ActivePauseStorage.save(item.getTrainProgram());
             } catch (Throwable ignored) {
             }
         }
+    }
+
+    /** Second impulse strength near {@code ideal} that keeps the other channels' output closest (never above). */
+    static int bestPause(int[] parts, boolean[] sel, int[] wanted, double ideal) {
+        int centre = (int) Math.round(ideal);
+        int best = clamp(centre);
+        long bestCost = Long.MAX_VALUE;
+        for (int p = Math.max(0, centre - 4); p <= Math.min(100, centre + 4); p++) {
+            long cost = 0;
+            for (int i = 0; i < parts.length; i++) {
+                if (!sel[i]) {
+                    int d = real(parts[i], p) - wanted[i];
+                    cost += d > 0 ? 2L * d : -d;          // stronger than before counts double
+                }
+            }
+            cost = cost * 16 + Math.abs(p - centre);
+            if (cost < bestCost) {
+                bestCost = cost;
+                best = p;
+            }
+        }
+        return best;
     }
 
     /**
@@ -259,18 +222,6 @@ public final class PartStrength {
             p--;                                   // unreachable value: rather one weaker than stronger
         }
         return p;
-    }
-
-    /** The second impulse's channel percents (a copy of the main ones until first changed). */
-    static int[] secondParts(ProgramDataBean b, boolean create) {
-        int[] second = SECOND_PARTS.get(b);
-        if (second == null || second.length != b.strenthBean.buwei.length) {
-            second = b.strenthBean.buwei.clone();
-            if (create) {
-                SECOND_PARTS.put(b, second);
-            }
-        }
-        return second;
     }
 
     static ProgramDataBean bean(TrainItem item) {

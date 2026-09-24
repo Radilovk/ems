@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 323
+    .line 363
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
 
     iput p2, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$idx:I
@@ -49,16 +49,16 @@
     .registers 4
 
     .prologue
-    .line 326
+    .line 366
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 327
+    .line 367
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
 
     iget v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$idx:I
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;->onIndex(I)V
 
-    .line 328
+    .line 368
     return-void
 .end method

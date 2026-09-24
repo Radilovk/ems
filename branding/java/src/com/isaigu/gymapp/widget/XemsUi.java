@@ -185,6 +185,46 @@ public final class XemsUi {
     }
 
     /** App card: bg_card, 16dp corners, hairline. */
+    private static final String SCROLL_TAG = "xems_scroll_content";
+
+    /**
+     * A page that was not made to scroll (e.g. Settings): on first use its children move into a
+     * ScrollView and the inner column is returned; later calls return that column.
+     */
+    public static ViewGroup scrollContent(Context c, View root) {
+        if (!(root instanceof ViewGroup)) {
+            return null;
+        }
+        ViewGroup page = (ViewGroup) root;
+        View found = page.findViewWithTag(SCROLL_TAG);
+        if (found instanceof ViewGroup) {
+            return (ViewGroup) found;
+        }
+        android.widget.ScrollView scroll = new android.widget.ScrollView(c);
+        scroll.setFillViewport(true);
+        scroll.setVerticalScrollBarEnabled(false);
+        LinearLayout column = new LinearLayout(c);
+        column.setOrientation(LinearLayout.VERTICAL);
+        column.setTag(SCROLL_TAG);
+        column.setPadding(0, dp(c, 16), 0, dp(c, 48));
+        while (page.getChildCount() > 0) {
+            View child = page.getChildAt(0);
+            ViewGroup.LayoutParams lp = child.getLayoutParams();
+            page.removeViewAt(0);
+            column.addView(child, lp instanceof LinearLayout.LayoutParams ? lp
+                    : new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+        scroll.addView(column, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (page instanceof LinearLayout) {
+            ((LinearLayout) page).setGravity(android.view.Gravity.TOP);
+        }
+        page.addView(scroll, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        return column;
+    }
+
     public static LinearLayout card(Context c) {
         LinearLayout l = vertical(c);
         l.setBackgroundDrawable(rounded(CARD, dp(c, 16), STROKE, dp(c, 1)));

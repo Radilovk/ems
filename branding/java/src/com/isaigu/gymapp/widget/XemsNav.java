@@ -126,6 +126,7 @@ public final class XemsNav {
         XemsLicense.init(c);
         if (c instanceof android.app.Activity) {
             XemsFullscreen.apply((android.app.Activity) c);
+            XemsLicenseClient.autoCheck((android.app.Activity) c);
         }
         mainRoot = root;
         currentPage = ID_TAB_FIRST;

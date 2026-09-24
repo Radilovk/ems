@@ -269,11 +269,62 @@ async function adminApi(request, env, path) {
     return json({ ok: true, version_code, version_name, sha256, size });
   }
 
+  if (route === 'devices' && request.method === 'GET') {
+    const rows = await env.DB.prepare(
+      `SELECT a.*, l.customer, l.plan, l.status AS license_status
+       FROM activations a JOIN licenses l ON l.id = a.license_id
+       ORDER BY a.last_seen DESC LIMIT 300`,
+    ).all();
+    return json({ ok: true, devices: rows.results });
+  }
+
+  if (route === 'audit' && request.method === 'GET') {
+    const rows = await env.DB.prepare('SELECT * FROM audit ORDER BY ts DESC LIMIT 150').all();
+    return json({ ok: true, audit: rows.results });
+  }
+
+  if (route === 'releases/verify' && request.method === 'POST') {
+    const b = await request.json();
+    const object_key = String(b.object_key || b.url || '').trim();
+    if (!object_key) return json({ ok: false, error: 'missing_url', message: 'URL is required' }, 400);
+    const fetched = await fetchReleaseMeta(object_key);
+    if (!fetched.ok) return json({ ok: false, error: fetched.error, message: fetched.message }, 400);
+    return json({ ok: true, sha256: fetched.sha256, size: fetched.size });
+  }
+
+  if (route.match(/^releases\/\d+$/) && request.method === 'PATCH') {
+    const version_code = +route.split('/')[1];
+    const b = await request.json();
+    const sets = [];
+    const vals = [];
+    if (b.mandatory !== undefined) { sets.push('mandatory = ?'); vals.push(b.mandatory ? 1 : 0); }
+    if (b.notes !== undefined) { sets.push('notes = ?'); vals.push(String(b.notes)); }
+    if (!sets.length) return json({ ok: false, error: 'nothing_to_update' }, 400);
+    vals.push(version_code);
+    await env.DB.prepare(`UPDATE releases SET ${sets.join(', ')} WHERE version_code = ?`).bind(...vals).run();
+    await audit(env, 'update_release', null, null, String(version_code));
+    return json({ ok: true });
+  }
+
+  if (route.match(/^releases\/\d+$/) && request.method === 'DELETE') {
+    const version_code = +route.split('/')[1];
+    await env.DB.prepare('DELETE FROM releases WHERE version_code = ?').bind(version_code).run();
+    await audit(env, 'delete_release', null, null, String(version_code));
+    return json({ ok: true });
+  }
+
   if (route === 'stats' && request.method === 'GET') {
     const licenses = await env.DB.prepare("SELECT COUNT(*) AS n FROM licenses WHERE status='active'").first();
     const devices = await env.DB.prepare("SELECT COUNT(*) AS n FROM activations WHERE status='active'").first();
     const releases = await env.DB.prepare('SELECT MAX(version_code) AS v FROM releases').first();
-    return json({ ok: true, active_licenses: licenses?.n || 0, active_devices: devices?.n || 0, latest_version: releases?.v || 0 });
+    const latest = await env.DB.prepare('SELECT version_name FROM releases ORDER BY version_code DESC LIMIT 1').first();
+    return json({
+      ok: true,
+      active_licenses: licenses?.n || 0,
+      active_devices: devices?.n || 0,
+      latest_version: releases?.v || 0,
+      latest_version_name: latest?.version_name || '',
+    });
   }
 
   return json({ ok: false, error: 'not_found' }, 404);

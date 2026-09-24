@@ -2,6 +2,7 @@ package com.isaigu.gymapp.bean;
 
 public class TrainProgram {
     public TrainProgram() {}
+    public static TrainProgram getTrainProgramTemplate1() { return null; }
     public TrainProgram(Long id, String name) {
         this.id = id;
         this.name = name;

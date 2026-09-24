@@ -27,7 +27,7 @@ ON_PAGE = "Lcom/isaigu/gymapp/widget/XemsNav;->onPage(I)V"
 def install() -> None:
     files = sorted(SRC.glob("XemsNav*.smali")) + sorted(SRC.glob("XemsPanel*.smali")) + sorted(
         SRC.glob("XemsIcon*.smali")) + sorted(SRC.glob("XemsFullscreen*.smali")) + sorted(
-        SRC.glob("XemsLicense*.smali"))
+        SRC.glob("XemsLicense*.smali")) + sorted(SRC.glob("XemsLocal*.smali"))
     if not files:
         raise SystemExit("Missing branding/smali/widget/XemsNav.smali — run compile-music-sync-java.sh")
     DEST.mkdir(parents=True, exist_ok=True)

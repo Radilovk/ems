@@ -28,7 +28,8 @@ fi
 echo "Compiling ChannelStrengthScale..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
-javac --release 8 -classpath "${ANDROID_JAR}" -d "${CLASSES_DIR}" "${JAVA_SRC}"
+JAVA_STUBS="${ROOT}/branding/java-stubs"
+javac --release 8 -classpath "${ANDROID_JAR}:${JAVA_STUBS}" -d "${CLASSES_DIR}" "${JAVA_SRC}"
 
 echo "Dexing..."
 rm -f "${DEX_FILE}"

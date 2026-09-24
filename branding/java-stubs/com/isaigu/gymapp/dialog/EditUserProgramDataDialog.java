@@ -7,11 +7,12 @@ import android.support.v4.app.FragmentActivity;
 import com.isaigu.gymapp.BaseActivity;
 import com.isaigu.gymapp.bean.TrainProgram;
 
-public class EditUserProgramDataDialog {
+public class EditUserProgramDataDialog extends com.isaigu.gymapp.BaseDialogFragment {
     public FragmentActivity getActivity() { return null; }
     public Context getContext() { return null; }
     public BaseActivity getParentActivity() { return null; }
     public Dialog getDialog() { return null; }
     public Bundle getArguments() { return null; }
     public TrainProgram getTrainProgram() { return null; }
+    public int getViewIid() { return 0; }
 }

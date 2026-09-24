@@ -23,9 +23,11 @@
 | Заключване | `XemsNav`, `WearableSettingsSection`, `HrGuard`, `BandRemote`, `BandAppInstall`, `NotifyWearableBridge` | заключени плочки с 🔒 и „Нямате достъп до този модул“; гривна само при нужда |
 | Функция „ръце 1:1“ | `ChannelStrengthScale.armsFactor()`, `AiEnergy.armsSent()` | ръцете се пращат ×0.05 или 1:1 според `arms_full` |
 
-**Празни места, които се попълват при първия сървър:**
-- `XemsLicense.DEFAULT_SERVER`: адресът, например `https://license.xems.bg`. Може да се въведе и в Настройки → „Сървър ›“.
-- `XemsLicense.SERVER_PUBLIC_KEY`: публичният ключ на сървъра (base64 X.509). Докато е празен, клиентът не приема сървърни жетони.
+**Сървърът е live (2026-09-24):**
+- `XemsLicense.DEFAULT_SERVER` = `https://license.biocode-bg.com`
+- `XemsLicense.SERVER_PUBLIC_KEY` = вграден в APK (ECDSA P-256)
+- Код: `server/` (Cloudflare Worker + D1)
+- Admin: https://license.biocode-bg.com/admin
 
 **Офлайн кодове, вградени в приложението:**
 

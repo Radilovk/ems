@@ -42,10 +42,12 @@ public final class XemsLicense {
     static final String LOCAL_CODE = "0123";
     /** Offline key: base app, arms channel at normal strength (step 1:1, no multiplier). */
     static final String LOCAL_CODE_ARMS = "RENI123";
-    /** X.509 / base64 public key of the license server (ECDSA P-256). Empty until the server exists. */
-    static final String SERVER_PUBLIC_KEY = "";
-    /** License server base address, e.g. https://license.example.com — empty until it exists. */
-    static final String DEFAULT_SERVER = "";
+    /** X.509 / base64 public key of the license server (ECDSA P-256). */
+    static final String SERVER_PUBLIC_KEY =
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEeFeVVxE3nb0wRB2xzPPyjq36QHwvJMPkkvGiLTuWGoab"
+            + "sgsySyW5Vim9RlaBzWvZ2wxMB3u5G+U+pkw5lzld1A==";
+    /** License server base address. */
+    static final String DEFAULT_SERVER = "https://license.biocode-bg.com";
     static final int GRACE_DAYS = 7;
     static final long REFRESH_MS = 24L * 60L * 60L * 1000L;
 

@@ -1,0 +1,16 @@
+name = "xems-license"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+PUBLIC_URL = "https://license.biocode-bg.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "xems-license"
+database_id = "d5eb1f2e-57d8-49df-8d51-5e570f54bf6c"
+
+[[routes]]
+pattern = "license.biocode-bg.com/*"
+zone_name = "biocode-bg.com"

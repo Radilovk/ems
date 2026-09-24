@@ -24,7 +24,6 @@ TIMER_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/BlockProgramEditor.java"
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPreset.java"
   "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPresetStorage.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/dialog/TimerPresetUiHelper.java"
   "${JAVA_SRC}/com/isaigu/gymapp/widget/TimerRingView.java"
 )
 

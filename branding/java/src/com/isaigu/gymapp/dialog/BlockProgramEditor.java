@@ -1,311 +1,233 @@
 package com.isaigu.gymapp.dialog;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.isaigu.gymapp.bean.ProgramDataBean;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.widget.XemsUi;
 
 import java.util.ArrayList;
 
-/** Compact block list editor with sliders (opened from interval timer config). */
+/**
+ * Block list editor (opened from the interval timer): one card per block with steppers for
+ * cycles, strength, frequency and pulse width (hold = fast), duplicate / remove, live total.
+ * Changes apply on "Done"; ✕ discards them.
+ */
 final class BlockProgramEditor {
-    private static final int STR_BLOCK = 0x7f0d0144;
-    private static final int STR_CYCLES = 0x7f0d0145;
-    private static final int STR_MA = 0x7f0d0146;
-    private static final int STR_HZ = 0x7f0d0147;
-    private static final int STR_WIDTH = 0x7f0d0148;
-    private static final int STR_ADD = 0x7f0d014b;
-    private static final int STR_REMOVE = 0x7f0d014c;
-    private static final int STR_DONE = 0x7f0d014d;
     private static final int STR_TITLE = 0x7f0d0140;
 
     private BlockProgramEditor() {}
 
-    static void show(Activity activity, ArrayList<ProgramSegment> blocks, TrainItem seedItem, Runnable onDone) {
+    static void show(final Activity activity, final ArrayList<ProgramSegment> blocks, final TrainItem seedItem,
+            final Runnable onDone) {
         if (activity == null) {
             return;
         }
-        final ArrayList<ProgramSegment> targetBlocks;
-        if (blocks == null) {
-            targetBlocks = new ArrayList<>();
-        } else {
-            targetBlocks = blocks;
+        final ArrayList<ProgramSegment> target = blocks != null ? blocks : new ArrayList<ProgramSegment>();
+        final ArrayList<ProgramSegment> working = new ArrayList<>();
+        for (ProgramSegment s : target) {
+            working.add(ProgramSegment.deserialize(s.serialize()));
         }
-        if (targetBlocks.isEmpty()) {
-            ProgramDataBean bean = null;
-            if (seedItem != null && seedItem.getTrainProgram() != null) {
-                bean = seedItem.getTrainProgram().matchProgram();
+        if (working.isEmpty()) {
+            working.add(ProgramSegment.fromBean(seedBean(seedItem)));
+        }
+        final int[] onOff = onOff(seedItem);
+        final XemsUi.Shell sheet = XemsUi.shell(activity, activity.getString(STR_TITLE),
+                IntervalTimerHelper.tr("Сила, честота и ширина се сменят автоматично по блокове",
+                        "Strength, frequency and width change automatically per block"), 600);
+        sheet.badge.setVisibility(View.VISIBLE);
+
+        final Runnable[] rebuild = new Runnable[1];
+        rebuild[0] = new Runnable() {
+            @Override
+            public void run() {
+                sheet.body.removeAllViews();
+                for (int i = 0; i < working.size(); i++) {
+                    sheet.body.addView(blockCard(activity, working, i, onOff, rebuild[0], sheet),
+                            XemsUi.matchWrap(activity, i == 0 ? 4 : 12));
+                }
+                TextView add = XemsUi.button(activity, IntervalTimerHelper.tr("+ Добави блок", "+ Add block"),
+                        XemsUi.SECONDARY);
+                add.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ProgramSegment seg = ProgramSegment.fromBean(seedBean(seedItem));
+                        if (!working.isEmpty()) {
+                            seg = ProgramSegment.deserialize(working.get(working.size() - 1).serialize());
+                        }
+                        working.add(seg);
+                        rebuild[0].run();
+                        sheet.scroll.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                sheet.scroll.fullScroll(View.FOCUS_DOWN);
+                            }
+                        });
+                    }
+                });
+                sheet.body.addView(add, XemsUi.matchWrap(activity, 14));
+                updateTotal(sheet, working, onOff);
             }
-            targetBlocks.add(ProgramSegment.fromBean(bean));
-        }
+        };
+        rebuild[0].run();
 
-        ScrollView scroll = new ScrollView(activity);
-        LinearLayout root = new LinearLayout(activity);
-        root.setOrientation(LinearLayout.VERTICAL);
-        int pad = dp(activity, 6);
-        root.setPadding(pad, pad, pad, pad);
-        scroll.addView(root, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        ArrayList<ProgramSegment> working = new ArrayList<>(targetBlocks);
-        RebuildUi rebuildUi = new RebuildUi(activity, root, working, seedItem);
-        rebuildUi.run();
-
-        new android.support.v7.app.AlertDialog.Builder(activity)
-                .setTitle(activity.getString(STR_TITLE))
-                .setView(scroll)
-                .setPositiveButton(STR_DONE, new DoneClickListener(root, working, targetBlocks, onDone))
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        TextView cancel = XemsUi.button(activity, IntervalTimerHelper.tr("Откажи", "Cancel"), XemsUi.GHOST);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sheet.dialog.dismiss();
+            }
+        });
+        TextView done = XemsUi.button(activity, IntervalTimerHelper.tr("Готово", "Done"), XemsUi.PRIMARY);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                target.clear();
+                target.addAll(working);
+                sheet.dialog.dismiss();
+                if (onDone != null) {
+                    onDone.run();
+                }
+            }
+        });
+        sheet.footer.addView(cancel);
+        sheet.footer.addView(XemsUi.spacer(activity));
+        sheet.footer.addView(done);
+        sheet.dialog.show();
+        XemsUi.fitHeight(activity, sheet, 0.9f);
     }
 
-    private static void collect(LinearLayout root, ArrayList<ProgramSegment> target) {
-        target.clear();
-        for (int i = 0; i < root.getChildCount(); i++) {
-            View child = root.getChildAt(i);
-            if (child.getTag() instanceof RowHolder) {
-                target.add(((RowHolder) child.getTag()).toSegment());
-            }
-        }
+    private static void updateTotal(XemsUi.Shell sheet, ArrayList<ProgramSegment> working, int[] onOff) {
+        int sec = BlockProgramRunner.computeSequenceSeconds(working, onOff[0], onOff[1]);
+        XemsUi.setBadge(sheet.badge, working.size() + IntervalTimerHelper.tr(" бл. · ", " bl. · ")
+                + String.format("%d:%02d", sec / 60, sec % 60), XemsUi.GO_TEXT);
     }
 
-    private static View buildRow(
-            Context ctx, LinearLayout root, ArrayList<ProgramSegment> working, int index, Runnable rebuild) {
-        ProgramSegment seg = working.get(index);
-        LinearLayout row = new LinearLayout(ctx);
-        row.setOrientation(LinearLayout.VERTICAL);
-        row.setPadding(0, dp(ctx, 4), 0, dp(ctx, 6));
-
-        TextView title = new TextView(ctx);
-        title.setText(ctx.getString(STR_BLOCK, index + 1));
-        title.setTextSize(12);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        row.addView(title);
-
-        RowHolder holder = new RowHolder();
-        row.setTag(holder);
-        holder.cycles = sliderField(ctx, row, STR_CYCLES, seg.cycles, 1, 30);
-        holder.strenth = sliderField(ctx, row, STR_MA, seg.strenth, 0, 100);
-        holder.hz = sliderField(ctx, row, STR_HZ, seg.hz, 1, 100);
-        holder.pulseWidth = sliderField(ctx, row, STR_WIDTH, seg.pulseWidth, 0, 500);
-
+    private static View blockCard(final Activity a, final ArrayList<ProgramSegment> working, final int index,
+            final int[] onOff, final Runnable rebuild, final XemsUi.Shell sheet) {
+        final ProgramSegment seg = working.get(index);
+        LinearLayout card = XemsUi.card(a);
+        LinearLayout head = XemsUi.horizontal(a);
+        TextView num = XemsUi.text(a, String.valueOf(index + 1), 15, XemsUi.ON_ACCENT, true);
+        num.setGravity(Gravity.CENTER);
+        num.setBackgroundDrawable(XemsUi.rounded(XemsUi.ACCENT, XemsUi.dp(a, 14), 0, 0));
+        head.addView(num, new LinearLayout.LayoutParams(XemsUi.dp(a, 28), XemsUi.dp(a, 28)));
+        final TextView title = XemsUi.text(a, "", 15, XemsUi.TEXT, true);
+        title.setPadding(XemsUi.dp(a, 12), 0, 0, 0);
+        head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView dup = XemsUi.iconButton(a, "⧉", XemsUi.SURFACE, XemsUi.TEXT, 36);
+        dup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                working.add(index + 1, ProgramSegment.deserialize(seg.serialize()));
+                rebuild.run();
+            }
+        });
+        head.addView(dup);
         if (working.size() > 1) {
-            Button remove = new Button(ctx);
-            remove.setText(STR_REMOVE);
-            remove.setAllCaps(false);
-            remove.setTextSize(10);
-            remove.setOnClickListener(new RemoveBlockListener(working, index, rebuild));
-            row.addView(remove);
+            TextView del = XemsUi.iconButton(a, "✕", XemsUi.SURFACE, XemsUi.DANGER, 36);
+            del.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    working.remove(index);
+                    rebuild.run();
+                }
+            });
+            LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(XemsUi.dp(a, 36), XemsUi.dp(a, 36));
+            dl.leftMargin = XemsUi.dp(a, 8);
+            head.addView(del, dl);
         }
-        return row;
-    }
+        card.addView(head);
 
-    private static SliderField sliderField(
-            Context ctx, LinearLayout row, int labelRes, int value, int min, int max) {
-        LinearLayout line = new LinearLayout(ctx);
-        line.setOrientation(LinearLayout.HORIZONTAL);
-        line.setGravity(Gravity.CENTER_VERTICAL);
-        line.setPadding(0, dp(ctx, 2), 0, 0);
-        TextView label = new TextView(ctx);
-        label.setText(labelRes);
-        label.setTextSize(10);
-        line.addView(label, new LinearLayout.LayoutParams(dp(ctx, 56), ViewGroup.LayoutParams.WRAP_CONTENT));
-        SliderField field = new SliderField(min, max, value);
-        SeekBar bar = new SeekBar(ctx);
-        bar.setMax(max - min);
-        bar.setProgress(Math.max(0, Math.min(max - min, value - min)));
-        TextView val = new TextView(ctx);
-        val.setTextSize(10);
-        val.setGravity(Gravity.END);
-        val.setText(String.valueOf(field.value));
-        bar.setOnSeekBarChangeListener(new SliderChangeListener(field, val, min));
-        field.valueView = val;
-        line.addView(bar, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        line.addView(val, new LinearLayout.LayoutParams(dp(ctx, 32), ViewGroup.LayoutParams.WRAP_CONTENT));
-        row.addView(line);
-        return field;
-    }
-
-    private static int dp(Context ctx, int dp) {
-        return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
-    }
-
-    private static final class SliderField {
-        final int min;
-        final int max;
-        int value;
-        TextView valueView;
-
-        SliderField(int min, int max, int value) {
-            this.min = min;
-            this.max = max;
-            this.value = clamp(value, min, max);
-        }
-    }
-
-    private static int clamp(int value, int min, int max) {
-        if (value < min) {
-            return min;
-        }
-        if (value > max) {
-            return max;
-        }
-        return value;
-    }
-
-    private static final class SliderChangeListener implements SeekBar.OnSeekBarChangeListener {
-        private final SliderField field;
-        private final TextView valueView;
-        private final int min;
-
-        SliderChangeListener(SliderField field, TextView valueView, int min) {
-            this.field = field;
-            this.valueView = valueView;
-            this.min = min;
-        }
-
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            field.value = min + progress;
-            if (valueView != null) {
-                valueView.setText(String.valueOf(field.value));
+        final Runnable refreshTitle = new Runnable() {
+            @Override
+            public void run() {
+                int s = seg.cycles * (onOff[0] + onOff[1]);
+                title.setText(seg.cycles + IntervalTimerHelper.tr(" цикъла · ", " cycles · ")
+                        + String.format("%d:%02d", s / 60, s % 60));
+                updateTotal(sheet, working, onOff);
             }
-        }
+        };
+        refreshTitle.run();
 
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-        }
+        LinearLayout r1 = XemsUi.horizontal(a);
+        r1.addView(field(a, IntervalTimerHelper.tr("Цикли", "Cycles"), "", seg, 0, refreshTitle),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        r1.addView(field(a, IntervalTimerHelper.tr("Сила", "Strength"), "%", seg, 1, refreshTitle),
+                XemsUi.weight(1f, 12, a));
+        card.addView(r1, XemsUi.matchWrap(a, 12));
+        LinearLayout r2 = XemsUi.horizontal(a);
+        r2.addView(field(a, IntervalTimerHelper.tr("Честота", "Frequency"), "Hz", seg, 2, refreshTitle),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        r2.addView(field(a, IntervalTimerHelper.tr("Ширина", "Width"), "µs", seg, 3, refreshTitle),
+                XemsUi.weight(1f, 12, a));
+        card.addView(r2, XemsUi.matchWrap(a, 10));
+        return card;
     }
 
-    private static final class DoneClickListener implements android.content.DialogInterface.OnClickListener {
-        private final LinearLayout root;
-        private final ArrayList<ProgramSegment> working;
-        private final ArrayList<ProgramSegment> targetBlocks;
-        private final Runnable onDone;
-
-        DoneClickListener(
-                LinearLayout root,
-                ArrayList<ProgramSegment> working,
-                ArrayList<ProgramSegment> targetBlocks,
-                Runnable onDone) {
-            this.root = root;
-            this.working = working;
-            this.targetBlocks = targetBlocks;
-            this.onDone = onDone;
-        }
-
-        @Override
-        public void onClick(android.content.DialogInterface d, int which) {
-            collect(root, working);
-            targetBlocks.clear();
-            targetBlocks.addAll(working);
-            if (onDone != null) {
-                onDone.run();
+    /** which: 0 cycles 1..30, 1 strength 0..100, 2 Hz 1..100 (5 above 20), 3 width 0..500 step 10. */
+    private static View field(Activity a, String label, final String unit, final ProgramSegment seg, final int which,
+            final Runnable changed) {
+        LinearLayout col = XemsUi.vertical(a);
+        col.addView(XemsUi.label(a, label));
+        final XemsUi.Stepper st = XemsUi.stepper(a, String.valueOf(get(seg, which)), unit, 22, null);
+        XemsUi.OnStep step = new XemsUi.OnStep() {
+            @Override
+            public void onStep(int d) {
+                set(seg, which, d);
+                st.set(String.valueOf(get(seg, which)), unit);
+                changed.run();
             }
+        };
+        XemsUi.repeatOnHold(st.view.getChildAt(0), step, -1);
+        XemsUi.repeatOnHold(st.view.getChildAt(2), step, +1);
+        col.addView(st.view);
+        return col;
+    }
+
+    private static int get(ProgramSegment s, int which) {
+        switch (which) {
+            case 0: return s.cycles;
+            case 1: return s.strenth;
+            case 2: return s.hz;
+            default: return s.pulseWidth;
         }
     }
 
-    private static final class RemoveBlockListener implements View.OnClickListener {
-        private final ArrayList<ProgramSegment> working;
-        private final int index;
-        private final Runnable rebuild;
-
-        RemoveBlockListener(ArrayList<ProgramSegment> working, int index, Runnable rebuild) {
-            this.working = working;
-            this.index = index;
-            this.rebuild = rebuild;
-        }
-
-        @Override
-        public void onClick(View v) {
-            working.remove(index);
-            rebuild.run();
-        }
-    }
-
-    private static final class RebuildUi implements Runnable {
-        private final Activity activity;
-        private final LinearLayout root;
-        private final ArrayList<ProgramSegment> working;
-        private final TrainItem seedItem;
-
-        RebuildUi(Activity activity, LinearLayout root, ArrayList<ProgramSegment> working, TrainItem seedItem) {
-            this.activity = activity;
-            this.root = root;
-            this.working = working;
-            this.seedItem = seedItem;
-        }
-
-        @Override
-        public void run() {
-            root.removeAllViews();
-            for (int i = 0; i < working.size(); i++) {
-                root.addView(buildRow(activity, root, working, i, this));
-            }
-            Button add = new Button(activity);
-            add.setText(STR_ADD);
-            add.setAllCaps(false);
-            add.setTextSize(10);
-            add.setOnClickListener(new AddBlockListener(working, seedItem, this));
-            root.addView(add);
+    private static void set(ProgramSegment s, int which, int d) {
+        switch (which) {
+            case 0:
+                s.cycles = clamp(s.cycles + d, 1, 30);
+                break;
+            case 1:
+                s.strenth = clamp(s.strenth + d, 0, 100);
+                break;
+            case 2:
+                s.hz = clamp(s.hz + d * (s.hz + (d > 0 ? 0 : -1) >= 20 ? 5 : 1), 1, 100);
+                break;
+            default:
+                s.pulseWidth = clamp(s.pulseWidth + d * 10, 0, 500);
+                break;
         }
     }
 
-    private static final class AddBlockListener implements View.OnClickListener {
-        private final ArrayList<ProgramSegment> working;
-        private final TrainItem seedItem;
-        private final RebuildUi rebuildUi;
-
-        AddBlockListener(ArrayList<ProgramSegment> working, TrainItem seedItem, RebuildUi rebuildUi) {
-            this.working = working;
-            this.seedItem = seedItem;
-            this.rebuildUi = rebuildUi;
-        }
-
-        @Override
-        public void onClick(View v) {
-            ProgramSegment seg = ProgramSegment.fromBean(
-                    seedItem != null && seedItem.getTrainProgram() != null
-                            ? seedItem.getTrainProgram().matchProgram()
-                            : null);
-            if (!working.isEmpty()) {
-                ProgramSegment last = working.get(working.size() - 1);
-                seg.strenth = last.strenth;
-                seg.hz = last.hz;
-                seg.pulseWidth = last.pulseWidth;
-            }
-            working.add(seg);
-            rebuildUi.run();
-        }
+    private static int clamp(int v, int lo, int hi) {
+        return v < lo ? lo : v > hi ? hi : v;
     }
 
-    private static final class RowHolder {
-        SliderField cycles;
-        SliderField strenth;
-        SliderField hz;
-        SliderField pulseWidth;
+    private static ProgramDataBean seedBean(TrainItem seed) {
+        return seed != null && seed.getTrainProgram() != null ? seed.getTrainProgram().matchProgram() : null;
+    }
 
-        ProgramSegment toSegment() {
-            ProgramSegment seg = new ProgramSegment();
-            seg.cycles = cycles != null ? Math.max(1, cycles.value) : 1;
-            seg.strenth = strenth != null ? strenth.value : 0;
-            seg.hz = hz != null ? Math.max(1, hz.value) : 1;
-            seg.pulseWidth = pulseWidth != null ? pulseWidth.value : 0;
-            return seg;
-        }
+    private static int[] onOff(TrainItem seed) {
+        ProgramDataBean b = seedBean(seed);
+        int on = b != null && b.pulseContinue > 0 ? b.pulseContinue : 4;
+        int off = b != null && b.pulsePause > 0 ? b.pulsePause : 4;
+        return new int[] {on, off};
     }
 }

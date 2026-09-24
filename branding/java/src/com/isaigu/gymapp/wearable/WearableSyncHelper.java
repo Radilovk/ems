@@ -333,6 +333,7 @@ public final class WearableSyncHelper {
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         loadConfigIntoUi(activity);
         enhanceConfigDialog(activity, content);
+        styleConfigDialog(activity, content);
         refreshStatusText();
         android.support.v7.app.AlertDialog.Builder builder =
                 new android.support.v7.app.AlertDialog.Builder(activity);
@@ -352,6 +353,39 @@ public final class WearableSyncHelper {
         } catch (Throwable ignored) {
         }
         configDialog.show();
+    }
+
+    /** Same kit as timer / player / AI: pill buttons, badge status, themed fields. */
+    private static void styleConfigDialog(Activity a, View content) {
+        try {
+            com.isaigu.gymapp.widget.XemsUi.init(a);
+            View connect = content.findViewById(ID_CONNECT);
+            View activate = content.findViewById(ID_ACTIVATE);
+            if (connect instanceof TextView) {
+                styleKitButton((TextView) connect, com.isaigu.gymapp.widget.XemsUi.SECONDARY);
+                ((TextView) connect).setText(WearableUi.tr("↻  Свържи гривната", "↻  Connect band"));
+            }
+            if (activate instanceof TextView) {
+                styleKitButton((TextView) activate, com.isaigu.gymapp.widget.XemsUi.PRIMARY);
+            }
+            if (statusView != null) {
+                statusView.setPadding(WearableUi.dp(a, 12), WearableUi.dp(a, 6), WearableUi.dp(a, 12), WearableUi.dp(a, 6));
+            }
+            for (EditText f : new EditText[] {thresholdView, stepView}) {
+                if (f != null) {
+                    f.setBackgroundDrawable(com.isaigu.gymapp.widget.XemsUi.rounded(com.isaigu.gymapp.widget.XemsUi.SURFACE,
+                            WearableUi.dp(a, 12), com.isaigu.gymapp.widget.XemsUi.STROKE, WearableUi.dp(a, 1)));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void styleKitButton(TextView b, int style) {
+        TextView model = com.isaigu.gymapp.widget.XemsUi.button(b.getContext(), "", style);
+        b.setBackgroundDrawable(model.getBackground());
+        b.setTextColor(model.getCurrentTextColor());
+        com.isaigu.gymapp.widget.XemsUi.pressable(b);
     }
 
     private static void hideBandRows(Activity activity, View content) {
@@ -786,8 +820,7 @@ public final class WearableSyncHelper {
             text = WearableUi.tr("Готово за активиране", "Ready to activate");
             color = WearableUi.COLOR_OK;
         }
-        statusView.setText(text);
-        statusView.setTextColor(color);
+        com.isaigu.gymapp.widget.XemsUi.setBadge(statusView, text, color);
     }
 
     private static void loadConfigIntoUi(Activity activity) {

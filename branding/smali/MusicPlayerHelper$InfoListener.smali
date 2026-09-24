@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1570
+    .line 1760
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,19 +34,19 @@
     .registers 5
 
     .prologue
-    .line 1573
+    .line 1763
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 1574
+    .line 1764
     if-nez v0, :cond_7
 
-    .line 1578
+    .line 1768
     :goto_6
     return-void
 
-    .line 1577
+    .line 1767
     :cond_7
     const v1, 0x7f0d0172
 

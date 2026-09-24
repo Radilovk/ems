@@ -2,6 +2,7 @@ package com.isaigu.gymapp.dialog;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
@@ -12,98 +13,56 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ScrollView;
-import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Switch;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
 import com.isaigu.gymapp.train.utils.MusicDiagLog;
 import com.isaigu.gymapp.widget.TimerRingView;
+import com.isaigu.gymapp.widget.XemsUi;
 
 /**
- * Master-panel interval timer. Uses AlertDialog for config and floating overlay
- * (same safe pattern as {@link MusicPlayerHelper} — never addView on decor).
+ * Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a
+ * settings sheet built with {@link XemsUi} — interval or block program, quick picks, saved
+ * programs as chips, signal chips with instant preview.
  */
 public final class IntervalTimerHelper {
     static final int BUTTON_ID = 0x7f090230;
     static final int ALL_STOP_ID = 0x7f09003c;
     static final int RIGHT_LAYOUT_ID = 0x7f090155;
-    static final int DIALOG_LAYOUT_ID = 0x7f0b0079;
     static final int OVERLAY_LAYOUT_ID = 0x7f0b007a;
-    static final int SPINNER_ITEM_LAYOUT_ID = 0x7f0b007b;
     static final int PICK_SIGNAL = 0x4256;
     static final int PICK_RINGTONE = 0x4257;
 
-    private static final int ID_MINUTES = 0x7f090231;
-    private static final int ID_SECONDS = 0x7f090232;
-    private static final int ID_LOOPS = 0x7f090233;
-    private static final int ID_LOOPS_MINUS = 0x7f090234;
-    private static final int ID_LOOPS_PLUS = 0x7f090235;
-    private static final int ID_ACTIVATE = 0x7f090236;
-    private static final int ID_STATUS = 0x7f090237;
     private static final int ID_COUNTDOWN = 0x7f090239;
     private static final int ID_LOOP_LABEL = 0x7f09023a;
-    private static final int ID_SOUND_FILE = 0x7f09023b;
-    private static final int ID_SOUND_PREVIEW = 0x7f09023c;
-    private static final int ID_SOUND_PICK = 0x7f09023d;
-    private static final int ID_SOUND_SPINNER = 0x7f09023e;
     private static final int ID_RING = 0x7f090243;
-    private static final int ID_SOUND_CLEAR = 0x7f090244;
-    private static final int ID_SOUND_FILE_ROW = 0x7f090245;
-    private static final int ID_BLOCK_MODE = 0x7f090260;
-    private static final int ID_BLOCK_REPEAT = 0x7f090261;
-    private static final int ID_BLOCK_EDIT = 0x7f090262;
-    private static final int ID_BLOCK_SUMMARY = 0x7f090263;
-    private static final int ID_SIMPLE_PANEL = 0x7f090264;
-    private static final int ID_BLOCK_PANEL = 0x7f090265;
-    private static final int ID_BLOCK_DURATION = 0x7f090266;
-    private static final int ID_PRESET_SPINNER = 0x7f090267;
-    private static final int ID_PRESET_SAVE = 0x7f090268;
-    private static final int ID_PRESET_EDIT = 0x7f090269;
-    private static final int ID_PRESET_DELETE = 0x7f09026a;
-    private static final int ID_TAB_INTERVAL = 0x7f090270;
-    private static final int ID_TAB_BLOCK = 0x7f090271;
-    private static final int ID_ADVANCED_PANEL = 0x7f090272;
-    private static final int ID_ADVANCED_TOGGLE = 0x7f090273;
-    private static final int ID_DURATION_LABEL = 0x7f090275;
-    private static final int ID_DURATION_ROW = 0x7f090276;
     private static final int ID_RESET = 0x7f090278;
     private static final int ID_PAUSE = 0x7f090292;
     private static final int ID_CLOSE = 0x7f090293;
     private static final int ID_DIAL_HOST = 0x7f090294;
-    private static final int ID_CONFIG_SCROLL = 0x7f090274;
-    private static final int ID_INFO = 0x7f09028b;
     private static final int STR_INFO_TITLE = 0x7f0d0175;
     private static final int STR_INFO_BODY = 0x7f0d0176;
-    private static final int DRAWABLE_TAB_ACTIVE = 0x7f080091;
-    private static final int DRAWABLE_TAB_INACTIVE = 0x7f0800e4;
-    private static final int COLOR_TEXT_PRIMARY = 0x7f0600e6;
-    private static final int COLOR_WHITE = 0x7f0600be;
-    /** Max config panel height before scrolling — keeps activate button reachable. */
-    private static final int CONFIG_DIALOG_MAX_HEIGHT_DP = 420;
-
-    private static final int STR_STATUS_IDLE = 0x7f0d0120;
-    private static final int STR_STATUS_ARMED = 0x7f0d0121;
-    private static final int STR_STATUS_RUNNING = 0x7f0d0122;
-    private static final int STR_INVALID_DURATION = 0x7f0d0127;
+    private static final int STR_TITLE = 0x7f0d0123;
     private static final int STR_ERROR = 0x7f0d0128;
+    private static final int STR_INVALID_DURATION = 0x7f0d0127;
     private static final int STR_SOUND_OFF = 0x7f0d012c;
     private static final int STR_SOUND_BEEP = 0x7f0d012d;
     private static final int STR_SOUND_CHIME = 0x7f0d012e;
@@ -115,26 +74,18 @@ public final class IntervalTimerHelper {
     private static final int STR_SOUND_ALARM = 0x7f0d0154;
     private static final int STR_SOUND_DEVICE = 0x7f0d0155;
     private static final int STR_SOUND_PICK_DEVICE = 0x7f0d0156;
-    private static final int STR_BLOCK_MODE = 0x7f0d0140;
-    private static final int STR_BLOCK_REPEAT = 0x7f0d0141;
-    private static final int STR_BLOCK_EDIT = 0x7f0d0142;
-    private static final int STR_BLOCK_SUMMARY = 0x7f0d0143;
-    private static final int STR_BLOCK_DURATION = 0x7f0d014e;
-    private static final int STR_BLOCK_TRAIN_TIME = 0x7f0d014f;
     private static final int STR_BLOCK_EMPTY = 0x7f0d0150;
     private static final int STR_TAB_INTERVAL = 0x7f0d0161;
     private static final int STR_TAB_BLOCK = 0x7f0d0162;
-    private static final int STR_DURATION = 0x7f0d0163;
-    private static final int STR_DURATION_TRAIN = 0x7f0d0164;
-    private static final int STR_REPEATS_UNLIMITED = 0x7f0d0166;
-    private static final int STR_ADVANCED = 0x7f0d0167;
+    private static final int STR_NO_TRAINING = 0x7f0d011a;
 
     private static final int DURATION_MIN_SEC = 5;
     private static final int DURATION_MAX_SEC = 600;
+    private static final int TRAIN_MIN_SEC = 60;
+    private static final int TRAIN_MAX_SEC = 90 * 60;
     private static final int LOOPS_MAX = 30;
-
-    private static final String KEY_BLOCK_MODE = "block_program_mode";
-    private static final String KEY_BLOCK_REPEAT = "block_program_repeat";
+    private static final int[] QUICK_INTERVALS = {20, 30, 45, 60, 90, 120, 180, 300};
+    private static final int[] QUICK_LOOPS = {0, 4, 6, 8, 10, 12};
 
     private static final int SOUND_OFF = 0;
     private static final int SOUND_BEEP = 1;
@@ -167,42 +118,26 @@ public final class IntervalTimerHelper {
     private static final float BTN_ANGLE_CLOSE = 45f;
     private static final float BTN_ANGLE_RESET = 90f;
     private static final float BTN_ANGLE_PAUSE = 135f;
-    /** Compact config panel width — must match apply-interval-timer dialog layout. */
-    private static final int CONFIG_DIALOG_WIDTH_DP = 480;
+    private static final int SHEET_WIDTH_DP = 560;
 
     private static final String PREFS = "interval_timer";
     private static final String KEY_MINUTES = "minutes";
     private static final String KEY_SECONDS = "seconds";
+    private static final String KEY_TRAIN_SEC = "train_sec";
     private static final String KEY_LOOPS = "loops";
     private static final String KEY_SOUND = "sound";
     private static final String KEY_CUSTOM_URI = "custom_uri";
+    private static final String KEY_BLOCK_MODE = "block_program_mode";
+    private static final String KEY_BLOCK_REPEAT = "block_program_repeat";
     private static final float COUNTDOWN_TEXT_SP = 54f;
     private static final float OVERLAY_TAP_SLOP_DP = 10f;
-    private static final int STR_NO_TRAINING = 0x7f0d011a;
-    private static final int OPAQUE_DIALOG_BG = 0x7f080069;
     private static final int AUDIO_STREAM = AudioManager.STREAM_MUSIC;
 
-    private static android.support.v7.app.AlertDialog configDialog;
+    private static XemsUi.Shell sheet;
     private static android.support.v7.app.AlertDialog overlayDialog;
-    private static View configContent;
     private static View overlayContent;
-    private static EditText minutesView;
-    private static EditText secondsView;
-    private static EditText loopsView;
-    private static TextView durationLabelView;
-    private static View durationRow;
-    private static View tabIntervalBtn;
-    private static View tabBlockBtn;
-    private static View advancedPanel;
-    private static View advancedToggle;
-    private static TextView statusView;
     private static TextView countdownView;
     private static TextView loopLabelView;
-    private static TextView soundFileView;
-    private static View soundFileRow;
-    private static Spinner soundSpinner;
-    private static View soundPickBtn;
-    private static View soundClearBtn;
     private static TimerRingView ringView;
     private static TextView pauseBtnView;
 
@@ -221,17 +156,23 @@ public final class IntervalTimerHelper {
     private static boolean timerPausedByUser;
     private static boolean trainingRunning;
     private static boolean pickingSignal;
-    private static boolean ignoreSpinnerCallback;
 
     private static int selectedSound = SOUND_BEEP;
     private static int soundBeforePick = SOUND_BEEP;
     private static Uri customSignalUri;
     private static MediaPlayer signalPlayer;
 
-    private static long intervalMs = 30000L;
+    /** Settings (edited in the sheet). */
+    private static int intervalSec = 30;
+    private static int trainSec = 20 * 60;
     private static int maxLoops;
-    private static int savedMinutes;
-    private static int savedSeconds = 30;
+    private static boolean blockProgramMode;
+    private static boolean blockProgramRepeat;
+    private static ArrayList<ProgramSegment> blockSegments = new ArrayList<>();
+    private static String selectedPresetId = "";
+    private static boolean settingsLoaded;
+
+    private static long intervalMs = 30000L;
     private static int currentLoop;
     private static long remainingMs;
     private static long lastTickRealtime;
@@ -243,27 +184,30 @@ public final class IntervalTimerHelper {
     private static float overlayDownRawY;
     private static boolean overlayMoved;
 
-    private static boolean blockProgramMode;
-    private static boolean blockProgramRepeat;
-    private static ArrayList<ProgramSegment> blockSegments = new ArrayList<>();
-    private static View simpleModePanel;
-    private static View blockModePanel;
-    private static TextView blockSummaryView;
-    private static TextView blockDurationView;
-    private static Switch blockRepeatSwitch;
-    private static Spinner presetSpinner;
-    private static boolean advancedExpanded;
-
     private IntervalTimerHelper() {
     }
+
+    static String tr(String bg, String en) {
+        try {
+            return "en".equals(Locale.getDefault().getLanguage()) ? en : bg;
+        } catch (Throwable t) {
+            return bg;
+        }
+    }
+
+    // ================================================================ presets
 
     static void applyPreset(TimerPreset preset) {
         if (preset == null) {
             return;
         }
-        savedMinutes = preset.minutes;
-        savedSeconds = preset.seconds;
-        maxLoops = preset.loops;
+        int sec = preset.minutes * 60 + preset.seconds;
+        if (preset.blockMode && preset.blockRepeat) {
+            trainSec = clamp(sec, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
+        } else if (!preset.blockMode) {
+            intervalSec = clamp(sec, DURATION_MIN_SEC, DURATION_MAX_SEC);
+        }
+        maxLoops = clamp(preset.loops, 0, LOOPS_MAX);
         selectedSound = preset.sound;
         if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
             selectedSound = SOUND_BEEP;
@@ -273,31 +217,26 @@ public final class IntervalTimerHelper {
                 : null;
         blockProgramMode = preset.blockMode;
         blockProgramRepeat = preset.blockRepeat;
-        blockSegments = preset.blocks != null ? new ArrayList<>(preset.blocks) : new ArrayList<>();
-        syncDurationFieldsFromValues();
-        if (blockRepeatSwitch != null) {
-            blockRepeatSwitch.setChecked(blockProgramRepeat);
-        }
-        updateModePanels();
-        refreshBlockSummary();
-        refreshSoundUi();
+        blockSegments = preset.blocks != null ? new ArrayList<>(preset.blocks) : new ArrayList<ProgramSegment>();
     }
 
     static TimerPreset captureCurrentPreset(String id, String name) {
         TimerPreset preset = new TimerPreset();
         preset.id = id != null ? id : TimerPresetStorage.newId();
         preset.name = name != null ? name : "";
-        int totalSec = readDurationTotalSec();
-        preset.minutes = totalSec / 60;
-        preset.seconds = totalSec % 60;
-        preset.loops = readLoopsInput();
-        preset.sound = readSoundSelection();
+        int sec = blockProgramMode && blockProgramRepeat ? trainSec : intervalSec;
+        preset.minutes = sec / 60;
+        preset.seconds = sec % 60;
+        preset.loops = maxLoops;
+        preset.sound = selectedSound;
         preset.customUri = customSignalUri != null ? customSignalUri.toString() : "";
         preset.blockMode = blockProgramMode;
-        preset.blockRepeat = blockRepeatSwitch != null && blockRepeatSwitch.isChecked();
-        preset.blocks = blockSegments != null ? new ArrayList<>(blockSegments) : new ArrayList<>();
+        preset.blockRepeat = blockProgramRepeat;
+        preset.blocks = blockSegments != null ? new ArrayList<>(blockSegments) : new ArrayList<ProgramSegment>();
         return preset;
     }
+
+    // ================================================================ entry points
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
         if (root == null || manager == null) {
@@ -318,67 +257,48 @@ public final class IntervalTimerHelper {
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
         pickingSignal = false;
-        restoreConfigDialogAfterPick();
+        restoreSheetAfterPick();
         if (requestCode == PICK_SIGNAL) {
             handleSignalFileResult(resultCode, data);
-            return;
-        }
-        if (requestCode == PICK_RINGTONE) {
+        } else if (requestCode == PICK_RINGTONE) {
             handleRingtoneResult(resultCode, data);
         }
+        rebuildSheet();
     }
 
     private static void handleSignalFileResult(int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK || data == null) {
-            selectedSound = soundBeforePick;
-            refreshSoundUi();
-            return;
-        }
-        Uri uri = data.getData();
+        Uri uri = resultCode == Activity.RESULT_OK && data != null ? data.getData() : null;
         if (uri == null) {
             selectedSound = soundBeforePick;
-            refreshSoundUi();
             return;
         }
         customSignalUri = uri;
         selectedSound = SOUND_CUSTOM;
         try {
-            Activity activity = MusicPlayerHelper.resolveHostActivity(null, configContent);
-            if (activity != null) {
-                int takeFlags = data.getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                if (takeFlags != 0) {
-                    try {
-                        activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
-                    } catch (Throwable t) {
-                        MusicDiagLog.logError("interval_timer_uri_persist", t);
-                    }
-                }
+            Activity activity = resolveActivity(null);
+            int takeFlags = data.getFlags()
+                    & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            if (activity != null && takeFlags != 0) {
+                activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
             }
         } catch (Throwable t) {
-            MusicDiagLog.logError("interval_timer_uri_grant", t);
+            MusicDiagLog.logError("interval_timer_uri_persist", t);
         }
-        refreshSoundUi();
         MusicDiagLog.log("interval_timer", "custom signal uri set");
+        playSignal();
     }
 
     private static void handleRingtoneResult(int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK || data == null) {
-            selectedSound = soundBeforePick;
-            refreshSoundUi();
-            return;
-        }
-        Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+        Uri uri = resultCode == Activity.RESULT_OK && data != null
+                ? (Uri) data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI) : null;
         if (uri == null) {
             selectedSound = soundBeforePick;
-            refreshSoundUi();
             return;
         }
         customSignalUri = uri;
         selectedSound = SOUND_DEVICE;
-        refreshSoundUi();
         MusicDiagLog.log("interval_timer", "device signal uri set");
+        playSignal();
     }
 
     /** Sync timer run/pause from any train row start/stop (not only master buttons). */
@@ -484,7 +404,7 @@ public final class IntervalTimerHelper {
         handler.removeCallbacks(tickRunnable);
         releaseSignalPlayer();
         BlockProgramRunner.reset();
-        dismissConfigDialog(false);
+        dismissSheet();
         dismissOverlayDialog(false);
         refreshStatusText();
     }
@@ -551,55 +471,28 @@ public final class IntervalTimerHelper {
             toast(STR_NO_TRAINING);
             return;
         }
-        int totalSec = readDurationTotalSec();
-        syncDurationFieldsFromValues();
-        int minutes = totalSec / 60;
-        int seconds = totalSec % 60;
-        selectedSound = readSoundSelection();
-        if ((selectedSound == SOUND_CUSTOM || selectedSound == SOUND_DEVICE)
-                && customSignalUri == null) {
+        if ((selectedSound == SOUND_CUSTOM || selectedSound == SOUND_DEVICE) && customSignalUri == null) {
             toast(selectedSound == SOUND_DEVICE ? STR_SOUND_PICK_DEVICE : STR_SOUND_NO_FILE);
             return;
         }
-        blockProgramRepeat = blockRepeatSwitch != null && blockRepeatSwitch.isChecked();
         if (blockProgramMode) {
             if (blockSegments == null || blockSegments.isEmpty()) {
                 toast(STR_BLOCK_EMPTY);
                 return;
             }
-            int trainingSec = minutes * 60 + seconds;
-            if (blockProgramRepeat && trainingSec <= 0) {
+            int seconds = blockProgramRepeat ? trainSec : sequenceSeconds();
+            BlockProgramRunner.arm(itemManager, blockSegments, blockProgramRepeat, Math.max(1, seconds));
+            intervalMs = Math.max(1, seconds) * 1000L;
+            maxLoops = 0;
+        } else {
+            if (intervalSec <= 0) {
                 toast(STR_INVALID_DURATION);
                 return;
             }
-            if (!blockProgramRepeat) {
-                int[] onOff = resolveOnOffFromSeed();
-                trainingSec = BlockProgramRunner.computeSequenceSeconds(
-                        blockSegments, onOff[0], onOff[1]);
-            }
-            BlockProgramRunner.arm(itemManager, blockSegments, blockProgramRepeat, Math.max(1, trainingSec));
-            intervalMs = trainingSec * 1000L;
-            maxLoops = 0;
-            saveSettings(resolveActivity(null), minutes, seconds);
-            currentLoop = 0;
-            remainingMs = intervalMs;
-            lastDisplayedCountdownSec = -1;
-            armed = true;
-            overlayVisible = true;
-            countdownRunning = false;
-            timerPausedByUser = false;
-            refreshStatusText();
-            dismissConfigDialog(false);
-            handler.post(new FinishArmRunnable());
-            return;
+            BlockProgramRunner.reset();
+            intervalMs = intervalSec * 1000L;
         }
-        if (minutes == 0 && seconds == 0) {
-            toast(STR_INVALID_DURATION);
-            return;
-        }
-        intervalMs = ((minutes * 60L) + seconds) * 1000L;
-        maxLoops = readLoopsInput();
-        saveSettings(resolveActivity(null), minutes, seconds);
+        saveSettings(resolveActivity(null));
         currentLoop = 0;
         remainingMs = intervalMs;
         lastDisplayedCountdownSec = -1;
@@ -607,8 +500,7 @@ public final class IntervalTimerHelper {
         overlayVisible = true;
         countdownRunning = false;
         timerPausedByUser = false;
-        refreshStatusText();
-        dismissConfigDialog(false);
+        dismissSheet();
         handler.post(new FinishArmRunnable());
     }
 
@@ -625,8 +517,7 @@ public final class IntervalTimerHelper {
         }
         refreshOverlayText();
         updateOverlayVisibility();
-        MusicDiagLog.log(
-                "interval_timer",
+        MusicDiagLog.log("interval_timer",
                 "armed intervalMs=" + intervalMs + " loops=" + maxLoops + " sound=" + selectedSound);
         if (trainingRunning) {
             onTrainingRunningChanged(true);
@@ -640,14 +531,13 @@ public final class IntervalTimerHelper {
             return;
         }
         hostActivity = activity;
-        showConfigDialog(activity);
+        showSheet(activity);
     }
 
     private static void toggleMasterPanel() {
         Activity activity = resolveActivity(null);
         if (activity == null) {
             toast(STR_ERROR);
-            MusicDiagLog.log("interval_timer", "toggle: no activity");
             return;
         }
         hostActivity = activity;
@@ -656,7 +546,7 @@ public final class IntervalTimerHelper {
                 toast(STR_NO_TRAINING);
                 return;
             }
-            showConfigDialog(activity);
+            showSheet(activity);
             return;
         }
         overlayVisible = !overlayVisible;
@@ -670,11 +560,11 @@ public final class IntervalTimerHelper {
         if (hostActivity != null && !hostActivity.isFinishing()) {
             return hostActivity;
         }
-        if (configDialog != null) {
-            Activity fromConfig = MusicPlayerHelper.resolveActivity(configDialog.getContext());
-            if (fromConfig != null) {
-                hostActivity = fromConfig;
-                return fromConfig;
+        if (sheet != null) {
+            Activity fromSheet = MusicPlayerHelper.resolveActivity(sheet.dialog.getContext());
+            if (fromSheet != null) {
+                hostActivity = fromSheet;
+                return fromSheet;
             }
         }
         if (overlayDialog != null) {
@@ -694,175 +584,787 @@ public final class IntervalTimerHelper {
         return MainActivity.getInstance();
     }
 
-    private static int capConfigDialogScroll(Activity activity, View content) {
-        if (activity == null || content == null) {
-            return 0;
-        }
-        ScrollView scroll = null;
-        if (content instanceof ScrollView) {
-            scroll = (ScrollView) content;
-        } else {
-            View found = content.findViewById(ID_CONFIG_SCROLL);
-            if (found instanceof ScrollView) {
-                scroll = (ScrollView) found;
-            }
-        }
-        if (scroll == null || scroll.getChildCount() < 1) {
-            return 0;
-        }
-        View child = scroll.getChildAt(0);
-        int maxHeight = dp(activity, CONFIG_DIALOG_MAX_HEIGHT_DP);
-        int screenCap = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.85f);
-        if (screenCap > 0 && screenCap < maxHeight) {
-            maxHeight = screenCap;
-        }
-        int widthPx = dp(activity, CONFIG_DIALOG_WIDTH_DP);
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY);
-        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        child.measure(widthSpec, heightSpec);
-        int contentHeight = child.getMeasuredHeight();
-        int scrollHeight = contentHeight > maxHeight ? maxHeight : contentHeight;
-        android.view.ViewGroup.LayoutParams lp = scroll.getLayoutParams();
-        if (lp == null) {
-            lp = new android.view.ViewGroup.LayoutParams(widthPx, scrollHeight);
-        } else {
-            lp.width = widthPx;
-            lp.height = scrollHeight;
-        }
-        scroll.setLayoutParams(lp);
-        scroll.measure(
-                View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(scrollHeight, View.MeasureSpec.EXACTLY));
-        return scroll.getMeasuredHeight() > 0 ? scroll.getMeasuredHeight() : scrollHeight;
-    }
+    // ================================================================ settings sheet
 
-    private static void showConfigDialog(Activity activity) {
-        if (configDialog != null && configDialog.isShowing()) {
+    private static void showSheet(Activity activity) {
+        if (sheet != null && sheet.dialog.isShowing()) {
             return;
         }
         hostActivity = activity;
         loadSavedSettings(activity);
-        dismissConfigDialog(false);
-        View content;
+        sheet = XemsUi.shell(activity, activity.getString(STR_TITLE),
+                tr("Стартира с тренировката, спира на пауза", "Starts with training, stops on pause"),
+                SHEET_WIDTH_DP);
+        sheet.info.setVisibility(View.VISIBLE);
+        sheet.info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ModalInfoHelper.show(resolveActivity(null), STR_INFO_TITLE, STR_INFO_BODY);
+            }
+        });
+        sheet.dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface d) {
+                if (pickingSignal) {
+                    return;
+                }
+                saveSettings(resolveActivity(null));
+                sheet = null;
+            }
+        });
+        rebuildSheet();
         try {
-            content = LayoutInflater.from(activity).inflate(DIALOG_LAYOUT_ID, null);
+            sheet.dialog.show();
+            XemsUi.fitHeight(activity, sheet, 0.9f);
         } catch (Throwable t) {
-            MusicDiagLog.logError("interval_timer_config", t);
+            MusicDiagLog.logError("interval_timer_sheet", t);
+            toast(STR_ERROR);
+            sheet = null;
+        }
+    }
+
+    /** Rebuild the sheet body (cheap; keeps the scroll position). */
+    private static void rebuildSheet() {
+        if (sheet == null) {
+            return;
+        }
+        final Activity a = resolveActivity(null);
+        if (a == null) {
+            return;
+        }
+        int scrollY = sheet.scroll.getScrollY();
+        LinearLayout body = sheet.body;
+        body.removeAllViews();
+
+        body.addView(XemsUi.segmented(a,
+                new String[] {a.getString(STR_TAB_INTERVAL), a.getString(STR_TAB_BLOCK)},
+                blockProgramMode ? 1 : 0, new XemsUi.OnIndex() {
+                    @Override
+                    public void onIndex(int i) {
+                        blockProgramMode = i == 1;
+                        selectedPresetId = "";
+                        rebuildSheet();
+                    }
+                }));
+        if (blockProgramMode) {
+            buildBlockSection(a, body);
+        } else {
+            buildIntervalSection(a, body);
+        }
+        buildPresetSection(a, body);
+        buildSignalSection(a, body);
+        buildFooter(a);
+        refreshStatusText();
+        final int y = scrollY;
+        sheet.scroll.post(new Runnable() {
+            @Override
+            public void run() {
+                if (sheet != null) {
+                    sheet.scroll.scrollTo(0, y);
+                }
+            }
+        });
+    }
+
+    private static void buildIntervalSection(final Activity a, LinearLayout body) {
+        LinearLayout card = XemsUi.card(a);
+        LinearLayout row = XemsUi.horizontal(a);
+        LinearLayout left = XemsUi.vertical(a);
+        left.addView(XemsUi.label(a, tr("Интервал", "Interval")));
+        final XemsUi.Stepper interval = XemsUi.stepper(a, formatSeconds(intervalSec),
+                tr("мин : сек", "min : sec"), 30, null);
+        left.addView(interval.view);
+        LinearLayout right = XemsUi.vertical(a);
+        right.addView(XemsUi.label(a, tr("Повторения", "Repeats")));
+        final XemsUi.Stepper loops = XemsUi.stepper(a, loopsText(maxLoops), loopsUnit(maxLoops), 30, null);
+        right.addView(loops.view);
+        row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(right, XemsUi.weight(1f, 14, a));
+        card.addView(row);
+
+        final TextView summary = XemsUi.text(a, "", 14, XemsUi.MUTED, false);
+        final LinearLayout bar = XemsUi.horizontal(a);
+        final LinearLayout[] quickRow = new LinearLayout[1];
+        final LinearLayout[] loopRow = new LinearLayout[1];
+        final Runnable refresh = new Runnable() {
+            @Override
+            public void run() {
+                interval.set(formatSeconds(intervalSec), tr("мин : сек", "min : sec"));
+                loops.set(loopsText(maxLoops), loopsUnit(maxLoops));
+                summary.setText(maxLoops > 0
+                        ? maxLoops + " × " + formatSeconds(intervalSec) + "  ·  "
+                        + tr("общо ", "total ") + formatSeconds((long) maxLoops * intervalSec)
+                        : tr("Без край — сигнал на всеки ", "Endless — a signal every ") + formatSeconds(intervalSec));
+                fillTimeline(a, bar, maxLoops);
+                fillQuickIntervals(a, quickRow[0], this);
+                fillQuickLoops(a, loopRow[0], this);
+            }
+        };
+        // Steppers: 5 s steps below 1 min, 15 s up to 3 min, 30 s above.
+        interval.view.getChildAt(0).setOnTouchListener(null);
+        XemsUi.repeatOnHold(interval.view.getChildAt(0), new XemsUi.OnStep() {
+            @Override
+            public void onStep(int d) {
+                intervalSec = clamp(intervalSec - stepFor(intervalSec - 1), DURATION_MIN_SEC, DURATION_MAX_SEC);
+                selectedPresetId = "";
+                refresh.run();
+            }
+        }, -1);
+        XemsUi.repeatOnHold(interval.view.getChildAt(2), new XemsUi.OnStep() {
+            @Override
+            public void onStep(int d) {
+                intervalSec = clamp(intervalSec + stepFor(intervalSec), DURATION_MIN_SEC, DURATION_MAX_SEC);
+                selectedPresetId = "";
+                refresh.run();
+            }
+        }, +1);
+        XemsUi.repeatOnHold(loops.view.getChildAt(0), new XemsUi.OnStep() {
+            @Override
+            public void onStep(int d) {
+                maxLoops = clamp(maxLoops - 1, 0, LOOPS_MAX);
+                selectedPresetId = "";
+                refresh.run();
+            }
+        }, -1);
+        XemsUi.repeatOnHold(loops.view.getChildAt(2), new XemsUi.OnStep() {
+            @Override
+            public void onStep(int d) {
+                maxLoops = clamp(maxLoops + 1, 0, LOOPS_MAX);
+                selectedPresetId = "";
+                refresh.run();
+            }
+        }, +1);
+
+        LinearLayout quickHolder = XemsUi.horizontal(a);
+        LinearLayout qLeft = XemsUi.vertical(a);
+        qLeft.addView(XemsUi.chipRow(a, quickRow));
+        LinearLayout qRight = XemsUi.vertical(a);
+        qRight.addView(XemsUi.chipRow(a, loopRow));
+        quickHolder.addView(qLeft, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        quickHolder.addView(qRight, XemsUi.weight(1f, 14, a));
+        card.addView(quickHolder, XemsUi.matchWrap(a, 12));
+
+        card.addView(bar, XemsUi.matchWrap(a, 16));
+        card.addView(summary, XemsUi.matchWrap(a, 8));
+        refresh.run();
+        body.addView(card, XemsUi.matchWrap(a, 14));
+    }
+
+    private static int stepFor(int sec) {
+        return sec < 60 ? 5 : sec < 180 ? 15 : 30;
+    }
+
+    private static String loopsText(int loops) {
+        return loops <= 0 ? "∞" : String.valueOf(loops);
+    }
+
+    private static String loopsUnit(int loops) {
+        return loops <= 0 ? tr("без край", "endless") : tr("пъти", "times");
+    }
+
+    private static void fillQuickIntervals(Activity a, LinearLayout row, final Runnable refresh) {
+        row.removeAllViews();
+        for (final int s : QUICK_INTERVALS) {
+            TextView chip = XemsUi.chip(a, formatSeconds(s), s == intervalSec, XemsUi.GO_TEXT);
+            chip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    XemsUi.haptic(v);
+                    intervalSec = s;
+                    selectedPresetId = "";
+                    refresh.run();
+                }
+            });
+            XemsUi.addChip(a, row, chip);
+        }
+    }
+
+    private static void fillQuickLoops(Activity a, LinearLayout row, final Runnable refresh) {
+        row.removeAllViews();
+        for (final int n : QUICK_LOOPS) {
+            TextView chip = XemsUi.chip(a, n == 0 ? "∞" : String.valueOf(n), n == maxLoops, XemsUi.GO_TEXT);
+            chip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    XemsUi.haptic(v);
+                    maxLoops = n;
+                    selectedPresetId = "";
+                    refresh.run();
+                }
+            });
+            XemsUi.addChip(a, row, chip);
+        }
+    }
+
+    /** One segment per repeat (fading dots for "endless"): the workout at a glance. */
+    private static void fillTimeline(Activity a, LinearLayout bar, int loops) {
+        bar.removeAllViews();
+        int n = loops > 0 ? loops : 12;
+        for (int i = 0; i < n; i++) {
+            View seg = new View(a);
+            int col = XemsUi.mix(XemsUi.GO, XemsUi.ACCENT, n > 1 ? i / (float) (n - 1) : 0f);
+            if (loops <= 0) {
+                col = XemsUi.alpha(XemsUi.GO_TEXT, Math.max(0x22, 0xFF - i * 18));
+            }
+            seg.setBackgroundDrawable(XemsUi.rounded(col, XemsUi.dp(a, 4), 0, 0));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, XemsUi.dp(a, 10), 1f);
+            if (i > 0) {
+                lp.leftMargin = XemsUi.dp(a, 4);
+            }
+            bar.addView(seg, lp);
+        }
+    }
+
+    private static void buildBlockSection(final Activity a, LinearLayout body) {
+        LinearLayout card = XemsUi.card(a);
+        if (blockSegments == null) {
+            blockSegments = new ArrayList<>();
+        }
+        LinearLayout head = XemsUi.horizontal(a);
+        head.addView(XemsUi.label(a, tr("Блокове", "Blocks") + " · " + blockSegments.size()),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView edit = XemsUi.button(a, blockSegments.isEmpty()
+                ? tr("+ Създай", "+ Create") : tr("Редактирай", "Edit"), XemsUi.SECONDARY);
+        edit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        edit.setPadding(XemsUi.dp(a, 16), XemsUi.dp(a, 8), XemsUi.dp(a, 16), XemsUi.dp(a, 8));
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BlockProgramEditor.show(a, blockSegments, MusicPlayerHelper.resolveTargetItem(itemManager),
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                selectedPresetId = "";
+                                rebuildSheet();
+                            }
+                        });
+            }
+        });
+        head.addView(edit);
+        card.addView(head);
+
+        if (blockSegments.isEmpty()) {
+            TextView empty = XemsUi.text(a, tr("Няма блокове. Всеки блок е брой импулсни цикли със своя сила, честота и ширина.",
+                    "No blocks yet. Each block is a number of impulse cycles with its own strength, frequency and width."),
+                    14, XemsUi.MUTED, false);
+            card.addView(empty, XemsUi.matchWrap(a, 6));
+        } else {
+            int[] onOff = resolveOnOffFromSeed();
+            for (int i = 0; i < blockSegments.size(); i++) {
+                ProgramSegment seg = blockSegments.get(i);
+                card.addView(blockRow(a, i, seg, onOff), XemsUi.matchWrap(a, i == 0 ? 6 : 8));
+            }
+        }
+
+        card.addView(XemsUi.toggleRow(a, tr("Повтаряй до края на времето", "Repeat until time is up"),
+                tr("RPT — блоковете се въртят, докато изтече времето за тренировка",
+                        "RPT — blocks cycle until the workout time runs out"),
+                blockProgramRepeat, new XemsUi.OnToggle() {
+                    @Override
+                    public void onToggle(boolean on) {
+                        blockProgramRepeat = on;
+                        selectedPresetId = "";
+                        rebuildSheet();
+                    }
+                }), XemsUi.matchWrap(a, 14));
+
+        if (blockProgramRepeat) {
+            card.addView(XemsUi.label(a, tr("Време за тренировка", "Workout time")), XemsUi.matchWrap(a, 10));
+            final XemsUi.Stepper time = XemsUi.stepper(a, formatSeconds(trainSec), tr("мин : сек", "min : sec"), 28, null);
+            XemsUi.repeatOnHold(time.view.getChildAt(0), new XemsUi.OnStep() {
+                @Override
+                public void onStep(int d) {
+                    trainSec = clamp(trainSec - 30, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
+                    time.set(formatSeconds(trainSec), tr("мин : сек", "min : sec"));
+                }
+            }, -1);
+            XemsUi.repeatOnHold(time.view.getChildAt(2), new XemsUi.OnStep() {
+                @Override
+                public void onStep(int d) {
+                    trainSec = clamp(trainSec + 30, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
+                    time.set(formatSeconds(trainSec), tr("мин : сек", "min : sec"));
+                }
+            }, +1);
+            card.addView(time.view);
+        } else if (!blockSegments.isEmpty()) {
+            TextView seq = XemsUi.text(a, tr("Една поредица: ", "One sequence: ") + formatSeconds(sequenceSeconds())
+                    + tr(" (времето за тренировка се задава само)", " (workout time is set automatically)"),
+                    14, XemsUi.GO_TEXT, true);
+            card.addView(seq, XemsUi.matchWrap(a, 6));
+        }
+        body.addView(card, XemsUi.matchWrap(a, 14));
+    }
+
+    private static View blockRow(Activity a, int index, ProgramSegment seg, int[] onOff) {
+        LinearLayout row = XemsUi.surface(a);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView num = XemsUi.text(a, String.valueOf(index + 1), 15, XemsUi.ON_ACCENT, true);
+        num.setGravity(Gravity.CENTER);
+        num.setBackgroundDrawable(XemsUi.rounded(XemsUi.ACCENT, XemsUi.dp(a, 14), 0, 0));
+        row.addView(num, new LinearLayout.LayoutParams(XemsUi.dp(a, 28), XemsUi.dp(a, 28)));
+        LinearLayout texts = XemsUi.vertical(a);
+        texts.setPadding(XemsUi.dp(a, 12), 0, 0, 0);
+        texts.addView(XemsUi.text(a, seg.cycles + tr(" цикъла", " cycles") + "  ·  "
+                + formatSeconds((long) seg.cycles * (onOff[0] + onOff[1])), 15, XemsUi.TEXT, true));
+        TextView params = XemsUi.text(a, seg.strenth + "%   ·   " + seg.hz + " Hz   ·   " + seg.pulseWidth + " µs",
+                13, XemsUi.MUTED, false);
+        params.setPadding(0, XemsUi.dp(a, 3), 0, 0);
+        texts.addView(params);
+        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        // Strength as a mini bar on the right.
+        LinearLayout meter = XemsUi.vertical(a);
+        meter.setGravity(Gravity.BOTTOM);
+        View fill = new View(a);
+        fill.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.GO, XemsUi.ACCENT, seg.strenth / 100f),
+                XemsUi.dp(a, 3), 0, 0));
+        meter.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.TEXT, 0x18), XemsUi.dp(a, 3), 0, 0));
+        meter.addView(fill, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                Math.max(XemsUi.dp(a, 3), XemsUi.dp(a, 34) * clamp(seg.strenth, 0, 100) / 100)));
+        row.addView(meter, new LinearLayout.LayoutParams(XemsUi.dp(a, 6), XemsUi.dp(a, 34)));
+        return row;
+    }
+
+    private static int sequenceSeconds() {
+        int[] onOff = resolveOnOffFromSeed();
+        return BlockProgramRunner.computeSequenceSeconds(blockSegments, onOff[0], onOff[1]);
+    }
+
+    private static int[] resolveOnOffFromSeed() {
+        int on = 4;
+        int off = 4;
+        TrainItem seed = MusicPlayerHelper.resolveTargetItem(itemManager);
+        if (seed != null && seed.getTrainProgram() != null) {
+            com.isaigu.gymapp.bean.ProgramDataBean bean = seed.getTrainProgram().matchProgram();
+            if (bean != null) {
+                if (bean.pulseContinue > 0) {
+                    on = bean.pulseContinue;
+                }
+                if (bean.pulsePause > 0) {
+                    off = bean.pulsePause;
+                }
+            }
+        }
+        return new int[] {on, off};
+    }
+
+    /** Saved programs as chips: tap = load, hold = rename / delete; "+" saves the current one. */
+    private static void buildPresetSection(final Activity a, LinearLayout body) {
+        body.addView(XemsUi.label(a, tr("Запазени програми", "Saved programs")), XemsUi.matchWrap(a, 20));
+        LinearLayout[] holder = new LinearLayout[1];
+        body.addView(XemsUi.chipRow(a, holder));
+        LinearLayout row = holder[0];
+        TextView save = XemsUi.chip(a, selectedPresetId.length() > 0 ? tr("✓ Обнови", "✓ Update") : tr("+ Запази", "+ Save"),
+                false, XemsUi.GO_TEXT);
+        save.setTextColor(XemsUi.GO_TEXT);
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimerPreset existing = selectedPresetId.length() > 0
+                        ? TimerPresetStorage.findById(a, selectedPresetId) : null;
+                if (existing != null) {
+                    TimerPreset p = captureCurrentPreset(existing.id, existing.name);
+                    TimerPresetStorage.upsert(a, p);
+                    toastText(tr("Обновено: ", "Updated: ") + p.name);
+                    rebuildSheet();
+                    return;
+                }
+                promptName(a, tr("Име на програмата", "Program name"), "", new NameCallback() {
+                    @Override
+                    public void onName(String name) {
+                        TimerPreset p = captureCurrentPreset(TimerPresetStorage.newId(), name);
+                        TimerPresetStorage.upsert(a, p);
+                        selectedPresetId = p.id;
+                        toastText(tr("Запазено: ", "Saved: ") + name);
+                        rebuildSheet();
+                    }
+                });
+            }
+        });
+        XemsUi.addChip(a, row, save);
+        ArrayList<TimerPreset> presets = TimerPresetStorage.loadAll(a);
+        for (final TimerPreset p : presets) {
+            boolean sel = p.id != null && p.id.equals(selectedPresetId);
+            String kind = p.blockMode ? "▦ " : "◷ ";
+            TextView chip = XemsUi.chip(a, kind + (p.name != null ? p.name : "?"), sel, XemsUi.ACCENT);
+            chip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    XemsUi.haptic(v);
+                    applyPreset(p);
+                    selectedPresetId = p.id;
+                    rebuildSheet();
+                }
+            });
+            chip.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    presetMenu(a, p);
+                    return true;
+                }
+            });
+            XemsUi.addChip(a, row, chip);
+        }
+        if (presets.isEmpty()) {
+            TextView hint = XemsUi.text(a, tr("Задръж върху запазена програма за преименуване или изтриване.",
+                    "Hold a saved program to rename or delete it."), 12.5f, XemsUi.HINT, false);
+            body.addView(hint, XemsUi.matchWrap(a, 6));
+        }
+    }
+
+    private static void presetMenu(final Activity a, final TimerPreset p) {
+        final XemsUi.Shell s = XemsUi.shell(a, p.name, tr("Запазена програма", "Saved program"), 420);
+        TextView rename = XemsUi.button(a, tr("Преименувай", "Rename"), XemsUi.SECONDARY);
+        TextView delete = XemsUi.button(a, tr("Изтрий", "Delete"), XemsUi.ACCENT_BTN);
+        rename.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                s.dialog.dismiss();
+                promptName(a, tr("Ново име", "New name"), p.name, new NameCallback() {
+                    @Override
+                    public void onName(String name) {
+                        TimerPreset copy = p.copy();
+                        copy.name = name;
+                        TimerPresetStorage.upsert(a, copy);
+                        rebuildSheet();
+                    }
+                });
+            }
+        });
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                s.dialog.dismiss();
+                TimerPresetStorage.delete(a, p.id);
+                if (p.id != null && p.id.equals(selectedPresetId)) {
+                    selectedPresetId = "";
+                }
+                toastText(tr("Изтрито: ", "Deleted: ") + p.name);
+                rebuildSheet();
+            }
+        });
+        s.footer.addView(rename, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        s.footer.addView(delete, XemsUi.weight(1f, 10, a));
+        s.dialog.show();
+    }
+
+    interface NameCallback {
+        void onName(String name);
+    }
+
+    private static void promptName(Activity a, String title, String initial, final NameCallback cb) {
+        final XemsUi.Shell s = XemsUi.shell(a, title, null, 460);
+        final EditText input = new EditText(a);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        input.setSingleLine(true);
+        input.setTextColor(XemsUi.TEXT);
+        input.setHintTextColor(XemsUi.HINT);
+        input.setHint(tr("напр. Сила 30/30", "e.g. Strength 30/30"));
+        input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        input.setPadding(XemsUi.dp(a, 16), XemsUi.dp(a, 12), XemsUi.dp(a, 16), XemsUi.dp(a, 12));
+        input.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(a, 14), XemsUi.STROKE, XemsUi.dp(a, 1)));
+        if (initial != null) {
+            input.setText(initial);
+            input.setSelection(initial.length());
+        }
+        s.body.addView(input, XemsUi.matchWrap(a, 4));
+        TextView ok = XemsUi.button(a, tr("Запази", "Save"), XemsUi.PRIMARY);
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = input.getText() != null ? input.getText().toString().trim() : "";
+                if (name.length() == 0) {
+                    input.setError(tr("Въведи име", "Enter a name"));
+                    return;
+                }
+                s.dialog.dismiss();
+                cb.onName(name);
+            }
+        });
+        s.footer.addView(XemsUi.spacer(a));
+        s.footer.addView(ok);
+        s.dialog.show();
+        try {
+            s.dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        } catch (Throwable ignored) {
+        }
+        input.requestFocus();
+    }
+
+    /** Signal chips: tap selects and plays it at once; phone / file open the pickers. */
+    private static void buildSignalSection(final Activity a, LinearLayout body) {
+        body.addView(XemsUi.label(a, tr("Сигнал при смяна", "Signal on switch")), XemsUi.matchWrap(a, 20));
+        LinearLayout[] holder = new LinearLayout[1];
+        body.addView(XemsUi.chipRow(a, holder));
+        LinearLayout row = holder[0];
+        int[] sounds = {SOUND_OFF, SOUND_BEEP, SOUND_CHIME, SOUND_BELL, SOUND_PIP, SOUND_CONFIRM, SOUND_ALARM,
+                SOUND_DEVICE, SOUND_CUSTOM};
+        int[] labels = {STR_SOUND_OFF, STR_SOUND_BEEP, STR_SOUND_CHIME, STR_SOUND_BELL, STR_SOUND_PIP,
+                STR_SOUND_CONFIRM, STR_SOUND_ALARM, STR_SOUND_DEVICE, STR_SOUND_CUSTOM};
+        for (int i = 0; i < sounds.length; i++) {
+            final int snd = sounds[i];
+            String prefix = snd == SOUND_OFF ? "🔇 " : snd == SOUND_DEVICE ? "📱 " : snd == SOUND_CUSTOM ? "📁 " : "♪ ";
+            TextView chip = XemsUi.chip(a, prefix + a.getString(labels[i]), snd == selectedSound, XemsUi.GO_TEXT);
+            chip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    XemsUi.haptic(v);
+                    if (snd == SOUND_DEVICE) {
+                        startRingtonePick(v);
+                        return;
+                    }
+                    if (snd == SOUND_CUSTOM) {
+                        startSignalPick(v);
+                        return;
+                    }
+                    selectedSound = snd;
+                    selectedPresetId = "";
+                    playSignal();
+                    rebuildSheet();
+                }
+            });
+            XemsUi.addChip(a, row, chip);
+        }
+        if ((selectedSound == SOUND_CUSTOM || selectedSound == SOUND_DEVICE) && customSignalUri != null) {
+            LinearLayout file = XemsUi.surface(a);
+            file.setOrientation(LinearLayout.HORIZONTAL);
+            file.setGravity(Gravity.CENTER_VERTICAL);
+            String name = customSignalUri.getLastPathSegment();
+            TextView t = XemsUi.text(a, name != null && name.length() > 0 ? name : customSignalUri.toString(),
+                    14, XemsUi.TEXT, false);
+            t.setSingleLine(true);
+            t.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+            file.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView play = XemsUi.iconButton(a, "▶", XemsUi.GO, 0xFFFFFFFF, 34);
+            play.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    playSignal();
+                }
+            });
+            LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));
+            pl.leftMargin = XemsUi.dp(a, 10);
+            file.addView(play, pl);
+            TextView clear = XemsUi.iconButton(a, "✕", XemsUi.CARD, XemsUi.TEXT, 34);
+            clear.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectedSound = SOUND_BEEP;
+                    customSignalUri = null;
+                    rebuildSheet();
+                }
+            });
+            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));
+            cl.leftMargin = XemsUi.dp(a, 8);
+            file.addView(clear, cl);
+            body.addView(file, XemsUi.matchWrap(a, 10));
+        }
+    }
+
+    private static void buildFooter(final Activity a) {
+        LinearLayout footer = sheet.footer;
+        footer.removeAllViews();
+        if (armed) {
+            TextView off = XemsUi.button(a, tr("Изключи таймера", "Turn timer off"), XemsUi.SECONDARY);
+            off.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    disarmTimerKeepSettings();
+                    rebuildSheet();
+                }
+            });
+            footer.addView(off);
+        }
+        footer.addView(XemsUi.spacer(a));
+        TextView go = XemsUi.button(a, armed ? tr("Приложи", "Apply") : tr("▶  Активирай", "▶  Activate"),
+                XemsUi.PRIMARY);
+        go.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        go.setPadding(XemsUi.dp(a, 34), XemsUi.dp(a, 14), XemsUi.dp(a, 34), XemsUi.dp(a, 14));
+        go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hostActivity = MusicPlayerHelper.resolveHostActivity(v);
+                armFromConfig();
+            }
+        });
+        footer.addView(go);
+    }
+
+    private static void refreshStatusText() {
+        if (sheet == null) {
+            return;
+        }
+        sheet.badge.setVisibility(View.VISIBLE);
+        if (!armed) {
+            XemsUi.setBadge(sheet.badge, tr("Изключен", "Off"), XemsUi.MUTED);
+        } else if (countdownRunning) {
+            XemsUi.setBadge(sheet.badge, tr("● Работи", "● Running"), XemsUi.GO_TEXT);
+        } else if (timerPausedByUser) {
+            XemsUi.setBadge(sheet.badge, tr("Пауза", "Paused"), XemsUi.AMBER);
+        } else {
+            XemsUi.setBadge(sheet.badge, tr("Готов — чака старт", "Armed — waits for start"), XemsUi.AMBER);
+        }
+    }
+
+    private static void dismissSheet() {
+        if (sheet != null) {
+            try {
+                sheet.dialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            if (!pickingSignal) {
+                sheet = null;
+            }
+        }
+    }
+
+    private static void restoreSheetAfterPick() {
+        if (sheet == null) {
+            return;
+        }
+        try {
+            if (!sheet.dialog.isShowing()) {
+                sheet.dialog.show();
+            }
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_sheet_restore", t);
+        }
+    }
+
+    // ================================================================ persistence
+
+    private static void loadSavedSettings(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        try {
+            SharedPreferences prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            if (!settingsLoaded) {
+                settingsLoaded = true;
+                intervalSec = clamp(prefs.getInt(KEY_MINUTES, 0) * 60 + prefs.getInt(KEY_SECONDS, 30),
+                        DURATION_MIN_SEC, DURATION_MAX_SEC);
+                trainSec = clamp(prefs.getInt(KEY_TRAIN_SEC, 20 * 60), TRAIN_MIN_SEC, TRAIN_MAX_SEC);
+                maxLoops = clamp(prefs.getInt(KEY_LOOPS, 0), 0, LOOPS_MAX);
+                selectedSound = prefs.getInt(KEY_SOUND, SOUND_BEEP);
+                if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
+                    selectedSound = SOUND_BEEP;
+                }
+                String uriText = prefs.getString(KEY_CUSTOM_URI, null);
+                customSignalUri = uriText != null && uriText.length() > 0 ? Uri.parse(uriText) : null;
+                blockProgramMode = prefs.getBoolean(KEY_BLOCK_MODE, false);
+                blockProgramRepeat = prefs.getBoolean(KEY_BLOCK_REPEAT, false);
+                blockSegments = BlockProgramStorage.loadBlocks(activity);
+            }
+            intervalMs = intervalSec * 1000L;
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_prefs_load", t);
+        }
+    }
+
+    private static void saveSettings(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        try {
+            SharedPreferences.Editor editor = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+            editor.putInt(KEY_MINUTES, intervalSec / 60);
+            editor.putInt(KEY_SECONDS, intervalSec % 60);
+            editor.putInt(KEY_TRAIN_SEC, trainSec);
+            editor.putInt(KEY_LOOPS, maxLoops);
+            editor.putInt(KEY_SOUND, selectedSound);
+            editor.putBoolean(KEY_BLOCK_MODE, blockProgramMode);
+            editor.putBoolean(KEY_BLOCK_REPEAT, blockProgramRepeat);
+            if (customSignalUri != null) {
+                editor.putString(KEY_CUSTOM_URI, customSignalUri.toString());
+            } else {
+                editor.remove(KEY_CUSTOM_URI);
+            }
+            editor.apply();
+            BlockProgramStorage.save(activity, blockProgramMode, blockProgramRepeat, blockSegments);
+        } catch (Throwable t) {
+            MusicDiagLog.logError("interval_timer_prefs_save", t);
+        }
+    }
+
+    // ================================================================ signal pickers
+
+    private static void startRingtonePick(View view) {
+        Activity activity = MusicPlayerHelper.resolveHostActivity(view);
+        if (activity == null) {
             toast(STR_ERROR);
             return;
         }
-        configContent = content;
-        int dialogHeight = capConfigDialogScroll(activity, content);
-        statusView = (TextView) content.findViewById(ID_STATUS);
-        soundFileView = (TextView) content.findViewById(ID_SOUND_FILE);
-        soundFileRow = content.findViewById(ID_SOUND_FILE_ROW);
-        soundSpinner = (Spinner) content.findViewById(ID_SOUND_SPINNER);
-        soundPickBtn = content.findViewById(ID_SOUND_PICK);
-        soundClearBtn = content.findViewById(ID_SOUND_CLEAR);
-        durationRow = content.findViewById(ID_DURATION_ROW);
-        durationLabelView = (TextView) content.findViewById(ID_DURATION_LABEL);
-        minutesView = (EditText) content.findViewById(ID_MINUTES);
-        secondsView = (EditText) content.findViewById(ID_SECONDS);
-        loopsView = (EditText) content.findViewById(ID_LOOPS);
-        tabIntervalBtn = content.findViewById(ID_TAB_INTERVAL);
-        tabBlockBtn = content.findViewById(ID_TAB_BLOCK);
-        advancedPanel = content.findViewById(ID_ADVANCED_PANEL);
-        advancedToggle = content.findViewById(ID_ADVANCED_TOGGLE);
-        syncDurationFieldsFromValues();
-        bindButton(tabIntervalBtn, new TabIntervalListener());
-        bindButton(tabBlockBtn, new TabBlockListener());
-        bindButton(content.findViewById(ID_INFO), new TimerInfoListener());
-        bindButton(advancedToggle, new AdvancedToggleListener());
-        bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
-        bindButton(content.findViewById(ID_SOUND_PREVIEW), new SoundPreviewListener());
-        bindButton(soundPickBtn, new SoundPickListener());
-        bindButton(soundClearBtn, new SoundClearListener());
-        simpleModePanel = content.findViewById(ID_SIMPLE_PANEL);
-        blockModePanel = content.findViewById(ID_BLOCK_PANEL);
-        blockSummaryView = (TextView) content.findViewById(ID_BLOCK_SUMMARY);
-        blockDurationView = (TextView) content.findViewById(ID_BLOCK_DURATION);
-        blockRepeatSwitch = (Switch) content.findViewById(ID_BLOCK_REPEAT);
-        View blockEditBtn = content.findViewById(ID_BLOCK_EDIT);
-        if (blockRepeatSwitch != null) {
-            blockRepeatSwitch.setChecked(blockProgramRepeat);
-            blockRepeatSwitch.setOnCheckedChangeListener(new BlockRepeatSwitchListener());
-        }
-        if (blockEditBtn != null) {
-            blockEditBtn.setOnClickListener(new BlockEditListener(activity));
-        }
-        if (advancedPanel != null) {
-            advancedPanel.setVisibility(advancedExpanded ? View.VISIBLE : View.GONE);
-        }
-        refreshAdvancedToggleLabel(activity);
-        presetSpinner = (Spinner) content.findViewById(ID_PRESET_SPINNER);
-        TimerPresetUiHelper.bind(
-                activity,
-                presetSpinner,
-                content.findViewById(ID_PRESET_SAVE),
-                content.findViewById(ID_PRESET_EDIT),
-                content.findViewById(ID_PRESET_DELETE),
-                new PresetRefreshRunnable());
-        updateModePanels();
-        refreshBlockSummary();
-        setupSoundSpinner(activity);
-        refreshSoundUi();
-        refreshStatusText();
-        android.support.v7.app.AlertDialog.Builder builder =
-                new android.support.v7.app.AlertDialog.Builder(activity);
-        builder.setView(content);
-        builder.setOnDismissListener(new ConfigDismissListener());
-        configDialog = builder.create();
-        configDialog.setCancelable(true);
-        configDialog.setCanceledOnTouchOutside(true);
-        applyOpaqueWindow(configDialog);
+        hostActivity = activity;
+        soundBeforePick = selectedSound;
         try {
-            Window window = configDialog.getWindow();
-            if (window != null) {
-                int widthPx = dp(activity, CONFIG_DIALOG_WIDTH_DP);
-                int heightPx = dialogHeight > 0
-                        ? dialogHeight
-                        : WindowManager.LayoutParams.WRAP_CONTENT;
-                window.setLayout(widthPx, heightPx);
-                window.setGravity(Gravity.CENTER);
+            Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,
+                    RingtoneManager.TYPE_NOTIFICATION | RingtoneManager.TYPE_ALARM | RingtoneManager.TYPE_RINGTONE);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, activity.getString(STR_SOUND_DEVICE));
+            if (customSignalUri != null) {
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, customSignalUri);
             }
-        } catch (Throwable ignored) {
+            launchPicker(activity, intent, PICK_RINGTONE);
+        } catch (Throwable t) {
+            pickingSignal = false;
+            restoreSheetAfterPick();
+            MusicDiagLog.logError("interval_timer_ringtone_pick", t);
+            toast(STR_ERROR);
         }
-        configDialog.show();
     }
 
-    private static void setupSoundSpinner(Activity activity) {
-        if (soundSpinner == null) {
+    /** Same file-picker flow as {@link MusicPlayerHelper}. */
+    private static void startSignalPick(View view) {
+        Activity activity = MusicPlayerHelper.resolveHostActivity(view);
+        if (activity == null) {
+            toast(STR_ERROR);
             return;
         }
-        String[] labels = new String[] {
-                activity.getString(STR_SOUND_OFF),
-                activity.getString(STR_SOUND_BEEP),
-                activity.getString(STR_SOUND_CHIME),
-                activity.getString(STR_SOUND_BELL),
-                activity.getString(STR_SOUND_PIP),
-                activity.getString(STR_SOUND_CONFIRM),
-                activity.getString(STR_SOUND_ALARM),
-                activity.getString(STR_SOUND_DEVICE),
-                activity.getString(STR_SOUND_CUSTOM),
-        };
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                activity, SPINNER_ITEM_LAYOUT_ID, labels);
-        adapter.setDropDownViewResource(SPINNER_ITEM_LAYOUT_ID);
-        ignoreSpinnerCallback = true;
-        soundSpinner.setAdapter(adapter);
-        if (selectedSound >= 0 && selectedSound < labels.length) {
-            soundSpinner.setSelection(selectedSound);
+        hostActivity = activity;
+        soundBeforePick = selectedSound;
+        try {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("audio/*");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+            launchPicker(activity, intent, PICK_SIGNAL);
+        } catch (Throwable t) {
+            pickingSignal = false;
+            restoreSheetAfterPick();
+            MusicDiagLog.logError("interval_timer_pick", t);
+            toast(STR_ERROR);
         }
-        soundSpinner.setOnItemSelectedListener(new SoundSpinnerListener());
-        ignoreSpinnerCallback = false;
     }
 
-    private static int readSoundSelection() {
-        if (soundSpinner != null) {
-            return soundSpinner.getSelectedItemPosition();
+    private static void launchPicker(Activity activity, Intent intent, int code) {
+        pickingSignal = true;
+        if (sheet != null) {
+            try {
+                sheet.dialog.hide();
+            } catch (Throwable ignored) {
+            }
         }
-        return selectedSound;
+        activity.startActivityForResult(intent, code);
     }
+
+    private static int clamp(int v, int lo, int hi) {
+        return v < lo ? lo : v > hi ? hi : v;
+    }
+
+    private static void toastText(String s) {
+        Activity activity = resolveActivity(null);
+        if (activity != null) {
+            try {
+                Toast.makeText(activity, s, Toast.LENGTH_SHORT).show();
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    // ================================================================ floating dial
 
     private static boolean showOverlayDialog() {
         Activity activity = resolveActivity(null);
@@ -953,58 +1455,6 @@ public final class IntervalTimerHelper {
         }
     }
 
-    private static void restoreConfigDialogAfterPick() {
-        android.support.v7.app.AlertDialog current = configDialog;
-        if (current == null) {
-            return;
-        }
-        try {
-            if (!current.isShowing()) {
-                current.show();
-            }
-        } catch (Throwable t) {
-            MusicDiagLog.logError("interval_timer_dialog_restore", t);
-        }
-    }
-
-    private static void dismissConfigDialog(boolean fromDismissListener) {
-        if (configDialog != null) {
-            try {
-                configDialog.dismiss();
-            } catch (Throwable ignored) {
-            }
-            if (!fromDismissListener && !pickingSignal) {
-                configDialog = null;
-                configContent = null;
-                clearConfigRefs();
-            }
-        }
-    }
-
-    private static void clearConfigRefs() {
-        minutesView = null;
-        secondsView = null;
-        loopsView = null;
-        durationLabelView = null;
-        durationRow = null;
-        tabIntervalBtn = null;
-        tabBlockBtn = null;
-        advancedPanel = null;
-        advancedToggle = null;
-        statusView = null;
-        soundFileView = null;
-        soundFileRow = null;
-        soundSpinner = null;
-        soundPickBtn = null;
-        soundClearBtn = null;
-        presetSpinner = null;
-        simpleModePanel = null;
-        blockModePanel = null;
-        blockSummaryView = null;
-        blockDurationView = null;
-        blockRepeatSwitch = null;
-    }
-
     private static void dismissOverlayDialog(boolean fromDismissListener) {
         if (overlayDialog != null) {
             try {
@@ -1019,16 +1469,6 @@ public final class IntervalTimerHelper {
                 loopLabelView = null;
                 pauseBtnView = null;
             }
-        }
-    }
-
-    private static void applyOpaqueWindow(android.support.v7.app.AlertDialog dialog) {
-        if (dialog == null || dialog.getWindow() == null) {
-            return;
-        }
-        try {
-            dialog.getWindow().setBackgroundDrawableResource(OPAQUE_DIALOG_BG);
-        } catch (Throwable ignored) {
         }
     }
 
@@ -1152,281 +1592,6 @@ public final class IntervalTimerHelper {
         }
     }
 
-    private static void loadSavedSettings(Activity activity) {
-        if (activity == null) {
-            return;
-        }
-        try {
-            SharedPreferences prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-            savedMinutes = prefs.getInt(KEY_MINUTES, 0);
-            savedSeconds = prefs.getInt(KEY_SECONDS, 30);
-            maxLoops = prefs.getInt(KEY_LOOPS, 0);
-            selectedSound = prefs.getInt(KEY_SOUND, SOUND_BEEP);
-            String uriText = prefs.getString(KEY_CUSTOM_URI, null);
-            customSignalUri = uriText != null && uriText.length() > 0 ? Uri.parse(uriText) : null;
-            if (savedMinutes < 0) {
-                savedMinutes = 0;
-            }
-            if (savedMinutes > 59) {
-                savedMinutes = 59;
-            }
-            if (savedSeconds < 0) {
-                savedSeconds = 0;
-            }
-            if (savedSeconds > 59) {
-                savedSeconds = 59;
-            }
-            if (selectedSound < SOUND_OFF || selectedSound > SOUND_CUSTOM) {
-                selectedSound = SOUND_BEEP;
-            }
-            blockProgramMode = prefs.getBoolean(KEY_BLOCK_MODE, false);
-            blockProgramRepeat = prefs.getBoolean(KEY_BLOCK_REPEAT, false);
-            blockSegments = BlockProgramStorage.loadBlocks(activity);
-            long ms = ((savedMinutes * 60L) + savedSeconds) * 1000L;
-            intervalMs = ms > 0L ? ms : 30000L;
-        } catch (Throwable t) {
-            MusicDiagLog.logError("interval_timer_prefs_load", t);
-        }
-    }
-
-    private static void saveSettings(Activity activity, int minutes, int seconds) {
-        if (activity == null) {
-            return;
-        }
-        savedMinutes = minutes;
-        savedSeconds = seconds;
-        try {
-            SharedPreferences.Editor editor =
-                    activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
-            editor.putInt(KEY_MINUTES, minutes);
-            editor.putInt(KEY_SECONDS, seconds);
-            editor.putInt(KEY_LOOPS, maxLoops);
-            editor.putInt(KEY_SOUND, selectedSound);
-            editor.putBoolean(KEY_BLOCK_MODE, blockProgramMode);
-            editor.putBoolean(KEY_BLOCK_REPEAT, blockProgramRepeat);
-            if (customSignalUri != null) {
-                editor.putString(KEY_CUSTOM_URI, customSignalUri.toString());
-            } else {
-                editor.remove(KEY_CUSTOM_URI);
-            }
-            editor.apply();
-            BlockProgramStorage.save(activity, blockProgramMode, blockProgramRepeat, blockSegments);
-        } catch (Throwable t) {
-            MusicDiagLog.logError("interval_timer_prefs_save", t);
-        }
-    }
-
-    private static void updateModePanels() {
-        int blockVisibility = blockProgramMode ? View.VISIBLE : View.GONE;
-        int simpleVisibility = blockProgramMode ? View.GONE : View.VISIBLE;
-        if (blockModePanel != null) {
-            blockModePanel.setVisibility(blockVisibility);
-        }
-        if (simpleModePanel != null) {
-            simpleModePanel.setVisibility(simpleVisibility);
-        }
-        if (durationRow != null) {
-            durationRow.setVisibility(
-                    !blockProgramMode || blockProgramRepeat ? View.VISIBLE : View.GONE);
-        }
-        Activity activity = resolveActivity(null);
-        if (durationLabelView != null && activity != null) {
-            durationLabelView.setText(
-                    activity.getString(blockProgramMode ? STR_DURATION_TRAIN : STR_DURATION));
-        }
-        refreshModeTabHighlight();
-    }
-
-    private static void refreshModeTabHighlight() {
-        styleModeTab(tabIntervalBtn, !blockProgramMode);
-        styleModeTab(tabBlockBtn, blockProgramMode);
-    }
-
-    private static void styleModeTab(View tab, boolean active) {
-        if (tab == null) {
-            return;
-        }
-        tab.setAlpha(1f);
-        try {
-            tab.setBackgroundResource(active ? DRAWABLE_TAB_ACTIVE : DRAWABLE_TAB_INACTIVE);
-        } catch (Throwable ignored) {
-        }
-        if (tab instanceof TextView) {
-            TextView textView = (TextView) tab;
-            int colorRes = active ? COLOR_WHITE : COLOR_TEXT_PRIMARY;
-            try {
-                textView.setTextColor(tab.getContext().getResources().getColor(colorRes));
-            } catch (Throwable ignored) {
-                textView.setTextColor(active ? 0xFFFFFFFF : 0xFF3A3A3A);
-            }
-        }
-    }
-
-    private static void selectModeTab(boolean blockMode) {
-        blockProgramMode = blockMode;
-        updateModePanels();
-        refreshBlockSummary();
-    }
-
-    private static void syncDurationFieldsFromValues() {
-        int totalSec = savedMinutes * 60 + savedSeconds;
-        if (totalSec < DURATION_MIN_SEC) {
-            totalSec = DURATION_MIN_SEC;
-        }
-        if (totalSec > DURATION_MAX_SEC) {
-            totalSec = DURATION_MAX_SEC;
-        }
-        savedMinutes = totalSec / 60;
-        savedSeconds = totalSec % 60;
-        setEditQuiet(minutesView, savedMinutes);
-        setEditQuiet(secondsView, savedSeconds);
-        int loops = maxLoops;
-        if (loops < 0) {
-            loops = 0;
-        }
-        if (loops > LOOPS_MAX) {
-            loops = LOOPS_MAX;
-        }
-        setEditQuiet(loopsView, loops);
-    }
-
-    private static void setEditQuiet(EditText view, int value) {
-        if (view == null) {
-            return;
-        }
-        try {
-            view.setText(String.valueOf(value));
-        } catch (Throwable ignored) {
-        }
-    }
-
-    private static int readDurationTotalSec() {
-        int minutes = readEditField(minutesView, 0, DURATION_MAX_SEC / 60);
-        int seconds = readEditField(secondsView, 0, 59);
-        int totalSec = minutes * 60 + seconds;
-        if (totalSec < DURATION_MIN_SEC) {
-            totalSec = DURATION_MIN_SEC;
-        }
-        if (totalSec > DURATION_MAX_SEC) {
-            totalSec = DURATION_MAX_SEC;
-        }
-        savedMinutes = totalSec / 60;
-        savedSeconds = totalSec % 60;
-        return totalSec;
-    }
-
-    private static void refreshAdvancedToggleLabel(Activity activity) {
-        if (advancedToggle == null || activity == null) {
-            return;
-        }
-        String label = activity.getString(STR_ADVANCED);
-        if (advancedExpanded) {
-            label = label.replace('\u25BE', '\u25B4');
-        }
-        if (advancedToggle instanceof TextView) {
-            ((TextView) advancedToggle).setText(label);
-        } else if (advancedToggle instanceof android.widget.Button) {
-            ((android.widget.Button) advancedToggle).setText(label);
-        }
-    }
-
-    private static void refreshBlockSummary() {
-        if (blockSummaryView == null) {
-            return;
-        }
-        Activity activity = resolveActivity(null);
-        if (activity == null) {
-            return;
-        }
-        int count = blockSegments != null ? blockSegments.size() : 0;
-        blockSummaryView.setText(activity.getString(STR_BLOCK_SUMMARY, count));
-        if (blockDurationView != null) {
-            int[] onOff = new int[] {4, 4};
-            com.isaigu.gymapp.train.model.TrainItem seed = MusicPlayerHelper.resolveTargetItem(itemManager);
-            if (seed != null && seed.getTrainProgram() != null
-                    && seed.getTrainProgram().matchProgram() != null) {
-                com.isaigu.gymapp.bean.ProgramDataBean bean = seed.getTrainProgram().matchProgram();
-                if (bean.pulseContinue > 0) {
-                    onOff[0] = bean.pulseContinue;
-                }
-                if (bean.pulsePause > 0) {
-                    onOff[1] = bean.pulsePause;
-                }
-            }
-            int seqSec = BlockProgramRunner.computeSequenceSeconds(blockSegments, onOff[0], onOff[1]);
-            if (blockProgramRepeat) {
-                blockDurationView.setText(activity.getString(STR_BLOCK_TRAIN_TIME));
-            } else {
-                blockDurationView.setText(activity.getString(STR_BLOCK_DURATION, seqSec / 60, seqSec % 60));
-            }
-        }
-    }
-
-    private static int[] resolveOnOffFromSeed() {
-        int on = 4;
-        int off = 4;
-        com.isaigu.gymapp.train.model.TrainItem seed = MusicPlayerHelper.resolveTargetItem(itemManager);
-        if (seed != null && seed.getTrainProgram() != null) {
-            com.isaigu.gymapp.bean.ProgramDataBean bean = seed.getTrainProgram().matchProgram();
-            if (bean != null) {
-                if (bean.pulseContinue > 0) {
-                    on = bean.pulseContinue;
-                }
-                if (bean.pulsePause > 0) {
-                    off = bean.pulsePause;
-                }
-            }
-        }
-        return new int[] {on, off};
-    }
-
-    private static void refreshStatusText() {
-        if (statusView == null) {
-            return;
-        }
-        if (!armed) {
-            statusView.setText(STR_STATUS_IDLE);
-        } else if (countdownRunning) {
-            statusView.setText(STR_STATUS_RUNNING);
-        } else {
-            statusView.setText(STR_STATUS_ARMED);
-        }
-    }
-
-    private static void refreshSoundUi() {
-        boolean needsUri = selectedSound == SOUND_CUSTOM || selectedSound == SOUND_DEVICE;
-        if (soundPickBtn != null) {
-            soundPickBtn.setEnabled(needsUri);
-            soundPickBtn.setAlpha(needsUri ? 1.0f : 0.45f);
-        }
-        if (soundFileRow != null) {
-            soundFileRow.setVisibility(needsUri ? View.VISIBLE : View.GONE);
-        }
-        if (soundFileView != null && needsUri) {
-            if (customSignalUri == null) {
-                soundFileView.setText(
-                        selectedSound == SOUND_DEVICE ? STR_SOUND_PICK_DEVICE : STR_SOUND_NO_FILE);
-            } else {
-                String name = customSignalUri.getLastPathSegment();
-                if (name == null || name.length() == 0) {
-                    soundFileView.setText(customSignalUri.toString());
-                } else {
-                    soundFileView.setText(name);
-                }
-            }
-        }
-        if (soundClearBtn != null) {
-            soundClearBtn.setVisibility(needsUri ? View.VISIBLE : View.GONE);
-        }
-        if (soundSpinner != null) {
-            ignoreSpinnerCallback = true;
-            if (selectedSound >= 0 && selectedSound < soundSpinner.getCount()) {
-                soundSpinner.setSelection(selectedSound);
-            }
-            ignoreSpinnerCallback = false;
-        }
-    }
-
     private static void resetCurrentInterval() {
         if (!armed) {
             return;
@@ -1544,80 +1709,6 @@ public final class IntervalTimerHelper {
         signalPlayer = null;
     }
 
-    private static void startRingtonePick(View view) {
-        Activity activity = MusicPlayerHelper.resolveHostActivity(view);
-        if (activity == null) {
-            toast(STR_ERROR);
-            return;
-        }
-        hostActivity = activity;
-        soundBeforePick = readSoundSelection();
-        if (soundBeforePick != SOUND_DEVICE) {
-            soundBeforePick = SOUND_BEEP;
-        }
-        try {
-            Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            intent.putExtra(
-                    RingtoneManager.EXTRA_RINGTONE_TYPE,
-                    RingtoneManager.TYPE_NOTIFICATION
-                            | RingtoneManager.TYPE_ALARM
-                            | RingtoneManager.TYPE_RINGTONE);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, activity.getString(STR_SOUND_DEVICE));
-            if (customSignalUri != null) {
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, customSignalUri);
-            }
-            pickingSignal = true;
-            if (configDialog != null) {
-                try {
-                    configDialog.hide();
-                } catch (Throwable ignored) {
-                }
-            }
-            activity.startActivityForResult(intent, PICK_RINGTONE);
-        } catch (Throwable t) {
-            pickingSignal = false;
-            restoreConfigDialogAfterPick();
-            MusicDiagLog.logError("interval_timer_ringtone_pick", t);
-            toast(STR_ERROR);
-        }
-    }
-
-    /** Same file-picker flow as {@link MusicPlayerHelper.PickListener}. */
-    private static void startSignalPick(View view) {
-        Activity activity = MusicPlayerHelper.resolveHostActivity(view);
-        if (activity == null) {
-            toast(STR_ERROR);
-            return;
-        }
-        hostActivity = activity;
-        soundBeforePick = readSoundSelection();
-        if (soundBeforePick == SOUND_CUSTOM) {
-            soundBeforePick = SOUND_BEEP;
-        }
-        try {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("audio/*");
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-            pickingSignal = true;
-            if (configDialog != null) {
-                try {
-                    configDialog.hide();
-                } catch (Throwable ignored) {
-                }
-            }
-            activity.startActivityForResult(intent, PICK_SIGNAL);
-        } catch (Throwable t) {
-            pickingSignal = false;
-            restoreConfigDialogAfterPick();
-            MusicDiagLog.logError("interval_timer_pick", t);
-            toast(STR_ERROR);
-        }
-    }
-
     private static String formatSeconds(long totalSec) {
         if (totalSec < 0L) {
             totalSec = 0L;
@@ -1625,32 +1716,6 @@ public final class IntervalTimerHelper {
         long min = totalSec / 60L;
         long sec = totalSec % 60L;
         return String.format("%02d:%02d", min, sec);
-    }
-
-    private static int readLoopsInput() {
-        return readEditField(loopsView, 0, LOOPS_MAX);
-    }
-
-    private static int readEditField(EditText view, int min, int max) {
-        if (view == null) {
-            return min;
-        }
-        try {
-            String raw = view.getText() != null ? view.getText().toString().trim() : "";
-            if (raw.length() == 0) {
-                return min;
-            }
-            int value = Integer.parseInt(raw);
-            if (value < min) {
-                return min;
-            }
-            if (value > max) {
-                return max;
-            }
-            return value;
-        } catch (Throwable ignored) {
-            return min;
-        }
     }
 
     private static void bindButton(View view, View.OnClickListener listener) {
@@ -1732,89 +1797,6 @@ public final class IntervalTimerHelper {
         }
     }
 
-    static final class TabIntervalListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            selectModeTab(false);
-        }
-    }
-
-    static final class TabBlockListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            selectModeTab(true);
-        }
-    }
-
-    static final class TimerInfoListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            Activity activity = v != null
-                    ? MusicPlayerHelper.resolveActivity(v.getContext())
-                    : resolveActivity(null);
-            if (activity == null) {
-                activity = resolveActivity(null);
-            }
-            if (activity == null) {
-                return;
-            }
-            ModalInfoHelper.show(activity, STR_INFO_TITLE, STR_INFO_BODY);
-        }
-    }
-
-    static final class AdvancedToggleListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            advancedExpanded = !advancedExpanded;
-            if (advancedPanel != null) {
-                advancedPanel.setVisibility(advancedExpanded ? View.VISIBLE : View.GONE);
-            }
-            refreshAdvancedToggleLabel(MusicPlayerHelper.resolveHostActivity(v));
-        }
-    }
-
-    static final class BlockRepeatSwitchListener implements CompoundButton.OnCheckedChangeListener {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            blockProgramRepeat = isChecked;
-            updateModePanels();
-            refreshBlockSummary();
-        }
-    }
-
-    static final class BlockEditListener implements View.OnClickListener {
-        private final Activity activity;
-
-        BlockEditListener(Activity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        public void onClick(View v) {
-            BlockProgramEditor.show(
-                    activity,
-                    blockSegments,
-                    MusicPlayerHelper.resolveTargetItem(itemManager),
-                    new BlockEditDoneRunnable());
-        }
-    }
-
-    static final class BlockEditDoneRunnable implements Runnable {
-        @Override
-        public void run() {
-            refreshBlockSummary();
-        }
-    }
-
-    static final class PresetRefreshRunnable implements Runnable {
-        @Override
-        public void run() {
-            updateModePanels();
-            refreshBlockSummary();
-            refreshSoundUi();
-        }
-    }
-
     static final class ResetOverlayListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -1841,94 +1823,6 @@ public final class IntervalTimerHelper {
         public void onClick(View v) {
             hostActivity = MusicPlayerHelper.resolveHostActivity(v);
             toggleMasterPanel();
-        }
-    }
-
-    static final class ActivateListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            hostActivity = MusicPlayerHelper.resolveHostActivity(v);
-            armFromConfig();
-        }
-    }
-
-    static final class SoundSpinnerListener implements android.widget.AdapterView.OnItemSelectedListener {
-        @Override
-        public void onItemSelected(
-                android.widget.AdapterView<?> parent, View view, int position, long id) {
-            if (ignoreSpinnerCallback) {
-                return;
-            }
-            selectedSound = position;
-            refreshSoundUi();
-        }
-
-        @Override
-        public void onNothingSelected(android.widget.AdapterView<?> parent) {
-        }
-    }
-
-    static final class SoundPreviewListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            selectedSound = readSoundSelection();
-            if ((selectedSound == SOUND_CUSTOM || selectedSound == SOUND_DEVICE)
-                    && customSignalUri == null) {
-                toast(selectedSound == SOUND_DEVICE ? STR_SOUND_PICK_DEVICE : STR_SOUND_NO_FILE);
-                return;
-            }
-            playSignal();
-        }
-    }
-
-    static final class SoundPickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            int sound = readSoundSelection();
-            if (sound == SOUND_DEVICE) {
-                if (soundSpinner != null) {
-                    ignoreSpinnerCallback = true;
-                    soundSpinner.setSelection(SOUND_DEVICE);
-                    ignoreSpinnerCallback = false;
-                }
-                selectedSound = SOUND_DEVICE;
-                refreshSoundUi();
-                startRingtonePick(v);
-                return;
-            }
-            selectedSound = SOUND_CUSTOM;
-            if (soundSpinner != null) {
-                ignoreSpinnerCallback = true;
-                soundSpinner.setSelection(SOUND_CUSTOM);
-                ignoreSpinnerCallback = false;
-            }
-            refreshSoundUi();
-            startSignalPick(v);
-        }
-    }
-
-    static final class SoundClearListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            selectedSound = SOUND_BEEP;
-            if (soundSpinner != null) {
-                ignoreSpinnerCallback = true;
-                soundSpinner.setSelection(SOUND_BEEP);
-                ignoreSpinnerCallback = false;
-            }
-            refreshSoundUi();
-        }
-    }
-
-    static final class ConfigDismissListener implements android.content.DialogInterface.OnDismissListener {
-        @Override
-        public void onDismiss(android.content.DialogInterface d) {
-            if (pickingSignal) {
-                return;
-            }
-            configDialog = null;
-            configContent = null;
-            clearConfigRefs();
         }
     }
 

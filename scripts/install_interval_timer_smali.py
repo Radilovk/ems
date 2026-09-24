@@ -16,7 +16,6 @@ BRANDING_SMALI = ROOT / "branding/smali"
 DIALOG_GLOBS = (
     "IntervalTimerHelper*.smali",
     "TimerPreset*.smali",
-    "TimerPresetUiHelper*.smali",
     "BlockProgram*.smali",
     "ProgramSegment.smali",
     "BlockProgramEditor*.smali",
@@ -26,20 +25,8 @@ DIALOG_GLOBS = (
 REQUIRED_DIALOG = (
     "IntervalTimerHelper.smali",
     "IntervalTimerHelper$MasterToggleListener.smali",
-    "IntervalTimerHelper$PresetRefreshRunnable.smali",
-    "IntervalTimerHelper$ActivateListener.smali",
     "TimerPreset.smali",
     "TimerPresetStorage.smali",
-    "TimerPresetUiHelper.smali",
-    "TimerPresetUiHelper$PresetSpinnerListener.smali",
-    "TimerPresetUiHelper$SavePresetListener.smali",
-    "TimerPresetUiHelper$SavePresetNameCallback.smali",
-    "TimerPresetUiHelper$RenamePresetListener.smali",
-    "TimerPresetUiHelper$RenamePresetNameCallback.smali",
-    "TimerPresetUiHelper$DeletePresetListener.smali",
-    "TimerPresetUiHelper$DeleteConfirmListener.smali",
-    "TimerPresetUiHelper$NameOkListener.smali",
-    "TimerPresetUiHelper$NameCallback.smali",
     "BlockProgramRunner.smali",
     "BlockProgramStorage.smali",
     "BlockProgramEditor.smali",
@@ -78,11 +65,6 @@ def verify() -> None:
     if runner.is_file() and "-$$Lambda$BlockProgramRunner" in runner.read_text(encoding="utf-8"):
         raise SystemExit(
             "BlockProgramRunner.smali references lambda classes — rebuild without lambdas"
-        )
-    inner_count = len(list(DIALOG_DIR.glob("TimerPresetUiHelper$*.smali")))
-    if inner_count < 8:
-        raise SystemExit(
-            f"TimerPresetUiHelper inner classes missing ({inner_count}/8+) — dialog open will crash"
         )
 
 

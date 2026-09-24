@@ -33,18 +33,15 @@ def main() -> int:
     missing = [
         name for name in installer.REQUIRED_DIALOG if not (DIALOG_DIR / name).is_file()
     ]
-    inner_count = len(list(DIALOG_DIR.glob("TimerPresetUiHelper$*.smali")))
     errs: list[str] = []
     if missing:
         errs.append(
             "missing dialog smali (timer config open will crash):\n    "
             + "\n    ".join(missing)
         )
-    if inner_count < 9:
-        errs.append(
-            f"TimerPresetUiHelper inner classes incomplete ({inner_count}/9+) — "
-            "run install_interval_timer_smali.py after compile-interval-timer-java.sh"
-        )
+    widget = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget/XemsUi.smali"
+    if not widget.is_file():
+        errs.append("widget/XemsUi.smali missing — timer settings sheet would crash (run compile-music-sync-java.sh)")
     runner = DIALOG_DIR / "BlockProgramRunner.smali"
     if runner.is_file() and "-$$Lambda$BlockProgramRunner" in runner.read_text(encoding="utf-8"):
         errs.append("BlockProgramRunner.smali references lambda classes — training start will crash")

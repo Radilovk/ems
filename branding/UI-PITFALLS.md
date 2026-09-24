@@ -3,6 +3,8 @@
 Помощен документ за бъдеща разработка на UI елементи, overlay-и и BETA функции (music player, interval timer, train list).
 Актуализирано: 2026-09-21.
 
+Нов UI: ползвай общия комплект `widget/XemsUi` (цветове от темата, карти, чипове, броячи, прозорец) — виж [docs/xems-ui-kit.md](../docs/xems-ui-kit.md). Без XML за нови прозорци, без lambdas (dx), без анонимни класове в `MusicPlayerHelper` (проверката за `MusicPlayerHelper$1`).
+
 Свързани файлове: [DEVELOPMENT.md](DEVELOPMENT.md), [train-controls-map.yaml](train-controls-map.yaml), [ui-map.yaml](ui-map.yaml).
 
 ---

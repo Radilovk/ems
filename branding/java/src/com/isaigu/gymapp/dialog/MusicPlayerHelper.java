@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.drawable.GradientDrawable;
 
 import com.isaigu.gymapp.MainActivity;
 import com.isaigu.gymapp.train.TrainItemManager;
@@ -33,6 +34,7 @@ import com.isaigu.gymapp.widget.AmountView;
 import com.isaigu.gymapp.widget.CircleSeekBar;
 import com.isaigu.gymapp.widget.MusicImpulseMeterView;
 import com.isaigu.gymapp.widget.MusicVisualizerView;
+import com.isaigu.gymapp.widget.XemsUi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +105,8 @@ public final class MusicPlayerHelper {
     private static View settingsButton;
     private static View playlistButton;
     private static MusicImpulseMeterView meterView;
+    /** Kit steppers shown in place of the AmountViews: sensitivity, rhythm, floor, smooth. */
+    private static XemsUi.Stepper[] settingSteppers = new XemsUi.Stepper[4];
 
     private static TrainItemManager itemManager;
     private static final ArrayList<MusicPlaylistEntry> playlist = new ArrayList<MusicPlaylistEntry>();
@@ -537,7 +541,9 @@ public final class MusicPlayerHelper {
                 (TextView) content.findViewById(ID_PRESET_BEAT),
         };
 
+        XemsUi.init(activity);
         configureSettings();
+        styleOverlay(activity, content);
         configureSeekBar();
         bindButton(playPauseBtn, new PlayPauseListener());
         bindButton(playlistButton, new PanelToggleListener(false));
@@ -670,6 +676,7 @@ public final class MusicPlayerHelper {
         setAmountSafe(rhythmView, preset[0]);
         setAmountSafe(floorView, preset[1]);
         setAmountSafe(smoothView, preset[2]);
+        refreshSettingSteppers();
         persistSettings();
         refreshPresetHighlight();
     }
@@ -685,10 +692,7 @@ public final class MusicPlayerHelper {
             boolean active = MusicSync.getRhythmMix() == preset[0]
                     && MusicSync.getFloorPercent() == preset[1]
                     && MusicSync.getSmoothness() == preset[2];
-            Activity activity = resolveHostActivity(null, chip);
-            chip.setTextColor(active
-                    ? resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A)
-                    : resolveThemeColor(activity, COLOR_TEXT_SECONDARY, 0xFF9E9E9E));
+            styleChip(chip, active);
             chip.setSelected(active);
         }
     }
@@ -712,10 +716,8 @@ public final class MusicPlayerHelper {
         if (!(button instanceof TextView)) {
             return;
         }
-        Activity activity = resolveHostActivity(null, button);
-        ((TextView) button).setTextColor(open
-                ? resolveThemeColor(activity, COLOR_LIGHT_GREEN, 0xFF66BB6A)
-                : resolveThemeColor(activity, COLOR_TEXT_PRIMARY, 0xFFFFFFFF));
+        styleRound(button, open ? XemsUi.alpha(XemsUi.GO, 0x33) : XemsUi.SURFACE,
+                open ? XemsUi.GO_TEXT : XemsUi.TEXT);
         button.setSelected(open);
     }
 
@@ -736,12 +738,25 @@ public final class MusicPlayerHelper {
             }
             TextView title = (TextView) row.findViewById(ID_PLAYLIST_ITEM_TITLE);
             View handle = row.findViewById(ID_PLAYLIST_ITEM_HANDLE);
+            boolean current = index == currentIndex;
+            row.setBackgroundDrawable(XemsUi.rounded(current ? XemsUi.alpha(XemsUi.GO, 0x26) : XemsUi.SURFACE,
+                    dp(activity, 12), current ? XemsUi.alpha(XemsUi.GO_TEXT, 0xAA) : XemsUi.STROKE, dp(activity, 1)));
             if (title != null) {
-                title.setText(entry.name);
-                if (index == currentIndex) {
-                    title.setTextColor(0xFF7CFC00);
-                }
+                title.setText((current ? "▶  " : (index + 1) + ".  ") + entry.name);
+                title.setTextColor(current ? XemsUi.GO_TEXT : XemsUi.TEXT);
+                title.setTypeface(android.graphics.Typeface.DEFAULT, current
+                        ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
                 title.setOnClickListener(new PlaylistSelectListener(index));
+            }
+            if (handle instanceof TextView) {
+                ((TextView) handle).setTextColor(XemsUi.MUTED);
+            }
+            if (row instanceof LinearLayout) {
+                TextView remove = XemsUi.iconButton(activity, "✕", XemsUi.CARD, XemsUi.MUTED, 30);
+                remove.setOnClickListener(new RemoveTrackListener(index));
+                LinearLayout.LayoutParams rl = new LinearLayout.LayoutParams(dp(activity, 30), dp(activity, 30));
+                rl.rightMargin = dp(activity, 4);
+                ((LinearLayout) row).addView(remove, ((LinearLayout) row).getChildCount() - 1, rl);
             }
             if (handle != null) {
                 handle.setOnTouchListener(new PlaylistDragListener(index));
@@ -749,6 +764,180 @@ public final class MusicPlayerHelper {
             playlistList.addView(row);
         }
         clearDragHighlight();
+    }
+
+    // ================================================================ look (XemsUi)
+
+    /** Bring the inflated overlay onto the app theme: round controls, kit steppers, chips. */
+    private static void styleOverlay(final Activity a, View content) {
+        try {
+            if (playPauseBtn != null) {
+                GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                        new int[] {XemsUi.GO, XemsUi.mix(XemsUi.GO, 0xFF000000, 0.2f)});
+                g.setShape(GradientDrawable.OVAL);
+                playPauseBtn.setBackgroundDrawable(XemsUi.ripple(g, 0xFFFFFFFF, dp(a, 56)));
+                playPauseBtn.setTextColor(0xFFFFFFFF);
+                playPauseBtn.setElevation(dp(a, 6));
+                XemsUi.pressable(playPauseBtn);
+            }
+            styleRound(content.findViewById(ID_CLOSE), XemsUi.SURFACE, XemsUi.TEXT);
+            styleRound(content.findViewById(ID_INFO), XemsUi.SURFACE, XemsUi.TEXT);
+            View add = content.findViewById(ID_ADD_TRACK);
+            if (add instanceof TextView) {
+                ((TextView) add).setText(tr("+  Добави песни", "+  Add songs"));
+                ((TextView) add).setTextColor(XemsUi.TEXT);
+                add.setBackgroundDrawable(XemsUi.ripple(XemsUi.rounded(XemsUi.SURFACE, dp(a, 20), XemsUi.STROKE,
+                        dp(a, 1)), XemsUi.TEXT, dp(a, 20)));
+                XemsUi.pressable(add);
+            }
+            View now = content.findViewById(0x7f0902c1);
+            if (now != null) {
+                now.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, dp(a, 14), XemsUi.STROKE, dp(a, 1)));
+            }
+            if (statusView != null) {
+                statusView.setTextColor(XemsUi.GO_TEXT);
+            }
+            addPrevNext(a);
+            replaceAmount(a, sensitivityView, 0, 5, 0, 100);
+            replaceAmount(a, rhythmView, 1, 10, 0, 100);
+            replaceAmount(a, floorView, 2, 5, 0, 80);
+            replaceAmount(a, smoothView, 3, 10, 0, 100);
+        } catch (Throwable t) {
+            MusicDiagLog.logError("music_player_style", t);
+        }
+    }
+
+    private static void styleRound(View v, int fill, int fg) {
+        if (v == null) {
+            return;
+        }
+        GradientDrawable g = new GradientDrawable();
+        g.setShape(GradientDrawable.OVAL);
+        g.setColor(fill);
+        g.setStroke(Math.max(1, dp(resolveHostActivity(v), 1)), XemsUi.STROKE);
+        v.setBackgroundDrawable(XemsUi.ripple(g, fg, dp(resolveHostActivity(v), 48)));
+        if (v instanceof TextView) {
+            ((TextView) v).setTextColor(fg);
+        }
+        XemsUi.pressable(v);
+    }
+
+    private static void styleChip(TextView chip, boolean active) {
+        Activity a = resolveHostActivity(chip);
+        int r = dp(a, 17);
+        chip.setBackgroundDrawable(XemsUi.ripple(active
+                ? XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x2A), r, XemsUi.alpha(XemsUi.GO_TEXT, 0xCC), dp(a, 1))
+                : XemsUi.rounded(XemsUi.SURFACE, r, XemsUi.STROKE, dp(a, 1)), XemsUi.TEXT, r));
+        chip.setTextColor(active ? XemsUi.GO_TEXT : XemsUi.TEXT);
+    }
+
+    /** Previous / next next to the time in the now-playing card. */
+    private static void addPrevNext(Activity a) {
+        if (timeView == null || !(timeView.getParent() instanceof LinearLayout)) {
+            return;
+        }
+        LinearLayout row = (LinearLayout) timeView.getParent();
+        TextView prev = XemsUi.iconButton(a, "⏮", XemsUi.CARD, XemsUi.TEXT, 32);
+        TextView next = XemsUi.iconButton(a, "⏭", XemsUi.CARD, XemsUi.TEXT, 32);
+        prev.setOnClickListener(new SkipListener(-1));
+        next.setOnClickListener(new SkipListener(+1));
+        LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(dp(a, 32), dp(a, 32));
+        pl.leftMargin = dp(a, 8);
+        row.addView(prev, pl);
+        LinearLayout.LayoutParams nl = new LinearLayout.LayoutParams(dp(a, 32), dp(a, 32));
+        nl.leftMargin = dp(a, 6);
+        row.addView(next, nl);
+    }
+
+    /** Hide the AmountView and put a kit stepper (hold = fast) in its place. */
+    private static void replaceAmount(Activity a, AmountView view, final int which, final int step,
+            final int min, final int max) {
+        if (view == null || !(view.getParent() instanceof LinearLayout)) {
+            return;
+        }
+        LinearLayout row = (LinearLayout) view.getParent();
+        int index = row.indexOfChild(view);
+        view.setVisibility(View.GONE);
+        if (row.getChildAt(0) instanceof TextView) {
+            ((TextView) row.getChildAt(0)).setTextColor(XemsUi.TEXT);
+        }
+        XemsUi.Stepper st = XemsUi.stepper(a, settingValue(which) + "", "%", 17, null);
+        XemsUi.OnStep cb = new SettingStep(which, step, min, max, st);
+        XemsUi.repeatOnHold(st.view.getChildAt(0), cb, -1);
+        XemsUi.repeatOnHold(st.view.getChildAt(2), cb, +1);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lp.topMargin = dp(a, 3);
+        lp.bottomMargin = dp(a, 3);
+        row.addView(st.view, index, lp);
+        settingSteppers[which] = st;
+    }
+
+    private static int settingValue(int which) {
+        switch (which) {
+            case 0: return MusicSync.getSensitivity();
+            case 1: return MusicSync.getRhythmMix();
+            case 2: return MusicSync.getFloorPercent();
+            default: return MusicSync.getSmoothness();
+        }
+    }
+
+    private static void refreshSettingSteppers() {
+        for (int i = 0; i < settingSteppers.length; i++) {
+            if (settingSteppers[i] != null) {
+                settingSteppers[i].set(String.valueOf(settingValue(i)), "%");
+            }
+        }
+    }
+
+    /** ⏮ / ⏭: switch track; keeps playing if it was playing. */
+    private static void skip(int dir) {
+        if (playlist.isEmpty()) {
+            return;
+        }
+        int next = currentIndex + dir;
+        if (next < 0 || next >= playlist.size()) {
+            return;
+        }
+        boolean wasPlaying = MusicSync.isRunning() && MusicSync.isPlayerMode() && !MusicSync.isPlaybackPaused();
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            MusicSync.stop();
+        }
+        currentIndex = next;
+        refreshTrackTitle();
+        Activity activity = resolveHostActivity(null, overlayContent);
+        rebuildPlaylistViews(activity);
+        if (wasPlaying) {
+            startCurrentTrack(true);
+        } else {
+            showIdle();
+        }
+    }
+
+    private static void removeTrack(int index) {
+        if (index < 0 || index >= playlist.size()) {
+            return;
+        }
+        if (index == currentIndex && MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            MusicSync.stop();
+            showIdle();
+        }
+        playlist.remove(index);
+        if (playlist.isEmpty()) {
+            currentIndex = -1;
+        } else if (index < currentIndex || currentIndex >= playlist.size()) {
+            currentIndex = Math.max(0, currentIndex - 1);
+        }
+        Activity activity = resolveHostActivity(null, overlayContent);
+        if (activity != null) {
+            persistPlaylist(activity);
+            rebuildPlaylistViews(activity);
+        }
+        refreshTrackTitle();
+        resizeOverlayWindow();
+    }
+
+    private static String tr(String bg, String en) {
+        return IntervalTimerHelper.tr(bg, en);
     }
 
     private static void refreshTrackTitle() {
@@ -1380,6 +1569,7 @@ public final class MusicPlayerHelper {
         settingsButton = null;
         playlistButton = null;
         meterView = null;
+        settingSteppers = new XemsUi.Stepper[4];
     }
 
     private static void moveOverlayWindow(int x, int y) {
@@ -1805,6 +1995,56 @@ public final class MusicPlayerHelper {
                 default:
                     return false;
             }
+        }
+    }
+
+    static final class RemoveTrackListener implements View.OnClickListener {
+        private final int index;
+
+        RemoveTrackListener(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public void onClick(View v) {
+            removeTrack(index);
+        }
+    }
+
+    static final class SkipListener implements View.OnClickListener {
+        private final int dir;
+
+        SkipListener(int dir) {
+            this.dir = dir;
+        }
+
+        @Override
+        public void onClick(View v) {
+            skip(dir);
+        }
+    }
+
+    /** Kit stepper → the same path as the old AmountView listener. */
+    static final class SettingStep implements XemsUi.OnStep {
+        private final int which;
+        private final int step;
+        private final int min;
+        private final int max;
+        private final XemsUi.Stepper stepper;
+
+        SettingStep(int which, int step, int min, int max, XemsUi.Stepper stepper) {
+            this.which = which;
+            this.step = step;
+            this.min = min;
+            this.max = max;
+            this.stepper = stepper;
+        }
+
+        @Override
+        public void onStep(int d) {
+            int v = Math.max(min, Math.min(max, settingValue(which) + d * step));
+            new SettingChangeListener(which).onAmountChange(null, v);
+            stepper.set(String.valueOf(v), "%");
         }
     }
 

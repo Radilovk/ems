@@ -2,9 +2,10 @@
 """Local-only mode: users, programs, history and suits without xemsplus cloud sync.
 
 - MainFragment.initData: XemsLocalStore.bootstrapOnline, with or without network
-- MainFragment.initUsers / initTrainPrograms: load local lists only
+- MainFragment.initUsers / initTrainPrograms: unchanged; they go through ApiMgr (below)
 - ApiMgr: customers, programs and training history answered by XemsLocalApi (the tablet),
-  so no screen can pull the cloud list over the local one
+  so no screen can pull the cloud list over the local one. In the admin setup (0123) the
+  customer and program lists ask the cloud once after start and merge into the tablet's
 - EditUserPersonalDataDialog$6: local user save at :cond_a
 - EditUserProgramDataDialog$10$1: local program save (skip network branch)
 - Connect dialogs (both): allowed suits only after the admin setup, pair on BLE connect,
@@ -35,7 +36,10 @@ DEVICE_ADAPTERS = (
 API_MGR = SMALI / "mgr/ApiMgr.smali"
 LOCAL_API = "Lcom/isaigu/gymapp/widget/XemsLocalApi;"
 CB = "Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;"
-# ApiMgr method (name, smali params) -> XemsLocalApi method of the same name and signature.
+# ApiMgr method (name, smali params) -> XemsLocalApi method of the same name and parameters.
+# Methods in API_MAYBE_CLOUD return a callback: null = answered by the tablet, else the cloud
+# request goes on with that callback (admin setup sync).
+API_MAYBE_CLOUD = ("getUserCustomers", "getUserProgramTrainDataList")
 API_REDIRECTS = (
     ("getUserCustomers", "J" + CB),
     ("getUserBindMachine", "J" + CB),
@@ -52,8 +56,6 @@ SRC = ROOT / "branding" / "smali" / "widget"
 DEST = SMALI / "widget"
 
 BOOTSTRAP = "Lcom/isaigu/gymapp/widget/XemsLocalStore;->bootstrapOnline(Lcom/isaigu/gymapp/fragment/MainFragment;)V"
-LOAD_USERS = "Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadUsers()V"
-LOAD_PROGRAMS = "Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadPrograms()V"
 LOCAL_SECTION_ATTACH = (
     "\n    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalSection;"
     "->attach(Landroid/app/Activity;Landroid/view/View;)V\n"
@@ -125,98 +127,6 @@ def patch_main_init_data() -> None:
     invoke-static {{}}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;"""
     MAIN.write_text(text.replace(anchor, replacement, 1), encoding="utf-8")
     print("MainFragment.initData: cloud bootstrap replaced with local")
-
-
-def patch_init_users() -> None:
-    text = MAIN.read_text(encoding="utf-8")
-    old = f""".method private initUsers()V
-    .locals 3
-
-    .line 286
-    invoke-static {{}}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
-
-    move-result-object v0
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->loginUser:Lcom/isaigu/gymapp/bean/TrainUser;
-
-    iget-wide v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
-
-    new-instance v2, Lcom/isaigu/gymapp/fragment/MainFragment$5;
-
-    invoke-direct {{v2, p0}}, Lcom/isaigu/gymapp/fragment/MainFragment$5;-><init>(Lcom/isaigu/gymapp/fragment/MainFragment;)V
-
-    invoke-static {{v0, v1, v2}}, Lcom/isaigu/gymapp/mgr/ApiMgr;->getUserCustomers(JLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-
-    .line 298
-    return-void
-.end method"""
-    new = f""".method private initUsers()V
-    .locals 0
-
-    .line 286
-    invoke-static {{}}, {LOAD_USERS}
-
-    .line 298
-    const/16 v0, 0x69
-
-    invoke-static {{v0}}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
-
-    return-void
-.end method"""
-    users_body = text.split(".method private initUsers()V", 1)[-1].split(".end method")[0]
-    if LOAD_USERS in users_body:
-        print("MainFragment.initUsers: already local")
-        return
-    if old not in text:
-        raise SystemExit("MainFragment.initUsers block not found")
-    MAIN.write_text(text.replace(old, new, 1), encoding="utf-8")
-    print("MainFragment.initUsers: local only")
-
-
-def patch_init_programs() -> None:
-    text = MAIN.read_text(encoding="utf-8")
-    old = f""".method private initTrainPrograms()V
-    .locals 3
-
-    .line 361
-    invoke-static {{}}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
-
-    move-result-object v0
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->loginUser:Lcom/isaigu/gymapp/bean/TrainUser;
-
-    iget-wide v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
-
-    new-instance v2, Lcom/isaigu/gymapp/fragment/MainFragment$9;
-
-    invoke-direct {{v2, p0}}, Lcom/isaigu/gymapp/fragment/MainFragment$9;-><init>(Lcom/isaigu/gymapp/fragment/MainFragment;)V
-
-    invoke-static {{v0, v1, v2}}, Lcom/isaigu/gymapp/mgr/ApiMgr;->getUserProgramTrainDataList(JLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-
-    .line 373
-    return-void
-.end method"""
-    new = f""".method private initTrainPrograms()V
-    .locals 1
-
-    .line 361
-    invoke-static {{}}, {LOAD_PROGRAMS}
-
-    .line 373
-    const/16 v0, 0x6a
-
-    invoke-static {{v0}}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
-
-    return-void
-.end method"""
-    prog_body = text.split(".method private initTrainPrograms()V", 1)[-1].split(".end method")[0]
-    if LOAD_PROGRAMS in prog_body:
-        print("MainFragment.initTrainPrograms: already local")
-        return
-    if old not in text:
-        raise SystemExit("MainFragment.initTrainPrograms block not found")
-    MAIN.write_text(text.replace(old, new, 1), encoding="utf-8")
-    print("MainFragment.initTrainPrograms: local only")
 
 
 def patch_user_save() -> None:
@@ -441,29 +351,23 @@ def patch_connect_dialog(path: Path, label: str) -> None:
 
 def patch_device_adapter(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
-    if "addDiscoveredDevice" in text:
+    if "XemsLocalStore;->onDiscovered" in text:
         print(f"{path.stem}: already patched")
         return
-    cls = "Lcom/isaigu/gymapp/dialog/" + path.stem + ";"
     anchor = """    .end local v0    # "i":I
     :cond_3
     :goto_1
     monitor-exit p0
 
     return-void"""
-    replacement = f"""    .end local v0    # "i":I
+    # discoverDevice runs on the BLE thread holding the adapter's monitor: only hand the find
+    # over (the list changes on the main thread), inside a catch-all so the monitor is released.
+    replacement = """    .end local v0    # "i":I
     :cond_3
-    iget-object v0, p0, {cls}->list:Ljava/util/List;
-
-    invoke-static {{v0, p1, p2}}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->addDiscoveredDevice(Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)Z
-
-    move-result v0
-
-    if-eqz v0, :goto_1
-
-    invoke-direct {{p0, p1}}, {cls}->start_mac_address_timer(Ljava/lang/String;)V
-
-    invoke-virtual {{p0}}, {cls}->notifyDataSetChanged()V
+    :try_start_xems
+    invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->onDiscovered(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V
+    :try_end_xems
+    .catchall {:try_start_xems .. :try_end_xems} :catchall_0
 
     :goto_1
     monitor-exit p0
@@ -486,7 +390,7 @@ def patch_api_mgr() -> None:
         end = text.index(".end method", start)
         body = text[start:end]
         target = f"{LOCAL_API}->{name}({params})V"
-        if target in body:
+        if f"{LOCAL_API}->{name}(" in body:
             print(f"ApiMgr.{name}: already local")
             continue
         # p-registers of a static method: J takes two.
@@ -495,7 +399,18 @@ def patch_api_mgr() -> None:
             n += 2 if t in ("J", "D") else 1
         regs = ", ".join(f"p{i}" for i in range(n))
         first_line = body.index("    .line ")
-        jump = f"    invoke-static {{{regs}}}, {target}\n\n    return-void\n\n"
+        if name in API_MAYBE_CLOUD:
+            cb_reg = f"p{n - 1}"
+            target = f"{LOCAL_API}->{name}({params}){CB}"
+            jump = (
+                f"    invoke-static {{{regs}}}, {target}\n\n"
+                f"    move-result-object {cb_reg}\n\n"
+                f"    if-nez {cb_reg}, :xems_cloud\n\n"
+                f"    return-void\n\n"
+                f"    :xems_cloud\n"
+            )
+        else:
+            jump = f"    invoke-static {{{regs}}}, {target}\n\n    return-void\n\n"
         body = body[:first_line] + jump + body[first_line:]
         text = text[:start] + body + text[end:]
         print(f"ApiMgr.{name}: answered by the tablet")
@@ -557,8 +472,6 @@ def main() -> int:
     install_smali()
     patch_main_always_local()
     patch_main_init_data()
-    patch_init_users()
-    patch_init_programs()
     patch_user_save()
     patch_program_save()
     patch_connect_dialog(NEW_CONNECT, "NewUserProgramDeviceConnectDialogFragment")

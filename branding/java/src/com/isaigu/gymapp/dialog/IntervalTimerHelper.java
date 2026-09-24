@@ -239,6 +239,14 @@ public final class IntervalTimerHelper {
     // ================================================================ entry points
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
+        try {
+            attachMasterPanelImpl(root, manager);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimerHelper.attachMasterPanel", t);
+        }
+    }
+
+    private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         if (root == null || manager == null) {
             return;
         }
@@ -256,6 +264,14 @@ public final class IntervalTimerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            onActivityResultImpl(requestCode, resultCode, data);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimerHelper.onActivityResult", t);
+        }
+    }
+
+    private static void onActivityResultImpl(int requestCode, int resultCode, Intent data) {
         pickingSignal = false;
         restoreSheetAfterPick();
         if (requestCode == PICK_SIGNAL) {
@@ -303,6 +319,14 @@ public final class IntervalTimerHelper {
 
     /** Sync timer run/pause from any train row start/stop (not only master buttons). */
     public static void syncTrainingState() {
+        try {
+            syncTrainingStateImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimerHelper.syncTrainingState", t);
+        }
+    }
+
+    private static void syncTrainingStateImpl() {
         if (itemManager == null) {
             return;
         }
@@ -327,6 +351,14 @@ public final class IntervalTimerHelper {
     }
 
     public static void onTrainingRunningChanged(boolean running) {
+        try {
+            onTrainingRunningChangedImpl(running);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimerHelper.onTrainingRunningChanged", t);
+        }
+    }
+
+    private static void onTrainingRunningChangedImpl(boolean running) {
         trainingRunning = running;
         if (!armed) {
             updateOverlayVisibility();
@@ -375,6 +407,14 @@ public final class IntervalTimerHelper {
     }
 
     public static void onTrainingStop() {
+        try {
+            onTrainingStopImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimerHelper.onTrainingStop", t);
+        }
+    }
+
+    private static void onTrainingStopImpl() {
         BlockProgramRunner.reset();
         resetAll();
     }
@@ -1925,24 +1965,28 @@ public final class IntervalTimerHelper {
     static final class TickRunnable implements Runnable {
         @Override
         public void run() {
-            if (!armed || !countdownRunning || !trainingRunning) {
-                return;
-            }
-            long now = SystemClock.elapsedRealtime();
-            long delta = now - lastTickRealtime;
-            lastTickRealtime = now;
-            if (blockProgramMode && BlockProgramRunner.isArmed()) {
-                BlockProgramRunner.tickBlock(delta);
+            try {
+                if (!armed || !countdownRunning || !trainingRunning) {
+                    return;
+                }
+                long now = SystemClock.elapsedRealtime();
+                long delta = now - lastTickRealtime;
+                lastTickRealtime = now;
+                if (blockProgramMode && BlockProgramRunner.isArmed()) {
+                    BlockProgramRunner.tickBlock(delta);
+                    refreshOverlayText();
+                    handler.postDelayed(tickRunnable, TICK_MS);
+                    return;
+                }
+                remainingMs -= delta;
+                if (remainingMs <= 0L) {
+                    onIntervalFinished();
+                }
                 refreshOverlayText();
                 handler.postDelayed(tickRunnable, TICK_MS);
-                return;
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimerHelper.tick", t);
             }
-            remainingMs -= delta;
-            if (remainingMs <= 0L) {
-                onIntervalFinished();
-            }
-            refreshOverlayText();
-            handler.postDelayed(tickRunnable, TICK_MS);
         }
     }
 }

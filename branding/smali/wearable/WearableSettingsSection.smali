@@ -219,7 +219,7 @@
 .end method
 
 .method public static attach(Landroid/app/Activity;Landroid/view/View;)V
-    .registers 6
+    .registers 4
 
     .prologue
     .line 38
@@ -237,27 +237,9 @@
     move-exception v0
 
     .line 40
-    const-string v1, "settings"
+    const-string v1, "WearableSettingsSection.attach"
 
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v3, "band section: "
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_3
 .end method
@@ -864,17 +846,17 @@
     .registers 3
 
     .prologue
-    .line 280
+    .line 284
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
 
-    .line 281
+    .line 285
     const-string v0, "settings"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->release(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 282
+    .line 286
     return-void
 .end method
 
@@ -1133,30 +1115,30 @@
     .prologue
     const v0, -0x994496
 
-    .line 253
+    .line 257
     sget-object v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
     if-eqz v1, :cond_9
 
     if-nez p0, :cond_a
 
-    .line 277
+    .line 281
     :cond_9
     :goto_9
     return-void
 
-    .line 258
+    .line 262
     :cond_a
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getBleState()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 259
+    .line 263
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getLastHeartRate()I
 
     move-result v2
 
-    .line 260
+    .line 264
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isConfigured(Landroid/content/Context;)Z
 
     move-result v3
@@ -1173,7 +1155,7 @@
 
     if-nez v3, :cond_38
 
-    .line 261
+    .line 265
     :cond_22
     const-string v0, "\u041d\u0435 \u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d\u0430"
 
@@ -1183,24 +1165,24 @@
 
     move-result-object v1
 
-    .line 262
+    .line 266
     const v0, -0x555556
 
-    .line 275
+    .line 279
     :cond_2d
     :goto_2d
     sget-object v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
     invoke-virtual {v2, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 276
+    .line 280
     sget-object v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
     goto :goto_9
 
-    .line 263
+    .line 267
     :cond_38
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isListeningActive()Z
 
@@ -1214,7 +1196,7 @@
 
     if-eqz v3, :cond_7d
 
-    .line 264
+    .line 268
     if-lez v2, :cond_78
 
     const-string v3, "streaming"
@@ -1225,7 +1207,7 @@
 
     if-eqz v3, :cond_78
 
-    .line 265
+    .line 269
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1262,7 +1244,7 @@
 
     move-result-object v1
 
-    .line 267
+    .line 271
     :goto_73
     if-gtz v2, :cond_2d
 
@@ -1270,7 +1252,7 @@
 
     goto :goto_2d
 
-    .line 266
+    .line 270
     :cond_78
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->stateText(Ljava/lang/String;)Ljava/lang/String;
 
@@ -1278,7 +1260,7 @@
 
     goto :goto_73
 
-    .line 268
+    .line 272
     :cond_7d
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->isErrorState(Ljava/lang/String;)Z
 
@@ -1286,17 +1268,17 @@
 
     if-eqz v2, :cond_8b
 
-    .line 269
+    .line 273
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->stateText(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 270
+    .line 274
     const v0, -0x10acb0
 
     goto :goto_2d
 
-    .line 272
+    .line 276
     :cond_8b
     const-string v1, "\u0417\u0430\u043f\u0430\u0437\u0435\u043d\u043e \u2713 \u00b7 \u043d\u0435 \u0435 \u0441\u0432\u044a\u0440\u0437\u0430\u043d\u0430"
 
@@ -1531,7 +1513,7 @@
     .registers 3
 
     .prologue
-    .line 286
+    .line 290
     const/4 v0, 0x0
 
     :try_start_1
@@ -1543,11 +1525,11 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_8} :catch_9
 
-    .line 289
+    .line 293
     :goto_8
     return-void
 
-    .line 287
+    .line 291
     :catch_9
     move-exception v0
 

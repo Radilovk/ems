@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1909
+    .line 1949
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 2
 
     .prologue
-    .line 1912
+    .line 1952
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4700()V
 
-    .line 1913
+    .line 1953
     return-void
 .end method

@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 1034
+    .line 1074
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$a:Landroid/app/Activity;
@@ -53,14 +53,14 @@
     .registers 5
 
     .prologue
-    .line 1037
+    .line 1077
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 1038
+    .line 1078
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
@@ -69,7 +69,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/TimerPresetStorage;->delete(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 1039
+    .line 1079
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
@@ -91,13 +91,13 @@
 
     if-eqz v0, :cond_29
 
-    .line 1040
+    .line 1080
     const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 1042
+    .line 1082
     :cond_29
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -130,10 +130,10 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toastText(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2100(Ljava/lang/String;)V
 
-    .line 1043
+    .line 1083
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
 
-    .line 1044
+    .line 1084
     return-void
 .end method

@@ -75,10 +75,26 @@ public final class NotifyWearableBridge {
     private NotifyWearableBridge() {}
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
+        try {
+            attachMasterPanelImpl(root, manager);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.attachMasterPanel", t);
+        }
+    }
+
+    private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         WearableSyncHelper.attachMasterPanel(root, manager);
     }
 
     public static void syncTrainingState() {
+        try {
+            syncTrainingStateImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.syncTrainingState", t);
+        }
+    }
+
+    private static void syncTrainingStateImpl() {
         Context context = WearableSyncHelper.getContext();
         if (context == null || !WearableConfig.isEnabled(context)) {
             return;
@@ -89,10 +105,26 @@ public final class NotifyWearableBridge {
     }
 
     public static void detachTrainingHost() {
+        try {
+            detachTrainingHostImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.detachTrainingHost", t);
+        }
+    }
+
+    private static void detachTrainingHostImpl() {
         WearableSyncHelper.detachTrainingHost();
     }
 
     public static void onTrainingFullStop() {
+        try {
+            onTrainingFullStopImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.onTrainingFullStop", t);
+        }
+    }
+
+    private static void onTrainingFullStopImpl() {
         WearableSyncHelper.onTrainingRunningChanged(false);
     }
 

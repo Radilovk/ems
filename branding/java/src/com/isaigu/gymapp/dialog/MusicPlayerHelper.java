@@ -150,6 +150,14 @@ public final class MusicPlayerHelper {
     }
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
+        try {
+            attachMasterPanelImpl(root, manager);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.attachMasterPanel", t);
+        }
+    }
+
+    private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         if (root == null || manager == null) {
             return;
         }
@@ -196,6 +204,14 @@ public final class MusicPlayerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            onActivityResultImpl(requestCode, resultCode, data);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.onActivityResult", t);
+        }
+    }
+
+    private static void onActivityResultImpl(int requestCode, int resultCode, Intent data) {
         pickingFile = false;
         restoreOverlayAfterPick();
         if (requestCode != PICK_AUDIO || resultCode != Activity.RESULT_OK || data == null) {
@@ -253,6 +269,14 @@ public final class MusicPlayerHelper {
 
     /** Sync player pause/resume from any train row or master start/pause/stop. */
     public static void syncTrainingState() {
+        try {
+            syncTrainingStateImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.syncTrainingState", t);
+        }
+    }
+
+    private static void syncTrainingStateImpl() {
         boolean targetRunning = isTargetTrainingRunning();
         if (targetRunning) {
             tryStartFromTrainingSync();
@@ -262,6 +286,14 @@ public final class MusicPlayerHelper {
 
     /** Master all-stop / reset — stop music sync entirely, not just pause. */
     public static void onTrainingFullStop() {
+        try {
+            onTrainingFullStopImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.onTrainingFullStop", t);
+        }
+    }
+
+    private static void onTrainingFullStopImpl() {
         syncTrainingState();
         if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
             MusicSync.stop();
@@ -1944,18 +1976,22 @@ public final class MusicPlayerHelper {
     static final class ProgressTickRunnable implements Runnable {
         @Override
         public void run() {
-            if (!MusicSync.isRunning() || !MusicSync.isPlayerMode()) {
-                if (visualizerView != null) {
-                    visualizerView.setPlaying(false);
+            try {
+                if (!MusicSync.isRunning() || !MusicSync.isPlayerMode()) {
+                    if (visualizerView != null) {
+                        visualizerView.setPlaying(false);
+                    }
+                    return;
                 }
-                return;
+                refreshSeekFromPlayer();
+                if (visualizerView != null) {
+                    visualizerView.setPlaying(true);
+                    visualizerView.setLiveLevel(MusicSync.getLiveStrength());
+                }
+                handler.postDelayed(this, PROGRESS_TICK_MS);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.progress", t);
             }
-            refreshSeekFromPlayer();
-            if (visualizerView != null) {
-                visualizerView.setPlaying(true);
-                visualizerView.setLiveLevel(MusicSync.getLiveStrength());
-            }
-            handler.postDelayed(this, PROGRESS_TICK_MS);
         }
     }
 

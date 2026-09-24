@@ -196,7 +196,7 @@
     .registers 5
 
     .prologue
-    .line 174
+    .line 190
     if-eqz p0, :cond_d
 
     :try_start_2
@@ -206,23 +206,23 @@
 
     if-eqz v0, :cond_d
 
-    .line 175
+    .line 191
     const-string v0, "ai"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->acquire(Landroid/app/Activity;Ljava/lang/String;)V
     :try_end_d
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_d} :catch_e
 
-    .line 180
+    .line 196
     :cond_d
     :goto_d
     return-void
 
-    .line 177
+    .line 193
     :catch_e
     move-exception v0
 
-    .line 178
+    .line 194
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -254,32 +254,32 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 833
+    .line 849
     if-eqz p0, :cond_12
 
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 834
+    .line 850
     :goto_7
     instance-of v2, v0, Landroid/content/ContextWrapper;
 
     if-eqz v2, :cond_26
 
-    .line 835
+    .line 851
     instance-of v2, v0, Landroid/app/Activity;
 
     if-eqz v2, :cond_1f
 
-    .line 836
+    .line 852
     check-cast v0, Landroid/app/Activity;
 
-    .line 840
+    .line 856
     :goto_11
     return-object v0
 
-    .line 833
+    .line 849
     :cond_12
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->panelRoot:Landroid/view/View;
 
@@ -298,7 +298,7 @@
 
     goto :goto_7
 
-    .line 838
+    .line 854
     :cond_1f
     check-cast v0, Landroid/content/ContextWrapper;
 
@@ -311,7 +311,7 @@
     :cond_26
     move-object v0, v1
 
-    .line 840
+    .line 856
     goto :goto_11
 .end method
 
@@ -319,7 +319,7 @@
     .registers 4
 
     .prologue
-    .line 287
+    .line 303
     const/4 v0, 0x0
 
     const/16 v1, 0x64
@@ -338,15 +338,15 @@
 
     sput v0, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
-    .line 288
+    .line 304
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
     if-eqz v0, :cond_17
 
-    .line 289
+    .line 305
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->applyCalibration()V
 
-    .line 291
+    .line 307
     :cond_17
     return-void
 .end method
@@ -355,12 +355,12 @@
     .registers 5
 
     .prologue
-    .line 392
+    .line 408
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-eqz v0, :cond_d
 
-    .line 393
+    .line 409
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -369,7 +369,7 @@
 
     invoke-virtual {v0, p0, v2, v3}, Lcom/isaigu/gymapp/ai/AiEngine;->answerCheckpoint(IJ)V
 
-    .line 395
+    .line 411
     :cond_d
     return-void
 .end method
@@ -378,14 +378,14 @@
     .registers 5
 
     .prologue
-    .line 559
+    .line 575
     if-nez p0, :cond_3
 
-    .line 566
+    .line 582
     :goto_2
     return-void
 
-    .line 562
+    .line 578
     :cond_3
     sget v0, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
@@ -401,15 +401,15 @@
 
     long-to-int v0, v0
 
-    .line 563
+    .line 579
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->frac:D
 
     sput-wide v2, Lcom/isaigu/gymapp/ai/AiSession;->lastSentFrac:D
 
-    .line 564
+    .line 580
     sput-object p0, Lcom/isaigu/gymapp/ai/AiSession;->lastAppliedCycle:Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
-    .line 565
+    .line 581
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AiSession;->writeAll(Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;I)V
 
     goto :goto_2
@@ -419,55 +419,55 @@
     .registers 2
 
     .prologue
-    .line 548
+    .line 564
     new-instance v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;-><init>()V
 
-    .line 549
+    .line 565
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->hz:I
 
-    .line 550
+    .line 566
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pwUs:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->pwUs:I
 
-    .line 551
+    .line 567
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->onS:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->onS:I
 
-    .line 552
+    .line 568
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->offS:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->offS:I
 
-    .line 553
+    .line 569
     const/16 v1, 0x190
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->rampUpMs:I
 
-    .line 554
+    .line 570
     const/16 v1, 0x12c
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->rampDownMs:I
 
-    .line 555
+    .line 571
     sget v1, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiSession;->writeAll(Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;I)V
 
-    .line 556
+    .line 572
     return-void
 .end method
 
@@ -492,7 +492,7 @@
     .registers 1
 
     .prologue
-    .line 202
+    .line 218
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getBleState()Ljava/lang/String;
     :try_end_3
@@ -500,15 +500,15 @@
 
     move-result-object v0
 
-    .line 204
+    .line 220
     :goto_4
     return-object v0
 
-    .line 203
+    .line 219
     :catch_5
     move-exception v0
 
-    .line 204
+    .line 220
     const-string v0, ""
 
     goto :goto_4
@@ -520,12 +520,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 262
+    .line 278
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 263
+    .line 279
     const/16 v0, 0xf
 
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->currentStrength()I
@@ -542,16 +542,16 @@
 
     sput v0, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
-    .line 264
+    .line 280
     sput-boolean v2, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
-    .line 265
+    .line 281
     sput-boolean v2, Lcom/isaigu/gymapp/ai/AiSession;->soloAutoRamp:Z
 
-    .line 266
+    .line 282
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->startTicker()V
 
-    .line 267
+    .line 283
     return-void
 .end method
 
@@ -559,7 +559,7 @@
     .registers 2
 
     .prologue
-    .line 249
+    .line 265
     new-instance v0, Lcom/isaigu/gymapp/ai/AiRestHr;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
@@ -572,15 +572,15 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->restHr:Lcom/isaigu/gymapp/ai/AiRestHr;
 
-    .line 250
+    .line 266
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REST_HR:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 251
+    .line 267
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->startTicker()V
 
-    .line 252
+    .line 268
     return-void
 .end method
 
@@ -590,27 +590,27 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 240
+    .line 256
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiSession;->loadInput(Landroid/content/Context;)V
 
-    .line 241
+    .line 257
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->SETUP:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 242
+    .line 258
     sput-object v1, Lcom/isaigu/gymapp/ai/AiSession;->restHr:Lcom/isaigu/gymapp/ai/AiRestHr;
 
-    .line 243
+    .line 259
     sput-object v1, Lcom/isaigu/gymapp/ai/AiSession;->profile:Lcom/isaigu/gymapp/ai/AiModel$Profile;
 
-    .line 244
+    .line 260
     sput-object v1, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
-    .line 245
+    .line 261
     sput-object v1, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 246
+    .line 262
     return-void
 .end method
 
@@ -618,7 +618,7 @@
     .registers 12
 
     .prologue
-    .line 256
+    .line 272
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     move v1, p0
@@ -633,7 +633,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->profile:Lcom/isaigu/gymapp/ai/AiModel$Profile;
 
-    .line 257
+    .line 273
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->profile:Lcom/isaigu/gymapp/ai/AiModel$Profile;
@@ -644,12 +644,12 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
-    .line 258
+    .line 274
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->PLAN:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 259
+    .line 275
     return-void
 .end method
 
@@ -657,7 +657,7 @@
     .registers 2
 
     .prologue
-    .line 348
+    .line 364
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -670,36 +670,36 @@
 
     if-ne v0, v1, :cond_f
 
-    .line 349
+    .line 365
     :cond_c
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stop()V
 
-    .line 351
+    .line 367
     :cond_f
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopTicker()V
 
-    .line 352
+    .line 368
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->clear()V
 
-    .line 353
+    .line 369
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->IDLE:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 354
+    .line 370
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->written:Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
-    .line 355
+    .line 371
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/ai/AiSession;->writtenPercent:I
 
-    .line 356
+    .line 372
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->releaseBand()V
 
-    .line 357
+    .line 373
     return-void
 .end method
 
@@ -707,7 +707,7 @@
     .registers 2
 
     .prologue
-    .line 220
+    .line 236
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->isSyncActive()Z
 
@@ -715,7 +715,7 @@
 
     if-eqz v0, :cond_10
 
-    .line 221
+    .line 237
     const-string v0, "\u0421\u043f\u0440\u0438 \u043c\u0443\u0437\u0438\u043a\u0430\u043b\u043d\u0430\u0442\u0430 \u0441\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0430\u0446\u0438\u044f \u043f\u0440\u0435\u0434\u0438 AI \u0441\u0435\u0441\u0438\u044f."
 
     const-string v1, "Stop music sync before an AI session."
@@ -726,15 +726,15 @@
 
     move-result-object v0
 
-    .line 236
+    .line 252
     :goto_e
     return-object v0
 
-    .line 224
+    .line 240
     :catch_f
     move-exception v0
 
-    .line 227
+    .line 243
     :cond_10
     :try_start_10
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->isArmed()Z
@@ -743,7 +743,7 @@
 
     if-eqz v0, :cond_20
 
-    .line 228
+    .line 244
     const-string v0, "\u0418\u0437\u043a\u043b\u044e\u0447\u0438 \u0431\u043b\u043e\u043a\u043e\u0432\u0430\u0442\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u043d\u0430 \u0442\u0430\u0439\u043c\u0435\u0440\u0430 \u043f\u0440\u0435\u0434\u0438 AI \u0441\u0435\u0441\u0438\u044f."
 
     const-string v1, "Disarm the timer block program before an AI session."
@@ -756,11 +756,11 @@
 
     goto :goto_e
 
-    .line 231
+    .line 247
     :catch_1f
     move-exception v0
 
-    .line 233
+    .line 249
     :cond_20
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -768,7 +768,7 @@
 
     if-nez v0, :cond_2f
 
-    .line 234
+    .line 250
     const-string v0, "\u0414\u043e\u0431\u0430\u0432\u0438 \u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a \u0438 \u0441\u0432\u044a\u0440\u0436\u0438 \u043a\u043e\u0441\u0442\u044e\u043c\u0430."
 
     const-string v1, "Add a participant and connect the suit."
@@ -779,7 +779,7 @@
 
     goto :goto_e
 
-    .line 236
+    .line 252
     :cond_2f
     const/4 v0, 0x0
 
@@ -790,17 +790,17 @@
     .registers 4
 
     .prologue
-    .line 368
+    .line 384
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-nez v0, :cond_5
 
-    .line 374
+    .line 390
     :cond_4
     :goto_4
     return-void
 
-    .line 371
+    .line 387
     :cond_5
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -814,7 +814,7 @@
 
     if-eqz v0, :cond_4
 
-    .line 372
+    .line 388
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->ensureDeviceRunning()V
 
     goto :goto_4
@@ -824,12 +824,12 @@
     .registers 2
 
     .prologue
-    .line 536
+    .line 552
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 538
+    .line 554
     if-eqz v0, :cond_22
 
     :try_start_6
@@ -839,7 +839,7 @@
 
     if-eqz v1, :cond_22
 
-    .line 539
+    .line 555
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
@@ -850,7 +850,7 @@
 
     if-eqz v1, :cond_22
 
-    .line 540
+    .line 556
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
@@ -863,15 +863,15 @@
     :try_end_20
     .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_20} :catch_21
 
-    .line 544
+    .line 560
     :goto_20
     return v0
 
-    .line 542
+    .line 558
     :catch_21
     move-exception v0
 
-    .line 544
+    .line 560
     :cond_22
     const/4 v0, 0x0
 
@@ -882,12 +882,12 @@
     .registers 4
 
     .prologue
-    .line 707
+    .line 723
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 708
+    .line 724
     if-eqz v0, :cond_10
 
     iget-object v1, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -900,12 +900,12 @@
 
     if-eqz v0, :cond_11
 
-    .line 716
+    .line 732
     :cond_10
     :goto_10
     return-void
 
-    .line 712
+    .line 728
     :cond_11
     :try_start_11
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
@@ -916,11 +916,11 @@
 
     goto :goto_10
 
-    .line 713
+    .line 729
     :catch_17
     move-exception v0
 
-    .line 714
+    .line 730
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -950,7 +950,7 @@
     .registers 6
 
     .prologue
-    .line 569
+    .line 585
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-eqz v0, :cond_c
@@ -963,12 +963,12 @@
 
     if-nez v0, :cond_d
 
-    .line 576
+    .line 592
     :cond_c
     :goto_c
     return-void
 
-    .line 572
+    .line 588
     :cond_d
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -976,7 +976,7 @@
 
     move-result-object v2
 
-    .line 573
+    .line 589
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
@@ -993,11 +993,11 @@
 
     move-result-wide v0
 
-    .line 574
+    .line 590
     :goto_23
     sput-wide v0, Lcom/isaigu/gymapp/ai/AiSession;->lastSentFrac:D
 
-    .line 575
+    .line 591
     sget v3, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
     int-to-double v4, v3
@@ -1014,7 +1014,7 @@
 
     goto :goto_c
 
-    .line 573
+    .line 589
     :cond_32
     const-wide/16 v0, 0x0
 
@@ -1025,7 +1025,7 @@
     .registers 2
 
     .prologue
-    .line 506
+    .line 522
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     if-eqz v0, :cond_b
@@ -1049,7 +1049,7 @@
     .registers 1
 
     .prologue
-    .line 134
+    .line 150
     sget v0, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
     return v0
@@ -1059,7 +1059,7 @@
     .registers 1
 
     .prologue
-    .line 510
+    .line 526
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     return-object v0
@@ -1069,7 +1069,7 @@
     .registers 1
 
     .prologue
-    .line 130
+    .line 146
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     return-object v0
@@ -1079,7 +1079,7 @@
     .registers 1
 
     .prologue
-    .line 114
+    .line 130
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     return-object v0
@@ -1089,7 +1089,7 @@
     .registers 2
 
     .prologue
-    .line 501
+    .line 517
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     if-eqz v0, :cond_b
@@ -1113,7 +1113,7 @@
     .registers 1
 
     .prologue
-    .line 142
+    .line 158
     sget v0, Lcom/isaigu/gymapp/ai/AiSession;->lastBandHr:I
 
     return v0
@@ -1123,7 +1123,7 @@
     .registers 4
 
     .prologue
-    .line 146
+    .line 162
     sget-wide v0, Lcom/isaigu/gymapp/ai/AiSession;->lastBandHrMs:J
 
     const-wide/16 v2, 0x0
@@ -1153,7 +1153,7 @@
     .registers 1
 
     .prologue
-    .line 844
+    .line 860
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->panelRoot:Landroid/view/View;
 
     return-object v0
@@ -1163,7 +1163,7 @@
     .registers 1
 
     .prologue
-    .line 126
+    .line 142
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
     return-object v0
@@ -1173,7 +1173,7 @@
     .registers 1
 
     .prologue
-    .line 122
+    .line 138
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->profile:Lcom/isaigu/gymapp/ai/AiModel$Profile;
 
     return-object v0
@@ -1183,7 +1183,7 @@
     .registers 1
 
     .prologue
-    .line 118
+    .line 134
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->restHr:Lcom/isaigu/gymapp/ai/AiRestHr;
 
     return-object v0
@@ -1193,7 +1193,7 @@
     .registers 1
 
     .prologue
-    .line 110
+    .line 126
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     return-object v0
@@ -1207,7 +1207,7 @@
 
     const/4 v2, 0x0
 
-    .line 602
+    .line 618
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->written:Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
     if-eqz v0, :cond_e
@@ -1220,12 +1220,12 @@
 
     if-nez v0, :cond_f
 
-    .line 678
+    .line 694
     :cond_e
     :goto_e
     return-void
 
-    .line 605
+    .line 621
     :cond_f
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
@@ -1233,10 +1233,10 @@
 
     move-result-object v8
 
-    .line 606
+    .line 622
     if-eqz v8, :cond_e
 
-    .line 610
+    .line 626
     sget v0, Lcom/isaigu/gymapp/ai/AiSession;->writtenPercent:I
 
     move v1, v2
@@ -1249,7 +1249,7 @@
 
     move v6, v2
 
-    .line 613
+    .line 629
     :goto_1e
     invoke-interface {v8}, Ljava/util/List;->size()I
 
@@ -1257,14 +1257,14 @@
 
     if-ge v1, v0, :cond_93
 
-    .line 614
+    .line 630
     invoke-interface {v8, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 615
+    .line 631
     if-eqz v0, :cond_38
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -1279,7 +1279,7 @@
 
     if-nez v9, :cond_3c
 
-    .line 613
+    .line 629
     :cond_38
     :goto_38
     add-int/lit8 v0, v1, 0x1
@@ -1288,7 +1288,7 @@
 
     goto :goto_1e
 
-    .line 618
+    .line 634
     :cond_3c
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
@@ -1298,10 +1298,10 @@
 
     move-result-object v9
 
-    .line 619
+    .line 635
     if-eqz v9, :cond_38
 
-    .line 622
+    .line 638
     iget v10, v9, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
     sget-object v11, Lcom/isaigu/gymapp/ai/AiSession;->written:Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
@@ -1324,7 +1324,7 @@
 
     iget v11, v11, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->onS:I
 
-    .line 623
+    .line 639
     invoke-static {v7, v11}, Ljava/lang/Math;->max(II)I
 
     move-result v11
@@ -1337,7 +1337,7 @@
 
     iget v11, v11, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->offS:I
 
-    .line 624
+    .line 640
     invoke-static {v7, v11}, Ljava/lang/Math;->max(II)I
 
     move-result v11
@@ -1351,7 +1351,7 @@
     :cond_72
     move v6, v7
 
-    .line 627
+    .line 643
     :cond_73
     iget v10, v9, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
@@ -1361,7 +1361,7 @@
 
     move v4, v7
 
-    .line 632
+    .line 648
     :cond_7a
     :goto_7a
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -1382,21 +1382,21 @@
 
     move v3, v7
 
-    .line 633
+    .line 649
     goto :goto_38
 
-    .line 629
+    .line 645
     :cond_8c
     iget v10, v9, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     if-ge v10, v5, :cond_7a
 
-    .line 630
+    .line 646
     iget v5, v9, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     goto :goto_7a
 
-    .line 636
+    .line 652
     :cond_93
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -1404,7 +1404,7 @@
 
     if-ne v0, v1, :cond_cd
 
-    .line 637
+    .line 653
     if-nez v6, :cond_a1
 
     if-nez v4, :cond_a1
@@ -1413,7 +1413,7 @@
 
     if-ge v5, v0, :cond_e
 
-    .line 639
+    .line 655
     :cond_a1
     if-eqz v4, :cond_af
 
@@ -1425,12 +1425,12 @@
 
     if-ne v0, v1, :cond_af
 
-    .line 640
+    .line 656
     invoke-static {v8}, Lcom/isaigu/gymapp/ai/AiSession;->maxRowStrength(Ljava/util/List;)I
 
     move-result v5
 
-    .line 641
+    .line 657
     :cond_af
     const/16 v0, 0x64
 
@@ -1444,13 +1444,13 @@
 
     sput v0, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
-    .line 642
+    .line 658
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->applyCalibration()V
 
-    .line 643
+    .line 659
     if-eqz v6, :cond_e
 
-    .line 644
+    .line 660
     const-string v0, "\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0438\u0442\u0435 \u0441\u0435 \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0432\u0430\u0442 \u043e\u0442 AI."
 
     const-string v1, "Parameters are controlled by the AI."
@@ -1463,20 +1463,20 @@
 
     goto/16 :goto_e
 
-    .line 650
+    .line 666
     :cond_cd
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-eqz v0, :cond_e
 
-    .line 653
+    .line 669
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v0
 
-    .line 654
+    .line 670
     if-eqz v3, :cond_fd
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AiEngine$State;
@@ -1491,16 +1491,16 @@
 
     if-ne v0, v1, :cond_fd
 
-    .line 656
+    .line 672
     :cond_e5
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0, p0, p1}, Lcom/isaigu/gymapp/ai/AiEngine;->userPause(J)V
 
-    .line 657
+    .line 673
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->zeroOutput()V
 
-    .line 658
+    .line 674
     const-string v0, "\u0421\u043f\u0440\u044f\u043d\u043e \u043e\u0442 \u043e\u0441\u043d\u043e\u0432\u043d\u0438\u044f \u0435\u043a\u0440\u0430\u043d \u2014 AI \u0435 \u043d\u0430 \u043f\u0430\u0443\u0437\u0430. \u041f\u0440\u043e\u0434\u044a\u043b\u0436\u0438 \u043e\u0442 AI."
 
     const-string v1, "Stopped from the main screen \u2014 AI paused. Resume in AI."
@@ -1511,12 +1511,12 @@
 
     invoke-static {v0, p0, p1}, Lcom/isaigu/gymapp/ai/AiSession;->notifyGuard(Ljava/lang/String;J)V
 
-    .line 660
+    .line 676
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->show()V
 
     goto/16 :goto_e
 
-    .line 663
+    .line 679
     :cond_fd
     sget v1, Lcom/isaigu/gymapp/ai/AiSession;->writtenPercent:I
 
@@ -1530,7 +1530,7 @@
 
     if-ne v0, v1, :cond_123
 
-    .line 664
+    .line 680
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     int-to-double v2, v5
@@ -1543,10 +1543,10 @@
 
     invoke-virtual {v0, v2, v3, p0, p1}, Lcom/isaigu/gymapp/ai/AiEngine;->reduceTo(DJ)V
 
-    .line 665
+    .line 681
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->forceApplyCurrent()V
 
-    .line 666
+    .line 682
     const-string v0, "\u041d\u0430\u043c\u0430\u043b\u0435\u043d\u043e \u0440\u044a\u0447\u043d\u043e \u2014 AI \u0433\u043e \u043f\u0440\u0438\u0435\u043c\u0430 \u043a\u0430\u0442\u043e \u201e\u041d\u0430\u043c\u0430\u043b\u0438\u201c."
 
     const-string v1, "Reduced manually \u2014 AI takes it as \u201cReduce\u201d."
@@ -1559,7 +1559,7 @@
 
     goto/16 :goto_e
 
-    .line 670
+    .line 686
     :cond_123
     if-nez v6, :cond_12b
 
@@ -1569,7 +1569,7 @@
 
     if-ge v5, v0, :cond_e
 
-    .line 671
+    .line 687
     :cond_12b
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->written:Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
@@ -1577,10 +1577,10 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiSession;->writeAll(Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;I)V
 
-    .line 672
+    .line 688
     if-eqz v6, :cond_141
 
-    .line 673
+    .line 689
     const-string v0, "AI \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0432\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430, \u0438\u043c\u043f\u0443\u043b\u0441 \u0438 \u043f\u0430\u0443\u0437\u0430 \u2014 \u0440\u044a\u0447\u043d\u0430\u0442\u0430 \u043f\u0440\u043e\u043c\u044f\u043d\u0430 \u0435 \u043e\u0442\u043c\u0435\u043d\u0435\u043d\u0430."
 
     const-string v1, "AI controls frequency, pulse and pause \u2014 manual change undone."
@@ -1589,13 +1589,13 @@
 
     move-result-object v0
 
-    .line 672
+    .line 688
     :goto_13c
     invoke-static {v0, p0, p1}, Lcom/isaigu/gymapp/ai/AiSession;->notifyGuard(Ljava/lang/String;J)V
 
     goto/16 :goto_e
 
-    .line 675
+    .line 691
     :cond_141
     const-string v0, "AI \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0432\u0430 \u0441\u0438\u043b\u0430\u0442\u0430. \u0418\u0437\u043f\u043e\u043b\u0437\u0432\u0430\u0439 \u201e\u041d\u0430\u043c\u0430\u043b\u0438\u201c \u0438\u043b\u0438 \u0421\u0422\u041e\u041f."
 
@@ -1614,7 +1614,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 165
+    .line 181
     if-eqz p0, :cond_a
 
     :try_start_3
@@ -1628,12 +1628,12 @@
 
     const/4 v0, 0x1
 
-    .line 167
+    .line 183
     :cond_a
     :goto_a
     return v0
 
-    .line 166
+    .line 182
     :catch_b
     move-exception v1
 
@@ -1644,7 +1644,7 @@
     .registers 1
 
     .prologue
-    .line 194
+    .line 210
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isLinkUp()Z
     :try_end_3
@@ -1652,15 +1652,15 @@
 
     move-result v0
 
-    .line 196
+    .line 212
     :goto_4
     return v0
 
-    .line 195
+    .line 211
     :catch_5
     move-exception v0
 
-    .line 196
+    .line 212
     const/4 v0, 0x0
 
     goto :goto_4
@@ -1670,7 +1670,7 @@
     .registers 4
 
     .prologue
-    .line 150
+    .line 166
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getLastBandHrAgeMs()J
 
     move-result-wide v0
@@ -1696,7 +1696,7 @@
     .registers 1
 
     .prologue
-    .line 138
+    .line 154
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
     return v0
@@ -1706,7 +1706,7 @@
     .registers 1
 
     .prologue
-    .line 299
+    .line 315
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->soloAutoRamp:Z
 
     return v0
@@ -1718,19 +1718,19 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 516
+    .line 532
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-nez v0, :cond_7
 
     move-object v0, v1
 
-    .line 532
+    .line 548
     :cond_6
     :goto_6
     return-object v0
 
-    .line 520
+    .line 536
     :cond_7
     :try_start_7
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
@@ -1739,15 +1739,15 @@
 
     move-result-object v3
 
-    .line 521
+    .line 537
     if-nez v3, :cond_11
 
     move-object v0, v1
 
-    .line 522
+    .line 538
     goto :goto_6
 
-    .line 524
+    .line 540
     :cond_11
     const/4 v0, 0x0
 
@@ -1760,14 +1760,14 @@
 
     if-ge v2, v0, :cond_2c
 
-    .line 525
+    .line 541
     invoke-interface {v3, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 526
+    .line 542
     if-eqz v0, :cond_27
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -1778,7 +1778,7 @@
 
     if-eqz v4, :cond_6
 
-    .line 524
+    .line 540
     :cond_27
     add-int/lit8 v0, v2, 0x1
 
@@ -1786,14 +1786,14 @@
 
     goto :goto_13
 
-    .line 530
+    .line 546
     :catch_2b
     move-exception v0
 
     :cond_2c
     move-object v0, v1
 
-    .line 532
+    .line 548
     goto :goto_6
 .end method
 
@@ -1803,21 +1803,21 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 790
+    .line 806
     new-instance v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    .line 791
+    .line 807
     if-nez p0, :cond_b
 
-    .line 811
+    .line 827
     :cond_a
     return-void
 
-    .line 795
+    .line 811
     :cond_b
     :try_start_b
     const-string v0, "ai_session"
@@ -1828,7 +1828,7 @@
 
     move-result-object v0
 
-    .line 796
+    .line 812
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-string v3, "goal"
@@ -1845,7 +1845,7 @@
 
     iput-object v3, v2, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    .line 797
+    .line 813
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-string v3, "mode"
@@ -1862,7 +1862,7 @@
 
     iput-object v3, v2, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    .line 798
+    .line 814
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-string v3, "sex"
@@ -1879,7 +1879,7 @@
 
     iput-object v3, v2, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    .line 799
+    .line 815
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-string v3, "fitness"
@@ -1896,7 +1896,7 @@
 
     iput-object v3, v2, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    .line 800
+    .line 816
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-string v3, "operator"
@@ -1913,7 +1913,7 @@
 
     iput-object v3, v2, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
-    .line 801
+    .line 817
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-string v3, "age"
@@ -1926,7 +1926,7 @@
 
     iput v3, v2, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    .line 802
+    .line 818
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-string v3, "weight_kg"
@@ -1941,7 +1941,7 @@
 
     iput-wide v4, v2, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    .line 803
+    .line 819
     const-string v2, "total_s"
 
     const/4 v3, 0x0
@@ -1950,7 +1950,7 @@
 
     move-result v0
 
-    .line 804
+    .line 820
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     if-lez v0, :cond_ad
@@ -1964,7 +1964,7 @@
     :try_end_8c
     .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_8c} :catch_af
 
-    .line 807
+    .line 823
     :goto_8c
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -1974,7 +1974,7 @@
 
     iput-object v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    .line 808
+    .line 824
     sget-object v2, Lcom/isaigu/gymapp/ai/AiScreening;->CONTRAINDICATIONS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -1986,7 +1986,7 @@
 
     aget-object v4, v2, v0
 
-    .line 809
+    .line 825
     sget-object v5, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v5, v5, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
@@ -1999,18 +1999,18 @@
 
     invoke-interface {v5, v4, v6}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 808
+    .line 824
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_99
 
-    .line 804
+    .line 820
     :cond_ad
     const/4 v0, 0x0
 
     goto :goto_8a
 
-    .line 805
+    .line 821
     :catch_af
     move-exception v0
 
@@ -2032,12 +2032,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 681
+    .line 697
     move v1, v0
 
     move v2, v0
 
-    .line 682
+    .line 698
     :goto_3
     invoke-interface {p0}, Ljava/util/List;->size()I
 
@@ -2045,14 +2045,14 @@
 
     if-ge v1, v0, :cond_39
 
-    .line 683
+    .line 699
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 684
+    .line 700
     if-eqz v0, :cond_35
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -2067,7 +2067,7 @@
 
     if-eqz v3, :cond_35
 
-    .line 685
+    .line 701
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v3
@@ -2078,7 +2078,7 @@
 
     if-eqz v3, :cond_35
 
-    .line 686
+    .line 702
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
@@ -2093,7 +2093,7 @@
 
     move-result v2
 
-    .line 682
+    .line 698
     :cond_35
     add-int/lit8 v0, v1, 0x1
 
@@ -2101,7 +2101,7 @@
 
     goto :goto_3
 
-    .line 689
+    .line 705
     :cond_39
     return v2
 .end method
@@ -2110,7 +2110,7 @@
     .registers 8
 
     .prologue
-    .line 693
+    .line 709
     const-string v0, "ai"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -2133,7 +2133,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 694
+    .line 710
     sget-wide v0, Lcom/isaigu/gymapp/ai/AiSession;->lastGuardToastMs:J
 
     sub-long v0, p1, v0
@@ -2148,16 +2148,16 @@
 
     if-nez v0, :cond_27
 
-    .line 703
+    .line 719
     :cond_26
     :goto_26
     return-void
 
-    .line 697
+    .line 713
     :cond_27
     sput-wide p1, Lcom/isaigu/gymapp/ai/AiSession;->lastGuardToastMs:J
 
-    .line 699
+    .line 715
     :try_start_29
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->panelRoot:Landroid/view/View;
 
@@ -2171,14 +2171,14 @@
 
     move-result-object v0
 
-    .line 700
+    .line 716
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
     :try_end_37
     .catch Ljava/lang/Throwable; {:try_start_29 .. :try_end_37} :catch_38
 
     goto :goto_26
 
-    .line 701
+    .line 717
     :catch_38
     move-exception v0
 
@@ -2186,21 +2186,47 @@
 .end method
 
 .method public static onHeartRate(I)V
+    .registers 3
+
+    .prologue
+    .line 106
+    :try_start_0
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiSession;->onHeartRateImpl(I)V
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
+
+    .line 110
+    :goto_3
+    return-void
+
+    .line 107
+    :catch_4
+    move-exception v0
+
+    .line 108
+    const-string v1, "AiSession.onHeartRate"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_3
+.end method
+
+.method private static onHeartRateImpl(I)V
     .registers 5
 
     .prologue
-    .line 97
+    .line 113
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 98
+    .line 114
     sput p0, Lcom/isaigu/gymapp/ai/AiSession;->lastBandHr:I
 
-    .line 99
+    .line 115
     sput-wide v0, Lcom/isaigu/gymapp/ai/AiSession;->lastBandHrMs:J
 
-    .line 100
+    .line 116
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REST_HR:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -2211,17 +2237,17 @@
 
     if-eqz v2, :cond_18
 
-    .line 101
+    .line 117
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->restHr:Lcom/isaigu/gymapp/ai/AiRestHr;
 
     invoke-virtual {v2, v0, v1, p0}, Lcom/isaigu/gymapp/ai/AiRestHr;->onSample(JI)V
 
-    .line 105
+    .line 121
     :cond_17
     :goto_17
     return-void
 
-    .line 102
+    .line 118
     :cond_18
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -2239,7 +2265,7 @@
 
     if-ne v2, v3, :cond_17
 
-    .line 103
+    .line 119
     :cond_28
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -2249,10 +2275,36 @@
 .end method
 
 .method public static onPulseCycle(Lcom/isaigu/gymapp/train/model/TrainItem;)V
-    .registers 5
+    .registers 3
 
     .prologue
     .line 81
+    :try_start_0
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiSession;->onPulseCycleImpl(Lcom/isaigu/gymapp/train/model/TrainItem;)V
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
+
+    .line 85
+    :goto_3
+    return-void
+
+    .line 82
+    :catch_4
+    move-exception v0
+
+    .line 83
+    const-string v1, "AiSession.onPulseCycle"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_3
+.end method
+
+.method private static onPulseCycleImpl(Lcom/isaigu/gymapp/train/model/TrainItem;)V
+    .registers 5
+
+    .prologue
+    .line 89
     if-eqz p0, :cond_8
 
     :try_start_2
@@ -2262,18 +2314,18 @@
 
     if-eq p0, v0, :cond_9
 
-    .line 93
+    .line 101
     :cond_8
     :goto_8
     return-void
 
-    .line 84
+    .line 92
     :cond_9
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 85
+    .line 93
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -2284,7 +2336,7 @@
 
     if-eqz v2, :cond_3b
 
-    .line 86
+    .line 94
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiEngine;->onCycle(J)Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
@@ -2297,11 +2349,11 @@
 
     goto :goto_8
 
-    .line 90
+    .line 98
     :catch_21
     move-exception v0
 
-    .line 91
+    .line 99
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2326,7 +2378,7 @@
 
     goto :goto_8
 
-    .line 87
+    .line 95
     :cond_3b
     :try_start_3b
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -2339,7 +2391,7 @@
 
     if-eqz v0, :cond_8
 
-    .line 88
+    .line 96
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->applyCalibration()V
     :try_end_48
     .catch Ljava/lang/Throwable; {:try_start_3b .. :try_end_48} :catch_21
@@ -2351,7 +2403,7 @@
     .registers 2
 
     .prologue
-    .line 155
+    .line 171
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -2364,7 +2416,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 156
+    .line 172
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v0
@@ -2375,7 +2427,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 157
+    .line 173
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v0
@@ -2386,7 +2438,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 158
+    .line 174
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v0
@@ -2409,11 +2461,11 @@
     :cond_32
     const/4 v0, 0x1
 
-    .line 155
+    .line 171
     :goto_33
     return v0
 
-    .line 158
+    .line 174
     :cond_34
     const/4 v0, 0x0
 
@@ -2424,7 +2476,7 @@
     .registers 5
 
     .prologue
-    .line 184
+    .line 200
     if-eqz p0, :cond_d
 
     :try_start_2
@@ -2434,23 +2486,23 @@
 
     if-eqz v0, :cond_d
 
-    .line 185
+    .line 201
     const-string v0, "ai"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->reconnect(Landroid/app/Activity;Ljava/lang/String;)V
     :try_end_d
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_d} :catch_e
 
-    .line 190
+    .line 206
     :cond_d
     :goto_d
     return-void
 
-    .line 187
+    .line 203
     :catch_e
     move-exception v0
 
-    .line 188
+    .line 204
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2480,12 +2532,12 @@
     .registers 4
 
     .prologue
-    .line 360
+    .line 376
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-eqz v0, :cond_10
 
-    .line 361
+    .line 377
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -2494,10 +2546,10 @@
 
     invoke-virtual {v0, v2, v3}, Lcom/isaigu/gymapp/ai/AiEngine;->reduce(J)V
 
-    .line 362
+    .line 378
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->forceApplyCurrent()V
 
-    .line 364
+    .line 380
     :cond_10
     return-void
 .end method
@@ -2506,7 +2558,7 @@
     .registers 4
 
     .prologue
-    .line 210
+    .line 226
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->panelRoot:Landroid/view/View;
 
@@ -2518,7 +2570,7 @@
 
     move-result-object v0
 
-    .line 211
+    .line 227
     :goto_a
     const-string v1, "ai"
 
@@ -2526,21 +2578,21 @@
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_f} :catch_12
 
-    .line 215
+    .line 231
     :goto_f
     return-void
 
-    .line 210
+    .line 226
     :cond_10
     const/4 v0, 0x0
 
     goto :goto_a
 
-    .line 212
+    .line 228
     :catch_12
     move-exception v0
 
-    .line 213
+    .line 229
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2572,14 +2624,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 814
+    .line 830
     if-nez p0, :cond_4
 
-    .line 830
+    .line 846
     :goto_3
     return-void
 
-    .line 818
+    .line 834
     :cond_4
     :try_start_4
     const-string v1, "ai_session"
@@ -2600,7 +2652,7 @@
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    .line 819
+    .line 835
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->name()Ljava/lang/String;
 
     move-result-object v3
@@ -2615,7 +2667,7 @@
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    .line 820
+    .line 836
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiModel$Mode;->name()Ljava/lang/String;
 
     move-result-object v3
@@ -2630,7 +2682,7 @@
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    .line 821
+    .line 837
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiModel$Sex;->name()Ljava/lang/String;
 
     move-result-object v3
@@ -2645,7 +2697,7 @@
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    .line 822
+    .line 838
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->name()Ljava/lang/String;
 
     move-result-object v3
@@ -2660,7 +2712,7 @@
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
-    .line 823
+    .line 839
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiModel$Operator;->name()Ljava/lang/String;
 
     move-result-object v3
@@ -2675,7 +2727,7 @@
 
     iget v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    .line 824
+    .line 840
     invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v1
@@ -2686,7 +2738,7 @@
 
     iget-wide v4, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    .line 825
+    .line 841
     invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
 
     move-result-wide v4
@@ -2699,7 +2751,7 @@
 
     const-string v2, "total_s"
 
-    .line 826
+    .line 842
     sget-object v3, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
@@ -2719,14 +2771,14 @@
 
     move-result-object v0
 
-    .line 827
+    .line 843
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
     :try_end_85
     .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_85} :catch_87
 
     goto/16 :goto_3
 
-    .line 828
+    .line 844
     :catch_87
     move-exception v0
 
@@ -2737,16 +2789,16 @@
     .registers 5
 
     .prologue
-    .line 761
+    .line 777
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-nez v0, :cond_5
 
-    .line 774
+    .line 790
     :cond_4
     return-void
 
-    .line 764
+    .line 780
     :cond_5
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
@@ -2754,10 +2806,10 @@
 
     move-result-object v2
 
-    .line 765
+    .line 781
     if-eqz v2, :cond_4
 
-    .line 768
+    .line 784
     const/4 v0, 0x0
 
     move v1, v0
@@ -2769,14 +2821,14 @@
 
     if-ge v1, v0, :cond_4
 
-    .line 769
+    .line 785
     invoke-interface {v2, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 770
+    .line 786
     if-eqz v0, :cond_25
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -2785,10 +2837,10 @@
 
     if-nez v3, :cond_25
 
-    .line 771
+    .line 787
     iput p0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
 
-    .line 768
+    .line 784
     :cond_25
     add-int/lit8 v0, v1, 0x1
 
@@ -2803,41 +2855,41 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 270
+    .line 286
     sget-boolean v1, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
     if-eqz v1, :cond_6
 
-    .line 284
+    .line 300
     :goto_5
     return-void
 
-    .line 273
+    .line 289
     :cond_6
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
-    .line 274
+    .line 290
     const/16 v1, 0xe10
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiSession;->setWorkLengthAll(I)V
 
-    .line 275
+    .line 291
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->applyCalibration()V
 
-    .line 277
+    .line 293
     :try_start_10
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-eqz v1, :cond_19
 
-    .line 278
+    .line 294
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/train/TrainItemManager;->startAll()V
     :try_end_19
     .catch Ljava/lang/Throwable; {:try_start_10 .. :try_end_19} :catch_24
 
-    .line 283
+    .line 299
     :cond_19
     :goto_19
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
@@ -2853,11 +2905,11 @@
 
     goto :goto_5
 
-    .line 280
+    .line 296
     :catch_24
     move-exception v1
 
-    .line 281
+    .line 297
     const-string v2, "ai"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -2882,7 +2934,7 @@
 
     goto :goto_19
 
-    .line 283
+    .line 299
     :cond_3e
     const/4 v0, 0x0
 
@@ -2895,7 +2947,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 304
+    .line 320
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
     if-eqz v0, :cond_9
@@ -2904,19 +2956,19 @@
 
     if-nez v0, :cond_a
 
-    .line 330
+    .line 346
     :cond_9
     :goto_9
     return-void
 
-    .line 307
+    .line 323
     :cond_a
     sput-boolean v4, Lcom/isaigu/gymapp/ai/AiSession;->soloAutoRamp:Z
 
-    .line 308
+    .line 324
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiSession;->saveInput(Landroid/content/Context;)V
 
-    .line 309
+    .line 325
     new-instance v0, Lcom/isaigu/gymapp/ai/AiEngine;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
@@ -2929,7 +2981,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 310
+    .line 326
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->profile:Lcom/isaigu/gymapp/ai/AiModel$Profile;
@@ -2940,20 +2992,20 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
-    .line 311
+    .line 327
     sput-boolean v4, Lcom/isaigu/gymapp/ai/AiSession;->epocClosed:Z
 
-    .line 312
+    .line 328
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 313
+    .line 329
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiEngine;->start(J)V
 
-    .line 314
+    .line 330
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
     iget v2, v2, Lcom/isaigu/gymapp/ai/AiModel$Plan;->totalS:I
@@ -2962,12 +3014,12 @@
 
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiSession;->setWorkLengthAll(I)V
 
-    .line 315
+    .line 331
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v2, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 316
+    .line 332
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiEngine;->onCycle(J)Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
@@ -2976,30 +3028,30 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->apply(Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;)V
 
-    .line 317
+    .line 333
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
     if-nez v0, :cond_54
 
-    .line 319
+    .line 335
     :try_start_4b
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-eqz v0, :cond_54
 
-    .line 320
+    .line 336
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->startAll()V
     :try_end_54
     .catch Ljava/lang/Throwable; {:try_start_4b .. :try_end_54} :catch_ad
 
-    .line 326
+    .line 342
     :cond_54
     :goto_54
     sput-boolean v4, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
-    .line 327
+    .line 343
     const-string v0, "ai"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -3080,16 +3132,16 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 329
+    .line 345
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->startTicker()V
 
     goto/16 :goto_9
 
-    .line 322
+    .line 338
     :catch_ad
     move-exception v0
 
-    .line 323
+    .line 339
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3119,21 +3171,21 @@
     .registers 4
 
     .prologue
-    .line 400
+    .line 416
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->ticker:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 401
+    .line 417
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     sput-wide v0, Lcom/isaigu/gymapp/ai/AiSession;->lastTickMs:J
 
-    .line 402
+    .line 418
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->ticker:Ljava/lang/Runnable;
@@ -3142,7 +3194,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 403
+    .line 419
     return-void
 .end method
 
@@ -3150,46 +3202,46 @@
     .registers 3
 
     .prologue
-    .line 333
+    .line 349
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 334
+    .line 350
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-eqz v2, :cond_d
 
-    .line 335
+    .line 351
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiEngine;->stop(J)V
 
-    .line 337
+    .line 353
     :cond_d
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->zeroOutput()V
 
-    .line 338
+    .line 354
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopDevice()V
 
-    .line 339
+    .line 355
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     if-ne v0, v1, :cond_1e
 
-    .line 340
+    .line 356
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 344
+    .line 360
     :cond_1d
     :goto_1d
     return-void
 
-    .line 341
+    .line 357
     :cond_1e
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -3197,7 +3249,7 @@
 
     if-ne v0, v1, :cond_1d
 
-    .line 342
+    .line 358
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
@@ -3209,32 +3261,32 @@
     .registers 4
 
     .prologue
-    .line 777
+    .line 793
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->clear()V
 
-    .line 779
+    .line 795
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-eqz v0, :cond_c
 
-    .line 780
+    .line 796
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->stopAll()V
     :try_end_c
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_c} :catch_d
 
-    .line 785
+    .line 801
     :cond_c
     :goto_c
     return-void
 
-    .line 782
+    .line 798
     :catch_d
     move-exception v0
 
-    .line 783
+    .line 799
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3264,12 +3316,12 @@
     .registers 1
 
     .prologue
-    .line 295
+    .line 311
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->soloAutoRamp:Z
 
-    .line 296
+    .line 312
     return-void
 .end method
 
@@ -3277,14 +3329,14 @@
     .registers 2
 
     .prologue
-    .line 406
+    .line 422
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->ticker:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 407
+    .line 423
     return-void
 .end method
 
@@ -3296,12 +3348,12 @@
 
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
-    .line 427
+    .line 443
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 428
+    .line 444
     sget-wide v4, Lcom/isaigu/gymapp/ai/AiSession;->lastTickMs:J
 
     sub-long v4, v2, v4
@@ -3312,10 +3364,10 @@
 
     div-double/2addr v4, v6
 
-    .line 429
+    .line 445
     sput-wide v2, Lcom/isaigu/gymapp/ai/AiSession;->lastTickMs:J
 
-    .line 430
+    .line 446
     sget-object v6, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sget-object v7, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REST_HR:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -3326,17 +3378,17 @@
 
     if-eqz v6, :cond_24
 
-    .line 431
+    .line 447
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->restHr:Lcom/isaigu/gymapp/ai/AiRestHr;
 
     invoke-virtual {v0, v2, v3}, Lcom/isaigu/gymapp/ai/AiRestHr;->tick(J)V
 
-    .line 479
+    .line 495
     :cond_23
     :goto_23
     return-void
 
-    .line 434
+    .line 450
     :cond_24
     sget-object v6, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -3348,10 +3400,10 @@
 
     if-eqz v6, :cond_31
 
-    .line 435
+    .line 451
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiSession;->guardManualChanges(J)V
 
-    .line 437
+    .line 453
     :cond_31
     sget-object v6, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -3367,7 +3419,7 @@
 
     if-eqz v6, :cond_7a
 
-    .line 438
+    .line 454
     sget-wide v2, Lcom/isaigu/gymapp/ai/AiSession;->soloAccum:D
 
     mul-double/2addr v4, v0
@@ -3376,19 +3428,19 @@
 
     sput-wide v2, Lcom/isaigu/gymapp/ai/AiSession;->soloAccum:D
 
-    .line 439
+    .line 455
     sget-wide v2, Lcom/isaigu/gymapp/ai/AiSession;->soloAccum:D
 
     cmpl-double v2, v2, v0
 
     if-ltz v2, :cond_23
 
-    .line 440
+    .line 456
     sget-wide v2, Lcom/isaigu/gymapp/ai/AiSession;->soloAccum:D
 
     double-to-int v2, v2
 
-    .line 441
+    .line 457
     sget-wide v4, Lcom/isaigu/gymapp/ai/AiSession;->soloAccum:D
 
     int-to-double v6, v2
@@ -3397,7 +3449,7 @@
 
     sput-wide v4, Lcom/isaigu/gymapp/ai/AiSession;->soloAccum:D
 
-    .line 442
+    .line 458
     const-wide/high16 v4, 0x4059000000000000L    # 100.0
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
@@ -3417,17 +3469,17 @@
 
     long-to-int v0, v0
 
-    .line 443
+    .line 459
     sget v1, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
     add-int/2addr v1, v2
 
     if-lt v1, v0, :cond_6b
 
-    .line 444
+    .line 460
     sput-boolean v8, Lcom/isaigu/gymapp/ai/AiSession;->soloAutoRamp:Z
 
-    .line 446
+    .line 462
     :cond_6b
     sget v1, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
@@ -3445,38 +3497,38 @@
 
     goto :goto_23
 
-    .line 450
+    .line 466
     :cond_7a
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-eqz v0, :cond_23
 
-    .line 453
+    .line 469
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiSession;->guardManualChanges(J)V
 
-    .line 454
+    .line 470
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v0
 
-    .line 455
+    .line 471
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v1, v2, v3}, Lcom/isaigu/gymapp/ai/AiEngine;->tick(J)V
 
-    .line 456
+    .line 472
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiSession;->tickEnergy(J)V
 
-    .line 457
+    .line 473
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v1
 
-    .line 459
+    .line 475
     sget-object v2, Lcom/isaigu/gymapp/ai/AiEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     if-ne v1, v2, :cond_b4
@@ -3491,7 +3543,7 @@
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 460
+    .line 476
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AiEngine;->getCurrentCycle()Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
     move-result-object v2
@@ -3500,7 +3552,7 @@
 
     if-eq v2, v3, :cond_b4
 
-    .line 461
+    .line 477
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AiEngine;->getCurrentCycle()Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
@@ -3509,7 +3561,7 @@
 
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiSession;->apply(Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;)V
 
-    .line 464
+    .line 480
     :cond_b4
     sget-object v2, Lcom/isaigu/gymapp/ai/AiEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
@@ -3523,10 +3575,10 @@
 
     if-lez v2, :cond_147
 
-    .line 465
+    .line 481
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->zeroOutput()V
 
-    .line 469
+    .line 485
     :cond_c3
     :goto_c3
     sget-object v2, Lcom/isaigu/gymapp/ai/AiEngine$State;->RECOVERY:Lcom/isaigu/gymapp/ai/AiEngine$State;
@@ -3548,18 +3600,18 @@
 
     if-ne v2, v3, :cond_10b
 
-    .line 471
+    .line 487
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->zeroOutput()V
 
-    .line 472
+    .line 488
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopDevice()V
 
-    .line 473
+    .line 489
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     sput-object v2, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    .line 474
+    .line 490
     const-string v2, "ai"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -3602,11 +3654,11 @@
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 476
+    .line 492
     :cond_10b
     if-eq v0, v1, :cond_23
 
-    .line 477
+    .line 493
     const-string v2, "ai"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -3663,7 +3715,7 @@
 
     goto/16 :goto_23
 
-    .line 466
+    .line 482
     :cond_147
     sget-object v2, Lcom/isaigu/gymapp/ai/AiEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
@@ -3685,7 +3737,7 @@
 
     if-gez v2, :cond_c3
 
-    .line 467
+    .line 483
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->forceApplyCurrent()V
 
     goto/16 :goto_c3
@@ -3695,7 +3747,7 @@
     .registers 12
 
     .prologue
-    .line 482
+    .line 498
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     if-eqz v0, :cond_8
@@ -3704,12 +3756,12 @@
 
     if-nez v0, :cond_9
 
-    .line 497
+    .line 513
     :cond_8
     :goto_8
     return-void
 
-    .line 485
+    .line 501
     :cond_9
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -3717,7 +3769,7 @@
 
     move-result-object v0
 
-    .line 486
+    .line 502
     sget-object v1, Lcom/isaigu/gymapp/ai/AiEngine$State;->DONE:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     if-eq v0, v1, :cond_17
@@ -3726,25 +3778,25 @@
 
     if-ne v0, v1, :cond_24
 
-    .line 487
+    .line 503
     :cond_17
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->epocClosed:Z
 
     if-nez v0, :cond_8
 
-    .line 488
+    .line 504
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiSession;->epocClosed:Z
 
-    .line 489
+    .line 505
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEnergy;->closeEpoc()V
 
     goto :goto_8
 
-    .line 493
+    .line 509
     :cond_24
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -3764,7 +3816,7 @@
 
     move-result-wide v4
 
-    .line 494
+    .line 510
     :goto_36
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -3772,7 +3824,7 @@
 
     move-result-object v0
 
-    .line 495
+    .line 511
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v1, p0, p1}, Lcom/isaigu/gymapp/ai/AiEngine;->isStimOn(J)Z
@@ -3795,7 +3847,7 @@
 
     div-double v6, v2, v6
 
-    .line 496
+    .line 512
     :goto_50
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
@@ -3810,19 +3862,19 @@
 
     goto :goto_8
 
-    .line 493
+    .line 509
     :cond_5b
     const-wide/high16 v4, -0x4010000000000000L    # -1.0
 
     goto :goto_36
 
-    .line 495
+    .line 511
     :cond_5e
     const-wide/16 v6, 0x0
 
     goto :goto_50
 
-    .line 496
+    .line 512
     :cond_61
     const/4 v8, 0x0
 
@@ -3833,22 +3885,22 @@
     .registers 4
 
     .prologue
-    .line 377
+    .line 393
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-nez v0, :cond_5
 
-    .line 389
+    .line 405
     :goto_4
     return-void
 
-    .line 380
+    .line 396
     :cond_5
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 381
+    .line 397
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
@@ -3861,7 +3913,7 @@
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 382
+    .line 398
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v2
@@ -3870,24 +3922,24 @@
 
     if-ne v2, v3, :cond_26
 
-    .line 383
+    .line 399
     :cond_1d
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiEngine;->resume(J)V
 
-    .line 384
+    .line 400
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->ensureDeviceRunning()V
 
     goto :goto_4
 
-    .line 386
+    .line 402
     :cond_26
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiEngine;->userPause(J)V
 
-    .line 387
+    .line 403
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->zeroOutput()V
 
     goto :goto_4
@@ -3901,14 +3953,14 @@
 
     const/4 v2, 0x0
 
-    .line 719
+    .line 735
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->rampUpMs:I
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->rampDownMs:I
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiRamp;->set(II)V
 
-    .line 720
+    .line 736
     const/16 v0, 0x64
 
     invoke-static {v0, p1}, Ljava/lang/Math;->min(II)I
@@ -3919,23 +3971,23 @@
 
     move-result v3
 
-    .line 721
+    .line 737
     sput-object p0, Lcom/isaigu/gymapp/ai/AiSession;->written:Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
-    .line 722
+    .line 738
     sput v3, Lcom/isaigu/gymapp/ai/AiSession;->writtenPercent:I
 
-    .line 723
+    .line 739
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-nez v0, :cond_1c
 
-    .line 758
+    .line 774
     :cond_1b
     :goto_1b
     return-void
 
-    .line 726
+    .line 742
     :cond_1c
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
@@ -3943,12 +3995,12 @@
 
     move-result-object v4
 
-    .line 727
+    .line 743
     if-eqz v4, :cond_1b
 
     move v1, v2
 
-    .line 730
+    .line 746
     :goto_25
     invoke-interface {v4}, Ljava/util/List;->size()I
 
@@ -3956,14 +4008,14 @@
 
     if-ge v1, v0, :cond_97
 
-    .line 731
+    .line 747
     invoke-interface {v4, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 732
+    .line 748
     if-eqz v0, :cond_3f
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -3978,7 +4030,7 @@
 
     if-nez v5, :cond_43
 
-    .line 730
+    .line 746
     :cond_3f
     :goto_3f
     add-int/lit8 v0, v1, 0x1
@@ -3987,7 +4039,7 @@
 
     goto :goto_25
 
-    .line 735
+    .line 751
     :cond_43
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
@@ -3997,20 +4049,20 @@
 
     move-result-object v5
 
-    .line 736
+    .line 752
     if-eqz v5, :cond_3f
 
-    .line 739
+    .line 755
     iget v6, p0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->hz:I
 
     iput v6, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    .line 740
+    .line 756
     iget v6, p0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->pwUs:I
 
     iput v6, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    .line 741
+    .line 757
     iget v6, p0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->onS:I
 
     invoke-static {v8, v6}, Ljava/lang/Math;->max(II)I
@@ -4019,7 +4071,7 @@
 
     iput v6, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    .line 742
+    .line 758
     iget v6, p0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->offS:I
 
     invoke-static {v8, v6}, Ljava/lang/Math;->max(II)I
@@ -4028,13 +4080,13 @@
 
     iput v6, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
-    .line 743
+    .line 759
     iput v3, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 744
+    .line 760
     iput-boolean v2, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 745
+    .line 761
     iget-object v6, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     if-eqz v6, :cond_79
@@ -4045,14 +4097,14 @@
 
     if-eqz v6, :cond_79
 
-    .line 746
+    .line 762
     iget-object v6, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget v5, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
     iput v5, v6, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->secondValue:I
 
-    .line 749
+    .line 765
     :cond_79
     :try_start_79
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
@@ -4061,11 +4113,11 @@
 
     goto :goto_3f
 
-    .line 750
+    .line 766
     :catch_7d
     move-exception v0
 
-    .line 751
+    .line 767
     const-string v5, "ai"
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -4090,7 +4142,7 @@
 
     goto :goto_3f
 
-    .line 755
+    .line 771
     :cond_97
     :try_start_97
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->resetApplied()V
@@ -4099,7 +4151,7 @@
 
     goto :goto_1b
 
-    .line 756
+    .line 772
     :catch_9b
     move-exception v0
 
@@ -4110,12 +4162,12 @@
     .registers 2
 
     .prologue
-    .line 579
+    .line 595
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/ai/AiSession;->lastSentFrac:D
 
-    .line 580
+    .line 596
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
     if-eqz v0, :cond_32
@@ -4126,53 +4178,53 @@
 
     move-result-object v0
 
-    .line 581
+    .line 597
     :goto_e
     if-nez v0, :cond_2d
 
-    .line 582
+    .line 598
     new-instance v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;-><init>()V
 
-    .line 583
+    .line 599
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->hz:I
 
-    .line 584
+    .line 600
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pwUs:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->pwUs:I
 
-    .line 585
+    .line 601
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->onS:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->onS:I
 
-    .line 586
+    .line 602
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->CALIB_CYCLE:Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v1, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->offS:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->offS:I
 
-    .line 588
+    .line 604
     :cond_2d
     const/4 v1, 0x0
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiSession;->writeAll(Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;I)V
 
-    .line 589
+    .line 605
     return-void
 
-    .line 580
+    .line 596
     :cond_32
     const/4 v0, 0x0
 

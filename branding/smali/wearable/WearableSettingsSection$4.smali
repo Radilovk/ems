@@ -42,12 +42,13 @@
 
     if-nez v0, :cond_7
 
-    .line 249
+    .line 253
     :goto_6
     return-void
 
-    .line 243
+    .line 244
     :cond_7
+    :try_start_7
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/TextView;
 
@@ -61,11 +62,11 @@
 
     move-result-object v0
 
-    .line 244
+    .line 245
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->refreshStatus(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$500(Landroid/app/Activity;)V
 
-    .line 245
+    .line 246
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$600()J
 
@@ -90,12 +91,15 @@
 
     if-lez v1, :cond_2f
 
-    .line 246
+    .line 247
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->endTest(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700(Landroid/app/Activity;)V
+    :try_end_2f
+    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_2f} :catch_39
 
-    .line 248
+    .line 252
     :cond_2f
+    :goto_2f
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$800()Landroid/os/Handler;
 
@@ -106,4 +110,15 @@
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     goto :goto_6
+
+    .line 249
+    :catch_39
+    move-exception v0
+
+    .line 250
+    const-string v1, "WearableSettingsSection.status"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_2f
 .end method

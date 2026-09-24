@@ -78,6 +78,14 @@ public final class AiSession {
     /** TrainItem$2.onFinish — the device is entering an ON phase for this row. */
     public static void onPulseCycle(TrainItem item) {
         try {
+            onPulseCycleImpl(item);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AiSession.onPulseCycle", t);
+        }
+    }
+
+    private static void onPulseCycleImpl(TrainItem item) {
+        try {
             if (item == null || item != leader()) {
                 return;
             }
@@ -94,6 +102,14 @@ public final class AiSession {
 
     /** NotifyWearableBridge.onHeartRate — every valid band sample. */
     public static void onHeartRate(int bpm) {
+        try {
+            onHeartRateImpl(bpm);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AiSession.onHeartRate", t);
+        }
+    }
+
+    private static void onHeartRateImpl(int bpm) {
         long now = System.currentTimeMillis();
         lastBandHr = bpm;
         lastBandHrMs = now;

@@ -37,7 +37,7 @@ public final class WearableSettingsSection {
         try {
             build(activity, root);
         } catch (Throwable t) {
-            WearableBleDiagLog.log("settings", "band section: " + t);
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.attach", t);
         }
     }
 
@@ -240,10 +240,14 @@ public final class WearableSettingsSection {
             if (statusView == null) {
                 return;
             }
-            Activity a = WearableUi.asActivity(statusView.getContext());
-            refreshStatus(a);
-            if (testUntilMs > 0 && System.currentTimeMillis() > testUntilMs) {
-                endTest(a);
+            try {
+                Activity a = WearableUi.asActivity(statusView.getContext());
+                refreshStatus(a);
+                if (testUntilMs > 0 && System.currentTimeMillis() > testUntilMs) {
+                    endTest(a);
+                }
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.status", t);
             }
             handler.postDelayed(this, 1000L);
         }

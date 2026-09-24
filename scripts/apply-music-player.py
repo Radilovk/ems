@@ -355,7 +355,8 @@ def install_smali() -> None:
         shutil.copy2(widget_src, widget_dir / widget)
         print(f"installed widget/{widget}")
     # Shared UI kit (timer, player, HR, AI) — widget/XemsUi + its inner classes.
-    kit = sorted((BRANDING / "smali/widget").glob("XemsUi*.smali"))
+    kit = sorted((BRANDING / "smali/widget").glob("XemsUi*.smali")) + sorted(
+        (BRANDING / "smali/widget").glob("XemsGuard*.smali"))
     if not kit:
         raise SystemExit("Missing branding/smali/widget/XemsUi.smali — run compile-music-sync-java.sh")
     for src in kit:

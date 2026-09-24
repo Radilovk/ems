@@ -43,7 +43,7 @@
     .end annotation
 
     .prologue
-    .line 689
+    .line 729
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
@@ -71,7 +71,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 692
+    .line 732
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalSec:I
@@ -96,7 +96,7 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 693
+    .line 733
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
@@ -121,7 +121,7 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 694
+    .line 734
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$summary:Landroid/widget/TextView;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
@@ -131,12 +131,12 @@
 
     if-lez v0, :cond_9e
 
-    .line 696
+    .line 736
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 695
+    .line 735
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()I
 
@@ -178,7 +178,7 @@
 
     const-string v3, "total "
 
-    .line 696
+    .line 736
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -216,11 +216,11 @@
 
     move-result-object v0
 
-    .line 694
+    .line 734
     :goto_7d
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 698
+    .line 738
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$bar:Landroid/widget/LinearLayout;
@@ -233,7 +233,7 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->fillTimeline(Landroid/app/Activity;Landroid/widget/LinearLayout;I)V
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1200(Landroid/app/Activity;Landroid/widget/LinearLayout;I)V
 
-    .line 699
+    .line 739
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$quickRow:[Landroid/widget/LinearLayout;
@@ -243,7 +243,7 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->fillQuickIntervals(Landroid/app/Activity;Landroid/widget/LinearLayout;Ljava/lang/Runnable;)V
     invoke-static {v0, v1, p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1300(Landroid/app/Activity;Landroid/widget/LinearLayout;Ljava/lang/Runnable;)V
 
-    .line 700
+    .line 740
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$loopRow:[Landroid/widget/LinearLayout;
@@ -253,10 +253,10 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->fillQuickLoops(Landroid/app/Activity;Landroid/widget/LinearLayout;Ljava/lang/Runnable;)V
     invoke-static {v0, v1, p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1400(Landroid/app/Activity;Landroid/widget/LinearLayout;Ljava/lang/Runnable;)V
 
-    .line 701
+    .line 741
     return-void
 
-    .line 697
+    .line 737
     :cond_9e
     new-instance v0, Ljava/lang/StringBuilder;
 

@@ -35,6 +35,10 @@ public final class MusicDiagLog {
             return;
         }
         appContext = context.getApplicationContext();
+        try {
+            com.isaigu.gymapp.widget.XemsGuard.installLoopGuard();
+        } catch (Throwable ignored) {
+        }
         log("init", "MusicDiagLog ready version=" + readVersionName(context)
                 + " sdk=" + Build.VERSION.SDK_INT + " model=" + Build.MODEL);
     }

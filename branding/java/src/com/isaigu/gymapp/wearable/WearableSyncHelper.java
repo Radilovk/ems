@@ -128,6 +128,14 @@ public final class WearableSyncHelper {
     private WearableSyncHelper() {}
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
+        try {
+            attachMasterPanelImpl(root, manager);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.attachMasterPanel", t);
+        }
+    }
+
+    private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         if (root == null || manager == null) {
             return;
         }
@@ -136,7 +144,8 @@ public final class WearableSyncHelper {
         itemManager = manager;
         try {
             com.isaigu.gymapp.ai.AiSession.attach(root, manager);
-        } catch (Throwable ignored) {
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AiSession.attach", t);
         }
         View button = root.findViewById(BUTTON_ID);
         if (button == null) {
@@ -168,8 +177,12 @@ public final class WearableSyncHelper {
                 if (act == null || act.isFinishing()) {
                     return;
                 }
-                if (overlayDialog == null || !overlayDialog.isShowing()) {
-                    showOverlayDialog();
+                try {
+                    if (overlayDialog == null || !overlayDialog.isShowing()) {
+                        showOverlayDialog();
+                    }
+                } catch (Throwable t) {
+                    com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.showDial", t);
                 }
             }
         });
@@ -177,6 +190,14 @@ public final class WearableSyncHelper {
 
     /** Tear down floating UI refs when training host is destroyed; keep BLE if user armed dial. */
     public static void detachTrainingHost() {
+        try {
+            detachTrainingHostImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.detachTrainingHost", t);
+        }
+    }
+
+    private static void detachTrainingHostImpl() {
         dismissStaleUi();
         panelRoot = null;
         itemManager = null;
@@ -212,6 +233,14 @@ public final class WearableSyncHelper {
     }
 
     public static void onTrainingRunningChanged(boolean running) {
+        try {
+            onTrainingRunningChangedImpl(running);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.onTrainingRunningChanged", t);
+        }
+    }
+
+    private static void onTrainingRunningChangedImpl(boolean running) {
         trainingRunning = running;
         updateOverlayVisibility();
         refreshStatusText();
@@ -219,12 +248,28 @@ public final class WearableSyncHelper {
     }
 
     public static void updateHeartRate(int hr, boolean connected) {
+        try {
+            updateHeartRateImpl(hr, connected);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.updateHeartRate", t);
+        }
+    }
+
+    private static void updateHeartRateImpl(int hr, boolean connected) {
         displayedHr = hr;
         bandConnected = connected;
         handler.post(new RefreshOverlayRunnable());
     }
 
     public static void updateDiagnostics() {
+        try {
+            updateDiagnosticsImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.updateDiagnostics", t);
+        }
+    }
+
+    private static void updateDiagnosticsImpl() {
         handler.post(new RefreshOverlayRunnable());
     }
 
@@ -731,11 +776,15 @@ public final class WearableSyncHelper {
     private static final class DialTick implements Runnable {
         @Override
         public void run() {
-            if (hrValueView == null || overlayDialog == null) {
-                return;
+            try {
+                if (hrValueView == null || overlayDialog == null) {
+                    return;
+                }
+                refreshOverlayDisplay();
+                handler.postDelayed(this, 1000L);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.DialTick", t);
             }
-            refreshOverlayDisplay();
-            handler.postDelayed(this, 1000L);
         }
     }
 
@@ -1073,7 +1122,11 @@ public final class WearableSyncHelper {
     private static final class RefreshOverlayRunnable implements Runnable {
         @Override
         public void run() {
-            refreshOverlayDisplay();
+            try {
+                refreshOverlayDisplay();
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.refresh", t);
+            }
         }
     }
 

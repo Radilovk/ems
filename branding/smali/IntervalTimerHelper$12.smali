@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 830
+    .line 870
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$12;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 6
 
     .prologue
-    .line 833
+    .line 873
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$12;->val$a:Landroid/app/Activity;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockSegments:Ljava/util/ArrayList;
@@ -68,6 +68,6 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->show(Landroid/app/Activity;Ljava/util/ArrayList;Lcom/isaigu/gymapp/train/model/TrainItem;Ljava/lang/Runnable;)V
 
-    .line 841
+    .line 881
     return-void
 .end method

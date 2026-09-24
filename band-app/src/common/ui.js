@@ -1,46 +1,17 @@
 import router from '@system.router'
 
 /**
- * XEMS Band v4 — shared look, tokens, and helpers for 212 × 520 AMOLED.
+ * Shared look and helpers for the XEMS band pages.
+ * One design scale for the 212 × 520 screen: nothing smaller than 18 px, body 22 px,
+ * key numbers 56–90 px.
  */
-export const THEME = {
-  bg: '#000000',
-  surface: '#1C1C1E',
-  surfaceElevated: '#2C2C2E',
-  border: '#3A3A3C',
-  text: '#FFFFFF',
-  textMuted: '#AEAEB2',
-  textDim: '#636366',
-  pressScale: 0.92,
-  animFast: '120ms',
-  animPage: '280ms',
-  glowOpacity: 0.38
-}
-
 export const ZONE = ['#3A3A3C', '#5AC8FA', '#30D158', '#FFD60A', '#FF9F0A', '#FF453A']
 export const ACCENT = '#FF3B5C'
-export const ACCENT_DARK = '#C42A48'
 export const GREEN = '#30D158'
-export const GREEN_DARK = '#1F9A42'
 export const AMBER = '#FF9F0A'
-export const AMBER_DARK = '#CC7A00'
 export const BLUE = '#5AC8FA'
-export const BLUE_DARK = '#0A84FF'
 export const PURPLE = '#BF5AF2'
-export const PURPLE_DARK = '#8E44C9'
-export const RED = '#FF453A'
 export const GRAY = '#8E8E93'
-
-/** Module registry — add new modules here for the home carousel. */
-export const MODULES = {
-  ai: { id: 'ai', title: 'AI сесия', icon: '/common/icons/ai.png', color: ACCENT, dark: ACCENT_DARK, route: '/pages/ai' },
-  train: { id: 'train', title: 'Тренировка', icon: '/common/icons/bolt.png', color: GREEN, dark: GREEN_DARK, route: '/pages/train' },
-  timer: { id: 'timer', title: 'Таймер', icon: '/common/icons/timer.png', color: AMBER, dark: AMBER_DARK, route: '/pages/timer' },
-  music: { id: 'music', title: 'Музика', icon: '/common/icons/music.png', color: PURPLE, dark: PURPLE_DARK, route: '/pages/music' },
-  pulse: { id: 'pulse', title: 'Пулс', icon: '/common/icons/heart.png', color: BLUE, dark: BLUE_DARK, route: '/pages/pulse' }
-}
-
-export const ROUTES = Object.fromEntries(Object.values(MODULES).map((m) => [m.id, m.route]))
 
 export function mmss(s) {
   s = Math.max(0, Math.round(s || 0))
@@ -66,18 +37,6 @@ export function zoneOf(hr, lim) {
   }
   const f = hr / lim
   return f < 0.6 ? 1 : f < 0.7 ? 2 : f < 0.8 ? 3 : f < 0.9 ? 4 : 5
-}
-
-/** RGBA glow string for ambient backgrounds. */
-export function glow(color, alpha) {
-  const a = alpha != null ? alpha : 0.35
-  if (!color || color[0] !== '#') {
-    return 'rgba(0,0,0,0)'
-  }
-  const r = parseInt(color.slice(1, 3), 16)
-  const g = parseInt(color.slice(3, 5), 16)
-  const b = parseInt(color.slice(5, 7), 16)
-  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
 }
 
 /** Module blocks of the state (empty objects when XEMS is older or silent). */
@@ -107,19 +66,23 @@ export function age(app, running) {
   return running ? app.silence() : 0
 }
 
+// ================================================================ paging (one thing per screen)
+
+
 /** Page dots for {@code n} screens (visual only; big targets are the screens themselves). */
-export function dots(i, n, accent) {
+export function dots(i, n) {
   const out = []
   for (let k = 0; k < n; k++) {
-    out.push({ on: k === i, accent: accent || '#FFFFFF' })
+    out.push({ on: k === i })
   }
   return out
 }
 
 /**
  * Set the screens a page has now (ids). Keeps the current screen when it still exists.
+ * The page holds: ids, idx, cur, dots, anim.
  */
-export function setPages(p, ids, accent) {
+export function setPages(p, ids) {
   const key = ids.join(',')
   if (key === p.idsKey) {
     return
@@ -132,12 +95,12 @@ export function setPages(p, ids, accent) {
   p.ids = ids
   p.idx = i
   p.cur = ids[i]
-  p.dots = dots(i, ids.length, accent)
-  p.dotAccent = accent || '#FFFFFF'
+  p.dots = dots(i, ids.length)
 }
 
 /**
- * Flick handling: up / down = next / previous screen, right = back.
+ * Flick handling for every page: up / down = next / previous screen, right = back
+ * (a page that listens to swipes must go back itself — the system gesture no longer reaches it).
  */
 export function swipe(p, e) {
   const d = e && e.direction
@@ -158,15 +121,6 @@ export function swipe(p, e) {
   }
   p.idx = i
   p.cur = ids[i]
-  p.dots = dots(i, ids.length, p.dotAccent)
+  p.dots = dots(i, ids.length)
   p.$app.$def.buzz('short')
-}
-
-/** Touch press helpers for buttons. */
-export function pressBtn(page, key) {
-  page.pressed = key
-}
-
-export function releaseBtn(page) {
-  page.pressed = ''
 }

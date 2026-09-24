@@ -144,6 +144,7 @@
       <text class="off-title">XEMS</text>
       <text class="off-sub">{{offText}}</text>
       <text class="off-hint">Отвори XEMS на таблета</text>
+      <text class="off-diag">{{diagText}}</text>
     </div>
   </stack>
 </template>
@@ -182,6 +183,7 @@ export default {
     page: 0,
     offline: true,
     offText: 'Свързване…',
+    diagText: '',
     mode: 'idle',
     st: 'idle',
     // live
@@ -257,6 +259,9 @@ export default {
     if (!s || quiet > 12) {
       this.offline = true
       this.offText = quiet > 9000 ? 'Свързване…' : 'Връзката прекъсна'
+      const d = app.diag || {}
+      this.diagText = 'връзка: ' + d.link + ' · пратени ' + d.sent + ' · грешки ' + d.failed
+        + ' · получени ' + d.rxAny + (d.err ? '\n' + d.err : '')
       return
     }
     this.offline = false
@@ -994,6 +999,14 @@ export default {
   text-align: center;
   font-size: 14px;
   color: #636366;
+}
+
+.off-diag {
+  margin-top: 14px;
+  width: 190px;
+  text-align: center;
+  font-size: 12px;
+  color: #48484a;
 }
 
 /* ---------------------------------------------------------------- motion */

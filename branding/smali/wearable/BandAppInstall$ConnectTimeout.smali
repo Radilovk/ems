@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 192
+    .line 195
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 195
+    .line 198
     # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$000()Z
 
@@ -49,13 +49,13 @@
 
     if-nez v0, :cond_1b
 
-    .line 196
+    .line 199
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$002(Z)Z
 
-    .line 197
+    .line 200
     const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u0441\u0435 \u0441\u0432\u044a\u0440\u0437\u0430. \u0421\u043f\u0440\u0438 Mi Fitness / Notify / Gadgetbridge \u0438 \u043e\u043f\u0438\u0442\u0430\u0439 \u043f\u0430\u043a"
 
     const-string v1, "The band did not connect. Force-stop Mi Fitness / Notify / Gadgetbridge and retry"
@@ -67,7 +67,7 @@
     # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$200(Ljava/lang/String;)V
 
-    .line 200
+    .line 203
     :cond_1b
     return-void
 .end method

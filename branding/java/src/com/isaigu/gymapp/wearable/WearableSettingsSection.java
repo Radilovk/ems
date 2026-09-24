@@ -35,6 +35,8 @@ public final class WearableSettingsSection {
     private WearableSettingsSection() {}
 
     public static void attach(Activity activity, View root) {
+        // Access & license card first (it decides what else is shown)
+        com.isaigu.gymapp.widget.XemsLicenseSection.attach(activity, root);
         try {
             build(activity, root);
         } catch (Throwable t) {
@@ -51,6 +53,11 @@ public final class WearableSettingsSection {
         if (old != null) {
             parent.removeView(old);
         }
+        // Band settings only when a module that uses the band is unlocked (pulse, AI, band app)
+        if (!com.isaigu.gymapp.widget.XemsLicense.needsBand()) {
+            return;
+        }
+        boolean bandApp = com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND);
         int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
         int mutedCol = WearableUi.color(a, "text_secondary", 0xFF9AA0A6);
         int cardCol = WearableUi.color(a, "bg_elevated", 0xFF1F232C);
@@ -130,18 +137,20 @@ public final class WearableSettingsSection {
                     "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
         }
         // The band's music screen as the training remote (no app to install on the band).
-        LinearLayout remote = com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
+        LinearLayout remote = !bandApp ? null : com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
                 WearableUi.tr("Управление от гривната", "Control from the band"),
                 WearableUi.tr("Музикалният екран на гривната показва пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±",
                         "The band's music screen shows HR and block; ▶ start/pause, ⏭ ⏮ strength ±"),
                 WearableConfig.isBandRemoteEnabled(a), new RemoteToggle(a));
-        remote.setPadding(0, WearableUi.dp(a, 12), 0, 0);
-        card.addView(remote);
+        if (remote != null) {
+            remote.setPadding(0, WearableUi.dp(a, 12), 0, 0);
+            card.addView(remote);
+        }
         // XEMS app on the band itself (Band 9 / 10 only: installed over the classic link).
         boolean classic = WearableConfig.getBandTransport(a) == 2
                 || (WearableConfig.getBandTransport(a) == 0
                 && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(bandName));
-        if (classic) {
+        if (classic && bandApp) {
             LinearLayout appRow = row(a);
             appRow.setPadding(0, WearableUi.dp(a, 12), 0, 0);
             final TextView appStatus = WearableUi.text(a, BandAppInstall.statusText(a), 13f, mutedCol, false);

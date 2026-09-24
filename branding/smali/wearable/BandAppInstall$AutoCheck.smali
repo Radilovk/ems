@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 181
+    .line 184
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,21 +34,21 @@
     .registers 3
 
     .prologue
-    .line 185
+    .line 188
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->check()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 189
+    .line 192
     :goto_3
     return-void
 
-    .line 186
+    .line 189
     :catch_4
     move-exception v0
 
-    .line 187
+    .line 190
     const-string v1, "BandAppInstall.check"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

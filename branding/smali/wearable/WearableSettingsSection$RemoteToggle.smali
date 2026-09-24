@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 361
+    .line 370
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 362
+    .line 371
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RemoteToggle;->a:Landroid/app/Activity;
 
-    .line 363
+    .line 372
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 367
+    .line 376
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RemoteToggle;->a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandRemoteEnabled(Landroid/content/Context;Z)V
 
-    .line 368
+    .line 377
     return-void
 .end method

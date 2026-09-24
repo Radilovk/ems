@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 558
+    .line 600
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,11 +34,11 @@
     .registers 2
 
     .prologue
-    .line 561
+    .line 603
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->startTicking()V
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$500()V
 
-    .line 562
+    .line 604
     return-void
 .end method
 
@@ -46,11 +46,11 @@
     .registers 3
 
     .prologue
-    .line 566
+    .line 608
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->stopTicking()V
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$600()V
 
-    .line 567
+    .line 609
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
 
@@ -69,7 +69,7 @@
 
     if-eqz v0, :cond_1a
 
-    .line 569
+    .line 611
     :try_start_13
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
@@ -80,12 +80,12 @@
     :try_end_1a
     .catch Ljava/lang/Throwable; {:try_start_13 .. :try_end_1a} :catch_1b
 
-    .line 573
+    .line 615
     :cond_1a
     :goto_1a
     return-void
 
-    .line 570
+    .line 612
     :catch_1b
     move-exception v0
 

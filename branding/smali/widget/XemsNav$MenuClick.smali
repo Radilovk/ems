@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 610
+    .line 652
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,25 +34,25 @@
     .registers 4
 
     .prologue
-    .line 614
+    .line 656
     :try_start_0
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 615
+    .line 657
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->showMenu(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsNav;->access$900(Landroid/view/View;)V
     :try_end_6
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_6} :catch_7
 
-    .line 619
+    .line 661
     :goto_6
     return-void
 
-    .line 616
+    .line 658
     :catch_7
     move-exception v0
 
-    .line 617
+    .line 659
     const-string v1, "XemsNav.menu"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 206
+    .line 209
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 207
+    .line 210
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$Progress;->app:Landroid/content/Context;
 
-    .line 208
+    .line 211
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 8
 
     .prologue
-    .line 217
+    .line 220
     const-string v1, "install"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -68,17 +68,17 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 218
+    .line 221
     if-eqz p1, :cond_47
 
-    .line 219
+    .line 222
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$Progress;->app:Landroid/content/Context;
 
     const/4 v1, 0x7
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandAppVersion(Landroid/content/Context;I)V
 
-    .line 220
+    .line 223
     const-string v0, "XEMS \u0435 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u2713"
 
     const-string v1, "XEMS is on the band \u2713"
@@ -90,7 +90,7 @@
     # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$200(Ljava/lang/String;)V
 
-    .line 221
+    .line 224
     # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$300()Landroid/os/Handler;
 
@@ -112,17 +112,17 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 226
+    .line 229
     :goto_43
     return-void
 
-    .line 217
+    .line 220
     :cond_44
     const-string v0, "failed "
 
     goto :goto_b
 
-    .line 224
+    .line 227
     :cond_47
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -164,7 +164,7 @@
     .registers 6
 
     .prologue
-    .line 212
+    .line 215
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -198,6 +198,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$200(Ljava/lang/String;)V
 
-    .line 213
+    .line 216
     return-void
 .end method

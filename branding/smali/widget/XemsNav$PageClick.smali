@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 625
+    .line 667
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 626
+    .line 668
     iput p1, p0, Lcom/isaigu/gymapp/widget/XemsNav$PageClick;->id:I
 
-    .line 627
+    .line 669
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 632
+    .line 674
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/widget/XemsNav$PageClick;->id:I
 
@@ -51,15 +51,15 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 636
+    .line 678
     :goto_5
     return-void
 
-    .line 633
+    .line 675
     :catch_6
     move-exception v0
 
-    .line 634
+    .line 676
     const-string v1, "XemsNav.page"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

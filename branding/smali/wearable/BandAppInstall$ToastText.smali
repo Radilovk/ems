@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 249
+    .line 252
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 250
+    .line 253
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$ToastText;->c:Landroid/content/Context;
 
-    .line 251
+    .line 254
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$ToastText;->s:Ljava/lang/String;
 
-    .line 252
+    .line 255
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 4
 
     .prologue
-    .line 257
+    .line 260
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$ToastText;->c:Landroid/content/Context;
 
@@ -63,11 +63,11 @@
     :try_end_c
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
 
-    .line 260
+    .line 263
     :goto_c
     return-void
 
-    .line 258
+    .line 261
     :catch_d
     move-exception v0
 

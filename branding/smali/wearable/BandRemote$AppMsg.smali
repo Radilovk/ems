@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 597
+    .line 600
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 598
+    .line 601
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$AppMsg;->json:Ljava/lang/String;
 
-    .line 599
+    .line 602
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 604
+    .line 607
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$AppMsg;->json:Ljava/lang/String;
 
@@ -50,15 +50,15 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 608
+    .line 611
     :goto_5
     return-void
 
-    .line 605
+    .line 608
     :catch_6
     move-exception v0
 
-    .line 606
+    .line 609
     const-string v1, "BandRemote.app"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

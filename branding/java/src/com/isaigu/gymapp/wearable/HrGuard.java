@@ -99,7 +99,8 @@ public final class HrGuard {
         }
         boolean wasCalibrating = core.isCalibrating();
         boolean aiOwns = aiOwnsOutput();
-        boolean enabled = ctx != null && WearableConfig.isAutoReduceEnabled(ctx) && !aiOwns;
+        boolean enabled = ctx != null && WearableConfig.isAutoReduceEnabled(ctx) && !aiOwns
+                && com.isaigu.gymapp.widget.XemsLicense.has(ctx, com.isaigu.gymapp.widget.XemsLicense.PULSE);
         TrainItemManager manager = WearableSyncHelper.getItemManager();
         List<TrainItem> items = manager != null ? manager.getItemList() : null;
 

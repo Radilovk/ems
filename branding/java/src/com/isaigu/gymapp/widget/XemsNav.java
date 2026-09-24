@@ -123,6 +123,7 @@ public final class XemsNav {
         Context c = root.getContext();
         XemsUi.init(c);
         XemsLang.init(c);
+        XemsLicense.init(c);
         if (c instanceof android.app.Activity) {
             XemsFullscreen.apply((android.app.Activity) c);
         }
@@ -350,6 +351,11 @@ public final class XemsNav {
             return;
         }
         XemsUi.haptic(from);
+        if (!XemsLicense.has(licenseId(module))) {
+            android.widget.Toast.makeText(mainRoot.getContext(), tr("Нямате достъп до този модул",
+                    "You have no access to this module"), android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (currentPage != ID_TAB_FIRST) {
             // Modules live on the training page: switch there first, then open.
             goPage(ID_TAB_FIRST);
@@ -430,11 +436,43 @@ public final class XemsNav {
         }
     }
 
-    /** state: 0 off, 1 active, 2 paused / preparing. */
+    /** Licence module id of a tile. */
+    static String licenseId(int module) {
+        switch (module) {
+            case M_TIMER:
+                return XemsLicense.TIMER;
+            case M_MUSIC:
+                return XemsLicense.MUSIC;
+            case M_PULSE:
+                return XemsLicense.PULSE;
+            default:
+                return XemsLicense.AI;
+        }
+    }
+
+    /** Licence changed (Settings): redraw the tiles. */
+    public static void onLicenseChanged() {
+        try {
+            for (Tile t : tiles) {
+                if (t != null) {
+                    t.lastState = -1;
+                    t.lastText = null;
+                }
+            }
+            refreshTiles();
+        } catch (Throwable t) {
+            XemsGuard.report("XemsNav.license", t);
+        }
+    }
+
+    /** state: 0 off, 1 active, 2 paused / preparing, 3 locked (no licence). */
     private static void refreshTile(Tile t) {
         int state = 0;
         String text = tr("Изключен", "Off");
-        switch (t.module) {
+        if (!XemsLicense.has(licenseId(t.module))) {
+            state = 3;
+            text = tr("🔒 Няма достъп", "🔒 No access");
+        } else switch (t.module) {
             case M_TIMER:
                 if (IntervalTimerHelper.isCounting()) {
                     state = 1;
@@ -498,6 +536,10 @@ public final class XemsNav {
 
     private static void styleTile(Tile t, int state) {
         Context c = t.root.getContext();
+        t.root.setAlpha(state == 3 ? 0.5f : 1f);
+        if (state == 3) {
+            state = 0;
+        }
         float r = XemsUi.dp(c, 16);
         int accent = state == 2 ? XemsUi.AMBER : t.tint;
         int fill = state == 0 ? XemsUi.SURFACE : XemsUi.mix(XemsUi.SURFACE, accent, 0.16f);

@@ -63,8 +63,13 @@ python3 "${ROOT}/scripts/apply-active-pause-fixes.py"
 python3 "${ROOT}/scripts/apply-login-fix.py"
 python3 "${ROOT}/scripts/apply-active-pause-avatar-button.py"
 python3 "${ROOT}/scripts/apply-main-mode-button.py"
-bash "${ROOT}/scripts/compile-avatar-cluster-java.sh"
-bash "${ROOT}/scripts/compile-channel-scale-java.sh"
+if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
+  bash "${ROOT}/scripts/compile-xems-license-java.sh"
+  bash "${ROOT}/scripts/compile-avatar-cluster-java.sh"
+  bash "${ROOT}/scripts/compile-channel-scale-java.sh"
+else
+  echo "SKIP_JAVA_RECOMPILE=1 — using prebuilt smali in branding/smali/"
+fi
 python3 "${ROOT}/scripts/apply-avatar-proportional-lock.py"
 python3 "${ROOT}/scripts/apply-active-pause-pulse-labels.py"
 python3 "${ROOT}/scripts/remove-ramp.py"
@@ -81,23 +86,30 @@ python3 "${ROOT}/scripts/apply-guide-tab.py"
 python3 "${ROOT}/scripts/apply-bt-latency.py"
 python3 "${ROOT}/scripts/apply-ble-scan-lifecycle.py"
 if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
-  bash "${ROOT}/scripts/compile-music-sync-java.sh"
+  if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
+    bash "${ROOT}/scripts/compile-music-sync-java.sh"
+  fi
   python3 "${ROOT}/scripts/apply-beta-features.py"
   python3 "${ROOT}/scripts/apply-music-sync-pulse.py"
   python3 "${ROOT}/scripts/apply-music-sync-slider.py"
   python3 "${ROOT}/scripts/apply-music-sync-controls.py"
   python3 "${ROOT}/scripts/apply-music-player.py"
   python3 "${ROOT}/scripts/apply-music-seek-fix.py"
-  bash "${ROOT}/scripts/compile-interval-timer-java.sh"
+  if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
+    bash "${ROOT}/scripts/compile-interval-timer-java.sh"
+  fi
   python3 "${ROOT}/scripts/apply-interval-timer.py"
   python3 "${ROOT}/scripts/apply-music-training-sync.py"
-  bash "${ROOT}/scripts/compile-wearable-java.sh"
+  if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
+    bash "${ROOT}/scripts/compile-wearable-java.sh"
+  fi
   python3 "${ROOT}/scripts/apply-wearable-bridge.py"
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
   python3 "${ROOT}/scripts/apply-ai-session.py"
-  bash "${ROOT}/scripts/compile-xems-license-java.sh"
-  bash "${ROOT}/scripts/compile-xems-local-java.sh"
+  if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
+    bash "${ROOT}/scripts/compile-xems-local-java.sh"
+  fi
   python3 "${ROOT}/scripts/apply-xems-nav.py"
   python3 "${ROOT}/scripts/apply-local-mode.py"
   python3 "${ROOT}/scripts/apply-ramp-setting.py"

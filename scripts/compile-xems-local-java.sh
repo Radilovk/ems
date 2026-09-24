@@ -33,9 +33,14 @@ mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 echo "Compiling XemsLocal stack..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
+LICENSE_CLASSES="${ROOT}/build/xems-license-java/classes"
+if [[ ! -d "${LICENSE_CLASSES}" ]]; then
+  echo "ERROR: ${LICENSE_CLASSES} missing — run compile-xems-license-java.sh first"
+  exit 1
+fi
 javac \
   --release 8 \
-  -classpath "${ANDROID_JAR}:${JAVA_STUBS}" \
+  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}" \
   -d "${CLASSES_DIR}" \
   "${STUB_FILES[@]}" \
   "${SOURCES[@]}"

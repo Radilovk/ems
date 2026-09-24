@@ -38,15 +38,25 @@ if [[ ! -f "${ANDROID_JAR}" ]]; then
   exit 1
 fi
 
-mapfile -t JAVA_FILES < <(find "${JAVA_SRC}" -name '*.java' | sort)
+LICENSE_CLASSES="${ROOT}/build/xems-license-java/classes"
+mapfile -t JAVA_FILES < <(find "${JAVA_SRC}" -name '*.java' \
+  ! -path '*/widget/XemsLicense.java' \
+  ! -path '*/widget/XemsLicenseToken.java' \
+  ! -path '*/widget/XemsLicenseClient.java' \
+  ! -path '*/widget/XemsLocal*.java' | sort)
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
+
+if [[ ! -d "${LICENSE_CLASSES}" ]]; then
+  echo "ERROR: ${LICENSE_CLASSES} missing — run compile-xems-license-java.sh first"
+  exit 1
+fi
 
 echo "Compiling ${#JAVA_FILES[@]} music-sync source files..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
 javac \
   --release 8 \
-  -classpath "${ANDROID_JAR}:${JAVA_STUBS}" \
+  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}" \
   -d "${CLASSES_DIR}" \
   "${STUB_FILES[@]}" \
   "${JAVA_FILES[@]}"
@@ -72,20 +82,25 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/widget/XemsUi*.class' -o -path '*/widget/XemsGuard*.class' \
      -o -path '*/widget/XemsNav*.class' -o -path '*/widget/XemsLang*.class' \
      -o -path '*/widget/XemsIcon*.class' -o -path '*/widget/XemsPanel*.class' -o -path '*/widget/XemsFullscreen*.class' \) -print | sort)
-(
+if (
   cd "${CLASSES_DIR}"
   "${D8}" \
     --min-api 21 \
     --lib "${ANDROID_JAR}" \
     --output "${OUT_DIR}/dex" \
     "${DEX_CLASSES[@]#${CLASSES_DIR}/}"
-)
-mv "${OUT_DIR}/dex/classes.dex" "${DEX_FILE}"
+); then
+  mv "${OUT_DIR}/dex/classes.dex" "${DEX_FILE}"
+  echo "Baksmaling..."
+  rm -rf "${SMALI_OUT}"
+  java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
+  INSTALL_SMALI=1
+else
+  echo "WARN: d8 failed for music-sync stack — keeping prebuilt smali in ${BRANDING_SMALI}"
+  INSTALL_SMALI=0
+fi
 
-echo "Baksmaling..."
-rm -rf "${SMALI_OUT}"
-java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
-
+if [[ "${INSTALL_SMALI}" -eq 1 ]]; then
 echo "Installing smali to branding/smali..."
 find "${BRANDING_SMALI}" -name 'MusicSync*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MasterStrengthControl.smali' -delete
@@ -113,5 +128,6 @@ while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/widget/$(basename "${file}")"
   echo "  -> widget/$(basename "${file}")"
 done < <(find "${SMALI_OUT}" \( -path '*/widget/MusicVisualizerView*.smali' -o -path '*/widget/MusicImpulseMeterView*.smali' -o -path '*/widget/XemsUi*.smali' -o -path '*/widget/XemsGuard*.smali' -o -path '*/widget/XemsNav*.smali' -o -path '*/widget/XemsLang*.smali' -o -path '*/widget/XemsIcon*.smali' -o -path '*/widget/XemsPanel*.smali' -o -path '*/widget/XemsFullscreen*.smali' \) -print0)
+fi
 
 echo "Music-sync Java compile complete."

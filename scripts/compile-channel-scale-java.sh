@@ -29,7 +29,12 @@ echo "Compiling ChannelStrengthScale..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
 JAVA_STUBS="${ROOT}/branding/java-stubs"
-javac --release 8 -classpath "${ANDROID_JAR}:${JAVA_STUBS}" -d "${CLASSES_DIR}" "${JAVA_SRC}"
+LICENSE_CLASSES="${ROOT}/build/xems-license-java/classes"
+if [[ ! -d "${LICENSE_CLASSES}" ]]; then
+  echo "ERROR: ${LICENSE_CLASSES} missing — run compile-xems-license-java.sh first"
+  exit 1
+fi
+javac --release 8 -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}" -d "${CLASSES_DIR}" "${JAVA_SRC}"
 
 echo "Dexing..."
 rm -f "${DEX_FILE}"

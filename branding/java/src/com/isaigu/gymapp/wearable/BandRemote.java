@@ -116,9 +116,44 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 } else {
                     XemsPanel.press(XemsPanel.PRESS_STOP);
                 }
+            } else {
+                moduleCommand(a);
             }
         }
         handler.postDelayed(new Push(true), 250);
+    }
+
+    /** Commands from the module screens of the band app (one module each, no guessing). */
+    static void moduleCommand(String a) {
+        if (a == null) {
+            return;
+        }
+        android.content.Context ctx = WearableSyncHelper.getContext();
+        if ("train_toggle".equals(a)) {
+            XemsPanel.press(XemsPanel.PRESS_START);
+        } else if ("train_plus".equals(a)) {
+            XemsPanel.press(XemsPanel.PRESS_PLUS);
+        } else if ("train_minus".equals(a)) {
+            XemsPanel.press(XemsPanel.PRESS_MINUS);
+        } else if ("train_stop".equals(a)) {
+            XemsPanel.press(XemsPanel.PRESS_STOP);
+        } else if ("tm_toggle".equals(a)) {
+            com.isaigu.gymapp.dialog.IntervalTimerHelper.bandTogglePause();
+        } else if ("mu_toggle".equals(a)) {
+            MusicPlayerHelper.togglePlayPause();
+        } else if ("mu_next".equals(a)) {
+            MusicPlayerHelper.skipTrack(1);
+        } else if ("mu_prev".equals(a)) {
+            MusicPlayerHelper.skipTrack(-1);
+        } else if ("mu_up".equals(a)) {
+            MusicSync.adjustCeiling(1);
+        } else if ("mu_down".equals(a)) {
+            MusicSync.adjustCeiling(-1);
+        } else if ("hg_toggle".equals(a) && ctx != null) {
+            boolean on = !WearableConfig.isAutoReduceEnabled(ctx);
+            WearableConfig.setAutoReduceEnabled(ctx, on);
+            WearableBleDiagLog.log("applink", "hr module " + (on ? "on" : "off"));
+        }
     }
 
     /** Tiny reader for our own flat JSON ({"k":"v"}); no nesting needed on this side. */
@@ -376,10 +411,56 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 zt.put(zm[z] / 1000);
             }
             o.put("zt", zt);
+            o.put("mods", modules(limit));
             com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.send(o.toString());
         } catch (Throwable t) {
             WearableBleDiagLog.log("applink", "state: " + t);
         }
+    }
+
+    /** Live state of each XEMS module for the band's module screens. */
+    private static org.json.JSONObject modules(int limit) throws org.json.JSONException {
+        org.json.JSONObject m = new org.json.JSONObject();
+        android.content.Context ctx = WearableSyncHelper.getContext();
+
+        org.json.JSONObject tr = new org.json.JSONObject();
+        tr.put("run", XemsPanel.isRunning());
+        m.put("tr", tr);
+
+        try {
+            m.put("tm", com.isaigu.gymapp.dialog.IntervalTimerHelper.bandState());
+        } catch (Throwable t) {
+            m.put("tm", new org.json.JSONObject());
+        }
+
+        org.json.JSONObject mu = new org.json.JSONObject();
+        boolean sync = MusicSync.isRunning();
+        mu.put("on", sync);
+        mu.put("pm", sync && MusicSync.isPlayerMode());
+        mu.put("play", sync && MusicSync.isPlayerMode() && !MusicSync.isPlaybackPaused());
+        String title = MusicPlayerHelper.currentTitle();
+        mu.put("title", title != null ? title : "");
+        mu.put("pos", MusicSync.getPlaybackPositionMs() / 1000);
+        mu.put("dur", MusicSync.getPlaybackDurationMs() / 1000);
+        mu.put("lvl", sync ? MusicSync.getLiveStrength() : 0);
+        mu.put("ceil", sync ? MusicSync.getStrengthCeiling() : 0);
+        m.put("mu", mu);
+
+        org.json.JSONObject hg = new org.json.JSONObject();
+        HrGuardCore core = HrGuard.core();
+        hg.put("en", ctx != null && WearableConfig.isAutoReduceEnabled(ctx));
+        hg.put("up", limit);
+        hg.put("ai", AiSession.getStage() == AiSession.Stage.RUNNING);   // AI owns the output then
+        if (core != null) {
+            hg.put("sf", (int) Math.round(core.getStrengthFactor() * 100));
+            hg.put("hold", core.isHold());
+            double fc = core.getForecast();
+            hg.put("fc", Double.isNaN(fc) ? 0 : (int) Math.round(fc));
+            String act = core.getLastAction();
+            hg.put("act", act != null ? act : "");
+        }
+        m.put("hg", hg);
+        return m;
     }
 
     private static String phaseName(AiModel.PhaseId id) {

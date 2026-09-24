@@ -1,143 +1,43 @@
 <template>
-  <stack class="root">
-    <!-- ============================================================ three screens, swipe up/down -->
-    <swiper class="pages" vertical="true" indicator="true" loop="false" index="{{page}}" onchange="onPage">
-
-      <!-- ==================================================== 1 · LIVE -->
-      <div class="screen">
-        <div class="chip" style="background-color: {{stateBg}}">
-          <div class="dot {{st === 'run' ? 'blink' : ''}}" style="background-color: {{stateColor}}"></div>
-          <text class="chip-text" style="color: {{stateColor}}">{{stateText}}</text>
+  <div class="root">
+    <!-- ============================================================ connected: modules -->
+    <list class="list" if="{{!offline}}">
+      <list-item type="head" class="head">
+        <div class="hr-row">
+          <image class="heart {{hr > 0 ? 'beat' : ''}}" src="/common/icons/heart.png"
+                 style="animation-duration: {{beatMs}}ms"></image>
+          <text class="hr" style="color: {{hrColor}}">{{hrText}}</text>
         </div>
-
-        <stack class="ring-box">
-          <progress class="ring-outer" type="arc" percent="{{ringPct}}"
-                    style="color: {{ringColor}}"></progress>
-          <progress class="ring-inner" type="arc" percent="{{hrPct}}"
-                    style="color: {{zoneColor}}"></progress>
-          <div class="ring-center">
-            <text class="heart {{hr > 0 ? 'beat' : ''}}" style="color: {{zoneColor}}; animation-duration: {{beatMs}}ms">♥</text>
-            <text class="hr">{{hrText}}</text>
-            <div class="hr-foot">
-              <text class="bpm">BPM</text>
-              <text class="zchip" if="{{z > 0}}" style="background-color: {{zoneColor}}">Z{{z}}</text>
-            </div>
-          </div>
-        </stack>
-
         <div class="zones">
           <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
         </div>
+        <text class="head-sub">{{headSub}}</text>
+      </list-item>
 
-        <text class="big-time" style="color: {{timeColor}}">{{bigTime}}</text>
-        <text class="big-label">{{bigLabel}}</text>
-
-        <div class="timeline" if="{{timeline.length > 0}}">
-          <div for="{{timeline}}" class="tl-seg" style="flex: {{$item.w}}">
-            <div class="tl-fill" style="width: {{$item.p}}%; background-color: {{$item.c}}"></div>
+      <list-item type="tile" for="{{tiles}}" class="tile-item">
+        <div class="tile {{$item.active ? 'tile-on' : ''}} {{pressed === $item.id ? 'down' : ''}}"
+             style="border-color: {{$item.active ? $item.color : '#1C1C1E'}}"
+             ontouchstart="press($item.id)" ontouchend="release" ontouchcancel="release"
+             onclick="open($item.id)">
+          <div class="icon" style="background-color: {{$item.color}}">
+            <image class="icon-img" src="{{$item.icon}}"></image>
+          </div>
+          <div class="tile-texts">
+            <text class="tile-title">{{$item.title}}</text>
+            <text class="tile-sub" style="color: {{$item.active ? $item.color : '#8E8E93'}}">{{$item.sub}}</text>
           </div>
         </div>
+      </list-item>
 
-        <stack class="play-box">
-          <div class="glow {{st === 'ready' ? 'breathe' : ''}}" style="background-color: {{playGlow}}"></div>
-          <div class="play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playColor}}"
-               ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
-            <text class="play-glyph">{{playGlyph}}</text>
-          </div>
-        </stack>
-        <text class="play-label">{{playLabel}}</text>
-      </div>
-
-      <!-- ==================================================== 2 · CONTROL -->
-      <div class="screen">
-        <text class="caps">{{ctlTitle}}</text>
-
-        <stack class="lvl-box">
-          <progress class="lvl-ring" type="arc" percent="{{lvlPct}}" style="color: {{lvlColor}}"></progress>
-          <div class="lvl-center">
-            <text class="lvl-num">{{lvlText}}</text>
-            <text class="lvl-unit">{{lvlUnit}}</text>
-          </div>
-        </stack>
-
-        <div class="keys">
-          <div class="key {{canMinus ? '' : 'off'}} {{pressed === 'minus' ? 'down' : ''}}"
-               ontouchstart="press('minus')" ontouchend="release" ontouchcancel="release" onclick="minus">
-            <text class="key-glyph">{{minusGlyph}}</text>
-          </div>
-          <div class="key key-plus {{canPlus ? '' : 'off'}} {{pressed === 'plus' ? 'down' : ''}}"
-               ontouchstart="press('plus')" ontouchend="release" ontouchcancel="release" onclick="plus">
-            <text class="key-glyph">{{plusGlyph}}</text>
-          </div>
-        </div>
-        <text class="hint">{{keysHint}}</text>
-
-        <div class="card" if="{{canDbl}}" onclick="double">
-          <div class="card-texts">
-            <text class="card-title">Двоен импулс</text>
-            <text class="card-sub">{{dbl ? 'активна пауза · вкл.' : 'активна пауза · изкл.'}}</text>
-          </div>
-          <div class="sw {{dbl ? 'sw-on' : ''}}">
-            <div class="knob {{dbl ? 'knob-on' : ''}}"></div>
-          </div>
-        </div>
-
-        <stack class="stop-box" if="{{mode !== 'music' && mode !== 'idle'}}"
-               ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
-          <div class="stop-bg"></div>
-          <div class="stop-fill" style="width: {{holdPct * 1.96}}px"></div>
-          <text class="stop-text">{{holdPct > 0 ? 'Задръж…' : 'Задръж за СТОП'}}</text>
-        </stack>
-      </div>
-
-      <!-- ==================================================== 3 · SESSION -->
-      <div class="screen">
-        <text class="caps">СЕСИЯ</text>
-        <text class="elapsed">{{elapsedText}}</text>
-
-        <div class="tiles">
-          <div class="tile">
-            <text class="tile-num tile-kcal">{{kcal}}</text>
-            <text class="tile-label">kcal</text>
-          </div>
-          <div class="tile">
-            <text class="tile-num">{{avgText}}</text>
-            <text class="tile-label">средно bpm</text>
-          </div>
-        </div>
-        <div class="tiles">
-          <div class="tile">
-            <text class="tile-num tile-max">{{maxText}}</text>
-            <text class="tile-label">връх bpm</text>
-          </div>
-          <div class="tile">
-            <text class="tile-num">{{phaseCount}}</text>
-            <text class="tile-label">{{phaseCountLabel}}</text>
-          </div>
-        </div>
-
-        <text class="sect">ПУЛС · 3 МИН</text>
-        <div class="chart">
-          <div for="{{bars}}" class="bar" style="height: {{$item.h}}px; background-color: {{$item.c}}"></div>
-        </div>
-
-        <text class="sect">ВРЕМЕ В ЗОНИ</text>
-        <div class="zstack">
-          <div for="{{zoneTime}}" class="zpart" style="flex: {{$item.w}}; background-color: {{$item.c}}"></div>
-        </div>
-        <div class="zlegend">
-          <div for="{{zoneTime}}" class="zleg">
-            <text class="zleg-z" style="color: {{$item.c}}">Z{{$idx + 1}}</text>
-            <text class="zleg-m">{{$item.m}}</text>
-          </div>
-        </div>
-      </div>
-    </swiper>
+      <list-item type="foot" class="foot">
+        <text class="foot-text">XEMS · {{version}}</text>
+      </list-item>
+    </list>
 
     <!-- ============================================================ not linked yet -->
     <div class="offline" if="{{offline}}">
       <stack class="radar">
-        <div class="wave wave1"></div>
+        <div class="wave"></div>
         <div class="wave wave2"></div>
         <div class="core"><text class="core-x">X</text></div>
       </stack>
@@ -146,111 +46,38 @@
       <text class="off-hint">Отвори XEMS на таблета</text>
       <text class="off-diag">{{diagText}}</text>
     </div>
-  </stack>
+  </div>
 </template>
 
 <script>
-const ZONE = ['#3A3A3C', '#5AC8FA', '#30D158', '#FFD60A', '#FF9F0A', '#FF453A']
-const ACCENT = '#FF3B5C'
-const GREEN = '#30D158'
-const AMBER = '#FF9F0A'
-const BLUE = '#5AC8FA'
-const HOLD_MS = 1200
+import router from '@system.router'
+import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, mods, bind, age } from '../../common/ui.js'
 
-function mmss(s) {
-  s = Math.max(0, Math.round(s || 0))
-  const m = Math.floor(s / 60)
-  const r = s % 60
-  return m + ':' + (r < 10 ? '0' : '') + r
-}
-
-function hms(s) {
-  s = Math.max(0, Math.round(s || 0))
-  const h = Math.floor(s / 3600)
-  return h > 0 ? h + ':' + (Math.floor((s % 3600) / 60) < 10 ? '0' : '') + mmss(s % 3600) : mmss(s)
-}
-
-function zoneOf(hr, lim) {
-  if (!hr || !lim) {
-    return 0
-  }
-  const f = hr / lim
-  return f < 0.6 ? 1 : f < 0.7 ? 2 : f < 0.8 ? 3 : f < 0.9 ? 4 : 5
-}
+const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', music: '/pages/music', pulse: '/pages/pulse' }
 
 export default {
   private: {
-    page: 0,
     offline: true,
     offText: 'Свързване…',
     diagText: '',
-    mode: 'idle',
-    st: 'idle',
-    // live
-    stateText: 'ГОТОВ',
-    stateColor: '#8E8E93',
-    stateBg: '#1C1C1E',
-    ringPct: 0,
-    ringColor: ACCENT,
-    hrPct: 0,
+    version: '2.0',
     hr: 0,
     hrText: '--',
-    z: 0,
-    zoneColor: ZONE[0],
+    hrColor: '#FFFFFF',
     beatMs: 450,
     zoneBars: [],
-    bigTime: '--:--',
-    bigLabel: '',
-    timeColor: '#FFFFFF',
-    timeline: [],
-    playGlyph: '▶',
-    playColor: GREEN,
-    playGlow: 'rgba(48,209,88,0.35)',
-    playLabel: 'Старт',
-    pressed: '',
-    // control
-    ctlTitle: 'СИЛА',
-    lvlPct: 100,
-    lvlText: '100',
-    lvlUnit: '% от плана',
-    lvlColor: ACCENT,
-    canPlus: true,
-    canMinus: true,
-    plusGlyph: '+',
-    minusGlyph: '−',
-    keysHint: '',
-    canDbl: false,
-    dbl: false,
-    holdPct: 0,
-    // session
-    elapsedText: '0:00',
-    kcal: 0,
-    avgText: '--',
-    maxText: '--',
-    phaseCount: '--',
-    phaseCountLabel: 'фаза',
-    bars: [],
-    zoneTime: []
+    headSub: '',
+    tiles: [],
+    pressed: ''
   },
 
   onInit() {
-    this.onState = () => this.update()
-    this.$app.$def.watch(this.onState)
-    this.update()
-    this.clock = setInterval(() => this.update(), 1000)
+    this.unbind = bind(this)
   },
 
   onDestroy() {
-    this.$app.$def.unwatch(this.onState)
-    clearInterval(this.clock)
-    this.holdEnd()
+    this.unbind()
   },
-
-  onPage(e) {
-    this.page = e.index
-  },
-
-  // ============================================================ state → screens
 
   update() {
     const app = this.$app.$def
@@ -260,242 +87,84 @@ export default {
       this.offline = true
       this.offText = quiet > 9000 ? 'Свързване…' : 'Връзката прекъсна'
       const d = app.diag || {}
-      this.diagText = 'връзка: ' + d.link + ' · пратени ' + d.sent + ' · грешки ' + d.failed
-        + ' · получени ' + d.rxAny + (d.err ? '\n' + d.err : '')
+      this.diagText = d.failed > 0 || d.err ? 'връзка: ' + d.link + ' · грешки ' + d.failed + (d.err ? '\n' + d.err : '') : ''
       return
     }
     this.offline = false
-    const age = s.st === 'run' ? quiet : 0          // local countdown only while running
-    this.quiet = quiet
-    this.mode = s.mode || 'idle'
-    this.st = s.st || (s.run ? 'run' : this.mode === 'idle' ? 'idle' : 'pause')
 
-    this.renderHeart(s)
-    this.renderState(s, age)
-    this.renderControl(s)
-    this.renderSession(s, age)
-  },
-
-  renderHeart(s) {
     const lim = s.lim || 170
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, lim) : 0
     this.hr = s.hr || 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
-    this.z = z
-    this.zoneColor = ZONE[z]
-    this.hrPct = s.hr > 0 ? Math.min(100, Math.round((s.hr / lim) * 100)) : 0
+    this.hrColor = s.hr > 0 ? ZONE[z] : '#FFFFFF'
     this.beatMs = s.hr > 0 ? Math.round(30000 / s.hr) : 450
     const bars = []
     for (let i = 1; i <= 5; i++) {
-      bars.push({ c: i === z ? ZONE[i] : i < z ? ZONE[i] : '#2C2C2E', on: i === z })
+      bars.push({ c: i <= z ? ZONE[i] : '#2C2C2E', on: i === z })
     }
     this.zoneBars = bars
+    this.headSub = s.hr > 0 ? 'bpm · Z' + z + (s.kcal > 0 ? ' · ' + Math.round(s.kcal) + ' kcal' : '') : 'няма пулс'
+
+    this.tiles = this.buildTiles(s, app)
   },
 
-  renderState(s, age) {
-    const st = this.st
-    const mode = this.mode
-    const labels = { run: 'АКТИВНА', pause: 'ПАУЗА', rest: 'ПОЧИВКА', ready: 'ГОТОВО', idle: 'ГОТОВ' }
-    const colors = { run: GREEN, pause: AMBER, rest: BLUE, ready: GREEN, idle: '#8E8E93' }
-    const prefix = mode === 'ai' ? 'AI · ' : mode === 'music' ? '♫ · ' : mode === 'manual' ? 'РЪЧНО · ' : ''
-    this.stateText = prefix + (labels[st] || 'XEMS')
-    this.stateColor = colors[st] || '#8E8E93'
-    this.stateBg = st === 'run' ? 'rgba(48,209,88,0.16)' : st === 'pause' ? 'rgba(255,159,10,0.16)'
-      : st === 'rest' ? 'rgba(90,200,250,0.16)' : st === 'ready' ? 'rgba(48,209,88,0.22)' : '#1C1C1E'
+  buildTiles(s, app) {
+    const m = mods(s)
+    const ai = s.mode === 'ai'
+    const tiles = []
 
-    // big number + outer ring + phase timeline
-    this.timeline = []
-    this.ringColor = ACCENT
-    this.timeColor = '#FFFFFF'
-    if (mode === 'ai') {
-      if (st === 'ready') {
-        this.bigTime = '▶'
-        this.bigLabel = 'почивката стига'
-        this.timeColor = GREEN
-      } else if (st === 'rest') {
-        this.bigTime = mmss((s.rl || 0) - this.quiet)
-        this.bigLabel = 'почивка'
-        this.timeColor = BLUE
-      } else {
-        this.bigTime = mmss((s.pl || 0) - age)
-        this.bigLabel = (s.ph || 'фаза') + ' · остава'
-      }
-      const pd = s.pd || 1
-      this.ringPct = Math.min(100, Math.max(0, Math.round((1 - ((s.pl || 0) - age) / pd) * 100)))
-      const pds = s.pds || []
-      const colors2 = [BLUE, ACCENT, AMBER, '#BF5AF2']
-      const tl = []
-      for (let i = 0; i < pds.length; i++) {
-        const p = i < s.pi ? 100 : i === s.pi ? this.ringPct : 0
-        tl.push({ w: Math.max(1, pds[i]), p: p, c: colors2[i % colors2.length] })
-      }
-      this.timeline = tl
-    } else if (mode === 'music') {
-      const pos = (s.pos || 0) + age
-      this.bigTime = s.dur > 0 ? mmss(Math.max(0, s.dur - pos)) : '♫'
-      this.bigLabel = s.title || 'музика'
-      this.ringPct = s.dur > 0 ? Math.min(100, Math.round((pos / s.dur) * 100)) : 0
-    } else if (mode === 'manual') {
-      this.bigTime = hms((s.el || 0) + age)
-      this.bigLabel = 'тренировка'
-      this.ringPct = Math.round((((s.el || 0) + age) % 60) / 60 * 100)
-    } else {
-      this.bigTime = hms(s.el || 0)
-      this.bigLabel = 'готов за старт'
-      this.ringPct = 0
+    // AI
+    let aiSub = 'готов'
+    if (ai) {
+      aiSub = s.st === 'ready' ? 'почивката стига ▶'
+        : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
+          : (s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
     }
+    tiles.push({ id: 'ai', title: 'AI сесия', sub: aiSub, icon: '/common/icons/ai.png', color: ACCENT, active: ai })
 
-    // play button
-    if (st === 'run') {
-      this.playGlyph = '❚❚'
-      this.playColor = '#2C2C2E'
-      this.playGlow = 'rgba(0,0,0,0)'
-      this.playLabel = 'Пауза'
-    } else if (st === 'ready') {
-      this.playGlyph = '▶'
-      this.playColor = GREEN
-      this.playGlow = 'rgba(48,209,88,0.45)'
-      this.playLabel = 'Следващ блок'
-    } else {
-      this.playGlyph = '▶'
-      this.playColor = GREEN
-      this.playGlow = 'rgba(48,209,88,0.25)'
-      this.playLabel = st === 'idle' ? 'Старт' : 'Продължи'
-    }
-  },
-
-  renderControl(s) {
-    const can = s.can || {}
-    this.canPlus = !!can.plus
-    this.canMinus = !!can.minus
-    this.canDbl = !!can.dbl
-    this.dbl = !!s.dbl
-    if (this.mode === 'music') {
-      this.ctlTitle = 'МУЗИКА'
-      this.lvlPct = this.ringPct
-      this.lvlText = '♫'
-      this.lvlUnit = s.title || ''
-      this.lvlColor = '#BF5AF2'
-      this.minusGlyph = '⏮'
-      this.plusGlyph = '⏭'
-      this.keysHint = 'предишна · следваща'
-    } else if (this.mode === 'ai') {
-      const u = s.u != null ? s.u : 100
-      this.ctlTitle = 'СИЛА'
-      this.lvlPct = Math.max(0, Math.min(100, u))
-      this.lvlText = String(u)
-      this.lvlUnit = '% от плана'
-      this.lvlColor = u >= 100 ? ACCENT : AMBER
-      this.minusGlyph = '−'
-      this.plusGlyph = '+'
-      this.keysHint = this.canPlus ? '+ връща намалението' : 'на максимума по план'
-    } else {
-      this.ctlTitle = 'СИЛА'
-      this.lvlPct = 100
-      this.lvlText = 'M'
-      this.lvlUnit = 'главен регулатор'
-      this.lvlColor = ACCENT
-      this.minusGlyph = '−'
-      this.plusGlyph = '+'
-      this.keysHint = this.mode === 'idle' ? 'стартирай тренировка' : 'стъпка на главния'
-    }
-  },
-
-  renderSession(s, age) {
-    this.elapsedText = hms((s.el || 0) + age)
-    this.kcal = Math.round(s.kcal || 0)
-    this.avgText = s.avg > 0 ? String(s.avg) : '--'
-    this.maxText = s.max > 0 ? String(s.max) : '--'
-    if (this.mode === 'ai' && s.pds) {
-      this.phaseCount = (s.pi + 1) + '/' + s.pds.length
-      this.phaseCountLabel = s.ph || 'фаза'
-    } else {
-      this.phaseCount = this.z > 0 ? 'Z' + this.z : '--'
-      this.phaseCountLabel = 'зона сега'
-    }
-
-    // HR bars: scaled between the lowest and highest value of the window
-    const hh = s.hh || []
-    let lo = 999
-    let hi = 0
-    hh.forEach((v) => {
-      if (v > 0) {
-        lo = Math.min(lo, v)
-        hi = Math.max(hi, v)
-      }
+    // manual training
+    const trRun = !!m.tr.run && !ai
+    tiles.push({
+      id: 'train', title: 'Тренировка',
+      sub: trRun ? 'тече · ' + hms((s.el || 0) + age(app, true)) : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'старт от гривната',
+      icon: '/common/icons/bolt.png', color: GREEN, active: trRun
     })
-    lo = Math.max(40, lo - 8)
-    hi = Math.max(hi, lo + 20)
-    const lim = s.lim || 170
-    this.bars = hh.map((v) => ({
-      h: v > 0 ? Math.round(6 + ((v - lo) / (hi - lo)) * 58) : 3,
-      c: v > 0 ? ZONE[zoneOf(v, lim)] : '#2C2C2E'
-    }))
 
-    const zt = s.zt || [0, 0, 0, 0, 0]
-    const total = zt.reduce((a, b) => a + b, 0)
-    this.zoneTime = zt.map((v, i) => ({
-      w: total > 0 ? Math.max(v, 0.0001) : 1,
-      c: ZONE[i + 1],
-      m: v >= 60 ? Math.round(v / 60) + 'м' : v > 0 ? v + 'с' : '–'
-    }))
+    // interval timer
+    const tm = m.tm
+    let tmSub = 'не е включен'
+    if (tm.arm) {
+      tmSub = tm.run ? mmss((tm.left || 0) - age(app, true)) + (tm.lbl ? ' · ' + tm.lbl : tm.loops > 0 ? ' · ' + tm.loop + '/' + tm.loops : ' · #' + (tm.loop || 1))
+        : tm.pau ? 'пауза · ' + mmss(tm.left || 0) : 'чака старт'
+    }
+    tiles.push({ id: 'timer', title: 'Таймер', sub: tmSub, icon: '/common/icons/timer.png', color: AMBER, active: !!tm.run })
+
+    // music
+    const mu = m.mu
+    const muSub = mu.on ? (mu.play ? '▶ ' : '❚❚ ') + (mu.title || 'музика') : 'изключена'
+    tiles.push({ id: 'music', title: 'Музика', sub: muSub, icon: '/common/icons/music.png', color: PURPLE, active: !!mu.play })
+
+    // HR module
+    const hg = m.hg
+    const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'изключен'
+    tiles.push({ id: 'pulse', title: 'Пулс контрол', sub: hgSub, icon: '/common/icons/heart.png', color: BLUE, active: !!hg.en && !hg.ai })
+
+    // what runs goes first
+    return tiles.filter((t) => t.active).concat(tiles.filter((t) => !t.active))
   },
 
-  // ============================================================ touch
-
-  press(which) {
-    this.pressed = which
+  press(id) {
+    this.pressed = id
   },
 
   release() {
     this.pressed = ''
   },
 
-  toggle() {
-    this.$app.$def.command('toggle')
-  },
-
-  plus() {
-    if (this.canPlus) {
-      this.$app.$def.command('plus')
-    }
-  },
-
-  minus() {
-    if (this.canMinus) {
-      this.$app.$def.command('minus')
-    }
-  },
-
-  double() {
-    this.dbl = !this.dbl                       // instant feedback; XEMS confirms in the next state
-    this.$app.$def.command('double')
-  },
-
-  holdStart() {
-    this.holdEnd()
-    const t0 = Date.now()
-    this.holdTimer = setInterval(() => {
-      const p = Math.min(100, Math.round(((Date.now() - t0) / HOLD_MS) * 100))
-      this.holdPct = p
-      if (p >= 100) {
-        clearInterval(this.holdTimer)
-        this.holdTimer = null
-        this.$app.$def.send({ t: 'cmd', a: 'stop' })
-        this.$app.$def.buzz('long')
-        setTimeout(() => {
-          this.holdPct = 0
-        }, 400)
-      }
-    }, 40)
-  },
-
-  holdEnd() {
-    if (this.holdTimer) {
-      clearInterval(this.holdTimer)
-      this.holdTimer = null
-      this.holdPct = 0
-    }
+  open(id) {
+    this.pressed = ''
+    this.$app.$def.buzz('short')
+    router.push({ uri: PAGES[id] })
   }
 }
 </script>
@@ -506,439 +175,118 @@ export default {
   height: 520px;
   background-color: #000000;
 }
-.pages {
+.list {
   width: 212px;
   height: 520px;
-  indicator-color: #3a3a3c;
-  indicator-selected-color: #ffffff;
-  indicator-size: 6px;
-  indicator-right: 4px;
 }
-.screen {
+.head {
   width: 212px;
-  height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 22px;
-  background-color: #000000;
+  padding-top: 26px;
+  padding-bottom: 14px;
 }
-
-/* ---------------------------------------------------------------- live */
-.chip {
-  height: 28px;
-  padding-left: 12px;
-  padding-right: 14px;
-  border-radius: 14px;
+.hr-row {
   flex-direction: row;
   align-items: center;
 }
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  margin-right: 8px;
-}
-.blink {
-  animation-name: blink;
-  animation-duration: 1200ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.chip-text {
-  font-size: 15px;
-  font-weight: bold;
-}
-.ring-box {
-  width: 196px;
-  height: 196px;
-  margin-top: 10px;
-}
-.ring-outer {
-  width: 196px;
-  height: 196px;
-  stroke-width: 14px;
-  background-color: #1c1c1e;
-  start-angle: 220deg;
-  total-angle: 280deg;
-  center-x: 98px;
-  center-y: 98px;
-  radius: 91px;
-}
-.ring-inner {
-  width: 196px;
-  height: 196px;
-  stroke-width: 5px;
-  background-color: #151517;
-  start-angle: 220deg;
-  total-angle: 280deg;
-  center-x: 98px;
-  center-y: 98px;
-  radius: 74px;
-}
-.ring-center {
-  width: 196px;
-  height: 196px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
 .heart {
-  font-size: 20px;
+  width: 34px;
+  height: 34px;
+  margin-right: 8px;
 }
 .beat {
   animation-name: beat;
   animation-iteration-count: infinite;
   animation-direction: alternate;
-  animation-timing-function: ease-in-out;
 }
 .hr {
-  font-size: 62px;
+  font-size: 84px;
   font-weight: bold;
-  color: #ffffff;
-}
-.hr-foot {
-  flex-direction: row;
-  align-items: center;
-}
-.bpm {
-  font-size: 14px;
-  color: #8e8e93;
-  font-weight: bold;
-}
-.zchip {
-  margin-left: 6px;
-  height: 20px;
-  padding-left: 7px;
-  padding-right: 7px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: bold;
-  color: #000000;
 }
 .zones {
   flex-direction: row;
   align-items: center;
-  height: 12px;
-  margin-top: 6px;
+  height: 14px;
+  margin-top: 2px;
 }
 .zseg {
-  width: 30px;
-  height: 5px;
+  width: 32px;
+  height: 6px;
   margin-left: 2px;
   margin-right: 2px;
   border-radius: 3px;
 }
 .zseg-on {
-  height: 10px;
-  border-radius: 5px;
+  height: 12px;
+  border-radius: 6px;
 }
-.big-time {
-  margin-top: 12px;
-  font-size: 46px;
-  font-weight: bold;
-}
-.big-label {
-  width: 196px;
-  font-size: 15px;
-  color: #8e8e93;
-  text-align: center;
-  lines: 1;
-  text-overflow: ellipsis;
-}
-.timeline {
-  width: 180px;
-  height: 6px;
-  margin-top: 12px;
-  flex-direction: row;
-}
-.tl-seg {
-  height: 6px;
-  margin-left: 1px;
-  margin-right: 1px;
-  border-radius: 3px;
-  background-color: #2c2c2e;
-}
-.tl-fill {
-  height: 6px;
-  border-radius: 3px;
-  transition-property: width;
-  transition-duration: 600ms;
-}
-.play-box {
-  width: 120px;
-  height: 104px;
-  margin-top: 16px;
-  justify-content: center;
-  align-items: center;
-}
-.glow {
-  width: 104px;
-  height: 104px;
-  border-radius: 52px;
-}
-.breathe {
-  animation-name: breathe;
-  animation-duration: 1400ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.play {
-  width: 84px;
-  height: 84px;
-  border-radius: 42px;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
-}
-.down {
-  transform: scale(0.9);
-}
-.play-glyph {
-  font-size: 34px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.play-label {
-  font-size: 15px;
-  color: #8e8e93;
-  margin-top: 2px;
-}
-
-/* ---------------------------------------------------------------- control */
-.caps {
-  font-size: 15px;
-  font-weight: bold;
-  color: #8e8e93;
+.head-sub {
   margin-top: 6px;
-}
-.lvl-box {
-  width: 170px;
-  height: 170px;
-  margin-top: 10px;
-}
-.lvl-ring {
-  width: 170px;
-  height: 170px;
-  stroke-width: 12px;
-  background-color: #1c1c1e;
-  start-angle: 220deg;
-  total-angle: 280deg;
-  center-x: 85px;
-  center-y: 85px;
-  radius: 78px;
-}
-.lvl-center {
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 170px;
-  height: 170px;
-}
-.lvl-num {
-  font-size: 54px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.lvl-unit {
-  width: 130px;
-  font-size: 14px;
-  color: #8e8e93;
-  text-align: center;
-  lines: 1;
-  text-overflow: ellipsis;
-}
-.keys {
-  flex-direction: row;
-  margin-top: 10px;
-}
-.key {
-  width: 86px;
-  height: 86px;
-  margin-left: 7px;
-  margin-right: 7px;
-  border-radius: 43px;
-  background-color: #2c2c2e;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
-}
-.key-plus {
-  background-color: #3a1520;
-}
-.off {
-  opacity: 0.3;
-}
-.key-glyph {
-  font-size: 44px;
-  color: #ffffff;
-  font-weight: bold;
-}
-.hint {
-  margin-top: 6px;
-  font-size: 13px;
-  color: #636366;
-}
-.card {
-  width: 196px;
-  height: 62px;
-  margin-top: 12px;
-  border-radius: 20px;
-  background-color: #1c1c1e;
-  flex-direction: row;
-  align-items: center;
-  padding-left: 14px;
-  padding-right: 12px;
-}
-.card-texts {
-  flex: 1;
-  flex-direction: column;
-}
-.card-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.card-sub {
-  font-size: 12px;
+  font-size: 20px;
   color: #8e8e93;
 }
-.sw {
-  width: 46px;
-  height: 28px;
-  border-radius: 14px;
-  background-color: #3a3a3c;
-  padding-left: 3px;
-  justify-content: flex-start;
-  align-items: center;
-  transition-property: background-color;
-  transition-duration: 200ms;
-}
-.sw-on {
-  background-color: #30d158;
-}
-.knob {
-  width: 22px;
-  height: 22px;
-  border-radius: 11px;
-  background-color: #ffffff;
-  transition-property: transform;
-  transition-duration: 200ms;
-}
-.knob-on {
-  transform: translateX(18px);
-}
-.stop-box {
-  width: 196px;
-  height: 60px;
-  margin-top: 12px;
-}
-.stop-bg {
-  width: 196px;
-  height: 60px;
-  border-radius: 30px;
-  background-color: #3a0f0d;
-}
-.stop-fill {
-  height: 60px;
-  border-radius: 30px;
-  background-color: #ff453a;
-}
-.stop-text {
-  width: 196px;
-  height: 60px;
-  text-align: center;
-  font-size: 17px;
-  font-weight: bold;
-  color: #ffffff;
-}
-
-/* ---------------------------------------------------------------- session */
-.elapsed {
-  font-size: 50px;
-  font-weight: bold;
-  color: #ffffff;
-  margin-top: 2px;
-}
-.tiles {
-  flex-direction: row;
-  margin-top: 8px;
+.tile-item {
+  width: 212px;
+  justify-content: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .tile {
-  width: 94px;
-  height: 66px;
-  margin-left: 4px;
-  margin-right: 4px;
-  border-radius: 18px;
+  width: 200px;
+  height: 96px;
+  border-radius: 30px;
+  border-width: 3px;
   background-color: #1c1c1e;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 10px;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.tile-on {
+  background-color: #242426;
+}
+.down {
+  transform: scale(0.94);
+}
+.icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
   justify-content: center;
   align-items: center;
 }
-.tile-num {
-  font-size: 26px;
-  font-weight: bold;
-  color: #ffffff;
+.icon-img {
+  width: 32px;
+  height: 32px;
 }
-.tile-kcal {
-  color: #ff9f0a;
-}
-.tile-max {
-  color: #ff453a;
-}
-.tile-label {
-  font-size: 12px;
-  color: #8e8e93;
-}
-.sect {
-  margin-top: 14px;
-  width: 190px;
-  font-size: 12px;
-  font-weight: bold;
-  color: #636366;
-}
-.chart {
-  width: 190px;
-  height: 66px;
-  margin-top: 6px;
-  flex-direction: row;
-  align-items: flex-end;
-}
-.bar {
-  width: 4px;
-  margin-left: 1px;
-  margin-right: 1px;
-  border-radius: 2px;
-}
-.zstack {
-  width: 190px;
-  height: 12px;
-  margin-top: 8px;
-  border-radius: 6px;
-  flex-direction: row;
-  background-color: #1c1c1e;
-}
-.zpart {
-  height: 12px;
-}
-.zlegend {
-  width: 190px;
-  flex-direction: row;
-  margin-top: 6px;
-}
-.zleg {
+.tile-texts {
   flex: 1;
   flex-direction: column;
-  align-items: center;
+  margin-left: 12px;
 }
-.zleg-z {
-  font-size: 12px;
+.tile-title {
+  font-size: 24px;
   font-weight: bold;
+  color: #ffffff;
+  lines: 1;
+  text-overflow: ellipsis;
 }
-.zleg-m {
-  font-size: 12px;
-  color: #aeaeb2;
+.tile-sub {
+  font-size: 19px;
+  lines: 1;
+  text-overflow: ellipsis;
+}
+.foot {
+  width: 212px;
+  height: 70px;
+  justify-content: center;
+}
+.foot-text {
+  font-size: 18px;
+  color: #48484a;
 }
 
 /* ---------------------------------------------------------------- offline */
@@ -948,19 +296,18 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
 }
 .radar {
-  width: 160px;
-  height: 160px;
+  width: 170px;
+  height: 170px;
   justify-content: center;
   align-items: center;
 }
 .wave {
-  width: 150px;
-  height: 150px;
-  border-radius: 75px;
-  border-width: 2px;
+  width: 160px;
+  height: 160px;
+  border-radius: 80px;
+  border-width: 3px;
   border-color: #ff3b5c;
   animation-name: wave;
   animation-duration: 2000ms;
@@ -970,70 +317,50 @@ export default {
   animation-delay: 1000ms;
 }
 .core {
-  width: 76px;
-  height: 76px;
-  border-radius: 38px;
+  width: 86px;
+  height: 86px;
+  border-radius: 43px;
   background-color: #ff3b5c;
   justify-content: center;
   align-items: center;
 }
 .core-x {
-  font-size: 40px;
+  font-size: 46px;
   font-weight: bold;
   color: #ffffff;
 }
 .off-title {
   margin-top: 18px;
-  font-size: 30px;
+  font-size: 36px;
   font-weight: bold;
   color: #ffffff;
 }
 .off-sub {
   margin-top: 4px;
-  font-size: 16px;
+  font-size: 22px;
   color: #ff9f0a;
 }
 .off-hint {
-  margin-top: 26px;
-  width: 180px;
-  text-align: center;
-  font-size: 14px;
-  color: #636366;
-}
-
-.off-diag {
-  margin-top: 14px;
+  margin-top: 22px;
   width: 190px;
   text-align: center;
-  font-size: 12px;
+  font-size: 20px;
+  color: #8e8e93;
+}
+.off-diag {
+  margin-top: 14px;
+  width: 196px;
+  text-align: center;
+  font-size: 16px;
   color: #48484a;
 }
 
-/* ---------------------------------------------------------------- motion */
-@keyframes blink {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.25;
-  }
-}
 @keyframes beat {
   from {
     transform: scale(1);
   }
   to {
-    transform: scale(1.3);
-  }
-}
-@keyframes breathe {
-  from {
-    transform: scale(0.86);
-    opacity: 0.9;
-  }
-  to {
-    transform: scale(1.12);
-    opacity: 0.2;
+    transform: scale(1.25);
   }
 }
 @keyframes wave {

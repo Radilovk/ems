@@ -1,0 +1,259 @@
+<template>
+  <div class="screen">
+    <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
+    <marquee class="title" scrollamount="40" loop="-1">{{title}}</marquee>
+
+    <stack class="ring-box">
+      <progress class="ring" type="arc" percent="{{pct}}" style="color: #BF5AF2"></progress>
+      <div class="center">
+        <div class="play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#2C2C2E' : '#BF5AF2'}}"
+             ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+          <image class="play-img" src="{{play ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+        </div>
+      </div>
+    </stack>
+    <text class="time">{{timeText}}</text>
+
+    <div class="keys">
+      <div class="key {{pressed === 'prev' ? 'down' : ''}}"
+           ontouchstart="press('prev')" ontouchend="release" ontouchcancel="release" onclick="prev">
+        <image class="key-img" src="/common/icons/prev.png"></image>
+      </div>
+      <div class="key {{pressed === 'next' ? 'down' : ''}}"
+           ontouchstart="press('next')" ontouchend="release" ontouchcancel="release" onclick="next">
+        <image class="key-img" src="/common/icons/next.png"></image>
+      </div>
+    </div>
+
+    <!-- impulses follow the music: live level and the ceiling -->
+    <div class="sync" if="{{sync}}">
+      <div class="lvl-track">
+        <div class="lvl-fill" style="width: {{lvl * 1.2}}px"></div>
+      </div>
+      <div class="ceil-row">
+        <div class="mini {{pressed === 'down' ? 'down' : ''}}" ontouchstart="press('down')" ontouchend="release" onclick="ceilDown">
+          <image class="mini-img" src="/common/icons/minus.png"></image>
+        </div>
+        <div class="ceil-mid">
+          <text class="ceil-num">{{ceil}}</text>
+          <text class="ceil-label">таван</text>
+        </div>
+        <div class="mini {{pressed === 'up' ? 'down' : ''}}" ontouchstart="press('up')" ontouchend="release" onclick="ceilUp">
+          <image class="mini-img" src="/common/icons/plus.png"></image>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { PURPLE, mmss, mods, bind } from '../../common/ui.js'
+
+export default {
+  private: {
+    caps: 'МУЗИКА',
+    capsColor: '#8E8E93',
+    title: '—',
+    pct: 0,
+    play: false,
+    timeText: '',
+    sync: false,
+    lvl: 0,
+    ceil: 0,
+    pressed: ''
+  },
+
+  onInit() {
+    this.unbind = bind(this)
+  },
+
+  onDestroy() {
+    this.unbind()
+  },
+
+  update() {
+    const app = this.$app.$def
+    const s = app.state
+    if (!s) {
+      return
+    }
+    const mu = mods(s).mu
+    this.play = !!mu.play
+    this.sync = !!mu.on
+    this.caps = mu.on ? (mu.play ? '♫ ИМПУЛСИ' : '♫ ПАУЗА') : '♫ МУЗИКА'
+    this.capsColor = mu.play ? PURPLE : '#8E8E93'
+    this.title = mu.title || (mu.on ? 'музика' : 'пусни от таблета')
+    const pos = (mu.pos || 0) + (mu.play ? app.silence() : 0)
+    this.pct = mu.dur > 0 ? Math.min(100, Math.round((pos / mu.dur) * 100)) : 0
+    this.timeText = mu.dur > 0 ? mmss(pos) + ' / ' + mmss(mu.dur) : ''
+    this.lvl = Math.max(0, Math.min(100, mu.lvl || 0))
+    this.ceil = mu.ceil || 0
+  },
+
+  press(w) {
+    this.pressed = w
+  },
+
+  release() {
+    this.pressed = ''
+  },
+
+  toggle() {
+    this.play = !this.play
+    this.$app.$def.command('mu_toggle')
+  },
+
+  prev() {
+    this.$app.$def.command('mu_prev')
+  },
+
+  next() {
+    this.$app.$def.command('mu_next')
+  },
+
+  ceilUp() {
+    this.$app.$def.command('mu_up')
+  },
+
+  ceilDown() {
+    this.$app.$def.command('mu_down')
+  }
+}
+</script>
+
+<style>
+.screen {
+  width: 212px;
+  height: 520px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 26px;
+  background-color: #000000;
+}
+.caps {
+  font-size: 20px;
+  font-weight: bold;
+}
+.title {
+  width: 196px;
+  height: 36px;
+  margin-top: 6px;
+  font-size: 26px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.ring-box {
+  width: 176px;
+  height: 176px;
+  margin-top: 8px;
+}
+.ring {
+  width: 176px;
+  height: 176px;
+  stroke-width: 12px;
+  background-color: #1c1c1e;
+  start-angle: 0deg;
+  total-angle: 360deg;
+  center-x: 88px;
+  center-y: 88px;
+  radius: 80px;
+}
+.center {
+  width: 176px;
+  height: 176px;
+  justify-content: center;
+  align-items: center;
+}
+.play {
+  width: 112px;
+  height: 112px;
+  border-radius: 56px;
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.play-img {
+  width: 50px;
+  height: 50px;
+}
+.down {
+  transform: scale(0.9);
+}
+.time {
+  margin-top: 6px;
+  font-size: 20px;
+  color: #aeaeb2;
+}
+.keys {
+  flex-direction: row;
+  margin-top: 10px;
+}
+.key {
+  width: 88px;
+  height: 70px;
+  margin-left: 6px;
+  margin-right: 6px;
+  border-radius: 35px;
+  background-color: #2c2c2e;
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.key-img {
+  width: 36px;
+  height: 36px;
+}
+.sync {
+  margin-top: 14px;
+  flex-direction: column;
+  align-items: center;
+}
+.lvl-track {
+  width: 120px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: #2c2c2e;
+}
+.lvl-fill {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #bf5af2;
+  transition-property: width;
+  transition-duration: 300ms;
+}
+.ceil-row {
+  flex-direction: row;
+  align-items: center;
+  margin-top: 8px;
+}
+.mini {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  background-color: #2c2c2e;
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.mini-img {
+  width: 28px;
+  height: 28px;
+}
+.ceil-mid {
+  width: 76px;
+  flex-direction: column;
+  align-items: center;
+}
+.ceil-num {
+  font-size: 30px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.ceil-label {
+  font-size: 18px;
+  color: #8e8e93;
+}
+</style>

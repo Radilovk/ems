@@ -13,7 +13,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.isaigu.gymapp.dialog.ModalInfoHelper;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBand;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandLink;
 
 import java.util.Locale;
 
@@ -36,6 +38,7 @@ final class WearableLivePanel {
     private static TextView rateView;
     private static TextView ageView;
     private static TextView countView;
+    private static TextView bandView;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable refreshTask = new RefreshTask();
@@ -95,6 +98,7 @@ final class WearableLivePanel {
         rateView = addRow(activity, grid, WearableUi.tr("Събития / сек", "Events / s"), text, muted);
         ageView = addRow(activity, grid, WearableUi.tr("Последно събитие", "Last event"), text, muted);
         countView = addRow(activity, grid, WearableUi.tr("Събития в сесията", "Events this session"), text, muted);
+        bandView = addRow(activity, grid, WearableUi.tr("Гривна", "Band"), text, muted);
         root.addView(grid, WearableUi.matchWrap(activity, 12));
 
         TextView hint = WearableUi.text(activity, WearableUi.tr(
@@ -180,6 +184,7 @@ final class WearableLivePanel {
         rateView = null;
         ageView = null;
         countView = null;
+        bandView = null;
     }
 
     private static TextView addRow(Activity activity, LinearLayout parent, String label,
@@ -210,7 +215,7 @@ final class WearableLivePanel {
             return;
         }
         Activity activity = WearableUi.asActivity(hrView.getContext());
-        XiaomiBandBleClient c = XiaomiBandBleClient.getInstance();
+        XiaomiBandLink c = XiaomiBand.link();
         String state = c.getLastState();
         long last = c.getLastRealtimeEventMs();
         long age = last > 0L ? System.currentTimeMillis() - last : -1L;
@@ -249,6 +254,9 @@ final class WearableLivePanel {
         rateView.setText(rate > 0f ? String.format(Locale.US, "%.2f", rate) : "—");
         ageView.setText(age >= 0L ? WearableUi.ageText(age) : "—");
         countView.setText(String.valueOf(c.getRealtimeEventCount()));
+        if (bandView != null && activity != null) {
+            bandView.setText(WearableSettingsSection.bandInfo(activity));
+        }
     }
 
     private static void shareRecording(Activity activity) {
@@ -268,7 +276,7 @@ final class WearableLivePanel {
         Intent send = new Intent(Intent.ACTION_SEND);
         send.setType("text/plain");
         send.putExtra(Intent.EXTRA_SUBJECT, "XEMS band recording "
-                + XiaomiBandBleClient.getBuildTag());
+                + XiaomiBand.getBuildTag());
         send.putExtra(Intent.EXTRA_TEXT, body);
         try {
             activity.startActivity(Intent.createChooser(send,

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 299
+    .line 368
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 300
+    .line 369
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
-    .line 301
+    .line 370
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 5
 
     .prologue
-    .line 311
+    .line 380
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->colorFields()V
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$900()V
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1000()V
 
-    .line 312
+    .line 381
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
@@ -71,17 +71,17 @@
 
     move-result-object v0
 
-    .line 313
+    .line 382
     :goto_19
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1000()Landroid/widget/EditText;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1100()Landroid/widget/EditText;
 
     move-result-object v1
 
     if-eqz v1, :cond_58
 
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1000()Landroid/widget/EditText;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1100()Landroid/widget/EditText;
 
     move-result-object v1
 
@@ -97,7 +97,7 @@
 
     move-result-object v1
 
-    .line 314
+    .line 383
     :goto_2f
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidMac(Ljava/lang/String;)Z
 
@@ -105,7 +105,7 @@
 
     if-eqz v2, :cond_5b
 
-    .line 315
+    .line 384
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
@@ -114,7 +114,7 @@
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 319
+    .line 388
     :cond_3e
     :goto_3e
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidKey(Ljava/lang/String;)Z
@@ -129,35 +129,35 @@
 
     if-nez v0, :cond_4f
 
-    .line 320
+    .line 389
     :cond_4a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 322
+    .line 391
     :cond_4f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->refreshStatus(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$500(Landroid/app/Activity;)V
 
-    .line 323
+    .line 392
     return-void
 
-    .line 312
+    .line 381
     :cond_55
     const-string v0, ""
 
     goto :goto_19
 
-    .line 313
+    .line 382
     :cond_58
     const-string v1, ""
 
     goto :goto_2f
 
-    .line 316
+    .line 385
     :cond_5b
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -165,7 +165,7 @@
 
     if-nez v0, :cond_3e
 
-    .line 317
+    .line 386
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     const-string v2, ""
@@ -179,7 +179,7 @@
     .registers 5
 
     .prologue
-    .line 304
+    .line 373
     return-void
 .end method
 
@@ -187,6 +187,6 @@
     .registers 5
 
     .prologue
-    .line 307
+    .line 376
     return-void
 .end method

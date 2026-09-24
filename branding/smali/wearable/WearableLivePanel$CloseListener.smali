@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 316
+    .line 324
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 316
+    .line 324
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel$CloseListener;-><init>()V
 
     return-void
@@ -44,9 +44,9 @@
     .registers 2
 
     .prologue
-    .line 319
+    .line 327
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->dismiss()V
 
-    .line 320
+    .line 328
     return-void
 .end method

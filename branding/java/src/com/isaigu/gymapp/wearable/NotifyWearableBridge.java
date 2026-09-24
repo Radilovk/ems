@@ -6,7 +6,9 @@ import android.view.View;
 
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBand;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandLink;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,7 +42,7 @@ public final class NotifyWearableBridge {
         @Override
         public void onState(String state) {
             bleState = state != null ? state : "";
-            lastEventAction = "BLE:" + bleState;
+            lastEventAction = XiaomiBand.link().getTransportName() + ":" + bleState;
             lastEventTimeMs = System.currentTimeMillis();
             WearableSyncHelper.updateDiagnostics();
             if ("bad_auth_key".equals(bleState)) {
@@ -146,7 +148,7 @@ public final class NotifyWearableBridge {
         hrEventCount = 0;
         lastEventAction = "";
         lastEventTimeMs = 0L;
-        XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
+        XiaomiBandLink client = XiaomiBand.link();
         client.setListener(bleListener);
         WearableSyncHelper.updateHeartRate(-1, bandConnected);
         WearableSyncHelper.updateDiagnostics();
@@ -241,12 +243,13 @@ public final class NotifyWearableBridge {
         beginListening(context);
         EmsBleCoexist.pauseEmsBle();
         NotifyHaForegroundService.start(context);
-        XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
-        client.setListener(bleListener);
         String mac = normalizeMac(WearableConfig.getBandMac(context));
+        // Band 8 and older: BLE FE95. Band 8 Pro / 9 / 10: Bluetooth Classic SPP (auto by name).
+        XiaomiBandLink client = XiaomiBand.select(context, mac, WearableConfig.getBandTransport(context));
+        client.setListener(bleListener);
         client.connect(context, mac, WearableConfig.getAuthKey(context));
         client.startRealtime();
-        lastEventAction = "BLE:connect";
+        lastEventAction = client.getTransportName() + ":connect";
         lastEventTimeMs = System.currentTimeMillis();
         WearableSyncHelper.updateDiagnostics();
     }
@@ -268,7 +271,7 @@ public final class NotifyWearableBridge {
     }
 
     private static void disconnect(Context context) {
-        XiaomiBandBleClient.getInstance().disconnect();
+        XiaomiBand.link().disconnect();
         bleState = "stopped";
         NotifyHaForegroundService.stop(context);
         listeningActive = false;
@@ -279,6 +282,11 @@ public final class NotifyWearableBridge {
 
     static void onHeartRate(int hr) {
         if (!listeningActive || hr < 40 || hr > 220) {
+            return;
+        }
+        // Off the wrist the optical sensor reads noise: never feed it to AI / pulse control.
+        if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownNotWorn()) {
+            WearableBleDiagLog.log("hr", "ignored " + hr + " — band not worn");
             return;
         }
         hrEventCount++;
@@ -322,7 +330,7 @@ public final class NotifyWearableBridge {
     }
 
     public static int getGbHrEventCount() {
-        return XiaomiBandBleClient.getInstance().getHrEventCount();
+        return XiaomiBand.link().getHrEventCount();
     }
 
     public static boolean isDirectBleActive() {
@@ -334,23 +342,23 @@ public final class NotifyWearableBridge {
     }
 
     public static int getBleNotifyCount() {
-        return XiaomiBandBleClient.getInstance().getNotifyEventCount();
+        return XiaomiBand.link().getNotifyEventCount();
     }
 
     public static int getBleNotifyCount51() {
-        return XiaomiBandBleClient.getInstance().getNotifyCount51();
+        return XiaomiBand.link().getNotifyCount51();
     }
 
     public static int getBleNotifyCount52() {
-        return XiaomiBandBleClient.getInstance().getNotifyCount52();
+        return XiaomiBand.link().getNotifyCount52();
     }
 
     public static String getBleLastNotifyChar() {
-        return XiaomiBandBleClient.getInstance().getLastNotifyChar();
+        return XiaomiBand.link().getLastNotifyChar();
     }
 
     public static String getBleBuildTag() {
-        return XiaomiBandBleClient.getBuildTag();
+        return XiaomiBand.getBuildTag();
     }
 
     public static int getGbCommandCount() {

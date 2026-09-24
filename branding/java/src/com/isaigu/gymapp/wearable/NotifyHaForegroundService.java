@@ -11,7 +11,9 @@ import android.os.Build;
 import android.os.IBinder;
 
 import com.isaigu.gymapp.MainActivity;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBand;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandLink;
 
 /** Keeps direct BLE HR alive while the dial is connected (Huawei battery saver). */
 public final class NotifyHaForegroundService extends Service {
@@ -85,7 +87,7 @@ public final class NotifyHaForegroundService extends Service {
 
     private Notification buildNotification() {
         String text = "Direct BLE: " + NotifyWearableBridge.getBleState()
-                + " · " + XiaomiBandBleClient.getBuildTag();
+                + " · " + XiaomiBand.getBuildTag();
         Intent launch = new Intent(this, MainActivity.class);
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;

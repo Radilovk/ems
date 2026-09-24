@@ -107,7 +107,7 @@ final class WearableUi {
             return tr("Мери пулс…", "Measuring…");
         }
         if ("connecting".equals(state) || "discovering".equals(state)
-                || "auth_start".equals(state)) {
+                || "auth_start".equals(state) || "handshake".equals(state)) {
             return tr("Свързване…", "Connecting…");
         }
         if ("authenticated".equals(state) || "initialized".equals(state)

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 300
+    .line 308
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 300
+    .line 308
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel$LogListener;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 6
 
     .prologue
-    .line 303
+    .line 311
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -53,20 +53,20 @@
 
     move-result-object v1
 
-    .line 304
+    .line 312
     if-nez v1, :cond_b
 
-    .line 313
+    .line 321
     :goto_a
     return-void
 
-    .line 307
+    .line 315
     :cond_b
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->getRecentText()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 308
+    .line 316
     if-eqz v0, :cond_17
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -75,7 +75,7 @@
 
     if-nez v2, :cond_1f
 
-    .line 309
+    .line 317
     :cond_17
     const-string v0, "\u041b\u043e\u0433\u044a\u0442 \u0435 \u043f\u0440\u0430\u0437\u0435\u043d."
 
@@ -85,7 +85,7 @@
 
     move-result-object v0
 
-    .line 311
+    .line 319
     :cond_1f
     const-string v2, "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0438 \u043b\u043e\u0433"
 
@@ -109,7 +109,7 @@
 
     move-result-object v0
 
-    .line 312
+    .line 320
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->getLogFileHint(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v3
@@ -122,7 +122,7 @@
 
     move-result-object v0
 
-    .line 311
+    .line 319
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 
     goto :goto_a

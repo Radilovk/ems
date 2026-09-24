@@ -695,10 +695,21 @@ public final class WearableSyncHelper {
             }
             return;
         }
-        long last = com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient.getInstance()
+        long last = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.link()
                 .getLastRealtimeEventMs();
         long age = last > 0L ? System.currentTimeMillis() - last : -1L;
         boolean live = "streaming".equals(state) || "measuring".equals(state);
+        if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownNotWorn()) {
+            // The band itself says it is off the wrist: no pulse, pulse control holds.
+            hrValueView.setText("--");
+            hrValueView.setTextColor(WearableUi.COLOR_ERROR);
+            if (ringView != null) {
+                ringView.setBeatBpm(0);
+                ringView.setElapsedFraction(0f);
+            }
+            setSubLabel(WearableUi.tr("гривната не е на ръката", "band not worn"), WearableUi.COLOR_ERROR);
+            return;
+        }
         if (displayedHr > 0 && live) {
             int zone = WearableUi.zoneFor(displayedHr, threshold);
             int zoneColor = WearableUi.zoneColor(zone);

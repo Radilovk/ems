@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 237
+    .line 251
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 7
 
     .prologue
-    .line 240
+    .line 254
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/TextView;
 
@@ -42,11 +42,11 @@
 
     if-nez v0, :cond_7
 
-    .line 253
+    .line 267
     :goto_6
     return-void
 
-    .line 244
+    .line 258
     :cond_7
     :try_start_7
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
@@ -62,11 +62,11 @@
 
     move-result-object v0
 
-    .line 245
+    .line 259
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->refreshStatus(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$500(Landroid/app/Activity;)V
 
-    .line 246
+    .line 260
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$600()J
 
@@ -91,13 +91,13 @@
 
     if-lez v1, :cond_2f
 
-    .line 247
+    .line 261
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->endTest(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700(Landroid/app/Activity;)V
     :try_end_2f
     .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_2f} :catch_39
 
-    .line 252
+    .line 266
     :cond_2f
     :goto_2f
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
@@ -111,11 +111,11 @@
 
     goto :goto_6
 
-    .line 249
+    .line 263
     :catch_39
     move-exception v0
 
-    .line 250
+    .line 264
     const-string v1, "WearableSettingsSection.status"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

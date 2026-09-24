@@ -93,6 +93,19 @@ public final class WearableConfig {
                 key != null ? key.trim() : "").apply();
     }
 
+    /** 0 auto (by band name), 1 BLE (Band 8 and older), 2 Bluetooth Classic SPP (Band 9 / 10). */
+    public static int getBandTransport(Context context) {
+        if (context == null) {
+            return 0;
+        }
+        int v = prefs(context).getInt("band_transport", 0);
+        return v >= 0 && v <= 2 ? v : 0;
+    }
+
+    public static void setBandTransport(Context context, int mode) {
+        prefs(context).edit().putInt("band_transport", Math.max(0, Math.min(2, mode))).apply();
+    }
+
     public static boolean isDirectBleMode(Context context) {
         return isConfigured(context);
     }

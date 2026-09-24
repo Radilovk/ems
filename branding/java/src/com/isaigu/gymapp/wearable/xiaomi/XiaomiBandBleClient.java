@@ -20,7 +20,7 @@ import java.util.Random;
  * Every command waits for the band's ACK; every inbound frame is ACKed on the characteristic
  * it arrived on. No START keepalive — resending START restarts measurement.
  */
-public final class XiaomiBandBleClient {
+public final class XiaomiBandBleClient implements XiaomiBandLink {
     public interface Listener {
         void onState(String state);
 
@@ -109,6 +109,8 @@ public final class XiaomiBandBleClient {
     private int lastF3 = -1;
     private int lastF5 = -1;
     private int lastRawHr = -1;
+    private long lastStatusPollMs;
+    private static final long STATUS_POLL_MS = 30000L;
 
     private XiaomiBandBleClient() {}
 
@@ -121,6 +123,11 @@ public final class XiaomiBandBleClient {
 
     public static String getBuildTag() {
         return BLE_BUILD_TAG;
+    }
+
+    @Override
+    public String getTransportName() {
+        return "BLE";
     }
 
     public int getHrEventCount() {
@@ -236,6 +243,8 @@ public final class XiaomiBandBleClient {
         lastF3 = -1;
         lastF5 = -1;
         lastRawHr = -1;
+        lastStatusPollMs = 0L;
+        XiaomiBandStatus.reset();
         com.isaigu.gymapp.wearable.WearableBlePermissions.logPermissionState(context);
         appContext = context.getApplicationContext();
         targetMac = mac != null ? mac.trim() : "";
@@ -354,6 +363,22 @@ public final class XiaomiBandBleClient {
         if (realtimeActive) {
             beginRealtimeStreaming();
         }
+    }
+
+    /** Worn / battery (2/78, 2/1); answers land in XiaomiBandStatus. */
+    void pollStatus() {
+        lastStatusPollMs = System.currentTimeMillis();
+        sendCommand(XiaomiBandMessages.request(XiaomiBandMessages.T_SYSTEM, XiaomiBandMessages.SYS_STATE_GET));
+        sendCommand(XiaomiBandMessages.request(XiaomiBandMessages.T_SYSTEM, XiaomiBandMessages.SYS_BATTERY));
+    }
+
+    /** A ready-made protobuf command (from XiaomiBandMessages). */
+    void sendInitProto(byte[] proto) {
+        sendCommand(proto);
+    }
+
+    Context getAppContext() {
+        return appContext;
     }
 
     void sendInitCommand(int type, int subtype, byte[] commandExtra) {
@@ -746,6 +771,12 @@ public final class XiaomiBandBleClient {
             handleAuth(cmd, subtype);
             return;
         }
+        if (type == SYSTEM_CMD_TYPE && XiaomiBandStatus.onSystemCommand(subtype, cmd)) {
+            log("status", "bat=" + XiaomiBandStatus.getBatteryPercent()
+                    + " worn=" + XiaomiBandStatus.isKnownWorn()
+                    + " off=" + XiaomiBandStatus.isKnownNotWorn());
+            return;
+        }
         if (type == HEALTH_CMD_TYPE) {
             if (subtype == HEALTH_CMD_REALTIME_EVENT) {
                 handleRealtimeStats(cmd);
@@ -927,6 +958,9 @@ public final class XiaomiBandBleClient {
             log("health", "HR stall — reconnect");
             scheduleReconnect();
             return;
+        }
+        if (now - lastStatusPollMs > STATUS_POLL_MS) {
+            pollStatus();
         }
         scheduleStallCheck();
     }

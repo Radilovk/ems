@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 323
+    .line 331
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 323
+    .line 331
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel$DismissListener;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 4
 
     .prologue
-    .line 327
+    .line 335
     # getter for: Lcom/isaigu/gymapp/wearable/WearableLivePanel;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->access$600()Landroid/os/Handler;
 
@@ -57,10 +57,10 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 328
+    .line 336
     # invokes: Lcom/isaigu/gymapp/wearable/WearableLivePanel;->clearRefs()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->access$900()V
 
-    .line 329
+    .line 337
     return-void
 .end method

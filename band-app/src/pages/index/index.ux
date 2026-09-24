@@ -1,8 +1,8 @@
 <template>
   <div class="root">
     <!-- ============================================================ connected: modules -->
-    <list class="list" if="{{!offline}}">
-      <list-item type="head" class="head">
+    <div class="home" if="{{!offline}}">
+      <div class="head" onlongpress="pauseAll">
         <div class="hr-row">
           <image class="heart {{hr > 0 ? 'beat' : ''}}" src="/common/icons/heart.png"
                  style="animation-duration: {{beatMs}}ms"></image>
@@ -12,27 +12,21 @@
           <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
         </div>
         <text class="head-sub">{{headSub}}</text>
-      </list-item>
+      </div>
 
-      <list-item type="tile" for="{{tiles}}" class="tile-item">
-        <div class="tile {{$item.active ? 'tile-on' : ''}} {{pressed === $item.id ? 'down' : ''}}"
-             style="border-color: {{$item.active ? $item.color : '#1C1C1E'}}"
-             ontouchstart="press($item.id)" ontouchend="release" ontouchcancel="release"
-             onclick="open($item.id)">
-          <div class="icon" style="background-color: {{$item.color}}">
-            <image class="icon-img" src="{{$item.icon}}"></image>
-          </div>
-          <div class="tile-texts">
-            <text class="tile-title">{{$item.title}}</text>
-            <text class="tile-sub" style="color: {{$item.active ? $item.color : '#8E8E93'}}">{{$item.sub}}</text>
-          </div>
+      <div for="{{tiles}}" class="tile {{$item.active ? 'tile-on' : ''}} {{pressed === $item.id ? 'down' : ''}}"
+           style="border-color: {{$item.active ? $item.color : '#1C1C1E'}}"
+           ontouchstart="press($item.id)" ontouchend="release" ontouchcancel="release"
+           onclick="open($item.id)">
+        <div class="icon" style="background-color: {{$item.color}}">
+          <image class="icon-img" src="{{$item.icon}}"></image>
         </div>
-      </list-item>
-
-      <list-item type="foot" class="foot">
-        <text class="foot-text">XEMS · {{version}}</text>
-      </list-item>
-    </list>
+        <div class="tile-texts">
+          <text class="tile-title">{{$item.title}}</text>
+          <text class="tile-sub" style="color: {{$item.active ? $item.color : '#8E8E93'}}">{{$item.sub}}</text>
+        </div>
+      </div>
+    </div>
 
     <!-- ============================================================ not linked yet -->
     <div class="offline" if="{{offline}}">
@@ -60,7 +54,6 @@ export default {
     offline: true,
     offText: 'Свързване…',
     diagText: '',
-    version: '2.0',
     hr: 0,
     hrText: '--',
     hrColor: '#FFFFFF',
@@ -120,7 +113,7 @@ export default {
         : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
           : (s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
     }
-    tiles.push({ id: 'ai', title: 'AI сесия', sub: aiSub, icon: '/common/icons/ai.png', color: ACCENT, active: ai })
+    tiles.push({ id: 'ai', title: 'AI', sub: aiSub, icon: '/common/icons/ai.png', color: ACCENT, active: ai })
 
     // manual training
     const trRun = !!m.tr.run && !ai
@@ -147,10 +140,15 @@ export default {
     // HR module
     const hg = m.hg
     const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'изключен'
-    tiles.push({ id: 'pulse', title: 'Пулс контрол', sub: hgSub, icon: '/common/icons/heart.png', color: BLUE, active: !!hg.en && !hg.ai })
+    tiles.push({ id: 'pulse', title: 'Пулс', sub: hgSub, icon: '/common/icons/heart.png', color: BLUE, active: !!hg.en && !hg.ai })
 
     // what runs goes first
     return tiles.filter((t) => t.active).concat(tiles.filter((t) => !t.active))
+  },
+
+  pauseAll() {
+    this.$app.$def.send({ t: 'cmd', a: 'pause_all' })
+    this.$app.$def.buzz('long')
   },
 
   press(id) {
@@ -175,24 +173,27 @@ export default {
   height: 520px;
   background-color: #000000;
 }
-.list {
+.home {
   width: 212px;
   height: 520px;
+  flex-direction: column;
+  align-items: center;
 }
 .head {
   width: 212px;
+  height: 142px;
   flex-direction: column;
   align-items: center;
-  padding-top: 26px;
-  padding-bottom: 14px;
+  padding-top: 18px;
 }
 .hr-row {
   flex-direction: row;
   align-items: center;
+  height: 80px;
 }
 .heart {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   margin-right: 8px;
 }
 .beat {
@@ -201,14 +202,13 @@ export default {
   animation-direction: alternate;
 }
 .hr {
-  font-size: 84px;
+  font-size: 74px;
   font-weight: bold;
 }
 .zones {
   flex-direction: row;
   align-items: center;
   height: 14px;
-  margin-top: 2px;
 }
 .zseg {
   width: 32px;
@@ -222,25 +222,20 @@ export default {
   border-radius: 6px;
 }
 .head-sub {
-  margin-top: 6px;
-  font-size: 20px;
+  margin-top: 2px;
+  font-size: 19px;
   color: #8e8e93;
-}
-.tile-item {
-  width: 212px;
-  justify-content: center;
-  padding-top: 5px;
-  padding-bottom: 5px;
 }
 .tile {
   width: 200px;
-  height: 96px;
-  border-radius: 30px;
+  height: 68px;
+  margin-top: 6px;
+  border-radius: 34px;
   border-width: 3px;
   background-color: #1c1c1e;
   flex-direction: row;
   align-items: center;
-  padding-left: 12px;
+  padding-left: 8px;
   padding-right: 10px;
   transition-property: transform;
   transition-duration: 120ms;
@@ -252,41 +247,32 @@ export default {
   transform: scale(0.94);
 }
 .icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
   justify-content: center;
   align-items: center;
 }
 .icon-img {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 .tile-texts {
   flex: 1;
   flex-direction: column;
-  margin-left: 12px;
+  margin-left: 10px;
 }
 .tile-title {
-  font-size: 24px;
+  font-size: 21px;
   font-weight: bold;
   color: #ffffff;
   lines: 1;
   text-overflow: ellipsis;
 }
 .tile-sub {
-  font-size: 19px;
+  font-size: 18px;
   lines: 1;
   text-overflow: ellipsis;
-}
-.foot {
-  width: 212px;
-  height: 70px;
-  justify-content: center;
-}
-.foot-text {
-  font-size: 18px;
-  color: #48484a;
 }
 
 /* ---------------------------------------------------------------- offline */

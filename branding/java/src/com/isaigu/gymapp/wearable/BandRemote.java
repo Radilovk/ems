@@ -149,6 +149,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             MusicSync.adjustCeiling(1);
         } else if ("mu_down".equals(a)) {
             MusicSync.adjustCeiling(-1);
+        } else if ("pause_all".equals(a)) {
+            pauseAll();
         } else if ("hg_toggle".equals(a) && ctx != null) {
             boolean on = !WearableConfig.isAutoReduceEnabled(ctx);
             WearableConfig.setAutoReduceEnabled(ctx, on);
@@ -236,6 +238,13 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         }
         trainWasRunning = trainRunning;
         long trainMs = trainAccumMs + (trainRunning ? now - trainStartMs : 0);
+        boolean aiNow = AiSession.getStage() == AiSession.Stage.RUNNING && AiSession.getEngine() != null;
+        if (aiNow) {
+            aiElapsedS = Math.round(AiSession.getEngine().getElapsedPlanS());
+        } else if (aiWasRunning) {
+            onSessionEnd("ai", aiElapsedS);
+        }
+        aiWasRunning = aiNow;
 
         int hr = NotifyWearableBridge.getLastHeartRate();
         int limit = WearableSyncHelper.getContext() != null
@@ -296,6 +305,74 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         if (force || changed || now - lastAppMs >= APP_MS) {
             lastAppMs = now;
             sendApp(title, sub, playing, hr, limit, trainMs, pos, dur);
+        }
+    }
+
+    private static boolean aiWasRunning;
+    private static long aiElapsedS;
+    private static int endSeq;
+    private static org.json.JSONObject summary;
+    private static long summaryUntilMs;
+
+    /** Manual training fully stopped (■ on the panel): summary for the band, clock reset. */
+    public static void onManualStop() {
+        try {
+            long now = System.currentTimeMillis();
+            long ms = trainAccumMs + (trainWasRunning ? now - trainStartMs : 0);
+            trainAccumMs = 0;
+            trainWasRunning = false;
+            if (!aiWasRunning && AiSession.getStage() != AiSession.Stage.RUNNING && ms >= 30000L) {
+                onSessionEnd("manual", ms / 1000);
+            }
+        } catch (Throwable t) {
+            XemsGuard.report("BandRemote.stop", t);
+        }
+    }
+
+    /** A session ended: keep its summary in the state for 90 s (the band opens it once). */
+    static void onSessionEnd(String kind, long durS) {
+        try {
+            long now = System.currentTimeMillis();
+            android.content.Context ctx = WearableSyncHelper.getContext();
+            int limit = ctx != null ? WearableConfig.getHrThreshold(ctx) : 170;
+            HrHistory.Series ss = HrHistory.since(now, Math.max(60, durS + 5) * 1000L);
+            double kcal = "ai".equals(kind) ? AiSession.getKcal()
+                    : HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+            org.json.JSONObject o = new org.json.JSONObject();
+            o.put("n", ++endSeq);
+            o.put("kind", kind);
+            o.put("dur", durS);
+            o.put("kcal", Math.max(0, Math.round(kcal)));
+            o.put("avg", ss.avg());
+            o.put("max", ss.max());
+            long[] zm = ss.zoneMs(limit);
+            org.json.JSONArray zt = new org.json.JSONArray();
+            for (int z = 1; z <= 5; z++) {
+                zt.put(zm[z] / 1000);
+            }
+            o.put("zt", zt);
+            summary = o;
+            summaryUntilMs = now + 90000L;
+            WearableBleDiagLog.log("applink", "session end " + kind + " " + durS + "s");
+            handler.postDelayed(new Push(true), 300);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("applink", "summary: " + t);
+        }
+    }
+
+    /** Band: long press on the heart rate = pause whatever runs. */
+    static void pauseAll() {
+        AiEngine e = AiSession.getEngine();
+        if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null) {
+            if (e.getState() == AiEngine.State.RUN) {
+                AiSession.togglePause();
+            }
+        } else if (XemsPanel.isRunning()) {
+            XemsPanel.press(XemsPanel.PRESS_START);
+        }
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode() && !MusicSync.isPlaybackPaused()
+                && !XemsPanel.isRunning()) {
+            MusicPlayerHelper.togglePlayPause();
         }
     }
 
@@ -412,6 +489,9 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             }
             o.put("zt", zt);
             o.put("mods", modules(limit));
+            if (summary != null && now < summaryUntilMs) {
+                o.put("sum", summary);
+            }
             com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.send(o.toString());
         } catch (Throwable t) {
             WearableBleDiagLog.log("applink", "state: " + t);

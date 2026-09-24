@@ -1,0 +1,195 @@
+<template>
+  <div class="screen">
+    <div class="check"><image class="check-img" src="/common/icons/check.png"></image></div>
+    <text class="caps">{{kindText}}</text>
+    <text class="dur">{{durText}}</text>
+
+    <div class="tiles">
+      <div class="tile">
+        <text class="num kcal">{{kcal}}</text>
+        <text class="label">kcal</text>
+      </div>
+      <div class="tile">
+        <text class="num">{{avg}}</text>
+        <text class="label">средно</text>
+      </div>
+      <div class="tile">
+        <text class="num max">{{max}}</text>
+        <text class="label">връх</text>
+      </div>
+    </div>
+
+    <div class="zstack">
+      <div for="{{zones}}" class="zpart" style="flex: {{$item.w}}; background-color: {{$item.c}}"></div>
+    </div>
+    <div class="zlegend">
+      <div for="{{zones}}" class="zleg">
+        <text class="zleg-z" style="color: {{$item.c}}">Z{{$idx + 1}}</text>
+        <text class="zleg-m">{{$item.m}}</text>
+      </div>
+    </div>
+
+    <div class="close {{pressed ? 'down' : ''}}" ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="close">
+      <text class="close-text">Готово</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+import { ZONE, hms } from '../../common/ui.js'
+
+export default {
+  private: {
+    kindText: 'ТРЕНИРОВКАТА ПРИКЛЮЧИ',
+    durText: '0:00',
+    kcal: '--',
+    avg: '--',
+    max: '--',
+    zones: [],
+    pressed: false
+  },
+
+  onInit() {
+    const s = this.$app.$def.summary || {}
+    this.kindText = s.kind === 'ai' ? 'AI СЕСИЯТА ПРИКЛЮЧИ' : 'ТРЕНИРОВКАТА ПРИКЛЮЧИ'
+    this.durText = hms(s.dur || 0)
+    this.kcal = s.kcal > 0 ? String(s.kcal) : '--'
+    this.avg = s.avg > 0 ? String(s.avg) : '--'
+    this.max = s.max > 0 ? String(s.max) : '--'
+    const zt = s.zt || [0, 0, 0, 0, 0]
+    const total = zt.reduce((a, b) => a + b, 0)
+    this.zones = zt.map((v, i) => ({
+      w: total > 0 ? Math.max(v, 0.0001) : 1,
+      c: ZONE[i + 1],
+      m: v >= 60 ? Math.round(v / 60) + 'м' : v > 0 ? v + 'с' : '–'
+    }))
+  },
+
+  press() {
+    this.pressed = true
+  },
+
+  release() {
+    this.pressed = false
+  },
+
+  close() {
+    router.back()
+  }
+}
+</script>
+
+<style>
+.screen {
+  width: 212px;
+  height: 520px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  background-color: #000000;
+}
+.check {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  background-color: #30d158;
+  justify-content: center;
+  align-items: center;
+}
+.check-img {
+  width: 40px;
+  height: 40px;
+}
+.caps {
+  margin-top: 12px;
+  width: 200px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.dur {
+  font-size: 62px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.tiles {
+  flex-direction: row;
+  margin-top: 8px;
+}
+.tile {
+  width: 64px;
+  height: 78px;
+  margin-left: 2px;
+  margin-right: 2px;
+  border-radius: 20px;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.num {
+  font-size: 26px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.kcal {
+  color: #ff9f0a;
+}
+.max {
+  color: #ff453a;
+}
+.label {
+  font-size: 18px;
+  color: #8e8e93;
+}
+.zstack {
+  width: 196px;
+  height: 16px;
+  margin-top: 18px;
+  border-radius: 8px;
+  flex-direction: row;
+  background-color: #1c1c1e;
+}
+.zpart {
+  height: 16px;
+}
+.zlegend {
+  width: 196px;
+  flex-direction: row;
+  margin-top: 6px;
+}
+.zleg {
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+}
+.zleg-z {
+  font-size: 18px;
+  font-weight: bold;
+}
+.zleg-m {
+  font-size: 18px;
+  color: #aeaeb2;
+}
+.close {
+  width: 180px;
+  height: 64px;
+  margin-top: 24px;
+  border-radius: 32px;
+  background-color: #2c2c2e;
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.down {
+  transform: scale(0.92);
+}
+.close-text {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+}
+</style>

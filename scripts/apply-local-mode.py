@@ -379,6 +379,44 @@ def patch_device_adapter(path: Path) -> None:
     print(f"{path.stem}: BLE discovery (any suit in setup, allowed ones after)")
 
 
+def patch_device_scan_timeout(path: Path) -> None:
+    """When BLE freshness expires, remove the suit from the list (not just gray it out)."""
+    text = path.read_text(encoding="utf-8")
+    if "XemsLocalStore;->onScanLost" in text:
+        print(f"{path.stem}: scan timeout already patched")
+        return
+    sign_clear = "    iput-object v3, v2, Lcom/isaigu/gymapp/bean/DeviceBean;->connectedSign:Ljava/lang/String;"
+    sign_idx = text.find(sign_clear)
+    if sign_idx < 0:
+        raise SystemExit(f"{path.stem}: connectedSign clear not found")
+    start = text.rfind("    if-eqz v2, :cond_0\n", max(0, sign_idx - 1200), sign_idx)
+    if start < 0:
+        raise SystemExit(f"{path.stem}: scan-timeout if-eqz not found")
+    goto = text.find("\n    goto :goto_1\n", sign_idx)
+    if goto < 0:
+        raise SystemExit(f"{path.stem}: goto_1 after scan timeout not found")
+    chunk = text[start:sign_idx]
+    m = re.search(
+        r"iget-object v2, p0, (Lcom/isaigu/gymapp/dialog/[^;]+;\->this\$1:[^;]+;)",
+        chunk,
+    )
+    if not m:
+        raise SystemExit(f"{path.stem}: DeviceAdapter$1 field ref not found")
+    owner = m.group(1).split("->this$1:")[0]
+    adapter_type = m.group(1).split("->this$1:")[1]
+    replacement = f"""    if-eqz v2, :cond_0
+
+    iget-object v2, p0, {owner}->this$1:{adapter_type}
+
+    iget-object v3, p0, {owner}->val$address:Ljava/lang/String;
+
+    invoke-static {{v2, v3}}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->onScanLost(Ljava/lang/Object;Ljava/lang/String;)V
+"""
+    text = text[:start] + replacement + text[goto:]
+    path.write_text(text, encoding="utf-8")
+    print(f"{path.stem}: remove suit when out of BT range")
+
+
 def patch_api_mgr() -> None:
     """Jump at the top of each cloud call to the same call in XemsLocalApi."""
     text = API_MGR.read_text(encoding="utf-8")
@@ -478,6 +516,9 @@ def main() -> int:
     patch_connect_dialog(OLD_CONNECT, "UserProgramDeviceConnectDialogFragment")
     for adapter in DEVICE_ADAPTERS:
         patch_device_adapter(adapter)
+    for adapter in DEVICE_ADAPTERS:
+        timeout = adapter.parent / (adapter.stem + "$1.smali")
+        patch_device_scan_timeout(timeout)
     patch_api_mgr()
     patch_settings()
     return 0

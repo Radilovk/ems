@@ -309,22 +309,12 @@ public final class XemsLocalStore {
         return false;
     }
 
-    /** Device list for the connect dialogs: everything in the setup, the allowed suits after. */
+    /**
+     * Connect dialog device list: start empty — only BLE-discovered suits are added
+     * ({@link #onDiscovered}). Registered devices stay in {@link DataMgr#deviceBeanList}.
+     */
     public static List<DeviceBean> filterDevices(Context ctx, List<DeviceBean> source) {
-        if (source == null) {
-            return new ArrayList<>();
-        }
-        if (isAdminSession()) {
-            return source;
-        }
-        List<DeviceBean> out = new ArrayList<>();
-        for (int i = 0; i < source.size(); i++) {
-            DeviceBean d = source.get(i);
-            if (d != null && isAllowed(ctx, d.macAddress)) {
-                out.add(d);
-            }
-        }
-        return out;
+        return new ArrayList<>();
     }
 
     private static final android.os.Handler MAIN = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -356,6 +346,44 @@ public final class XemsLocalStore {
     }
 
     @SuppressWarnings("unchecked")
+    /** BLE freshness timer expired — remove suit from the connect dialog list. */
+    public static void onScanLost(final Object adapter, final String mac) {
+        if (adapter == null || TextUtils.isEmpty(mac)) {
+            return;
+        }
+        MAIN.post(new Runnable() {
+            @Override
+            public void run() {
+                removeFromAdapterList(adapter, mac);
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void removeFromAdapterList(Object adapter, String mac) {
+        try {
+            java.lang.reflect.Field f = adapter.getClass().getDeclaredField("list");
+            f.setAccessible(true);
+            List<DeviceBean> list = (List<DeviceBean>) f.get(adapter);
+            if (list == null) {
+                return;
+            }
+            String k = macKey(mac);
+            synchronized (list) {
+                for (int i = list.size() - 1; i >= 0; i--) {
+                    DeviceBean d = list.get(i);
+                    if (d != null && k.equals(macKey(d.macAddress))) {
+                        list.remove(i);
+                        break;
+                    }
+                }
+            }
+            adapter.getClass().getMethod("notifyDataSetChanged").invoke(adapter);
+        } catch (Throwable t) {
+            android.util.Log.e("xems_local", "onScanLost", t);
+        }
+    }
+
     private static void showDiscovered(Object adapter, String mac, String sign) {
         try {
             java.lang.reflect.Field f = adapter.getClass().getDeclaredField("list");

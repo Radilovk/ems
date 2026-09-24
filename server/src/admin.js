@@ -49,7 +49,7 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.8rem}
 
 <div class="card">
 <h2>Лицензи</h2>
-<table id="lic_table"><thead><tr><th>ID</th><th>Клиент</th><th>План</th><th>Hint</th><th>Устройства</th><th>Статус</th><th></th></tr></thead><tbody></tbody></table>
+<table id="lic_table"><thead><tr><th>ID</th><th>Клиент</th><th>План</th><th>Hint</th><th>Устройства</th><th>Костюми</th><th>Статус</th><th></th></tr></thead><tbody></tbody></table>
 </div>
 
 <div class="card">
@@ -68,7 +68,7 @@ async function load() {
     '<div class="stat"><span>Последна версия</span><b>'+(s.latest_version||'—')+'</b></div>';
   const l = await api('licenses');
   const tb = document.querySelector('#lic_table tbody');
-  tb.innerHTML = (l.licenses||[]).map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td>'+x.plan+'</td><td>…'+x.key_hint+'</td><td>'+x.max_devices+'</td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td>'+
+  tb.innerHTML = (l.licenses||[]).map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td>'+x.plan+'</td><td>…'+x.key_hint+'</td><td>'+x.max_devices+'</td><td>'+emsCount(x.ems)+' <button class="secondary" onclick="editEms(\\''+x.id+'\\')">Промени</button></td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td>'+
     (x.status==='active'?'<button class="danger" onclick="disable(\\''+x.id+'\\')">Спри</button>':'<button class="secondary" onclick="enable(\\''+x.id+'\\')">Пусни</button>')+
     '</td></tr>').join('');
   const r = await api('releases');
@@ -83,6 +83,22 @@ async function createLicense() {
     expires_days:+document.getElementById('c_days').value||null
   })});
   document.getElementById('new_key').innerHTML='<div class="msg">Ключ: <code>'+r.key+'</code> (ID: '+r.id+') — запиши го, няма да се покаже отново!</div>';
+  load();
+}
+function emsCount(t){try{return JSON.parse(t||'[]').length}catch(e){return 0}}
+// Suits (BLE MAC) the licence may use on top of those its tablets paired in the admin setup.
+// They reach a tablet with its next token (daily, or at once with "Update from server").
+async function editEms(id){
+  const l = await api('licenses');
+  const lic = (l.licenses||[]).find(x=>x.id===id) || {};
+  let current = []; try{current = JSON.parse(lic.ems||'[]')}catch(e){}
+  const a = await api('activations/'+id);
+  const paired = new Set();
+  (a.activations||[]).forEach(t=>{try{JSON.parse(t.ems_local||'[]').forEach(m=>paired.add(m))}catch(e){}});
+  const v = prompt('Позволени костюми (MAC, по един на ред или със запетая).\\n'+
+    'Сдвоени в настройката на таблетите: '+(paired.size?[...paired].join(', '):'няма'), current.join(', '));
+  if (v===null) return;
+  await api('licenses/'+id,{method:'PATCH',body:JSON.stringify({ems:v})});
   load();
 }
 async function disable(id){await api('licenses/'+id,{method:'PATCH',body:JSON.stringify({status:'disabled'})});load()}

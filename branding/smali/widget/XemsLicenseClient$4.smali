@@ -25,7 +25,7 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/SharedPreferences;Landroid/app/Activity;)V
-    .registers 3
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 194
+    .line 200
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
@@ -46,19 +46,19 @@
 
 # virtual methods
 .method public done(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
-    .registers 7
+    .locals 4
 
     .prologue
-    .line 197
-    if-eqz p2, :cond_3
+    .line 203
+    if-eqz p2, :cond_1
 
-    .line 208
-    :cond_2
-    :goto_2
+    .line 214
+    :cond_0
+    :goto_0
     return-void
 
-    .line 200
-    :cond_3
+    .line 206
+    :cond_1
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -77,8 +77,8 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 201
-    if-eqz p1, :cond_2
+    .line 207
+    if-eqz p1, :cond_0
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
 
@@ -86,12 +86,12 @@
 
     move-result v0
 
-    if-nez v0, :cond_2
+    if-nez v0, :cond_0
 
-    .line 204
+    .line 210
     iget-boolean v0, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->mandatory:Z
 
-    if-nez v0, :cond_31
+    if-nez v0, :cond_2
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
 
@@ -105,13 +105,13 @@
 
     iget v1, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->versionCode:I
 
-    if-eq v0, v1, :cond_2
+    if-eq v0, v1, :cond_0
 
-    .line 207
-    :cond_31
+    .line 213
+    :cond_2
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->offer(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
 
-    goto :goto_2
+    goto :goto_0
 .end method

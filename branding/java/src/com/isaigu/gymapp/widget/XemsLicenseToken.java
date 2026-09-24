@@ -17,7 +17,7 @@ import java.util.Map;
  * token   = base64url(payload JSON) "." base64url(signature)
  * payload = {"v":1, "lic":"L-2026-000123", "dev":"&lt;device id&gt;", "plan":"pro",
  *            "mods":["timer","music","pulse","ai","band"], "feat":["arms_full"],
- *            "iat":1790000000, "exp":1821536000}
+ *            "ems":["AA:BB:CC:DD:EE:FF"], "iat":1790000000, "exp":1821536000}
  * signature = ECDSA P-256 / SHA-256 (DER) over the ASCII of the first part
  * </pre>
  * exp = 0 means no end date. The public key is {@link XemsLicense#SERVER_PUBLIC_KEY}.
@@ -31,6 +31,8 @@ public final class XemsLicenseToken {
     public List<String> modules = new ArrayList<String>();
     /** Feature switches, e.g. "arms_full". */
     public List<String> features = new ArrayList<String>();
+    /** EMS suits (BLE MAC) the server allows for this profile, on top of the ones paired in setup. */
+    public List<String> ems = new ArrayList<String>();
     public long issuedS;
     public long expiresS;
 
@@ -72,6 +74,12 @@ public final class XemsLicenseToken {
             if (feats instanceof List) {
                 for (Object f : (List<?>) feats) {
                     t.features.add(str(f));
+                }
+            }
+            Object ems = p.get("ems");
+            if (ems instanceof List) {
+                for (Object e : (List<?>) ems) {
+                    t.ems.add(str(e));
                 }
             }
             if (deviceId != null && t.device.length() > 0 && !t.device.equals(deviceId)) {

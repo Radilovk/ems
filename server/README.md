@@ -48,6 +48,18 @@ npx wrangler secret put ADMIN_USER            # default: admin
 - `src/plans.js` — планове → модули
 - `migrations/` — D1 schema
 
+## Разходи (важно)
+
+| Услуга | Free tier | Наши лимити в кода |
+|--------|-----------|-------------------|
+| Workers | 100k req/ден | rate limit на activate/download |
+| D1 | 5M reads/ден, 5 GB | малка база, няма bulk |
+| R2 | 10 GB, безплатен egress | макс. 3 APK (~36 MB), макс. 12 MB/файл |
+
+**Cloudflare няма автоматичен spending cap.** Задай Billing → Notifications → alert при **$1**.
+
+Провери дали акаунтът е на **Workers Free** (не Paid $5/мес): Dashboard → Workers & Pages → Change plan.
+
 ## R2 (директно качване на APK)
 
 1. **Включи R2** (веднъж): [Cloudflare Dashboard](https://dash.cloudflare.com/) → **R2 Object Storage** → **Enable R2** (приеми условията; free tier: 10 GB).

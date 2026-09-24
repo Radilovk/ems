@@ -64,6 +64,10 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
 
 <section id="dash" class="panel on">
   <div id="stats" class="card"></div>
+  <div class="card" id="cost_card">
+    <h2>Разходи и лимити</h2>
+    <div id="cost_info" class="hint">Зареждане…</div>
+  </div>
   <div class="card">
     <h2>Бърз старт</h2>
     <div class="hint">
@@ -188,15 +192,26 @@ async function loadR2Status(){
     const r=await api('releases/r2-status');
     const el=document.getElementById('r2_status');
     const card=document.getElementById('r2_upload_card');
+    const cost=document.getElementById('cost_info');
+    const u=r.usage||{};
+    const lim=r.limits||{};
+    const mb=(u.bytes||0)/1024/1024;
+    if(cost){
+      cost.innerHTML='<p><b>Сървърни лимити (вградени):</b> макс. '+lim.max_apk_mb+' MB/APK · макс. '+lim.max_stored_releases+' версии в R2 · '+LIMITS_UPLOAD+' качвания/час · R2 egress = безплатен.</p>'+
+        '<p><b>R2 сега:</b> '+(u.objects||0)+' файла · '+mb.toFixed(1)+' MB (free tier: 10 GB).</p>'+
+        '<p><b>Важно:</b> Cloudflare няма hard spending cap. Провери в Dashboard → Billing → Notifications аларма при $1. Ако имаш <b>Workers Paid ($5/мес)</b> и не ти трябва — Workers & Pages → Change plan → Free.</p>'+
+        '<p>D1 и R2 при нормална употреба (един фитнес, няколко таблета) = <b>$0 допълнително</b>.</p>';
+    }
     if(r.r2){
-      el.innerHTML='<span class="tag active">R2 активен</span> — можеш да качваш APK директно.';
+      el.innerHTML='<span class="tag active">R2 активен</span> — '+mb.toFixed(1)+' MB / 10 GB free.';
       if(card) card.style.display='block';
     }else{
-      el.innerHTML='<span class="tag disabled">R2 не е активиран</span> — включи R2 в <a href="https://dash.cloudflare.com/" style="color:#58a6ff">Cloudflare Dashboard</a> → R2, после deploy. Дотогава ползвай GitHub URL.';
+      el.innerHTML='<span class="tag disabled">R2 не е активиран</span> — включи R2 в <a href="https://dash.cloudflare.com/" style="color:#58a6ff">Cloudflare Dashboard</a> → R2, после deploy.';
       if(card) card.style.opacity='0.55';
     }
   }catch(e){}
 }
+const LIMITS_UPLOAD=5;
 
 async function uploadReleaseFile(){
   const el=document.getElementById('u_msg');

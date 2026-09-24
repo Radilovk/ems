@@ -23,6 +23,10 @@
 
 .field public onS:I
 
+.field public pauseHz:I
+
+.field public pauseSigma:D
+
 .field public pwUs:I
 
 .field public rampDownMs:I

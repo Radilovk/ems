@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/ai/AiUi$22;
+.class Lcom/isaigu/gymapp/ai/AiUi$19$2;
 .super Ljava/lang/Object;
 .source "AiUi.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenRun(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi$19;->run()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,12 +17,18 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$19;
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$19;)V
+    .registers 2
 
     .prologue
-    .line 1231
+    .line 1069
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$19$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$19;
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,18 +37,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
     .prologue
-    .line 1234
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stop()V
+    .line 1072
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopSoloRamp()V
 
-    .line 1235
-    const/4 v0, 0x7
-
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
-
-    .line 1236
+    .line 1073
     return-void
 .end method

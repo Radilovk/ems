@@ -515,6 +515,17 @@ public final class AiSession {
             es.hz = c.hz;
             es.pwUs = c.pwUs;
             es.onShare = 1.0;
+        } else if (c != null && engine.isActivePause(now) && c.frac > 0) {
+            es = channelStim();
+            es.strengthPct = calibPercent * c.frac;
+            es.hz = c.hz;
+            es.pwUs = c.pwUs;
+            es.onShare = 0;
+            es.pauseHz = c.pauseHz;
+            es.pauseStrengthPct = calibPercent * c.frac * c.pauseSigma;
+            es.pauseShare = 1.0;
+        }
+        if (es != null) {
             // Tolerated level = the calibration (350 µs, calibPercent) on each channel.
             es.toleratedCharge = new double[AiEnergy.CH_MASS.length];
             for (int i = 0; i < es.toleratedCharge.length; i++) {
@@ -670,7 +681,9 @@ public final class AiSession {
             }
             if (b.hz != written.hz || b.pulseWidth != written.pwUs
                     || b.pulseContinue != Math.max(1, written.onS)
-                    || b.pulsePause != Math.max(1, written.offS) || b.activePause) {
+                    || b.pulsePause != Math.max(1, written.offS)
+                    || b.activePause != (written.pauseHz > 0 && writtenPercent > 0)
+                    || (b.activePause && b.pauseHz != Math.max(1, Math.min(120, written.pauseHz)))) {
                 params = true;
             }
             if (b.strenth > writtenPercent) {
@@ -790,7 +803,14 @@ public final class AiSession {
             bean.pulseContinue = Math.max(1, c.onS);
             bean.pulsePause = Math.max(1, c.offS);
             bean.strenth = percent;
-            bean.activePause = false;
+            // Active pause (impulse ↔ impulse): strength is absolute, so it follows the work
+            // strength (reduce / HR control lower both together).
+            boolean activePause = c.pauseHz > 0 && percent > 0;
+            bean.activePause = activePause;
+            if (activePause) {
+                bean.pauseHz = Math.max(1, Math.min(120, c.pauseHz));
+                bean.pauseStrenthPercent = Math.max(1, (int) Math.round(percent * c.pauseSigma));
+            }
             if (item.data != null && item.data.inStart) {
                 item.data.secondValue = bean.pulseContinue;
             }
@@ -848,6 +868,7 @@ public final class AiSession {
             input.fitness = AiModel.Fitness.valueOf(p.getString("fitness", "MID"));
             input.operator = AiModel.Operator.valueOf(p.getString("operator", "TRAINER"));
             input.age = p.getInt("age", 35);
+            input.pause = AiModel.PauseMode.valueOf(p.getString("pause", "AUTO"));
             input.weightKg = p.getInt("weight_kg", 75);
             int t = p.getInt("total_s", 0);
             input.totalSeconds = t > 0 ? t : null;
@@ -871,6 +892,7 @@ public final class AiSession {
                     .putString("fitness", input.fitness.name())
                     .putString("operator", input.operator.name())
                     .putInt("age", input.age)
+                    .putString("pause", input.pause.name())
                     .putInt("weight_kg", (int) Math.round(input.weightKg))
                     .putInt("total_s", input.totalSeconds != null ? input.totalSeconds : 0)
                     .apply();

@@ -150,6 +150,38 @@ final class AiText {
         return f;
     }
 
+    /** One line under the "between impulses" choice. */
+    static String pauseHint(AiModel.Goal g, AiModel.PauseMode m) {
+        if (!AiModel.activePauseAllowed(g)) {
+            return t("Дренажът иска пълно отпускане между контракциите — паузата е спокойна.",
+                    "Drainage needs full relaxation between contractions — the pause stays at rest.");
+        }
+        if (m == AiModel.PauseMode.PASSIVE) {
+            return t("Тишина между импулсите — пълно възстановяване.",
+                    "Silence between impulses — full recovery.");
+        }
+        if (m == AiModel.PauseMode.ACTIVE) {
+            return t("Слаб импулс с ниска честота и в паузата — мускулът не спира, по-голямо натоварване.",
+                    "A weak low-frequency impulse in the pause too — the muscle keeps working, more load.");
+        }
+        switch (g) {
+            case TONE:
+                return t("Активна в загрявката, спокойна в силовата част.",
+                        "Active in the warm-up, at rest in the strength part.");
+            case FAT:
+                return t("Активна в загрявката и основната част — повече изгаряне.",
+                        "Active in the warm-up and main part — more burn.");
+            case CELLULITE:
+                return t("Активна (8 Hz) в силовата част, спокойна в ниските честоти.",
+                        "Active (8 Hz) in the strength part, at rest at low frequencies.");
+            case MASSAGE:
+                return t("Активна: бавен ритъм между импулсите.",
+                        "Active: a slow rhythm between impulses.");
+            default:
+                return "";
+        }
+    }
+
     static String mmss(double seconds) {
         int s = (int) Math.max(0, Math.round(seconds));
         return String.format(Locale.US, "%d:%02d", s / 60, s % 60);

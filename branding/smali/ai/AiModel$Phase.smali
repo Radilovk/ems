@@ -37,15 +37,15 @@
     .registers 2
 
     .prologue
-    .line 130
+    .line 154
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 135
+    .line 159
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$BlockMode;->CONTINUOUS:Lcom/isaigu/gymapp/ai/AiModel$BlockMode;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->blockMode:Lcom/isaigu/gymapp/ai/AiModel$BlockMode;
 
-    .line 139
+    .line 163
     const-string v0, "FULL"
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->exerciseClass:Ljava/lang/String;
@@ -59,7 +59,7 @@
     .registers 12
 
     .prologue
-    .line 142
+    .line 166
     const-wide/16 v0, 0x0
 
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
@@ -72,7 +72,7 @@
 
     move-result-wide v0
 
-    .line 143
+    .line 167
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiStart:D
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiEnd:D

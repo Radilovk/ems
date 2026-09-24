@@ -157,6 +157,82 @@ public class AiSim {
     }
 
     /** 20 min at 50 % HRR, then 60 s recovery + EPOC. Sanity bands from ACSM MET tables. */
+    static Plan plan(Goal g, Mode m, PauseMode pm) {
+        SessionInput in = new SessionInput();
+        in.goal = g; in.mode = m; in.pause = pm; in.age = 40; in.sex = Sex.MALE; in.fitness = Fitness.MID;
+        return AiPlanner.build(in, AiPlanner.derive(in, 68, 1.5, 3000));
+    }
+
+    /** Active pause: where it goes, its limits, and that it costs dose and energy. */
+    static void pauseChecks() {
+        for (Goal g : Goal.values()) {
+            Mode m = AiModel.isAllowed(g, Mode.ACTIVE) ? Mode.ACTIVE : Mode.PASSIVE;
+            Plan pa = plan(g, m, PauseMode.ACTIVE), pp = plan(g, m, PauseMode.PASSIVE), au = plan(g, m, PauseMode.AUTO);
+            int active = 0;
+            for (Phase ph : pa.phases) {
+                for (CycleSpec c : new CycleSpec[] {ph.a, ph.b}) {
+                    if (c == null || !c.hasActivePause()) continue;
+                    active++;
+                    check(g != Goal.DRAIN, g + " drainage must not get an active pause");
+                    check(ph.id != PhaseId.COOLDOWN, g + " no active pause in cool-down");
+                    check(c.pauseHz >= 1 && c.pauseHz <= 120 && c.pauseHz < c.hz, g + " pause Hz " + c.pauseHz + " vs work " + c.hz);
+                    check(c.pauseSigma > 0 && c.pauseSigma <= 0.6, g + " pause strength " + c.pauseSigma);
+                }
+            }
+            for (Phase ph : pp.phases) {
+                check(!ph.a.hasActivePause() && (ph.b == null || !ph.b.hasActivePause()), g + " PASSIVE must have no active pause");
+            }
+            if (g != Goal.DRAIN) {
+                check(active > 0, g + " ACTIVE must fill some pauses");
+                // Fatigue-driven blocks rest earlier when the pause works too, so the session
+                // dose stays close to the passive one instead of piling up.
+                check(pa.qPlan >= 0.85 * pp.qPlan && pa.qPlan <= 1.35 * pp.qPlan,
+                        g + " active dose " + pa.qPlan + " vs passive " + pp.qPlan);
+                for (Phase ph : pa.phases) {
+                    if (ph.a.hasActivePause()) {
+                        check(AiPlanner.pauseDose(ph.a, 1.0, ph.a.offS) > 0, g + " pause dose per cycle");
+                    }
+                }
+            }
+            System.out.printf("PAUSE %-9s auto q=%.0f  passive q=%.0f  active q=%.0f  (%d cycle types active)%n",
+                    g, au.qPlan / 1e6, pp.qPlan / 1e6, pa.qPlan / 1e6, active);
+        }
+        Plan tone = plan(Goal.TONE, Mode.ACTIVE, PauseMode.AUTO);
+        for (Phase ph : tone.phases) {
+            if (ph.id == PhaseId.MAIN) check(!ph.a.hasActivePause(), "TONE auto: strength part keeps the passive pause");
+            if (ph.id == PhaseId.WARMUP) check(ph.a.hasActivePause(), "TONE auto: warm-up gets the active pause");
+        }
+        // Engine: commands carry the pause and the dose counts it.
+        double[] q = new double[2];
+        for (int k = 0; k < 2; k++) {
+            SessionInput in = new SessionInput();
+            in.goal = Goal.FAT; in.mode = Mode.ACTIVE; in.pause = k == 0 ? PauseMode.PASSIVE : PauseMode.ACTIVE;
+            Profile prof = AiPlanner.derive(in, 68, 1.5, 3000);
+            AiEngine e = new AiEngine(in, prof, AiPlanner.build(in, prof));
+            long t = 1_000_000L; e.start(t); long next = t; boolean sawPause = false;
+            for (int i = 0; i < 4 * 240; i++) {
+                t += 250;
+                if (t >= next) {
+                    AiEngine.CycleCmd c = e.onCycle(t);
+                    next = t + (c.onS + c.offS) * 1000L;
+                    if (c.pauseHz > 0 && c.frac > 0) sawPause = true;
+                }
+                if (t % 3000 == 0) e.onHr(t, 90);
+                e.tick(t);
+            }
+            q[k] = e.getQUsed();
+            if (k == 1) check(sawPause, "FAT active: engine sends the active pause");
+        }
+        check(q[1] > q[0], "engine dose with active pause " + q[1] + " > passive " + q[0]);
+        // Energy: the pause adds evoked O2 cost.
+        AiEnergy.Stim on = new AiEnergy.Stim(); on.strengthPct = 60; on.hz = 85; on.pwUs = 350; on.onShare = 0.5;
+        AiEnergy.Stim both = new AiEnergy.Stim(); both.strengthPct = 60; both.hz = 85; both.pwUs = 350; both.onShare = 0.5;
+        both.pauseHz = 6; both.pauseStrengthPct = 27; both.pauseShare = 0.5;
+        double v0 = AiEnergy.evokedVo2(on, 1.0), v1 = AiEnergy.evokedVo2(both, 1.0);
+        System.out.printf("PAUSE energy: work only %.3f L/min, + active pause 6 Hz 45%% %.3f L/min%n", v0, v1);
+        check(v1 > v0 && v1 < 1.5 * v0, "active pause adds a modest O2 cost");
+    }
+
     static void energy(String name, Sex sex, int age, double w, Fitness fit, int rest, boolean med) {
         SessionInput in = new SessionInput();
         in.sex = sex; in.age = age; in.weightKg = w; in.fitness = fit;
@@ -260,6 +336,7 @@ public class AiSim {
         check(kAll > kLegs && kLegs > kArms, "more / bigger muscles must cost more");
         check(kLegs > 0.5 * kAll, "legs + glutes hold most of the muscle mass");
         check(kHalf < kAll && kLow < kHalf, "lower strength / frequency must cost less");
+        pauseChecks();
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");
         System.exit(failures == 0 ? 0 : 1);
     }

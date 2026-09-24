@@ -1294,7 +1294,7 @@
     .registers 8
 
     .prologue
-    .line 154
+    .line 186
     const-wide/16 v0, 0x0
 
     invoke-static {p0, p1}, Ljava/lang/Math;->round(D)J
@@ -1307,7 +1307,7 @@
 
     long-to-int v0, v0
 
-    .line 155
+    .line 187
     sget-object v1, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v2, "%d:%02d"
@@ -1341,6 +1341,143 @@
     move-result-object v0
 
     return-object v0
+.end method
+
+.method static pauseHint(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$PauseMode;)Ljava/lang/String;
+    .registers 4
+
+    .prologue
+    .line 155
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiModel;->activePauseAllowed(Lcom/isaigu/gymapp/ai/AiModel$Goal;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_f
+
+    .line 156
+    const-string v0, "\u0414\u0440\u0435\u043d\u0430\u0436\u044a\u0442 \u0438\u0441\u043a\u0430 \u043f\u044a\u043b\u043d\u043e \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u043d\u0435 \u043c\u0435\u0436\u0434\u0443 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u0438\u0442\u0435 \u2014 \u043f\u0430\u0443\u0437\u0430\u0442\u0430 \u0435 \u0441\u043f\u043e\u043a\u043e\u0439\u043d\u0430."
+
+    const-string v1, "Drainage needs full relaxation between contractions \u2014 the pause stays at rest."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 181
+    :goto_e
+    return-object v0
+
+    .line 159
+    :cond_f
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+
+    if-ne p1, v0, :cond_1c
+
+    .line 160
+    const-string v0, "\u0422\u0438\u0448\u0438\u043d\u0430 \u043c\u0435\u0436\u0434\u0443 \u0438\u043c\u043f\u0443\u043b\u0441\u0438\u0442\u0435 \u2014 \u043f\u044a\u043b\u043d\u043e \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435."
+
+    const-string v1, "Silence between impulses \u2014 full recovery."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_e
+
+    .line 163
+    :cond_1c
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+
+    if-ne p1, v0, :cond_29
+
+    .line 164
+    const-string v0, "\u0421\u043b\u0430\u0431 \u0438\u043c\u043f\u0443\u043b\u0441 \u0441 \u043d\u0438\u0441\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0438 \u0432 \u043f\u0430\u0443\u0437\u0430\u0442\u0430 \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u043d\u0435 \u0441\u043f\u0438\u0440\u0430, \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u043e \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435."
+
+    const-string v1, "A weak low-frequency impulse in the pause too \u2014 the muscle keeps working, more load."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_e
+
+    .line 167
+    :cond_29
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiText$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
+
+    move-result v1
+
+    aget v0, v0, v1
+
+    packed-switch v0, :pswitch_data_5c
+
+    .line 181
+    :pswitch_34
+    const-string v0, ""
+
+    goto :goto_e
+
+    .line 169
+    :pswitch_37
+    const-string v0, "\u0410\u043a\u0442\u0438\u0432\u043d\u0430 \u0432 \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430\u0442\u0430, \u0441\u043f\u043e\u043a\u043e\u0439\u043d\u0430 \u0432 \u0441\u0438\u043b\u043e\u0432\u0430\u0442\u0430 \u0447\u0430\u0441\u0442."
+
+    const-string v1, "Active in the warm-up, at rest in the strength part."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_e
+
+    .line 172
+    :pswitch_40
+    const-string v0, "\u0410\u043a\u0442\u0438\u0432\u043d\u0430 \u0432 \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430\u0442\u0430 \u0438 \u043e\u0441\u043d\u043e\u0432\u043d\u0430\u0442\u0430 \u0447\u0430\u0441\u0442 \u2014 \u043f\u043e\u0432\u0435\u0447\u0435 \u0438\u0437\u0433\u0430\u0440\u044f\u043d\u0435."
+
+    const-string v1, "Active in the warm-up and main part \u2014 more burn."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_e
+
+    .line 175
+    :pswitch_49
+    const-string v0, "\u0410\u043a\u0442\u0438\u0432\u043d\u0430 (8 Hz) \u0432 \u0441\u0438\u043b\u043e\u0432\u0430\u0442\u0430 \u0447\u0430\u0441\u0442, \u0441\u043f\u043e\u043a\u043e\u0439\u043d\u0430 \u0432 \u043d\u0438\u0441\u043a\u0438\u0442\u0435 \u0447\u0435\u0441\u0442\u043e\u0442\u0438."
+
+    const-string v1, "Active (8 Hz) in the strength part, at rest at low frequencies."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_e
+
+    .line 178
+    :pswitch_52
+    const-string v0, "\u0410\u043a\u0442\u0438\u0432\u043d\u0430: \u0431\u0430\u0432\u0435\u043d \u0440\u0438\u0442\u044a\u043c \u043c\u0435\u0436\u0434\u0443 \u0438\u043c\u043f\u0443\u043b\u0441\u0438\u0442\u0435."
+
+    const-string v1, "Active: a slow rhythm between impulses."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_e
+
+    .line 167
+    nop
+
+    :pswitch_data_5c
+    .packed-switch 0x1
+        :pswitch_37
+        :pswitch_40
+        :pswitch_52
+        :pswitch_34
+        :pswitch_49
+    .end packed-switch
 .end method
 
 .method static phase(Lcom/isaigu/gymapp/ai/AiModel$PhaseId;)Ljava/lang/String;

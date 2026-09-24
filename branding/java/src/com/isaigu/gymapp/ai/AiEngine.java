@@ -40,6 +40,9 @@ public final class AiEngine {
         public int rampUpMs;
         public int rampDownMs;
         public boolean segmentB;
+        /** Active pause during OFF: frequency (0 = passive) and strength vs the work strength. */
+        public int pauseHz;
+        public double pauseSigma;
     }
 
     /** Per-block report row (§10). */
@@ -310,6 +313,19 @@ public final class AiEngine {
         }
     }
 
+    /** Inside the OFF part of a live cycle that has an active pause. */
+    private boolean isActivePauseAt(long tMs) {
+        if (current == null || cycleStartMs < 0 || current.frac <= 0 || current.pauseHz <= 0) {
+            return false;
+        }
+        long t = tMs - cycleStartMs;
+        return t >= current.onS * 1000L && t < (current.onS + current.offS) * 1000L;
+    }
+
+    public boolean isActivePause(long nowMs) {
+        return state == State.RUN && isActivePauseAt(nowMs);
+    }
+
     private boolean isStimOnAt(long tMs) {
         if (current == null || cycleStartMs < 0 || current.frac <= 0) {
             return false;
@@ -368,10 +384,14 @@ public final class AiEngine {
         }
         c.offS = AiPlanner.deviceOffS(off);
         c.frac = arbiter(ph, sigma);
+        if (spec.hasActivePause()) {
+            c.pauseHz = spec.pauseHz;
+            c.pauseSigma = spec.pauseSigma;
+        }
         applyRamps(c, spec);
 
         // G6 dose budget: never start a cycle that would exceed it; go to cool-down instead.
-        double dose = AiPlanner.cycleDose(spec, c.frac);
+        double dose = AiPlanner.cycleDose(spec, c.frac) + AiPlanner.pauseDose(spec, c.frac, c.offS);
         if (ph.id != PhaseId.COOLDOWN && qUsed + dose > qBudget) {
             flags.add("BUDGET");
             action("budget_cooldown", nowMs);
@@ -454,6 +474,16 @@ public final class AiEngine {
             }
         } else {
             fatigue *= Math.exp(-dtS / plan.tauR);
+            if (state == State.RUN && isActivePauseAt(nowMs)) {
+                // Active pause: the muscle keeps working lightly — less recovery, more dose.
+                double rhoP = current.frac * current.pauseSigma;
+                fatigue += AiPlanner.fatigueWeight(current.pauseHz) * rhoP * dtS;
+                double dq = 2.0 * rhoP * currentSpec.pwUs * current.pauseHz * dtS;
+                qUsed += dq;
+                if (inBlock) {
+                    blockQ += dq;
+                }
+            }
         }
     }
 

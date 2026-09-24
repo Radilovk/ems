@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1694
+    .line 1712
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$30;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,13 +45,13 @@
     .registers 4
 
     .prologue
-    .line 1697
+    .line 1715
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$30;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
-    const/4 v1, 0x1
+    const/4 v1, -0x1
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;->onDelta(I)V
 
-    .line 1698
+    .line 1716
     return-void
 .end method

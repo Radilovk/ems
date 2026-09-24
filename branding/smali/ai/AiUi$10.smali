@@ -20,12 +20,14 @@
 # instance fields
 .field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
+.field final synthetic val$key:Ljava/lang/String;
+
 .field final synthetic val$verdict:Landroid/widget/LinearLayout;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;Landroid/widget/LinearLayout;)V
-    .registers 3
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;Ljava/lang/String;Landroid/widget/LinearLayout;)V
+    .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -33,10 +35,12 @@
     .end annotation
 
     .prologue
-    .line 622
+    .line 636
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$verdict:Landroid/widget/LinearLayout;
+    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$key:Ljava/lang/String;
+
+    iput-object p3, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$verdict:Landroid/widget/LinearLayout;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,22 +50,30 @@
 
 # virtual methods
 .method public onToggle(Z)V
-    .registers 3
+    .registers 5
 
     .prologue
-    .line 625
+    .line 639
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->feverOrIllness:Z
+    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->contraindications:Ljava/util/Map;
 
-    .line 626
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$key:Ljava/lang/String;
+
+    invoke-static {p1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v2
+
+    invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 640
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$verdict:Landroid/widget/LinearLayout;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->renderVerdict(Landroid/widget/LinearLayout;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
 
-    .line 627
+    .line 641
     return-void
 .end method

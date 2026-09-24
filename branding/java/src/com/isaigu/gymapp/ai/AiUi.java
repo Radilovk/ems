@@ -510,6 +510,31 @@ final class AiUi {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         olp.topMargin = dp(a, 22);
         col.addView(opts, olp);
+
+        // Between impulses: silence or a weak low-frequency impulse (impulse ↔ impulse).
+        boolean canActive = AiModel.activePauseAllowed(in.goal);
+        if (!canActive) {
+            in.pause = AiModel.PauseMode.PASSIVE;
+        }
+        LinearLayout pauseBox = labeled(a, AiText.t("Пауза между импулсите", "Between impulses"),
+                segmented(a, new String[] {AiText.t("Авто", "Auto"),
+                        AiText.t("Спокойна", "Rest"), AiText.t("Активна", "Active")},
+                        in.pause.ordinal(),
+                        new boolean[] {canActive, true, canActive},
+                        new SegmentCallback() {
+                            @Override
+                            public void onSelect(int i) {
+                                in.pause = AiModel.PauseMode.values()[i];
+                                go(STEP_GOAL);
+                            }
+                        }));
+        TextView pauseHint = text(a, AiText.pauseHint(in.goal, in.pause), 12, AiViews.MUTED, false);
+        pauseHint.setPadding(dp(a, 4), dp(a, 8), 0, 0);
+        pauseBox.addView(pauseHint);
+        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        plp.topMargin = dp(a, 16);
+        col.addView(pauseBox, plp);
         body.addView(scroll(a, col));
         setupFooter(a, AiText.t("Напред", "Next"), false);
     }

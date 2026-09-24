@@ -134,6 +134,10 @@ public final class WearableSyncHelper {
         dismissStaleUi();
         panelRoot = root;
         itemManager = manager;
+        try {
+            com.isaigu.gymapp.ai.AiSession.attach(root, manager);
+        } catch (Throwable ignored) {
+        }
         View button = root.findViewById(BUTTON_ID);
         if (button == null) {
             return;
@@ -233,7 +237,8 @@ public final class WearableSyncHelper {
             @Override
             public void run() {
                 toastMessage(activity,
-                        "Въведи auth key (32 hex) и MAC на гривната");
+                        WearableUi.tr("Въведи MAC и ключа на гривната в Настройки → Гривна",
+                                "Enter the band MAC and key in Settings → Band"));
             }
         });
     }
@@ -319,12 +324,16 @@ public final class WearableSyncHelper {
         autoReduceSwitch = (Switch) content.findViewById(ID_AUTO_REDUCE);
         thresholdView = (EditText) content.findViewById(ID_THRESHOLD);
         stepView = (EditText) content.findViewById(ID_STEP);
-        bandMacView = (EditText) content.findViewById(ID_BAND_MAC);
-        authKeyView = (EditText) content.findViewById(ID_AUTH_KEY);
+        // MAC and auth key live only in Settings → Band: hide their rows here.
+        hideBandRows(activity, content);
+        bandMacView = null;
+        authKeyView = null;
         bindButton(content.findViewById(ID_CONNECT), new ConnectListener());
         bindButton(content.findViewById(ID_INFO), new ConfigInfoListener());
         bindButton(content.findViewById(ID_ACTIVATE), new ActivateListener());
         loadConfigIntoUi(activity);
+        enhanceConfigDialog(activity, content);
+        styleConfigDialog(activity, content);
         refreshStatusText();
         android.support.v7.app.AlertDialog.Builder builder =
                 new android.support.v7.app.AlertDialog.Builder(activity);
@@ -344,6 +353,161 @@ public final class WearableSyncHelper {
         } catch (Throwable ignored) {
         }
         configDialog.show();
+    }
+
+    /** Same kit as timer / player / AI: pill buttons, badge status, themed fields. */
+    private static void styleConfigDialog(Activity a, View content) {
+        try {
+            com.isaigu.gymapp.widget.XemsUi.init(a);
+            View connect = content.findViewById(ID_CONNECT);
+            View activate = content.findViewById(ID_ACTIVATE);
+            if (connect instanceof TextView) {
+                styleKitButton((TextView) connect, com.isaigu.gymapp.widget.XemsUi.SECONDARY);
+                ((TextView) connect).setText(WearableUi.tr("↻  Свържи гривната", "↻  Connect band"));
+            }
+            if (activate instanceof TextView) {
+                styleKitButton((TextView) activate, com.isaigu.gymapp.widget.XemsUi.PRIMARY);
+            }
+            if (statusView != null) {
+                statusView.setPadding(WearableUi.dp(a, 12), WearableUi.dp(a, 6), WearableUi.dp(a, 12), WearableUi.dp(a, 6));
+            }
+            for (EditText f : new EditText[] {thresholdView, stepView}) {
+                if (f != null) {
+                    f.setBackgroundDrawable(com.isaigu.gymapp.widget.XemsUi.rounded(com.isaigu.gymapp.widget.XemsUi.SURFACE,
+                            WearableUi.dp(a, 12), com.isaigu.gymapp.widget.XemsUi.STROKE, WearableUi.dp(a, 1)));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void styleKitButton(TextView b, int style) {
+        TextView model = com.isaigu.gymapp.widget.XemsUi.button(b.getContext(), "", style);
+        b.setBackgroundDrawable(model.getBackground());
+        b.setTextColor(model.getCurrentTextColor());
+        com.isaigu.gymapp.widget.XemsUi.pressable(b);
+    }
+
+    private static void hideBandRows(Activity activity, View content) {
+        View mac = content.findViewById(ID_BAND_MAC);
+        View key = content.findViewById(ID_AUTH_KEY);
+        android.view.ViewGroup box = null;
+        for (View f : new View[] {mac, key}) {
+            if (f != null && f.getParent() instanceof View) {
+                View rowView = (View) f.getParent();
+                rowView.setVisibility(View.GONE);
+                if (rowView.getParent() instanceof android.view.ViewGroup) {
+                    box = (android.view.ViewGroup) rowView.getParent();
+                }
+            }
+        }
+        if (box == null) {
+            return;
+        }
+        String macText = WearableConfig.getBandMac(activity);
+        boolean ok = WearableConfig.isConfigured(activity);
+        TextView line = WearableUi.text(activity, (ok
+                ? WearableUi.tr("Гривна: ", "Band: ") + NotifyWearableBridge.normalizeMac(macText) + " · "
+                + WearableUi.tr("ключ ✓", "key ✓")
+                : WearableUi.tr("Гривната не е настроена", "Band not set up"))
+                + WearableUi.tr("  ·  MAC и ключ: Настройки → Гривна", "  ·  MAC and key: Settings → Band"),
+                12f, ok ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT, true);
+        box.addView(line, WearableUi.matchWrap(activity, 12));
+    }
+
+    /** Band picker next to MAC, live auth-key check, "Band data" button — built in code. */
+    private static void enhanceConfigDialog(Activity activity, View content) {
+        if (activity == null || content == null) {
+            return;
+        }
+        int text = WearableUi.color(activity, "text_primary", 0xFFFFFFFF);
+        try {
+            if (bandMacView != null && bandMacView.getParent() instanceof android.widget.LinearLayout) {
+                android.widget.LinearLayout macRow =
+                        (android.widget.LinearLayout) bandMacView.getParent();
+                TextView pick = WearableUi.button(activity,
+                        WearableUi.tr("Избери", "Choose"), 0xFF1565C0, 0xFFFFFFFF);
+                pick.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+                pick.setPadding(WearableUi.dp(activity, 12), 0, WearableUi.dp(activity, 12), 0);
+                pick.setOnClickListener(new PickBandListener());
+                android.widget.LinearLayout.LayoutParams lp =
+                        new android.widget.LinearLayout.LayoutParams(
+                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                                WearableUi.dp(activity, 40));
+                lp.leftMargin = WearableUi.dp(activity, 8);
+                macRow.addView(pick, lp);
+            }
+        } catch (Throwable ignored) {
+        }
+        if (authKeyView != null) {
+            authKeyView.setHint(WearableUi.tr("32 символа 0-9 / a-f", "32 chars 0-9 / a-f"));
+            authKeyView.addTextChangedListener(new AuthKeyWatcher());
+            colorAuthKey(authKeyView.getText().toString());
+        }
+        View inner = content instanceof android.view.ViewGroup
+                && ((android.view.ViewGroup) content).getChildCount() > 0
+                ? ((android.view.ViewGroup) content).getChildAt(0) : null;
+        if (inner instanceof android.widget.LinearLayout) {
+            TextView data = WearableUi.button(activity,
+                    WearableUi.tr("Данни от гривната", "Band data"),
+                    WearableUi.color(activity, "bg_elevated", 0xFF2A2A2A), text);
+            data.setOnClickListener(new LiveDataListener());
+            ((android.widget.LinearLayout) inner).addView(data, WearableUi.matchWrap(activity, 12));
+        }
+    }
+
+    private static boolean isValidAuthKey(String key) {
+        String clean = key != null ? key.replace(" ", "").replace(":", "").replace("-", "") : "";
+        if (clean.startsWith("0x") || clean.startsWith("0X")) {
+            clean = clean.substring(2);
+        }
+        return clean.matches("[0-9a-fA-F]{32}");
+    }
+
+    private static void colorAuthKey(String key) {
+        if (authKeyView == null) {
+            return;
+        }
+        if (key == null || key.length() == 0) {
+            authKeyView.setTextColor(WearableUi.COLOR_MUTED);
+        } else {
+            authKeyView.setTextColor(isValidAuthKey(key) ? WearableUi.COLOR_OK : WearableUi.COLOR_ERROR);
+        }
+    }
+
+    private static void showHelp(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        ModalInfoHelper.show(activity, WearableUi.tr("Пулс от гривната — помощ", "Band heart rate — help"),
+                WearableUi.tr(
+                        "1. Спри Mi Fitness / Notify / Gadgetbridge (принудително спиране) — гривната"
+                                + " приема само едно приложение.\n"
+                                + "2–3. MAC и ключ (32 символа от Notify / Mi Fitness) се въвеждат веднъж в"
+                                + " Настройки → Гривна и важат за всички модули.\n"
+                                + "4. „Активирай циферблат“ → кръгът се свързва сам. Първият пулс идва"
+                                + " след около 10–15 s с гривната на китката.\n"
+                                + "5. Цвят на кръга = зона спрямо „Праг пулс“: сиво <60%, зелено 60–70%,"
+                                + " жълто 70–80%, оранжево 80–90%, червено ≥90%.\n"
+                                + "6. ↻ = калибриране 30 s в покой → долна граница. „Праг пулс“ се предлага"
+                                + " сам (зелено); стойност на треньора е с приоритет (0 = пак автоматично).\n"
+                                + "7. Авто-управление: при покачване към прага логиката сваля първо силата,"
+                                + " после ширината на импулса, после честотата; над тавана (+12) спира изхода."
+                                + " Връща плавно, никога над зададеното. На кръга: зона, граници, kcal.\n"
+                                + "8. Бутон i на кръга → „Данни от гривната“: всички сурови стойности и"
+                                + " споделяне на записа.",
+                        "1. Force-stop Mi Fitness / Notify / Gadgetbridge — the band accepts one app.\n"
+                                + "2–3. MAC and key (32 chars from Notify / Mi Fitness) are entered once in"
+                                + " Settings → Band and used by every module.\n"
+                                + "4. Activate dial → it connects by itself. First HR after ~10–15 s.\n"
+                                + "5. Dial colour = zone vs HR limit: grey <60%, green 60–70%, yellow"
+                                + " 70–80%, orange 80–90%, red ≥90%.\n"
+                                + "6. ↻ = 30 s resting calibration → lower limit. The HR limit is suggested"
+                                + " (green); a trainer value has priority (0 = automatic again).\n"
+                                + "7. Auto control: when HR heads for the limit it lowers strength first, then"
+                                + " pulse width, then frequency; above the ceiling (+12) output stops. It"
+                                + " gives back gradually, never above the set values. Dial: zone, limits, kcal.\n"
+                                + "8. Dial i button → Band data: every raw value and share recording."));
     }
 
     private static void armFromConfig() {
@@ -454,6 +618,7 @@ public final class WearableSyncHelper {
             window.setAttributes(lp);
             refreshOverlayDisplay();
             updateOverlayVisibility();
+            scheduleDialTick();
             return true;
         } catch (Throwable t) {
             overlayDialog = null;
@@ -472,65 +637,106 @@ public final class WearableSyncHelper {
         Activity activity = resolveActivity(null);
         Context context = activity != null ? activity : getContext();
         int threshold = context != null ? WearableConfig.getHrThreshold(context) : 170;
+        String state = NotifyWearableBridge.getBleState();
         if (!NotifyWearableBridge.isListeningActive()) {
             hrValueView.setText("--");
-            hrValueView.setTextColor(0xFFAAAAAA);
-            if (subLabelView != null && activity != null) {
-                subLabelView.setText(activity.getString(STR_BPM));
-            }
+            hrValueView.setTextColor(WearableUi.COLOR_MUTED);
+            setSubLabel(WearableUi.tr("натисни ↻", "tap ↻"), WearableUi.COLOR_MUTED);
             if (ringView != null) {
+                ringView.setBeatBpm(0);
                 ringView.setElapsedFraction(0f);
             }
             return;
         }
-        if (displayedHr > 0) {
+        long last = com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient.getInstance()
+                .getLastRealtimeEventMs();
+        long age = last > 0L ? System.currentTimeMillis() - last : -1L;
+        boolean live = "streaming".equals(state) || "measuring".equals(state);
+        if (displayedHr > 0 && live) {
+            int zone = WearableUi.zoneFor(displayedHr, threshold);
+            int zoneColor = WearableUi.zoneColor(zone);
+            boolean stale = age > WearableUi.STALE_MS;
             hrValueView.setText(String.valueOf(displayedHr));
-            float fraction = threshold > 0 ? displayedHr / (float) threshold : 0f;
-            if (fraction > 1f) {
-                fraction = 1f;
-            }
-            hrValueView.setTextColor(colorForHeartRate(fraction));
+            hrValueView.setTextColor(stale ? WearableUi.COLOR_MUTED : zoneColor);
+            // Gauge 40 bpm … ceiling + 8: corridor rest→limit in green, ceiling as a red tick.
+            HrGuardCore g = HrGuard.core();
+            float lo = 40f;
+            float hi = Math.max(g.getCap(), threshold + 12) + 8f;
+            float fraction = Math.max(0f, Math.min(1f, (displayedHr - lo) / (hi - lo)));
             if (ringView != null) {
-                ringView.setElapsedFraction(fraction);
-                ringView.invalidate();
+                if (g.isCalibrating()) {
+                    ringView.setProgressColor(WearableUi.COLOR_WAIT);
+                    ringView.setBand(-1f, -1f);
+                    ringView.setMarker(-1f);
+                    ringView.setElapsedFraction((float) g.getCalibProgress());
+                } else {
+                    ringView.setProgressColor(stale ? WearableUi.COLOR_MUTED : zoneColor);
+                    int rest = g.getRestHr() > 0 ? g.getRestHr() : 60;
+                    ringView.setBand((rest - lo) / (hi - lo), (threshold - lo) / (hi - lo));
+                    ringView.setMarker((threshold + 12 - lo) / (hi - lo));
+                    ringView.setElapsedFraction(fraction);
+                }
+                ringView.setBeatBpm(stale ? 0 : displayedHr);
             }
-            if (subLabelView != null && activity != null) {
-                subLabelView.setText(buildSubLabel(activity));
+            if (stale) {
+                setSubLabel(WearableUi.ageText(age), WearableUi.COLOR_WAIT);
+            } else if (g.isCalibrating()) {
+                setSubLabel(WearableUi.tr("калибриране ", "calibrating ")
+                        + WearableUi.ageTextShort(g.getCalibLeftMs()), WearableUi.COLOR_WAIT);
+            } else {
+                String act = HrGuard.actionText(g.getLastAction());
+                boolean recent = System.currentTimeMillis() - g.getLastActionMs() < 30000L;
+                String line2 = Math.round(g.getKcal()) + " kcal"
+                        + (recent && act.length() > 0 ? " · " + act : "");
+                setSubLabel("Z" + zone + " · " + (g.getRestHr() > 0 ? g.getRestHr() + "–" : "")
+                        + threshold + "\n" + line2, g.isHold() ? WearableUi.COLOR_ERROR : zoneColor);
             }
-        } else {
-            hrValueView.setText("...");
-            hrValueView.setTextColor(bandConnected ? 0xFFFFCC66 : 0xFFAAAAAA);
-            if (ringView != null) {
-                ringView.setElapsedFraction(0f);
-            }
-            if (subLabelView != null && activity != null) {
-                subLabelView.setText(buildWaitingLabel(activity));
-            }
+            return;
         }
+        hrValueView.setText(WearableUi.isErrorState(state) ? "!" : "…");
+        hrValueView.setTextColor(WearableUi.isErrorState(state)
+                ? WearableUi.COLOR_ERROR : WearableUi.COLOR_WAIT);
+        if (ringView != null) {
+            ringView.setBeatBpm(0);
+            ringView.setElapsedFraction(0f);
+        }
+        String label = WearableUi.stateText(state);
+        if (context != null && !WearableConfig.isConfigured(context)) {
+            label = WearableUi.tr("Настрой гривната", "Set up the band");
+        }
+        setSubLabel(label, WearableUi.isErrorState(state)
+                ? WearableUi.COLOR_ERROR : WearableUi.COLOR_WAIT);
     }
 
-    private static String buildWaitingLabel(Activity activity) {
-        int hr = NotifyWearableBridge.getGbHrEventCount();
-        StringBuilder sb = new StringBuilder(
-                activity.getString(STR_DIAG_BLE, hr, NotifyWearableBridge.getBleState()));
-        sb.append('\n');
-        sb.append("n51=");
-        sb.append(NotifyWearableBridge.getBleNotifyCount51());
-        sb.append(" n52=");
-        sb.append(NotifyWearableBridge.getBleNotifyCount52());
-        sb.append(" ch=");
-        sb.append(NotifyWearableBridge.getBleLastNotifyChar());
-        sb.append(" · ");
-        sb.append(NotifyWearableBridge.getBleBuildTag());
-        if (!WearableConfig.isConfigured(activity)) {
-            sb.append('\n');
-            sb.append("auth key + MAC задължителни");
+    private static void setSubLabel(String textValue, int color) {
+        if (subLabelView == null) {
+            return;
         }
-        return sb.toString();
+        subLabelView.setText(textValue);
+        subLabelView.setTextColor(color);
+        subLabelView.setTextSize(TypedValue.COMPLEX_UNIT_SP,
+                textValue != null && textValue.length() > 18 ? 12f : 15f);
+        subLabelView.setMaxWidth(WearableUi.dp(subLabelView.getContext(), 150));
+        subLabelView.setGravity(Gravity.CENTER);
     }
 
-    private static String buildSubLabel(Activity activity) {
-        return activity.getString(STR_BPM);
+    /** Re-draw the dial once a second so the "x s ago" / stale state stays current. */
+    private static void scheduleDialTick() {
+        handler.removeCallbacks(DIAL_TICK);
+        handler.postDelayed(DIAL_TICK, 1000L);
+    }
+
+    private static final Runnable DIAL_TICK = new DialTick();
+
+    private static final class DialTick implements Runnable {
+        @Override
+        public void run() {
+            if (hrValueView == null || overlayDialog == null) {
+                return;
+            }
+            refreshOverlayDisplay();
+            handler.postDelayed(this, 1000L);
+        }
     }
 
     private static int colorForHeartRate(float fraction) {
@@ -570,14 +776,17 @@ public final class WearableSyncHelper {
             clean = clean.substring(2);
         }
         if (clean.length() == 0) {
-            return "Auth key задължителен — 32 hex от Mi Fitness";
+            return WearableUi.tr("Няма ключ — въведи го в Настройки → Гривна",
+                    "No key — enter it in Settings → Band");
         }
         if (clean.length() != 32) {
-            return "Auth key: точно 32 hex символа (0-9, A-F)";
+            return WearableUi.tr("Ключът е невалиден — поправи го в Настройки → Гривна",
+                    "Invalid key — fix it in Settings → Band");
         }
         String mac = WearableConfig.getBandMac(activity);
         if (mac == null || mac.replace(":", "").replace("-", "").trim().length() < 12) {
-            return "MAC гривна: формат AA:BB:CC:DD:EE:FF";
+            return WearableUi.tr("Няма MAC — въведи го в Настройки → Гривна",
+                    "No MAC — enter it in Settings → Band");
         }
         return null;
     }
@@ -590,35 +799,28 @@ public final class WearableSyncHelper {
         if (activity == null) {
             return;
         }
+        String text;
+        int color = WearableUi.COLOR_WAIT;
         if (!WearableConfig.isEnabled(activity)) {
-            statusView.setText(NotifyWearableBridge.getBleBuildTag()
-                    + " — " + activity.getString(STR_STATUS_IDLE));
-            return;
+            text = WearableUi.tr("Изключено", "Off");
+            color = WearableUi.COLOR_MUTED;
+        } else if (!WearableConfig.isConfigured(activity)) {
+            text = WearableUi.tr("Настрой гривната: Настройки → Гривна", "Set up the band: Settings → Band");
+        } else if (!WearableBlePermissions.hasAllBlePermissions(activity)) {
+            text = activity.getString(STR_STATUS_BT_PERM);
+            color = WearableUi.COLOR_ERROR;
+        } else if (NotifyWearableBridge.isListeningActive()) {
+            String state = NotifyWearableBridge.getBleState();
+            text = WearableUi.stateText(state);
+            color = WearableUi.isErrorState(state) ? WearableUi.COLOR_ERROR
+                    : "streaming".equals(state) ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT;
+        } else if (WearableConfig.isArmed(activity)) {
+            text = WearableUi.tr("Готово — натисни ↻ на кръга", "Ready — tap ↻ on the dial");
+        } else {
+            text = WearableUi.tr("Готово за активиране", "Ready to activate");
+            color = WearableUi.COLOR_OK;
         }
-        if (!WearableConfig.isConfigured(activity)) {
-            statusView.setText(NotifyWearableBridge.getBleBuildTag()
-                    + " — въведи auth key + MAC");
-            return;
-        }
-        if (!WearableBlePermissions.hasAllBlePermissions(activity)) {
-            statusView.setText(activity.getString(STR_STATUS_BT_PERM));
-            return;
-        }
-        if (NotifyWearableBridge.isListeningActive()) {
-            statusView.setText(activity.getString(STR_STATUS_BLE,
-                    NotifyWearableBridge.getBleState()));
-            return;
-        }
-        if (trainingRunning && WearableConfig.isArmed(activity)) {
-            statusView.setText(activity.getString(STR_STATUS_ACTIVE));
-            return;
-        }
-        if (WearableConfig.isArmed(activity)) {
-            statusView.setText(activity.getString(STR_STATUS_ARMED));
-            return;
-        }
-        statusView.setText(NotifyWearableBridge.getBleBuildTag()
-                + " — " + activity.getString(STR_STATUS_IDLE));
+        com.isaigu.gymapp.widget.XemsUi.setBadge(statusView, text, color);
     }
 
     private static void loadConfigIntoUi(Activity activity) {
@@ -633,6 +835,10 @@ public final class WearableSyncHelper {
         }
         if (thresholdView != null) {
             thresholdView.setText(String.valueOf(WearableConfig.getHrThreshold(activity)));
+            // Green = recommended automatically; white = typed by the trainer (has priority).
+            if (!WearableConfig.isHrThresholdManual(activity)) {
+                thresholdView.setTextColor(WearableUi.COLOR_OK);
+            }
         }
         if (stepView != null) {
             stepView.setText(String.valueOf(WearableConfig.getStrengthStep(activity)));
@@ -657,7 +863,7 @@ public final class WearableSyncHelper {
             WearableConfig.setAutoReduceEnabled(activity, autoReduceSwitch.isChecked());
         }
         if (thresholdView != null) {
-            WearableConfig.setHrThreshold(activity, readIntField(thresholdView, 170, 80, 220));
+            WearableConfig.setHrThresholdFromField(activity, readIntField(thresholdView, 0, 0, 220));
         }
         if (stepView != null) {
             WearableConfig.setStrengthStep(activity, readIntField(stepView, 5, 1, 20));
@@ -864,19 +1070,6 @@ public final class WearableSyncHelper {
         }
     }
 
-    private static void showInfo(Activity activity) {
-        if (activity == null) {
-            return;
-        }
-        String log = WearableBleDiagLog.getRecentText();
-        if (log == null || log.length() == 0) {
-            log = activity.getString(STR_INFO_BODY);
-        }
-        String path = WearableBleDiagLog.getLogFileHint(activity);
-        ModalInfoHelper.show(activity, "BLE диагностика",
-                log + "\n\n---\nФайл: " + path);
-    }
-
     private static final class RefreshOverlayRunnable implements Runnable {
         @Override
         public void run() {
@@ -918,14 +1111,45 @@ public final class WearableSyncHelper {
                 }
             }
             NotifyWearableBridge.requestConnect(activity);
-            toast(activity, STR_CONNECT);
+            toastMessage(activity, WearableUi.tr("Свързване с гривната…", "Connecting to the band…"));
         }
     }
 
     static final class ConfigInfoListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            showInfo(resolveActivity(v));
+            showHelp(resolveActivity(v));
+        }
+    }
+
+    static final class PickBandListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            WearableBandPicker.show(resolveActivity(v), bandMacView);
+        }
+    }
+
+    static final class LiveDataListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Activity activity = resolveActivity(v);
+            if (activity != null) {
+                saveConfigFromUi(activity);
+            }
+            WearableLivePanel.show(activity);
+        }
+    }
+
+    static final class AuthKeyWatcher implements android.text.TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+        @Override
+        public void afterTextChanged(android.text.Editable s) {
+            colorAuthKey(s != null ? s.toString() : "");
         }
     }
 
@@ -941,15 +1165,21 @@ public final class WearableSyncHelper {
                     return;
                 }
             }
-            NotifyWearableBridge.requestConnect(activity);
-            toast(activity, STR_CONNECT);
+            // ↻ = 30 s resting calibration; reconnect only when the band is not streaming.
+            if (!NotifyWearableBridge.isListeningActive() || !NotifyWearableBridge.isLinkUp()) {
+                NotifyWearableBridge.requestConnect(activity);
+            }
+            HrGuard.startCalibration();
+            toastMessage(activity, WearableUi.tr("Калибриране 30 s — стой спокойно",
+                    "Calibrating 30 s — stay still"));
+            refreshOverlayDisplay();
         }
     }
 
     static final class OverlayInfoListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            showInfo(resolveActivity(v));
+            WearableLivePanel.show(resolveActivity(v));
         }
     }
 

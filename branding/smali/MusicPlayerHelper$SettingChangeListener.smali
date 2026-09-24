@@ -36,13 +36,13 @@
     .registers 2
 
     .prologue
-    .line 1538
+    .line 1728
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1539
+    .line 1729
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;->which:I
 
-    .line 1540
+    .line 1730
     return-void
 .end method
 
@@ -52,45 +52,45 @@
     .registers 4
 
     .prologue
-    .line 1544
+    .line 1734
     iget v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;->which:I
 
     packed-switch v0, :pswitch_data_1c
 
-    .line 1555
+    .line 1745
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSmoothness(I)V
 
-    .line 1558
+    .line 1748
     :goto_8
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->persistSettings()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1200()V
 
-    .line 1559
+    .line 1749
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshPresetHighlight()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1300()V
 
-    .line 1560
+    .line 1750
     return-void
 
-    .line 1546
+    .line 1736
     :pswitch_f
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSensitivity(I)V
 
     goto :goto_8
 
-    .line 1549
+    .line 1739
     :pswitch_13
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setRhythmMix(I)V
 
     goto :goto_8
 
-    .line 1552
+    .line 1742
     :pswitch_17
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setFloorPercent(I)V
 
     goto :goto_8
 
-    .line 1544
+    .line 1734
     nop
 
     :pswitch_data_1c

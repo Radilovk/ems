@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1732
+    .line 1922
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,34 +34,34 @@
     .registers 5
 
     .prologue
-    .line 1735
+    .line 1925
     const/4 v0, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3902(Z)Z
 
-    .line 1736
+    .line 1926
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result v0
 
-    .line 1737
+    .line 1927
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->mapSeekProgressToMs(II)I
     invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4000(II)I
 
     move-result v1
 
-    .line 1738
+    .line 1928
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4100(II)V
 
-    .line 1739
+    .line 1929
     if-lez v0, :cond_14
 
-    .line 1740
+    .line 1930
     invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 1742
+    .line 1932
     :cond_14
     return-void
 .end method
@@ -70,15 +70,15 @@
     .registers 4
 
     .prologue
-    .line 1746
+    .line 1936
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result v0
 
-    .line 1747
+    .line 1937
     if-lez v0, :cond_d
 
-    .line 1748
+    .line 1938
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->mapSeekProgressToMs(II)I
     invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4000(II)I
 
@@ -86,13 +86,13 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 1750
+    .line 1940
     :cond_d
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3902(Z)Z
 
-    .line 1751
+    .line 1941
     return-void
 .end method

@@ -21,7 +21,8 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 880
+    .prologue
+    .line 1073
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,7 +31,8 @@
 .method synthetic constructor <init>(Lcom/isaigu/gymapp/wearable/WearableSyncHelper$1;)V
     .registers 2
 
-    .line 880
+    .prologue
+    .line 1073
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$RefreshOverlayRunnable;-><init>()V
 
     return-void
@@ -41,10 +43,11 @@
 .method public run()V
     .registers 1
 
-    .line 883
+    .prologue
+    .line 1076
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshOverlayDisplay()V
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$600()V
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
 
-    .line 884
+    .line 1077
     return-void
 .end method

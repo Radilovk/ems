@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 956
+    .prologue
+    .line 1186
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,38 +31,39 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
-    .line 959
+    .prologue
+    const/4 v1, 0x0
+
+    .line 1189
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$000(Landroid/view/View;)Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v0
 
-    .line 960
-    const/4 v0, 0x0
-
+    .line 1190
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayVisible:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1302(Z)Z
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1802(Z)Z
 
-    .line 961
-    if-eqz p1, :cond_10
+    .line 1191
+    if-eqz v0, :cond_10
 
-    .line 962
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setArmed(Landroid/content/Context;Z)V
+    .line 1192
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setArmed(Landroid/content/Context;Z)V
 
-    .line 963
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->stopListening(Landroid/content/Context;)V
+    .line 1193
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->stopListening(Landroid/content/Context;)V
 
-    .line 965
+    .line 1195
     :cond_10
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dismissOverlayDialog(Z)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1400(Z)V
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1900(Z)V
 
-    .line 966
+    .line 1196
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshStatusText()V
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1500()V
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2000()V
 
-    .line 967
+    .line 1197
     return-void
 .end method

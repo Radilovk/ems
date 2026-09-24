@@ -23,6 +23,7 @@
 .method private constructor <init>()V
     .registers 1
 
+    .prologue
     .line 23
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -32,13 +33,16 @@
 .method public static ensureConnectPermission(Landroid/app/Activity;Ljava/lang/Runnable;)V
     .registers 4
 
+    .prologue
     .line 67
     if-nez p0, :cond_6
 
     .line 68
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showBluetoothPermissionDenied()V
 
-    .line 69
+    .line 85
+    :cond_5
+    :goto_5
     return-void
 
     .line 71
@@ -50,14 +54,12 @@
     if-eqz v0, :cond_12
 
     .line 72
-    if-eqz p1, :cond_11
+    if-eqz p1, :cond_5
 
     .line 73
     invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
-    .line 75
-    :cond_11
-    return-void
+    goto :goto_5
 
     .line 77
     :cond_12
@@ -68,14 +70,12 @@
     if-ge v0, v1, :cond_1e
 
     .line 78
-    if-eqz p1, :cond_1d
+    if-eqz p1, :cond_5
 
     .line 79
     invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
-    .line 81
-    :cond_1d
-    return-void
+    goto :goto_5
 
     .line 83
     :cond_1e
@@ -88,293 +88,311 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->requestBlePermissions(Landroid/app/Activity;Lcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;)V
 
-    .line 85
-    return-void
+    goto :goto_5
 .end method
 
 .method public static gateGattOrNotify(Landroid/content/Context;)Z
-    .registers 3
+    .registers 4
 
-    .line 119
+    .prologue
     const/4 v0, 0x0
 
+    .line 119
     if-nez p0, :cond_4
 
-    .line 120
+    .line 131
+    :goto_3
     return v0
 
     .line 122
     :cond_4
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->hasAllBlePermissions(Landroid/content/Context;)Z
 
-    move-result p0
+    move-result v1
 
-    if-eqz p0, :cond_c
+    if-eqz v1, :cond_c
 
     .line 123
-    const/4 p0, 0x1
+    const/4 v0, 0x1
 
-    return p0
+    goto :goto_3
 
     .line 125
     :cond_c
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
 
-    move-result-object p0
+    move-result-object v1
 
     .line 126
-    if-eqz p0, :cond_17
+    if-eqz v1, :cond_17
 
     .line 127
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
-    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->ensureConnectPermission(Landroid/app/Activity;Ljava/lang/Runnable;)V
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->ensureConnectPermission(Landroid/app/Activity;Ljava/lang/Runnable;)V
 
-    goto :goto_1a
+    goto :goto_3
 
     .line 129
     :cond_17
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showBluetoothPermissionDenied()V
 
-    .line 131
-    :goto_1a
-    return v0
+    goto :goto_3
 .end method
 
 .method public static hasAllBlePermissions(Landroid/content/Context;)Z
     .registers 5
 
+    .prologue
+    const/4 v0, 0x1
+
+    const/4 v1, 0x0
+
     .line 26
-    const/4 v0, 0x0
+    if-nez p0, :cond_6
 
-    if-nez p0, :cond_4
+    move v0, v1
 
-    .line 27
+    .line 32
+    :cond_5
+    :goto_5
     return v0
 
     .line 29
-    :cond_4
-    sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
+    :cond_6
+    sget v2, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    const/16 v2, 0x1f
+    const/16 v3, 0x1f
 
-    const/4 v3, 0x1
-
-    if-ge v1, v2, :cond_c
-
-    .line 30
-    return v3
+    if-lt v2, v3, :cond_5
 
     .line 32
-    :cond_c
-    const-string v1, "android.permission.BLUETOOTH_CONNECT"
+    const-string v2, "android.permission.BLUETOOTH_CONNECT"
 
-    invoke-static {p0, v1}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
+    invoke-static {p0, v2}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
-    move-result v1
+    move-result v2
 
-    if-nez v1, :cond_1e
+    if-nez v2, :cond_1c
+
+    const-string v2, "android.permission.BLUETOOTH_SCAN"
 
     .line 33
-    const-string v1, "android.permission.BLUETOOTH_SCAN"
+    invoke-static {p0, v2}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
-    invoke-static {p0, v1}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
+    move-result v2
 
-    move-result p0
+    if-eqz v2, :cond_5
 
-    if-nez p0, :cond_1e
+    :cond_1c
+    move v0, v1
 
-    const/4 v0, 0x1
-
-    goto :goto_1f
-
-    :cond_1e
-    nop
-
-    .line 32
-    :goto_1f
-    return v0
+    goto :goto_5
 .end method
 
 .method public static hasConnectPermission(Landroid/content/Context;)Z
-    .registers 1
+    .registers 2
 
+    .prologue
     .line 52
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->hasAllBlePermissions(Landroid/content/Context;)Z
 
-    move-result p0
+    move-result v0
 
-    return p0
+    return v0
 .end method
 
 .method public static logPermissionState(Landroid/content/Context;)V
     .registers 6
 
-    .line 38
-    if-nez p0, :cond_3
+    .prologue
+    const/4 v1, 0x1
 
-    .line 39
+    const/4 v2, 0x0
+
+    .line 38
+    if-nez p0, :cond_5
+
+    .line 49
+    :goto_4
     return-void
 
     .line 41
-    :cond_3
+    :cond_5
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    const/16 v1, 0x1f
+    const/16 v3, 0x1f
 
-    const-string v2, "perm"
-
-    if-ge v0, v1, :cond_11
+    if-ge v0, v3, :cond_13
 
     .line 42
-    const-string p0, "API<31 legacy BT"
+    const-string v0, "perm"
 
-    invoke-static {v2, p0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+    const-string v1, "API<31 legacy BT"
 
-    .line 43
-    return-void
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_4
 
     .line 45
-    :cond_11
+    :cond_13
     const-string v0, "android.permission.BLUETOOTH_CONNECT"
 
     invoke-static {p0, v0}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v0
 
-    const/4 v1, 0x1
+    if-nez v0, :cond_47
 
-    const/4 v3, 0x0
-
-    if-nez v0, :cond_1d
-
-    const/4 v0, 0x1
-
-    goto :goto_1e
-
-    :cond_1d
-    const/4 v0, 0x0
+    move v0, v1
 
     .line 46
-    :goto_1e
-    const-string v4, "android.permission.BLUETOOTH_SCAN"
+    :goto_1c
+    const-string v3, "android.permission.BLUETOOTH_SCAN"
 
-    invoke-static {p0, v4}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
+    invoke-static {p0, v3}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
-    move-result p0
+    move-result v3
 
-    if-nez p0, :cond_27
-
-    goto :goto_28
-
-    :cond_27
-    const/4 v1, 0x0
+    if-nez v3, :cond_49
 
     .line 47
-    :goto_28
-    new-instance p0, Ljava/lang/StringBuilder;
+    :goto_24
+    const-string v2, "perm"
 
-    invoke-direct {p0}, Ljava/lang/StringBuilder;-><init>()V
+    new-instance v3, Ljava/lang/StringBuilder;
 
-    const-string v3, "CONNECT="
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-virtual {p0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v4, "CONNECT="
 
-    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string v0, " SCAN="
+    move-result-object v3
 
-    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
 
-    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
 
-    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    const-string v3, " SCAN="
 
-    move-result-object p0
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-static {v2, p0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+    move-result-object v0
 
-    .line 49
-    return-void
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_4
+
+    :cond_47
+    move v0, v2
+
+    .line 45
+    goto :goto_1c
+
+    :cond_49
+    move v1, v2
+
+    .line 46
+    goto :goto_24
 .end method
 
 .method private static missingPermissions(Landroid/content/Context;)[Ljava/lang/String;
-    .registers 4
+    .registers 5
 
+    .prologue
     .line 103
-    new-instance v0, Ljava/util/ArrayList;
+    new-instance v2, Ljava/util/ArrayList;
 
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
     .line 104
-    const-string v1, "android.permission.BLUETOOTH_CONNECT"
+    const-string v0, "android.permission.BLUETOOTH_CONNECT"
 
-    invoke-static {p0, v1}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
+    invoke-static {p0, v0}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
-    move-result v2
+    move-result v0
 
-    if-eqz v2, :cond_10
+    if-eqz v0, :cond_12
 
     .line 105
-    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+    const-string v0, "android.permission.BLUETOOTH_CONNECT"
+
+    invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     .line 107
-    :cond_10
-    const-string v1, "android.permission.BLUETOOTH_SCAN"
+    :cond_12
+    const-string v0, "android.permission.BLUETOOTH_SCAN"
 
-    invoke-static {p0, v1}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
+    invoke-static {p0, v0}, Landroid/support/v4/content/ContextCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
-    move-result p0
+    move-result v0
 
-    if-eqz p0, :cond_1b
+    if-eqz v0, :cond_1f
 
     .line 108
-    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+    const-string v0, "android.permission.BLUETOOTH_SCAN"
+
+    invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     .line 110
-    :cond_1b
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+    :cond_1f
+    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
-    move-result p0
+    move-result v0
 
-    new-array p0, p0, [Ljava/lang/String;
+    new-array v3, v0, [Ljava/lang/String;
 
     .line 111
-    const/4 v1, 0x0
+    const/4 v0, 0x0
 
-    :goto_22
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+    move v1, v0
 
-    move-result v2
+    :goto_27
+    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
-    if-ge v1, v2, :cond_33
+    move-result v0
+
+    if-ge v1, v0, :cond_39
 
     .line 112
-    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    invoke-virtual {v2, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
-    move-result-object v2
+    move-result-object v0
 
-    check-cast v2, Ljava/lang/String;
+    check-cast v0, Ljava/lang/String;
 
-    aput-object v2, p0, v1
+    aput-object v0, v3, v1
 
     .line 111
-    add-int/lit8 v1, v1, 0x1
+    add-int/lit8 v0, v1, 0x1
 
-    goto :goto_22
+    move v1, v0
+
+    goto :goto_27
 
     .line 114
-    :cond_33
-    return-object p0
+    :cond_39
+    return-object v3
 .end method
 
 .method public static openAppSettings(Landroid/app/Activity;)V
     .registers 4
 
+    .prologue
     .line 135
     if-nez p0, :cond_3
 
-    .line 136
+    .line 145
+    :goto_2
     return-void
 
     .line 139
@@ -395,11 +413,15 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
+    move-result-object v1
+
     invoke-virtual {p0}, Landroid/app/Activity;->getPackageName()Ljava/lang/String;
 
     move-result-object v2
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -418,26 +440,24 @@
 
     .line 142
     invoke-virtual {p0, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
-    :try_end_2e
-    .catchall {:try_start_3 .. :try_end_2e} :catchall_2f
+    :try_end_30
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_30} :catch_31
 
-    .line 144
-    goto :goto_30
+    goto :goto_2
 
     .line 143
-    :catchall_2f
-    move-exception p0
+    :catch_31
+    move-exception v0
 
-    .line 145
-    :goto_30
-    return-void
+    goto :goto_2
 .end method
 
 .method public static requestAtStartup(Landroid/app/Activity;)V
     .registers 3
 
+    .prologue
     .line 57
-    if-eqz p0, :cond_15
+    if-eqz p0, :cond_8
 
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
@@ -445,7 +465,10 @@
 
     if-ge v0, v1, :cond_9
 
-    goto :goto_15
+    .line 64
+    :cond_8
+    :goto_8
+    return-void
 
     .line 60
     :cond_9
@@ -453,42 +476,38 @@
 
     move-result v0
 
-    if-eqz v0, :cond_10
-
-    .line 61
-    return-void
+    if-nez v0, :cond_8
 
     .line 63
-    :cond_10
     const/4 v0, 0x0
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->requestBlePermissions(Landroid/app/Activity;Lcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;)V
 
-    .line 64
-    return-void
-
-    .line 58
-    :cond_15
-    :goto_15
-    return-void
+    goto :goto_8
 .end method
 
 .method private static requestBlePermissions(Landroid/app/Activity;Lcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;)V
     .registers 5
 
+    .prologue
+    const/16 v2, 0x5752
+
     .line 89
-    if-eqz p0, :cond_1f
+    if-eqz p0, :cond_a
 
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x1f
 
-    if-ge v0, v1, :cond_9
+    if-ge v0, v1, :cond_b
 
-    goto :goto_1f
+    .line 100
+    :cond_a
+    :goto_a
+    return-void
 
     .line 92
-    :cond_9
+    :cond_b
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->missingPermissions(Landroid/content/Context;)[Ljava/lang/String;
 
     move-result-object v0
@@ -496,33 +515,23 @@
     .line 93
     array-length v1, v0
 
-    const/16 v2, 0x5752
-
     if-nez v1, :cond_1b
 
     .line 94
-    if-eqz p1, :cond_1a
+    if-eqz p1, :cond_a
 
     .line 95
-    const/4 p0, 0x1
-
     const-string v0, "android.permission.BLUETOOTH_CONNECT"
 
-    invoke-interface {p1, v0, v2, p0}, Lcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;->onRequestPermission(Ljava/lang/String;IZ)V
+    const/4 v1, 0x1
 
-    .line 97
-    :cond_1a
-    return-void
+    invoke-interface {p1, v0, v2, v1}, Lcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;->onRequestPermission(Ljava/lang/String;IZ)V
+
+    goto :goto_a
 
     .line 99
     :cond_1b
     invoke-static {p0, v0, v2, p1}, Lcom/isaigu/gymapp/utils/AndroidUtils;->requestPermission(Landroid/app/Activity;[Ljava/lang/String;ILcom/isaigu/gymapp/utils/AndroidUtils$RequestPermissionCallback;)V
 
-    .line 100
-    return-void
-
-    .line 90
-    :cond_1f
-    :goto_1f
-    return-void
+    goto :goto_a
 .end method

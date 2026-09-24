@@ -38,7 +38,18 @@ public final class WearableBleDiagLog {
                 ring.remove(0);
             }
         }
-        appendToFile(line);
+        appendToFile(LOG_NAME, line);
+    }
+
+    /**
+     * Append one line to a separate raw-data file next to the log (no ring buffer, no logcat).
+     * Used for band-raw.csv / band-realtime.csv.
+     */
+    public static void appendRaw(String fileName, String line) {
+        if (fileName == null || line == null) {
+            return;
+        }
+        appendToFile(fileName, line);
     }
 
     public static void logHex(String event, byte[] data, int maxBytes) {
@@ -83,6 +94,44 @@ public final class WearableBleDiagLog {
         }
     }
 
+    /** Last {@code maxBytes} of a diag file (raw CSV / log) for sharing; "" if missing. */
+    public static String readTail(Context context, String fileName, int maxBytes) {
+        Context ctx = context != null ? context : appContext;
+        if (ctx == null || fileName == null) {
+            return "";
+        }
+        try {
+            File dir = ctx.getExternalFilesDir("diag-logs");
+            if (dir == null) {
+                dir = new File(ctx.getFilesDir(), "diag-logs");
+            }
+            File file = new File(dir, fileName);
+            if (!file.exists()) {
+                return "";
+            }
+            long len = file.length();
+            long start = Math.max(0L, len - maxBytes);
+            java.io.RandomAccessFile raf = new java.io.RandomAccessFile(file, "r");
+            try {
+                raf.seek(start);
+                byte[] buf = new byte[(int) (len - start)];
+                raf.readFully(buf);
+                String text = new String(buf, "UTF-8");
+                if (start > 0) {
+                    int nl = text.indexOf('\n');
+                    if (nl >= 0) {
+                        text = text.substring(nl + 1);
+                    }
+                }
+                return text;
+            } finally {
+                raf.close();
+            }
+        } catch (Throwable ignored) {
+            return "";
+        }
+    }
+
     public static String getLogFileHint(Context context) {
         Context ctx = context != null ? context : appContext;
         if (ctx == null) {
@@ -106,7 +155,7 @@ public final class WearableBleDiagLog {
         return new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date());
     }
 
-    private static void appendToFile(String text) {
+    private static void appendToFile(String name, String text) {
         Context ctx = appContext;
         if (ctx == null || text == null) {
             return;
@@ -121,14 +170,14 @@ public final class WearableBleDiagLog {
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
-                File file = new File(dir, LOG_NAME);
+                File file = new File(dir, name);
                 if (file.exists() && file.length() > MAX_LOG_BYTES) {
-                    File old = new File(dir, LOG_NAME + ".old");
+                    File old = new File(dir, name + ".old");
                     if ( old.exists()) {
                         old.delete();
                     }
                     file.renameTo(old);
-                    file = new File(dir, LOG_NAME);
+                    file = new File(dir, name);
                 }
                 FileOutputStream out = new FileOutputStream(file, true);
                 out.write((text + "\n").getBytes("UTF-8"));

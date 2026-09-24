@@ -32,7 +32,8 @@
         }
     .end annotation
 
-    .line 262
+    .prologue
+    .line 267
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$message:Ljava/lang/String;
@@ -47,7 +48,8 @@
 .method public run()V
     .registers 3
 
-    .line 265
+    .prologue
+    .line 270
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$message:Ljava/lang/String;
@@ -55,6 +57,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastMessage(Landroid/app/Activity;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$400(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 266
+    .line 271
     return-void
 .end method

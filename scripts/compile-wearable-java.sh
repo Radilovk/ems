@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compile Notify wearable bridge + sync UI from Java to smali.
+# Compile the wearable bridge + band UI and the Smart Session (ai package) from Java to smali.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -10,6 +10,7 @@ CLASSES_DIR="${OUT_DIR}/classes"
 DEX_FILE="${OUT_DIR}/classes.dex"
 SMALI_OUT="${OUT_DIR}/smali"
 BRANDING_SMALI="${ROOT}/branding/smali/wearable"
+BRANDING_AI_SMALI="${ROOT}/branding/smali/ai"
 ANDROID_JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 D8="${ROOT}/android-sdk/build-tools/30.0.3/d8"
 BAKSMALI="${ROOT}/tools/baksmali.jar"
@@ -23,6 +24,12 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/EmsBleCoexist.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSyncHelper.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableUi.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableLivePanel.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBandPicker.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSettingsSection.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrGuardCore.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrGuard.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHaForegroundService.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming.java"
@@ -38,6 +45,18 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandPostAuthInit.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAckTimeoutTask.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandMtuFallbackTask.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiModel.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiScreening.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiRestHr.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiPlanner.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiHrFilter.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiEngine.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiEnergy.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiRamp.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiText.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiViews.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiUi.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiSession.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"
@@ -69,7 +88,7 @@ javac \
 echo "Dexing..."
 rm -f "${DEX_FILE}"
 mkdir -p "${OUT_DIR}/dex"
-mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp/wearable" -name '*.class' | sort)
+mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp/wearable" "${CLASSES_DIR}/com/isaigu/gymapp/ai" -name '*.class' | sort)
 (
   cd "${CLASSES_DIR}"
   "${D8}" \
@@ -94,6 +113,11 @@ while IFS= read -r -d '' file; do
   cp "${file}" "${dest}"
   echo "  -> wearable/${rel}"
 done < <(find "${SMALI_OUT}/com/isaigu/gymapp/wearable" -name '*.smali' -print0)
+
+echo "Installing ai smali..."
+rm -rf "${BRANDING_AI_SMALI}"
+mkdir -p "${BRANDING_AI_SMALI}"
+cp -r "${SMALI_OUT}/com/isaigu/gymapp/ai/." "${BRANDING_AI_SMALI}/"
 
 if [[ ! -f "${BRANDING_SMALI}/WearableSyncHelper.smali" ]]; then
   echo "ERROR: WearableSyncHelper.smali not produced"

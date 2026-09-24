@@ -21,7 +21,8 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 29
+    .prologue
+    .line 39
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,7 +31,8 @@
 .method synthetic constructor <init>(Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$1;)V
     .registers 2
 
-    .line 29
+    .prologue
+    .line 39
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$DirectBleListener;-><init>()V
 
     return-void
@@ -41,72 +43,74 @@
 .method public onConnected(Z)V
     .registers 2
 
-    .line 57
+    .prologue
+    .line 67
     if-eqz p1, :cond_6
 
-    .line 58
+    .line 68
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandConnected()V
 
-    goto :goto_9
+    .line 72
+    :goto_5
+    return-void
 
-    .line 60
+    .line 70
     :cond_6
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandDisconnected()V
 
-    .line 62
-    :goto_9
-    return-void
+    goto :goto_5
 .end method
 
 .method public onHeartRate(I)V
     .registers 2
 
-    .line 52
+    .prologue
+    .line 62
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onHeartRate(I)V
 
-    .line 53
+    .line 63
     return-void
 .end method
 
 .method public onState(Ljava/lang/String;)V
     .registers 4
 
-    .line 32
-    if-eqz p1, :cond_3
+    .prologue
+    .line 42
+    if-eqz p1, :cond_3b
 
-    goto :goto_5
-
-    :cond_3
-    const-string p1, ""
-
-    :goto_5
+    :goto_2
     # setter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$102(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 33
-    new-instance p1, Ljava/lang/StringBuilder;
+    .line 43
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v0, "BLE:"
+    const-string v1, "BLE:"
 
-    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
 
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
     move-result-object v0
 
-    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
+    move-result-object v0
 
     # setter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->lastEventAction:Ljava/lang/String;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$202(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$202(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 34
+    .line 44
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -114,94 +118,100 @@
     # setter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->lastEventTimeMs:J
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$302(J)J
 
-    .line 35
+    .line 45
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 36
-    # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
-
-    move-result-object p1
-
+    .line 46
     const-string v0, "bad_auth_key"
 
-    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p1
-
-    if-eqz p1, :cond_3c
-
-    .line 37
-    const-string p1, "Auth key \u0433\u0440\u0435\u0448\u0435\u043d \u2014 32 hex \u0441\u0438\u043c\u0432\u043e\u043b\u0430 \u043e\u0442 Mi Fitness"
-
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastBleError(Ljava/lang/String;)V
-
-    goto :goto_6f
-
-    .line 39
-    :cond_3c
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
 
-    move-result-object p1
+    move-result-object v1
 
-    const-string v0, "bad_mac"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v0
 
-    move-result p1
+    if-eqz v0, :cond_3e
 
-    if-eqz p1, :cond_4e
+    .line 47
+    const-string v0, "Auth key \u0433\u0440\u0435\u0448\u0435\u043d \u2014 32 hex \u0441\u0438\u043c\u0432\u043e\u043b\u0430 \u043e\u0442 Mi Fitness"
 
-    .line 40
-    const-string p1, "MAC \u0433\u0440\u0435\u0448\u0435\u043d \u2014 \u043f\u0440\u043e\u0432\u0435\u0440\u0438 \u0430\u0434\u0440\u0435\u0441\u0430 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastBleError(Ljava/lang/String;)V
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastBleError(Ljava/lang/String;)V
-
-    goto :goto_6f
+    .line 58
+    :cond_3a
+    :goto_3a
+    return-void
 
     .line 42
-    :cond_4e
+    :cond_3b
+    const-string p1, ""
+
+    goto :goto_2
+
+    .line 49
+    :cond_3e
+    const-string v0, "bad_mac"
+
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
 
-    move-result-object p1
+    move-result-object v1
 
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_50
+
+    .line 50
+    const-string v0, "MAC \u0433\u0440\u0435\u0448\u0435\u043d \u2014 \u043f\u0440\u043e\u0432\u0435\u0440\u0438 \u0430\u0434\u0440\u0435\u0441\u0430 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastBleError(Ljava/lang/String;)V
+
+    goto :goto_3a
+
+    .line 52
+    :cond_50
     const-string v0, "auth_fail"
 
-    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p1
-
-    if-eqz p1, :cond_60
-
-    .line 43
-    const-string p1, "Auth \u043d\u0435\u0443\u0441\u043f\u0435\u0448\u0435\u043d \u2014 \u043f\u0440\u043e\u0432\u0435\u0440\u0438 auth key \u0438 MAC"
-
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastBleError(Ljava/lang/String;)V
-
-    goto :goto_6f
-
-    .line 45
-    :cond_60
     # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
 
-    move-result-object p1
+    move-result-object v1
 
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_62
+
+    .line 53
+    const-string v0, "Auth \u043d\u0435\u0443\u0441\u043f\u0435\u0448\u0435\u043d \u2014 \u043f\u0440\u043e\u0432\u0435\u0440\u0438 auth key \u0438 MAC"
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastBleError(Ljava/lang/String;)V
+
+    goto :goto_3a
+
+    .line 55
+    :cond_62
     const-string v0, "no_bt_permission"
 
-    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    # getter for: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->bleState:Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
 
-    move-result p1
+    move-result-object v1
 
-    if-eqz p1, :cond_6f
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    .line 46
+    move-result v0
+
+    if-eqz v0, :cond_3a
+
+    .line 56
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showBluetoothPermissionDenied()V
 
-    .line 48
-    :cond_6f
-    :goto_6f
-    return-void
+    goto :goto_3a
 .end method

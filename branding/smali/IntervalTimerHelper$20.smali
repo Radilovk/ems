@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1105
+    .line 1145
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,9 +45,9 @@
     .registers 6
 
     .prologue
-    .line 1108
+    .line 1148
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$500()Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()Ljava/lang/String;
 
     move-result-object v0
 
@@ -57,11 +57,11 @@
 
     if-lez v0, :cond_45
 
-    .line 1109
+    .line 1149
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$a:Landroid/app/Activity;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$500()Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()Ljava/lang/String;
 
     move-result-object v1
 
@@ -69,11 +69,11 @@
 
     move-result-object v0
 
-    .line 1110
+    .line 1150
     :goto_14
     if-eqz v0, :cond_47
 
-    .line 1111
+    .line 1151
     iget-object v1, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->name:Ljava/lang/String;
@@ -82,12 +82,12 @@
 
     move-result-object v0
 
-    .line 1112
+    .line 1152
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$a:Landroid/app/Activity;
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/TimerPresetStorage;->upsert(Landroid/content/Context;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    .line 1113
+    .line 1153
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -115,23 +115,23 @@
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toastText(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2000(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2100(Ljava/lang/String;)V
 
-    .line 1114
+    .line 1154
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSheets()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2100()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2200()V
 
-    .line 1127
+    .line 1167
     :goto_44
     return-void
 
-    .line 1109
+    .line 1149
     :cond_45
     const/4 v0, 0x0
 
     goto :goto_14
 
-    .line 1117
+    .line 1157
     :cond_47
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$a:Landroid/app/Activity;
 
@@ -150,7 +150,7 @@
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20$1;-><init>(Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;)V
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->promptName(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
-    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2200(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2300(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
 
     goto :goto_44
 .end method

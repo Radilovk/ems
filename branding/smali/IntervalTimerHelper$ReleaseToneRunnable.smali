@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2042
+    .line 2082
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2043
+    .line 2083
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ReleaseToneRunnable;->tone:Landroid/media/ToneGenerator;
 
-    .line 2044
+    .line 2084
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 2049
+    .line 2089
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$ReleaseToneRunnable;->tone:Landroid/media/ToneGenerator;
 
@@ -50,11 +50,11 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 2052
+    .line 2092
     :goto_5
     return-void
 
-    .line 2050
+    .line 2090
     :catch_6
     move-exception v0
 

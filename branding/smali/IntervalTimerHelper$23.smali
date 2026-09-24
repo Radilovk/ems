@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 1164
+    .line 1204
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$a:Landroid/app/Activity;
@@ -53,14 +53,14 @@
     .registers 6
 
     .prologue
-    .line 1167
+    .line 1207
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 1168
+    .line 1208
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;->val$a:Landroid/app/Activity;
 
     const-string v1, "\u041d\u043e\u0432\u043e \u0438\u043c\u0435"
@@ -80,8 +80,8 @@
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23$1;-><init>(Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$23;)V
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->promptName(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
-    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2200(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2300(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
 
-    .line 1177
+    .line 1217
     return-void
 .end method

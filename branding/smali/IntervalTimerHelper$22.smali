@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 1144
+    .line 1184
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$a:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
@@ -49,15 +49,15 @@
     .registers 4
 
     .prologue
-    .line 1147
+    .line 1187
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->presetMenu(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2300(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2400(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    .line 1148
+    .line 1188
     const/4 v0, 0x1
 
     return v0

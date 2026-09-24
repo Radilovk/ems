@@ -1,0 +1,270 @@
+<template>
+  <div class="screen">
+    <text class="caps" style="color: {{runColor}}">{{caps}}</text>
+    <text class="elapsed">{{elapsed}}</text>
+    <div class="meta">
+      <image class="heart" src="/common/icons/heart.png"></image>
+      <text class="meta-hr" style="color: {{zoneColor}}">{{hrText}}</text>
+      <text class="meta-kcal">{{kcalText}}</text>
+    </div>
+
+    <stack class="play-box">
+      <div class="glow {{run ? '' : 'breathe'}}"></div>
+      <div class="play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
+           ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+        <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+      </div>
+    </stack>
+
+    <text class="hint">сила на главния</text>
+    <div class="keys">
+      <div class="key {{run ? '' : 'off'}} {{pressed === 'minus' ? 'down' : ''}}"
+           ontouchstart="press('minus')" ontouchend="release" ontouchcancel="release" onclick="minus">
+        <image class="key-img" src="/common/icons/minus.png"></image>
+      </div>
+      <div class="key key-plus {{run ? '' : 'off'}} {{pressed === 'plus' ? 'down' : ''}}"
+           ontouchstart="press('plus')" ontouchend="release" ontouchcancel="release" onclick="plus">
+        <image class="key-img" src="/common/icons/plus.png"></image>
+      </div>
+    </div>
+
+    <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
+      <div class="stop-bg"></div>
+      <div class="stop-fill" style="width: {{holdPct * 2}}px"></div>
+      <text class="stop-text">{{holdPct > 0 ? 'Задръж…' : 'СТОП · задръж'}}</text>
+    </stack>
+  </div>
+</template>
+
+<script>
+import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind } from '../../common/ui.js'
+
+const HOLD_MS = 1200
+
+export default {
+  private: {
+    caps: 'ТРЕНИРОВКА',
+    runColor: '#8E8E93',
+    run: false,
+    elapsed: '0:00',
+    hrText: '--',
+    zoneColor: '#FFFFFF',
+    kcalText: '',
+    pressed: '',
+    holdPct: 0
+  },
+
+  onInit() {
+    this.unbind = bind(this)
+  },
+
+  onDestroy() {
+    this.unbind()
+    this.holdEnd()
+  },
+
+  update() {
+    const app = this.$app.$def
+    const s = app.state
+    if (!s) {
+      return
+    }
+    const run = !!mods(s).tr.run
+    this.run = run
+    this.caps = run ? 'РЪЧНО · ТЕЧЕ' : s.mode === 'manual' ? 'РЪЧНО · ПАУЗА' : 'РЪЧНА ТРЕНИРОВКА'
+    this.runColor = run ? GREEN : s.mode === 'manual' ? AMBER : '#8E8E93'
+    this.elapsed = hms((s.el || 0) + (run ? app.silence() : 0))
+    const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
+    this.hrText = s.hr > 0 ? s.hr + ' · Z' + z : '--'
+    this.zoneColor = s.hr > 0 ? ZONE[z] : '#FFFFFF'
+    this.kcalText = s.kcal > 0 ? Math.round(s.kcal) + ' kcal' : ''
+  },
+
+  press(w) {
+    this.pressed = w
+  },
+
+  release() {
+    this.pressed = ''
+  },
+
+  toggle() {
+    this.$app.$def.command('train_toggle')
+  },
+
+  plus() {
+    if (this.run) {
+      this.$app.$def.command('train_plus')
+    }
+  },
+
+  minus() {
+    if (this.run) {
+      this.$app.$def.command('train_minus')
+    }
+  },
+
+  holdStart() {
+    this.holdEnd()
+    const t0 = Date.now()
+    this.holdTimer = setInterval(() => {
+      const p = Math.min(100, Math.round(((Date.now() - t0) / HOLD_MS) * 100))
+      this.holdPct = p
+      if (p >= 100) {
+        clearInterval(this.holdTimer)
+        this.holdTimer = null
+        this.$app.$def.send({ t: 'cmd', a: 'train_stop' })
+        this.$app.$def.buzz('long')
+        setTimeout(() => {
+          this.holdPct = 0
+        }, 400)
+      }
+    }, 40)
+  },
+
+  holdEnd() {
+    if (this.holdTimer) {
+      clearInterval(this.holdTimer)
+      this.holdTimer = null
+      this.holdPct = 0
+    }
+  }
+}
+</script>
+
+<style>
+.screen {
+  width: 212px;
+  height: 520px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 26px;
+  background-color: #000000;
+}
+.caps {
+  font-size: 20px;
+  font-weight: bold;
+}
+.elapsed {
+  font-size: 64px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.meta {
+  flex-direction: row;
+  align-items: center;
+}
+.heart {
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+}
+.meta-hr {
+  font-size: 26px;
+  font-weight: bold;
+}
+.meta-kcal {
+  margin-left: 10px;
+  font-size: 22px;
+  color: #ff9f0a;
+}
+.play-box {
+  width: 150px;
+  height: 140px;
+  margin-top: 8px;
+  justify-content: center;
+  align-items: center;
+}
+.glow {
+  width: 132px;
+  height: 132px;
+  border-radius: 66px;
+  background-color: rgba(48, 209, 88, 0.25);
+}
+.breathe {
+  animation-name: breathe;
+  animation-duration: 1500ms;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.play {
+  width: 112px;
+  height: 112px;
+  border-radius: 56px;
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.play-img {
+  width: 52px;
+  height: 52px;
+}
+.down {
+  transform: scale(0.9);
+}
+.hint {
+  font-size: 18px;
+  color: #8e8e93;
+}
+.keys {
+  flex-direction: row;
+  margin-top: 6px;
+}
+.key {
+  width: 90px;
+  height: 90px;
+  margin-left: 6px;
+  margin-right: 6px;
+  border-radius: 45px;
+  background-color: #2c2c2e;
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.key-plus {
+  background-color: #1f4a2a;
+}
+.key-img {
+  width: 40px;
+  height: 40px;
+}
+.off {
+  opacity: 0.3;
+}
+.stop-box {
+  width: 200px;
+  height: 70px;
+  margin-top: 14px;
+}
+.stop-bg {
+  width: 200px;
+  height: 70px;
+  border-radius: 35px;
+  background-color: #3a0f0d;
+}
+.stop-fill {
+  height: 70px;
+  border-radius: 35px;
+  background-color: #ff453a;
+}
+.stop-text {
+  width: 200px;
+  height: 70px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+}
+@keyframes breathe {
+  from {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.1);
+    opacity: 0.2;
+  }
+}
+</style>

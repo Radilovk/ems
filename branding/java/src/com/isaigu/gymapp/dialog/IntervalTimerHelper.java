@@ -197,6 +197,46 @@ public final class IntervalTimerHelper {
         return armed && countdownRunning && !timerPausedByUser;
     }
 
+    // ================================================================ band app
+
+    /** Timer state for the XEMS app on the band (times in seconds). */
+    public static org.json.JSONObject bandState() throws org.json.JSONException {
+        org.json.JSONObject o = new org.json.JSONObject();
+        o.put("arm", armed);
+        o.put("run", armed && countdownRunning && !timerPausedByUser);
+        o.put("pau", armed && timerPausedByUser);
+        if (armed && blockProgramMode && BlockProgramRunner.isArmed()) {
+            o.put("left", BlockProgramRunner.getBlockRemainingMs() / 1000);
+            o.put("int", Math.max(1, BlockProgramRunner.getBlockTotalMs() / 1000));
+            o.put("lbl", "B" + (BlockProgramRunner.getBlockIndex() + 1) + "/"
+                    + Math.max(1, BlockProgramRunner.getBlockCount()) + " · C"
+                    + (BlockProgramRunner.getCyclesDone() + 1) + "/"
+                    + Math.max(1, BlockProgramRunner.getCurrentBlockCycles()));
+        } else {
+            o.put("left", (armed && remainingMs > 0 ? remainingMs : intervalMs) / 1000);
+            o.put("int", Math.max(1, intervalMs / 1000));
+            o.put("loop", Math.max(1, currentLoop));
+            o.put("loops", maxLoops);
+        }
+        return o;
+    }
+
+    /** Band app: pause / resume the countdown (runs on the main thread). */
+    public static void bandTogglePause() {
+        handler.post(new BandTogglePause());
+    }
+
+    static final class BandTogglePause implements Runnable {
+        @Override
+        public void run() {
+            try {
+                toggleTimerPause();
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimer.band", t);
+            }
+        }
+    }
+
     static String tr(String bg, String en) {
         try {
             return com.isaigu.gymapp.widget.XemsLang.tr(bg, en);

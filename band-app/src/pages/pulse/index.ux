@@ -1,0 +1,272 @@
+<template>
+  <div class="screen">
+    <text class="caps">ПУЛС КОНТРОЛ</text>
+
+    <div class="hr-row">
+      <image class="heart {{hr > 0 ? 'beat' : ''}}" src="/common/icons/heart.png" style="animation-duration: {{beatMs}}ms"></image>
+      <text class="hr" style="color: {{zoneColor}}">{{hrText}}</text>
+    </div>
+    <div class="zones">
+      <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
+    </div>
+    <text class="limit">лимит {{limit}} · {{pctText}}</text>
+
+    <div class="card {{en ? 'card-on' : ''}}" onclick="toggle">
+      <div class="card-texts">
+        <text class="card-title">Автоконтрол</text>
+        <text class="card-sub" style="color: {{stateColor}}">{{stateText}}</text>
+      </div>
+      <div class="sw {{en ? 'sw-on' : ''}}">
+        <div class="knob {{en ? 'knob-on' : ''}}"></div>
+      </div>
+    </div>
+
+    <div class="factor" if="{{en && !ai}}">
+      <text class="factor-num" style="color: {{factorColor}}">{{sf}}%</text>
+      <text class="factor-label">сила от пулса</text>
+    </div>
+
+    <div class="chart">
+      <div for="{{bars}}" class="bar" style="height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+    </div>
+    <text class="chart-label">последни 3 мин</text>
+  </div>
+</template>
+
+<script>
+import { ZONE, GREEN, AMBER, BLUE, zoneOf, mods, bind } from '../../common/ui.js'
+
+export default {
+  private: {
+    hr: 0,
+    hrText: '--',
+    zoneColor: '#FFFFFF',
+    beatMs: 450,
+    zoneBars: [],
+    limit: '--',
+    pctText: '',
+    en: false,
+    ai: false,
+    stateText: '',
+    stateColor: '#8E8E93',
+    sf: 100,
+    factorColor: GREEN,
+    bars: []
+  },
+
+  onInit() {
+    this.unbind = bind(this)
+  },
+
+  onDestroy() {
+    this.unbind()
+  },
+
+  update() {
+    const s = this.$app.$def.state
+    if (!s) {
+      return
+    }
+    const hg = mods(s).hg
+    const lim = hg.up || s.lim || 170
+    const z = s.hr > 0 ? s.z || zoneOf(s.hr, lim) : 0
+    this.hr = s.hr || 0
+    this.hrText = s.hr > 0 ? String(s.hr) : '--'
+    this.zoneColor = s.hr > 0 ? ZONE[z] : '#FFFFFF'
+    this.beatMs = s.hr > 0 ? Math.round(30000 / s.hr) : 450
+    const zb = []
+    for (let i = 1; i <= 5; i++) {
+      zb.push({ c: i <= z ? ZONE[i] : '#2C2C2E', on: i === z })
+    }
+    this.zoneBars = zb
+    this.limit = String(lim)
+    this.pctText = s.hr > 0 ? Math.round((s.hr / lim) * 100) + '%' : ''
+
+    this.en = !!hg.en
+    this.ai = !!hg.ai
+    if (hg.ai) {
+      this.stateText = 'AI сесията управлява'
+      this.stateColor = BLUE
+    } else if (!hg.en) {
+      this.stateText = 'изключен'
+      this.stateColor = '#8E8E93'
+    } else if (hg.hold) {
+      this.stateText = 'задържа силата'
+      this.stateColor = AMBER
+    } else {
+      this.stateText = 'следи пулса'
+      this.stateColor = GREEN
+    }
+    this.sf = hg.sf || 100
+    this.factorColor = this.sf >= 100 ? GREEN : this.sf >= 85 ? AMBER : '#FF453A'
+
+    const hh = s.hh || []
+    let lo = 999
+    let hi = 0
+    hh.forEach((v) => {
+      if (v > 0) {
+        lo = Math.min(lo, v)
+        hi = Math.max(hi, v)
+      }
+    })
+    lo = Math.max(40, lo - 8)
+    hi = Math.max(hi, lo + 20)
+    this.bars = hh.map((v) => ({
+      h: v > 0 ? Math.round(6 + ((v - lo) / (hi - lo)) * 60) : 3,
+      c: v > 0 ? ZONE[zoneOf(v, lim)] : '#2C2C2E'
+    }))
+  },
+
+  toggle() {
+    if (this.ai) {
+      return
+    }
+    this.en = !this.en
+    this.$app.$def.command('hg_toggle')
+  }
+}
+</script>
+
+<style>
+.screen {
+  width: 212px;
+  height: 520px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 26px;
+  background-color: #000000;
+}
+.caps {
+  font-size: 20px;
+  font-weight: bold;
+  color: #5ac8fa;
+}
+.hr-row {
+  flex-direction: row;
+  align-items: center;
+}
+.heart {
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+}
+.beat {
+  animation-name: beat;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.hr {
+  font-size: 90px;
+  font-weight: bold;
+}
+.zones {
+  flex-direction: row;
+  align-items: center;
+  height: 14px;
+}
+.zseg {
+  width: 32px;
+  height: 6px;
+  margin-left: 2px;
+  margin-right: 2px;
+  border-radius: 3px;
+}
+.zseg-on {
+  height: 12px;
+  border-radius: 6px;
+}
+.limit {
+  margin-top: 8px;
+  font-size: 21px;
+  color: #aeaeb2;
+}
+.card {
+  width: 200px;
+  height: 76px;
+  margin-top: 14px;
+  border-radius: 38px;
+  background-color: #1c1c1e;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 12px;
+}
+.card-on {
+  background-color: #10283a;
+}
+.card-texts {
+  flex: 1;
+  flex-direction: column;
+}
+.card-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.card-sub {
+  font-size: 18px;
+}
+.sw {
+  width: 54px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: #3a3a3c;
+  padding-left: 3px;
+  align-items: center;
+  transition-property: background-color;
+  transition-duration: 200ms;
+}
+.sw-on {
+  background-color: #5ac8fa;
+}
+.knob {
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background-color: #ffffff;
+  transition-property: transform;
+  transition-duration: 200ms;
+}
+.knob-on {
+  transform: translateX(22px);
+}
+.factor {
+  margin-top: 10px;
+  flex-direction: column;
+  align-items: center;
+}
+.factor-num {
+  font-size: 44px;
+  font-weight: bold;
+}
+.factor-label {
+  font-size: 18px;
+  color: #8e8e93;
+}
+.chart {
+  width: 190px;
+  height: 70px;
+  margin-top: 12px;
+  flex-direction: row;
+  align-items: flex-end;
+}
+.bar {
+  width: 4px;
+  margin-left: 1px;
+  margin-right: 1px;
+  border-radius: 2px;
+}
+.chart-label {
+  margin-top: 4px;
+  font-size: 18px;
+  color: #636366;
+}
+@keyframes beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+</style>

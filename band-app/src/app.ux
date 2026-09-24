@@ -13,9 +13,10 @@
  */
 import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
+import brightness from '@system.brightness'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 4
+const APP_VERSION = 5
 
 export default {
   state: null,
@@ -28,6 +29,9 @@ export default {
 
   onCreate() {
     this.open()
+    // One clock for the whole app: 3-2-1 buzz before a phase / interval ends, screen kept on
+    // while something runs.
+    this.beat = setInterval(() => this.tick(), 1000)
     // Until XEMS answers, say hello every 4 s (the link may open after the app).
     this.helloTimer = setInterval(() => {
       if (this.silence() > 12) {
@@ -41,6 +45,8 @@ export default {
   onDestroy() {
     this.listeners = []
     clearInterval(this.helloTimer)
+    clearInterval(this.beat)
+    this.keepOn(false)
   },
 
   open() {
@@ -109,6 +115,52 @@ export default {
       this.buzz(m.vib)
     }
     this.notify()
+  },
+
+  lastLeft: {},
+  screenOn: false,
+
+  tick() {
+    const s = this.state
+    if (!s || this.silence() > 12) {
+      this.keepOn(false)
+      return
+    }
+    const age = this.silence()
+    const m = s.mods || {}
+    const tm = m.tm || {}
+    const mu = m.mu || {}
+    if (s.mode === 'ai' && s.st === 'run') {
+      this.countdown('ai', (s.pl || 0) - age)
+    }
+    if (tm.run) {
+      this.countdown('tm', (tm.left || 0) - age)
+    }
+    this.keepOn(!!(s.run || tm.run || mu.play))
+  },
+
+  /** Short buzz at 3, 2, 1 s left; long at the end. Once per second per source. */
+  countdown(key, left) {
+    const n = Math.ceil(left)
+    if (n === this.lastLeft[key]) {
+      return
+    }
+    this.lastLeft[key] = n
+    if (n >= 1 && n <= 3) {
+      this.buzz('short')
+    } else if (n === 0) {
+      this.buzz('long')
+    }
+  },
+
+  keepOn(on) {
+    if (on === this.screenOn) {
+      return
+    }
+    this.screenOn = on
+    try {
+      brightness.setKeepScreenOn({ keepScreenOn: on })
+    } catch (e) {}
   },
 
   hello() {

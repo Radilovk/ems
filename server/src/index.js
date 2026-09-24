@@ -144,20 +144,6 @@ async function handleUpdate(url, env) {
 async function serveRelease(request, env, path) {
   const key = path.replace(/^\/releases\//, '');
   if (!key || key.includes('..')) return new Response('Not found', { status: 404 });
-  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-  if (!(await rateLimit(env, `dl:${ip}`, LIMITS.downloadPerDay, 86400))) {
-    return new Response('Too many requests', { status: 429 });
-  }
-  if (env.RELEASES) {
-    const obj = await env.RELEASES.get(key);
-    if (obj) {
-      const headers = new Headers();
-      headers.set('Content-Type', 'application/vnd.android.package-archive');
-      headers.set('Cache-Control', 'public, max-age=86400');
-      if (obj.etag) headers.set('ETag', obj.etag);
-      return new Response(obj.body, { headers });
-    }
-  }
   const rel = await env.DB.prepare('SELECT object_key FROM releases WHERE object_key = ? OR object_key LIKE ?').bind(key, `%${key}`).first();
   if (rel?.object_key?.startsWith('https://')) {
     return Response.redirect(rel.object_key, 302);
@@ -243,73 +229,8 @@ async function adminApi(request, env, path) {
     return json({ ok: true, activations: rows.results });
   }
 
-  if (route === 'releases/r2-status' && request.method === 'GET') {
-    const usage = await r2Usage(env);
-    return json({ ok: true, r2: !!env.RELEASES, limits: limitsSummary(), usage });
-  }
-
   if (route === 'limits' && request.method === 'GET') {
-    const usage = await r2Usage(env);
-    return json({ ok: true, limits: limitsSummary(), usage });
-  }
-
-  if (route === 'releases/upload-file' && request.method === 'POST') {
-    if (!env.RELEASES) {
-      return json({
-        ok: false,
-        error: 'r2_not_configured',
-        message: 'R2 не е активиран. Включи R2 в Cloudflare Dashboard и пусни setup-r2.sh',
-      }, 503);
-    }
-    const ip = request.headers.get('CF-Connecting-IP') || 'admin';
-    if (!(await rateLimit(env, `upload:${ip}`, LIMITS.uploadPerHour, 3600))) {
-      return json({ ok: false, error: 'rate_limit', message: 'Твърде много качвания — макс. ' + LIMITS.uploadPerHour + '/час' }, 429);
-    }
-    const form = await request.formData();
-    const file = form.get('file');
-    const version_code = +form.get('version_code');
-    const version_name = String(form.get('version_name') || '').trim();
-    const notes = String(form.get('notes') || '');
-    const mandatory = form.get('mandatory') === '1' || form.get('mandatory') === 'true';
-    if (!file || typeof file === 'string' || !version_code || !version_name) {
-      return json({ ok: false, error: 'missing_fields', message: 'file, version_code and version_name are required' }, 400);
-    }
-    const buf = await file.arrayBuffer();
-    const size = buf.byteLength;
-    if (size < 1_000_000) {
-      return json({ ok: false, error: 'too_small', message: 'File looks too small to be a valid APK' }, 400);
-    }
-    if (size > LIMITS.maxApkBytes) {
-      return json({
-        ok: false,
-        error: 'too_large',
-        message: `APK над ${LIMITS.maxApkBytes / (1024 * 1024)} MB — отхвърлено за да останем в free tier`,
-      }, 400);
-    }
-    const sha256 = await sha256Hex(new Uint8Array(buf));
-    const object_key = `xems-${version_code}.apk`;
-    await env.RELEASES.put(object_key, buf, {
-      httpMetadata: { contentType: 'application/vnd.android.package-archive' },
-    });
-    await env.DB.prepare(
-      `INSERT OR REPLACE INTO releases (version_code, version_name, channel, object_key, sha256, size, notes, mandatory, published_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).bind(
-      version_code, version_name, form.get('channel') || 'stable', object_key, sha256, size,
-      notes, mandatory ? 1 : 0, now(),
-    ).run();
-    const pruned = await pruneOldR2Releases(env);
-    await audit(env, 'upload_release', null, null, `${version_name} (${object_key}) pruned=${pruned}`);
-    const base = env.PUBLIC_URL || new URL(request.url).origin;
-    return json({
-      ok: true,
-      version_code,
-      version_name,
-      sha256,
-      size,
-      object_key,
-      url: `${base}/releases/${object_key}`,
-    });
+    return json({ ok: true, limits: limitsSummary() });
   }
 
   if (route === 'releases' && request.method === 'GET') {
@@ -382,10 +303,6 @@ async function adminApi(request, env, path) {
 
   if (route.match(/^releases\/\d+$/) && request.method === 'DELETE') {
     const version_code = +route.split('/')[1];
-    const rel = await env.DB.prepare('SELECT object_key FROM releases WHERE version_code = ?').bind(version_code).first();
-    if (rel?.object_key && env.RELEASES && !rel.object_key.startsWith('https://')) {
-      await env.RELEASES.delete(rel.object_key);
-    }
     await env.DB.prepare('DELETE FROM releases WHERE version_code = ?').bind(version_code).run();
     await audit(env, 'delete_release', null, null, String(version_code));
     return json({ ok: true });
@@ -518,48 +435,6 @@ async function fetchReleaseMeta(url) {
   } catch (e) {
     return { ok: false, error: 'fetch_failed', message: String(e.message || e) };
   }
-}
-
-/** R2 storage estimate + object count for admin dashboard. */
-async function r2Usage(env) {
-  if (!env.RELEASES) return { objects: 0, bytes: 0 };
-  let objects = 0;
-  let bytes = 0;
-  let cursor;
-  do {
-    const listed = await env.RELEASES.list({ limit: 100, cursor });
-    for (const o of listed.objects || []) {
-      objects++;
-      bytes += o.size || 0;
-    }
-    cursor = listed.truncated ? listed.cursor : undefined;
-  } while (cursor);
-  return {
-    objects,
-    bytes,
-    max_objects: LIMITS.maxR2Objects,
-    max_bytes: LIMITS.maxStoredReleases * LIMITS.maxApkBytes,
-    free_tier_gb: 10,
-  };
-}
-
-/** Delete oldest R2-hosted APKs beyond LIMITS.maxStoredReleases. */
-async function pruneOldR2Releases(env) {
-  if (!env.RELEASES) return 0;
-  const rows = await env.DB.prepare(
-    `SELECT version_code, object_key FROM releases
-     WHERE object_key NOT LIKE 'https://%'
-     ORDER BY version_code DESC`,
-  ).all();
-  const all = rows.results || [];
-  let pruned = 0;
-  for (let i = LIMITS.maxStoredReleases; i < all.length; i++) {
-    const row = all[i];
-    await env.RELEASES.delete(row.object_key);
-    await env.DB.prepare('DELETE FROM releases WHERE version_code = ?').bind(row.version_code).run();
-    pruned++;
-  }
-  return pruned;
 }
 
 function checkAdmin(request, env) {

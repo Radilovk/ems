@@ -64,15 +64,15 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
 
 <section id="dash" class="panel on">
   <div id="stats" class="card"></div>
-  <div class="card" id="cost_card">
-    <h2>Разходи и лимити</h2>
-    <div id="cost_info" class="hint">Зареждане…</div>
+  <div class="card">
+    <h2>Разходи</h2>
+    <p class="hint">APK се тегли от <b>GitHub</b> (безплатно). Сървърът е Cloudflare Workers + D1 — при нормална употреба <b>$0</b>. Провери Billing → Notifications за аларма при $1. Ако имаш Workers Paid ($5/мес) без нужда → Workers & Pages → Free.</p>
   </div>
   <div class="card">
     <h2>Бърз старт</h2>
     <div class="hint">
       <p><b>Нов клиент:</b> Лицензи → създай ключ → дай го на таблета (Настройки → Достъп и лиценз).</p>
-      <p><b>Нова версия на приложението:</b> Обновления (APK) → след като APK е в GitHub, регистрирай версията. Таблетите ще видят прозорец за update.</p>
+      <p><b>Нова версия:</b> APK в GitHub → Обновления (APK) → регистрирай версията.</p>
       <p><b>Костюми:</b> при лиценза → Промени MAC — или таблетът ги докладва след сдвояване в настройка.</p>
     </div>
   </div>
@@ -107,29 +107,14 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
 <section id="rel" class="panel">
   <div class="card">
     <h2>Как работи OTA обновяването</h2>
-    <p id="r2_status" class="hint"></p>
     <div class="hint steps">
-      <div class="step"><b>Вариант A (препоръчителен):</b> Избери APK файл → <b>Качи в сървъра</b>. Файлът се пази в Cloudflare R2 и таблетите го теглят от <code>license.biocode-bg.com</code>.</div>
-      <div class="step"><b>Вариант B:</b> APK в GitHub → регистрирай URL. Сървърът проверява SHA256 и сочи таблетите към GitHub.</div>
+      <div class="step"><b>1.</b> APK е в GitHub: <code>Radilovk/ems</code> → <code>xems27.apk</code> (branch <code>main</code>).</div>
+      <div class="step"><b>2.</b> Регистрирай версията тук — сървърът проверява SHA256 и казва таблетите да теглят от GitHub.</div>
       <div class="step"><b>3.</b> Таблетите проверяват при старт (на ~12 ч) и показват „Изтегли и инсталирай“.</div>
     </div>
   </div>
-  <div class="card" id="r2_upload_card">
-    <h2>Качи APK директно (R2)</h2>
-    <div class="row">
-      <div><label>Version code</label><input id="u_code" type="number" placeholder="213" style="width:90px"></div>
-      <div><label>Version name</label><input id="u_name" placeholder="1.1.88-ai" style="width:130px"></div>
-      <div style="flex:1;min-width:200px"><label>APK файл</label><input id="u_file" type="file" accept=".apk,application/vnd.android.package-archive"></div>
-    </div>
-    <div class="row">
-      <div style="flex:1"><label>Бележка</label><input id="u_notes" placeholder="Какво е ново" style="width:100%"></div>
-      <div><label>&nbsp;</label><label style="display:flex;align-items:center;gap:.35rem;color:#e6edf3;font-size:.85rem"><input id="u_mandatory" type="checkbox"> Задължително</label></div>
-      <button onclick="uploadReleaseFile()">Качи в сървъра</button>
-    </div>
-    <div id="u_msg"></div>
-  </div>
   <div class="card">
-    <h2>Или регистрирай от GitHub URL</h2>
+    <h2>Регистрирай нова версия</h2>
     <div class="row">
       <div><label>Version code</label><input id="r_code" type="number" placeholder="213" style="width:90px"></div>
       <div><label>Version name</label><input id="r_name" placeholder="1.1.88-ai" style="width:130px"></div>
@@ -187,55 +172,7 @@ function fmtSize(n){n=+n||0;if(n>1e6)return(n/1e6).toFixed(1)+' MB';if(n>1e3)ret
 function fmtDev(id){if(!id)return'—';return id.length===16?id.slice(0,4)+'-'+id.slice(4,8)+'-'+id.slice(8,12)+'-'+id.slice(12):id}
 function emsCount(t){try{return JSON.parse(t||'[]').length}catch(e){return 0}}
 
-async function loadR2Status(){
-  try{
-    const r=await api('releases/r2-status');
-    const el=document.getElementById('r2_status');
-    const card=document.getElementById('r2_upload_card');
-    const cost=document.getElementById('cost_info');
-    const u=r.usage||{};
-    const lim=r.limits||{};
-    const mb=(u.bytes||0)/1024/1024;
-    if(cost){
-      cost.innerHTML='<p><b>Сървърни лимити (вградени):</b> макс. '+lim.max_apk_mb+' MB/APK · макс. '+lim.max_stored_releases+' версии в R2 · '+LIMITS_UPLOAD+' качвания/час · R2 egress = безплатен.</p>'+
-        '<p><b>R2 сега:</b> '+(u.objects||0)+' файла · '+mb.toFixed(1)+' MB (free tier: 10 GB).</p>'+
-        '<p><b>Важно:</b> Cloudflare няма hard spending cap. Провери в Dashboard → Billing → Notifications аларма при $1. Ако имаш <b>Workers Paid ($5/мес)</b> и не ти трябва — Workers & Pages → Change plan → Free.</p>'+
-        '<p>D1 и R2 при нормална употреба (един фитнес, няколко таблета) = <b>$0 допълнително</b>.</p>';
-    }
-    if(r.r2){
-      el.innerHTML='<span class="tag active">R2 активен</span> — '+mb.toFixed(1)+' MB / 10 GB free.';
-      if(card) card.style.display='block';
-    }else{
-      el.innerHTML='<span class="tag disabled">R2 не е активиран</span> — включи R2 в <a href="https://dash.cloudflare.com/" style="color:#58a6ff">Cloudflare Dashboard</a> → R2, после deploy.';
-      if(card) card.style.opacity='0.55';
-    }
-  }catch(e){}
-}
-const LIMITS_UPLOAD=5;
-
-async function uploadReleaseFile(){
-  const el=document.getElementById('u_msg');
-  const f=document.getElementById('u_file').files[0];
-  if(!f){el.innerHTML='<div class="msg err">Избери APK файл</div>';return;}
-  el.innerHTML='<div class="msg">Качване… ('+fmtSize(f.size)+')</div>';
-  const fd=new FormData();
-  fd.append('file',f);
-  fd.append('version_code',document.getElementById('u_code').value);
-  fd.append('version_name',document.getElementById('u_name').value);
-  fd.append('notes',document.getElementById('u_notes').value);
-  fd.append('mandatory',document.getElementById('u_mandatory').checked?'1':'0');
-  try{
-    const r=await fetch('/admin/api/releases/upload-file',{method:'POST',body:fd,credentials:'same-origin'});
-    if(r.status===401){location.reload();return;}
-    const j=await r.json();
-    if(!j.ok) throw new Error(j.message||j.error);
-    el.innerHTML='<div class="msg">Качено: <b>'+j.version_name+'</b> · <code>'+j.url+'</code></div>';
-    load();
-  }catch(e){el.innerHTML='<div class="msg err">'+e.message+'</div>';}
-}
-
 async function load(){
-  loadR2Status();
   const s=await api('stats');
   document.getElementById('stats').innerHTML=
     '<div class="stat"><span>Активни ключове</span><b>'+s.active_licenses+'</b></div>'+
@@ -249,8 +186,7 @@ async function load(){
     '</td></tr>').join('');
   const r=await api('releases');
   document.querySelector('#rel_table tbody').innerHTML=(r.releases||[]).map(x=>{
-    const src=x.object_key&&x.object_key.startsWith('https://')?'GitHub':'R2';
-    return '<tr><td>'+x.version_code+'</td><td>'+x.version_name+' <span class="tag">'+src+'</span></td><td>'+fmtSize(x.size)+'</td><td>'+fmtTs(x.published_at)+'</td><td>'+(x.notes||'—')+'</td><td>'+(x.mandatory?'да':'не')+'</td><td class="actions">'+
+    return '<tr><td>'+x.version_code+'</td><td>'+x.version_name+'</td><td>'+fmtSize(x.size)+'</td><td>'+fmtTs(x.published_at)+'</td><td>'+(x.notes||'—')+'</td><td>'+(x.mandatory?'да':'не')+'</td><td class="actions">'+
     '<button class="secondary" onclick="toggleMandatory('+x.version_code+','+(x.mandatory?0:1)+')">'+(x.mandatory?'Незадълж.':'Задълж.')+'</button>'+
     '<button class="danger" onclick="deleteRelease('+x.version_code+',\\''+x.version_name+'\\')">Изтрий</button></td></tr>';
   }).join('')||'<tr><td colspan="7">Няма регистрирани версии — таблетите няма да видят update.</td></tr>';

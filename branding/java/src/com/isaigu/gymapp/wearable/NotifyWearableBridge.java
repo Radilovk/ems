@@ -47,13 +47,16 @@ public final class NotifyWearableBridge {
             WearableSyncHelper.updateDiagnostics();
             if ("bad_auth_key".equals(bleState)) {
                 WearableSyncHelper.toastBleError(
-                        "Auth key грешен — 32 hex символа от Mi Fitness");
+                        WearableUi.tr("Грешен ключ — нужни са 32 символа от Mi Fitness",
+                                "Wrong key — 32 characters from Mi Fitness"));
             } else if ("bad_mac".equals(bleState)) {
                 WearableSyncHelper.toastBleError(
-                        "MAC грешен — провери адреса на гривната");
+                        WearableUi.tr("Грешен MAC — провери адреса на гривната",
+                                "Wrong MAC — check the band's address"));
             } else if ("auth_fail".equals(bleState)) {
                 WearableSyncHelper.toastBleError(
-                        "Auth неуспешен — провери auth key и MAC");
+                        WearableUi.tr("Гривната не прие ключа — провери ключа и MAC",
+                                "The band rejected the key — check key and MAC"));
             } else if ("no_bt_permission".equals(bleState)) {
                 WearableSyncHelper.showBluetoothPermissionDenied();
             }

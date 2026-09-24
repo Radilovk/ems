@@ -3,12 +3,12 @@
 .source "IntervalTimerHelper.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/view/View$OnLongClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildSignalSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildPresetSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,12 +18,14 @@
 
 
 # instance fields
-.field final synthetic val$snd:I
+.field final synthetic val$a:Landroid/app/Activity;
+
+.field final synthetic val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
 
 # direct methods
-.method constructor <init>(I)V
-    .registers 2
+.method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
+    .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1158
-    iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$snd:I
+    .line 1144
+    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$a:Landroid/app/Activity;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,62 +45,20 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public onLongClick(Landroid/view/View;)Z
     .registers 4
 
     .prologue
-    .line 1161
-    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
+    .line 1147
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$a:Landroid/app/Activity;
 
-    .line 1162
-    iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$snd:I
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
-    const/4 v1, 0x7
+    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->presetMenu(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2300(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    if-ne v0, v1, :cond_c
+    .line 1148
+    const/4 v0, 0x1
 
-    .line 1163
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startRingtonePick(Landroid/view/View;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2400(Landroid/view/View;)V
-
-    .line 1174
-    :goto_b
-    return-void
-
-    .line 1166
-    :cond_c
-    iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$snd:I
-
-    const/16 v1, 0x8
-
-    if-ne v0, v1, :cond_16
-
-    .line 1167
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startSignalPick(Landroid/view/View;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500(Landroid/view/View;)V
-
-    goto :goto_b
-
-    .line 1170
-    :cond_16
-    iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$snd:I
-
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2602(I)I
-
-    .line 1171
-    const-string v0, ""
-
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(Ljava/lang/String;)Ljava/lang/String;
-
-    .line 1172
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2700()V
-
-    .line 1173
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
-
-    goto :goto_b
+    return v0
 .end method

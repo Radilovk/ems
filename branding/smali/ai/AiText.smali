@@ -681,46 +681,29 @@
 .end method
 
 .method static bg()Z
-    .registers 3
+    .registers 1
 
     .prologue
-    const/4 v0, 0x1
-
     .line 11
-    :try_start_1
-    const-string v1, "en"
+    :try_start_0
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_5
 
-    invoke-static {}, Ljava/util/Locale;->getDefault()Ljava/util/Locale;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-    :try_end_e
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_e} :catch_14
-
-    move-result v1
-
-    if-nez v1, :cond_12
+    move-result v0
 
     .line 13
-    :goto_11
+    :goto_4
     return v0
 
-    .line 11
-    :cond_12
-    const/4 v0, 0x0
-
-    goto :goto_11
-
     .line 12
-    :catch_14
-    move-exception v1
+    :catch_5
+    move-exception v0
 
-    goto :goto_11
+    .line 13
+    const/4 v0, 0x1
+
+    goto :goto_4
 .end method
 
 .method static contraindication(Ljava/lang/String;)Ljava/lang/String;

@@ -115,13 +115,13 @@ public final class WearableSettingsSection {
 
         // Radio: Band 8 and older use BLE; Band 8 Pro / 9 / 10 use Bluetooth Classic (SPP).
         com.isaigu.gymapp.widget.XemsUi.init(a);
-        TextView linkLabel = label(a, WearableUi.tr("Връзка", "Link"), mutedCol);
+        TextView linkLabel = label(a, WearableUi.tr("Модел гривна", "Band model"), mutedCol);
         linkLabel.setPadding(0, WearableUi.dp(a, 14), 0, WearableUi.dp(a, 6));
         card.addView(linkLabel);
         card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, new String[] {
                 WearableUi.tr("Авто", "Auto"),
-                "BLE · Band 8",
-                "Classic · Band 9/10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
+                WearableUi.tr("Band 8 и по-стари", "Band 8 and older"),
+                "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
         bandInfoView = WearableUi.text(a, "", 13f, mutedCol, false);
         bandInfoView.setPadding(0, WearableUi.dp(a, 6), 0, 0);
         card.addView(bandInfoView);
@@ -297,33 +297,21 @@ public final class WearableSettingsSection {
         }
     }
 
-    /** "Band 10 · Classic (SPP v2) · 🔋 64 % · на ръката · fw 1.2.3" */
+    /** Short line under the link choice: "Band 10 · батерия 64 % · на ръката". */
     static String bandInfo(Activity a) {
         String mac = WearableConfig.getBandMac(a);
         String name = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, mac);
         String model = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.modelLabel(name);
-        int mode = WearableConfig.getBandTransport(a);
-        boolean classic = mode == 2 || (mode == 0
-                && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(name));
         StringBuilder sb = new StringBuilder();
         sb.append(model.length() > 0 ? model : (name != null ? name
-                : WearableUi.tr("не е сдвоена", "not paired")));
-        sb.append(" · ").append(classic ? "Classic" : "BLE");
+                : WearableUi.tr("Гривната не е сдвоена с телефона", "The band is not paired with the phone")));
         if (NotifyWearableBridge.isLinkUp()) {
-            sb.append(" (").append(com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.link()
-                    .getTransportName()).append(')');
             int bat = com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.getBatteryPercent();
             if (bat >= 0) {
                 sb.append(" · ").append(WearableUi.tr("батерия ", "battery ")).append(bat).append(" %");
             }
             if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownNotWorn()) {
                 sb.append(" · ").append(WearableUi.tr("не е на ръката", "not worn"));
-            } else if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownWorn()) {
-                sb.append(" · ").append(WearableUi.tr("на ръката", "worn"));
-            }
-            String fw = com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.getFirmware();
-            if (fw.length() > 0) {
-                sb.append(" · fw ").append(fw);
             }
         }
         return sb.toString();

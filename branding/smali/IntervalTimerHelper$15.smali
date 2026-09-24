@@ -3,12 +3,12 @@
 .source "IntervalTimerHelper.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/widget/XemsUi$OnStep;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->buildBlockSection(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    value = Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->fillQuickLoops(Landroid/app/Activity;Landroid/widget/LinearLayout;Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,12 +18,14 @@
 
 
 # instance fields
-.field final synthetic val$time:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+.field final synthetic val$n:I
+
+.field final synthetic val$refresh:Ljava/lang/Runnable;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$Stepper;)V
-    .registers 2
+.method constructor <init>(ILjava/lang/Runnable;)V
+    .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +33,10 @@
     .end annotation
 
     .prologue
-    .line 931
-    iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$15;->val$time:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
+    .line 948
+    iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$15;->val$n:I
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$15;->val$refresh:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,55 +45,30 @@
 
 
 # virtual methods
-.method public onStep(I)V
-    .registers 6
+.method public onClick(Landroid/view/View;)V
+    .registers 3
 
     .prologue
-    .line 934
-    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainSec:I
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2000()I
+    .line 951
+    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    move-result v0
+    .line 952
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$15;->val$n:I
 
-    add-int/lit8 v0, v0, 0x1e
+    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$902(I)I
 
-    const/16 v1, 0x3c
+    .line 953
+    const-string v0, ""
 
-    const/16 v2, 0x1518
+    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(Ljava/lang/String;)Ljava/lang/String;
 
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->clamp(III)I
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1600(III)I
+    .line 954
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$15;->val$refresh:Ljava/lang/Runnable;
 
-    move-result v0
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainSec:I
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2002(I)I
-
-    .line 935
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$15;->val$time:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
-
-    # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainSec:I
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2000()I
-
-    move-result v1
-
-    int-to-long v2, v1
-
-    # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$800(J)Ljava/lang/String;
-
-    move-result-object v1
-
-    const-string v2, "\u043c\u0438\u043d : \u0441\u0435\u043a"
-
-    const-string v3, "min : sec"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 936
+    .line 955
     return-void
 .end method

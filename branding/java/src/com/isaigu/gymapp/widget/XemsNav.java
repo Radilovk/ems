@@ -104,6 +104,7 @@ public final class XemsNav {
     public static void onTrainingPanel(View panelRoot) {
         try {
             hideSidebarModules(panelRoot);
+            XemsPanel.attach(panelRoot);
         } catch (Throwable t) {
             XemsGuard.report("XemsNav.onTrainingPanel", t);
         }
@@ -121,6 +122,10 @@ public final class XemsNav {
         }
         Context c = root.getContext();
         XemsUi.init(c);
+        XemsLang.init(c);
+        if (c instanceof android.app.Activity) {
+            XemsFullscreen.apply((android.app.Activity) c);
+        }
         mainRoot = root;
         currentPage = ID_TAB_FIRST;
 
@@ -273,54 +278,58 @@ public final class XemsNav {
         XemsUi.enter(box);
     }
 
+    private static final int[] PAGE_ICONS = {XemsIcon.BOLT, XemsIcon.PERSON, XemsIcon.GEAR, XemsIcon.GUIDE,
+            XemsIcon.PLAN};
+
+    private static int pageTint(int index) {
+        switch (index) {
+            case 0: return XemsUi.ACCENT;
+            case 1: return XemsUi.GO_TEXT;
+            case 2: return XemsUi.MUTED;
+            case 3: return XemsUi.AMBER;
+            default: return XemsUi.ORANGE;
+        }
+    }
+
     private static View menuRow(Context c, ViewGroup tab, int id) {
         boolean selected = id == currentPage;
-        Drawable icon = null;
+        int index = Math.max(0, Math.min(TAB_COUNT - 1, id - ID_TAB_FIRST));
         CharSequence label = "";
         for (int i = 0; i < tab.getChildCount(); i++) {
             View ch = tab.getChildAt(i);
-            if (ch instanceof ImageView && icon == null) {
-                Drawable d = ch.getBackground() != null ? ch.getBackground()
-                        : ((ImageView) ch).getDrawable();
-                if (d != null && d.getConstantState() != null) {
-                    icon = d.getConstantState().newDrawable(c.getResources()).mutate();
-                }
-            } else if (ch instanceof TextView) {
+            if (ch instanceof TextView && !(ch instanceof android.widget.Button)) {
                 label = ((TextView) ch).getText();
             }
         }
+        int tint = pageTint(index);
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(XemsUi.dp(c, 12), 0, XemsUi.dp(c, 12), 0);
+        row.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
         float r = XemsUi.dp(c, 12);
-        int fill = selected ? XemsUi.alpha(XemsUi.ACCENT, 0x2E) : 0x00000000;
+        int fill = selected ? XemsUi.alpha(tint, 0x24) : 0x00000000;
         row.setBackground(XemsUi.ripple(XemsUi.rounded(fill, r, 0, 0), XemsUi.TEXT, r));
         row.setClickable(true);
         row.setOnClickListener(new PageClick(id));
 
-        View bar = new View(c);
-        bar.setBackground(XemsUi.rounded(selected ? XemsUi.ACCENT : 0x00000000,
-                XemsUi.dp(c, 2), 0, 0));
-        row.addView(bar, new LinearLayout.LayoutParams(XemsUi.dp(c, 4), XemsUi.dp(c, 22)));
-
-        ImageView iv = new ImageView(c);
-        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        if (icon != null) {
-            iv.setImageDrawable(icon);
-        }
-        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(XemsUi.dp(c, 28), XemsUi.dp(c, 28));
-        ip.leftMargin = XemsUi.dp(c, 10);
-        row.addView(iv, ip);
+        // Same look as the module tiles: glyph in a tinted disc, solid when active.
+        View icon = new View(c);
+        GradientDrawable disc = new GradientDrawable();
+        disc.setShape(GradientDrawable.OVAL);
+        disc.setColor(selected ? tint : XemsUi.alpha(tint, 0x2E));
+        XemsIcon glyph = new XemsIcon(PAGE_ICONS[index], selected ? XemsUi.ON_ACCENT : tint);
+        android.graphics.drawable.LayerDrawable layers = new android.graphics.drawable.LayerDrawable(
+                new Drawable[] {disc, glyph});
+        int inset = XemsUi.dp(c, 8);
+        layers.setLayerInset(1, inset, inset, inset, inset);
+        icon.setBackground(layers);
+        row.addView(icon, new LinearLayout.LayoutParams(XemsUi.dp(c, 36), XemsUi.dp(c, 36)));
 
         TextView t = XemsUi.text(c, String.valueOf(label), 15,
-                selected ? XemsUi.ACCENT : XemsUi.TEXT, selected);
+                selected ? XemsUi.TEXT : XemsUi.MUTED, selected);
         LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         tp.leftMargin = XemsUi.dp(c, 14);
         row.addView(t, tp);
-        if (selected) {
-            row.addView(XemsUi.text(c, "●", 10, XemsUi.ACCENT, false));
-        }
         return row;
     }
 
@@ -519,7 +528,7 @@ public final class XemsNav {
 
     static String tr(String bg, String en) {
         try {
-            return "en".equals(Locale.getDefault().getLanguage()) ? en : bg;
+            return XemsLang.tr(bg, en);
         } catch (Throwable t) {
             return bg;
         }
@@ -537,6 +546,7 @@ public final class XemsNav {
                 refreshTiles();
                 if (currentPage == ID_TAB_FIRST) {
                     hideSidebarModules(null);
+                    XemsPanel.refresh();
                 }
             } catch (Throwable t) {
                 XemsGuard.report("XemsNav.tick", t);

@@ -44,7 +44,7 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .registers 6
 
     .prologue
     .line 98
@@ -54,12 +54,12 @@
     move-result-object v1
 
     .line 99
-    if-eqz v1, :cond_58
+    if-eqz v1, :cond_5e
 
     .line 100
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsGuard$ToastRunnable;->t:Ljava/lang/Throwable;
 
-    if-eqz v0, :cond_59
+    if-eqz v0, :cond_5f
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -107,6 +107,12 @@
 
     const-string v3, "XEMS: \u0433\u0440\u0435\u0448\u043a\u0430 \u0432 "
 
+    const-string v4, "XEMS: error in "
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -140,21 +146,21 @@
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
     .line 105
-    :cond_58
-    :goto_58
+    :cond_5e
+    :goto_5e
     return-void
 
     .line 100
-    :cond_59
+    :cond_5f
     const-string v0, ""
-    :try_end_5b
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5b} :catch_5c
+    :try_end_61
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_61} :catch_62
 
     goto :goto_31
 
     .line 103
-    :catch_5c
+    :catch_62
     move-exception v0
 
-    goto :goto_58
+    goto :goto_5e
 .end method

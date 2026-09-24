@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 691
+    .line 689
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,27 +36,27 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 694
+    .line 692
     if-ne p1, v0, :cond_f
 
     :goto_3
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$402(Z)Z
 
-    .line 695
+    .line 693
     const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 696
+    .line 694
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$600()V
 
-    .line 697
+    .line 695
     return-void
 
-    .line 694
+    .line 692
     :cond_f
     const/4 v0, 0x0
 

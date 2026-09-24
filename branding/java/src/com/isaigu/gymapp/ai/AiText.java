@@ -8,7 +8,7 @@ final class AiText {
 
     static boolean bg() {
         try {
-            return !"en".equals(Locale.getDefault().getLanguage());
+            return com.isaigu.gymapp.widget.XemsLang.isBg();
         } catch (Throwable ignored) {
             return true;
         }

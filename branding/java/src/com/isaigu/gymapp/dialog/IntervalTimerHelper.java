@@ -199,7 +199,7 @@ public final class IntervalTimerHelper {
 
     static String tr(String bg, String en) {
         try {
-            return "en".equals(Locale.getDefault().getLanguage()) ? en : bg;
+            return com.isaigu.gymapp.widget.XemsLang.tr(bg, en);
         } catch (Throwable t) {
             return bg;
         }
@@ -642,9 +642,7 @@ public final class IntervalTimerHelper {
         }
         hostActivity = activity;
         loadSavedSettings(activity);
-        sheet = XemsUi.shell(activity, activity.getString(STR_TITLE),
-                tr("Стартира с тренировката, спира на пауза", "Starts with training, stops on pause"),
-                SHEET_WIDTH_DP);
+        sheet = XemsUi.shell(activity, activity.getString(STR_TITLE), null, SHEET_WIDTH_DP);
         sheet.info.setVisibility(View.VISIBLE);
         sheet.info.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -701,8 +699,7 @@ public final class IntervalTimerHelper {
         } else {
             buildIntervalSection(a, body);
         }
-        buildPresetSection(a, body);
-        buildSignalSection(a, body);
+        buildMoreRows(a, body);
         buildFooter(a);
         refreshStatusText();
         final int y = scrollY;
@@ -716,42 +713,29 @@ public final class IntervalTimerHelper {
         });
     }
 
+    /** Interval and repeats as two rows (label left, stepper right) and one summary line. */
     private static void buildIntervalSection(final Activity a, LinearLayout body) {
         LinearLayout card = XemsUi.card(a);
-        LinearLayout row = XemsUi.horizontal(a);
-        LinearLayout left = XemsUi.vertical(a);
-        left.addView(XemsUi.label(a, tr("Интервал", "Interval")));
-        final XemsUi.Stepper interval = XemsUi.stepper(a, formatSeconds(intervalSec),
-                tr("мин : сек", "min : sec"), 30, null);
-        left.addView(interval.view);
-        LinearLayout right = XemsUi.vertical(a);
-        right.addView(XemsUi.label(a, tr("Повторения", "Repeats")));
-        final XemsUi.Stepper loops = XemsUi.stepper(a, loopsText(maxLoops), loopsUnit(maxLoops), 30, null);
-        right.addView(loops.view);
-        row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        row.addView(right, XemsUi.weight(1f, 14, a));
-        card.addView(row);
-
+        final XemsUi.Stepper interval = XemsUi.stepper(a, formatSeconds(intervalSec), null, 26, null);
+        final XemsUi.Stepper loops = XemsUi.stepper(a, loopsText(maxLoops), null, 26, null);
+        card.addView(settingRow(a, tr("Интервал", "Interval"), interval.view));
+        card.addView(divider(a), XemsUi.matchWrap(a, 12));
+        card.addView(settingRow(a, tr("Повторения", "Repeats"), loops.view), XemsUi.matchWrap(a, 12));
         final TextView summary = XemsUi.text(a, "", 14, XemsUi.MUTED, false);
-        final LinearLayout bar = XemsUi.horizontal(a);
-        final LinearLayout[] quickRow = new LinearLayout[1];
-        final LinearLayout[] loopRow = new LinearLayout[1];
+        summary.setGravity(Gravity.CENTER);
+        card.addView(summary, XemsUi.matchWrap(a, 14));
         final Runnable refresh = new Runnable() {
             @Override
             public void run() {
-                interval.set(formatSeconds(intervalSec), tr("мин : сек", "min : sec"));
-                loops.set(loopsText(maxLoops), loopsUnit(maxLoops));
+                interval.set(formatSeconds(intervalSec), null);
+                loops.set(loopsText(maxLoops), null);
                 summary.setText(maxLoops > 0
-                        ? maxLoops + " × " + formatSeconds(intervalSec) + "  ·  "
-                        + tr("общо ", "total ") + formatSeconds((long) maxLoops * intervalSec)
-                        : tr("Без край — сигнал на всеки ", "Endless — a signal every ") + formatSeconds(intervalSec));
-                fillTimeline(a, bar, maxLoops);
-                fillQuickIntervals(a, quickRow[0], this);
-                fillQuickLoops(a, loopRow[0], this);
+                        ? tr("Общо ", "Total ") + formatSeconds((long) maxLoops * intervalSec)
+                        : tr("Сигнал на всеки ", "A signal every ") + formatSeconds(intervalSec)
+                        + tr(", без край", ", no end"));
             }
         };
-        // Steppers: 5 s steps below 1 min, 15 s up to 3 min, 30 s above.
-        interval.view.getChildAt(0).setOnTouchListener(null);
+        // 5 s steps below 1 min, 15 s up to 3 min, 30 s above.
         XemsUi.repeatOnHold(interval.view.getChildAt(0), new XemsUi.OnStep() {
             @Override
             public void onStep(int d) {
@@ -768,6 +752,7 @@ public final class IntervalTimerHelper {
                 refresh.run();
             }
         }, +1);
+        // 0 = endless (∞), shown below 1.
         XemsUi.repeatOnHold(loops.view.getChildAt(0), new XemsUi.OnStep() {
             @Override
             public void onStep(int d) {
@@ -784,20 +769,147 @@ public final class IntervalTimerHelper {
                 refresh.run();
             }
         }, +1);
-
-        LinearLayout quickHolder = XemsUi.horizontal(a);
-        LinearLayout qLeft = XemsUi.vertical(a);
-        qLeft.addView(XemsUi.chipRow(a, quickRow));
-        LinearLayout qRight = XemsUi.vertical(a);
-        qRight.addView(XemsUi.chipRow(a, loopRow));
-        quickHolder.addView(qLeft, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        quickHolder.addView(qRight, XemsUi.weight(1f, 14, a));
-        card.addView(quickHolder, XemsUi.matchWrap(a, 12));
-
-        card.addView(bar, XemsUi.matchWrap(a, 16));
-        card.addView(summary, XemsUi.matchWrap(a, 8));
         refresh.run();
         body.addView(card, XemsUi.matchWrap(a, 14));
+    }
+
+    /** Label on the left, control of fixed width on the right — nothing can overlap. */
+    private static View settingRow(Activity a, String label, View control) {
+        LinearLayout row = XemsUi.horizontal(a);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView t = XemsUi.text(a, label, 17, XemsUi.TEXT, true);
+        row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(control, new LinearLayout.LayoutParams(XemsUi.dp(a, 230), ViewGroup.LayoutParams.WRAP_CONTENT));
+        return row;
+    }
+
+    private static View divider(Activity a) {
+        View v = new View(a);
+        v.setBackgroundColor(XemsUi.alpha(XemsUi.TEXT, 0x14));
+        v.setMinimumHeight(1);
+        return v;
+    }
+
+    /** "Signal" and "Saved programs" as rows; their details open in a second sheet. */
+    private static void buildMoreRows(final Activity a, LinearLayout body) {
+        LinearLayout card = XemsUi.card(a);
+        card.addView(navRow(a, tr("Сигнал", "Signal"), signalName(a), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSub(a, SUB_SIGNAL);
+            }
+        }));
+        card.addView(divider(a), XemsUi.matchWrap(a, 4));
+        TimerPreset sel = selectedPresetId.length() > 0 ? TimerPresetStorage.findById(a, selectedPresetId) : null;
+        int count = TimerPresetStorage.loadAll(a).size();
+        card.addView(navRow(a, tr("Запазени програми", "Saved programs"),
+                sel != null ? sel.name : (count > 0 ? String.valueOf(count) : ""), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openSub(a, SUB_PRESETS);
+                    }
+                }), XemsUi.matchWrap(a, 4));
+        body.addView(card, XemsUi.matchWrap(a, 14));
+    }
+
+    private static View navRow(Activity a, String title, String value, View.OnClickListener l) {
+        LinearLayout row = XemsUi.horizontal(a);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, XemsUi.dp(a, 12), 0, XemsUi.dp(a, 12));
+        row.addView(XemsUi.text(a, title, 16, XemsUi.TEXT, false),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView v = XemsUi.text(a, (value != null ? value : "") + "   ›", 16, XemsUi.MUTED, false);
+        v.setSingleLine(true);
+        row.addView(v);
+        row.setClickable(true);
+        row.setBackgroundDrawable(XemsUi.ripple(new android.graphics.drawable.ColorDrawable(0),
+                XemsUi.TEXT, XemsUi.dp(a, 10)));
+        row.setOnClickListener(l);
+        return row;
+    }
+
+    private static String signalName(Activity a) {
+        int[] sounds = {SOUND_OFF, SOUND_BEEP, SOUND_CHIME, SOUND_BELL, SOUND_PIP, SOUND_CONFIRM, SOUND_ALARM,
+                SOUND_DEVICE, SOUND_CUSTOM};
+        int[] labels = {STR_SOUND_OFF, STR_SOUND_BEEP, STR_SOUND_CHIME, STR_SOUND_BELL, STR_SOUND_PIP,
+                STR_SOUND_CONFIRM, STR_SOUND_ALARM, STR_SOUND_DEVICE, STR_SOUND_CUSTOM};
+        for (int i = 0; i < sounds.length; i++) {
+            if (sounds[i] == selectedSound) {
+                try {
+                    return a.getString(labels[i]);
+                } catch (Throwable t) {
+                    return "";
+                }
+            }
+        }
+        return "";
+    }
+
+    private static final int SUB_SIGNAL = 1;
+    private static final int SUB_PRESETS = 2;
+    private static XemsUi.Shell subSheet;
+    private static int subKind;
+
+    private static void openSub(final Activity a, int kind) {
+        if (subSheet != null) {
+            return;
+        }
+        subKind = kind;
+        subSheet = XemsUi.shell(a, kind == SUB_SIGNAL ? tr("Сигнал", "Signal")
+                : tr("Запазени програми", "Saved programs"), null, 520);
+        subSheet.dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface d) {
+                subSheet = null;
+                rebuildSheet();
+            }
+        });
+        TextView done = XemsUi.button(a, tr("Готово", "Done"), XemsUi.PRIMARY);
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeSub();
+            }
+        });
+        subSheet.footer.addView(XemsUi.spacer(a));
+        subSheet.footer.addView(done);
+        refreshSub();
+        try {
+            subSheet.dialog.show();
+        } catch (Throwable t) {
+            subSheet = null;
+        }
+    }
+
+    private static void refreshSub() {
+        Activity a = resolveActivity(null);
+        if (subSheet == null || a == null) {
+            return;
+        }
+        subSheet.body.removeAllViews();
+        if (subKind == SUB_SIGNAL) {
+            buildSignalSection(a, subSheet.body);
+        } else {
+            buildPresetSection(a, subSheet.body);
+        }
+    }
+
+    private static void closeSub() {
+        if (subSheet != null) {
+            try {
+                subSheet.dialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    /** Refresh whichever sheets are open. */
+    private static void refreshSheets() {
+        if (subSheet != null) {
+            refreshSub();
+        } else {
+            rebuildSheet();
+        }
     }
 
     private static int stepFor(int sec) {
@@ -894,9 +1006,7 @@ public final class IntervalTimerHelper {
         card.addView(head);
 
         if (blockSegments.isEmpty()) {
-            TextView empty = XemsUi.text(a, tr("Няма блокове. Всеки блок е брой импулсни цикли със своя сила, честота и ширина.",
-                    "No blocks yet. Each block is a number of impulse cycles with its own strength, frequency and width."),
-                    14, XemsUi.MUTED, false);
+            TextView empty = XemsUi.text(a, tr("Още няма блокове", "No blocks yet"), 15, XemsUi.MUTED, false);
             card.addView(empty, XemsUi.matchWrap(a, 6));
         } else {
             int[] onOff = resolveOnOffFromSeed();
@@ -906,9 +1016,7 @@ public final class IntervalTimerHelper {
             }
         }
 
-        card.addView(XemsUi.toggleRow(a, tr("Повтаряй до края на времето", "Repeat until time is up"),
-                tr("RPT — блоковете се въртят, докато изтече времето за тренировка",
-                        "RPT — blocks cycle until the workout time runs out"),
+        card.addView(XemsUi.toggleRow(a, tr("Повтаряй до края на времето", "Repeat until time is up"), null,
                 blockProgramRepeat, new XemsUi.OnToggle() {
                     @Override
                     public void onToggle(boolean on) {
@@ -919,27 +1027,25 @@ public final class IntervalTimerHelper {
                 }), XemsUi.matchWrap(a, 14));
 
         if (blockProgramRepeat) {
-            card.addView(XemsUi.label(a, tr("Време за тренировка", "Workout time")), XemsUi.matchWrap(a, 10));
-            final XemsUi.Stepper time = XemsUi.stepper(a, formatSeconds(trainSec), tr("мин : сек", "min : sec"), 28, null);
+            final XemsUi.Stepper time = XemsUi.stepper(a, formatSeconds(trainSec), null, 26, null);
             XemsUi.repeatOnHold(time.view.getChildAt(0), new XemsUi.OnStep() {
                 @Override
                 public void onStep(int d) {
                     trainSec = clamp(trainSec - 30, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
-                    time.set(formatSeconds(trainSec), tr("мин : сек", "min : sec"));
+                    time.set(formatSeconds(trainSec), null);
                 }
             }, -1);
             XemsUi.repeatOnHold(time.view.getChildAt(2), new XemsUi.OnStep() {
                 @Override
                 public void onStep(int d) {
                     trainSec = clamp(trainSec + 30, TRAIN_MIN_SEC, TRAIN_MAX_SEC);
-                    time.set(formatSeconds(trainSec), tr("мин : сек", "min : sec"));
+                    time.set(formatSeconds(trainSec), null);
                 }
             }, +1);
-            card.addView(time.view);
+            card.addView(settingRow(a, tr("Време", "Time"), time.view), XemsUi.matchWrap(a, 10));
         } else if (!blockSegments.isEmpty()) {
-            TextView seq = XemsUi.text(a, tr("Една поредица: ", "One sequence: ") + formatSeconds(sequenceSeconds())
-                    + tr(" (времето за тренировка се задава само)", " (workout time is set automatically)"),
-                    14, XemsUi.GO_TEXT, true);
+            TextView seq = XemsUi.text(a, tr("Общо ", "Total ") + formatSeconds(sequenceSeconds()),
+                    14, XemsUi.MUTED, false);
             card.addView(seq, XemsUi.matchWrap(a, 6));
         }
         body.addView(card, XemsUi.matchWrap(a, 14));
@@ -962,16 +1068,6 @@ public final class IntervalTimerHelper {
         params.setPadding(0, XemsUi.dp(a, 3), 0, 0);
         texts.addView(params);
         row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        // Strength as a mini bar on the right.
-        LinearLayout meter = XemsUi.vertical(a);
-        meter.setGravity(Gravity.BOTTOM);
-        View fill = new View(a);
-        fill.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.GO, XemsUi.ACCENT, seg.strenth / 100f),
-                XemsUi.dp(a, 3), 0, 0));
-        meter.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.TEXT, 0x18), XemsUi.dp(a, 3), 0, 0));
-        meter.addView(fill, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                Math.max(XemsUi.dp(a, 3), XemsUi.dp(a, 34) * clamp(seg.strenth, 0, 100) / 100)));
-        row.addView(meter, new LinearLayout.LayoutParams(XemsUi.dp(a, 6), XemsUi.dp(a, 34)));
         return row;
     }
 
@@ -1000,7 +1096,6 @@ public final class IntervalTimerHelper {
 
     /** Saved programs as chips: tap = load, hold = rename / delete; "+" saves the current one. */
     private static void buildPresetSection(final Activity a, LinearLayout body) {
-        body.addView(XemsUi.label(a, tr("Запазени програми", "Saved programs")), XemsUi.matchWrap(a, 20));
         LinearLayout[] holder = new LinearLayout[1];
         body.addView(XemsUi.chipRow(a, holder));
         LinearLayout row = holder[0];
@@ -1016,7 +1111,7 @@ public final class IntervalTimerHelper {
                     TimerPreset p = captureCurrentPreset(existing.id, existing.name);
                     TimerPresetStorage.upsert(a, p);
                     toastText(tr("Обновено: ", "Updated: ") + p.name);
-                    rebuildSheet();
+                    refreshSheets();
                     return;
                 }
                 promptName(a, tr("Име на програмата", "Program name"), "", new NameCallback() {
@@ -1026,7 +1121,7 @@ public final class IntervalTimerHelper {
                         TimerPresetStorage.upsert(a, p);
                         selectedPresetId = p.id;
                         toastText(tr("Запазено: ", "Saved: ") + name);
-                        rebuildSheet();
+                        refreshSheets();
                     }
                 });
             }
@@ -1043,7 +1138,7 @@ public final class IntervalTimerHelper {
                     XemsUi.haptic(v);
                     applyPreset(p);
                     selectedPresetId = p.id;
-                    rebuildSheet();
+                    closeSub();
                 }
             });
             chip.setOnLongClickListener(new View.OnLongClickListener() {
@@ -1076,7 +1171,7 @@ public final class IntervalTimerHelper {
                         TimerPreset copy = p.copy();
                         copy.name = name;
                         TimerPresetStorage.upsert(a, copy);
-                        rebuildSheet();
+                        refreshSheets();
                     }
                 });
             }
@@ -1090,7 +1185,7 @@ public final class IntervalTimerHelper {
                     selectedPresetId = "";
                 }
                 toastText(tr("Изтрито: ", "Deleted: ") + p.name);
-                rebuildSheet();
+                refreshSheets();
             }
         });
         s.footer.addView(rename, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -1143,7 +1238,6 @@ public final class IntervalTimerHelper {
 
     /** Signal chips: tap selects and plays it at once; phone / file open the pickers. */
     private static void buildSignalSection(final Activity a, LinearLayout body) {
-        body.addView(XemsUi.label(a, tr("Сигнал при смяна", "Signal on switch")), XemsUi.matchWrap(a, 20));
         LinearLayout[] holder = new LinearLayout[1];
         body.addView(XemsUi.chipRow(a, holder));
         LinearLayout row = holder[0];
@@ -1160,17 +1254,19 @@ public final class IntervalTimerHelper {
                 public void onClick(View v) {
                     XemsUi.haptic(v);
                     if (snd == SOUND_DEVICE) {
+                        closeSub();
                         startRingtonePick(v);
                         return;
                     }
                     if (snd == SOUND_CUSTOM) {
+                        closeSub();
                         startSignalPick(v);
                         return;
                     }
                     selectedSound = snd;
                     selectedPresetId = "";
                     playSignal();
-                    rebuildSheet();
+                    refreshSheets();
                 }
             });
             XemsUi.addChip(a, row, chip);
@@ -1201,7 +1297,7 @@ public final class IntervalTimerHelper {
                 public void onClick(View v) {
                     selectedSound = SOUND_BEEP;
                     customSignalUri = null;
-                    rebuildSheet();
+                    refreshSheets();
                 }
             });
             LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(XemsUi.dp(a, 34), XemsUi.dp(a, 34));

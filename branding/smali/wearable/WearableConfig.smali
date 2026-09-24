@@ -8,7 +8,7 @@
 
 .field private static final KEY_AUTH_KEY:Ljava/lang/String; = "auth_key"
 
-.field private static final KEY_AUTO_REDUCE:Ljava/lang/String; = "auto_reduce"
+.field private static final KEY_AUTO_REDUCE:Ljava/lang/String; = "auto_reduce_v2"
 
 .field private static final KEY_BAND_MAC:Ljava/lang/String; = "band_mac"
 
@@ -23,6 +23,8 @@
 .field private static final KEY_STRENGTH_STEP:Ljava/lang/String; = "strength_step"
 
 .field private static final PREFS:Ljava/lang/String; = "wearable_bridge"
+
+.field private static armedThisRun:Z
 
 
 # direct methods
@@ -40,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 88
+    .line 91
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -60,7 +62,7 @@
     .registers 4
 
     .prologue
-    .line 78
+    .line 81
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -82,14 +84,14 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 98
+    .line 101
     if-nez p0, :cond_4
 
-    .line 102
+    .line 105
     :goto_3
     return v1
 
-    .line 101
+    .line 104
     :cond_4
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -101,7 +103,7 @@
 
     move-result v0
 
-    .line 102
+    .line 105
     if-ltz v0, :cond_15
 
     const/4 v2, 0x2
@@ -123,14 +125,14 @@
     .registers 4
 
     .prologue
-    .line 43
+    .line 46
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isHrThresholdManual(Landroid/content/Context;)Z
 
     move-result v0
 
     if-eqz v0, :cond_13
 
-    .line 44
+    .line 47
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -143,7 +145,7 @@
 
     move-result v0
 
-    .line 46
+    .line 49
     :goto_12
     return v0
 
@@ -163,7 +165,7 @@
     .registers 4
 
     .prologue
-    .line 65
+    .line 68
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -183,7 +185,7 @@
     .registers 4
 
     .prologue
-    .line 73
+    .line 76
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -203,19 +205,28 @@
     .registers 4
 
     .prologue
-    .line 33
+    const/4 v0, 0x0
+
+    .line 36
+    sget-boolean v1, Lcom/isaigu/gymapp/wearable/WearableConfig;->armedThisRun:Z
+
+    if-eqz v1, :cond_12
+
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
-    move-result-object v0
+    move-result-object v1
 
-    const-string v1, "armed"
+    const-string v2, "armed"
 
-    const/4 v2, 0x0
+    invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
 
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+    move-result v1
 
-    move-result v0
+    if-eqz v1, :cond_12
 
+    const/4 v0, 0x1
+
+    :cond_12
     return v0
 .end method
 
@@ -223,14 +234,14 @@
     .registers 4
 
     .prologue
-    .line 38
+    .line 41
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    const-string v1, "auto_reduce"
+    const-string v1, "auto_reduce_v2"
 
-    const/4 v2, 0x1
+    const/4 v2, 0x0
 
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
 
@@ -245,24 +256,24 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 115
+    .line 118
     if-nez p0, :cond_4
 
-    .line 130
+    .line 133
     :cond_3
     :goto_3
     return v1
 
-    .line 118
+    .line 121
     :cond_4
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getAuthKey(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 119
+    .line 122
     if-eqz v0, :cond_3
 
-    .line 122
+    .line 125
     const-string v2, " "
 
     const-string v3, ""
@@ -287,7 +298,7 @@
 
     move-result-object v0
 
-    .line 123
+    .line 126
     const-string v2, "0x"
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -304,7 +315,7 @@
 
     if-eqz v2, :cond_37
 
-    .line 124
+    .line 127
     :cond_32
     const/4 v2, 0x2
 
@@ -312,7 +323,7 @@
 
     move-result-object v0
 
-    .line 126
+    .line 129
     :cond_37
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -322,12 +333,12 @@
 
     if-ne v0, v2, :cond_3
 
-    .line 129
+    .line 132
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 130
+    .line 133
     if-eqz v0, :cond_64
 
     const-string v2, ":"
@@ -375,7 +386,7 @@
     .registers 2
 
     .prologue
-    .line 110
+    .line 113
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isConfigured(Landroid/content/Context;)Z
 
     move-result v0
@@ -407,7 +418,7 @@
     .registers 4
 
     .prologue
-    .line 50
+    .line 53
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -449,7 +460,10 @@
     .registers 4
 
     .prologue
-    .line 138
+    .line 141
+    sput-boolean p1, Lcom/isaigu/gymapp/wearable/WearableConfig;->armedThisRun:Z
+
+    .line 142
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -466,7 +480,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 139
+    .line 143
     return-void
 .end method
 
@@ -474,7 +488,7 @@
     .registers 5
 
     .prologue
-    .line 92
+    .line 95
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -485,26 +499,26 @@
 
     const-string v2, "auth_key"
 
-    .line 93
+    .line 96
     if-eqz p1, :cond_18
 
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 92
+    .line 95
     :goto_10
     invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
-    .line 93
+    .line 96
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 94
+    .line 97
     return-void
 
-    .line 93
+    .line 96
     :cond_18
     const-string v0, ""
 
@@ -515,7 +529,7 @@
     .registers 4
 
     .prologue
-    .line 142
+    .line 146
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -524,7 +538,7 @@
 
     move-result-object v0
 
-    const-string v1, "auto_reduce"
+    const-string v1, "auto_reduce_v2"
 
     invoke-interface {v0, v1, p1}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
@@ -532,7 +546,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 143
+    .line 147
     return-void
 .end method
 
@@ -540,7 +554,7 @@
     .registers 5
 
     .prologue
-    .line 82
+    .line 85
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -551,26 +565,26 @@
 
     const-string v2, "band_mac"
 
-    .line 83
+    .line 86
     if-eqz p1, :cond_18
 
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 82
+    .line 85
     :goto_10
     invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
-    .line 83
+    .line 86
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 84
+    .line 87
     return-void
 
-    .line 83
+    .line 86
     :cond_18
     const-string v0, ""
 
@@ -581,7 +595,7 @@
     .registers 6
 
     .prologue
-    .line 106
+    .line 109
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -610,7 +624,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 107
+    .line 110
     return-void
 .end method
 
@@ -618,7 +632,7 @@
     .registers 4
 
     .prologue
-    .line 134
+    .line 137
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -635,7 +649,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 135
+    .line 138
     return-void
 .end method
 
@@ -647,14 +661,14 @@
 
     const/16 v1, 0x50
 
-    .line 146
+    .line 150
     if-ge p1, v1, :cond_1c
 
-    .line 149
+    .line 153
     :goto_6
     if-le v1, v0, :cond_1a
 
-    .line 152
+    .line 156
     :goto_8
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -672,7 +686,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 153
+    .line 157
     return-void
 
     :cond_1a
@@ -690,7 +704,7 @@
     .registers 5
 
     .prologue
-    .line 55
+    .line 58
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getRestHr(Landroid/content/Context;)I
 
     move-result v0
@@ -699,12 +713,12 @@
 
     move-result v0
 
-    .line 56
+    .line 59
     if-lez p1, :cond_c
 
     if-ne p1, v0, :cond_1f
 
-    .line 57
+    .line 60
     :cond_c
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -724,11 +738,11 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 62
+    .line 65
     :goto_1e
     return-void
 
-    .line 60
+    .line 63
     :cond_1f
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -748,7 +762,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 61
+    .line 64
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setHrThreshold(Landroid/content/Context;I)V
 
     goto :goto_1e
@@ -758,7 +772,7 @@
     .registers 4
 
     .prologue
-    .line 69
+    .line 72
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -775,7 +789,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 70
+    .line 73
     return-void
 .end method
 
@@ -787,14 +801,14 @@
 
     const/4 v1, 0x1
 
-    .line 156
+    .line 160
     if-ge p1, v1, :cond_1b
 
-    .line 159
+    .line 163
     :goto_5
     if-le v1, v0, :cond_19
 
-    .line 162
+    .line 166
     :goto_7
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -812,7 +826,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 163
+    .line 167
     return-void
 
     :cond_19

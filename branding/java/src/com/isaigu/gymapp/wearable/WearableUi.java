@@ -30,7 +30,7 @@ final class WearableUi {
 
     static boolean isBulgarian() {
         try {
-            return "bg".equals(Locale.getDefault().getLanguage());
+            return com.isaigu.gymapp.widget.XemsLang.isBg();
         } catch (Throwable ignored) {
             return true;
         }

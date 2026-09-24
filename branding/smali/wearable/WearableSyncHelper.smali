@@ -1649,7 +1649,7 @@
     goto :goto_a
 .end method
 
-.method static getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
+.method public static getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
     .registers 1
 
     .prologue
@@ -5380,23 +5380,29 @@
 
     .prologue
     .line 831
-    if-nez p0, :cond_5
+    if-nez p0, :cond_b
 
     .line 832
     const-string v0, "\u041d\u044f\u043c\u0430 \u0430\u043a\u0442\u0438\u0432\u0435\u043d \u0435\u043a\u0440\u0430\u043d"
 
+    const-string v1, "No active screen"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     .line 853
-    :goto_4
+    :goto_a
     return-object v0
 
     .line 834
-    :cond_5
+    :cond_b
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getAuthKey(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
     .line 835
-    if-eqz v0, :cond_47
+    if-eqz v0, :cond_4d
 
     .line 836
     const-string v1, " "
@@ -5424,14 +5430,14 @@
     move-result-object v0
 
     .line 837
-    :goto_23
+    :goto_29
     const-string v1, "0x"
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v1
 
-    if-nez v1, :cond_33
+    if-nez v1, :cond_39
 
     const-string v1, "0X"
 
@@ -5439,10 +5445,10 @@
 
     move-result v1
 
-    if-eqz v1, :cond_38
+    if-eqz v1, :cond_3e
 
     .line 838
-    :cond_33
+    :cond_39
     const/4 v1, 0x2
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->substring(I)Ljava/lang/String;
@@ -5450,12 +5456,12 @@
     move-result-object v0
 
     .line 840
-    :cond_38
+    :cond_3e
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    if-nez v1, :cond_4a
+    if-nez v1, :cond_50
 
     .line 841
     const-string v0, "\u041d\u044f\u043c\u0430 \u043a\u043b\u044e\u0447 \u2014 \u0432\u044a\u0432\u0435\u0434\u0438 \u0433\u043e \u0432 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u2192 \u0413\u0440\u0438\u0432\u043d\u0430"
@@ -5466,23 +5472,23 @@
 
     move-result-object v0
 
-    goto :goto_4
+    goto :goto_a
 
     .line 836
-    :cond_47
+    :cond_4d
     const-string v0, ""
 
-    goto :goto_23
+    goto :goto_29
 
     .line 844
-    :cond_4a
+    :cond_50
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
 
     const/16 v1, 0x20
 
-    if-eq v0, v1, :cond_5b
+    if-eq v0, v1, :cond_61
 
     .line 845
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u043d\u0435\u0432\u0430\u043b\u0438\u0434\u0435\u043d \u2014 \u043f\u043e\u043f\u0440\u0430\u0432\u0438 \u0433\u043e \u0432 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u2192 \u0413\u0440\u0438\u0432\u043d\u0430"
@@ -5493,16 +5499,16 @@
 
     move-result-object v0
 
-    goto :goto_4
+    goto :goto_a
 
     .line 848
-    :cond_5b
+    :cond_61
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
     .line 849
-    if-eqz v0, :cond_7d
+    if-eqz v0, :cond_83
 
     const-string v1, ":"
 
@@ -5530,10 +5536,10 @@
 
     const/16 v1, 0xc
 
-    if-ge v0, v1, :cond_87
+    if-ge v0, v1, :cond_8d
 
     .line 850
-    :cond_7d
+    :cond_83
     const-string v0, "\u041d\u044f\u043c\u0430 MAC \u2014 \u0432\u044a\u0432\u0435\u0434\u0438 \u0433\u043e \u0432 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u2192 \u0413\u0440\u0438\u0432\u043d\u0430"
 
     const-string v1, "No MAC \u2014 enter it in Settings \u2192 Band"
@@ -5542,11 +5548,11 @@
 
     move-result-object v0
 
-    goto/16 :goto_4
+    goto/16 :goto_a
 
     .line 853
-    :cond_87
+    :cond_8d
     const/4 v0, 0x0
 
-    goto/16 :goto_4
+    goto/16 :goto_a
 .end method

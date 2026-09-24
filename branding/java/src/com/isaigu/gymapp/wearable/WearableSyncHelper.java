@@ -332,7 +332,7 @@ public final class WearableSyncHelper {
         return resolveActivity(null);
     }
 
-    static TrainItemManager getItemManager() {
+    public static TrainItemManager getItemManager() {
         return itemManager;
     }
 
@@ -451,15 +451,13 @@ public final class WearableSyncHelper {
         if (box == null) {
             return;
         }
-        String macText = WearableConfig.getBandMac(activity);
-        boolean ok = WearableConfig.isConfigured(activity);
-        TextView line = WearableUi.text(activity, (ok
-                ? WearableUi.tr("Гривна: ", "Band: ") + NotifyWearableBridge.normalizeMac(macText) + " · "
-                + WearableUi.tr("ключ ✓", "key ✓")
-                : WearableUi.tr("Гривната не е настроена", "Band not set up"))
-                + WearableUi.tr("  ·  MAC и ключ: Настройки → Гривна", "  ·  MAC and key: Settings → Band"),
-                12f, ok ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT, true);
-        box.addView(line, WearableUi.matchWrap(activity, 12));
+        // Only say something when the band still needs setting up.
+        if (!WearableConfig.isConfigured(activity)) {
+            TextView line = WearableUi.text(activity, WearableUi.tr(
+                    "Настрой гривната: Настройки → Гривна", "Set up the band: Settings → Band"),
+                    13f, WearableUi.COLOR_WAIT, true);
+            box.addView(line, WearableUi.matchWrap(activity, 12));
+        }
     }
 
     /** Band picker next to MAC, live auth-key check, "Band data" button — built in code. */
@@ -829,7 +827,7 @@ public final class WearableSyncHelper {
 
     private static String validateDirectBleConfig(Activity activity) {
         if (activity == null) {
-            return "Няма активен екран";
+            return WearableUi.tr("Няма активен екран", "No active screen");
         }
         String key = WearableConfig.getAuthKey(activity);
         String clean = key != null

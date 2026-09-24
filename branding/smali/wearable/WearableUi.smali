@@ -363,39 +363,29 @@
 .end method
 
 .method static isBulgarian()Z
-    .registers 2
+    .registers 1
 
     .prologue
     .line 33
     :try_start_0
-    const-string v0, "bg"
-
-    invoke-static {}, Ljava/util/Locale;->getDefault()Ljava/util/Locale;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-    :try_end_d
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_d} :catch_f
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_5
 
     move-result v0
 
     .line 35
-    :goto_e
+    :goto_4
     return v0
 
     .line 34
-    :catch_f
+    :catch_5
     move-exception v0
 
     .line 35
     const/4 v0, 0x1
 
-    goto :goto_e
+    goto :goto_4
 .end method
 
 .method static isErrorState(Ljava/lang/String;)Z

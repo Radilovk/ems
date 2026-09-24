@@ -25,13 +25,14 @@ ON_PAGE = "Lcom/isaigu/gymapp/widget/XemsNav;->onPage(I)V"
 
 
 def install() -> None:
-    files = sorted(SRC.glob("XemsNav*.smali"))
+    files = sorted(SRC.glob("XemsNav*.smali")) + sorted(SRC.glob("XemsPanel*.smali")) + sorted(
+        SRC.glob("XemsIcon*.smali")) + sorted(SRC.glob("XemsFullscreen*.smali"))
     if not files:
         raise SystemExit("Missing branding/smali/widget/XemsNav.smali — run compile-music-sync-java.sh")
     DEST.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy2(f, DEST / f.name)
-    print(f"installed widget/XemsNav ({len(files)} files)")
+    print(f"installed widget/XemsNav, XemsPanel, XemsIcon, XemsFullscreen ({len(files)} files)")
 
 
 def method_span(text: str, header: str) -> tuple[int, int]:

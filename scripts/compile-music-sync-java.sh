@@ -70,7 +70,8 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/widget/MusicVisualizerView*.class' \
      -o -path '*/widget/MusicImpulseMeterView*.class' \
      -o -path '*/widget/XemsUi*.class' -o -path '*/widget/XemsGuard*.class' \
-     -o -path '*/widget/XemsNav*.class' \) -print | sort)
+     -o -path '*/widget/XemsNav*.class' -o -path '*/widget/XemsLang*.class' \
+     -o -path '*/widget/XemsIcon*.class' -o -path '*/widget/XemsPanel*.class' -o -path '*/widget/XemsFullscreen*.class' \) -print | sort)
 (
   cd "${CLASSES_DIR}"
   "${D8}" \
@@ -99,6 +100,7 @@ find "${BRANDING_SMALI}/widget" -name 'MusicImpulseMeterView*.smali' -delete 2>/
 find "${BRANDING_SMALI}/widget" -name 'XemsUi*.smali' -delete 2>/dev/null || true
 find "${BRANDING_SMALI}/widget" -name 'XemsGuard*.smali' -delete 2>/dev/null || true
 find "${BRANDING_SMALI}/widget" -name 'XemsNav*.smali' -delete 2>/dev/null || true
+for n in XemsLang XemsIcon XemsPanel XemsFullscreen; do find "${BRANDING_SMALI}/widget" -name "${n}*.smali" -delete 2>/dev/null || true; done
 find "${BRANDING_SMALI}" -name 'MusicPlayerEngine*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicDiagLog.smali' -delete
 while IFS= read -r -d '' file; do
@@ -110,6 +112,6 @@ mkdir -p "${BRANDING_SMALI}/widget"
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/widget/$(basename "${file}")"
   echo "  -> widget/$(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -path '*/widget/MusicVisualizerView*.smali' -o -path '*/widget/MusicImpulseMeterView*.smali' -o -path '*/widget/XemsUi*.smali' -o -path '*/widget/XemsGuard*.smali' -o -path '*/widget/XemsNav*.smali' \) -print0)
+done < <(find "${SMALI_OUT}" \( -path '*/widget/MusicVisualizerView*.smali' -o -path '*/widget/MusicImpulseMeterView*.smali' -o -path '*/widget/XemsUi*.smali' -o -path '*/widget/XemsGuard*.smali' -o -path '*/widget/XemsNav*.smali' -o -path '*/widget/XemsLang*.smali' -o -path '*/widget/XemsIcon*.smali' -o -path '*/widget/XemsPanel*.smali' -o -path '*/widget/XemsFullscreen*.smali' \) -print0)
 
 echo "Music-sync Java compile complete."

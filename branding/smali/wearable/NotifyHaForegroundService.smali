@@ -102,7 +102,7 @@
 
     const/16 v3, 0x1a
 
-    if-lt v0, v3, :cond_74
+    if-lt v0, v3, :cond_7a
 
     .line 99
     new-instance v0, Landroid/app/Notification$Builder;
@@ -113,7 +113,13 @@
 
     .line 101
     :goto_4e
-    const-string v3, "XEMS \u2014 \u043f\u0443\u043b\u0441 \u0441\u0438\u043d\u0445\u0440\u043e\u043d"
+    const-string v3, "XEMS \u2014 \u043f\u0443\u043b\u0441 \u043e\u0442 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+
+    const-string v4, "XEMS \u2014 band heart rate"
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
 
     invoke-virtual {v0, v3}, Landroid/app/Notification$Builder;->setContentTitle(Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
 
@@ -144,13 +150,13 @@
 
     const/16 v2, 0x15
 
-    if-lt v1, v2, :cond_6f
+    if-lt v1, v2, :cond_75
 
     .line 107
     invoke-virtual {v0, v5}, Landroid/app/Notification$Builder;->setVisibility(I)Landroid/app/Notification$Builder;
 
     .line 109
-    :cond_6f
+    :cond_75
     invoke-virtual {v0}, Landroid/app/Notification$Builder;->build()Landroid/app/Notification;
 
     move-result-object v0
@@ -158,7 +164,7 @@
     return-object v0
 
     .line 100
-    :cond_74
+    :cond_7a
     new-instance v0, Landroid/app/Notification$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;)V

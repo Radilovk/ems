@@ -8,7 +8,7 @@ public final class WearableConfig {
     private static final String PREFS = "wearable_bridge";
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_ARMED = "armed";
-    private static final String KEY_AUTO_REDUCE = "auto_reduce";
+    private static final String KEY_AUTO_REDUCE = "auto_reduce_v2";
     private static final String KEY_HR_THRESHOLD = "hr_threshold";
     private static final String KEY_STRENGTH_STEP = "strength_step";
     private static final String KEY_BAND_MAC = "band_mac";
@@ -29,13 +29,16 @@ public final class WearableConfig {
         return prefs(context).getBoolean(KEY_ENABLED, true);
     }
 
+    /** Dial activated in this app run; a fresh start always begins with the HR module off. */
+    private static boolean armedThisRun;
+
     public static boolean isArmed(Context context) {
-        return prefs(context).getBoolean(KEY_ARMED, false);
+        return armedThisRun && prefs(context).getBoolean(KEY_ARMED, false);
     }
 
+    /** HR-driven strength control is off until the trainer turns it on in the ♥ settings. */
     public static boolean isAutoReduceEnabled(Context context) {
-        // HR control only ever lowers the trainer's values, so it is on by default.
-        return prefs(context).getBoolean(KEY_AUTO_REDUCE, true);
+        return prefs(context).getBoolean(KEY_AUTO_REDUCE, false);
     }
 
     /** Effective upper HR limit: the trainer's value, else the recommended one. */
@@ -135,6 +138,7 @@ public final class WearableConfig {
     }
 
     public static void setArmed(Context context, boolean armed) {
+        armedThisRun = armed;
         prefs(context).edit().putBoolean(KEY_ARMED, armed).apply();
     }
 

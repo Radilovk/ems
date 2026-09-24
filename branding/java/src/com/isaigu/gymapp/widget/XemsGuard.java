@@ -98,7 +98,7 @@ public final class XemsGuard {
                 Activity a = MainActivity.getInstance();
                 if (a != null) {
                     String msg = t != null ? t.getClass().getSimpleName() + ": " + t.getMessage() : "";
-                    Toast.makeText(a, "XEMS: грешка в " + where + "\n" + msg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(a, XemsLang.tr("XEMS: грешка в ", "XEMS: error in ") + where + "\n" + msg, Toast.LENGTH_LONG).show();
                 }
             } catch (Throwable ignored) {
             }

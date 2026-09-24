@@ -1545,15 +1545,16 @@ final class AiUi {
         AiModel.Profile p = e.getProfile();
         sb.append("XEMS AI — ").append(AiText.goal(in.goal)).append(" · ").append(in.mode).append(" · ")
                 .append(in.operator).append('\n');
-        sb.append("HR rest ").append(p.hrRest).append(" · max ").append(p.hrMax).append(" · cap ").append(p.hrCap)
-                .append(" · corridor x ").append(Double.isNaN(p.xLo) ? "-" : String.format(Locale.US, "%.2f", p.xLo))
+        sb.append(AiText.t("Пулс покой ", "HR rest ")).append(p.hrRest).append(" · max ").append(p.hrMax)
+                .append(AiText.t(" · таван ", " · cap ")).append(p.hrCap)
+                .append(AiText.t(" · коридор x ", " · corridor x ")).append(Double.isNaN(p.xLo) ? "-" : String.format(Locale.US, "%.2f", p.xLo))
                 .append("–").append(String.format(Locale.US, "%.2f", p.xHi)).append('\n');
-        sb.append("Duration ").append(AiText.mmss(((e.getEndMs() > 0 ? e.getEndMs() : System.currentTimeMillis()) - e.getStartMs()) / 1000.0))
-                .append(" · dose ").append(Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan))).append("% of plan")
-                .append(" · corridor ").append(Double.isNaN(e.getCorridorShare()) ? "-" : Math.round(100 * e.getCorridorShare()) + "%")
+        sb.append(AiText.t("Време ", "Duration ")).append(AiText.mmss(((e.getEndMs() > 0 ? e.getEndMs() : System.currentTimeMillis()) - e.getStartMs()) / 1000.0))
+                .append(AiText.t(" · доза ", " · dose ")).append(Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan))).append(AiText.t("% от плана", "% of plan"))
+                .append(AiText.t(" · в коридора ", " · corridor ")).append(Double.isNaN(e.getCorridorShare()) ? "-" : Math.round(100 * e.getCorridorShare()) + "%")
                 .append(" · HRR60 ").append(Double.isNaN(e.getHrr60()) ? "-" : Math.round(e.getHrr60()))
                 .append(" · kcal ").append(AiSession.getKcal() >= 0 ? Math.round(AiSession.getKcal()) + "" : "-")
-                .append(" (active ").append(Math.round(Math.max(0, AiSession.getActiveKcal())))
+                .append(AiText.t(" (активни ", " (active ")).append(Math.round(Math.max(0, AiSession.getActiveKcal())))
                 .append(AiSession.getEnergy() != null ? String.format(Locale.US, ", VO2max %.0f, %.0f kg",
                         AiSession.getEnergy().getVo2max(), AiSession.getEnergy().getWeightKg()) : "")
                 .append(")\n");
@@ -1570,7 +1571,7 @@ final class AiUi {
         }
         Intent send = new Intent(Intent.ACTION_SEND);
         send.setType("text/plain");
-        send.putExtra(Intent.EXTRA_SUBJECT, "XEMS AI report");
+        send.putExtra(Intent.EXTRA_SUBJECT, AiText.t("XEMS AI отчет", "XEMS AI report"));
         send.putExtra(Intent.EXTRA_TEXT, sb.toString());
         try {
             a.startActivity(Intent.createChooser(send, AiText.t("Сподели отчета", "Share report")));

@@ -269,122 +269,59 @@
     .line 303
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->bondedName(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v1
 
     .line 304
-    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->modelLabel(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->modelLabel(Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object v0
 
     .line 305
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandTransport(Landroid/content/Context;)I
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    move-result v0
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
     .line 306
-    const/4 v3, 0x2
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
 
-    if-eq v0, v3, :cond_1b
+    move-result v3
 
-    if-nez v0, :cond_a4
+    if-lez v3, :cond_5d
 
-    .line 307
-    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->usesClassic(Ljava/lang/String;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_a4
-
-    :cond_1b
-    const/4 v0, 0x1
+    :goto_17
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     .line 308
-    :goto_1c
-    new-instance v3, Ljava/lang/StringBuilder;
-
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
-
-    .line 309
-    invoke-virtual {v1}, Ljava/lang/String;->length()I
-
-    move-result v4
-
-    if-lez v4, :cond_a7
-
-    :goto_27
-    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 311
-    const-string v1, " \u00b7 "
-
-    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    if-eqz v0, :cond_b6
-
-    const-string v0, "Classic"
-
-    :goto_34
-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 312
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isLinkUp()Z
 
     move-result v0
 
-    if-eqz v0, :cond_9f
+    if-eqz v0, :cond_58
 
-    .line 313
-    const-string v0, " ("
-
-    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
-
-    move-result-object v1
-
-    .line 314
-    invoke-interface {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;->getTransportName()Ljava/lang/String;
-
-    move-result-object v1
-
-    .line 313
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    const/16 v1, 0x29
-
-    .line 314
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
-
-    .line 315
+    .line 309
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandStatus;->getBatteryPercent()I
 
     move-result v0
 
-    .line 316
-    if-ltz v0, :cond_75
+    .line 310
+    if-ltz v0, :cond_41
 
-    .line 317
+    .line 311
     const-string v1, " \u00b7 "
 
-    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
-    const-string v2, "\u0431\u0430\u0442\u0435\u0440\u0438\u044f "
+    const-string v3, "\u0431\u0430\u0442\u0435\u0440\u0438\u044f "
 
     const-string v4, "battery "
 
-    invoke-static {v2, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v3
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
@@ -396,120 +333,58 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 319
-    :cond_75
+    .line 313
+    :cond_41
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandStatus;->isKnownNotWorn()Z
 
     move-result v0
 
-    if-eqz v0, :cond_ba
+    if-eqz v0, :cond_58
 
-    .line 320
+    .line 314
     const-string v0, " \u00b7 "
 
-    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
     const-string v1, "\u043d\u0435 \u0435 \u043d\u0430 \u0440\u044a\u043a\u0430\u0442\u0430"
 
-    const-string v2, "not worn"
+    const-string v3, "not worn"
 
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 324
-    :cond_8c
-    :goto_8c
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandStatus;->getFirmware()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 325
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    if-lez v1, :cond_9f
-
-    .line 326
-    const-string v1, " \u00b7 fw "
-
-    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 329
-    :cond_9f
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    .line 317
+    :cond_58
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     return-object v0
 
+    .line 306
+    :cond_5d
+    if-eqz v1, :cond_61
+
+    move-object v0, v1
+
+    goto :goto_17
+
     .line 307
-    :cond_a4
-    const/4 v0, 0x0
+    :cond_61
+    const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u0435 \u0441\u0434\u0432\u043e\u0435\u043d\u0430 \u0441 \u0442\u0435\u043b\u0435\u0444\u043e\u043d\u0430"
 
-    goto/16 :goto_1c
+    const-string v1, "The band is not paired with the phone"
 
-    .line 309
-    :cond_a7
-    if-eqz v2, :cond_ac
-
-    move-object v1, v2
-
-    goto/16 :goto_27
-
-    .line 310
-    :cond_ac
-    const-string v1, "\u043d\u0435 \u0435 \u0441\u0434\u0432\u043e\u0435\u043d\u0430"
-
-    const-string v2, "not paired"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    goto/16 :goto_27
-
-    .line 311
-    :cond_b6
-    const-string v0, "BLE"
-
-    goto/16 :goto_34
-
-    .line 321
-    :cond_ba
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandStatus;->isKnownWorn()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_8c
-
-    .line 322
-    const-string v0, " \u00b7 "
-
-    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    const-string v1, "\u043d\u0430 \u0440\u044a\u043a\u0430\u0442\u0430"
-
-    const-string v2, "worn"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    goto :goto_8c
+    goto :goto_17
 .end method
 
 .method private static build(Landroid/app/Activity;Landroid/view/View;)V
@@ -894,9 +769,9 @@
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
 
     .line 118
-    const-string v1, "\u0412\u0440\u044a\u0437\u043a\u0430"
+    const-string v1, "\u041c\u043e\u0434\u0435\u043b \u0433\u0440\u0438\u0432\u043d\u0430"
 
-    const-string v3, "Link"
+    const-string v3, "Band model"
 
     invoke-static {v1, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -938,13 +813,20 @@
 
     aput-object v3, v1, v8
 
-    const-string v3, "BLE \u00b7 Band 8"
+    const-string v3, "Band 8 \u0438 \u043f\u043e-\u0441\u0442\u0430\u0440\u0438"
+
+    const-string v5, "Band 8 and older"
+
+    .line 123
+    invoke-static {v3, v5}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
 
     aput-object v3, v1, v10
 
     const/4 v3, 0x2
 
-    const-string v5, "Classic \u00b7 Band 9/10"
+    const-string v5, "Band 9 / 10"
 
     aput-object v5, v1, v3
 
@@ -1217,17 +1099,17 @@
     .registers 3
 
     .prologue
-    .line 353
+    .line 341
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
 
-    .line 354
+    .line 342
     const-string v0, "settings"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->release(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 355
+    .line 343
     return-void
 .end method
 
@@ -1898,7 +1780,7 @@
     .registers 3
 
     .prologue
-    .line 359
+    .line 347
     const/4 v0, 0x0
 
     :try_start_1
@@ -1910,11 +1792,11 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_8} :catch_9
 
-    .line 362
+    .line 350
     :goto_8
     return-void
 
-    .line 360
+    .line 348
     :catch_9
     move-exception v0
 

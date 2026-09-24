@@ -98,7 +98,7 @@ public final class NotifyHaForegroundService extends Service {
         Notification.Builder builder = Build.VERSION.SDK_INT >= 26
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
-        builder.setContentTitle("XEMS — пулс синхрон")
+        builder.setContentTitle(WearableUi.tr("XEMS — пулс от гривната", "XEMS — band heart rate"))
                 .setContentText(text)
                 .setSmallIcon(android.R.drawable.ic_menu_compass)
                 .setOngoing(true)

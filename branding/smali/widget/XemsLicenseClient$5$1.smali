@@ -23,10 +23,10 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 226
+    .line 232
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,13 +37,13 @@
 
 # virtual methods
 .method public done(ZLjava/lang/String;)V
-    .registers 6
+    .locals 3
 
     .prologue
-    .line 229
-    if-nez p1, :cond_21
+    .line 235
+    if-nez p1, :cond_0
 
-    .line 230
+    .line 236
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
@@ -72,10 +72,10 @@
 
     move-result-object v0
 
-    .line 231
+    .line 237
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 233
-    :cond_21
+    .line 239
+    :cond_0
     return-void
 .end method

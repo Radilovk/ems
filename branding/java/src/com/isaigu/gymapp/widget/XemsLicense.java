@@ -63,11 +63,16 @@ public final class XemsLicense {
     static final String K_CHECKED = "checked";
     static final String K_DEVICE = "device";
     static final String K_SERVER = "server";
+    static final String K_EMS = "ems";
+    /** "setup" = admin setup of a new tablet (everything open), "locked" = the customer's profile. */
+    static final String K_PHASE = "phase";
 
     private static Context app;
     private static volatile Set<String> unlocked = new HashSet<String>();
     private static volatile Set<String> features = new HashSet<String>();
     private static volatile boolean loaded;
+    private static volatile boolean setup;
+    private static volatile Set<String> ems = new HashSet<String>();
 
     private XemsLicense() {}
 
@@ -88,12 +93,32 @@ public final class XemsLicense {
     }
 
     public static boolean has(String module) {
-        return unlocked.contains(module);
+        return setup || unlocked.contains(module);
     }
 
     /** Feature switch (e.g. {@link #FEAT_ARMS_FULL}); off until the licence turns it on. */
     public static boolean hasFeature(String feature) {
-        return features.contains(feature);
+        return setup || features.contains(feature);
+    }
+
+    /**
+     * Admin setup of a new tablet: every module and feature is open and any EMS suit can be
+     * paired. Ends once with {@link #finishSetup()}; after that the tablet runs the customer's
+     * profile (the licence key) with only the allowed suits.
+     */
+    public static boolean isSetupMode() {
+        return setup;
+    }
+
+    /** Ends the admin setup for good (the customer's profile from here on). */
+    public static void finishSetup() {
+        prefs().edit().putString(K_PHASE, "locked").apply();
+        reload();
+    }
+
+    /** Suits (BLE MAC, as the server wrote them) the licence allows, while it is valid. */
+    public static Set<String> allowedEms() {
+        return ems;
     }
 
     public static boolean has(Context c, String module) {
@@ -216,6 +241,7 @@ public final class XemsLicense {
                 .putString(K_LIC, "local")
                 .putLong(K_EXP, 0)
                 .remove(K_TOKEN)
+                .remove(K_EMS)
                 .apply();
         reload();
         return true;
@@ -233,6 +259,7 @@ public final class XemsLicense {
                 .putString(K_TOKEN, token)
                 .putString(K_MODS, join(t.modules))
                 .putString(K_FEATS, join(t.features))
+                .putString(K_EMS, join(t.ems))
                 .putString(K_PLAN, t.plan)
                 .putString(K_LIC, t.license)
                 .putLong(K_EXP, t.expiresS)
@@ -254,7 +281,7 @@ public final class XemsLicense {
     public static void reset() {
         prefs().edit()
                 .remove(K_KEY).remove(K_SOURCE).remove(K_TOKEN).remove(K_MODS).remove(K_FEATS)
-                .remove(K_PLAN).remove(K_LIC).remove(K_EXP).remove(K_CHECKED)
+                .remove(K_EMS).remove(K_PLAN).remove(K_LIC).remove(K_EXP).remove(K_CHECKED)
                 .apply();
         reload();
     }
@@ -274,6 +301,15 @@ public final class XemsLicense {
         long now = System.currentTimeMillis() / 1000L;
         unlocked = decide(p.getString(K_SOURCE, ""), p.getString(K_MODS, ""), p.getLong(K_EXP, 0), now);
         features = decideList(p.getString(K_SOURCE, ""), p.getString(K_FEATS, ""), p.getLong(K_EXP, 0), now);
+        ems = decideList(p.getString(K_SOURCE, ""), p.getString(K_EMS, ""), p.getLong(K_EXP, 0), now);
+        String phase = p.getString(K_PHASE, "");
+        if (phase.length() == 0) {
+            // First run of this version: a tablet that already holds a licence is in use at a
+            // customer, so it stays locked; a fresh install starts in the admin setup.
+            phase = p.getString(K_SOURCE, "").length() > 0 ? "locked" : "setup";
+            p.edit().putString(K_PHASE, phase).apply();
+        }
+        setup = "setup".equals(phase);
         loaded = true;
     }
 

@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""Local-only mode: users, programs and paired devices without xemsplus cloud sync.
+"""Local-only mode: users, programs, history and suits without xemsplus cloud sync.
 
-- MainFragment.initData (online): XemsLocalStore.bootstrapOnline instead of cloud APIs
+- MainFragment.initData: XemsLocalStore.bootstrapOnline, with or without network
 - MainFragment.initUsers / initTrainPrograms: load local lists only
+- ApiMgr: customers, programs and training history answered by XemsLocalApi (the tablet),
+  so no screen can pull the cloud list over the local one
 - EditUserPersonalDataDialog$6: local user save at :cond_a
 - EditUserProgramDataDialog$10$1: local program save (skip network branch)
-- Connect dialogs: filter devices + mark paired on BLE connect + auto-select first program
-- DeviceAdapter.discoverDevice: add BLE devices in admin session
+- Connect dialogs (both): allowed suits only after the admin setup, pair on BLE connect,
+  auto-select first program
+- DeviceAdapter.discoverDevice (both): show suits found over BLE (any in setup, allowed after)
 - SettingFragment: XemsLocalSection + activity result forwarding
 """
 
 from __future__ import annotations
 
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -24,7 +28,25 @@ EDIT_USER = SMALI / "dialog/EditUserPersonalDataDialog$6.smali"
 EDIT_PROG = SMALI / "dialog/EditUserProgramDataDialog$10$1.smali"
 NEW_CONNECT = SMALI / "dialog/NewUserProgramDeviceConnectDialogFragment.smali"
 OLD_CONNECT = SMALI / "dialog/UserProgramDeviceConnectDialogFragment.smali"
-DEVICE_ADAPTER = SMALI / "dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter.smali"
+DEVICE_ADAPTERS = (
+    SMALI / "dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter.smali",
+    SMALI / "dialog/UserProgramDeviceConnectDialogFragment$DeviceAdapter.smali",
+)
+API_MGR = SMALI / "mgr/ApiMgr.smali"
+LOCAL_API = "Lcom/isaigu/gymapp/widget/XemsLocalApi;"
+CB = "Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;"
+# ApiMgr method (name, smali params) -> XemsLocalApi method of the same name and signature.
+API_REDIRECTS = (
+    ("getUserCustomers", "J" + CB),
+    ("getUserBindMachine", "J" + CB),
+    ("getUserProgramTrainDataList", "J" + CB),
+    ("addProgramTrainData", "Lcom/isaigu/gymapp/bean/TrainProgram;" + CB),
+    ("updateProgramTrainData", "Lcom/isaigu/gymapp/bean/TrainProgram;" + CB),
+    ("deleteProgramTrainData", "JJ" + CB),
+    ("addTrainRecord", "Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;" + CB),
+    ("addTrainRecordList", "Ljava/util/List;" + CB),
+    ("getTrainRecordList", "J" + CB),
+)
 SETTING = SMALI / "fragment/SettingFragment.smali"
 SRC = ROOT / "branding" / "smali" / "widget"
 DEST = SMALI / "widget"
@@ -60,37 +82,30 @@ def install_smali() -> None:
     print(f"installed XemsLocal ({len(files)} files)")
 
 
-def patch_main_offline_seed() -> None:
+def patch_main_always_local() -> None:
+    """initData takes the local path with or without network (the old offline branch is dead)."""
     text = MAIN.read_text(encoding="utf-8")
-    anchor = """    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList(Ljava/util/List;)V
+    body_start = text.index(".method private initData()V")
+    body_end = text.index(".end method", body_start)
+    body = text[body_start:body_end]
+    old = """    invoke-static {v0}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected(Landroid/content/Context;)Z
 
-    .line 196
-    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
+    move-result v0
 
-    move-result-object v1
+    if-nez v0, :cond_4"""
+    new = """    invoke-static {v0}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected(Landroid/content/Context;)Z
 
-    iget-object v1, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+    move-result v0
 
-    if-nez v1, :cond_3"""
-    replacement = """    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList(Ljava/util/List;)V
-
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadPrograms()V
-
-    .line 196
-    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
-
-    if-nez v1, :cond_3"""
-    if "XemsLocalStore;->loadPrograms()V" in text:
-        print("MainFragment.initData offline: seed already patched")
+    goto :cond_4"""
+    if new in body:
+        print("MainFragment.initData: already local without network")
         return
-    if anchor not in text:
-        raise SystemExit("MainFragment.initData offline seed anchor not found")
-    MAIN.write_text(text.replace(anchor, replacement, 1), encoding="utf-8")
-    print("MainFragment.initData offline: default program seed")
+    if old not in body:
+        raise SystemExit("MainFragment.initData: network check not found")
+    body = body.replace(old, new, 1)
+    MAIN.write_text(text[:body_start] + body + text[body_end:], encoding="utf-8")
+    print("MainFragment.initData: local with or without network")
 
 
 def patch_main_init_data() -> None:
@@ -401,26 +416,20 @@ def patch_connect_dialog(path: Path, label: str) -> None:
         text = text.replace(prog_hook, auto, 1)
         changed = True
 
-    pair_anchor = """    iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
-
-    .line 239
-    iget-object v1, p0,"""
-    if "onDevicePaired" not in text and pair_anchor in text:
-        pair = """    iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
-
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/""" + pkg + """;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
-
-    move-result-object v2
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/""" + pkg + """;->selectedDeviceBean:Lcom/isaigu/gymapp/bean/DeviceBean;
-
-    iget-object v3, v3, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
-
-    invoke-static {v2, v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->onDevicePaired(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 239
-    iget-object v1, p0,"""
-        text = text.replace(pair_anchor, pair, 1)
+    # Every place the dialog hands a connected suit to the training screen: remember it.
+    if "onDeviceConnected(Ljava/lang/String;)V" not in text:
+        wrap = re.compile(
+            r"^(    iput-object (v\d+), v\d+, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;"
+            r"->macAddress:Ljava/lang/String;\n)",
+            re.M,
+        )
+        text, n = wrap.subn(
+            lambda m: m.group(1) + "\n    invoke-static {" + m.group(2) + "}, "
+            "Lcom/isaigu/gymapp/widget/XemsLocalStore;->onDeviceConnected(Ljava/lang/String;)V\n",
+            text,
+        )
+        if n == 0:
+            raise SystemExit(f"{label}: connected-suit hand-over not found")
         changed = True
 
     if changed:
@@ -430,35 +439,67 @@ def patch_connect_dialog(path: Path, label: str) -> None:
         print(f"{label}: already patched")
 
 
-def patch_device_adapter() -> None:
-    text = DEVICE_ADAPTER.read_text(encoding="utf-8")
+def patch_device_adapter(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
     if "addDiscoveredDevice" in text:
-        print("DeviceAdapter: already patched")
+        print(f"{path.stem}: already patched")
         return
+    cls = "Lcom/isaigu/gymapp/dialog/" + path.stem + ";"
     anchor = """    .end local v0    # "i":I
     :cond_3
     :goto_1
     monitor-exit p0
 
     return-void"""
-    replacement = """    .end local v0    # "i":I
+    replacement = f"""    .end local v0    # "i":I
     :cond_3
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;->list:Ljava/util/List;
+    iget-object v0, p0, {cls}->list:Ljava/util/List;
 
-    const-string v1, ""
+    invoke-static {{v0, p1, p2}}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->addDiscoveredDevice(Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)Z
 
-    invoke-static {v0, p1, p2, v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->addDiscoveredDevice(Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+    move-result v0
 
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/NewUserProgramDeviceConnectDialogFragment$DeviceAdapter;->notifyDataSetChanged()V
+    if-eqz v0, :goto_1
+
+    invoke-direct {{p0, p1}}, {cls}->start_mac_address_timer(Ljava/lang/String;)V
+
+    invoke-virtual {{p0}}, {cls}->notifyDataSetChanged()V
 
     :goto_1
     monitor-exit p0
 
     return-void"""
     if anchor not in text:
-        raise SystemExit("DeviceAdapter: cond_3 anchor not found")
-    DEVICE_ADAPTER.write_text(text.replace(anchor, replacement, 1), encoding="utf-8")
-    print("DeviceAdapter: admin BLE discovery")
+        raise SystemExit(f"{path.stem}: cond_3 anchor not found")
+    path.write_text(text.replace(anchor, replacement, 1), encoding="utf-8")
+    print(f"{path.stem}: BLE discovery (any suit in setup, allowed ones after)")
+
+
+def patch_api_mgr() -> None:
+    """Jump at the top of each cloud call to the same call in XemsLocalApi."""
+    text = API_MGR.read_text(encoding="utf-8")
+    for name, params in API_REDIRECTS:
+        head = f".method public static {name}({params})V"
+        start = text.find(head)
+        if start < 0:
+            raise SystemExit(f"ApiMgr.{name}: method not found")
+        end = text.index(".end method", start)
+        body = text[start:end]
+        target = f"{LOCAL_API}->{name}({params})V"
+        if target in body:
+            print(f"ApiMgr.{name}: already local")
+            continue
+        # p-registers of a static method: J takes two.
+        n = 0
+        for t in re.findall(r"J|D|L[^;]+;|\[?[ZBSCIF]", params):
+            n += 2 if t in ("J", "D") else 1
+        regs = ", ".join(f"p{i}" for i in range(n))
+        first_line = body.index("    .line ")
+        jump = f"    invoke-static {{{regs}}}, {target}\n\n    return-void\n\n"
+        body = body[:first_line] + jump + body[first_line:]
+        text = text[:start] + body + text[end:]
+        print(f"ApiMgr.{name}: answered by the tablet")
+    API_MGR.write_text(text, encoding="utf-8")
 
 
 def patch_settings() -> None:
@@ -514,7 +555,7 @@ def main() -> int:
         print("Decompiled tree missing; run build-apk.sh", file=sys.stderr)
         return 1
     install_smali()
-    patch_main_offline_seed()
+    patch_main_always_local()
     patch_main_init_data()
     patch_init_users()
     patch_init_programs()
@@ -522,7 +563,9 @@ def main() -> int:
     patch_program_save()
     patch_connect_dialog(NEW_CONNECT, "NewUserProgramDeviceConnectDialogFragment")
     patch_connect_dialog(OLD_CONNECT, "UserProgramDeviceConnectDialogFragment")
-    patch_device_adapter()
+    for adapter in DEVICE_ADAPTERS:
+        patch_device_adapter(adapter)
+    patch_api_mgr()
     patch_settings()
     return 0
 

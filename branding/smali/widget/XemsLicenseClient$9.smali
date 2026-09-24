@@ -27,7 +27,7 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
-    .registers 4
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 404
+    .line 432
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -50,10 +50,10 @@
 
 # virtual methods
 .method public run()V
-    .registers 4
+    .locals 3
 
     .prologue
-    .line 407
+    .line 435
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -62,6 +62,6 @@
 
     invoke-interface {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;->done(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
 
-    .line 408
+    .line 436
     return-void
 .end method

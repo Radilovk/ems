@@ -11,4 +11,5 @@ public final class XemsLicense {
     public static void finishSetup() {}
     public static Set<String> allowedEms() { return null; }
     public static String key() { return ""; }
+    public static boolean isAdminKey() { return false; }
 }

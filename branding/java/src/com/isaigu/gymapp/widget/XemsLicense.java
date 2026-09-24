@@ -38,7 +38,7 @@ public final class XemsLicense {
     /** Feature (not a module): the arms channel goes out 1:1 instead of ×0.05. */
     public static final String FEAT_ARMS_FULL = "arms_full";
 
-    /** Offline key that unlocks every module. */
+    /** Offline admin key: every module, and the tablet setup again (see {@link #isSetupMode()}). */
     static final String LOCAL_CODE = "0123";
     /** Offline key: base app, arms channel at normal strength (step 1:1, no multiplier). */
     static final String LOCAL_CODE_ARMS = "RENI123";
@@ -103,14 +103,15 @@ public final class XemsLicense {
 
     /**
      * Admin setup of a new tablet: every module and feature is open and any EMS suit can be
-     * paired. Ends once with {@link #finishSetup()}; after that the tablet runs the customer's
-     * profile (the licence key) with only the allowed suits.
+     * paired. Ends with {@link #finishSetup()}; after that the tablet runs the customer's
+     * profile (the licence key) with only the allowed suits. The admin key {@link #LOCAL_CODE}
+     * opens the setup again.
      */
     public static boolean isSetupMode() {
         return setup;
     }
 
-    /** Ends the admin setup for good (the customer's profile from here on). */
+    /** Ends the admin setup (the customer's profile from here on; {@link #LOCAL_CODE} reopens it). */
     public static void finishSetup() {
         prefs().edit().putString(K_PHASE, "locked").apply();
         reload();
@@ -146,6 +147,11 @@ public final class XemsLicense {
 
     public static String plan() {
         return prefs().getString(K_PLAN, "");
+    }
+
+    /** The admin key is the active licence (then the customer would keep everything open). */
+    public static boolean isAdminKey() {
+        return "code".equals(source()) && LOCAL_CODE.equals(key().trim().toUpperCase(java.util.Locale.US));
     }
 
     public static String key() {
@@ -232,7 +238,13 @@ public final class XemsLicense {
         } else {
             return false;
         }
-        prefs().edit()
+        SharedPreferences.Editor e = prefs().edit();
+        if (LOCAL_CODE.equals(k)) {
+            // The admin key: back to the tablet setup (pair suits, import), locked again with
+            // "Finish setup".
+            e.putString(K_PHASE, "setup");
+        }
+        e
                 .putString(K_KEY, key.trim())
                 .putString(K_SOURCE, "code")
                 .putString(K_MODS, join(mods))

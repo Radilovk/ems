@@ -652,33 +652,33 @@
     .locals 2
 
     .prologue
-    .line 204
+    .line 210
     new-instance v0, Landroid/widget/Button;
 
     invoke-direct {v0, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    .line 205
+    .line 211
     invoke-virtual {v0, p1}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 206
+    .line 212
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setAllCaps(Z)V
 
-    .line 207
+    .line 213
     const/4 v1, -0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setTextColor(I)V
 
-    .line 208
+    .line 214
     invoke-virtual {v0, p2}, Landroid/widget/Button;->setBackgroundColor(I)V
 
-    .line 209
+    .line 215
     return-object v0
 .end method
 
 .method private static confirmFinish(Landroid/app/Activity;Landroid/view/View;)V
-    .locals 4
+    .locals 5
 
     .prologue
     .line 149
@@ -697,48 +697,23 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    move-result-object v0
-
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v2, "\u0422\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u043c\u0438\u043d\u0430\u0432\u0430 \u0432 \u043f\u043e\u0442\u0440\u0435\u0431\u0438\u0442\u0435\u043b\u0441\u043a\u0438 \u0440\u0435\u0436\u0438\u043c: \u043c\u043e\u0434\u0443\u043b\u0438\u0442\u0435 \u0441\u043b\u0435\u0434\u0432\u0430\u0442 \u043b\u0438\u0446\u0435\u043d\u0437\u0430, \u0432\u0438\u0436\u0434\u0430\u0442 \u0441\u0435 \u0441\u0430\u043c\u043e \u0441\u0434\u0432\u043e\u0435\u043d\u0438\u0442\u0435 \u043a\u043e\u0441\u0442\u044e\u043c\u0438 ("
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
     move-result-object v1
 
-    .line 152
-    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->pairedCount(Landroid/content/Context;)I
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    move-result v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, ") \u0438 \u0442\u0435\u0437\u0438, \u043a\u043e\u0438\u0442\u043e \u0441\u044a\u0440\u0432\u044a\u0440\u044a\u0442 \u0434\u043e\u0431\u0430\u0432\u0438. \u0412\u0440\u044a\u0449\u0430\u043d\u0435 \u0432 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u043d\u044f\u043c\u0430."
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v3, "The tablet switches to user mode: modules follow the licence and only the paired suits ("
+    const-string v3, "\u0422\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u043c\u0438\u043d\u0430\u0432\u0430 \u0432 \u043f\u043e\u0442\u0440\u0435\u0431\u0438\u0442\u0435\u043b\u0441\u043a\u0438 \u0440\u0435\u0436\u0438\u043c: \u043c\u043e\u0434\u0443\u043b\u0438\u0442\u0435 \u0441\u043b\u0435\u0434\u0432\u0430\u0442 \u043b\u0438\u0446\u0435\u043d\u0437\u0430, \u0432\u0438\u0436\u0434\u0430\u0442 \u0441\u0435 \u0441\u0430\u043c\u043e \u0441\u0434\u0432\u043e\u0435\u043d\u0438\u0442\u0435 \u043a\u043e\u0441\u0442\u044e\u043c\u0438 ("
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
-    .line 155
+    .line 152
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->pairedCount(Landroid/content/Context;)I
 
     move-result v3
@@ -747,7 +722,7 @@
 
     move-result-object v2
 
-    const-string v3, ") and those the server adds are shown. There is no way back to setup."
+    const-string v3, ") \u0438 \u0442\u0435\u0437\u0438, \u043a\u043e\u0438\u0442\u043e \u0441\u044a\u0440\u0432\u044a\u0440\u044a\u0442 \u0434\u043e\u0431\u0430\u0432\u0438. \u041e\u0431\u0440\u0430\u0442\u043d\u043e \u0432 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u2014 \u0441 \u043a\u043b\u044e\u0447 0123."
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -757,12 +732,72 @@
 
     move-result-object v2
 
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "The tablet switches to user mode: modules follow the licence and only the paired suits ("
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    .line 155
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->pairedCount(Landroid/content/Context;)I
+
+    move-result v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, ") and those the server adds are shown. Back to setup with the key 0123."
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
     .line 151
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object v2
 
-    invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    .line 157
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isAdminKey()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    .line 158
+    const-string v0, "\n\n\u0412\u041d\u0418\u041c\u0410\u041d\u0418\u0415: \u0430\u043a\u0442\u0438\u0432\u043d\u0438\u044f\u0442 \u043a\u043b\u044e\u0447 \u0435 0123 \u2014 \u043a\u043b\u0438\u0435\u043d\u0442\u044a\u0442 \u0449\u0435 \u043e\u0441\u0442\u0430\u043d\u0435 \u0441 \u043f\u044a\u043b\u043d\u0438 \u043f\u0440\u0430\u0432\u0430. \u0412\u044a\u0432\u0435\u0434\u0438 \u043f\u044a\u0440\u0432\u043e \u043a\u043b\u044e\u0447\u0430 \u043d\u0430 \u043a\u043b\u0438\u0435\u043d\u0442\u0430."
+
+    const-string v3, "\n\nWARNING: the active key is 0123, the customer keeps full rights. Enter the customer\'s key first."
+
+    invoke-static {v0, v3}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 162
+    :goto_0
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 151
+    invoke-virtual {v1, v0}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
 
@@ -770,7 +805,7 @@
 
     const-string v2, "Lock"
 
-    .line 157
+    .line 163
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -787,7 +822,7 @@
 
     const-string v2, "Cancel"
 
-    .line 164
+    .line 170
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -798,18 +833,24 @@
 
     move-result-object v0
 
-    .line 165
+    .line 171
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 166
+    .line 172
     return-void
+
+    .line 162
+    :cond_0
+    const-string v0, ""
+
+    goto :goto_0
 .end method
 
 .method private static dp(Landroid/app/Activity;I)I
     .locals 3
 
     .prologue
-    .line 220
+    .line 226
     const/4 v0, 0x1
 
     int-to-float v1, p1
@@ -837,12 +878,12 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 169
+    .line 175
     instance-of v0, p0, Landroid/widget/ScrollView;
 
     if-eqz v0, :cond_1
 
-    .line 170
+    .line 176
     invoke-virtual {p0}, Landroid/view/ViewGroup;->getChildCount()I
 
     move-result v0
@@ -857,14 +898,14 @@
 
     if-eqz v0, :cond_1
 
-    .line 171
+    .line 177
     invoke-virtual {p0, v3}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 189
+    .line 195
     :cond_0
     :goto_0
     return-object v0
@@ -872,7 +913,7 @@
     :cond_1
     move v2, v3
 
-    .line 174
+    .line 180
     :goto_1
     invoke-virtual {p0}, Landroid/view/ViewGroup;->getChildCount()I
 
@@ -880,12 +921,12 @@
 
     if-ge v2, v0, :cond_4
 
-    .line 175
+    .line 181
     invoke-virtual {p0, v2}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 176
+    .line 182
     instance-of v0, v1, Landroid/widget/ScrollView;
 
     if-eqz v0, :cond_2
@@ -896,10 +937,10 @@
 
     move-object v0, v1
 
-    .line 177
+    .line 183
     check-cast v0, Landroid/widget/ScrollView;
 
-    .line 178
+    .line 184
     invoke-virtual {v0}, Landroid/widget/ScrollView;->getChildCount()I
 
     move-result v4
@@ -914,7 +955,7 @@
 
     if-eqz v4, :cond_2
 
-    .line 179
+    .line 185
     invoke-virtual {v0, v3}, Landroid/widget/ScrollView;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
@@ -923,23 +964,23 @@
 
     goto :goto_0
 
-    .line 182
+    .line 188
     :cond_2
     instance-of v0, v1, Landroid/view/ViewGroup;
 
     if-eqz v0, :cond_3
 
-    .line 183
+    .line 189
     check-cast v1, Landroid/view/ViewGroup;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->findScrollContent(Landroid/view/ViewGroup;)Landroid/view/ViewGroup;
 
     move-result-object v0
 
-    .line 184
+    .line 190
     if-nez v0, :cond_0
 
-    .line 174
+    .line 180
     :cond_3
     add-int/lit8 v0, v2, 0x1
 
@@ -950,7 +991,7 @@
     :cond_4
     move-object v0, p0
 
-    .line 189
+    .line 195
     goto :goto_0
 .end method
 
@@ -958,7 +999,7 @@
     .locals 3
 
     .prologue
-    .line 213
+    .line 219
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x1
@@ -967,14 +1008,14 @@
 
     invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 215
+    .line 221
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->dp(Landroid/app/Activity;I)I
 
     move-result v1
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 216
+    .line 222
     return-object v0
 .end method
 
@@ -1038,36 +1079,36 @@
     .locals 3
 
     .prologue
-    .line 224
+    .line 230
     new-instance v0, Landroid/content/Intent;
 
     const-string v1, "android.intent.action.CREATE_DOCUMENT"
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 225
+    .line 231
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 226
+    .line 232
     const-string v1, "application/json"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 227
+    .line 233
     const-string v1, "android.intent.extra.TITLE"
 
     const-string v2, "xems-backup.json"
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 228
+    .line 234
     const/16 v1, 0x7e01
 
     invoke-virtual {p0, v0, v1}, Landroid/app/Activity;->startActivityForResult(Landroid/content/Intent;I)V
 
-    .line 229
+    .line 235
     return-void
 .end method
 
@@ -1075,29 +1116,29 @@
     .locals 2
 
     .prologue
-    .line 232
+    .line 238
     new-instance v0, Landroid/content/Intent;
 
     const-string v1, "android.intent.action.OPEN_DOCUMENT"
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 233
+    .line 239
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 234
+    .line 240
     const-string v1, "application/json"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 235
+    .line 241
     const/16 v1, 0x7e02
 
     invoke-virtual {p0, v0, v1}, Landroid/app/Activity;->startActivityForResult(Landroid/content/Intent;I)V
 
-    .line 236
+    .line 242
     return-void
 .end method
 
@@ -1105,35 +1146,35 @@
     .locals 3
 
     .prologue
-    .line 193
+    .line 199
     new-instance v0, Landroid/widget/TextView;
 
     invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 194
+    .line 200
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 195
+    .line 201
     const/4 v1, 0x2
 
     int-to-float v2, p2
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 196
+    .line 202
     const v1, -0x171718
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 197
+    .line 203
     if-eqz p3, :cond_0
 
-    .line 198
+    .line 204
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 200
+    .line 206
     :cond_0
     return-object v0
 .end method
@@ -1142,7 +1183,7 @@
     .locals 1
 
     .prologue
-    .line 239
+    .line 245
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0

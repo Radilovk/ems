@@ -3,28 +3,45 @@ package com.isaigu.gymapp.wearable.xiaomi;
 import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Messages between the XEMS app on the band (quick app, system.interconnect) and XEMS here.
  *
- * How the band wraps an app's message on the phone link is not publicly documented, so the
- * link is learned from the first message: the band app always sends JSON ({"t":…}). Any
- * command XEMS does not know is searched for such a JSON text (also inside nested protobuf
- * messages). The command it was found in becomes the template: replies are built from the same
- * command with only that text replaced, so the band gets our JSON the same way it sent its own.
- * Everything is written to wearable-ble.log ("[applink]") to confirm or correct the guess.
+ * <p>The band routes an app's messages only to a phone app it believes is connected. The phone
+ * side says so itself (command type 20, ThirdpartyApp in field 22):
+ * <ul>
+ *   <li>band → phone: field 5 BasicInfo{package, fingerprint} when the app comes up;</li>
+ *   <li>phone → band: 20/7 field 8 PhoneAppStatus{BasicInfo, status 1 = connected};</li>
+ *   <li>band → phone: field 9 MessageContent{BasicInfo, content} (the app's send());</li>
+ *   <li>phone → band: 20/8 field 9 MessageContent{BasicInfo, content} (the app's onmessage);</li>
+ *   <li>20/0 asks for the installed apps: field 1 list of AppItem{package, fingerprint,
+ *       version, removable, name} — used to learn the fingerprint (and version) up front.</li>
+ * </ul>
+ * Without the "connected" status the app's interconnect stays closed (send fails with 1006).
+ * Protocol facts from the public AstroBox protobuf definitions; the code is written here.
  */
 public final class XiaomiBandAppLink {
     public interface Listener {
         void onAppMessage(String json);
+
+        /** The band reports the XEMS app installed with this version code. */
+        void onAppInstalled(int versionCode);
     }
+
+    public static final String PACKAGE = "com.xems.band";
+
+    static final int T_APP = 20;
+    static final int APP_LIST = 0;
+    static final int APP_STATUS_SYNC = 7;
+    static final int APP_MESSAGE_TO_WEAR = 8;
+    static final int STATUS_CONNECTED = 1;
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
     private static volatile Listener listener;
-    private static byte[] template;
-    private static int[] path;
+    private static byte[] fingerprint;
+    private static boolean announced;
     private static long lastMs;
 
     private XiaomiBandAppLink() {}
@@ -33,9 +50,9 @@ public final class XiaomiBandAppLink {
         listener = l;
     }
 
-    /** The band app has spoken during this connection (so replies have a template). */
+    /** XEMS has told the band it is connected, so the band app's link is open. */
     public static boolean isLinked() {
-        return template != null;
+        return fingerprint != null && announced;
     }
 
     public static long getLastMessageMs() {
@@ -43,240 +60,139 @@ public final class XiaomiBandAppLink {
     }
 
     static void reset() {
-        template = null;
-        path = null;
+        fingerprint = null;
+        announced = false;
     }
 
-    /** Unknown command from the band: is it an app message? */
-    static boolean onCommand(int type, int sub, byte[] raw) {
-        List<Field> tree = parse(raw, 0);
-        if (tree == null) {
-            return false;
-        }
-        List<Integer> found = new ArrayList<Integer>();
-        String json = find(tree, found, 0);
-        if (json == null) {
-            return false;
-        }
-        template = raw;
-        path = new int[found.size()];
-        for (int i = 0; i < path.length; i++) {
-            path[i] = found.get(i);
-        }
-        lastMs = System.currentTimeMillis();
-        WearableBleDiagLog.log("applink", "type=" + type + "/" + sub + " path=" + pathText() + " " + json);
-        Listener l = listener;
-        if (l != null) {
-            l.onAppMessage(json);
-        }
-        return true;
+    /** After auth: ask for the installed apps to learn our app's fingerprint (then announce). */
+    static void onAuthenticated(XiaomiBandLink link) {
+        reset();
+        link.sendCommand(XiaomiBandMessages.request(T_APP, APP_LIST));
     }
 
-    /** Send JSON to the band app (no-op until the app has sent something). */
-    public static boolean send(String json) {
-        byte[] t = template;
-        int[] p = path;
-        if (t == null || p == null || json == null) {
-            return false;
-        }
-        List<Field> tree = parse(t, 0);
-        if (tree == null) {
-            return false;
-        }
-        byte[] out = encode(tree, p, 0, json.getBytes(UTF8));
-        if (out == null) {
-            return false;
-        }
-        XiaomiBandLink link = XiaomiBand.link();
-        if (link == null || !link.isConnected()) {
-            return false;
-        }
-        link.sendCommand(out);
-        return true;
+    /** Ask again (after an install the app and its fingerprint are new). */
+    static void refresh(XiaomiBandLink link) {
+        announced = false;
+        link.sendCommand(XiaomiBandMessages.request(T_APP, APP_LIST));
     }
 
-    private static String pathText() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; path != null && i < path.length; i++) {
-            sb.append(i == 0 ? "" : ".").append(path[i]);
+    /** Type-20 command from the band; true when it was about apps and consumed. */
+    static boolean onCommand(int type, int sub, Map<Integer, List<Object>> cmd) {
+        if (type != T_APP) {
+            return false;
         }
-        return sb.toString();
-    }
-
-    // ================================================================ ordered protobuf
-
-    /** One field; {@code index} counts repeats of the same number to keep the path exact. */
-    static final class Field {
-        int num;
-        int wire;
-        long varint;
-        byte[] bytes;
-    }
-
-    /** Parse all fields in order; null when the bytes are not a clean protobuf message. */
-    static List<Field> parse(byte[] b, int depth) {
-        if (b == null || depth > 5) {
-            return null;
+        Map<Integer, List<Object>> tp = XiaomiBandMessages.sub(cmd, 22);
+        if (tp == null) {
+            return false;
         }
-        List<Field> out = new ArrayList<Field>();
-        int i = 0;
-        try {
-            while (i < b.length) {
-                long key = 0;
-                int shift = 0;
-                while (true) {
-                    int c = b[i++] & 0xFF;
-                    key |= (long) (c & 0x7F) << shift;
-                    shift += 7;
-                    if (c < 0x80) {
-                        break;
-                    }
-                    if (shift > 35) {
-                        return null;
-                    }
-                }
-                Field f = new Field();
-                f.num = (int) (key >>> 3);
-                f.wire = (int) (key & 7);
-                if (f.num <= 0) {
-                    return null;
-                }
-                if (f.wire == 0) {
-                    long v = 0;
-                    shift = 0;
-                    while (true) {
-                        int c = b[i++] & 0xFF;
-                        v |= (long) (c & 0x7F) << shift;
-                        shift += 7;
-                        if (c < 0x80) {
-                            break;
-                        }
-                        if (shift > 63) {
-                            return null;
-                        }
-                    }
-                    f.varint = v;
-                } else if (f.wire == 2) {
-                    int len = 0;
-                    shift = 0;
-                    while (true) {
-                        int c = b[i++] & 0xFF;
-                        len |= (c & 0x7F) << shift;
-                        shift += 7;
-                        if (c < 0x80) {
-                            break;
-                        }
-                        if (shift > 28) {
-                            return null;
-                        }
-                    }
-                    if (len < 0 || i + len > b.length) {
-                        return null;
-                    }
-                    f.bytes = new byte[len];
-                    System.arraycopy(b, i, f.bytes, 0, len);
-                    i += len;
-                } else if (f.wire == 5) {
-                    if (i + 4 > b.length) {
-                        return null;
-                    }
-                    f.bytes = new byte[4];
-                    System.arraycopy(b, i, f.bytes, 0, 4);
-                    i += 4;
-                } else if (f.wire == 1) {
-                    if (i + 8 > b.length) {
-                        return null;
-                    }
-                    f.bytes = new byte[8];
-                    System.arraycopy(b, i, f.bytes, 0, 8);
-                    i += 8;
-                } else {
-                    return null;
-                }
-                out.add(f);
+        if (tp.containsKey(1)) {
+            onAppList(XiaomiBandMessages.sub(tp, 1));
+            return true;
+        }
+        if (tp.containsKey(5)) {
+            Map<Integer, List<Object>> basic = XiaomiBandMessages.sub(tp, 5);
+            if (isOurs(basic)) {
+                fingerprint = fp(basic);
+                WearableBleDiagLog.log("applink", "app online");
+                announce();
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return null;
+            return true;
         }
-        return out;
+        if (tp.containsKey(9)) {
+            Map<Integer, List<Object>> mc = XiaomiBandMessages.sub(tp, 9);
+            Map<Integer, List<Object>> basic = XiaomiBandMessages.sub(mc, 1);
+            byte[] content = XiaomiBandMessages.bytesField(mc, 2);
+            if (isOurs(basic) && content != null) {
+                if (fingerprint == null) {
+                    fingerprint = fp(basic);
+                }
+                if (!announced) {
+                    announce();
+                }
+                lastMs = System.currentTimeMillis();
+                String json = new String(content, UTF8);
+                WearableBleDiagLog.log("applink", "← " + json);
+                Listener l = listener;
+                if (l != null) {
+                    l.onAppMessage(json);
+                }
+            }
+            return true;
+        }
+        if (tp.containsKey(8)) {
+            WearableBleDiagLog.log("applink", "app status " + sub);
+            return true;
+        }
+        return false;
     }
 
-    /** Depth-first search for a JSON text {"t":…}; fills {@code at} with field positions. */
-    private static String find(List<Field> fields, List<Integer> at, int depth) {
-        for (int k = 0; k < fields.size(); k++) {
-            Field f = fields.get(k);
-            if (f.wire != 2 || f.bytes == null) {
+    private static void onAppList(Map<Integer, List<Object>> list) {
+        List<Object> items = list != null ? list.get(1) : null;
+        int n = items != null ? items.size() : 0;
+        for (int i = 0; i < n; i++) {
+            Object o = items.get(i);
+            if (!(o instanceof byte[])) {
                 continue;
             }
-            String s = asJson(f.bytes);
-            if (s != null) {
-                at.add(k);
-                return s;
+            Map<Integer, List<Object>> item = XiaomiBandProto.protoParse((byte[]) o);
+            if (!isOurs(item)) {
+                continue;
             }
-            List<Field> inner = parse(f.bytes, depth + 1);
-            if (inner != null && !inner.isEmpty()) {
-                at.add(k);
-                String r = find(inner, at, depth + 1);
-                if (r != null) {
-                    return r;
-                }
-                at.remove(at.size() - 1);
+            fingerprint = fp(item);
+            int version = XiaomiBandMessages.intField(item, 3);
+            WearableBleDiagLog.log("applink", "installed v" + version);
+            Listener l = listener;
+            if (l != null && version > 0) {
+                l.onAppInstalled(version);
             }
+            announce();
+            return;
         }
-        return null;
+        WearableBleDiagLog.log("applink", "not installed (" + n + " apps)");
     }
 
-    private static String asJson(byte[] b) {
-        if (b.length < 7 || b[0] != '{') {
-            return null;
+    /** Tell the band the phone side of our app is connected (opens the app's interconnect). */
+    private static void announce() {
+        XiaomiBandLink link = XiaomiBand.link();
+        if (link == null || !link.isConnected() || fingerprint == null) {
+            return;
         }
-        String s = new String(b, UTF8);
-        return s.contains("\"t\"") && s.endsWith("}") ? s : null;
+        byte[] status = XiaomiBandProto.concat(
+                XiaomiBandProto.protoFieldMessage(1, basicInfo()),
+                XiaomiBandProto.protoFieldVarint(2, STATUS_CONNECTED));
+        link.sendCommand(XiaomiBandMessages.command(T_APP, APP_STATUS_SYNC,
+                XiaomiBandProto.protoFieldMessage(22, XiaomiBandProto.protoFieldMessage(8, status))));
+        announced = true;
+        WearableBleDiagLog.log("applink", "announced connected");
     }
 
-    /** Re-encode the template with the leaf at {@code p} replaced. */
-    private static byte[] encode(List<Field> fields, int[] p, int depth, byte[] leaf) {
-        java.io.ByteArrayOutputStream o = new java.io.ByteArrayOutputStream();
-        for (int k = 0; k < fields.size(); k++) {
-            Field f = fields.get(k);
-            byte[] value = f.bytes;
-            if (depth < p.length && k == p[depth] && f.wire == 2) {
-                if (depth == p.length - 1) {
-                    value = leaf;
-                } else {
-                    List<Field> inner = parse(f.bytes, depth + 1);
-                    if (inner == null) {
-                        return null;
-                    }
-                    value = encode(inner, p, depth + 1, leaf);
-                    if (value == null) {
-                        return null;
-                    }
-                }
-            }
-            writeVarint(o, ((long) f.num << 3) | f.wire);
-            if (f.wire == 0) {
-                writeVarint(o, f.varint);
-            } else if (f.wire == 2) {
-                writeVarint(o, value.length);
-                o.write(value, 0, value.length);
-            } else {
-                o.write(value, 0, value.length);
-            }
+    /** Send JSON to the band app (no-op until its fingerprint is known). */
+    public static boolean send(String json) {
+        XiaomiBandLink link = XiaomiBand.link();
+        if (fingerprint == null || json == null || link == null || !link.isConnected()) {
+            return false;
         }
-        return o.toByteArray();
+        byte[] mc = XiaomiBandProto.concat(
+                XiaomiBandProto.protoFieldMessage(1, basicInfo()),
+                XiaomiBandProto.protoFieldBytes(2, json.getBytes(UTF8)));
+        link.sendCommand(XiaomiBandMessages.command(T_APP, APP_MESSAGE_TO_WEAR,
+                XiaomiBandProto.protoFieldMessage(22, XiaomiBandProto.protoFieldMessage(9, mc))));
+        return true;
     }
 
-    private static void writeVarint(java.io.ByteArrayOutputStream o, long v) {
-        while (true) {
-            int b = (int) (v & 0x7F);
-            v >>>= 7;
-            if (v != 0) {
-                o.write(b | 0x80);
-            } else {
-                o.write(b);
-                return;
-            }
-        }
+    private static byte[] basicInfo() {
+        return XiaomiBandProto.concat(
+                XiaomiBandProto.protoFieldString(1, PACKAGE),
+                XiaomiBandProto.protoFieldBytes(2, fingerprint != null ? fingerprint : new byte[0]));
+    }
+
+    private static boolean isOurs(Map<Integer, List<Object>> m) {
+        byte[] p = XiaomiBandMessages.bytesField(m, 1);
+        return p != null && PACKAGE.equals(new String(p, UTF8));
+    }
+
+    private static byte[] fp(Map<Integer, List<Object>> m) {
+        byte[] f = XiaomiBandMessages.bytesField(m, 2);
+        return f != null ? f : new byte[0];
     }
 }

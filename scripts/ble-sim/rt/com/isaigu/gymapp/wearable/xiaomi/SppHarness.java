@@ -58,7 +58,7 @@ public class SppHarness implements XiaomiBandSppPort {
         + " notWorn=" + XiaomiBandStatus.isKnownNotWorn() + " fw=" + XiaomiBandStatus.getFirmware()
         + " model=" + XiaomiBandStatus.getModel() + " transport=" + c.getTransportName());
     System.out.println("KEYS " + keys);
-    System.out.println("INSTALL " + install);
+    System.out.println("INSTALL " + install + " listed=v" + installedV);
     System.out.println("RESULT dropped=" + dropped + " hr=" + hrs + " finalState=" + (states.isEmpty() ? "" : states.get(states.size() - 1)));
     p.destroy();
   }
@@ -68,7 +68,9 @@ public class SppHarness implements XiaomiBandSppPort {
     public void onProgress(int pct, String state) {}
     public void onDone(boolean ok, String msg) { install = ok + " " + msg; System.out.println("  [install] " + install); }
   }
+  static int installedV;
   static final class App implements XiaomiBandAppLink.Listener {
+    public void onAppInstalled(int v) { installedV = v; System.out.println("  [app] installed v" + v); }
     public void onAppMessage(String json) {
       System.out.println("  [app] " + json);
       if (json.contains("hello")) XiaomiBandAppLink.send("{\"t\":\"state\",\"hr\":72,\"title\":\"Основна\"}");

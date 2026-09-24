@@ -15,5 +15,8 @@
 
 
 # virtual methods
+.method public abstract onAppInstalled(I)V
+.end method
+
 .method public abstract onAppMessage(Ljava/lang/String;)V
 .end method

@@ -17,6 +17,7 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 
 KEY = bytes.fromhex(sys.argv[1])
+FP = b"\x5a" * 20          # the app's fingerprint as the band reports it
 VERSION = int(os.environ.get("SPP_VERSION", "2"))
 NOT_WORN = os.environ.get("NOT_WORN") == "1"
 
@@ -124,7 +125,7 @@ def v2_frame(ptype, seq, payload):
 st = {"proto": 1, "keys": None, "pn": None, "wn": os.urandom(16), "authed": False, "rt": False,
       "rt_sent": 0, "cmds": [], "seq": 0, "rx": b"", "acks": 0, "unacked": 0, "v1_ctr": 0,
       "music": 0, "track": None, "rpk": None, "data": b"", "parts": 0, "rpk_ok": False,
-      "app": 0, "applink_ok": False}
+      "app": 0, "applink_ok": False, "phone_connected": False}
 
 
 def send_cmd(proto):
@@ -188,6 +189,24 @@ def on_command(proto):
         st["track"] = (info.get(4, [b"?"])[0].decode(), info.get(5, [b""])[0].decode(), info[1][0])
         log("music screen: %r / %r state=%d" % st["track"])
         log("music text utf8 %s" % ("ok" if st["track"][1].startswith("\u041e\u0441\u043d") else "BROKEN"))
+    elif t == 20 and s == 0:
+        items = b""
+        if st["rpk_ok"]:
+            items = fb(1, fb(1, b"com.xems.band") + fb(2, FP) + fv(3, 4) + fv(4, 1) + fb(5, b"XEMS"))
+        send_cmd(command(20, 0, fb(22, fb(1, items))))
+    elif t == 20 and s == 7:
+        stt = pb(pb(d[22][0])[8][0])
+        basic = pb(stt[1][0])
+        ok = basic[1][0] == b"com.xems.band" and basic[2][0] == FP and stt[2][0] == 1
+        log("phone app status %s" % ("connected ok" if ok else "BAD"))
+        st["phone_connected"] = st["phone_connected"] or ok
+    elif t == 20 and s == 8:
+        mc = pb(pb(d[22][0])[9][0])
+        basic = pb(mc[1][0])
+        js = mc[2][0].decode()
+        ok = st["phone_connected"] and basic[1][0] == b"com.xems.band" and basic[2][0] == FP and js.startswith('{"t":"state"')
+        log("app reply %s %s" % (js, "ok" if ok else "BAD"))
+        st["applink_ok"] = ok
     elif t == 20 and s == 1:
         info = pb(pb(d[22][0])[2][0])
         st["rpk"] = (info[1][0].decode(), info[2][0], info[3][0])
@@ -199,12 +218,6 @@ def on_command(proto):
         if req[1][0] != 64 or st["rpk"] is None or st["size"] != st["rpk"][2]:
             emit("X", "bad upload request"); return
         send_cmd(command(22, 0, fb(24, fb(2, fv(1, 0) + fv(2, 0) + fv(4, 0) + fv(5, 1024)))))
-    elif t == 23 and s == 3:
-        app = pb(d[26][0])
-        js = app[2][0].decode()
-        ok = app[1][0] == b"com.xems.band" and js.startswith('{"t":"state"')
-        log("app reply %s %s" % (js, "ok" if ok else "BAD"))
-        st["applink_ok"] = ok
     elif t == 8 and s == 45:
         st["rt"] = True
     elif t == 8 and s == 46:
@@ -230,7 +243,7 @@ def on_data(chunk):
     log("rpk file %d parts %dB crc/md5 %s" % (total, len(blob), "ok" if ok else "BAD"))
     st["rpk_ok"] = ok
     if ok:
-        send_cmd(command(20, 2))
+        send_cmd(command(20, 2, fb(22, fb(4, fv(1, 0) + fb(2, b"com.xems.band")))))
 
 
 def on_v1(pk_channel, dtype, payload):
@@ -336,10 +349,15 @@ def tick():
         send_cmd(command(18, 0)); st["music"] = 1; return
     if st["music"] == 1 and st["track"] is not None:
         send_cmd(command(18, 2, fb(20, fb(2, fv(1, 4))))); st["music"] = 2; return
-    # after install the XEMS app on the band says hello (wrapper as a band would carry it)
+    # after install the user opens XEMS on the band: it comes online, then says hello
+    # (interconnect only delivers once the phone side reported "connected")
     if st["rpk_ok"] and st["app"] == 0:
-        send_cmd(command(23, 3, fb(26, fb(1, b"com.xems.band") + fb(2, b'{"t":"hello","v":1}'))))
+        send_cmd(command(20, 6, fb(22, fb(5, fb(1, b"com.xems.band") + fb(2, FP)))))
         st["app"] = 1; return
+    if st["app"] == 1 and st["phone_connected"]:
+        mc = fb(1, fb(1, b"com.xems.band") + fb(2, FP)) + fb(2, b'{"t":"hello","v":4}')
+        send_cmd(command(20, 9, fb(22, fb(9, mc))))
+        st["app"] = 2; return
     if st["rt"] and st["rt_sent"] < 5:
         hr = 0 if st["rt_sent"] == 0 else 70 + st["rt_sent"]
         stats = fv(1, 2000 + st["rt_sent"]) + fv(2, 40) + fv(3, 7) + fv(4, hr)

@@ -77,6 +77,11 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         handler.post(new Key(key, volume));
     }
 
+    @Override
+    public void onAppInstalled(int versionCode) {
+        BandAppInstall.onAppHello(versionCode);
+    }
+
     /** From the XEMS app on the band: {"t":"hello"} or {"t":"cmd","a":…}. */
     @Override
     public void onAppMessage(String json) {

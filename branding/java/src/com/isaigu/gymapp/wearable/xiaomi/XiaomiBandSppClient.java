@@ -553,6 +553,8 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             onRealtime(cmd);
         } else if (XiaomiBandRemote.onCommand(type, sub, cmd)) {
             log("remote", "music sub=" + sub);
+        } else if (XiaomiBandAppLink.onCommand(type, sub, cmd)) {
+            log("applink", "cmd " + type + "/" + sub);
         } else if (XiaomiBandInstaller.onCommand(type, sub, cmd)) {
             log("install", "cmd " + type + "/" + sub);
         } else if (type == XiaomiBandMessages.T_SYSTEM) {
@@ -562,8 +564,6 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
                         + " off=" + XiaomiBandStatus.isKnownNotWorn()
                         + " fw=" + XiaomiBandStatus.getFirmware());
             }
-        } else if (XiaomiBandAppLink.onCommand(type, sub, raw)) {
-            log("applink", "message " + type + "/" + sub);
         } else {
             log("cmd", "type=" + type + " sub=" + sub);
         }
@@ -626,6 +626,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         send(XiaomiBandMessages.request(XiaomiBandMessages.T_SYSTEM, XiaomiBandMessages.SYS_DEVICE_INFO));
         send(XiaomiBandMessages.userInfo(appContext));
         pollStatus();
+        XiaomiBandAppLink.onAuthenticated(this);
         if (realtimeWanted) {
             main.postDelayed(startRealtime, START_DELAY_MS);
         }

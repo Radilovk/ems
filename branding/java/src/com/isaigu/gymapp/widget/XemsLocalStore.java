@@ -378,6 +378,20 @@ public final class XemsLocalStore {
                 }
                 bean.connectedSign = sign;
                 list.add(bean);
+                // The adapter keeps a "selected" flag per row, by position: one more row, one more
+                // flag (else onBindViewHolder reads past the end of it).
+                try {
+                    java.lang.reflect.Field sf = adapter.getClass().getDeclaredField("selects");
+                    sf.setAccessible(true);
+                    List<Boolean> selects = (List<Boolean>) sf.get(adapter);
+                    if (selects != null) {
+                        while (selects.size() < list.size()) {
+                            selects.add(Boolean.FALSE);
+                        }
+                    }
+                } catch (NoSuchFieldException ignored) {
+                    // an adapter without per-row flags
+                }
             }
             adapter.getClass().getMethod("notifyDataSetChanged").invoke(adapter);
             java.lang.reflect.Method timer = adapter.getClass().getDeclaredMethod("start_mac_address_timer", String.class);

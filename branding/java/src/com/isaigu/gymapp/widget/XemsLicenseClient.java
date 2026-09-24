@@ -101,6 +101,12 @@ public final class XemsLicenseClient {
         }, "xems-license").start();
     }
 
+    /** Fetch a fresh token now (e.g. suits the server just added), not waiting for the daily check. */
+    public static void refreshNow(Context c) {
+        XemsLicense.prefs().edit().remove(XemsLicense.K_CHECKED).apply();
+        refreshIfDue(c);
+    }
+
     /** Once a day, when a server license is held: fresh token, or back to base when revoked. */
     static void refreshIfDue(final Context c) {
         if (refreshing || !serverConfigured() || !"server".equals(XemsLicense.source())) {
@@ -323,7 +329,29 @@ public final class XemsLicenseClient {
                 + ",\"android\":" + Build.VERSION.SDK_INT
                 + ",\"app_version\":" + XemsLicenseToken.quote(appVersion(c))
                 + ",\"app_code\":" + appCode(c)
-                + ",\"lang\":" + XemsLicenseToken.quote(XemsLang.isBg() ? "bg" : "en");
+                + ",\"lang\":" + XemsLicenseToken.quote(XemsLang.isBg() ? "bg" : "en")
+                + ",\"setup\":" + XemsLicense.isSetupMode()
+                + ",\"ems_local\":" + pairedSuits(c);
+    }
+
+    /** Suits paired on this tablet in the admin setup (XemsLocalStore keeps them), as a JSON array. */
+    static String pairedSuits(Context c) {
+        StringBuilder b = new StringBuilder("[");
+        try {
+            String csv = c.getApplicationContext()
+                    .getSharedPreferences("xems_local_store", Context.MODE_PRIVATE)
+                    .getString("paired_macs", "");
+            for (String m : csv.split(",")) {
+                if (m.trim().length() > 0) {
+                    if (b.length() > 1) {
+                        b.append(',');
+                    }
+                    b.append(XemsLicenseToken.quote(m.trim()));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return b.append(']').toString();
     }
 
     static String http(String method, String path, String body) throws Exception {

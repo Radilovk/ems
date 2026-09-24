@@ -76,11 +76,12 @@ async function handleActivate(request, env) {
     }
     const ts = now();
     await env.DB.prepare(
-      `INSERT INTO activations (license_id, device_id, device_model, android, app_version, app_code, lang, first_seen, last_seen, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
+      `INSERT INTO activations (license_id, device_id, device_model, android, app_version, app_code, lang, first_seen, last_seen, status, ems_local, setup)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
     ).bind(
       lic.id, deviceId, body.device_model || '', body.android || 0,
       body.app_version || '', body.app_code || 0, body.lang || 'bg', ts, ts,
+      JSON.stringify(normMacList(body.ems_local)), body.setup ? 1 : 0,
     ).run();
   }
 
@@ -182,13 +183,14 @@ async function adminApi(request, env, path) {
     const preset = PLANS[plan] || PLANS.custom;
     const mods = JSON.stringify(b.mods || preset?.mods || []);
     const feat = JSON.stringify(b.feat || preset?.feat || []);
+    const ems = JSON.stringify(normMacList(b.ems));
     const expiresAt = b.expires_days ? now() + b.expires_days * 86400 : (b.expires_at || null);
 
     await env.DB.prepare(
-      `INSERT INTO licenses (id, key_hash, key_hint, customer, plan, mods, feat, max_devices, expires_at, status, created_at, note)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+      `INSERT INTO licenses (id, key_hash, key_hint, customer, plan, mods, feat, ems, max_devices, expires_at, status, created_at, note)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
     ).bind(
-      id, keyHash, rawKey.slice(-4), b.customer || '', plan, mods, feat,
+      id, keyHash, rawKey.slice(-4), b.customer || '', plan, mods, feat, ems,
       b.max_devices || 1, expiresAt, now(), b.note || '',
     ).run();
     await audit(env, 'create_license', id, null, b.customer);
@@ -205,6 +207,7 @@ async function adminApi(request, env, path) {
     }
     if (b.mods) { sets.push('mods = ?'); vals.push(JSON.stringify(b.mods)); }
     if (b.feat) { sets.push('feat = ?'); vals.push(JSON.stringify(b.feat)); }
+    if (b.ems !== undefined) { sets.push('ems = ?'); vals.push(JSON.stringify(normMacList(b.ems))); }
     if (b.expires_days !== undefined) {
       sets.push('expires_at = ?');
       vals.push(b.expires_days ? now() + b.expires_days * 86400 : null);
@@ -275,6 +278,7 @@ async function mintToken(env, lic, deviceId) {
     plan: lic.plan,
     mods,
     feat,
+    ems: parseMacList(lic.ems),
     iat: now(),
     exp: lic.expires_at || 0,
   };
@@ -291,12 +295,16 @@ function parseTokenLic(token) {
 
 async function touchActivation(env, act, body) {
   await env.DB.prepare(
-    `UPDATE activations SET last_seen = ?, device_model = ?, android = ?, app_version = ?, app_code = ?, lang = ?
+    `UPDATE activations SET last_seen = ?, device_model = ?, android = ?, app_version = ?, app_code = ?, lang = ?,
+       ems_local = ?, setup = ?
      WHERE license_id = ? AND device_id = ?`,
   ).bind(
     now(), body.device_model || act.device_model, body.android || act.android,
     body.app_version || act.app_version, body.app_code || act.app_code,
-    body.lang || act.lang, act.license_id, act.device_id,
+    body.lang || act.lang,
+    Array.isArray(body.ems_local) ? JSON.stringify(normMacList(body.ems_local)) : (act.ems_local || '[]'),
+    body.setup === undefined ? (act.setup || 0) : (body.setup ? 1 : 0),
+    act.license_id, act.device_id,
   ).run();
 }
 
@@ -324,6 +332,19 @@ function generateKey() {
   return `XEMS-${part()}-${part()}`;
 }
 
+/** One spelling for a suit MAC: AA:BB:CC:DD:EE:FF (12 hex digits, anything else is dropped). */
+function normMac(m) {
+  const hex = String(m || '').toUpperCase().replace(/[^0-9A-F]/g, '');
+  return hex.length === 12 ? hex.match(/../g).join(':') : null;
+}
+/** Array or text (comma / space / new line separated) → unique normalized MACs. */
+function normMacList(v) {
+  const items = Array.isArray(v) ? v : String(v || '').split(/[\s,;]+/);
+  return [...new Set(items.map(normMac).filter(Boolean))];
+}
+function parseMacList(jsonText) {
+  try { return normMacList(JSON.parse(jsonText || '[]')); } catch { return []; }
+}
 function normKey(k) { return (k || '').trim().toUpperCase(); }
 function normDevice(d) { return (d || '').trim().toUpperCase().replace(/[^A-F0-9]/g, ''); }
 function now() { return Math.floor(Date.now() / 1000); }

@@ -25,7 +25,7 @@
 
 # direct methods
 .method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
-    .registers 3
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 222
+    .line 228
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -46,10 +46,10 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .registers 6
+    .locals 3
 
     .prologue
-    .line 225
+    .line 231
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
     const-string v1, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u2026"
@@ -62,7 +62,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 226
+    .line 232
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
     invoke-virtual {v0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
@@ -77,6 +77,6 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 
-    .line 235
+    .line 241
     return-void
 .end method

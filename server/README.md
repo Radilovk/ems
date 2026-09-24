@@ -21,9 +21,11 @@
 ```bash
 cd server
 npm install
+npx wrangler d1 migrations apply xems-license --remote   # първо схемата (0002 добавя ems)
 npx wrangler deploy
-npx wrangler d1 migrations apply xems-license --remote
 ```
+
+Миграциите вървят **преди** кода: новият код пише в колоните `licenses.ems`, `activations.ems_local` и `activations.setup`.
 
 Секрети (не в git):
 ```bash

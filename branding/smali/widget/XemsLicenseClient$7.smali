@@ -27,7 +27,7 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
-    .registers 4
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 252
+    .line 258
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$c:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -50,12 +50,12 @@
 
 # virtual methods
 .method public run()V
-    .registers 9
+    .locals 8
 
     .prologue
     const/4 v7, 0x0
 
-    .line 255
+    .line 261
     new-instance v1, Ljava/io/File;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$c:Landroid/content/Context;
@@ -68,8 +68,8 @@
 
     invoke-direct {v1, v0, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 257
-    :try_start_e
+    .line 263
+    :try_start_0
     new-instance v0, Ljava/net/URL;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -84,88 +84,87 @@
 
     check-cast v0, Ljava/net/HttpURLConnection;
 
-    .line 258
+    .line 264
     const/16 v2, 0x2710
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 259
+    .line 265
     const v2, 0xea60
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 260
+    .line 266
     const-string v2, "SHA-256"
 
     invoke-static {v2}, Ljava/security/MessageDigest;->getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;
 
     move-result-object v2
 
-    .line 261
+    .line 267
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v0
 
-    .line 262
+    .line 268
     new-instance v3, Ljava/io/FileOutputStream;
 
     invoke-direct {v3, v1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
 
-    .line 263
+    .line 269
     const/high16 v4, 0x10000
 
     new-array v4, v4, [B
 
-    .line 265
-    :goto_3b
+    .line 271
+    :goto_0
     invoke-virtual {v0, v4}, Ljava/io/InputStream;->read([B)I
 
     move-result v5
 
-    if-lez v5, :cond_56
+    if-lez v5, :cond_0
 
-    .line 266
+    .line 272
     const/4 v6, 0x0
 
     invoke-virtual {v3, v4, v6, v5}, Ljava/io/OutputStream;->write([BII)V
 
-    .line 267
+    .line 273
     const/4 v6, 0x0
 
     invoke-virtual {v2, v4, v6, v5}, Ljava/security/MessageDigest;->update([BII)V
-    :try_end_49
-    .catch Ljava/lang/Throwable; {:try_start_e .. :try_end_49} :catch_4a
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    goto :goto_3b
+    goto :goto_0
 
-    .line 278
-    :catch_4a
+    .line 284
+    :catch_0
     move-exception v0
 
-    .line 279
+    .line 285
     invoke-virtual {v1}, Ljava/io/File;->delete()Z
 
-    .line 280
+    .line 286
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const-string v1, "download_failed"
 
-    # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
     invoke-static {v0, v7, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 
-    .line 282
-    :goto_55
+    .line 288
+    :goto_1
     return-void
 
-    .line 269
-    :cond_56
-    :try_start_56
+    .line 275
+    :cond_0
+    :try_start_1
     invoke-virtual {v3}, Ljava/io/OutputStream;->close()V
 
-    .line 270
+    .line 276
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 271
+    .line 277
     invoke-virtual {v2}, Ljava/security/MessageDigest;->digest()[B
 
     move-result-object v0
@@ -174,7 +173,7 @@
 
     move-result-object v0
 
-    .line 272
+    .line 278
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->sha256:Ljava/lang/String;
@@ -183,7 +182,7 @@
 
     move-result v2
 
-    if-lez v2, :cond_84
+    if-lez v2, :cond_1
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
@@ -193,26 +192,24 @@
 
     move-result v0
 
-    if-nez v0, :cond_84
+    if-nez v0, :cond_1
 
-    .line 273
+    .line 279
     invoke-virtual {v1}, Ljava/io/File;->delete()Z
 
-    .line 274
+    .line 280
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$7;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const/4 v2, 0x0
 
     const-string v3, "bad_checksum"
 
-    # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
     invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 
-    goto :goto_55
+    goto :goto_1
 
-    .line 277
-    :cond_84
-    # getter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->main:Landroid/os/Handler;
+    .line 283
+    :cond_1
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$400()Landroid/os/Handler;
 
     move-result-object v0
@@ -226,8 +223,8 @@
     invoke-direct {v2, v3, v1, v4}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;-><init>(Landroid/content/Context;Ljava/io/File;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 
     invoke-virtual {v0, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-    :try_end_94
-    .catch Ljava/lang/Throwable; {:try_start_56 .. :try_end_94} :catch_4a
+    :try_end_1
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
 
-    goto :goto_55
+    goto :goto_1
 .end method

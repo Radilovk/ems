@@ -23,7 +23,7 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
-    .registers 2
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 238
+    .line 244
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,10 +42,10 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .registers 6
+    .locals 3
 
     .prologue
-    .line 241
+    .line 247
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -66,6 +66,6 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 242
+    .line 248
     return-void
 .end method

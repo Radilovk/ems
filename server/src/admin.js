@@ -53,8 +53,24 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.8rem}
 </div>
 
 <div class="card">
+<h2>Ново издание (APK за таблетите)</h2>
+<p style="font-size:.85rem;color:#8b949e;margin-bottom:.75rem">След merge в GitHub — регистрирай версията тук. Таблетите ще видят обновление при следващата проверка. CMD не е нужен.</p>
+<div class="row">
+  <div><label>Version code</label><input id="r_code" type="number" placeholder="213" style="width:90px"></div>
+  <div><label>Version name</label><input id="r_name" placeholder="1.1.88-ai" style="width:130px"></div>
+  <div style="flex:1;min-width:220px"><label>URL на APK</label><input id="r_url" style="width:100%" value="https://github.com/Radilovk/ems/raw/main/xems27.apk"></div>
+</div>
+<div class="row">
+  <div style="flex:1"><label>Бележка</label><input id="r_notes" placeholder="Кратко описание на промените" style="width:100%"></div>
+  <div><label>&nbsp;</label><label style="display:flex;align-items:center;gap:.35rem;color:#e6edf3"><input id="r_mandatory" type="checkbox"> Задължително</label></div>
+  <button onclick="registerRelease()">Регистрирай APK</button>
+</div>
+<div id="rel_msg"></div>
+</div>
+
+<div class="card">
 <h2>Издания (APK)</h2>
-<table id="rel_table"><thead><tr><th>Code</th><th>Име</th><th>SHA256</th><th>Задълж.</th></tr></thead><tbody></tbody></table>
+<table id="rel_table"><thead><tr><th>Code</th><th>Име</th><th>Размер</th><th>SHA256</th><th>Задълж.</th></tr></thead><tbody></tbody></table>
 </div>
 
 <script>
@@ -72,7 +88,25 @@ async function load() {
     (x.status==='active'?'<button class="danger" onclick="disable(\\''+x.id+'\\')">Спри</button>':'<button class="secondary" onclick="enable(\\''+x.id+'\\')">Пусни</button>')+
     '</td></tr>').join('');
   const r = await api('releases');
-  document.querySelector('#rel_table tbody').innerHTML = (r.releases||[]).map(x=>'<tr><td>'+x.version_code+'</td><td>'+x.version_name+'</td><td><code>'+x.sha256.slice(0,12)+'…</code></td><td>'+(x.mandatory?'да':'не')+'</td></tr>').join('') || '<tr><td colspan="4">Няма издания</td></tr>';
+  document.querySelector('#rel_table tbody').innerHTML = (r.releases||[]).map(x=>'<tr><td>'+x.version_code+'</td><td>'+x.version_name+'</td><td>'+fmtSize(x.size)+'</td><td><code>'+x.sha256.slice(0,12)+'…</code></td><td>'+(x.mandatory?'да':'не')+'</td></tr>').join('') || '<tr><td colspan="5">Няма издания</td></tr>';
+}
+function fmtSize(n){n=+n||0;if(n>1e6)return(n/1e6).toFixed(1)+' MB';if(n>1e3)return(n/1e3).toFixed(0)+' KB';return n+' B'}
+async function registerRelease(){
+  const el=document.getElementById('rel_msg');
+  el.innerHTML='<div class="msg">Изтегляне и проверка на APK…</div>';
+  try{
+    const r=await api('releases/register',{method:'POST',body:JSON.stringify({
+      version_code:+document.getElementById('r_code').value,
+      version_name:document.getElementById('r_name').value,
+      object_key:document.getElementById('r_url').value,
+      notes:document.getElementById('r_notes').value,
+      mandatory:document.getElementById('r_mandatory').checked
+    })});
+    el.innerHTML='<div class="msg">Регистрирано: <b>'+r.version_name+'</b> (code '+r.version_code+') · SHA256 <code>'+r.sha256.slice(0,16)+'…</code></div>';
+    load();
+  }catch(e){
+    el.innerHTML='<div class="msg err">Грешка: '+e.message+'</div>';
+  }
 }
 
 async function createLicense() {

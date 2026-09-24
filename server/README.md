@@ -3,7 +3,14 @@
 Лицензен сървър за XEMS: отключване на модули, OTA обновяване, админ панел.
 
 **Live:** https://license.biocode-bg.com  
-**Admin:** https://license.biocode-bg.com/admin
+**Admin (уеб, без CMD):** https://license.biocode-bg.com/admin
+
+Влез с потребител/парола (Basic auth). От там:
+- създаваш лицензни ключове за клиенти
+- управляваш костюми (MAC) по лиценз
+- **регистрираш нов APK** за OTA обновяване на таблетите (форма „Ново издание“)
+
+CMD е нужен **само** за първоначален deploy на Cloudflare (веднъж от разработчик).
 
 ## API
 

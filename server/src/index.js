@@ -243,14 +243,30 @@ async function adminApi(request, env, path) {
     return json({ ok: true, releases: rows.results });
   }
 
-  if (route === 'releases/upload' && request.method === 'POST') {
+  if ((route === 'releases/upload' || route === 'releases/register') && request.method === 'POST') {
     const b = await request.json();
-    const { version_code, version_name, channel, notes, mandatory, object_key, sha256, size } = b;
+    const version_code = +b.version_code;
+    const version_name = String(b.version_name || '').trim();
+    const object_key = String(b.object_key || b.url || '').trim();
+    if (!version_code || !version_name || !object_key) {
+      return json({ ok: false, error: 'missing_fields', message: 'version_code, version_name and url are required' }, 400);
+    }
+    let sha256 = String(b.sha256 || '').trim().toLowerCase();
+    let size = +b.size || 0;
+    if (!sha256 || !size) {
+      const fetched = await fetchReleaseMeta(object_key);
+      if (!fetched.ok) return json({ ok: false, error: fetched.error, message: fetched.message }, 400);
+      sha256 = fetched.sha256;
+      size = fetched.size;
+    }
     await env.DB.prepare(
       `INSERT OR REPLACE INTO releases (version_code, version_name, channel, object_key, sha256, size, notes, mandatory, published_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).bind(version_code, version_name, channel || 'stable', object_key, sha256, size || 0, notes || '', mandatory ? 1 : 0, now()).run();
-    return json({ ok: true });
+    ).bind(
+      version_code, version_name, b.channel || 'stable', object_key, sha256, size,
+      b.notes || '', b.mandatory ? 1 : 0, now(),
+    ).run();
+    return json({ ok: true, version_code, version_name, sha256, size });
   }
 
   if (route === 'stats' && request.method === 'GET') {
@@ -348,6 +364,25 @@ function parseMacList(jsonText) {
 function normKey(k) { return (k || '').trim().toUpperCase(); }
 function normDevice(d) { return (d || '').trim().toUpperCase().replace(/[^A-F0-9]/g, ''); }
 function now() { return Math.floor(Date.now() / 1000); }
+
+/** Download APK (or any file) and return sha256 + size for the admin web form. */
+async function fetchReleaseMeta(url) {
+  try {
+    const res = await fetch(url, { redirect: 'follow' });
+    if (!res.ok) {
+      return { ok: false, error: 'fetch_failed', message: `HTTP ${res.status} for ${url}` };
+    }
+    const buf = await res.arrayBuffer();
+    const size = buf.byteLength;
+    if (size < 1_000_000) {
+      return { ok: false, error: 'too_small', message: 'File looks too small to be a valid APK' };
+    }
+    const sha256 = await sha256Hex(new Uint8Array(buf));
+    return { ok: true, sha256, size };
+  } catch (e) {
+    return { ok: false, error: 'fetch_failed', message: String(e.message || e) };
+  }
+}
 
 function checkAdmin(request, env) {
   const auth = request.headers.get('Authorization') || '';

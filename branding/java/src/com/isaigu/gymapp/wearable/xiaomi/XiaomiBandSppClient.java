@@ -410,6 +410,15 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         rxLen = Math.max(0, keep);
     }
 
+    /** Packets on channels XEMS does not use yet go to band-raw.csv whole (app messages may ride there). */
+    private void rawOther(String tag, byte[] payload) {
+        if (payload == null) {
+            return;
+        }
+        byte[] head = payload.length > 512 ? java.util.Arrays.copyOf(payload, 512) : payload;
+        WearableBleDiagLog.appendRaw(RAW_FILE, System.currentTimeMillis() + "," + tag + ",-," + hex(head));
+    }
+
     private void onPacket(XiaomiBandSppFrames.Packet pk) {
         if (pk.version == 1) {
             if (pk.channel == 0) {
@@ -418,6 +427,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             }
             if (pk.channel != 1 && pk.channel != 2) {
                 log("spp", "v1 channel " + pk.channel + " ignored");
+                rawOther("v1ch" + pk.channel, pk.payload);
                 return;
             }
             byte[] body = pk.payload;
@@ -441,6 +451,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
                 write(XiaomiBandSppFrames.v2Ack(pk.seq));
                 if (pk.channel != 1) {
                     log("spp", "v2 channel " + pk.channel + " (" + pk.payload.length + "B) ignored");
+                    rawOther("v2ch" + pk.channel + "op" + pk.opcode, pk.payload);
                     return;
                 }
                 byte[] body = pk.payload;

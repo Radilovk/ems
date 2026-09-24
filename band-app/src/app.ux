@@ -15,7 +15,7 @@ import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 2
+const APP_VERSION = 3
 
 export default {
   state: null,
@@ -23,13 +23,17 @@ export default {
   listeners: [],
   conn: null,
   helloTimer: null,
+  /** Shown on the connecting screen: what the band's link to the phone does. */
+  diag: { link: '?', sent: 0, failed: 0, err: '', rxAny: 0 },
 
   onCreate() {
     this.open()
     // Until XEMS answers, say hello every 4 s (the link may open after the app).
     this.helloTimer = setInterval(() => {
       if (this.silence() > 12) {
+        this.probe()
         this.hello()
+        this.notify()
       }
     }, 4000)
   },
@@ -43,13 +47,47 @@ export default {
     try {
       const conn = interconnect.instance()
       this.conn = conn
-      conn.onmessage = (msg) => this.receive(msg && msg.data)
-      conn.onopen = () => this.hello()
-      conn.onclose = () => this.notify()
-      conn.onerror = () => this.notify()
+      conn.onmessage = (msg) => {
+        this.diag.rxAny++
+        this.receive(msg && msg.data)
+      }
+      conn.onopen = () => {
+        this.diag.link = 'отворена'
+        this.hello()
+        this.notify()
+      }
+      conn.onclose = (d) => {
+        this.diag.link = 'затворена' + (d && d.code != null ? ' ' + d.code : '')
+        this.notify()
+      }
+      conn.onerror = (d) => {
+        this.diag.err = 'onerror ' + (d && d.code != null ? d.code : '') + (d && d.data ? ' ' + d.data : '')
+        this.notify()
+      }
+      this.probe()
       this.hello()
     } catch (e) {
+      this.diag.err = 'instance: ' + e
       console.log('xems: interconnect ' + e)
+    }
+  },
+
+  /** Ask the system whether the link to the phone app is open (1 open, 2 closed). */
+  probe() {
+    try {
+      if (this.conn && this.conn.getReadyState) {
+        this.conn.getReadyState({
+          success: (d) => {
+            const st = d && d.status
+            this.diag.link = st === 1 ? 'отворена' : st === 2 ? 'затворена' : 'статус ' + st
+          },
+          fail: (d, code) => {
+            this.diag.link = 'грешка ' + code
+          }
+        })
+      }
+    } catch (e) {
+      this.diag.link = 'няма getReadyState'
     }
   },
 
@@ -79,12 +117,23 @@ export default {
 
   send(obj) {
     if (!this.conn) {
+      this.diag.err = 'няма връзка (instance)'
       return
     }
     try {
-      this.conn.send({ data: JSON.stringify(obj) })
+      this.conn.send({
+        data: JSON.stringify(obj),
+        success: () => {
+          this.diag.sent++
+        },
+        fail: (d, code) => {
+          this.diag.failed++
+          this.diag.err = 'send ' + code + (d ? ' ' + JSON.stringify(d).slice(0, 40) : '')
+        }
+      })
     } catch (e) {
-      console.log('xems: send ' + e)
+      this.diag.failed++
+      this.diag.err = 'send: ' + e
     }
   },
 

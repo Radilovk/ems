@@ -53,36 +53,49 @@
 .end method
 
 .method private static finish(ZLjava/lang/String;)V
-    .registers 4
+    .registers 5
 
     .prologue
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
-    .line 168
+    .line 174
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller$Listener;
 
-    .line 169
-    sput-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
+    .line 175
+    if-eqz p0, :cond_e
 
-    .line 170
-    sput-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->pkg:Ljava/lang/String;
+    sget-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
-    .line 171
-    sput-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller$Listener;
+    if-eqz v1, :cond_e
 
-    .line 172
+    .line 176
+    sget-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAppLink;->refresh(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;)V
+
+    .line 178
+    :cond_e
+    sput-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
+
+    .line 179
+    sput-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->pkg:Ljava/lang/String;
+
+    .line 180
+    sput-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller$Listener;
+
+    .line 181
     const/4 v1, 0x0
 
     sput-boolean v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->uploading:Z
 
-    .line 173
-    if-eqz v0, :cond_11
+    .line 182
+    if-eqz v0, :cond_1c
 
-    .line 174
+    .line 183
     invoke-interface {v0, p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller$Listener;->onDone(ZLjava/lang/String;)V
 
-    .line 176
-    :cond_11
+    .line 185
+    :cond_1c
     return-void
 .end method
 
@@ -310,7 +323,7 @@
     .registers 2
 
     .prologue
-    .line 187
+    .line 196
     :try_start_0
     const-string v0, "MD5"
 
@@ -324,15 +337,15 @@
 
     move-result-object v0
 
-    .line 189
+    .line 198
     :goto_a
     return-object v0
 
-    .line 188
+    .line 197
     :catch_b
     move-exception v0
 
-    .line 189
+    .line 198
     const/16 v0, 0x10
 
     new-array v0, v0, [B
@@ -356,9 +369,11 @@
     .end annotation
 
     .prologue
-    const/16 v4, 0x16
+    const/4 v4, 0x4
 
-    const/4 v3, 0x2
+    const/16 v3, 0x16
+
+    const/4 v7, 0x2
 
     const/4 v2, 0x0
 
@@ -367,21 +382,21 @@
     .line 83
     const/16 v0, 0x14
 
-    if-ne p0, v0, :cond_71
+    if-ne p0, v0, :cond_b0
 
     .line 84
-    if-ne p1, v1, :cond_5c
+    if-ne p1, v1, :cond_5d
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
 
-    if-eqz v0, :cond_5c
+    if-eqz v0, :cond_5d
 
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->uploading:Z
 
-    if-nez v0, :cond_5c
+    if-nez v0, :cond_5d
 
     .line 85
-    invoke-static {p2, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->sub(Ljava/util/Map;I)Ljava/util/Map;
+    invoke-static {p2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->sub(Ljava/util/Map;I)Ljava/util/Map;
 
     move-result-object v0
 
@@ -422,11 +437,11 @@
     invoke-virtual {v3, v4, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 88
-    if-eqz v0, :cond_57
+    if-eqz v0, :cond_58
 
     const/4 v3, -0x1
 
-    if-eq v0, v3, :cond_57
+    if-eq v0, v3, :cond_58
 
     .line 89
     new-instance v3, Ljava/lang/StringBuilder;
@@ -451,75 +466,148 @@
 
     move v0, v1
 
-    .line 114
-    :goto_56
+    .line 120
+    :goto_57
     return v0
 
     .line 92
-    :cond_57
+    :cond_58
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->requestUpload()V
 
-    :cond_5a
-    :goto_5a
     move v0, v1
 
-    .line 99
-    goto :goto_56
-
     .line 93
-    :cond_5c
-    if-ne p1, v3, :cond_5a
-
-    .line 94
-    sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
-
-    const-string v2, "install"
-
-    const-string v3, "band reports installed"
-
-    invoke-virtual {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->log(Ljava/lang/String;Ljava/lang/String;)V
+    goto :goto_57
 
     .line 95
-    sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
+    :cond_5d
+    if-ne p1, v7, :cond_ae
 
-    if-eqz v0, :cond_5a
+    .line 98
+    invoke-static {p2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->sub(Ljava/util/Map;I)Ljava/util/Map;
 
-    .line 96
-    const-string v0, "installed"
+    move-result-object v0
 
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->finish(ZLjava/lang/String;)V
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->sub(Ljava/util/Map;I)Ljava/util/Map;
 
-    goto :goto_5a
+    move-result-object v0
+
+    .line 97
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->intField(Ljava/util/Map;I)I
+
+    move-result v0
+
+    .line 99
+    sget-object v3, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
+
+    const-string v4, "install"
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v6, "band reports result "
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v3, v4, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 100
+    sget-object v3, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
+
+    if-eqz v3, :cond_93
 
     .line 101
-    :cond_71
-    if-ne p0, v4, :cond_eb
+    if-gtz v0, :cond_8c
 
-    if-nez p1, :cond_eb
+    move v2, v1
+
+    :cond_8c
+    if-gtz v0, :cond_95
+
+    const-string v0, "installed"
+
+    :goto_90
+    invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->finish(ZLjava/lang/String;)V
+
+    :cond_93
+    move v0, v1
+
+    .line 103
+    goto :goto_57
+
+    .line 101
+    :cond_95
+    if-ne v0, v7, :cond_9a
+
+    const-string v0, "verify failed"
+
+    goto :goto_90
+
+    :cond_9a
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "failed "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_90
+
+    :cond_ae
+    move v0, v2
+
+    .line 105
+    goto :goto_57
+
+    .line 107
+    :cond_b0
+    if-ne p0, v3, :cond_129
+
+    if-nez p1, :cond_129
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
 
-    if-eqz v0, :cond_eb
+    if-eqz v0, :cond_129
 
-    .line 102
+    .line 108
     const/16 v0, 0x18
 
     invoke-static {p2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->sub(Ljava/util/Map;I)Ljava/util/Map;
 
     move-result-object v0
 
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->sub(Ljava/util/Map;I)Ljava/util/Map;
+    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->sub(Ljava/util/Map;I)Ljava/util/Map;
 
     move-result-object v0
 
-    .line 103
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->intField(Ljava/util/Map;I)I
+    .line 109
+    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->intField(Ljava/util/Map;I)I
 
     move-result v3
 
-    .line 104
-    const/4 v4, 0x4
-
+    .line 110
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->intField(Ljava/util/Map;I)I
 
     move-result v4
@@ -528,14 +616,14 @@
 
     move-result v4
 
-    .line 105
+    .line 111
     const/4 v5, 0x5
 
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->intField(Ljava/util/Map;I)I
 
     move-result v0
 
-    .line 106
+    .line 112
     sget-object v5, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
     const-string v6, "install"
@@ -580,10 +668,10 @@
 
     invoke-virtual {v5, v6, v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 107
-    if-lez v3, :cond_de
+    .line 113
+    if-lez v3, :cond_11c
 
-    .line 108
+    .line 114
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -606,53 +694,53 @@
 
     move v0, v1
 
-    .line 109
-    goto/16 :goto_56
+    .line 115
+    goto/16 :goto_57
 
-    .line 111
-    :cond_de
+    .line 117
+    :cond_11c
     const/16 v2, 0x10
 
-    if-le v0, v2, :cond_e8
+    if-le v0, v2, :cond_126
 
-    :goto_e2
+    :goto_120
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->upload(II)V
 
     move v0, v1
 
-    .line 112
-    goto/16 :goto_56
+    .line 118
+    goto/16 :goto_57
 
-    .line 111
-    :cond_e8
+    .line 117
+    :cond_126
     const/16 v0, 0x800
 
-    goto :goto_e2
+    goto :goto_120
 
-    :cond_eb
+    :cond_129
     move v0, v2
 
-    .line 114
-    goto/16 :goto_56
+    .line 120
+    goto/16 :goto_57
 .end method
 
 .method static onDisconnected()V
     .registers 2
 
     .prologue
-    .line 180
+    .line 189
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
 
     if-eqz v0, :cond_a
 
-    .line 181
+    .line 190
     const/4 v0, 0x0
 
     const-string v1, "disconnected"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->finish(ZLjava/lang/String;)V
 
-    .line 183
+    .line 192
     :cond_a
     return-void
 .end method
@@ -661,17 +749,17 @@
     .registers 3
 
     .prologue
-    .line 162
+    .line 168
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller$Listener;
 
     if-eqz v0, :cond_9
 
-    .line 163
+    .line 169
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->listener:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller$Listener;
 
     invoke-interface {v0, p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller$Listener;->onProgress(ILjava/lang/String;)V
 
-    .line 165
+    .line 171
     :cond_9
     return-void
 .end method
@@ -680,12 +768,12 @@
     .registers 5
 
     .prologue
-    .line 194
+    .line 203
     int-to-byte v0, p2
 
     aput-byte v0, p0, p1
 
-    .line 195
+    .line 204
     add-int/lit8 v0, p1, 0x1
 
     ushr-int/lit8 v1, p2, 0x8
@@ -694,7 +782,7 @@
 
     aput-byte v1, p0, v0
 
-    .line 196
+    .line 205
     add-int/lit8 v0, p1, 0x2
 
     ushr-int/lit8 v1, p2, 0x10
@@ -703,7 +791,7 @@
 
     aput-byte v1, p0, v0
 
-    .line 197
+    .line 206
     add-int/lit8 v0, p1, 0x3
 
     ushr-int/lit8 v1, p2, 0x18
@@ -712,7 +800,7 @@
 
     aput-byte v1, p0, v0
 
-    .line 198
+    .line 207
     return-void
 .end method
 
@@ -728,15 +816,15 @@
 
     const/4 v4, 0x1
 
-    .line 118
+    .line 124
     sput-boolean v4, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->uploading:Z
 
-    .line 119
+    .line 125
     new-array v0, v2, [[B
 
     const/16 v1, 0x40
 
-    .line 120
+    .line 126
     invoke-static {v4, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v1
@@ -745,7 +833,7 @@
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
 
-    .line 121
+    .line 127
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->md5([B)[B
 
     move-result-object v1
@@ -760,31 +848,31 @@
 
     array-length v1, v1
 
-    .line 122
+    .line 128
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v1
 
     aput-object v1, v0, v3
 
-    .line 119
+    .line 125
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v0
 
-    .line 123
+    .line 129
     const-string v1, "upload_request"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->progress(ILjava/lang/String;)V
 
-    .line 124
+    .line 130
     sget-object v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
     const/16 v2, 0x16
 
     const/16 v3, 0x18
 
-    .line 125
+    .line 131
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
@@ -793,14 +881,14 @@
 
     move-result-object v0
 
-    .line 124
+    .line 130
     invoke-static {v2, v5, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->command(II[B)[B
 
     move-result-object v0
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->sendCommand([B)V
 
-    .line 126
+    .line 132
     return-void
 .end method
 
@@ -814,14 +902,14 @@
 
     const/4 v1, 0x0
 
-    .line 129
+    .line 135
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->md5([B)[B
 
     move-result-object v0
 
-    .line 130
+    .line 136
     sget-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
 
     array-length v2, v2
@@ -836,25 +924,25 @@
 
     sub-int/2addr v2, v3
 
-    .line 131
+    .line 137
     add-int/lit8 v3, v2, 0x16
 
     new-array v3, v3, [B
 
-    .line 132
+    .line 138
     aput-byte v1, v3, v1
 
-    .line 133
+    .line 139
     const/16 v4, 0x40
 
     aput-byte v4, v3, v10
 
-    .line 134
+    .line 140
     const/16 v4, 0x10
 
     invoke-static {v0, v1, v3, v11, v4}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 135
+    .line 141
     const/16 v0, 0x12
 
     sget-object v4, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
@@ -863,7 +951,7 @@
 
     invoke-static {v3, v0, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->putU32([BII)V
 
-    .line 136
+    .line 142
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
 
     sget-object v4, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->file:[B
@@ -876,29 +964,29 @@
 
     invoke-static {v0, v4, v3, v5, v2}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 137
+    .line 143
     new-instance v0, Ljava/util/zip/CRC32;
 
     invoke-direct {v0}, Ljava/util/zip/CRC32;-><init>()V
 
-    .line 138
+    .line 144
     array-length v2, v3
 
     invoke-virtual {v0, v3, v1, v2}, Ljava/util/zip/CRC32;->update([BII)V
 
-    .line 139
+    .line 145
     array-length v2, v3
 
     add-int/lit8 v2, v2, 0x4
 
     new-array v2, v2, [B
 
-    .line 140
+    .line 146
     array-length v4, v3
 
     invoke-static {v3, v1, v2, v1, v4}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 141
+    .line 147
     array-length v3, v3
 
     invoke-virtual {v0}, Ljava/util/zip/CRC32;->getValue()J
@@ -909,10 +997,10 @@
 
     invoke-static {v2, v3, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->putU32([BII)V
 
-    .line 143
+    .line 149
     add-int/lit8 v3, p1, -0x4
 
-    .line 144
+    .line 150
     array-length v0, v2
 
     add-int/2addr v0, v3
@@ -923,14 +1011,14 @@
 
     move v0, v1
 
-    .line 145
+    .line 151
     :goto_5a
     if-ge v0, v4, :cond_99
 
-    .line 146
+    .line 152
     mul-int v5, v0, v3
 
-    .line 147
+    .line 153
     array-length v6, v2
 
     sub-int/2addr v6, v5
@@ -939,31 +1027,31 @@
 
     move-result v6
 
-    .line 148
+    .line 154
     add-int/lit8 v7, v6, 0x4
 
     new-array v7, v7, [B
 
-    .line 149
+    .line 155
     int-to-byte v8, v4
 
     aput-byte v8, v7, v1
 
-    .line 150
+    .line 156
     ushr-int/lit8 v8, v4, 0x8
 
     int-to-byte v8, v8
 
     aput-byte v8, v7, v10
 
-    .line 151
+    .line 157
     add-int/lit8 v8, v0, 0x1
 
     int-to-byte v8, v8
 
     aput-byte v8, v7, v11
 
-    .line 152
+    .line 158
     const/4 v8, 0x3
 
     add-int/lit8 v9, v0, 0x1
@@ -974,17 +1062,17 @@
 
     aput-byte v9, v7, v8
 
-    .line 153
+    .line 159
     const/4 v8, 0x4
 
     invoke-static {v2, v5, v7, v8, v6}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 154
+    .line 160
     sget-object v5, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
     invoke-virtual {v5, v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->sendData([B)V
 
-    .line 155
+    .line 161
     const-wide/16 v6, 0x5a
 
     add-int/lit8 v5, v0, 0x1
@@ -1005,12 +1093,12 @@
 
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->progress(ILjava/lang/String;)V
 
-    .line 145
+    .line 151
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_5a
 
-    .line 157
+    .line 163
     :cond_99
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
@@ -1046,13 +1134,13 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 158
+    .line 164
     const/16 v0, 0x60
 
     const-string v1, "installing"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandInstaller;->progress(ILjava/lang/String;)V
 
-    .line 159
+    .line 165
     return-void
 .end method

@@ -90,13 +90,19 @@ public final class XiaomiBandInstaller {
                     return true;
                 }
                 requestUpload();
-            } else if (sub == RPK_INSTALLED) {
-                client.log("install", "band reports installed");
-                if (file != null) {
-                    finish(true, "installed");
-                }
+                return true;
             }
-            return true;
+            if (sub == RPK_INSTALLED) {
+                // install_result{code: 0 ok, 1 failed, 2 verify failed}
+                int code = XiaomiBandMessages.intField(
+                        XiaomiBandMessages.sub(XiaomiBandMessages.sub(cmd, 22), 4), 1);
+                client.log("install", "band reports result " + code);
+                if (file != null) {
+                    finish(code <= 0, code <= 0 ? "installed" : code == 2 ? "verify failed" : "failed " + code);
+                }
+                return true;
+            }
+            return false;
         }
         if (type == T_UPLOAD && sub == UPLOAD_START && file != null) {
             Map<Integer, List<Object>> ack = XiaomiBandMessages.sub(XiaomiBandMessages.sub(cmd, 24), 2);
@@ -166,6 +172,9 @@ public final class XiaomiBandInstaller {
 
     private static void finish(boolean ok, String msg) {
         Listener l = listener;
+        if (ok && client != null) {
+            XiaomiBandAppLink.refresh(client);
+        }
         file = null;
         pkg = null;
         listener = null;

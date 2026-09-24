@@ -1,47 +1,43 @@
 <template>
-  <div class="screen">
-    <div class="check"><image class="check-img" src="/common/icons/check.png"></image></div>
-    <text class="caps">{{kindText}}</text>
-    <text class="dur">{{durText}}</text>
-
-    <div class="tiles">
-      <div class="tile">
-        <text class="num kcal">{{kcal}}</text>
-        <text class="label">kcal</text>
+  <stack class="root" onswipe="onSwipe">
+    <div class="screen">
+      <div class="check"><image class="check-img" src="/common/icons/check.png"></image></div>
+      <text class="caps">{{kindText}}</text>
+      <text class="dur">{{durText}}</text>
+      <text class="kcal">{{kcal}} kcal</text>
+      <div class="pair">
+        <div class="stat">
+          <text class="stat-num">{{avg}}</text>
+          <text class="stat-label">средно</text>
+        </div>
+        <div class="stat">
+          <text class="stat-num stat-max">{{max}}</text>
+          <text class="stat-label">връх</text>
+        </div>
       </div>
-      <div class="tile">
-        <text class="num">{{avg}}</text>
-        <text class="label">средно</text>
+      <div class="zstack">
+        <div for="{{zones}}" class="zpart" style="flex: {{$item.w}}; background-color: {{$item.c}}"></div>
       </div>
-      <div class="tile">
-        <text class="num max">{{max}}</text>
-        <text class="label">връх</text>
-      </div>
-    </div>
-
-    <div class="zstack">
-      <div for="{{zones}}" class="zpart" style="flex: {{$item.w}}; background-color: {{$item.c}}"></div>
-    </div>
-    <div class="zlegend">
-      <div for="{{zones}}" class="zleg">
-        <text class="zleg-z" style="color: {{$item.c}}">Z{{$idx + 1}}</text>
-        <text class="zleg-m">{{$item.m}}</text>
+      <div class="btn done {{pressed ? 'down' : ''}}" ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="close">
+        <text class="done-text">Готово</text>
       </div>
     </div>
-
-    <div class="close {{pressed ? 'down' : ''}}" ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="close">
-      <text class="close-text">Готово</text>
-    </div>
-  </div>
+  </stack>
 </template>
 
 <script>
 import router from '@system.router'
-import { ZONE, hms } from '../../common/ui.js'
+import { ZONE, hms, swipe } from '../../common/ui.js'
 
 export default {
   private: {
-    kindText: 'ТРЕНИРОВКАТА ПРИКЛЮЧИ',
+    ids: ['main'],
+    idsKey: 'main',
+    idx: 0,
+    cur: 'main',
+    dots: [],
+    anim: '',
+    kindText: 'КРАЙ',
     durText: '0:00',
     kcal: '--',
     avg: '--',
@@ -59,11 +55,11 @@ export default {
     this.max = s.max > 0 ? String(s.max) : '--'
     const zt = s.zt || [0, 0, 0, 0, 0]
     const total = zt.reduce((a, b) => a + b, 0)
-    this.zones = zt.map((v, i) => ({
-      w: total > 0 ? Math.max(v, 0.0001) : 1,
-      c: ZONE[i + 1],
-      m: v >= 60 ? Math.round(v / 60) + 'м' : v > 0 ? v + 'с' : '–'
-    }))
+    this.zones = zt.map((v, i) => ({ w: total > 0 ? Math.max(v, 0.0001) : 1, c: ZONE[i + 1] }))
+  },
+
+  onSwipe(e) {
+    swipe(this, e)
   },
 
   press() {
@@ -81,114 +77,191 @@ export default {
 </script>
 
 <style>
+/* ---- common (tools/gen-pages.py stamps this into every page) ---- */
+.root {
+  width: 212px;
+  height: 520px;
+  background-color: #000000;
+}
 .screen {
   width: 212px;
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 30px;
+  padding-top: 34px;
   background-color: #000000;
 }
-.check {
-  width: 64px;
-  height: 64px;
-  border-radius: 32px;
-  background-color: #30d158;
+.in-up {
+  animation-name: inUp;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+.in-down {
+  animation-name: inDown;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+.dots {
+  width: 16px;
+  height: 520px;
+  margin-left: 196px;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-.check-img {
-  width: 40px;
-  height: 40px;
+.pdot {
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background-color: #3a3a3c;
+}
+.pdot-on {
+  height: 22px;
+  background-color: #ffffff;
 }
 .caps {
-  margin-top: 12px;
-  width: 200px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.sub {
+  width: 196px;
   text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  color: #8e8e93;
-}
-.dur {
-  font-size: 62px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.tiles {
-  flex-direction: row;
-  margin-top: 8px;
-}
-.tile {
-  width: 64px;
-  height: 78px;
-  margin-left: 2px;
-  margin-right: 2px;
-  border-radius: 20px;
-  background-color: #1c1c1e;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.num {
-  font-size: 26px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.kcal {
-  color: #ff9f0a;
-}
-.max {
-  color: #ff453a;
-}
-.label {
-  font-size: 18px;
-  color: #8e8e93;
-}
-.zstack {
-  width: 196px;
-  height: 16px;
-  margin-top: 18px;
-  border-radius: 8px;
-  flex-direction: row;
-  background-color: #1c1c1e;
-}
-.zpart {
-  height: 16px;
-}
-.zlegend {
-  width: 196px;
-  flex-direction: row;
-  margin-top: 6px;
-}
-.zleg {
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-}
-.zleg-z {
-  font-size: 18px;
-  font-weight: bold;
-}
-.zleg-m {
-  font-size: 18px;
+  font-size: 22px;
   color: #aeaeb2;
 }
-.close {
-  width: 180px;
-  height: 64px;
-  margin-top: 24px;
-  border-radius: 32px;
-  background-color: #2c2c2e;
+.down {
+  transform: scale(0.92);
+}
+.btn {
   justify-content: center;
   align-items: center;
   transition-property: transform;
   transition-duration: 120ms;
 }
-.down {
-  transform: scale(0.92);
+.off {
+  opacity: 0.3;
 }
-.close-text {
-  font-size: 22px;
+@keyframes inUp {
+  from {
+    transform: translateY(90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes inDown {
+  from {
+    transform: translateY(-90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes breathe {
+  from {
+    transform: scale(0.86);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.12);
+    opacity: 0.2;
+  }
+}
+@keyframes beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+
+/* ---- page ---- */
+.screen {
+  padding-top: 30px;
+}
+.check {
+  width: 72px;
+  height: 72px;
+  border-radius: 36px;
+  background-color: #30d158;
+  justify-content: center;
+  align-items: center;
+}
+.check-img {
+  width: 44px;
+  height: 44px;
+}
+.caps {
+  margin-top: 12px;
+  width: 200px;
+  text-align: center;
+  font-size: 20px;
+}
+.dur {
+  font-size: 66px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.kcal {
+  font-size: 30px;
+  font-weight: bold;
+  color: #ff9f0a;
+}
+.pair {
+  flex-direction: row;
+  margin-top: 14px;
+}
+.stat {
+  width: 94px;
+  height: 90px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 24px;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.stat-num {
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.stat-max {
+  color: #ff453a;
+}
+.stat-label {
+  font-size: 20px;
+  color: #8e8e93;
+}
+.zstack {
+  width: 192px;
+  height: 18px;
+  margin-top: 16px;
+  border-radius: 9px;
+  flex-direction: row;
+  background-color: #1c1c1e;
+}
+.zpart {
+  height: 18px;
+}
+.done {
+  width: 190px;
+  height: 84px;
+  margin-top: 20px;
+  border-radius: 42px;
+  background-color: #2c2c2e;
+}
+.done-text {
+  font-size: 28px;
   font-weight: bold;
   color: #ffffff;
 }

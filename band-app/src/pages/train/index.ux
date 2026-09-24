@@ -1,66 +1,87 @@
 <template>
-  <div class="screen">
-    <text class="caps" style="color: {{runColor}}">{{caps}}</text>
-    <text class="elapsed">{{elapsed}}</text>
-    <div class="meta">
-      <image class="heart" src="/common/icons/heart.png"></image>
-      <text class="meta-hr" style="color: {{zoneColor}}">{{hrText}}</text>
-      <text class="meta-kcal">{{kcalText}}</text>
+  <stack class="root" onswipe="onSwipe">
+    <!-- 1 · start / pause -->
+    <div class="screen {{anim}}" if="{{cur === 'main'}}">
+      <text class="caps" style="color: {{runColor}}">{{caps}}</text>
+      <text class="elapsed">{{elapsed}}</text>
+      <text class="meta" style="color: {{zoneColor}}">{{meta}}</text>
+      <stack class="play-box">
+        <div class="glow {{run ? '' : 'breathe'}}"></div>
+        <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
+             ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+          <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+        </div>
+      </stack>
+      <text class="sub">{{run ? 'пауза' : 'старт'}}</text>
     </div>
 
-    <stack class="play-box">
-      <div class="glow {{run ? '' : 'breathe'}}"></div>
-      <div class="play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
-           ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
-        <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
-      </div>
-    </stack>
-
-    <text class="hint">сила на главния</text>
-    <div class="keys">
-      <div class="key {{run ? '' : 'off'}} {{pressed === 'minus' ? 'down' : ''}}"
-           ontouchstart="press('minus')" ontouchend="release" ontouchcancel="release" onclick="minus">
-        <image class="key-img" src="/common/icons/minus.png"></image>
-      </div>
-      <div class="key key-plus {{run ? '' : 'off'}} {{pressed === 'plus' ? 'down' : ''}}"
+    <!-- 2 · main strength -->
+    <div class="screen {{anim}}" if="{{cur === 'power'}}">
+      <text class="caps">ГЛАВЕН</text>
+      <div class="btn big-pill plus {{run ? '' : 'off'}} {{pressed === 'plus' ? 'down' : ''}}"
            ontouchstart="press('plus')" ontouchend="release" ontouchcancel="release" onclick="plus">
-        <image class="key-img" src="/common/icons/plus.png"></image>
+        <image class="pill-img" src="/common/icons/plus.png"></image>
       </div>
+      <div class="btn big-pill {{run ? '' : 'off'}} {{pressed === 'minus' ? 'down' : ''}}"
+           ontouchstart="press('minus')" ontouchend="release" ontouchcancel="release" onclick="minus">
+        <image class="pill-img" src="/common/icons/minus.png"></image>
+      </div>
+      <text class="sub">{{run ? 'една стъпка на натиск' : 'първо старт'}}</text>
     </div>
 
-    <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
-      <div class="stop-bg"></div>
-      <div class="stop-fill" style="width: {{holdPct * 2}}px"></div>
-      <text class="stop-text">{{holdPct > 0 ? 'Задръж…' : 'СТОП · задръж'}}</text>
-    </stack>
-  </div>
+    <!-- 3 · stop (hold) -->
+    <div class="screen {{anim}}" if="{{cur === 'stop'}}">
+      <text class="caps">КРАЙ</text>
+      <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
+        <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
+        <div class="stop-core">
+          <image class="stop-img" src="/common/icons/stop.png"></image>
+        </div>
+      </stack>
+      <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 секунда'}}</text>
+    </div>
+
+    <div class="dots">
+      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
+    </div>
+  </stack>
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind, setPages, swipe } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 
 export default {
   private: {
+    ids: [],
+    idsKey: '',
+    idx: 0,
+    cur: 'main',
+    dots: [],
+    anim: '',
     caps: 'ТРЕНИРОВКА',
     runColor: '#8E8E93',
     run: false,
     elapsed: '0:00',
-    hrText: '--',
-    zoneColor: '#FFFFFF',
-    kcalText: '',
+    meta: '',
+    zoneColor: '#AEAEB2',
     pressed: '',
     holdPct: 0
   },
 
   onInit() {
+    setPages(this, ['main', 'power', 'stop'])
     this.unbind = bind(this)
   },
 
   onDestroy() {
     this.unbind()
     this.holdEnd()
+  },
+
+  onSwipe(e) {
+    swipe(this, e)
   },
 
   update() {
@@ -71,13 +92,12 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
-    this.caps = run ? 'РЪЧНО · ТЕЧЕ' : s.mode === 'manual' ? 'РЪЧНО · ПАУЗА' : 'РЪЧНА ТРЕНИРОВКА'
+    this.caps = run ? 'РЪЧНО · ТЕЧЕ' : s.mode === 'manual' ? 'РЪЧНО · ПАУЗА' : 'РЪЧНО'
     this.runColor = run ? GREEN : s.mode === 'manual' ? AMBER : '#8E8E93'
     this.elapsed = hms((s.el || 0) + (run ? app.silence() : 0))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
-    this.hrText = s.hr > 0 ? s.hr + ' · Z' + z : '--'
-    this.zoneColor = s.hr > 0 ? ZONE[z] : '#FFFFFF'
-    this.kcalText = s.kcal > 0 ? Math.round(s.kcal) + ' kcal' : ''
+    this.meta = s.hr > 0 ? s.hr + ' bpm · Z' + z : 'няма пулс'
+    this.zoneColor = s.hr > 0 ? ZONE[z] : '#AEAEB2'
   },
 
   press(w) {
@@ -133,52 +153,134 @@ export default {
 </script>
 
 <style>
+/* ---- common (tools/gen-pages.py stamps this into every page) ---- */
+.root {
+  width: 212px;
+  height: 520px;
+  background-color: #000000;
+}
 .screen {
   width: 212px;
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 26px;
+  padding-top: 34px;
   background-color: #000000;
 }
-.caps {
-  font-size: 20px;
-  font-weight: bold;
+.in-up {
+  animation-name: inUp;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
 }
+.in-down {
+  animation-name: inDown;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+.dots {
+  width: 16px;
+  height: 520px;
+  margin-left: 196px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.pdot {
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background-color: #3a3a3c;
+}
+.pdot-on {
+  height: 22px;
+  background-color: #ffffff;
+}
+.caps {
+  font-size: 22px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.sub {
+  width: 196px;
+  text-align: center;
+  font-size: 22px;
+  color: #aeaeb2;
+}
+.down {
+  transform: scale(0.92);
+}
+.btn {
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.off {
+  opacity: 0.3;
+}
+@keyframes inUp {
+  from {
+    transform: translateY(90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes inDown {
+  from {
+    transform: translateY(-90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes breathe {
+  from {
+    transform: scale(0.86);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.12);
+    opacity: 0.2;
+  }
+}
+@keyframes beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+
+/* ---- page ---- */
 .elapsed {
-  font-size: 64px;
+  margin-top: 16px;
+  font-size: 68px;
   font-weight: bold;
   color: #ffffff;
 }
 .meta {
-  flex-direction: row;
-  align-items: center;
-}
-.heart {
-  width: 24px;
-  height: 24px;
-  margin-right: 6px;
-}
-.meta-hr {
   font-size: 26px;
   font-weight: bold;
 }
-.meta-kcal {
-  margin-left: 10px;
-  font-size: 22px;
-  color: #ff9f0a;
-}
 .play-box {
-  width: 150px;
-  height: 140px;
-  margin-top: 8px;
+  width: 170px;
+  height: 170px;
+  margin-top: 30px;
   justify-content: center;
   align-items: center;
 }
 .glow {
-  width: 132px;
-  height: 132px;
-  border-radius: 66px;
+  width: 164px;
+  height: 164px;
+  border-radius: 82px;
   background-color: rgba(48, 209, 88, 0.25);
 }
 .breathe {
@@ -188,83 +290,57 @@ export default {
   animation-direction: alternate;
 }
 .play {
-  width: 112px;
-  height: 112px;
-  border-radius: 56px;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
+  width: 140px;
+  height: 140px;
+  border-radius: 70px;
 }
 .play-img {
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
 }
-.down {
-  transform: scale(0.9);
-}
-.hint {
-  font-size: 18px;
-  color: #8e8e93;
-}
-.keys {
-  flex-direction: row;
-  margin-top: 6px;
-}
-.key {
-  width: 90px;
-  height: 90px;
-  margin-left: 6px;
-  margin-right: 6px;
-  border-radius: 45px;
+.big-pill {
+  width: 180px;
+  height: 130px;
+  margin-top: 16px;
+  border-radius: 65px;
   background-color: #2c2c2e;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
 }
-.key-plus {
+.plus {
   background-color: #1f4a2a;
+  margin-top: 30px;
 }
-.key-img {
-  width: 40px;
-  height: 40px;
-}
-.off {
-  opacity: 0.3;
+.pill-img {
+  width: 56px;
+  height: 56px;
 }
 .stop-box {
-  width: 200px;
-  height: 70px;
-  margin-top: 14px;
+  width: 190px;
+  height: 190px;
+  margin-top: 50px;
+  justify-content: center;
+  align-items: center;
 }
-.stop-bg {
-  width: 200px;
-  height: 70px;
-  border-radius: 35px;
+.stop-ring {
+  width: 190px;
+  height: 190px;
+  stroke-width: 14px;
   background-color: #3a0f0d;
+  start-angle: 0deg;
+  total-angle: 360deg;
+  center-x: 95px;
+  center-y: 95px;
+  radius: 86px;
 }
-.stop-fill {
-  height: 70px;
-  border-radius: 35px;
-  background-color: #ff453a;
+.stop-core {
+  width: 140px;
+  height: 140px;
+  border-radius: 70px;
+  background-color: #c62828;
+  justify-content: center;
+  align-items: center;
 }
-.stop-text {
-  width: 200px;
-  height: 70px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  color: #ffffff;
-}
-@keyframes breathe {
-  from {
-    transform: scale(0.85);
-    opacity: 0.9;
-  }
-  to {
-    transform: scale(1.1);
-    opacity: 0.2;
-  }
+.stop-img {
+  width: 60px;
+  height: 60px;
 }
 </style>

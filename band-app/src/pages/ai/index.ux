@@ -1,14 +1,8 @@
 <template>
-  <!-- short flick up / down changes the page (no need to drag half the screen) -->
   <stack class="root" onswipe="onSwipe">
-
-    <!-- ==================================================== 1 · LIVE -->
-    <div class="screen {{anim}}" if="{{page === 0}}">
-      <div class="chip" style="background-color: {{stateBg}}">
-        <div class="dot {{st === 'run' ? 'blink' : ''}}" style="background-color: {{stateColor}}"></div>
-        <text class="chip-text" style="color: {{stateColor}}">{{stateText}}</text>
-      </div>
-
+    <!-- 1 · live -->
+    <div class="screen {{anim}}" if="{{cur === 'live'}}">
+      <text class="caps" style="color: {{stateColor}}">{{stateText}}</text>
       <stack class="ring-box">
         <progress class="ring-outer" type="arc" percent="{{ringPct}}" style="color: #FF3B5C"></progress>
         <progress class="ring-inner" type="arc" percent="{{hrPct}}" style="color: {{zoneColor}}"></progress>
@@ -17,68 +11,61 @@
           <text class="zchip" style="background-color: {{zoneColor}}">{{zoneText}}</text>
         </div>
       </stack>
-
       <text class="big-time" style="color: {{timeColor}}">{{bigTime}}</text>
-      <text class="big-label">{{bigLabel}}</text>
-
-      <div class="timeline" if="{{timeline.length > 0}}">
-        <div for="{{timeline}}" class="tl-seg" style="flex: {{$item.w}}">
-          <div class="tl-fill" style="width: {{$item.p}}%; background-color: {{$item.c}}"></div>
-        </div>
-      </div>
-
+      <text class="sub">{{bigLabel}}</text>
       <stack class="play-box">
         <div class="glow {{st === 'ready' ? 'breathe' : ''}}" style="background-color: {{playGlow}}"></div>
-        <div class="play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playColor}}"
+        <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playColor}}"
              ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
           <image class="play-img" src="{{playIcon}}"></image>
         </div>
       </stack>
     </div>
 
-    <!-- ==================================================== 2 · CONTROL -->
-    <div class="screen {{anim}}" if="{{page === 1}}">
+    <!-- 2 · strength -->
+    <div class="screen {{anim}}" if="{{cur === 'power'}}">
       <text class="caps">СИЛА</text>
-      <stack class="lvl-box">
-        <progress class="lvl-ring" type="arc" percent="{{lvlPct}}" style="color: {{lvlColor}}"></progress>
-        <div class="lvl-center">
-          <text class="lvl-num">{{lvlText}}</text>
-          <text class="lvl-unit">% от плана</text>
-        </div>
-      </stack>
-
-      <div class="keys">
-        <div class="key {{canMinus ? '' : 'off'}} {{pressed === 'minus' ? 'down' : ''}}"
-             ontouchstart="press('minus')" ontouchend="release" ontouchcancel="release" onclick="minus">
-          <image class="key-img" src="/common/icons/minus.png"></image>
-        </div>
-        <div class="key key-plus {{canPlus ? '' : 'off'}} {{pressed === 'plus' ? 'down' : ''}}"
-             ontouchstart="press('plus')" ontouchend="release" ontouchcancel="release" onclick="plus">
-          <image class="key-img" src="/common/icons/plus.png"></image>
-        </div>
+      <text class="lvl-num" style="color: {{lvlColor}}">{{lvlText}}%</text>
+      <text class="sub">от плана</text>
+      <div class="btn big-pill plus {{canPlus ? '' : 'off'}} {{pressed === 'plus' ? 'down' : ''}}"
+           ontouchstart="press('plus')" ontouchend="release" ontouchcancel="release" onclick="plus">
+        <image class="pill-img" src="/common/icons/plus.png"></image>
       </div>
-
-      <div class="card" if="{{canDbl}}" onclick="double">
-        <text class="card-title">Двоен импулс</text>
-        <div class="sw {{dbl ? 'sw-on' : ''}}">
-          <div class="knob {{dbl ? 'knob-on' : ''}}"></div>
-        </div>
+      <div class="btn big-pill {{canMinus ? '' : 'off'}} {{pressed === 'minus' ? 'down' : ''}}"
+           ontouchstart="press('minus')" ontouchend="release" ontouchcancel="release" onclick="minus">
+        <image class="pill-img" src="/common/icons/minus.png"></image>
       </div>
-
-      <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
-        <div class="stop-bg"></div>
-        <div class="stop-fill" style="width: {{holdPct * 2}}px"></div>
-        <text class="stop-text">{{holdPct > 0 ? 'Задръж…' : 'СТОП · задръж'}}</text>
-      </stack>
     </div>
 
-    <!-- ==================================================== 3 · SESSION -->
-    <div class="screen {{anim}}" if="{{page === 2}}">
+    <!-- 3 · double impulse (only when AI allows it) -->
+    <div class="screen {{anim}}" if="{{cur === 'dbl'}}">
+      <text class="caps">ДВОЕН ИМПУЛС</text>
+      <div class="btn toggle {{pressed === 'dbl' ? 'down' : ''}}" style="background-color: {{dbl ? '#30D158' : '#2C2C2E'}}"
+           ontouchstart="press('dbl')" ontouchend="release" ontouchcancel="release" onclick="double">
+        <text class="toggle-text">{{dbl ? 'ВКЛ' : 'ИЗКЛ'}}</text>
+      </div>
+      <text class="sub">активна пауза между импулсите</text>
+    </div>
+
+    <!-- 4 · stop (hold) -->
+    <div class="screen {{anim}}" if="{{cur === 'stop'}}">
+      <text class="caps">КРАЙ НА СЕСИЯТА</text>
+      <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
+        <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
+        <div class="stop-core">
+          <image class="stop-img" src="/common/icons/stop.png"></image>
+        </div>
+      </stack>
+      <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 секунда'}}</text>
+    </div>
+
+    <!-- 5 · session -->
+    <div class="screen {{anim}}" if="{{cur === 'stats'}}">
       <text class="caps">СЕСИЯ</text>
       <text class="elapsed">{{elapsedText}}</text>
       <div class="tiles">
         <div class="tile">
-          <text class="tile-num tile-kcal">{{kcal}}</text>
+          <text class="tile-num kcal">{{kcal}}</text>
           <text class="tile-label">kcal</text>
         </div>
         <div class="tile">
@@ -92,41 +79,37 @@
           <text class="tile-label">средно</text>
         </div>
         <div class="tile">
-          <text class="tile-num tile-max">{{maxText}}</text>
+          <text class="tile-num max">{{maxText}}</text>
           <text class="tile-label">връх</text>
         </div>
-      </div>
-      <div class="chart">
-        <div for="{{bars}}" class="bar" style="height: {{$item.h}}px; background-color: {{$item.c}}"></div>
       </div>
       <div class="zstack">
         <div for="{{zoneTime}}" class="zpart" style="flex: {{$item.w}}; background-color: {{$item.c}}"></div>
       </div>
     </div>
 
-    <!-- page dots: tap to jump -->
     <div class="dots">
-      <div for="{{dotList}}" class="dot-hit" onclick="go($item)">
-        <div class="pdot {{page === $item ? 'pdot-on' : ''}}"></div>
-      </div>
+      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
     </div>
   </stack>
 </template>
 
 <script>
-import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, bind } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, BLUE, mmss, hms, zoneOf, bind, setPages, swipe } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 
 export default {
   private: {
-    page: 0,
-    dotList: [0, 1, 2],
+    ids: [],
+    idsKey: '',
+    idx: 0,
+    cur: 'live',
+    dots: [],
     anim: '',
     st: 'idle',
     stateText: '',
     stateColor: '#8E8E93',
-    stateBg: '#1C1C1E',
     ringPct: 0,
     hrPct: 0,
     hrText: '--',
@@ -135,25 +118,21 @@ export default {
     bigTime: '--:--',
     bigLabel: '',
     timeColor: '#FFFFFF',
-    timeline: [],
     playIcon: '/common/icons/play.png',
     playColor: GREEN,
     playGlow: 'rgba(0,0,0,0)',
     pressed: '',
-    lvlPct: 100,
     lvlText: '100',
-    lvlColor: ACCENT,
+    lvlColor: '#FFFFFF',
     canPlus: false,
     canMinus: false,
-    canDbl: false,
     dbl: false,
     holdPct: 0,
     elapsedText: '0:00',
-    kcal: 0,
+    kcal: '--',
     phaseCount: '--',
     avgText: '--',
     maxText: '--',
-    bars: [],
     zoneTime: []
   },
 
@@ -166,38 +145,31 @@ export default {
     this.holdEnd()
   },
 
-  // ============================================================ paging
-
   onSwipe(e) {
-    if (e.direction === 'up' && this.page < 2) {
-      this.go(this.page + 1, 'in-up')
-    } else if (e.direction === 'down' && this.page > 0) {
-      this.go(this.page - 1, 'in-down')
-    }
+    swipe(this, e)
   },
-
-  go(p, anim) {
-    if (p === this.page) {
-      return
-    }
-    this.anim = anim || (p > this.page ? 'in-up' : 'in-down')
-    this.page = p
-    this.$app.$def.buzz('short')
-  },
-
-  // ============================================================ state
 
   update() {
     const app = this.$app.$def
     const s = app.state
     if (!s) {
+      setPages(this, ['live'])
       return
     }
     const quiet = app.silence()
     const ai = s.mode === 'ai'
+    const can = s.can || {}
+    const ids = ai ? ['live', 'power'] : ['live']
+    if (ai && can.dbl) {
+      ids.push('dbl')
+    }
+    if (ai) {
+      ids.push('stop', 'stats')
+    }
+    setPages(this, ids)
+
     this.st = ai ? s.st : 'idle'
     const age = this.st === 'run' ? quiet : 0
-
     const lim = s.lim || 170
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, lim) : 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
@@ -205,13 +177,11 @@ export default {
     this.zoneColor = ZONE[z]
     this.hrPct = s.hr > 0 ? Math.min(100, Math.round((s.hr / lim) * 100)) : 0
 
-    const labels = { run: 'ТЕЧЕ', pause: 'ПАУЗА', rest: 'ПОЧИВКА', ready: 'ГОТОВО', idle: 'НЕ ТЕЧЕ' }
+    const labels = { run: 'AI · ТЕЧЕ', pause: 'AI · ПАУЗА', rest: 'AI · ПОЧИВКА', ready: 'AI · ГОТОВО', idle: 'AI · НЕ ТЕЧЕ' }
     const colors = { run: GREEN, pause: AMBER, rest: BLUE, ready: GREEN, idle: '#8E8E93' }
-    this.stateText = 'AI · ' + (labels[this.st] || '')
+    this.stateText = labels[this.st] || 'AI'
     this.stateColor = colors[this.st] || '#8E8E93'
-    this.stateBg = this.st === 'idle' ? '#1C1C1E' : 'rgba(255,255,255,0.08)'
 
-    this.timeline = []
     this.timeColor = '#FFFFFF'
     if (!ai) {
       this.bigTime = '--:--'
@@ -222,23 +192,17 @@ export default {
       this.bigLabel = 'почивката стига'
       this.timeColor = GREEN
       this.ringPct = 100
-    } else if (this.st === 'rest') {
-      this.bigTime = mmss((s.rl || 0) - quiet)
-      this.bigLabel = 'почивка'
-      this.timeColor = BLUE
     } else {
-      this.bigTime = mmss((s.pl || 0) - age)
-      this.bigLabel = s.ph || 'фаза'
-    }
-    if (ai && this.st !== 'ready') {
+      if (this.st === 'rest') {
+        this.bigTime = mmss((s.rl || 0) - quiet)
+        this.bigLabel = 'почивка'
+        this.timeColor = BLUE
+      } else {
+        this.bigTime = mmss((s.pl || 0) - age)
+        this.bigLabel = s.ph || 'фаза'
+      }
       const pd = s.pd || 1
       this.ringPct = Math.min(100, Math.max(0, Math.round((1 - ((s.pl || 0) - age) / pd) * 100)))
-    }
-    if (ai && s.pds) {
-      const cs = [BLUE, ACCENT, AMBER, PURPLE]
-      this.timeline = s.pds.map((d, i) => ({
-        w: Math.max(1, d), p: i < s.pi ? 100 : i === s.pi ? this.ringPct : 0, c: cs[i % cs.length]
-      }))
     }
     if (this.st === 'run') {
       this.playIcon = '/common/icons/pause.png'
@@ -250,42 +214,22 @@ export default {
       this.playGlow = this.st === 'ready' ? 'rgba(48,209,88,0.45)' : 'rgba(48,209,88,0.2)'
     }
 
-    const can = s.can || {}
     this.canPlus = ai && !!can.plus
     this.canMinus = ai && !!can.minus
-    this.canDbl = ai && !!can.dbl
     this.dbl = !!s.dbl
     const u = s.u != null ? s.u : 100
-    this.lvlPct = Math.max(0, Math.min(100, u))
     this.lvlText = String(u)
-    this.lvlColor = u >= 100 ? ACCENT : AMBER
+    this.lvlColor = u >= 100 ? '#FFFFFF' : AMBER
 
     this.elapsedText = hms((s.el || 0) + age)
-    this.kcal = Math.round(s.kcal || 0)
+    this.kcal = s.kcal > 0 ? String(Math.round(s.kcal)) : '--'
     this.phaseCount = ai && s.pds ? (s.pi + 1) + '/' + s.pds.length : '--'
     this.avgText = s.avg > 0 ? String(s.avg) : '--'
     this.maxText = s.max > 0 ? String(s.max) : '--'
-    const hh = s.hh || []
-    let lo = 999
-    let hi = 0
-    hh.forEach((v) => {
-      if (v > 0) {
-        lo = Math.min(lo, v)
-        hi = Math.max(hi, v)
-      }
-    })
-    lo = Math.max(40, lo - 8)
-    hi = Math.max(hi, lo + 20)
-    this.bars = hh.map((v) => ({
-      h: v > 0 ? Math.round(6 + ((v - lo) / (hi - lo)) * 64) : 3,
-      c: v > 0 ? ZONE[zoneOf(v, lim)] : '#2C2C2E'
-    }))
     const zt = s.zt || [0, 0, 0, 0, 0]
     const total = zt.reduce((a, b) => a + b, 0)
     this.zoneTime = zt.map((v, i) => ({ w: total > 0 ? Math.max(v, 0.0001) : 1, c: ZONE[i + 1] }))
   },
-
-  // ============================================================ touch
 
   press(w) {
     this.pressed = w
@@ -345,6 +289,7 @@ export default {
 </script>
 
 <style>
+/* ---- common (tools/gen-pages.py stamps this into every page) ---- */
 .root {
   width: 212px;
   height: 520px;
@@ -355,7 +300,8 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 22px;
+  padding-top: 34px;
+  background-color: #000000;
 }
 .in-up {
   animation-name: inUp;
@@ -368,364 +314,51 @@ export default {
   animation-timing-function: ease-out;
 }
 .dots {
-  width: 22px;
-  height: 120px;
-  margin-left: 190px;
-  margin-top: 200px;
+  width: 16px;
+  height: 520px;
+  margin-left: 196px;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.dot-hit {
-  width: 22px;
-  height: 36px;
   justify-content: center;
   align-items: center;
 }
 .pdot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
   border-radius: 4px;
   background-color: #3a3a3c;
 }
 .pdot-on {
-  height: 20px;
+  height: 22px;
   background-color: #ffffff;
 }
-
-/* live */
-.chip {
-  height: 34px;
-  padding-left: 14px;
-  padding-right: 16px;
-  border-radius: 17px;
-  flex-direction: row;
-  align-items: center;
-}
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  margin-right: 8px;
-}
-.blink {
-  animation-name: blink;
-  animation-duration: 1200ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.chip-text {
-  font-size: 20px;
-  font-weight: bold;
-}
-.ring-box {
-  width: 200px;
-  height: 200px;
-  margin-top: 8px;
-}
-.ring-outer {
-  width: 200px;
-  height: 200px;
-  stroke-width: 16px;
-  background-color: #1c1c1e;
-  start-angle: 220deg;
-  total-angle: 280deg;
-  center-x: 100px;
-  center-y: 100px;
-  radius: 92px;
-}
-.ring-inner {
-  width: 200px;
-  height: 200px;
-  stroke-width: 6px;
-  background-color: #151517;
-  start-angle: 220deg;
-  total-angle: 280deg;
-  center-x: 100px;
-  center-y: 100px;
-  radius: 74px;
-}
-.ring-center {
-  width: 200px;
-  height: 200px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.hr {
-  font-size: 76px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.zchip {
-  height: 28px;
-  padding-left: 10px;
-  padding-right: 10px;
-  border-radius: 14px;
-  font-size: 20px;
-  font-weight: bold;
-  color: #000000;
-}
-.big-time {
-  margin-top: 6px;
-  font-size: 60px;
-  font-weight: bold;
-}
-.big-label {
-  width: 196px;
-  font-size: 22px;
-  color: #aeaeb2;
-  text-align: center;
-  lines: 1;
-  text-overflow: ellipsis;
-}
-.timeline {
-  width: 180px;
-  height: 8px;
-  margin-top: 10px;
-  flex-direction: row;
-}
-.tl-seg {
-  height: 8px;
-  margin-left: 1px;
-  margin-right: 1px;
-  border-radius: 4px;
-  background-color: #2c2c2e;
-}
-.tl-fill {
-  height: 8px;
-  border-radius: 4px;
-}
-.play-box {
-  width: 120px;
-  height: 110px;
-  margin-top: 10px;
-  justify-content: center;
-  align-items: center;
-}
-.glow {
-  width: 110px;
-  height: 110px;
-  border-radius: 55px;
-}
-.breathe {
-  animation-name: breathe;
-  animation-duration: 1400ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.play {
-  width: 94px;
-  height: 94px;
-  border-radius: 47px;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
-}
-.play-img {
-  width: 44px;
-  height: 44px;
-}
-.down {
-  transform: scale(0.9);
-}
-
-/* control */
 .caps {
   font-size: 22px;
   font-weight: bold;
   color: #8e8e93;
-  margin-top: 4px;
 }
-.lvl-box {
-  width: 176px;
-  height: 176px;
-  margin-top: 6px;
+.sub {
+  width: 196px;
+  text-align: center;
+  font-size: 22px;
+  color: #aeaeb2;
 }
-.lvl-ring {
-  width: 176px;
-  height: 176px;
-  stroke-width: 14px;
-  background-color: #1c1c1e;
-  start-angle: 220deg;
-  total-angle: 280deg;
-  center-x: 88px;
-  center-y: 88px;
-  radius: 80px;
+.down {
+  transform: scale(0.92);
 }
-.lvl-center {
-  width: 176px;
-  height: 176px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.lvl-num {
-  font-size: 66px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.lvl-unit {
-  font-size: 18px;
-  color: #8e8e93;
-}
-.keys {
-  flex-direction: row;
-  margin-top: 8px;
-}
-.key {
-  width: 90px;
-  height: 90px;
-  margin-left: 6px;
-  margin-right: 6px;
-  border-radius: 45px;
-  background-color: #2c2c2e;
+.btn {
   justify-content: center;
   align-items: center;
   transition-property: transform;
   transition-duration: 120ms;
 }
-.key-plus {
-  background-color: #4a1a26;
-}
-.key-img {
-  width: 40px;
-  height: 40px;
-}
 .off {
   opacity: 0.3;
 }
-.card {
-  width: 200px;
-  height: 64px;
-  margin-top: 10px;
-  border-radius: 32px;
-  background-color: #1c1c1e;
-  flex-direction: row;
-  align-items: center;
-  padding-left: 18px;
-  padding-right: 10px;
-}
-.card-title {
-  flex: 1;
-  font-size: 21px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.sw {
-  width: 54px;
-  height: 32px;
-  border-radius: 16px;
-  background-color: #3a3a3c;
-  padding-left: 3px;
-  align-items: center;
-  transition-property: background-color;
-  transition-duration: 200ms;
-}
-.sw-on {
-  background-color: #30d158;
-}
-.knob {
-  width: 26px;
-  height: 26px;
-  border-radius: 13px;
-  background-color: #ffffff;
-  transition-property: transform;
-  transition-duration: 200ms;
-}
-.knob-on {
-  transform: translateX(22px);
-}
-.stop-box {
-  width: 200px;
-  height: 70px;
-  margin-top: 10px;
-}
-.stop-bg {
-  width: 200px;
-  height: 70px;
-  border-radius: 35px;
-  background-color: #3a0f0d;
-}
-.stop-fill {
-  height: 70px;
-  border-radius: 35px;
-  background-color: #ff453a;
-}
-.stop-text {
-  width: 200px;
-  height: 70px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  color: #ffffff;
-}
-
-/* session */
-.elapsed {
-  font-size: 60px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.tiles {
-  flex-direction: row;
-  margin-top: 8px;
-}
-.tile {
-  width: 96px;
-  height: 78px;
-  margin-left: 4px;
-  margin-right: 4px;
-  border-radius: 22px;
-  background-color: #1c1c1e;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.tile-num {
-  font-size: 32px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.tile-kcal {
-  color: #ff9f0a;
-}
-.tile-max {
-  color: #ff453a;
-}
-.tile-label {
-  font-size: 18px;
-  color: #8e8e93;
-}
-.chart {
-  width: 190px;
-  height: 74px;
-  margin-top: 14px;
-  flex-direction: row;
-  align-items: flex-end;
-}
-.bar {
-  width: 4px;
-  margin-left: 1px;
-  margin-right: 1px;
-  border-radius: 2px;
-}
-.zstack {
-  width: 190px;
-  height: 14px;
-  margin-top: 10px;
-  border-radius: 7px;
-  flex-direction: row;
-  background-color: #1c1c1e;
-}
-.zpart {
-  height: 14px;
-}
-
 @keyframes inUp {
   from {
-    transform: translateY(80px);
+    transform: translateY(90px);
     opacity: 0;
   }
   to {
@@ -735,20 +368,12 @@ export default {
 }
 @keyframes inDown {
   from {
-    transform: translateY(-80px);
+    transform: translateY(-90px);
     opacity: 0;
   }
   to {
     transform: translateY(0px);
     opacity: 1;
-  }
-}
-@keyframes blink {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.25;
   }
 }
 @keyframes breathe {
@@ -760,5 +385,202 @@ export default {
     transform: scale(1.12);
     opacity: 0.2;
   }
+}
+@keyframes beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+
+/* ---- page ---- */
+.ring-box {
+  width: 196px;
+  height: 196px;
+  margin-top: 10px;
+}
+.ring-outer {
+  width: 196px;
+  height: 196px;
+  stroke-width: 16px;
+  background-color: #1c1c1e;
+  start-angle: 220deg;
+  total-angle: 280deg;
+  center-x: 98px;
+  center-y: 98px;
+  radius: 90px;
+}
+.ring-inner {
+  width: 196px;
+  height: 196px;
+  stroke-width: 6px;
+  background-color: #151517;
+  start-angle: 220deg;
+  total-angle: 280deg;
+  center-x: 98px;
+  center-y: 98px;
+  radius: 72px;
+}
+.ring-center {
+  width: 196px;
+  height: 196px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.hr {
+  font-size: 76px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.zchip {
+  height: 30px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #000000;
+}
+.big-time {
+  margin-top: 4px;
+  font-size: 58px;
+  font-weight: bold;
+}
+.play-box {
+  width: 130px;
+  height: 124px;
+  margin-top: 4px;
+  justify-content: center;
+  align-items: center;
+}
+.glow {
+  width: 124px;
+  height: 124px;
+  border-radius: 62px;
+}
+.breathe {
+  animation-name: breathe;
+  animation-duration: 1400ms;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.play {
+  width: 108px;
+  height: 108px;
+  border-radius: 54px;
+}
+.play-img {
+  width: 50px;
+  height: 50px;
+}
+.lvl-num {
+  margin-top: 6px;
+  font-size: 80px;
+  font-weight: bold;
+}
+.big-pill {
+  width: 180px;
+  height: 110px;
+  margin-top: 14px;
+  border-radius: 55px;
+  background-color: #2c2c2e;
+}
+.plus {
+  background-color: #4a1a26;
+  margin-top: 22px;
+}
+.pill-img {
+  width: 52px;
+  height: 52px;
+}
+.toggle {
+  width: 170px;
+  height: 170px;
+  margin-top: 40px;
+  border-radius: 85px;
+}
+.toggle-text {
+  font-size: 40px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.stop-box {
+  width: 190px;
+  height: 190px;
+  margin-top: 40px;
+  justify-content: center;
+  align-items: center;
+}
+.stop-ring {
+  width: 190px;
+  height: 190px;
+  stroke-width: 14px;
+  background-color: #3a0f0d;
+  start-angle: 0deg;
+  total-angle: 360deg;
+  center-x: 95px;
+  center-y: 95px;
+  radius: 86px;
+}
+.stop-core {
+  width: 140px;
+  height: 140px;
+  border-radius: 70px;
+  background-color: #c62828;
+  justify-content: center;
+  align-items: center;
+}
+.stop-img {
+  width: 60px;
+  height: 60px;
+}
+.elapsed {
+  font-size: 62px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.tiles {
+  flex-direction: row;
+  margin-top: 10px;
+}
+.tile {
+  width: 94px;
+  height: 90px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 24px;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.tile-num {
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.kcal {
+  color: #ff9f0a;
+}
+.max {
+  color: #ff453a;
+}
+.tile-label {
+  font-size: 20px;
+  color: #8e8e93;
+}
+.zstack {
+  width: 192px;
+  height: 18px;
+  margin-top: 20px;
+  border-radius: 9px;
+  flex-direction: row;
+  background-color: #1c1c1e;
+}
+.zpart {
+  height: 18px;
 }
 </style>

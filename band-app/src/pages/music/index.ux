@@ -1,63 +1,77 @@
 <template>
-  <div class="screen">
-    <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
-    <marquee class="title" scrollamount="40" loop="-1">{{title}}</marquee>
-
-    <stack class="ring-box">
-      <progress class="ring" type="arc" percent="{{pct}}" style="color: #BF5AF2"></progress>
-      <div class="center">
-        <div class="play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#2C2C2E' : '#BF5AF2'}}"
-             ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
-          <image class="play-img" src="{{play ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+  <stack class="root" onswipe="onSwipe">
+    <!-- 1 · play / pause -->
+    <div class="screen {{anim}}" if="{{cur === 'main'}}">
+      <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
+      <marquee class="title" scrollamount="40" loop="-1">{{title}}</marquee>
+      <stack class="ring-box">
+        <progress class="ring" type="arc" percent="{{pct}}" style="color: #BF5AF2"></progress>
+        <div class="center">
+          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#2C2C2E' : '#BF5AF2'}}"
+               ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+            <image class="play-img" src="{{play ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+          </div>
         </div>
-      </div>
-    </stack>
-    <text class="time">{{timeText}}</text>
+      </stack>
+      <text class="sub">{{timeText}}</text>
+    </div>
 
-    <div class="keys">
-      <div class="key {{pressed === 'prev' ? 'down' : ''}}"
-           ontouchstart="press('prev')" ontouchend="release" ontouchcancel="release" onclick="prev">
-        <image class="key-img" src="/common/icons/prev.png"></image>
-      </div>
-      <div class="key {{pressed === 'next' ? 'down' : ''}}"
+    <!-- 2 · previous / next -->
+    <div class="screen {{anim}}" if="{{cur === 'skip'}}">
+      <text class="caps">ПЕСЕН</text>
+      <div class="btn big-pill {{pressed === 'next' ? 'down' : ''}}"
            ontouchstart="press('next')" ontouchend="release" ontouchcancel="release" onclick="next">
-        <image class="key-img" src="/common/icons/next.png"></image>
+        <image class="pill-img" src="/common/icons/next.png"></image>
+      </div>
+      <div class="btn big-pill {{pressed === 'prev' ? 'down' : ''}}"
+           ontouchstart="press('prev')" ontouchend="release" ontouchcancel="release" onclick="prev">
+        <image class="pill-img" src="/common/icons/prev.png"></image>
+      </div>
+      <text class="sub">следваща · предишна</text>
+    </div>
+
+    <!-- 3 · impulses follow the music: ceiling -->
+    <div class="screen {{anim}}" if="{{cur === 'ceil'}}">
+      <text class="caps">ТАВАН НА ИМПУЛСИТЕ</text>
+      <text class="ceil-num">{{ceil}}</text>
+      <div class="lvl-track">
+        <div class="lvl-fill" style="width: {{lvl * 1.8}}px"></div>
+      </div>
+      <div class="pair">
+        <div class="btn round {{pressed === 'down' ? 'down' : ''}}"
+             ontouchstart="press('down')" ontouchend="release" ontouchcancel="release" onclick="ceilDown">
+          <image class="round-img" src="/common/icons/minus.png"></image>
+        </div>
+        <div class="btn round round-plus {{pressed === 'up' ? 'down' : ''}}"
+             ontouchstart="press('up')" ontouchend="release" ontouchcancel="release" onclick="ceilUp">
+          <image class="round-img" src="/common/icons/plus.png"></image>
+        </div>
       </div>
     </div>
 
-    <!-- impulses follow the music: live level and the ceiling -->
-    <div class="sync" if="{{sync}}">
-      <div class="lvl-track">
-        <div class="lvl-fill" style="width: {{lvl * 1.2}}px"></div>
-      </div>
-      <div class="ceil-row">
-        <div class="mini {{pressed === 'down' ? 'down' : ''}}" ontouchstart="press('down')" ontouchend="release" onclick="ceilDown">
-          <image class="mini-img" src="/common/icons/minus.png"></image>
-        </div>
-        <div class="ceil-mid">
-          <text class="ceil-num">{{ceil}}</text>
-          <text class="ceil-label">таван</text>
-        </div>
-        <div class="mini {{pressed === 'up' ? 'down' : ''}}" ontouchstart="press('up')" ontouchend="release" onclick="ceilUp">
-          <image class="mini-img" src="/common/icons/plus.png"></image>
-        </div>
-      </div>
+    <div class="dots">
+      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
     </div>
-  </div>
+  </stack>
 </template>
 
 <script>
-import { PURPLE, mmss, mods, bind } from '../../common/ui.js'
+import { PURPLE, mmss, mods, bind, setPages, swipe } from '../../common/ui.js'
 
 export default {
   private: {
+    ids: [],
+    idsKey: '',
+    idx: 0,
+    cur: 'main',
+    dots: [],
+    anim: '',
     caps: 'МУЗИКА',
     capsColor: '#8E8E93',
     title: '—',
     pct: 0,
     play: false,
     timeText: '',
-    sync: false,
     lvl: 0,
     ceil: 0,
     pressed: ''
@@ -71,16 +85,21 @@ export default {
     this.unbind()
   },
 
+  onSwipe(e) {
+    swipe(this, e)
+  },
+
   update() {
     const app = this.$app.$def
     const s = app.state
     if (!s) {
+      setPages(this, ['main'])
       return
     }
     const mu = mods(s).mu
+    setPages(this, mu.on ? ['main', 'skip', 'ceil'] : ['main', 'skip'])
     this.play = !!mu.play
-    this.sync = !!mu.on
-    this.caps = mu.on ? (mu.play ? '♫ ИМПУЛСИ' : '♫ ПАУЗА') : '♫ МУЗИКА'
+    this.caps = mu.on && !mu.play ? 'МУЗИКА · ПАУЗА' : 'МУЗИКА'
     this.capsColor = mu.play ? PURPLE : '#8E8E93'
     this.title = mu.title || (mu.on ? 'музика' : 'пусни от таблета')
     const pos = (mu.pos || 0) + (mu.play ? app.silence() : 0)
@@ -122,138 +141,202 @@ export default {
 </script>
 
 <style>
+/* ---- common (tools/gen-pages.py stamps this into every page) ---- */
+.root {
+  width: 212px;
+  height: 520px;
+  background-color: #000000;
+}
 .screen {
   width: 212px;
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 26px;
+  padding-top: 34px;
   background-color: #000000;
 }
-.caps {
-  font-size: 20px;
-  font-weight: bold;
+.in-up {
+  animation-name: inUp;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
 }
-.title {
+.in-down {
+  animation-name: inDown;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+.dots {
+  width: 16px;
+  height: 520px;
+  margin-left: 196px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.pdot {
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background-color: #3a3a3c;
+}
+.pdot-on {
+  height: 22px;
+  background-color: #ffffff;
+}
+.caps {
+  font-size: 22px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.sub {
   width: 196px;
-  height: 36px;
-  margin-top: 6px;
-  font-size: 26px;
+  text-align: center;
+  font-size: 22px;
+  color: #aeaeb2;
+}
+.down {
+  transform: scale(0.92);
+}
+.btn {
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.off {
+  opacity: 0.3;
+}
+@keyframes inUp {
+  from {
+    transform: translateY(90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes inDown {
+  from {
+    transform: translateY(-90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes breathe {
+  from {
+    transform: scale(0.86);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.12);
+    opacity: 0.2;
+  }
+}
+@keyframes beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+
+/* ---- page ---- */
+.title {
+  width: 190px;
+  height: 40px;
+  margin-top: 10px;
+  font-size: 28px;
   font-weight: bold;
   color: #ffffff;
 }
 .ring-box {
-  width: 176px;
-  height: 176px;
-  margin-top: 8px;
+  width: 196px;
+  height: 196px;
+  margin-top: 14px;
 }
 .ring {
-  width: 176px;
-  height: 176px;
+  width: 196px;
+  height: 196px;
   stroke-width: 12px;
   background-color: #1c1c1e;
   start-angle: 0deg;
   total-angle: 360deg;
-  center-x: 88px;
-  center-y: 88px;
-  radius: 80px;
+  center-x: 98px;
+  center-y: 98px;
+  radius: 90px;
 }
 .center {
-  width: 176px;
-  height: 176px;
+  width: 196px;
+  height: 196px;
   justify-content: center;
   align-items: center;
 }
 .play {
-  width: 112px;
-  height: 112px;
-  border-radius: 56px;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
+  width: 140px;
+  height: 140px;
+  border-radius: 70px;
 }
 .play-img {
-  width: 50px;
-  height: 50px;
+  width: 64px;
+  height: 64px;
 }
-.down {
-  transform: scale(0.9);
-}
-.time {
-  margin-top: 6px;
-  font-size: 20px;
-  color: #aeaeb2;
-}
-.keys {
-  flex-direction: row;
-  margin-top: 10px;
-}
-.key {
-  width: 88px;
-  height: 70px;
-  margin-left: 6px;
-  margin-right: 6px;
-  border-radius: 35px;
-  background-color: #2c2c2e;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
-}
-.key-img {
-  width: 36px;
-  height: 36px;
-}
-.sync {
+.sub {
   margin-top: 14px;
-  flex-direction: column;
-  align-items: center;
+}
+.big-pill {
+  width: 180px;
+  height: 130px;
+  margin-top: 16px;
+  border-radius: 65px;
+  background-color: #2c2c2e;
+}
+.pill-img {
+  width: 56px;
+  height: 56px;
+}
+.ceil-num {
+  margin-top: 16px;
+  font-size: 90px;
+  font-weight: bold;
+  color: #ffffff;
 }
 .lvl-track {
-  width: 120px;
-  height: 8px;
-  border-radius: 4px;
+  width: 180px;
+  height: 12px;
+  border-radius: 6px;
   background-color: #2c2c2e;
 }
 .lvl-fill {
-  height: 8px;
-  border-radius: 4px;
+  height: 12px;
+  border-radius: 6px;
   background-color: #bf5af2;
   transition-property: width;
   transition-duration: 300ms;
 }
-.ceil-row {
+.pair {
   flex-direction: row;
-  align-items: center;
-  margin-top: 8px;
+  margin-top: 40px;
 }
-.mini {
-  width: 60px;
-  height: 60px;
-  border-radius: 30px;
+.round {
+  width: 98px;
+  height: 98px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 49px;
   background-color: #2c2c2e;
-  justify-content: center;
-  align-items: center;
-  transition-property: transform;
-  transition-duration: 120ms;
 }
-.mini-img {
-  width: 28px;
-  height: 28px;
+.round-plus {
+  background-color: #3a1f4a;
 }
-.ceil-mid {
-  width: 76px;
-  flex-direction: column;
-  align-items: center;
-}
-.ceil-num {
-  font-size: 30px;
-  font-weight: bold;
-  color: #ffffff;
-}
-.ceil-label {
-  font-size: 18px;
-  color: #8e8e93;
+.round-img {
+  width: 44px;
+  height: 44px;
 }
 </style>

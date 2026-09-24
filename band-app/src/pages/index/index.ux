@@ -1,34 +1,27 @@
 <template>
-  <div class="root">
-    <!-- ============================================================ connected: modules -->
-    <div class="home" if="{{!offline}}">
-      <div class="head" onlongpress="pauseAll">
-        <div class="hr-row">
-          <image class="heart {{hr > 0 ? 'beat' : ''}}" src="/common/icons/heart.png"
-                 style="animation-duration: {{beatMs}}ms"></image>
-          <text class="hr" style="color: {{hrColor}}">{{hrText}}</text>
-        </div>
-        <div class="zones">
-          <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
-        </div>
-        <text class="head-sub">{{headSub}}</text>
+  <!-- one mode per screen; flick up / down between modes, tap anywhere to open, right = exit -->
+  <stack class="root" onswipe="onSwipe">
+    <div class="screen {{anim}}" if="{{!offline}}" onclick="open" onlongpress="pauseAll">
+      <div class="hr-row">
+        <image class="hr-heart" src="/common/icons/heart.png"></image>
+        <text class="hr-line" style="color: {{hrColor}}">{{hrLine}}</text>
       </div>
-
-      <div for="{{tiles}}" class="tile {{$item.active ? 'tile-on' : ''}} {{pressed === $item.id ? 'down' : ''}}"
-           style="border-color: {{$item.active ? $item.color : '#1C1C1E'}}"
-           ontouchstart="press($item.id)" ontouchend="release" ontouchcancel="release"
-           onclick="open($item.id)">
-        <div class="icon" style="background-color: {{$item.color}}">
-          <image class="icon-img" src="{{$item.icon}}"></image>
+      <stack class="icon-box">
+        <div class="glow {{card.active ? 'breathe' : ''}}" style="background-color: {{card.glow}}"></div>
+        <div class="icon" style="background-color: {{card.color}}">
+          <image class="icon-img" src="{{card.icon}}"></image>
         </div>
-        <div class="tile-texts">
-          <text class="tile-title">{{$item.title}}</text>
-          <text class="tile-sub" style="color: {{$item.active ? $item.color : '#8E8E93'}}">{{$item.sub}}</text>
-        </div>
-      </div>
+      </stack>
+      <text class="title">{{card.title}}</text>
+      <text class="state" style="color: {{card.active ? card.color : '#AEAEB2'}}">{{card.sub}}</text>
+      <text class="tap">докосни · влез</text>
     </div>
 
-    <!-- ============================================================ not linked yet -->
+    <div class="dots" if="{{!offline}}">
+      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
+    </div>
+
+    <!-- not linked yet -->
     <div class="offline" if="{{offline}}">
       <stack class="radar">
         <div class="wave"></div>
@@ -37,15 +30,15 @@
       </stack>
       <text class="off-title">XEMS</text>
       <text class="off-sub">{{offText}}</text>
-      <text class="off-hint">Отвори XEMS на таблета</text>
+      <text class="sub off-hint">Отвори XEMS на таблета</text>
       <text class="off-diag">{{diagText}}</text>
     </div>
-  </div>
+  </stack>
 </template>
 
 <script>
 import router from '@system.router'
-import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, mods, bind, age } from '../../common/ui.js'
+import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, mods, bind, age, setPages, swipe } from '../../common/ui.js'
 
 const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', music: '/pages/music', pulse: '/pages/pulse' }
 
@@ -54,14 +47,16 @@ export default {
     offline: true,
     offText: 'Свързване…',
     diagText: '',
-    hr: 0,
-    hrText: '--',
+    hrLine: '',
     hrColor: '#FFFFFF',
-    beatMs: 450,
-    zoneBars: [],
-    headSub: '',
-    tiles: [],
-    pressed: ''
+    cards: {},
+    card: { id: 'ai', title: 'AI', sub: '', icon: '/common/icons/ai.png', color: ACCENT, glow: 'rgba(0,0,0,0)', active: false },
+    ids: [],
+    idsKey: '',
+    idx: 0,
+    cur: '',
+    dots: [],
+    anim: ''
   },
 
   onInit() {
@@ -72,6 +67,11 @@ export default {
     this.unbind()
   },
 
+  onSwipe(e) {
+    swipe(this, e)
+    this.card = this.cards[this.cur] || this.card
+  },
+
   update() {
     const app = this.$app.$def
     const s = app.state
@@ -80,208 +80,257 @@ export default {
       this.offline = true
       this.offText = quiet > 9000 ? 'Свързване…' : 'Връзката прекъсна'
       const d = app.diag || {}
-      this.diagText = d.failed > 0 || d.err ? 'връзка: ' + d.link + ' · грешки ' + d.failed + (d.err ? '\n' + d.err : '') : ''
+      this.diagText = d.failed > 0 || d.err ? 'връзка: ' + d.link + (d.err ? ' · ' + d.err : '') : ''
       return
     }
     this.offline = false
+    const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
+    this.hrLine = s.hr > 0 ? s.hr + ' · Z' + z : '--'
+    this.hrColor = s.hr > 0 ? ZONE[z] : '#8E8E93'
 
-    const lim = s.lim || 170
-    const z = s.hr > 0 ? s.z || zoneOf(s.hr, lim) : 0
-    this.hr = s.hr || 0
-    this.hrText = s.hr > 0 ? String(s.hr) : '--'
-    this.hrColor = s.hr > 0 ? ZONE[z] : '#FFFFFF'
-    this.beatMs = s.hr > 0 ? Math.round(30000 / s.hr) : 450
-    const bars = []
-    for (let i = 1; i <= 5; i++) {
-      bars.push({ c: i <= z ? ZONE[i] : '#2C2C2E', on: i === z })
+    const list = this.buildCards(s, app)
+    const cards = {}
+    list.forEach((c) => {
+      cards[c.id] = c
+    })
+    this.cards = cards
+    // running modes first; the order is kept while you look at one (no jumping under the finger)
+    const ids = list.filter((c) => c.active).concat(list.filter((c) => !c.active)).map((c) => c.id)
+    if (!this.idsKey || this.cur === '') {
+      setPages(this, ids)
+    } else {
+      setPages(this, this.ids.length === ids.length ? this.ids : ids)
     }
-    this.zoneBars = bars
-    this.headSub = s.hr > 0 ? 'bpm · Z' + z + (s.kcal > 0 ? ' · ' + Math.round(s.kcal) + ' kcal' : '') : 'няма пулс'
-
-    this.tiles = this.buildTiles(s, app)
+    this.card = cards[this.cur] || list[0]
   },
 
-  buildTiles(s, app) {
+  buildCards(s, app) {
     const m = mods(s)
     const ai = s.mode === 'ai'
-    const tiles = []
+    const out = []
 
-    // AI
-    let aiSub = 'готов'
+    let aiSub = 'стартира се от таблета'
     if (ai) {
-      aiSub = s.st === 'ready' ? 'почивката стига ▶'
+      aiSub = s.st === 'ready' ? 'почивката стига'
         : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
           : (s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
     }
-    tiles.push({ id: 'ai', title: 'AI', sub: aiSub, icon: '/common/icons/ai.png', color: ACCENT, active: ai })
+    out.push({ id: 'ai', title: 'AI сесия', sub: aiSub, icon: '/common/icons/ai.png', color: ACCENT, active: ai })
 
-    // manual training
     const trRun = !!m.tr.run && !ai
-    tiles.push({
+    out.push({
       id: 'train', title: 'Тренировка',
-      sub: trRun ? 'тече · ' + hms((s.el || 0) + age(app, true)) : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'старт от гривната',
+      sub: trRun ? 'тече · ' + hms((s.el || 0) + age(app, true)) : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчно управление',
       icon: '/common/icons/bolt.png', color: GREEN, active: trRun
     })
 
-    // interval timer
     const tm = m.tm
     let tmSub = 'не е включен'
     if (tm.arm) {
-      tmSub = tm.run ? mmss((tm.left || 0) - age(app, true)) + (tm.lbl ? ' · ' + tm.lbl : tm.loops > 0 ? ' · ' + tm.loop + '/' + tm.loops : ' · #' + (tm.loop || 1))
+      tmSub = tm.run ? mmss((tm.left || 0) - age(app, true)) + (tm.lbl ? ' · ' + tm.lbl : tm.loops > 0 ? ' · кръг ' + tm.loop + '/' + tm.loops : '')
         : tm.pau ? 'пауза · ' + mmss(tm.left || 0) : 'чака старт'
     }
-    tiles.push({ id: 'timer', title: 'Таймер', sub: tmSub, icon: '/common/icons/timer.png', color: AMBER, active: !!tm.run })
+    out.push({ id: 'timer', title: 'Таймер', sub: tmSub, icon: '/common/icons/timer.png', color: AMBER, active: !!tm.run })
 
-    // music
     const mu = m.mu
-    const muSub = mu.on ? (mu.play ? '▶ ' : '❚❚ ') + (mu.title || 'музика') : 'изключена'
-    tiles.push({ id: 'music', title: 'Музика', sub: muSub, icon: '/common/icons/music.png', color: PURPLE, active: !!mu.play })
+    out.push({
+      id: 'music', title: 'Музика', sub: mu.on ? (mu.title || 'музика') : 'изключена',
+      icon: '/common/icons/music.png', color: PURPLE, active: !!mu.play
+    })
 
-    // HR module
     const hg = m.hg
-    const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'изключен'
-    tiles.push({ id: 'pulse', title: 'Пулс', sub: hgSub, icon: '/common/icons/heart.png', color: BLUE, active: !!hg.en && !hg.ai })
+    const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'автоконтрол изкл.'
+    out.push({ id: 'pulse', title: 'Пулс', sub: hgSub, icon: '/common/icons/heart.png', color: BLUE, active: !!hg.en && !hg.ai })
 
-    // what runs goes first
-    return tiles.filter((t) => t.active).concat(tiles.filter((t) => !t.active))
+    out.forEach((c) => {
+      c.glow = c.active ? c.color : 'rgba(0,0,0,0)'
+    })
+    return out
+  },
+
+  open() {
+    this.$app.$def.buzz('short')
+    router.push({ uri: PAGES[this.cur] || PAGES.ai })
   },
 
   pauseAll() {
     this.$app.$def.send({ t: 'cmd', a: 'pause_all' })
     this.$app.$def.buzz('long')
-  },
-
-  press(id) {
-    this.pressed = id
-  },
-
-  release() {
-    this.pressed = ''
-  },
-
-  open(id) {
-    this.pressed = ''
-    this.$app.$def.buzz('short')
-    router.push({ uri: PAGES[id] })
   }
 }
 </script>
 
 <style>
+/* ---- common (tools/gen-pages.py stamps this into every page) ---- */
 .root {
   width: 212px;
   height: 520px;
   background-color: #000000;
 }
-.home {
+.screen {
   width: 212px;
   height: 520px;
   flex-direction: column;
   align-items: center;
+  padding-top: 34px;
+  background-color: #000000;
 }
-.head {
-  width: 212px;
-  height: 142px;
+.in-up {
+  animation-name: inUp;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+.in-down {
+  animation-name: inDown;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+.dots {
+  width: 16px;
+  height: 520px;
+  margin-left: 196px;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding-top: 18px;
 }
-.hr-row {
-  flex-direction: row;
-  align-items: center;
-  height: 80px;
+.pdot {
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background-color: #3a3a3c;
 }
-.heart {
-  width: 30px;
-  height: 30px;
-  margin-right: 8px;
+.pdot-on {
+  height: 22px;
+  background-color: #ffffff;
 }
-.beat {
-  animation-name: beat;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.hr {
-  font-size: 74px;
+.caps {
+  font-size: 22px;
   font-weight: bold;
-}
-.zones {
-  flex-direction: row;
-  align-items: center;
-  height: 14px;
-}
-.zseg {
-  width: 32px;
-  height: 6px;
-  margin-left: 2px;
-  margin-right: 2px;
-  border-radius: 3px;
-}
-.zseg-on {
-  height: 12px;
-  border-radius: 6px;
-}
-.head-sub {
-  margin-top: 2px;
-  font-size: 19px;
   color: #8e8e93;
 }
-.tile {
-  width: 200px;
-  height: 68px;
-  margin-top: 6px;
-  border-radius: 34px;
-  border-width: 3px;
-  background-color: #1c1c1e;
-  flex-direction: row;
+.sub {
+  width: 196px;
+  text-align: center;
+  font-size: 22px;
+  color: #aeaeb2;
+}
+.down {
+  transform: scale(0.92);
+}
+.btn {
+  justify-content: center;
   align-items: center;
-  padding-left: 8px;
-  padding-right: 10px;
   transition-property: transform;
   transition-duration: 120ms;
 }
-.tile-on {
-  background-color: #242426;
+.off {
+  opacity: 0.3;
 }
-.down {
-  transform: scale(0.94);
+@keyframes inUp {
+  from {
+    transform: translateY(90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes inDown {
+  from {
+    transform: translateY(-90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes breathe {
+  from {
+    transform: scale(0.86);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.12);
+    opacity: 0.2;
+  }
+}
+@keyframes beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+
+/* ---- page ---- */
+.hr-row {
+  flex-direction: row;
+  align-items: center;
+}
+.hr-heart {
+  width: 26px;
+  height: 26px;
+  margin-right: 8px;
+}
+.hr-line {
+  font-size: 26px;
+  font-weight: bold;
+}
+.icon-box {
+  width: 176px;
+  height: 176px;
+  margin-top: 26px;
+  justify-content: center;
+  align-items: center;
+}
+.glow {
+  width: 170px;
+  height: 170px;
+  border-radius: 85px;
+  opacity: 0.35;
 }
 .icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
+  width: 136px;
+  height: 136px;
+  border-radius: 68px;
   justify-content: center;
   align-items: center;
 }
 .icon-img {
-  width: 28px;
-  height: 28px;
+  width: 76px;
+  height: 76px;
 }
-.tile-texts {
-  flex: 1;
-  flex-direction: column;
-  margin-left: 10px;
-}
-.tile-title {
-  font-size: 21px;
+.title {
+  margin-top: 22px;
+  font-size: 36px;
   font-weight: bold;
   color: #ffffff;
-  lines: 1;
+}
+.state {
+  margin-top: 6px;
+  width: 196px;
+  text-align: center;
+  font-size: 24px;
+  lines: 2;
   text-overflow: ellipsis;
 }
-.tile-sub {
-  font-size: 18px;
-  lines: 1;
-  text-overflow: ellipsis;
+.tap {
+  margin-top: 24px;
+  font-size: 20px;
+  color: #48484a;
 }
-
-/* ---------------------------------------------------------------- offline */
 .offline {
   width: 212px;
   height: 520px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: #000000;
 }
 .radar {
   width: 170px;
@@ -328,26 +377,13 @@ export default {
 }
 .off-hint {
   margin-top: 22px;
-  width: 190px;
-  text-align: center;
-  font-size: 20px;
-  color: #8e8e93;
 }
 .off-diag {
   margin-top: 14px;
   width: 196px;
   text-align: center;
-  font-size: 16px;
+  font-size: 18px;
   color: #48484a;
-}
-
-@keyframes beat {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.25);
-  }
 }
 @keyframes wave {
   from {

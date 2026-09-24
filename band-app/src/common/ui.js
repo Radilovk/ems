@@ -1,3 +1,5 @@
+import router from '@system.router'
+
 /**
  * Shared look and helpers for the XEMS band pages.
  * One design scale for the 212 × 520 screen: nothing smaller than 18 px, body 22 px,
@@ -62,4 +64,63 @@ export function bind(page) {
 /** Seconds since the last state when the thing counts down only while running. */
 export function age(app, running) {
   return running ? app.silence() : 0
+}
+
+// ================================================================ paging (one thing per screen)
+
+
+/** Page dots for {@code n} screens (visual only; big targets are the screens themselves). */
+export function dots(i, n) {
+  const out = []
+  for (let k = 0; k < n; k++) {
+    out.push({ on: k === i })
+  }
+  return out
+}
+
+/**
+ * Set the screens a page has now (ids). Keeps the current screen when it still exists.
+ * The page holds: ids, idx, cur, dots, anim.
+ */
+export function setPages(p, ids) {
+  const key = ids.join(',')
+  if (key === p.idsKey) {
+    return
+  }
+  p.idsKey = key
+  let i = ids.indexOf(p.cur)
+  if (i < 0) {
+    i = Math.max(0, Math.min(p.idx || 0, ids.length - 1))
+  }
+  p.ids = ids
+  p.idx = i
+  p.cur = ids[i]
+  p.dots = dots(i, ids.length)
+}
+
+/**
+ * Flick handling for every page: up / down = next / previous screen, right = back
+ * (a page that listens to swipes must go back itself — the system gesture no longer reaches it).
+ */
+export function swipe(p, e) {
+  const d = e && e.direction
+  if (d === 'right') {
+    router.back()
+    return
+  }
+  const ids = p.ids || []
+  let i = p.idx || 0
+  if (d === 'up' && i < ids.length - 1) {
+    i++
+    p.anim = 'in-up'
+  } else if (d === 'down' && i > 0) {
+    i--
+    p.anim = 'in-down'
+  } else {
+    return
+  }
+  p.idx = i
+  p.cur = ids[i]
+  p.dots = dots(i, ids.length)
+  p.$app.$def.buzz('short')
 }

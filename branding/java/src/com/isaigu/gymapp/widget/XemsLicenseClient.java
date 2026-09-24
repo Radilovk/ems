@@ -169,6 +169,84 @@ public final class XemsLicenseClient {
         }, "xems-update").start();
     }
 
+    static final long AUTO_CHECK_MS = 12L * 60 * 60 * 1000;
+    static final String K_UPDATE_CHECKED = "update_checked";
+    static final String K_UPDATE_SKIPPED = "update_skipped";
+    private static volatile boolean autoAsked;
+
+    /**
+     * On app start: at most once per 12 h (and once per process), ask the server for a newer
+     * XEMS and offer it in a dialog. Nothing happens without a server. "По-късно" skips that
+     * version unless it is mandatory.
+     */
+    public static void autoCheck(final android.app.Activity a) {
+        try {
+            if (autoAsked || a == null || !serverConfigured()) {
+                return;
+            }
+            autoAsked = true;
+            final android.content.SharedPreferences p = XemsLicense.prefs();
+            long now = System.currentTimeMillis();
+            long last = p.getLong(K_UPDATE_CHECKED, 0);
+            if (last > 0 && last <= now && now - last < AUTO_CHECK_MS) {
+                return;
+            }
+            checkUpdate(a.getApplicationContext(), new UpdateDone() {
+                @Override
+                public void done(final Update u, String error) {
+                    if (error != null) {
+                        return;
+                    }
+                    p.edit().putLong(K_UPDATE_CHECKED, System.currentTimeMillis()).apply();
+                    if (u == null || a.isFinishing()) {
+                        return;
+                    }
+                    if (!u.mandatory && p.getInt(K_UPDATE_SKIPPED, 0) == u.versionCode) {
+                        return;
+                    }
+                    offer(a, u);
+                }
+            });
+        } catch (Throwable ignored) {
+        }
+    }
+
+    static void offer(final android.app.Activity a, final Update u) {
+        try {
+            String msg = "Налична е версия " + u.versionName + "."
+                    + (u.notes.length() > 0 ? "\n\n" + u.notes : "");
+            android.app.AlertDialog.Builder b = new android.app.AlertDialog.Builder(a)
+                    .setTitle("Ново обновление")
+                    .setMessage(msg)
+                    .setCancelable(!u.mandatory)
+                    .setPositiveButton("Изтегли и инсталирай", new android.content.DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(android.content.DialogInterface d, int w) {
+                            android.widget.Toast.makeText(a, "Изтегляне…", android.widget.Toast.LENGTH_SHORT).show();
+                            downloadAndInstall(a.getApplicationContext(), u, new Done() {
+                                @Override
+                                public void done(boolean ok, String m) {
+                                    if (!ok) {
+                                        android.widget.Toast.makeText(a, "Неуспешно: " + m,
+                                                android.widget.Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                        }
+                    });
+            if (!u.mandatory) {
+                b.setNegativeButton("По-късно", new android.content.DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(android.content.DialogInterface d, int w) {
+                        XemsLicense.prefs().edit().putInt(K_UPDATE_SKIPPED, u.versionCode).apply();
+                    }
+                });
+            }
+            b.show();
+        } catch (Throwable ignored) {
+        }
+    }
+
     /** Download the APK (checked against its SHA-256) and hand it to the system installer. */
     public static void downloadAndInstall(final Context c, final Update u, final Done cb) {
         new Thread(new Runnable() {

@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 112
+    .line 115
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,13 +45,13 @@
     .registers 5
 
     .prologue
-    .line 115
+    .line 118
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isKeyHidden()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$100()Z
 
     move-result v1
 
-    .line 116
+    .line 119
     if-nez v1, :cond_1a
 
     const/4 v0, 0x1
@@ -60,7 +60,7 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->setKeyHidden(Z)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$200(Z)V
 
-    .line 117
+    .line 120
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;
 
     if-eqz v1, :cond_1c
@@ -76,16 +76,16 @@
     :goto_16
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 118
+    .line 121
     return-void
 
-    .line 116
+    .line 119
     :cond_1a
     const/4 v0, 0x0
 
     goto :goto_7
 
-    .line 117
+    .line 120
     :cond_1c
     const-string v0, "\u041f\u043e\u043a\u0430\u0436\u0438"
 

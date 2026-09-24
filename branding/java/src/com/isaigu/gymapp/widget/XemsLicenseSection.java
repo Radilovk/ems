@@ -37,10 +37,13 @@ public final class XemsLicenseSection {
         }
         XemsLicense.init(a);
         XemsUi.init(a);
-        ViewGroup parent = (ViewGroup) root;
+        ViewGroup parent = XemsUi.scrollContent(a, root);
+        if (parent == null) {
+            return;
+        }
         View old = parent.findViewWithTag(TAG);
-        if (old != null) {
-            parent.removeView(old);
+        if (old != null && old.getParent() instanceof ViewGroup) {
+            ((ViewGroup) old.getParent()).removeView(old);
         }
         LinearLayout card = XemsUi.card(a);
         card.setTag(TAG);

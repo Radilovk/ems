@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 434
+    .line 474
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$state:[Z
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$sw:Landroid/view/View;
@@ -55,7 +55,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 437
+    .line 477
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$state:[Z
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$state:[Z
@@ -69,7 +69,7 @@
     :goto_a
     aput-boolean v0, v2, v1
 
-    .line 438
+    .line 478
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$sw:Landroid/view/View;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$state:[Z
@@ -79,10 +79,10 @@
     # invokes: Lcom/isaigu/gymapp/widget/XemsUi;->styleSwitch(Landroid/view/View;Z)V
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->access$200(Landroid/view/View;Z)V
 
-    .line 439
+    .line 479
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 440
+    .line 480
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnToggle;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsUi$3;->val$state:[Z
@@ -91,12 +91,12 @@
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi$OnToggle;->onToggle(Z)V
 
-    .line 441
+    .line 481
     return-void
 
     :cond_22
     move v0, v1
 
-    .line 437
+    .line 477
     goto :goto_a
 .end method

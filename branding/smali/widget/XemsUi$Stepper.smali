@@ -27,19 +27,19 @@
     .registers 4
 
     .prologue
-    .line 341
+    .line 381
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 342
+    .line 382
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->view:Landroid/widget/LinearLayout;
 
-    .line 343
+    .line 383
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->value:Landroid/widget/TextView;
 
-    .line 344
+    .line 384
     iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->unit:Landroid/widget/TextView;
 
-    .line 345
+    .line 385
     return-void
 .end method
 
@@ -49,12 +49,12 @@
     .registers 5
 
     .prologue
-    .line 348
+    .line 388
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->value:Landroid/widget/TextView;
 
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 349
+    .line 389
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->unit:Landroid/widget/TextView;
 
     if-eqz p2, :cond_1c
@@ -64,7 +64,7 @@
     :goto_a
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 350
+    .line 390
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->unit:Landroid/widget/TextView;
 
     if-eqz p2, :cond_1f
@@ -80,16 +80,16 @@
     :goto_18
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 351
+    .line 391
     return-void
 
-    .line 349
+    .line 389
     :cond_1c
     const-string v0, ""
 
     goto :goto_a
 
-    .line 350
+    .line 390
     :cond_1f
     const/16 v0, 0x8
 

@@ -37,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 97
+    .line 100
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;->val$result:Landroid/widget/TextView;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;->val$a:Landroid/app/Activity;
@@ -57,17 +57,17 @@
     .registers 5
 
     .prologue
-    .line 100
+    .line 103
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 101
+    .line 104
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;->val$result:Landroid/widget/TextView;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 102
+    .line 105
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;->val$result:Landroid/widget/TextView;
 
     const-string v1, "\u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430\u2026"
@@ -80,7 +80,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 103
+    .line 106
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;->val$key:Landroid/widget/EditText;
@@ -99,6 +99,6 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->activate(Landroid/content/Context;Ljava/lang/String;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 
-    .line 109
+    .line 112
     return-void
 .end method

@@ -96,6 +96,66 @@ public final class WearableConfig {
                 key != null ? key.trim() : "").apply();
     }
 
+    // ================================================================ saved bands (MAC + key)
+
+    private static final String KEY_SAVED_BANDS = "saved_bands";
+
+    /** Remember a band (MAC + key + name) so it can be picked later; newest first, max 8. */
+    public static void rememberBand(Context context, String mac, String key, String name) {
+        if (context == null || mac == null || key == null || mac.length() == 0 || key.length() != 32) {
+            return;
+        }
+        try {
+            org.json.JSONArray old = savedBandsJson(context);
+            org.json.JSONArray out = new org.json.JSONArray();
+            org.json.JSONObject me = new org.json.JSONObject();
+            me.put("mac", mac.toUpperCase(java.util.Locale.US));
+            me.put("key", key.toLowerCase(java.util.Locale.US));
+            me.put("name", name != null ? name.trim() : "");
+            out.put(me);
+            for (int i = 0; i < old.length() && out.length() < 8; i++) {
+                org.json.JSONObject o = old.getJSONObject(i);
+                if (!o.optString("mac").equalsIgnoreCase(mac)) {
+                    out.put(o);
+                }
+            }
+            prefs(context).edit().putString(KEY_SAVED_BANDS, out.toString()).apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Saved bands as {mac, key, name}, newest first. */
+    public static java.util.List<String[]> savedBands(Context context) {
+        java.util.List<String[]> l = new java.util.ArrayList<String[]>();
+        try {
+            org.json.JSONArray a = savedBandsJson(context);
+            for (int i = 0; i < a.length(); i++) {
+                org.json.JSONObject o = a.getJSONObject(i);
+                l.add(new String[] {o.optString("mac"), o.optString("key"), o.optString("name")});
+            }
+        } catch (Throwable ignored) {
+        }
+        return l;
+    }
+
+    /** Key saved for this MAC, or "". */
+    public static String savedKeyFor(Context context, String mac) {
+        for (String[] b : savedBands(context)) {
+            if (b[0].equalsIgnoreCase(mac == null ? "" : mac.trim())) {
+                return b[1];
+            }
+        }
+        return "";
+    }
+
+    private static org.json.JSONArray savedBandsJson(Context context) {
+        try {
+            return new org.json.JSONArray(prefs(context).getString(KEY_SAVED_BANDS, "[]"));
+        } catch (Throwable t) {
+            return new org.json.JSONArray();
+        }
+    }
+
     /** The band's music screen works as the training remote (title = live state, keys = control). */
     public static boolean isBandRemoteEnabled(Context context) {
         return context == null || prefs(context).getBoolean("band_remote", true);

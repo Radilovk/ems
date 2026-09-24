@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 563
+    .line 603
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$5;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 3
 
     .prologue
-    .line 567
+    .line 607
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$5;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -55,11 +55,11 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 570
+    .line 610
     :goto_7
     return-void
 
-    .line 568
+    .line 608
     :catch_8
     move-exception v0
 

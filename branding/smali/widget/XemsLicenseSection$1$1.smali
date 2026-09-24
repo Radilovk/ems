@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 103
+    .line 106
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1$1;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .registers 6
 
     .prologue
-    .line 106
+    .line 109
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1$1;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$1;->val$a:Landroid/app/Activity;
@@ -55,6 +55,6 @@
 
     invoke-static {v0, v1, v2, p1, p2}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->onActivated(Landroid/app/Activity;Landroid/view/View;Landroid/widget/TextView;ZLjava/lang/String;)V
 
-    .line 107
+    .line 110
     return-void
 .end method

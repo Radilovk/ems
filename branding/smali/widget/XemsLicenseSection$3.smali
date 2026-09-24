@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 177
+    .line 180
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$3;->val$srvRow:Landroid/widget/LinearLayout;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$3;->val$adv:Landroid/widget/TextView;
@@ -51,7 +51,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 180
+    .line 183
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$3;->val$srvRow:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->getVisibility()I
@@ -62,7 +62,7 @@
 
     const/4 v0, 0x1
 
-    .line 181
+    .line 184
     :goto_a
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$3;->val$srvRow:Landroid/widget/LinearLayout;
 
@@ -71,7 +71,7 @@
     :goto_e
     invoke-virtual {v2, v1}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 182
+    .line 185
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseSection$3;->val$adv:Landroid/widget/TextView;
 
     if-eqz v0, :cond_26
@@ -87,22 +87,22 @@
     :goto_1d
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 183
+    .line 186
     return-void
 
     :cond_21
     move v0, v1
 
-    .line 180
+    .line 183
     goto :goto_a
 
-    .line 181
+    .line 184
     :cond_23
     const/16 v1, 0x8
 
     goto :goto_e
 
-    .line 182
+    .line 185
     :cond_26
     const-string v0, "\u0421\u044a\u0440\u0432\u044a\u0440 \u203a"
 

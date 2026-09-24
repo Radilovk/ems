@@ -986,7 +986,7 @@
 
     move-result v1
 
-    const/4 v9, 0x3
+    const/4 v9, 0x4
 
     if-lt v1, v9, :cond_2dd
 

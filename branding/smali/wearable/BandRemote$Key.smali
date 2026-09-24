@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 256
+    .line 365
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 257
+    .line 366
     iput p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Key;->key:I
 
-    .line 258
+    .line 367
     iput p2, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Key;->volume:I
 
-    .line 259
+    .line 368
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 264
+    .line 373
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Key;->key:I
 
@@ -57,15 +57,15 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 268
+    .line 377
     :goto_7
     return-void
 
-    .line 265
+    .line 374
     :catch_8
     move-exception v0
 
-    .line 266
+    .line 375
     const-string v1, "BandRemote.key"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

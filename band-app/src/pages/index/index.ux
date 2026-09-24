@@ -1,0 +1,165 @@
+<template>
+  <div class="page">
+    <text class="mode" style="color: {{modeColor}}">{{modeText}}</text>
+
+    <div class="hr-box" style="border-color: {{zoneColor}}">
+      <text class="hr" style="color: {{zoneColor}}">{{hrText}}</text>
+      <text class="unit">bpm</text>
+      <text class="zone" style="color: {{zoneColor}}">{{zoneText}}</text>
+    </div>
+
+    <text class="title">{{title}}</text>
+    <text class="sub">{{sub}}</text>
+    <text class="kcal" if="{{kcal > 0}}">{{kcal}} kcal</text>
+
+    <div class="play" style="background-color: {{playColor}}" onclick="toggle">
+      <text class="play-glyph">{{playGlyph}}</text>
+    </div>
+
+    <text class="more" onclick="openControl">{{moreText}}</text>
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+
+const ZONES = ['#8A8A8A', '#90A4AE', '#43A047', '#FDD835', '#FB8C00', '#E53935']
+
+export default {
+  private: {
+    hrText: '--',
+    zoneText: '',
+    zoneColor: '#8A8A8A',
+    title: 'XEMS',
+    sub: '',
+    kcal: 0,
+    modeText: '',
+    modeColor: '#8A8A8A',
+    playGlyph: '▶',
+    playColor: '#43A047',
+    moreText: 'Управление ›'
+  },
+
+  onInit() {
+    this.onState = (s) => this.render(s)
+    this.$app.$def.watch(this.onState)
+    this.render(this.$app.$def.state)
+    this.timer = setInterval(() => this.render(this.$app.$def.state), 2000)
+  },
+
+  onDestroy() {
+    this.$app.$def.unwatch(this.onState)
+    clearInterval(this.timer)
+  },
+
+  render(s) {
+    const app = this.$app.$def
+    if (!s || app.silence() > 12) {
+      this.modeText = app.silence() > 9000 ? 'Свързване с XEMS…' : 'Няма връзка с XEMS'
+      this.modeColor = '#FFCC66'
+      this.hrText = '--'
+      this.zoneText = ''
+      this.zoneColor = '#8A8A8A'
+      this.title = 'XEMS'
+      this.sub = 'Отвори XEMS на таблета'
+      this.kcal = 0
+      return
+    }
+    const z = Math.max(0, Math.min(5, s.z || 0))
+    this.zoneColor = ZONES[z]
+    this.hrText = s.hr > 0 ? String(s.hr) : '--'
+    this.zoneText = z > 0 ? 'Z' + z : ''
+    this.title = s.title || ''
+    this.sub = s.sub || ''
+    this.kcal = Math.round(s.kcal || 0)
+    const modes = { ai: 'AI сесия', manual: 'Тренировка', music: 'Музика', idle: 'Готов' }
+    this.modeText = modes[s.mode] || 'XEMS'
+    this.modeColor = s.run ? '#81C784' : '#FFCC66'
+    this.playGlyph = s.run ? '❚❚' : '▶'
+    this.playColor = s.run ? '#F9A825' : '#43A047'
+    this.moreText = s.mode === 'music' ? '' : 'Управление ›'
+  },
+
+  toggle() {
+    this.$app.$def.command('toggle')
+  },
+
+  openControl() {
+    router.push({ uri: '/pages/control' })
+  }
+}
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  align-items: center;
+  padding-top: 26px;
+  background-color: #000000;
+}
+.mode {
+  font-size: 18px;
+  font-weight: bold;
+}
+.hr-box {
+  width: 176px;
+  height: 176px;
+  margin-top: 14px;
+  border-radius: 88px;
+  border-width: 8px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.hr {
+  font-size: 64px;
+  font-weight: bold;
+}
+.unit {
+  font-size: 16px;
+  color: #8a8a8a;
+}
+.zone {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 2px;
+}
+.title {
+  margin-top: 16px;
+  font-size: 22px;
+  color: #ffffff;
+  text-align: center;
+  width: 196px;
+}
+.sub {
+  margin-top: 4px;
+  font-size: 18px;
+  color: #b0b0b0;
+  text-align: center;
+  width: 196px;
+}
+.kcal {
+  margin-top: 4px;
+  font-size: 18px;
+  color: #fb8c00;
+  font-weight: bold;
+}
+.play {
+  width: 96px;
+  height: 96px;
+  border-radius: 48px;
+  margin-top: 18px;
+  justify-content: center;
+  align-items: center;
+}
+.play-glyph {
+  font-size: 40px;
+  color: #ffffff;
+  font-weight: bold;
+}
+.more {
+  margin-top: 16px;
+  font-size: 18px;
+  color: #8a8a8a;
+}
+</style>

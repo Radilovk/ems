@@ -1,0 +1,99 @@
+<script>
+/**
+ * XEMS on the wrist. One link to the XEMS tablet app (system.interconnect), shared by the
+ * pages through the app object: live state in, commands out.
+ *
+ * Messages are JSON (both directions):
+ *   band → XEMS  {t:'hello'} on start, then {t:'cmd', a:'toggle'|'plus'|'minus'|'double'|'stop'}
+ *   XEMS → band  {t:'state', mode:'ai'|'manual'|'music'|'idle', hr, z, title, sub, kcal,
+ *                 run, can:{plus,minus,dbl}, dbl, vib:'short'|'long'|''}
+ */
+import interconnect from '@system.interconnect'
+import vibrator from '@system.vibrator'
+
+export default {
+  state: null,
+  lastMs: 0,
+  listeners: [],
+  conn: null,
+
+  onCreate() {
+    this.open()
+  },
+
+  onDestroy() {
+    this.listeners = []
+  },
+
+  open() {
+    try {
+      const conn = interconnect.instance()
+      this.conn = conn
+      conn.onmessage = (msg) => this.receive(msg && msg.data)
+      conn.onopen = () => this.send({ t: 'hello' })
+      conn.onclose = () => this.notify()
+      conn.onerror = () => this.notify()
+      this.send({ t: 'hello' })
+    } catch (e) {
+      console.log('xems: interconnect ' + e)
+    }
+  },
+
+  receive(data) {
+    let m = data
+    try {
+      if (typeof data === 'string') {
+        m = JSON.parse(data)
+      }
+    } catch (e) {
+      return
+    }
+    if (!m || m.t !== 'state') {
+      return
+    }
+    this.state = m
+    this.lastMs = Date.now()
+    if (m.vib) {
+      vibrator.vibrate({ mode: m.vib === 'long' ? 'long' : 'short' })
+    }
+    this.notify()
+  },
+
+  send(obj) {
+    if (!this.conn) {
+      return
+    }
+    try {
+      this.conn.send({ data: JSON.stringify(obj) })
+    } catch (e) {
+      console.log('xems: send ' + e)
+    }
+  },
+
+  command(a) {
+    this.send({ t: 'cmd', a: a })
+    vibrator.vibrate({ mode: 'short' })
+  },
+
+  /** Seconds since XEMS last spoke (large when never). */
+  silence() {
+    return this.lastMs ? (Date.now() - this.lastMs) / 1000 : 9999
+  },
+
+  watch(fn) {
+    this.listeners.push(fn)
+  },
+
+  unwatch(fn) {
+    this.listeners = this.listeners.filter((f) => f !== fn)
+  },
+
+  notify() {
+    this.listeners.forEach((f) => {
+      try {
+        f(this.state)
+      } catch (e) {}
+    })
+  }
+}
+</script>

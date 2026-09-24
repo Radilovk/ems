@@ -1,4 +1,4 @@
-.class final Lcom/isaigu/gymapp/wearable/BandRemote$Push;
+.class final Lcom/isaigu/gymapp/wearable/BandRemote$AppMsg;
 .super Ljava/lang/Object;
 .source "BandRemote.java"
 
@@ -13,26 +13,26 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "Push"
+    name = "AppMsg"
 .end annotation
 
 
 # instance fields
-.field private final force:Z
+.field private final json:Ljava/lang/String;
 
 
 # direct methods
-.method constructor <init>(Z)V
+.method constructor <init>(Ljava/lang/String;)V
     .registers 2
 
     .prologue
-    .line 330
+    .line 347
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 331
-    iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Push;->force:Z
+    .line 348
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$AppMsg;->json:Ljava/lang/String;
 
-    .line 332
+    .line 349
     return-void
 .end method
 
@@ -42,24 +42,24 @@
     .registers 3
 
     .prologue
-    .line 337
+    .line 354
     :try_start_0
-    iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Push;->force:Z
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$AppMsg;->json:Ljava/lang/String;
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->push(Z)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->handleApp(Ljava/lang/String;)V
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 341
+    .line 358
     :goto_5
     return-void
 
-    .line 338
+    .line 355
     :catch_6
     move-exception v0
 
-    .line 339
-    const-string v1, "BandRemote.push"
+    .line 356
+    const-string v1, "BandRemote.app"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 

@@ -11,4 +11,5 @@ javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${OUT}" $(find "${D}/rt" -
   "${W}/WearableBleDiagLog.java" "${W}"/xiaomi/*.java 2>&1 | grep -v "Picked up\|bootstrap\|^Note\|warning" || true
 java -cp "${OUT}" com.isaigu.gymapp.wearable.xiaomi.SppHarness "${D}/spp_band.py" "${KEY}" 2>/dev/null | tee "${OUT}/log.txt" | grep -v "Picked up"
 grep -q "RESULT dropped=null hr=\[71, 72, 73, 74\] finalState=streaming" "${OUT}/log.txt" \
-  && grep -q "MUSIC ok" "${OUT}/log.txt" && grep -q "music text utf8 ok" "${OUT}/log.txt" && grep -q "KEYS \[4\]" "${OUT}/log.txt" && echo "PASS" || { echo "FAIL"; exit 1; }
+  && grep -q "MUSIC ok" "${OUT}/log.txt" && grep -q "music text utf8 ok" "${OUT}/log.txt" && grep -q "KEYS \[4\]" "${OUT}/log.txt" \
+  && grep -q "RPK ok" "${OUT}/log.txt" && grep -q "INSTALL true installed" "${OUT}/log.txt" && grep -q "APPLINK ok" "${OUT}/log.txt" && echo "PASS" || { echo "FAIL"; exit 1; }

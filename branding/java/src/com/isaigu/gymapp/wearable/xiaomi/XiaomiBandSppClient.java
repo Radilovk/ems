@@ -282,6 +282,8 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     }
 
     private void resetSession() {
+        XiaomiBandInstaller.onDisconnected();
+        XiaomiBandAppLink.reset();
         main.removeCallbacks(versionTimeout);
         main.removeCallbacks(authTimeout);
         main.removeCallbacks(watch);
@@ -540,6 +542,8 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             onRealtime(cmd);
         } else if (XiaomiBandRemote.onCommand(type, sub, cmd)) {
             log("remote", "music sub=" + sub);
+        } else if (XiaomiBandInstaller.onCommand(type, sub, cmd)) {
+            log("install", "cmd " + type + "/" + sub);
         } else if (type == XiaomiBandMessages.T_SYSTEM) {
             if (XiaomiBandStatus.onSystemCommand(sub, cmd)) {
                 log("status", "bat=" + XiaomiBandStatus.getBatteryPercent()
@@ -547,6 +551,8 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
                         + " off=" + XiaomiBandStatus.isKnownNotWorn()
                         + " fw=" + XiaomiBandStatus.getFirmware());
             }
+        } else if (XiaomiBandAppLink.onCommand(type, sub, raw)) {
+            log("applink", "message " + type + "/" + sub);
         } else {
             log("cmd", "type=" + type + " sub=" + sub);
         }
@@ -725,6 +731,26 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     public void sendCommand(byte[] proto) {
         if (authenticated) {
             send(proto);
+        }
+    }
+
+    /**
+     * Raw bytes on the data channel (file upload). v2: channel 2, plain; v1: channel 5,
+     * AES-CCM with counter 0.
+     */
+    void sendData(byte[] chunk) {
+        if (port == null || !authenticated || chunk == null) {
+            return;
+        }
+        try {
+            if (version == 2) {
+                write(XiaomiBandSppFrames.v2Data(v2Seq++ & 0xFF, 2, 1, chunk));
+            } else {
+                byte[] enc = XiaomiBandCrypto.aesCcmEncrypt(keys.encKey, keys.encNonce, 0, chunk);
+                write(XiaomiBandSppFrames.v1(5, false, 2, v1Serial++ & 0xFF, 1, enc));
+            }
+        } catch (Throwable t) {
+            log("ERR:data", String.valueOf(t));
         }
     }
 

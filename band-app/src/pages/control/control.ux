@@ -1,0 +1,143 @@
+<template>
+  <div class="page">
+    <text class="head">Управление</text>
+
+    <div class="row">
+      <div class="key {{canMinus ? '' : 'off'}}" onclick="minus">
+        <text class="key-glyph">−</text>
+      </div>
+      <div class="key {{canPlus ? '' : 'off'}}" onclick="plus">
+        <text class="key-glyph">+</text>
+      </div>
+    </div>
+    <text class="hint">Сила</text>
+
+    <div class="pill {{dbl ? 'pill-on' : ''}}" if="{{canDbl}}" onclick="double">
+      <text class="pill-text">Двоен импулс: {{dbl ? 'вкл.' : 'изкл.'}}</text>
+    </div>
+
+    <div class="stop" onlongpress="stop">
+      <text class="stop-text">СТОП</text>
+    </div>
+    <text class="hint">задръж за стоп</text>
+  </div>
+</template>
+
+<script>
+export default {
+  private: {
+    canPlus: true,
+    canMinus: true,
+    canDbl: false,
+    dbl: false
+  },
+
+  onInit() {
+    this.onState = (s) => this.render(s)
+    this.$app.$def.watch(this.onState)
+    this.render(this.$app.$def.state)
+  },
+
+  onDestroy() {
+    this.$app.$def.unwatch(this.onState)
+  },
+
+  render(s) {
+    const can = (s && s.can) || {}
+    this.canPlus = can.plus !== false
+    this.canMinus = can.minus !== false
+    this.canDbl = !!can.dbl
+    this.dbl = !!(s && s.dbl)
+  },
+
+  plus() {
+    if (this.canPlus) {
+      this.$app.$def.command('plus')
+    }
+  },
+
+  minus() {
+    if (this.canMinus) {
+      this.$app.$def.command('minus')
+    }
+  },
+
+  double() {
+    this.$app.$def.command('double')
+  },
+
+  stop() {
+    this.$app.$def.command('stop')
+  }
+}
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  background-color: #000000;
+}
+.head {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.row {
+  flex-direction: row;
+  margin-top: 22px;
+}
+.key {
+  width: 86px;
+  height: 110px;
+  margin-left: 6px;
+  margin-right: 6px;
+  border-radius: 22px;
+  background-color: #2a2a2a;
+  justify-content: center;
+  align-items: center;
+}
+.off {
+  opacity: 0.35;
+}
+.key-glyph {
+  font-size: 56px;
+  color: #ffffff;
+}
+.hint {
+  margin-top: 8px;
+  font-size: 16px;
+  color: #8a8a8a;
+}
+.pill {
+  width: 196px;
+  height: 56px;
+  margin-top: 22px;
+  border-radius: 28px;
+  background-color: #2a2a2a;
+  justify-content: center;
+  align-items: center;
+}
+.pill-on {
+  background-color: #1e5a2a;
+}
+.pill-text {
+  font-size: 18px;
+  color: #ffffff;
+}
+.stop {
+  width: 196px;
+  height: 70px;
+  margin-top: 26px;
+  border-radius: 20px;
+  background-color: #e53935;
+  justify-content: center;
+  align-items: center;
+}
+.stop-text {
+  font-size: 26px;
+  font-weight: bold;
+  color: #ffffff;
+}
+</style>

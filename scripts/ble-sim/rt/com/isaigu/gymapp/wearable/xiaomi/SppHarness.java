@@ -37,22 +37,42 @@ public class SppHarness implements XiaomiBandSppPort {
     Process p = new ProcessBuilder("python3", a[0], a[1]).redirectError(ProcessBuilder.Redirect.INHERIT).start();
     in = new BufferedReader(new InputStreamReader(p.getInputStream())); out = new PrintWriter(p.getOutputStream());
     SppHarness port = new SppHarness();
+    XiaomiBand.select(new android.content.Context(), "D0:62:2C:26:49:60", XiaomiBand.SPP);
     XiaomiBandSppClient c = XiaomiBandSppClient.getInstance();
     c.setTestPort(port);
     c.setListener(new Listen());
     XiaomiBandRemote.setListener(new Remote(c));
+    XiaomiBandAppLink.setListener(new App());
     c.connect(new android.content.Context(), "D0:62:2C:26:49:60", a[1]);
     c.startRealtime();
     for (long t = 0; t < 30000 && dropped == null; t += 250) {
       pump(c, port); Handler.advance(t); pump(c, port); talk("TICK"); pump(c, port);
+      if (!keys.isEmpty() && install == null) {
+        byte[] rpk = new byte[5000]; new Random(7).nextBytes(rpk);
+        install = "started";
+        XiaomiBandInstaller.install(rpk, "com.xems.band", 1, new Install());
+      }
     }
     talk("SUMMARY");
     System.out.println("STATUS battery=" + XiaomiBandStatus.getBatteryPercent() + " worn=" + XiaomiBandStatus.isKnownWorn()
         + " notWorn=" + XiaomiBandStatus.isKnownNotWorn() + " fw=" + XiaomiBandStatus.getFirmware()
         + " model=" + XiaomiBandStatus.getModel() + " transport=" + c.getTransportName());
     System.out.println("KEYS " + keys);
+    System.out.println("INSTALL " + install);
     System.out.println("RESULT dropped=" + dropped + " hr=" + hrs + " finalState=" + (states.isEmpty() ? "" : states.get(states.size() - 1)));
     p.destroy();
+  }
+
+  static String install;
+  static final class Install implements XiaomiBandInstaller.Listener {
+    public void onProgress(int pct, String state) {}
+    public void onDone(boolean ok, String msg) { install = ok + " " + msg; System.out.println("  [install] " + install); }
+  }
+  static final class App implements XiaomiBandAppLink.Listener {
+    public void onAppMessage(String json) {
+      System.out.println("  [app] " + json);
+      if (json.contains("hello")) XiaomiBandAppLink.send("{\"t\":\"state\",\"hr\":72,\"title\":\"Основна\"}");
+    }
   }
 
   static final List<Integer> keys = new ArrayList<Integer>();

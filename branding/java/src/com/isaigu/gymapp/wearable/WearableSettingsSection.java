@@ -137,6 +137,29 @@ public final class WearableSettingsSection {
                 WearableConfig.isBandRemoteEnabled(a), new RemoteToggle(a));
         remote.setPadding(0, WearableUi.dp(a, 12), 0, 0);
         card.addView(remote);
+        // XEMS app on the band itself (Band 9 / 10 only: installed over the classic link).
+        boolean classic = WearableConfig.getBandTransport(a) == 2
+                || (WearableConfig.getBandTransport(a) == 0
+                && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(bandName));
+        if (classic) {
+            LinearLayout appRow = row(a);
+            appRow.setPadding(0, WearableUi.dp(a, 12), 0, 0);
+            final TextView appStatus = WearableUi.text(a,
+                    WearableUi.tr("XEMS на гривната: пулс, блок, старт/пауза, сила ±",
+                            "XEMS on the band: HR, block, start/pause, strength ±"), 13f, mutedCol, false);
+            appRow.addView(appStatus, new LinearLayout.LayoutParams(0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView install = WearableUi.button(a, WearableUi.tr("Инсталирай", "Install"),
+                    WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
+            install.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    BandAppInstall.start(a, appStatus);
+                }
+            });
+            appRow.addView(install, sideButton(a));
+            card.addView(appRow);
+        }
         bandInfoView = WearableUi.text(a, "", 13f, mutedCol, false);
         bandInfoView.setPadding(0, WearableUi.dp(a, 6), 0, 0);
         card.addView(bandInfoView);

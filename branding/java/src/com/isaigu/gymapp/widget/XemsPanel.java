@@ -44,6 +44,7 @@ public final class XemsPanel {
     public static final int PRESS_START = 0;
     public static final int PRESS_PLUS = 1;
     public static final int PRESS_MINUS = 2;
+    public static final int PRESS_STOP = 3;
 
     /** Press a main-panel button from elsewhere (the band's music screen). */
     public static boolean press(int which) {
@@ -51,7 +52,8 @@ public final class XemsPanel {
         if (root == null) {
             return false;
         }
-        int id = which == PRESS_PLUS ? ID_ADD : which == PRESS_MINUS ? ID_MINUS : ID_START;
+        int id = which == PRESS_PLUS ? ID_ADD : which == PRESS_MINUS ? ID_MINUS
+                : which == PRESS_STOP ? ID_STOP : ID_START;
         View target = root.findViewById(id);
         if (target == null) {
             return false;

@@ -26,10 +26,10 @@
     .registers 4
 
     .prologue
-    .line 288
+    .line 290
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 289
+    .line 291
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;
 
     const v1, 0x7f09003b
@@ -38,7 +38,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsPanel$StartClick;->delegate:Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;
 
-    .line 290
+    .line 292
     return-void
 .end method
 
@@ -48,12 +48,12 @@
     .registers 6
 
     .prologue
-    .line 294
+    .line 296
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsPanel$StartClick;->delegate:Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;->onClick(Landroid/view/View;)V
 
-    .line 295
+    .line 297
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsPanel$Refresh;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/widget/XemsPanel$Refresh;-><init>()V
@@ -62,6 +62,6 @@
 
     invoke-virtual {p1, v0, v2, v3}, Landroid/view/View;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 296
+    .line 298
     return-void
 .end method

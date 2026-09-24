@@ -1,0 +1,13 @@
+{
+  "name": "xems-band",
+  "version": "1.0.0",
+  "private": true,
+  "description": "XEMS on Xiaomi Smart Band 10 (Xiaomi Vela quick app)",
+  "scripts": {
+    "build": "aiot build",
+    "release": "aiot release"
+  },
+  "devDependencies": {
+    "aiot-toolkit": "2.0.5"
+  }
+}

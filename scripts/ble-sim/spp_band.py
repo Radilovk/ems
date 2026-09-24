@@ -123,7 +123,8 @@ def v2_frame(ptype, seq, payload):
 
 st = {"proto": 1, "keys": None, "pn": None, "wn": os.urandom(16), "authed": False, "rt": False,
       "rt_sent": 0, "cmds": [], "seq": 0, "rx": b"", "acks": 0, "unacked": 0, "v1_ctr": 0,
-      "music": 0, "track": None}
+      "music": 0, "track": None, "rpk": None, "data": b"", "parts": 0, "rpk_ok": False,
+      "app": 0, "applink_ok": False}
 
 
 def send_cmd(proto):
@@ -187,10 +188,49 @@ def on_command(proto):
         st["track"] = (info.get(4, [b"?"])[0].decode(), info.get(5, [b""])[0].decode(), info[1][0])
         log("music screen: %r / %r state=%d" % st["track"])
         log("music text utf8 %s" % ("ok" if st["track"][1].startswith("\u041e\u0441\u043d") else "BROKEN"))
+    elif t == 20 and s == 1:
+        info = pb(pb(d[22][0])[2][0])
+        st["rpk"] = (info[1][0].decode(), info[2][0], info[3][0])
+        log("rpk install request %s v%d %dB" % st["rpk"])
+        send_cmd(command(20, 1, fb(22, fb(3, fv(1, 0)))))
+    elif t == 22 and s == 0:
+        req = pb(pb(d[24][0])[1][0])
+        st["md5"], st["size"] = req[2][0], req[3][0]
+        if req[1][0] != 64 or st["rpk"] is None or st["size"] != st["rpk"][2]:
+            emit("X", "bad upload request"); return
+        send_cmd(command(22, 0, fb(24, fb(2, fv(1, 0) + fv(2, 0) + fv(4, 0) + fv(5, 1024)))))
+    elif t == 23 and s == 3:
+        app = pb(d[26][0])
+        js = app[2][0].decode()
+        ok = app[1][0] == b"com.xems.band" and js.startswith('{"t":"state"')
+        log("app reply %s %s" % (js, "ok" if ok else "BAD"))
+        st["applink_ok"] = ok
     elif t == 8 and s == 45:
         st["rt"] = True
     elif t == 8 and s == 46:
         st["rt"] = False
+
+
+def on_data(chunk):
+    """App file over the data channel: [u16 total][u16 part] + slice of the payload."""
+    total, part = struct.unpack("<HH", chunk[:4])
+    if part != st["parts"] + 1 or len(chunk) > 1024:
+        emit("X", "data part %d/%d (expected %d, len %d)" % (part, total, st["parts"] + 1, len(chunk))); return
+    st["parts"] = part
+    st["data"] += chunk[4:]
+    if part < total:
+        return
+    d = st["data"]
+    body, crc = d[:-4], struct.unpack("<I", d[-4:])[0]
+    import zlib
+    size = struct.unpack("<I", body[18:22])[0]
+    blob = body[22:]
+    ok = (zlib.crc32(body) & 0xFFFFFFFF == crc and body[0] == 0 and body[1] == 64 and body[2:18] == st["md5"]
+          and size == len(blob) == st["size"] and hashlib.md5(blob).digest() == st["md5"])
+    log("rpk file %d parts %dB crc/md5 %s" % (total, len(blob), "ok" if ok else "BAD"))
+    st["rpk_ok"] = ok
+    if ok:
+        send_cmd(command(20, 2))
 
 
 def on_v1(pk_channel, dtype, payload):
@@ -198,6 +238,13 @@ def on_v1(pk_channel, dtype, payload):
         emit("B", v1_frame(0, 0, 0, 0, bytes([VERSION, 0, 0])).hex())
         if VERSION >= 2:
             st["proto"] = 2
+        return
+    if pk_channel == 5:
+        body = payload
+        try:
+            on_data(ccm(st["keys"]["enc"], st["keys"]["enc_n"], 0).decrypt_and_verify(body[:-4], body[-4:]))
+        except Exception as e:
+            emit("X", "v1 data decrypt: %s" % e)
         return
     if pk_channel != 2:
         emit("X", "v1 phone packet on channel %d" % pk_channel); return
@@ -234,6 +281,8 @@ def on_v2(ptype, seq, payload):
         emit("X", "v2 type %d" % ptype); return
     emit("B", v2_frame(1, seq, b"").hex())
     ch, op, body = payload[0], payload[1], payload[2:]
+    if ch == 2 and op == 1:
+        on_data(body); return
     if ch != 1:
         emit("X", "v2 channel %d" % ch); return
     if op == 2:
@@ -287,6 +336,10 @@ def tick():
         send_cmd(command(18, 0)); st["music"] = 1; return
     if st["music"] == 1 and st["track"] is not None:
         send_cmd(command(18, 2, fb(20, fb(2, fv(1, 4))))); st["music"] = 2; return
+    # after install the XEMS app on the band says hello (wrapper as a band would carry it)
+    if st["rpk_ok"] and st["app"] == 0:
+        send_cmd(command(23, 3, fb(26, fb(1, b"com.xems.band") + fb(2, b'{"t":"hello","v":1}'))))
+        st["app"] = 1; return
     if st["rt"] and st["rt_sent"] < 5:
         hr = 0 if st["rt_sent"] == 0 else 70 + st["rt_sent"]
         stats = fv(1, 2000 + st["rt_sent"]) + fv(2, 40) + fv(3, 7) + fv(4, hr)
@@ -307,4 +360,8 @@ for line in sys.stdin:
             % (st["proto"], ",".join(st["cmds"]), st["rt_sent"], st["acks"], st["unacked"]))
         if st["track"] is not None and st["music"] == 2:
             log("MUSIC ok")
+        if st["rpk_ok"]:
+            log("RPK ok")
+        if st["applink_ok"]:
+            log("APPLINK ok")
     emit(".")

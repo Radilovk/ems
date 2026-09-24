@@ -30,7 +30,8 @@ import java.util.Locale;
  * ⏮ · vol−   strength −                  master −                   previous song
  * </pre>
  */
-public final class BandRemote implements XiaomiBandRemote.Listener {
+public final class BandRemote implements XiaomiBandRemote.Listener,
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.Listener {
     private static final long TICK_MS = 2000L;
     /** Volume we report; a band request above / below it is a +/− step. */
     private static final int VOL = 50;
@@ -51,6 +52,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener {
     /** Called when the band link comes up (and on every connect). */
     public static void start() {
         XiaomiBandRemote.setListener(INSTANCE);
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.setListener(INSTANCE);
         lastSent = "";
         if (!running) {
             running = true;
@@ -73,6 +75,51 @@ public final class BandRemote implements XiaomiBandRemote.Listener {
     @Override
     public void onMediaKey(final int key, final int volume) {
         handler.post(new Key(key, volume));
+    }
+
+    /** From the XEMS app on the band: {"t":"hello"} or {"t":"cmd","a":…}. */
+    @Override
+    public void onAppMessage(String json) {
+        handler.post(new AppMsg(json));
+    }
+
+    static void handleApp(String json) {
+        String t = jsonField(json, "t");
+        if ("cmd".equals(t)) {
+            String a = jsonField(json, "a");
+            WearableBleDiagLog.log("applink", "cmd " + a);
+            if ("toggle".equals(a)) {
+                handleKey(XiaomiBandRemote.KEY_PLAY, VOL);
+            } else if ("plus".equals(a)) {
+                handleKey(XiaomiBandRemote.KEY_NEXT, VOL);
+            } else if ("minus".equals(a)) {
+                handleKey(XiaomiBandRemote.KEY_PREV, VOL);
+            } else if ("double".equals(a)) {
+                AiEngine e = AiSession.getEngine();
+                if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null && e.isActivePauseAvailable()) {
+                    AiSession.setActivePause(!e.isActivePauseOn());
+                }
+            } else if ("stop".equals(a)) {
+                if (AiSession.getStage() == AiSession.Stage.RUNNING) {
+                    AiSession.stop();
+                } else {
+                    XemsPanel.press(XemsPanel.PRESS_STOP);
+                }
+            }
+        }
+        handler.postDelayed(new Push(true), 250);
+    }
+
+    /** Tiny reader for our own flat JSON ({"k":"v"}); no nesting needed on this side. */
+    static String jsonField(String json, String key) {
+        if (json == null) {
+            return null;
+        }
+        try {
+            return new org.json.JSONObject(json).optString(key, null);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     static void handleKey(int key, int volume) {
@@ -199,6 +246,51 @@ public final class BandRemote implements XiaomiBandRemote.Listener {
         lastSent = key;
         lastSentMs = now;
         link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
+        sendApp(title, sub, playing, hr, limit);
+    }
+
+    private static String lastMode = "";
+    private static boolean lastRestReady;
+
+    /** The same state for the XEMS app on the band (only once it has said hello). */
+    private static void sendApp(String title, String sub, boolean playing, int hr, int limit) {
+        if (!com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.isLinked()) {
+            return;
+        }
+        AiEngine e = AiSession.getEngine();
+        boolean ai = AiSession.getStage() == AiSession.Stage.RUNNING && e != null;
+        String mode = ai ? "ai" : XemsPanel.isRunning() || trainWasRunning ? "manual" : musicOnly() ? "music" : "idle";
+        double kcal = ai ? AiSession.getKcal() : HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+        boolean restReady = ai && e.getState() == AiEngine.State.REST && e.isRestReady();
+        String vib = "";
+        if (restReady && !lastRestReady) {
+            vib = "long";                           // rest done: next block by the wearer
+        } else if (!mode.equals(lastMode) && lastMode.length() > 0) {
+            vib = "short";
+        }
+        lastMode = mode;
+        lastRestReady = restReady;
+        try {
+            org.json.JSONObject o = new org.json.JSONObject();
+            o.put("t", "state");
+            o.put("mode", mode);
+            o.put("hr", Math.max(0, hr));
+            o.put("z", hr > 0 ? WearableUi.zoneFor(hr, limit) : 0);
+            o.put("title", ai || XemsPanel.isRunning() ? sub : title);
+            o.put("sub", ai || XemsPanel.isRunning() ? "" : sub);
+            o.put("kcal", Math.max(0, Math.round(kcal)));
+            o.put("run", playing);
+            org.json.JSONObject can = new org.json.JSONObject();
+            can.put("plus", ai ? e.canIncrease() : XemsPanel.isRunning());
+            can.put("minus", ai ? e.canReduce() : XemsPanel.isRunning());
+            can.put("dbl", ai && e.isActivePauseAvailable());
+            o.put("can", can);
+            o.put("dbl", ai && e.isActivePauseOn());
+            o.put("vib", vib);
+            com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.send(o.toString());
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("applink", "state: " + t);
+        }
     }
 
     private static String phaseName(AiModel.PhaseId id) {
@@ -245,6 +337,23 @@ public final class BandRemote implements XiaomiBandRemote.Listener {
                 push(force);
             } catch (Throwable t) {
                 XemsGuard.report("BandRemote.push", t);
+            }
+        }
+    }
+
+    static final class AppMsg implements Runnable {
+        private final String json;
+
+        AppMsg(String json) {
+            this.json = json;
+        }
+
+        @Override
+        public void run() {
+            try {
+                handleApp(json);
+            } catch (Throwable t) {
+                XemsGuard.report("BandRemote.app", t);
             }
         }
     }

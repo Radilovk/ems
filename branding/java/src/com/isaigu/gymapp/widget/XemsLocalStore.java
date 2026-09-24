@@ -242,6 +242,9 @@ public final class XemsLocalStore {
         if (programs == null) {
             programs = new ArrayList<>();
         }
+        for (int i = 0; i < programs.size(); i++) {
+            repairSeededProgram(programs.get(i));
+        }
         dm.trainData = programs;
         seedDefaultProgramIfNeeded();
         ActivePauseStorage.mergeList(dm.trainData);
@@ -632,39 +635,43 @@ public final class XemsLocalStore {
 
     // ================================================================ internals
 
+    /**
+     * A tablet with no program gets "Workout 1": the app's own factory template (its units: work
+     * length in seconds, 1200 = 20 min), under our name and a tablet id.
+     */
     private static void seedDefaultProgramIfNeeded() {
         DataMgr dm = DataMgr.getInstance();
         if (dm.trainData != null && !dm.trainData.isEmpty()) {
             return;
         }
-        TrainProgram p = new TrainProgram(Long.valueOf(nextProgramId()), tr("Тренировка 1", "Workout 1"));
-        if (p.programDataBean != null) {
-            p.programDataBean.hz = 85;
-            p.programDataBean.pulseContinue = 4;
-            p.programDataBean.pulsePause = 4;
-            p.programDataBean.workLength = 20;
-            p.programDataBean.strenth = 30;
-        }
-        if (p.muscleTrainingProgramDataBean != null) {
-            p.muscleTrainingProgramDataBean.hz = 85;
-            p.muscleTrainingProgramDataBean.pulseContinue = 4;
-            p.muscleTrainingProgramDataBean.pulsePause = 4;
-            p.muscleTrainingProgramDataBean.workLength = 20;
-        }
-        if (p.aerobicTrainingProgramDataBean != null) {
-            p.aerobicTrainingProgramDataBean.hz = 10;
-            p.aerobicTrainingProgramDataBean.pulseContinue = 6;
-            p.aerobicTrainingProgramDataBean.pulsePause = 2;
-            p.aerobicTrainingProgramDataBean.workLength = 20;
-        }
-        if (p.massageModeProgramDataBean != null) {
-            p.massageModeProgramDataBean.hz = 5;
-            p.massageModeProgramDataBean.pulseContinue = 1;
-            p.massageModeProgramDataBean.pulsePause = 1;
-            p.massageModeProgramDataBean.workLength = 10;
-        }
+        TrainProgram p = TrainProgram.getTrainProgramTemplate1();
+        p.id = Long.valueOf(nextProgramId());
+        p.name = tr("Тренировка 1", "Workout 1");
         dm.trainData = new ArrayList<>();
         dm.trainData.add(p);
+    }
+
+    /**
+     * 1.1.86–1.1.89 seeded "Workout 1" with a work length of 20 — read by the app as 20 seconds,
+     * so the training stopped by itself. Such a program gets the factory template's settings.
+     */
+    private static boolean repairSeededProgram(TrainProgram p) {
+        if (p == null || p.programDataBean == null || p.massageModeProgramDataBean == null
+                || !("Тренировка 1".equals(p.name) || "Workout 1".equals(p.name))) {
+            return false;
+        }
+        if (p.programDataBean.workLength != 20 || p.programDataBean.hz != 85
+                || p.programDataBean.pulseContinue != 4 || p.programDataBean.pulsePause != 4
+                || p.massageModeProgramDataBean.workLength != 10) {
+            return false;
+        }
+        TrainProgram t = TrainProgram.getTrainProgramTemplate1();
+        p.useType = t.useType;
+        p.programDataBean = t.programDataBean;
+        p.muscleTrainingProgramDataBean = t.muscleTrainingProgramDataBean;
+        p.aerobicTrainingProgramDataBean = t.aerobicTrainingProgramDataBean;
+        p.massageModeProgramDataBean = t.massageModeProgramDataBean;
+        return true;
     }
 
     static Context getAppContext() {

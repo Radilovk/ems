@@ -1,43 +1,62 @@
 <template>
-  <div class="screen">
-    <text class="caps">ПУЛС КОНТРОЛ</text>
-
-    <div class="hr-row">
+  <stack class="root" onswipe="onSwipe">
+    <!-- 1 · heart rate -->
+    <div class="screen {{anim}}" if="{{cur === 'hr'}}">
+      <text class="caps pulse-caps">ПУЛС</text>
       <image class="heart {{hr > 0 ? 'beat' : ''}}" src="/common/icons/heart.png" style="animation-duration: {{beatMs}}ms"></image>
       <text class="hr" style="color: {{zoneColor}}">{{hrText}}</text>
-    </div>
-    <div class="zones">
-      <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
-    </div>
-    <text class="limit">лимит {{limit}} · {{pctText}}</text>
-
-    <div class="card {{en ? 'card-on' : ''}}" onclick="toggle">
-      <div class="card-texts">
-        <text class="card-title">Автоконтрол</text>
-        <text class="card-sub" style="color: {{stateColor}}">{{stateText}}</text>
+      <div class="zones">
+        <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
       </div>
-      <div class="sw {{en ? 'sw-on' : ''}}">
-        <div class="knob {{en ? 'knob-on' : ''}}"></div>
+      <text class="sub">лимит {{limit}}{{pctText}}</text>
+    </div>
+
+    <!-- 2 · auto control on / off -->
+    <div class="screen {{anim}}" if="{{cur === 'auto'}}">
+      <text class="caps">АВТОКОНТРОЛ</text>
+      <div class="btn toggle {{ai ? 'off' : ''}} {{pressed ? 'down' : ''}}" style="background-color: {{en ? '#0A84FF' : '#2C2C2E'}}"
+           ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
+        <text class="toggle-text">{{en ? 'ВКЛ' : 'ИЗКЛ'}}</text>
+      </div>
+      <text class="sub" style="color: {{stateColor}}">{{stateText}}</text>
+      <text class="factor" if="{{en && !ai}}" style="color: {{factorColor}}">сила {{sf}}%</text>
+    </div>
+
+    <!-- 3 · last 3 minutes -->
+    <div class="screen {{anim}}" if="{{cur === 'chart'}}">
+      <text class="caps">ПОСЛЕДНИ 3 МИН</text>
+      <div class="chart">
+        <div for="{{bars}}" class="bar" style="height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+      </div>
+      <div class="pair">
+        <div class="stat">
+          <text class="stat-num">{{avgText}}</text>
+          <text class="stat-label">средно</text>
+        </div>
+        <div class="stat">
+          <text class="stat-num stat-max">{{maxText}}</text>
+          <text class="stat-label">връх</text>
+        </div>
       </div>
     </div>
 
-    <div class="factor" if="{{en && !ai}}">
-      <text class="factor-num" style="color: {{factorColor}}">{{sf}}%</text>
-      <text class="factor-label">сила от пулса</text>
+    <div class="dots">
+      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
     </div>
-
-    <div class="chart">
-      <div for="{{bars}}" class="bar" style="height: {{$item.h}}px; background-color: {{$item.c}}"></div>
-    </div>
-    <text class="chart-label">последни 3 мин</text>
-  </div>
+  </stack>
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, BLUE, zoneOf, mods, bind } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, BLUE, zoneOf, mods, bind, setPages, swipe } from '../../common/ui.js'
 
 export default {
   private: {
+    ids: [],
+    idsKey: '',
+    idx: 0,
+    cur: 'hr',
+    dots: [],
+    anim: '',
     hr: 0,
     hrText: '--',
     zoneColor: '#FFFFFF',
@@ -51,15 +70,23 @@ export default {
     stateColor: '#8E8E93',
     sf: 100,
     factorColor: GREEN,
-    bars: []
+    bars: [],
+    avgText: '--',
+    maxText: '--',
+    pressed: false
   },
 
   onInit() {
+    setPages(this, ['hr', 'auto', 'chart'])
     this.unbind = bind(this)
   },
 
   onDestroy() {
     this.unbind()
+  },
+
+  onSwipe(e) {
+    swipe(this, e)
   },
 
   update() {
@@ -80,7 +107,7 @@ export default {
     }
     this.zoneBars = zb
     this.limit = String(lim)
-    this.pctText = s.hr > 0 ? Math.round((s.hr / lim) * 100) + '%' : ''
+    this.pctText = s.hr > 0 ? ' · ' + Math.round((s.hr / lim) * 100) + '%' : ''
 
     this.en = !!hg.en
     this.ai = !!hg.ai
@@ -88,7 +115,7 @@ export default {
       this.stateText = 'AI сесията управлява'
       this.stateColor = BLUE
     } else if (!hg.en) {
-      this.stateText = 'изключен'
+      this.stateText = 'пулсът не пипа силата'
       this.stateColor = '#8E8E93'
     } else if (hg.hold) {
       this.stateText = 'задържа силата'
@@ -112,9 +139,19 @@ export default {
     lo = Math.max(40, lo - 8)
     hi = Math.max(hi, lo + 20)
     this.bars = hh.map((v) => ({
-      h: v > 0 ? Math.round(6 + ((v - lo) / (hi - lo)) * 60) : 3,
+      h: v > 0 ? Math.round(8 + ((v - lo) / (hi - lo)) * 150) : 4,
       c: v > 0 ? ZONE[zoneOf(v, lim)] : '#2C2C2E'
     }))
+    this.avgText = s.avg > 0 ? String(s.avg) : '--'
+    this.maxText = s.max > 0 ? String(s.max) : '--'
+  },
+
+  press() {
+    this.pressed = true
+  },
+
+  release() {
+    this.pressed = false
   },
 
   toggle() {
@@ -128,27 +165,120 @@ export default {
 </script>
 
 <style>
+/* ---- common (tools/gen-pages.py stamps this into every page) ---- */
+.root {
+  width: 212px;
+  height: 520px;
+  background-color: #000000;
+}
 .screen {
   width: 212px;
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 26px;
+  padding-top: 34px;
   background-color: #000000;
 }
-.caps {
-  font-size: 20px;
-  font-weight: bold;
-  color: #5ac8fa;
+.in-up {
+  animation-name: inUp;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
 }
-.hr-row {
-  flex-direction: row;
+.in-down {
+  animation-name: inDown;
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+.dots {
+  width: 16px;
+  height: 520px;
+  margin-left: 196px;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
+.pdot {
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background-color: #3a3a3c;
+}
+.pdot-on {
+  height: 22px;
+  background-color: #ffffff;
+}
+.caps {
+  font-size: 22px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.sub {
+  width: 196px;
+  text-align: center;
+  font-size: 22px;
+  color: #aeaeb2;
+}
+.down {
+  transform: scale(0.92);
+}
+.btn {
+  justify-content: center;
+  align-items: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.off {
+  opacity: 0.3;
+}
+@keyframes inUp {
+  from {
+    transform: translateY(90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes inDown {
+  from {
+    transform: translateY(-90px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes breathe {
+  from {
+    transform: scale(0.86);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.12);
+    opacity: 0.2;
+  }
+}
+@keyframes beat {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.25);
+  }
+}
+
+/* ---- page ---- */
+.pulse-caps {
+  color: #5ac8fa;
+}
 .heart {
-  width: 36px;
-  height: 36px;
-  margin-right: 8px;
+  width: 48px;
+  height: 48px;
+  margin-top: 30px;
 }
 .beat {
   animation-name: beat;
@@ -156,97 +286,49 @@ export default {
   animation-direction: alternate;
 }
 .hr {
-  font-size: 90px;
+  font-size: 110px;
   font-weight: bold;
 }
 .zones {
   flex-direction: row;
   align-items: center;
-  height: 14px;
+  height: 18px;
+  margin-top: 6px;
 }
 .zseg {
   width: 32px;
-  height: 6px;
+  height: 8px;
   margin-left: 2px;
   margin-right: 2px;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 .zseg-on {
-  height: 12px;
-  border-radius: 6px;
+  height: 16px;
+  border-radius: 8px;
 }
-.limit {
-  margin-top: 8px;
-  font-size: 21px;
-  color: #aeaeb2;
+.sub {
+  margin-top: 16px;
 }
-.card {
-  width: 200px;
-  height: 76px;
-  margin-top: 14px;
-  border-radius: 38px;
-  background-color: #1c1c1e;
-  flex-direction: row;
-  align-items: center;
-  padding-left: 20px;
-  padding-right: 12px;
+.toggle {
+  width: 170px;
+  height: 170px;
+  margin-top: 40px;
+  border-radius: 85px;
 }
-.card-on {
-  background-color: #10283a;
-}
-.card-texts {
-  flex: 1;
-  flex-direction: column;
-}
-.card-title {
-  font-size: 20px;
+.toggle-text {
+  font-size: 40px;
   font-weight: bold;
   color: #ffffff;
 }
-.card-sub {
-  font-size: 18px;
-}
-.sw {
-  width: 54px;
-  height: 32px;
-  border-radius: 16px;
-  background-color: #3a3a3c;
-  padding-left: 3px;
-  align-items: center;
-  transition-property: background-color;
-  transition-duration: 200ms;
-}
-.sw-on {
-  background-color: #5ac8fa;
-}
-.knob {
-  width: 26px;
-  height: 26px;
-  border-radius: 13px;
-  background-color: #ffffff;
-  transition-property: transform;
-  transition-duration: 200ms;
-}
-.knob-on {
-  transform: translateX(22px);
-}
 .factor {
-  margin-top: 10px;
-  flex-direction: column;
-  align-items: center;
-}
-.factor-num {
-  font-size: 44px;
+  margin-top: 16px;
+  font-size: 32px;
   font-weight: bold;
-}
-.factor-label {
-  font-size: 18px;
-  color: #8e8e93;
 }
 .chart {
   width: 190px;
-  height: 70px;
-  margin-top: 12px;
+  height: 170px;
+  margin-top: 26px;
   flex-direction: row;
   align-items: flex-end;
 }
@@ -256,17 +338,31 @@ export default {
   margin-right: 1px;
   border-radius: 2px;
 }
-.chart-label {
-  margin-top: 4px;
-  font-size: 18px;
-  color: #636366;
+.pair {
+  flex-direction: row;
+  margin-top: 26px;
 }
-@keyframes beat {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.25);
-  }
+.stat {
+  width: 94px;
+  height: 96px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 24px;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.stat-num {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.stat-max {
+  color: #ff453a;
+}
+.stat-label {
+  font-size: 20px;
+  color: #8e8e93;
 }
 </style>

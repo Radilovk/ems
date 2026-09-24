@@ -6,6 +6,7 @@ set -euo pipefail
 D="$(cd "$(dirname "$0")" && pwd)"
 cd "${D}"
 [[ -d node_modules/aiot-toolkit ]] || npm i --no-audit --no-fund
+python3 tools/gen-pages.py
 rm -rf build dist
 npx aiot build
 cp dist/*.rpk "${D}/xems-band.rpk"

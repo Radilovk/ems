@@ -74,7 +74,7 @@
     .line 219
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$Progress;->app:Landroid/content/Context;
 
-    const/4 v1, 0x6
+    const/4 v1, 0x7
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandAppVersion(Landroid/content/Context;I)V
 

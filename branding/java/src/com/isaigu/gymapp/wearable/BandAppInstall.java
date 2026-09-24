@@ -28,7 +28,7 @@ public final class BandAppInstall {
     public static final String ASSET = "xems-band.rpk";
     public static final String PACKAGE = "com.xems.band";
     /** versionCode in band-app/src/manifest.json. */
-    public static final int VERSION = 6;
+    public static final int VERSION = 7;
 
     private static final long AUTO_DELAY_MS = 6000L;
     private static final long BUSY_RETRY_MS = 60000L;

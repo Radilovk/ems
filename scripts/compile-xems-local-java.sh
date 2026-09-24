@@ -51,7 +51,7 @@ mkdir -p "${OUT_DIR}/dex"
 (
   cd "${CLASSES_DIR}"
   "${D8}" --min-api 21 --lib "${ANDROID_JAR}" --classpath "${CLASSES_DIR}" --output "${OUT_DIR}/dex" \
-    com/isaigu/gymapp/widget/XemsLocalStore.class \
+    com/isaigu/gymapp/widget/XemsLocalStore*.class \
     com/isaigu/gymapp/widget/XemsLocalApi*.class \
     com/isaigu/gymapp/widget/XemsLocalSection*.class
 )

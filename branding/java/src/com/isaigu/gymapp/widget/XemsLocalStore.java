@@ -51,6 +51,8 @@ public final class XemsLocalStore {
     private static final String KEY_NEXT_PROGRAM_ID = "next_program_id";
     private static final String KEY_NEXT_DEVICE_ID = "next_device_id";
     private static final String KEY_MIGRATED = "migrated_v1";
+    /** Programs deleted on the tablet: a cloud sync in the setup must not bring them back. */
+    private static final String KEY_DELETED_PROGRAMS = "deleted_program_ids";
 
     static final String FILE_USERS = "file_name_user_data";
     static final String FILE_OFFLINE_USERS = "file_name_offline_user_data";
@@ -96,8 +98,118 @@ public final class XemsLocalStore {
             migrateOnce(ctx);
             MessageDispatcher.dispatchEventMessage((short) 0x69);
             MessageDispatcher.dispatchEventMessage((short) 0x6a);
+            if (fragment != null && isAdminSession()) {
+                // Admin setup (0123): everything visible — the coach's cloud customers and
+                // programs join the tablet's (MainFragment's own refresh, through ApiMgr).
+                XemsLocalApi.requestCloudSync();
+                callPrivate(fragment, "initUsers");
+                callPrivate(fragment, "initTrainPrograms");
+            }
         } catch (Throwable t) {
             android.util.Log.e("xems_local", "bootstrapOnline", t);
+        }
+    }
+
+    private static void callPrivate(Object target, String method) {
+        try {
+            java.lang.reflect.Method m = target.getClass().getDeclaredMethod(method);
+            m.setAccessible(true);
+            m.invoke(target);
+        } catch (Throwable t) {
+            android.util.Log.e("xems_local", method, t);
+        }
+    }
+
+    /** Cloud customers the tablet does not have yet (same id = the tablet's copy stays). */
+    static void mergeCloudUsers(List<?> cloud) {
+        DataMgr dm = DataMgr.getInstance();
+        if (dm.trainUsers == null) {
+            dm.trainUsers = new ArrayList<>();
+        }
+        boolean added = false;
+        for (int i = 0; i < cloud.size(); i++) {
+            Object o = cloud.get(i);
+            if (!(o instanceof TrainUser)) {
+                continue;
+            }
+            TrainUser u = (TrainUser) o;
+            boolean known = false;
+            for (int j = 0; j < dm.trainUsers.size() && !known; j++) {
+                TrainUser l = dm.trainUsers.get(j);
+                known = l != null && l.id == u.id;
+            }
+            if (!known) {
+                dm.trainUsers.add(u);
+                added = true;
+            }
+        }
+        if (added) {
+            saveUsers();
+        }
+    }
+
+    /** Cloud programs the tablet does not have and did not delete. */
+    static void mergeCloudPrograms(List<?> cloud) {
+        DataMgr dm = DataMgr.getInstance();
+        if (dm.trainData == null) {
+            dm.trainData = new ArrayList<>();
+        }
+        Set<String> deleted = deletedPrograms();
+        List<TrainProgram> fresh = new ArrayList<>();
+        for (int i = 0; i < cloud.size(); i++) {
+            Object o = cloud.get(i);
+            if (!(o instanceof TrainProgram)) {
+                continue;
+            }
+            TrainProgram p = (TrainProgram) o;
+            if (p.id == null || deleted.contains(String.valueOf(p.id))) {
+                continue;
+            }
+            boolean known = false;
+            for (int j = 0; j < dm.trainData.size() && !known; j++) {
+                TrainProgram l = dm.trainData.get(j);
+                known = l != null && p.id.equals(l.id);
+            }
+            if (!known) {
+                fresh.add(p);
+            }
+        }
+        if (!fresh.isEmpty()) {
+            ActivePauseStorage.mergeList(fresh);
+            dm.trainData.addAll(fresh);
+            savePrograms();
+        }
+    }
+
+    private static Set<String> deletedPrograms() {
+        Set<String> out = new HashSet<>();
+        Context ctx = getAppContext();
+        if (ctx == null) {
+            return out;
+        }
+        for (String id : prefs(ctx).getString(KEY_DELETED_PROGRAMS, "").split(",")) {
+            if (id.trim().length() > 0) {
+                out.add(id.trim());
+            }
+        }
+        return out;
+    }
+
+    private static void rememberDeletedProgram(long id) {
+        Context ctx = getAppContext();
+        if (ctx == null) {
+            return;
+        }
+        Set<String> ids = deletedPrograms();
+        if (ids.add(String.valueOf(id))) {
+            StringBuilder b = new StringBuilder();
+            for (String s : ids) {
+                if (b.length() > 0) {
+                    b.append(',');
+                }
+                b.append(s);
+            }
+            prefs(ctx).edit().putString(KEY_DELETED_PROGRAMS, b.toString()).apply();
         }
     }
 
@@ -212,41 +324,67 @@ public final class XemsLocalStore {
         return out;
     }
 
+    private static final android.os.Handler MAIN = new android.os.Handler(android.os.Looper.getMainLooper());
+
     /**
-     * BLE scan found a suit that is not in the dialog list yet. It is shown when it may be used:
-     * any suit in the setup, an allowed one after (e.g. a suit the server just added). Only shown
-     * here; it is kept on the tablet once it connects ({@link #onDeviceConnected}).
-     * True when it was added (the adapter then starts its timer and redraws).
+     * BLE scan found a suit that is not in the dialog list yet (called from DeviceAdapter
+     * .discoverDevice on the BLE thread). It is shown when it may be used: any suit in the setup,
+     * an allowed one after (e.g. a suit the server just added). The list belongs to the
+     * RecyclerView, so it only changes on the main thread. Kept on the tablet once it connects
+     * ({@link #onDeviceConnected}).
      */
-    public static boolean addDiscoveredDevice(List<DeviceBean> list, String mac, String sign) {
+    public static void onDiscovered(final Object adapter, final String mac, final String sign) {
         try {
-            if (list == null || TextUtils.isEmpty(mac) || TextUtils.isEmpty(sign)) {
-                return false;
+            if (adapter == null || TextUtils.isEmpty(mac) || TextUtils.isEmpty(sign)) {
+                return;
             }
             if (!isAdminSession() && !isAllowed(getAppContext(), mac)) {
-                return false;
+                return;
+            }
+            MAIN.post(new Runnable() {
+                @Override
+                public void run() {
+                    showDiscovered(adapter, mac, sign);
+                }
+            });
+        } catch (Throwable t) {
+            android.util.Log.e("xems_local", "onDiscovered", t);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void showDiscovered(Object adapter, String mac, String sign) {
+        try {
+            java.lang.reflect.Field f = adapter.getClass().getDeclaredField("list");
+            f.setAccessible(true);
+            List<DeviceBean> list = (List<DeviceBean>) f.get(adapter);
+            if (list == null) {
+                return;
             }
             String k = macKey(mac);
-            for (int i = 0; i < list.size(); i++) {
-                DeviceBean d = list.get(i);
-                if (d != null && k.equals(macKey(d.macAddress))) {
-                    d.connectedSign = sign;
-                    return false;
+            synchronized (list) {
+                for (int i = 0; i < list.size(); i++) {
+                    DeviceBean d = list.get(i);
+                    if (d != null && k.equals(macKey(d.macAddress))) {
+                        return;                      // already there (the adapter keeps it fresh)
+                    }
                 }
+                DeviceBean bean = knownDevice(mac);
+                if (bean == null) {
+                    bean = new DeviceBean();
+                    bean.macAddress = mac;
+                    bean.name = mac;
+                    bean.id = Long.valueOf(nextDeviceId());
+                }
+                bean.connectedSign = sign;
+                list.add(bean);
             }
-            DeviceBean bean = knownDevice(mac);
-            if (bean == null) {
-                bean = new DeviceBean();
-                bean.macAddress = mac;
-                bean.name = mac;
-                bean.id = Long.valueOf(nextDeviceId());
-            }
-            bean.connectedSign = sign;
-            list.add(bean);
-            return true;
+            adapter.getClass().getMethod("notifyDataSetChanged").invoke(adapter);
+            java.lang.reflect.Method timer = adapter.getClass().getDeclaredMethod("start_mac_address_timer", String.class);
+            timer.setAccessible(true);
+            timer.invoke(adapter, mac);
         } catch (Throwable t) {
-            android.util.Log.e("xems_local", "addDiscoveredDevice", t);
-            return false;
+            android.util.Log.e("xems_local", "showDiscovered", t);
         }
     }
 
@@ -364,6 +502,7 @@ public final class XemsLocalStore {
     }
 
     static void removeProgram(long id) {
+        rememberDeletedProgram(id);
         DataMgr dm = DataMgr.getInstance();
         if (dm.trainData == null) {
             return;

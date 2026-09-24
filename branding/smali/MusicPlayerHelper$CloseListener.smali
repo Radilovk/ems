@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1882
+    .line 1924
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 2
 
     .prologue
-    .line 1885
+    .line 1927
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->closePlayer()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$800()V
 
-    .line 1886
+    .line 1928
     return-void
 .end method

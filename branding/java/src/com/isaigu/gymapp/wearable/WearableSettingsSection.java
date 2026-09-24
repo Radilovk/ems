@@ -114,14 +114,21 @@ public final class WearableSettingsSection {
         card.addView(keyRow);
 
         // Radio: Band 8 and older use BLE; Band 8 Pro / 9 / 10 use Bluetooth Classic (SPP).
-        com.isaigu.gymapp.widget.XemsUi.init(a);
-        TextView linkLabel = label(a, WearableUi.tr("Модел гривна", "Band model"), mutedCol);
-        linkLabel.setPadding(0, WearableUi.dp(a, 14), 0, WearableUi.dp(a, 6));
-        card.addView(linkLabel);
-        card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, new String[] {
-                WearableUi.tr("Авто", "Auto"),
-                WearableUi.tr("Band 8 и по-стари", "Band 8 and older"),
-                "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
+        // Picked from the paired band's name; the manual choice appears only when the name is
+        // not recognised (or the trainer already forced one).
+        String bandName = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a,
+                WearableConfig.getBandMac(a));
+        boolean known = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.isKnownModel(bandName);
+        if (!known || WearableConfig.getBandTransport(a) != 0) {
+            com.isaigu.gymapp.widget.XemsUi.init(a);
+            TextView linkLabel = label(a, WearableUi.tr("Модел гривна", "Band model"), mutedCol);
+            linkLabel.setPadding(0, WearableUi.dp(a, 14), 0, WearableUi.dp(a, 6));
+            card.addView(linkLabel);
+            card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, new String[] {
+                    WearableUi.tr("Авто", "Auto"),
+                    WearableUi.tr("Band 8 и по-стари", "Band 8 and older"),
+                    "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
+        }
         bandInfoView = WearableUi.text(a, "", 13f, mutedCol, false);
         bandInfoView.setPadding(0, WearableUi.dp(a, 6), 0, 0);
         card.addView(bandInfoView);

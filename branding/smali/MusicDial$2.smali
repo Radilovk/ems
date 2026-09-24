@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 107
+    .line 114
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,11 +34,11 @@
     .registers 3
 
     .prologue
-    .line 110
+    .line 117
     const/4 v0, 0x1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->skipTrack(I)V
 
-    .line 111
+    .line 118
     return-void
 .end method

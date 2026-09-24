@@ -34,25 +34,25 @@
     .registers 6
 
     .prologue
-    .line 2168
+    .line 2210
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2169
+    .line 2211
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->which:I
 
-    .line 2170
+    .line 2212
     iput p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->step:I
 
-    .line 2171
+    .line 2213
     iput p3, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->min:I
 
-    .line 2172
+    .line 2214
     iput p4, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->max:I
 
-    .line 2173
+    .line 2215
     iput-object p5, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->stepper:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 2174
+    .line 2216
     return-void
 .end method
 
@@ -62,7 +62,7 @@
     .registers 6
 
     .prologue
-    .line 2178
+    .line 2220
     iget v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->min:I
 
     iget v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->max:I
@@ -88,7 +88,7 @@
 
     move-result v0
 
-    .line 2179
+    .line 2221
     new-instance v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;
 
     iget v2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->which:I
@@ -99,7 +99,7 @@
 
     invoke-virtual {v1, v2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;->onAmountChange(Landroid/view/View;I)V
 
-    .line 2180
+    .line 2222
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->stepper:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
@@ -110,6 +110,6 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 2181
+    .line 2223
     return-void
 .end method

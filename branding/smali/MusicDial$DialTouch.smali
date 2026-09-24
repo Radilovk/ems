@@ -36,7 +36,7 @@
     .registers 1
 
     .prologue
-    .line 235
+    .line 247
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -54,7 +54,7 @@
 
     const/4 v1, 0x1
 
-    .line 254
+    .line 266
     invoke-virtual {p1}, Landroid/view/View;->getWidth()I
 
     move-result v0
@@ -63,7 +63,7 @@
 
     div-float/2addr v0, v4
 
-    .line 255
+    .line 267
     invoke-virtual {p1}, Landroid/view/View;->getHeight()I
 
     move-result v3
@@ -72,21 +72,21 @@
 
     div-float/2addr v3, v4
 
-    .line 256
+    .line 268
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getX()F
 
     move-result v4
 
     sub-float/2addr v4, v0
 
-    .line 257
+    .line 269
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getY()F
 
     move-result v5
 
     sub-float v3, v5, v3
 
-    .line 258
+    .line 270
     mul-float v5, v4, v4
 
     mul-float v6, v3, v3
@@ -101,22 +101,22 @@
 
     double-to-float v5, v6
 
-    .line 259
+    .line 271
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v6
 
     packed-switch v6, :pswitch_data_114
 
-    .line 299
+    .line 311
     iput-boolean v2, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seeking:Z
 
-    .line 300
+    .line 312
     :cond_31
     :goto_31
     return v1
 
-    .line 261
+    .line 273
     :pswitch_32
     const v6, 0x3f333333    # 0.7f
 
@@ -137,24 +137,24 @@
     :goto_41
     iput-boolean v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seeking:Z
 
-    .line 262
+    .line 274
     iput-boolean v2, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->moved:Z
 
-    .line 263
+    .line 275
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->downRawX:F
 
-    .line 264
+    .line 276
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->downRawY:F
 
-    .line 265
+    .line 277
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seeking:Z
 
     if-nez v0, :cond_86
@@ -177,7 +177,7 @@
 
     if-eqz v0, :cond_86
 
-    .line 266
+    .line 278
     # getter for: Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicDial;->access$000()Landroid/support/v7/app/AlertDialog;
 
@@ -191,7 +191,7 @@
 
     move-result-object v0
 
-    .line 267
+    .line 279
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result v2
@@ -204,7 +204,7 @@
 
     iput v2, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->dx:F
 
-    .line 268
+    .line 280
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v2
@@ -217,13 +217,13 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->dy:F
 
-    .line 270
+    .line 282
     :cond_86
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seeking:Z
 
     if-eqz v0, :cond_31
 
-    .line 271
+    .line 283
     invoke-direct {p0, v4, v3}, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seekTo(FF)V
 
     goto :goto_31
@@ -231,21 +231,21 @@
     :cond_8e
     move v0, v2
 
-    .line 261
+    .line 273
     goto :goto_41
 
-    .line 275
+    .line 287
     :pswitch_90
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seeking:Z
 
     if-eqz v0, :cond_98
 
-    .line 276
+    .line 288
     invoke-direct {p0, v4, v3}, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seekTo(FF)V
 
     goto :goto_31
 
-    .line 279
+    .line 291
     :cond_98
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
@@ -255,7 +255,7 @@
 
     sub-float/2addr v0, v2
 
-    .line 280
+    .line 292
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v2
@@ -264,7 +264,7 @@
 
     sub-float/2addr v2, v3
 
-    .line 281
+    .line 293
     mul-float/2addr v0, v0
 
     mul-float/2addr v2, v2
@@ -295,10 +295,10 @@
 
     if-lez v0, :cond_c1
 
-    .line 282
+    .line 294
     iput-boolean v1, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->moved:Z
 
-    .line 284
+    .line 296
     :cond_c1
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->moved:Z
 
@@ -322,7 +322,7 @@
 
     if-eqz v0, :cond_31
 
-    .line 285
+    .line 297
     # getter for: Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicDial;->access$000()Landroid/support/v7/app/AlertDialog;
 
@@ -336,7 +336,7 @@
 
     move-result-object v0
 
-    .line 286
+    .line 298
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result v2
@@ -349,7 +349,7 @@
 
     iput v2, v0, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 287
+    .line 299
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v2
@@ -362,7 +362,7 @@
 
     iput v2, v0, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 288
+    .line 300
     # getter for: Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicDial;->access$000()Landroid/support/v7/app/AlertDialog;
 
@@ -376,7 +376,7 @@
 
     goto/16 :goto_31
 
-    .line 292
+    .line 304
     :pswitch_102
     iget-boolean v0, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seeking:Z
 
@@ -386,19 +386,19 @@
 
     if-nez v0, :cond_110
 
-    .line 293
+    .line 305
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 294
+    .line 306
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->togglePlayPause()V
 
-    .line 296
+    .line 308
     :cond_110
     iput-boolean v2, p0, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->seeking:Z
 
     goto/16 :goto_31
 
-    .line 259
+    .line 271
     :pswitch_data_114
     .packed-switch 0x0
         :pswitch_32
@@ -413,19 +413,19 @@
     .prologue
     const-wide v6, 0x401921fb54442d18L    # 6.283185307179586
 
-    .line 305
+    .line 317
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result v2
 
-    .line 306
+    .line 318
     if-gtz v2, :cond_c
 
-    .line 316
+    .line 328
     :goto_b
     return-void
 
-    .line 309
+    .line 321
     :cond_c
     float-to-double v0, p1
 
@@ -437,17 +437,17 @@
 
     move-result-wide v0
 
-    .line 310
+    .line 322
     const-wide/16 v4, 0x0
 
     cmpg-double v3, v0, v4
 
     if-gez v3, :cond_1a
 
-    .line 311
+    .line 323
     add-double/2addr v0, v6
 
-    .line 313
+    .line 325
     :cond_1a
     div-double/2addr v0, v6
 
@@ -457,10 +457,10 @@
 
     double-to-int v0, v0
 
-    .line 314
+    .line 326
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 315
+    .line 327
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicDial;->refresh()V
 
     goto :goto_b
@@ -472,7 +472,7 @@
     .registers 5
 
     .prologue
-    .line 246
+    .line 258
     :try_start_0
     invoke-direct {p0, p1, p2}, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;->handle(Landroid/view/View;Landroid/view/MotionEvent;)Z
     :try_end_3
@@ -480,20 +480,20 @@
 
     move-result v0
 
-    .line 249
+    .line 261
     :goto_4
     return v0
 
-    .line 247
+    .line 259
     :catch_5
     move-exception v0
 
-    .line 248
+    .line 260
     const-string v1, "MusicDial.touch"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 249
+    .line 261
     const/4 v0, 0x0
 
     goto :goto_4

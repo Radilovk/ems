@@ -39,6 +39,8 @@ final class MusicDial {
     private static TimerRingView ring;
     private static MusicVisualizerView viz;
     private static TextView time;
+    /** Drawn ▶ when idle (the font glyph sits off-centre). */
+    private static View playView;
     private static TextView title;
     private static int lastX = Integer.MIN_VALUE;
     private static int lastY;
@@ -85,6 +87,11 @@ final class MusicDial {
         time.setGravity(Gravity.CENTER);
         time.setLetterSpacing(-0.03f);
         center.addView(time);
+        playView = new View(a);
+        playView.setBackground(new com.isaigu.gymapp.widget.XemsIcon(
+                com.isaigu.gymapp.widget.XemsIcon.PLAY, XemsUi.GO_TEXT));
+        playView.setVisibility(View.GONE);
+        center.addView(playView, new LinearLayout.LayoutParams(XemsUi.dp(a, 52), XemsUi.dp(a, 52)));
         title = XemsUi.text(a, "", 12.5f, XemsUi.MUTED, false);
         title.setGravity(Gravity.CENTER);
         title.setMaxLines(2);
@@ -194,6 +201,7 @@ final class MusicDial {
         ring = null;
         viz = null;
         time = null;
+        playView = null;
         title = null;
     }
 
@@ -209,7 +217,11 @@ final class MusicDial {
             boolean playing = running && !MusicSync.isPlaybackPaused();
             ring.setElapsedFraction(dur > 0 ? Math.min(1f, pos / (float) dur) : 0f);
             ring.setProgressColor(playing ? XemsUi.GO_TEXT : XemsUi.AMBER);
-            time.setText(running ? fmt(pos) : "▶");
+            time.setText(running ? fmt(pos) : "");
+            time.setVisibility(running ? View.VISIBLE : View.GONE);
+            if (playView != null) {
+                playView.setVisibility(running ? View.GONE : View.VISIBLE);
+            }
             time.setTextColor(playing ? XemsUi.TEXT : XemsUi.GO_TEXT);
             String t = MusicPlayerHelper.currentTitle();
             title.setText(MusicSync.isPlayerPreparing()

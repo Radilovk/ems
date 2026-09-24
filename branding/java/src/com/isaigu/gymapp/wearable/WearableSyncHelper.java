@@ -408,9 +408,28 @@ public final class WearableSyncHelper {
             com.isaigu.gymapp.widget.XemsUi.init(a);
             View connect = content.findViewById(ID_CONNECT);
             View activate = content.findViewById(ID_ACTIVATE);
-            if (connect instanceof TextView) {
-                styleKitButton((TextView) connect, com.isaigu.gymapp.widget.XemsUi.SECONDARY);
-                ((TextView) connect).setText(WearableUi.tr("↻  Свържи гривната", "↻  Connect band"));
+            // "Activate dial" connects the band too — a separate connect button is redundant.
+            if (connect != null) {
+                connect.setVisibility(View.GONE);
+            }
+            // The band is the only HR source: an on/off "direct BLE" switch means nothing.
+            if (enabledSwitch != null) {
+                enabledSwitch.setChecked(true);
+                WearableConfig.setEnabled(a, true);
+                if (enabledSwitch.getParent() instanceof View) {
+                    ((View) enabledSwitch.getParent()).setVisibility(View.GONE);
+                }
+            }
+            // The reduce step is the control logic's own decision (settle time, forecast).
+            if (stepView != null) {
+                stepView.setVisibility(View.GONE);
+                if (stepView.getParent() instanceof android.view.ViewGroup) {
+                    android.view.ViewGroup row = (android.view.ViewGroup) stepView.getParent();
+                    int i = row.indexOfChild(stepView);
+                    if (i > 0) {
+                        row.getChildAt(i - 1).setVisibility(View.GONE);   // its "Step" label
+                    }
+                }
             }
             if (activate instanceof TextView) {
                 styleKitButton((TextView) activate, com.isaigu.gymapp.widget.XemsUi.PRIMARY);
@@ -465,7 +484,6 @@ public final class WearableSyncHelper {
         if (activity == null || content == null) {
             return;
         }
-        int text = WearableUi.color(activity, "text_primary", 0xFFFFFFFF);
         try {
             if (bandMacView != null && bandMacView.getParent() instanceof android.widget.LinearLayout) {
                 android.widget.LinearLayout macRow =
@@ -489,16 +507,7 @@ public final class WearableSyncHelper {
             authKeyView.addTextChangedListener(new AuthKeyWatcher());
             colorAuthKey(authKeyView.getText().toString());
         }
-        View inner = content instanceof android.view.ViewGroup
-                && ((android.view.ViewGroup) content).getChildCount() > 0
-                ? ((android.view.ViewGroup) content).getChildAt(0) : null;
-        if (inner instanceof android.widget.LinearLayout) {
-            TextView data = WearableUi.button(activity,
-                    WearableUi.tr("Данни от гривната", "Band data"),
-                    WearableUi.color(activity, "bg_elevated", 0xFF2A2A2A), text);
-            data.setOnClickListener(new LiveDataListener());
-            ((android.widget.LinearLayout) inner).addView(data, WearableUi.matchWrap(activity, 12));
-        }
+        // Raw band data stays one tap away on the dial (i), not in this settings sheet.
     }
 
     private static boolean isValidAuthKey(String key) {

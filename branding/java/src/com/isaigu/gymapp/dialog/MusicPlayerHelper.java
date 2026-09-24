@@ -90,6 +90,30 @@ public final class MusicPlayerHelper {
     private static CircleSeekBar seekBar;
     private static MusicVisualizerView visualizerView;
     private static TextView playPauseBtn;
+    private static com.isaigu.gymapp.widget.XemsIcon playIcon;
+
+    /** Keep the play / pause icon at 44 % of the round button, centred. */
+    static final class PlayIconInset implements View.OnLayoutChangeListener {
+        private final android.graphics.drawable.LayerDrawable layers;
+
+        PlayIconInset(android.graphics.drawable.LayerDrawable layers) {
+            this.layers = layers;
+        }
+
+        @Override
+        public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
+            int w = r - l;
+            int h = b - t;
+            if (w <= 0 || h <= 0) {
+                return;
+            }
+            int size = Math.round(Math.min(w, h) * 0.44f);
+            int ix = (w - size) / 2;
+            int iy = (h - size) / 2;
+            layers.setLayerInset(1, ix, iy, w - size - ix, h - size - iy);
+            v.invalidate();
+        }
+    }
     private static View playLoadingView;
     private static View controlPanel;
     private static View playlistPanel;
@@ -815,7 +839,19 @@ public final class MusicPlayerHelper {
                 GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                         new int[] {XemsUi.GO, XemsUi.mix(XemsUi.GO, 0xFF000000, 0.2f)});
                 g.setShape(GradientDrawable.OVAL);
-                playPauseBtn.setBackgroundDrawable(XemsUi.ripple(g, 0xFFFFFFFF, dp(a, 56)));
+                // Drawn icon instead of the ▶ / ⏸ font glyphs: those sit off the circle's centre
+                // (font side bearings and baseline), the icon is centred on its optical centre.
+                playIcon = new com.isaigu.gymapp.widget.XemsIcon(com.isaigu.gymapp.widget.XemsIcon.PLAY, 0xFFFFFFFF);
+                android.graphics.drawable.LayerDrawable layers = new android.graphics.drawable.LayerDrawable(
+                        new android.graphics.drawable.Drawable[] {XemsUi.ripple(g, 0xFFFFFFFF, dp(a, 56)), playIcon});
+                playPauseBtn.setBackgroundDrawable(layers);
+                PlayIconInset inset = new PlayIconInset(layers);
+                playPauseBtn.addOnLayoutChangeListener(inset);
+                if (playPauseBtn.getWidth() > 0) {
+                    inset.onLayoutChange(playPauseBtn, 0, 0, playPauseBtn.getWidth(), playPauseBtn.getHeight(),
+                            0, 0, 0, 0);
+                }
+                playPauseBtn.setText("");
                 playPauseBtn.setTextColor(0xFFFFFFFF);
                 playPauseBtn.setElevation(dp(a, 6));
                 XemsUi.pressable(playPauseBtn);
@@ -1098,7 +1134,12 @@ public final class MusicPlayerHelper {
             return;
         }
         boolean playing = MusicSync.isRunning() && MusicSync.isPlayerMode() && !MusicSync.isPlaybackPaused();
-        playPauseBtn.setText(playing ? "\u23F8" : "\u25B6");
+        if (playIcon != null) {
+            playPauseBtn.setText("");
+            playIcon.setType(playing ? com.isaigu.gymapp.widget.XemsIcon.PAUSE : com.isaigu.gymapp.widget.XemsIcon.PLAY);
+        } else {
+            playPauseBtn.setText(playing ? "\u23F8" : "\u25B6");
+        }
     }
 
     private static void startProgressUpdates() {
@@ -1618,6 +1659,7 @@ public final class MusicPlayerHelper {
         overlayContent = null;
         seekBar = null;
         playPauseBtn = null;
+        playIcon = null;
         controlPanel = null;
         playlistPanel = null;
         playlistList = null;

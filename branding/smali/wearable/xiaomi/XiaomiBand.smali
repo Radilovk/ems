@@ -30,13 +30,13 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 82
+    .line 94
     :try_start_1
     invoke-static {}, Landroid/bluetooth/BluetoothAdapter;->getDefaultAdapter()Landroid/bluetooth/BluetoothAdapter;
 
     move-result-object v1
 
-    .line 83
+    .line 95
     if-eqz v1, :cond_f
 
     if-eqz p1, :cond_f
@@ -47,12 +47,12 @@
 
     if-nez v2, :cond_10
 
-    .line 89
+    .line 101
     :cond_f
     :goto_f
     return-object v0
 
-    .line 86
+    .line 98
     :cond_10
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -66,7 +66,7 @@
 
     move-result-object v1
 
-    .line 87
+    .line 99
     invoke-virtual {v1}, Landroid/bluetooth/BluetoothDevice;->getName()Ljava/lang/String;
     :try_end_1f
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1f} :catch_21
@@ -75,7 +75,7 @@
 
     goto :goto_f
 
-    .line 88
+    .line 100
     :catch_21
     move-exception v1
 
@@ -111,6 +111,66 @@
     goto :goto_c
 .end method
 
+.method public static isKnownModel(Ljava/lang/String;)Z
+    .registers 4
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 72
+    if-nez p0, :cond_4
+
+    .line 76
+    :cond_3
+    :goto_3
+    return v0
+
+    .line 75
+    :cond_4
+    invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 76
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->usesClassic(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_26
+
+    const-string v2, "^Xiaomi( Smart)? Band \\d+( Active| Pro)? [0-9A-Za-z]{4}$"
+
+    .line 77
+    invoke-virtual {v1, v2}, Ljava/lang/String;->matches(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_26
+
+    const-string v2, "^Redmi (Smart )?Band.*"
+
+    .line 78
+    invoke-virtual {v1, v2}, Ljava/lang/String;->matches(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_26
+
+    const-string v2, "^Mi Smart Band.*"
+
+    .line 79
+    invoke-virtual {v1, v2}, Ljava/lang/String;->matches(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_3
+
+    :cond_26
+    const/4 v0, 0x1
+
+    goto :goto_3
+.end method
+
 .method public static link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
     .registers 1
 
@@ -138,21 +198,21 @@
     .registers 3
 
     .prologue
-    .line 72
+    .line 84
     if-nez p0, :cond_5
 
-    .line 73
+    .line 85
     const-string v0, ""
 
-    .line 77
+    .line 89
     :goto_4
     return-object v0
 
-    .line 75
+    .line 87
     :cond_5
     const-string v0, "(Band \\d+( Pro| Active)?|Watch [^ ]+( Active| Lite)?)"
 
-    .line 76
+    .line 88
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
 
     move-result-object v0
@@ -161,7 +221,7 @@
 
     move-result-object v0
 
-    .line 77
+    .line 89
     invoke-virtual {v0}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v1
@@ -190,16 +250,16 @@
 
     const/16 v6, 0x10
 
-    .line 95
+    .line 107
     if-nez p0, :cond_7
 
     move-object v0, v1
 
-    .line 114
+    .line 126
     :goto_6
     return-object v0
 
-    .line 98
+    .line 110
     :cond_7
     const-string v0, " "
 
@@ -225,7 +285,7 @@
 
     move-result-object v0
 
-    .line 99
+    .line 111
     const-string v2, "0x"
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -242,7 +302,7 @@
 
     if-eqz v2, :cond_34
 
-    .line 100
+    .line 112
     :cond_2f
     const/4 v2, 0x2
 
@@ -250,7 +310,7 @@
 
     move-result-object v0
 
-    .line 102
+    .line 114
     :cond_34
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -262,20 +322,20 @@
 
     move-object v0, v1
 
-    .line 103
+    .line 115
     goto :goto_6
 
-    .line 105
+    .line 117
     :cond_3e
     new-array v2, v6, [B
 
-    .line 106
+    .line 118
     const/4 v3, 0x0
 
     :goto_41
     if-ge v3, v6, :cond_68
 
-    .line 107
+    .line 119
     mul-int/lit8 v4, v3, 0x2
 
     invoke-virtual {v0, v4}, Ljava/lang/String;->charAt(I)C
@@ -286,7 +346,7 @@
 
     move-result v4
 
-    .line 108
+    .line 120
     mul-int/lit8 v5, v3, 0x2
 
     add-int/lit8 v5, v5, 0x1
@@ -299,7 +359,7 @@
 
     move-result v5
 
-    .line 109
+    .line 121
     if-ltz v4, :cond_5d
 
     if-gez v5, :cond_5f
@@ -307,10 +367,10 @@
     :cond_5d
     move-object v0, v1
 
-    .line 110
+    .line 122
     goto :goto_6
 
-    .line 112
+    .line 124
     :cond_5f
     shl-int/lit8 v4, v4, 0x4
 
@@ -320,7 +380,7 @@
 
     aput-byte v4, v2, v3
 
-    .line 106
+    .line 118
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_41
@@ -328,7 +388,7 @@
     :cond_68
     move-object v0, v2
 
-    .line 114
+    .line 126
     goto :goto_6
 .end method
 

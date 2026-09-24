@@ -32,6 +32,8 @@
 
 .field private static lastY:I
 
+.field private static playView:Landroid/view/View;
+
 .field private static ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
 .field private static time:Landroid/widget/TextView;
@@ -46,7 +48,7 @@
     .registers 1
 
     .prologue
-    .line 43
+    .line 45
     const/high16 v0, -0x80000000
 
     sput v0, Lcom/isaigu/gymapp/dialog/MusicDial;->lastX:I
@@ -58,7 +60,7 @@
     .registers 1
 
     .prologue
-    .line 46
+    .line 48
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -78,7 +80,7 @@
     .registers 19
 
     .prologue
-    .line 155
+    .line 162
     const/4 v2, -0x1
 
     const/4 v3, 0x1
@@ -87,15 +89,15 @@
 
     move-result-object v3
 
-    .line 156
+    .line 163
     const/16 v2, 0x11
 
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 157
+    .line 164
     const/4 v2, 0x0
 
-    .line 159
+    .line 166
     :try_start_c
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -115,35 +117,35 @@
 
     move-result v2
 
-    .line 162
+    .line 169
     :goto_1c
     if-eqz v2, :cond_90
 
-    .line 163
+    .line 170
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
-    .line 167
+    .line 174
     :goto_21
     const/high16 v2, 0x40800000    # 4.0f
 
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setElevation(F)V
 
-    .line 168
+    .line 175
     move-object/from16 v0, p6
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 169
+    .line 176
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->pressable(Landroid/view/View;)V
 
-    .line 170
+    .line 177
     const/high16 v2, 0x42340000    # 45.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 171
+    .line 178
     const/high16 v4, 0x43400000    # 192.0f
 
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -174,7 +176,7 @@
 
     add-float/2addr v4, v5
 
-    .line 172
+    .line 179
     const/high16 v5, 0x43920000    # 292.0f
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -187,7 +189,7 @@
 
     div-float/2addr v5, v6
 
-    .line 173
+    .line 180
     move/from16 v0, p5
 
     float-to-double v6, v0
@@ -196,17 +198,17 @@
 
     move-result-wide v6
 
-    .line 174
+    .line 181
     new-instance v8, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {v8, v2, v2}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
-    .line 175
+    .line 182
     const v9, 0x800033
 
     iput v9, v8, Landroid/widget/FrameLayout$LayoutParams;->gravity:I
 
-    .line 176
+    .line 183
     invoke-static {v6, v7}, Ljava/lang/Math;->sin(D)D
 
     move-result-wide v10
@@ -231,7 +233,7 @@
 
     iput v9, v8, Landroid/widget/FrameLayout$LayoutParams;->leftMargin:I
 
-    .line 177
+    .line 184
     invoke-static {v6, v7}, Ljava/lang/Math;->cos(D)D
 
     move-result-wide v6
@@ -256,13 +258,13 @@
 
     iput v2, v8, Landroid/widget/FrameLayout$LayoutParams;->topMargin:I
 
-    .line 178
+    .line 185
     invoke-virtual {p1, v3, v8}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 179
+    .line 186
     return-void
 
-    .line 165
+    .line 172
     :cond_90
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
@@ -286,7 +288,7 @@
 
     goto/16 :goto_21
 
-    .line 160
+    .line 167
     :catch_a4
     move-exception v4
 
@@ -299,12 +301,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 182
+    .line 189
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_22
 
-    .line 184
+    .line 191
     :try_start_5
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
@@ -312,10 +314,10 @@
 
     move-result-object v0
 
-    .line 185
+    .line 192
     if-eqz v0, :cond_1d
 
-    .line 186
+    .line 193
     invoke-virtual {v0}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v1
@@ -324,7 +326,7 @@
 
     sput v1, Lcom/isaigu/gymapp/dialog/MusicDial;->lastX:I
 
-    .line 187
+    .line 194
     invoke-virtual {v0}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v0
@@ -333,36 +335,39 @@
 
     sput v0, Lcom/isaigu/gymapp/dialog/MusicDial;->lastY:I
 
-    .line 189
+    .line 196
     :cond_1d
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->dismiss()V
     :try_end_22
-    .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_22} :catch_2d
+    .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_22} :catch_2f
 
-    .line 193
+    .line 200
     :cond_22
     :goto_22
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 194
+    .line 201
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    .line 195
+    .line 202
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->viz:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
-    .line 196
+    .line 203
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
-    .line 197
+    .line 204
+    sput-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->playView:Landroid/view/View;
+
+    .line 205
     sput-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
-    .line 198
+    .line 206
     return-void
 
-    .line 190
-    :catch_2d
+    .line 197
+    :catch_2f
     move-exception v0
 
     goto :goto_22
@@ -372,7 +377,7 @@
     .registers 5
 
     .prologue
-    .line 230
+    .line 242
     const/4 v0, 0x0
 
     div-int/lit16 v1, p0, 0x3e8
@@ -381,7 +386,7 @@
 
     move-result v1
 
-    .line 231
+    .line 243
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -435,7 +440,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 50
+    .line 52
     :try_start_1
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
@@ -453,12 +458,12 @@
 
     const/4 v0, 0x1
 
-    .line 52
+    .line 54
     :cond_e
     :goto_e
     return v0
 
-    .line 51
+    .line 53
     :catch_f
     move-exception v1
 
@@ -466,134 +471,160 @@
 .end method
 
 .method static refresh()V
-    .registers 7
+    .registers 9
 
     .prologue
-    const/4 v0, 0x1
+    const/16 v0, 0x8
+
+    const/4 v2, 0x1
 
     const/4 v1, 0x0
 
-    .line 202
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
+    .line 210
+    sget-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    if-eqz v2, :cond_a
+    if-eqz v3, :cond_c
 
-    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
+    sget-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
-    if-nez v2, :cond_b
+    if-nez v3, :cond_d
 
-    .line 227
-    :cond_a
-    :goto_a
+    .line 239
+    :cond_c
+    :goto_c
     return-void
 
-    .line 206
-    :cond_b
-    :try_start_b
+    .line 214
+    :cond_d
+    :try_start_d
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
-
-    move-result v4
-
-    .line 207
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackPositionMs()I
 
     move-result v5
 
-    .line 208
+    .line 215
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackPositionMs()I
+
+    move-result v6
+
+    .line 216
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
-    move-result v2
+    move-result v3
 
-    if-eqz v2, :cond_8a
+    if-eqz v3, :cond_a1
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isPlayerMode()Z
 
-    move-result v2
+    move-result v3
 
-    if-eqz v2, :cond_8a
+    if-eqz v3, :cond_a1
 
-    move v3, v0
+    move v4, v2
 
-    .line 209
-    :goto_20
-    if-eqz v3, :cond_8c
+    .line 217
+    :goto_22
+    if-eqz v4, :cond_a3
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isPlaybackPaused()Z
 
+    move-result v3
+
+    if-nez v3, :cond_a3
+
+    move v3, v2
+
+    .line 218
+    :goto_2b
+    sget-object v7, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
+
+    if-lez v5, :cond_a5
+
+    const/high16 v2, 0x3f800000    # 1.0f
+
+    int-to-float v8, v6
+
+    int-to-float v5, v5
+
+    div-float v5, v8, v5
+
+    invoke-static {v2, v5}, Ljava/lang/Math;->min(FF)F
+
     move-result v2
 
-    if-nez v2, :cond_8c
+    :goto_39
+    invoke-virtual {v7, v2}, Lcom/isaigu/gymapp/widget/TimerRingView;->setElapsedFraction(F)V
 
-    move v2, v0
+    .line 219
+    sget-object v5, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    .line 210
-    :goto_29
-    sget-object v1, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
+    if-eqz v3, :cond_a7
 
-    if-lez v4, :cond_8e
+    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    const/high16 v0, 0x3f800000    # 1.0f
+    :goto_42
+    invoke-virtual {v5, v2}, Lcom/isaigu/gymapp/widget/TimerRingView;->setProgressColor(I)V
 
-    int-to-float v6, v5
+    .line 220
+    sget-object v5, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
-    int-to-float v4, v4
+    if-eqz v4, :cond_aa
 
-    div-float v4, v6, v4
+    invoke-static {v6}, Lcom/isaigu/gymapp/dialog/MusicDial;->fmt(I)Ljava/lang/String;
 
-    invoke-static {v0, v4}, Ljava/lang/Math;->min(FF)F
+    move-result-object v2
 
-    move-result v0
+    :goto_4d
+    invoke-virtual {v5, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    :goto_37
-    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/widget/TimerRingView;->setElapsedFraction(F)V
+    .line 221
+    sget-object v5, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
-    .line 211
-    sget-object v1, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
+    if-eqz v4, :cond_ad
 
-    if-eqz v2, :cond_90
+    move v2, v1
 
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
+    :goto_55
+    invoke-virtual {v5, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
-    :goto_40
-    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/widget/TimerRingView;->setProgressColor(I)V
+    .line 222
+    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->playView:Landroid/view/View;
 
-    .line 212
+    if-eqz v2, :cond_63
+
+    .line 223
+    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->playView:Landroid/view/View;
+
+    if-eqz v4, :cond_af
+
+    :goto_60
+    invoke-virtual {v2, v0}, Landroid/view/View;->setVisibility(I)V
+
+    .line 225
+    :cond_63
     sget-object v1, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
-    if-eqz v3, :cond_93
-
-    invoke-static {v5}, Lcom/isaigu/gymapp/dialog/MusicDial;->fmt(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    :goto_4b
-    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 213
-    sget-object v1, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
-
-    if-eqz v2, :cond_96
+    if-eqz v3, :cond_b1
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
-    :goto_54
+    :goto_69
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 214
+    .line 226
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentTitle()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 215
-    sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
+    .line 227
+    sget-object v2, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isPlayerPreparing()Z
 
     move-result v1
 
-    if-eqz v1, :cond_99
+    if-eqz v1, :cond_b4
 
-    .line 216
+    .line 228
     const-string v0, "\u0437\u0430\u0440\u0435\u0436\u0434\u0430\u2026"
 
     const-string v1, "loading\u2026"
@@ -602,24 +633,24 @@
 
     move-result-object v0
 
-    .line 215
-    :goto_6b
-    invoke-virtual {v4, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    .line 227
+    :goto_80
+    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 218
+    .line 230
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->viz:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
-    if-eqz v0, :cond_a
+    if-eqz v0, :cond_c
 
-    .line 219
+    .line 231
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->viz:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
-    invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
+    invoke-virtual {v0, v3}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
 
-    .line 220
-    if-eqz v2, :cond_a
+    .line 232
+    if-eqz v3, :cond_c
 
-    .line 221
+    .line 233
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->viz:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getLiveStrength()I
@@ -627,79 +658,91 @@
     move-result v1
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setLiveLevel(I)V
-    :try_end_82
-    .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_82} :catch_83
+    :try_end_97
+    .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_97} :catch_99
 
-    goto :goto_a
+    goto/16 :goto_c
 
-    .line 224
-    :catch_83
+    .line 236
+    :catch_99
     move-exception v0
 
-    .line 225
+    .line 237
     const-string v1, "MusicDial.refresh"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_a
+    goto/16 :goto_c
 
-    :cond_8a
+    :cond_a1
+    move v4, v1
+
+    .line 216
+    goto :goto_22
+
+    :cond_a3
     move v3, v1
 
-    .line 208
-    goto :goto_20
+    .line 217
+    goto :goto_2b
 
-    :cond_8c
-    move v2, v1
+    .line 218
+    :cond_a5
+    const/4 v2, 0x0
 
-    .line 209
-    goto :goto_29
+    goto :goto_39
 
-    .line 210
-    :cond_8e
-    const/4 v0, 0x0
+    .line 219
+    :cond_a7
+    :try_start_a7
+    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
-    goto :goto_37
+    goto :goto_42
 
-    .line 211
-    :cond_90
-    :try_start_90
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+    .line 220
+    :cond_aa
+    const-string v2, ""
 
-    goto :goto_40
+    goto :goto_4d
 
-    .line 212
-    :cond_93
-    const-string v0, "\u25b6"
+    :cond_ad
+    move v2, v0
 
-    goto :goto_4b
+    .line 221
+    goto :goto_55
 
-    .line 213
-    :cond_96
+    :cond_af
+    move v0, v1
+
+    .line 223
+    goto :goto_60
+
+    .line 225
+    :cond_b1
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    goto :goto_54
+    goto :goto_69
 
-    .line 217
-    :cond_99
+    .line 229
+    :cond_b4
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-eqz v3, :cond_b3
+    if-eqz v4, :cond_ce
 
-    if-nez v2, :cond_b3
+    if-nez v3, :cond_ce
 
     const-string v1, "\u275a\u275a  "
 
-    :goto_a4
+    :goto_bf
     invoke-virtual {v5, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
-    if-eqz v0, :cond_b6
+    if-eqz v0, :cond_d1
 
-    :goto_aa
+    :goto_c5
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -708,34 +751,34 @@
 
     move-result-object v0
 
-    goto :goto_6b
+    goto :goto_80
 
-    :cond_b3
+    :cond_ce
     const-string v1, ""
 
-    goto :goto_a4
+    goto :goto_bf
 
-    :cond_b6
+    :cond_d1
     const-string v0, "\u041d\u044f\u043c\u0430 \u043f\u0435\u0441\u0435\u043d \u2014 \u2630"
 
-    const-string v3, "No song \u2014 \u2630"
+    const-string v4, "No song \u2014 \u2630"
 
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    :try_end_bd
-    .catch Ljava/lang/Throwable; {:try_start_90 .. :try_end_bd} :catch_83
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    :try_end_d8
+    .catch Ljava/lang/Throwable; {:try_start_a7 .. :try_end_d8} :catch_99
 
     move-result-object v0
 
-    goto :goto_aa
+    goto :goto_c5
 .end method
 
 .method static show(Landroid/app/Activity;)V
     .registers 14
 
     .prologue
-    const/high16 v12, -0x80000000
-
     const/high16 v4, 0x43400000    # 192.0f
+
+    const/high16 v12, 0x42500000    # 52.0f
 
     const/high16 v11, 0x41900000    # 18.0f
 
@@ -743,7 +786,7 @@
 
     const/4 v9, 0x0
 
-    .line 57
+    .line 59
     if-eqz p0, :cond_11
 
     invoke-virtual {p0}, Landroid/app/Activity;->isFinishing()Z
@@ -752,85 +795,85 @@
 
     if-eqz v0, :cond_12
 
-    .line 151
+    .line 158
     :cond_11
     :goto_11
     return-void
 
-    .line 60
+    .line 62
     :cond_12
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     if-eqz v0, :cond_23
 
-    .line 62
+    .line 64
     :try_start_16
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->show()V
 
-    .line 63
+    .line 65
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicDial;->refresh()V
     :try_end_1e
     .catch Ljava/lang/Throwable; {:try_start_16 .. :try_end_1e} :catch_1f
 
     goto :goto_11
 
-    .line 65
+    .line 67
     :catch_1f
     move-exception v0
 
-    .line 66
+    .line 68
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 69
+    .line 71
     :cond_23
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
 
-    .line 70
+    .line 72
     new-instance v1, Landroid/widget/FrameLayout;
 
     invoke-direct {v1, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 71
+    .line 73
     const/high16 v0, 0x43920000    # 292.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v7
 
-    .line 72
+    .line 74
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v0
 
-    .line 74
+    .line 76
     new-instance v2, Landroid/widget/FrameLayout;
 
     invoke-direct {v2, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 75
+    .line 77
     new-instance v3, Lcom/isaigu/gymapp/widget/TimerRingView;
 
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/widget/TimerRingView;-><init>(Landroid/content/Context;)V
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
-    .line 76
+    .line 78
     sget-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
     invoke-virtual {v3, v4}, Lcom/isaigu/gymapp/widget/TimerRingView;->setMaxDiameterDp(F)V
 
-    .line 77
+    .line 79
     sget-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     invoke-virtual {v3, v4}, Lcom/isaigu/gymapp/widget/TimerRingView;->setProgressColor(I)V
 
-    .line 78
+    .line 80
     sget-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->ring:Lcom/isaigu/gymapp/widget/TimerRingView;
 
     new-instance v4, Landroid/widget/FrameLayout$LayoutParams;
@@ -839,21 +882,21 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 79
+    .line 81
     new-instance v3, Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;-><init>(Landroid/content/Context;)V
 
     sput-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->viz:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
-    .line 80
+    .line 82
     sget-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->viz:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     const v4, 0x3ea3d70a    # 0.32f
 
     invoke-virtual {v3, v4}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setAlpha(F)V
 
-    .line 81
+    .line 83
     sget-object v3, Lcom/isaigu/gymapp/dialog/MusicDial;->viz:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     new-instance v4, Landroid/widget/FrameLayout$LayoutParams;
@@ -862,15 +905,15 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 82
+    .line 84
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v3
 
-    .line 83
+    .line 85
     invoke-virtual {v3, v10}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 84
+    .line 86
     const-string v4, "0:00"
 
     const/high16 v5, 0x42300000    # 44.0f
@@ -885,24 +928,68 @@
 
     sput-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
-    .line 85
+    .line 87
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
     invoke-virtual {v4, v10}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 86
+    .line 88
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
     const v5, -0x430a3d71    # -0.03f
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setLetterSpacing(F)V
 
-    .line 87
+    .line 89
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->time:Landroid/widget/TextView;
 
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 88
+    .line 90
+    new-instance v4, Landroid/view/View;
+
+    invoke-direct {v4, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    sput-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->playView:Landroid/view/View;
+
+    .line 91
+    sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->playView:Landroid/view/View;
+
+    new-instance v5, Lcom/isaigu/gymapp/widget/XemsIcon;
+
+    const/4 v6, 0x7
+
+    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
+
+    invoke-direct {v5, v6, v8}, Lcom/isaigu/gymapp/widget/XemsIcon;-><init>(II)V
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setBackground(Landroid/graphics/drawable/Drawable;)V
+
+    .line 93
+    sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->playView:Landroid/view/View;
+
+    const/16 v5, 0x8
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setVisibility(I)V
+
+    .line 94
+    sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->playView:Landroid/view/View;
+
+    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
+
+    invoke-static {p0, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v6
+
+    invoke-static {p0, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v8
+
+    invoke-direct {v5, v6, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 95
     const-string v4, ""
 
     const/high16 v5, 0x41480000    # 12.5f
@@ -915,26 +1002,26 @@
 
     sput-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
-    .line 89
+    .line 96
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
     invoke-virtual {v4, v10}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 90
+    .line 97
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
     const/4 v5, 0x2
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setMaxLines(I)V
 
-    .line 91
+    .line 98
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
     sget-object v5, Landroid/text/TextUtils$TruncateAt;->END:Landroid/text/TextUtils$TruncateAt;
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setEllipsize(Landroid/text/TextUtils$TruncateAt;)V
 
-    .line 92
+    .line 99
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
     const/high16 v5, 0x42f00000    # 120.0f
@@ -945,7 +1032,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setMaxWidth(I)V
 
-    .line 93
+    .line 100
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
     const/high16 v5, 0x40800000    # 4.0f
@@ -956,12 +1043,12 @@
 
     invoke-virtual {v4, v9, v5, v9, v9}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 94
+    .line 101
     sget-object v4, Lcom/isaigu/gymapp/dialog/MusicDial;->title:Landroid/widget/TextView;
 
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 95
+    .line 102
     new-instance v4, Landroid/widget/FrameLayout$LayoutParams;
 
     const/4 v5, -0x2
@@ -970,24 +1057,24 @@
 
     invoke-direct {v4, v5, v6, v10}, Landroid/widget/FrameLayout$LayoutParams;-><init>(III)V
 
-    .line 97
+    .line 104
     invoke-virtual {v2, v3, v4}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 98
+    .line 105
     new-instance v3, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;
 
     invoke-direct {v3}, Lcom/isaigu/gymapp/dialog/MusicDial$DialTouch;-><init>()V
 
     invoke-virtual {v2, v3}, Landroid/widget/FrameLayout;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
-    .line 99
+    .line 106
     new-instance v3, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {v3, v0, v0, v10}, Landroid/widget/FrameLayout$LayoutParams;-><init>(III)V
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 101
+    .line 108
     const-string v2, "\u00d7"
 
     const/high16 v3, 0x41b00000    # 22.0f
@@ -1004,7 +1091,7 @@
 
     invoke-static/range {v0 .. v6}, Lcom/isaigu/gymapp/dialog/MusicDial;->addButton(Landroid/app/Activity;Landroid/widget/FrameLayout;Ljava/lang/String;FLjava/lang/String;FLandroid/view/View$OnClickListener;)V
 
-    .line 107
+    .line 114
     const-string v2, "\u23ed"
 
     const-string v4, "light_green_button_drawable_r30"
@@ -1021,7 +1108,7 @@
 
     invoke-static/range {v0 .. v6}, Lcom/isaigu/gymapp/dialog/MusicDial;->addButton(Landroid/app/Activity;Landroid/widget/FrameLayout;Ljava/lang/String;FLjava/lang/String;FLandroid/view/View$OnClickListener;)V
 
-    .line 113
+    .line 120
     const-string v2, "\u2630"
 
     const-string v4, "light_yellow_button_drawable_r30"
@@ -1038,113 +1125,117 @@
 
     invoke-static/range {v0 .. v6}, Lcom/isaigu/gymapp/dialog/MusicDial;->addButton(Landroid/app/Activity;Landroid/widget/FrameLayout;Ljava/lang/String;FLjava/lang/String;FLandroid/view/View$OnClickListener;)V
 
-    .line 121
-    :try_start_11a
+    .line 128
+    :try_start_147
     new-instance v0, Landroid/support/v7/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/support/v7/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 122
+    .line 129
     new-instance v2, Landroid/widget/FrameLayout;
 
     invoke-direct {v2, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 123
+    .line 130
     new-instance v3, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {v3, v7, v7}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v2, v1, v3}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 124
+    .line 131
     invoke-virtual {v0, v2}, Landroid/support/v7/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/support/v7/app/AlertDialog$Builder;
 
-    .line 125
+    .line 132
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog$Builder;->create()Landroid/support/v7/app/AlertDialog;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
-    .line 126
+    .line 133
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/support/v7/app/AlertDialog;->setCancelable(Z)V
 
-    .line 127
+    .line 134
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/support/v7/app/AlertDialog;->setCanceledOnTouchOutside(Z)V
 
-    .line 128
+    .line 135
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->show()V
 
-    .line 129
+    .line 136
     sget-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
 
     move-result-object v1
 
-    .line 130
-    if-eqz v1, :cond_189
+    .line 137
+    if-eqz v1, :cond_1ba
 
-    .line 131
+    .line 138
     const v0, 0x106000d
 
     invoke-virtual {v1, v0}, Landroid/view/Window;->setBackgroundDrawableResource(I)V
 
-    .line 132
+    .line 139
     const v0, 0x800033
 
     invoke-virtual {v1, v0}, Landroid/view/Window;->setGravity(I)V
 
-    .line 133
+    .line 140
     invoke-virtual {v1, v7, v7}, Landroid/view/Window;->setLayout(II)V
 
-    .line 134
+    .line 141
     invoke-virtual {v1}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v2
 
-    .line 135
+    .line 142
     iput v7, v2, Landroid/view/WindowManager$LayoutParams;->width:I
 
-    .line 136
+    .line 143
     iput v7, v2, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    .line 137
+    .line 144
     sget v0, Lcom/isaigu/gymapp/dialog/MusicDial;->lastX:I
 
-    if-eq v0, v12, :cond_199
+    const/high16 v3, -0x80000000
+
+    if-eq v0, v3, :cond_1ca
 
     sget v0, Lcom/isaigu/gymapp/dialog/MusicDial;->lastX:I
 
-    :goto_16b
+    :goto_19a
     iput v0, v2, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 138
+    .line 145
     sget v0, Lcom/isaigu/gymapp/dialog/MusicDial;->lastX:I
 
-    if-eq v0, v12, :cond_1a0
+    const/high16 v3, -0x80000000
+
+    if-eq v0, v3, :cond_1d1
 
     sget v0, Lcom/isaigu/gymapp/dialog/MusicDial;->lastY:I
 
-    :goto_173
+    :goto_1a4
     iput v0, v2, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 139
+    .line 146
     const/4 v0, 0x0
 
     iput v0, v2, Landroid/view/WindowManager$LayoutParams;->dimAmount:F
 
-    .line 140
+    .line 147
     iget v0, v2, Landroid/view/WindowManager$LayoutParams;->flags:I
 
     or-int/lit8 v0, v0, 0x8
@@ -1155,58 +1246,58 @@
 
     iput v0, v2, Landroid/view/WindowManager$LayoutParams;->flags:I
 
-    .line 143
+    .line 150
     const/4 v0, 0x2
 
     invoke-virtual {v1, v0}, Landroid/view/Window;->clearFlags(I)V
 
-    .line 144
+    .line 151
     invoke-virtual {v1, v2}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    .line 146
-    :cond_189
+    .line 153
+    :cond_1ba
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicDial;->refresh()V
-    :try_end_18c
-    .catch Ljava/lang/Throwable; {:try_start_11a .. :try_end_18c} :catch_18e
+    :try_end_1bd
+    .catch Ljava/lang/Throwable; {:try_start_147 .. :try_end_1bd} :catch_1bf
 
     goto/16 :goto_11
 
-    .line 147
-    :catch_18e
+    .line 154
+    :catch_1bf
     move-exception v0
 
-    .line 148
+    .line 155
     const-string v1, "music_dial_show"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 149
+    .line 156
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/dialog/MusicDial;->dialog:Landroid/support/v7/app/AlertDialog;
 
     goto/16 :goto_11
 
-    .line 137
-    :cond_199
+    .line 144
+    :cond_1ca
     const/high16 v0, 0x41a00000    # 20.0f
 
-    :try_start_19b
+    :try_start_1cc
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v0
 
-    goto :goto_16b
+    goto :goto_19a
 
-    .line 138
-    :cond_1a0
+    .line 145
+    :cond_1d1
     const/high16 v0, 0x43960000    # 300.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-    :try_end_1a5
-    .catch Ljava/lang/Throwable; {:try_start_19b .. :try_end_1a5} :catch_18e
+    :try_end_1d6
+    .catch Ljava/lang/Throwable; {:try_start_1cc .. :try_end_1d6} :catch_1bf
 
     move-result v0
 
-    goto :goto_173
+    goto :goto_1a4
 .end method

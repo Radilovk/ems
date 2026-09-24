@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1819
+    .line 1861
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1820
+    .line 1862
     iput-boolean p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PanelToggleListener;->settings:Z
 
-    .line 1821
+    .line 1863
     return-void
 .end method
 
@@ -46,12 +46,12 @@
 
     const/4 v1, 0x0
 
-    .line 1825
+    .line 1867
     iget-boolean v2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PanelToggleListener;->settings:Z
 
     if-eqz v2, :cond_18
 
-    .line 1826
+    .line 1868
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->settingsExpanded:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100()Z
 
@@ -63,25 +63,25 @@
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->settingsExpanded:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(Z)Z
 
-    .line 1830
+    .line 1872
     :goto_f
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$300()V
 
-    .line 1831
+    .line 1873
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()V
 
-    .line 1832
+    .line 1874
     return-void
 
     :cond_16
     move v0, v1
 
-    .line 1826
+    .line 1868
     goto :goto_c
 
-    .line 1828
+    .line 1870
     :cond_18
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistExpanded:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$200()Z

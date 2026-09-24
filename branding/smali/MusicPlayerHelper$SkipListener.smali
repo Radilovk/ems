@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2150
+    .line 2192
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2151
+    .line 2193
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SkipListener;->dir:I
 
-    .line 2152
+    .line 2194
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 3
 
     .prologue
-    .line 2156
+    .line 2198
     iget v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SkipListener;->dir:I
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->skip(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4700(I)V
 
-    .line 2157
+    .line 2199
     return-void
 .end method

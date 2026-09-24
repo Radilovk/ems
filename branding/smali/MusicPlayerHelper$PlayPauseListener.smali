@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1717
+    .line 1759
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 2
 
     .prologue
-    .line 1720
+    .line 1762
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->togglePlayPause()V
 
-    .line 1721
+    .line 1763
     return-void
 .end method

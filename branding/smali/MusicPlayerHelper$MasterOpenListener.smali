@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1695
+    .line 1737
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1696
+    .line 1738
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
 
-    .line 1697
+    .line 1739
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
-    .line 1698
+    .line 1740
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 4
 
     .prologue
-    .line 1702
+    .line 1744
     if-eqz p1, :cond_10
 
     :goto_2
@@ -55,10 +55,10 @@
 
     move-result-object v0
 
-    .line 1703
+    .line 1745
     if-nez v0, :cond_13
 
-    .line 1704
+    .line 1746
     const/4 v0, 0x0
 
     const v1, 0x7f0d010b
@@ -66,31 +66,31 @@
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$000(Landroid/app/Activity;I)V
 
-    .line 1714
+    .line 1756
     :goto_f
     return-void
 
-    .line 1702
+    .line 1744
     :cond_10
     iget-object p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->root:Landroid/view/View;
 
     goto :goto_2
 
-    .line 1707
+    .line 1749
     :cond_13
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 1708
+    .line 1750
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MasterOpenListener;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveTargetItem(Lcom/isaigu/gymapp/train/TrainItemManager;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v1
 
-    .line 1709
+    .line 1751
     if-nez v1, :cond_25
 
-    .line 1710
+    .line 1752
     const v1, 0x7f0d011a
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->toast(Landroid/app/Activity;I)V
@@ -98,7 +98,7 @@
 
     goto :goto_f
 
-    .line 1713
+    .line 1755
     :cond_25
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->show(Landroid/app/Activity;Lcom/isaigu/gymapp/train/model/TrainItem;)V
 

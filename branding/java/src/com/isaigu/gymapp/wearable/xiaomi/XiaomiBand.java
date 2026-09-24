@@ -67,6 +67,18 @@ public final class XiaomiBand {
         return n.matches("^Redmi Watch (4|5|5 Active|5 Lite) [0-9A-Fa-f]{4}$");
     }
 
+    /** The name tells which radio to use (so no manual choice is needed). */
+    public static boolean isKnownModel(String name) {
+        if (name == null) {
+            return false;
+        }
+        String n = name.trim();
+        return usesClassic(n)
+                || n.matches("^Xiaomi( Smart)? Band \\d+( Active| Pro)? [0-9A-Za-z]{4}$")
+                || n.matches("^Redmi (Smart )?Band.*")
+                || n.matches("^Mi Smart Band.*");
+    }
+
     /** Short model label for the UI, e.g. "Band 10" (empty when unknown). */
     public static String modelLabel(String name) {
         if (name == null) {

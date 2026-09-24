@@ -1,27 +1,36 @@
 <template>
-  <!-- one mode per screen; flick up / down between modes, tap anywhere to open, right = exit -->
   <stack class="root" onswipe="onSwipe">
     <div class="screen {{anim}}" if="{{!offline}}" onclick="open" onlongpress="pauseAll">
+      <div class="ambient" style="background: linear-gradient(180deg, {{card.glow}} 0%, rgba(0,0,0,0) 100%)"></div>
+      <div class="ambient-fade"></div>
+
       <div class="hr-row">
         <image class="hr-heart" src="/common/icons/heart.png"></image>
         <text class="hr-line" style="color: {{hrColor}}">{{hrLine}}</text>
+        <text class="chip" if="{{card.active}}" style="background-color: {{card.color}}">{{card.chip}}</text>
       </div>
-      <stack class="icon-box">
-        <div class="glow {{card.active ? 'breathe' : ''}}" style="background-color: {{card.glow}}"></div>
-        <div class="icon" style="background-color: {{card.color}}">
-          <image class="icon-img" src="{{card.icon}}"></image>
+
+      <stack class="module-box">
+        <div class="glow {{card.active ? 'breathe' : ''}}" style="background-color: {{card.glow}}; width: {{card.active ? '178px' : '0px'}}; height: {{card.active ? '178px' : '0px'}}"></div>
+        <div class="module-ring" style="border-color: {{card.ring}}"></div>
+        <div class="module-icon btn-primary" style="background: linear-gradient(180deg, {{card.color}} 0%, {{card.dark}} 100%)">
+          <div class="btn-shine"></div>
+          <image class="module-img" src="{{card.icon}}"></image>
         </div>
       </stack>
+
       <text class="title">{{card.title}}</text>
       <text class="state" style="color: {{card.active ? card.color : '#AEAEB2'}}">{{card.sub}}</text>
-      <text class="tap">докосни · влез</text>
+      <text class="hint">{{card.active ? '● активен' : 'докосни · влез'}}</text>
+
+      <text class="peek peek-up" if="{{peekUp}}">↑ {{peekUp}}</text>
+      <text class="peek peek-down" if="{{peekDown}}">↓ {{peekDown}}</text>
     </div>
 
     <div class="dots" if="{{!offline}}">
-      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
+      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}" style="background-color: {{$item.on ? dotAccent : '#3A3A3C'}}"></div>
     </div>
 
-    <!-- not linked yet -->
     <div class="offline" if="{{offline}}">
       <stack class="radar">
         <div class="wave"></div>
@@ -38,9 +47,7 @@
 
 <script>
 import router from '@system.router'
-import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, mods, bind, age, setPages, swipe } from '../../common/ui.js'
-
-const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', music: '/pages/music', pulse: '/pages/pulse' }
+import { MODULES, ROUTES, ZONE, ACCENT, mmss, hms, zoneOf, mods, bind, age, setPages, swipe, glow } from '../../common/ui.js'
 
 export default {
   private: {
@@ -50,13 +57,16 @@ export default {
     hrLine: '',
     hrColor: '#FFFFFF',
     cards: {},
-    card: { id: 'ai', title: 'AI', sub: '', icon: '/common/icons/ai.png', color: ACCENT, glow: 'rgba(0,0,0,0)', active: false },
+    card: { id: 'ai', title: 'AI', sub: '', icon: MODULES.ai.icon, color: ACCENT, dark: MODULES.ai.dark, glow: 'rgba(0,0,0,0)', ring: 'rgba(255,59,92,0.25)', active: false, chip: 'ТЕЧЕ' },
     ids: [],
     idsKey: '',
     idx: 0,
     cur: '',
     dots: [],
-    anim: ''
+    dotAccent: ACCENT,
+    anim: '',
+    peekUp: '',
+    peekDown: ''
   },
 
   onInit() {
@@ -70,6 +80,7 @@ export default {
   onSwipe(e) {
     swipe(this, e)
     this.card = this.cards[this.cur] || this.card
+    this.peekHints()
   },
 
   update() {
@@ -90,18 +101,24 @@ export default {
 
     const list = this.buildCards(s, app)
     const cards = {}
-    list.forEach((c) => {
-      cards[c.id] = c
-    })
+    list.forEach((c) => { cards[c.id] = c })
     this.cards = cards
-    // running modes first; the order is kept while you look at one (no jumping under the finger)
     const ids = list.filter((c) => c.active).concat(list.filter((c) => !c.active)).map((c) => c.id)
     if (!this.idsKey || this.cur === '') {
-      setPages(this, ids)
+      setPages(this, ids, (cards[ids[0]] || list[0]).color)
     } else {
-      setPages(this, this.ids.length === ids.length ? this.ids : ids)
+      setPages(this, this.ids.length === ids.length ? this.ids : ids, (cards[this.cur] || list[0]).color)
     }
     this.card = cards[this.cur] || list[0]
+    this.dotAccent = this.card.color
+    this.peekHints()
+  },
+
+  peekHints() {
+    const ids = this.ids || []
+    const i = this.idx || 0
+    this.peekUp = i < ids.length - 1 ? (this.cards[ids[i + 1]] || {}).title || '' : ''
+    this.peekDown = i > 0 ? (this.cards[ids[i - 1]] || {}).title || '' : ''
   },
 
   buildCards(s, app) {
@@ -110,19 +127,19 @@ export default {
     const out = []
 
     let aiSub = 'стартира се от таблета'
+    let aiChip = 'AI'
     if (ai) {
+      aiChip = s.st === 'run' ? 'ТЕЧЕ' : s.st === 'pause' ? 'ПАУЗА' : s.st === 'rest' ? 'ПОЧИВКА' : 'AI'
       aiSub = s.st === 'ready' ? 'почивката стига'
         : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
           : (s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
     }
-    out.push({ id: 'ai', title: 'AI сесия', sub: aiSub, icon: '/common/icons/ai.png', color: ACCENT, active: ai })
+    out.push(this.mkCard('ai', MODULES.ai, aiSub, ai, aiChip))
 
     const trRun = !!m.tr.run && !ai
-    out.push({
-      id: 'train', title: 'Тренировка',
-      sub: trRun ? 'тече · ' + hms((s.el || 0) + age(app, true)) : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчно управление',
-      icon: '/common/icons/bolt.png', color: GREEN, active: trRun
-    })
+    out.push(this.mkCard('train', MODULES.train,
+      trRun ? 'тече · ' + hms((s.el || 0) + age(app, true)) : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчно управление',
+      trRun, trRun ? 'ТЕЧЕ' : 'РЪЧНО'))
 
     const tm = m.tm
     let tmSub = 'не е включен'
@@ -130,27 +147,36 @@ export default {
       tmSub = tm.run ? mmss((tm.left || 0) - age(app, true)) + (tm.lbl ? ' · ' + tm.lbl : tm.loops > 0 ? ' · кръг ' + tm.loop + '/' + tm.loops : '')
         : tm.pau ? 'пауза · ' + mmss(tm.left || 0) : 'чака старт'
     }
-    out.push({ id: 'timer', title: 'Таймер', sub: tmSub, icon: '/common/icons/timer.png', color: AMBER, active: !!tm.run })
+    out.push(this.mkCard('timer', MODULES.timer, tmSub, !!tm.run, tm.run ? 'ТЕЧЕ' : 'ТАЙМЕР'))
 
     const mu = m.mu
-    out.push({
-      id: 'music', title: 'Музика', sub: mu.on ? (mu.title || 'музика') : 'изключена',
-      icon: '/common/icons/music.png', color: PURPLE, active: !!mu.play
-    })
+    out.push(this.mkCard('music', MODULES.music, mu.on ? (mu.title || 'музика') : 'изключена', !!mu.play, mu.play ? '♫' : 'МУЗИКА'))
 
     const hg = m.hg
     const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'автоконтрол изкл.'
-    out.push({ id: 'pulse', title: 'Пулс', sub: hgSub, icon: '/common/icons/heart.png', color: BLUE, active: !!hg.en && !hg.ai })
+    out.push(this.mkCard('pulse', MODULES.pulse, hgSub, !!hg.en && !hg.ai, hg.en ? 'ВКЛ' : 'ИЗКЛ'))
 
-    out.forEach((c) => {
-      c.glow = c.active ? c.color : 'rgba(0,0,0,0)'
-    })
     return out
+  },
+
+  mkCard(id, mod, sub, active, chip) {
+    return {
+      id: id,
+      title: mod.title,
+      sub: sub,
+      icon: mod.icon,
+      color: mod.color,
+      dark: mod.dark,
+      glow: active ? glow(mod.color, 0.42) : 'rgba(0,0,0,0)',
+      ring: active ? glow(mod.color, 0.55) : 'rgba(255,255,255,0.08)',
+      active: active,
+      chip: chip
+    }
   },
 
   open() {
     this.$app.$def.buzz('short')
-    router.push({ uri: PAGES[this.cur] || PAGES.ai })
+    router.push({ uri: ROUTES[this.cur] || ROUTES.ai })
   },
 
   pauseAll() {
@@ -162,6 +188,7 @@ export default {
 
 <style>
 /* ---- common (scripts/gen-pages.py stamps this into every page) ---- */
+/* XEMS Band v4 — shared design system (212 × 520 AMOLED) */
 .root {
   width: 212px;
   height: 520px;
@@ -172,17 +199,38 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
+  padding-top: 32px;
   background-color: #000000;
+}
+.ambient {
+  width: 212px;
+  height: 260px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  opacity: 0.55;
+}
+.ambient-fade {
+  width: 212px;
+  height: 520px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 72%);
 }
 .in-up {
   animation-name: inUp;
-  animation-duration: 260ms;
+  animation-duration: 280ms;
   animation-timing-function: ease-out;
 }
 .in-down {
   animation-name: inDown;
-  animation-duration: 260ms;
+  animation-duration: 280ms;
+  animation-timing-function: ease-out;
+}
+.in-fade {
+  animation-name: fadeIn;
+  animation-duration: 220ms;
   animation-timing-function: ease-out;
 }
 .dots {
@@ -194,27 +242,50 @@ export default {
   align-items: center;
 }
 .pdot {
-  width: 8px;
-  height: 8px;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  border-radius: 4px;
+  width: 6px;
+  height: 6px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-radius: 3px;
   background-color: #3a3a3c;
 }
 .pdot-on {
-  height: 22px;
+  width: 8px;
+  height: 24px;
+  border-radius: 4px;
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bold;
-  color: #8e8e93;
+  color: #636366;
+  letter-spacing: 1px;
 }
 .sub {
   width: 196px;
   text-align: center;
   font-size: 22px;
   color: #aeaeb2;
+  lines: 2;
+  text-overflow: ellipsis;
+}
+.chip {
+  height: 28px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #000000;
+}
+.chip-outline {
+  height: 28px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 14px;
+  border-width: 2px;
+  font-size: 18px;
+  font-weight: bold;
 }
 .down {
   transform: scale(0.92);
@@ -226,11 +297,202 @@ export default {
   transition-duration: 120ms;
 }
 .off {
-  opacity: 0.3;
+  opacity: 0.28;
+}
+.surface {
+  background-color: #1c1c1e;
+  border-radius: 24px;
+  border-width: 1px;
+  border-color: #2c2c2e;
+}
+.surface-elevated {
+  background-color: #2c2c2e;
+  border-radius: 24px;
+  border-width: 1px;
+  border-color: #3a3a3c;
+}
+.glow {
+  position: absolute;
+  border-radius: 999px;
+  opacity: 0.38;
+}
+.breathe {
+  animation-name: breathe;
+  animation-duration: 1500ms;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+}
+.btn-ring {
+  position: absolute;
+  border-radius: 999px;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.btn-shine {
+  position: absolute;
+  width: 60%;
+  height: 28%;
+  top: 8%;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.14);
+}
+.btn-primary {
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.btn-surface {
+  background-color: #2c2c2e;
+  border-width: 2px;
+  border-color: #3a3a3c;
+}
+.btn-pill {
+  width: 180px;
+  height: 108px;
+  border-radius: 54px;
+  background-color: #2c2c2e;
+  border-width: 2px;
+  border-color: #3a3a3c;
+}
+.btn-pill-accent {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.pill-img {
+  width: 52px;
+  height: 52px;
+}
+.btn-toggle {
+  width: 168px;
+  height: 168px;
+  border-radius: 84px;
+  border-width: 3px;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.toggle-text {
+  font-size: 38px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 2px;
+}
+.play-wrap {
+  justify-content: center;
+  align-items: center;
+}
+.play {
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.play-img {
+  width: 54px;
+  height: 54px;
+}
+.ring-box {
+  justify-content: center;
+  align-items: center;
+}
+.ring-track {
+  background-color: #141416;
+  border-width: 1px;
+  border-color: #1c1c1e;
+}
+.ring-glow {
+  position: absolute;
+  border-radius: 999px;
+  opacity: 0.22;
+}
+.tile {
+  width: 94px;
+  height: 88px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 22px;
+  background-color: #1c1c1e;
+  border-width: 1px;
+  border-color: #2c2c2e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.tile-num {
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.tile-label {
+  font-size: 20px;
+  color: #8e8e93;
+}
+.tiles {
+  flex-direction: row;
+  margin-top: 10px;
+}
+.stat {
+  width: 94px;
+  height: 92px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 22px;
+  background-color: #1c1c1e;
+  border-width: 1px;
+  border-color: #2c2c2e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.stat-num {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.stat-label {
+  font-size: 20px;
+  color: #8e8e93;
+}
+.stat-max {
+  color: #ff453a;
+}
+.kcal {
+  color: #ff9f0a;
+}
+.zstack {
+  width: 192px;
+  height: 16px;
+  margin-top: 18px;
+  border-radius: 8px;
+  flex-direction: row;
+  background-color: #141416;
+  border-width: 1px;
+  border-color: #1c1c1e;
+}
+.zpart {
+  height: 16px;
+}
+.stop-box {
+  justify-content: center;
+  align-items: center;
+}
+.stop-ring {
+  stroke-width: 12px;
+  background-color: #1a0808;
+  start-angle: 0deg;
+  total-angle: 360deg;
+}
+.stop-core {
+  border-width: 3px;
+  border-color: rgba(255, 255, 255, 0.15);
+  justify-content: center;
+  align-items: center;
+}
+.stop-img {
+  width: 58px;
+  height: 58px;
+}
+.pair {
+  flex-direction: row;
 }
 @keyframes inUp {
   from {
-    transform: translateY(90px);
+    transform: translateY(72px);
     opacity: 0;
   }
   to {
@@ -240,7 +502,7 @@ export default {
 }
 @keyframes inDown {
   from {
-    transform: translateY(-90px);
+    transform: translateY(-72px);
     opacity: 0;
   }
   to {
@@ -248,14 +510,22 @@ export default {
     opacity: 1;
   }
 }
-@keyframes breathe {
+@keyframes fadeIn {
   from {
-    transform: scale(0.86);
-    opacity: 0.9;
+    opacity: 0;
   }
   to {
-    transform: scale(1.12);
-    opacity: 0.2;
+    opacity: 1;
+  }
+}
+@keyframes breathe {
+  from {
+    transform: scale(0.88);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.14);
+    opacity: 0.12;
   }
 }
 @keyframes beat {
@@ -263,50 +533,73 @@ export default {
     transform: scale(1);
   }
   to {
-    transform: scale(1.25);
+    transform: scale(1.22);
+  }
+}
+@keyframes wave {
+  from {
+    transform: scale(0.55);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(1.08);
+    opacity: 0;
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 /* ---- page ---- */
 .hr-row {
   flex-direction: row;
   align-items: center;
+  margin-top: 2px;
 }
 .hr-heart {
-  width: 26px;
-  height: 26px;
-  margin-right: 8px;
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
 }
 .hr-line {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: bold;
 }
-.icon-box {
-  width: 176px;
-  height: 176px;
-  margin-top: 26px;
+.chip {
+  margin-left: 8px;
+}
+.module-box {
+  width: 180px;
+  height: 180px;
+  margin-top: 28px;
   justify-content: center;
   align-items: center;
 }
-.glow {
-  width: 170px;
-  height: 170px;
-  border-radius: 85px;
-  opacity: 0.35;
+.module-ring {
+  width: 152px;
+  height: 152px;
+  border-radius: 76px;
+  border-width: 3px;
+  position: absolute;
 }
-.icon {
-  width: 136px;
-  height: 136px;
-  border-radius: 68px;
+.module-icon {
+  width: 140px;
+  height: 140px;
+  border-radius: 70px;
   justify-content: center;
   align-items: center;
 }
-.icon-img {
-  width: 76px;
-  height: 76px;
+.module-img {
+  width: 72px;
+  height: 72px;
 }
 .title {
-  margin-top: 22px;
-  font-size: 36px;
+  margin-top: 20px;
+  font-size: 34px;
   font-weight: bold;
   color: #ffffff;
 }
@@ -318,10 +611,25 @@ export default {
   lines: 2;
   text-overflow: ellipsis;
 }
-.tap {
-  margin-top: 24px;
+.hint {
+  margin-top: 18px;
   font-size: 20px;
   color: #48484a;
+}
+.peek {
+  position: absolute;
+  width: 196px;
+  text-align: center;
+  font-size: 18px;
+  color: #3a3a3c;
+  lines: 1;
+  text-overflow: ellipsis;
+}
+.peek-up {
+  top: 8px;
+}
+.peek-down {
+  bottom: 12px;
 }
 .offline {
   width: 212px;
@@ -354,9 +662,11 @@ export default {
   width: 86px;
   height: 86px;
   border-radius: 43px;
-  background-color: #ff3b5c;
+  background: linear-gradient(180deg, #ff3b5c 0%, #c42a48 100%);
   justify-content: center;
   align-items: center;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 .core-x {
   font-size: 46px;
@@ -383,15 +693,5 @@ export default {
   text-align: center;
   font-size: 18px;
   color: #48484a;
-}
-@keyframes wave {
-  from {
-    transform: scale(0.5);
-    opacity: 1;
-  }
-  to {
-    transform: scale(1.1);
-    opacity: 0;
-  }
 }
 </style>

@@ -1,0 +1,4 @@
+# Merge into wrangler.toml after R2 is enabled (bash scripts/setup-r2.sh).
+[[r2_buckets]]
+binding = "RELEASES"
+bucket_name = "xems-releases"

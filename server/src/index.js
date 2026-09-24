@@ -238,6 +238,57 @@ async function adminApi(request, env, path) {
     return json({ ok: true, activations: rows.results });
   }
 
+  if (route === 'releases/r2-status' && request.method === 'GET') {
+    return json({ ok: true, r2: !!env.RELEASES });
+  }
+
+  if (route === 'releases/upload-file' && request.method === 'POST') {
+    if (!env.RELEASES) {
+      return json({
+        ok: false,
+        error: 'r2_not_configured',
+        message: 'R2 не е активиран. Включи R2 в Cloudflare Dashboard и пусни setup-r2.sh',
+      }, 503);
+    }
+    const form = await request.formData();
+    const file = form.get('file');
+    const version_code = +form.get('version_code');
+    const version_name = String(form.get('version_name') || '').trim();
+    const notes = String(form.get('notes') || '');
+    const mandatory = form.get('mandatory') === '1' || form.get('mandatory') === 'true';
+    if (!file || typeof file === 'string' || !version_code || !version_name) {
+      return json({ ok: false, error: 'missing_fields', message: 'file, version_code and version_name are required' }, 400);
+    }
+    const buf = await file.arrayBuffer();
+    const size = buf.byteLength;
+    if (size < 1_000_000) {
+      return json({ ok: false, error: 'too_small', message: 'File looks too small to be a valid APK' }, 400);
+    }
+    const sha256 = await sha256Hex(new Uint8Array(buf));
+    const object_key = `xems-${version_code}.apk`;
+    await env.RELEASES.put(object_key, buf, {
+      httpMetadata: { contentType: 'application/vnd.android.package-archive' },
+    });
+    await env.DB.prepare(
+      `INSERT OR REPLACE INTO releases (version_code, version_name, channel, object_key, sha256, size, notes, mandatory, published_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).bind(
+      version_code, version_name, form.get('channel') || 'stable', object_key, sha256, size,
+      notes, mandatory ? 1 : 0, now(),
+    ).run();
+    await audit(env, 'upload_release', null, null, `${version_name} (${object_key})`);
+    const base = env.PUBLIC_URL || new URL(request.url).origin;
+    return json({
+      ok: true,
+      version_code,
+      version_name,
+      sha256,
+      size,
+      object_key,
+      url: `${base}/releases/${object_key}`,
+    });
+  }
+
   if (route === 'releases' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM releases ORDER BY version_code DESC').all();
     return json({ ok: true, releases: rows.results });
@@ -308,6 +359,10 @@ async function adminApi(request, env, path) {
 
   if (route.match(/^releases\/\d+$/) && request.method === 'DELETE') {
     const version_code = +route.split('/')[1];
+    const rel = await env.DB.prepare('SELECT object_key FROM releases WHERE version_code = ?').bind(version_code).first();
+    if (rel?.object_key && env.RELEASES && !rel.object_key.startsWith('https://')) {
+      await env.RELEASES.delete(rel.object_key);
+    }
     await env.DB.prepare('DELETE FROM releases WHERE version_code = ?').bind(version_code).run();
     await audit(env, 'delete_release', null, null, String(version_code));
     return json({ ok: true });

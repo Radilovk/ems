@@ -48,11 +48,26 @@ npx wrangler secret put ADMIN_USER            # default: admin
 - `src/plans.js` — планове → модули
 - `migrations/` — D1 schema
 
+## R2 (директно качване на APK)
+
+1. **Включи R2** (веднъж): [Cloudflare Dashboard](https://dash.cloudflare.com/) → **R2 Object Storage** → **Enable R2** (приеми условията; free tier: 10 GB).
+2. **Създай bucket:**
+   ```bash
+   cd server && bash scripts/setup-r2.sh
+   ```
+3. **Deploy:**
+   ```bash
+   npx wrangler deploy
+   ```
+4. В админ панела → **Обновления (APK)** → избери файл → **Качи в сървъра**.
+
+Без R2: ползвай GitHub URL (вариант B в панела).
+
 ## Разход
 
 - Cloudflare Workers free tier (100k req/ден)
 - D1 free tier (5M reads/ден)
-- R2 не е активиран — APK се хоства от GitHub raw URL
+- R2 free tier (10 GB storage, 10M Class B ops/месец)
 
 ## Първи ключ
 

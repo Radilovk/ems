@@ -6,7 +6,9 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:migrate": "wrangler d1 migrations apply xems-license --remote",
-    "db:migrate:local": "wrangler d1 migrations apply xems-license --local"
+    "db:migrate:local": "wrangler d1 migrations apply xems-license --local",
+    "setup:r2": "bash scripts/setup-r2.sh",
+    "deploy:r2": "bash scripts/enable-r2-deploy.sh"
   },
   "devDependencies": {
     "wrangler": "^4.14.0"

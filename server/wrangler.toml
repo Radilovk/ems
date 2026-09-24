@@ -11,6 +11,11 @@ binding = "DB"
 database_name = "xems-license"
 database_id = "d5eb1f2e-57d8-49df-8d51-5e570f54bf6c"
 
+# Uncomment after enabling R2 in Cloudflare Dashboard and running: bash scripts/setup-r2.sh
+# [[r2_buckets]]
+# binding = "RELEASES"
+# bucket_name = "xems-releases"
+
 [[routes]]
 pattern = "license.biocode-bg.com/*"
 zone_name = "biocode-bg.com"

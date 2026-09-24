@@ -10,7 +10,7 @@
 
 .field public static final BAND:Ljava/lang/String; = "band"
 
-.field static final DEFAULT_SERVER:Ljava/lang/String; = ""
+.field static final DEFAULT_SERVER:Ljava/lang/String; = "https://license.biocode-bg.com"
 
 .field public static final FEAT_ARMS_FULL:Ljava/lang/String; = "arms_full"
 
@@ -50,7 +50,7 @@
 
 .field static final REFRESH_MS:J = 0x5265c00L
 
-.field static final SERVER_PUBLIC_KEY:Ljava/lang/String; = ""
+.field static final SERVER_PUBLIC_KEY:Ljava/lang/String; = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEeFeVVxE3nb0wRB2xzPPyjq36QHwvJMPkkvGiLTuWGoabsgsySyW5Vim9RlaBzWvZ2wxMB3u5G+U+pkw5lzld1A=="
 
 .field public static final TIMER:Ljava/lang/String; = "timer"
 

@@ -96,6 +96,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
   python3 "${ROOT}/scripts/apply-ai-session.py"
+  bash "${ROOT}/scripts/compile-xems-license-java.sh"
   python3 "${ROOT}/scripts/apply-xems-nav.py"
   python3 "${ROOT}/scripts/apply-ramp-setting.py"
   python3 "${ROOT}/scripts/apply-band-app.py"

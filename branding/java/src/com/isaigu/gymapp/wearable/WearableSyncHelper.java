@@ -1238,13 +1238,12 @@ public final class WearableSyncHelper {
                     return;
                 }
             }
-            // ↻ = 30 s resting calibration; reconnect only when the band is not streaming.
-            if (!NotifyWearableBridge.isListeningActive() || !NotifyWearableBridge.isLinkUp()) {
-                NotifyWearableBridge.requestConnect(activity);
-            }
+            // ↻ = full Bluetooth reconnect (link closed, cache refreshed, fresh connect), then
+            // the 30 s resting calibration as soon as the heart rate flows again.
+            NotifyWearableBridge.fullReconnect(activity);
             HrGuard.startCalibration();
-            toastMessage(activity, WearableUi.tr("Калибриране 30 s — стой спокойно",
-                    "Calibrating 30 s — stay still"));
+            toastMessage(activity, WearableUi.tr("Връзката с гривната се рестартира · калибриране 30 s",
+                    "Reconnecting the band · 30 s calibration"));
             refreshOverlayDisplay();
         }
     }
@@ -1252,7 +1251,7 @@ public final class WearableSyncHelper {
     static final class OverlayInfoListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            WearableLivePanel.show(resolveActivity(v));
+            WearableHrPanel.show(resolveActivity(v));
         }
     }
 

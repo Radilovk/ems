@@ -182,6 +182,49 @@ public final class NotifyWearableBridge {
         connect(activity);
     }
 
+    private static final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+    /** Pause between closing and reopening, so the Bluetooth stack releases the old link. */
+    private static final long FULL_RECONNECT_GAP_MS = 1200L;
+
+    /**
+     * ↻ on the HR dial: a complete Bluetooth restart — close the link (GATT or RFCOMM socket),
+     * forget the band status, wait for the stack, refresh the GATT cache and connect afresh.
+     */
+    public static void fullReconnect(Activity activity) {
+        owners.add(OWNER_DIAL);
+        try {
+            com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.link().disconnect();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("reconnect", "disconnect: " + t);
+        }
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.reset();
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient.getInstance().refreshCacheOnNextConnect();
+        bleState = "reconnecting";
+        lastHr = -1;
+        WearableBleDiagLog.log("reconnect", "full Bluetooth reconnect");
+        WearableSyncHelper.updateHeartRate(-1, false);
+        WearableSyncHelper.updateDiagnostics();
+        main.removeCallbacks(fullReconnectTask);
+        fullReconnectTask.activity = activity;
+        main.postDelayed(fullReconnectTask, FULL_RECONNECT_GAP_MS);
+    }
+
+    private static final FullReconnectTask fullReconnectTask = new FullReconnectTask();
+
+    static final class FullReconnectTask implements Runnable {
+        Activity activity;
+
+        @Override
+        public void run() {
+            try {
+                connect(activity);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.fullReconnect", t);
+            }
+            activity = null;
+        }
+    }
+
     /** Take a share and force a fresh connection (explicit "reconnect" by the user). */
     public static void reconnect(Activity activity, String owner) {
         if (owner != null) {
@@ -292,6 +335,7 @@ public final class NotifyWearableBridge {
             WearableBleDiagLog.log("hr", "ignored " + hr + " — band not worn");
             return;
         }
+        HrHistory.add(System.currentTimeMillis(), hr);
         hrEventCount++;
         lastHr = hr;
         WearableSyncHelper.updateHeartRate(hr, bandConnected);

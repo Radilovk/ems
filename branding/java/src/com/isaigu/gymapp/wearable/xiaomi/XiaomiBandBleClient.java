@@ -109,6 +109,8 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
     private int lastF3 = -1;
     private int lastF5 = -1;
     private int lastRawHr = -1;
+    /** Next service discovery drops Android's GATT cache first (full reconnect). */
+    private boolean refreshCache;
     private long lastStatusPollMs;
     private static final long STATUS_POLL_MS = 30000L;
 
@@ -351,6 +353,11 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
         notifyConnected(false);
     }
 
+    /** Ask for a clean service table on the next connection (hidden BluetoothGatt.refresh). */
+    public void refreshCacheOnNextConnect() {
+        refreshCache = true;
+    }
+
     public void startRealtime() {
         realtimeActive = true;
         if (authenticated && postAuthInit.isComplete()) {
@@ -441,6 +448,16 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
         mainHandler.removeCallbacks(mtuFallbackTask);
         gatt = g;
         setState("discovering");
+        if (refreshCache) {
+            refreshCache = false;
+            try {
+                java.lang.reflect.Method m = g.getClass().getMethod("refresh");
+                Object ok = m.invoke(g);
+                log("gatt", "cache refresh " + ok);
+            } catch (Throwable t) {
+                log("gatt", "cache refresh not available");
+            }
+        }
         try {
             g.discoverServices();
         } catch (SecurityException e) {

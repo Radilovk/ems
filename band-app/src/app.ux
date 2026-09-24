@@ -15,7 +15,7 @@ import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 3
+const APP_VERSION = 4
 
 export default {
   state: null,
@@ -92,10 +92,10 @@ export default {
   },
 
   receive(data) {
-    let m = data
+    let m = data && data.data !== undefined && data.t === undefined ? data.data : data
     try {
-      if (typeof data === 'string') {
-        m = JSON.parse(data)
+      if (typeof m === 'string') {
+        m = JSON.parse(m)
       }
     } catch (e) {
       return
@@ -122,7 +122,7 @@ export default {
     }
     try {
       this.conn.send({
-        data: JSON.stringify(obj),
+        data: obj,                              // the system wants an object (202 'invalid data' for a string)
         success: () => {
           this.diag.sent++
         },

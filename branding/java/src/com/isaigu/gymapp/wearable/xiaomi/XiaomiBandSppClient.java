@@ -538,6 +538,8 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             onAuth(cmd, sub);
         } else if (type == XiaomiBandMessages.T_HEALTH && sub == XiaomiBandMessages.HEALTH_RT_EVENT) {
             onRealtime(cmd);
+        } else if (XiaomiBandRemote.onCommand(type, sub, cmd)) {
+            log("remote", "music sub=" + sub);
         } else if (type == XiaomiBandMessages.T_SYSTEM) {
             if (XiaomiBandStatus.onSystemCommand(sub, cmd)) {
                 log("status", "bat=" + XiaomiBandStatus.getBatteryPercent()
@@ -718,6 +720,13 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     }
 
     // ================================================================ sending
+
+    @Override
+    public void sendCommand(byte[] proto) {
+        if (authenticated) {
+            send(proto);
+        }
+    }
 
     /** Auth commands go plain; everything after auth is encrypted. */
     private void send(byte[] proto) {

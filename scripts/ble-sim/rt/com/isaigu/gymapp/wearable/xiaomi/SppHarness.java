@@ -40,6 +40,7 @@ public class SppHarness implements XiaomiBandSppPort {
     XiaomiBandSppClient c = XiaomiBandSppClient.getInstance();
     c.setTestPort(port);
     c.setListener(new Listen());
+    XiaomiBandRemote.setListener(new Remote(c));
     c.connect(new android.content.Context(), "D0:62:2C:26:49:60", a[1]);
     c.startRealtime();
     for (long t = 0; t < 30000 && dropped == null; t += 250) {
@@ -49,8 +50,17 @@ public class SppHarness implements XiaomiBandSppPort {
     System.out.println("STATUS battery=" + XiaomiBandStatus.getBatteryPercent() + " worn=" + XiaomiBandStatus.isKnownWorn()
         + " notWorn=" + XiaomiBandStatus.isKnownNotWorn() + " fw=" + XiaomiBandStatus.getFirmware()
         + " model=" + XiaomiBandStatus.getModel() + " transport=" + c.getTransportName());
+    System.out.println("KEYS " + keys);
     System.out.println("RESULT dropped=" + dropped + " hr=" + hrs + " finalState=" + (states.isEmpty() ? "" : states.get(states.size() - 1)));
     p.destroy();
+  }
+
+  static final List<Integer> keys = new ArrayList<Integer>();
+  static final class Remote implements XiaomiBandRemote.Listener {
+    final XiaomiBandSppClient c;
+    Remote(XiaomiBandSppClient c) { this.c = c; }
+    public void onMusicRequest() { c.sendCommand(XiaomiBandRemote.musicInfo(true, false, 50, "128 bpm · Z3", "Основна · 4:20 · 86 kcal", 300, 1200)); }
+    public void onMediaKey(int key, int volume) { keys.add(key); System.out.println("  [KEY] " + key); }
   }
 
   static final class Listen implements XiaomiBandBleClient.Listener {

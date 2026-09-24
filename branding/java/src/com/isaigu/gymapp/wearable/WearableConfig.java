@@ -96,6 +96,15 @@ public final class WearableConfig {
                 key != null ? key.trim() : "").apply();
     }
 
+    /** The band's music screen works as the training remote (title = live state, keys = control). */
+    public static boolean isBandRemoteEnabled(Context context) {
+        return context == null || prefs(context).getBoolean("band_remote", true);
+    }
+
+    public static void setBandRemoteEnabled(Context context, boolean on) {
+        prefs(context).edit().putBoolean("band_remote", on).apply();
+    }
+
     /** 0 auto (by band name), 1 BLE (Band 8 and older), 2 Bluetooth Classic SPP (Band 9 / 10). */
     public static int getBandTransport(Context context) {
         if (context == null) {

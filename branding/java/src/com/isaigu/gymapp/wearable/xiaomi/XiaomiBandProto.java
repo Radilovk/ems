@@ -66,7 +66,7 @@ final class XiaomiBandProto {
     }
 
     static byte[] protoFieldString(int fieldNumber, String value) {
-        return protoFieldBytes(fieldNumber, value.getBytes());
+        return protoFieldBytes(fieldNumber, value.getBytes(java.nio.charset.Charset.forName("UTF-8")));
     }
 
     static Map<Integer, List<Object>> protoParse(byte[] data) {

@@ -58,6 +58,9 @@
 .method public abstract isConnected()Z
 .end method
 
+.method public abstract sendCommand([B)V
+.end method
+
 .method public abstract setListener(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;)V
 .end method
 

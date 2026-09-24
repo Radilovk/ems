@@ -15,6 +15,9 @@ public interface XiaomiBandLink {
 
     void startRealtime();
 
+    /** Send a ready-made protobuf command (encrypted like every post-auth command). */
+    void sendCommand(byte[] proto);
+
     /** "BLE" or "SPP v1" / "SPP v2". */
     String getTransportName();
 

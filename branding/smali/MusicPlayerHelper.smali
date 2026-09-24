@@ -2116,7 +2116,7 @@
     return-void
 .end method
 
-.method static currentTitle()Ljava/lang/String;
+.method public static currentTitle()Ljava/lang/String;
     .registers 2
 
     .prologue
@@ -7327,7 +7327,7 @@
     goto :goto_9
 .end method
 
-.method static skipTrack(I)V
+.method public static skipTrack(I)V
     .registers 1
 
     .prologue
@@ -8262,7 +8262,7 @@
     goto :goto_2
 .end method
 
-.method static togglePlayPause()V
+.method public static togglePlayPause()V
     .registers 6
 
     .prologue

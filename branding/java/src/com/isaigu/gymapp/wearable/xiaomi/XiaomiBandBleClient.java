@@ -646,7 +646,15 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
         startStallWatch();
     }
 
-    private void sendCommand(byte[] protoBytes) {
+    @Override
+    public void sendCommand(byte[] protoBytes) {
+        if (!authenticated || protoBytes == null) {
+            return;
+        }
+        sendCommandInternal(protoBytes);
+    }
+
+    private void sendCommandInternal(byte[] protoBytes) {
         try {
             byte[] frame;
             if (frameEncrypt && session != null) {
@@ -786,6 +794,10 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
                 return;
             }
             handleAuth(cmd, subtype);
+            return;
+        }
+        if (XiaomiBandRemote.onCommand(type, subtype, cmd)) {
+            log("remote", "music sub=" + subtype);
             return;
         }
         if (type == SYSTEM_CMD_TYPE && XiaomiBandStatus.onSystemCommand(subtype, cmd)) {

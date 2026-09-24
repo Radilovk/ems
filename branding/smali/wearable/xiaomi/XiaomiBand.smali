@@ -138,7 +138,7 @@
 
     if-nez v2, :cond_26
 
-    const-string v2, "^Xiaomi( Smart)? Band \\d+( Active| Pro)? [0-9A-Za-z]{4}$"
+    const-string v2, "^Xiaomi( Smart)? Band \\d+( Active| Pro| NFC)?( [0-9A-Za-z]{4})?$"
 
     .line 77
     invoke-virtual {v1, v2}, Ljava/lang/String;->matches(Ljava/lang/String;)Z
@@ -523,7 +523,7 @@
     move-result-object v1
 
     .line 61
-    const-string v2, "^Xiaomi Smart Band (9|10)( Pro)? [0-9A-Fa-f]{4}$"
+    const-string v2, "^Xiaomi Smart Band (9|10)( Pro| NFC)?( [0-9A-Fa-f]{4})?$"
 
     invoke-virtual {v1, v2}, Ljava/lang/String;->matches(Ljava/lang/String;)Z
 
@@ -532,7 +532,7 @@
     if-nez v2, :cond_4
 
     .line 64
-    const-string v2, "^Xiaomi Smart Band 8 Pro [0-9A-Fa-f]{4}$"
+    const-string v2, "^Xiaomi Smart Band 8 Pro( [0-9A-Fa-f]{4})?$"
 
     invoke-virtual {v1, v2}, Ljava/lang/String;->matches(Ljava/lang/String;)Z
 
@@ -541,7 +541,7 @@
     if-nez v2, :cond_4
 
     .line 67
-    const-string v0, "^Redmi Watch (4|5|5 Active|5 Lite) [0-9A-Fa-f]{4}$"
+    const-string v0, "^Redmi Watch (4|5|5 Active|5 Lite)( [0-9A-Fa-f]{4})?$"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->matches(Ljava/lang/String;)Z
 

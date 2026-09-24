@@ -58,13 +58,13 @@ public final class XiaomiBand {
             return false;
         }
         String n = name.trim();
-        if (n.matches("^Xiaomi Smart Band (9|10)( Pro)? [0-9A-Fa-f]{4}$")) {
+        if (n.matches("^Xiaomi Smart Band (9|10)( Pro| NFC)?( [0-9A-Fa-f]{4})?$")) {
             return true;
         }
-        if (n.matches("^Xiaomi Smart Band 8 Pro [0-9A-Fa-f]{4}$")) {
+        if (n.matches("^Xiaomi Smart Band 8 Pro( [0-9A-Fa-f]{4})?$")) {
             return true;
         }
-        return n.matches("^Redmi Watch (4|5|5 Active|5 Lite) [0-9A-Fa-f]{4}$");
+        return n.matches("^Redmi Watch (4|5|5 Active|5 Lite)( [0-9A-Fa-f]{4})?$");
     }
 
     /** The name tells which radio to use (so no manual choice is needed). */
@@ -74,7 +74,7 @@ public final class XiaomiBand {
         }
         String n = name.trim();
         return usesClassic(n)
-                || n.matches("^Xiaomi( Smart)? Band \\d+( Active| Pro)? [0-9A-Za-z]{4}$")
+                || n.matches("^Xiaomi( Smart)? Band \\d+( Active| Pro| NFC)?( [0-9A-Za-z]{4})?$")
                 || n.matches("^Redmi (Smart )?Band.*")
                 || n.matches("^Mi Smart Band.*");
     }

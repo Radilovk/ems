@@ -29,6 +29,11 @@ final class XiaomiBandMessages {
     static final int SYS_STATE_GET = 78;
     static final int SYS_STATE_EVENT = 79;
 
+    static final int T_MUSIC = 18;
+    static final int MUSIC_GET = 0;        // band asks for the current "track"
+    static final int MUSIC_INFO = 1;       // phone → band: state, title, artist, position
+    static final int MUSIC_BUTTON = 2;     // band → phone: media key
+
     static final int HEALTH_USER_INFO = 0;
     static final int HEALTH_RT_START = 45;
     static final int HEALTH_RT_STOP = 46;
@@ -142,6 +147,41 @@ final class XiaomiBandMessages {
                 XiaomiBandProto.protoFieldVarint(11, 30));
         byte[] health = XiaomiBandProto.protoFieldMessage(1, info);
         return command(T_HEALTH, HEALTH_USER_INFO, XiaomiBandProto.protoFieldMessage(10, health));
+    }
+
+    // ================================================================ music screen
+
+    /**
+     * What the band's music screen shows: Command.music(20) → Music.musicInfo(1) →
+     * {state 1 (0 stopped, 1 playing, 2 paused), volume 2, track 4, artist 5,
+     * position 6 and duration 7 in seconds}.
+     */
+    static byte[] musicInfo(int state, int volume, String track, String artist, int positionS, int durationS) {
+        byte[] info = XiaomiBandProto.concat(
+                XiaomiBandProto.protoFieldVarint(1, state),
+                XiaomiBandProto.protoFieldVarint(2, volume));
+        if (track != null) {
+            info = XiaomiBandProto.concat(info, XiaomiBandProto.protoFieldString(4, track));
+        }
+        if (artist != null) {
+            info = XiaomiBandProto.concat(info, XiaomiBandProto.protoFieldString(5, artist));
+        }
+        if (durationS > 0) {
+            info = XiaomiBandProto.concat(info,
+                    XiaomiBandProto.protoFieldVarint(6, Math.max(0, Math.min(positionS, durationS))),
+                    XiaomiBandProto.protoFieldVarint(7, durationS));
+        }
+        byte[] music = XiaomiBandProto.protoFieldMessage(1, info);
+        return command(T_MUSIC, MUSIC_INFO, XiaomiBandProto.protoFieldMessage(20, music));
+    }
+
+    /** Media key from the band: {key, volume} or null. Keys: 0 play, 1 pause, 3 prev, 4 next, 5 volume. */
+    static int[] mediaKey(Map<Integer, List<Object>> cmd) {
+        Map<Integer, List<Object>> key = sub(sub(cmd, 20), 2);
+        if (key == null) {
+            return null;
+        }
+        return new int[] {intField(key, 1), intField(key, 2)};
     }
 
     // ================================================================ parsing

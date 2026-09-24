@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 271
+    .line 299
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,21 +34,21 @@
     .registers 3
 
     .prologue
-    .line 275
+    .line 303
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->refresh()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 279
+    .line 307
     :goto_3
     return-void
 
-    .line 276
+    .line 304
     :catch_4
     move-exception v0
 
-    .line 277
+    .line 305
     const-string v1, "XemsPanel.refresh"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

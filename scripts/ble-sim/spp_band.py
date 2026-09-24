@@ -122,7 +122,8 @@ def v2_frame(ptype, seq, payload):
 
 
 st = {"proto": 1, "keys": None, "pn": None, "wn": os.urandom(16), "authed": False, "rt": False,
-      "rt_sent": 0, "cmds": [], "seq": 0, "rx": b"", "acks": 0, "unacked": 0, "v1_ctr": 0}
+      "rt_sent": 0, "cmds": [], "seq": 0, "rx": b"", "acks": 0, "unacked": 0, "v1_ctr": 0,
+      "music": 0, "track": None}
 
 
 def send_cmd(proto):
@@ -181,6 +182,11 @@ def on_command(proto):
     elif t == 8 and s == 0:
         info = pb(pb(d[10][0])[1][0])
         log("user info height=%d gender=%d" % (info[1][0], info[4][0]))
+    elif t == 18 and s == 1:
+        info = pb(pb(d[20][0])[1][0])
+        st["track"] = (info.get(4, [b"?"])[0].decode(), info.get(5, [b""])[0].decode(), info[1][0])
+        log("music screen: %r / %r state=%d" % st["track"])
+        log("music text utf8 %s" % ("ok" if st["track"][1].startswith("\u041e\u0441\u043d") else "BROKEN"))
     elif t == 8 and s == 45:
         st["rt"] = True
     elif t == 8 and s == 46:
@@ -276,6 +282,11 @@ def feed(data):
 
 
 def tick():
+    # The user opens the music screen, then presses ⏭ on the band.
+    if st["authed"] and st["rt_sent"] >= 3 and st["music"] == 0:
+        send_cmd(command(18, 0)); st["music"] = 1; return
+    if st["music"] == 1 and st["track"] is not None:
+        send_cmd(command(18, 2, fb(20, fb(2, fv(1, 4))))); st["music"] = 2; return
     if st["rt"] and st["rt_sent"] < 5:
         hr = 0 if st["rt_sent"] == 0 else 70 + st["rt_sent"]
         stats = fv(1, 2000 + st["rt_sent"]) + fv(2, 40) + fv(3, 7) + fv(4, hr)
@@ -294,4 +305,6 @@ for line in sys.stdin:
     elif parts[0] == "SUMMARY":
         log("summary proto=v%d cmds=%s rt_sent=%d acks_from_phone=%d unacked=%d"
             % (st["proto"], ",".join(st["cmds"]), st["rt_sent"], st["acks"], st["unacked"]))
+        if st["track"] is not None and st["music"] == 2:
+            log("MUSIC ok")
     emit(".")

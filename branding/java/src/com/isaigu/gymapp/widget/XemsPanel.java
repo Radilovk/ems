@@ -39,6 +39,33 @@ public final class XemsPanel {
     private static View startButton;
     private static boolean shownRunning;
     private static LinearLayout sidebarRef;
+    private static View panelRootRef;
+
+    public static final int PRESS_START = 0;
+    public static final int PRESS_PLUS = 1;
+    public static final int PRESS_MINUS = 2;
+
+    /** Press a main-panel button from elsewhere (the band's music screen). */
+    public static boolean press(int which) {
+        View root = panelRootRef;
+        if (root == null) {
+            return false;
+        }
+        int id = which == PRESS_PLUS ? ID_ADD : which == PRESS_MINUS ? ID_MINUS : ID_START;
+        View target = root.findViewById(id);
+        if (target == null) {
+            return false;
+        }
+        target.performClick();
+        if (which == PRESS_START && startButton != null) {
+            startButton.postDelayed(new Refresh(), 250);
+        }
+        return true;
+    }
+
+    public static boolean isRunning() {
+        return isTrainingRunning();
+    }
 
     private XemsPanel() {}
 
@@ -57,6 +84,7 @@ public final class XemsPanel {
         }
         LinearLayout sidebar = (LinearLayout) side;
         sidebarRef = sidebar;
+        panelRootRef = panelRoot;
         Context c = sidebar.getContext();
         XemsUi.init(c);
         View old = sidebar.findViewWithTag(TAG);

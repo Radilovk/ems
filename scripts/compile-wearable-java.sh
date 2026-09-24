@@ -48,6 +48,8 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrHistory.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrChartView.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableHrPanel.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/BandRemote.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandRemote.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBand.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages.java"

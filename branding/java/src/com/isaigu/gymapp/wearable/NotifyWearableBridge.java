@@ -317,6 +317,7 @@ public final class NotifyWearableBridge {
     }
 
     private static void disconnect(Context context) {
+        BandRemote.stop();
         XiaomiBand.link().disconnect();
         bleState = "stopped";
         NotifyHaForegroundService.stop(context);
@@ -354,6 +355,11 @@ public final class NotifyWearableBridge {
 
     static void onBandConnected() {
         bandConnected = true;
+        try {
+            BandRemote.start();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("remote", "start: " + t);
+        }
         WearableSyncHelper.updateHeartRate(lastHr, true);
         WearableSyncHelper.updateDiagnostics();
     }

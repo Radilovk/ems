@@ -7,7 +7,8 @@ D="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "${D}/../.." && pwd)"
 SRC="${SRC:-${ROOT}/branding/java/src}"; W="${SRC}/com/isaigu/gymapp/wearable"
 KEY="${AUTH_KEY:-$(python3 -c 'import os;print(os.urandom(16).hex())')}"
 OUT="$(mktemp -d)"; trap 'rm -rf "${OUT}"' EXIT
-javac -nowarn -source 8 -target 8 -d "${OUT}" $(find "${D}/rt" -name '*.java' ! -name 'Harness.java') \
+javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${OUT}" $(find "${D}/rt" -name '*.java' ! -name 'Harness.java') \
   "${W}/WearableBleDiagLog.java" "${W}"/xiaomi/*.java 2>&1 | grep -v "Picked up\|bootstrap\|^Note\|warning" || true
 java -cp "${OUT}" com.isaigu.gymapp.wearable.xiaomi.SppHarness "${D}/spp_band.py" "${KEY}" 2>/dev/null | tee "${OUT}/log.txt" | grep -v "Picked up"
-grep -q "RESULT dropped=null hr=\[71, 72, 73, 74\] finalState=streaming" "${OUT}/log.txt" && echo "PASS" || { echo "FAIL"; exit 1; }
+grep -q "RESULT dropped=null hr=\[71, 72, 73, 74\] finalState=streaming" "${OUT}/log.txt" \
+  && grep -q "MUSIC ok" "${OUT}/log.txt" && grep -q "music text utf8 ok" "${OUT}/log.txt" && grep -q "KEYS \[4\]" "${OUT}/log.txt" && echo "PASS" || { echo "FAIL"; exit 1; }

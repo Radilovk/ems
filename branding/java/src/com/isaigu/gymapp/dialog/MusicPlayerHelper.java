@@ -1768,7 +1768,7 @@ public final class MusicPlayerHelper {
     private static boolean compactMode = true;
 
     /** Play / pause / start — shared by the full panel and the dial. */
-    static void togglePlayPause() {
+    public static void togglePlayPause() {
         {
             long now = SystemClock.elapsedRealtime();
             if (now - lastPlayClickMs < PLAY_DEBOUNCE_MS) {
@@ -1799,12 +1799,12 @@ public final class MusicPlayerHelper {
         }
     }
 
-    static void skipTrack(int dir) {
+    public static void skipTrack(int dir) {
         skip(dir);
         MusicDial.refresh();
     }
 
-    static String currentTitle() {
+    public static String currentTitle() {
         return currentIndex >= 0 && currentIndex < playlist.size() ? playlist.get(currentIndex).name : null;
     }
 

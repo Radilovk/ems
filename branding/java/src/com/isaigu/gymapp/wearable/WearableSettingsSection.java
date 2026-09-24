@@ -129,6 +129,14 @@ public final class WearableSettingsSection {
                     WearableUi.tr("Band 8 и по-стари", "Band 8 and older"),
                     "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
         }
+        // The band's music screen as the training remote (no app to install on the band).
+        LinearLayout remote = com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
+                WearableUi.tr("Управление от гривната", "Control from the band"),
+                WearableUi.tr("Музикалният екран на гривната показва пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±",
+                        "The band's music screen shows HR and block; ▶ start/pause, ⏭ ⏮ strength ±"),
+                WearableConfig.isBandRemoteEnabled(a), new RemoteToggle(a));
+        remote.setPadding(0, WearableUi.dp(a, 12), 0, 0);
+        card.addView(remote);
         bandInfoView = WearableUi.text(a, "", 13f, mutedCol, false);
         bandInfoView.setPadding(0, WearableUi.dp(a, 6), 0, 0);
         card.addView(bandInfoView);
@@ -322,6 +330,19 @@ public final class WearableSettingsSection {
             }
         }
         return sb.toString();
+    }
+
+    static final class RemoteToggle implements com.isaigu.gymapp.widget.XemsUi.OnToggle {
+        private final Activity a;
+
+        RemoteToggle(Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void onToggle(boolean on) {
+            WearableConfig.setBandRemoteEnabled(a, on);
+        }
     }
 
     static final class TransportPick implements com.isaigu.gymapp.widget.XemsUi.OnIndex {

@@ -1,0 +1,270 @@
+package com.isaigu.gymapp.wearable;
+
+import android.os.Handler;
+import android.os.Looper;
+
+import com.isaigu.gymapp.ai.AiEngine;
+import com.isaigu.gymapp.ai.AiModel;
+import com.isaigu.gymapp.ai.AiSession;
+import com.isaigu.gymapp.dialog.MusicPlayerHelper;
+import com.isaigu.gymapp.train.utils.MusicSync;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBand;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandLink;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandRemote;
+import com.isaigu.gymapp.widget.XemsGuard;
+import com.isaigu.gymapp.widget.XemsPanel;
+
+import java.util.Locale;
+
+/**
+ * XEMS on the wrist without installing anything: the band's own music screen becomes the
+ * training remote. The "track" carries the live state, the buttons control the training.
+ *
+ * <pre>
+ *            AI session                  manual training            music only
+ * title      128 bpm · Z3                128 bpm · Z3               song title
+ * subtitle   Main · 04:20 · 86 kcal      Training 12:30 · 86 kcal   XEMS ♫
+ * ▶ / ❚❚     pause / resume; next block  start / pause              play / pause
+ *            once the rest is done
+ * ⏭ · vol+   strength + (AI rules)       master +                   next song
+ * ⏮ · vol−   strength −                  master −                   previous song
+ * </pre>
+ */
+public final class BandRemote implements XiaomiBandRemote.Listener {
+    private static final long TICK_MS = 2000L;
+    /** Volume we report; a band request above / below it is a +/− step. */
+    private static final int VOL = 50;
+
+    private static final BandRemote INSTANCE = new BandRemote();
+    private static final Handler handler = new Handler(Looper.getMainLooper());
+    private static final Runnable tick = new Tick();
+
+    private static boolean running;
+    private static String lastSent = "";
+    private static long lastSentMs;
+    private static long trainStartMs;
+    private static long trainAccumMs;
+    private static boolean trainWasRunning;
+
+    private BandRemote() {}
+
+    /** Called when the band link comes up (and on every connect). */
+    public static void start() {
+        XiaomiBandRemote.setListener(INSTANCE);
+        lastSent = "";
+        if (!running) {
+            running = true;
+            handler.post(tick);
+        }
+    }
+
+    public static void stop() {
+        running = false;
+        handler.removeCallbacks(tick);
+    }
+
+    // ================================================================ band → XEMS
+
+    @Override
+    public void onMusicRequest() {
+        handler.post(new Push(true));
+    }
+
+    @Override
+    public void onMediaKey(final int key, final int volume) {
+        handler.post(new Key(key, volume));
+    }
+
+    static void handleKey(int key, int volume) {
+        if (!WearableConfig.isBandRemoteEnabled(WearableSyncHelper.getContext())) {
+            return;
+        }
+        int action;                       // 0 play/pause, +1 up, −1 down
+        if (key == XiaomiBandRemote.KEY_PLAY || key == XiaomiBandRemote.KEY_PAUSE) {
+            action = 0;
+        } else if (key == XiaomiBandRemote.KEY_NEXT) {
+            action = 1;
+        } else if (key == XiaomiBandRemote.KEY_PREV) {
+            action = -1;
+        } else if (key == XiaomiBandRemote.KEY_VOLUME) {
+            action = volume > VOL ? 1 : volume < VOL ? -1 : 0;
+            if (action == 0) {
+                return;
+            }
+        } else {
+            return;
+        }
+        WearableBleDiagLog.log("remote", "key=" + key + " vol=" + volume + " → " + action);
+        AiEngine e = AiSession.getEngine();
+        boolean ai = AiSession.getStage() == AiSession.Stage.RUNNING && e != null;
+        if (ai) {
+            if (action == 0) {
+                if (e.getState() == AiEngine.State.REST && e.isRestReady()) {
+                    AiSession.continueBlock();
+                } else {
+                    AiSession.togglePause();
+                }
+            } else if (action > 0) {
+                AiSession.increase();      // only gives back a reduce, never above the plan
+            } else {
+                AiSession.reduce();
+            }
+        } else if (XemsPanel.isRunning() || action == 0 && !musicOnly()) {
+            XemsPanel.press(action == 0 ? XemsPanel.PRESS_START
+                    : action > 0 ? XemsPanel.PRESS_PLUS : XemsPanel.PRESS_MINUS);
+        } else if (musicOnly()) {
+            if (action == 0) {
+                MusicPlayerHelper.togglePlayPause();
+            } else {
+                MusicPlayerHelper.skipTrack(action);
+            }
+        }
+        handler.postDelayed(new Push(true), 300);
+    }
+
+    private static boolean musicOnly() {
+        return !XemsPanel.isRunning() && MusicSync.isRunning() && MusicSync.isPlayerMode();
+    }
+
+    // ================================================================ XEMS → band
+
+    static void push(boolean force) {
+        XiaomiBandLink link = XiaomiBand.link();
+        if (link == null || !link.isConnected()
+                || !WearableConfig.isBandRemoteEnabled(WearableSyncHelper.getContext())) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        boolean trainRunning = XemsPanel.isRunning();
+        if (trainRunning && !trainWasRunning) {
+            trainStartMs = now;
+        } else if (!trainRunning && trainWasRunning) {
+            trainAccumMs += now - trainStartMs;
+        }
+        trainWasRunning = trainRunning;
+        long trainMs = trainAccumMs + (trainRunning ? now - trainStartMs : 0);
+
+        int hr = NotifyWearableBridge.getLastHeartRate();
+        int limit = WearableSyncHelper.getContext() != null
+                ? WearableConfig.getHrThreshold(WearableSyncHelper.getContext()) : 170;
+        String hrText = hr > 0 ? hr + " bpm · Z" + WearableUi.zoneFor(hr, limit) : "XEMS";
+
+        String title;
+        String sub;
+        boolean playing;
+        boolean paused;
+        int pos = 0;
+        int dur = 0;
+        AiEngine e = AiSession.getEngine();
+        if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null) {
+            AiEngine.State st = e.getState();
+            AiModel.Phase ph = e.phase();
+            double kcal = AiSession.getKcal();
+            title = hrText;
+            if (st == AiEngine.State.REST && e.isRestReady()) {
+                sub = WearableUi.tr("Почивката стига · ▶ продължи", "Rest done · ▶ continue");
+            } else {
+                sub = phaseName(ph.id) + " · " + mmss(ph.durationS - e.getPhaseElapsedS())
+                        + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
+            }
+            playing = st == AiEngine.State.RUN;
+            paused = !playing;
+            pos = (int) e.getElapsedPlanS();
+            dur = e.getPlan().totalS;
+        } else if (trainRunning || trainMs > 0 && !musicOnly()) {
+            double kcal = HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+            title = hrText;
+            sub = WearableUi.tr("Тренировка ", "Training ") + mmss(trainMs / 1000.0)
+                    + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
+            playing = trainRunning;
+            paused = !trainRunning;
+        } else if (musicOnly()) {
+            String t = MusicPlayerHelper.currentTitle();
+            title = t != null && t.length() > 0 ? t : "XEMS";
+            sub = hr > 0 ? "XEMS ♫ · " + hr + " bpm" : "XEMS ♫";
+            playing = !MusicSync.isPlaybackPaused();
+            paused = !playing;
+            pos = MusicSync.getPlaybackPositionMs() / 1000;
+            dur = MusicSync.getPlaybackDurationMs() / 1000;
+        } else {
+            title = hrText;
+            sub = WearableUi.tr("Готов · ▶ старт", "Ready · ▶ start");
+            playing = false;
+            paused = true;
+        }
+        String key = title + "|" + sub + "|" + playing + "|" + (dur > 0 ? pos / 5 : 0);
+        if (!force && key.equals(lastSent) && now - lastSentMs < 20000L) {
+            return;
+        }
+        lastSent = key;
+        lastSentMs = now;
+        link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
+    }
+
+    private static String phaseName(AiModel.PhaseId id) {
+        switch (id) {
+            case WARMUP: return WearableUi.tr("Загрявка", "Warm-up");
+            case MAIN: return WearableUi.tr("Основна", "Main");
+            case METABOLIC: return WearableUi.tr("Метаболитна", "Metabolic");
+            default: return WearableUi.tr("Разпускане", "Cool-down");
+        }
+    }
+
+    private static String mmss(double s) {
+        long v = Math.max(0, Math.round(s));
+        return String.format(Locale.US, "%d:%02d", v / 60, v % 60);
+    }
+
+    // ================================================================ runnables
+
+    static final class Tick implements Runnable {
+        @Override
+        public void run() {
+            if (!running) {
+                return;
+            }
+            try {
+                push(false);
+            } catch (Throwable t) {
+                XemsGuard.report("BandRemote.tick", t);
+            }
+            handler.postDelayed(this, TICK_MS);
+        }
+    }
+
+    static final class Push implements Runnable {
+        private final boolean force;
+
+        Push(boolean force) {
+            this.force = force;
+        }
+
+        @Override
+        public void run() {
+            try {
+                push(force);
+            } catch (Throwable t) {
+                XemsGuard.report("BandRemote.push", t);
+            }
+        }
+    }
+
+    static final class Key implements Runnable {
+        private final int key;
+        private final int volume;
+
+        Key(int key, int volume) {
+            this.key = key;
+            this.volume = volume;
+        }
+
+        @Override
+        public void run() {
+            try {
+                handleKey(key, volume);
+            } catch (Throwable t) {
+                XemsGuard.report("BandRemote.key", t);
+            }
+        }
+    }
+}

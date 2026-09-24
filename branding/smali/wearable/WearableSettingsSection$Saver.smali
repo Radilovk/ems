@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 363
+    .line 384
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 364
+    .line 385
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
-    .line 365
+    .line 386
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 5
 
     .prologue
-    .line 375
+    .line 396
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->colorFields()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1000()V
 
-    .line 376
+    .line 397
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
@@ -71,7 +71,7 @@
 
     move-result-object v0
 
-    .line 377
+    .line 398
     :goto_19
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1100()Landroid/widget/EditText;
@@ -97,7 +97,7 @@
 
     move-result-object v1
 
-    .line 378
+    .line 399
     :goto_2f
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidMac(Ljava/lang/String;)Z
 
@@ -105,7 +105,7 @@
 
     if-eqz v2, :cond_5b
 
-    .line 379
+    .line 400
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
@@ -114,7 +114,7 @@
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 383
+    .line 404
     :cond_3e
     :goto_3e
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidKey(Ljava/lang/String;)Z
@@ -129,35 +129,35 @@
 
     if-nez v0, :cond_4f
 
-    .line 384
+    .line 405
     :cond_4a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 386
+    .line 407
     :cond_4f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->refreshStatus(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$500(Landroid/app/Activity;)V
 
-    .line 387
+    .line 408
     return-void
 
-    .line 376
+    .line 397
     :cond_55
     const-string v0, ""
 
     goto :goto_19
 
-    .line 377
+    .line 398
     :cond_58
     const-string v1, ""
 
     goto :goto_2f
 
-    .line 380
+    .line 401
     :cond_5b
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -165,7 +165,7 @@
 
     if-nez v0, :cond_3e
 
-    .line 381
+    .line 402
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     const-string v2, ""
@@ -179,7 +179,7 @@
     .registers 5
 
     .prologue
-    .line 368
+    .line 389
     return-void
 .end method
 
@@ -187,6 +187,6 @@
     .registers 5
 
     .prologue
-    .line 371
+    .line 392
     return-void
 .end method

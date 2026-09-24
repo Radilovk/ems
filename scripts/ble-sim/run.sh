@@ -8,7 +8,7 @@ D="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "${D}/../.." && pwd)"
 SRC="${SRC:-${ROOT}/branding/java/src}"; W="${SRC}/com/isaigu/gymapp/wearable"
 KEY="${AUTH_KEY:-$(python3 -c 'import os;print(os.urandom(16).hex())')}"
 OUT="$(mktemp -d)"; trap 'rm -rf "${OUT}"' EXIT
-javac -nowarn -source 8 -target 8 -d "${OUT}" $(find "${D}/rt" -name '*.java') \
+javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${OUT}" $(find "${D}/rt" -name '*.java') \
   "${W}/WearableBleDiagLog.java" "${W}"/xiaomi/*.java 2>&1 | grep -v "Picked up\|bootstrap\|^Note\|warning" || true
 java -cp "${OUT}" sim.Harness "${D}/band.py" "${KEY}" "${1:-}" 2>/dev/null | tee "${OUT}/log.txt" | grep -v "Picked up"
 grep -q "RESULT dropped=null hr=\[71, 72, 73, 74\]" "${OUT}/log.txt" && echo "PASS" || { echo "FAIL"; exit 1; }

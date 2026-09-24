@@ -343,6 +343,9 @@ def install_smali() -> None:
     for src in sorted((BRANDING / "smali").glob("MusicPlayerHelper*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")
+    for src in sorted((BRANDING / "smali").glob("MusicDial*.smali")):
+        shutil.copy2(src, DIALOG_DIR / src.name)
+        print(f"installed dialog/{src.name}")
     for src in sorted((BRANDING / "smali").glob("ModalInfoHelper*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")

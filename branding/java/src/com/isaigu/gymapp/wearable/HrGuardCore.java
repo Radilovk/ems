@@ -65,7 +65,16 @@ public final class HrGuardCore {
         public int offS;
         public int strength;
         public boolean activePause;
+        /** Active pause: absolute strength % and frequency (TrainItem sends them on the same channels). */
+        public int pauseStrength;
+        public int pauseHz;
+        /** PartStrenthBean.buwei and TrainItem.partsDisabled of the row. */
+        public int[] channels;
+        public boolean[] disabled;
     }
+
+    /** Session peak charge per channel = the level the person tolerated (energy model). */
+    private final double[] peakCharge = new double[AiEnergy.CH_MASS.length];
 
     private final AiHrFilter filter = new AiHrFilter();
     private final ArrayDeque<double[]> recent = new ArrayDeque<double[]>();
@@ -177,8 +186,7 @@ public final class HrGuardCore {
     public boolean tick(long nowMs, Stim stim, boolean control) {
         tickCalibration(nowMs);
         double hr = hrFresh(nowMs) ? filter.getHrS() : -1;
-        energy.tick(nowMs, hr, stim != null && stim.running ? stim.strength / 100.0 * duty(stim) : 0,
-                stim != null ? stim.hz : 0);
+        energy.tick(nowMs, hr, energyStim(stim));
         slope = computeSlope();
         forecast = hr > 0 ? hr + Math.max(0, slope) * LAG_S : -1;
         if (stim == null || !stim.running || !control) {
@@ -356,6 +364,36 @@ public final class HrGuardCore {
 
     public void resetEnergy() {
         energy.reset();
+        java.util.Arrays.fill(peakCharge, 0);
+    }
+
+    /** Channel-aware stimulation for the energy model, averaged over the impulse cycle. */
+    private AiEnergy.Stim energyStim(Stim s) {
+        if (s == null || !s.running || s.strength <= 0) {
+            return null;
+        }
+        AiEnergy.Stim e = new AiEnergy.Stim();
+        e.channels = s.channels;
+        e.disabled = s.disabled;
+        e.strengthPct = s.strength;
+        e.hz = s.hz;
+        e.pwUs = s.pwUs > 0 ? s.pwUs : 350;
+        int on = Math.max(1, s.onS);
+        int off = Math.max(0, s.offS);
+        e.onShare = on / (double) (on + off);
+        if (s.activePause && off > 0) {
+            e.pauseStrengthPct = s.pauseStrength;
+            e.pauseHz = s.pauseHz;
+            e.pauseShare = off / (double) (on + off);
+        }
+        for (int i = 0; i < peakCharge.length; i++) {
+            double ch = s.channels != null ? (i < s.channels.length ? s.channels[i] : 0) : 100;
+            double q = ch / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.ARMS_SENT : 1.0)
+                    * Math.max(s.strength, s.activePause ? s.pauseStrength : 0) / 100.0 * e.pwUs / 350.0;
+            peakCharge[i] = Math.max(peakCharge[i], q);
+        }
+        e.toleratedCharge = peakCharge.clone();
+        return e;
     }
 
     /** Share of time with impulses: ON / (ON + OFF); 1 with active pause (impulse ↔ impulse). */

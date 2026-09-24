@@ -1,11 +1,11 @@
-.class public final Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;
+.class public final Lcom/isaigu/gymapp/ai/AiEnergy$Stim;
 .super Ljava/lang/Object;
-.source "HrGuardCore.java"
+.source "AiEnergy.java"
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/wearable/HrGuardCore;
+    value = Lcom/isaigu/gymapp/ai/AiEnergy;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -15,27 +15,25 @@
 
 
 # instance fields
-.field public activePause:Z
-
 .field public channels:[I
 
 .field public disabled:[Z
 
 .field public hz:I
 
-.field public offS:I
-
-.field public onS:I
+.field public onShare:D
 
 .field public pauseHz:I
 
-.field public pauseStrength:I
+.field public pauseShare:D
+
+.field public pauseStrengthPct:D
 
 .field public pwUs:I
 
-.field public running:Z
+.field public strengthPct:D
 
-.field public strength:I
+.field public toleratedCharge:[D
 
 
 # direct methods
@@ -43,7 +41,7 @@
     .registers 1
 
     .prologue
-    .line 60
+    .line 59
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void

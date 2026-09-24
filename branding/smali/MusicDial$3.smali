@@ -1,19 +1,19 @@
-.class final Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$InfoListener;
+.class Lcom/isaigu/gymapp/dialog/MusicDial$3;
 .super Ljava/lang/Object;
-.source "MusicPlayerHelper.java"
+.source "MusicDial.java"
 
 # interfaces
 .implements Landroid/view/View$OnClickListener;
 
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/isaigu/gymapp/dialog/MusicDial;->show(Landroid/app/Activity;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
-    accessFlags = 0x18
-    name = "InfoListener"
+    accessFlags = 0x0
+    name = null
 .end annotation
 
 
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1889
+    .line 113
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,28 +31,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 5
+    .registers 3
 
     .prologue
-    .line 1892
+    .line 116
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 1893
-    if-nez v0, :cond_7
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->openFull(Landroid/app/Activity;)V
 
-    .line 1897
-    :goto_6
+    .line 117
     return-void
-
-    .line 1896
-    :cond_7
-    const v1, 0x7f0d0172
-
-    const v2, 0x7f0d0173
-
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
-
-    goto :goto_6
 .end method

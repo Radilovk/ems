@@ -34,25 +34,25 @@
     .registers 6
 
     .prologue
-    .line 2071
+    .line 2168
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2072
+    .line 2169
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->which:I
 
-    .line 2073
+    .line 2170
     iput p2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->step:I
 
-    .line 2074
+    .line 2171
     iput p3, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->min:I
 
-    .line 2075
+    .line 2172
     iput p4, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->max:I
 
-    .line 2076
+    .line 2173
     iput-object p5, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->stepper:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
-    .line 2077
+    .line 2174
     return-void
 .end method
 
@@ -62,7 +62,7 @@
     .registers 6
 
     .prologue
-    .line 2081
+    .line 2178
     iget v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->min:I
 
     iget v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->max:I
@@ -70,7 +70,7 @@
     iget v2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->which:I
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->settingValue(I)I
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$5200(I)I
+    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4800(I)I
 
     move-result v2
 
@@ -88,7 +88,7 @@
 
     move-result v0
 
-    .line 2082
+    .line 2179
     new-instance v1, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;
 
     iget v2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->which:I
@@ -99,7 +99,7 @@
 
     invoke-virtual {v1, v2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;->onAmountChange(Landroid/view/View;I)V
 
-    .line 2083
+    .line 2180
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingStep;->stepper:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
@@ -110,6 +110,6 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 2084
+    .line 2181
     return-void
 .end method

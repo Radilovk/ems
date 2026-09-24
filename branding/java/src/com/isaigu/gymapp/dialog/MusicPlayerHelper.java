@@ -191,6 +191,13 @@ public final class MusicPlayerHelper {
             hidePlayerOverlay();
             return;
         }
+        if (compactMode) {
+            // Compact = the same floating dial as the timer and the HR dial.
+            loadPlaylist(activity);
+            MusicSync.loadSettings(activity);
+            MusicDial.show(activity);
+            return;
+        }
         if (overlayDialog != null) {
             if (reShowOverlay(activity)) {
                 return;
@@ -244,7 +251,7 @@ public final class MusicPlayerHelper {
 
     private static boolean isOverlayShowing() {
         try {
-            return overlayDialog != null && overlayDialog.isShowing();
+            return (overlayDialog != null && overlayDialog.isShowing()) || MusicDial.isShowing();
         } catch (Throwable ignored) {
             return overlayVisible;
         }
@@ -430,6 +437,7 @@ public final class MusicPlayerHelper {
     }
 
     public static void showPreparing() {
+        MusicDial.refresh();
         if (statusView != null) {
             statusView.setText(0x7f0d011b);
         }
@@ -814,6 +822,7 @@ public final class MusicPlayerHelper {
             }
             styleRound(content.findViewById(ID_CLOSE), XemsUi.SURFACE, XemsUi.TEXT);
             styleRound(content.findViewById(ID_INFO), XemsUi.SURFACE, XemsUi.TEXT);
+            addMinimize(a, content.findViewById(ID_CLOSE));
             View add = content.findViewById(ID_ADD_TRACK);
             if (add instanceof TextView) {
                 ((TextView) add).setText(tr("+  Добави песни", "+  Add songs"));
@@ -836,6 +845,25 @@ public final class MusicPlayerHelper {
             replaceAmount(a, smoothView, 3, 10, 0, 100);
         } catch (Throwable t) {
             MusicDiagLog.logError("music_player_style", t);
+        }
+    }
+
+    /** "—" before ✕ in the header: back to the compact dial. */
+    private static void addMinimize(Activity a, View close) {
+        if (close == null || !(close.getParent() instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup header = (ViewGroup) close.getParent();
+        TextView min = XemsUi.iconButton(a, "—", XemsUi.SURFACE, XemsUi.TEXT, 36);
+        min.setOnClickListener(new MinimizeListener());
+        if (header instanceof android.widget.RelativeLayout) {
+            android.widget.RelativeLayout.LayoutParams lp = new android.widget.RelativeLayout.LayoutParams(dp(a, 36), dp(a, 36));
+            lp.addRule(android.widget.RelativeLayout.CENTER_VERTICAL);
+            lp.addRule(android.widget.RelativeLayout.LEFT_OF, close.getId());
+            lp.rightMargin = dp(a, 8);
+            header.addView(min, lp);
+        } else {
+            header.addView(min, header.indexOfChild(close));
         }
     }
 
@@ -984,6 +1012,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void refreshSeekFromPlayer() {
+        MusicDial.refresh();
         if (seekBar == null || userSeeking) {
             return;
         }
@@ -1064,6 +1093,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void updatePlayPauseLabel() {
+        MusicDial.refresh();
         if (playPauseBtn == null || MusicSync.isPlayerPreparing()) {
             return;
         }
@@ -1497,6 +1527,7 @@ public final class MusicPlayerHelper {
     private static void hidePlayerOverlay() {
         persistSettings();
         stopProgressUpdates();
+        MusicDial.dismiss();
         if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
             requestTrainingPause();
             MusicSync.stop();
@@ -1686,6 +1717,17 @@ public final class MusicPlayerHelper {
     static final class PlayPauseListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            togglePlayPause();
+        }
+    }
+
+    // ================================================================ compact dial (MusicDial)
+
+    private static boolean compactMode = true;
+
+    /** Play / pause / start — shared by the full panel and the dial. */
+    static void togglePlayPause() {
+        {
             long now = SystemClock.elapsedRealtime();
             if (now - lastPlayClickMs < PLAY_DEBOUNCE_MS) {
                 return;
@@ -1712,6 +1754,61 @@ public final class MusicPlayerHelper {
                 currentIndex = 0;
             }
             startCurrentTrack(true);
+        }
+    }
+
+    static void skipTrack(int dir) {
+        skip(dir);
+        MusicDial.refresh();
+    }
+
+    static String currentTitle() {
+        return currentIndex >= 0 && currentIndex < playlist.size() ? playlist.get(currentIndex).name : null;
+    }
+
+    /** ☰ on the dial: the full player (playlist, settings); music keeps playing. */
+    static void openFull(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        compactMode = false;
+        MusicDial.dismiss();
+        if (overlayDialog == null || !reShowOverlay(activity)) {
+            if (!showOverlay(activity)) {
+                toast(activity, 0x7f0d0113);
+            }
+        }
+    }
+
+    /** "—" on the full player: back to the dial; music keeps playing. */
+    static void minimize(Activity activity) {
+        compactMode = true;
+        if (overlayDialog != null) {
+            try {
+                overlayDialog.hide();
+            } catch (Throwable ignored) {
+            }
+        }
+        overlayVisible = false;
+        MusicDial.show(activity);
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            startProgressUpdates();
+        }
+    }
+
+    static void closeFromDial() {
+        MusicDial.dismiss();
+        persistSettings();
+        requestTrainingStop();
+        MusicSync.stop();
+        dismissOverlay(false);
+        showIdle();
+    }
+
+    static final class MinimizeListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            minimize(resolveHostActivity(v));
         }
     }
 

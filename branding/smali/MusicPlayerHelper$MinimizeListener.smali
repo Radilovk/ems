@@ -1,4 +1,4 @@
-.class final Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlayPauseListener;
+.class final Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$MinimizeListener;
 .super Ljava/lang/Object;
 .source "MusicPlayerHelper.java"
 
@@ -13,7 +13,7 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "PlayPauseListener"
+    name = "MinimizeListener"
 .end annotation
 
 
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1717
+    .line 1808
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,12 +31,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
     .prologue
-    .line 1720
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->togglePlayPause()V
+    .line 1811
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
-    .line 1721
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->minimize(Landroid/app/Activity;)V
+
+    .line 1812
     return-void
 .end method

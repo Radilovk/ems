@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1976
+    .line 2073
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 1980
+    .line 2077
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
@@ -48,18 +48,18 @@
 
     if-nez v0, :cond_1b
 
-    .line 1981
+    .line 2078
     :cond_c
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3800()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     move-result-object v0
 
     if-eqz v0, :cond_1a
 
-    .line 1982
+    .line 2079
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3800()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     move-result-object v0
 
@@ -67,27 +67,27 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
 
-    .line 1995
+    .line 2092
     :cond_1a
     :goto_1a
     return-void
 
-    .line 1986
+    .line 2083
     :cond_1b
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshSeekFromPlayer()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4300()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3900()V
 
-    .line 1987
+    .line 2084
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3800()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     move-result-object v0
 
     if-eqz v0, :cond_37
 
-    .line 1988
+    .line 2085
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3800()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     move-result-object v0
 
@@ -95,9 +95,9 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setPlaying(Z)V
 
-    .line 1989
+    .line 2086
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->visualizerView:Lcom/isaigu/gymapp/widget/MusicVisualizerView;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3800()Lcom/isaigu/gymapp/widget/MusicVisualizerView;
 
     move-result-object v0
 
@@ -107,10 +107,10 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/widget/MusicVisualizerView;->setLiveLevel(I)V
 
-    .line 1991
+    .line 2088
     :cond_37
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$2200()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1800()Landroid/os/Handler;
 
     move-result-object v0
 
@@ -122,11 +122,11 @@
 
     goto :goto_1a
 
-    .line 1992
+    .line 2089
     :catch_41
     move-exception v0
 
-    .line 1993
+    .line 2090
     const-string v1, "MusicPlayerHelper.progress"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

@@ -165,15 +165,37 @@ public class AiSim {
         AiEnergy e = AiEnergy.forSession(in, p);
         long t = 0;
         double hr = rest + 0.5 * (p.hrMax - rest);
-        for (int s = 0; s <= 1200; s++) { e.tick(t, hr, 0.6, 85); t += 1000; }
+        for (int s = 0; s <= 1200; s++) { e.tick(t, hr, stim(null, 60, 85, 350, s % 8 < 4 ? 1 : 0)); t += 1000; }
         double atEnd = e.getKcal();
-        for (int s = 0; s < 60; s++) { e.tick(t, rest + 10, 0, 0); t += 1000; }
+        for (int s = 0; s < 60; s++) { e.tick(t, rest + 10); t += 1000; }
         e.closeEpoc();
         double perMin = atEnd / 20.0;
         System.out.printf("%-26s VO2rest=%.2f VO2max=%.1f HRmax=%d  20 min: %.0f kcal (%.1f/min), +recovery %.0f, active %.0f%n",
             name, e.getVo2rest(), e.getVo2max(), p.hrMax, atEnd, perMin, e.getKcal() - atEnd, e.getActiveKcal());
         check(perMin > 3 && perMin < 15, name + " kcal/min out of the physiological range");
         check(e.getVo2rest() > 2.3 && e.getVo2rest() < 4.5, name + " VO2rest");
+    }
+
+    static AiEnergy.Stim stim(int[] ch, double strength, int hz, int pw, double on) {
+        AiEnergy.Stim st = new AiEnergy.Stim();
+        st.channels = ch; st.strengthPct = strength; st.hz = hz; st.pwUs = pw; st.onShare = on;
+        st.toleratedCharge = new double[AiEnergy.CH_MASS.length];
+        for (int i = 0; i < st.toleratedCharge.length; i++) {
+            double c = ch != null ? ch[i] : 100;
+            st.toleratedCharge[i] = c / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.ARMS_SENT : 1) * 0.6;   // tolerated = 60 %
+        }
+        return st;
+    }
+
+    /** Channel model alone: 20 min, 4 s ON / 4 s OFF, HR flat at rest (passive). */
+    static double channels(String name, int[] ch, double strength, int hz, int pw) {
+        SessionInput in = new SessionInput(); in.weightKg = 80; in.age = 40;
+        Profile p = AiPlanner.derive(in, 65, 1.0, 3000);
+        AiEnergy e = AiEnergy.forSession(in, p);
+        long t = 0;
+        for (int s = 0; s <= 1200; s++) { e.tick(t, 65, stim(ch, strength, hz, pw, s % 8 < 4 ? 1 : 0)); t += 1000; }
+        System.out.printf("%-34s evoked %.1f kcal / 20 min, total %.0f, active %.0f%n", name, e.getKcalEmsModel(), e.getKcal(), e.getActiveKcal());
+        return e.getKcalEmsModel();
     }
 
     public static void main(String[] a) {
@@ -227,6 +249,17 @@ public class AiSim {
         energy("M 40y 80kg MID rest 65", Sex.MALE, 40, 80, Fitness.MID, 65, false);
         energy("F 30y 60kg HIGH rest 55", Sex.FEMALE, 30, 60, Fitness.HIGH, 55, false);
         energy("M 60y 95kg LOW rest 78 med", Sex.MALE, 60, 95, Fitness.LOW, 78, true);
+        int[] all = {100,100,100,100,100,100,100,100,100,100};
+        int[] legs = {0,0,100,100,0,0,0,0,100,100};
+        int[] arms = {0,0,0,0,100,0,0,0,0,0};
+        double kAll = channels("all 10 channels, 60 %, 85 Hz", all, 60, 85, 350);
+        double kLegs = channels("legs + glutes only", legs, 60, 85, 350);
+        double kArms = channels("arms only (sent at 5 %)", arms, 60, 85, 350);
+        double kHalf = channels("all, 30 % (half of tolerated)", all, 30, 85, 350);
+        double kLow = channels("all, 60 %, 5 Hz (massage)", all, 60, 5, 250);
+        check(kAll > kLegs && kLegs > kArms, "more / bigger muscles must cost more");
+        check(kLegs > 0.5 * kAll, "legs + glutes hold most of the muscle mass");
+        check(kHalf < kAll && kLow < kHalf, "lower strength / frequency must cost less");
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");
         System.exit(failures == 0 ? 0 : 1);
     }

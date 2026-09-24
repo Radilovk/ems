@@ -508,8 +508,41 @@ public final class AiSession {
         }
         double hr = engine.getHrAgeMs(now) < 10000L ? engine.getHrS() : -1;
         AiEngine.CycleCmd c = engine.getCurrentCycle();
-        double frac = engine.isStimOn(now) && c != null ? c.frac * calibPercent / 100.0 : 0;
-        energy.tick(now, hr, frac, c != null ? c.hz : 0);
+        AiEnergy.Stim es = null;
+        if (c != null && engine.isStimOn(now) && c.frac > 0) {
+            es = channelStim();
+            es.strengthPct = calibPercent * c.frac;
+            es.hz = c.hz;
+            es.pwUs = c.pwUs;
+            es.onShare = 1.0;
+            // Tolerated level = the calibration (350 µs, calibPercent) on each channel.
+            es.toleratedCharge = new double[AiEnergy.CH_MASS.length];
+            for (int i = 0; i < es.toleratedCharge.length; i++) {
+                double chPct = es.channels != null && i < es.channels.length ? es.channels[i] : 100;
+                es.toleratedCharge[i] = chPct / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.ARMS_SENT : 1.0)
+                        * calibPercent / 100.0;
+            }
+        }
+        energy.tick(now, hr, es);
+    }
+
+    /** Channel % and disabled flags of the band wearer's row (the leader). */
+    private static AiEnergy.Stim channelStim() {
+        AiEnergy.Stim st = new AiEnergy.Stim();
+        TrainItem item = leader();
+        try {
+            if (item != null) {
+                ProgramDataBean b = item.getTrainProgram() != null ? item.getTrainProgram().matchProgram() : null;
+                if (b != null && b.strenthBean != null && b.strenthBean.buwei != null) {
+                    st.channels = b.strenthBean.buwei.clone();
+                }
+                if (item.partsDisabled != null) {
+                    st.disabled = item.partsDisabled.clone();
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return st;
     }
 
     /** Estimated kcal of this session (total), −1 before the start. */

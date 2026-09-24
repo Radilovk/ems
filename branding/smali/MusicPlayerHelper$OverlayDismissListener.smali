@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 2087
+    .line 2184
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,39 +36,39 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 2091
+    .line 2188
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1500()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$900()Z
 
     move-result v0
 
     if-eqz v0, :cond_b
 
-    .line 2092
+    .line 2189
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$5302(Z)Z
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4902(Z)Z
 
-    .line 2099
+    .line 2196
     :goto_a
     return-void
 
-    .line 2095
+    .line 2192
     :cond_b
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1602(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1002(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
 
-    .line 2096
+    .line 2193
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$5302(Z)Z
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4902(Z)Z
 
-    .line 2097
+    .line 2194
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 2098
+    .line 2195
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearOverlayRefs()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$5400()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$5000()V
 
     goto :goto_a
 .end method

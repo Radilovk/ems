@@ -1,19 +1,19 @@
-.class final Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PlayPauseListener;
+.class Lcom/isaigu/gymapp/dialog/MusicDial$2;
 .super Ljava/lang/Object;
-.source "MusicPlayerHelper.java"
+.source "MusicDial.java"
 
 # interfaces
 .implements Landroid/view/View$OnClickListener;
 
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/isaigu/gymapp/dialog/MusicDial;->show(Landroid/app/Activity;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
-    accessFlags = 0x18
-    name = "PlayPauseListener"
+    accessFlags = 0x0
+    name = null
 .end annotation
 
 
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1717
+    .line 107
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,12 +31,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
     .prologue
-    .line 1720
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->togglePlayPause()V
+    .line 110
+    const/4 v0, 0x1
 
-    .line 1721
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->skipTrack(I)V
+
+    .line 111
     return-void
 .end method

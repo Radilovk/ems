@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1803
+    .line 1900
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,28 +34,28 @@
     .registers 6
 
     .prologue
-    .line 1806
+    .line 1903
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 1807
+    .line 1904
     if-nez v0, :cond_d
 
-    .line 1808
+    .line 1905
     const v0, 0x7f0d010b
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 1833
+    .line 1930
     :goto_c
     return-void
 
-    .line 1811
+    .line 1908
     :cond_d
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHostActivity(Landroid/app/Activity;)V
 
-    .line 1813
+    .line 1910
     :try_start_10
     new-instance v1, Landroid/content/Intent;
 
@@ -63,42 +63,42 @@
 
     invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 1814
+    .line 1911
     const-string v2, "android.intent.category.OPENABLE"
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1815
+    .line 1912
     const-string v2, "audio/*"
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 1816
+    .line 1913
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 1817
+    .line 1914
     const/16 v2, 0x40
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 1818
+    .line 1915
     const-string v2, "android.intent.extra.ALLOW_MULTIPLE"
 
     const/4 v3, 0x1
 
     invoke-virtual {v1, v2, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Z)Landroid/content/Intent;
 
-    .line 1819
+    .line 1916
     const/4 v2, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1502(Z)Z
+    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$902(Z)Z
 
-    .line 1820
+    .line 1917
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1600()Landroid/support/v7/app/AlertDialog;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()Landroid/support/v7/app/AlertDialog;
     :try_end_37
     .catch Ljava/lang/Throwable; {:try_start_10 .. :try_end_37} :catch_47
 
@@ -106,10 +106,10 @@
 
     if-eqz v2, :cond_41
 
-    .line 1822
+    .line 1919
     :try_start_3a
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1600()Landroid/support/v7/app/AlertDialog;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()Landroid/support/v7/app/AlertDialog;
 
     move-result-object v2
 
@@ -117,7 +117,7 @@
     :try_end_41
     .catch Ljava/lang/Throwable; {:try_start_3a .. :try_end_41} :catch_5b
 
-    .line 1826
+    .line 1923
     :cond_41
     :goto_41
     const/16 v2, 0x4255
@@ -129,33 +129,33 @@
 
     goto :goto_c
 
-    .line 1827
+    .line 1924
     :catch_47
     move-exception v0
 
-    .line 1828
+    .line 1925
     const/4 v1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1502(Z)Z
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$902(Z)Z
 
-    .line 1829
+    .line 1926
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->restoreOverlayAfterPick()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1700()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1100()V
 
-    .line 1830
+    .line 1927
     const-string v1, "player_pick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1831
+    .line 1928
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
     goto :goto_c
 
-    .line 1823
+    .line 1920
     :catch_5b
     move-exception v2
 

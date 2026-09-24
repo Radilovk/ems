@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1722
+    .line 1819
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1723
+    .line 1820
     iput-boolean p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PanelToggleListener;->settings:Z
 
-    .line 1724
+    .line 1821
     return-void
 .end method
 
@@ -46,14 +46,14 @@
 
     const/4 v1, 0x0
 
-    .line 1728
+    .line 1825
     iget-boolean v2, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PanelToggleListener;->settings:Z
 
     if-eqz v2, :cond_18
 
-    .line 1729
+    .line 1826
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->settingsExpanded:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$700()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100()Z
 
     move-result v2
 
@@ -61,30 +61,30 @@
 
     :goto_c
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->settingsExpanded:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$702(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$102(Z)Z
 
-    .line 1733
+    .line 1830
     :goto_f
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$900()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$300()V
 
-    .line 1734
+    .line 1831
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()V
 
-    .line 1735
+    .line 1832
     return-void
 
     :cond_16
     move v0, v1
 
-    .line 1729
+    .line 1826
     goto :goto_c
 
-    .line 1731
+    .line 1828
     :cond_18
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistExpanded:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$800()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$200()Z
 
     move-result v2
 
@@ -92,7 +92,7 @@
 
     :goto_1e
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistExpanded:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$802(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$202(Z)Z
 
     goto :goto_f
 

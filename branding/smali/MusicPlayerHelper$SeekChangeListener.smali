@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1954
+    .line 2051
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,34 +34,34 @@
     .registers 5
 
     .prologue
-    .line 1957
+    .line 2054
     const/4 v0, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3902(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
 
-    .line 1958
+    .line 2055
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result v0
 
-    .line 1959
+    .line 2056
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->mapSeekProgressToMs(II)I
-    invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4000(II)I
+    invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3600(II)I
 
     move-result v1
 
-    .line 1960
+    .line 2057
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4100(II)V
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3700(II)V
 
-    .line 1961
+    .line 2058
     if-lez v0, :cond_14
 
-    .line 1962
+    .line 2059
     invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 1964
+    .line 2061
     :cond_14
     return-void
 .end method
@@ -70,29 +70,29 @@
     .registers 4
 
     .prologue
-    .line 1968
+    .line 2065
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result v0
 
-    .line 1969
+    .line 2066
     if-lez v0, :cond_d
 
-    .line 1970
+    .line 2067
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->mapSeekProgressToMs(II)I
-    invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4000(II)I
+    invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3600(II)I
 
     move-result v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 1972
+    .line 2069
     :cond_d
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3902(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
 
-    .line 1973
+    .line 2070
     return-void
 .end method

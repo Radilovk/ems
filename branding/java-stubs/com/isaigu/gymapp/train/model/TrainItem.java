@@ -29,6 +29,14 @@ public class TrainItem {
         return false;
     }
 
+    public boolean isMaSelected() {
+        return false;
+    }
+
+    public boolean isPauseMaSelected() {
+        return false;
+    }
+
     public void setMaSelected(boolean selected) {}
 
     public void setHzSelected(boolean selected) {}

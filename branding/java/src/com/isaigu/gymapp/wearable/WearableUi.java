@@ -155,6 +155,12 @@ final class WearableUi {
         return tr("преди " + s + " s", s + " s ago");
     }
 
+    /** m:ss */
+    static String ageTextShort(long ms) {
+        long sec = Math.max(0, (ms + 999) / 1000);
+        return String.format(Locale.US, "%d:%02d", sec / 60, sec % 60);
+    }
+
     static int color(Context context, String name, int fallback) {
         if (context == null) {
             return fallback;

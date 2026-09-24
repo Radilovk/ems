@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 670
+    .line 687
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 670
+    .line 687
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$DialTick;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 5
 
     .prologue
-    .line 673
+    .line 690
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->hrValueView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$700()Landroid/widget/TextView;
 
@@ -59,17 +59,17 @@
 
     if-nez v0, :cond_d
 
-    .line 678
+    .line 695
     :cond_c
     :goto_c
     return-void
 
-    .line 676
+    .line 693
     :cond_d
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshOverlayDisplay()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
 
-    .line 677
+    .line 694
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$900()Landroid/os/Handler;
 

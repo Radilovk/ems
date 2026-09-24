@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 1459
+    .line 1464
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$col:Landroid/widget/LinearLayout;
@@ -61,7 +61,7 @@
     .registers 15
 
     .prologue
-    .line 1462
+    .line 1467
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -92,7 +92,7 @@
 
     if-ne v0, v1, :cond_41
 
-    .line 1463
+    .line 1468
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -116,7 +116,7 @@
 
     move-result-object v0
 
-    .line 1464
+    .line 1469
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$col:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->getTag()Ljava/lang/Object;
@@ -129,34 +129,34 @@
 
     if-eqz v1, :cond_44
 
-    .line 1515
+    .line 1522
     :cond_40
     :goto_40
     return-void
 
-    .line 1463
+    .line 1468
     :cond_41
     const-wide/16 v0, 0x0
 
     goto :goto_2c
 
-    .line 1467
+    .line 1472
     :cond_44
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$col:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setTag(Ljava/lang/Object;)V
 
-    .line 1468
+    .line 1473
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$tiles:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 1469
+    .line 1474
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$extra:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 1470
+    .line 1475
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getEndMs()J
@@ -167,7 +167,7 @@
 
     cmp-long v0, v0, v2
 
-    if-lez v0, :cond_2f2
+    if-lez v0, :cond_32b
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -175,7 +175,7 @@
 
     move-result-wide v0
 
-    .line 1471
+    .line 1476
     :goto_65
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
@@ -212,7 +212,7 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->bigTile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v2, v3, v4, v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1472
+    .line 1477
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$tiles:Landroid/widget/LinearLayout;
@@ -258,14 +258,14 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->bigTile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1473
+    .line 1478
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getCorridorShare()D
 
     move-result-wide v2
 
-    .line 1474
+    .line 1479
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     iget-object v5, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$tiles:Landroid/widget/LinearLayout;
@@ -282,7 +282,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_2f8
+    if-eqz v0, :cond_331
 
     const-string v0, "\u2014"
 
@@ -291,7 +291,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_314
+    if-eqz v1, :cond_34d
 
     const-string v1, ""
 
@@ -299,14 +299,14 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->bigTile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v4, v5, v6, v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1475
+    .line 1480
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getSessionMaxX()D
 
     move-result-wide v2
 
-    .line 1476
+    .line 1481
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     iget-object v5, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$tiles:Landroid/widget/LinearLayout;
@@ -323,7 +323,7 @@
 
     cmpl-double v0, v2, v0
 
-    if-lez v0, :cond_318
+    if-lez v0, :cond_351
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -360,7 +360,7 @@
 
     cmpl-double v0, v2, v8
 
-    if-lez v0, :cond_31d
+    if-lez v0, :cond_356
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -392,7 +392,7 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->bigTile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v4, v5, v6, v1, v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1478
+    .line 1483
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
@@ -401,9 +401,9 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiEngine$State;->RECOVERY:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
-    if-ne v0, v1, :cond_321
+    if-ne v0, v1, :cond_35a
 
-    .line 1479
+    .line 1484
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -424,7 +424,7 @@
 
     move-result-object v0
 
-    .line 1483
+    .line 1488
     :goto_154
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
@@ -443,7 +443,7 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->bigTile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v1, v2, v3, v0, v4}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1484
+    .line 1489
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$tiles:Landroid/widget/LinearLayout;
@@ -509,7 +509,68 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->bigTile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1486
+    .line 1490
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getKcal()D
+
+    move-result-wide v2
+
+    .line 1491
+    iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
+
+    iget-object v5, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$tiles:Landroid/widget/LinearLayout;
+
+    const-string v0, "\u041a\u0430\u043b\u043e\u0440\u0438\u0438"
+
+    const-string v1, "Calories"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    const-wide/16 v0, 0x0
+
+    cmpl-double v0, v2, v0
+
+    if-ltz v0, :cond_389
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v8
+
+    invoke-virtual {v0, v8, v9}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, ""
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    move-object v1, v0
+
+    :goto_1d6
+    const-wide/16 v8, 0x0
+
+    cmpl-double v0, v2, v8
+
+    if-ltz v0, :cond_38e
+
+    const-string v0, " kcal"
+
+    :goto_1de
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->bigTile(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+    invoke-static {v4, v5, v6, v1, v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 1493
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->card(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -517,7 +578,7 @@
 
     move-result-object v1
 
-    .line 1487
+    .line 1494
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     const-string v2, "\u0420\u0435\u0448\u0435\u043d\u0438\u044f \u043d\u0430 AI"
@@ -535,14 +596,14 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1488
+    .line 1495
     new-instance v2, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     invoke-direct {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;-><init>(Landroid/content/Context;)V
 
-    .line 1489
+    .line 1496
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -586,7 +647,7 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->add(Landroid/view/View;)V
 
-    .line 1490
+    .line 1497
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -630,7 +691,7 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->add(Landroid/view/View;)V
 
-    .line 1491
+    .line 1498
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -674,7 +735,7 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->add(Landroid/view/View;)V
 
-    .line 1492
+    .line 1499
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -718,7 +779,7 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->add(Landroid/view/View;)V
 
-    .line 1493
+    .line 1500
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -762,7 +823,7 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->add(Landroid/view/View;)V
 
-    .line 1494
+    .line 1501
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -804,7 +865,7 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->add(Landroid/view/View;)V
 
-    .line 1495
+    .line 1502
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getFlags()Ljava/util/List;
@@ -815,12 +876,12 @@
 
     move-result-object v3
 
-    :goto_2d6
+    :goto_30f
     invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_350
+    if-eqz v0, :cond_392
 
     invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -828,7 +889,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 1496
+    .line 1503
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiText;->flag(Ljava/lang/String;)Ljava/lang/String;
@@ -844,18 +905,18 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->add(Landroid/view/View;)V
 
-    goto :goto_2d6
+    goto :goto_30f
 
-    .line 1470
-    :cond_2f2
+    .line 1475
+    :cond_32b
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     goto/16 :goto_65
 
-    .line 1474
-    :cond_2f8
+    .line 1479
+    :cond_331
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -884,26 +945,26 @@
 
     goto/16 :goto_d0
 
-    :cond_314
+    :cond_34d
     const-string v1, "%"
 
     goto/16 :goto_d8
 
-    .line 1476
-    :cond_318
+    .line 1481
+    :cond_351
     const-string v0, "\u2014"
 
     move-object v1, v0
 
     goto/16 :goto_111
 
-    :cond_31d
+    :cond_356
     const-string v0, ""
 
     goto/16 :goto_132
 
-    .line 1481
-    :cond_321
+    .line 1486
+    :cond_35a
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getHrr60()D
@@ -914,13 +975,13 @@
 
     move-result v0
 
-    if-eqz v0, :cond_331
+    if-eqz v0, :cond_36a
 
     const-string v0, "\u2014"
 
     goto/16 :goto_154
 
-    :cond_331
+    :cond_36a
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -951,16 +1012,29 @@
 
     goto/16 :goto_154
 
-    .line 1498
-    :cond_350
+    .line 1491
+    :cond_389
+    const-string v0, "\u2014"
+
+    move-object v1, v0
+
+    goto/16 :goto_1d6
+
+    :cond_38e
+    const-string v0, ""
+
+    goto/16 :goto_1de
+
+    .line 1505
+    :cond_392
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1499
+    .line 1506
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$extra:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1501
+    .line 1508
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getBlocks()Ljava/util/List;
@@ -973,7 +1047,7 @@
 
     if-nez v0, :cond_40
 
-    .line 1502
+    .line 1509
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->card(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -981,7 +1055,7 @@
 
     move-result-object v2
 
-    .line 1503
+    .line 1510
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     const-string v1, "\u0411\u043b\u043e\u043a\u043e\u0432\u0435"
@@ -999,7 +1073,7 @@
 
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1504
+    .line 1511
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     const/4 v1, 0x1
@@ -1044,7 +1118,7 @@
 
     const-string v6, "Rest"
 
-    .line 1505
+    .line 1512
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -1069,7 +1143,7 @@
 
     aput-object v5, v3, v4
 
-    .line 1504
+    .line 1511
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->tableRow(Landroid/content/Context;Z[Ljava/lang/String;)Landroid/view/View;
     invoke-static {v0, v1, v3}, Lcom/isaigu/gymapp/ai/AiUi;->access$1400(Landroid/content/Context;Z[Ljava/lang/String;)Landroid/view/View;
 
@@ -1077,7 +1151,7 @@
 
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1506
+    .line 1513
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getBlocks()Ljava/util/List;
@@ -1088,12 +1162,12 @@
 
     move-result-object v3
 
-    :goto_3c7
+    :goto_409
     invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_4b1
+    if-eqz v0, :cond_4f3
 
     invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -1101,7 +1175,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AiEngine$BlockStat;
 
-    .line 1507
+    .line 1514
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;
 
     const/4 v5, 0x0
@@ -1152,7 +1226,7 @@
 
     iget-wide v8, v0, Lcom/isaigu/gymapp/ai/AiEngine$BlockStat;->tBlockS:D
 
-    .line 1508
+    .line 1515
     invoke-static {v8, v9}, Ljava/lang/Math;->round(D)J
 
     move-result-wide v8
@@ -1181,7 +1255,7 @@
 
     cmpl-double v1, v8, v10
 
-    if-lez v1, :cond_46a
+    if-lez v1, :cond_4ac
 
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -1207,58 +1281,58 @@
 
     move-result-object v1
 
-    :goto_438
+    :goto_47a
     aput-object v1, v6, v7
 
     const/4 v7, 0x4
 
-    .line 1509
+    .line 1516
     iget-wide v8, v0, Lcom/isaigu/gymapp/ai/AiEngine$BlockStat;->dHr:D
 
     invoke-static {v8, v9}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v1
 
-    if-eqz v1, :cond_46d
+    if-eqz v1, :cond_4af
 
     const-string v1, "\u2014"
 
-    :goto_445
+    :goto_487
     aput-object v1, v6, v7
 
     const/4 v7, 0x5
 
-    .line 1510
+    .line 1517
     iget-wide v8, v0, Lcom/isaigu/gymapp/ai/AiEngine$BlockStat;->d:D
 
     invoke-static {v8, v9}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v1
 
-    if-eqz v1, :cond_487
+    if-eqz v1, :cond_4c9
 
     const-string v1, "\u2014"
 
-    :goto_452
+    :goto_494
     aput-object v1, v6, v7
 
     const/4 v1, 0x6
 
-    .line 1511
+    .line 1518
     iget-wide v8, v0, Lcom/isaigu/gymapp/ai/AiEngine$BlockStat;->v:D
 
     invoke-static {v8, v9}, Ljava/lang/Double;->isNaN(D)Z
 
     move-result v7
 
-    if-eqz v7, :cond_49c
+    if-eqz v7, :cond_4de
 
     const-string v0, "\u2014"
 
-    :goto_45f
+    :goto_4a1
     aput-object v0, v6, v1
 
-    .line 1507
+    .line 1514
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->tableRow(Landroid/content/Context;Z[Ljava/lang/String;)Landroid/view/View;
     invoke-static {v4, v5, v6}, Lcom/isaigu/gymapp/ai/AiUi;->access$1400(Landroid/content/Context;Z[Ljava/lang/String;)Landroid/view/View;
 
@@ -1266,16 +1340,16 @@
 
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    goto/16 :goto_3c7
+    goto/16 :goto_409
 
-    .line 1508
-    :cond_46a
+    .line 1515
+    :cond_4ac
     const-string v1, "\u2014"
 
-    goto :goto_438
+    goto :goto_47a
 
-    .line 1509
-    :cond_46d
+    .line 1516
+    :cond_4af
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1300,10 +1374,10 @@
 
     move-result-object v1
 
-    goto :goto_445
+    goto :goto_487
 
-    .line 1510
-    :cond_487
+    .line 1517
+    :cond_4c9
     sget-object v1, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v8, "%.2f"
@@ -1326,10 +1400,10 @@
 
     move-result-object v1
 
-    goto :goto_452
+    goto :goto_494
 
-    .line 1511
-    :cond_49c
+    .line 1518
+    :cond_4de
     sget-object v7, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v8, "%.2f"
@@ -1352,10 +1426,10 @@
 
     move-result-object v0
 
-    goto :goto_45f
+    goto :goto_4a1
 
-    .line 1513
-    :cond_4b1
+    .line 1520
+    :cond_4f3
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$extra:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$26;->val$a:Landroid/content/Context;

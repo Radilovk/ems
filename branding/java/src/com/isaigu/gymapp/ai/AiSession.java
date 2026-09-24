@@ -42,6 +42,7 @@ public final class AiSession {
     private static AiModel.Profile profile;
     private static AiModel.Plan plan;
     private static AiEngine engine;
+    private static AiEnergy energy;
 
     private static int calibPercent;
     private static boolean calibStimOn;
@@ -305,6 +306,7 @@ public final class AiSession {
         soloAutoRamp = false;
         saveInput(context);
         engine = new AiEngine(input, profile, plan);
+        energy = profile.hrAvailable ? new AiEnergy(profile.hrRest, profile.hrMax) : new AiEnergy();
         long now = System.currentTimeMillis();
         engine.start(now);
         setWorkLengthAll(plan.totalS + 1800);
@@ -449,6 +451,7 @@ public final class AiSession {
         guardManualChanges(now);
         AiEngine.State before = engine.getState();
         engine.tick(now);
+        tickEnergy(now);
         AiEngine.State after = engine.getState();
         // Engine fallback clock produced a cycle the device hook did not deliver → send it.
         if (after == AiEngine.State.RUN && engine.getCurrentCycle() != null
@@ -471,6 +474,25 @@ public final class AiSession {
         if (before != after) {
             WearableBleDiagLog.log("ai", "state " + before + " → " + after + " (" + engine.getLastAction() + ")");
         }
+    }
+
+    private static void tickEnergy(long now) {
+        if (energy == null || engine == null) {
+            return;
+        }
+        AiEngine.State st = engine.getState();
+        if (st == AiEngine.State.DONE || st == AiEngine.State.STOPPED) {
+            return;
+        }
+        double hr = engine.getHrAgeMs(now) < 10000L ? engine.getHrS() : -1;
+        AiEngine.CycleCmd c = engine.getCurrentCycle();
+        double frac = engine.isStimOn(now) && c != null ? c.frac * calibPercent / 100.0 : 0;
+        energy.tick(now, hr, frac, c != null ? c.hz : 0);
+    }
+
+    /** Estimated kcal of this session (HR + stimulation work), −1 before the start. */
+    public static double getKcal() {
+        return energy != null ? energy.getKcal() : -1;
     }
 
     // ================================================================ device driver

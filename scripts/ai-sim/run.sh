@@ -4,5 +4,5 @@
 set -euo pipefail
 D="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "${D}/../.." && pwd)"
 OUT="$(mktemp -d)"; trap 'rm -rf "${OUT}"' EXIT
-javac -nowarn -source 8 -target 8 -d "${OUT}" "${ROOT}"/branding/java/src/com/isaigu/gymapp/ai/Ai{Model,Screening,RestHr,Planner,HrFilter,Engine}.java "${D}/AiSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning" || true
+javac -nowarn -source 8 -target 8 -d "${OUT}" "${ROOT}"/branding/java/src/com/isaigu/gymapp/ai/Ai{Model,Screening,RestHr,Planner,HrFilter,Engine,Energy}.java "${ROOT}/branding/java/src/com/isaigu/gymapp/wearable/HrGuardCore.java" "${D}/AiSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning" || true
 java -cp "${OUT}" AiSim "$@" 2>&1 | grep -v "Picked up"

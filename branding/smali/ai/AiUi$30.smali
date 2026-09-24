@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1703
+    .line 1711
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$30;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,11 +45,11 @@
     .registers 4
 
     .prologue
-    .line 1706
+    .line 1714
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$30;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
 
     invoke-interface {v0, p2}, Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;->onToggle(Z)V
 
-    .line 1707
+    .line 1715
     return-void
 .end method

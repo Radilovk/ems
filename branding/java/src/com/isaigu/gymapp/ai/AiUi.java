@@ -1135,8 +1135,11 @@ final class AiUi {
         final TextView fatigueVal = meter(a, meters, AiText.t("Мускулна умора", "Muscle fatigue"), fatigueBar);
         final AiViews.Bar doseBar = new AiViews.Bar(a);
         final TextView doseVal = meter(a, meters, AiText.t("Доза", "Dose"), doseBar);
+        final TextView kcalVal = text(a, "", 20, AiViews.TEXT, true);
+        kcalVal.setPadding(0, dp(a, 10), 0, 0);
+        meters.addView(kcalVal);
         final TextView ctrlVal = text(a, "", 13, AiViews.MUTED, false);
-        ctrlVal.setPadding(0, dp(a, 12), 0, 0);
+        ctrlVal.setPadding(0, dp(a, 6), 0, 0);
         meters.addView(ctrlVal);
         LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         mp.leftMargin = dp(a, 14);
@@ -1257,6 +1260,8 @@ final class AiUi {
                 doseBar.set((float) Math.min(1, dq), AiViews.phaseColor(ph.id));
                 doseBar.setMarker((float) (plan.qPlan / Math.max(1e-6, e.getQBudget())));
                 doseVal.setText(Math.round(100 * e.getQUsed() / Math.max(1e-6, plan.qPlan)) + AiText.t("% от плана", "% of plan"));
+                double kcal = AiSession.getKcal();
+                kcalVal.setText(kcal >= 0 ? "🔥 " + Math.round(kcal) + " kcal" : "");
                 ctrlVal.setText(AiText.t("Корекция по пулса ", "HR correction ") + Math.round(e.getU() * 100) + "%"
                         + (e.getUUser() < 1 ? AiText.t(" · ръчно ", " · manual ") + Math.round(e.getUUser() * 100) + "%" : "")
                         + (e.getCeilingScale() < 1 ? AiText.t(" · усещане ", " · sensation ") + Math.round(e.getCeilingScale() * 100) + "%" : ""));
@@ -1482,6 +1487,8 @@ final class AiUi {
                 }
                 bigTile(a, tiles, AiText.t("Възстановяване 60 s", "Recovery 60 s"), hrr, "");
                 bigTile(a, tiles, AiText.t("Доза", "Dose"), Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan)) + "", "%");
+                double kc = AiSession.getKcal();
+                bigTile(a, tiles, AiText.t("Калории", "Calories"), kc >= 0 ? Math.round(kc) + "" : "—", kc >= 0 ? " kcal" : "");
 
                 LinearLayout ctl = card(a);
                 ctl.addView(sectionLabel(a, AiText.t("Решения на AI", "AI decisions")));
@@ -1531,7 +1538,8 @@ final class AiUi {
         sb.append("Duration ").append(AiText.mmss(((e.getEndMs() > 0 ? e.getEndMs() : System.currentTimeMillis()) - e.getStartMs()) / 1000.0))
                 .append(" · dose ").append(Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan))).append("% of plan")
                 .append(" · corridor ").append(Double.isNaN(e.getCorridorShare()) ? "-" : Math.round(100 * e.getCorridorShare()) + "%")
-                .append(" · HRR60 ").append(Double.isNaN(e.getHrr60()) ? "-" : Math.round(e.getHrr60())).append('\n');
+                .append(" · HRR60 ").append(Double.isNaN(e.getHrr60()) ? "-" : Math.round(e.getHrr60()))
+                .append(" · kcal ").append(AiSession.getKcal() >= 0 ? Math.round(AiSession.getKcal()) + "" : "-").append('\n');
         sb.append("L1 ").append(e.getLCount(1)).append(" L2 ").append(e.getLCount(2)).append(" L3 ").append(e.getLCount(3))
                 .append(" L4 ").append(e.getLCount(4)).append(" u ").append(e.getLCount(5)).append(" cap ").append(e.getCapHits())
                 .append(" flags ").append(e.getFlags()).append("\n\nblocks: #,phase,t_block,t_rest,q,F_end,dHR,R,D,tau,V\n");

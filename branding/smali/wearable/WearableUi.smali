@@ -101,11 +101,68 @@
     return-object v0
 .end method
 
+.method static ageTextShort(J)Ljava/lang/String;
+    .registers 12
+
+    .prologue
+    const-wide/16 v8, 0x3c
+
+    .line 160
+    const-wide/16 v0, 0x0
+
+    const-wide/16 v2, 0x3e7
+
+    add-long/2addr v2, p0
+
+    const-wide/16 v4, 0x3e8
+
+    div-long/2addr v2, v4
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v0
+
+    .line 161
+    sget-object v2, Ljava/util/Locale;->US:Ljava/util/Locale;
+
+    const-string v3, "%d:%02d"
+
+    const/4 v4, 0x2
+
+    new-array v4, v4, [Ljava/lang/Object;
+
+    const/4 v5, 0x0
+
+    div-long v6, v0, v8
+
+    invoke-static {v6, v7}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v6
+
+    aput-object v6, v4, v5
+
+    const/4 v5, 0x1
+
+    rem-long/2addr v0, v8
+
+    invoke-static {v0, v1}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v0
+
+    aput-object v0, v4, v5
+
+    invoke-static {v2, v3, v4}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 .method static asActivity(Landroid/content/Context;)Landroid/app/Activity;
     .registers 3
 
     .prologue
-    .line 223
+    .line 229
     move-object v0, p0
 
     :goto_1
@@ -113,19 +170,19 @@
 
     if-eqz v1, :cond_13
 
-    .line 224
+    .line 230
     instance-of v1, v0, Landroid/app/Activity;
 
     if-eqz v1, :cond_c
 
-    .line 225
+    .line 231
     check-cast v0, Landroid/app/Activity;
 
-    .line 229
+    .line 235
     :goto_b
     return-object v0
 
-    .line 227
+    .line 233
     :cond_c
     check-cast v0, Landroid/content/ContextWrapper;
 
@@ -135,7 +192,7 @@
 
     goto :goto_1
 
-    .line 229
+    .line 235
     :cond_13
     const/4 v0, 0x0
 
@@ -148,36 +205,36 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 199
+    .line 205
     const/high16 v0, 0x41700000    # 15.0f
 
     invoke-static {p0, p1, v0, p3, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 200
+    .line 206
     const/16 v1, 0x11
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 201
+    .line 207
     const/high16 v1, 0x41800000    # 16.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 202
+    .line 208
     const/high16 v2, 0x41300000    # 11.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 203
+    .line 209
     invoke-virtual {v0, v1, v2, v1, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 204
+    .line 210
     const/high16 v1, 0x41c00000    # 24.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -192,10 +249,10 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 205
+    .line 211
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setClickable(Z)V
 
-    .line 206
+    .line 212
     return-object v0
 .end method
 
@@ -203,15 +260,15 @@
     .registers 6
 
     .prologue
-    .line 159
+    .line 165
     if-nez p0, :cond_3
 
-    .line 169
+    .line 175
     :cond_2
     :goto_2
     return p2
 
-    .line 163
+    .line 169
     :cond_3
     :try_start_3
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -228,10 +285,10 @@
 
     move-result v0
 
-    .line 164
+    .line 170
     if-eqz v0, :cond_2
 
-    .line 165
+    .line 171
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -244,7 +301,7 @@
 
     goto :goto_2
 
-    .line 167
+    .line 173
     :catch_1c
     move-exception v0
 
@@ -255,17 +312,17 @@
     .registers 3
 
     .prologue
-    .line 217
+    .line 223
     new-instance v0, Landroid/view/View;
 
     invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 218
+    .line 224
     const v1, 0x22ffffff
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
 
-    .line 219
+    .line 225
     return-object v0
 .end method
 
@@ -273,13 +330,13 @@
     .registers 4
 
     .prologue
-    .line 173
+    .line 179
     if-nez p0, :cond_4
 
-    .line 174
+    .line 180
     float-to-int v0, p1
 
-    .line 176
+    .line 182
     :goto_3
     return v0
 
@@ -457,7 +514,7 @@
     .registers 5
 
     .prologue
-    .line 210
+    .line 216
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x1
@@ -466,7 +523,7 @@
 
     invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 212
+    .line 218
     int-to-float v1, p1
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -475,7 +532,7 @@
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 213
+    .line 219
     return-object v0
 .end method
 
@@ -483,18 +540,18 @@
     .registers 3
 
     .prologue
-    .line 191
+    .line 197
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 192
+    .line 198
     invoke-virtual {v0, p0}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 193
+    .line 199
     invoke-virtual {v0, p1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 194
+    .line 200
     return-object v0
 .end method
 
@@ -838,26 +895,26 @@
     .registers 8
 
     .prologue
-    .line 180
+    .line 186
     new-instance v0, Landroid/widget/TextView;
 
     invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 181
+    .line 187
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 182
+    .line 188
     const/4 v1, 0x2
 
     invoke-virtual {v0, v1, p2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 183
+    .line 189
     invoke-virtual {v0, p3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 184
+    .line 190
     if-eqz p4, :cond_19
 
-    .line 185
+    .line 191
     invoke-virtual {v0}, Landroid/widget/TextView;->getTypeface()Landroid/graphics/Typeface;
 
     move-result-object v1
@@ -866,7 +923,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;I)V
 
-    .line 187
+    .line 193
     :cond_19
     return-object v0
 .end method

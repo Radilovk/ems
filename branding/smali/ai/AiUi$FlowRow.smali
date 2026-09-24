@@ -19,10 +19,10 @@
     .registers 2
 
     .prologue
-    .line 1573
+    .line 1581
     invoke-direct {p0, p1}, Landroid/view/ViewGroup;-><init>(Landroid/content/Context;)V
 
-    .line 1574
+    .line 1582
     return-void
 .end method
 
@@ -32,10 +32,10 @@
     .registers 2
 
     .prologue
-    .line 1577
+    .line 1585
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->addView(Landroid/view/View;)V
 
-    .line 1578
+    .line 1586
     return-void
 .end method
 
@@ -45,10 +45,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1604
+    .line 1612
     sub-int v5, p4, p2
 
-    .line 1605
+    .line 1613
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -67,7 +67,7 @@
 
     move v4, v1
 
-    .line 1609
+    .line 1617
     :goto_11
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->getChildCount()I
 
@@ -75,12 +75,12 @@
 
     if-ge v0, v7, :cond_46
 
-    .line 1610
+    .line 1618
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->getChildAt(I)Landroid/view/View;
 
     move-result-object v7
 
-    .line 1611
+    .line 1619
     if-lez v4, :cond_28
 
     invoke-virtual {v7}, Landroid/view/View;->getMeasuredWidth()I
@@ -91,7 +91,7 @@
 
     if-le v8, v5, :cond_28
 
-    .line 1613
+    .line 1621
     add-int/2addr v2, v6
 
     add-int/2addr v3, v2
@@ -100,7 +100,7 @@
 
     move v4, v1
 
-    .line 1616
+    .line 1624
     :cond_28
     invoke-virtual {v7}, Landroid/view/View;->getMeasuredWidth()I
 
@@ -116,7 +116,7 @@
 
     invoke-virtual {v7, v4, v3, v8, v9}, Landroid/view/View;->layout(IIII)V
 
-    .line 1617
+    .line 1625
     invoke-virtual {v7}, Landroid/view/View;->getMeasuredWidth()I
 
     move-result v8
@@ -125,7 +125,7 @@
 
     add-int/2addr v4, v8
 
-    .line 1618
+    .line 1626
     invoke-virtual {v7}, Landroid/view/View;->getMeasuredHeight()I
 
     move-result v7
@@ -134,12 +134,12 @@
 
     move-result v2
 
-    .line 1609
+    .line 1617
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_11
 
-    .line 1620
+    .line 1628
     :cond_46
     return-void
 .end method
@@ -150,12 +150,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1582
+    .line 1590
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
     move-result v5
 
-    .line 1583
+    .line 1591
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -174,7 +174,7 @@
 
     move v4, v1
 
-    .line 1587
+    .line 1595
     :goto_13
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->getChildCount()I
 
@@ -182,27 +182,27 @@
 
     if-ge v0, v7, :cond_48
 
-    .line 1588
+    .line 1596
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->getChildAt(I)Landroid/view/View;
 
     move-result-object v7
 
-    .line 1589
+    .line 1597
     const/high16 v8, -0x80000000
 
     invoke-static {v5, v8}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v8
 
-    .line 1590
+    .line 1598
     invoke-static {v1, v1}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v9
 
-    .line 1589
+    .line 1597
     invoke-virtual {v7, v8, v9}, Landroid/view/View;->measure(II)V
 
-    .line 1591
+    .line 1599
     if-lez v4, :cond_37
 
     invoke-virtual {v7}, Landroid/view/View;->getMeasuredWidth()I
@@ -213,7 +213,7 @@
 
     if-le v8, v5, :cond_37
 
-    .line 1593
+    .line 1601
     add-int/2addr v2, v6
 
     add-int/2addr v3, v2
@@ -222,7 +222,7 @@
 
     move v4, v1
 
-    .line 1596
+    .line 1604
     :cond_37
     invoke-virtual {v7}, Landroid/view/View;->getMeasuredWidth()I
 
@@ -232,7 +232,7 @@
 
     add-int/2addr v4, v8
 
-    .line 1597
+    .line 1605
     invoke-virtual {v7}, Landroid/view/View;->getMeasuredHeight()I
 
     move-result v7
@@ -241,17 +241,17 @@
 
     move-result v2
 
-    .line 1587
+    .line 1595
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_13
 
-    .line 1599
+    .line 1607
     :cond_48
     add-int v0, v3, v2
 
     invoke-virtual {p0, v5, v0}, Lcom/isaigu/gymapp/ai/AiUi$FlowRow;->setMeasuredDimension(II)V
 
-    .line 1600
+    .line 1608
     return-void
 .end method

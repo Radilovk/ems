@@ -455,9 +455,12 @@ public final class WearableSyncHelper {
                                 + " след около 10–15 s с гривната на китката.\n"
                                 + "5. Цвят на кръга = зона спрямо „Праг пулс“: сиво <60%, зелено 60–70%,"
                                 + " жълто 70–80%, оранжево 80–90%, червено ≥90%.\n"
-                                + "6. Авто-намаляване: над прага силата пада с „Стъпка“ (най-много веднъж"
-                                + " на 10 s).\n"
-                                + "7. Бутон i на кръга → „Данни от гривната“: всички сурови стойности и"
+                                + "6. ↻ = калибриране 30 s в покой → долна граница. „Праг пулс“ се предлага"
+                                + " сам (зелено); стойност на треньора е с приоритет (0 = пак автоматично).\n"
+                                + "7. Авто-управление: при покачване към прага логиката сваля първо силата,"
+                                + " после ширината на импулса, после честотата; над тавана (+12) спира изхода."
+                                + " Връща плавно, никога над зададеното. На кръга: зона, граници, kcal.\n"
+                                + "8. Бутон i на кръга → „Данни от гривната“: всички сурови стойности и"
                                 + " споделяне на записа.",
                         "1. Force-stop Mi Fitness / Notify / Gadgetbridge — the band accepts one app.\n"
                                 + "2–3. MAC and key (32 chars from Notify / Mi Fitness) are entered once in"
@@ -465,9 +468,12 @@ public final class WearableSyncHelper {
                                 + "4. Activate dial → it connects by itself. First HR after ~10–15 s.\n"
                                 + "5. Dial colour = zone vs HR limit: grey <60%, green 60–70%, yellow"
                                 + " 70–80%, orange 80–90%, red ≥90%.\n"
-                                + "6. Auto-reduce: above the limit strength drops by Step (max once per"
-                                + " 10 s).\n"
-                                + "7. Dial i button → Band data: every raw value and share recording."));
+                                + "6. ↻ = 30 s resting calibration → lower limit. The HR limit is suggested"
+                                + " (green); a trainer value has priority (0 = automatic again).\n"
+                                + "7. Auto control: when HR heads for the limit it lowers strength first, then"
+                                + " pulse width, then frequency; above the ceiling (+12) output stops. It"
+                                + " gives back gradually, never above the set values. Dial: zone, limits, kcal.\n"
+                                + "8. Dial i button → Band data: every raw value and share recording."));
     }
 
     private static void armFromConfig() {
@@ -621,15 +627,26 @@ public final class WearableSyncHelper {
             if (fraction > 1f) {
                 fraction = 1f;
             }
+            HrGuardCore g = HrGuard.core();
+            if (g.isCalibrating()) {
+                fraction = (float) g.getCalibProgress();
+            }
             if (ringView != null) {
                 ringView.setElapsedFraction(fraction);
                 ringView.invalidate();
             }
             if (stale) {
                 setSubLabel(WearableUi.ageText(age), WearableUi.COLOR_WAIT);
+            } else if (g.isCalibrating()) {
+                setSubLabel(WearableUi.tr("калибриране ", "calibrating ")
+                        + WearableUi.ageTextShort(g.getCalibLeftMs()), WearableUi.COLOR_WAIT);
             } else {
-                setSubLabel(WearableUi.tr("уд/мин", "bpm") + " · Z" + zone + "\n"
-                        + WearableUi.zoneName(zone), zoneColor);
+                String act = HrGuard.actionText(g.getLastAction());
+                boolean recent = System.currentTimeMillis() - g.getLastActionMs() < 30000L;
+                String line2 = Math.round(g.getKcal()) + " kcal"
+                        + (recent && act.length() > 0 ? " · " + act : "");
+                setSubLabel("Z" + zone + " · " + (g.getRestHr() > 0 ? g.getRestHr() + "–" : "")
+                        + threshold + "\n" + line2, g.isHold() ? WearableUi.COLOR_ERROR : zoneColor);
             }
             return;
         }
@@ -775,6 +792,10 @@ public final class WearableSyncHelper {
         }
         if (thresholdView != null) {
             thresholdView.setText(String.valueOf(WearableConfig.getHrThreshold(activity)));
+            // Green = recommended automatically; white = typed by the trainer (has priority).
+            if (!WearableConfig.isHrThresholdManual(activity)) {
+                thresholdView.setTextColor(WearableUi.COLOR_OK);
+            }
         }
         if (stepView != null) {
             stepView.setText(String.valueOf(WearableConfig.getStrengthStep(activity)));
@@ -799,7 +820,7 @@ public final class WearableSyncHelper {
             WearableConfig.setAutoReduceEnabled(activity, autoReduceSwitch.isChecked());
         }
         if (thresholdView != null) {
-            WearableConfig.setHrThreshold(activity, readIntField(thresholdView, 170, 80, 220));
+            WearableConfig.setHrThresholdFromField(activity, readIntField(thresholdView, 0, 0, 220));
         }
         if (stepView != null) {
             WearableConfig.setStrengthStep(activity, readIntField(stepView, 5, 1, 20));
@@ -1101,8 +1122,14 @@ public final class WearableSyncHelper {
                     return;
                 }
             }
-            NotifyWearableBridge.requestConnect(activity);
-            toastMessage(activity, WearableUi.tr("Свързване с гривната…", "Connecting to the band…"));
+            // ↻ = 30 s resting calibration; reconnect only when the band is not streaming.
+            if (!NotifyWearableBridge.isListeningActive() || !NotifyWearableBridge.isLinkUp()) {
+                NotifyWearableBridge.requestConnect(activity);
+            }
+            HrGuard.startCalibration();
+            toastMessage(activity, WearableUi.tr("Калибриране 30 s — стой спокойно",
+                    "Calibrating 30 s — stay still"));
+            refreshOverlayDisplay();
         }
     }
 

@@ -19,7 +19,6 @@ import java.util.Set;
  * MAC and auth key come only from {@link WearableConfig} (Settings → Band).
  */
 public final class NotifyWearableBridge {
-    private static final long AUTO_REDUCE_COOLDOWN_MS = 10000L;
     public static final String OWNER_DIAL = "dial";
     public static final String OWNER_AI = "ai";
     public static final String OWNER_SETTINGS = "settings";
@@ -30,7 +29,6 @@ public final class NotifyWearableBridge {
     private static boolean listeningActive;
     private static boolean bandConnected;
     private static int lastHr = -1;
-    private static long lastAutoReduceMs;
     private static int hrEventCount;
     private static String lastEventAction = "";
     private static long lastEventTimeMs;
@@ -259,16 +257,11 @@ public final class NotifyWearableBridge {
         } catch (Throwable ignored) {
         }
         WearableSyncHelper.updateDiagnostics();
-        Context context = WearableSyncHelper.getContext();
-        boolean aiRunning = false;
+        // Pulse module: HR-driven control of the running program (idle during an AI session).
         try {
-            aiRunning = com.isaigu.gymapp.ai.AiSession.ownsOutput();
-        } catch (Throwable ignored) {
-        }
-        // The dial's auto-reduce must not touch the output while the AI drives it.
-        if (!aiRunning && context != null && WearableConfig.isAutoReduceEnabled(context)
-                && isAnyTrainingRunning()) {
-            maybeAutoReduce(hr);
+            HrGuard.onHeartRate(hr);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("hr_guard", "onHeartRate: " + t);
         }
     }
 
@@ -391,41 +384,5 @@ public final class NotifyWearableBridge {
         } catch (Throwable ignored) {
         }
         return false;
-    }
-
-    private static void maybeAutoReduce(int hr) {
-        long now = System.currentTimeMillis();
-        Context context = WearableSyncHelper.getContext();
-        if (context == null) {
-            return;
-        }
-        if (hr <= WearableConfig.getHrThreshold(context)
-                || now - lastAutoReduceMs < AUTO_REDUCE_COOLDOWN_MS) {
-            return;
-        }
-        lastAutoReduceMs = now;
-        reduceStrengthOnRunningItems(context);
-    }
-
-    private static void reduceStrengthOnRunningItems(Context context) {
-        TrainItemManager manager = WearableSyncHelper.getItemManager();
-        if (manager == null) {
-            return;
-        }
-        int step = WearableConfig.getStrengthStep(context);
-        try {
-            List<TrainItem> items = manager.getItemList();
-            if (items == null) {
-                return;
-            }
-            for (int i = 0; i < items.size(); i++) {
-                TrainItem item = items.get(i);
-                if (item == null || item.isEmpty() || item.data == null || !item.data.start) {
-                    continue;
-                }
-                item.addStrenth(-step);
-            }
-        } catch (Throwable ignored) {
-        }
     }
 }

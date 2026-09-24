@@ -1,4 +1,5 @@
 import com.isaigu.gymapp.ai.*;
+import com.isaigu.gymapp.wearable.HrGuardCore;
 import com.isaigu.gymapp.ai.AiModel.*;
 import java.util.*;
 
@@ -102,6 +103,59 @@ public class AiSim {
         return e;
     }
 
+    /**
+     * Pulse module: 30 s calibration, then 20 min of a trainer program (85 Hz / 350 µs / 4:4 / 60 %),
+     * HR = rest + gain · load (lag 25 s up, 40 s down) + drift 0.4 bpm/min.
+     */
+    static void guard(String name, double gain, int trainerUpper, boolean twitch, boolean print) {
+        HrGuardCore g = new HrGuardCore();
+        g.setMaxStepPct(10);
+        if (trainerUpper > 0) g.setManualUpper(trainerUpper);
+        long t = 0; double hr = 66, target; Random rnd = new Random(7);
+        g.startCalibration(t);
+        int baseS = 60, basePw = 350, baseHz = twitch ? 5 : 85;
+        double maxHr = 0, minS = 1, maxS = 0, maxPw = 0, maxHz = 0; int holds = 0, firstLever = -1;
+        String prev = ""; List<String> log = new ArrayList<>();
+        for (int sec = 0; sec < 30 + 20 * 60 + 240; sec++) {
+            t = sec * 1000L;
+            boolean run = sec >= 40 && sec < 40 + 20 * 60;
+            HrGuardCore.Stim st = new HrGuardCore.Stim();
+            st.running = run; st.onS = 4; st.offS = 4;
+            st.strength = (int) Math.round(baseS * g.getStrengthFactor());
+            st.pwUs = (int) Math.round(basePw * g.getWidthFactor());
+            st.hz = (int) Math.round(baseHz * g.getFreqFactor());
+            double load = run ? (st.strength / 100.0) * (st.pwUs / 350.0) * Math.sqrt(st.hz / 85.0) * (twitch ? 0.3 : 1) : 0;
+            target = 66 + gain * load + (run ? 0.4 * (sec - 40) / 60.0 : 0);
+            hr += (target - hr) / (target > hr ? 25.0 : 40.0);
+            if (sec % 3 == 0) g.onHr(t, (int) Math.round(hr + rnd.nextGaussian()), false);
+            g.tick(t, st, true);
+            if (sec == 35) check(!g.isCalibrating() && Math.abs(g.getRestHr() - 66) <= 2, name + " calibration 30 s → rest " + g.getRestHr());
+            if (run) {
+                maxHr = Math.max(maxHr, hr);
+                minS = Math.min(minS, g.getStrengthFactor());
+                check(g.getStrengthFactor() <= 1 && g.getWidthFactor() <= 1 && g.getFreqFactor() <= 1, name + " above trainer values");
+                if (g.isHold()) { holds++; check(g.getStrengthFactor() == 0, name + " hold must be zero output"); }
+            }
+            maxS = Math.max(maxS, g.getStrengthFactor());
+            String act = g.getLastAction();
+            if (!act.equals(prev) || (g.getLastActionMs() == t && !act.isEmpty())) {
+                if (g.getLastActionMs() == t) {
+                    log.add(sec + "s " + act + String.format(Locale.US, " hr=%.0f fc=%.0f s=%.2f pw=%.2f hz=%.2f", g.getHr(), g.getForecast(), g.getStrengthFactor(), g.getWidthFactor(), g.getFreqFactor()));
+                    if (firstLever < 0 && act.endsWith("_down")) firstLever = act.startsWith("strength") ? 0 : 1;
+                }
+                prev = act;
+            }
+        }
+        long downs = log.stream().filter(x -> x.contains("_down")).count();
+        long ups = log.stream().filter(x -> x.contains("restore")).count();
+        System.out.printf("%-22s rest=%d upper=%d%s cap=%d maxHR=%.0f minS=%.2f downs=%d restores=%d holds=%ds kcal=%.0f%n",
+            name, g.getRestHr(), g.getUpper(), g.isManualUpper() ? "(trainer)" : "(auto)", g.getCap(), maxHr, minS, downs, ups, holds, g.getKcal());
+        check(firstLever <= 0, name + " first lever must be strength");
+        check(maxHr <= g.getCap() + 10, name + " HR far above cap");
+        check(g.getKcal() > 0, name + " kcal");
+        if (print) log.forEach(x -> System.out.println("    " + x));
+    }
+
     public static void main(String[] a) {
         boolean v = a.length > 0;
         AiEngine e;
@@ -145,6 +199,11 @@ public class AiSim {
         }
         System.out.printf("REST_HR 30 s             status=%s hr=%d sd=%.1f at %d s%n", r.getStatus(), r.getHrRest(), r.getSigma(), t0 / 1000);
         check(r.getStatus() == AiRestHr.Status.DONE && t0 <= 32000, "rest HR done in ~30 s");
+        guard("PULSE normal", 40, 0, false, v);
+        guard("PULSE high", 110, 0, false, v);
+        guard("PULSE extreme", 200, 0, false, v);
+        guard("PULSE trainer 150", 110, 150, false, v);
+        guard("PULSE twitch 5 Hz", 110, 0, true, v);
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");
         System.exit(failures == 0 ? 0 : 1);
     }

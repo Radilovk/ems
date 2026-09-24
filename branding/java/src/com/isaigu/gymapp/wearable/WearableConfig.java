@@ -13,6 +13,10 @@ public final class WearableConfig {
     private static final String KEY_STRENGTH_STEP = "strength_step";
     private static final String KEY_BAND_MAC = "band_mac";
     private static final String KEY_AUTH_KEY = "auth_key";
+    /** Upper HR limit typed by the trainer (has priority over the recommended one). */
+    private static final String KEY_HR_MANUAL = "hr_threshold_manual";
+    /** Resting HR from the last 30 s calibration of the pulse module. */
+    private static final String KEY_HR_REST = "hr_rest";
 
     private WearableConfig() {}
 
@@ -30,11 +34,39 @@ public final class WearableConfig {
     }
 
     public static boolean isAutoReduceEnabled(Context context) {
-        return prefs(context).getBoolean(KEY_AUTO_REDUCE, false);
+        // HR control only ever lowers the trainer's values, so it is on by default.
+        return prefs(context).getBoolean(KEY_AUTO_REDUCE, true);
     }
 
+    /** Effective upper HR limit: the trainer's value, else the recommended one. */
     public static int getHrThreshold(Context context) {
-        return prefs(context).getInt(KEY_HR_THRESHOLD, 170);
+        if (isHrThresholdManual(context)) {
+            return prefs(context).getInt(KEY_HR_THRESHOLD, HrGuardCore.UPPER_DEFAULT);
+        }
+        return HrGuardCore.autoUpper(getRestHr(context));
+    }
+
+    public static boolean isHrThresholdManual(Context context) {
+        return prefs(context).getBoolean(KEY_HR_MANUAL, false);
+    }
+
+    /** Value from the HR field: equal to the recommended one (or 0) → automatic again. */
+    public static void setHrThresholdFromField(Context context, int value) {
+        int auto = HrGuardCore.autoUpper(getRestHr(context));
+        if (value <= 0 || value == auto) {
+            prefs(context).edit().putBoolean(KEY_HR_MANUAL, false).apply();
+            return;
+        }
+        prefs(context).edit().putBoolean(KEY_HR_MANUAL, true).apply();
+        setHrThreshold(context, value);
+    }
+
+    public static int getRestHr(Context context) {
+        return prefs(context).getInt(KEY_HR_REST, -1);
+    }
+
+    public static void setRestHr(Context context, int bpm) {
+        prefs(context).edit().putInt(KEY_HR_REST, bpm).apply();
     }
 
     public static int getStrengthStep(Context context) {

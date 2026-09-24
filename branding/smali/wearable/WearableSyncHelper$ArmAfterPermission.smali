@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1030
+    .line 1051
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 1033
+    .line 1054
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
@@ -45,6 +45,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->finishArm(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1200(Landroid/app/Activity;)V
 
-    .line 1034
+    .line 1055
     return-void
 .end method

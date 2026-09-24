@@ -78,6 +78,14 @@ public final class AiSession {
     /** TrainItem$2.onFinish — the device is entering an ON phase for this row. */
     public static void onPulseCycle(TrainItem item) {
         try {
+            onPulseCycleImpl(item);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AiSession.onPulseCycle", t);
+        }
+    }
+
+    private static void onPulseCycleImpl(TrainItem item) {
+        try {
             if (item == null || item != leader()) {
                 return;
             }
@@ -94,6 +102,14 @@ public final class AiSession {
 
     /** NotifyWearableBridge.onHeartRate — every valid band sample. */
     public static void onHeartRate(int bpm) {
+        try {
+            onHeartRateImpl(bpm);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AiSession.onHeartRate", t);
+        }
+    }
+
+    private static void onHeartRateImpl(int bpm) {
         long now = System.currentTimeMillis();
         lastBandHr = bpm;
         lastBandHrMs = now;
@@ -363,6 +379,22 @@ public final class AiSession {
         }
     }
 
+    /** Give back a reduce step (never above the plan / calibration). */
+    public static void increase() {
+        if (engine != null) {
+            engine.increase(System.currentTimeMillis());
+            forceApplyCurrent();
+        }
+    }
+
+    /** Double impulse (active pause) on / off during the session. */
+    public static void setActivePause(boolean on) {
+        if (engine != null) {
+            engine.setActivePause(on, System.currentTimeMillis());
+            forceApplyCurrent();
+        }
+    }
+
     /** ACTIVE: next block after the rest threshold (manual start only). */
     public static void continueBlock() {
         if (engine == null) {
@@ -492,8 +524,52 @@ public final class AiSession {
         }
         double hr = engine.getHrAgeMs(now) < 10000L ? engine.getHrS() : -1;
         AiEngine.CycleCmd c = engine.getCurrentCycle();
-        double frac = engine.isStimOn(now) && c != null ? c.frac * calibPercent / 100.0 : 0;
-        energy.tick(now, hr, frac, c != null ? c.hz : 0);
+        AiEnergy.Stim es = null;
+        if (c != null && engine.isStimOn(now) && c.frac > 0) {
+            es = channelStim();
+            es.strengthPct = calibPercent * c.frac;
+            es.hz = c.hz;
+            es.pwUs = c.pwUs;
+            es.onShare = 1.0;
+        } else if (c != null && engine.isActivePause(now) && c.frac > 0) {
+            es = channelStim();
+            es.strengthPct = calibPercent * c.frac;
+            es.hz = c.hz;
+            es.pwUs = c.pwUs;
+            es.onShare = 0;
+            es.pauseHz = c.pauseHz;
+            es.pauseStrengthPct = calibPercent * c.frac * c.pauseSigma;
+            es.pauseShare = 1.0;
+        }
+        if (es != null) {
+            // Tolerated level = the calibration (350 µs, calibPercent) on each channel.
+            es.toleratedCharge = new double[AiEnergy.CH_MASS.length];
+            for (int i = 0; i < es.toleratedCharge.length; i++) {
+                double chPct = es.channels != null && i < es.channels.length ? es.channels[i] : 100;
+                es.toleratedCharge[i] = chPct / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.ARMS_SENT : 1.0)
+                        * calibPercent / 100.0;
+            }
+        }
+        energy.tick(now, hr, es);
+    }
+
+    /** Channel % and disabled flags of the band wearer's row (the leader). */
+    private static AiEnergy.Stim channelStim() {
+        AiEnergy.Stim st = new AiEnergy.Stim();
+        TrainItem item = leader();
+        try {
+            if (item != null) {
+                ProgramDataBean b = item.getTrainProgram() != null ? item.getTrainProgram().matchProgram() : null;
+                if (b != null && b.strenthBean != null && b.strenthBean.buwei != null) {
+                    st.channels = b.strenthBean.buwei.clone();
+                }
+                if (item.partsDisabled != null) {
+                    st.disabled = item.partsDisabled.clone();
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return st;
     }
 
     /** Estimated kcal of this session (total), −1 before the start. */
@@ -621,7 +697,9 @@ public final class AiSession {
             }
             if (b.hz != written.hz || b.pulseWidth != written.pwUs
                     || b.pulseContinue != Math.max(1, written.onS)
-                    || b.pulsePause != Math.max(1, written.offS) || b.activePause) {
+                    || b.pulsePause != Math.max(1, written.offS)
+                    || b.activePause != (written.pauseHz > 0 && writtenPercent > 0)
+                    || (b.activePause && b.pauseHz != Math.max(1, Math.min(120, written.pauseHz)))) {
                 params = true;
             }
             if (b.strenth > writtenPercent) {
@@ -741,7 +819,14 @@ public final class AiSession {
             bean.pulseContinue = Math.max(1, c.onS);
             bean.pulsePause = Math.max(1, c.offS);
             bean.strenth = percent;
-            bean.activePause = false;
+            // Active pause (impulse ↔ impulse): strength is absolute, so it follows the work
+            // strength (reduce / HR control lower both together).
+            boolean activePause = c.pauseHz > 0 && percent > 0;
+            bean.activePause = activePause;
+            if (activePause) {
+                bean.pauseHz = Math.max(1, Math.min(120, c.pauseHz));
+                bean.pauseStrenthPercent = Math.max(1, (int) Math.round(percent * c.pauseSigma));
+            }
             if (item.data != null && item.data.inStart) {
                 item.data.secondValue = bean.pulseContinue;
             }
@@ -799,6 +884,7 @@ public final class AiSession {
             input.fitness = AiModel.Fitness.valueOf(p.getString("fitness", "MID"));
             input.operator = AiModel.Operator.valueOf(p.getString("operator", "TRAINER"));
             input.age = p.getInt("age", 35);
+            input.pause = AiModel.PauseMode.valueOf(p.getString("pause", "AUTO"));
             input.weightKg = p.getInt("weight_kg", 75);
             int t = p.getInt("total_s", 0);
             input.totalSeconds = t > 0 ? t : null;
@@ -822,6 +908,7 @@ public final class AiSession {
                     .putString("fitness", input.fitness.name())
                     .putString("operator", input.operator.name())
                     .putInt("age", input.age)
+                    .putString("pause", input.pause.name())
                     .putInt("weight_kg", (int) Math.round(input.weightKg))
                     .putInt("total_s", input.totalSeconds != null ? input.totalSeconds : 0)
                     .apply();

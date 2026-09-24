@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 556
+    .line 576
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,46 +42,38 @@
 
 # virtual methods
 .method public onDelta(I)V
-    .registers 12
+    .registers 6
 
     .prologue
-    .line 559
+    .line 579
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    const-wide/16 v2, 0x23
+    const/16 v1, 0xe
 
-    const-wide/16 v4, 0xc8
+    const/16 v2, 0x5a
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    iget-wide v6, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
+    iget v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    invoke-static {v6, v7}, Ljava/lang/Math;->round(D)J
+    add-int/2addr v3, p1
 
-    move-result-wide v6
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
 
-    int-to-long v8, p1
+    move-result v2
 
-    add-long/2addr v6, v8
+    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
 
-    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->min(JJ)J
+    move-result v1
 
-    move-result-wide v4
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(JJ)J
-
-    move-result-wide v2
-
-    long-to-double v2, v2
-
-    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
-
-    .line 560
+    .line 580
     const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
-    .line 561
+    .line 581
     return-void
 .end method

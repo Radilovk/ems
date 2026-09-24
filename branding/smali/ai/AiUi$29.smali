@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->stepper(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenReport(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,11 @@
 
 
 # instance fields
-.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+.field final synthetic val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
     .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -31,8 +31,8 @@
     .end annotation
 
     .prologue
-    .line 1686
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+    .line 1534
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,13 +45,16 @@
     .registers 4
 
     .prologue
-    .line 1689
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+    .line 1537
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
-    const/4 v1, -0x1
+    move-result-object v0
 
-    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;->onDelta(I)V
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    .line 1690
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->shareReport(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$900(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
+
+    .line 1538
     return-void
 .end method

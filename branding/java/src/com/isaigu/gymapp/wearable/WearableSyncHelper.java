@@ -128,6 +128,14 @@ public final class WearableSyncHelper {
     private WearableSyncHelper() {}
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
+        try {
+            attachMasterPanelImpl(root, manager);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.attachMasterPanel", t);
+        }
+    }
+
+    private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         if (root == null || manager == null) {
             return;
         }
@@ -136,8 +144,11 @@ public final class WearableSyncHelper {
         itemManager = manager;
         try {
             com.isaigu.gymapp.ai.AiSession.attach(root, manager);
-        } catch (Throwable ignored) {
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AiSession.attach", t);
         }
+        // Module buttons live in the bottom bar now (XemsNav); the sidebar copies are hidden.
+        com.isaigu.gymapp.widget.XemsNav.onTrainingPanel(root);
         View button = root.findViewById(BUTTON_ID);
         if (button == null) {
             return;
@@ -168,8 +179,12 @@ public final class WearableSyncHelper {
                 if (act == null || act.isFinishing()) {
                     return;
                 }
-                if (overlayDialog == null || !overlayDialog.isShowing()) {
-                    showOverlayDialog();
+                try {
+                    if (overlayDialog == null || !overlayDialog.isShowing()) {
+                        showOverlayDialog();
+                    }
+                } catch (Throwable t) {
+                    com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.showDial", t);
                 }
             }
         });
@@ -177,6 +192,14 @@ public final class WearableSyncHelper {
 
     /** Tear down floating UI refs when training host is destroyed; keep BLE if user armed dial. */
     public static void detachTrainingHost() {
+        try {
+            detachTrainingHostImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.detachTrainingHost", t);
+        }
+    }
+
+    private static void detachTrainingHostImpl() {
         dismissStaleUi();
         panelRoot = null;
         itemManager = null;
@@ -212,6 +235,14 @@ public final class WearableSyncHelper {
     }
 
     public static void onTrainingRunningChanged(boolean running) {
+        try {
+            onTrainingRunningChangedImpl(running);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.onTrainingRunningChanged", t);
+        }
+    }
+
+    private static void onTrainingRunningChangedImpl(boolean running) {
         trainingRunning = running;
         updateOverlayVisibility();
         refreshStatusText();
@@ -219,12 +250,28 @@ public final class WearableSyncHelper {
     }
 
     public static void updateHeartRate(int hr, boolean connected) {
+        try {
+            updateHeartRateImpl(hr, connected);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.updateHeartRate", t);
+        }
+    }
+
+    private static void updateHeartRateImpl(int hr, boolean connected) {
         displayedHr = hr;
         bandConnected = connected;
         handler.post(new RefreshOverlayRunnable());
     }
 
     public static void updateDiagnostics() {
+        try {
+            updateDiagnosticsImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.updateDiagnostics", t);
+        }
+    }
+
+    private static void updateDiagnosticsImpl() {
         handler.post(new RefreshOverlayRunnable());
     }
 
@@ -285,7 +332,7 @@ public final class WearableSyncHelper {
         return resolveActivity(null);
     }
 
-    static TrainItemManager getItemManager() {
+    public static TrainItemManager getItemManager() {
         return itemManager;
     }
 
@@ -361,9 +408,28 @@ public final class WearableSyncHelper {
             com.isaigu.gymapp.widget.XemsUi.init(a);
             View connect = content.findViewById(ID_CONNECT);
             View activate = content.findViewById(ID_ACTIVATE);
-            if (connect instanceof TextView) {
-                styleKitButton((TextView) connect, com.isaigu.gymapp.widget.XemsUi.SECONDARY);
-                ((TextView) connect).setText(WearableUi.tr("↻  Свържи гривната", "↻  Connect band"));
+            // "Activate dial" connects the band too — a separate connect button is redundant.
+            if (connect != null) {
+                connect.setVisibility(View.GONE);
+            }
+            // The band is the only HR source: an on/off "direct BLE" switch means nothing.
+            if (enabledSwitch != null) {
+                enabledSwitch.setChecked(true);
+                WearableConfig.setEnabled(a, true);
+                if (enabledSwitch.getParent() instanceof View) {
+                    ((View) enabledSwitch.getParent()).setVisibility(View.GONE);
+                }
+            }
+            // The reduce step is the control logic's own decision (settle time, forecast).
+            if (stepView != null) {
+                stepView.setVisibility(View.GONE);
+                if (stepView.getParent() instanceof android.view.ViewGroup) {
+                    android.view.ViewGroup row = (android.view.ViewGroup) stepView.getParent();
+                    int i = row.indexOfChild(stepView);
+                    if (i > 0) {
+                        row.getChildAt(i - 1).setVisibility(View.GONE);   // its "Step" label
+                    }
+                }
             }
             if (activate instanceof TextView) {
                 styleKitButton((TextView) activate, com.isaigu.gymapp.widget.XemsUi.PRIMARY);
@@ -404,15 +470,13 @@ public final class WearableSyncHelper {
         if (box == null) {
             return;
         }
-        String macText = WearableConfig.getBandMac(activity);
-        boolean ok = WearableConfig.isConfigured(activity);
-        TextView line = WearableUi.text(activity, (ok
-                ? WearableUi.tr("Гривна: ", "Band: ") + NotifyWearableBridge.normalizeMac(macText) + " · "
-                + WearableUi.tr("ключ ✓", "key ✓")
-                : WearableUi.tr("Гривната не е настроена", "Band not set up"))
-                + WearableUi.tr("  ·  MAC и ключ: Настройки → Гривна", "  ·  MAC and key: Settings → Band"),
-                12f, ok ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT, true);
-        box.addView(line, WearableUi.matchWrap(activity, 12));
+        // Only say something when the band still needs setting up.
+        if (!WearableConfig.isConfigured(activity)) {
+            TextView line = WearableUi.text(activity, WearableUi.tr(
+                    "Настрой гривната: Настройки → Гривна", "Set up the band: Settings → Band"),
+                    13f, WearableUi.COLOR_WAIT, true);
+            box.addView(line, WearableUi.matchWrap(activity, 12));
+        }
     }
 
     /** Band picker next to MAC, live auth-key check, "Band data" button — built in code. */
@@ -420,7 +484,6 @@ public final class WearableSyncHelper {
         if (activity == null || content == null) {
             return;
         }
-        int text = WearableUi.color(activity, "text_primary", 0xFFFFFFFF);
         try {
             if (bandMacView != null && bandMacView.getParent() instanceof android.widget.LinearLayout) {
                 android.widget.LinearLayout macRow =
@@ -444,16 +507,7 @@ public final class WearableSyncHelper {
             authKeyView.addTextChangedListener(new AuthKeyWatcher());
             colorAuthKey(authKeyView.getText().toString());
         }
-        View inner = content instanceof android.view.ViewGroup
-                && ((android.view.ViewGroup) content).getChildCount() > 0
-                ? ((android.view.ViewGroup) content).getChildAt(0) : null;
-        if (inner instanceof android.widget.LinearLayout) {
-            TextView data = WearableUi.button(activity,
-                    WearableUi.tr("Данни от гривната", "Band data"),
-                    WearableUi.color(activity, "bg_elevated", 0xFF2A2A2A), text);
-            data.setOnClickListener(new LiveDataListener());
-            ((android.widget.LinearLayout) inner).addView(data, WearableUi.matchWrap(activity, 12));
-        }
+        // Raw band data stays one tap away on the dial (i), not in this settings sheet.
     }
 
     private static boolean isValidAuthKey(String key) {
@@ -648,10 +702,21 @@ public final class WearableSyncHelper {
             }
             return;
         }
-        long last = com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient.getInstance()
+        long last = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.link()
                 .getLastRealtimeEventMs();
         long age = last > 0L ? System.currentTimeMillis() - last : -1L;
         boolean live = "streaming".equals(state) || "measuring".equals(state);
+        if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownNotWorn()) {
+            // The band itself says it is off the wrist: no pulse, pulse control holds.
+            hrValueView.setText("--");
+            hrValueView.setTextColor(WearableUi.COLOR_ERROR);
+            if (ringView != null) {
+                ringView.setBeatBpm(0);
+                ringView.setElapsedFraction(0f);
+            }
+            setSubLabel(WearableUi.tr("гривната не е на ръката", "band not worn"), WearableUi.COLOR_ERROR);
+            return;
+        }
         if (displayedHr > 0 && live) {
             int zone = WearableUi.zoneFor(displayedHr, threshold);
             int zoneColor = WearableUi.zoneColor(zone);
@@ -731,11 +796,15 @@ public final class WearableSyncHelper {
     private static final class DialTick implements Runnable {
         @Override
         public void run() {
-            if (hrValueView == null || overlayDialog == null) {
-                return;
+            try {
+                if (hrValueView == null || overlayDialog == null) {
+                    return;
+                }
+                refreshOverlayDisplay();
+                handler.postDelayed(this, 1000L);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.DialTick", t);
             }
-            refreshOverlayDisplay();
-            handler.postDelayed(this, 1000L);
         }
     }
 
@@ -767,7 +836,7 @@ public final class WearableSyncHelper {
 
     private static String validateDirectBleConfig(Activity activity) {
         if (activity == null) {
-            return "Няма активен екран";
+            return WearableUi.tr("Няма активен екран", "No active screen");
         }
         String key = WearableConfig.getAuthKey(activity);
         String clean = key != null
@@ -1073,7 +1142,11 @@ public final class WearableSyncHelper {
     private static final class RefreshOverlayRunnable implements Runnable {
         @Override
         public void run() {
-            refreshOverlayDisplay();
+            try {
+                refreshOverlayDisplay();
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.refresh", t);
+            }
         }
     }
 
@@ -1165,13 +1238,12 @@ public final class WearableSyncHelper {
                     return;
                 }
             }
-            // ↻ = 30 s resting calibration; reconnect only when the band is not streaming.
-            if (!NotifyWearableBridge.isListeningActive() || !NotifyWearableBridge.isLinkUp()) {
-                NotifyWearableBridge.requestConnect(activity);
-            }
+            // ↻ = full Bluetooth reconnect (link closed, cache refreshed, fresh connect), then
+            // the 30 s resting calibration as soon as the heart rate flows again.
+            NotifyWearableBridge.fullReconnect(activity);
             HrGuard.startCalibration();
-            toastMessage(activity, WearableUi.tr("Калибриране 30 s — стой спокойно",
-                    "Calibrating 30 s — stay still"));
+            toastMessage(activity, WearableUi.tr("Връзката с гривната се рестартира · калибриране 30 s",
+                    "Reconnecting the band · 30 s calibration"));
             refreshOverlayDisplay();
         }
     }
@@ -1179,7 +1251,7 @@ public final class WearableSyncHelper {
     static final class OverlayInfoListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            WearableLivePanel.show(resolveActivity(v));
+            WearableHrPanel.show(resolveActivity(v));
         }
     }
 

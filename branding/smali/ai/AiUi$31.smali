@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Landroid/widget/CompoundButton$OnCheckedChangeListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiUi$ToggleCallback;)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/ai/AiUi;->segmented(Landroid/content/Context;[Ljava/lang/String;I[ZLcom/isaigu/gymapp/ai/AiUi$SegmentCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,12 +18,14 @@
 
 
 # instance fields
-.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+.field final synthetic val$idx:I
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;I)V
+    .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1729
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+    .line 1738
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$idx:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,15 +45,17 @@
 
 
 # virtual methods
-.method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
+.method public onClick(Landroid/view/View;)V
     .registers 4
 
     .prologue
-    .line 1732
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+    .line 1741
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    invoke-interface {v0, p2}, Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;->onToggle(Z)V
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$31;->val$idx:I
 
-    .line 1733
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
+
+    .line 1742
     return-void
 .end method

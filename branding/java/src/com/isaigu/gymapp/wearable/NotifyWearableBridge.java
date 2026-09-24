@@ -6,7 +6,9 @@ import android.view.View;
 
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBand;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandLink;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,18 +42,21 @@ public final class NotifyWearableBridge {
         @Override
         public void onState(String state) {
             bleState = state != null ? state : "";
-            lastEventAction = "BLE:" + bleState;
+            lastEventAction = XiaomiBand.link().getTransportName() + ":" + bleState;
             lastEventTimeMs = System.currentTimeMillis();
             WearableSyncHelper.updateDiagnostics();
             if ("bad_auth_key".equals(bleState)) {
                 WearableSyncHelper.toastBleError(
-                        "Auth key грешен — 32 hex символа от Mi Fitness");
+                        WearableUi.tr("Грешен ключ — нужни са 32 символа от Mi Fitness",
+                                "Wrong key — 32 characters from Mi Fitness"));
             } else if ("bad_mac".equals(bleState)) {
                 WearableSyncHelper.toastBleError(
-                        "MAC грешен — провери адреса на гривната");
+                        WearableUi.tr("Грешен MAC — провери адреса на гривната",
+                                "Wrong MAC — check the band's address"));
             } else if ("auth_fail".equals(bleState)) {
                 WearableSyncHelper.toastBleError(
-                        "Auth неуспешен — провери auth key и MAC");
+                        WearableUi.tr("Гривната не прие ключа — провери ключа и MAC",
+                                "The band rejected the key — check key and MAC"));
             } else if ("no_bt_permission".equals(bleState)) {
                 WearableSyncHelper.showBluetoothPermissionDenied();
             }
@@ -75,10 +80,26 @@ public final class NotifyWearableBridge {
     private NotifyWearableBridge() {}
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
+        try {
+            attachMasterPanelImpl(root, manager);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.attachMasterPanel", t);
+        }
+    }
+
+    private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         WearableSyncHelper.attachMasterPanel(root, manager);
     }
 
     public static void syncTrainingState() {
+        try {
+            syncTrainingStateImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.syncTrainingState", t);
+        }
+    }
+
+    private static void syncTrainingStateImpl() {
         Context context = WearableSyncHelper.getContext();
         if (context == null || !WearableConfig.isEnabled(context)) {
             return;
@@ -89,10 +110,26 @@ public final class NotifyWearableBridge {
     }
 
     public static void detachTrainingHost() {
+        try {
+            detachTrainingHostImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.detachTrainingHost", t);
+        }
+    }
+
+    private static void detachTrainingHostImpl() {
         WearableSyncHelper.detachTrainingHost();
     }
 
     public static void onTrainingFullStop() {
+        try {
+            onTrainingFullStopImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.onTrainingFullStop", t);
+        }
+    }
+
+    private static void onTrainingFullStopImpl() {
         WearableSyncHelper.onTrainingRunningChanged(false);
     }
 
@@ -114,7 +151,7 @@ public final class NotifyWearableBridge {
         hrEventCount = 0;
         lastEventAction = "";
         lastEventTimeMs = 0L;
-        XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
+        XiaomiBandLink client = XiaomiBand.link();
         client.setListener(bleListener);
         WearableSyncHelper.updateHeartRate(-1, bandConnected);
         WearableSyncHelper.updateDiagnostics();
@@ -143,6 +180,49 @@ public final class NotifyWearableBridge {
             return;
         }
         connect(activity);
+    }
+
+    private static final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+    /** Pause between closing and reopening, so the Bluetooth stack releases the old link. */
+    private static final long FULL_RECONNECT_GAP_MS = 1200L;
+
+    /**
+     * ↻ on the HR dial: a complete Bluetooth restart — close the link (GATT or RFCOMM socket),
+     * forget the band status, wait for the stack, refresh the GATT cache and connect afresh.
+     */
+    public static void fullReconnect(Activity activity) {
+        owners.add(OWNER_DIAL);
+        try {
+            com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.link().disconnect();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("reconnect", "disconnect: " + t);
+        }
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.reset();
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient.getInstance().refreshCacheOnNextConnect();
+        bleState = "reconnecting";
+        lastHr = -1;
+        WearableBleDiagLog.log("reconnect", "full Bluetooth reconnect");
+        WearableSyncHelper.updateHeartRate(-1, false);
+        WearableSyncHelper.updateDiagnostics();
+        main.removeCallbacks(fullReconnectTask);
+        fullReconnectTask.activity = activity;
+        main.postDelayed(fullReconnectTask, FULL_RECONNECT_GAP_MS);
+    }
+
+    private static final FullReconnectTask fullReconnectTask = new FullReconnectTask();
+
+    static final class FullReconnectTask implements Runnable {
+        Activity activity;
+
+        @Override
+        public void run() {
+            try {
+                connect(activity);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.fullReconnect", t);
+            }
+            activity = null;
+        }
     }
 
     /** Take a share and force a fresh connection (explicit "reconnect" by the user). */
@@ -209,12 +289,13 @@ public final class NotifyWearableBridge {
         beginListening(context);
         EmsBleCoexist.pauseEmsBle();
         NotifyHaForegroundService.start(context);
-        XiaomiBandBleClient client = XiaomiBandBleClient.getInstance();
-        client.setListener(bleListener);
         String mac = normalizeMac(WearableConfig.getBandMac(context));
+        // Band 8 and older: BLE FE95. Band 8 Pro / 9 / 10: Bluetooth Classic SPP (auto by name).
+        XiaomiBandLink client = XiaomiBand.select(context, mac, WearableConfig.getBandTransport(context));
+        client.setListener(bleListener);
         client.connect(context, mac, WearableConfig.getAuthKey(context));
         client.startRealtime();
-        lastEventAction = "BLE:connect";
+        lastEventAction = client.getTransportName() + ":connect";
         lastEventTimeMs = System.currentTimeMillis();
         WearableSyncHelper.updateDiagnostics();
     }
@@ -236,7 +317,8 @@ public final class NotifyWearableBridge {
     }
 
     private static void disconnect(Context context) {
-        XiaomiBandBleClient.getInstance().disconnect();
+        BandRemote.stop();
+        XiaomiBand.link().disconnect();
         bleState = "stopped";
         NotifyHaForegroundService.stop(context);
         listeningActive = false;
@@ -249,6 +331,12 @@ public final class NotifyWearableBridge {
         if (!listeningActive || hr < 40 || hr > 220) {
             return;
         }
+        // Off the wrist the optical sensor reads noise: never feed it to AI / pulse control.
+        if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownNotWorn()) {
+            WearableBleDiagLog.log("hr", "ignored " + hr + " — band not worn");
+            return;
+        }
+        HrHistory.add(System.currentTimeMillis(), hr);
         hrEventCount++;
         lastHr = hr;
         WearableSyncHelper.updateHeartRate(hr, bandConnected);
@@ -267,6 +355,16 @@ public final class NotifyWearableBridge {
 
     static void onBandConnected() {
         bandConnected = true;
+        try {
+            BandRemote.start();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("remote", "start: " + t);
+        }
+        try {
+            BandAppInstall.onBandConnected();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("install", "auto: " + t);
+        }
         WearableSyncHelper.updateHeartRate(lastHr, true);
         WearableSyncHelper.updateDiagnostics();
     }
@@ -290,7 +388,7 @@ public final class NotifyWearableBridge {
     }
 
     public static int getGbHrEventCount() {
-        return XiaomiBandBleClient.getInstance().getHrEventCount();
+        return XiaomiBand.link().getHrEventCount();
     }
 
     public static boolean isDirectBleActive() {
@@ -302,23 +400,23 @@ public final class NotifyWearableBridge {
     }
 
     public static int getBleNotifyCount() {
-        return XiaomiBandBleClient.getInstance().getNotifyEventCount();
+        return XiaomiBand.link().getNotifyEventCount();
     }
 
     public static int getBleNotifyCount51() {
-        return XiaomiBandBleClient.getInstance().getNotifyCount51();
+        return XiaomiBand.link().getNotifyCount51();
     }
 
     public static int getBleNotifyCount52() {
-        return XiaomiBandBleClient.getInstance().getNotifyCount52();
+        return XiaomiBand.link().getNotifyCount52();
     }
 
     public static String getBleLastNotifyChar() {
-        return XiaomiBandBleClient.getInstance().getLastNotifyChar();
+        return XiaomiBand.link().getLastNotifyChar();
     }
 
     public static String getBleBuildTag() {
-        return XiaomiBandBleClient.getBuildTag();
+        return XiaomiBand.getBuildTag();
     }
 
     public static int getGbCommandCount() {

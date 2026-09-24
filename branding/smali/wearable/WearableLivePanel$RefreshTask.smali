@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 282
+    .line 290
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 282
+    .line 290
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel$RefreshTask;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 5
 
     .prologue
-    .line 285
+    .line 293
     # getter for: Lcom/isaigu/gymapp/wearable/WearableLivePanel;->dialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->access$500()Landroid/support/v7/app/AlertDialog;
 
@@ -52,15 +52,15 @@
 
     if-nez v0, :cond_7
 
-    .line 290
+    .line 298
     :goto_6
     return-void
 
-    .line 288
+    .line 296
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->refresh()V
 
-    .line 289
+    .line 297
     # getter for: Lcom/isaigu/gymapp/wearable/WearableLivePanel;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->access$600()Landroid/os/Handler;
 

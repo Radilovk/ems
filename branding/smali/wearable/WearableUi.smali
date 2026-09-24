@@ -363,39 +363,29 @@
 .end method
 
 .method static isBulgarian()Z
-    .registers 2
+    .registers 1
 
     .prologue
     .line 33
     :try_start_0
-    const-string v0, "bg"
-
-    invoke-static {}, Ljava/util/Locale;->getDefault()Ljava/util/Locale;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-    :try_end_d
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_d} :catch_f
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_5
 
     move-result v0
 
     .line 35
-    :goto_e
+    :goto_4
     return v0
 
     .line 34
-    :catch_f
+    :catch_5
     move-exception v0
 
     .line 35
     const/4 v0, 0x1
 
-    goto :goto_e
+    goto :goto_4
 .end method
 
 .method static isErrorState(Ljava/lang/String;)Z
@@ -617,7 +607,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_3e
+    if-nez v0, :cond_46
 
     const-string v0, "discovering"
 
@@ -625,7 +615,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_3e
+    if-nez v0, :cond_46
 
     const-string v0, "auth_start"
 
@@ -634,10 +624,18 @@
 
     move-result v0
 
-    if-eqz v0, :cond_47
+    if-nez v0, :cond_46
+
+    const-string v0, "handshake"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4f
 
     .line 111
-    :cond_3e
+    :cond_46
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043d\u0435\u2026"
 
     const-string v1, "Connecting\u2026"
@@ -649,14 +647,14 @@
     goto :goto_14
 
     .line 113
-    :cond_47
+    :cond_4f
     const-string v0, "authenticated"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_5f
+    if-nez v0, :cond_67
 
     const-string v0, "initialized"
 
@@ -664,7 +662,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_5f
+    if-nez v0, :cond_67
 
     const-string v0, "starting"
 
@@ -673,10 +671,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_68
+    if-eqz v0, :cond_70
 
     .line 115
-    :cond_5f
+    :cond_67
     const-string v0, "\u041f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0430\u2026"
 
     const-string v1, "Starting\u2026"
@@ -688,14 +686,14 @@
     goto :goto_14
 
     .line 117
-    :cond_68
+    :cond_70
     const-string v0, "reconnecting"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_79
+    if-eqz v0, :cond_81
 
     .line 118
     const-string v0, "\u0412\u0440\u044a\u0437\u043a\u0430\u0442\u0430 \u043f\u0440\u0435\u043a\u044a\u0441\u043d\u0430 \u2014 \u0441\u0432\u044a\u0440\u0437\u0432\u0430 \u043e\u0442\u043d\u043e\u0432\u043e"
@@ -709,14 +707,14 @@
     goto :goto_14
 
     .line 120
-    :cond_79
+    :cond_81
     const-string v0, "auth_fail"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_89
+    if-nez v0, :cond_91
 
     const-string v0, "bad_auth_key"
 
@@ -724,10 +722,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_92
+    if-eqz v0, :cond_9b
 
     .line 121
-    :cond_89
+    :cond_91
     const-string v0, "\u0413\u0440\u0435\u0448\u0435\u043d auth key"
 
     const-string v1, "Wrong auth key"
@@ -736,17 +734,17 @@
 
     move-result-object v0
 
-    goto :goto_14
+    goto/16 :goto_14
 
     .line 123
-    :cond_92
+    :cond_9b
     const-string v0, "bad_mac"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_a4
+    if-eqz v0, :cond_ad
 
     .line 124
     const-string v0, "\u0413\u0440\u0435\u0448\u0435\u043d MAC \u0430\u0434\u0440\u0435\u0441"
@@ -760,14 +758,14 @@
     goto/16 :goto_14
 
     .line 126
-    :cond_a4
+    :cond_ad
     const-string v0, "no_bluetooth"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_b6
+    if-eqz v0, :cond_bf
 
     .line 127
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 Bluetooth"
@@ -781,14 +779,14 @@
     goto/16 :goto_14
 
     .line 129
-    :cond_b6
+    :cond_bf
     const-string v0, "no_bt_permission"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_c8
+    if-eqz v0, :cond_d1
 
     .line 130
     const-string v0, "\u0420\u0430\u0437\u0440\u0435\u0448\u0438 Bluetooth \u0437\u0430 XEMS"
@@ -802,14 +800,14 @@
     goto/16 :goto_14
 
     .line 132
-    :cond_c8
+    :cond_d1
     const-string v0, "auth_timeout"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_da
+    if-eqz v0, :cond_e3
 
     .line 133
     const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u043e\u0442\u0433\u043e\u0432\u0430\u0440\u044f \u2014 \u0441\u043f\u0440\u0438 Mi Fitness/Notify"
@@ -823,14 +821,14 @@
     goto/16 :goto_14
 
     .line 136
-    :cond_da
+    :cond_e3
     const-string v0, "connect_fail"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_102
+    if-nez v0, :cond_10b
 
     const-string v0, "service_fail"
 
@@ -838,7 +836,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_102
+    if-nez v0, :cond_10b
 
     const-string v0, "no_fe95"
 
@@ -847,7 +845,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_102
+    if-nez v0, :cond_10b
 
     const-string v0, "no_chars"
 
@@ -855,7 +853,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_102
+    if-nez v0, :cond_10b
 
     const-string v0, "send_fail"
 
@@ -864,10 +862,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_10c
+    if-eqz v0, :cond_115
 
     .line 139
-    :cond_102
+    :cond_10b
     const-string v0, "\u0413\u0440\u0435\u0448\u043a\u0430 \u043f\u0440\u0438 \u0432\u0440\u044a\u0437\u043a\u0430"
 
     const-string v1, "Connection error"
@@ -879,7 +877,7 @@
     goto/16 :goto_14
 
     .line 141
-    :cond_10c
+    :cond_115
     const-string v0, "\u0418\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0430"
 
     const-string v1, "Disconnected"

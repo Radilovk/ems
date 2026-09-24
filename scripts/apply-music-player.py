@@ -343,6 +343,9 @@ def install_smali() -> None:
     for src in sorted((BRANDING / "smali").glob("MusicPlayerHelper*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")
+    for src in sorted((BRANDING / "smali").glob("MusicDial*.smali")):
+        shutil.copy2(src, DIALOG_DIR / src.name)
+        print(f"installed dialog/{src.name}")
     for src in sorted((BRANDING / "smali").glob("ModalInfoHelper*.smali")):
         shutil.copy2(src, DIALOG_DIR / src.name)
         print(f"installed dialog/{src.name}")
@@ -355,7 +358,10 @@ def install_smali() -> None:
         shutil.copy2(widget_src, widget_dir / widget)
         print(f"installed widget/{widget}")
     # Shared UI kit (timer, player, HR, AI) — widget/XemsUi + its inner classes.
-    kit = sorted((BRANDING / "smali/widget").glob("XemsUi*.smali"))
+    kit = sorted((BRANDING / "smali/widget").glob("XemsUi*.smali")) + sorted(
+        (BRANDING / "smali/widget").glob("XemsGuard*.smali")) + sorted(
+        (BRANDING / "smali/widget").glob("XemsLang*.smali")) + sorted(
+        (BRANDING / "smali/widget").glob("XemsFullscreen*.smali"))
     if not kit:
         raise SystemExit("Missing branding/smali/widget/XemsUi.smali — run compile-music-sync-java.sh")
     for src in kit:

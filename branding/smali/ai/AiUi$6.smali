@@ -3,7 +3,7 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
 
 # annotations
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 548
+    .line 565
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -41,39 +41,27 @@
 
 
 # virtual methods
-.method public onDelta(I)V
-    .registers 6
+.method public onSelect(I)V
+    .registers 4
 
     .prologue
-    .line 551
+    .line 568
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    const/16 v1, 0xe
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->values()[Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    const/16 v2, 0x5a
+    move-result-object v1
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    aget-object v1, v1, p1
 
-    iget v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
+    iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    add-int/2addr v3, p1
-
-    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
-
-    move-result v2
-
-    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
-
-    move-result v1
-
-    iput v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
-
-    .line 552
+    .line 569
     const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
-    .line 553
+    .line 570
     return-void
 .end method

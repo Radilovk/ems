@@ -824,21 +824,21 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 603
+    .line 605
     iget-object v0, p1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v3
 
-    .line 604
+    .line 606
     if-nez v3, :cond_a
 
-    .line 615
+    .line 617
     :goto_9
     return-void
 
-    .line 607
+    .line 609
     :cond_a
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -848,7 +848,7 @@
 
     move-result-object v0
 
-    .line 608
+    .line 610
     iget v0, v0, Landroid/util/DisplayMetrics;->heightPixels:I
 
     int-to-float v0, v0
@@ -857,7 +857,7 @@
 
     float-to-int v2, v0
 
-    .line 609
+    .line 611
     iget-object v0, p1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->getParent()Landroid/view/ViewParent;
@@ -870,7 +870,7 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 610
+    .line 612
     invoke-virtual {v3}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v1
@@ -885,7 +885,7 @@
 
     iget v1, v1, Landroid/view/WindowManager$LayoutParams;->width:I
 
-    .line 611
+    .line 613
     :goto_31
     const/high16 v4, 0x40000000    # 2.0f
 
@@ -893,20 +893,20 @@
 
     move-result v4
 
-    .line 612
+    .line 614
     invoke-static {v5, v5}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 
     move-result v5
 
-    .line 611
+    .line 613
     invoke-virtual {v0, v4, v5}, Landroid/view/View;->measure(II)V
 
-    .line 613
+    .line 615
     invoke-virtual {v0}, Landroid/view/View;->getMeasuredHeight()I
 
     move-result v0
 
-    .line 614
+    .line 616
     if-le v0, v2, :cond_50
 
     move v0, v2
@@ -916,7 +916,7 @@
 
     goto :goto_9
 
-    .line 610
+    .line 612
     :cond_49
     const/high16 v1, 0x44020000    # 520.0f
 
@@ -926,7 +926,7 @@
 
     goto :goto_31
 
-    .line 614
+    .line 616
     :cond_50
     const/4 v0, -0x2
 
@@ -1967,7 +1967,7 @@
     iput-object v0, v2, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->title:Landroid/widget/TextView;
 
     .line 545
-    if-eqz p2, :cond_1b9
+    if-eqz p2, :cond_1bc
 
     move-object v0, p2
 
@@ -1996,13 +1996,13 @@
     .line 547
     iget-object v6, v2, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->subtitle:Landroid/widget/TextView;
 
-    if-eqz p2, :cond_1bd
+    if-eqz p2, :cond_1c0
 
     invoke-virtual {p2}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    if-lez v0, :cond_1bd
+    if-lez v0, :cond_1c0
 
     move v0, v1
 
@@ -2269,7 +2269,7 @@
     move-result-object v0
 
     .line 588
-    if-eqz v0, :cond_1b8
+    if-eqz v0, :cond_1bb
 
     .line 589
     new-instance v3, Landroid/graphics/drawable/ColorDrawable;
@@ -2332,17 +2332,20 @@
     invoke-virtual {v0, v1}, Landroid/view/Window;->addFlags(I)V
 
     .line 598
-    :cond_1b8
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsFullscreen;->applyTo(Landroid/view/Window;)V
+
+    .line 600
+    :cond_1bb
     return-object v2
 
     .line 545
-    :cond_1b9
+    :cond_1bc
     const-string v0, ""
 
     goto/16 :goto_63
 
     .line 547
-    :cond_1bd
+    :cond_1c0
     const/16 v0, 0x8
 
     goto/16 :goto_83

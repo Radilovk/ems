@@ -6,6 +6,7 @@ import com.isaigu.gymapp.bean.TrainUserProgramDataWrapper;
 public class TrainItem {
     public TrainUserProgramDataWrapper data;
     public int workLength;
+    public boolean[] partsDisabled;
 
     public boolean isEmpty() {
         return true;

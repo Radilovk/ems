@@ -63,12 +63,15 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/train/utils/SoundEnvelopeMapper.class' \
      -o -path '*/train/utils/MusicDiagLog.class' \
      -o -path '*/dialog/MusicPlayerHelper*.class' \
+     -o -path '*/dialog/MusicDial*.class' \
      -o -path '*/dialog/MusicPlaylist*.class' \
      -o -path '*/dialog/MusicTrackLabel.class' \
      -o -path '*/dialog/ModalInfoHelper*.class' \
      -o -path '*/widget/MusicVisualizerView*.class' \
      -o -path '*/widget/MusicImpulseMeterView*.class' \
-     -o -path '*/widget/XemsUi*.class' \) -print | sort)
+     -o -path '*/widget/XemsUi*.class' -o -path '*/widget/XemsGuard*.class' \
+     -o -path '*/widget/XemsNav*.class' -o -path '*/widget/XemsLang*.class' \
+     -o -path '*/widget/XemsIcon*.class' -o -path '*/widget/XemsPanel*.class' -o -path '*/widget/XemsFullscreen*.class' \) -print | sort)
 (
   cd "${CLASSES_DIR}"
   "${D8}" \
@@ -88,23 +91,27 @@ find "${BRANDING_SMALI}" -name 'MusicSync*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MasterStrengthControl.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicSyncBridge.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicPlayerHelper*.smali' -delete
+find "${BRANDING_SMALI}" -name 'MusicDial*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicPlaylist*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicTrackLabel*.smali' -delete
 find "${BRANDING_SMALI}" -name 'ModalInfoHelper*.smali' -delete
 find "${BRANDING_SMALI}/widget" -name 'MusicVisualizerView*.smali' -delete 2>/dev/null || true
 find "${BRANDING_SMALI}/widget" -name 'MusicImpulseMeterView*.smali' -delete 2>/dev/null || true
 find "${BRANDING_SMALI}/widget" -name 'XemsUi*.smali' -delete 2>/dev/null || true
+find "${BRANDING_SMALI}/widget" -name 'XemsGuard*.smali' -delete 2>/dev/null || true
+find "${BRANDING_SMALI}/widget" -name 'XemsNav*.smali' -delete 2>/dev/null || true
+for n in XemsLang XemsIcon XemsPanel XemsFullscreen; do find "${BRANDING_SMALI}/widget" -name "${n}*.smali" -delete 2>/dev/null || true; done
 find "${BRANDING_SMALI}" -name 'MusicPlayerEngine*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicDiagLog.smali' -delete
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
   echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicPlaylist*.smali' -o -name 'MusicTrackLabel*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'ModalInfoHelper*.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicDiagLog.smali' \) -print0)
+done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicDial*.smali' -o -name 'MusicPlaylist*.smali' -o -name 'MusicTrackLabel*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'ModalInfoHelper*.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicDiagLog.smali' \) -print0)
 
 mkdir -p "${BRANDING_SMALI}/widget"
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/widget/$(basename "${file}")"
   echo "  -> widget/$(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -path '*/widget/MusicVisualizerView*.smali' -o -path '*/widget/MusicImpulseMeterView*.smali' -o -path '*/widget/XemsUi*.smali' \) -print0)
+done < <(find "${SMALI_OUT}" \( -path '*/widget/MusicVisualizerView*.smali' -o -path '*/widget/MusicImpulseMeterView*.smali' -o -path '*/widget/XemsUi*.smali' -o -path '*/widget/XemsGuard*.smali' -o -path '*/widget/XemsNav*.smali' -o -path '*/widget/XemsLang*.smali' -o -path '*/widget/XemsIcon*.smali' -o -path '*/widget/XemsPanel*.smali' -o -path '*/widget/XemsFullscreen*.smali' \) -print0)
 
 echo "Music-sync Java compile complete."

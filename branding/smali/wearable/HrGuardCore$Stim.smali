@@ -17,11 +17,19 @@
 # instance fields
 .field public activePause:Z
 
+.field public channels:[I
+
+.field public disabled:[Z
+
 .field public hz:I
 
 .field public offS:I
 
 .field public onS:I
+
+.field public pauseHz:I
+
+.field public pauseStrength:I
 
 .field public pwUs:I
 

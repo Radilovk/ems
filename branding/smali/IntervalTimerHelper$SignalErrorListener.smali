@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1916
+    .line 2062
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 7
 
     .prologue
-    .line 1919
+    .line 2065
     const-string v0, "interval_timer"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -67,11 +67,11 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1920
+    .line 2066
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->releaseSignalPlayer()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4700()V
 
-    .line 1921
+    .line 2067
     const/4 v0, 0x1
 
     return v0

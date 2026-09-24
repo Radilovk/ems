@@ -26,6 +26,7 @@ public final class WearableSettingsSection {
     private static final long TEST_MS = 60000L;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
+    private static TextView bandInfoView;
     private static TextView statusView;
     private static EditText macView;
     private static EditText keyView;
@@ -37,7 +38,7 @@ public final class WearableSettingsSection {
         try {
             build(activity, root);
         } catch (Throwable t) {
-            WearableBleDiagLog.log("settings", "band section: " + t);
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.attach", t);
         }
     }
 
@@ -61,7 +62,7 @@ public final class WearableSettingsSection {
         int pad = WearableUi.dp(a, 18);
         card.setPadding(pad, pad, pad, pad);
 
-        TextView title = WearableUi.text(a, WearableUi.tr("Гривна · Xiaomi Band 8", "Band · Xiaomi Band 8"),
+        TextView title = WearableUi.text(a, WearableUi.tr("Гривна · Xiaomi Smart Band", "Band · Xiaomi Smart Band"),
                 22f, textCol, true);
         card.addView(title);
         TextView hint = WearableUi.text(a, WearableUi.tr(
@@ -111,6 +112,57 @@ public final class WearableSettingsSection {
         });
         keyRow.addView(eye, sideButton(a));
         card.addView(keyRow);
+
+        // Radio: Band 8 and older use BLE; Band 8 Pro / 9 / 10 use Bluetooth Classic (SPP).
+        // Picked from the paired band's name; the manual choice appears only when the name is
+        // not recognised (or the trainer already forced one).
+        String bandName = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a,
+                WearableConfig.getBandMac(a));
+        boolean known = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.isKnownModel(bandName);
+        if (!known || WearableConfig.getBandTransport(a) != 0) {
+            com.isaigu.gymapp.widget.XemsUi.init(a);
+            TextView linkLabel = label(a, WearableUi.tr("Модел гривна", "Band model"), mutedCol);
+            linkLabel.setPadding(0, WearableUi.dp(a, 14), 0, WearableUi.dp(a, 6));
+            card.addView(linkLabel);
+            card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, new String[] {
+                    WearableUi.tr("Авто", "Auto"),
+                    WearableUi.tr("Band 8 и по-стари", "Band 8 and older"),
+                    "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
+        }
+        // The band's music screen as the training remote (no app to install on the band).
+        LinearLayout remote = com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
+                WearableUi.tr("Управление от гривната", "Control from the band"),
+                WearableUi.tr("Музикалният екран на гривната показва пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±",
+                        "The band's music screen shows HR and block; ▶ start/pause, ⏭ ⏮ strength ±"),
+                WearableConfig.isBandRemoteEnabled(a), new RemoteToggle(a));
+        remote.setPadding(0, WearableUi.dp(a, 12), 0, 0);
+        card.addView(remote);
+        // XEMS app on the band itself (Band 9 / 10 only: installed over the classic link).
+        boolean classic = WearableConfig.getBandTransport(a) == 2
+                || (WearableConfig.getBandTransport(a) == 0
+                && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(bandName));
+        if (classic) {
+            LinearLayout appRow = row(a);
+            appRow.setPadding(0, WearableUi.dp(a, 12), 0, 0);
+            final TextView appStatus = WearableUi.text(a, BandAppInstall.statusText(a), 13f, mutedCol, false);
+            BandAppInstall.bind(appStatus);
+            appRow.addView(appStatus, new LinearLayout.LayoutParams(0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView install = WearableUi.button(a, WearableConfig.getBandAppVersion(a) >= BandAppInstall.VERSION
+                    ? WearableUi.tr("Преинсталирай", "Reinstall") : WearableUi.tr("Инсталирай", "Install"),
+                    WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
+            install.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    BandAppInstall.start(a, appStatus);
+                }
+            });
+            appRow.addView(install, sideButton(a));
+            card.addView(appRow);
+        }
+        bandInfoView = WearableUi.text(a, "", 13f, mutedCol, false);
+        bandInfoView.setPadding(0, WearableUi.dp(a, 6), 0, 0);
+        card.addView(bandInfoView);
 
         // Status + test
         LinearLayout bottom = row(a);
@@ -240,10 +292,14 @@ public final class WearableSettingsSection {
             if (statusView == null) {
                 return;
             }
-            Activity a = WearableUi.asActivity(statusView.getContext());
-            refreshStatus(a);
-            if (testUntilMs > 0 && System.currentTimeMillis() > testUntilMs) {
-                endTest(a);
+            try {
+                Activity a = WearableUi.asActivity(statusView.getContext());
+                refreshStatus(a);
+                if (testUntilMs > 0 && System.currentTimeMillis() > testUntilMs) {
+                    endTest(a);
+                }
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.status", t);
             }
             handler.postDelayed(this, 1000L);
         }
@@ -274,6 +330,62 @@ public final class WearableSettingsSection {
         }
         statusView.setText(text);
         statusView.setTextColor(color);
+        if (bandInfoView != null) {
+            bandInfoView.setText(bandInfo(a));
+        }
+    }
+
+    /** Short line under the link choice: "Band 10 · батерия 64 % · на ръката". */
+    static String bandInfo(Activity a) {
+        String mac = WearableConfig.getBandMac(a);
+        String name = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, mac);
+        String model = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.modelLabel(name);
+        StringBuilder sb = new StringBuilder();
+        sb.append(model.length() > 0 ? model : (name != null ? name
+                : WearableUi.tr("Гривната не е сдвоена с телефона", "The band is not paired with the phone")));
+        if (NotifyWearableBridge.isLinkUp()) {
+            int bat = com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.getBatteryPercent();
+            if (bat >= 0) {
+                sb.append(" · ").append(WearableUi.tr("батерия ", "battery ")).append(bat).append(" %");
+            }
+            if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownNotWorn()) {
+                sb.append(" · ").append(WearableUi.tr("не е на ръката", "not worn"));
+            }
+        }
+        return sb.toString();
+    }
+
+    static final class RemoteToggle implements com.isaigu.gymapp.widget.XemsUi.OnToggle {
+        private final Activity a;
+
+        RemoteToggle(Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void onToggle(boolean on) {
+            WearableConfig.setBandRemoteEnabled(a, on);
+        }
+    }
+
+    static final class TransportPick implements com.isaigu.gymapp.widget.XemsUi.OnIndex {
+        private final Activity a;
+        private final View root;
+
+        TransportPick(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void onIndex(int index) {
+            try {
+                WearableConfig.setBandTransport(a, index);
+                build(a, root);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.transport", t);
+            }
+        }
     }
 
     private static void endTest(Activity a) {

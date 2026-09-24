@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 731
+    .line 796
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 731
+    .line 796
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$DialTick;-><init>()V
 
     return-void
@@ -44,7 +44,8 @@
     .registers 5
 
     .prologue
-    .line 734
+    .line 800
+    :try_start_0
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->hrValueView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$700()Landroid/widget/TextView;
 
@@ -59,17 +60,17 @@
 
     if-nez v0, :cond_d
 
-    .line 739
+    .line 808
     :cond_c
     :goto_c
     return-void
 
-    .line 737
+    .line 803
     :cond_d
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshOverlayDisplay()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
 
-    .line 738
+    .line 804
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$900()Landroid/os/Handler;
 
@@ -78,6 +79,19 @@
     const-wide/16 v2, 0x3e8
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    :try_end_19
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_19} :catch_1a
+
+    goto :goto_c
+
+    .line 805
+    :catch_1a
+    move-exception v0
+
+    .line 806
+    const-string v1, "WearableSyncHelper.DialTick"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_c
 .end method

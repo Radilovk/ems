@@ -1,0 +1,1 @@
+package android.bluetooth; public class BluetoothSocket { public void connect() throws java.io.IOException { throw new java.io.IOException("sim"); } public java.io.InputStream getInputStream(){return null;} public java.io.OutputStream getOutputStream(){return null;} public void close(){} }

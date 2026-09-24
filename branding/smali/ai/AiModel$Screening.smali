@@ -49,23 +49,23 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 30
+    .line 42
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 32
+    .line 44
     new-instance v0, Ljava/util/LinkedHashMap;
 
     invoke-direct {v0}, Ljava/util/LinkedHashMap;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->contraindications:Ljava/util/Map;
 
-    .line 35
+    .line 47
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->ateLast2h:Z
 
-    .line 36
+    .line 48
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->hydrated:Z
 
-    .line 39
+    .line 51
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->restedLast10min:Z
 
     return-void

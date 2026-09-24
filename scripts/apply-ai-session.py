@@ -3,8 +3,9 @@
 
 - branding/smali/ai → smali_classes2/com/isaigu/gymapp/ai
 - TrainItem$2.onFinish (ON phase starts): AiSession.onPulseCycle(item), next to BlockProgramRunner
-- CommandUtil / ProtocolController ramp bytes: AiRamp.inputByte()/outputByte() instead of the
-  constant 0 written by remove-ramp.py (AiRamp returns 0 unless a Smart Session runs).
+- CommandUtil / ProtocolController ramp bytes: AiRamp instead of the constant 0 written by
+  remove-ramp.py — the Smart Session ramp while it runs, else the program's own input / output
+  ramp (0–2 s, set in the program parameters dialog; see dialog/RampSetting).
 - SettingFragment.onCreateView: WearableSettingsSection.attach(activity, root) after the theme
   switch — Settings → Band is the only place for the band MAC and auth key.
 Sidebar button and HR feed are wired from WearableSyncHelper / NotifyWearableBridge (Java).
@@ -60,7 +61,7 @@ RAMP_ZERO_COMMAND = """    const/4 v4, 0x7
 
 RAMP_AI_COMMAND = """    const/4 v4, 0x7
 
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByte()I
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByte(Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
 
     move-result v5
 
@@ -69,7 +70,7 @@ RAMP_AI_COMMAND = """    const/4 v4, 0x7
     .line 61
     const/16 v4, 0x8
 
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->outputByte()I
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiRamp;->outputByte(Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
 
     move-result v5
 
@@ -88,7 +89,7 @@ RAMP_ZERO_PROTO = """    const/4 v1, 0x0
 
     aput-byte v1, v0, v3"""
 
-RAMP_AI_PROTO = """    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByte()I
+RAMP_AI_PROTO = """    invoke-static {p7, p8, p5}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByteMs(III)I
 
     move-result v1
 
@@ -97,7 +98,7 @@ RAMP_AI_PROTO = """    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->inputByt
     aput-byte v1, v0, v3
 
     .line 139
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->outputByte()I
+    invoke-static {p7, p8, p5}, Lcom/isaigu/gymapp/ai/AiRamp;->outputByteMs(III)I
 
     move-result v1
 

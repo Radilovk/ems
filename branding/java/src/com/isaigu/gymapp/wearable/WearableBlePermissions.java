@@ -54,6 +54,14 @@ public final class WearableBlePermissions {
 
     /** Ask once at MainActivity startup so connect does not hit SecurityException mid-GATT. */
     public static void requestAtStartup(Activity activity) {
+        try {
+            requestAtStartupImpl(activity);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableBlePermissions.requestAtStartup", t);
+        }
+    }
+
+    private static void requestAtStartupImpl(Activity activity) {
         if (activity == null || Build.VERSION.SDK_INT < 31) {
             return;
         }

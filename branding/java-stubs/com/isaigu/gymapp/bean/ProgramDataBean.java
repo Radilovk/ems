@@ -13,6 +13,7 @@ public class ProgramDataBean {
     public int pulseWidth;
     public int strenth;
     public int workLength;
+    public PartStrenthBean strenthBean;
 
     public void reset() {}
 }

@@ -8,7 +8,7 @@ final class AiText {
 
     static boolean bg() {
         try {
-            return !"en".equals(Locale.getDefault().getLanguage());
+            return com.isaigu.gymapp.widget.XemsLang.isBg();
         } catch (Throwable ignored) {
             return true;
         }
@@ -80,6 +80,9 @@ final class AiText {
         if ("rest_timeout".equals(code)) return t("Дълга почивка — следващият блок е по-мек", "Long rest — next block softer");
         if ("rest_ready".equals(code)) return t("Почивката стига — следващият блок е с бутон", "Rest done — start the next block by hand");
         if ("continue".equals(code)) return t("Следващ блок", "Next block");
+        if ("increase".equals(code)) return t("Силата е увеличена +10%", "Strength raised +10%");
+        if ("pause_on".equals(code)) return t("Двоен импулс — включен", "Double impulse — on");
+        if ("pause_off".equals(code)) return t("Двоен импулс — изключен", "Double impulse — off");
         if ("reentry".equals(code)) return t("След дълга пауза — по-меко начало", "After a long pause — softer start");
         if ("hr_block_end".equals(code)) return t("Пулсът е над коридора — блокът приключва, почивка", "HR above corridor — block ends, rest");
         if ("l3_longer_pause".equals(code)) return t("Пулсът е над коридора — по-дълга пауза", "HR above corridor — longer pause");
@@ -148,6 +151,25 @@ final class AiText {
         if ("NON_RESPONDER".equals(f)) return t("Пулсът не реагира", "HR non-responder");
         if ("BUDGET".equals(f)) return t("Изчерпан бюджет на дозата", "Dose budget reached");
         return f;
+    }
+
+    /** One line under the double-impulse switch: what the AI programs for this goal. */
+    static String pauseHint(AiModel.Goal g) {
+        switch (g) {
+            case TONE:
+                return t("В загрявката; силовата част остава с пълна почивка.",
+                        "In the warm-up; the strength part keeps full rest.");
+            case FAT:
+                return t("В загрявката и основната част — повече изгаряне.",
+                        "In the warm-up and main part — more burn.");
+            case CELLULITE:
+                return t("В силовата част, 8 Hz — стимул за тъканта.",
+                        "In the strength part, 8 Hz — a tissue stimulus.");
+            case MASSAGE:
+                return t("Бавен ритъм между импулсите.", "A slow rhythm between impulses.");
+            default:
+                return "";
+        }
     }
 
     static String mmss(double seconds) {

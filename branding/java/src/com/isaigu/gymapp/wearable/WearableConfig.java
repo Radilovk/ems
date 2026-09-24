@@ -8,7 +8,7 @@ public final class WearableConfig {
     private static final String PREFS = "wearable_bridge";
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_ARMED = "armed";
-    private static final String KEY_AUTO_REDUCE = "auto_reduce";
+    private static final String KEY_AUTO_REDUCE = "auto_reduce_v2";
     private static final String KEY_HR_THRESHOLD = "hr_threshold";
     private static final String KEY_STRENGTH_STEP = "strength_step";
     private static final String KEY_BAND_MAC = "band_mac";
@@ -29,13 +29,16 @@ public final class WearableConfig {
         return prefs(context).getBoolean(KEY_ENABLED, true);
     }
 
+    /** Dial activated in this app run; a fresh start always begins with the HR module off. */
+    private static boolean armedThisRun;
+
     public static boolean isArmed(Context context) {
-        return prefs(context).getBoolean(KEY_ARMED, false);
+        return armedThisRun && prefs(context).getBoolean(KEY_ARMED, false);
     }
 
+    /** HR-driven strength control is off until the trainer turns it on in the ♥ settings. */
     public static boolean isAutoReduceEnabled(Context context) {
-        // HR control only ever lowers the trainer's values, so it is on by default.
-        return prefs(context).getBoolean(KEY_AUTO_REDUCE, true);
+        return prefs(context).getBoolean(KEY_AUTO_REDUCE, false);
     }
 
     /** Effective upper HR limit: the trainer's value, else the recommended one. */
@@ -93,6 +96,39 @@ public final class WearableConfig {
                 key != null ? key.trim() : "").apply();
     }
 
+    /** The band's music screen works as the training remote (title = live state, keys = control). */
+    public static boolean isBandRemoteEnabled(Context context) {
+        return context == null || prefs(context).getBoolean("band_remote", true);
+    }
+
+    public static void setBandRemoteEnabled(Context context, boolean on) {
+        prefs(context).edit().putBoolean("band_remote", on).apply();
+    }
+
+    /** Version of the XEMS app last installed on (or reported by) the band; 0 = none known. */
+    public static int getBandAppVersion(Context context) {
+        return context == null ? 0 : prefs(context).getInt("band_app_ver", 0);
+    }
+
+    public static void setBandAppVersion(Context context, int version) {
+        if (context != null) {
+            prefs(context).edit().putInt("band_app_ver", version).apply();
+        }
+    }
+
+    /** 0 auto (by band name), 1 BLE (Band 8 and older), 2 Bluetooth Classic SPP (Band 9 / 10). */
+    public static int getBandTransport(Context context) {
+        if (context == null) {
+            return 0;
+        }
+        int v = prefs(context).getInt("band_transport", 0);
+        return v >= 0 && v <= 2 ? v : 0;
+    }
+
+    public static void setBandTransport(Context context, int mode) {
+        prefs(context).edit().putInt("band_transport", Math.max(0, Math.min(2, mode))).apply();
+    }
+
     public static boolean isDirectBleMode(Context context) {
         return isConfigured(context);
     }
@@ -122,6 +158,7 @@ public final class WearableConfig {
     }
 
     public static void setArmed(Context context, boolean armed) {
+        armedThisRun = armed;
         prefs(context).edit().putBoolean(KEY_ARMED, armed).apply();
     }
 

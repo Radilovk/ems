@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+.implements Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenCheck(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenProfile(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,12 @@
 # instance fields
 .field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-.field final synthetic val$key:Ljava/lang/String;
-
-.field final synthetic val$verdict:Landroid/widget/LinearLayout;
+.field final synthetic val$total:I
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;Ljava/lang/String;Landroid/widget/LinearLayout;)V
-    .registers 4
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;I)V
+    .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -35,12 +33,10 @@
     .end annotation
 
     .prologue
-    .line 611
+    .line 593
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$key:Ljava/lang/String;
-
-    iput-object p3, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$verdict:Landroid/widget/LinearLayout;
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$total:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,31 +45,40 @@
 
 
 # virtual methods
-.method public onToggle(Z)V
+.method public onDelta(I)V
     .registers 5
 
     .prologue
-    .line 614
+    .line 596
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
+    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->contraindications:Ljava/util/Map;
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$total:I
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$key:Ljava/lang/String;
+    mul-int/lit8 v2, p1, 0x3c
 
-    invoke-static {p1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+    add-int/2addr v1, v2
 
-    move-result-object v2
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiPlanner;->clampSeconds(Lcom/isaigu/gymapp/ai/AiModel$Goal;I)I
 
-    invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    move-result v0
 
-    .line 615
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$verdict:Landroid/widget/LinearLayout;
+    .line 597
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->renderVerdict(Landroid/widget/LinearLayout;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
+    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    .line 616
+    move-result-object v0
+
+    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
+
+    .line 598
+    const/4 v0, 0x1
+
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+
+    .line 599
     return-void
 .end method

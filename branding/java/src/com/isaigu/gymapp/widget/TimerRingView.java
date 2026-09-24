@@ -204,6 +204,18 @@ public final class TimerRingView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (getWidth() <= trackWidthPx * 4 || getHeight() <= trackWidthPx * 4) {
+            return;                                      // not laid out yet / too small
+        }
+        try {
+            drawDial(canvas);
+        } catch (Throwable t) {
+            beatBpm = 0;
+            XemsGuard.report("TimerRingView.onDraw", t);
+        }
+    }
+
+    private void drawDial(Canvas canvas) {
         float w = getWidth();
         float h = getHeight();
         float cx = w / 2f;

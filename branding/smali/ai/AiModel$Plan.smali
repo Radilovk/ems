@@ -23,6 +23,10 @@
 
 .field public fRec:D
 
+.field public pauseAvailable:Z
+
+.field public pauseOn:Z
+
 .field public final phases:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -40,6 +44,10 @@
 
 .field public qPlan:D
 
+.field public qPlanPauseOff:D
+
+.field public qPlanPauseOn:D
+
 .field public tauR:D
 
 .field public totalS:I
@@ -50,17 +58,17 @@
     .registers 3
 
     .prologue
-    .line 147
+    .line 171
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 148
+    .line 172
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phases:Ljava/util/List;
 
-    .line 153
+    .line 177
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phiMax:D

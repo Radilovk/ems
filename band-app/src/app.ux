@@ -1,0 +1,123 @@
+<script>
+/**
+ * XEMS on the wrist. One link to the XEMS tablet app (system.interconnect), shared by the
+ * page through the app object: live state in, commands out.
+ *
+ * Messages are JSON (both directions):
+ *   band → XEMS  {t:'hello', v:APP_VERSION} on start (repeated until XEMS answers),
+ *                {t:'cmd', a:'toggle'|'plus'|'minus'|'double'|'stop'}
+ *   XEMS → band  {t:'state', v:2, mode:'ai'|'manual'|'music'|'idle', st:'run'|'pause'|'rest'|'ready'|'idle',
+ *                 hr, z, lim, title, sub, kcal, run, can:{plus,minus,dbl}, dbl, vib:'short'|'long'|'',
+ *                 ph, pi, pd, pl, rl, pds[], pns[], u, el, tot, pos, dur, hh[30], avg, max, zt[5]}
+ *   Times are seconds; the band counts them down itself between messages (rx = arrival time).
+ */
+import interconnect from '@system.interconnect'
+import vibrator from '@system.vibrator'
+
+/** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
+const APP_VERSION = 2
+
+export default {
+  state: null,
+  rx: 0,
+  listeners: [],
+  conn: null,
+  helloTimer: null,
+
+  onCreate() {
+    this.open()
+    // Until XEMS answers, say hello every 4 s (the link may open after the app).
+    this.helloTimer = setInterval(() => {
+      if (this.silence() > 12) {
+        this.hello()
+      }
+    }, 4000)
+  },
+
+  onDestroy() {
+    this.listeners = []
+    clearInterval(this.helloTimer)
+  },
+
+  open() {
+    try {
+      const conn = interconnect.instance()
+      this.conn = conn
+      conn.onmessage = (msg) => this.receive(msg && msg.data)
+      conn.onopen = () => this.hello()
+      conn.onclose = () => this.notify()
+      conn.onerror = () => this.notify()
+      this.hello()
+    } catch (e) {
+      console.log('xems: interconnect ' + e)
+    }
+  },
+
+  receive(data) {
+    let m = data
+    try {
+      if (typeof data === 'string') {
+        m = JSON.parse(data)
+      }
+    } catch (e) {
+      return
+    }
+    if (!m || m.t !== 'state') {
+      return
+    }
+    this.state = m
+    this.rx = Date.now()
+    if (m.vib) {
+      this.buzz(m.vib)
+    }
+    this.notify()
+  },
+
+  hello() {
+    this.send({ t: 'hello', v: APP_VERSION })
+  },
+
+  send(obj) {
+    if (!this.conn) {
+      return
+    }
+    try {
+      this.conn.send({ data: JSON.stringify(obj) })
+    } catch (e) {
+      console.log('xems: send ' + e)
+    }
+  },
+
+  command(a) {
+    this.send({ t: 'cmd', a: a })
+    this.buzz('short')
+  },
+
+  buzz(kind) {
+    try {
+      vibrator.vibrate({ mode: kind === 'long' ? 'long' : 'short' })
+    } catch (e) {}
+  },
+
+  /** Seconds since XEMS last spoke (large when never). */
+  silence() {
+    return this.rx ? (Date.now() - this.rx) / 1000 : 9999
+  },
+
+  watch(fn) {
+    this.listeners.push(fn)
+  },
+
+  unwatch(fn) {
+    this.listeners = this.listeners.filter((f) => f !== fn)
+  },
+
+  notify() {
+    this.listeners.forEach((f) => {
+      try {
+        f(this.state)
+      } catch (e) {}
+    })
+  }
+}
+</script>

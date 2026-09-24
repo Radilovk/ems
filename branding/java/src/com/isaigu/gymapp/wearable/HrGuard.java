@@ -121,6 +121,11 @@ public final class HrGuard {
                     stim.offS = b.pulsePause;
                     stim.strength = b.strenth;
                     stim.activePause = b.activePause;
+                    stim.pauseStrength = b.pauseStrenthPercent;
+                    stim.pauseHz = b.pauseHz;
+                    stim.channels = b.strenthBean != null && b.strenthBean.buwei != null
+                            ? b.strenthBean.buwei.clone() : null;
+                    stim.disabled = item.partsDisabled != null ? item.partsDisabled.clone() : null;
                 }
             }
         }

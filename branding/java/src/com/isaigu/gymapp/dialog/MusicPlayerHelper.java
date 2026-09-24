@@ -90,6 +90,30 @@ public final class MusicPlayerHelper {
     private static CircleSeekBar seekBar;
     private static MusicVisualizerView visualizerView;
     private static TextView playPauseBtn;
+    private static com.isaigu.gymapp.widget.XemsIcon playIcon;
+
+    /** Keep the play / pause icon at 44 % of the round button, centred. */
+    static final class PlayIconInset implements View.OnLayoutChangeListener {
+        private final android.graphics.drawable.LayerDrawable layers;
+
+        PlayIconInset(android.graphics.drawable.LayerDrawable layers) {
+            this.layers = layers;
+        }
+
+        @Override
+        public void onLayoutChange(View v, int l, int t, int r, int b, int ol, int ot, int or, int ob) {
+            int w = r - l;
+            int h = b - t;
+            if (w <= 0 || h <= 0) {
+                return;
+            }
+            int size = Math.round(Math.min(w, h) * 0.44f);
+            int ix = (w - size) / 2;
+            int iy = (h - size) / 2;
+            layers.setLayerInset(1, ix, iy, w - size - ix, h - size - iy);
+            v.invalidate();
+        }
+    }
     private static View playLoadingView;
     private static View controlPanel;
     private static View playlistPanel;
@@ -150,6 +174,14 @@ public final class MusicPlayerHelper {
     }
 
     public static void attachMasterPanel(View root, TrainItemManager manager) {
+        try {
+            attachMasterPanelImpl(root, manager);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.attachMasterPanel", t);
+        }
+    }
+
+    private static void attachMasterPanelImpl(View root, TrainItemManager manager) {
         if (root == null || manager == null) {
             return;
         }
@@ -183,6 +215,13 @@ public final class MusicPlayerHelper {
             hidePlayerOverlay();
             return;
         }
+        if (compactMode) {
+            // Compact = the same floating dial as the timer and the HR dial.
+            loadPlaylist(activity);
+            MusicSync.loadSettings(activity);
+            MusicDial.show(activity);
+            return;
+        }
         if (overlayDialog != null) {
             if (reShowOverlay(activity)) {
                 return;
@@ -196,6 +235,14 @@ public final class MusicPlayerHelper {
     }
 
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            onActivityResultImpl(requestCode, resultCode, data);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.onActivityResult", t);
+        }
+    }
+
+    private static void onActivityResultImpl(int requestCode, int resultCode, Intent data) {
         pickingFile = false;
         restoreOverlayAfterPick();
         if (requestCode != PICK_AUDIO || resultCode != Activity.RESULT_OK || data == null) {
@@ -228,7 +275,7 @@ public final class MusicPlayerHelper {
 
     private static boolean isOverlayShowing() {
         try {
-            return overlayDialog != null && overlayDialog.isShowing();
+            return (overlayDialog != null && overlayDialog.isShowing()) || MusicDial.isShowing();
         } catch (Throwable ignored) {
             return overlayVisible;
         }
@@ -253,6 +300,14 @@ public final class MusicPlayerHelper {
 
     /** Sync player pause/resume from any train row or master start/pause/stop. */
     public static void syncTrainingState() {
+        try {
+            syncTrainingStateImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.syncTrainingState", t);
+        }
+    }
+
+    private static void syncTrainingStateImpl() {
         boolean targetRunning = isTargetTrainingRunning();
         if (targetRunning) {
             tryStartFromTrainingSync();
@@ -262,6 +317,14 @@ public final class MusicPlayerHelper {
 
     /** Master all-stop / reset — stop music sync entirely, not just pause. */
     public static void onTrainingFullStop() {
+        try {
+            onTrainingFullStopImpl();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.onTrainingFullStop", t);
+        }
+    }
+
+    private static void onTrainingFullStopImpl() {
         syncTrainingState();
         if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
             MusicSync.stop();
@@ -398,6 +461,7 @@ public final class MusicPlayerHelper {
     }
 
     public static void showPreparing() {
+        MusicDial.refresh();
         if (statusView != null) {
             statusView.setText(0x7f0d011b);
         }
@@ -775,13 +839,26 @@ public final class MusicPlayerHelper {
                 GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                         new int[] {XemsUi.GO, XemsUi.mix(XemsUi.GO, 0xFF000000, 0.2f)});
                 g.setShape(GradientDrawable.OVAL);
-                playPauseBtn.setBackgroundDrawable(XemsUi.ripple(g, 0xFFFFFFFF, dp(a, 56)));
+                // Drawn icon instead of the ▶ / ⏸ font glyphs: those sit off the circle's centre
+                // (font side bearings and baseline), the icon is centred on its optical centre.
+                playIcon = new com.isaigu.gymapp.widget.XemsIcon(com.isaigu.gymapp.widget.XemsIcon.PLAY, 0xFFFFFFFF);
+                android.graphics.drawable.LayerDrawable layers = new android.graphics.drawable.LayerDrawable(
+                        new android.graphics.drawable.Drawable[] {XemsUi.ripple(g, 0xFFFFFFFF, dp(a, 56)), playIcon});
+                playPauseBtn.setBackgroundDrawable(layers);
+                PlayIconInset inset = new PlayIconInset(layers);
+                playPauseBtn.addOnLayoutChangeListener(inset);
+                if (playPauseBtn.getWidth() > 0) {
+                    inset.onLayoutChange(playPauseBtn, 0, 0, playPauseBtn.getWidth(), playPauseBtn.getHeight(),
+                            0, 0, 0, 0);
+                }
+                playPauseBtn.setText("");
                 playPauseBtn.setTextColor(0xFFFFFFFF);
                 playPauseBtn.setElevation(dp(a, 6));
                 XemsUi.pressable(playPauseBtn);
             }
             styleRound(content.findViewById(ID_CLOSE), XemsUi.SURFACE, XemsUi.TEXT);
             styleRound(content.findViewById(ID_INFO), XemsUi.SURFACE, XemsUi.TEXT);
+            addMinimize(a, content.findViewById(ID_CLOSE));
             View add = content.findViewById(ID_ADD_TRACK);
             if (add instanceof TextView) {
                 ((TextView) add).setText(tr("+  Добави песни", "+  Add songs"));
@@ -804,6 +881,25 @@ public final class MusicPlayerHelper {
             replaceAmount(a, smoothView, 3, 10, 0, 100);
         } catch (Throwable t) {
             MusicDiagLog.logError("music_player_style", t);
+        }
+    }
+
+    /** "—" before ✕ in the header: back to the compact dial. */
+    private static void addMinimize(Activity a, View close) {
+        if (close == null || !(close.getParent() instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup header = (ViewGroup) close.getParent();
+        TextView min = XemsUi.iconButton(a, "—", XemsUi.SURFACE, XemsUi.TEXT, 36);
+        min.setOnClickListener(new MinimizeListener());
+        if (header instanceof android.widget.RelativeLayout) {
+            android.widget.RelativeLayout.LayoutParams lp = new android.widget.RelativeLayout.LayoutParams(dp(a, 36), dp(a, 36));
+            lp.addRule(android.widget.RelativeLayout.CENTER_VERTICAL);
+            lp.addRule(android.widget.RelativeLayout.LEFT_OF, close.getId());
+            lp.rightMargin = dp(a, 8);
+            header.addView(min, lp);
+        } else {
+            header.addView(min, header.indexOfChild(close));
         }
     }
 
@@ -952,6 +1048,7 @@ public final class MusicPlayerHelper {
     }
 
     private static void refreshSeekFromPlayer() {
+        MusicDial.refresh();
         if (seekBar == null || userSeeking) {
             return;
         }
@@ -1032,11 +1129,17 @@ public final class MusicPlayerHelper {
     }
 
     private static void updatePlayPauseLabel() {
+        MusicDial.refresh();
         if (playPauseBtn == null || MusicSync.isPlayerPreparing()) {
             return;
         }
         boolean playing = MusicSync.isRunning() && MusicSync.isPlayerMode() && !MusicSync.isPlaybackPaused();
-        playPauseBtn.setText(playing ? "\u23F8" : "\u25B6");
+        if (playIcon != null) {
+            playPauseBtn.setText("");
+            playIcon.setType(playing ? com.isaigu.gymapp.widget.XemsIcon.PAUSE : com.isaigu.gymapp.widget.XemsIcon.PLAY);
+        } else {
+            playPauseBtn.setText(playing ? "\u23F8" : "\u25B6");
+        }
     }
 
     private static void startProgressUpdates() {
@@ -1465,6 +1568,7 @@ public final class MusicPlayerHelper {
     private static void hidePlayerOverlay() {
         persistSettings();
         stopProgressUpdates();
+        MusicDial.dismiss();
         if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
             requestTrainingPause();
             MusicSync.stop();
@@ -1555,6 +1659,7 @@ public final class MusicPlayerHelper {
         overlayContent = null;
         seekBar = null;
         playPauseBtn = null;
+        playIcon = null;
         controlPanel = null;
         playlistPanel = null;
         playlistList = null;
@@ -1654,6 +1759,17 @@ public final class MusicPlayerHelper {
     static final class PlayPauseListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            togglePlayPause();
+        }
+    }
+
+    // ================================================================ compact dial (MusicDial)
+
+    private static boolean compactMode = true;
+
+    /** Play / pause / start — shared by the full panel and the dial. */
+    public static void togglePlayPause() {
+        {
             long now = SystemClock.elapsedRealtime();
             if (now - lastPlayClickMs < PLAY_DEBOUNCE_MS) {
                 return;
@@ -1680,6 +1796,61 @@ public final class MusicPlayerHelper {
                 currentIndex = 0;
             }
             startCurrentTrack(true);
+        }
+    }
+
+    public static void skipTrack(int dir) {
+        skip(dir);
+        MusicDial.refresh();
+    }
+
+    public static String currentTitle() {
+        return currentIndex >= 0 && currentIndex < playlist.size() ? playlist.get(currentIndex).name : null;
+    }
+
+    /** ☰ on the dial: the full player (playlist, settings); music keeps playing. */
+    static void openFull(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        compactMode = false;
+        MusicDial.dismiss();
+        if (overlayDialog == null || !reShowOverlay(activity)) {
+            if (!showOverlay(activity)) {
+                toast(activity, 0x7f0d0113);
+            }
+        }
+    }
+
+    /** "—" on the full player: back to the dial; music keeps playing. */
+    static void minimize(Activity activity) {
+        compactMode = true;
+        if (overlayDialog != null) {
+            try {
+                overlayDialog.hide();
+            } catch (Throwable ignored) {
+            }
+        }
+        overlayVisible = false;
+        MusicDial.show(activity);
+        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+            startProgressUpdates();
+        }
+    }
+
+    static void closeFromDial() {
+        MusicDial.dismiss();
+        persistSettings();
+        requestTrainingStop();
+        MusicSync.stop();
+        dismissOverlay(false);
+        showIdle();
+    }
+
+    static final class MinimizeListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            minimize(resolveHostActivity(v));
         }
     }
 
@@ -1944,18 +2115,22 @@ public final class MusicPlayerHelper {
     static final class ProgressTickRunnable implements Runnable {
         @Override
         public void run() {
-            if (!MusicSync.isRunning() || !MusicSync.isPlayerMode()) {
-                if (visualizerView != null) {
-                    visualizerView.setPlaying(false);
+            try {
+                if (!MusicSync.isRunning() || !MusicSync.isPlayerMode()) {
+                    if (visualizerView != null) {
+                        visualizerView.setPlaying(false);
+                    }
+                    return;
                 }
-                return;
+                refreshSeekFromPlayer();
+                if (visualizerView != null) {
+                    visualizerView.setPlaying(true);
+                    visualizerView.setLiveLevel(MusicSync.getLiveStrength());
+                }
+                handler.postDelayed(this, PROGRESS_TICK_MS);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("MusicPlayerHelper.progress", t);
             }
-            refreshSeekFromPlayer();
-            if (visualizerView != null) {
-                visualizerView.setPlaying(true);
-                visualizerView.setLiveLevel(MusicSync.getLiveStrength());
-            }
-            handler.postDelayed(this, PROGRESS_TICK_MS);
         }
     }
 

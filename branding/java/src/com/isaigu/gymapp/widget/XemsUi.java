@@ -594,6 +594,8 @@ public final class XemsUi {
             lp.dimAmount = 0.6f;
             w.setAttributes(lp);
             w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            // Keep the app full screen while the sheet is open.
+            XemsFullscreen.applyTo(w);
         }
         return s;
     }

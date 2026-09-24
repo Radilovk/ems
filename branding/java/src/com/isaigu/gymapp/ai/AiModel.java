@@ -26,6 +26,18 @@ public final class AiModel {
 
     public enum BlockMode { FATIGUE_DRIVEN, CONTINUOUS }
 
+    /**
+     * Double impulse (active pause between impulses): AUTO = on where the AI programs it,
+     * PASSIVE = off (silence between impulses). ACTIVE is kept only for stored preferences and
+     * behaves like AUTO — where and how is always the AI's decision.
+     */
+    public enum PauseMode { AUTO, PASSIVE, ACTIVE }
+
+    /** Drainage needs full relaxation between contractions (vessels refill), so no active pause. */
+    public static boolean activePauseAllowed(Goal goal) {
+        return goal != Goal.DRAIN;
+    }
+
     /** §1.2 — answered before every session. */
     public static final class Screening {
         /** R15 contraindication key → answer (true = present → REJECT). */
@@ -54,6 +66,7 @@ public final class AiModel {
         public Screening screening = new Screening();
         /** Optional HR ceiling; for SELF it may only lower the derived cap. */
         public Integer hrCapOverride;
+        public PauseMode pause = PauseMode.AUTO;
 
         public boolean isTraining() {
             return mode == Mode.ACTIVE;
@@ -106,6 +119,10 @@ public final class AiModel {
         public int offS;
         /** Segment strength factor vs calibrated ceiling (σ). */
         public double sigma = 1.0;
+        /** Active pause frequency during OFF (0 = passive pause). */
+        public int pauseHz;
+        /** Active pause strength as a share of this cycle's work strength. */
+        public double pauseSigma;
 
         public CycleSpec() {}
 
@@ -118,7 +135,14 @@ public final class AiModel {
         }
 
         public CycleSpec copy() {
-            return new CycleSpec(hz, pwUs, onS, offS, sigma);
+            CycleSpec c = new CycleSpec(hz, pwUs, onS, offS, sigma);
+            c.pauseHz = pauseHz;
+            c.pauseSigma = pauseSigma;
+            return c;
+        }
+
+        public boolean hasActivePause() {
+            return pauseHz > 0 && pauseSigma > 0 && offS > 0;
         }
 
         public boolean isTetanic() {
@@ -158,5 +182,12 @@ public final class AiModel {
         public double fMax;
         public double fRec;
         public double tauR;
+        /** Double impulse on at the start (programmed cycles use their pause). */
+        public boolean pauseOn;
+        /** The plan has cycles with a programmed active pause (so it can be switched live). */
+        public boolean pauseAvailable;
+        /** Q_plan with the double impulse on / off (the budget follows a live switch). */
+        public double qPlanPauseOn;
+        public double qPlanPauseOff;
     }
 }

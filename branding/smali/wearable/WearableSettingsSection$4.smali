@@ -3,12 +3,12 @@
 .source "WearableSettingsSection.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/isaigu/gymapp/wearable/WearableSettingsSection;
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->build(Landroid/app/Activity;Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,12 +17,23 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic val$a:Landroid/app/Activity;
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(Landroid/app/Activity;)V
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 237
+    .line 175
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;->val$a:Landroid/app/Activity;
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,80 +41,16 @@
 
 
 # virtual methods
-.method public run()V
-    .registers 7
+.method public onClick(Landroid/view/View;)V
+    .registers 3
 
     .prologue
-    .line 240
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/TextView;
+    .line 178
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;->val$a:Landroid/app/Activity;
 
-    move-result-object v0
+    # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->startTest(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$300(Landroid/app/Activity;)V
 
-    if-nez v0, :cond_7
-
-    .line 249
-    :goto_6
+    .line 179
     return-void
-
-    .line 243
-    :cond_7
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/TextView;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
-
-    move-result-object v0
-
-    .line 244
-    # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->refreshStatus(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$500(Landroid/app/Activity;)V
-
-    .line 245
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$600()J
-
-    move-result-wide v2
-
-    const-wide/16 v4, 0x0
-
-    cmp-long v1, v2, v4
-
-    if-lez v1, :cond_2f
-
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v2
-
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$600()J
-
-    move-result-wide v4
-
-    cmp-long v1, v2, v4
-
-    if-lez v1, :cond_2f
-
-    .line 246
-    # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->endTest(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700(Landroid/app/Activity;)V
-
-    .line 248
-    :cond_2f
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$800()Landroid/os/Handler;
-
-    move-result-object v0
-
-    const-wide/16 v2, 0x3e8
-
-    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    goto :goto_6
 .end method

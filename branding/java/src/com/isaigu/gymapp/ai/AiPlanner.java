@@ -209,13 +209,106 @@ public final class AiPlanner {
             ph.phiEnd = Math.min(ph.phiEnd, plan.phiMax);
         }
 
+        applyPause(plan, in);
+
         double[] fp = fatigueParams(in.fitness);
         plan.fMax = fp[0];
         plan.fRec = fp[1];
         plan.tauR = fp[2];
-        plan.qPlan = simulateDose(plan);
+        plan.qPlanPauseOn = simulateDose(plan, true);
+        plan.qPlanPauseOff = simulateDose(plan, false);
+        plan.qPlan = plan.pauseOn ? plan.qPlanPauseOn : plan.qPlanPauseOff;
         plan.qBudget = plan.qPlan * (1.0 + (self ? 0.0 : BUDGET_BETA));
         return plan;
+    }
+
+    // ------------------------------------------------------------------ active pause
+
+    /** Shortest pause worth filling: shorter ones are only the device's minimum gap. */
+    public static final int ACTIVE_PAUSE_MIN_OFF_S = 2;
+
+    /**
+     * Fill the OFF time of the cycles with a weak low-frequency impulse where it helps:
+     * <ul>
+     *   <li>work at ≥ 20 Hz (tetanus) → 6 Hz twitches ("muscle pump": blood flow and
+     *       metabolite wash-out while the muscle stays engaged); 8 Hz for cellulite
+     *       (vibration-like tissue stimulus);</li>
+     *   <li>work at low frequency (massage) → a slower rhythm (about a third of the work
+     *       frequency, ≥ 1 Hz): kneading ↔ slow tapping;</li>
+     *   <li>strength 40–60 % of the work strength (below it for passive mode and SOLO);</li>
+     *   <li>never for drainage and never in cool-down (continuous cycles have no pause).</li>
+     * </ul>
+     * AUTO: warm-up of TONE, warm-up + main of FAT, the tetanic part of CELLULITE, MASSAGE.
+     * The main strength phase of TONE keeps the passive pause for full recovery between sets.
+     */
+    static void applyPause(Plan plan, SessionInput in) {
+        boolean any = false;
+        for (Phase ph : plan.phases) {
+            setPause(ph, ph.a, in);
+            any |= ph.a.hasActivePause();
+            if (ph.b != null) {
+                setPause(ph, ph.b, in);
+                any |= ph.b.hasActivePause();
+            }
+        }
+        plan.pauseAvailable = any;
+        plan.pauseOn = any && in.pause != AiModel.PauseMode.PASSIVE;
+    }
+
+    private static void setPause(Phase ph, CycleSpec c, SessionInput in) {
+        c.pauseHz = 0;
+        c.pauseSigma = 0;
+        // Always programmed where it helps; the on/off switch (setup or live) decides use.
+        if (!AiModel.activePauseAllowed(in.goal) || c.offS < ACTIVE_PAUSE_MIN_OFF_S
+                || ph.id == PhaseId.COOLDOWN || !autoActive(in.goal, ph, c)) {
+            return;
+        }
+        boolean tetanic = c.isTetanic();
+        c.pauseHz = tetanic ? (in.goal == Goal.CELLULITE ? 8 : 6) : Math.max(1, Math.round(c.hz / 3f));
+        if (!tetanic && c.pauseHz >= c.hz) {
+            c.pauseHz = 0;                                   // 1 Hz work: nothing slower to add
+            return;
+        }
+        double s;
+        if (!tetanic) {
+            s = 0.6;
+        } else if (in.goal == Goal.CELLULITE) {
+            s = 0.5;
+        } else if (in.goal == Goal.FAT) {
+            s = 0.45;
+        } else {
+            s = 0.4;
+        }
+        if (in.mode == Mode.PASSIVE) {
+            s *= 0.85;
+        }
+        if (in.operator == Operator.SELF) {
+            s = Math.min(s, 0.4);
+        }
+        c.pauseSigma = s;
+    }
+
+    private static boolean autoActive(Goal goal, Phase ph, CycleSpec c) {
+        switch (goal) {
+            case TONE:
+                return ph.id == PhaseId.WARMUP;
+            case FAT:
+                return ph.id == PhaseId.WARMUP || ph.id == PhaseId.MAIN;
+            case CELLULITE:
+                return c.isTetanic();
+            case MASSAGE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /** Dose of the active pause over {@code offS} seconds (0 when the pause is passive). */
+    public static double pauseDose(CycleSpec c, double rho, int offS) {
+        if (!c.hasActivePause()) {
+            return 0;
+        }
+        return 2.0 * rho * c.pauseSigma * c.pwUs * c.pauseHz * offS;
     }
 
     private static void limitCycle(Phase ph, CycleSpec c, boolean passive, boolean self) {
@@ -274,6 +367,10 @@ public final class AiPlanner {
      * Q_plan: run the plan at u = 1 through the same cycle / fatigue / rest rules the engine uses.
      */
     public static double simulateDose(Plan plan) {
+        return simulateDose(plan, plan.pauseOn);
+    }
+
+    public static double simulateDose(Plan plan, boolean pauseOn) {
         double q = 0;
         for (Phase ph : plan.phases) {
             double t = 0;
@@ -299,6 +396,10 @@ public final class AiPlanner {
                 f += fatigueWeight(c.hz) * rho * c.onS;
                 int off = deviceOffS(c.offS);
                 f *= Math.exp(-off / plan.tauR);
+                if (pauseOn && c.hasActivePause()) {
+                    q += pauseDose(c, rho, off);
+                    f += fatigueWeight(c.pauseHz) * rho * c.pauseSigma * off;
+                }
                 double dur = c.onS + off;
                 t += dur;
                 blockT += dur;

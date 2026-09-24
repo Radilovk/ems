@@ -502,14 +502,42 @@ final class AiUi {
                 "Tighter limits, mandatory checkpoints, 90% ceiling."), 12, AiViews.MUTED, false);
         opHint.setPadding(dp(a, 4), dp(a, 8), 0, 0);
         opBox.addView(opHint);
-        opts.addView(modeBox, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        // Mode only when the goal allows both (massage, drainage, cellulite are passive only).
+        boolean modeChoice = AiModel.isAllowed(in.goal, Mode.ACTIVE) && AiModel.isAllowed(in.goal, Mode.PASSIVE);
+        if (modeChoice) {
+            opts.addView(modeBox, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        }
         LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        op.leftMargin = dp(a, 16);
+        if (modeChoice) {
+            op.leftMargin = dp(a, 16);
+        }
         opts.addView(opBox, op);
         LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         olp.topMargin = dp(a, 22);
         col.addView(opts, olp);
+
+        // Double impulse (active pause): only where the AI can program it; one switch, the
+        // frequency / strength / phases are the AI's decision.
+        if (AiModel.activePauseAllowed(in.goal)) {
+            if (in.pause == AiModel.PauseMode.ACTIVE) {
+                in.pause = AiModel.PauseMode.AUTO;
+            }
+            LinearLayout pauseBox = vertical(a);
+            pauseBox.addView(toggleRow(a, AiText.t("Двоен импулс (активна пауза)", "Double impulse (active pause)"),
+                    in.pause != AiModel.PauseMode.PASSIVE, new ToggleCallback() {
+                        @Override
+                        public void onToggle(boolean on) {
+                            in.pause = on ? AiModel.PauseMode.AUTO : AiModel.PauseMode.PASSIVE;
+                        }
+                    }));
+            TextView pauseHint = text(a, AiText.pauseHint(in.goal), 12, AiViews.MUTED, false);
+            pauseBox.addView(pauseHint);
+            LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            plp.topMargin = dp(a, 14);
+            col.addView(pauseBox, plp);
+        }
         body.addView(scroll(a, col));
         setupFooter(a, AiText.t("Напред", "Next"), false);
     }
@@ -949,9 +977,16 @@ final class AiUi {
         if (p.hrAvailable) {
             chips.add(chip(a, AiText.t("Таван ", "Ceiling ") + p.hrCap + AiText.t(" → пауза", " → pause"), AiViews.DANGER));
         }
-        chips.add(chip(a, AiText.t("Рампа 0.3–0.5 s", "Ramp 0.3–0.5 s"), AiViews.CYAN));
-        chips.add(chip(a, AiText.t("Сила ≤ калибрирането", "Strength ≤ calibration"), AiViews.CYAN));
-        chips.add(chip(a, AiText.t("Почивка по мускулна умора", "Rest on muscle fatigue"), AiViews.VIOLET));
+        boolean fatigueRest = false;
+        for (AiModel.Phase ph : plan.phases) {
+            fatigueRest |= ph.blockMode == AiModel.BlockMode.FATIGUE_DRIVEN;
+        }
+        if (fatigueRest) {
+            chips.add(chip(a, AiText.t("Почивка по мускулна умора", "Rest on muscle fatigue"), AiViews.VIOLET));
+        }
+        if (plan.pauseOn) {
+            chips.add(chip(a, AiText.t("Двоен импулс", "Double impulse"), AiViews.CYAN));
+        }
         chips.add(chip(a, AiText.t("3 контролни точки", "3 checkpoints"), AiViews.VIOLET));
         if (p.hrAvailable && !p.safetyOnly) {
             chips.add(chip(a, AiText.t("Корекции по пулса", "HR corrections"), AiViews.OK));
@@ -1183,7 +1218,8 @@ final class AiUi {
                 ViewGroup.LayoutParams.MATCH_PARENT));
         body.addView(stack);
 
-        // Footer: pause · reduce · STOP
+        // Footer: only the actions that make sense right now for this strategy (refreshed live):
+        // pause / resume · strength − · strength + · double impulse on/off · STOP.
         final TextView pauseBtn = pillButton(a, "", AiViews.MUTED);
         pauseBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         pauseBtn.setOnClickListener(new View.OnClickListener() {
@@ -1192,12 +1228,28 @@ final class AiUi {
                 AiSession.togglePause();
             }
         });
-        TextView reduceBtn = pillButton(a, AiText.t("Намали −10%", "Reduce −10%"), AiViews.WARN);
+        final TextView reduceBtn = pillButton(a, AiText.t("−  Сила", "−  Strength"), AiViews.WARN);
         reduceBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         reduceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AiSession.reduce();
+            }
+        });
+        final TextView increaseBtn = pillButton(a, AiText.t("+  Сила", "+  Strength"), AiViews.OK);
+        increaseBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        increaseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AiSession.increase();
+            }
+        });
+        final TextView doubleBtn = pillButton(a, "", AiViews.CYAN);
+        doubleBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        doubleBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AiSession.setActivePause(!e.isActivePauseOn());
             }
         });
         TextView stopBtn = text(a, AiText.t("СТОП", "STOP"), 22, AiViews.ON_ACCENT, true);
@@ -1210,12 +1262,14 @@ final class AiUi {
                 go(STEP_REPORT);
             }
         });
-        footer.addView(pauseBtn, new LinearLayout.LayoutParams(dp(a, 220), dp(a, 58)));
-        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(dp(a, 220), dp(a, 58));
-        rp.leftMargin = dp(a, 12);
-        footer.addView(reduceBtn, rp);
+        footer.addView(pauseBtn, new LinearLayout.LayoutParams(dp(a, 190), dp(a, 58)));
+        for (TextView t : new TextView[] {reduceBtn, increaseBtn, doubleBtn}) {
+            LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(dp(a, t == doubleBtn ? 250 : 160), dp(a, 58));
+            lp2.leftMargin = dp(a, 12);
+            footer.addView(t, lp2);
+        }
         footer.addView(new View(a), new LinearLayout.LayoutParams(0, 1, 1f));
-        footer.addView(stopBtn, new LinearLayout.LayoutParams(dp(a, 300), dp(a, 58)));
+        footer.addView(stopBtn, new LinearLayout.LayoutParams(dp(a, 260), dp(a, 58)));
 
         refreshers.add(new Runnable() {
             @Override
@@ -1274,6 +1328,8 @@ final class AiUi {
                 double kcal = AiSession.getKcal();
                 kcalVal.setText(kcal >= 0 ? Math.round(kcal) + " kcal  ·  "
                         + AiText.t("активни ", "active ") + Math.round(AiSession.getActiveKcal()) : "");
+                boolean corrected = e.getU() < 0.995 || e.getUUser() < 1 || e.getCeilingScale() < 1;
+                ctrlVal.setVisibility(corrected ? View.VISIBLE : View.GONE);
                 ctrlVal.setText(AiText.t("Корекция по пулса ", "HR correction ") + Math.round(e.getU() * 100) + "%"
                         + (e.getUUser() < 1 ? AiText.t(" · ръчно ", " · manual ") + Math.round(e.getUUser() * 100) + "%" : "")
                         + (e.getCeilingScale() < 1 ? AiText.t(" · усещане ", " · sensation ") + Math.round(e.getCeilingScale() * 100) + "%" : ""));
@@ -1281,6 +1337,19 @@ final class AiUi {
                 actionAge.setText(AiText.mmss((now - e.getLastActionMs()) / 1000.0));
                 pauseBtn.setText(st == AiEngine.State.USER_PAUSE ? AiText.t("▶  Продължи", "▶  Resume")
                         : AiText.t("❚❚  Пауза", "❚❚  Pause"));
+                // Checkpoints and HR-ceiling pauses have their own card; nothing else to press.
+                boolean live = st == AiEngine.State.RUN || st == AiEngine.State.REST;
+                pauseBtn.setVisibility(live || st == AiEngine.State.USER_PAUSE ? View.VISIBLE : View.GONE);
+                reduceBtn.setVisibility(live && e.canReduce() ? View.VISIBLE : View.GONE);
+                increaseBtn.setVisibility(live && e.canIncrease() ? View.VISIBLE : View.GONE);
+                boolean dbl = live && e.isActivePauseAvailable();
+                doubleBtn.setVisibility(dbl ? View.VISIBLE : View.GONE);
+                if (dbl) {
+                    doubleBtn.setText(e.isActivePauseOn()
+                            ? AiText.t("Двоен импулс: вкл.", "Double impulse: on")
+                            : AiText.t("Двоен импулс: изкл.", "Double impulse: off"));
+                    doubleBtn.setAlpha(e.isActivePauseOn() ? 1f : 0.7f);
+                }
                 renderOverlay(a, overlay, e, now);
             }
         });
@@ -1545,15 +1614,16 @@ final class AiUi {
         AiModel.Profile p = e.getProfile();
         sb.append("XEMS AI — ").append(AiText.goal(in.goal)).append(" · ").append(in.mode).append(" · ")
                 .append(in.operator).append('\n');
-        sb.append("HR rest ").append(p.hrRest).append(" · max ").append(p.hrMax).append(" · cap ").append(p.hrCap)
-                .append(" · corridor x ").append(Double.isNaN(p.xLo) ? "-" : String.format(Locale.US, "%.2f", p.xLo))
+        sb.append(AiText.t("Пулс покой ", "HR rest ")).append(p.hrRest).append(" · max ").append(p.hrMax)
+                .append(AiText.t(" · таван ", " · cap ")).append(p.hrCap)
+                .append(AiText.t(" · коридор x ", " · corridor x ")).append(Double.isNaN(p.xLo) ? "-" : String.format(Locale.US, "%.2f", p.xLo))
                 .append("–").append(String.format(Locale.US, "%.2f", p.xHi)).append('\n');
-        sb.append("Duration ").append(AiText.mmss(((e.getEndMs() > 0 ? e.getEndMs() : System.currentTimeMillis()) - e.getStartMs()) / 1000.0))
-                .append(" · dose ").append(Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan))).append("% of plan")
-                .append(" · corridor ").append(Double.isNaN(e.getCorridorShare()) ? "-" : Math.round(100 * e.getCorridorShare()) + "%")
+        sb.append(AiText.t("Време ", "Duration ")).append(AiText.mmss(((e.getEndMs() > 0 ? e.getEndMs() : System.currentTimeMillis()) - e.getStartMs()) / 1000.0))
+                .append(AiText.t(" · доза ", " · dose ")).append(Math.round(100 * e.getQUsed() / Math.max(1e-6, e.getPlan().qPlan))).append(AiText.t("% от плана", "% of plan"))
+                .append(AiText.t(" · в коридора ", " · corridor ")).append(Double.isNaN(e.getCorridorShare()) ? "-" : Math.round(100 * e.getCorridorShare()) + "%")
                 .append(" · HRR60 ").append(Double.isNaN(e.getHrr60()) ? "-" : Math.round(e.getHrr60()))
                 .append(" · kcal ").append(AiSession.getKcal() >= 0 ? Math.round(AiSession.getKcal()) + "" : "-")
-                .append(" (active ").append(Math.round(Math.max(0, AiSession.getActiveKcal())))
+                .append(AiText.t(" (активни ", " (active ")).append(Math.round(Math.max(0, AiSession.getActiveKcal())))
                 .append(AiSession.getEnergy() != null ? String.format(Locale.US, ", VO2max %.0f, %.0f kg",
                         AiSession.getEnergy().getVo2max(), AiSession.getEnergy().getWeightKg()) : "")
                 .append(")\n");
@@ -1570,7 +1640,7 @@ final class AiUi {
         }
         Intent send = new Intent(Intent.ACTION_SEND);
         send.setType("text/plain");
-        send.putExtra(Intent.EXTRA_SUBJECT, "XEMS AI report");
+        send.putExtra(Intent.EXTRA_SUBJECT, AiText.t("XEMS AI отчет", "XEMS AI report"));
         send.putExtra(Intent.EXTRA_TEXT, sb.toString());
         try {
             a.startActivity(Intent.createChooser(send, AiText.t("Сподели отчета", "Share report")));

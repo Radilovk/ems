@@ -24,7 +24,7 @@
     .line 69
     const-string p0, ""
 
-    .line 108
+    .line 111
     :cond_4
     :goto_4
     return-object p0
@@ -78,7 +78,7 @@
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
     :try_end_32
-    .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_32} :catch_242
+    .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_32} :catch_278
 
     move-result-object p0
 
@@ -166,13 +166,73 @@
 
     .line 83
     :cond_78
-    const-string v0, "reentry"
+    const-string v0, "increase"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
     if-eqz v0, :cond_8a
+
+    const-string v0, "\u0421\u0438\u043b\u0430\u0442\u0430 \u0435 \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0430 +10%"
+
+    const-string v1, "Strength raised +10%"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_4
+
+    .line 84
+    :cond_8a
+    const-string v0, "pause_on"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_9c
+
+    const-string v0, "\u0414\u0432\u043e\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u2014 \u0432\u043a\u043b\u044e\u0447\u0435\u043d"
+
+    const-string v1, "Double impulse \u2014 on"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_4
+
+    .line 85
+    :cond_9c
+    const-string v0, "pause_off"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_ae
+
+    const-string v0, "\u0414\u0432\u043e\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u2014 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d"
+
+    const-string v1, "Double impulse \u2014 off"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_4
+
+    .line 86
+    :cond_ae
+    const-string v0, "reentry"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c0
 
     const-string v0, "\u0421\u043b\u0435\u0434 \u0434\u044a\u043b\u0433\u0430 \u043f\u0430\u0443\u0437\u0430 \u2014 \u043f\u043e-\u043c\u0435\u043a\u043e \u043d\u0430\u0447\u0430\u043b\u043e"
 
@@ -184,15 +244,15 @@
 
     goto/16 :goto_4
 
-    .line 84
-    :cond_8a
+    .line 87
+    :cond_c0
     const-string v0, "hr_block_end"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_9c
+    if-eqz v0, :cond_d2
 
     const-string v0, "\u041f\u0443\u043b\u0441\u044a\u0442 \u0435 \u043d\u0430\u0434 \u043a\u043e\u0440\u0438\u0434\u043e\u0440\u0430 \u2014 \u0431\u043b\u043e\u043a\u044a\u0442 \u043f\u0440\u0438\u043a\u043b\u044e\u0447\u0432\u0430, \u043f\u043e\u0447\u0438\u0432\u043a\u0430"
 
@@ -204,15 +264,15 @@
 
     goto/16 :goto_4
 
-    .line 85
-    :cond_9c
+    .line 88
+    :cond_d2
     const-string v0, "l3_longer_pause"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_ae
+    if-eqz v0, :cond_e4
 
     const-string v0, "\u041f\u0443\u043b\u0441\u044a\u0442 \u0435 \u043d\u0430\u0434 \u043a\u043e\u0440\u0438\u0434\u043e\u0440\u0430 \u2014 \u043f\u043e-\u0434\u044a\u043b\u0433\u0430 \u043f\u0430\u0443\u0437\u0430"
 
@@ -224,15 +284,15 @@
 
     goto/16 :goto_4
 
-    .line 86
-    :cond_ae
+    .line 89
+    :cond_e4
     const-string v0, "l4_softer_b"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_c0
+    if-eqz v0, :cond_f6
 
     const-string v0, "\u041f\u0443\u043b\u0441\u044a\u0442 \u0435 \u0432\u0438\u0441\u043e\u043a \u2014 \u043f\u043e-\u043c\u0435\u043a \u0441\u0435\u0433\u043c\u0435\u043d\u0442 B"
 
@@ -244,15 +304,15 @@
 
     goto/16 :goto_4
 
-    .line 87
-    :cond_c0
+    .line 90
+    :cond_f6
     const-string v0, "u_down"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_d2
+    if-eqz v0, :cond_108
 
     const-string v0, "\u041f\u0443\u043b\u0441\u044a\u0442 \u043e\u0441\u0442\u0430\u0432\u0430 \u0432\u0438\u0441\u043e\u043a \u2014 \u043f\u043e-\u043d\u0438\u0441\u043a\u0430 \u0441\u0438\u043b\u0430"
 
@@ -264,15 +324,15 @@
 
     goto/16 :goto_4
 
-    .line 88
-    :cond_d2
+    .line 91
+    :cond_108
     const-string v0, "l2_shorter_blocks"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_e4
+    if-eqz v0, :cond_11a
 
     const-string v0, "\u0421\u044a\u0440\u0446\u0435\u0442\u043e \u0440\u0435\u0430\u0433\u0438\u0440\u0430 \u0441\u0438\u043b\u043d\u043e \u2014 \u043f\u043e-\u043a\u044a\u0441\u0438 \u0431\u043b\u043e\u043a\u043e\u0432\u0435"
 
@@ -284,15 +344,15 @@
 
     goto/16 :goto_4
 
-    .line 89
-    :cond_e4
+    .line 92
+    :cond_11a
     const-string v0, "l1_budget"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_f6
+    if-eqz v0, :cond_12c
 
     const-string v0, "\u0423\u0441\u0442\u043e\u0439\u0447\u0438\u0432\u043e \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435 \u2014 \u043f\u043e-\u043c\u0430\u043b\u043a\u0430 \u043e\u0431\u0449\u0430 \u0434\u043e\u0437\u0430"
 
@@ -304,15 +364,15 @@
 
     goto/16 :goto_4
 
-    .line 90
-    :cond_f6
+    .line 93
+    :cond_12c
     const-string v0, "l1_cooldown"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_106
+    if-nez v0, :cond_13c
 
     const-string v0, "budget_cooldown"
 
@@ -320,9 +380,9 @@
 
     move-result v0
 
-    if-eqz v0, :cond_110
+    if-eqz v0, :cond_146
 
-    :cond_106
+    :cond_13c
     const-string v0, "\u0414\u043e\u0441\u0442\u0430\u0442\u044a\u0447\u043d\u043e \u0437\u0430 \u0434\u043d\u0435\u0441 \u2014 \u0440\u0430\u0437\u043f\u0443\u0441\u043a\u0430\u043d\u0435"
 
     const-string v1, "Enough for today \u2014 cool-down"
@@ -333,15 +393,15 @@
 
     goto/16 :goto_4
 
-    .line 91
-    :cond_110
+    .line 94
+    :cond_146
     const-string v0, "below_corridor"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_122
+    if-eqz v0, :cond_158
 
     const-string v0, "\u041f\u043e\u0434 \u043a\u043e\u0440\u0438\u0434\u043e\u0440\u0430 \u2014 \u043f\u043e-\u043a\u0440\u0430\u0442\u043a\u0438 \u043f\u043e\u0447\u0438\u0432\u043a\u0438"
 
@@ -353,15 +413,15 @@
 
     goto/16 :goto_4
 
-    .line 92
-    :cond_122
+    .line 95
+    :cond_158
     const-string v0, "hr_cap"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_134
+    if-eqz v0, :cond_16a
 
     const-string v0, "\u0422\u0430\u0432\u0430\u043d \u043d\u0430 \u043f\u0443\u043b\u0441\u0430 \u2014 \u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f\u0442\u0430 \u0435 \u0441\u043f\u0440\u044f\u043d\u0430"
 
@@ -373,15 +433,15 @@
 
     goto/16 :goto_4
 
-    .line 93
-    :cond_134
+    .line 96
+    :cond_16a
     const-string v0, "can_resume"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_146
+    if-eqz v0, :cond_17c
 
     const-string v0, "\u041f\u0443\u043b\u0441\u044a\u0442 \u0441\u0435 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u0438 \u2014 \u043c\u043e\u0436\u0435 \u0434\u0430 \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0438"
 
@@ -393,15 +453,15 @@
 
     goto/16 :goto_4
 
-    .line 94
-    :cond_146
+    .line 97
+    :cond_17c
     const-string v0, "band_lost_soft"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_158
+    if-eqz v0, :cond_18e
 
     const-string v0, "\u041d\u044f\u043c\u0430 \u043f\u0443\u043b\u0441 30 s \u2014 \u0441\u0438\u043b\u0430 \u0434\u043e 80%"
 
@@ -413,15 +473,15 @@
 
     goto/16 :goto_4
 
-    .line 95
-    :cond_158
+    .line 98
+    :cond_18e
     const-string v0, "band_lost_cooldown"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_16a
+    if-eqz v0, :cond_1a0
 
     const-string v0, "\u041d\u044f\u043c\u0430 \u043f\u0443\u043b\u0441 2 \u043c\u0438\u043d \u2014 \u0440\u0430\u0437\u043f\u0443\u0441\u043a\u0430\u043d\u0435"
 
@@ -433,15 +493,15 @@
 
     goto/16 :goto_4
 
-    .line 96
-    :cond_16a
+    .line 99
+    :cond_1a0
     const-string v0, "non_responder"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_17c
+    if-eqz v0, :cond_1b2
 
     const-string v0, "\u041f\u0443\u043b\u0441\u044a\u0442 \u043d\u0435 \u0440\u0435\u0430\u0433\u0438\u0440\u0430 \u2014 \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0432\u0430 \u0441\u0430\u043c\u043e \u043f\u043b\u0430\u043d\u044a\u0442"
 
@@ -453,15 +513,15 @@
 
     goto/16 :goto_4
 
-    .line 97
-    :cond_17c
+    .line 100
+    :cond_1b2
     const-string v0, "checkpoint"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_18e
+    if-eqz v0, :cond_1c4
 
     const-string v0, "\u041a\u043e\u043d\u0442\u0440\u043e\u043b\u043d\u0430 \u0442\u043e\u0447\u043a\u0430 \u2014 \u043e\u0446\u0435\u043d\u0438 \u0443\u0441\u0435\u0449\u0430\u043d\u0435\u0442\u043e"
 
@@ -473,15 +533,15 @@
 
     goto/16 :goto_4
 
-    .line 98
-    :cond_18e
+    .line 101
+    :cond_1c4
     const-string v0, "checkpoint_timeout"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1a0
+    if-eqz v0, :cond_1d6
 
     const-string v0, "\u041d\u044f\u043c\u0430 \u043e\u0442\u0433\u043e\u0432\u043e\u0440 \u2014 \u043f\u0430\u0443\u0437\u0430"
 
@@ -493,15 +553,15 @@
 
     goto/16 :goto_4
 
-    .line 99
-    :cond_1a0
+    .line 102
+    :cond_1d6
     const-string v0, "cr10_down"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1b2
+    if-eqz v0, :cond_1e8
 
     const-string v0, "\u0421\u0438\u043b\u0430\u0442\u0430 \u0435 \u043d\u0430\u043c\u0430\u043b\u0435\u043d\u0430 \u0441\u043f\u043e\u0440\u0435\u0434 \u0443\u0441\u0435\u0449\u0430\u043d\u0435\u0442\u043e"
 
@@ -513,15 +573,15 @@
 
     goto/16 :goto_4
 
-    .line 100
-    :cond_1b2
+    .line 103
+    :cond_1e8
     const-string v0, "cr10_up"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1c4
+    if-eqz v0, :cond_1fa
 
     const-string v0, "\u0421\u0438\u043b\u0430\u0442\u0430 \u0435 \u0432\u044a\u0440\u043d\u0430\u0442\u0430 \u043a\u044a\u043c \u043a\u0430\u043b\u0438\u0431\u0440\u0438\u0440\u0430\u043d\u0435\u0442\u043e"
 
@@ -533,15 +593,15 @@
 
     goto/16 :goto_4
 
-    .line 101
-    :cond_1c4
+    .line 104
+    :cond_1fa
     const-string v0, "cr10_ok"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1d6
+    if-eqz v0, :cond_20c
 
     const-string v0, "\u0423\u0441\u0435\u0449\u0430\u043d\u0435\u0442\u043e \u0435 \u0432 \u0446\u0435\u043b\u0442\u0430"
 
@@ -553,15 +613,15 @@
 
     goto/16 :goto_4
 
-    .line 102
-    :cond_1d6
+    .line 105
+    :cond_20c
     const-string v0, "reduce"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1e8
+    if-eqz v0, :cond_21e
 
     const-string v0, "\u041d\u0430\u043c\u0430\u043b\u0435\u043d\u043e \u0440\u044a\u0447\u043d\u043e \u221210%"
 
@@ -573,15 +633,15 @@
 
     goto/16 :goto_4
 
-    .line 103
-    :cond_1e8
+    .line 106
+    :cond_21e
     const-string v0, "user_pause"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1fa
+    if-eqz v0, :cond_230
 
     const-string v0, "\u041f\u0430\u0443\u0437\u0430"
 
@@ -593,15 +653,15 @@
 
     goto/16 :goto_4
 
-    .line 104
-    :cond_1fa
+    .line 107
+    :cond_230
     const-string v0, "resume"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_20c
+    if-eqz v0, :cond_242
 
     const-string v0, "\u041f\u0440\u043e\u0434\u044a\u043b\u0436\u0430\u0432\u0430"
 
@@ -613,15 +673,15 @@
 
     goto/16 :goto_4
 
-    .line 105
-    :cond_20c
+    .line 108
+    :cond_242
     const-string v0, "stop"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_21e
+    if-eqz v0, :cond_254
 
     const-string v0, "\u0421\u043f\u0440\u044f\u043d\u0430 \u043e\u0442 \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u0430"
 
@@ -633,15 +693,15 @@
 
     goto/16 :goto_4
 
-    .line 106
-    :cond_21e
+    .line 109
+    :cond_254
     const-string v0, "done"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_230
+    if-eqz v0, :cond_266
 
     const-string v0, "\u0421\u0435\u0441\u0438\u044f\u0442\u0430 \u043f\u0440\u0438\u043a\u043b\u044e\u0447\u0438"
 
@@ -653,8 +713,8 @@
 
     goto/16 :goto_4
 
-    .line 107
-    :cond_230
+    .line 110
+    :cond_266
     const-string v0, "start"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -674,60 +734,43 @@
     goto/16 :goto_4
 
     .line 75
-    :catch_242
+    :catch_278
     move-exception v0
 
     goto/16 :goto_4
 .end method
 
 .method static bg()Z
-    .registers 3
+    .registers 1
 
     .prologue
-    const/4 v0, 0x1
-
     .line 11
-    :try_start_1
-    const-string v1, "en"
+    :try_start_0
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_5
 
-    invoke-static {}, Ljava/util/Locale;->getDefault()Ljava/util/Locale;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-    :try_end_e
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_e} :catch_14
-
-    move-result v1
-
-    if-nez v1, :cond_12
+    move-result v0
 
     .line 13
-    :goto_11
+    :goto_4
     return v0
 
-    .line 11
-    :cond_12
-    const/4 v0, 0x0
-
-    goto :goto_11
-
     .line 12
-    :catch_14
-    move-exception v1
+    :catch_5
+    move-exception v0
 
-    goto :goto_11
+    .line 13
+    const/4 v0, 0x1
+
+    goto :goto_4
 .end method
 
 .method static contraindication(Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 112
+    .line 115
     const-string v0, "pregnancy"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -744,12 +787,12 @@
 
     move-result-object p0
 
-    .line 125
+    .line 128
     :cond_10
     :goto_10
     return-object p0
 
-    .line 113
+    .line 116
     :cond_11
     const-string v0, "implant"
 
@@ -769,7 +812,7 @@
 
     goto :goto_10
 
-    .line 114
+    .line 117
     :cond_22
     const-string v0, "cardiovascular"
 
@@ -789,7 +832,7 @@
 
     goto :goto_10
 
-    .line 115
+    .line 118
     :cond_33
     const-string v0, "circulation"
 
@@ -809,7 +852,7 @@
 
     goto :goto_10
 
-    .line 116
+    .line 119
     :cond_44
     const-string v0, "hernia"
 
@@ -829,7 +872,7 @@
 
     goto :goto_10
 
-    .line 117
+    .line 120
     :cond_55
     const-string v0, "cancer"
 
@@ -849,7 +892,7 @@
 
     goto :goto_10
 
-    .line 118
+    .line 121
     :cond_66
     const-string v0, "bleeding"
 
@@ -869,7 +912,7 @@
 
     goto :goto_10
 
-    .line 119
+    .line 122
     :cond_77
     const-string v0, "epilepsy"
 
@@ -889,7 +932,7 @@
 
     goto :goto_10
 
-    .line 120
+    .line 123
     :cond_88
     const-string v0, "neurological"
 
@@ -909,7 +952,7 @@
 
     goto/16 :goto_10
 
-    .line 121
+    .line 124
     :cond_9a
     const-string v0, "recent_surgery"
 
@@ -929,7 +972,7 @@
 
     goto/16 :goto_10
 
-    .line 122
+    .line 125
     :cond_ac
     const-string v0, "skin_lesion"
 
@@ -949,7 +992,7 @@
 
     goto/16 :goto_10
 
-    .line 123
+    .line 126
     :cond_be
     const-string v0, "kidney"
 
@@ -969,7 +1012,7 @@
 
     goto/16 :goto_10
 
-    .line 124
+    .line 127
     :cond_d0
     const-string v0, "tuberculosis"
 
@@ -994,7 +1037,7 @@
     .registers 3
 
     .prologue
-    .line 143
+    .line 146
     const-string v0, "NO_BAND"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1011,12 +1054,12 @@
 
     move-result-object p0
 
-    .line 150
+    .line 153
     :cond_10
     :goto_10
     return-object p0
 
-    .line 144
+    .line 147
     :cond_11
     const-string v0, "HR_SLOW"
 
@@ -1036,7 +1079,7 @@
 
     goto :goto_10
 
-    .line 145
+    .line 148
     :cond_22
     const-string v0, "FLAG_TACHY"
 
@@ -1056,7 +1099,7 @@
 
     goto :goto_10
 
-    .line 146
+    .line 149
     :cond_33
     const-string v0, "FLAG_BRADY"
 
@@ -1076,7 +1119,7 @@
 
     goto :goto_10
 
-    .line 147
+    .line 150
     :cond_44
     const-string v0, "BAND_LOST"
 
@@ -1096,7 +1139,7 @@
 
     goto :goto_10
 
-    .line 148
+    .line 151
     :cond_55
     const-string v0, "NON_RESPONDER"
 
@@ -1116,7 +1159,7 @@
 
     goto :goto_10
 
-    .line 149
+    .line 152
     :cond_66
     const-string v0, "BUDGET"
 
@@ -1311,7 +1354,7 @@
     .registers 8
 
     .prologue
-    .line 154
+    .line 176
     const-wide/16 v0, 0x0
 
     invoke-static {p0, p1}, Ljava/lang/Math;->round(D)J
@@ -1324,7 +1367,7 @@
 
     long-to-int v0, v0
 
-    .line 155
+    .line 177
     sget-object v1, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v2, "%d:%02d"
@@ -1358,6 +1401,87 @@
     move-result-object v0
 
     return-object v0
+.end method
+
+.method static pauseHint(Lcom/isaigu/gymapp/ai/AiModel$Goal;)Ljava/lang/String;
+    .registers 3
+
+    .prologue
+    .line 158
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiText$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
+
+    move-result v1
+
+    aget v0, v0, v1
+
+    packed-switch v0, :pswitch_data_32
+
+    .line 171
+    :pswitch_b
+    const-string v0, ""
+
+    :goto_d
+    return-object v0
+
+    .line 160
+    :pswitch_e
+    const-string v0, "\u0412 \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430\u0442\u0430; \u0441\u0438\u043b\u043e\u0432\u0430\u0442\u0430 \u0447\u0430\u0441\u0442 \u043e\u0441\u0442\u0430\u0432\u0430 \u0441 \u043f\u044a\u043b\u043d\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430."
+
+    const-string v1, "In the warm-up; the strength part keeps full rest."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_d
+
+    .line 163
+    :pswitch_17
+    const-string v0, "\u0412 \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430\u0442\u0430 \u0438 \u043e\u0441\u043d\u043e\u0432\u043d\u0430\u0442\u0430 \u0447\u0430\u0441\u0442 \u2014 \u043f\u043e\u0432\u0435\u0447\u0435 \u0438\u0437\u0433\u0430\u0440\u044f\u043d\u0435."
+
+    const-string v1, "In the warm-up and main part \u2014 more burn."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_d
+
+    .line 166
+    :pswitch_20
+    const-string v0, "\u0412 \u0441\u0438\u043b\u043e\u0432\u0430\u0442\u0430 \u0447\u0430\u0441\u0442, 8 Hz \u2014 \u0441\u0442\u0438\u043c\u0443\u043b \u0437\u0430 \u0442\u044a\u043a\u0430\u043d\u0442\u0430."
+
+    const-string v1, "In the strength part, 8 Hz \u2014 a tissue stimulus."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_d
+
+    .line 169
+    :pswitch_29
+    const-string v0, "\u0411\u0430\u0432\u0435\u043d \u0440\u0438\u0442\u044a\u043c \u043c\u0435\u0436\u0434\u0443 \u0438\u043c\u043f\u0443\u043b\u0441\u0438\u0442\u0435."
+
+    const-string v1, "A slow rhythm between impulses."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_d
+
+    .line 158
+    :pswitch_data_32
+    .packed-switch 0x1
+        :pswitch_e
+        :pswitch_17
+        :pswitch_29
+        :pswitch_b
+        :pswitch_20
+    .end packed-switch
 .end method
 
 .method static phase(Lcom/isaigu/gymapp/ai/AiModel$PhaseId;)Ljava/lang/String;
@@ -1438,7 +1562,7 @@
     .registers 3
 
     .prologue
-    .line 129
+    .line 132
     const-string v0, "contra:"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -1457,12 +1581,12 @@
 
     move-result-object p0
 
-    .line 139
+    .line 142
     :cond_11
     :goto_11
     return-object p0
 
-    .line 130
+    .line 133
     :cond_12
     const-string v0, "age_under_18"
 
@@ -1482,7 +1606,7 @@
 
     goto :goto_11
 
-    .line 131
+    .line 134
     :cond_23
     const-string v0, "invalid_combination"
 
@@ -1502,7 +1626,7 @@
 
     goto :goto_11
 
-    .line 132
+    .line 135
     :cond_34
     const-string v0, "fever"
 
@@ -1522,7 +1646,7 @@
 
     goto :goto_11
 
-    .line 133
+    .line 136
     :cond_45
     const-string v0, "alcohol_stress"
 
@@ -1542,7 +1666,7 @@
 
     goto :goto_11
 
-    .line 134
+    .line 137
     :cond_56
     const-string v0, "arrhythmia"
 
@@ -1562,7 +1686,7 @@
 
     goto :goto_11
 
-    .line 135
+    .line 138
     :cond_67
     const-string v0, "not_eaten"
 
@@ -1582,7 +1706,7 @@
 
     goto :goto_11
 
-    .line 136
+    .line 139
     :cond_78
     const-string v0, "not_hydrated"
 
@@ -1602,7 +1726,7 @@
 
     goto :goto_11
 
-    .line 137
+    .line 140
     :cond_89
     const-string v0, "hr_medication"
 
@@ -1622,7 +1746,7 @@
 
     goto/16 :goto_11
 
-    .line 138
+    .line 141
     :cond_9b
     const-string v0, "not_rested"
 

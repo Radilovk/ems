@@ -78,7 +78,6 @@
         <div class="slide-fill" style="height: {{slideFillH}}px; background-color: {{slideFill}}"></div>
         <div class="slide-knob" style="bottom: {{slideKnobB}}px"></div>
       </stack>
-      <text class="slide-hint">{{slideHint}}</text>
     </div>
   </stack>
 </template>
@@ -150,7 +149,6 @@ export default {
     slideFill: GREEN,
     slideFillH: 0,
     slideKnobB: 0,
-    slideHint: 'плъзни нагоре / надолу',
     slideAnim: 'slide-in',
     slideDim: false
   },
@@ -215,9 +213,6 @@ export default {
     this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
     if (this.slideOn) {
       this.slideDim = !run
-      if (this.slideDim) {
-        this.slideHint = 'пауза · плъзгачът е само за преглед'
-      }
     } else {
       this.buildChannels(s.ch || [], run)
     }
@@ -308,7 +303,6 @@ export default {
     this.slideTick = Math.floor(val / 10)
     this.scrollTop = this.savedScroll
     this.updateSlideVisual(val)
-    this.slideHint = this.slideDim ? 'пауза · плъзгачът е само за преглед' : 'плъзни нагоре / надолу'
     const y = this.chTouch && this.chTouch.y
     if (y) {
       this.setSlideFromY(y)
@@ -350,7 +344,6 @@ export default {
       return
     }
     this.slideSent = this.slideDraft
-    this.slideHint = 'изпратено · ' + this.slideDraft
     this.$app.$def.command('ch_set', { c: this.slideIdx, v: this.slideDraft }, 'none')
   },
 
@@ -437,7 +430,6 @@ export default {
     if (this.slideDraft !== this.slideSent) {
       this.commitSlide()
     }
-    this.slideHint = 'затваряне…'
     clearTimeout(this.slideCloseTimer)
     this.slideCloseTimer = setTimeout(() => {
       this.slideOn = false
@@ -950,13 +942,5 @@ export default {
   background-color: #ffffff;
   border-width: 3px;
   border-color: #48484a;
-}
-.slide-hint {
-  flex-shrink: 0;
-  margin-top: 16px;
-  width: 196px;
-  text-align: center;
-  font-size: 20px;
-  color: #636366;
 }
 </style>

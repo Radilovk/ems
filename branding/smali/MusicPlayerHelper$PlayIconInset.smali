@@ -23,7 +23,7 @@
 
 # direct methods
 .method constructor <init>(Landroid/graphics/drawable/LayerDrawable;)V
-    .registers 2
+    .locals 0
 
     .prologue
     .line 99
@@ -39,7 +39,7 @@
 
 # virtual methods
 .method public onLayoutChange(Landroid/view/View;IIIIIIII)V
-    .registers 17
+    .locals 7
 
     .prologue
     .line 105
@@ -49,17 +49,17 @@
     sub-int v5, p5, p3
 
     .line 107
-    if-lez v4, :cond_8
+    if-lez v4, :cond_0
 
-    if-gtz v5, :cond_9
+    if-gtz v5, :cond_1
 
     .line 115
-    :cond_8
-    :goto_8
+    :cond_0
+    :goto_0
     return-void
 
     .line 110
-    :cond_9
+    :cond_1
     invoke-static {v4, v5}, Ljava/lang/Math;->min(II)I
 
     move-result v0
@@ -102,5 +102,5 @@
     .line 114
     invoke-virtual {p1}, Landroid/view/View;->invalidate()V
 
-    goto :goto_8
+    goto :goto_0
 .end method

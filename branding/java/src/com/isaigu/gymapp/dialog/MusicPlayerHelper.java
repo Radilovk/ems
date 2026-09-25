@@ -130,7 +130,7 @@ public final class MusicPlayerHelper {
     private static View playlistButton;
     private static MusicImpulseMeterView meterView;
     /** Kit steppers shown in place of the AmountViews: sensitivity, rhythm, floor, smooth. */
-    private static XemsUi.Stepper[] settingSteppers = new XemsUi.Stepper[4];
+    private static XemsUi.Stepper[] settingSteppers = new XemsUi.Stepper[6];
 
     private static TrainItemManager itemManager;
     private static final ArrayList<MusicPlaylistEntry> playlist = new ArrayList<MusicPlaylistEntry>();
@@ -879,6 +879,7 @@ public final class MusicPlayerHelper {
             replaceAmount(a, rhythmView, 1, 10, 0, 100);
             replaceAmount(a, floorView, 2, 5, 0, 80);
             replaceAmount(a, smoothView, 3, 10, 0, 100);
+            addHzRows(a);
         } catch (Throwable t) {
             MusicDiagLog.logError("music_player_style", t);
         }
@@ -973,6 +974,8 @@ public final class MusicPlayerHelper {
             case 0: return MusicSync.getSensitivity();
             case 1: return MusicSync.getRhythmMix();
             case 2: return MusicSync.getFloorPercent();
+            case 4: return MusicSync.getHzBass();
+            case 5: return MusicSync.getHzTreble();
             default: return MusicSync.getSmoothness();
         }
     }
@@ -980,7 +983,7 @@ public final class MusicPlayerHelper {
     private static void refreshSettingSteppers() {
         for (int i = 0; i < settingSteppers.length; i++) {
             if (settingSteppers[i] != null) {
-                settingSteppers[i].set(String.valueOf(settingValue(i)), "%");
+                settingSteppers[i].set(settingText(i), settingUnit(i));
             }
         }
     }
@@ -1674,7 +1677,7 @@ public final class MusicPlayerHelper {
         settingsButton = null;
         playlistButton = null;
         meterView = null;
-        settingSteppers = new XemsUi.Stepper[4];
+        settingSteppers = new XemsUi.Stepper[6];
     }
 
     private static void moveOverlayWindow(int x, int y) {
@@ -1911,6 +1914,12 @@ public final class MusicPlayerHelper {
                     break;
                 case FLOOR:
                     MusicSync.setFloorPercent(amount);
+                    break;
+                case 4:
+                    MusicSync.setHzBass(amount);
+                    break;
+                case 5:
+                    MusicSync.setHzTreble(amount);
                     break;
                 default:
                     MusicSync.setSmoothness(amount);
@@ -2200,6 +2209,74 @@ public final class MusicPlayerHelper {
     }
 
     /** Kit stepper → the same path as the old AmountView listener. */
+    /**
+     * Hz by sound: two rows under Smoothness — impulse Hz at bass-heavy and at treble-heavy
+     * music (bass 0 = off). Same look as the rows above.
+     */
+    private static void addHzRows(Activity a) {
+        if (smoothView == null || !(smoothView.getParent() instanceof LinearLayout)) {
+            return;
+        }
+        LinearLayout smoothRow = (LinearLayout) smoothView.getParent();
+        if (!(smoothRow.getParent() instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup panel = (ViewGroup) smoothRow.getParent();
+        int at = panel.indexOfChild(smoothRow) + 1;
+        TextView ref = smoothRow.getChildAt(0) instanceof TextView ? (TextView) smoothRow.getChildAt(0) : null;
+        panel.addView(hzRow(a, smoothRow, ref, tr("Hz при бас", "Hz on bass"), 4, 5, 0, MusicSync.HZ_MAX), at);
+        panel.addView(hzRow(a, smoothRow, ref, tr("Hz при високи", "Hz on treble"), 5, 5, MusicSync.HZ_MIN,
+                MusicSync.HZ_MAX), at + 1);
+    }
+
+    private static View hzRow(Activity a, LinearLayout like, TextView ref, String label, int which, int step,
+            int min, int max) {
+        LinearLayout row = new LinearLayout(a);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(like.getGravity());
+        row.setPadding(like.getPaddingLeft(), like.getPaddingTop(), like.getPaddingRight(), like.getPaddingBottom());
+        TextView t = new TextView(a);
+        t.setText(label);
+        t.setTextColor(XemsUi.TEXT);
+        if (ref != null) {
+            t.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ref.getTextSize());
+            t.setTypeface(ref.getTypeface());
+            ViewGroup.LayoutParams rl = ref.getLayoutParams();
+            row.addView(t, rl instanceof LinearLayout.LayoutParams
+                    ? new LinearLayout.LayoutParams((LinearLayout.LayoutParams) rl)
+                    : new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        } else {
+            t.setTextSize(16);
+            row.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        }
+        XemsUi.Stepper st = XemsUi.stepper(a, settingText(which), settingUnit(which), 17, null);
+        XemsUi.OnStep cb = new SettingStep(which, step, min, max, st);
+        XemsUi.repeatOnHold(st.view.getChildAt(0), cb, -1);
+        XemsUi.repeatOnHold(st.view.getChildAt(2), cb, +1);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lp.topMargin = dp(a, 3);
+        lp.bottomMargin = dp(a, 3);
+        row.addView(st.view, lp);
+        settingSteppers[which] = st;
+        return row;
+    }
+
+    /** Stepper text: Hz-at-bass 0 reads "off". */
+    static String settingText(int which) {
+        int v = settingValue(which);
+        if (which == 4 && v <= 0) {
+            return tr("изкл.", "off");
+        }
+        return String.valueOf(v);
+    }
+
+    static String settingUnit(int which) {
+        if (which == 4 && settingValue(which) <= 0) {
+            return "";
+        }
+        return which >= 4 ? "Hz" : "%";
+    }
+
     static final class SettingStep implements XemsUi.OnStep {
         private final int which;
         private final int step;
@@ -2217,9 +2294,15 @@ public final class MusicPlayerHelper {
 
         @Override
         public void onStep(int d) {
-            int v = Math.max(min, Math.min(max, settingValue(which) + d * step));
+            int cur = settingValue(which);
+            int v = Math.max(min, Math.min(max, cur + d * step));
+            if (which == 4 && cur <= 0 && d > 0) {
+                v = 30;                                  // switching Hz-by-sound on: a sensible bass Hz
+            } else if (which == 4 && v < MusicSync.HZ_MIN) {
+                v = 0;
+            }
             new SettingChangeListener(which).onAmountChange(null, v);
-            stepper.set(String.valueOf(v), "%");
+            stepper.set(settingText(which), settingUnit(which));
         }
     }
 

@@ -1,11 +1,10 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
-    <image class="bg" src="/common/bg/ai.png"></image>
+  <stack class="root bg-ai" onswipe="onSwipe">
     <!-- 1 · live -->
     <div class="screen {{anim}}" if="{{cur === 'live'}}">
       <text class="caps" style="color: {{stateColor}}">{{stateText}}</text>
       <stack class="ring-box">
-        <progress class="ring-outer" type="arc" percent="{{ringPct}}" style="color: #FF3B5C"></progress>
+        <progress class="ring-outer" type="arc" percent="{{ringPct}}" style="color: #5E5CE6"></progress>
         <progress class="ring-inner" type="arc" percent="{{hrPct}}" style="color: {{zoneColor}}"></progress>
         <div class="ring-center">
           <text class="hr">{{hrText}}</text>
@@ -302,14 +301,6 @@ export default {
   align-items: center;
   padding-top: 34px;
 }
-.bg {
-  width: 212px;
-  height: 520px;
-}
-.lst {
-  width: 212px;
-  height: 520px;
-}
 .in-up {
   animation-name: inUp;
   animation-duration: 260ms;
@@ -402,6 +393,10 @@ export default {
   }
 }
 /* ---- page ---- */
+.bg-ai {
+  background-image: url(/common/bg/ai.png);
+  background-size: cover;
+}
 .ring-box {
   width: 196px;
   height: 196px;

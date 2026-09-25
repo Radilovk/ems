@@ -1,6 +1,5 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
-    <image class="bg" src="/common/bg/timer.png"></image>
+  <stack class="root bg-timer" onswipe="onSwipe">
     <div class="screen">
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
       <stack class="ring-box">
@@ -122,14 +121,6 @@ export default {
   align-items: center;
   padding-top: 34px;
 }
-.bg {
-  width: 212px;
-  height: 520px;
-}
-.lst {
-  width: 212px;
-  height: 520px;
-}
 .in-up {
   animation-name: inUp;
   animation-duration: 260ms;
@@ -222,6 +213,10 @@ export default {
   }
 }
 /* ---- page ---- */
+.bg-timer {
+  background-image: url(/common/bg/timer.png);
+  background-size: cover;
+}
 .ring-box {
   width: 200px;
   height: 200px;

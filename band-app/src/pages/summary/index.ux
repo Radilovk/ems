@@ -1,6 +1,5 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
-    <image class="bg" src="/common/bg/summary.png"></image>
+  <stack class="root bg-summary" onswipe="onSwipe">
     <div class="screen">
       <div class="check"><image class="check-img" src="/common/icons/check.png"></image></div>
       <text class="caps">{{kindText}}</text>
@@ -90,14 +89,6 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 34px;
-}
-.bg {
-  width: 212px;
-  height: 520px;
-}
-.lst {
-  width: 212px;
-  height: 520px;
 }
 .in-up {
   animation-name: inUp;
@@ -191,6 +182,10 @@ export default {
   }
 }
 /* ---- page ---- */
+.bg-summary {
+  background-image: url(/common/bg/summary.png);
+  background-size: cover;
+}
 .screen {
   padding-top: 30px;
 }

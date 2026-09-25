@@ -24,8 +24,8 @@ public final class HrDemandPolicy {
         if (owners == null || owners.isEmpty()) {
             return false;
         }
-        // Not OWNER_DIAL: the training-screen dial takes a share on every connect — it shows the
-        // HR only while the pulse module (auto-control) is on; otherwise the band does not measure.
+        // Not OWNER_DIAL: the training-screen dial takes a share on every connect — the band
+        // measures only for the pulse module (auto-control), an AI session or a settings test.
         return owners.contains(NotifyWearableBridge.OWNER_AI)
                 || owners.contains(NotifyWearableBridge.OWNER_SETTINGS);
     }

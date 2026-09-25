@@ -372,9 +372,6 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
             sendCommand(XiaomiBandMessages.request(XiaomiBandMessages.T_HEALTH, XiaomiBandMessages.HEALTH_RT_STOP));
         }
         realtimeStarted = false;
-        if (authenticated) {
-            setState("linked");
-        }
     }
 
     void onPostAuthInitComplete() {

@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 357
+    .line 311
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,18 +34,18 @@
     .locals 1
 
     .prologue
-    .line 360
+    .line 314
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 361
+    .line 315
     if-eqz v0, :cond_0
 
-    .line 362
+    .line 316
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$500(Landroid/content/Context;)V
 
-    .line 364
+    .line 318
     :cond_0
     return-void
 .end method

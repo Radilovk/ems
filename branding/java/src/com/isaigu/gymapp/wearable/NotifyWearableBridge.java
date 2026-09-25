@@ -60,7 +60,7 @@ public final class NotifyWearableBridge {
             } else if ("no_bt_permission".equals(bleState)) {
                 WearableSyncHelper.showBluetoothPermissionDenied();
             }
-            if ("authenticated".equals(bleState) || "initialized".equals(bleState) || "linked".equals(bleState)) {
+            if ("authenticated".equals(bleState) || "initialized".equals(bleState)) {
                 try {
                     applyHr(WearableSyncHelper.getContext());
                 } catch (Throwable ignored) {
@@ -378,8 +378,8 @@ public final class NotifyWearableBridge {
     private static final HrPolicy hrPolicy = new HrPolicy();
 
     /**
-     * Heart rate is measured only while something uses it: pulse auto-control, AI session or a
-     * settings connection test. Otherwise the band stops measuring; the link stays up.
+     * Heart rate is measured only while something uses it: pulse auto-control, AI session, the HR
+     * dial, or a settings connection test. Otherwise the band stops measuring; the link stays up.
      */
     static void applyHr(Context context) {
         boolean want = HrDemandPolicy.wantsHeartRate(context, owners);

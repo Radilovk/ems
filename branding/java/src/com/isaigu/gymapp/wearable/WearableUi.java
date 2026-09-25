@@ -110,9 +110,6 @@ final class WearableUi {
                 || "auth_start".equals(state) || "handshake".equals(state)) {
             return tr("Свързване…", "Connecting…");
         }
-        if ("linked".equals(state)) {
-            return tr("Свързана · пулс изкл.", "Linked · HR off");
-        }
         if ("authenticated".equals(state) || "initialized".equals(state)
                 || "starting".equals(state)) {
             return tr("Подготовка…", "Starting…");

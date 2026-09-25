@@ -35,12 +35,12 @@
 
         <div for="{{chans}}" class="row chrow">
           <text class="ch-name">{{$item.name}}</text>
-          <div class="lvl">
-            <div class="vbar">
-              <div class="vfill" style="height: {{$item.h}}px; background-color: {{$item.color}}"></div>
+          <stack class="ring-box">
+            <progress class="ring" type="arc" percent="{{$item.pct}}" style="color: {{$item.color}}"></progress>
+            <div class="ring-core">
+              <text class="ch-val" style="color: {{$item.color}}">{{$item.text}}</text>
             </div>
-            <text class="ch-val" style="color: {{$item.color}}">{{$item.text}}</text>
-          </div>
+          </stack>
           <div class="pm">
             <div class="btn pmw" onclick="chMinus($item.i)" onlongpress="chMinus5($item.i)">
               <image class="pm-img" src="/common/icons/minus.png"></image>
@@ -73,7 +73,6 @@ const HOLD_MS = 1200
 /** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
-const BAR_H = 146
 
 export default {
   private: {
@@ -133,7 +132,7 @@ export default {
         i: i,
         name: NAMES[i] || 'Канал ' + (i + 1),
         text: pct + '%',
-        h: Math.max(pct > 0 ? 10 : 0, Math.round((BAR_H * pct) / 100)),
+        pct: pct,
         color: pct >= 80 ? '#FF453A' : pct >= 50 ? '#FF9F0A' : '#30D158'
       })
     })
@@ -143,7 +142,7 @@ export default {
       this.chKey = key
       this.chans = out
       // the scroll needs the real content height (children never shrink)
-      this.colH = 410 + 212 + 44 + out.length * 332 + 370
+      this.colH = 410 + 212 + 44 + out.length * 342 + 370
     }
   },
 
@@ -395,7 +394,7 @@ export default {
 }
 .chrow {
   flex-shrink: 0;
-  height: 320px;
+  height: 330px;
 }
 .row-title {
   flex-shrink: 0;
@@ -430,35 +429,34 @@ export default {
   color: #ffffff;
   lines: 1;
 }
-.lvl {
+.ring-box {
   flex-shrink: 0;
-  flex-direction: row;
+  width: 156px;
+  height: 156px;
+  margin-top: 6px;
+  justify-content: center;
   align-items: center;
-  margin-top: 8px;
 }
-.vbar {
-  flex-shrink: 0;
-  width: 50px;
-  height: 150px;
-  padding: 2px;
-  border-radius: 25px;
+.ring {
+  width: 156px;
+  height: 156px;
+  stroke-width: 14px;
   background-color: #2c2c2e;
-  flex-direction: column;
-  justify-content: flex-end;
+  start-angle: 0deg;
+  total-angle: 360deg;
+  center-x: 78px;
+  center-y: 78px;
+  radius: 70px;
 }
-.vfill {
-  flex-shrink: 0;
-  width: 46px;
-  border-radius: 23px;
-  transition-property: height;
-  transition-duration: 250ms;
+.ring-core {
+  width: 120px;
+  height: 120px;
+  justify-content: center;
+  align-items: center;
 }
 .ch-val {
   flex-shrink: 0;
-  width: 110px;
-  margin-left: 14px;
-  text-align: center;
-  font-size: 50px;
+  font-size: 44px;
   font-weight: bold;
 }
 .pm {

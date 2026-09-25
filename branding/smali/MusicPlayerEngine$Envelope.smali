@@ -23,27 +23,32 @@
 
 .field final rhythm:[F
 
+.field final tone:[F
+
 
 # direct methods
-.method constructor <init>([F[FID)V
-    .registers 6
+.method constructor <init>([F[F[FID)V
+    .locals 1
 
     .prologue
-    .line 48
+    .line 55
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 49
+    .line 56
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->loudRms:[F
 
-    .line 50
+    .line 57
     iput-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->rhythm:[F
 
-    .line 51
-    iput p3, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->length:I
+    .line 58
+    iput-object p3, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->tone:[F
 
-    .line 52
-    iput-wide p4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->peakRms:D
+    .line 59
+    iput p4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->length:I
 
-    .line 53
+    .line 60
+    iput-wide p5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->peakRms:D
+
+    .line 61
     return-void
 .end method

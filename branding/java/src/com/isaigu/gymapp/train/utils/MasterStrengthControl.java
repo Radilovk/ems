@@ -138,10 +138,15 @@ public final class MasterStrengthControl {
      *                enqueueing strength commands behind stop)
      */
     public static void setMasterStrength(int percent, boolean updateUi, boolean sendBle) {
+        setMasterStrength(percent, updateUi, sendBle, -1);
+    }
+
+    /**
+     * Strength and (music Hz-by-sound) impulse Hz in one update: both are written to the
+     * program and go to the suit in the same onParamsChange. {@code hz} ≤ 0 leaves Hz as is.
+     */
+    public static void setMasterStrength(int percent, boolean updateUi, boolean sendBle, int hz) {
         percent = clamp(percent);
-        if (percent == lastApplied) {
-            return;
-        }
         TrainItem item = targetItem;
         if (item == null) {
             return;
@@ -153,6 +158,13 @@ public final class MasterStrengthControl {
         ProgramDataBean bean = program.matchProgram();
         if (bean == null) {
             return;
+        }
+        boolean hzChange = hz > 0 && hz != bean.hz;
+        if (percent == lastApplied && !hzChange) {
+            return;
+        }
+        if (hzChange) {
+            bean.hz = hz;
         }
 
         bean.strenth = percent;
@@ -187,6 +199,34 @@ public final class MasterStrengthControl {
             return false;
         }
         return item.data == null || item.data.start;
+    }
+
+    /** Impulse Hz of the target slot's program, −1 if none. */
+    public static int getTargetHz() {
+        ProgramDataBean bean = targetBean();
+        return bean != null ? bean.hz : -1;
+    }
+
+    /** Put an impulse Hz into the target slot's program; sent when that slot is running. */
+    public static void setTargetHz(int hz, boolean sendBle) {
+        TrainItem item = targetItem;
+        ProgramDataBean bean = targetBean();
+        if (bean == null || hz <= 0 || bean.hz == hz) {
+            return;
+        }
+        bean.hz = hz;
+        if (sendBle && item != null && item.data != null && item.data.connected && item.data.start) {
+            item.onParamsChange();
+        }
+    }
+
+    private static ProgramDataBean targetBean() {
+        TrainItem item = targetItem;
+        if (item == null) {
+            return null;
+        }
+        TrainProgram program = item.getTrainProgram();
+        return program != null ? program.matchProgram() : null;
     }
 
     public static TrainItem getTarget() {

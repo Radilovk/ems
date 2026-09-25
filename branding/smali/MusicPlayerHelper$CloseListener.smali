@@ -19,10 +19,10 @@
 
 # direct methods
 .method constructor <init>()V
-    .registers 1
+    .locals 0
 
     .prologue
-    .line 1924
+    .line 1933
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,13 +31,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 1927
-    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->closePlayer()V
+    .line 1936
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$800()V
 
-    .line 1928
+    .line 1937
     return-void
 .end method

@@ -25,6 +25,10 @@
 
 .field private static final ONSET_SLOW_ALPHA:D = 0.2
 
+.field private static final TONE_HALF_WINDOW:I = 0x3
+
+.field private static final TREBLE_CUTOFF_HZ:D = 2500.0
+
 
 # instance fields
 .field private bass:[F
@@ -43,50 +47,63 @@
 
 .field private lp2:D
 
+.field private lpT:D
+
 .field private sampleRate:I
 
 .field private sumBass:D
 
 .field private sumSq:D
 
+.field private sumTreble:D
+
+.field private treble:[F
+
+.field private trebleAlpha:D
+
 
 # direct methods
 .method constructor <init>(I)V
-    .registers 4
+    .locals 2
 
     .prologue
     const/16 v1, 0x1000
 
-    .line 182
+    .line 198
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 174
+    .line 189
+    new-array v0, v1, [F
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->treble:[F
+
+    .line 190
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
-    .line 178
+    .line 194
     new-array v0, v1, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
-    .line 179
+    .line 195
     new-array v0, v1, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
 
-    .line 183
+    .line 199
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->setSampleRate(I)V
 
-    .line 184
+    .line 200
     return-void
 .end method
 
 .method private static energyDb(D)D
-    .registers 6
+    .locals 4
 
     .prologue
-    .line 288
+    .line 360
     const-wide/high16 v0, 0x4024000000000000L    # 10.0
 
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
@@ -103,22 +120,22 @@
 .end method
 
 .method private ensureCapacity(I)V
-    .registers 4
+    .locals 2
 
     .prologue
-    .line 230
+    .line 254
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
     array-length v0, v0
 
-    if-gt p1, v0, :cond_6
+    if-gt p1, v0, :cond_0
 
-    .line 236
-    :goto_5
+    .line 261
+    :goto_0
     return-void
 
-    .line 233
-    :cond_6
+    .line 257
+    :cond_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
     array-length v0, v0
@@ -129,7 +146,7 @@
 
     move-result v0
 
-    .line 234
+    .line 258
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
     invoke-static {v1, v0}, Ljava/util/Arrays;->copyOf([FI)[F
@@ -138,47 +155,56 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
-    .line 235
+    .line 259
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
+
+    invoke-static {v1, v0}, Ljava/util/Arrays;->copyOf([FI)[F
+
+    move-result-object v1
+
+    iput-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
+
+    .line 260
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->treble:[F
 
     invoke-static {v1, v0}, Ljava/util/Arrays;->copyOf([FI)[F
 
     move-result-object v0
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
+    iput-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->treble:[F
 
-    goto :goto_5
+    goto :goto_0
 .end method
 
 .method private flush()V
-    .registers 9
+    .locals 10
 
     .prologue
-    const-wide/16 v6, 0x0
+    const-wide/16 v8, 0x0
 
-    .line 206
+    .line 226
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
-    if-ltz v0, :cond_a
+    if-ltz v0, :cond_0
 
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->frames:I
 
-    if-nez v0, :cond_b
+    if-nez v0, :cond_1
 
-    .line 227
-    :cond_a
-    :goto_a
+    .line 251
+    :cond_0
+    :goto_0
     return-void
 
-    .line 209
-    :cond_b
+    .line 229
+    :cond_1
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
     add-int/lit8 v0, v0, 0x1
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->ensureCapacity(I)V
 
-    .line 210
+    .line 230
     iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumSq:D
 
     iget v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->frames:I
@@ -193,7 +219,7 @@
 
     double-to-float v2, v0
 
-    .line 211
+    .line 231
     iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumBass:D
 
     iget v3, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->frames:I
@@ -204,74 +230,109 @@
 
     double-to-float v3, v0
 
-    .line 213
+    .line 232
+    iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumTreble:D
+
+    iget v4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->frames:I
+
+    int-to-double v4, v4
+
+    div-double/2addr v0, v4
+
+    double-to-float v4, v0
+
+    .line 234
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    :goto_26
+    :goto_1
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
-    if-ge v0, v1, :cond_51
+    if-ge v0, v1, :cond_5
 
-    .line 214
-    iget-object v4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
+    .line 235
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    if-lez v1, :cond_4d
+    if-lez v1, :cond_2
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
-    iget v5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+    iget v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    add-int/lit8 v5, v5, -0x1
+    add-int/lit8 v6, v6, -0x1
 
-    aget v1, v1, v5
+    aget v1, v1, v6
 
-    :goto_38
-    aput v1, v4, v0
+    :goto_2
+    aput v1, v5, v0
 
-    .line 215
-    iget-object v4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
+    .line 236
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    if-lez v1, :cond_4f
+    if-lez v1, :cond_3
 
     iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
 
-    iget v5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+    iget v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    add-int/lit8 v5, v5, -0x1
+    add-int/lit8 v6, v6, -0x1
 
-    aget v1, v1, v5
+    aget v1, v1, v6
 
-    :goto_48
-    aput v1, v4, v0
+    :goto_3
+    aput v1, v5, v0
 
-    .line 213
+    .line 237
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->treble:[F
+
+    iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    if-lez v1, :cond_4
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->treble:[F
+
+    iget v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    add-int/lit8 v6, v6, -0x1
+
+    aget v1, v1, v6
+
+    :goto_4
+    aput v1, v5, v0
+
+    .line 234
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_26
+    goto :goto_1
 
-    :cond_4d
+    :cond_2
     move v1, v2
 
-    .line 214
-    goto :goto_38
+    .line 235
+    goto :goto_2
 
-    :cond_4f
+    :cond_3
     move v1, v3
 
-    .line 215
-    goto :goto_48
+    .line 236
+    goto :goto_3
 
-    .line 217
-    :cond_51
+    :cond_4
+    move v1, v4
+
+    .line 237
+    goto :goto_4
+
+    .line 239
+    :cond_5
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    if-ge v0, v1, :cond_61
+    if-ge v0, v1, :cond_6
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
@@ -281,112 +342,122 @@
 
     cmpl-float v0, v2, v0
 
-    if-lez v0, :cond_6d
+    if-lez v0, :cond_7
 
-    .line 218
-    :cond_61
+    .line 240
+    :cond_6
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
     aput v2, v0, v1
 
-    .line 219
+    .line 241
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
     aput v3, v0, v1
 
-    .line 221
-    :cond_6d
+    .line 242
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->treble:[F
+
+    iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
+
+    aput v4, v0, v1
+
+    .line 244
+    :cond_7
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
     add-int/lit8 v0, v0, 0x1
 
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    if-le v0, v1, :cond_7b
+    if-le v0, v1, :cond_8
 
-    .line 222
+    .line 245
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    .line 224
-    :cond_7b
-    iput-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumSq:D
+    .line 247
+    :cond_8
+    iput-wide v8, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumSq:D
 
-    .line 225
-    iput-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumBass:D
+    .line 248
+    iput-wide v8, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumBass:D
 
-    .line 226
+    .line 249
+    iput-wide v8, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumTreble:D
+
+    .line 250
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->frames:I
 
-    goto :goto_a
+    goto/16 :goto_0
 .end method
 
 .method private static percentileOfPositive([FID)D
-    .registers 14
+    .locals 10
 
     .prologue
     const/4 v3, 0x0
 
-    .line 272
+    .line 344
     new-array v4, p1, [F
 
     move v2, v3
 
     move v1, v3
 
-    .line 274
-    :goto_5
-    if-ge v2, p1, :cond_18
+    .line 346
+    :goto_0
+    if-ge v2, p1, :cond_0
 
-    .line 275
+    .line 347
     aget v0, p0, v2
 
     const/4 v5, 0x0
 
     cmpl-float v0, v0, v5
 
-    if-lez v0, :cond_3b
+    if-lez v0, :cond_2
 
-    .line 276
+    .line 348
     add-int/lit8 v0, v1, 0x1
 
     aget v5, p0, v2
 
     aput v5, v4, v1
 
-    .line 274
-    :goto_14
+    .line 346
+    :goto_1
     add-int/lit8 v2, v2, 0x1
 
     move v1, v0
 
-    goto :goto_5
+    goto :goto_0
 
-    .line 279
-    :cond_18
-    if-nez v1, :cond_1d
+    .line 351
+    :cond_0
+    if-nez v1, :cond_1
 
-    .line 280
+    .line 352
     const-wide/16 v0, 0x0
 
-    .line 284
-    :goto_1c
+    .line 356
+    :goto_2
     return-wide v0
 
-    .line 282
-    :cond_1d
+    .line 354
+    :cond_1
     invoke-static {v4, v3, v1}, Ljava/util/Arrays;->sort([FII)V
 
-    .line 283
+    .line 355
     const-wide/high16 v6, 0x4059000000000000L    # 100.0
 
     div-double v6, p2, v6
@@ -403,7 +474,7 @@
 
     long-to-int v0, v6
 
-    .line 284
+    .line 356
     add-int/lit8 v1, v1, -0x1
 
     invoke-static {v1, v0}, Ljava/lang/Math;->min(II)I
@@ -418,21 +489,315 @@
 
     float-to-double v0, v0
 
-    goto :goto_1c
+    goto :goto_2
 
-    :cond_3b
+    :cond_2
     move v0, v1
 
-    goto :goto_14
+    goto :goto_1
+.end method
+
+.method private toneCurve(D)[F
+    .locals 15
+
+    .prologue
+    .line 302
+    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    new-array v3, v0, [F
+
+    .line 303
+    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    new-array v5, v0, [Z
+
+    .line 304
+    const-wide v0, 0x3fa999999999999aL    # 0.05
+
+    mul-double v6, p1, v0
+
+    .line 305
+    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    new-array v8, v0, [F
+
+    .line 306
+    const/4 v1, 0x0
+
+    .line 307
+    const/4 v0, 0x0
+
+    :goto_0
+    iget v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    if-ge v0, v2, :cond_2
+
+    .line 308
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->treble:[F
+
+    aget v2, v2, v0
+
+    float-to-double v10, v2
+
+    invoke-static {v10, v11}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->energyDb(D)D
+
+    move-result-wide v10
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
+
+    aget v2, v2, v0
+
+    float-to-double v12, v2
+
+    invoke-static {v12, v13}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->energyDb(D)D
+
+    move-result-wide v12
+
+    sub-double/2addr v10, v12
+
+    double-to-float v2, v10
+
+    aput v2, v3, v0
+
+    .line 309
+    iget-object v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
+
+    aget v2, v2, v0
+
+    float-to-double v10, v2
+
+    cmpl-double v2, v10, v6
+
+    if-lez v2, :cond_1
+
+    const/4 v2, 0x1
+
+    :goto_1
+    aput-boolean v2, v5, v0
+
+    .line 310
+    aget-boolean v2, v5, v0
+
+    if-eqz v2, :cond_0
+
+    .line 311
+    add-int/lit8 v2, v1, 0x1
+
+    aget v4, v3, v0
+
+    aput v4, v8, v1
+
+    move v1, v2
+
+    .line 307
+    :cond_0
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_0
+
+    .line 309
+    :cond_1
+    const/4 v2, 0x0
+
+    goto :goto_1
+
+    .line 314
+    :cond_2
+    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    new-array v4, v0, [F
+
+    .line 315
+    const/16 v0, 0xa
+
+    if-ge v1, v0, :cond_3
+
+    .line 316
+    const/high16 v0, 0x3f000000    # 0.5f
+
+    invoke-static {v4, v0}, Ljava/util/Arrays;->fill([FF)V
+
+    move-object v0, v4
+
+    .line 340
+    :goto_2
+    return-object v0
+
+    .line 319
+    :cond_3
+    const/4 v0, 0x0
+
+    invoke-static {v8, v0, v1}, Ljava/util/Arrays;->sort([FII)V
+
+    .line 320
+    const-wide v6, 0x3fb999999999999aL    # 0.1
+
+    add-int/lit8 v0, v1, -0x1
+
+    int-to-double v10, v0
+
+    mul-double/2addr v6, v10
+
+    invoke-static {v6, v7}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v6
+
+    long-to-int v0, v6
+
+    aget v2, v8, v0
+
+    .line 321
+    const-wide v6, 0x3feccccccccccccdL    # 0.9
+
+    add-int/lit8 v0, v1, -0x1
+
+    int-to-double v0, v0
+
+    mul-double/2addr v0, v6
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v0
+
+    long-to-int v0, v0
+
+    aget v0, v8, v0
+
+    .line 322
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    sub-float/2addr v0, v2
+
+    invoke-static {v1, v0}, Ljava/lang/Math;->max(FF)F
+
+    move-result v6
+
+    .line 323
+    const/high16 v1, 0x3f000000    # 0.5f
+
+    .line 324
+    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    new-array v7, v0, [F
+
+    .line 325
+    const/4 v0, 0x0
+
+    :goto_3
+    iget v8, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    if-ge v0, v8, :cond_5
+
+    .line 326
+    aget-boolean v8, v5, v0
+
+    if-eqz v8, :cond_4
+
+    .line 327
+    const/4 v1, 0x0
+
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    aget v9, v3, v0
+
+    sub-float/2addr v9, v2
+
+    div-float/2addr v9, v6
+
+    invoke-static {v8, v9}, Ljava/lang/Math;->min(FF)F
+
+    move-result v8
+
+    invoke-static {v1, v8}, Ljava/lang/Math;->max(FF)F
+
+    move-result v1
+
+    .line 329
+    :cond_4
+    aput v1, v7, v0
+
+    .line 325
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_3
+
+    .line 331
+    :cond_5
+    const/4 v0, 0x0
+
+    :goto_4
+    iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    if-ge v0, v1, :cond_7
+
+    .line 332
+    const/4 v3, 0x0
+
+    .line 333
+    const/4 v2, 0x0
+
+    .line 334
+    const/4 v1, 0x0
+
+    add-int/lit8 v5, v0, -0x3
+
+    invoke-static {v1, v5}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    :goto_5
+    iget v5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    add-int/lit8 v5, v5, -0x1
+
+    add-int/lit8 v6, v0, 0x3
+
+    invoke-static {v5, v6}, Ljava/lang/Math;->min(II)I
+
+    move-result v5
+
+    if-gt v1, v5, :cond_6
+
+    .line 335
+    aget v5, v7, v1
+
+    add-float/2addr v3, v5
+
+    .line 336
+    add-int/lit8 v2, v2, 0x1
+
+    .line 334
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_5
+
+    .line 338
+    :cond_6
+    int-to-float v1, v2
+
+    div-float v1, v3, v1
+
+    aput v1, v4, v0
+
+    .line 331
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_4
+
+    :cond_7
+    move-object v0, v4
+
+    .line 340
+    goto :goto_2
 .end method
 
 
 # virtual methods
 .method addFrame(JJI)V
-    .registers 15
+    .locals 9
 
     .prologue
-    .line 192
+    .line 209
     const-wide/32 v0, 0xf4240
 
     mul-long/2addr v0, p3
@@ -445,29 +810,29 @@
 
     add-long/2addr v0, p1
 
-    .line 193
+    .line 210
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
-    if-gtz v2, :cond_4b
+    if-gtz v2, :cond_1
 
     const/4 v0, 0x0
 
-    .line 194
-    :goto_10
+    .line 211
+    :goto_0
     iget v1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
-    if-eq v0, v1, :cond_19
+    if-eq v0, v1, :cond_0
 
-    .line 195
+    .line 212
     invoke-direct {p0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->flush()V
 
-    .line 196
+    .line 213
     iput v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bucket:I
 
-    .line 198
-    :cond_19
+    .line 215
+    :cond_0
     iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lp1:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bassAlpha:D
@@ -484,7 +849,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lp1:D
 
-    .line 199
+    .line 216
     iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lp2:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bassAlpha:D
@@ -501,7 +866,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lp2:D
 
-    .line 200
+    .line 217
     iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumSq:D
 
     int-to-double v2, p5
@@ -514,7 +879,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumSq:D
 
-    .line 201
+    .line 218
     iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumBass:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lp2:D
@@ -527,83 +892,126 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumBass:D
 
-    .line 202
+    .line 219
+    iget-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lpT:D
+
+    iget-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->trebleAlpha:D
+
+    int-to-double v4, p5
+
+    iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lpT:D
+
+    sub-double/2addr v4, v6
+
+    mul-double/2addr v2, v4
+
+    add-double/2addr v0, v2
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lpT:D
+
+    .line 220
+    int-to-double v0, p5
+
+    iget-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->lpT:D
+
+    sub-double/2addr v0, v2
+
+    .line 221
+    iget-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumTreble:D
+
+    mul-double/2addr v0, v0
+
+    add-double/2addr v0, v2
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sumTreble:D
+
+    .line 222
     iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->frames:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->frames:I
 
-    .line 203
+    .line 223
     return-void
 
-    .line 193
-    :cond_4b
+    .line 210
+    :cond_1
     const-wide/16 v2, 0x4e20
 
     div-long/2addr v0, v2
 
     long-to-int v0, v0
 
-    goto :goto_10
+    goto :goto_0
 .end method
 
 .method finish()Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
-    .registers 23
+    .locals 22
 
     .prologue
-    .line 239
+    .line 264
     invoke-direct/range {p0 .. p0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->flush()V
 
-    .line 240
+    .line 265
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    if-nez v2, :cond_20
+    if-nez v2, :cond_0
 
-    .line 241
-    new-instance v2, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
+    .line 266
+    new-instance v3, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
-    const/4 v3, 0x1
+    const/4 v2, 0x1
 
-    new-array v3, v3, [F
+    new-array v4, v2, [F
 
-    const/4 v4, 0x0
-
-    const/4 v5, 0x0
-
-    aput v5, v3, v4
-
-    const/4 v4, 0x1
-
-    new-array v4, v4, [F
+    const/4 v2, 0x0
 
     const/4 v5, 0x0
+
+    aput v5, v4, v2
+
+    const/4 v2, 0x1
+
+    new-array v5, v2, [F
+
+    const/4 v2, 0x0
 
     const/4 v6, 0x0
 
-    aput v6, v4, v5
+    aput v6, v5, v2
 
-    const/4 v5, 0x1
+    const/4 v2, 0x1
 
-    const-wide/high16 v6, 0x4054000000000000L    # 80.0
+    new-array v6, v2, [F
 
-    invoke-direct/range {v2 .. v7}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;-><init>([F[FID)V
+    const/4 v2, 0x0
+
+    const/high16 v7, 0x3f000000    # 0.5f
+
+    aput v7, v6, v2
+
+    const/4 v7, 0x1
+
+    const-wide/high16 v8, 0x4054000000000000L    # 80.0
+
+    invoke-direct/range {v3 .. v9}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;-><init>([F[F[FID)V
+
+    .line 293
+    :goto_0
+    return-object v3
 
     .line 268
-    :goto_1f
-    return-object v2
-
-    .line 243
-    :cond_20
+    :cond_0
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
     new-array v8, v2, [F
 
-    .line 244
+    .line 269
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
@@ -618,7 +1026,7 @@
 
     move-result-wide v6
 
-    .line 245
+    .line 270
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
@@ -645,17 +1053,17 @@
 
     move-result-wide v4
 
-    .line 246
+    .line 271
     const/4 v2, 0x0
 
-    :goto_48
+    :goto_1
     move-object/from16 v0, p0
 
     iget v3, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    if-ge v2, v3, :cond_a2
+    if-ge v2, v3, :cond_1
 
-    .line 247
+    .line 272
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bass:[F
@@ -668,7 +1076,7 @@
 
     move-result-wide v10
 
-    .line 248
+    .line 273
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
@@ -691,7 +1099,7 @@
 
     move-result-wide v12
 
-    .line 249
+    .line 274
     const-wide v14, 0x3fe6666666666666L    # 0.7
 
     const-wide/16 v16, 0x0
@@ -710,7 +1118,7 @@
 
     sub-double v20, v12, v4
 
-    .line 250
+    .line 275
     invoke-static/range {v18 .. v21}, Ljava/lang/Math;->max(DD)D
 
     move-result-wide v18
@@ -719,12 +1127,12 @@
 
     add-double v14, v14, v16
 
-    .line 251
+    .line 276
     double-to-float v3, v14
 
     aput v3, v8, v2
 
-    .line 252
+    .line 277
     const-wide v14, 0x3fc999999999999aL    # 0.2
 
     sub-double/2addr v10, v6
@@ -733,7 +1141,7 @@
 
     add-double/2addr v6, v10
 
-    .line 253
+    .line 278
     const-wide v10, 0x3fc999999999999aL    # 0.2
 
     sub-double/2addr v12, v4
@@ -742,13 +1150,13 @@
 
     add-double/2addr v4, v10
 
-    .line 246
+    .line 271
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_48
+    goto :goto_1
 
-    .line 256
-    :cond_a2
+    .line 281
+    :cond_1
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     move-object/from16 v0, p0
@@ -765,32 +1173,32 @@
 
     move-result-wide v6
 
-    .line 257
+    .line 282
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    new-array v4, v2, [F
+    new-array v5, v2, [F
 
-    .line 258
+    .line 283
     const/4 v3, 0x0
 
-    .line 259
+    .line 284
     const/4 v2, 0x0
 
-    :goto_bd
+    :goto_2
     move-object/from16 v0, p0
 
-    iget v5, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+    iget v4, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
 
-    if-ge v2, v5, :cond_e3
+    if-ge v2, v4, :cond_3
 
-    .line 260
+    .line 285
     const-wide/high16 v10, 0x3ff0000000000000L    # 1.0
 
-    aget v5, v8, v2
+    aget v4, v8, v2
 
-    float-to-double v12, v5
+    float-to-double v12, v4
 
     div-double/2addr v12, v6
 
@@ -798,38 +1206,38 @@
 
     move-result-wide v10
 
-    double-to-float v5, v10
+    double-to-float v4, v10
 
-    .line 261
+    .line 286
     const v9, 0x3e19999a    # 0.15f
 
-    cmpg-float v9, v5, v9
+    cmpg-float v9, v4, v9
 
-    if-gez v9, :cond_d6
+    if-gez v9, :cond_2
 
-    .line 262
-    const/4 v5, 0x0
+    .line 287
+    const/4 v4, 0x0
 
-    .line 264
-    :cond_d6
+    .line 289
+    :cond_2
     const v9, 0x3f3851ec    # 0.72f
 
     mul-float/2addr v3, v9
 
-    invoke-static {v5, v3}, Ljava/lang/Math;->max(FF)F
+    invoke-static {v4, v3}, Ljava/lang/Math;->max(FF)F
 
     move-result v3
 
-    .line 265
-    aput v3, v4, v2
+    .line 290
+    aput v3, v5, v2
 
-    .line 259
+    .line 284
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_bd
+    goto :goto_2
 
-    .line 267
-    :cond_e3
+    .line 292
+    :cond_3
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
@@ -842,61 +1250,84 @@
 
     invoke-static {v2, v3, v6, v7}, Lcom/isaigu/gymapp/train/utils/SoundEnvelopeMapper;->percentilePeak([FID)D
 
-    move-result-wide v6
+    move-result-wide v8
 
-    .line 268
-    new-instance v2, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
-
-    move-object/from16 v0, p0
-
-    iget-object v3, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
+    .line 293
+    new-instance v3, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
     move-object/from16 v0, p0
 
-    iget v5, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+    iget-object v4, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->loud:[F
 
-    invoke-direct/range {v2 .. v7}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;-><init>([F[FID)V
+    move-object/from16 v0, p0
 
-    goto/16 :goto_1f
+    invoke-direct {v0, v8, v9}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->toneCurve(D)[F
+
+    move-result-object v6
+
+    move-object/from16 v0, p0
+
+    iget v7, v0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->count:I
+
+    invoke-direct/range {v3 .. v9}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;-><init>([F[F[FID)V
+
+    goto/16 :goto_0
 .end method
 
 .method setSampleRate(I)V
-    .registers 8
+    .locals 6
 
     .prologue
-    .line 187
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    .line 203
     const/16 v0, 0x1f40
 
-    if-lt p1, v0, :cond_19
+    if-lt p1, v0, :cond_0
 
-    :goto_4
+    :goto_0
     iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sampleRate:I
 
-    .line 188
-    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+    .line 204
+    const-wide v0, -0x3f728c2d79401b28L    # -942.4777960769379
 
-    const-wide v2, -0x3f728c2d79401b28L    # -942.4777960769379
+    iget v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sampleRate:I
 
-    iget v4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sampleRate:I
+    int-to-double v2, v2
 
-    int-to-double v4, v4
+    div-double/2addr v0, v2
 
-    div-double/2addr v2, v4
+    invoke-static {v0, v1}, Ljava/lang/Math;->exp(D)D
 
-    invoke-static {v2, v3}, Ljava/lang/Math;->exp(D)D
+    move-result-wide v0
 
-    move-result-wide v2
-
-    sub-double/2addr v0, v2
+    sub-double v0, v4, v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->bassAlpha:D
 
-    .line 189
+    .line 205
+    const-wide v0, -0x3f315204b3a2c6f4L    # -15707.963267948966
+
+    iget v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->sampleRate:I
+
+    int-to-double v2, v2
+
+    div-double/2addr v0, v2
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->exp(D)D
+
+    move-result-wide v0
+
+    sub-double v0, v4, v0
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$EnvelopeBuilder;->trebleAlpha:D
+
+    .line 206
     return-void
 
-    .line 187
-    :cond_19
+    .line 203
+    :cond_0
     const p1, 0xac44
 
-    goto :goto_4
+    goto :goto_0
 .end method

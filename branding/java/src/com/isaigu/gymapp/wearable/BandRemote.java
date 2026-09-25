@@ -148,7 +148,9 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 moduleCommand(a);
             }
         }
-        handler.postDelayed(new Push(true), 120);
+        // answer at once (the command ran above); once more for actions the app applies a moment later
+        handler.post(new Push(true));
+        handler.postDelayed(new Push(true), 250);
     }
 
     /** Commands from the module screens of the band app (one module each, no guessing). */
@@ -214,37 +216,51 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         return null;
     }
 
+    /**
+     * Each channel's real strength, exactly what the tablet's channel slider shows and the suit
+     * gets: channel percent × main strength (buwei is only the percent of the main strength).
+     */
     static int[] channelValues(com.isaigu.gymapp.train.model.TrainItem item) {
         try {
             com.isaigu.gymapp.bean.ProgramDataBean b = item.getTrainProgram().matchProgram();
-            return b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+            if (b == null || b.strenthBean == null || b.strenthBean.buwei == null) {
+                return null;
+            }
+            int[] parts = b.strenthBean.buwei;
+            int[] out = new int[parts.length];
+            for (int i = 0; i < parts.length; i++) {
+                out[i] = (int) (parts[i] / 100.0f * b.strenth);
+            }
+            return out;
         } catch (Throwable t) {
             return null;
         }
     }
 
     /**
-     * One channel up / down from the band, through the app's own path (sent to the suit, arms
-     * scaling, the tablet's columns redrawn): only that channel is "selected" for the step, then
-     * the trainer's selection comes back as it was.
+     * One channel up / down from the band — the same path as the tablet's + / − with that one
+     * channel selected (PartStrength: real strength steps, the main strength rises when the
+     * channel goes above it, the others keep their output). The trainer's selection comes back.
      */
     static void channelStep(int c, int d) {
         com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
-        int[] v = item != null ? channelValues(item) : null;
         boolean[] ctl = item != null ? item.partsControl : null;
-        if (v == null || ctl == null || c < 0 || c >= v.length || c >= ctl.length) {
+        if (ctl == null || c < 0 || c >= ctl.length) {
             return;
         }
         boolean[] saved = ctl.clone();
+        boolean ok;
         try {
             for (int i = 0; i < ctl.length; i++) {
                 ctl[i] = i == c;
             }
-            item.addAllPartValue(d, false);
+            ok = com.isaigu.gymapp.train.utils.PartStrength.addSelected(item, d);
         } finally {
             System.arraycopy(saved, 0, ctl, 0, saved.length);
         }
-        WearableBleDiagLog.log("applink", "channel " + c + (d > 0 ? " +" : " ") + d + " → " + v[c]);
+        int[] v = channelValues(item);
+        WearableBleDiagLog.log("applink", "channel " + c + (d > 0 ? " +" : " ") + d
+                + (ok && v != null && c < v.length ? " → " + v[c] : " (not applied)"));
     }
 
     /** Tiny reader for our own flat JSON ({"k":"v"}); no nesting needed on this side. */

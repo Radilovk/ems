@@ -299,7 +299,10 @@ public final class NotifyWearableBridge {
         XiaomiBandLink client = XiaomiBand.select(context, mac, WearableConfig.getBandTransport(context));
         client.setListener(bleListener);
         client.connect(context, mac, WearableConfig.getAuthKey(context));
-        client.startRealtime();
+        hrOn = null;
+        applyHr(context);
+        main.removeCallbacks(hrPolicy);
+        main.postDelayed(hrPolicy, HR_POLICY_MS);
         lastEventAction = client.getTransportName() + ":connect";
         lastEventTimeMs = System.currentTimeMillis();
         WearableSyncHelper.updateDiagnostics();
@@ -321,7 +324,59 @@ public final class NotifyWearableBridge {
         WearableSyncHelper.updateDiagnostics();
     }
 
+    // ================================================================ heart rate on demand
+
+    private static final long HR_POLICY_MS = 2000L;
+    /** What the band was last told (null = not yet on this link). */
+    private static Boolean hrOn;
+    private static final HrPolicy hrPolicy = new HrPolicy();
+
+    /**
+     * Heart rate is measured only while something uses it: the pulse module (auto control on the
+     * training screen) or an AI session. Otherwise the band stops measuring; the link stays up.
+     */
+    static void applyHr(Context context) {
+        boolean want = context != null
+                && (WearableConfig.isAutoReduceEnabled(context) || owners.contains(OWNER_AI));
+        if (hrOn != null && hrOn.booleanValue() == want) {
+            return;
+        }
+        hrOn = want;
+        XiaomiBandLink link = XiaomiBand.link();
+        if (want) {
+            link.startRealtime();
+        } else {
+            link.stopRealtime();
+            lastHr = -1;
+            WearableSyncHelper.updateHeartRate(-1, bandConnected);
+        }
+        WearableBleDiagLog.log("health", "heart rate " + (want ? "on" : "off"));
+    }
+
+    static final class HrPolicy implements Runnable {
+        @Override
+        public void run() {
+            if (!listeningActive) {
+                return;
+            }
+            try {
+                applyHr(WearableSyncHelper.getContext());
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.hrPolicy", t);
+            }
+            main.postDelayed(this, HR_POLICY_MS);
+        }
+    }
+
+    /** The app is closed (task removed): stop the heart rate and close the band link for everyone. */
+    public static void shutdown(Context context) {
+        owners.clear();
+        disconnect(context);
+    }
+
     private static void disconnect(Context context) {
+        main.removeCallbacks(hrPolicy);
+        hrOn = null;
         BandRemote.stop();
         XiaomiBand.link().disconnect();
         bleState = "stopped";

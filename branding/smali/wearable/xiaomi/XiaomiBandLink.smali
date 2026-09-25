@@ -66,3 +66,6 @@
 
 .method public abstract startRealtime()V
 .end method
+
+.method public abstract stopRealtime()V
+.end method

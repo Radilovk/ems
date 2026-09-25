@@ -13,8 +13,8 @@
 
     <!-- 2 · auto control on / off -->
     <div class="screen {{anim}}" if="{{cur === 'auto'}}">
-      <text class="caps">АВТОКОНТРОЛ</text>
-      <div class="btn toggle {{ai ? 'off' : ''}} {{pressed ? 'down' : ''}}" style="background-color: {{en ? '#0A84FF' : '#2C2C2E'}}"
+      <text class="caps">КОНТРОЛ</text>
+      <div class="btn toggle {{ai ? 'off' : ''}} {{pressed ? 'down' : ''}}" style="background-color: {{en ? '#FF453A' : '#2C2C2E'}}"
            ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
         <text class="toggle-text">{{en ? 'ВКЛ' : 'ИЗКЛ'}}</text>
       </div>
@@ -24,7 +24,7 @@
 
     <!-- 3 · last 3 minutes -->
     <div class="screen {{anim}}" if="{{cur === 'chart'}}">
-      <text class="caps">ПОСЛЕДНИ 3 МИН</text>
+      <text class="caps">3 МИНУТИ</text>
       <div class="chart">
         <div for="{{bars}}" class="bar" style="height: {{$item.h}}px; background-color: {{$item.c}}"></div>
       </div>
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, BLUE, zoneOf, mods, bind, setPages, swipe } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, zoneOf, mods, bind, setPages, swipe } from '../../common/ui.js'
 
 export default {
   private: {
@@ -113,7 +113,7 @@ export default {
     this.ai = !!hg.ai
     if (hg.ai) {
       this.stateText = 'AI сесията управлява'
-      this.stateColor = BLUE
+      this.stateColor = '#FFD60A'
     } else if (!hg.en) {
       this.stateText = 'пулсът не пипа силата'
       this.stateColor = '#8E8E93'
@@ -176,7 +176,7 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
+  padding-top: 46px;
 }
 .scr {
   width: 212px;
@@ -287,12 +287,12 @@ export default {
   background-size: cover;
 }
 .pulse-caps {
-  color: #5ac8fa;
+  color: #ff453a;
 }
 .heart {
-  width: 48px;
-  height: 48px;
-  margin-top: 30px;
+  width: 44px;
+  height: 44px;
+  margin-top: 20px;
 }
 .beat {
   animation-name: beat;
@@ -300,7 +300,7 @@ export default {
   animation-direction: alternate;
 }
 .hr {
-  font-size: 110px;
+  font-size: 92px;
   font-weight: bold;
 }
 .zones {

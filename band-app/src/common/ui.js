@@ -6,7 +6,8 @@ import router from '@system.router'
  * key numbers 56–90 px.
  */
 export const ZONE = ['#3A3A3C', '#5AC8FA', '#30D158', '#FFD60A', '#FF9F0A', '#FF453A']
-export const ACCENT = '#FF3B5C'          // XEMS red-pink
+export const ACCENT = '#FFD60A'          // AI: yellow
+export const RED = '#FF453A'             // pulse
 export const BRAND = '#FF3B5C'
 export const GREEN = '#30D158'
 export const AMBER = '#FF9F0A'

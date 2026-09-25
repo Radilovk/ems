@@ -13,7 +13,6 @@
           <div class="zones">
             <div for="{{zoneBar}}" class="zseg" style="background-color: {{$item.c}}; opacity: {{$item.on ? 1 : 0.22}}"></div>
           </div>
-          <text class="sync" style="opacity: {{busy ? 1 : 0}}">синхронизиране…</text>
         </div>
         <div for="{{cards}}" class="card" style="background-color: {{$item.bg}}; border-color: {{$item.border}}" onclick="open($item.id)">
           <div class="ic" style="background-color: {{$item.color}}">
@@ -43,10 +42,10 @@
 
 <script>
 import router from '@system.router'
-import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, mods, bind, age } from '../../common/ui.js'
+import { ZONE, ACCENT, RED, GREEN, AMBER, PURPLE, mmss, hms, zoneOf, mods, bind, age } from '../../common/ui.js'
 
 /** Card tint when a module runs (solid colours: Vela draws them best). */
-const TINT = { train: '#0E2A17', ai: '#2E0F16', timer: '#2E1F07', music: '#24122E', pulse: '#0C2230' }
+const TINT = { train: '#0E2A17', ai: '#2E2607', timer: '#2E1F07', music: '#24122E', pulse: '#2E0F0D' }
 const IDLE = '#16171B'
 const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', music: '/pages/music', pulse: '/pages/pulse' }
 
@@ -89,7 +88,7 @@ export default {
     const lim = s.lim || 170
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, lim) : 0
     this.hrBig = s.hr > 0 ? String(s.hr) : '--'
-    this.hrSub = s.hr > 0 ? 'уд/мин · зона ' + z + ' · лимит ' + lim : 'няма пулс'
+    this.hrSub = s.hr > 0 ? 'Z' + z + ' · лимит ' + lim : 'няма пулс'
     this.hrColor = s.hr > 0 ? ZONE[z] : '#8E8E93'
     const bar = []
     for (let k = 1; k <= 5; k++) {
@@ -104,7 +103,7 @@ export default {
       this.cardsKey = key
       this.cards = list
       // the scroll needs the real content height (children never shrink)
-      this.colH = 220 + list.length * 208 + 60
+      this.colH = 190 + list.length * 208 + 60
     }
   },
 
@@ -119,12 +118,12 @@ export default {
     const trRun = !!m.tr.run && !ai
     out.push({
       id: 'train', title: 'Старт', icon: '/common/icons/bolt.png', color: GREEN, active: trRun,
-      sub: trRun ? 'тече · ' + hms((s.el || 0) + age(app, true))
+      sub: trRun ? 'активен · ' + hms((s.el || 0) + age(app, true))
         : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчна тренировка'
     })
 
     if (has('ai')) {
-      let aiSub = 'умна тренировка'
+      let aiSub = 'умна сесия'
       if (ai) {
         aiSub = s.st === 'ready' ? 'почивката стига'
           : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
@@ -147,21 +146,21 @@ export default {
       const mu = m.mu
       out.push({
         id: 'music', title: 'Музика', icon: '/common/icons/music.png', color: PURPLE, active: !!mu.play,
-        sub: mu.on ? (mu.title || 'музика') : 'импулси в ритъма'
+        sub: mu.on ? (mu.title || 'музика') : 'импулси в такт'
       })
     }
 
     if (has('pulse')) {
       const hg = m.hg
       const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'сила по пулса'
-      out.push({ id: 'pulse', title: 'Пулс', icon: '/common/icons/heart.png', color: BLUE, active: !!hg.en && !hg.ai, sub: hgSub })
+      out.push({ id: 'pulse', title: 'Пулс', icon: '/common/icons/heart.png', color: RED, active: !!hg.en && !hg.ai, sub: hgSub })
     }
 
     out.forEach((c) => {
       c.bg = c.active ? TINT[c.id] : IDLE
       c.border = c.active ? c.color : '#26272C'
       c.subColor = c.active ? c.color : '#AEAEB2'
-      c.long = c.sub.length > 13
+      c.long = c.sub.length > 14
     })
     return out
   },
@@ -185,7 +184,7 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
+  padding-top: 46px;
 }
 .scr {
   width: 212px;
@@ -298,11 +297,11 @@ export default {
 }
 .hdr {
   flex-shrink: 0;
-  height: 220px;
+  height: 190px;
   width: 212px;
   flex-direction: column;
   align-items: center;
-  padding-top: 30px;
+  padding-top: 42px;
   padding-bottom: 6px;
 }
 .hr-row {
@@ -318,7 +317,7 @@ export default {
 }
 .hr-big {
   flex-shrink: 0;
-  font-size: 72px;
+  font-size: 62px;
   font-weight: bold;
 }
 .hr-sub {
@@ -446,6 +445,8 @@ export default {
 .off-sub {
   flex-shrink: 0;
   margin-top: 4px;
+  width: 196px;
+  text-align: center;
   font-size: 24px;
   color: #ff9f0a;
 }

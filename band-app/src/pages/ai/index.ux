@@ -1,5 +1,6 @@
 <template>
   <stack class="root" onswipe="onSwipe">
+    <image class="bg" src="/common/bg/ai.png"></image>
     <!-- 1 · live -->
     <div class="screen {{anim}}" if="{{cur === 'live'}}">
       <text class="caps" style="color: {{stateColor}}">{{stateText}}</text>
@@ -269,8 +270,7 @@ export default {
       if (p >= 100) {
         clearInterval(this.holdTimer)
         this.holdTimer = null
-        this.$app.$def.send({ t: 'cmd', a: 'stop' })
-        this.$app.$def.buzz('long')
+        this.$app.$def.command('stop', null, 'long')
         setTimeout(() => {
           this.holdPct = 0
         }, 400)
@@ -301,7 +301,14 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 34px;
-  background-color: #000000;
+}
+.bg {
+  width: 212px;
+  height: 520px;
+}
+.lst {
+  width: 212px;
+  height: 520px;
 }
 .in-up {
   animation-name: inUp;
@@ -334,14 +341,14 @@ export default {
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {

@@ -25,10 +25,26 @@ import java.io.InputStream;
  * demand and connects the band first when needed.
  */
 public final class BandAppInstall {
+    /** Bulgarian build; the English one is {@link #ASSET_EN}. The tablet's language picks. */
     public static final String ASSET = "xems-band.rpk";
+    public static final String ASSET_EN = "xems-band-en.rpk";
     public static final String PACKAGE = "com.xems.band";
-    /** versionCode in band-app/src/manifest.json. */
-    public static final int VERSION = 7;
+    /** versionCode in band-app/src/manifest.json (apply-band-app.py checks they match). */
+    public static final int VERSION = 10;
+
+    /** "bg" / "en": the band app for the tablet's language. */
+    static String tabletLang() {
+        return com.isaigu.gymapp.widget.XemsLang.isBg() ? "bg" : "en";
+    }
+
+    /** Installed and current: this version and the tablet's language (old apps report none). */
+    static boolean upToDate(Context c) {
+        if (WearableConfig.getBandAppVersion(c) < VERSION) {
+            return false;
+        }
+        String lang = WearableConfig.getBandAppLang(c);
+        return lang.length() == 0 || lang.equals(tabletLang());
+    }
 
     private static final long AUTO_DELAY_MS = 6000L;
     private static final long BUSY_RETRY_MS = 60000L;
@@ -43,6 +59,7 @@ public final class BandAppInstall {
     private static String status;
     private static boolean pendingManual;
     private static int autoTries;
+    private static String lastTarget = "";
 
     private BandAppInstall() {}
 
@@ -50,7 +67,7 @@ public final class BandAppInstall {
 
     /** Text for the Settings row now (installed / will install / progress). */
     public static String statusText(Context c) {
-        boolean installed = WearableConfig.getBandAppVersion(c) >= VERSION;
+        boolean installed = upToDate(c);
         if (status != null && (XiaomiBandInstaller.isBusy() || !installed)) {
             return status;
         }
@@ -81,10 +98,30 @@ public final class BandAppInstall {
 
     /** The band app said hello: it is installed; remember the version it reports. */
     static void onAppHello(int version) {
+        onAppHello(version, null);
+    }
+
+    /** The band app said hello with its version and language (v10+). */
+    static void onAppHello(int version, String lang) {
         Context c = WearableSyncHelper.getContext();
-        if (version > 0 && c != null && version != WearableConfig.getBandAppVersion(c)) {
+        if (c == null) {
+            return;
+        }
+        if (version > 0 && version != WearableConfig.getBandAppVersion(c)) {
             WearableConfig.setBandAppVersion(c, version);
             WearableBleDiagLog.log("install", "band app reports v" + version);
+        }
+        if (lang != null && lang.length() > 0 && !lang.equals(WearableConfig.getBandAppLang(c))) {
+            WearableConfig.setBandAppLang(c, lang);
+            WearableBleDiagLog.log("install", "band app language " + lang);
+        }
+        if (!upToDate(c)) {
+            String target = VERSION + "/" + tabletLang();
+            if (!target.equals(lastTarget)) {       // new target (version / language): try again
+                lastTarget = target;
+                autoTries = 0;
+            }
+            onBandConnected();
         }
     }
 
@@ -106,7 +143,7 @@ public final class BandAppInstall {
         pendingManual = false;
         main.removeCallbacks(connectTimeout);
         if (!manual) {
-            if (WearableConfig.getBandAppVersion(c) >= VERSION || autoTries >= MAX_AUTO_TRIES) {
+            if (upToDate(c) || autoTries >= MAX_AUTO_TRIES) {
                 return;
             }
             if (training()) {                       // never during a session; look again later
@@ -125,7 +162,7 @@ public final class BandAppInstall {
                     "The band app file is missing from this build"));
             return;
         }
-        WearableBleDiagLog.log("install", (auto ? "auto" : "manual") + " v" + VERSION);
+        WearableBleDiagLog.log("install", (auto ? "auto" : "manual") + " v" + VERSION + " " + tabletLang());
         show(WearableUi.tr("Инсталиране на гривната…", "Installing on the band…"));
         if (!XiaomiBandInstaller.install(rpk, PACKAGE, VERSION, new Progress(c.getApplicationContext()))) {
             show(WearableUi.tr("Нужна е връзка Band 9 / 10", "Needs a Band 9 / 10 link"));
@@ -159,7 +196,7 @@ public final class BandAppInstall {
     static byte[] read(Context c) {
         InputStream in = null;
         try {
-            in = c.getAssets().open(ASSET);
+            in = c.getAssets().open("en".equals(tabletLang()) ? ASSET_EN : ASSET);
             ByteArrayOutputStream o = new ByteArrayOutputStream();
             byte[] buf = new byte[8192];
             int n;

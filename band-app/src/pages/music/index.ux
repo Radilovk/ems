@@ -1,7 +1,9 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
+  <stack class="root">
+    <image class="bg" src="/common/bg/music.png"></image>
+    <list class="lst">
     <!-- 1 · play / pause -->
-    <div class="screen {{anim}}" if="{{cur === 'main'}}">
+    <list-item type="main" class="screen">
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
       <marquee class="title" scrollamount="40" loop="-1">{{title}}</marquee>
       <stack class="ring-box">
@@ -14,10 +16,10 @@
         </div>
       </stack>
       <text class="sub">{{timeText}}</text>
-    </div>
+    </list-item>
 
     <!-- 2 · previous / next -->
-    <div class="screen {{anim}}" if="{{cur === 'skip'}}">
+    <list-item type="skip" class="screen">
       <text class="caps">ПЕСЕН</text>
       <div class="btn big-pill {{pressed === 'next' ? 'down' : ''}}"
            ontouchstart="press('next')" ontouchend="release" ontouchcancel="release" onclick="next">
@@ -28,10 +30,10 @@
         <image class="pill-img" src="/common/icons/prev.png"></image>
       </div>
       <text class="sub">следваща · предишна</text>
-    </div>
+    </list-item>
 
     <!-- 3 · impulses follow the music: ceiling -->
-    <div class="screen {{anim}}" if="{{cur === 'ceil'}}">
+    <list-item type="ceil" class="screen" if="{{showCeil}}">
       <text class="caps">ТАВАН НА ИМПУЛСИТЕ</text>
       <text class="ceil-num">{{ceil}}</text>
       <div class="lvl-track">
@@ -47,11 +49,9 @@
           <image class="round-img" src="/common/icons/plus.png"></image>
         </div>
       </div>
-    </div>
+    </list-item>
 
-    <div class="dots">
-      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
-    </div>
+    </list>
   </stack>
 </template>
 
@@ -64,6 +64,7 @@ export default {
     idsKey: '',
     idx: 0,
     cur: 'main',
+    showCeil: false,
     dots: [],
     anim: '',
     caps: 'МУЗИКА',
@@ -85,10 +86,6 @@ export default {
     this.unbind()
   },
 
-  onSwipe(e) {
-    swipe(this, e)
-  },
-
   update() {
     const app = this.$app.$def
     const s = app.state
@@ -98,6 +95,7 @@ export default {
     }
     const mu = mods(s).mu
     setPages(this, mu.on ? ['main', 'skip', 'ceil'] : ['main', 'skip'])
+    this.showCeil = !!mu.on
     this.play = !!mu.play
     this.caps = mu.on && !mu.play ? 'МУЗИКА · ПАУЗА' : 'МУЗИКА'
     this.capsColor = mu.play ? PURPLE : '#8E8E93'
@@ -153,7 +151,14 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 34px;
-  background-color: #000000;
+}
+.bg {
+  width: 212px;
+  height: 520px;
+}
+.lst {
+  width: 212px;
+  height: 520px;
 }
 .in-up {
   animation-name: inUp;
@@ -186,14 +191,14 @@ export default {
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {

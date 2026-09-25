@@ -4,8 +4,11 @@
  * page through the app object: live state in, commands out.
  *
  * Messages are JSON (both directions):
- *   band → XEMS  {t:'hello', v:APP_VERSION} on start (repeated until XEMS answers),
- *                {t:'cmd', a:'toggle'|'plus'|'minus'|'double'|'stop'}
+ *   band → XEMS  {t:'hello', v:APP_VERSION, lang:APP_LANG} on start (repeated until XEMS answers),
+ *                {t:'cmd', a:…, id, c?, d?} — id grows; sent again every 1.2 s until a state
+ *                carries ack ≥ id (XEMS runs an id once), at most 3 more times
+ *   XEMS → band  … seq (grows within one boot; an older one arriving late is dropped), boot, ack, lang, lic[] (licensed
+ *                modules), ch[] (channel % of the slot, −1 = off)
  *   XEMS → band  {t:'state', v:2, mode:'ai'|'manual'|'music'|'idle', st:'run'|'pause'|'rest'|'ready'|'idle',
  *                 hr, z, lim, title, sub, kcal, run, can:{plus,minus,dbl}, dbl, vib:'short'|'long'|'',
  *                 ph, pi, pd, pl, rl, pds[], pns[], u, el, tot, pos, dur, hh[30], avg, max, zt[5]}
@@ -17,11 +20,21 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 9
+const APP_VERSION = 10
+/** Language of this build (the English build is made from it by scripts/gen-lang.py). */
+const APP_LANG = 'bg'
+const RESEND_MS = 1200
+const MAX_RESENDS = 3
 
 export default {
   state: null,
   rx: 0,
+  lastSeq: 0,
+  boot: null,
+  nextId: 0,
+  /** Commands XEMS has not confirmed yet: {id, msg, at, tries}. */
+  pending: [],
+  langSaid: false,
   listeners: [],
   conn: null,
   helloTimer: null,
@@ -32,7 +45,8 @@ export default {
     this.open()
     // One clock for the whole app: 3-2-1 buzz before a phase / interval ends, screen kept on
     // while something runs.
-    this.beat = setInterval(() => this.tick(), 1000)
+    this.beat = setInterval(() => this.tick(), 400)
+    this.nextId = Date.now() % 100000000
     // Until XEMS answers, say hello every 4 s (the link may open after the app).
     this.helloTimer = setInterval(() => {
       if (this.silence() > 12) {
@@ -110,6 +124,23 @@ export default {
     if (!m || m.t !== 'state') {
       return
     }
+    // A state overtaken by a newer one (late on the link) must not undo what the newer says.
+    if (m.boot !== this.boot) {
+      this.boot = m.boot                            // XEMS started again: its seq starts again
+      this.lastSeq = 0
+    }
+    if (m.seq && this.lastSeq && m.seq < this.lastSeq) {
+      return
+    }
+    this.lastSeq = m.seq || 0
+    if (m.ack) {
+      const ack = parseInt(m.ack, 10)
+      this.pending = this.pending.filter((p) => !(p.id <= ack))
+    }
+    if (m.lang && m.lang !== APP_LANG && !this.langSaid) {
+      this.langSaid = true
+      this.hello()                                 // XEMS installs the build in its language
+    }
     this.state = m
     this.rx = Date.now()
     this.checkSummary(m)
@@ -122,7 +153,32 @@ export default {
   lastLeft: {},
   screenOn: false,
 
+  /** Send again what XEMS has not confirmed (same id: it runs once). */
+  resend() {
+    const now = Date.now()
+    const keep = []
+    this.pending.forEach((p) => {
+      if (now - p.at < RESEND_MS) {
+        keep.push(p)
+      } else if (p.tries < MAX_RESENDS) {
+        p.tries++
+        p.at = now
+        this.send(p.msg)
+        keep.push(p)
+      } else {
+        this.diag.err = 'без отговор: ' + p.msg.a
+      }
+    })
+    this.pending = keep
+  },
+
+  /** Waiting for XEMS to confirm a command (the pages show it). */
+  busy() {
+    return this.pending.length > 0
+  },
+
   tick() {
+    this.resend()
     const s = this.state
     if (!s || this.silence() > 12) {
       this.keepOn(false)
@@ -198,7 +254,7 @@ export default {
   },
 
   hello() {
-    this.send({ t: 'hello', v: APP_VERSION })
+    this.send({ t: 'hello', v: APP_VERSION, lang: APP_LANG })
   },
 
   send(obj) {
@@ -223,9 +279,18 @@ export default {
     }
   },
 
-  command(a) {
-    this.send({ t: 'cmd', a: a })
-    this.buzz('short')
+  /** A command to XEMS, confirmed by the next state (resent until then). extra: {c, d}. */
+  command(a, extra, buzz) {
+    const msg = { t: 'cmd', a: a, id: String(++this.nextId) }
+    if (extra) {
+      Object.keys(extra).forEach((k) => {
+        msg[k] = extra[k]
+      })
+    }
+    this.pending.push({ id: this.nextId, msg: msg, at: Date.now(), tries: 0 })
+    this.send(msg)
+    this.buzz(buzz || 'short')
+    this.notify()
   },
 
   buzz(kind) {

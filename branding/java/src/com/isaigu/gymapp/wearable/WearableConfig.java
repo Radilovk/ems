@@ -170,6 +170,17 @@ public final class WearableConfig {
         return context == null ? 0 : prefs(context).getInt("band_app_ver", 0);
     }
 
+    /** Language of the installed band app ("bg" / "en"; "" = older app that does not say). */
+    public static String getBandAppLang(Context context) {
+        return context == null ? "" : prefs(context).getString("band_app_lang", "");
+    }
+
+    public static void setBandAppLang(Context context, String lang) {
+        if (context != null) {
+            prefs(context).edit().putString("band_app_lang", lang == null ? "" : lang).apply();
+        }
+    }
+
     public static void setBandAppVersion(Context context, int version) {
         if (context != null) {
             prefs(context).edit().putInt("band_app_ver", version).apply();

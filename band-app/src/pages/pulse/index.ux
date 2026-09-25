@@ -1,7 +1,9 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
+  <stack class="root">
+    <image class="bg" src="/common/bg/pulse.png"></image>
+    <list class="lst">
     <!-- 1 · heart rate -->
-    <div class="screen {{anim}}" if="{{cur === 'hr'}}">
+    <list-item type="hr" class="screen">
       <text class="caps pulse-caps">ПУЛС</text>
       <image class="heart {{hr > 0 ? 'beat' : ''}}" src="/common/icons/heart.png" style="animation-duration: {{beatMs}}ms"></image>
       <text class="hr" style="color: {{zoneColor}}">{{hrText}}</text>
@@ -9,10 +11,10 @@
         <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
       </div>
       <text class="sub">лимит {{limit}}{{pctText}}</text>
-    </div>
+    </list-item>
 
     <!-- 2 · auto control on / off -->
-    <div class="screen {{anim}}" if="{{cur === 'auto'}}">
+    <list-item type="auto" class="screen">
       <text class="caps">АВТОКОНТРОЛ</text>
       <div class="btn toggle {{ai ? 'off' : ''}} {{pressed ? 'down' : ''}}" style="background-color: {{en ? '#0A84FF' : '#2C2C2E'}}"
            ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
@@ -20,10 +22,10 @@
       </div>
       <text class="sub" style="color: {{stateColor}}">{{stateText}}</text>
       <text class="factor" if="{{en && !ai}}" style="color: {{factorColor}}">сила {{sf}}%</text>
-    </div>
+    </list-item>
 
     <!-- 3 · last 3 minutes -->
-    <div class="screen {{anim}}" if="{{cur === 'chart'}}">
+    <list-item type="chart" class="screen">
       <text class="caps">ПОСЛЕДНИ 3 МИН</text>
       <div class="chart">
         <div for="{{bars}}" class="bar" style="height: {{$item.h}}px; background-color: {{$item.c}}"></div>
@@ -38,11 +40,9 @@
           <text class="stat-label">връх</text>
         </div>
       </div>
-    </div>
+    </list-item>
 
-    <div class="dots">
-      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
-    </div>
+    </list>
   </stack>
 </template>
 
@@ -83,10 +83,6 @@ export default {
 
   onDestroy() {
     this.unbind()
-  },
-
-  onSwipe(e) {
-    swipe(this, e)
   },
 
   update() {
@@ -177,7 +173,14 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 34px;
-  background-color: #000000;
+}
+.bg {
+  width: 212px;
+  height: 520px;
+}
+.lst {
+  width: 212px;
+  height: 520px;
 }
 .in-up {
   animation-name: inUp;
@@ -210,14 +213,14 @@ export default {
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {

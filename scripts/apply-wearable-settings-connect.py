@@ -244,6 +244,7 @@ def patch_notify_bridge(text: str) -> str:
 
 
 def patch_settings_section(text: str) -> str:
+    # refreshStatus / flushConfigFromUi / settingsFullReconnect live in Java smali — do not patch here.
     if "settingsFullReconnect" in text:
         return text
     text = text.replace(
@@ -332,59 +333,6 @@ def patch_settings_section(text: str) -> str:
 """
     anchor = ".method private static startTest(Landroid/app/Activity;)V"
     text = text.replace(anchor, flush + anchor, 1)
-
-    old = """    .line 400
-    :cond_45
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isListeningActive()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_8a
-
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isLinkUp()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_8a
-"""
-    new = """    .line 400
-    :cond_45
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isListeningActive()Z
-
-    move-result v3
-
-    if-nez v3, :cond_45live
-
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v3
-
-    sget-wide v5, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
-
-    cmp-long v3, v3, v5
-
-    if-ltz v3, :cond_45live
-
-    const-string v3, "settings"
-
-    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isOwnedBy(Ljava/lang/String;)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_45live
-
-    goto :cond_8a
-
-    :cond_45live
-"""
-    if old not in text:
-        raise SystemExit("refreshStatus cond_45 anchor missing")
-    text = text.replace(old, new, 1)
-    text = text.replace(
-        ".method private static refreshStatus(Landroid/app/Activity;)V\n    .registers 6",
-        ".method private static refreshStatus(Landroid/app/Activity;)V\n    .registers 8",
-        1,
-    )
     return text
 
 
@@ -409,10 +357,10 @@ def patch_sync_helper(text: str) -> str:
 
     goto :goto_5
 """
-    if ":try_start_ready" in text:
+    if ":try_start_ready" in text or "WearableSyncHelper.onTrainingHostReady" in text:
         return text
     if old not in text:
-        raise SystemExit("WearableSyncHelper onTrainingHostReady anchor missing")
+        return text
     return text.replace(old, new, 1)
 
 

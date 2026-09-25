@@ -148,7 +148,11 @@ public final class WearableSyncHelper {
             com.isaigu.gymapp.widget.XemsGuard.report("AiSession.attach", t);
         }
         // Module buttons live in the bottom bar now (XemsNav); the sidebar copies are hidden.
-        com.isaigu.gymapp.widget.XemsNav.onTrainingPanel(root);
+        try {
+            com.isaigu.gymapp.widget.XemsNav.onTrainingPanel(root);
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.onTrainingPanel", t);
+        }
         View button = root.findViewById(BUTTON_ID);
         if (button == null) {
             return;

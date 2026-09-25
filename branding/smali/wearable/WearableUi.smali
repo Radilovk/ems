@@ -27,7 +27,7 @@
 
 # direct methods
 .method private constructor <init>()V
-    .registers 1
+    .locals 0
 
     .prologue
     .line 29
@@ -37,10 +37,10 @@
 .end method
 
 .method static ageText(J)Ljava/lang/String;
-    .registers 6
+    .locals 4
 
     .prologue
-    .line 154
+    .line 157
     const-wide/16 v0, 0x0
 
     const-wide/16 v2, 0x3e8
@@ -51,7 +51,7 @@
 
     move-result-wide v0
 
-    .line 155
+    .line 158
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -102,12 +102,12 @@
 .end method
 
 .method static ageTextShort(J)Ljava/lang/String;
-    .registers 12
+    .locals 10
 
     .prologue
     const-wide/16 v8, 0x3c
 
-    .line 160
+    .line 163
     const-wide/16 v0, 0x0
 
     const-wide/16 v2, 0x3e7
@@ -122,7 +122,7 @@
 
     move-result-wide v0
 
-    .line 161
+    .line 164
     sget-object v2, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v3, "%d:%02d"
@@ -159,82 +159,82 @@
 .end method
 
 .method static asActivity(Landroid/content/Context;)Landroid/app/Activity;
-    .registers 3
+    .locals 2
 
     .prologue
-    .line 229
+    .line 232
     move-object v0, p0
 
-    :goto_1
+    :goto_0
     instance-of v1, v0, Landroid/content/ContextWrapper;
 
-    if-eqz v1, :cond_13
-
-    .line 230
-    instance-of v1, v0, Landroid/app/Activity;
-
-    if-eqz v1, :cond_c
-
-    .line 231
-    check-cast v0, Landroid/app/Activity;
-
-    .line 235
-    :goto_b
-    return-object v0
+    if-eqz v1, :cond_1
 
     .line 233
-    :cond_c
+    instance-of v1, v0, Landroid/app/Activity;
+
+    if-eqz v1, :cond_0
+
+    .line 234
+    check-cast v0, Landroid/app/Activity;
+
+    .line 238
+    :goto_1
+    return-object v0
+
+    .line 236
+    :cond_0
     check-cast v0, Landroid/content/ContextWrapper;
 
     invoke-virtual {v0}, Landroid/content/ContextWrapper;->getBaseContext()Landroid/content/Context;
 
     move-result-object v0
 
-    goto :goto_1
+    goto :goto_0
 
-    .line 235
-    :cond_13
+    .line 238
+    :cond_1
     const/4 v0, 0x0
 
-    goto :goto_b
+    goto :goto_1
 .end method
 
 .method static button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
-    .registers 8
+    .locals 4
 
     .prologue
     const/4 v3, 0x1
 
-    .line 205
+    .line 208
     const/high16 v0, 0x41700000    # 15.0f
 
     invoke-static {p0, p1, v0, p3, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 206
+    .line 209
     const/16 v1, 0x11
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 207
+    .line 210
     const/high16 v1, 0x41800000    # 16.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 208
+    .line 211
     const/high16 v2, 0x41300000    # 11.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 209
+    .line 212
     invoke-virtual {v0, v1, v2, v1, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 210
+    .line 213
     const/high16 v1, 0x41c00000    # 24.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -249,28 +249,28 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 211
+    .line 214
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setClickable(Z)V
 
-    .line 212
+    .line 215
     return-object v0
 .end method
 
 .method static color(Landroid/content/Context;Ljava/lang/String;I)I
-    .registers 6
+    .locals 3
 
     .prologue
-    .line 165
-    if-nez p0, :cond_3
+    .line 168
+    if-nez p0, :cond_1
 
-    .line 175
-    :cond_2
-    :goto_2
+    .line 178
+    :cond_0
+    :goto_0
     return p2
 
-    .line 169
-    :cond_3
-    :try_start_3
+    .line 172
+    :cond_1
+    :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -285,62 +285,62 @@
 
     move-result v0
 
-    .line 170
-    if-eqz v0, :cond_2
+    .line 173
+    if-eqz v0, :cond_0
 
-    .line 171
+    .line 174
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
 
     invoke-virtual {v1, v0}, Landroid/content/res/Resources;->getColor(I)I
-    :try_end_1a
-    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_1a} :catch_1c
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     move-result p2
 
-    goto :goto_2
+    goto :goto_0
 
-    .line 173
-    :catch_1c
+    .line 176
+    :catch_0
     move-exception v0
 
-    goto :goto_2
+    goto :goto_0
 .end method
 
 .method static divider(Landroid/content/Context;)Landroid/view/View;
-    .registers 3
+    .locals 2
 
     .prologue
-    .line 223
+    .line 226
     new-instance v0, Landroid/view/View;
 
     invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 224
+    .line 227
     const v1, 0x22ffffff
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
 
-    .line 225
+    .line 228
     return-object v0
 .end method
 
 .method static dp(Landroid/content/Context;F)I
-    .registers 4
+    .locals 2
 
     .prologue
-    .line 179
-    if-nez p0, :cond_4
+    .line 182
+    if-nez p0, :cond_0
 
-    .line 180
+    .line 183
     float-to-int v0, p1
 
-    .line 182
-    :goto_3
+    .line 185
+    :goto_0
     return v0
 
-    :cond_4
+    :cond_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -359,47 +359,47 @@
 
     float-to-int v0, v0
 
-    goto :goto_3
+    goto :goto_0
 .end method
 
 .method static isBulgarian()Z
-    .registers 1
+    .locals 1
 
     .prologue
     .line 33
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
-    :try_end_3
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_5
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     move-result v0
 
     .line 35
-    :goto_4
+    :goto_0
     return v0
 
     .line 34
-    :catch_5
+    :catch_0
     move-exception v0
 
     .line 35
     const/4 v0, 0x1
 
-    goto :goto_4
+    goto :goto_0
 .end method
 
 .method static isErrorState(Ljava/lang/String;)Z
-    .registers 2
+    .locals 1
 
     .prologue
-    .line 145
+    .line 148
     const-string v0, "auth_fail"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "bad_auth_key"
 
@@ -407,16 +407,16 @@
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "bad_mac"
 
-    .line 146
+    .line 149
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "no_bluetooth"
 
@@ -424,16 +424,16 @@
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "no_bt_permission"
 
-    .line 147
+    .line 150
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "auth_timeout"
 
@@ -441,16 +441,16 @@
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "connect_fail"
 
-    .line 148
+    .line 151
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "service_fail"
 
@@ -458,16 +458,16 @@
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "no_fe95"
 
-    .line 149
+    .line 152
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "no_chars"
 
@@ -475,36 +475,36 @@
 
     move-result v0
 
-    if-nez v0, :cond_58
+    if-nez v0, :cond_0
 
     const-string v0, "send_fail"
 
-    .line 150
+    .line 153
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_5a
+    if-eqz v0, :cond_1
 
-    :cond_58
+    :cond_0
     const/4 v0, 0x1
 
-    .line 145
-    :goto_59
+    .line 148
+    :goto_0
     return v0
 
-    .line 150
-    :cond_5a
+    .line 153
+    :cond_1
     const/4 v0, 0x0
 
-    goto :goto_59
+    goto :goto_0
 .end method
 
 .method static matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
-    .registers 5
+    .locals 3
 
     .prologue
-    .line 216
+    .line 219
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x1
@@ -513,7 +513,7 @@
 
     invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 218
+    .line 221
     int-to-float v1, p1
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -522,48 +522,48 @@
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 219
+    .line 222
     return-object v0
 .end method
 
 .method static rounded(IF)Landroid/graphics/drawable/GradientDrawable;
-    .registers 3
+    .locals 1
 
     .prologue
-    .line 197
+    .line 200
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 198
+    .line 201
     invoke-virtual {v0, p0}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 199
+    .line 202
     invoke-virtual {v0, p1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 200
+    .line 203
     return-object v0
 .end method
 
 .method static stateText(Ljava/lang/String;)Ljava/lang/String;
-    .registers 3
+    .locals 2
 
     .prologue
     .line 100
-    if-nez p0, :cond_4
+    if-nez p0, :cond_0
 
     .line 101
     const-string p0, ""
 
     .line 103
-    :cond_4
+    :cond_0
     const-string v0, "streaming"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_15
+    if-eqz v0, :cond_1
 
     .line 104
     const-string v0, "\u041d\u0430 \u0436\u0438\u0432\u043e"
@@ -574,19 +574,19 @@
 
     move-result-object v0
 
-    .line 141
-    :goto_14
+    .line 144
+    :goto_0
     return-object v0
 
     .line 106
-    :cond_15
+    :cond_1
     const-string v0, "measuring"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_26
+    if-eqz v0, :cond_2
 
     .line 107
     const-string v0, "\u041c\u0435\u0440\u0438 \u043f\u0443\u043b\u0441\u2026"
@@ -597,17 +597,17 @@
 
     move-result-object v0
 
-    goto :goto_14
+    goto :goto_0
 
     .line 109
-    :cond_26
+    :cond_2
     const-string v0, "connecting"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_46
+    if-nez v0, :cond_3
 
     const-string v0, "discovering"
 
@@ -615,7 +615,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_46
+    if-nez v0, :cond_3
 
     const-string v0, "auth_start"
 
@@ -624,7 +624,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_46
+    if-nez v0, :cond_3
 
     const-string v0, "handshake"
 
@@ -632,10 +632,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_4f
+    if-eqz v0, :cond_4
 
     .line 111
-    :cond_46
+    :cond_3
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043d\u0435\u2026"
 
     const-string v1, "Connecting\u2026"
@@ -644,17 +644,38 @@
 
     move-result-object v0
 
-    goto :goto_14
+    goto :goto_0
 
     .line 113
-    :cond_4f
+    :cond_4
+    const-string v0, "linked"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_5
+
+    .line 114
+    const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0430\u043d\u0430 \u00b7 \u043f\u0443\u043b\u0441 \u0438\u0437\u043a\u043b."
+
+    const-string v1, "Linked \u00b7 HR off"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_0
+
+    .line 116
+    :cond_5
     const-string v0, "authenticated"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_67
+    if-nez v0, :cond_6
 
     const-string v0, "initialized"
 
@@ -662,19 +683,19 @@
 
     move-result v0
 
-    if-nez v0, :cond_67
+    if-nez v0, :cond_6
 
     const-string v0, "starting"
 
-    .line 114
+    .line 117
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_70
+    if-eqz v0, :cond_7
 
-    .line 115
-    :cond_67
+    .line 118
+    :cond_6
     const-string v0, "\u041f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0430\u2026"
 
     const-string v1, "Starting\u2026"
@@ -683,19 +704,19 @@
 
     move-result-object v0
 
-    goto :goto_14
+    goto :goto_0
 
-    .line 117
-    :cond_70
+    .line 120
+    :cond_7
     const-string v0, "reconnecting"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_81
+    if-eqz v0, :cond_8
 
-    .line 118
+    .line 121
     const-string v0, "\u0412\u0440\u044a\u0437\u043a\u0430\u0442\u0430 \u043f\u0440\u0435\u043a\u044a\u0441\u043d\u0430 \u2014 \u0441\u0432\u044a\u0440\u0437\u0432\u0430 \u043e\u0442\u043d\u043e\u0432\u043e"
 
     const-string v1, "Link lost \u2014 reconnecting"
@@ -704,17 +725,17 @@
 
     move-result-object v0
 
-    goto :goto_14
+    goto :goto_0
 
-    .line 120
-    :cond_81
+    .line 123
+    :cond_8
     const-string v0, "auth_fail"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_91
+    if-nez v0, :cond_9
 
     const-string v0, "bad_auth_key"
 
@@ -722,10 +743,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_9b
+    if-eqz v0, :cond_a
 
-    .line 121
-    :cond_91
+    .line 124
+    :cond_9
     const-string v0, "\u0413\u0440\u0435\u0448\u0435\u043d auth key"
 
     const-string v1, "Wrong auth key"
@@ -734,19 +755,19 @@
 
     move-result-object v0
 
-    goto/16 :goto_14
+    goto/16 :goto_0
 
-    .line 123
-    :cond_9b
+    .line 126
+    :cond_a
     const-string v0, "bad_mac"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_ad
+    if-eqz v0, :cond_b
 
-    .line 124
+    .line 127
     const-string v0, "\u0413\u0440\u0435\u0448\u0435\u043d MAC \u0430\u0434\u0440\u0435\u0441"
 
     const-string v1, "Wrong MAC address"
@@ -755,19 +776,19 @@
 
     move-result-object v0
 
-    goto/16 :goto_14
+    goto/16 :goto_0
 
-    .line 126
-    :cond_ad
+    .line 129
+    :cond_b
     const-string v0, "no_bluetooth"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_bf
+    if-eqz v0, :cond_c
 
-    .line 127
+    .line 130
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 Bluetooth"
 
     const-string v1, "Turn Bluetooth on"
@@ -776,19 +797,19 @@
 
     move-result-object v0
 
-    goto/16 :goto_14
+    goto/16 :goto_0
 
-    .line 129
-    :cond_bf
+    .line 132
+    :cond_c
     const-string v0, "no_bt_permission"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_d1
+    if-eqz v0, :cond_d
 
-    .line 130
+    .line 133
     const-string v0, "\u0420\u0430\u0437\u0440\u0435\u0448\u0438 Bluetooth \u0437\u0430 XEMS"
 
     const-string v1, "Allow Bluetooth for XEMS"
@@ -797,19 +818,19 @@
 
     move-result-object v0
 
-    goto/16 :goto_14
+    goto/16 :goto_0
 
-    .line 132
-    :cond_d1
+    .line 135
+    :cond_d
     const-string v0, "auth_timeout"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_e3
+    if-eqz v0, :cond_e
 
-    .line 133
+    .line 136
     const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u043e\u0442\u0433\u043e\u0432\u0430\u0440\u044f \u2014 \u0441\u043f\u0440\u0438 Mi Fitness/Notify"
 
     const-string v1, "Band not answering \u2014 stop Mi Fitness/Notify"
@@ -818,17 +839,17 @@
 
     move-result-object v0
 
-    goto/16 :goto_14
+    goto/16 :goto_0
 
-    .line 136
-    :cond_e3
+    .line 139
+    :cond_e
     const-string v0, "connect_fail"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_10b
+    if-nez v0, :cond_f
 
     const-string v0, "service_fail"
 
@@ -836,16 +857,16 @@
 
     move-result v0
 
-    if-nez v0, :cond_10b
+    if-nez v0, :cond_f
 
     const-string v0, "no_fe95"
 
-    .line 137
+    .line 140
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_10b
+    if-nez v0, :cond_f
 
     const-string v0, "no_chars"
 
@@ -853,19 +874,19 @@
 
     move-result v0
 
-    if-nez v0, :cond_10b
+    if-nez v0, :cond_f
 
     const-string v0, "send_fail"
 
-    .line 138
+    .line 141
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_115
+    if-eqz v0, :cond_10
 
-    .line 139
-    :cond_10b
+    .line 142
+    :cond_f
     const-string v0, "\u0413\u0440\u0435\u0448\u043a\u0430 \u043f\u0440\u0438 \u0432\u0440\u044a\u0437\u043a\u0430"
 
     const-string v1, "Connection error"
@@ -874,10 +895,10 @@
 
     move-result-object v0
 
-    goto/16 :goto_14
+    goto/16 :goto_0
 
-    .line 141
-    :cond_115
+    .line 144
+    :cond_10
     const-string v0, "\u0418\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0430"
 
     const-string v1, "Disconnected"
@@ -886,33 +907,33 @@
 
     move-result-object v0
 
-    goto/16 :goto_14
+    goto/16 :goto_0
 .end method
 
 .method static text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-    .registers 8
+    .locals 3
 
     .prologue
-    .line 186
+    .line 189
     new-instance v0, Landroid/widget/TextView;
 
     invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 187
+    .line 190
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 188
+    .line 191
     const/4 v1, 0x2
 
     invoke-virtual {v0, v1, p2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 189
+    .line 192
     invoke-virtual {v0, p3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 190
-    if-eqz p4, :cond_19
+    .line 193
+    if-eqz p4, :cond_0
 
-    .line 191
+    .line 194
     invoke-virtual {v0}, Landroid/widget/TextView;->getTypeface()Landroid/graphics/Typeface;
 
     move-result-object v1
@@ -921,13 +942,13 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;I)V
 
-    .line 193
-    :cond_19
+    .line 196
+    :cond_0
     return-object v0
 .end method
 
 .method static tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    .registers 3
+    .locals 1
 
     .prologue
     .line 40
@@ -935,92 +956,92 @@
 
     move-result v0
 
-    if-eqz v0, :cond_7
+    if-eqz v0, :cond_0
 
-    :goto_6
+    :goto_0
     return-object p0
 
-    :cond_7
+    :cond_0
     move-object p0, p1
 
-    goto :goto_6
+    goto :goto_0
 .end method
 
 .method static zoneColor(I)I
-    .registers 2
+    .locals 1
 
     .prologue
     .line 65
-    packed-switch p0, :pswitch_data_1c
+    packed-switch p0, :pswitch_data_0
 
     .line 77
     const v0, -0x555556
 
-    :goto_6
+    :goto_0
     return v0
 
     .line 67
-    :pswitch_7
+    :pswitch_0
     const v0, -0x6f5b52
 
-    goto :goto_6
+    goto :goto_0
 
     .line 69
-    :pswitch_b
+    :pswitch_1
     const v0, -0xbc5fb9
 
-    goto :goto_6
+    goto :goto_0
 
     .line 71
-    :pswitch_f
+    :pswitch_2
     const v0, -0x227cb
 
-    goto :goto_6
+    goto :goto_0
 
     .line 73
-    :pswitch_13
+    :pswitch_3
     const v0, -0x47400
 
-    goto :goto_6
+    goto :goto_0
 
     .line 75
-    :pswitch_17
+    :pswitch_4
     const v0, -0x1ac6cb
 
-    goto :goto_6
+    goto :goto_0
 
     .line 65
     nop
 
-    :pswitch_data_1c
+    :pswitch_data_0
     .packed-switch 0x1
-        :pswitch_7
-        :pswitch_b
-        :pswitch_f
-        :pswitch_13
-        :pswitch_17
+        :pswitch_0
+        :pswitch_1
+        :pswitch_2
+        :pswitch_3
+        :pswitch_4
     .end packed-switch
 .end method
 
 .method static zoneFor(II)I
-    .registers 4
+    .locals 2
 
     .prologue
     .line 45
-    if-lez p0, :cond_4
+    if-lez p0, :cond_0
 
-    if-gtz p1, :cond_6
+    if-gtz p1, :cond_1
 
     .line 46
-    :cond_4
+    :cond_0
     const/4 v0, 0x0
 
     .line 61
-    :goto_5
+    :goto_0
     return v0
 
     .line 48
-    :cond_6
+    :cond_1
     int-to-float v0, p0
 
     int-to-float v1, p1
@@ -1032,74 +1053,74 @@
 
     cmpg-float v1, v0, v1
 
-    if-gez v1, :cond_12
+    if-gez v1, :cond_2
 
     .line 50
     const/4 v0, 0x1
 
-    goto :goto_5
+    goto :goto_0
 
     .line 52
-    :cond_12
+    :cond_2
     const v1, 0x3f333333    # 0.7f
 
     cmpg-float v1, v0, v1
 
-    if-gez v1, :cond_1b
+    if-gez v1, :cond_3
 
     .line 53
     const/4 v0, 0x2
 
-    goto :goto_5
+    goto :goto_0
 
     .line 55
-    :cond_1b
+    :cond_3
     const v1, 0x3f4ccccd    # 0.8f
 
     cmpg-float v1, v0, v1
 
-    if-gez v1, :cond_24
+    if-gez v1, :cond_4
 
     .line 56
     const/4 v0, 0x3
 
-    goto :goto_5
+    goto :goto_0
 
     .line 58
-    :cond_24
+    :cond_4
     const v1, 0x3f666666    # 0.9f
 
     cmpg-float v0, v0, v1
 
-    if-gez v0, :cond_2d
+    if-gez v0, :cond_5
 
     .line 59
     const/4 v0, 0x4
 
-    goto :goto_5
+    goto :goto_0
 
     .line 61
-    :cond_2d
+    :cond_5
     const/4 v0, 0x5
 
-    goto :goto_5
+    goto :goto_0
 .end method
 
 .method static zoneName(I)Ljava/lang/String;
-    .registers 3
+    .locals 2
 
     .prologue
     .line 82
-    packed-switch p0, :pswitch_data_34
+    packed-switch p0, :pswitch_data_0
 
     .line 94
     const-string v0, ""
 
-    :goto_5
+    :goto_0
     return-object v0
 
     .line 84
-    :pswitch_6
+    :pswitch_0
     const-string v0, "\u041b\u0435\u043a\u0430"
 
     const-string v1, "Easy"
@@ -1108,10 +1129,10 @@
 
     move-result-object v0
 
-    goto :goto_5
+    goto :goto_0
 
     .line 86
-    :pswitch_f
+    :pswitch_1
     const-string v0, "\u0417\u0430\u0433\u0440\u044f\u0432\u043a\u0430"
 
     const-string v1, "Warm-up"
@@ -1120,10 +1141,10 @@
 
     move-result-object v0
 
-    goto :goto_5
+    goto :goto_0
 
     .line 88
-    :pswitch_18
+    :pswitch_2
     const-string v0, "\u0410\u0435\u0440\u043e\u0431\u043d\u0430"
 
     const-string v1, "Aerobic"
@@ -1132,10 +1153,10 @@
 
     move-result-object v0
 
-    goto :goto_5
+    goto :goto_0
 
     .line 90
-    :pswitch_21
+    :pswitch_3
     const-string v0, "\u0418\u043d\u0442\u0435\u043d\u0437\u0438\u0432\u043d\u0430"
 
     const-string v1, "Hard"
@@ -1144,10 +1165,10 @@
 
     move-result-object v0
 
-    goto :goto_5
+    goto :goto_0
 
     .line 92
-    :pswitch_2a
+    :pswitch_4
     const-string v0, "\u041c\u0430\u043a\u0441\u0438\u043c\u0443\u043c"
 
     const-string v1, "Maximum"
@@ -1156,17 +1177,17 @@
 
     move-result-object v0
 
-    goto :goto_5
+    goto :goto_0
 
     .line 82
     nop
 
-    :pswitch_data_34
+    :pswitch_data_0
     .packed-switch 0x1
-        :pswitch_6
-        :pswitch_f
-        :pswitch_18
-        :pswitch_21
-        :pswitch_2a
+        :pswitch_0
+        :pswitch_1
+        :pswitch_2
+        :pswitch_3
+        :pswitch_4
     .end packed-switch
 .end method

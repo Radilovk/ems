@@ -337,7 +337,8 @@ public final class NotifyWearableBridge {
      */
     static void applyHr(Context context) {
         boolean want = context != null
-                && (WearableConfig.isAutoReduceEnabled(context) || owners.contains(OWNER_AI));
+                && (WearableConfig.isAutoReduceEnabled(context) || owners.contains(OWNER_AI)
+                || owners.contains(OWNER_SETTINGS));          // connection check in Settings shows the HR
         if (hrOn != null && hrOn.booleanValue() == want) {
             return;
         }

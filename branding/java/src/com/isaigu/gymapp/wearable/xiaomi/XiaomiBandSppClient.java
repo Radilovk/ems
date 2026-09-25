@@ -295,6 +295,9 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         }
         realtimeStarted = false;
         lastEventMs = 0L;
+        if (authenticated) {
+            setState("linked");
+        }
     }
 
     private void resetSession() {
@@ -646,6 +649,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         if (realtimeWanted) {
             main.postDelayed(startRealtime, START_DELAY_MS);
         } else {
+            setState("linked");
             main.removeCallbacks(watch);
             main.postDelayed(watch, WATCH_MS);
         }

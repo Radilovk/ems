@@ -1,8 +1,7 @@
 <template>
-  <!-- Start: one vertical scroll — start / pause, all channels, every working channel with its
-       own − / + (hold = 5 steps), end (hold). Swipe right = back. -->
+  <!-- Start: scroll list + hold-to-slide overlay for per-channel strength. -->
   <stack class="root bg-start">
-    <scroll class="scr" scroll-y="true">
+    <scroll id="trainScr" class="scr" scroll-y="true" scroll-top="{{scrollTop}}" onscroll="onScroll">
       <div class="col" style="height: {{colH}}px">
         <div class="ctl">
           <text class="caps" style="color: {{runColor}}">{{caps}}</text>
@@ -23,7 +22,6 @@
           </div>
         </div>
 
-        <!-- all zones = the main impulse: left half −, right half + -->
         <stack class="cbox">
           <image class="cfill all-fill" src="{{allBtnSrc}}"></image>
           <div class="cface cface-all">
@@ -38,21 +36,21 @@
 
         <text class="chcap">{{chCaps}}</text>
 
-        <!-- every row: tap the left half = −, the right half = + (hold = 5 steps) -->
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
-          <div class="cface">
-            <text class="cname">{{$item.name}}</text>
+          <stack class="cface">
             <div class="cline">
               <text class="csign">-</text>
               <text class="cval" style="color: {{$item.color}}">{{$item.text}}</text>
               <text class="csign">+</text>
             </div>
-          </div>
-          <div class="ctouch">
-            <div class="chalf" onclick="chMinus($item.i)" onlongpress="chMinus5($item.i)"></div>
-            <div class="chalf" onclick="chPlus($item.i)" onlongpress="chPlus5($item.i)"></div>
-          </div>
+            <text class="cname">{{$item.name}}</text>
+          </stack>
+          <div class="ctouch ch-row-touch"
+               ontouchstart="chTouchStart($item.i, $item.text, $item.name, $event)"
+               ontouchmove="chTouchMove($event)"
+               ontouchend="chTouchEnd($event)"
+               ontouchcancel="chTouchEnd($event)"></div>
         </stack>
 
         <div class="stop-item">
@@ -68,6 +66,19 @@
         </div>
       </div>
     </scroll>
+
+    <!-- Hold any channel → vertical slider; scroll position kept underneath. -->
+    <div class="slide-screen {{slideAnim}} {{slideDim ? 'slide-dim' : ''}}" if="{{slideOn}}"
+         ontouchstart="slideTouch" ontouchmove="slideTouch" ontouchend="slideEnd" ontouchcancel="slideEnd">
+      <div class="slide-bg"></div>
+      <text class="slide-val" style="color: {{slideColor}}">{{slideVal}}</text>
+      <text class="slide-name">{{slideName}}</text>
+      <stack class="slide-track">
+        <div class="slide-rail"></div>
+        <div class="slide-fill" style="height: {{slideFillH}}px; background-color: {{slideFill}}"></div>
+        <div class="slide-knob" style="bottom: {{slideKnobB}}px"></div>
+      </stack>
+    </div>
   </stack>
 </template>
 
@@ -75,7 +86,14 @@
 import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown } from '../../common/ui.js'
 
 const HOLD_MS = 1200
-/** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
+const SLIDE_OPEN_MS = 400
+const SLIDE_COMMIT_MS = 500
+const SLIDE_CLOSE_MS = 3000
+const TAP_MAX_MS = 320
+const TAP_MAX_MOVE = 16
+const SLIDE_TRACK_H = 300
+const SLIDE_TRACK_TOP = 158
+const SLIDE_TRACK_W = 56
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
@@ -94,18 +112,25 @@ function channelStyle(pct, live) {
   return { fill: FILL_DIM[t], color: accent }
 }
 
+function touchY(e) {
+  const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0])
+  return t ? t.pageY : 0
+}
+
+function touchX(e) {
+  const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0])
+  return t ? t.pageX : 0
+}
+
 export default {
   private: {
     caps: 'СТАРТ',
     runColor: '#8E8E93',
     run: false,
     elapsed: '0:00',
-    meta: '',
     zoneColor: '#AEAEB2',
     pressed: '',
     holdPct: 0,
-    busy: false,
-    allHint: '',
     msText: '--',
     hrText: '--',
     zoneText: 'пулс',
@@ -114,12 +139,24 @@ export default {
     chans: [],
     chKey: '',
     colH: 1052,
-    allBtnSrc: '/common/ui/all-btn-dim.png'
+    allBtnSrc: '/common/ui/all-btn-dim.png',
+    scrollTop: 0,
+    slideOn: false,
+    slideIdx: -1,
+    slideName: '',
+    slideVal: '0',
+    slideColor: '#FFFFFF',
+    slideFill: GREEN,
+    slideFillH: 0,
+    slideKnobB: 0,
+    slideAnim: 'slide-in',
+    slideDim: false
   },
 
   onInit() {
     this.optim = {}
     this.optMs = null
+    this.savedScroll = 0
     this.unbind = bind(this)
   },
 
@@ -130,11 +167,21 @@ export default {
   onHide() {
     shown(this, false)
     this.holdEnd()
+    this.closeSlideNow()
   },
 
   onDestroy() {
     this.unbind()
     this.holdEnd()
+    this.closeSlideNow()
+  },
+
+  onScroll(e) {
+    if (!this.slideOn) {
+      const y = e.scrollY != null ? e.scrollY : (e.detail && e.detail.scrollY) || 0
+      this.savedScroll = y
+      this.scrollTop = y
+    }
   },
 
   update() {
@@ -145,14 +192,12 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
-    this.busy = app.busy()
     this.caps = run ? 'АКТИВЕН' : s.mode === 'manual' ? 'ПАУЗА' : 'ГОТОВ'
     this.runColor = run ? GREEN : s.mode === 'manual' ? AMBER : '#8E8E93'
     this.elapsed = hms((s.el || 0) + (run ? app.silence() : 0))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
     this.zoneText = s.hr > 0 ? 'пулс · Z' + z : 'пулс'
-    // main impulse: a tap shows its value at once, the tablet's answer confirms it
     let ms = s.ms != null ? s.ms : -1
     const o = this.optMs
     if (o) {
@@ -165,12 +210,14 @@ export default {
     this.msText = ms >= 0 ? String(ms) : '--'
     this.rttText = app.rtt ? 'отговор ' + (app.rtt / 1000).toFixed(1) + ' с' : ''
     this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
-    this.allHint = run ? '' : 'първо старт'
     this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
-    this.buildChannels(s.ch || [], run)
+    if (this.slideOn) {
+      this.slideDim = !run
+    } else {
+      this.buildChannels(s.ch || [], run)
+    }
   },
 
-  /** Working channels in the tablet's order (off ones have no buttons, so they are left out). */
   buildChannels(ch, live) {
     if (live === undefined) {
       live = this.run
@@ -181,7 +228,6 @@ export default {
         return
       }
       let pct = Math.max(0, Math.min(100, ch[i]))
-      // a tap shows its value at once; the tablet's answer confirms it (or corrects it)
       const o = this.optim[i]
       if (o) {
         if (o.v === pct || Date.now() - o.at > 1500) {
@@ -206,8 +252,6 @@ export default {
       return
     }
     this.chKey = key
-    // Same channels as before: change only the numbers of the rows that moved (the band
-    // redraws those, not the whole list).
     const same = this.chans.length === out.length && this.chans.every((c, k) => c.i === out[k].i)
     if (same) {
       out.forEach((n, k) => {
@@ -221,9 +265,188 @@ export default {
       })
     } else {
       this.chans = out
-      // the scroll needs the real content height (children never shrink)
       this.colH = 340 + 86 + 44 + out.length * 86 + 400
     }
+  },
+
+  yToVal(y) {
+    const rel = y - SLIDE_TRACK_TOP
+    const t = 1 - rel / SLIDE_TRACK_H
+    return Math.max(0, Math.min(100, Math.round(t * 100)))
+  },
+
+  updateSlideVisual(v) {
+    const style = channelStyle(v, this.run)
+    this.slideVal = String(v)
+    this.slideColor = style.color
+    this.slideFill = style.fill
+    this.slideFillH = Math.round((SLIDE_TRACK_H * v) / 100)
+    this.slideKnobB = this.slideFillH - 18
+    if (this.slideKnobB < 0) {
+      this.slideKnobB = 0
+    }
+  },
+
+  openSlide(i, val, name) {
+    if (this.chTouch) {
+      this.chTouch.opened = true
+    }
+    clearTimeout(this.slideCloseTimer)
+    this.slideIdx = i
+    this.slideName = name
+    this.slideDraft = val
+    this.slideSent = val
+    this.slideTouching = true
+    this.slideOn = true
+    this.slideAnim = 'slide-in'
+    this.slideDim = !this.run
+    this.slideTick = Math.floor(val / 10)
+    this.scrollTop = this.savedScroll
+    this.updateSlideVisual(val)
+    const y = this.chTouch && this.chTouch.y
+    if (y) {
+      this.setSlideFromY(y)
+    }
+    this.armSlideCommit()
+  },
+
+  setSlideFromY(y) {
+    const v = this.yToVal(y)
+    if (v === this.slideDraft) {
+      return
+    }
+    const tick = Math.floor(v / 10)
+    if (tick !== this.slideTick) {
+      this.slideTick = tick
+      this.$app.$def.buzz('short')
+    }
+    this.slideDraft = v
+    this.updateSlideVisual(v)
+    this.optim[this.slideIdx] = { v: v, at: Date.now() }
+    const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
+    this.buildChannels(ch, this.run)
+    if (!this.slideDim) {
+      this.armSlideCommit()
+    }
+  },
+
+  armSlideCommit() {
+    clearTimeout(this.slideCommitTimer)
+    this.slideCommitTimer = setTimeout(() => {
+      if (this.slideTouching && this.slideDraft !== this.slideSent) {
+        this.commitSlide()
+      }
+    }, SLIDE_COMMIT_MS)
+  },
+
+  commitSlide() {
+    if (this.slideIdx < 0 || this.slideDraft === this.slideSent || this.slideDim) {
+      return
+    }
+    this.slideSent = this.slideDraft
+    this.$app.$def.command('ch_set', { c: this.slideIdx, v: this.slideDraft }, 'none')
+  },
+
+  chTouchStart(i, text, name, e) {
+    if (this.slideOn) {
+      return
+    }
+    const y = touchY(e)
+    const x = touchX(e)
+    this.chTouch = {
+      i: i,
+      name: name,
+      val: parseInt(text, 10) || 0,
+      startX: x,
+      startY: y,
+      y: y,
+      t0: Date.now(),
+      moved: false,
+      opened: false
+    }
+    clearTimeout(this.chOpenTimer)
+    this.chOpenTimer = setTimeout(() => {
+      if (this.chTouch && this.chTouch.i === i && !this.chTouch.opened) {
+        this.openSlide(i, this.chTouch.val, name)
+      }
+    }, SLIDE_OPEN_MS)
+  },
+
+  chTouchMove(e) {
+    const touch = this.chTouch
+    if (!touch) {
+      return
+    }
+    const y = touchY(e)
+    const x = touchX(e)
+    touch.y = y
+    if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
+      touch.moved = true
+    }
+    if (this.slideOn && this.slideTouching) {
+      this.setSlideFromY(y)
+    }
+  },
+
+  chTouchEnd(e) {
+    clearTimeout(this.chOpenTimer)
+    const touch = this.chTouch
+    if (touch && touch.opened) {
+      this.chTouch = null
+      this.slideEnd(e)
+      return
+    }
+    this.chTouch = null
+    if (!touch) {
+      return
+    }
+    const elapsed = Date.now() - touch.t0
+    if (elapsed >= SLIDE_OPEN_MS || touch.opened) {
+      return
+    }
+    if (!touch.moved && elapsed <= TAP_MAX_MS) {
+      const x = touchX(e) || touch.x
+      if (x < 106) {
+        this.chMinus(touch.i)
+      } else {
+        this.chPlus(touch.i)
+      }
+    }
+  },
+
+  slideTouch(e) {
+    if (!this.slideOn) {
+      return
+    }
+    this.slideTouching = true
+    this.setSlideFromY(touchY(e))
+  },
+
+  slideEnd(e) {
+    this.slideTouching = false
+    clearTimeout(this.slideCommitTimer)
+    clearTimeout(this.chOpenTimer)
+    this.chTouch = null
+    if (this.slideDraft !== this.slideSent) {
+      this.commitSlide()
+    }
+    clearTimeout(this.slideCloseTimer)
+    this.slideCloseTimer = setTimeout(() => {
+      this.slideOn = false
+      this.slideIdx = -1
+      this.scrollTop = this.savedScroll
+      const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
+      this.buildChannels(ch, this.run)
+    }, SLIDE_CLOSE_MS)
+  },
+
+  closeSlideNow() {
+    clearTimeout(this.slideCloseTimer)
+    clearTimeout(this.slideCommitTimer)
+    clearTimeout(this.chOpenTimer)
+    this.slideOn = false
+    this.slideTouching = false
+    this.chTouch = null
   },
 
   step(c, d) {
@@ -234,7 +457,7 @@ export default {
       this.optim[c] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
       this.buildChannels(ch)
     }
-    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: Math.abs(d) })
+    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: 1 })
   },
 
   chPlus(c) {
@@ -243,14 +466,6 @@ export default {
 
   chMinus(c) {
     this.step(c, -1)
-  },
-
-  chPlus5(c) {
-    this.step(c, 5)
-  },
-
-  chMinus5(c) {
-    this.step(c, -5)
   },
 
   press(w) {
@@ -444,17 +659,6 @@ export default {
   font-weight: bold;
   color: #ffffff;
 }
-.meta {
-  flex-shrink: 0;
-  font-size: 26px;
-  font-weight: bold;
-}
-.sync {
-  flex-shrink: 0;
-  margin-top: 10px;
-  font-size: 22px;
-  color: #ff9f0a;
-}
 .ctl {
   flex-shrink: 0;
   height: 340px;
@@ -504,46 +708,47 @@ export default {
   flex-shrink: 0;
   width: 196px;
   height: 76px;
-  padding-top: 6px;
-  flex-direction: column;
-  align-items: center;
   border-width: 2px;
   border-color: #48484a;
   border-radius: 22px;
+  justify-content: center;
+  align-items: center;
 }
 .cname {
   flex-shrink: 0;
   width: 180px;
   text-align: center;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
   color: #ffffff;
   lines: 1;
+  position: absolute;
+  top: 4px;
+  left: 8px;
 }
 .cline {
   flex-shrink: 0;
-  width: 192px;
+  width: 196px;
+  height: 76px;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
 }
 .csign {
   flex-shrink: 0;
-  width: 34px;
+  width: 44px;
   text-align: center;
-  font-size: 30px;
-  color: #8e8e93;
+  font-size: 42px;
+  font-weight: bold;
+  color: #aeaeb2;
 }
 .cval {
   flex-shrink: 0;
-  width: 124px;
+  width: 108px;
   text-align: center;
   font-size: 30px;
   font-weight: bold;
   lines: 1;
-}
-.chint {
-  font-size: 20px;
-  color: #8e8e93;
 }
 .all-fill {
   width: 192px;
@@ -605,6 +810,9 @@ export default {
   width: 98px;
   height: 76px;
 }
+.ch-row-touch {
+  flex-direction: column;
+}
 .stop-item {
   flex-shrink: 0;
   height: 400px;
@@ -647,5 +855,90 @@ export default {
   flex-shrink: 0;
   width: 60px;
   height: 60px;
+}
+.slide-screen {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 212px;
+  height: 520px;
+  flex-direction: column;
+  align-items: center;
+}
+.slide-in {
+  animation-name: slideIn;
+  animation-duration: 220ms;
+  animation-timing-function: ease-out;
+}
+.slide-dim {
+  opacity: 0.72;
+}
+@keyframes slideIn {
+  from {
+    transform: translateY(36px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+.slide-bg {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 212px;
+  height: 520px;
+  background-color: rgba(0, 0, 0, 0.92);
+}
+.slide-val {
+  flex-shrink: 0;
+  margin-top: 36px;
+  font-size: 72px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.slide-name {
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 26px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.slide-track {
+  flex-shrink: 0;
+  width: 56px;
+  height: 300px;
+  margin-top: 18px;
+  justify-content: flex-end;
+  align-items: center;
+}
+.slide-rail {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 56px;
+  height: 300px;
+  border-radius: 28px;
+  background-color: #1c1c1e;
+  border-width: 2px;
+  border-color: #48484a;
+}
+.slide-fill {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  width: 48px;
+  border-radius: 24px;
+}
+.slide-knob {
+  position: absolute;
+  left: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #ffffff;
+  border-width: 3px;
+  border-color: #48484a;
 }
 </style>

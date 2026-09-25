@@ -144,6 +144,9 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 if ("ch_plus".equals(a) || "ch_minus".equals(a)) {
                     lastChannel = intField(json, "c", -1);
                     lastStep = Math.max(1, Math.min(10, intField(json, "d", 1)));
+                } else if ("ch_set".equals(a)) {
+                    lastChannel = intField(json, "c", -1);
+                    lastSet = Math.max(0, Math.min(100, intField(json, "v", 0)));
                 }
                 moduleCommand(a);
             }
@@ -188,6 +191,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             pauseAll();
         } else if ("ch_plus".equals(a) || "ch_minus".equals(a)) {
             channelStep(lastChannel, "ch_plus".equals(a) ? lastStep : -lastStep);
+        } else if ("ch_set".equals(a)) {
+            channelSet(lastChannel, lastSet);
         } else if ("hg_toggle".equals(a) && ctx != null) {
             boolean on = !WearableConfig.isAutoReduceEnabled(ctx);
             WearableConfig.setAutoReduceEnabled(ctx, on);
@@ -251,6 +256,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
 
     private static int lastChannel = -1;
     private static int lastStep = 1;
+    private static int lastSet = 0;
 
     static int intField(String json, String key, int def) {
         try {
@@ -320,6 +326,24 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         int[] v = channelValues(item);
         WearableBleDiagLog.log("applink", "channel " + c + (d > 0 ? " +" : " ") + d
                 + (ok && v != null && c < v.length ? " → " + v[c] : " (not applied)"));
+    }
+
+    /** Slider on the band: set one channel's real strength (0–100). */
+    static void channelSet(int c, int v) {
+        com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
+        int[] vals = item != null ? channelValues(item) : null;
+        if (vals == null || c < 0 || c >= vals.length) {
+            return;
+        }
+        int target = Math.max(0, Math.min(100, v));
+        int delta = target - vals[c];
+        if (delta == 0) {
+            return;
+        }
+        channelStep(c, delta);
+        vals = channelValues(item);
+        WearableBleDiagLog.log("applink", "channel " + c + " =" + target
+                + (vals != null && c < vals.length ? " → " + vals[c] : ""));
     }
 
     /** Tiny reader for our own flat JSON ({"k":"v"}); no nesting needed on this side. */

@@ -18,8 +18,8 @@ import android.widget.TextView;
 public class AvatarClusterLayout extends RelativeLayout {
 
     private static final float BTN_DP = 45f;
-    private static final float EDGE_DP = 6f;    // tucked slightly under the slider ring (v1.0.65)
-    private static final float VERT_DP = 16f;
+    private static final float EDGE_DP = 0f;
+    private static final float VERT_DP = 10f;
     private static final float ICON_PAD_DP = 28f;
 
     private int baselineW;

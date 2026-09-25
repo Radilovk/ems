@@ -62,8 +62,8 @@ PUBLIC_ID_INSERT_AFTER = '<public type="id" name="pauseSegmentRemove3" id="0x7f0
 
 DESIGN_CONFIG = ROOT / "branding" / "design-config.yaml"
 DEFAULT_INDEX_BUTTON_SIZE = "45.0dip"
-DEFAULT_INWARD_EDGE = "6.0dip"  # v1.0.65: tucked slightly under the slider ring
-DEFAULT_INWARD_TOP_BOTTOM = "16.0dip"
+DEFAULT_INWARD_EDGE = "0.0dip"
+DEFAULT_INWARD_TOP_BOTTOM = "10.0dip"
 DEFAULT_ICON_PADDING = "28.0dip"
 
 PAUSE_MA_VALUE_VIEW = ""

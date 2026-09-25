@@ -259,30 +259,12 @@
     .prologue
     const/4 v2, -0x1
 
-    .line 339
-    if-eqz p0, :cond_1
-
-    .line 340
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isAutoReduceEnabled(Landroid/content/Context;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_0
-
     sget-object v0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->owners:Ljava/util/Set;
 
-    const-string v1, "ai"
-
-    invoke-interface {v0, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/HrDemandPolicy;->wantsHeartRate(Landroid/content/Context;Ljava/util/Set;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1
-
-    :cond_0
-    const/4 v0, 0x1
-
-    .line 341
     :goto_0
     sget-object v1, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->hrOn:Ljava/lang/Boolean;
 
@@ -296,17 +278,9 @@
 
     if-ne v1, v0, :cond_2
 
-    .line 354
     :goto_1
     return-void
 
-    .line 340
-    :cond_1
-    const/4 v0, 0x0
-
-    goto :goto_0
-
-    .line 344
     :cond_2
     invoke-static {v0}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
 

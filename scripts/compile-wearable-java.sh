@@ -21,6 +21,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBlePermissions.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBleDiagLog.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableConfig.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrDemandPolicy.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/EmsBleCoexist.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyWearableBridge.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSyncHelper.java"

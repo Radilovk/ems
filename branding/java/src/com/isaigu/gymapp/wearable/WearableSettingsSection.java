@@ -399,7 +399,7 @@ public final class WearableSettingsSection {
             color = WearableUi.COLOR_MUTED;
         } else if (NotifyWearableBridge.isListeningActive() && NotifyWearableBridge.isLinkUp()) {
             text = hr > 0 && "streaming".equals(state)
-                    ? hr + WearableUi.tr(" уд/мин", " bpm")
+                    ? String.valueOf(hr)
                     : WearableUi.stateText(state);
             color = hr > 0 ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT;
         } else if (WearableUi.isErrorState(state)) {

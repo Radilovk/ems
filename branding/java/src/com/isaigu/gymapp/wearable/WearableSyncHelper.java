@@ -882,7 +882,7 @@ public final class WearableSyncHelper {
             String state = NotifyWearableBridge.getBleState();
             int hr = NotifyWearableBridge.getLastHeartRate();
             if ("streaming".equals(state) && hr > 0) {
-                text = hr + WearableUi.tr(" уд/мин", "bpm");
+                text = String.valueOf(hr);
                 color = WearableUi.COLOR_OK;
             } else {
                 text = WearableUi.stateText(state);

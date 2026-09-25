@@ -3353,18 +3353,6 @@
 
     move-result-object v3
 
-    const-string v0, " \u0443\u0434/\u043c\u0438\u043d"
-
-    const-string v4, "bpm"
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {v3, v0}, Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
     move v2, v1
 
     goto :goto_26

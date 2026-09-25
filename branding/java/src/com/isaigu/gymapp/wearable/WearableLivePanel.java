@@ -237,7 +237,7 @@ final class WearableLivePanel {
         int hr = c.getLastRawHr();
         if (hr > 0) {
             int zone = WearableUi.zoneFor(hr, limit);
-            hrView.setText(hr + " " + WearableUi.tr("уд/мин", "bpm"));
+            hrView.setText(String.valueOf(hr));
             hrView.setTextColor(WearableUi.zoneColor(zone));
             zoneView.setText("Z" + zone + " · " + WearableUi.zoneName(zone)
                     + " · " + WearableUi.tr("праг ", "limit ") + limit);

@@ -884,7 +884,19 @@
     invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     .line 161
+    :try_start_ready
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->onTrainingHostReady()V
+    :try_end_ready
+    .catch Ljava/lang/Throwable; {:try_start_ready .. :try_end_ready} :catch_ready
+
+    goto :goto_5
+
+    :catch_ready
+    move-exception v0
+
+    const-string v1, "WearableSyncHelper.onTrainingHostReady"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_5
 

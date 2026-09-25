@@ -351,13 +351,38 @@ public final class WearableSettingsSection {
         }
     }
 
+    private static void flushConfigFromUi(Activity a) {
+        String mac = macView != null ? macView.getText().toString().trim() : WearableConfig.getBandMac(a);
+        String key = keyView != null ? keyView.getText().toString().trim() : WearableConfig.getAuthKey(a);
+        if (isValidMac(mac)) {
+            WearableConfig.setBandMac(a, NotifyWearableBridge.normalizeMac(mac));
+        }
+        if (isValidKey(key)) {
+            WearableConfig.setAuthKey(a, key);
+        }
+    }
+
     private static void startTest(Activity a) {
+        flushConfigFromUi(a);
         if (!WearableConfig.isConfigured(a) || !isValidMac(WearableConfig.getBandMac(a))) {
             toast(a, WearableUi.tr("Въведи валиден MAC и ключ (32 символа)", "Enter a valid MAC and key (32 chars)"));
             return;
         }
+        if (!WearableBlePermissions.hasAllBlePermissions(a)) {
+            WearableBlePermissions.ensureConnectPermission(a, new Runnable() {
+                @Override
+                public void run() {
+                    startTestAfterPermission(a);
+                }
+            });
+            return;
+        }
+        startTestAfterPermission(a);
+    }
+
+    private static void startTestAfterPermission(Activity a) {
         testUntilMs = System.currentTimeMillis() + TEST_MS;
-        NotifyWearableBridge.reconnect(a, NotifyWearableBridge.OWNER_SETTINGS);
+        NotifyWearableBridge.settingsFullReconnect(a);
         toast(a, WearableUi.tr("Свързване с гривната…", "Connecting to the band…"));
         scheduleStatus(a);
     }
@@ -394,14 +419,25 @@ public final class WearableSettingsSection {
         int color = WearableUi.COLOR_WAIT;
         String state = NotifyWearableBridge.getBleState();
         int hr = NotifyWearableBridge.getLastHeartRate();
+        boolean testing = testUntilMs > System.currentTimeMillis()
+                || NotifyWearableBridge.isOwnedBy(NotifyWearableBridge.OWNER_SETTINGS);
+        boolean listening = NotifyWearableBridge.isListeningActive();
         if (!WearableConfig.isConfigured(a) || !isValidMac(WearableConfig.getBandMac(a))) {
             text = WearableUi.tr("Не е настроена", "Not set up");
             color = WearableUi.COLOR_MUTED;
-        } else if (NotifyWearableBridge.isListeningActive() && NotifyWearableBridge.isLinkUp()) {
-            text = hr > 0 && "streaming".equals(state)
-                    ? String.valueOf(hr)
-                    : WearableUi.stateText(state);
-            color = hr > 0 ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT;
+        } else if (listening || testing) {
+            if (WearableUi.isErrorState(state)) {
+                text = WearableUi.stateText(state);
+                color = WearableUi.COLOR_ERROR;
+            } else if (hr > 0 && "streaming".equals(state)) {
+                text = String.valueOf(hr);
+                color = WearableUi.COLOR_OK;
+            } else {
+                text = state != null && state.length() > 0
+                        ? WearableUi.stateText(state)
+                        : WearableUi.tr("Свързване…", "Connecting…");
+                color = WearableUi.COLOR_WAIT;
+            }
         } else if (WearableUi.isErrorState(state)) {
             text = WearableUi.stateText(state);
             color = WearableUi.COLOR_ERROR;

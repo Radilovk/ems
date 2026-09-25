@@ -158,7 +158,11 @@ public final class WearableSyncHelper {
         button.setFocusable(true);
         button.bringToFront();
         button.setOnClickListener(new MasterOpenListener());
-        onTrainingHostReady();
+        try {
+            onTrainingHostReady();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.onTrainingHostReady", t);
+        }
     }
 
     /** Restore dial UI after activity recreate; do not auto-connect BLE (EMS needs Bluetooth). */

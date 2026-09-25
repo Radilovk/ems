@@ -4,7 +4,7 @@
 
 
 # static fields
-.field public static final MAX_MS:I = 0x7d0
+.field public static final MAX_MS:I = 0xbb8
 
 .field private static volatile aiActive:Z
 
@@ -57,7 +57,7 @@
     .locals 8
 
     .prologue
-    const/16 v2, 0x7d0
+    const/16 v2, 0xbb8
 
     const/4 v3, 0x0
 
@@ -334,7 +334,7 @@
     .locals 4
 
     .prologue
-    const/16 v3, 0x7d0
+    const/16 v3, 0xbb8
 
     const/4 v1, 0x2
 

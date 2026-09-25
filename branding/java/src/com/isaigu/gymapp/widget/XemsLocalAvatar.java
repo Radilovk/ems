@@ -241,25 +241,21 @@ public final class XemsLocalAvatar {
         }
     }
 
-    /** Hook: training slot bound — a tap on the client's photo opens the client card. */
-    public static void bindCard(final android.view.View icon, final com.isaigu.gymapp.bean.TrainUserProgramDataWrapper w) {
+    /**
+     * Hook: TrainViewHolder.bind (the training screen) — a tap on the client's photo opens the
+     * client card. The client is read at tap time (the slot may get another client later).
+     */
+    public static void bindCard(final android.view.View icon, final com.isaigu.gymapp.train.model.TrainItem item) {
         try {
             if (icon == null) {
                 return;
             }
-            if (w == null || w.trainUser == null) {
-                icon.setOnClickListener(null);
-                icon.setClickable(false);
-                return;
-            }
             icon.setOnClickListener(new android.view.View.OnClickListener() {
                 public void onClick(android.view.View v) {
-                    Context c = v.getContext();
-                    while (c instanceof android.content.ContextWrapper && !(c instanceof Activity)) {
-                        c = ((android.content.ContextWrapper) c).getBaseContext();
-                    }
-                    if (c instanceof Activity) {
-                        showCard((Activity) c, w.trainUser, w.trainProgram);
+                    com.isaigu.gymapp.bean.TrainUserProgramDataWrapper w = item != null ? item.data : null;
+                    Activity act = activity(v.getContext());
+                    if (w != null && w.trainUser != null && act != null) {
+                        showCard(act, w.trainUser, w.trainProgram);
                     }
                 }
             });
@@ -268,133 +264,244 @@ public final class XemsLocalAvatar {
         }
     }
 
-    private static final int C_BG = 0xFF121418;
-    private static final int C_CARD = 0xFF1C1F26;
-    private static final int C_TEXT = 0xFFECEFF4;
-    private static final int C_DIM = 0xFF9AA3B2;
-    private static final int C_ACCENT = 0xFF43A047;
+    /** Old training list (TrainFragment) — same card. */
+    public static void bindCard(final android.view.View icon, final com.isaigu.gymapp.bean.TrainUserProgramDataWrapper w) {
+        try {
+            if (icon == null) {
+                return;
+            }
+            icon.setOnClickListener(new android.view.View.OnClickListener() {
+                public void onClick(android.view.View v) {
+                    Activity act = activity(v.getContext());
+                    if (w != null && w.trainUser != null && act != null) {
+                        showCard(act, w.trainUser, w.trainProgram);
+                    }
+                }
+            });
+        } catch (Throwable t) {
+            android.util.Log.w("xems", "XemsLocalAvatar.bindCard", t);
+        }
+    }
 
-    /** Client card: photo, name and everything the client form knows. */
+    private static Activity activity(Context c) {
+        while (c instanceof android.content.ContextWrapper && !(c instanceof Activity)) {
+            c = ((android.content.ContextWrapper) c).getBaseContext();
+        }
+        return c instanceof Activity ? (Activity) c : null;
+    }
+
+    private static final int C_BG = 0xFF14171C;
+    private static final int C_HERO = 0xFF1B2A20;
+    private static final int C_CARD = 0xFF20242C;
+    private static final int C_TEXT = 0xFFF2F4F7;
+    private static final int C_DIM = 0xFF98A2B3;
+    private static final int C_ACCENT = 0xFF43A047;
+    private static final int C_WARN = 0xFFE5484D;
+
+    /** Client card: a modal sheet that scrolls — photo, name and everything the client form knows. */
     public static void showCard(final Activity a, final com.isaigu.gymapp.bean.TrainUser u,
             com.isaigu.gymapp.bean.TrainProgram program) {
         try {
             final android.app.Dialog dlg = new android.app.Dialog(a);
             dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
-            android.widget.LinearLayout page = new android.widget.LinearLayout(a);
-            page.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-            page.setPadding(dp(a, 28), dp(a, 28), dp(a, 28), dp(a, 24));
-            page.setBackground(round(a, C_BG, 28));
+            dlg.setCanceledOnTouchOutside(true);
 
-            // left: photo, name, buttons
-            android.widget.LinearLayout left = new android.widget.LinearLayout(a);
-            left.setOrientation(android.widget.LinearLayout.VERTICAL);
-            left.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+            android.widget.LinearLayout sheet = new android.widget.LinearLayout(a);
+            sheet.setOrientation(android.widget.LinearLayout.VERTICAL);
+            sheet.setBackground(round(a, C_BG, 28));
+
+            android.widget.ScrollView sc = new android.widget.ScrollView(a);
+            sc.setVerticalScrollBarEnabled(false);
+            android.widget.LinearLayout body = new android.widget.LinearLayout(a);
+            body.setOrientation(android.widget.LinearLayout.VERTICAL);
+            body.setPadding(dp(a, 24), dp(a, 24), dp(a, 24), dp(a, 8));
+            sc.addView(body);
+
+            // hero: photo, name, chips
+            android.widget.LinearLayout hero = new android.widget.LinearLayout(a);
+            hero.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            hero.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            hero.setPadding(dp(a, 20), dp(a, 20), dp(a, 20), dp(a, 20));
+            android.graphics.drawable.GradientDrawable hg = new android.graphics.drawable.GradientDrawable(
+                    android.graphics.drawable.GradientDrawable.Orientation.TL_BR, new int[] {0xFF1F3A27, 0xFF17201A});
+            hg.setCornerRadius(dp(a, 22));
+            hero.setBackground(hg);
             android.widget.ImageView ph = new android.widget.ImageView(a);
             Bitmap sq = read(u.iconUrl, 0);
-            if (sq != null) {
-                ph.setImageBitmap(circle(sq));
-            } else {
-                ph.setImageBitmap(initials(a, u.name));
+            ph.setImageBitmap(sq != null ? circle(sq) : initials(a, u.name));
+            hero.addView(ph, new android.widget.LinearLayout.LayoutParams(dp(a, 120), dp(a, 120)));
+            android.widget.LinearLayout who = new android.widget.LinearLayout(a);
+            who.setOrientation(android.widget.LinearLayout.VERTICAL);
+            who.setPadding(dp(a, 20), 0, 0, 0);
+            who.addView(tv(a, u.name != null ? u.name : "", 28, C_TEXT, true));
+            android.widget.LinearLayout chips = new android.widget.LinearLayout(a);
+            chips.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            chips.setPadding(0, dp(a, 10), 0, 0);
+            if (u.gender != null) {
+                chip(a, chips, u.gender == com.isaigu.gymapp.bean.Gender.Female
+                        ? XemsLocalUserForm.tr("Жена", "Female") : XemsLocalUserForm.tr("Мъж", "Male"), C_ACCENT);
             }
-            left.addView(ph, new android.widget.LinearLayout.LayoutParams(dp(a, 150), dp(a, 150)));
-            android.widget.TextView nm = tv(a, u.name != null ? u.name : "", 26, C_TEXT, true);
-            nm.setGravity(android.view.Gravity.CENTER);
-            nm.setPadding(0, dp(a, 12), 0, dp(a, 4));
-            left.addView(nm, new android.widget.LinearLayout.LayoutParams(dp(a, 240), -2));
-            String sub = sexAge(u);
-            if (sub.length() > 0) {
-                android.widget.TextView sb = tv(a, sub, 17, C_DIM, false);
-                sb.setGravity(android.view.Gravity.CENTER);
-                left.addView(sb, new android.widget.LinearLayout.LayoutParams(dp(a, 240), -2));
+            if (u.birtyday != null) {
+                int y = XemsLocalUserForm.yearsSince(u.birtyday);
+                if (y > 0 && y < 120) {
+                    chip(a, chips, y + XemsLocalUserForm.tr(" г.", " y"), C_ACCENT);
+                }
             }
-            android.widget.TextView edit = tv(a, XemsLocalUserForm.tr("Редактирай", "Edit"), 18, 0xFFFFFFFF, true);
-            edit.setGravity(android.view.Gravity.CENTER);
-            edit.setBackground(round(a, C_ACCENT, 24));
-            edit.setPadding(dp(a, 24), dp(a, 12), dp(a, 24), dp(a, 12));
-            android.widget.LinearLayout.LayoutParams ep = new android.widget.LinearLayout.LayoutParams(dp(a, 200), -2);
-            ep.topMargin = dp(a, 20);
-            left.addView(edit, ep);
+            who.addView(chips);
+            hero.addView(who, new android.widget.LinearLayout.LayoutParams(0, -2, 1f));
+            body.addView(hero, new android.widget.LinearLayout.LayoutParams(-1, -2));
+
+            // body tiles
+            android.widget.LinearLayout tiles = new android.widget.LinearLayout(a);
+            tiles.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            tiles.setPadding(0, dp(a, 14), 0, 0);
+            tile(a, tiles, XemsLocalUserForm.tr("Ръст", "Height"), u.height > 0 ? u.height + " cm" : "—");
+            tile(a, tiles, XemsLocalUserForm.tr("Тегло", "Weight"), u.weight > 0 ? Math.round(u.weight) + " kg" : "—");
+            String bmi = "—";
+            if (u.height > 0 && u.weight > 0) {
+                double m = u.height / 100.0;
+                bmi = String.format(java.util.Locale.US, "%.1f", u.weight / (m * m));
+            }
+            tile(a, tiles, "BMI", bmi);
+            body.addView(tiles, new android.widget.LinearLayout.LayoutParams(-1, -2));
+
+            // goal · fitness · contraindications
+            String[] prof = a.getSharedPreferences("xems_user_profiles", Context.MODE_PRIVATE)
+                    .getString("u" + u.id, "").split("\\|", -1);
+            if (prof.length >= 3) {
+                section(a, body, XemsLocalUserForm.tr("Цел и форма", "Goal and fitness"));
+                android.widget.LinearLayout gf = new android.widget.LinearLayout(a);
+                gf.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                tile(a, gf, XemsLocalUserForm.tr("Цел", "Goal"),
+                        prof[0].length() > 0 ? XemsLocalUserForm.goalName(prof[0]) : "—");
+                tile(a, gf, XemsLocalUserForm.tr("Форма", "Fitness"),
+                        prof[1].length() > 0 ? XemsLocalUserForm.fitnessName(prof[1]) : "—");
+                body.addView(gf, new android.widget.LinearLayout.LayoutParams(-1, -2));
+                section(a, body, XemsLocalUserForm.tr("Противопоказания", "Contraindications"));
+                android.widget.LinearLayout cs = new android.widget.LinearLayout(a);
+                cs.setOrientation(android.widget.LinearLayout.VERTICAL);
+                boolean any = false;
+                for (String k : prof[2].split(",")) {
+                    if (k.trim().length() > 0) {
+                        any = true;
+                        row(a, cs, "•  " + XemsLocalUserForm.contraName(k.trim()), C_WARN);
+                    }
+                }
+                if (!any) {
+                    row(a, cs, XemsLocalUserForm.tr("Няма", "None"), C_ACCENT);
+                }
+                body.addView(cs, new android.widget.LinearLayout.LayoutParams(-1, -2));
+            }
+
+            // contact · program · since
+            boolean phone = u.phone != null && u.phone.trim().length() > 0;
+            boolean mail = u.email != null && u.email.trim().length() > 0;
+            if (phone || mail) {
+                section(a, body, XemsLocalUserForm.tr("Контакт", "Contact"));
+                if (phone) {
+                    fact(a, body, XemsLocalUserForm.tr("Телефон", "Phone"), u.phone.trim());
+                }
+                if (mail) {
+                    fact(a, body, XemsLocalUserForm.tr("Имейл", "Email"), u.email.trim());
+                }
+            }
+            section(a, body, XemsLocalUserForm.tr("Тренировка", "Training"));
+            if (program != null && program.name != null && program.name.length() > 0) {
+                fact(a, body, XemsLocalUserForm.tr("Програма", "Program"), program.name);
+            }
+            if (u.createTime != null) {
+                fact(a, body, XemsLocalUserForm.tr("Клиент от", "Client since"),
+                        new java.text.SimpleDateFormat("dd.MM.yyyy", java.util.Locale.US).format(u.createTime));
+            }
+            sheet.addView(sc, new android.widget.LinearLayout.LayoutParams(-1, 0, 1f));
+
+            // buttons (always visible)
+            android.widget.LinearLayout bar = new android.widget.LinearLayout(a);
+            bar.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            bar.setPadding(dp(a, 24), dp(a, 12), dp(a, 24), dp(a, 20));
+            android.widget.TextView close = button(a, XemsLocalUserForm.tr("Затвори", "Close"), C_CARD, C_TEXT);
+            android.widget.TextView edit = button(a, XemsLocalUserForm.tr("Редактирай", "Edit"), C_ACCENT, 0xFFFFFFFF);
+            android.widget.LinearLayout.LayoutParams bp = new android.widget.LinearLayout.LayoutParams(0, dp(a, 56), 1f);
+            bar.addView(close, bp);
+            android.widget.LinearLayout.LayoutParams ep = new android.widget.LinearLayout.LayoutParams(0, dp(a, 56), 1f);
+            ep.leftMargin = dp(a, 12);
+            bar.addView(edit, ep);
+            sheet.addView(bar, new android.widget.LinearLayout.LayoutParams(-1, -2));
+            close.setOnClickListener(new android.view.View.OnClickListener() {
+                public void onClick(android.view.View v) {
+                    dlg.dismiss();
+                }
+            });
             edit.setOnClickListener(new android.view.View.OnClickListener() {
                 public void onClick(android.view.View v) {
                     dlg.dismiss();
                     XemsLocalUserForm.show(a, u);
                 }
             });
-            android.widget.TextView close = tv(a, XemsLocalUserForm.tr("Затвори", "Close"), 18, C_TEXT, true);
-            close.setGravity(android.view.Gravity.CENTER);
-            close.setBackground(round(a, C_CARD, 24));
-            close.setPadding(dp(a, 24), dp(a, 12), dp(a, 24), dp(a, 12));
-            android.widget.LinearLayout.LayoutParams cp = new android.widget.LinearLayout.LayoutParams(dp(a, 200), -2);
-            cp.topMargin = dp(a, 10);
-            left.addView(close, cp);
-            close.setOnClickListener(new android.view.View.OnClickListener() {
-                public void onClick(android.view.View v) {
-                    dlg.dismiss();
-                }
-            });
-            page.addView(left);
 
-            // right: the facts
-            android.widget.LinearLayout facts = new android.widget.LinearLayout(a);
-            facts.setOrientation(android.widget.LinearLayout.VERTICAL);
-            facts.setPadding(dp(a, 28), 0, 0, 0);
-            String[] prof = a.getSharedPreferences("xems_user_profiles", Context.MODE_PRIVATE)
-                    .getString("u" + u.id, "").split("\\|", -1);
-            if (u.height > 0) {
-                fact(a, facts, XemsLocalUserForm.tr("Ръст", "Height"), u.height + " cm");
-            }
-            if (u.weight > 0) {
-                String w = Math.round(u.weight) + " kg";
-                if (u.height > 0) {
-                    double m = u.height / 100.0;
-                    w += "   ·   BMI " + String.format(java.util.Locale.US, "%.1f", u.weight / (m * m));
-                }
-                fact(a, facts, XemsLocalUserForm.tr("Тегло", "Weight"), w);
-            }
-            if (prof.length >= 3) {
-                if (prof[0].length() > 0) {
-                    fact(a, facts, XemsLocalUserForm.tr("Цел", "Goal"), XemsLocalUserForm.goalName(prof[0]));
-                }
-                if (prof[1].length() > 0) {
-                    fact(a, facts, XemsLocalUserForm.tr("Форма", "Fitness"), XemsLocalUserForm.fitnessName(prof[1]));
-                }
-                StringBuilder cs = new StringBuilder();
-                for (String k : prof[2].split(",")) {
-                    if (k.trim().length() > 0) {
-                        cs.append(cs.length() > 0 ? ", " : "").append(XemsLocalUserForm.contraName(k.trim()));
-                    }
-                }
-                fact(a, facts, XemsLocalUserForm.tr("Противопоказания", "Contraindications"),
-                        cs.length() > 0 ? cs.toString() : XemsLocalUserForm.tr("няма", "none"));
-            }
-            if (u.phone != null && u.phone.trim().length() > 0) {
-                fact(a, facts, XemsLocalUserForm.tr("Телефон", "Phone"), u.phone.trim());
-            }
-            if (u.email != null && u.email.trim().length() > 0) {
-                fact(a, facts, XemsLocalUserForm.tr("Имейл", "Email"), u.email.trim());
-            }
-            if (program != null && program.name != null && program.name.length() > 0) {
-                fact(a, facts, XemsLocalUserForm.tr("Програма", "Program"), program.name);
-            }
-            if (u.createTime != null) {
-                fact(a, facts, XemsLocalUserForm.tr("Клиент от", "Client since"),
-                        new java.text.SimpleDateFormat("dd.MM.yyyy", java.util.Locale.US).format(u.createTime));
-            }
-            android.widget.ScrollView sc = new android.widget.ScrollView(a);
-            sc.addView(facts);
-            page.addView(sc, new android.widget.LinearLayout.LayoutParams(0, -2, 1f));
-
-            dlg.setContentView(page);
+            dlg.setContentView(sheet);
             android.view.Window win = dlg.getWindow();
             if (win != null) {
                 win.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0));
-                int sw = a.getResources().getDisplayMetrics().widthPixels;
-                win.setLayout(Math.min(sw - dp(a, 48), dp(a, 760)), -2);
+                win.setDimAmount(0.65f);
+                android.util.DisplayMetrics dm = a.getResources().getDisplayMetrics();
+                win.setLayout(Math.min(dm.widthPixels - dp(a, 48), dp(a, 640)),
+                        Math.min(dm.heightPixels - dp(a, 48), dp(a, 720)));
+                win.setWindowAnimations(android.R.style.Animation_Dialog);
             }
             dlg.show();
         } catch (Throwable t) {
             android.util.Log.w("xems", "XemsLocalAvatar.showCard", t);
         }
+    }
+
+    private static void chip(Context c, android.widget.LinearLayout row, String text, int color) {
+        android.widget.TextView t = tv(c, text, 15, color, true);
+        android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
+        g.setColor((color & 0x00FFFFFF) | 0x26000000);
+        g.setCornerRadius(dp(c, 14));
+        t.setBackground(g);
+        t.setPadding(dp(c, 12), dp(c, 5), dp(c, 12), dp(c, 5));
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(-2, -2);
+        lp.rightMargin = dp(c, 8);
+        row.addView(t, lp);
+    }
+
+    private static void tile(Context c, android.widget.LinearLayout row, String label, String value) {
+        android.widget.LinearLayout t = new android.widget.LinearLayout(c);
+        t.setOrientation(android.widget.LinearLayout.VERTICAL);
+        t.setBackground(round(c, C_CARD, 18));
+        t.setPadding(dp(c, 16), dp(c, 12), dp(c, 16), dp(c, 12));
+        t.addView(tv(c, label, 14, C_DIM, false));
+        t.addView(tv(c, value, 22, C_TEXT, true));
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(0, -2, 1f);
+        if (row.getChildCount() > 0) {
+            lp.leftMargin = dp(c, 10);
+        }
+        row.addView(t, lp);
+    }
+
+    private static void section(Context c, android.widget.LinearLayout body, String title) {
+        android.widget.TextView t = tv(c, title.toUpperCase(), 13, C_DIM, true);
+        t.setLetterSpacing(0.08f);
+        t.setPadding(dp(c, 4), dp(c, 20), 0, dp(c, 8));
+        body.addView(t);
+    }
+
+    private static void row(Context c, android.widget.LinearLayout col, String text, int color) {
+        android.widget.TextView t = tv(c, text, 18, color, true);
+        t.setBackground(round(c, C_CARD, 14));
+        t.setPadding(dp(c, 16), dp(c, 12), dp(c, 16), dp(c, 12));
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(-1, -2);
+        lp.bottomMargin = dp(c, 6);
+        col.addView(t, lp);
+    }
+
+    private static android.widget.TextView button(Context c, String text, int bg, int fg) {
+        android.widget.TextView b = tv(c, text, 18, fg, true);
+        b.setGravity(android.view.Gravity.CENTER);
+        b.setBackground(round(c, bg, 18));
+        return b;
     }
 
     private static String sexAge(com.isaigu.gymapp.bean.TrainUser u) {

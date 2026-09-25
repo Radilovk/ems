@@ -3,8 +3,9 @@
 
 - CircleSeekBar.isTouch: a touch inside the ring (on the photo) is not the slider's
   (XemsLocalAvatar.inCenter) — the slider moves only on its ring;
-- TrainFragment$UserTrainAdapter.onBindViewHolder: a tap on userIcon opens the client card
-  (XemsLocalAvatar.bindCard).
+- TrainViewHolder.bind (the training screen): a tap on userIcon opens the client card
+  (XemsLocalAvatar.bindCard(View, TrainItem));
+- TrainFragment$UserTrainAdapter.onBindViewHolder (old list): same card.
 """
 from __future__ import annotations
 
@@ -14,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 SEEK = DECOMPILED / "smali_classes2/com/isaigu/gymapp/widget/CircleSeekBar.smali"
+HOLDER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/TrainViewHolder.smali"
 ADAPTER = DECOMPILED / "smali_classes2/com/isaigu/gymapp/fragment/TrainFragment$UserTrainAdapter.smali"
 AV = "Lcom/isaigu/gymapp/widget/XemsLocalAvatar;"
 
@@ -66,8 +68,33 @@ def patch_adapter() -> None:
     ADAPTER.write_text(text[:a] + body + text[b:], encoding="utf-8")
 
 
+def patch_holder() -> None:
+    text = HOLDER.read_text(encoding="utf-8")
+    if AV + "->bindCard(Landroid/view/View;Lcom/isaigu/gymapp/train/model/TrainItem;)V" in text:
+        return
+    sig = ".method public bind(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/train/listener/OnTrainListListener;)V"
+    a = text.find(sig)
+    if a < 0:
+        sys.exit("apply-avatar-card: TrainViewHolder.bind not found")
+    b = text.find(".end method", a)
+    body = text[a:b]
+    call = "    invoke-direct {p0}, Lcom/isaigu/gymapp/train/TrainViewHolder;->bindNotEmpty()V\n"
+    if body.count(call) != 1:
+        sys.exit("apply-avatar-card: bindNotEmpty call not found once in TrainViewHolder.bind")
+    hook = (
+        call + "\n"
+        "    iget-object v0, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->binding:"
+        "Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;\n\n"
+        "    iget-object v0, v0, Lcom/isaigu/gymapp/databinding/NewUserTrainControlItemLayoutBinding;"
+        "->userIcon:Landroid/widget/ImageView;\n\n"
+        f"    invoke-static {{v0, p1}}, {AV}->bindCard(Landroid/view/View;Lcom/isaigu/gymapp/train/model/TrainItem;)V\n"
+    )
+    HOLDER.write_text(text[:a] + body.replace(call, hook) + text[b:], encoding="utf-8")
+
+
 def main() -> None:
     patch_seek()
+    patch_holder()
     patch_adapter()
     print("apply-avatar-card: slider ring only, photo opens the client card")
 

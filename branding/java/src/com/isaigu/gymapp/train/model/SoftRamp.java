@@ -102,7 +102,7 @@ public final class SoftRamp {
 
     private static void rampUp(TrainItem item, ProgramDataBean b, boolean[] parts, int workLength, int upMs) {
         int g = current(item);
-        int n = (int) Math.max(2, Math.min(12, Math.round(upMs / (double) STEP_MS)));
+        int n = (int) Math.max(2, Math.min(20, Math.round(upMs / (double) STEP_MS)));
         // first step now, from the stock send itself (the phase must reach the suit in any case)
         double f1 = 1 / (double) n;
         scale.put(item, f1);
@@ -203,7 +203,7 @@ public final class SoftRamp {
             if (!alive(item, g)) {
                 return;
             }
-            int n = (int) Math.max(2, Math.min(12, Math.round(downMs / (double) STEP_MS)));
+            int n = (int) Math.max(2, Math.min(20, Math.round(downMs / (double) STEP_MS)));
             for (int k = 1; k <= n; k++) {
                 final double f = 1.0 - k / (double) (n + 1);
                 long at = Math.round((k - 1) * downMs / (double) n);

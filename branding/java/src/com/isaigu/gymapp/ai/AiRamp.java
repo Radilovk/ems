@@ -15,7 +15,7 @@ import com.isaigu.gymapp.bean.ProgramDataBean;
  * impulse) both the work and the pause impulse rise and fall softly.
  */
 public final class AiRamp {
-    public static final int MAX_MS = 2000;
+    public static final int MAX_MS = 3000;
 
     private static volatile boolean aiActive;
     private static volatile int rampUpMs;
@@ -74,7 +74,7 @@ public final class AiRamp {
 
     /**
      * Rise / fall in ms for the tablet's own ramp (train.model.SoftRamp): the Smart Session's
-     * when it runs, else the program's — each ≤ 2 s, together ≤ the ON time.
+     * when it runs, else the program's — each ≤ 3 s, together ≤ the ON time.
      */
     public static int[] rampMs(ProgramDataBean b) {
         if (aiActive) {
@@ -86,7 +86,7 @@ public final class AiRamp {
         return fit(b.inputRamp, b.outputRamp, b.pulseContinue);
     }
 
-    /** Each ramp ≤ 2 s; together ≤ the ON time (scaled down proportionally when longer). */
+    /** Each ramp ≤ 3 s; together ≤ the ON time (scaled down proportionally when longer). */
     static int[] fit(int upMs, int downMs, int onS) {
         int up = Math.max(0, Math.min(MAX_MS, upMs));
         int down = Math.max(0, Math.min(MAX_MS, downMs));

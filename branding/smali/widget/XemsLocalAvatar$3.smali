@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 330
+    .line 430
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$3;->val$dlg:Landroid/app/Dialog;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,11 +45,11 @@
     .locals 1
 
     .prologue
-    .line 332
+    .line 432
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$3;->val$dlg:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 333
+    .line 433
     return-void
 .end method

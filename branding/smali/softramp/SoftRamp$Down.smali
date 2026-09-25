@@ -76,7 +76,7 @@
     :cond_1
     const-wide/16 v0, 0x2
 
-    const-wide/16 v2, 0xc
+    const-wide/16 v2, 0x14
 
     iget v4, p0, Lcom/isaigu/gymapp/train/model/SoftRamp$Down;->downMs:I
 

@@ -395,7 +395,7 @@
     .line 105
     const-wide/16 v2, 0x2
 
-    const-wide/16 v4, 0xc
+    const-wide/16 v4, 0x14
 
     move/from16 v0, p4
 

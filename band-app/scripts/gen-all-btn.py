@@ -7,8 +7,8 @@ from PIL import Image, ImageDraw
 OUT = Path(__file__).resolve().parent.parent / "src" / "common" / "ui"
 W, H = 192, 72
 R = 20
-GREEN = (31, 157, 70)
-RED = (224, 52, 43)
+GREEN = (48, 209, 88)   # #30D158 — same as play / toggle buttons
+RED = (255, 69, 58)     # #FF453A — same as stop ring / pulse
 
 
 def main() -> None:

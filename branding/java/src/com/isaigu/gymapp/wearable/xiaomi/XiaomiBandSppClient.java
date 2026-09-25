@@ -66,6 +66,8 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     private boolean authStarted;
     private boolean authenticated;
     private boolean realtimeWanted;
+    /** A module uses the link (with or without heart rate): reconnect when it drops. */
+    private boolean keepLink;
     private boolean realtimeStarted;
     private boolean userDisconnect;
     private int startRetries;
@@ -211,6 +213,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         closePort();
         resetSession();
         userDisconnect = false;
+        keepLink = true;
         main.removeCallbacks(reconnect);
         mac = macAddress != null ? macAddress.trim().toUpperCase() : "";
         authKey = XiaomiBand.parseAuthKey(authKeyHex);
@@ -262,6 +265,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     public void disconnect() {
         userDisconnect = true;
         realtimeWanted = false;
+        keepLink = false;
         main.removeCallbacks(reconnect);
         if (authenticated && realtimeStarted) {
             send(XiaomiBandMessages.request(XiaomiBandMessages.T_HEALTH, XiaomiBandMessages.HEALTH_RT_STOP));
@@ -279,6 +283,18 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             main.removeCallbacks(startRealtime);
             main.postDelayed(startRealtime, START_DELAY_MS);
         }
+    }
+
+    @Override
+    public void stopRealtime() {
+        realtimeWanted = false;
+        main.removeCallbacks(startRealtime);
+        if (authenticated && realtimeStarted) {
+            log("health", "realtime STOP");
+            send(XiaomiBandMessages.request(XiaomiBandMessages.T_HEALTH, XiaomiBandMessages.HEALTH_RT_STOP));
+        }
+        realtimeStarted = false;
+        lastEventMs = 0L;
     }
 
     private void resetSession() {
@@ -361,7 +377,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
 
     /** Link lost: reconnect when a module still wants the stream, else stop. */
     private void dropped(String failState) {
-        boolean wanted = realtimeWanted && !userDisconnect;
+        boolean wanted = (keepLink || realtimeWanted) && !userDisconnect;
         boolean wasAuth = authenticated;
         resetSession();
         if (wasAuth) {
@@ -629,6 +645,9 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         XiaomiBandAppLink.onAuthenticated(this);
         if (realtimeWanted) {
             main.postDelayed(startRealtime, START_DELAY_MS);
+        } else {
+            main.removeCallbacks(watch);
+            main.postDelayed(watch, WATCH_MS);
         }
     }
 
@@ -654,10 +673,18 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     }
 
     void onWatchTick() {
-        if (!authenticated || !realtimeStarted || port == null) {
+        if (!authenticated || port == null) {
             return;
         }
         long now = System.currentTimeMillis();
+        if (!realtimeStarted) {
+            // no heart rate wanted: only keep the band status fresh
+            if (now - lastStatusPollMs > STATUS_POLL_MS) {
+                pollStatus();
+            }
+            main.postDelayed(watch, WATCH_MS);
+            return;
+        }
         if (lastEventMs == 0L && now - streamStartMs > FIRST_EVENT_MS) {
             if (startRetries < 1) {
                 startRetries++;
@@ -684,7 +711,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     }
 
     void onReconnectTick() {
-        if (userDisconnect || !realtimeWanted || appContext == null || authKey == null) {
+        if (userDisconnect || !(keepLink || realtimeWanted) || appContext == null || authKey == null) {
             return;
         }
         log("spp", "reconnecting");

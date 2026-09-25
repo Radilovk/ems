@@ -23,45 +23,45 @@
 
 # direct methods
 .method constructor <init>(Ljava/lang/String;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 600
+    .line 831
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 601
+    .line 832
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$AppMsg;->json:Ljava/lang/String;
 
-    .line 602
+    .line 833
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .registers 3
+    .locals 2
 
     .prologue
-    .line 607
+    .line 838
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$AppMsg;->json:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->handleApp(Ljava/lang/String;)V
-    :try_end_5
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 611
-    :goto_5
+    .line 842
+    :goto_0
     return-void
 
-    .line 608
-    :catch_6
+    .line 839
+    :catch_0
     move-exception v0
 
-    .line 609
+    .line 840
     const-string v1, "BandRemote.app"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_5
+    goto :goto_0
 .end method

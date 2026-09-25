@@ -14,6 +14,8 @@ public interface XiaomiBandLink {
     void disconnect();
 
     void startRealtime();
+    /** Stop the heart-rate stream but keep the link (band app, remote keys) up. */
+    void stopRealtime();
 
     /** Send a ready-made protobuf command (encrypted like every post-auth command). */
     void sendCommand(byte[] proto);

@@ -25,13 +25,14 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Lcom/isaigu/gymapp/bean/vo/ResponseData;)V
-    .registers 3
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
         }
     .end annotation
 
+    .prologue
     .line 276
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;->val$cb:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
 
@@ -45,8 +46,9 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .locals 4
 
+    .prologue
     .line 280
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;->val$cb:Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
@@ -58,14 +60,15 @@
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;->val$r:Lcom/isaigu/gymapp/bean/vo/ResponseData;
 
     invoke-virtual {v0, v1, v2, v3}, Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;->httpResponse(ZLjava/lang/String;Ljava/lang/Object;)V
-    :try_end_a
-    .catchall {:try_start_0 .. :try_end_a} :catchall_b
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 283
-    goto :goto_13
+    .line 284
+    :goto_0
+    return-void
 
     .line 281
-    :catchall_b
+    :catch_0
     move-exception v0
 
     .line 282
@@ -75,7 +78,5 @@
 
     invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 284
-    :goto_13
-    return-void
+    goto :goto_0
 .end method

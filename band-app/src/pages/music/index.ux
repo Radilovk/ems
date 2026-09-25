@@ -1,5 +1,5 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
+  <stack class="root bg-music" onswipe="onSwipe">
     <!-- 1 · play / pause -->
     <div class="screen {{anim}}" if="{{cur === 'main'}}">
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
@@ -32,7 +32,7 @@
 
     <!-- 3 · impulses follow the music: ceiling -->
     <div class="screen {{anim}}" if="{{cur === 'ceil'}}">
-      <text class="caps">ТАВАН НА ИМПУЛСИТЕ</text>
+      <text class="caps">ТАВАН</text>
       <text class="ceil-num">{{ceil}}</text>
       <div class="lvl-track">
         <div class="lvl-fill" style="width: {{lvl * 1.8}}px"></div>
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { PURPLE, mmss, mods, bind, setPages, swipe } from '../../common/ui.js'
+import { PURPLE, mmss, mods, bind, shown, setPages, swipe } from '../../common/ui.js'
 
 export default {
   private: {
@@ -81,6 +81,14 @@ export default {
     this.unbind = bind(this)
   },
 
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
+  },
+
   onDestroy() {
     this.unbind()
   },
@@ -99,7 +107,7 @@ export default {
     const mu = mods(s).mu
     setPages(this, mu.on ? ['main', 'skip', 'ceil'] : ['main', 'skip'])
     this.play = !!mu.play
-    this.caps = mu.on && !mu.play ? 'МУЗИКА · ПАУЗА' : 'МУЗИКА'
+    this.caps = mu.on && !mu.play ? 'ПАУЗА' : 'МУЗИКА'
     this.capsColor = mu.play ? PURPLE : '#8E8E93'
     this.title = mu.title || (mu.on ? 'музика' : 'пусни от таблета')
     const pos = (mu.pos || 0) + (mu.play ? app.silence() : 0)
@@ -152,8 +160,16 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
-  background-color: #000000;
+  padding-top: 46px;
+}
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  flex-shrink: 0;
+  width: 212px;
+  flex-direction: column;
 }
 .in-up {
   animation-name: inUp;
@@ -186,20 +202,23 @@ export default {
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  flex-shrink: 0;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
+  flex-shrink: 0;
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {
   transform: scale(0.92);
 }
 .btn {
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   transition-property: transform;
@@ -247,6 +266,10 @@ export default {
   }
 }
 /* ---- page ---- */
+.bg-music {
+  background-image: url(/common/bg/music.png);
+  background-size: cover;
+}
 .title {
   width: 190px;
   height: 40px;

@@ -34,6 +34,7 @@ public final class XemsLocalSection {
         } catch (Throwable t) {
             android.util.Log.e("xems_local", "attach failed", t);
         }
+        XemsLocalGate.attach(activity, root);
     }
 
     public static boolean onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {

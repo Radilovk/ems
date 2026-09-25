@@ -225,6 +225,7 @@ public final class XemsLocalStore {
             users.addAll(offline);
             FileUtils.saveListData(FILE_OFFLINE_USERS, TrainUser.class, new ArrayList<TrainUser>());
         }
+        ensureSampleUser(users);
         dm.trainUsers = users;
         // Offline users of the old app all had id 0: give each its own id.
         for (int i = 0; i < users.size(); i++) {
@@ -234,6 +235,32 @@ public final class XemsLocalStore {
             }
         }
         saveUsers();
+    }
+
+    /** Id of the sample client (local ids start at -100000, so it never meets one). */
+    static final long SAMPLE_USER_ID = -1L;
+
+    /** A ready sample client is always on the list (put back if it was removed). */
+    private static void ensureSampleUser(List<TrainUser> users) {
+        for (int i = 0; i < users.size(); i++) {
+            TrainUser u = users.get(i);
+            if (u != null && u.id == SAMPLE_USER_ID) {
+                return;
+            }
+        }
+        TrainUser s = new TrainUser();
+        s.id = SAMPLE_USER_ID;
+        s.name = tr("Примерен клиент", "Sample client");
+        s.nickName = s.name;
+        s.gender = com.isaigu.gymapp.bean.Gender.Male;
+        s.height = 175;
+        s.weight = 75f;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.YEAR, -35);
+        s.birtyday = cal.getTime();
+        s.createTime = new Date();
+        s.remark = tr("Цел: Тонус · Форма: Среден", "Goal: Tone · Fitness: Intermediate");
+        users.add(0, s);
     }
 
     public static void loadPrograms() {
@@ -319,6 +346,45 @@ public final class XemsLocalStore {
 
     private static final android.os.Handler MAIN = new android.os.Handler(android.os.Looper.getMainLooper());
 
+    /** Names of the suits seen over BLE (MAC key → advertised name), shown instead of the MAC. */
+    private static final java.util.Map<String, String> SEEN_NAMES =
+            new java.util.concurrent.ConcurrentHashMap<String, String>();
+
+    /**
+     * BleMgr, for every BLE find: is it an EMS suit? Anything else (phones, headsets, TVs) is
+     * never shown. A suit is: a name with "EMS" in it; a name starting "NBee" (the app's own
+     * suit filter); the suit maker's advertising data (manufacturer 0xF0F1, what the app reads
+     * from its suits); or a MAC the tablet already knows (paired, on the list, from the server).
+     */
+    public static boolean isEmsDevice(Object model, byte[] makerData) {
+        try {
+            String mac = (String) readField(model, "address");
+            String name = (String) readField(model, "name");
+            String n = name == null ? "" : name.trim();
+            String up = n.toUpperCase();
+            boolean ems = up.contains("EMS") || up.startsWith("NBEE")
+                    || (makerData != null && makerData.length > 0)
+                    || (mac != null && (knownDevice(mac) != null || isAllowed(getAppContext(), mac)));
+            if (ems && mac != null && n.length() > 0) {
+                SEEN_NAMES.put(macKey(mac), n);
+            }
+            return ems;
+        } catch (Throwable t) {
+            return true;                            // never hide a suit because of us
+        }
+    }
+
+    /** The advertised name of a suit, else its MAC. */
+    static String displayName(String mac) {
+        String n = mac != null ? SEEN_NAMES.get(macKey(mac)) : null;
+        return n != null && n.length() > 0 ? n : mac;
+    }
+
+    private static Object readField(Object o, String name) throws Exception {
+        java.lang.reflect.Field f = o.getClass().getField(name);
+        return f.get(o);
+    }
+
     /**
      * BLE scan found a suit that is not in the dialog list yet (called from DeviceAdapter
      * .discoverDevice on the BLE thread). It is shown when it may be used: any suit in the setup,
@@ -345,7 +411,6 @@ public final class XemsLocalStore {
         }
     }
 
-    @SuppressWarnings("unchecked")
     /** BLE freshness timer expired — remove suit from the connect dialog list. */
     public static void onScanLost(final Object adapter, final String mac) {
         if (adapter == null || TextUtils.isEmpty(mac)) {
@@ -374,6 +439,17 @@ public final class XemsLocalStore {
                     DeviceBean d = list.get(i);
                     if (d != null && k.equals(macKey(d.macAddress))) {
                         list.remove(i);
+                        // Per-row "selected" flags go by position: drop this row's flag too.
+                        try {
+                            java.lang.reflect.Field sf = adapter.getClass().getDeclaredField("selects");
+                            sf.setAccessible(true);
+                            List<Boolean> selects = (List<Boolean>) sf.get(adapter);
+                            if (selects != null && i < selects.size()) {
+                                selects.remove(i);
+                            }
+                        } catch (NoSuchFieldException ignored) {
+                            // an adapter without per-row flags
+                        }
                         break;
                     }
                 }
@@ -404,8 +480,10 @@ public final class XemsLocalStore {
                 if (bean == null) {
                     bean = new DeviceBean();
                     bean.macAddress = mac;
-                    bean.name = mac;
+                    bean.name = displayName(mac);
                     bean.id = Long.valueOf(nextDeviceId());
+                } else if (bean.name == null || bean.name.equals(bean.macAddress)) {
+                    bean.name = displayName(mac);
                 }
                 bean.connectedSign = sign;
                 list.add(bean);
@@ -738,7 +816,7 @@ public final class XemsLocalStore {
         }
         DeviceBean bean = new DeviceBean();
         bean.macAddress = mac;
-        bean.name = mac;
+        bean.name = displayName(mac);
         bean.id = Long.valueOf(nextDeviceId());
         dm.deviceBeanList.add(bean);
         saveDevices();
@@ -860,7 +938,33 @@ public final class XemsLocalStore {
         nextDeviceId();
     }
 
+    /**
+     * Fields the app's own lists read without a null check: the user list compares every
+     * client's inputId (null → the Users screen crashes). Local clients never had one.
+     */
+    private static void repairUsers(List<TrainUser> users) {
+        if (users == null) {
+            return;
+        }
+        for (int i = 0; i < users.size(); i++) {
+            TrainUser u = users.get(i);
+            if (u == null) {
+                continue;
+            }
+            if (u.inputId == null || u.inputId.length() == 0) {
+                u.inputId = String.valueOf(Math.abs(u.id));
+            }
+            if (u.name == null) {
+                u.name = "";
+            }
+            if (u.nickName == null) {
+                u.nickName = u.name;
+            }
+        }
+    }
+
     private static void saveUsers() {
+        repairUsers(DataMgr.getInstance().trainUsers);
         DataMgr dm = DataMgr.getInstance();
         if (dm.trainUsers != null) {
             FileUtils.saveListData(FILE_USERS, TrainUser.class, dm.trainUsers);

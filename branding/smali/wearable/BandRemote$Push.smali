@@ -23,45 +23,45 @@
 
 # direct methods
 .method constructor <init>(Z)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 583
+    .line 814
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 584
+    .line 815
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Push;->force:Z
 
-    .line 585
+    .line 816
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .registers 3
+    .locals 2
 
     .prologue
-    .line 590
+    .line 821
     :try_start_0
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Push;->force:Z
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->push(Z)V
-    :try_end_5
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 594
-    :goto_5
+    .line 825
+    :goto_0
     return-void
 
-    .line 591
-    :catch_6
+    .line 822
+    :catch_0
     move-exception v0
 
-    .line 592
+    .line 823
     const-string v1, "BandRemote.push"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_5
+    goto :goto_0
 .end method

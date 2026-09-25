@@ -25,6 +25,9 @@ public final class HrGuard {
     static final String LOG_FILE = "hr-guard.csv";
 
     private static final HrGuardCore core = new HrGuardCore();
+    private static final long NO_PERSON = Long.MIN_VALUE;
+    /** Client whose data the core has (user id), NO_PERSON = population defaults. */
+    private static long personId = NO_PERSON;
     private static final Handler handler = new Handler(Looper.getMainLooper());
     /** Per row: trainer's values {strength, pwUs, hz} and what the guard last wrote. */
     private static final Map<TrainItem, int[]> base = new HashMap<TrainItem, int[]>();
@@ -128,6 +131,15 @@ public final class HrGuard {
                             ? b.strenthBean.buwei.clone() : null;
                     stim.disabled = item.partsDisabled != null ? item.partsDisabled.clone() : null;
                 }
+            }
+        }
+        if (leader != null) {
+            // The client in the leading slot: personal max HR and energy model (kcal).
+            com.isaigu.gymapp.ai.AiProfile person = com.isaigu.gymapp.ai.AiProfile.of(leader);
+            long id = person != null ? person.userId : NO_PERSON;
+            if (id != personId) {
+                personId = id;
+                core.setPerson(person != null ? person.toInput() : null);
             }
         }
         if (aiOwns) {

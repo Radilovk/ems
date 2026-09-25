@@ -60,7 +60,18 @@ public final class NotifyHaForegroundService extends Service {
             startForeground(NOTIFICATION_ID, buildNotification());
         } catch (Throwable ignored) {
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
+    }
+
+    /** XEMS swiped away / closed: no heart rate and no band link in the background. */
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        try {
+            NotifyWearableBridge.shutdown(getApplicationContext());
+        } catch (Throwable ignored) {
+        }
+        stopSelf();
+        super.onTaskRemoved(rootIntent);
     }
 
     @Override

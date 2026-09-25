@@ -19,10 +19,10 @@
 
 # direct methods
 .method constructor <init>()V
-    .registers 1
+    .locals 0
 
     .prologue
-    .line 69
+    .line 72
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,24 +31,22 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .locals 4
 
     .prologue
-    .line 74
+    .line 77
     :try_start_0
-    # invokes: Lcom/isaigu/gymapp/wearable/HrGuard;->tick()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->access$000()Z
-    :try_end_3
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_13
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     move-result v0
 
-    .line 79
-    :goto_4
-    if-eqz v0, :cond_2e
+    .line 82
+    :goto_0
+    if-eqz v0, :cond_0
 
-    .line 80
-    # getter for: Lcom/isaigu/gymapp/wearable/HrGuard;->handler:Landroid/os/Handler;
+    .line 83
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->access$100()Landroid/os/Handler;
 
     move-result-object v0
@@ -57,18 +55,18 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 84
-    :goto_f
+    .line 87
+    :goto_1
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->updateDiagnostics()V
 
-    .line 85
+    .line 88
     return-void
 
-    .line 75
-    :catch_13
+    .line 78
+    :catch_0
     move-exception v0
 
-    .line 76
+    .line 79
     const-string v1, "hr_guard"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -91,17 +89,16 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 77
+    .line 80
     const/4 v0, 0x1
 
-    goto :goto_4
+    goto :goto_0
 
-    .line 82
-    :cond_2e
+    .line 85
+    :cond_0
     const/4 v0, 0x0
 
-    # setter for: Lcom/isaigu/gymapp/wearable/HrGuard;->ticking:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/HrGuard;->access$202(Z)Z
 
-    goto :goto_f
+    goto :goto_1
 .end method

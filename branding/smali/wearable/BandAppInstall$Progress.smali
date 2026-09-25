@@ -23,37 +23,37 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 209
+    .line 246
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 210
+    .line 247
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$Progress;->app:Landroid/content/Context;
 
-    .line 211
+    .line 248
     return-void
 .end method
 
 
 # virtual methods
 .method public onDone(ZLjava/lang/String;)V
-    .registers 8
+    .locals 5
 
     .prologue
-    .line 220
+    .line 257
     const-string v1, "install"
 
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-eqz p1, :cond_44
+    if-eqz p1, :cond_0
 
     const-string v0, "ok "
 
-    :goto_b
+    :goto_0
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -68,17 +68,17 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 221
-    if-eqz p1, :cond_47
+    .line 258
+    if-eqz p1, :cond_1
 
-    .line 222
+    .line 259
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$Progress;->app:Landroid/content/Context;
 
-    const/4 v1, 0x7
+    const/16 v1, 0x11
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandAppVersion(Landroid/content/Context;I)V
 
-    .line 223
+    .line 260
     const-string v0, "XEMS \u0435 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u2713"
 
     const-string v1, "XEMS is on the band \u2713"
@@ -87,11 +87,9 @@
 
     move-result-object v0
 
-    # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$200(Ljava/lang/String;)V
 
-    .line 224
-    # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->main:Landroid/os/Handler;
+    .line 261
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$300()Landroid/os/Handler;
 
     move-result-object v0
@@ -112,18 +110,18 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 229
-    :goto_43
+    .line 266
+    :goto_1
     return-void
 
-    .line 220
-    :cond_44
+    .line 257
+    :cond_0
     const-string v0, "failed "
 
-    goto :goto_b
+    goto :goto_0
 
-    .line 227
-    :cond_47
+    .line 264
+    :cond_1
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -154,17 +152,16 @@
 
     move-result-object v0
 
-    # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$200(Ljava/lang/String;)V
 
-    goto :goto_43
+    goto :goto_1
 .end method
 
 .method public onProgress(ILjava/lang/String;)V
-    .registers 6
+    .locals 3
 
     .prologue
-    .line 215
+    .line 252
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -195,9 +192,8 @@
 
     move-result-object v0
 
-    # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$200(Ljava/lang/String;)V
 
-    .line 216
+    .line 253
     return-void
 .end method

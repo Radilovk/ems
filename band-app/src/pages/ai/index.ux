@@ -1,10 +1,10 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
+  <stack class="root bg-ai" onswipe="onSwipe">
     <!-- 1 · live -->
     <div class="screen {{anim}}" if="{{cur === 'live'}}">
       <text class="caps" style="color: {{stateColor}}">{{stateText}}</text>
       <stack class="ring-box">
-        <progress class="ring-outer" type="arc" percent="{{ringPct}}" style="color: #FF3B5C"></progress>
+        <progress class="ring-outer" type="arc" percent="{{ringPct}}" style="color: #FFD60A"></progress>
         <progress class="ring-inner" type="arc" percent="{{hrPct}}" style="color: {{zoneColor}}"></progress>
         <div class="ring-center">
           <text class="hr">{{hrText}}</text>
@@ -14,7 +14,7 @@
       <text class="big-time" style="color: {{timeColor}}">{{bigTime}}</text>
       <text class="sub">{{bigLabel}}</text>
       <stack class="play-box">
-        <div class="glow {{st === 'ready' ? 'breathe' : ''}}" style="background-color: {{playGlow}}"></div>
+        <div class="glow" style="background-color: {{playGlow}}"></div>
         <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playColor}}"
              ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
           <image class="play-img" src="{{playIcon}}"></image>
@@ -39,7 +39,7 @@
 
     <!-- 3 · double impulse (only when AI allows it) -->
     <div class="screen {{anim}}" if="{{cur === 'dbl'}}">
-      <text class="caps">ДВОЕН ИМПУЛС</text>
+      <text class="caps">ДВОЕН</text>
       <div class="btn toggle {{pressed === 'dbl' ? 'down' : ''}}" style="background-color: {{dbl ? '#30D158' : '#2C2C2E'}}"
            ontouchstart="press('dbl')" ontouchend="release" ontouchcancel="release" onclick="double">
         <text class="toggle-text">{{dbl ? 'ВКЛ' : 'ИЗКЛ'}}</text>
@@ -49,14 +49,14 @@
 
     <!-- 4 · stop (hold) -->
     <div class="screen {{anim}}" if="{{cur === 'stop'}}">
-      <text class="caps">КРАЙ НА СЕСИЯТА</text>
+      <text class="caps">КРАЙ</text>
       <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
         <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
         <div class="stop-core">
           <image class="stop-img" src="/common/icons/stop.png"></image>
         </div>
       </stack>
-      <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 секунда'}}</text>
+      <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 сек'}}</text>
     </div>
 
     <!-- 5 · session -->
@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, BLUE, mmss, hms, zoneOf, bind, setPages, swipe } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, BLUE, mmss, hms, zoneOf, bind, shown, setPages, swipe } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 
@@ -140,6 +140,14 @@ export default {
     this.unbind = bind(this)
   },
 
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
+  },
+
   onDestroy() {
     this.unbind()
     this.holdEnd()
@@ -177,7 +185,7 @@ export default {
     this.zoneColor = ZONE[z]
     this.hrPct = s.hr > 0 ? Math.min(100, Math.round((s.hr / lim) * 100)) : 0
 
-    const labels = { run: 'AI · ТЕЧЕ', pause: 'AI · ПАУЗА', rest: 'AI · ПОЧИВКА', ready: 'AI · ГОТОВО', idle: 'AI · НЕ ТЕЧЕ' }
+    const labels = { run: 'AI · АКТИВЕН', pause: 'AI · ПАУЗА', rest: 'AI · ПОЧИВКА', ready: 'AI · ГОТОВО', idle: 'AI · НЕ ТЕЧЕ' }
     const colors = { run: GREEN, pause: AMBER, rest: BLUE, ready: GREEN, idle: '#8E8E93' }
     this.stateText = labels[this.st] || 'AI'
     this.stateColor = colors[this.st] || '#8E8E93'
@@ -269,8 +277,7 @@ export default {
       if (p >= 100) {
         clearInterval(this.holdTimer)
         this.holdTimer = null
-        this.$app.$def.send({ t: 'cmd', a: 'stop' })
-        this.$app.$def.buzz('long')
+        this.$app.$def.command('stop', null, 'long')
         setTimeout(() => {
           this.holdPct = 0
         }, 400)
@@ -300,8 +307,16 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
-  background-color: #000000;
+  padding-top: 46px;
+}
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  flex-shrink: 0;
+  width: 212px;
+  flex-direction: column;
 }
 .in-up {
   animation-name: inUp;
@@ -334,20 +349,23 @@ export default {
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  flex-shrink: 0;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
+  flex-shrink: 0;
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {
   transform: scale(0.92);
 }
 .btn {
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   transition-property: transform;
@@ -395,42 +413,46 @@ export default {
   }
 }
 /* ---- page ---- */
+.bg-ai {
+  background-image: url(/common/bg/ai.png);
+  background-size: cover;
+}
 .ring-box {
-  width: 196px;
-  height: 196px;
-  margin-top: 10px;
+  width: 172px;
+  height: 172px;
+  margin-top: 6px;
 }
 .ring-outer {
-  width: 196px;
-  height: 196px;
-  stroke-width: 16px;
+  width: 172px;
+  height: 172px;
+  stroke-width: 14px;
   background-color: #1c1c1e;
   start-angle: 220deg;
   total-angle: 280deg;
-  center-x: 98px;
-  center-y: 98px;
-  radius: 90px;
+  center-x: 86px;
+  center-y: 86px;
+  radius: 79px;
 }
 .ring-inner {
-  width: 196px;
-  height: 196px;
+  width: 172px;
+  height: 172px;
   stroke-width: 6px;
   background-color: #151517;
   start-angle: 220deg;
   total-angle: 280deg;
-  center-x: 98px;
-  center-y: 98px;
-  radius: 72px;
+  center-x: 86px;
+  center-y: 86px;
+  radius: 63px;
 }
 .ring-center {
-  width: 196px;
-  height: 196px;
+  width: 172px;
+  height: 172px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .hr {
-  font-size: 76px;
+  font-size: 62px;
   font-weight: bold;
   color: #ffffff;
 }
@@ -445,20 +467,20 @@ export default {
 }
 .big-time {
   margin-top: 4px;
-  font-size: 58px;
+  font-size: 50px;
   font-weight: bold;
 }
 .play-box {
-  width: 130px;
-  height: 124px;
+  width: 120px;
+  height: 108px;
   margin-top: 4px;
   justify-content: center;
   align-items: center;
 }
 .glow {
-  width: 124px;
-  height: 124px;
-  border-radius: 62px;
+  width: 106px;
+  height: 106px;
+  border-radius: 53px;
 }
 .breathe {
   animation-name: breathe;
@@ -467,13 +489,13 @@ export default {
   animation-direction: alternate;
 }
 .play {
-  width: 108px;
-  height: 108px;
-  border-radius: 54px;
+  width: 92px;
+  height: 92px;
+  border-radius: 46px;
 }
 .play-img {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
 }
 .lvl-num {
   margin-top: 6px;

@@ -1,5 +1,5 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
+  <stack class="root bg-timer" onswipe="onSwipe">
     <div class="screen">
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
       <stack class="ring-box">
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { AMBER, GREEN, mmss, mods, bind, setPages, swipe } from '../../common/ui.js'
+import { AMBER, GREEN, mmss, mods, bind, shown, setPages, swipe } from '../../common/ui.js'
 
 export default {
   private: {
@@ -45,6 +45,14 @@ export default {
   onInit() {
     setPages(this, ['main'])
     this.unbind = bind(this)
+  },
+
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
   },
 
   onDestroy() {
@@ -77,15 +85,15 @@ export default {
       this.capsColor = '#8E8E93'
       this.status = 'включи го на таблета'
     } else if (tm.run) {
-      this.caps = 'ТАЙМЕР · ТЕЧЕ'
+      this.caps = 'АКТИВЕН'
       this.capsColor = GREEN
       this.status = 'вибрира 3-2-1'
     } else if (tm.pau) {
-      this.caps = 'ТАЙМЕР · ПАУЗА'
+      this.caps = 'ПАУЗА'
       this.capsColor = AMBER
       this.status = 'импулсите текат'
     } else {
-      this.caps = 'ТАЙМЕР · ЧАКА'
+      this.caps = 'ЧАКА'
       this.capsColor = AMBER
       this.status = 'тръгва със старта'
     }
@@ -119,8 +127,16 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
-  background-color: #000000;
+  padding-top: 46px;
+}
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  flex-shrink: 0;
+  width: 212px;
+  flex-direction: column;
 }
 .in-up {
   animation-name: inUp;
@@ -153,20 +169,23 @@ export default {
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  flex-shrink: 0;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
+  flex-shrink: 0;
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {
   transform: scale(0.92);
 }
 .btn {
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   transition-property: transform;
@@ -214,31 +233,35 @@ export default {
   }
 }
 /* ---- page ---- */
+.bg-timer {
+  background-image: url(/common/bg/timer.png);
+  background-size: cover;
+}
 .ring-box {
-  width: 200px;
-  height: 200px;
-  margin-top: 14px;
+  width: 180px;
+  height: 180px;
+  margin-top: 12px;
 }
 .ring {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   stroke-width: 18px;
   background-color: #1c1c1e;
   start-angle: 0deg;
   total-angle: 360deg;
-  center-x: 100px;
-  center-y: 100px;
-  radius: 90px;
+  center-x: 90px;
+  center-y: 90px;
+  radius: 81px;
 }
 .center {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .left {
-  font-size: 66px;
+  font-size: 58px;
   font-weight: bold;
 }
 .loop {
@@ -247,16 +270,16 @@ export default {
   font-weight: bold;
 }
 .play {
-  width: 130px;
-  height: 130px;
-  margin-top: 24px;
-  border-radius: 65px;
+  width: 112px;
+  height: 112px;
+  margin-top: 18px;
+  border-radius: 56px;
 }
 .play-img {
   width: 60px;
   height: 60px;
 }
 .sub {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 </style>

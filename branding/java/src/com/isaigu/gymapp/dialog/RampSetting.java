@@ -19,12 +19,13 @@ import java.util.Locale;
 /**
  * Soft rise / fall of the impulses in the program parameters dialog (per user and from the
  * master settings — both use EditUserProgramDataDialog). The stock ramp column was hidden by
- * scripts/remove-ramp.py; this shows it again in seconds: 0.0 … 2.0 s in 0.1 s steps.
+ * scripts/remove-ramp.py; this shows it again in seconds: 0 … 3 s in 0.5 s steps.
  * Values are stored in ms in ProgramDataBean.inputRamp / outputRamp and sent to the device by
  * AiRamp (capped so both together fit into the impulse ON time).
  */
 public final class RampSetting {
-    private static final int STEP_MS = 100;
+    private static final int STEP_MS = 500;
+    private static final int MAX_MS = 3000;
 
     private RampSetting() {}
 
@@ -71,7 +72,7 @@ public final class RampSetting {
     }
 
     static int clamp(int ms) {
-        int v = Math.max(0, Math.min(2000, ms));
+        int v = Math.max(0, Math.min(MAX_MS, ms));
         return Math.round(v / (float) STEP_MS) * STEP_MS;
     }
 
@@ -89,7 +90,7 @@ public final class RampSetting {
         return null;
     }
 
-    /** 21 choices in a small sheet: 0.0 … 2.0 s. */
+    /** 7 choices in a small sheet: 0 … 3 s. */
     static final class Open implements View.OnClickListener {
         private final TextView value;
         private final TrainProgram program;
@@ -118,7 +119,7 @@ public final class RampSetting {
                 int cur = clamp(up ? b.inputRamp : b.outputRamp);
                 LinearLayout grid = XemsUi.vertical(a);
                 LinearLayout row = null;
-                for (int i = 0; i <= 20; i++) {
+                for (int i = 0; i <= MAX_MS / STEP_MS; i++) {
                     if (i % 7 == 0) {
                         row = XemsUi.horizontal(a);
                         grid.addView(row, XemsUi.matchWrap(a, i == 0 ? 0 : 8));

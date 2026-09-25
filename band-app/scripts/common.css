@@ -8,8 +8,16 @@
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
-  background-color: #000000;
+  padding-top: 46px;
+}
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  flex-shrink: 0;
+  width: 212px;
+  flex-direction: column;
 }
 .in-up {
   animation-name: inUp;
@@ -42,20 +50,23 @@
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  flex-shrink: 0;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
+  flex-shrink: 0;
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {
   transform: scale(0.92);
 }
 .btn {
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   transition-property: transform;

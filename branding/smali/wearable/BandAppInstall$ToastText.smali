@@ -25,29 +25,29 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;Ljava/lang/String;)V
-    .registers 3
+    .locals 0
 
     .prologue
-    .line 252
+    .line 289
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 253
+    .line 290
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$ToastText;->c:Landroid/content/Context;
 
-    .line 254
+    .line 291
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$ToastText;->s:Ljava/lang/String;
 
-    .line 255
+    .line 292
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .registers 4
+    .locals 3
 
     .prologue
-    .line 260
+    .line 297
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$ToastText;->c:Landroid/content/Context;
 
@@ -60,16 +60,16 @@
     move-result-object v0
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
-    :try_end_c
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 263
-    :goto_c
+    .line 300
+    :goto_0
     return-void
 
-    .line 261
-    :catch_d
+    .line 298
+    :catch_0
     move-exception v0
 
-    goto :goto_c
+    goto :goto_0
 .end method

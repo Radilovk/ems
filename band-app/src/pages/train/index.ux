@@ -1,87 +1,127 @@
 <template>
-  <stack class="root" onswipe="onSwipe">
-    <!-- 1 · start / pause -->
-    <div class="screen {{anim}}" if="{{cur === 'main'}}">
-      <text class="caps" style="color: {{runColor}}">{{caps}}</text>
-      <text class="elapsed">{{elapsed}}</text>
-      <text class="meta" style="color: {{zoneColor}}">{{meta}}</text>
-      <stack class="play-box">
-        <div class="glow {{run ? '' : 'breathe'}}"></div>
-        <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
-             ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
-          <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+  <!-- Start: one vertical scroll — start / pause, all channels, every working channel with its
+       own − / + (hold = 5 steps), end (hold). Swipe right = back. -->
+  <stack class="root bg-start">
+    <scroll class="scr" scroll-y="true">
+      <div class="col" style="height: {{colH}}px">
+        <div class="ctl">
+          <text class="caps" style="color: {{runColor}}">{{caps}}</text>
+          <text class="elapsed">{{elapsed}}</text>
+          <div class="kpis">
+            <div class="kpi">
+              <text class="kpi-num">{{msText}}</text>
+              <text class="kpi-lbl">сила</text>
+            </div>
+            <div class="kpi">
+              <text class="kpi-num" style="color: {{zoneColor}}">{{hrText}}</text>
+              <text class="kpi-lbl">{{zoneText}}</text>
+            </div>
+          </div>
+          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
+               ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+            <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+          </div>
         </div>
-      </stack>
-      <text class="sub">{{run ? 'пауза' : 'старт'}}</text>
-    </div>
 
-    <!-- 2 · main strength -->
-    <div class="screen {{anim}}" if="{{cur === 'power'}}">
-      <text class="caps">ГЛАВЕН</text>
-      <div class="btn big-pill plus {{run ? '' : 'off'}} {{pressed === 'plus' ? 'down' : ''}}"
-           ontouchstart="press('plus')" ontouchend="release" ontouchcancel="release" onclick="plus">
-        <image class="pill-img" src="/common/icons/plus.png"></image>
-      </div>
-      <div class="btn big-pill {{run ? '' : 'off'}} {{pressed === 'minus' ? 'down' : ''}}"
-           ontouchstart="press('minus')" ontouchend="release" ontouchcancel="release" onclick="minus">
-        <image class="pill-img" src="/common/icons/minus.png"></image>
-      </div>
-      <text class="sub">{{run ? 'една стъпка на натиск' : 'първо старт'}}</text>
-    </div>
+        <!-- all zones = the main impulse: left half −, right half + -->
+        <stack class="cbox {{run ? '' : 'off'}}">
+          <div class="halves">
+            <div class="half-minus"></div>
+            <div class="half-plus"></div>
+          </div>
+          <div class="cface cface-all">
+            <text class="bigsign">-</text>
+            <text class="bigsign">+</text>
+          </div>
+          <div class="ctouch">
+            <div class="chalf" onclick="allMinus"></div>
+            <div class="chalf" onclick="allPlus"></div>
+          </div>
+        </stack>
 
-    <!-- 3 · stop (hold) -->
-    <div class="screen {{anim}}" if="{{cur === 'stop'}}">
-      <text class="caps">КРАЙ</text>
-      <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
-        <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
-        <div class="stop-core">
-          <image class="stop-img" src="/common/icons/stop.png"></image>
+        <text class="chcap">{{chCaps}}</text>
+
+        <!-- every row: tap the left half = −, the right half = + (hold = 5 steps) -->
+        <stack for="{{chans}}" class="cbox">
+          <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
+          <div class="cface">
+            <text class="cname">{{$item.name}}</text>
+            <div class="cline">
+              <text class="csign">-</text>
+              <text class="cval" style="color: {{$item.color}}">{{$item.text}}</text>
+              <text class="csign">+</text>
+            </div>
+          </div>
+          <div class="ctouch">
+            <div class="chalf" onclick="chMinus($item.i)" onlongpress="chMinus5($item.i)"></div>
+            <div class="chalf" onclick="chPlus($item.i)" onlongpress="chPlus5($item.i)"></div>
+          </div>
+        </stack>
+
+        <div class="stop-item">
+          <text class="caps">КРАЙ</text>
+          <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
+            <div class="stop-core">
+              <image class="stop-img" src="/common/icons/stop.png"></image>
+            </div>
+          </stack>
+          <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 сек'}}</text>
+          <text class="rtt">{{rttText}}</text>
         </div>
-      </stack>
-      <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 секунда'}}</text>
-    </div>
-
-    <div class="dots">
-      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
-    </div>
+      </div>
+    </scroll>
   </stack>
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind, setPages, swipe } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind, shown } from '../../common/ui.js'
 
 const HOLD_MS = 1200
+/** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
+const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
+const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
+const FILL_W = 192
 
 export default {
   private: {
-    ids: [],
-    idsKey: '',
-    idx: 0,
-    cur: 'main',
-    dots: [],
-    anim: '',
-    caps: 'ТРЕНИРОВКА',
+    caps: 'СТАРТ',
     runColor: '#8E8E93',
     run: false,
     elapsed: '0:00',
     meta: '',
     zoneColor: '#AEAEB2',
     pressed: '',
-    holdPct: 0
+    holdPct: 0,
+    busy: false,
+    allHint: '',
+    msText: '--',
+    hrText: '--',
+    zoneText: 'пулс',
+    rttText: '',
+    chCaps: 'КАНАЛИ',
+    chans: [],
+    chKey: '',
+    colH: 1052
   },
 
   onInit() {
-    setPages(this, ['main', 'power', 'stop'])
+    this.optim = {}
+    this.optMs = null
     this.unbind = bind(this)
+  },
+
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
   },
 
   onDestroy() {
     this.unbind()
     this.holdEnd()
-  },
-
-  onSwipe(e) {
-    swipe(this, e)
   },
 
   update() {
@@ -92,12 +132,107 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
-    this.caps = run ? 'РЪЧНО · ТЕЧЕ' : s.mode === 'manual' ? 'РЪЧНО · ПАУЗА' : 'РЪЧНО'
+    this.busy = app.busy()
+    this.caps = run ? 'АКТИВЕН' : s.mode === 'manual' ? 'ПАУЗА' : 'ГОТОВ'
     this.runColor = run ? GREEN : s.mode === 'manual' ? AMBER : '#8E8E93'
     this.elapsed = hms((s.el || 0) + (run ? app.silence() : 0))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
-    this.meta = s.hr > 0 ? s.hr + ' bpm · Z' + z : 'няма пулс'
+    this.hrText = s.hr > 0 ? String(s.hr) : '--'
+    this.zoneText = s.hr > 0 ? 'пулс · Z' + z : 'пулс'
+    // main impulse: a tap shows its value at once, the tablet's answer confirms it
+    let ms = s.ms != null ? s.ms : -1
+    const o = this.optMs
+    if (o) {
+      if (o.v === ms || Date.now() - o.at > 1500) {
+        this.optMs = null
+      } else {
+        ms = o.v
+      }
+    }
+    this.msText = ms >= 0 ? String(ms) : '--'
+    this.rttText = app.rtt ? 'отговор ' + (app.rtt / 1000).toFixed(1) + ' с' : ''
     this.zoneColor = s.hr > 0 ? ZONE[z] : '#AEAEB2'
+    this.allHint = run ? '' : 'първо старт'
+    this.buildChannels(s.ch || [])
+  },
+
+  /** Working channels in the tablet's order (off ones have no buttons, so they are left out). */
+  buildChannels(ch) {
+    const out = []
+    ORDER.forEach((i) => {
+      if (i >= ch.length || ch[i] < 0) {
+        return
+      }
+      let pct = Math.max(0, Math.min(100, ch[i]))
+      // a tap shows its value at once; the tablet's answer confirms it (or corrects it)
+      const o = this.optim[i]
+      if (o) {
+        if (o.v === pct || Date.now() - o.at > 1500) {
+          delete this.optim[i]
+        } else {
+          pct = o.v
+        }
+      }
+      out.push({
+        i: i,
+        name: NAMES[i] || 'Канал ' + (i + 1),
+        text: String(pct),
+        w: Math.round((FILL_W * pct) / 100),
+        fill: pct >= 80 ? '#5C1A16' : pct >= 50 ? '#5A3A0C' : '#17462A',
+        color: pct >= 80 ? '#FF453A' : pct >= 50 ? '#FF9F0A' : '#30D158'
+      })
+    })
+    this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'
+    const key = JSON.stringify(out)
+    if (key === this.chKey) {
+      return
+    }
+    this.chKey = key
+    // Same channels as before: change only the numbers of the rows that moved (the band
+    // redraws those, not the whole list).
+    const same = this.chans.length === out.length && this.chans.every((c, k) => c.i === out[k].i)
+    if (same) {
+      out.forEach((n, k) => {
+        const c = this.chans[k]
+        if (c.text !== n.text) {
+          c.text = n.text
+          c.w = n.w
+          c.color = n.color
+          c.fill = n.fill
+        }
+      })
+    } else {
+      this.chans = out
+      // the scroll needs the real content height (children never shrink)
+      this.colH = 340 + 86 + 44 + out.length * 86 + 400
+    }
+  },
+
+  step(c, d) {
+    const app = this.$app.$def
+    const ch = (app.state && app.state.ch) || []
+    if (c < ch.length && ch[c] >= 0) {
+      const base = this.optim[c] ? this.optim[c].v : ch[c]
+      this.optim[c] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
+      this.buildChannels(ch)
+    }
+    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: Math.abs(d) })
+  },
+
+  chPlus(c) {
+    this.step(c, 1)
+  },
+
+  chMinus(c) {
+    this.step(c, -1)
+  },
+
+  chPlus5(c) {
+    this.step(c, 5)
+  },
+
+  chMinus5(c) {
+    this.step(c, -5)
   },
 
   press(w) {
@@ -112,16 +247,26 @@ export default {
     this.$app.$def.command('train_toggle')
   },
 
-  plus() {
-    if (this.run) {
-      this.$app.$def.command('train_plus')
-    }
+  allPlus() {
+    this.mainStep(1)
   },
 
-  minus() {
-    if (this.run) {
-      this.$app.$def.command('train_minus')
+  allMinus() {
+    this.mainStep(-1)
+  },
+
+  mainStep(d) {
+    if (!this.run) {
+      return
     }
+    const app = this.$app.$def
+    const ms = app.state && app.state.ms != null ? app.state.ms : -1
+    const base = this.optMs ? this.optMs.v : ms
+    if (base >= 0) {
+      this.optMs = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
+      this.msText = String(this.optMs.v)
+    }
+    app.command(d > 0 ? 'train_plus' : 'train_minus')
   },
 
   holdStart() {
@@ -133,8 +278,7 @@ export default {
       if (p >= 100) {
         clearInterval(this.holdTimer)
         this.holdTimer = null
-        this.$app.$def.send({ t: 'cmd', a: 'train_stop' })
-        this.$app.$def.buzz('long')
+        this.$app.$def.command('train_stop', null, 'long')
         setTimeout(() => {
           this.holdPct = 0
         }, 400)
@@ -164,8 +308,16 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 34px;
-  background-color: #000000;
+  padding-top: 46px;
+}
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  flex-shrink: 0;
+  width: 212px;
+  flex-direction: column;
 }
 .in-up {
   animation-name: inUp;
@@ -198,20 +350,23 @@ export default {
   background-color: #ffffff;
 }
 .caps {
-  font-size: 22px;
+  flex-shrink: 0;
+  font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
+  flex-shrink: 0;
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   color: #aeaeb2;
 }
 .down {
   transform: scale(0.92);
 }
 .btn {
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   transition-property: transform;
@@ -259,67 +414,217 @@ export default {
   }
 }
 /* ---- page ---- */
+.bg-start {
+  flex-shrink: 0;
+  background-image: url(/common/bg/start.png);
+  background-size: cover;
+}
 .elapsed {
-  margin-top: 16px;
-  font-size: 68px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  font-size: 60px;
   font-weight: bold;
   color: #ffffff;
 }
 .meta {
+  flex-shrink: 0;
   font-size: 26px;
   font-weight: bold;
 }
-.play-box {
-  width: 170px;
-  height: 170px;
-  margin-top: 30px;
+.sync {
+  flex-shrink: 0;
+  margin-top: 10px;
+  font-size: 22px;
+  color: #ff9f0a;
+}
+.ctl {
+  flex-shrink: 0;
+  height: 340px;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 42px;
+}
+.play {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  margin-top: 10px;
+  border-radius: 48px;
+}
+.play-img {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+}
+.chcap {
+  flex-shrink: 0;
+  height: 44px;
+  width: 196px;
+  margin-left: 8px;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.cbox {
+  flex-shrink: 0;
+  width: 196px;
+  height: 76px;
+  margin-left: 8px;
+  margin-top: 10px;
+}
+.cfill {
+  flex-shrink: 0;
+  height: 72px;
+  margin-left: 2px;
+  margin-top: 2px;
+  border-radius: 20px;
+}
+.cface {
+  flex-shrink: 0;
+  width: 196px;
+  height: 76px;
+  padding-top: 6px;
+  flex-direction: column;
+  align-items: center;
+  border-width: 2px;
+  border-color: #48484a;
+  border-radius: 22px;
+}
+.cname {
+  flex-shrink: 0;
+  width: 180px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+  lines: 1;
+}
+.cline {
+  flex-shrink: 0;
+  width: 192px;
+  flex-direction: row;
+  align-items: center;
+}
+.csign {
+  flex-shrink: 0;
+  width: 34px;
+  text-align: center;
+  font-size: 30px;
+  color: #8e8e93;
+}
+.cval {
+  flex-shrink: 0;
+  width: 124px;
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  lines: 1;
+}
+.chint {
+  font-size: 20px;
+  color: #8e8e93;
+}
+.cface-all {
+  flex-direction: row;
+  padding-top: 0px;
+}
+.bigsign {
+  flex-shrink: 0;
+  width: 96px;
+  text-align: center;
+  font-size: 52px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.halves {
+  flex-shrink: 0;
+  width: 196px;
+  height: 76px;
+  flex-direction: row;
+}
+.kpis {
+  flex-shrink: 0;
+  flex-direction: row;
+  margin-top: 4px;
+}
+.kpi {
+  flex-shrink: 0;
+  width: 92px;
+  height: 70px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 20px;
+  background-color: #1c1c1e;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-.glow {
-  width: 164px;
-  height: 164px;
-  border-radius: 82px;
-  background-color: rgba(48, 209, 88, 0.25);
+.kpi-num {
+  flex-shrink: 0;
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
 }
-.breathe {
-  animation-name: breathe;
-  animation-duration: 1500ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+.kpi-lbl {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: #8e8e93;
 }
-.play {
-  width: 140px;
-  height: 140px;
-  border-radius: 70px;
+.rtt {
+  flex-shrink: 0;
+  margin-top: 8px;
+  font-size: 18px;
+  color: #48484a;
 }
-.play-img {
-  width: 64px;
-  height: 64px;
+.half-minus {
+  flex-shrink: 0;
+  width: 98px;
+  height: 76px;
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+  background-color: #1f9d46;
 }
-.big-pill {
-  width: 180px;
-  height: 130px;
-  margin-top: 16px;
-  border-radius: 65px;
-  background-color: #2c2c2e;
+.half-plus {
+  flex-shrink: 0;
+  width: 98px;
+  height: 76px;
+  border-top-right-radius: 22px;
+  border-bottom-right-radius: 22px;
+  background-color: #e0342b;
 }
-.plus {
-  background-color: #1f4a2a;
-  margin-top: 30px;
+.ctouch {
+  flex-shrink: 0;
+  width: 196px;
+  height: 76px;
+  flex-direction: row;
 }
-.pill-img {
-  width: 56px;
-  height: 56px;
+.chalf {
+  flex-shrink: 0;
+  width: 98px;
+  height: 76px;
+}
+.stop-item {
+  flex-shrink: 0;
+  height: 400px;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 24px;
+  padding-bottom: 100px;
 }
 .stop-box {
+  flex-shrink: 0;
   width: 190px;
   height: 190px;
-  margin-top: 50px;
+  margin-top: 12px;
   justify-content: center;
   align-items: center;
 }
 .stop-ring {
+  flex-shrink: 0;
   width: 190px;
   height: 190px;
   stroke-width: 14px;
@@ -331,6 +636,7 @@ export default {
   radius: 86px;
 }
 .stop-core {
+  flex-shrink: 0;
   width: 140px;
   height: 140px;
   border-radius: 70px;
@@ -339,6 +645,7 @@ export default {
   align-items: center;
 }
 .stop-img {
+  flex-shrink: 0;
   width: 60px;
   height: 60px;
 }

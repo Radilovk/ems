@@ -7,11 +7,18 @@
   so no screen can pull the cloud list over the local one. In the admin setup (0123) the
   customer and program lists ask the cloud once after start and merge into the tablet's
 - EditUserPersonalDataDialog$6: local user save at :cond_a
-- EditUserProgramDataDialog$10$1: local program save (skip network branch)
+- Program save / delete (editor, training slot, connect dialogs): always the app's own
+  ApiMgr path, answered by the tablet — the editor opened from a training slot hands the
+  program back to the slot and closes both dialogs, as the app does
 - Connect dialogs (both): allowed suits only after the admin setup, pair on BLE connect,
   auto-select first program
 - DeviceAdapter.discoverDevice (both): show suits found over BLE (any in setup, allowed after)
-- SettingFragment: XemsLocalSection + activity result forwarding
+- SettingFragment: XemsLocalSection + activity result forwarding; XemsLocalGate (7 taps on
+  Language = restart to login, 7 taps on Dark theme = licence card, hidden once a key is set)
+- BleMgr$1: a BLE find reaches the app only when it is an EMS suit (name with EMS / NBee,
+  the suit maker's advertising data, or a MAC the tablet knows); suits show by their name
+- UserFragment: new / edit client opens XemsLocalUserForm (quick form, AI questions)
+- LoginFragment / SplashFragment: no login screen — house account logs in by itself
 """
 
 from __future__ import annotations
@@ -52,6 +59,9 @@ API_REDIRECTS = (
     ("getTrainRecordList", "J" + CB),
 )
 SETTING = SMALI / "fragment/SettingFragment.smali"
+LOGIN = SMALI / "fragment/LoginFragment.smali"
+SPLASH_RUN = SMALI / "fragment/SplashFragment$1$1.smali"
+GATE = "Lcom/isaigu/gymapp/widget/XemsLocalGate;"
 SRC = ROOT / "branding" / "smali" / "widget"
 DEST = SMALI / "widget"
 
@@ -185,100 +195,32 @@ def patch_user_save() -> None:
     print("EditUserPersonalDataDialog$6: local user save")
 
 
-def patch_program_save() -> None:
-    text = EDIT_PROG.read_text(encoding="utf-8")
-    if "XemsLocalStore;->saveProgram" in text:
-        print("EditUserProgramDataDialog$10$1: already local save")
+# Program save / delete: the app's own online path (ApiMgr, now answered by the tablet) does
+# the whole job — save, hand the program back to the training slot that opened the editor,
+# close both dialogs. The offline path only queues for a cloud sync that never comes.
+ONLINE_ONLY = (
+    SMALI / "dialog/EditUserProgramDataDialog$10$1.smali",
+    SMALI / "fragment/TrainFragment$UserTrainAdapter$11$1.smali",
+    SMALI / "train/utils/OperationUtil$1.smali",
+    SMALI / "dialog/NewUserProgramDeviceConnectDialogFragment$3$1.smali",
+    SMALI / "dialog/UserProgramDeviceConnectDialogFragment$3$1.smali",
+)
+
+
+def patch_online_only(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    if "# xems: local api" in text:
+        print(f"{path.stem}: already online-only")
         return
-    anchor = """    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10$1;->this$1:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;->this$0:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access$200(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    move-result-object v0
-
-    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->loginUser:Lcom/isaigu/gymapp/bean/TrainUser;
-
-    iget-wide v1, v1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
-
-    invoke-static {v1, v2}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-
-    move-result-object v1
-
-    iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->userId:Ljava/lang/Long;
-
-    .line 514
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10$1;->this$1:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;->this$0:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected(Landroid/content/Context;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_5"""
-    replacement = """    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10$1;->this$1:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;->this$0:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->access$200(Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;)Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    move-result-object v2
-
-    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->loginUser:Lcom/isaigu/gymapp/bean/TrainUser;
-
-    iget-wide v1, v1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
-
-    invoke-static {v1, v2}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-
-    move-result-object v1
-
-    iput-object v1, v2, Lcom/isaigu/gymapp/bean/TrainProgram;->userId:Ljava/lang/Long;
-
-    .line 514
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10$1;->this$1:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;->this$0:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10$1;->this$1:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog$10;->this$0:Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;
-
-    invoke-static {v0, v1, v2, p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveProgram(Lcom/isaigu/gymapp/BaseActivity;Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;Lcom/isaigu/gymapp/bean/TrainProgram;Ljava/lang/String;)V
-
-    return-void
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/dialog/EditUserProgramDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected(Landroid/content/Context;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_5"""
-    if anchor not in text:
-        raise SystemExit("EditUserProgramDataDialog$10$1: network check not found")
-    EDIT_PROG.write_text(text.replace(anchor, replacement, 1), encoding="utf-8")
-    print("EditUserProgramDataDialog$10$1: local program save")
-
+    check = re.compile(
+        r"(    invoke-static \{v\d+\}, Lcom/isaigu/gymapp/utils/NetworkUtils;->isNetworkConnected"
+        r"\(Landroid/content/Context;\)Z\n\n    move-result (v\d+)\n)"
+    )
+    text, n = check.subn(lambda m: m.group(1) + f"\n    # xems: local api\n    const/4 {m.group(2)}, 0x1\n", text)
+    if n == 0:
+        raise SystemExit(f"{path.stem}: network check not found")
+    path.write_text(text, encoding="utf-8")
+    print(f"{path.stem}: always the ApiMgr path (tablet)")
 
 def patch_connect_dialog(path: Path, label: str) -> None:
     text = path.read_text(encoding="utf-8")
@@ -455,6 +397,141 @@ def patch_api_mgr() -> None:
     API_MGR.write_text(text, encoding="utf-8")
 
 
+def patch_login() -> None:
+    """No login screen: it logs in with the house account by itself (XemsLocalGate), unless
+    7 taps on Language asked for it; then the splash goes there instead of auto-login."""
+    text = LOGIN.read_text(encoding="utf-8")
+    if f"{GATE}->onLoginView" not in text:
+        start = text.index(".method public onCreateView(")
+        end = text.index(".end method", start)
+        body = text[start:end]
+        ret = body.rindex("    return-object v0")
+        body = (body[:ret] + f"    invoke-static {{p0, v0}}, {GATE}->onLoginView(Ljava/lang/Object;Landroid/view/View;)V\n\n"
+                + body[ret:])
+        text = text[:start] + body + text[end:]
+        LOGIN.write_text(text, encoding="utf-8")
+        print("LoginFragment: house account login")
+    else:
+        print("LoginFragment: already patched")
+
+    text = SPLASH_RUN.read_text(encoding="utf-8")
+    if f"{GATE}->wantLoginScreen" in text:
+        print("SplashFragment: already patched")
+        return
+    anchor = """    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/UserData;->isLogin()Z
+
+    move-result v0
+"""
+    if anchor not in text:
+        raise SystemExit("SplashFragment$1$1: isLogin check not found")
+    # Asked for the login screen: treat as not logged in (v1 is set again right after).
+    text = text.replace(anchor, anchor + f"""
+    invoke-static {{}}, {GATE}->wantLoginScreen()Z
+
+    move-result v1
+
+    if-eqz v1, :xems_saved_login
+
+    const/4 v0, 0x0
+
+    :xems_saved_login
+""", 1)
+    SPLASH_RUN.write_text(text, encoding="utf-8")
+    print("SplashFragment: login screen on request")
+
+
+USER_FORM = "Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->show(Landroid/app/Activity;Ljava/lang/Object;)V"
+UF = "Lcom/isaigu/gymapp/fragment/UserFragment"
+
+
+def _replace_click(path: Path, body: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    if "XemsLocalUserForm" in text:
+        print(f"{path.stem}: already the new form")
+        return
+    head = ".method public onNoDoubleClick(Landroid/view/View;)V"
+    start = text.index(head)
+    end = text.index(".end method", start) + len(".end method")
+    text = text[:start] + head + "\n" + body + "\n.end method" + text[end:]
+    path.write_text(text, encoding="utf-8")
+    print(f"{path.stem}: new client form")
+
+
+def patch_user_form() -> None:
+    """UserFragment "+" and a user's row open XemsLocalUserForm instead of the old dialog."""
+    _replace_click(SMALI / "fragment/UserFragment$1.smali", f"""    .locals 2
+
+    iget-object v0, p0, {UF}$1;->this$0:{UF};
+
+    invoke-virtual {{v0}}, {UF};->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
+
+    move-result-object v0
+
+    const/4 v1, 0x0
+
+    invoke-static {{v0, v1}}, {USER_FORM}
+
+    return-void""")
+    _replace_click(SMALI / "fragment/UserFragment$UserAdapter$1.smali", f"""    .locals 2
+
+    iget-object v0, p0, {UF}$UserAdapter$1;->this$1:{UF}$UserAdapter;
+
+    invoke-static {{v0}}, {UF}$UserAdapter;->access$200({UF}$UserAdapter;)Ljava/util/List;
+
+    move-result-object v0
+
+    iget v1, p0, {UF}$UserAdapter$1;->val$position:I
+
+    invoke-interface {{v0, v1}}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v1
+
+    iget-object v0, p0, {UF}$UserAdapter$1;->this$1:{UF}$UserAdapter;
+
+    iget-object v0, v0, {UF}$UserAdapter;->this$0:{UF};
+
+    invoke-virtual {{v0}}, {UF};->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
+
+    move-result-object v0
+
+    invoke-static {{v0, v1}}, {USER_FORM}
+
+    return-void""")
+
+
+BLE_MGR_CB = SMALI / "mgr/BleMgr$1.smali"
+
+
+def patch_ems_scan_filter() -> None:
+    """Only EMS suits reach the app from a BLE scan (XemsLocalStore.isEmsDevice)."""
+    text = BLE_MGR_CB.read_text(encoding="utf-8")
+    if "XemsLocalStore;->isEmsDevice" in text:
+        print("BleMgr$1: EMS filter already in")
+        return
+    n = 0
+    for method in ("onDeviceDiscovered", "onDeviceDiscoveredUpdate"):
+        head = f".method public {method}(Lcom/isaigu/gymapp/ble/BleInterface$BluetoothDeviceModel;ILjava/lang/String;[B)V"
+        start = text.index(head)
+        end = text.index(".end method", start)
+        body = text[start:end]
+        first = body.index("    new-instance v0, Lcom/isaigu/gymapp/message/DataBundle;")
+        gate = """    invoke-static {p1, p4}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isEmsDevice(Ljava/lang/Object;[B)Z
+
+    move-result v0
+
+    if-nez v0, :xems_is_ems
+
+    return-void
+
+    :xems_is_ems
+"""
+        body = body[:first] + gate + body[first:]
+        text = text[:start] + body + text[end:]
+        n += 1
+    BLE_MGR_CB.write_text(text, encoding="utf-8")
+    print(f"BleMgr$1: only EMS suits from the scan ({n} callbacks)")
+
+
 def patch_settings() -> None:
     text = SETTING.read_text(encoding="utf-8")
     if "XemsLocalSection;->attach" in text:
@@ -511,7 +588,8 @@ def main() -> int:
     patch_main_always_local()
     patch_main_init_data()
     patch_user_save()
-    patch_program_save()
+    for path in ONLINE_ONLY:
+        patch_online_only(path)
     patch_connect_dialog(NEW_CONNECT, "NewUserProgramDeviceConnectDialogFragment")
     patch_connect_dialog(OLD_CONNECT, "UserProgramDeviceConnectDialogFragment")
     for adapter in DEVICE_ADAPTERS:
@@ -521,6 +599,9 @@ def main() -> int:
         patch_device_scan_timeout(timeout)
     patch_api_mgr()
     patch_settings()
+    patch_login()
+    patch_user_form()
+    patch_ems_scan_filter()
     return 0
 
 

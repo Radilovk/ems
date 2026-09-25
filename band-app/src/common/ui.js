@@ -6,7 +6,9 @@ import router from '@system.router'
  * key numbers 56–90 px.
  */
 export const ZONE = ['#3A3A3C', '#5AC8FA', '#30D158', '#FFD60A', '#FF9F0A', '#FF453A']
-export const ACCENT = '#FF3B5C'
+export const ACCENT = '#FFD60A'          // AI: yellow
+export const RED = '#FF453A'             // pulse
+export const BRAND = '#FF3B5C'
 export const GREEN = '#30D158'
 export const AMBER = '#FF9F0A'
 export const BLUE = '#5AC8FA'
@@ -51,13 +53,27 @@ export function mods(s) {
  */
 export function bind(page) {
   const app = page.$app.$def
-  const cb = () => page.update()
+  page.onScreen = true
+  // A page under another one (home under Start…) does no work: the band has little CPU.
+  const cb = () => {
+    if (page.onScreen) {
+      page.update()
+    }
+  }
   app.watch(cb)
   page.update()
-  const clock = setInterval(() => page.update(), 1000)
+  const clock = setInterval(cb, 1000)
   return () => {
     app.unwatch(cb)
     clearInterval(clock)
+  }
+}
+
+/** onShow / onHide of a bound page. */
+export function shown(page, on) {
+  page.onScreen = on
+  if (on) {
+    page.update()
   }
 }
 

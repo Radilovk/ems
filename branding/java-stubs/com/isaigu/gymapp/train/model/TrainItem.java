@@ -8,6 +8,7 @@ public class TrainItem {
     public int workLength;
     public boolean[] partsDisabled;
     public boolean[] partsControl;
+    CommandSender sender;
 
     public boolean isEmpty() {
         return true;
@@ -18,6 +19,8 @@ public class TrainItem {
     }
 
     public void addStrenth(int delta) {}
+
+    public void addMainAndPauseStrenth(int delta) {}
 
     /** Adds to the part (channel) values; all parts when ignoreControl, else the selected ones. Sends. */
     public void addAllPartValue(int value, boolean ignoreControl) {}

@@ -1,6 +1,6 @@
-.class Lcom/isaigu/gymapp/widget/XemsLocalSection$1;
+.class Lcom/isaigu/gymapp/widget/XemsLocalGate$7;
 .super Ljava/lang/Object;
-.source "XemsLocalSection.java"
+.source "XemsLocalGate.java"
 
 # interfaces
 .implements Landroid/view/View$OnClickListener;
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalSection;->build(Landroid/app/Activity;Landroid/view/View;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalGate;->onTaps(Landroid/view/View;Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,11 @@
 
 
 # instance fields
-.field final synthetic val$a:Landroid/app/Activity;
+.field final synthetic val$tap:Ljava/lang/Runnable;
 
 
 # direct methods
-.method constructor <init>(Landroid/app/Activity;)V
+.method constructor <init>(Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -31,8 +31,8 @@
     .end annotation
 
     .prologue
-    .line 102
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$1;->val$a:Landroid/app/Activity;
+    .line 229
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$7;->val$tap:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,11 +45,11 @@
     .locals 1
 
     .prologue
-    .line 104
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$1;->val$a:Landroid/app/Activity;
+    .line 232
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$7;->val$tap:Ljava/lang/Runnable;
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->access$000(Landroid/app/Activity;)V
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 105
+    .line 233
     return-void
 .end method

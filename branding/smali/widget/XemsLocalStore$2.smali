@@ -25,14 +25,15 @@
 
 # direct methods
 .method constructor <init>(Ljava/lang/Object;Ljava/lang/String;)V
-    .registers 3
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
         }
     .end annotation
 
-    .line 354
+    .prologue
+    .line 380
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$adapter:Ljava/lang/Object;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$mac:Ljava/lang/String;
@@ -45,16 +46,16 @@
 
 # virtual methods
 .method public run()V
-    .registers 3
+    .locals 2
 
-    .line 357
+    .prologue
+    .line 383
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$adapter:Ljava/lang/Object;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$mac:Ljava/lang/String;
 
-    # invokes: Lcom/isaigu/gymapp/widget/XemsLocalStore;->removeFromAdapterList(Ljava/lang/Object;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->access$100(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 358
+    .line 384
     return-void
 .end method

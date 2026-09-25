@@ -225,6 +225,7 @@ public final class XemsLocalStore {
             users.addAll(offline);
             FileUtils.saveListData(FILE_OFFLINE_USERS, TrainUser.class, new ArrayList<TrainUser>());
         }
+        ensureSampleUser(users);
         dm.trainUsers = users;
         // Offline users of the old app all had id 0: give each its own id.
         for (int i = 0; i < users.size(); i++) {
@@ -234,6 +235,32 @@ public final class XemsLocalStore {
             }
         }
         saveUsers();
+    }
+
+    /** Id of the sample client (local ids start at -100000, so it never meets one). */
+    static final long SAMPLE_USER_ID = -1L;
+
+    /** A ready sample client is always on the list (put back if it was removed). */
+    private static void ensureSampleUser(List<TrainUser> users) {
+        for (int i = 0; i < users.size(); i++) {
+            TrainUser u = users.get(i);
+            if (u != null && u.id == SAMPLE_USER_ID) {
+                return;
+            }
+        }
+        TrainUser s = new TrainUser();
+        s.id = SAMPLE_USER_ID;
+        s.name = tr("Примерен клиент", "Sample client");
+        s.nickName = s.name;
+        s.gender = com.isaigu.gymapp.bean.Gender.Male;
+        s.height = 175;
+        s.weight = 75f;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.YEAR, -35);
+        s.birtyday = cal.getTime();
+        s.createTime = new Date();
+        s.remark = tr("Цел: Тонус · Форма: Среден", "Goal: Tone · Fitness: Intermediate");
+        users.add(0, s);
     }
 
     public static void loadPrograms() {
@@ -345,7 +372,6 @@ public final class XemsLocalStore {
         }
     }
 
-    @SuppressWarnings("unchecked")
     /** BLE freshness timer expired — remove suit from the connect dialog list. */
     public static void onScanLost(final Object adapter, final String mac) {
         if (adapter == null || TextUtils.isEmpty(mac)) {
@@ -374,6 +400,17 @@ public final class XemsLocalStore {
                     DeviceBean d = list.get(i);
                     if (d != null && k.equals(macKey(d.macAddress))) {
                         list.remove(i);
+                        // Per-row "selected" flags go by position: drop this row's flag too.
+                        try {
+                            java.lang.reflect.Field sf = adapter.getClass().getDeclaredField("selects");
+                            sf.setAccessible(true);
+                            List<Boolean> selects = (List<Boolean>) sf.get(adapter);
+                            if (selects != null && i < selects.size()) {
+                                selects.remove(i);
+                            }
+                        } catch (NoSuchFieldException ignored) {
+                            // an adapter without per-row flags
+                        }
                         break;
                     }
                 }

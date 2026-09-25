@@ -9,6 +9,7 @@ D="$(cd "$(dirname "$0")" && pwd)"
 cd "${D}"
 [[ -d node_modules/aiot-toolkit ]] || npm i --no-audit --no-fund
 python3 scripts/gen-bg.py
+python3 scripts/gen-all-btn.py
 python3 scripts/gen-pages.py
 
 rm -rf build dist

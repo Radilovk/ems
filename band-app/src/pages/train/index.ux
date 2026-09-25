@@ -25,9 +25,10 @@
 
         <!-- all zones = the main impulse: left half −, right half + -->
         <stack class="cbox {{run ? '' : 'off'}}">
+          <image class="cfill all-fill" src="/common/ui/all-btn.png"></image>
           <div class="cface cface-all">
-            <text class="bigsign" style="color: #1f9d46">-</text>
-            <text class="bigsign" style="color: #e0342b">+</text>
+            <text class="bigsign">-</text>
+            <text class="bigsign">+</text>
           </div>
           <div class="ctouch">
             <div class="chalf" onclick="allMinus"></div>
@@ -522,6 +523,9 @@ export default {
 .chint {
   font-size: 20px;
   color: #8e8e93;
+}
+.all-fill {
+  width: 192px;
 }
 .cface-all {
   flex-direction: row;

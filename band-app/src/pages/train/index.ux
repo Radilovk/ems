@@ -35,6 +35,7 @@
         </stack>
 
         <text class="chcap">{{chCaps}}</text>
+        <text class="chhint">задръж канал · плъзгач</text>
 
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
@@ -68,7 +69,7 @@
     </scroll>
 
     <!-- Hold any channel → vertical slider; scroll position kept underneath. -->
-    <div class="slide-screen" if="{{slideOn}}"
+    <div class="slide-screen {{slideAnim}} {{slideDim ? 'slide-dim' : ''}}" if="{{slideOn}}"
          ontouchstart="slideTouch" ontouchmove="slideTouch" ontouchend="slideEnd" ontouchcancel="slideEnd">
       <div class="slide-bg"></div>
       <text class="slide-val" style="color: {{slideColor}}">{{slideVal}}</text>
@@ -150,7 +151,9 @@ export default {
     slideFill: GREEN,
     slideFillH: 0,
     slideKnobB: 0,
-    slideHint: 'плъзни нагоре / надолу'
+    slideHint: 'плъзни нагоре / надолу',
+    slideAnim: 'slide-in',
+    slideDim: false
   },
 
   onInit() {
@@ -211,7 +214,12 @@ export default {
     this.rttText = app.rtt ? 'отговор ' + (app.rtt / 1000).toFixed(1) + ' с' : ''
     this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
     this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
-    if (!this.slideOn) {
+    if (this.slideOn) {
+      this.slideDim = !run
+      if (this.slideDim) {
+        this.slideHint = 'пауза · плъзгачът е само за преглед'
+      }
+    } else {
       this.buildChannels(s.ch || [], run)
     }
   },
@@ -263,7 +271,7 @@ export default {
       })
     } else {
       this.chans = out
-      this.colH = 340 + 86 + 44 + out.length * 86 + 400
+      this.colH = 340 + 86 + 56 + out.length * 86 + 400
     }
   },
 
@@ -296,9 +304,12 @@ export default {
     this.slideSent = val
     this.slideTouching = true
     this.slideOn = true
+    this.slideAnim = 'slide-in'
+    this.slideDim = !this.run
+    this.slideTick = Math.floor(val / 10)
     this.scrollTop = this.savedScroll
     this.updateSlideVisual(val)
-    this.slideHint = 'плъзни нагоре / надолу'
+    this.slideHint = this.slideDim ? 'пауза · плъзгачът е само за преглед' : 'плъзни нагоре / надолу'
     const y = this.chTouch && this.chTouch.y
     if (y) {
       this.setSlideFromY(y)
@@ -311,12 +322,19 @@ export default {
     if (v === this.slideDraft) {
       return
     }
+    const tick = Math.floor(v / 10)
+    if (tick !== this.slideTick) {
+      this.slideTick = tick
+      this.$app.$def.buzz('short')
+    }
     this.slideDraft = v
     this.updateSlideVisual(v)
     this.optim[this.slideIdx] = { v: v, at: Date.now() }
     const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
     this.buildChannels(ch, this.run)
-    this.armSlideCommit()
+    if (!this.slideDim) {
+      this.armSlideCommit()
+    }
   },
 
   armSlideCommit() {
@@ -329,7 +347,7 @@ export default {
   },
 
   commitSlide() {
-    if (this.slideIdx < 0 || this.slideDraft === this.slideSent) {
+    if (this.slideIdx < 0 || this.slideDraft === this.slideSent || this.slideDim) {
       return
     }
     this.slideSent = this.slideDraft
@@ -448,7 +466,7 @@ export default {
       this.optim[c] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
       this.buildChannels(ch)
     }
-    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: Math.abs(d) })
+    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: 1 })
   },
 
   chPlus(c) {
@@ -672,7 +690,7 @@ export default {
 }
 .chcap {
   flex-shrink: 0;
-  height: 44px;
+  height: 32px;
   width: 196px;
   margin-left: 8px;
   margin-top: 10px;
@@ -680,6 +698,15 @@ export default {
   font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
+}
+.chhint {
+  flex-shrink: 0;
+  height: 24px;
+  width: 196px;
+  margin-left: 8px;
+  text-align: center;
+  font-size: 18px;
+  color: #636366;
 }
 .cbox {
   flex-shrink: 0;
@@ -857,6 +884,24 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
+}
+.slide-in {
+  animation-name: slideIn;
+  animation-duration: 220ms;
+  animation-timing-function: ease-out;
+}
+.slide-dim {
+  opacity: 0.72;
+}
+@keyframes slideIn {
+  from {
+    transform: translateY(36px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
 }
 .slide-bg {
   position: absolute;

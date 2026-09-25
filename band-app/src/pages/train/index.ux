@@ -35,7 +35,6 @@
         </stack>
 
         <text class="chcap">{{chCaps}}</text>
-        <text class="chhint">задръж канал · плъзгач</text>
 
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
@@ -271,7 +270,7 @@ export default {
       })
     } else {
       this.chans = out
-      this.colH = 340 + 86 + 56 + out.length * 86 + 400
+      this.colH = 340 + 86 + 44 + out.length * 86 + 400
     }
   },
 
@@ -690,7 +689,7 @@ export default {
 }
 .chcap {
   flex-shrink: 0;
-  height: 32px;
+  height: 44px;
   width: 196px;
   margin-left: 8px;
   margin-top: 10px;
@@ -698,15 +697,6 @@ export default {
   font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
-}
-.chhint {
-  flex-shrink: 0;
-  height: 24px;
-  width: 196px;
-  margin-left: 8px;
-  text-align: center;
-  font-size: 18px;
-  color: #636366;
 }
 .cbox {
   flex-shrink: 0;

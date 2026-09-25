@@ -41,6 +41,12 @@ export function zoneOf(hr, lim) {
   return f < 0.6 ? 1 : f < 0.7 ? 2 : f < 0.8 ? 3 : f < 0.9 ? 4 : 5
 }
 
+/** HR zone colour; clamps bad values from XEMS so text never gets an undefined colour. */
+export function zoneColor(z) {
+  const i = Math.max(0, Math.min(ZONE.length - 1, z | 0))
+  return ZONE[i]
+}
+
 /** Module blocks of the state (empty objects when XEMS is older or silent). */
 export function mods(s) {
   const m = (s && s.mods) || {}

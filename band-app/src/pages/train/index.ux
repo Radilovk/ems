@@ -24,8 +24,8 @@
         </div>
 
         <!-- all zones = the main impulse: left half −, right half + -->
-        <stack class="cbox {{run ? '' : 'off'}}">
-          <image class="cfill all-fill" src="/common/ui/all-btn.png"></image>
+        <stack class="cbox">
+          <image class="cfill all-fill" src="{{allBtnSrc}}"></image>
           <div class="cface cface-all">
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
@@ -72,13 +72,27 @@
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, RED, hms, zoneOf, mods, bind, shown } from '../../common/ui.js'
+import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 /** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
+const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
+
+function tier(pct) {
+  return pct >= 80 ? 2 : pct >= 50 ? 1 : 0
+}
+
+function channelStyle(pct, live) {
+  const t = tier(pct)
+  const accent = t === 2 ? RED : t === 1 ? AMBER : GREEN
+  if (live) {
+    return { fill: accent, color: '#FFFFFF' }
+  }
+  return { fill: FILL_DIM[t], color: accent }
+}
 
 export default {
   private: {
@@ -99,7 +113,8 @@ export default {
     chCaps: 'КАНАЛИ',
     chans: [],
     chKey: '',
-    colH: 1052
+    colH: 1052,
+    allBtnSrc: '/common/ui/all-btn-dim.png'
   },
 
   onInit() {
@@ -114,6 +129,7 @@ export default {
 
   onHide() {
     shown(this, false)
+    this.holdEnd()
   },
 
   onDestroy() {
@@ -148,13 +164,17 @@ export default {
     }
     this.msText = ms >= 0 ? String(ms) : '--'
     this.rttText = app.rtt ? 'отговор ' + (app.rtt / 1000).toFixed(1) + ' с' : ''
-    this.zoneColor = s.hr > 0 ? ZONE[z] : '#AEAEB2'
+    this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
     this.allHint = run ? '' : 'първо старт'
-    this.buildChannels(s.ch || [])
+    this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
+    this.buildChannels(s.ch || [], run)
   },
 
   /** Working channels in the tablet's order (off ones have no buttons, so they are left out). */
-  buildChannels(ch) {
+  buildChannels(ch, live) {
+    if (live === undefined) {
+      live = this.run
+    }
     const out = []
     ORDER.forEach((i) => {
       if (i >= ch.length || ch[i] < 0) {
@@ -170,17 +190,18 @@ export default {
           pct = o.v
         }
       }
+      const style = channelStyle(pct, live)
       out.push({
         i: i,
         name: NAMES[i] || 'Канал ' + (i + 1),
         text: String(pct),
         w: Math.round((FILL_W * pct) / 100),
-        fill: pct >= 80 ? RED : pct >= 50 ? AMBER : GREEN,
-        color: pct >= 80 ? RED : pct >= 50 ? AMBER : GREEN
+        fill: style.fill,
+        color: style.color
       })
     })
     this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'
-    const key = JSON.stringify(out)
+    const key = (live ? '1' : '0') + JSON.stringify(out)
     if (key === this.chKey) {
       return
     }
@@ -191,7 +212,7 @@ export default {
     if (same) {
       out.forEach((n, k) => {
         const c = this.chans[k]
-        if (c.text !== n.text) {
+        if (c.text !== n.text || c.w !== n.w || c.color !== n.color || c.fill !== n.fill) {
           c.text = n.text
           c.w = n.w
           c.color = n.color

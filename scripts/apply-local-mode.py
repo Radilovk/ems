@@ -15,6 +15,8 @@
 - DeviceAdapter.discoverDevice (both): show suits found over BLE (any in setup, allowed after)
 - SettingFragment: XemsLocalSection + activity result forwarding; XemsLocalGate (7 taps on
   Language = restart to login, 7 taps on Dark theme = licence card, hidden once a key is set)
+- BleMgr$1: a BLE find reaches the app only when it is an EMS suit (name with EMS / NBee,
+  the suit maker's advertising data, or a MAC the tablet knows); suits show by their name
 - UserFragment: new / edit client opens XemsLocalUserForm (quick form, AI questions)
 - LoginFragment / SplashFragment: no login screen — house account logs in by itself
 """
@@ -497,6 +499,39 @@ def patch_user_form() -> None:
     return-void""")
 
 
+BLE_MGR_CB = SMALI / "mgr/BleMgr$1.smali"
+
+
+def patch_ems_scan_filter() -> None:
+    """Only EMS suits reach the app from a BLE scan (XemsLocalStore.isEmsDevice)."""
+    text = BLE_MGR_CB.read_text(encoding="utf-8")
+    if "XemsLocalStore;->isEmsDevice" in text:
+        print("BleMgr$1: EMS filter already in")
+        return
+    n = 0
+    for method in ("onDeviceDiscovered", "onDeviceDiscoveredUpdate"):
+        head = f".method public {method}(Lcom/isaigu/gymapp/ble/BleInterface$BluetoothDeviceModel;ILjava/lang/String;[B)V"
+        start = text.index(head)
+        end = text.index(".end method", start)
+        body = text[start:end]
+        first = body.index("    new-instance v0, Lcom/isaigu/gymapp/message/DataBundle;")
+        gate = """    invoke-static {p1, p4}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isEmsDevice(Ljava/lang/Object;[B)Z
+
+    move-result v0
+
+    if-nez v0, :xems_is_ems
+
+    return-void
+
+    :xems_is_ems
+"""
+        body = body[:first] + gate + body[first:]
+        text = text[:start] + body + text[end:]
+        n += 1
+    BLE_MGR_CB.write_text(text, encoding="utf-8")
+    print(f"BleMgr$1: only EMS suits from the scan ({n} callbacks)")
+
+
 def patch_settings() -> None:
     text = SETTING.read_text(encoding="utf-8")
     if "XemsLocalSection;->attach" in text:
@@ -566,6 +601,7 @@ def main() -> int:
     patch_settings()
     patch_login()
     patch_user_form()
+    patch_ems_scan_filter()
     return 0
 
 

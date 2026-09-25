@@ -346,6 +346,45 @@ public final class XemsLocalStore {
 
     private static final android.os.Handler MAIN = new android.os.Handler(android.os.Looper.getMainLooper());
 
+    /** Names of the suits seen over BLE (MAC key → advertised name), shown instead of the MAC. */
+    private static final java.util.Map<String, String> SEEN_NAMES =
+            new java.util.concurrent.ConcurrentHashMap<String, String>();
+
+    /**
+     * BleMgr, for every BLE find: is it an EMS suit? Anything else (phones, headsets, TVs) is
+     * never shown. A suit is: a name with "EMS" in it; a name starting "NBee" (the app's own
+     * suit filter); the suit maker's advertising data (manufacturer 0xF0F1, what the app reads
+     * from its suits); or a MAC the tablet already knows (paired, on the list, from the server).
+     */
+    public static boolean isEmsDevice(Object model, byte[] makerData) {
+        try {
+            String mac = (String) readField(model, "address");
+            String name = (String) readField(model, "name");
+            String n = name == null ? "" : name.trim();
+            String up = n.toUpperCase();
+            boolean ems = up.contains("EMS") || up.startsWith("NBEE")
+                    || (makerData != null && makerData.length > 0)
+                    || (mac != null && (knownDevice(mac) != null || isAllowed(getAppContext(), mac)));
+            if (ems && mac != null && n.length() > 0) {
+                SEEN_NAMES.put(macKey(mac), n);
+            }
+            return ems;
+        } catch (Throwable t) {
+            return true;                            // never hide a suit because of us
+        }
+    }
+
+    /** The advertised name of a suit, else its MAC. */
+    static String displayName(String mac) {
+        String n = mac != null ? SEEN_NAMES.get(macKey(mac)) : null;
+        return n != null && n.length() > 0 ? n : mac;
+    }
+
+    private static Object readField(Object o, String name) throws Exception {
+        java.lang.reflect.Field f = o.getClass().getField(name);
+        return f.get(o);
+    }
+
     /**
      * BLE scan found a suit that is not in the dialog list yet (called from DeviceAdapter
      * .discoverDevice on the BLE thread). It is shown when it may be used: any suit in the setup,
@@ -441,8 +480,10 @@ public final class XemsLocalStore {
                 if (bean == null) {
                     bean = new DeviceBean();
                     bean.macAddress = mac;
-                    bean.name = mac;
+                    bean.name = displayName(mac);
                     bean.id = Long.valueOf(nextDeviceId());
+                } else if (bean.name == null || bean.name.equals(bean.macAddress)) {
+                    bean.name = displayName(mac);
                 }
                 bean.connectedSign = sign;
                 list.add(bean);
@@ -775,7 +816,7 @@ public final class XemsLocalStore {
         }
         DeviceBean bean = new DeviceBean();
         bean.macAddress = mac;
-        bean.name = mac;
+        bean.name = displayName(mac);
         bean.id = Long.valueOf(nextDeviceId());
         dm.deviceBeanList.add(bean);
         saveDevices();

@@ -24,7 +24,7 @@
         </div>
 
         <!-- all zones = the main impulse: left half −, right half + -->
-        <stack class="cbox {{run ? '' : 'off'}}">
+        <stack class="cbox cbox-all {{run ? '' : 'off'}}">
           <div class="halves">
             <div class="half-minus"></div>
             <div class="half-plus"></div>
@@ -527,9 +527,14 @@ export default {
   font-size: 20px;
   color: #8e8e93;
 }
+.cbox-all {
+  border-radius: 22px;
+}
 .cface-all {
   flex-direction: row;
   padding-top: 0px;
+  border-width: 0px;
+  background-color: transparent;
 }
 .bigsign {
   flex-shrink: 0;
@@ -544,6 +549,7 @@ export default {
   width: 196px;
   height: 76px;
   flex-direction: row;
+  border-radius: 22px;
 }
 .kpis {
   flex-shrink: 0;
@@ -580,16 +586,14 @@ export default {
   color: #48484a;
 }
 .half-minus {
-  flex-shrink: 0;
-  width: 98px;
+  flex: 1;
   height: 76px;
   border-top-left-radius: 22px;
   border-bottom-left-radius: 22px;
   background-color: #1f9d46;
 }
 .half-plus {
-  flex-shrink: 0;
-  width: 98px;
+  flex: 1;
   height: 76px;
   border-top-right-radius: 22px;
   border-bottom-right-radius: 22px;

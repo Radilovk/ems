@@ -19,11 +19,11 @@
         <div class="row allrow">
           <text class="row-title">Всички канали</text>
           <div class="pm">
-            <div class="btn pm-btn {{run ? '' : 'off'}} {{pressed === 'aminus' ? 'down' : ''}}" ontouchstart="press('aminus')"
+            <div class="btn pmw {{run ? '' : 'off'}} {{pressed === 'aminus' ? 'down' : ''}}" ontouchstart="press('aminus')"
                  ontouchend="release" ontouchcancel="release" onclick="allMinus">
               <image class="pm-img" src="/common/icons/minus.png"></image>
             </div>
-            <div class="btn pm-btn pm-plus {{run ? '' : 'off'}} {{pressed === 'aplus' ? 'down' : ''}}" ontouchstart="press('aplus')"
+            <div class="btn pmw pm-plus {{run ? '' : 'off'}} {{pressed === 'aplus' ? 'down' : ''}}" ontouchstart="press('aplus')"
                  ontouchend="release" ontouchcancel="release" onclick="allPlus">
               <image class="pm-img" src="/common/icons/plus.png"></image>
             </div>
@@ -34,18 +34,18 @@
         <text class="chcap">{{chCaps}}</text>
 
         <div for="{{chans}}" class="row chrow">
-          <div class="ch-top">
-            <text class="ch-name">{{$item.name}}</text>
+          <text class="ch-name">{{$item.name}}</text>
+          <div class="lvl">
+            <div class="vbar">
+              <div class="vfill" style="height: {{$item.h}}px; background-color: {{$item.color}}"></div>
+            </div>
             <text class="ch-val" style="color: {{$item.color}}">{{$item.text}}</text>
           </div>
-          <div class="bar">
-            <div class="bar-fill" style="width: {{$item.w}}px; background-color: {{$item.color}}"></div>
-          </div>
           <div class="pm">
-            <div class="btn pm-btn" onclick="chMinus($item.i)" onlongpress="chMinus5($item.i)">
+            <div class="btn pmw" onclick="chMinus($item.i)" onlongpress="chMinus5($item.i)">
               <image class="pm-img" src="/common/icons/minus.png"></image>
             </div>
-            <div class="btn pm-btn pm-plus" onclick="chPlus($item.i)" onlongpress="chPlus5($item.i)">
+            <div class="btn pmw pm-plus" onclick="chPlus($item.i)" onlongpress="chPlus5($item.i)">
               <image class="pm-img" src="/common/icons/plus.png"></image>
             </div>
           </div>
@@ -73,7 +73,7 @@ const HOLD_MS = 1200
 /** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
-const BAR_W = 164
+const BAR_H = 146
 
 export default {
   private: {
@@ -90,7 +90,7 @@ export default {
     chCaps: 'КАНАЛИ',
     chans: [],
     chKey: '',
-    colH: 1032
+    colH: 1036
   },
 
   onInit() {
@@ -133,17 +133,17 @@ export default {
         i: i,
         name: NAMES[i] || 'Канал ' + (i + 1),
         text: pct + '%',
-        w: Math.round((BAR_W * pct) / 100),
+        h: Math.max(pct > 0 ? 10 : 0, Math.round((BAR_H * pct) / 100)),
         color: pct >= 80 ? '#FF453A' : pct >= 50 ? '#FF9F0A' : '#30D158'
       })
     })
-    this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'КАНАЛИ · няма включени'
+    this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'
     const key = JSON.stringify(out)
     if (key !== this.chKey) {
       this.chKey = key
       this.chans = out
       // the scroll needs the real content height (children never shrink)
-      this.colH = 410 + 208 + 44 + out.length * 228 + 370
+      this.colH = 410 + 212 + 44 + out.length * 332 + 370
     }
   },
 
@@ -381,28 +381,28 @@ export default {
 }
 .row {
   flex-shrink: 0;
-  width: 196px;
-  margin-left: 8px;
+  width: 212px;
   margin-top: 12px;
-  padding: 14px;
+  padding-top: 12px;
   flex-direction: column;
   align-items: center;
-  border-radius: 28px;
+  border-radius: 30px;
   background-color: #16171b;
 }
 .allrow {
   flex-shrink: 0;
-  height: 196px;
+  height: 200px;
 }
 .chrow {
   flex-shrink: 0;
-  height: 216px;
+  height: 320px;
 }
 .row-title {
   flex-shrink: 0;
   font-size: 28px;
   font-weight: bold;
   color: #ffffff;
+  lines: 1;
 }
 .row-hint {
   flex-shrink: 0;
@@ -421,51 +421,58 @@ export default {
   font-weight: bold;
   color: #8e8e93;
 }
-.ch-top {
-  flex-shrink: 0;
-  width: 168px;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
 .ch-name {
   flex-shrink: 0;
-  width: 110px;
+  width: 196px;
+  text-align: center;
   font-size: 26px;
   font-weight: bold;
   color: #ffffff;
-  lines: 2;
+  lines: 1;
+}
+.lvl {
+  flex-shrink: 0;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 8px;
+}
+.vbar {
+  flex-shrink: 0;
+  width: 50px;
+  height: 150px;
+  padding: 2px;
+  border-radius: 25px;
+  background-color: #2c2c2e;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.vfill {
+  flex-shrink: 0;
+  width: 46px;
+  border-radius: 23px;
+  transition-property: height;
+  transition-duration: 250ms;
 }
 .ch-val {
   flex-shrink: 0;
-  font-size: 30px;
+  width: 110px;
+  margin-left: 14px;
+  text-align: center;
+  font-size: 50px;
   font-weight: bold;
-}
-.bar {
-  flex-shrink: 0;
-  width: 164px;
-  height: 12px;
-  margin-top: 8px;
-  border-radius: 6px;
-  background-color: #2c2c2e;
-}
-.bar-fill {
-  flex-shrink: 0;
-  height: 12px;
-  border-radius: 6px;
 }
 .pm {
   flex-shrink: 0;
   flex-direction: row;
   margin-top: 12px;
 }
-.pm-btn {
+.pmw {
   flex-shrink: 0;
-  width: 80px;
-  height: 76px;
-  margin-left: 4px;
-  margin-right: 4px;
-  border-radius: 38px;
+  width: 102px;
+  height: 96px;
+  margin-left: 2px;
+  margin-right: 2px;
+  border-radius: 30px;
   background-color: #2c2c2e;
 }
 .pm-plus {
@@ -474,8 +481,8 @@ export default {
 }
 .pm-img {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
 }
 .stop-item {
   flex-shrink: 0;

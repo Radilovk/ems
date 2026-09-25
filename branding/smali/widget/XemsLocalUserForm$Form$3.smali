@@ -3,12 +3,12 @@
 .source "XemsLocalUserForm.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderSex()V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photoBox()Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 256
+    .line 252
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,21 +36,20 @@
 
 
 # virtual methods
-.method public run()V
+.method public onClick(Landroid/view/View;)V
     .locals 2
 
     .prologue
-    .line 258
+    .line 254
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    sget-object v1, Lcom/isaigu/gymapp/bean/Gender;->Male:Lcom/isaigu/gymapp/bean/Gender;
+    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sex:Lcom/isaigu/gymapp/bean/Gender;
+    new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3$1;
 
-    .line 259
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+    invoke-direct {v1, p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3$1;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;)V
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderSex()V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->pick(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;)V
 
     .line 260
     return-void

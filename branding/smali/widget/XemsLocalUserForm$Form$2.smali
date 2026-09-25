@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 153
+    .line 158
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,11 +40,11 @@
     .locals 1
 
     .prologue
-    .line 155
+    .line 160
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->save()V
 
-    .line 156
+    .line 161
     return-void
 .end method

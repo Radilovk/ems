@@ -21,6 +21,7 @@ SOURCES=(
   "${WIDGET_SRC}/XemsLocalSection.java"
   "${WIDGET_SRC}/XemsLocalGate.java"
   "${WIDGET_SRC}/XemsLocalUserForm.java"
+  "${WIDGET_SRC}/XemsLocalAvatar.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}"
@@ -57,7 +58,8 @@ mkdir -p "${OUT_DIR}/dex"
     com/isaigu/gymapp/widget/XemsLocalApi*.class \
     com/isaigu/gymapp/widget/XemsLocalSection*.class \
     com/isaigu/gymapp/widget/XemsLocalGate*.class \
-    com/isaigu/gymapp/widget/XemsLocalUserForm*.class
+    com/isaigu/gymapp/widget/XemsLocalUserForm*.class \
+    com/isaigu/gymapp/widget/XemsLocalAvatar*.class
 )
 mv "${OUT_DIR}/dex/classes.dex" "${DEX_FILE}"
 
@@ -65,7 +67,7 @@ echo "Baksmaling..."
 rm -rf "${SMALI_OUT}"
 java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 
-for f in XemsLocalStore XemsLocalApi XemsLocalSection XemsLocalGate XemsLocalUserForm; do
+for f in XemsLocalStore XemsLocalApi XemsLocalSection XemsLocalGate XemsLocalUserForm XemsLocalAvatar; do
   src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
   [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
   for inner in "${SMALI_OUT}/com/isaigu/gymapp/widget/${f}"\$*.smali; do

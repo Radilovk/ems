@@ -72,6 +72,20 @@ public final class AiRamp {
         return encode(fit(upMs, downMs, onS)[1]);
     }
 
+    /**
+     * Rise / fall in ms for the tablet's own ramp (train.model.SoftRamp): the Smart Session's
+     * when it runs, else the program's — each ≤ 2 s, together ≤ the ON time.
+     */
+    public static int[] rampMs(ProgramDataBean b) {
+        if (aiActive) {
+            return new int[] {Math.min(MAX_MS, rampUpMs), Math.min(MAX_MS, rampDownMs)};
+        }
+        if (b == null) {
+            return new int[] {0, 0};
+        }
+        return fit(b.inputRamp, b.outputRamp, b.pulseContinue);
+    }
+
     /** Each ramp ≤ 2 s; together ≤ the ON time (scaled down proportionally when longer). */
     static int[] fit(int upMs, int downMs, int onS) {
         int up = Math.max(0, Math.min(MAX_MS, upMs));
@@ -85,10 +99,8 @@ public final class AiRamp {
         return new int[] {up, down};
     }
 
+    /** PDU ramp byte: always 0 — the suit does not ramp; the tablet does (train.model.SoftRamp). */
     private static int encode(int ms) {
-        if (ms <= 0) {
-            return 0;
-        }
-        return Math.min(255, (ms + 9) / 10);
+        return 0;
     }
 }

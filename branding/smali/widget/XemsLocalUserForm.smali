@@ -190,7 +190,7 @@
     .locals 0
 
     .prologue
-    .line 600
+    .line 666
     if-ge p0, p1, :cond_0
 
     :goto_0
@@ -213,7 +213,7 @@
     .locals 2
 
     .prologue
-    .line 572
+    .line 638
     const-string v0, "pregnancy"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -230,12 +230,12 @@
 
     move-result-object p0
 
-    .line 585
+    .line 651
     :cond_0
     :goto_0
     return-object p0
 
-    .line 573
+    .line 639
     :cond_1
     const-string v0, "implant"
 
@@ -255,7 +255,7 @@
 
     goto :goto_0
 
-    .line 574
+    .line 640
     :cond_2
     const-string v0, "cardiovascular"
 
@@ -275,7 +275,7 @@
 
     goto :goto_0
 
-    .line 575
+    .line 641
     :cond_3
     const-string v0, "circulation"
 
@@ -295,7 +295,7 @@
 
     goto :goto_0
 
-    .line 576
+    .line 642
     :cond_4
     const-string v0, "hernia"
 
@@ -315,7 +315,7 @@
 
     goto :goto_0
 
-    .line 577
+    .line 643
     :cond_5
     const-string v0, "cancer"
 
@@ -335,7 +335,7 @@
 
     goto :goto_0
 
-    .line 578
+    .line 644
     :cond_6
     const-string v0, "bleeding"
 
@@ -355,7 +355,7 @@
 
     goto :goto_0
 
-    .line 579
+    .line 645
     :cond_7
     const-string v0, "epilepsy"
 
@@ -375,7 +375,7 @@
 
     goto :goto_0
 
-    .line 580
+    .line 646
     :cond_8
     const-string v0, "neurological"
 
@@ -395,7 +395,7 @@
 
     goto/16 :goto_0
 
-    .line 581
+    .line 647
     :cond_9
     const-string v0, "recent_surgery"
 
@@ -415,7 +415,7 @@
 
     goto/16 :goto_0
 
-    .line 582
+    .line 648
     :cond_a
     const-string v0, "skin_lesion"
 
@@ -435,7 +435,7 @@
 
     goto/16 :goto_0
 
-    .line 583
+    .line 649
     :cond_b
     const-string v0, "kidney"
 
@@ -455,7 +455,7 @@
 
     goto/16 :goto_0
 
-    .line 584
+    .line 650
     :cond_c
     const-string v0, "tuberculosis"
 
@@ -480,7 +480,7 @@
     .locals 2
 
     .prologue
-    .line 566
+    .line 632
     const-string v0, "low"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -497,11 +497,11 @@
 
     move-result-object v0
 
-    .line 568
+    .line 634
     :goto_0
     return-object v0
 
-    .line 567
+    .line 633
     :cond_0
     const-string v0, "high"
 
@@ -521,7 +521,7 @@
 
     goto :goto_0
 
-    .line 568
+    .line 634
     :cond_1
     const-string v0, "\u0421\u0440\u0435\u0434\u0435\u043d"
 
@@ -538,7 +538,7 @@
     .locals 2
 
     .prologue
-    .line 558
+    .line 624
     const-string v0, "fat"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -555,11 +555,11 @@
 
     move-result-object v0
 
-    .line 562
+    .line 628
     :goto_0
     return-object v0
 
-    .line 559
+    .line 625
     :cond_0
     const-string v0, "massage"
 
@@ -579,7 +579,7 @@
 
     goto :goto_0
 
-    .line 560
+    .line 626
     :cond_1
     const-string v0, "drain"
 
@@ -599,7 +599,7 @@
 
     goto :goto_0
 
-    .line 561
+    .line 627
     :cond_2
     const-string v0, "cellulite"
 
@@ -619,7 +619,7 @@
 
     goto :goto_0
 
-    .line 562
+    .line 628
     :cond_3
     const-string v0, "\u0422\u043e\u043d\u0443\u0441"
 
@@ -636,7 +636,7 @@
     .locals 3
 
     .prologue
-    .line 604
+    .line 670
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -708,7 +708,7 @@
     .locals 1
 
     .prologue
-    .line 608
+    .line 674
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
@@ -732,20 +732,20 @@
 
     const/4 v3, 0x1
 
-    .line 589
+    .line 655
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v1
 
-    .line 590
+    .line 656
     invoke-virtual {v1, p0}, Ljava/util/Calendar;->setTime(Ljava/util/Date;)V
 
-    .line 591
+    .line 657
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v2
 
-    .line 592
+    .line 658
     invoke-virtual {v2, v3}, Ljava/util/Calendar;->get(I)I
 
     move-result v0
@@ -756,7 +756,7 @@
 
     sub-int/2addr v0, v3
 
-    .line 593
+    .line 659
     invoke-virtual {v2, v4}, Ljava/util/Calendar;->get(I)I
 
     move-result v2
@@ -767,10 +767,10 @@
 
     if-ge v2, v1, :cond_0
 
-    .line 594
+    .line 660
     add-int/lit8 v0, v0, -0x1
 
-    .line 596
+    .line 662
     :cond_0
     return v0
 .end method

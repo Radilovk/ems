@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderFitness()V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,7 +20,7 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$f:Ljava/lang/String;
+.field final synthetic val$g:Ljava/lang/String;
 
 
 # direct methods
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 287
+    .line 332
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->val$f:Ljava/lang/String;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->val$g:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,18 +49,18 @@
     .locals 2
 
     .prologue
-    .line 289
+    .line 334
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->val$f:Ljava/lang/String;
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->val$g:Ljava/lang/String;
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->fitness:Ljava/lang/String;
+    iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goal:Ljava/lang/String;
 
-    .line 290
+    .line 335
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderFitness()V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
 
-    .line 291
+    .line 336
     return-void
 .end method

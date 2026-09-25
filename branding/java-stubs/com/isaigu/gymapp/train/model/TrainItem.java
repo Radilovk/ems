@@ -8,6 +8,7 @@ public class TrainItem {
     public int workLength;
     public boolean[] partsDisabled;
     public boolean[] partsControl;
+    CommandSender sender;
 
     public boolean isEmpty() {
         return true;

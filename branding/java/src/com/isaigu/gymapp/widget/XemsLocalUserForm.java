@@ -83,6 +83,11 @@ public final class XemsLocalUserForm {
 
         EditText name;
         EditText phone;
+        EditText email;
+        android.widget.ImageView photo;
+        TextView photoHint;
+        /** A photo picked in this form, saved on Save. */
+        android.graphics.Bitmap newPhoto;
         Gender sex = Gender.Male;
         final int[] age = {35};
         final int[] height = {170};
@@ -180,12 +185,19 @@ public final class XemsLocalUserForm {
 
         View leftColumn() {
             LinearLayout col = column();
-            LinearLayout c1 = card(col, tr("Име", "Name"));
+            LinearLayout c1 = card(col, tr("Снимка и име", "Photo and name"));
+            LinearLayout who = new LinearLayout(a);
+            who.setOrientation(LinearLayout.HORIZONTAL);
+            who.setGravity(Gravity.CENTER_VERTICAL);
+            who.addView(photoBox(), new LinearLayout.LayoutParams(dp(96), dp(96)));
             name = input(tr("Име и фамилия", "Full name"), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
             if (editing != null && editing.name != null) {
                 name.setText(editing.name);
             }
-            c1.addView(name, match(0));
+            LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            np.leftMargin = dp(16);
+            who.addView(name, np);
+            c1.addView(who, match(0));
 
             LinearLayout c2 = card(col, tr("Пол", "Sex"));
             sexRow[0] = chips(c2);
@@ -202,14 +214,60 @@ public final class XemsLocalUserForm {
                     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             c3.addView(wheels, match(dp(6)));
 
-            LinearLayout c4 = card(col, tr("Телефон (по желание)", "Phone (optional)"));
-            phone = input("+359 …", InputType.TYPE_CLASS_PHONE);
-            phone.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            LinearLayout c4 = card(col, tr("Контакт (по желание)", "Contact (optional)"));
+            phone = input(tr("Телефон  +359 …", "Phone  +359 …"), InputType.TYPE_CLASS_PHONE);
+            phone.setImeOptions(EditorInfo.IME_ACTION_NEXT);
             if (editing != null && editing.phone != null) {
                 phone.setText(editing.phone);
             }
             c4.addView(phone, match(0));
+            email = input(tr("Имейл", "Email"), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            email.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            if (editing != null && editing.email != null) {
+                email.setText(editing.email);
+            }
+            c4.addView(email, match(dp(8)));
             return col;
+        }
+
+        /** Round photo; tap = choose from the gallery. */
+        View photoBox() {
+            android.widget.FrameLayout box = new android.widget.FrameLayout(a);
+            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+            bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            bg.setColor(BG);
+            bg.setStroke(dp(2), ACCENT);
+            box.setBackground(bg);
+            photo = new android.widget.ImageView(a);
+            photo.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+            box.addView(photo, new android.widget.FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            photoHint = text(tr("+ снимка", "+ photo"), 15, TEXT, true);
+            photoHint.setGravity(Gravity.CENTER);
+            box.addView(photoHint, new android.widget.FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            if (editing != null) {
+                showPhoto(XemsLocalAvatar.read(editing.iconUrl, 0));
+            }
+            box.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    XemsLocalAvatar.pick(a, new XemsLocalAvatar.Picked() {
+                        public void onPicked(android.graphics.Bitmap sq) {
+                            newPhoto = sq;
+                            showPhoto(sq);
+                        }
+                    });
+                }
+            });
+            return box;
+        }
+
+        void showPhoto(android.graphics.Bitmap sq) {
+            if (sq == null) {
+                return;
+            }
+            photo.setImageBitmap(XemsLocalAvatar.circle(sq));
+            photoHint.setVisibility(View.GONE);
         }
 
         View rightColumn() {
@@ -349,6 +407,14 @@ public final class XemsLocalUserForm {
             u.birtyday = cal.getTime();
             String p = phone.getText().toString().trim();
             u.phone = p.length() > 0 ? p : u.phone;
+            String m = email.getText().toString().trim();
+            u.email = m.length() > 0 ? m : u.email;
+            if (newPhoto != null) {
+                String url = XemsLocalAvatar.save(a, newPhoto, u.iconUrl);
+                if (url != null) {
+                    u.iconUrl = url;
+                }
+            }
             u.remark = summary();
             XemsLocalStore.saveUser((BaseActivity) a, u, editing != null);
             StringBuilder cs = new StringBuilder();

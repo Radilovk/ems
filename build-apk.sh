@@ -113,6 +113,8 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-xems-nav.py"
   python3 "${ROOT}/scripts/apply-local-mode.py"
   python3 "${ROOT}/scripts/apply-ramp-setting.py"
+  python3 "${ROOT}/scripts/apply-soft-ramp.py"
+  python3 "${ROOT}/scripts/apply-avatar-card.py"
   python3 "${ROOT}/scripts/apply-band-app.py"
   python3 "${ROOT}/scripts/apply-train-swipe-delete-fix.py"
   python3 "${ROOT}/scripts/remove-segment-program-gear.py"

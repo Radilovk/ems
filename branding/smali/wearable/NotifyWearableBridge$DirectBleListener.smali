@@ -158,6 +158,39 @@
     .line 63
     :cond_0
     :goto_1
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "authenticated"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_hr_try
+
+    const-string v1, "initialized"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_hr_try
+
+    return-void
+
+    :cond_hr_try
+    :try_start_hr
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->applyHr(Landroid/content/Context;)V
+    :try_end_hr
+    .catch Ljava/lang/Throwable; {:try_start_hr .. :try_end_hr} :catch_hr
+
+    :catch_hr
     return-void
 
     .line 44

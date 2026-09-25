@@ -44,17 +44,17 @@
     .locals 0
 
     .prologue
-    .line 72
+    .line 78
     if-eqz p1, :cond_0
 
-    .line 73
+    .line 79
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandConnected()V
 
-    .line 77
+    .line 83
     :goto_0
     return-void
 
-    .line 75
+    .line 81
     :cond_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onBandDisconnected()V
 
@@ -65,10 +65,10 @@
     .locals 0
 
     .prologue
-    .line 67
+    .line 73
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onHeartRate(I)V
 
-    .line 68
+    .line 74
     return-void
 .end method
 
@@ -77,7 +77,7 @@
 
     .prologue
     .line 44
-    if-eqz p1, :cond_1
+    if-eqz p1, :cond_3
 
     :goto_0
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$102(Ljava/lang/String;)Ljava/lang/String;
@@ -140,7 +140,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_4
 
     .line 49
     const-string v0, "\u0413\u0440\u0435\u0448\u0435\u043d \u043a\u043b\u044e\u0447 \u2014 \u043d\u0443\u0436\u043d\u0438 \u0441\u0430 32 \u0441\u0438\u043c\u0432\u043e\u043b\u0430 \u043e\u0442 Mi Fitness"
@@ -158,16 +158,66 @@
     .line 63
     :cond_0
     :goto_1
+    const-string v0, "authenticated"
+
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    const-string v0, "initialized"
+
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    const-string v0, "linked"
+
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_2
+
+    .line 65
+    :cond_1
+    :try_start_0
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->applyHr(Landroid/content/Context;)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    .line 69
+    :cond_2
+    :goto_2
     return-void
 
     .line 44
-    :cond_1
+    :cond_3
     const-string p1, ""
 
     goto :goto_0
 
     .line 52
-    :cond_2
+    :cond_4
     const-string v0, "bad_mac"
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
@@ -178,7 +228,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3
+    if-eqz v0, :cond_5
 
     .line 53
     const-string v0, "\u0413\u0440\u0435\u0448\u0435\u043d MAC \u2014 \u043f\u0440\u043e\u0432\u0435\u0440\u0438 \u0430\u0434\u0440\u0435\u0441\u0430 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
@@ -196,7 +246,7 @@
     goto :goto_1
 
     .line 56
-    :cond_3
+    :cond_5
     const-string v0, "auth_fail"
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
@@ -207,7 +257,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_4
+    if-eqz v0, :cond_6
 
     .line 57
     const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u043f\u0440\u0438\u0435 \u043a\u043b\u044e\u0447\u0430 \u2014 \u043f\u0440\u043e\u0432\u0435\u0440\u0438 \u043a\u043b\u044e\u0447\u0430 \u0438 MAC"
@@ -225,7 +275,7 @@
     goto :goto_1
 
     .line 60
-    :cond_4
+    :cond_6
     const-string v0, "no_bt_permission"
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$100()Ljava/lang/String;
@@ -242,4 +292,10 @@
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showBluetoothPermissionDenied()V
 
     goto :goto_1
+
+    .line 66
+    :catch_0
+    move-exception v0
+
+    goto :goto_2
 .end method

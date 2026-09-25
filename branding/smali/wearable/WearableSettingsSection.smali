@@ -1750,7 +1750,7 @@
 .end method
 
 .method private static refreshStatus(Landroid/app/Activity;)V
-    .registers 6
+    .registers 8
 
     .prologue
     const v0, -0x994496
@@ -1842,13 +1842,29 @@
 
     move-result v3
 
-    if-eqz v3, :cond_8a
+    if-nez v3, :cond_45live
 
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isLinkUp()Z
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v3
+
+    sget-wide v5, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
+
+    cmp-long v3, v3, v5
+
+    if-ltz v3, :cond_45live
+
+    const-string v3, "settings"
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isOwnedBy(Ljava/lang/String;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_8a
+    if-eqz v3, :cond_45live
+
+    goto :cond_8a
+
+    :cond_45live
 
     .line 401
     if-lez v2, :cond_85
@@ -1861,40 +1877,7 @@
 
     if-eqz v3, :cond_85
 
-    .line 402
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v3, "\u0420\u0430\u0431\u043e\u0442\u0438 \u00b7 "
-
-    const-string v4, "Working \u00b7 "
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v3, " \u0443\u0434/\u043c\u0438\u043d"
-
-    const-string v4, " bpm"
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v1
 
@@ -2491,6 +2474,83 @@
     return-object v0
 .end method
 
+
+.method static flushConfigFromUi(Landroid/app/Activity;)V
+    .locals 3
+
+    sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
+
+    if-eqz v0, :cond_mac_cfg
+
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_mac
+
+    :cond_mac_cfg
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_mac
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidMac(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_key
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
+
+    :cond_key
+    sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
+
+    if-eqz v0, :cond_key_cfg
+
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_key
+
+    :cond_key_cfg
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getAuthKey(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_key
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidKey(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_done
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
+
+    :cond_done
+    return-void
+.end method
+
 .method private static startTest(Landroid/app/Activity;)V
     .registers 5
 
@@ -2543,7 +2603,9 @@
     .line 360
     const-string v0, "settings"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->reconnect(Landroid/app/Activity;Ljava/lang/String;)V
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->flushConfigFromUi(Landroid/app/Activity;)V
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->settingsFullReconnect(Landroid/app/Activity;)V
 
     .line 361
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043d\u0435 \u0441 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430\u2026"

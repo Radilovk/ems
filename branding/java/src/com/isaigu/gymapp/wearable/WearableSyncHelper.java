@@ -158,7 +158,11 @@ public final class WearableSyncHelper {
         button.setFocusable(true);
         button.bringToFront();
         button.setOnClickListener(new MasterOpenListener());
-        onTrainingHostReady();
+        try {
+            onTrainingHostReady();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("WearableSyncHelper.onTrainingHostReady", t);
+        }
     }
 
     /** Restore dial UI after activity recreate; do not auto-connect BLE (EMS needs Bluetooth). */
@@ -880,9 +884,15 @@ public final class WearableSyncHelper {
             color = WearableUi.COLOR_ERROR;
         } else if (NotifyWearableBridge.isListeningActive()) {
             String state = NotifyWearableBridge.getBleState();
-            text = WearableUi.stateText(state);
-            color = WearableUi.isErrorState(state) ? WearableUi.COLOR_ERROR
-                    : "streaming".equals(state) ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT;
+            int hr = NotifyWearableBridge.getLastHeartRate();
+            if ("streaming".equals(state) && hr > 0) {
+                text = String.valueOf(hr);
+                color = WearableUi.COLOR_OK;
+            } else {
+                text = WearableUi.stateText(state);
+                color = WearableUi.isErrorState(state) ? WearableUi.COLOR_ERROR
+                        : "streaming".equals(state) ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT;
+            }
         } else if (WearableConfig.isArmed(activity)) {
             text = WearableUi.tr("Готово — натисни ↻ на кръга", "Ready — tap ↻ on the dial");
         } else {

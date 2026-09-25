@@ -60,6 +60,12 @@ public final class NotifyWearableBridge {
             } else if ("no_bt_permission".equals(bleState)) {
                 WearableSyncHelper.showBluetoothPermissionDenied();
             }
+            if ("authenticated".equals(bleState) || "initialized".equals(bleState) || "linked".equals(bleState)) {
+                try {
+                    applyHr(WearableSyncHelper.getContext());
+                } catch (Throwable ignored) {
+                }
+            }
         }
 
         @Override
@@ -226,6 +232,46 @@ public final class NotifyWearableBridge {
         }
     }
 
+    private static final SettingsReconnectTask settingsReconnectTask = new SettingsReconnectTask();
+
+    static final class SettingsReconnectTask implements Runnable {
+        Activity activity;
+
+        @Override
+        public void run() {
+            try {
+                connect(activity);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("NotifyWearableBridge.settingsReconnect", t);
+            }
+            activity = null;
+        }
+    }
+
+    /**
+     * Settings → Test connection: same clean Bluetooth restart as the HR dial ↻ — disconnect,
+     * wait for the stack, refresh GATT cache, connect with current MAC/key/transport from config.
+     */
+    public static void settingsFullReconnect(Activity activity) {
+        owners.add(OWNER_SETTINGS);
+        try {
+            XiaomiBand.link().disconnect();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("reconnect", "settings disconnect: " + t);
+        }
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.reset();
+        XiaomiBandBleClient.getInstance().refreshCacheOnNextConnect();
+        bleState = "reconnecting";
+        lastHr = -1;
+        hrOn = null;
+        WearableBleDiagLog.log("reconnect", "settings full reconnect");
+        WearableSyncHelper.updateHeartRate(-1, false);
+        WearableSyncHelper.updateDiagnostics();
+        main.removeCallbacks(settingsReconnectTask);
+        settingsReconnectTask.activity = activity;
+        main.postDelayed(settingsReconnectTask, FULL_RECONNECT_GAP_MS);
+    }
+
     /** Take a share and force a fresh connection (explicit "reconnect" by the user). */
     public static void reconnect(Activity activity, String owner) {
         if (owner != null) {
@@ -332,13 +378,11 @@ public final class NotifyWearableBridge {
     private static final HrPolicy hrPolicy = new HrPolicy();
 
     /**
-     * Heart rate is measured only while something uses it: the pulse module (auto control on the
-     * training screen) or an AI session. Otherwise the band stops measuring; the link stays up.
+     * Heart rate is measured only while something uses it: pulse auto-control, AI session or a
+     * settings connection test. Otherwise the band stops measuring; the link stays up.
      */
     static void applyHr(Context context) {
-        boolean want = context != null
-                && (WearableConfig.isAutoReduceEnabled(context) || owners.contains(OWNER_AI)
-                || owners.contains(OWNER_SETTINGS));          // connection check in Settings shows the HR
+        boolean want = HrDemandPolicy.wantsHeartRate(context, owners);
         if (hrOn != null && hrOn.booleanValue() == want) {
             return;
         }
@@ -416,6 +460,11 @@ public final class NotifyWearableBridge {
 
     static void onBandConnected() {
         bandConnected = true;
+        try {
+            applyHr(WearableSyncHelper.getContext());
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("health", "applyHr on connect: " + t);
+        }
         try {
             BandRemote.start();
         } catch (Throwable t) {

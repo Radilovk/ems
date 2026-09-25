@@ -566,13 +566,7 @@
     if-eqz v0, :cond_1
 
     .line 104
-    const-string v0, "\u041d\u0430 \u0436\u0438\u0432\u043e"
-
-    const-string v1, "Live"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, ""
 
     .line 144
     :goto_0
@@ -589,7 +583,7 @@
     if-eqz v0, :cond_2
 
     .line 107
-    const-string v0, "\u041c\u0435\u0440\u0438 \u043f\u0443\u043b\u0441\u2026"
+    const-string v0, "\u0418\u0437\u043c\u0435\u0440\u0432\u0430\u2026"
 
     const-string v1, "Measuring\u2026"
 

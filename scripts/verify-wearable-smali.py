@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -29,6 +30,7 @@ REQUIRED_XIAOMI = [
 REQUIRED_WEARABLE = [
     "WearableBlePermissions.smali",
     "WearableBleDiagLog.smali",
+    "HrDemandPolicy.smali",
     "NotifyWearableBridge.smali",
     "NotifyWearableBridge$ConnectAfterPermission.smali",
     "WearableBlePermissions$PermissionCallback.smali",
@@ -52,6 +54,16 @@ def check_branding_wearable() -> list[str]:
     for name in REQUIRED_WEARABLE:
         if not (BRANDING_WEARABLE / name).is_file():
             errors.append(f"missing branding wearable/{name}")
+    bridge = BRANDING_WEARABLE / "NotifyWearableBridge.smali"
+    policy = BRANDING_WEARABLE / "HrDemandPolicy.smali"
+    if bridge.is_file():
+        text = bridge.read_text(encoding="utf-8")
+        if "HrDemandPolicy;->wantsHeartRate" not in text:
+            errors.append("NotifyWearableBridge.applyHr must delegate to HrDemandPolicy")
+    if policy.is_file():
+        text = policy.read_text(encoding="utf-8")
+        if not re.search(r'const-string v\d+, "settings"', text):
+            errors.append("HrDemandPolicy.smali missing settings owner check")
     return errors
 
 

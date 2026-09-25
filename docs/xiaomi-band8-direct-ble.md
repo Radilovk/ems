@@ -198,6 +198,7 @@ STRICT=1 scripts/ble-sim/run.sh                      # пълен поток →
 STRICT=1 scripts/ble-sim/run.sh nomtu                # без onMtuChanged
 STRICT=1 NOACK_FIRST_ENC=1 scripts/ble-sim/run.sh    # гривната изпуска един ACK
 AUTH_KEY=<32 hex> …                                  # по избор; по подразбиране е случаен ключ
+scripts/ble-sim/run-hr-policy.sh                     # логика applyHr: settings/dial → startRealtime
 ```
 
 `STRICT=1` означава, че ACK трябва да дойде в характеристиката на кадъра. В този режим

@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind, shown } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, RED, hms, zoneOf, mods, bind, shown } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 /** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
@@ -175,8 +175,8 @@ export default {
         name: NAMES[i] || 'Канал ' + (i + 1),
         text: String(pct),
         w: Math.round((FILL_W * pct) / 100),
-        fill: pct >= 80 ? '#5C1A16' : pct >= 50 ? '#5A3A0C' : '#17462A',
-        color: pct >= 80 ? '#FF453A' : pct >= 50 ? '#FF9F0A' : '#30D158'
+        fill: pct >= 80 ? RED : pct >= 50 ? AMBER : GREEN,
+        color: pct >= 80 ? RED : pct >= 50 ? AMBER : GREEN
       })
     })
     this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'

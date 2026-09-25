@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 664
+    .line 699
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,19 +34,19 @@
     .locals 1
 
     .prologue
-    .line 667
+    .line 702
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$402(Z)Z
 
-    .line 668
+    .line 703
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$500()V
 
-    .line 669
+    .line 704
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 670
+    .line 705
     return-void
 .end method

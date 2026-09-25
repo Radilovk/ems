@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 102
+    .line 110
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .locals 0
 
     .prologue
-    .line 105
+    .line 113
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$000()V
 
-    .line 106
+    .line 114
     return-void
 .end method

@@ -28,16 +28,16 @@
     .locals 0
 
     .prologue
-    .line 629
+    .line 664
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 630
+    .line 665
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->activity:Landroid/app/Activity;
 
-    .line 631
+    .line 666
     iput-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->uri:Landroid/net/Uri;
 
-    .line 632
+    .line 667
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .locals 5
 
     .prologue
-    .line 637
+    .line 672
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareTask;->activity:Landroid/app/Activity;
 
@@ -57,10 +57,10 @@
 
     move-result-object v0
 
-    .line 638
+    .line 673
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 639
+    .line 674
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200()Landroid/os/Handler;
 
     move-result-object v1
@@ -77,18 +77,18 @@
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 644
+    .line 679
     :goto_0
     return-void
 
-    .line 640
+    .line 675
     :catch_0
     move-exception v0
 
-    .line 641
+    .line 676
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->ensureHandler()V
 
-    .line 642
+    .line 677
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$200()Landroid/os/Handler;
 
     move-result-object v0

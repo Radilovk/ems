@@ -73,6 +73,14 @@ public class MusicSync {
     private static long toneSlewLastMs;
     private static int lastPushedHz = -1;
     private static volatile int pendingHz = -1;
+    private static volatile int pendingPw = -1;
+    private static int lastPushedPw = -1;
+    /** Pulse width at treble = this share of the program's width (bass = the program's width). */
+    private static final float PW_TREBLE_SHARE = 0.6f;
+    private static final int PW_MIN = 50;
+    private static int savedProgramPw = -1;
+    /** Tone of the last update (0 bass … 100 treble), for the pulse width. */
+    private static float lastTone = 50f;
     /** The program's own Hz, put back when the music stops or Hz-by-sound is turned off. */
     private static int savedProgramHz = -1;
     private static boolean playerMode;
@@ -130,6 +138,7 @@ public class MusicSync {
     /** Level + Hz (−1 = leave Hz) — they go to the suit in the same update. */
     private static void submitApplied(int value, int hz) {
         pendingHz = hz;
+        pendingPw = hz > 0 ? soundPw() : -1;
         pendingApplied = value;
         if (isMainThread()) {
             flushPending();
@@ -161,16 +170,21 @@ public class MusicSync {
             return;
         }
         int hz = pendingHz;
+        int pw = pendingPw;
         pendingApplied = -1;
         pendingHz = -1;
-        if (value == lastPushedApplied && (hz <= 0 || hz == lastPushedHz)) {
+        pendingPw = -1;
+        if (value == lastPushedApplied && (hz <= 0 || hz == lastPushedHz) && (pw <= 0 || pw == lastPushedPw)) {
             return;
         }
         lastPushedApplied = value;
         if (hz > 0) {
             lastPushedHz = hz;
         }
-        MasterStrengthControl.setMasterStrength(value, true, true, hz);
+        if (pw > 0) {
+            lastPushedPw = pw;
+        }
+        MasterStrengthControl.setMasterStrength(value, true, true, hz, pw);
         if (isTargetSenderBusy()) {
             awaitingAck = true;
             sendStartMs = SystemClock.elapsedRealtime();
@@ -241,6 +255,8 @@ public class MusicSync {
         pendingApplied = -1;
         lastPushedHz = -1;
         pendingHz = -1;
+        pendingPw = -1;
+        lastPushedPw = -1;
         toneSlew = 50f;
         toneSlewLastMs = 0L;
         playerSmoothedTone = 0.5f;
@@ -309,12 +325,27 @@ public class MusicSync {
         } else {
             toneSlew = tone;
         }
+        lastTone = toneSlew;
         int hz = Math.round(hzBass + (hzTreble - hzBass) * toneSlew / 100f);
         // a 1 Hz wobble is not worth an update
         if (lastPushedHz > 0 && Math.abs(hz - lastPushedHz) < 2) {
             hz = lastPushedHz;
         }
         return Math.max(HZ_MIN, Math.min(HZ_MAX, hz));
+    }
+
+    /** Pulse width for the last tone: the program's width at bass, 60 % of it at treble. */
+    private static int soundPw() {
+        int base = savedProgramPw;
+        if (base <= 0) {
+            return -1;
+        }
+        float k = 1f - (1f - PW_TREBLE_SHARE) * lastTone / 100f;
+        int pw = Math.max(PW_MIN, Math.round(base * k / 10f) * 10);
+        if (lastPushedPw > 0 && Math.abs(pw - lastPushedPw) < 10) {
+            pw = lastPushedPw;
+        }
+        return Math.min(base, pw);
     }
 
     // ================================================================ Hz by sound: settings
@@ -346,15 +377,19 @@ public class MusicSync {
             return;
         }
         savedProgramHz = MasterStrengthControl.getTargetHz();
+        savedProgramPw = MasterStrengthControl.getTargetPulseWidth();
     }
 
     /** Put the program's own Hz back (music stopped / feature off). */
     private static void restoreProgramHz() {
         int hz = savedProgramHz;
+        int pw = savedProgramPw;
         savedProgramHz = -1;
+        savedProgramPw = -1;
         lastPushedHz = -1;
-        if (hz > 0) {
-            MasterStrengthControl.setTargetHz(hz, true);
+        lastPushedPw = -1;
+        if (hz > 0 || pw > 0) {
+            MasterStrengthControl.setTargetHz(hz, pw, true);
         }
     }
 

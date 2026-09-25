@@ -173,7 +173,11 @@ public final class MusicPlayerEngine {
         private static final int TONE_HALF_WINDOW = 3;
         /** Slow reference for onset detection: EMA per bucket (~90 ms time constant). */
         private static final double ONSET_SLOW_ALPHA = 0.2;
-        private static final double ONSET_BASS_WEIGHT = 0.7;
+        private static final double BAND_BASS = 0.45;
+        private static final double BAND_MID = 0.40;
+        private static final double BAND_HIGH = 0.15;
+        /** Strong-hit memory per 20 ms bucket (~1 s to adapt to a new part of the song). */
+        private static final double STRONG_DECAY = 0.97;
         /** Onsets below this fraction of the track's strong hits are ignored. */
         private static final float ONSET_GATE = 0.15f;
         /** Hit decay per 20 ms bucket, so a beat has body instead of a 20 ms spike. */
@@ -186,7 +190,9 @@ public final class MusicPlayerEngine {
         private double lp2;
         private double lpT;
         private double sumTreble;
+        private double sumMid;
         private float[] treble = new float[4096];
+        private float[] mid = new float[4096];
         private int bucket = -1;
         private double sumSq;
         private double sumBass;
@@ -219,6 +225,8 @@ public final class MusicPlayerEngine {
             lpT += trebleAlpha * (sample - lpT);
             double high = sample - lpT;
             sumTreble += high * high;
+            double m = lpT - lp2;                          // 150 Hz … 2.5 kHz: guitars, snare body, voice
+            sumMid += m * m;
             frames++;
         }
 
@@ -230,16 +238,19 @@ public final class MusicPlayerEngine {
             float rms = (float) Math.sqrt(sumSq / frames);
             float bassEnergy = (float) (sumBass / frames);
             float trebleEnergy = (float) (sumTreble / frames);
+            float midEnergy = (float) (sumMid / frames);
             // Fill decoder gaps with the previous bucket so the curve never drops to 0.
             for (int i = count; i < bucket; i++) {
                 loud[i] = count > 0 ? loud[count - 1] : rms;
                 bass[i] = count > 0 ? bass[count - 1] : bassEnergy;
                 treble[i] = count > 0 ? treble[count - 1] : trebleEnergy;
+                mid[i] = count > 0 ? mid[count - 1] : midEnergy;
             }
             if (bucket >= count || rms > loud[bucket]) {
                 loud[bucket] = rms;
                 bass[bucket] = bassEnergy;
                 treble[bucket] = trebleEnergy;
+                mid[bucket] = midEnergy;
             }
             if (bucket + 1 > count) {
                 count = bucket + 1;
@@ -247,6 +258,7 @@ public final class MusicPlayerEngine {
             sumSq = 0.0;
             sumBass = 0.0;
             sumTreble = 0.0;
+            sumMid = 0.0;
             frames = 0;
         }
 
@@ -258,6 +270,7 @@ public final class MusicPlayerEngine {
             loud = Arrays.copyOf(loud, next);
             bass = Arrays.copyOf(bass, next);
             treble = Arrays.copyOf(treble, next);
+            mid = Arrays.copyOf(mid, next);
         }
 
         Envelope finish() {
@@ -265,24 +278,34 @@ public final class MusicPlayerEngine {
             if (count == 0) {
                 return new Envelope(new float[]{0f}, new float[]{0f}, new float[]{0.5f}, 1, 80.0);
             }
+            // Onsets per band (bass / mids / highs), each against its own slow level: a sustained
+            // voice raises the mids' level but not their jumps, so guitar / drum hits stay visible.
             float[] flux = new float[count];
             double slowBass = energyDb(bass[0]);
-            double slowFull = energyDb((double) loud[0] * loud[0]);
+            double slowMid = energyDb(mid[0]);
+            double slowHigh = energyDb(treble[0]);
             for (int i = 0; i < count; i++) {
                 double bassDb = energyDb(bass[i]);
-                double fullDb = energyDb((double) loud[i] * loud[i]);
-                double value = ONSET_BASS_WEIGHT * Math.max(0.0, bassDb - slowBass)
-                        + (1.0 - ONSET_BASS_WEIGHT) * Math.max(0.0, fullDb - slowFull);
+                double midDb = energyDb(mid[i]);
+                double highDb = energyDb(treble[i]);
+                double value = BAND_BASS * Math.max(0.0, bassDb - slowBass)
+                        + BAND_MID * Math.max(0.0, midDb - slowMid)
+                        + BAND_HIGH * Math.max(0.0, highDb - slowHigh);
                 flux[i] = (float) value;
                 slowBass += ONSET_SLOW_ALPHA * (bassDb - slowBass);
-                slowFull += ONSET_SLOW_ALPHA * (fullDb - slowFull);
+                slowMid += ONSET_SLOW_ALPHA * (midDb - slowMid);
+                slowHigh += ONSET_SLOW_ALPHA * (highDb - slowHigh);
             }
-            // Strong hit = 95th percentile of non-zero onsets (at least 1 dB jump).
-            double strongHit = Math.max(1.0, percentileOfPositive(flux, count, 95.0));
+            // "Strong hit" follows the music (~2 s memory) instead of one value for the whole
+            // track: a dense part (voice + band) keeps its beat as clear as the intro.
+            double global = Math.max(1.0, percentileOfPositive(flux, count, 95.0));
             float[] rhythm = new float[count];
             float held = 0f;
+            double follow = global;
             for (int i = 0; i < count; i++) {
-                float onset = (float) Math.min(1.0, flux[i] / strongHit);
+                follow = Math.max(flux[i], follow * STRONG_DECAY);
+                double strong = Math.max(0.5, Math.max(follow, global * 0.08));
+                float onset = (float) Math.min(1.0, flux[i] / strong);
                 if (onset < ONSET_GATE) {
                     onset = 0f;
                 }

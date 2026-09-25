@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 673
+    .line 708
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,15 +34,15 @@
     .locals 1
 
     .prologue
-    .line 698
+    .line 733
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 699
+    .line 734
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 700
+    .line 735
     return-void
 .end method
 
@@ -50,25 +50,25 @@
     .locals 1
 
     .prologue
-    .line 688
+    .line 723
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->advanceToNextTrack()Z
 
     move-result v0
 
     if-eqz v0, :cond_0
 
-    .line 694
+    .line 729
     :goto_0
     return-void
 
-    .line 691
+    .line 726
     :cond_0
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->onPlaybackEndedNaturally()V
 
-    .line 692
+    .line 727
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 693
+    .line 728
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showIdle()V
 
     goto :goto_0
@@ -78,10 +78,10 @@
     .locals 0
 
     .prologue
-    .line 676
+    .line 711
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$602(I)I
 
-    .line 677
+    .line 712
     return-void
 .end method
 
@@ -89,7 +89,7 @@
     .locals 1
 
     .prologue
-    .line 681
+    .line 716
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/MusicSync;->running:Z
 
     if-eqz v0, :cond_0
@@ -112,10 +112,10 @@
 
     if-nez v0, :cond_0
 
-    .line 682
+    .line 717
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$1000(I)V
 
-    .line 684
+    .line 719
     :cond_0
     return-void
 .end method

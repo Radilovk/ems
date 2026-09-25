@@ -14,7 +14,7 @@
       <text class="big-time" style="color: {{timeColor}}">{{bigTime}}</text>
       <text class="sub">{{bigLabel}}</text>
       <stack class="play-box">
-        <div class="glow {{st === 'ready' ? 'breathe' : ''}}" style="background-color: {{playGlow}}"></div>
+        <div class="glow" style="background-color: {{playGlow}}"></div>
         <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playColor}}"
              ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
           <image class="play-img" src="{{playIcon}}"></image>
@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, BLUE, mmss, hms, zoneOf, bind, setPages, swipe } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, BLUE, mmss, hms, zoneOf, bind, shown, setPages, swipe } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 
@@ -138,6 +138,14 @@ export default {
 
   onInit() {
     this.unbind = bind(this)
+  },
+
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
   },
 
   onDestroy() {

@@ -42,7 +42,7 @@
 
 <script>
 import router from '@system.router'
-import { ZONE, ACCENT, RED, GREEN, AMBER, PURPLE, mmss, hms, zoneOf, mods, bind, age } from '../../common/ui.js'
+import { ZONE, ACCENT, RED, GREEN, AMBER, PURPLE, mmss, hms, zoneOf, mods, bind, shown, age } from '../../common/ui.js'
 
 /** Card tint when a module runs (solid colours: Vela draws them best). */
 const TINT = { train: '#0E2A17', ai: '#2E2607', timer: '#2E1F07', music: '#24122E', pulse: '#2E0F0D' }
@@ -66,6 +66,14 @@ export default {
 
   onInit() {
     this.unbind = bind(this)
+  },
+
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
   },
 
   onDestroy() {

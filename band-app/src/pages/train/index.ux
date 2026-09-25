@@ -7,17 +7,23 @@
         <div class="ctl">
           <text class="caps" style="color: {{runColor}}">{{caps}}</text>
           <text class="elapsed">{{elapsed}}</text>
-          <text class="meta" style="color: {{zoneColor}}">{{meta}}</text>
+          <div class="kpis">
+            <div class="kpi">
+              <text class="kpi-num">{{msText}}</text>
+              <text class="kpi-lbl">сила</text>
+            </div>
+            <div class="kpi">
+              <text class="kpi-num" style="color: {{zoneColor}}">{{hrText}}</text>
+              <text class="kpi-lbl">{{zoneText}}</text>
+            </div>
+          </div>
           <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
                ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
             <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
           </div>
-          <text class="sub">{{run ? 'пауза' : 'старт'}}</text>
         </div>
 
-        <text class="chcap">{{chCaps}}</text>
-
-        <!-- every row: tap the left half = −, the right half = + (hold = 5 steps) -->
+        <!-- all zones = the main impulse: left half −, right half + -->
         <stack class="cbox {{run ? '' : 'off'}}">
           <div class="halves">
             <div class="half-minus"></div>
@@ -33,6 +39,9 @@
           </div>
         </stack>
 
+        <text class="chcap">{{chCaps}}</text>
+
+        <!-- every row: tap the left half = −, the right half = + (hold = 5 steps) -->
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
           <div class="cface">
@@ -58,6 +67,7 @@
             </div>
           </stack>
           <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 сек'}}</text>
+          <text class="rtt">{{rttText}}</text>
         </div>
       </div>
     </scroll>
@@ -65,7 +75,7 @@
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind, shown } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 /** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
@@ -85,6 +95,10 @@ export default {
     holdPct: 0,
     busy: false,
     allHint: '',
+    msText: '--',
+    hrText: '--',
+    zoneText: 'пулс',
+    rttText: '',
     chCaps: 'КАНАЛИ',
     chans: [],
     chKey: '',
@@ -93,7 +107,16 @@ export default {
 
   onInit() {
     this.optim = {}
+    this.optMs = null
     this.unbind = bind(this)
+  },
+
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
   },
 
   onDestroy() {
@@ -114,7 +137,20 @@ export default {
     this.runColor = run ? GREEN : s.mode === 'manual' ? AMBER : '#8E8E93'
     this.elapsed = hms((s.el || 0) + (run ? app.silence() : 0))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
-    this.meta = s.hr > 0 ? '♥ ' + s.hr + ' · Z' + z : 'няма пулс'
+    this.hrText = s.hr > 0 ? String(s.hr) : '--'
+    this.zoneText = s.hr > 0 ? 'пулс · Z' + z : 'пулс'
+    // main impulse: a tap shows its value at once, the tablet's answer confirms it
+    let ms = s.ms != null ? s.ms : -1
+    const o = this.optMs
+    if (o) {
+      if (o.v === ms || Date.now() - o.at > 1500) {
+        this.optMs = null
+      } else {
+        ms = o.v
+      }
+    }
+    this.msText = ms >= 0 ? String(ms) : '--'
+    this.rttText = app.rtt ? 'отговор ' + (app.rtt / 1000).toFixed(1) + ' с' : ''
     this.zoneColor = s.hr > 0 ? ZONE[z] : '#AEAEB2'
     this.allHint = run ? '' : 'първо старт'
     this.buildChannels(s.ch || [])
@@ -148,11 +184,27 @@ export default {
     })
     this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'
     const key = JSON.stringify(out)
-    if (key !== this.chKey) {
-      this.chKey = key
+    if (key === this.chKey) {
+      return
+    }
+    this.chKey = key
+    // Same channels as before: change only the numbers of the rows that moved (the band
+    // redraws those, not the whole list).
+    const same = this.chans.length === out.length && this.chans.every((c, k) => c.i === out[k].i)
+    if (same) {
+      out.forEach((n, k) => {
+        const c = this.chans[k]
+        if (c.text !== n.text) {
+          c.text = n.text
+          c.w = n.w
+          c.color = n.color
+          c.fill = n.fill
+        }
+      })
+    } else {
       this.chans = out
       // the scroll needs the real content height (children never shrink)
-      this.colH = 392 + 44 + 86 + out.length * 86 + 400
+      this.colH = 340 + 86 + 44 + out.length * 86 + 400
     }
   },
 
@@ -196,15 +248,25 @@ export default {
   },
 
   allPlus() {
-    if (this.run) {
-      this.$app.$def.command('train_plus')
-    }
+    this.mainStep(1)
   },
 
   allMinus() {
-    if (this.run) {
-      this.$app.$def.command('train_minus')
+    this.mainStep(-1)
+  },
+
+  mainStep(d) {
+    if (!this.run) {
+      return
     }
+    const app = this.$app.$def
+    const ms = app.state && app.state.ms != null ? app.state.ms : -1
+    const base = this.optMs ? this.optMs.v : ms
+    if (base >= 0) {
+      this.optMs = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
+      this.msText = String(this.optMs.v)
+    }
+    app.command(d > 0 ? 'train_plus' : 'train_minus')
   },
 
   holdStart() {
@@ -359,8 +421,8 @@ export default {
 }
 .elapsed {
   flex-shrink: 0;
-  margin-top: 16px;
-  font-size: 68px;
+  margin-top: 4px;
+  font-size: 60px;
   font-weight: bold;
   color: #ffffff;
 }
@@ -377,7 +439,7 @@ export default {
 }
 .ctl {
   flex-shrink: 0;
-  height: 392px;
+  height: 340px;
   width: 212px;
   flex-direction: column;
   align-items: center;
@@ -385,15 +447,15 @@ export default {
 }
 .play {
   flex-shrink: 0;
-  width: 130px;
-  height: 130px;
-  margin-top: 14px;
-  border-radius: 65px;
+  width: 96px;
+  height: 96px;
+  margin-top: 10px;
+  border-radius: 48px;
 }
 .play-img {
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 46px;
+  height: 46px;
 }
 .chcap {
   flex-shrink: 0;
@@ -419,8 +481,6 @@ export default {
   margin-left: 2px;
   margin-top: 2px;
   border-radius: 20px;
-  transition-property: width;
-  transition-duration: 250ms;
 }
 .cface {
   flex-shrink: 0;
@@ -485,13 +545,47 @@ export default {
   height: 76px;
   flex-direction: row;
 }
+.kpis {
+  flex-shrink: 0;
+  flex-direction: row;
+  margin-top: 4px;
+}
+.kpi {
+  flex-shrink: 0;
+  width: 92px;
+  height: 70px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 20px;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.kpi-num {
+  flex-shrink: 0;
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.kpi-lbl {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: #8e8e93;
+}
+.rtt {
+  flex-shrink: 0;
+  margin-top: 8px;
+  font-size: 18px;
+  color: #48484a;
+}
 .half-minus {
   flex-shrink: 0;
   width: 98px;
   height: 76px;
   border-top-left-radius: 22px;
   border-bottom-left-radius: 22px;
-  background-color: #17462a;
+  background-color: #1f9d46;
 }
 .half-plus {
   flex-shrink: 0;
@@ -499,7 +593,7 @@ export default {
   height: 76px;
   border-top-right-radius: 22px;
   border-bottom-right-radius: 22px;
-  background-color: #5c1a16;
+  background-color: #e0342b;
 }
 .ctouch {
   flex-shrink: 0;

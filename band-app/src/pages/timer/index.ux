@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { AMBER, GREEN, mmss, mods, bind, setPages, swipe } from '../../common/ui.js'
+import { AMBER, GREEN, mmss, mods, bind, shown, setPages, swipe } from '../../common/ui.js'
 
 export default {
   private: {
@@ -45,6 +45,14 @@ export default {
   onInit() {
     setPages(this, ['main'])
     this.unbind = bind(this)
+  },
+
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
   },
 
   onDestroy() {

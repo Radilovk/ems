@@ -3,7 +3,7 @@
     <!-- 1 · heart rate -->
     <div class="screen {{anim}}" if="{{cur === 'hr'}}">
       <text class="caps pulse-caps">ПУЛС</text>
-      <image class="heart {{hr > 0 ? 'beat' : ''}}" src="/common/icons/heart.png" style="animation-duration: {{beatMs}}ms"></image>
+      <image class="heart" src="/common/icons/heart.png" style="animation-duration: {{beatMs}}ms"></image>
       <text class="hr" style="color: {{zoneColor}}">{{hrText}}</text>
       <div class="zones">
         <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, zoneOf, mods, bind, setPages, swipe } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, zoneOf, mods, bind, shown, setPages, swipe } from '../../common/ui.js'
 
 export default {
   private: {
@@ -79,6 +79,14 @@ export default {
   onInit() {
     setPages(this, ['hr', 'auto', 'chart'])
     this.unbind = bind(this)
+  },
+
+  onShow() {
+    shown(this, true)
+  },
+
+  onHide() {
+    shown(this, false)
   },
 
   onDestroy() {

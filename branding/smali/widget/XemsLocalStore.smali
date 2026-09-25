@@ -543,12 +543,12 @@
     .end annotation
 
     .prologue
-    .line 972
+    .line 998
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readList(Ljava/lang/String;Ljava/lang/Class;)Ljava/util/List;
 
     move-result-object v0
 
-    .line 973
+    .line 999
     if-eqz v0, :cond_0
 
     :goto_0
@@ -3369,13 +3369,13 @@
     .end annotation
 
     .prologue
-    .line 977
+    .line 1003
     if-nez p0, :cond_0
 
-    .line 978
+    .line 1004
     const/4 v0, 0x0
 
-    .line 980
+    .line 1006
     :goto_0
     return-object v0
 
@@ -3453,20 +3453,20 @@
     .end annotation
 
     .prologue
-    .line 964
+    .line 990
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/utils/FileUtils;->getDataList(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 965
+    .line 991
     instance-of v1, v0, Ljava/util/List;
 
     if-eqz v1, :cond_0
 
-    .line 966
+    .line 992
     check-cast v0, Ljava/util/List;
 
-    .line 968
+    .line 994
     :goto_0
     return-object v0
 
@@ -3978,21 +3978,126 @@
     goto :goto_0
 .end method
 
+.method private static repairUsers(Ljava/util/List;)V
+    .locals 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/List",
+            "<",
+            "Lcom/isaigu/gymapp/bean/TrainUser;",
+            ">;)V"
+        }
+    .end annotation
+
+    .prologue
+    .line 946
+    if-nez p0, :cond_1
+
+    .line 964
+    :cond_0
+    return-void
+
+    .line 949
+    :cond_1
+    const/4 v0, 0x0
+
+    move v1, v0
+
+    :goto_0
+    invoke-interface {p0}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_0
+
+    .line 950
+    invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
+
+    .line 951
+    if-nez v0, :cond_3
+
+    .line 949
+    :cond_2
+    :goto_1
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_0
+
+    .line 954
+    :cond_3
+    iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->inputId:Ljava/lang/String;
+
+    if-eqz v2, :cond_4
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->inputId:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-nez v2, :cond_5
+
+    .line 955
+    :cond_4
+    iget-wide v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->abs(J)J
+
+    move-result-wide v2
+
+    invoke-static {v2, v3}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+
+    move-result-object v2
+
+    iput-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->inputId:Ljava/lang/String;
+
+    .line 957
+    :cond_5
+    iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
+
+    if-nez v2, :cond_6
+
+    .line 958
+    const-string v2, ""
+
+    iput-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
+
+    .line 960
+    :cond_6
+    iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
+
+    if-nez v2, :cond_2
+
+    .line 961
+    iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
+
+    iput-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
+
+    goto :goto_1
+.end method
+
 .method private static saveDevices()V
     .locals 3
 
     .prologue
-    .line 956
+    .line 982
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 957
+    .line 983
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
     if-eqz v1, :cond_0
 
-    .line 958
+    .line 984
     const-string v1, "file_name_device_data"
 
     const-class v2, Lcom/isaigu/gymapp/bean/DeviceBean;
@@ -4001,7 +4106,7 @@
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 960
+    .line 986
     :cond_0
     return-void
 .end method
@@ -4177,17 +4282,17 @@
     .locals 3
 
     .prologue
-    .line 949
+    .line 975
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 950
+    .line 976
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     if-eqz v1, :cond_0
 
-    .line 951
+    .line 977
     const-string v1, "file_name_train_data"
 
     const-class v2, Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -4196,7 +4301,7 @@
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 953
+    .line 979
     :cond_0
     return-void
 .end method
@@ -4289,17 +4394,26 @@
     .locals 3
 
     .prologue
-    .line 942
+    .line 967
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 943
+    iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->repairUsers(Ljava/util/List;)V
+
+    .line 968
+    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
+
+    move-result-object v0
+
+    .line 969
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     if-eqz v1, :cond_0
 
-    .line 944
+    .line 970
     const-string v1, "file_name_user_data"
 
     const-class v2, Lcom/isaigu/gymapp/bean/TrainUser;
@@ -4308,7 +4422,7 @@
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 946
+    .line 972
     :cond_0
     return-void
 .end method
@@ -4767,7 +4881,7 @@
     .locals 1
 
     .prologue
-    .line 984
+    .line 1010
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0

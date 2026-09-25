@@ -1,4 +1,4 @@
-.class final Lcom/isaigu/gymapp/wearable/BandRemote$Key;
+.class final Lcom/isaigu/gymapp/wearable/BandRemote$PushSoon;
 .super Ljava/lang/Object;
 .source "BandRemote.java"
 
@@ -13,31 +13,18 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "Key"
+    name = "PushSoon"
 .end annotation
 
 
-# instance fields
-.field private final key:I
-
-.field private final volume:I
-
-
 # direct methods
-.method constructor <init>(II)V
+.method constructor <init>()V
     .locals 0
 
     .prologue
-    .line 849
+    .line 202
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 850
-    iput p1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Key;->key:I
-
-    .line 851
-    iput p2, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Key;->volume:I
-
-    .line 852
     return-void
 .end method
 
@@ -47,26 +34,29 @@
     .locals 2
 
     .prologue
-    .line 857
+    .line 205
+    const/4 v0, 0x0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$002(Z)Z
+
+    .line 207
+    const/4 v0, 0x1
+
     :try_start_0
-    iget v0, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Key;->key:I
-
-    iget v1, p0, Lcom/isaigu/gymapp/wearable/BandRemote$Key;->volume:I
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/BandRemote;->handleKey(II)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->push(Z)V
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 861
+    .line 211
     :goto_0
     return-void
 
-    .line 858
+    .line 208
     :catch_0
     move-exception v0
 
-    .line 859
-    const-string v1, "BandRemote.key"
+    .line 209
+    const-string v1, "BandRemote.pushSoon"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 

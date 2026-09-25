@@ -5,6 +5,7 @@ import java.util.Date;
 public class TrainUser implements java.io.Serializable {
     public long id;
     public String name;
+    public String inputId;
     public String nickName;
     public String email;
     public String phone;

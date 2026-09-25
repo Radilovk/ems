@@ -148,9 +148,14 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 moduleCommand(a);
             }
         }
-        // answer at once (the command ran above); once more for actions the app applies a moment later
-        handler.post(new Push(true));
-        handler.postDelayed(new Push(true), 250);
+        // answer at once (the command ran above) — a burst of taps is answered by one state;
+        // once more a moment later for actions the app applies with a delay (only if changed)
+        if (!pushQueued) {
+            pushQueued = true;
+            handler.postDelayed(pushSoon, 30);
+        }
+        handler.removeCallbacks(pushLater);
+        handler.postDelayed(pushLater, 350);
     }
 
     /** Commands from the module screens of the band app (one module each, no guessing). */
@@ -162,9 +167,9 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         if ("train_toggle".equals(a)) {
             XemsPanel.press(XemsPanel.PRESS_START);
         } else if ("train_plus".equals(a)) {
-            XemsPanel.press(XemsPanel.PRESS_PLUS);
+            mainStep(1);
         } else if ("train_minus".equals(a)) {
-            XemsPanel.press(XemsPanel.PRESS_MINUS);
+            mainStep(-1);
         } else if ("train_stop".equals(a)) {
             XemsPanel.press(XemsPanel.PRESS_STOP);
         } else if ("tm_toggle".equals(a)) {
@@ -187,6 +192,60 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             boolean on = !WearableConfig.isAutoReduceEnabled(ctx);
             WearableConfig.setAutoReduceEnabled(ctx, on);
             WearableBleDiagLog.log("applink", "hr module " + (on ? "on" : "off"));
+        }
+    }
+
+    private static boolean pushQueued;
+    private static final Runnable pushSoon = new PushSoon();
+    private static final Runnable pushLater = new Push(false);
+
+    static final class PushSoon implements Runnable {
+        @Override
+        public void run() {
+            pushQueued = false;
+            try {
+                push(true);
+            } catch (Throwable t) {
+                XemsGuard.report("BandRemote.pushSoon", t);
+            }
+        }
+    }
+
+    /**
+     * "All zones" − / + from the band: the main strength of the band's client, one step, always —
+     * whatever is selected on the tablet (its own + / − follows the trainer's selection: channels,
+     * Hz, pause). Same calls as the app's main strength step; music sync keeps its ceiling.
+     */
+    static void mainStep(int d) {
+        com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
+        if (item == null) {
+            XemsPanel.press(d > 0 ? XemsPanel.PRESS_PLUS : XemsPanel.PRESS_MINUS);
+            return;
+        }
+        try {
+            if (com.isaigu.gymapp.train.utils.MusicSyncBridge.onMaStrengthDelta(item, d)) {
+                return;
+            }
+            com.isaigu.gymapp.bean.ProgramDataBean b = item.getTrainProgram().matchProgram();
+            if (b != null && b.activePause) {
+                item.addMainAndPauseStrenth(d);
+            } else {
+                item.addStrenth(d);
+            }
+            WearableBleDiagLog.log("applink", "main " + (d > 0 ? "+" : "") + d + " → " + (b != null ? b.strenth : -1));
+        } catch (Throwable t) {
+            XemsGuard.report("BandRemote.mainStep", t);
+        }
+    }
+
+    /** Main impulse strength of the band's client (what the tablet's big number shows), −1 if none. */
+    static int mainStrength() {
+        try {
+            com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
+            com.isaigu.gymapp.bean.ProgramDataBean b = item != null ? item.getTrainProgram().matchProgram() : null;
+            return b != null ? b.strenth : -1;
+        } catch (Throwable t) {
+            return -1;
         }
     }
 
@@ -611,11 +670,13 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             o.put("lic", lic);
             org.json.JSONArray ch = channels();
             o.put("ch", ch);
+            int ms = mainStrength();
+            o.put("ms", ms);
             o.put("ack", lastAck);
 
             // What the band shows as "what runs and how": a change there is sent at once.
             String sig = mode + "|" + o.optString("st") + "|" + playing + "|" + o.optString("ph")
-                    + "|" + o.opt("can") + "|" + o.optBoolean("dbl") + "|" + lic + "|" + ch + "|" + lastAck
+                    + "|" + o.opt("can") + "|" + o.optBoolean("dbl") + "|" + lic + "|" + ch + "|" + ms + "|" + lastAck
                     + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0);
             boolean changedSig = !sig.equals(lastSig);
             if (!force && !changedSig && nowMs - lastAppMs < APP_MS) {

@@ -30,7 +30,7 @@
 
 .field public static final PACKAGE:Ljava/lang/String; = "com.xems.band"
 
-.field public static final VERSION:I = 0x10
+.field public static final VERSION:I = 0x11
 
 .field private static final autoCheck:Ljava/lang/Runnable;
 
@@ -163,7 +163,7 @@
     .locals 5
 
     .prologue
-    const/16 v4, 0x10
+    const/16 v4, 0x11
 
     .line 159
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->read(Landroid/content/Context;)[B
@@ -550,7 +550,7 @@
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v1, "16/"
+    const-string v1, "17/"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1044,7 +1044,7 @@
 
     move-result v1
 
-    const/16 v2, 0x10
+    const/16 v2, 0x11
 
     if-ge v1, v2, :cond_1
 

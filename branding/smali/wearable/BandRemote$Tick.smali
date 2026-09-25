@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 735
+    .line 796
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,18 +34,18 @@
     .locals 4
 
     .prologue
-    .line 738
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$000()Z
+    .line 799
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$100()Z
 
     move-result v0
 
     if-nez v0, :cond_0
 
-    .line 747
+    .line 808
     :goto_0
     return-void
 
-    .line 742
+    .line 803
     :cond_0
     const/4 v0, 0x0
 
@@ -54,9 +54,9 @@
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 746
+    .line 807
     :goto_1
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$100()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$200()Landroid/os/Handler;
 
     move-result-object v0
 
@@ -66,11 +66,11 @@
 
     goto :goto_0
 
-    .line 743
+    .line 804
     :catch_0
     move-exception v0
 
-    .line 744
+    .line 805
     const-string v1, "BandRemote.tick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

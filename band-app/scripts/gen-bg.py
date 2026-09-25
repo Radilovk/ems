@@ -8,7 +8,7 @@ import math
 from PIL import Image
 
 OUT = Path(__file__).resolve().parent.parent / "src" / "common" / "bg"
-W, H = 212, 520
+W, H = 106, 260  # half size: 4× less memory; the band stretches it (background-size: cover)
 
 THEMES = {
     "home": (255, 59, 92),     # XEMS red
@@ -32,7 +32,7 @@ def make(color):
     px = im.load()
     for y in range(H):
         for x in range(W):
-            g = 0.95 * glow(W * 0.5, -60, 300, 360, x, y) + 0.35 * glow(W * 0.95, H + 40, 230, 260, x, y)
+            g = 0.95 * glow(W * 0.5, -30, 150, 180, x, y) + 0.35 * glow(W * 0.95, H + 20, 115, 130, x, y)
             px[x, y] = tuple(int(BASE[i] + (color[i] - BASE[i]) * g * 0.62) for i in range(3))
     return im.quantize(colors=48, dither=Image.Dither.FLOYDSTEINBERG)
 

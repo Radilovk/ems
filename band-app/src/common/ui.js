@@ -53,13 +53,27 @@ export function mods(s) {
  */
 export function bind(page) {
   const app = page.$app.$def
-  const cb = () => page.update()
+  page.onScreen = true
+  // A page under another one (home under Start…) does no work: the band has little CPU.
+  const cb = () => {
+    if (page.onScreen) {
+      page.update()
+    }
+  }
   app.watch(cb)
   page.update()
-  const clock = setInterval(() => page.update(), 1000)
+  const clock = setInterval(cb, 1000)
   return () => {
     app.unwatch(cb)
     clearInterval(clock)
+  }
+}
+
+/** onShow / onHide of a bound page. */
+export function shown(page, on) {
+  page.onScreen = on
+  if (on) {
+    page.update()
   }
 }
 

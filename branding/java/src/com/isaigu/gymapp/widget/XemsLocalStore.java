@@ -938,7 +938,33 @@ public final class XemsLocalStore {
         nextDeviceId();
     }
 
+    /**
+     * Fields the app's own lists read without a null check: the user list compares every
+     * client's inputId (null → the Users screen crashes). Local clients never had one.
+     */
+    private static void repairUsers(List<TrainUser> users) {
+        if (users == null) {
+            return;
+        }
+        for (int i = 0; i < users.size(); i++) {
+            TrainUser u = users.get(i);
+            if (u == null) {
+                continue;
+            }
+            if (u.inputId == null || u.inputId.length() == 0) {
+                u.inputId = String.valueOf(Math.abs(u.id));
+            }
+            if (u.name == null) {
+                u.name = "";
+            }
+            if (u.nickName == null) {
+                u.nickName = u.name;
+            }
+        }
+    }
+
     private static void saveUsers() {
+        repairUsers(DataMgr.getInstance().trainUsers);
         DataMgr dm = DataMgr.getInstance();
         if (dm.trainUsers != null) {
             FileUtils.saveListData(FILE_USERS, TrainUser.class, dm.trainUsers);

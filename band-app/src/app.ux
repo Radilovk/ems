@@ -20,7 +20,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 16
+const APP_VERSION = 17
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -32,6 +32,8 @@ export default {
   lastSeq: 0,
   boot: null,
   nextId: 0,
+  /** Last command round trip in ms (0 = none yet). */
+  rtt: 0,
   /** Commands XEMS has not confirmed yet: {id, msg, at, tries}. */
   pending: [],
   langSaid: false,
@@ -135,7 +137,14 @@ export default {
     this.lastSeq = m.seq || 0
     if (m.ack) {
       const ack = parseInt(m.ack, 10)
-      this.pending = this.pending.filter((p) => !(p.id <= ack))
+      const now = Date.now()
+      this.pending = this.pending.filter((p) => {
+        if (p.id <= ack) {
+          this.rtt = now - p.t0                    // tap → confirmed state back (shown on Start)
+          return false
+        }
+        return true
+      })
     }
     if (m.lang && m.lang !== APP_LANG && !this.langSaid) {
       this.langSaid = true
@@ -282,12 +291,16 @@ export default {
   /** A command to XEMS, confirmed by the next state (resent until then). extra: {c, d}. */
   command(a, extra, buzz) {
     const msg = { t: 'cmd', a: a, id: String(++this.nextId) }
+    if (this.rtt) {
+      msg.rtt = this.rtt                           // last round trip, for XEMS's link log
+    }
     if (extra) {
       Object.keys(extra).forEach((k) => {
         msg[k] = extra[k]
       })
     }
-    this.pending.push({ id: this.nextId, msg: msg, at: Date.now(), tries: 0 })
+    const now = Date.now()
+    this.pending.push({ id: this.nextId, msg: msg, at: now, t0: now, tries: 0 })
     this.send(msg)
     this.buzz(buzz || 'short')
     this.notify()

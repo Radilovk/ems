@@ -23,30 +23,29 @@
 
 # direct methods
 .method constructor <init>(I)V
-    .locals 0
+    .registers 2
 
-    .prologue
-    .line 2188
+    .line 2231
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2189
+    .line 2232
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RemoveTrackListener;->index:I
 
-    .line 2190
+    .line 2233
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 1
+    .registers 2
 
-    .prologue
-    .line 2194
-    iget v0, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RemoveTrackListener;->index:I
+    .line 2237
+    iget p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$RemoveTrackListener;->index:I
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4600(I)V
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->removeTrack(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4600(I)V
 
-    .line 2195
+    .line 2238
     return-void
 .end method

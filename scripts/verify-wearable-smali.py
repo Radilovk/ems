@@ -52,6 +52,11 @@ def check_branding_wearable() -> list[str]:
     for name in REQUIRED_WEARABLE:
         if not (BRANDING_WEARABLE / name).is_file():
             errors.append(f"missing branding wearable/{name}")
+    bridge = BRANDING_WEARABLE / "NotifyWearableBridge.smali"
+    if bridge.is_file():
+        text = bridge.read_text(encoding="utf-8")
+        if 'const-string v1, "settings"' not in text.split("applyHr", 1)[-1][:1200]:
+            errors.append("NotifyWearableBridge.applyHr missing settings owner HR trigger")
     return errors
 
 

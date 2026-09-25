@@ -332,12 +332,14 @@ public final class NotifyWearableBridge {
     private static final HrPolicy hrPolicy = new HrPolicy();
 
     /**
-     * Heart rate is measured only while something uses it: the pulse module (auto control on the
-     * training screen) or an AI session. Otherwise the band stops measuring; the link stays up.
+     * Heart rate is measured only while something uses it: pulse auto-control, AI session, the HR
+     * dial, or a settings connection test. Otherwise the band stops measuring; the link stays up.
      */
     static void applyHr(Context context) {
-        boolean want = context != null
-                && (WearableConfig.isAutoReduceEnabled(context) || owners.contains(OWNER_AI));
+        boolean want = context != null && (WearableConfig.isAutoReduceEnabled(context)
+                || owners.contains(OWNER_AI)
+                || owners.contains(OWNER_DIAL)
+                || owners.contains(OWNER_SETTINGS));
         if (hrOn != null && hrOn.booleanValue() == want) {
             return;
         }

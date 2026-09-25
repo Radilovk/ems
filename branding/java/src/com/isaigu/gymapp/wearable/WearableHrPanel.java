@@ -65,9 +65,6 @@ public final class WearableHrPanel {
         nowRow.setGravity(Gravity.BOTTOM);
         nowVal = XemsUi.text(a, "--", 60, XemsUi.TEXT, true);
         nowRow.addView(nowVal);
-        TextView unit = XemsUi.text(a, WearableUi.tr(" уд/мин", " bpm"), 16, XemsUi.MUTED, false);
-        unit.setPadding(0, 0, 0, XemsUi.dp(a, 10));
-        nowRow.addView(unit);
         now.addView(nowRow);
         nowZone = XemsUi.text(a, "", 14, XemsUi.MUTED, true);
         nowZone.setPadding(XemsUi.dp(a, 12), XemsUi.dp(a, 5), XemsUi.dp(a, 12), XemsUi.dp(a, 5));

@@ -495,33 +495,7 @@
     .line 240
     sget-object v9, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->hrView:Landroid/widget/TextView;
 
-    new-instance v10, Ljava/lang/StringBuilder;
-
-    invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
-
-    invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v10, " "
-
-    invoke-virtual {v5, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    const-string v10, "\u0443\u0434/\u043c\u0438\u043d"
-
-    const-string v11, "bpm"
-
-    invoke-static {v10, v11}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v10
-
-    invoke-virtual {v5, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-static {v5}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v5
 
@@ -788,7 +762,7 @@
 
     if-nez v5, :cond_1a4
 
-    const-string v2, "\u041c\u0435\u0440\u0438 \u043f\u0443\u043b\u0441\u2026"
+    const-string v2, "\u0418\u0437\u043c\u0435\u0440\u0432\u0430\u2026"
 
     const-string v5, "Measuring\u2026"
 

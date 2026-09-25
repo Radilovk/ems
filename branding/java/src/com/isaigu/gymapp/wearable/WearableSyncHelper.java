@@ -880,9 +880,15 @@ public final class WearableSyncHelper {
             color = WearableUi.COLOR_ERROR;
         } else if (NotifyWearableBridge.isListeningActive()) {
             String state = NotifyWearableBridge.getBleState();
-            text = WearableUi.stateText(state);
-            color = WearableUi.isErrorState(state) ? WearableUi.COLOR_ERROR
-                    : "streaming".equals(state) ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT;
+            int hr = NotifyWearableBridge.getLastHeartRate();
+            if ("streaming".equals(state) && hr > 0) {
+                text = String.valueOf(hr);
+                color = WearableUi.COLOR_OK;
+            } else {
+                text = WearableUi.stateText(state);
+                color = WearableUi.isErrorState(state) ? WearableUi.COLOR_ERROR
+                        : "streaming".equals(state) ? WearableUi.COLOR_OK : WearableUi.COLOR_WAIT;
+            }
         } else if (WearableConfig.isArmed(activity)) {
             text = WearableUi.tr("Готово — натисни ↻ на кръга", "Ready — tap ↻ on the dial");
         } else {

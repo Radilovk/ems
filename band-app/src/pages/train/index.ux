@@ -1,94 +1,82 @@
 <template>
-  <!-- Start: flick up / down through the screens — start / pause, all channels, then one screen
-       per working channel (big − / +; hold = 5 steps), end (hold). Swipe right = back. -->
-  <stack class="root bg-start" onswipe="onSwipe">
-    <!-- start / pause -->
-    <div class="screen {{anim}}" if="{{cur === 'main'}}">
-      <text class="caps" style="color: {{runColor}}">{{caps}}</text>
-      <text class="elapsed">{{elapsed}}</text>
-      <text class="meta" style="color: {{zoneColor}}">{{meta}}</text>
-      <stack class="play-box">
-        <div class="glow {{run ? '' : 'breathe'}}"></div>
-        <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
-             ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
-          <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+  <!-- Start: one vertical scroll — start / pause, all channels, every working channel with its
+       own − / + (hold = 5 steps), end (hold). Swipe right = back. -->
+  <stack class="root bg-start">
+    <scroll class="scr" scroll-y="true">
+      <div class="col">
+        <div class="ctl">
+          <text class="caps" style="color: {{runColor}}">{{caps}}</text>
+          <text class="elapsed">{{elapsed}}</text>
+          <text class="meta" style="color: {{zoneColor}}">{{meta}}</text>
+          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
+               ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+            <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+          </div>
+          <text class="sub">{{run ? 'пауза' : 'старт'}}</text>
+          <text class="sync" style="opacity: {{busy ? 1 : 0}}">синхронизиране…</text>
         </div>
-      </stack>
-      <text class="sub">{{run ? 'пауза' : 'старт'}}</text>
-      <text class="sync" if="{{busy}}">синхронизиране…</text>
-    </div>
 
-    <!-- all channels -->
-    <div class="screen {{anim}}" if="{{cur === 'all'}}">
-      <text class="caps">ВСИЧКИ КАНАЛИ</text>
-      <div class="btn big-pill plus {{run ? '' : 'off'}} {{pressed === 'aplus' ? 'down' : ''}}"
-           ontouchstart="press('aplus')" ontouchend="release" ontouchcancel="release" onclick="allPlus">
-        <image class="pill-img" src="/common/icons/plus.png"></image>
-      </div>
-      <div class="btn big-pill {{run ? '' : 'off'}} {{pressed === 'aminus' ? 'down' : ''}}"
-           ontouchstart="press('aminus')" ontouchend="release" ontouchcancel="release" onclick="allMinus">
-        <image class="pill-img" src="/common/icons/minus.png"></image>
-      </div>
-      <text class="sub">{{allHint}}</text>
-    </div>
-
-    <!-- one channel -->
-    <div class="screen {{anim}}" if="{{chan.on}}">
-      <text class="caps">КАНАЛ {{chan.n}}/{{chan.of}}</text>
-      <text class="ch-name">{{chan.name}}</text>
-      <text class="ch-val" style="color: {{chan.color}}">{{chan.text}}</text>
-      <div class="bar">
-        <div class="bar-fill" style="width: {{chan.w}}px; background-color: {{chan.color}}"></div>
-      </div>
-      <div class="pm">
-        <div class="btn pm-btn {{pressed === 'cminus' ? 'down' : ''}}" ontouchstart="press('cminus')" ontouchend="release"
-             ontouchcancel="release" onclick="chMinus" onlongpress="chMinus5">
-          <image class="pm-img" src="/common/icons/minus.png"></image>
+        <div class="row">
+          <text class="row-title">Всички канали</text>
+          <div class="pm">
+            <div class="btn pm-btn {{run ? '' : 'off'}} {{pressed === 'aminus' ? 'down' : ''}}" ontouchstart="press('aminus')"
+                 ontouchend="release" ontouchcancel="release" onclick="allMinus">
+              <image class="pm-img" src="/common/icons/minus.png"></image>
+            </div>
+            <div class="btn pm-btn pm-plus {{run ? '' : 'off'}} {{pressed === 'aplus' ? 'down' : ''}}" ontouchstart="press('aplus')"
+                 ontouchend="release" ontouchcancel="release" onclick="allPlus">
+              <image class="pm-img" src="/common/icons/plus.png"></image>
+            </div>
+          </div>
+          <text class="row-hint">{{allHint}}</text>
         </div>
-        <div class="btn pm-btn pm-plus {{pressed === 'cplus' ? 'down' : ''}}" ontouchstart="press('cplus')" ontouchend="release"
-             ontouchcancel="release" onclick="chPlus" onlongpress="chPlus5">
-          <image class="pm-img" src="/common/icons/plus.png"></image>
+
+        <text class="chcap">{{chCaps}}</text>
+
+        <div for="{{chans}}" class="row">
+          <div class="ch-top">
+            <text class="ch-name">{{$item.name}}</text>
+            <text class="ch-val" style="color: {{$item.color}}">{{$item.text}}</text>
+          </div>
+          <div class="bar">
+            <div class="bar-fill" style="width: {{$item.w}}px; background-color: {{$item.color}}"></div>
+          </div>
+          <div class="pm">
+            <div class="btn pm-btn" onclick="chMinus($item.i)" onlongpress="chMinus5($item.i)">
+              <image class="pm-img" src="/common/icons/minus.png"></image>
+            </div>
+            <div class="btn pm-btn pm-plus" onclick="chPlus($item.i)" onlongpress="chPlus5($item.i)">
+              <image class="pm-img" src="/common/icons/plus.png"></image>
+            </div>
+          </div>
+        </div>
+
+        <div class="stop-item">
+          <text class="caps">КРАЙ</text>
+          <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
+            <div class="stop-core">
+              <image class="stop-img" src="/common/icons/stop.png"></image>
+            </div>
+          </stack>
+          <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 секунда'}}</text>
         </div>
       </div>
-      <text class="sub">задръж = 5 стъпки</text>
-    </div>
-
-    <!-- stop (hold) -->
-    <div class="screen {{anim}}" if="{{cur === 'stop'}}">
-      <text class="caps">КРАЙ</text>
-      <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
-        <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
-        <div class="stop-core">
-          <image class="stop-img" src="/common/icons/stop.png"></image>
-        </div>
-      </stack>
-      <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 секунда'}}</text>
-    </div>
-
-    <div class="dots">
-      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
-    </div>
+    </scroll>
   </stack>
 </template>
 
 <script>
-import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind, setPages, swipe } from '../../common/ui.js'
+import { ZONE, GREEN, AMBER, hms, zoneOf, mods, bind } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 /** Channel index (PartStrenthBean.buwei) → name; shown in the tablet's order, legs up to arms. */
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
-const BAR_W = 180
-const NO_CHAN = { on: false, i: -1, n: 0, of: 0, name: '', text: '', w: 0, color: '#48484A' }
+const BAR_W = 164
 
 export default {
   private: {
-    ids: [],
-    idsKey: '',
-    idx: 0,
-    cur: 'main',
-    dots: [],
-    anim: '',
     caps: 'СТАРТ',
     runColor: '#8E8E93',
     run: false,
@@ -99,22 +87,18 @@ export default {
     holdPct: 0,
     busy: false,
     allHint: '',
-    chan: NO_CHAN
+    chCaps: 'КАНАЛИ',
+    chans: [],
+    chKey: ''
   },
 
   onInit() {
-    setPages(this, ['main', 'all', 'stop'])
     this.unbind = bind(this)
   },
 
   onDestroy() {
     this.unbind()
     this.holdEnd()
-  },
-
-  onSwipe(e) {
-    swipe(this, e)
-    this.showChan()
   },
 
   update() {
@@ -132,59 +116,52 @@ export default {
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
     this.meta = s.hr > 0 ? s.hr + ' уд/мин · Z' + z : 'няма пулс'
     this.zoneColor = s.hr > 0 ? ZONE[z] : '#AEAEB2'
-    const ch = s.ch || []
-    const on = ORDER.filter((i) => i < ch.length && ch[i] >= 0)
-    this.allHint = !run ? 'първо старт' : on.length ? 'надолу · канал по канал' : 'главна сила'
-    setPages(this, ['main', 'all'].concat(on.map((i) => 'c' + i), ['stop']))
-    this.showChan()
+    this.allHint = run ? 'главна сила' : 'първо старт'
+    this.buildChannels(s.ch || [])
   },
 
-  /** Fills the channel screen when the current screen is one ("c<index>"). */
-  showChan() {
-    const cur = this.cur || ''
-    if (cur.charAt(0) !== 'c') {
-      if (this.chan.on) {
-        this.chan = NO_CHAN
+  /** Working channels in the tablet's order (off ones have no buttons, so they are left out). */
+  buildChannels(ch) {
+    const out = []
+    ORDER.forEach((i) => {
+      if (i >= ch.length || ch[i] < 0) {
+        return
       }
-      return
-    }
-    const i = parseInt(cur.substring(1), 10)
-    const s = this.$app.$def.state || {}
-    const v = (s.ch || [])[i]
-    const pct = Math.max(0, Math.min(100, v || 0))
-    const chans = this.ids.filter((id) => id.charAt(0) === 'c')
-    this.chan = {
-      on: true,
-      i: i,
-      n: chans.indexOf(cur) + 1,
-      of: chans.length,
-      name: NAMES[i] || 'Канал ' + (i + 1),
-      text: pct + '%',
-      w: Math.round((BAR_W * pct) / 100),
-      color: pct >= 80 ? '#FF453A' : pct >= 50 ? '#FF9F0A' : '#30D158'
+      const pct = Math.max(0, Math.min(100, ch[i]))
+      out.push({
+        i: i,
+        name: NAMES[i] || 'Канал ' + (i + 1),
+        text: pct + '%',
+        w: Math.round((BAR_W * pct) / 100),
+        color: pct >= 80 ? '#FF453A' : pct >= 50 ? '#FF9F0A' : '#30D158'
+      })
+    })
+    this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'КАНАЛИ · няма включени'
+    const key = JSON.stringify(out)
+    if (key !== this.chKey) {
+      this.chKey = key
+      this.chans = out
     }
   },
 
-  step(d) {
-    if (this.chan.on) {
-      this.$app.$def.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: this.chan.i, d: Math.abs(d) })
-    }
+  step(c, d) {
+    this.$app.$def.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: Math.abs(d) })
   },
 
-  chPlus() {
-    this.step(1)
+  chPlus(c) {
+    this.step(c, 1)
   },
 
-  chMinus() {
-    this.step(-1)
+  chMinus(c) {
+    this.step(c, -1)
   },
 
-  chPlus5() {
-    this.step(5)
+  chPlus5(c) {
+    this.step(c, 5)
   },
 
-  chMinus5() {
-    this.step(-5)
+  chMinus5(c) {
+    this.step(c, -5)
   },
 
   press(w) {
@@ -251,6 +228,14 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 34px;
+}
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  width: 212px;
+  flex-direction: column;
 }
 .in-up {
   animation-name: inUp;
@@ -363,97 +348,109 @@ export default {
   font-size: 22px;
   color: #ff9f0a;
 }
-.play-box {
-  width: 170px;
-  height: 170px;
-  margin-top: 30px;
-  justify-content: center;
+.ctl {
+  width: 212px;
+  flex-direction: column;
   align-items: center;
-}
-.glow {
-  width: 164px;
-  height: 164px;
-  border-radius: 82px;
-  background-color: rgba(48, 209, 88, 0.25);
-}
-.breathe {
-  animation-name: breathe;
-  animation-duration: 1500ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  padding-top: 30px;
 }
 .play {
-  width: 140px;
-  height: 140px;
-  border-radius: 70px;
+  width: 130px;
+  height: 130px;
+  margin-top: 14px;
+  border-radius: 65px;
 }
 .play-img {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
 }
-.big-pill {
-  width: 180px;
-  height: 130px;
-  margin-top: 16px;
-  border-radius: 65px;
-  background-color: #2c2c2e;
+.row {
+  width: 196px;
+  margin-left: 8px;
+  margin-top: 12px;
+  padding: 14px;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 28px;
+  background-color: #16171b;
 }
-.plus {
-  background-color: #1f4a2a;
-  margin-top: 30px;
+.row-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffffff;
 }
-.pill-img {
-  width: 56px;
-  height: 56px;
+.row-hint {
+  margin-top: 6px;
+  font-size: 20px;
+  color: #8e8e93;
+}
+.chcap {
+  width: 196px;
+  margin-left: 8px;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #8e8e93;
+}
+.ch-top {
+  width: 168px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 .ch-name {
-  margin-top: 18px;
-  width: 196px;
-  text-align: center;
-  font-size: 36px;
+  width: 110px;
+  font-size: 26px;
   font-weight: bold;
   color: #ffffff;
   lines: 2;
 }
 .ch-val {
-  margin-top: 4px;
-  font-size: 72px;
+  font-size: 30px;
   font-weight: bold;
 }
 .bar {
-  width: 180px;
-  height: 14px;
+  width: 164px;
+  height: 12px;
   margin-top: 8px;
-  border-radius: 7px;
+  border-radius: 6px;
   background-color: #2c2c2e;
 }
 .bar-fill {
-  height: 14px;
-  border-radius: 7px;
+  height: 12px;
+  border-radius: 6px;
 }
 .pm {
   flex-direction: row;
-  margin-top: 30px;
+  margin-top: 12px;
 }
 .pm-btn {
-  width: 92px;
-  height: 120px;
+  width: 80px;
+  height: 76px;
   margin-left: 4px;
   margin-right: 4px;
-  border-radius: 46px;
+  border-radius: 38px;
   background-color: #2c2c2e;
 }
 .pm-plus {
   background-color: #1f4a2a;
 }
 .pm-img {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
+}
+.stop-item {
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 24px;
+  padding-bottom: 70px;
 }
 .stop-box {
   width: 190px;
   height: 190px;
-  margin-top: 50px;
+  margin-top: 12px;
   justify-content: center;
   align-items: center;
 }

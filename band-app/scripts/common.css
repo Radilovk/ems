@@ -10,6 +10,14 @@
   align-items: center;
   padding-top: 34px;
 }
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  width: 212px;
+  flex-direction: column;
+}
 .in-up {
   animation-name: inUp;
   animation-duration: 260ms;

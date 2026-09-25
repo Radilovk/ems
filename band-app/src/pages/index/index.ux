@@ -1,30 +1,32 @@
 <template>
-  <!-- home: one module per screen (Start first); flick up / down between them, tap to open,
-       hold to pause everything, swipe right = exit. Only proven Vela primitives (no list). -->
-  <stack class="root bg-home" onswipe="onSwipe">
-    <div class="screen {{anim}}" if="{{!offline}}" onclick="open" onlongpress="pauseAll">
-      <div class="hr-row">
-        <image class="hr-heart" src="/common/icons/heart.png"></image>
-        <text class="hr-line" style="color: {{hrColor}}">{{hrLine}}</text>
-      </div>
-      <div class="zones">
-        <div for="{{zoneBar}}" class="zseg" style="background-color: {{$item.c}}; opacity: {{$item.on ? 1 : 0.22}}"></div>
-      </div>
-      <stack class="icon-box">
-        <div class="glow {{card.active ? 'breathe' : ''}}" style="background-color: {{card.glow}}"></div>
-        <div class="icon" style="background-color: {{card.color}}">
-          <image class="icon-img" src="{{card.icon}}"></image>
+  <!-- home: one vertical scroll — heart rate, then a big card per module (Start first).
+       Tap a card to open it; hold the heart rate to pause everything; swipe right = exit. -->
+  <stack class="root bg-home">
+    <scroll class="scr" scroll-y="true" if="{{!offline}}">
+      <div class="col">
+        <div class="hdr" onlongpress="pauseAll">
+          <div class="hr-row">
+            <image class="hr-heart" src="/common/icons/heart.png"></image>
+            <text class="hr-big" style="color: {{hrColor}}">{{hrBig}}</text>
+          </div>
+          <text class="hr-sub">{{hrSub}}</text>
+          <div class="zones">
+            <div for="{{zoneBar}}" class="zseg" style="background-color: {{$item.c}}; opacity: {{$item.on ? 1 : 0.22}}"></div>
+          </div>
+          <text class="sync" style="opacity: {{busy ? 1 : 0}}">синхронизиране…</text>
         </div>
-      </stack>
-      <text class="title">{{card.title}}</text>
-      <text class="state" style="color: {{card.active ? card.color : '#C7C7CC'}}">{{card.sub}}</text>
-      <text class="sync" if="{{busy}}">синхронизиране…</text>
-      <text class="tap" if="{{!busy}}">докосни · влез</text>
-    </div>
-
-    <div class="dots" if="{{!offline}}">
-      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
-    </div>
+        <div for="{{cards}}" class="card" style="background-color: {{$item.bg}}; border-color: {{$item.border}}" onclick="open($item.id)">
+          <div class="card-top">
+            <div class="ic" style="background-color: {{$item.color}}">
+              <image class="ic-img" src="{{$item.icon}}"></image>
+            </div>
+            <text class="ct">{{$item.title}}</text>
+          </div>
+          <text class="cs" style="color: {{$item.subColor}}">{{$item.sub}}</text>
+        </div>
+        <text class="hint">задръж пулса · пауза на всичко</text>
+      </div>
+    </scroll>
 
     <!-- not linked yet -->
     <div class="offline" if="{{offline}}">
@@ -43,8 +45,11 @@
 
 <script>
 import router from '@system.router'
-import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, mods, bind, age, setPages, swipe } from '../../common/ui.js'
+import { ZONE, ACCENT, GREEN, AMBER, BLUE, PURPLE, mmss, hms, zoneOf, mods, bind, age } from '../../common/ui.js'
 
+/** Card tint when a module runs (solid colours: Vela draws them best). */
+const TINT = { train: '#0E2A17', ai: '#17163A', timer: '#2E1F07', music: '#0E1A33', pulse: '#0C2230' }
+const IDLE = '#16171B'
 const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', music: '/pages/music', pulse: '/pages/pulse' }
 
 export default {
@@ -52,18 +57,13 @@ export default {
     offline: true,
     offText: 'Свързване…',
     diagText: '',
-    hrLine: '--',
+    hrBig: '--',
+    hrSub: '',
     hrColor: '#FFFFFF',
     zoneBar: [],
     busy: false,
-    cards: {},
-    card: { id: 'train', title: 'Старт', sub: '', icon: '/common/icons/bolt.png', color: GREEN, glow: 'rgba(0,0,0,0)', active: false },
-    ids: [],
-    idsKey: '',
-    idx: 0,
-    cur: '',
-    dots: [],
-    anim: ''
+    cards: [],
+    cardsKey: ''
   },
 
   onInit() {
@@ -72,11 +72,6 @@ export default {
 
   onDestroy() {
     this.unbind()
-  },
-
-  onSwipe(e) {
-    swipe(this, e)
-    this.card = this.cards[this.cur] || this.card
   },
 
   update() {
@@ -94,7 +89,8 @@ export default {
     this.busy = app.busy()
     const lim = s.lim || 170
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, lim) : 0
-    this.hrLine = s.hr > 0 ? s.hr + ' · Z' + z : '--'
+    this.hrBig = s.hr > 0 ? String(s.hr) : '--'
+    this.hrSub = s.hr > 0 ? 'уд/мин · зона ' + z + ' · лимит ' + lim : 'няма пулс'
     this.hrColor = s.hr > 0 ? ZONE[z] : '#8E8E93'
     const bar = []
     for (let k = 1; k <= 5; k++) {
@@ -103,14 +99,12 @@ export default {
     this.zoneBar = bar
 
     const list = this.buildCards(s, app)
-    const cards = {}
-    list.forEach((c) => {
-      cards[c.id] = c
-    })
-    this.cards = cards
-    // fixed order (Start first); the current screen stays when the licence list changes
-    setPages(this, list.map((c) => c.id))
-    this.card = cards[this.cur] || list[0]
+    // Redraw the cards only when something on them changed (keeps the scroll position still).
+    const key = JSON.stringify(list)
+    if (key !== this.cardsKey) {
+      this.cardsKey = key
+      this.cards = list
+    }
   },
 
   /** Start is always first; then the modules the licence opens (all when XEMS does not say). */
@@ -163,14 +157,16 @@ export default {
     }
 
     out.forEach((c) => {
-      c.glow = c.active ? c.color : 'rgba(0,0,0,0)'
+      c.bg = c.active ? TINT[c.id] : IDLE
+      c.border = c.active ? c.color : '#26272C'
+      c.subColor = c.active ? c.color : '#C7C7CC'
     })
     return out
   },
 
-  open() {
+  open(id) {
     this.$app.$def.buzz('short')
-    router.push({ uri: PAGES[this.cur] || PAGES.train })
+    router.push({ uri: PAGES[id] || PAGES.train })
   },
 
   pauseAll() {
@@ -192,6 +188,14 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 34px;
+}
+.scr {
+  width: 212px;
+  height: 520px;
+}
+.col {
+  width: 212px;
+  flex-direction: column;
 }
 .in-up {
   animation-name: inUp;
@@ -289,82 +293,92 @@ export default {
   background-image: url(/common/bg/home.png);
   background-size: cover;
 }
+.hdr {
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  padding-bottom: 6px;
+}
 .hr-row {
   flex-direction: row;
   align-items: center;
 }
 .hr-heart {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   margin-right: 8px;
 }
-.hr-line {
-  font-size: 34px;
+.hr-big {
+  font-size: 72px;
   font-weight: bold;
+}
+.hr-sub {
+  width: 196px;
+  text-align: center;
+  font-size: 22px;
+  color: #c7c7cc;
 }
 .zones {
   flex-direction: row;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 .zseg {
-  width: 28px;
-  height: 8px;
+  width: 32px;
+  height: 10px;
   margin-left: 3px;
   margin-right: 3px;
-  border-radius: 4px;
+  border-radius: 5px;
 }
-.icon-box {
-  width: 176px;
-  height: 176px;
-  margin-top: 30px;
+.sync {
+  margin-top: 8px;
+  font-size: 20px;
+  color: #ff9f0a;
+}
+.card {
+  width: 196px;
+  margin-left: 8px;
+  margin-top: 12px;
+  padding: 16px;
+  flex-direction: column;
+  border-radius: 30px;
+  border-width: 3px;
+}
+.card-top {
+  flex-direction: row;
+  align-items: center;
+}
+.ic {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
   justify-content: center;
   align-items: center;
 }
-.glow {
-  width: 170px;
-  height: 170px;
-  border-radius: 85px;
-  opacity: 0.35;
+.ic-img {
+  width: 38px;
+  height: 38px;
 }
-.breathe {
-  animation-name: breathe;
-  animation-duration: 1500ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.icon {
-  width: 132px;
-  height: 132px;
-  border-radius: 66px;
-  justify-content: center;
-  align-items: center;
-}
-.icon-img {
-  width: 72px;
-  height: 72px;
-}
-.title {
-  margin-top: 20px;
-  font-size: 44px;
+.ct {
+  margin-left: 12px;
+  font-size: 32px;
   font-weight: bold;
   color: #ffffff;
 }
-.state {
-  margin-top: 6px;
-  width: 196px;
-  text-align: center;
-  font-size: 26px;
+.cs {
+  margin-top: 10px;
+  width: 160px;
+  font-size: 24px;
   lines: 2;
   text-overflow: ellipsis;
 }
-.sync {
-  margin-top: 14px;
-  font-size: 22px;
-  color: #ff9f0a;
-}
-.tap {
-  margin-top: 14px;
-  font-size: 22px;
+.hint {
+  width: 196px;
+  margin-left: 8px;
+  margin-top: 18px;
+  margin-bottom: 70px;
+  text-align: center;
+  font-size: 20px;
   color: #636366;
 }
 .offline {

@@ -138,10 +138,20 @@ public final class MasterStrengthControl {
      *                enqueueing strength commands behind stop)
      */
     public static void setMasterStrength(int percent, boolean updateUi, boolean sendBle) {
+        setMasterStrength(percent, updateUi, sendBle, -1);
+    }
+
+    /**
+     * Strength and (music Hz-by-sound) impulse Hz in one update: both are written to the
+     * program and go to the suit in the same onParamsChange. {@code hz} ≤ 0 leaves Hz as is.
+     */
+    public static void setMasterStrength(int percent, boolean updateUi, boolean sendBle, int hz) {
+        setMasterStrength(percent, updateUi, sendBle, hz, -1);
+    }
+
+    /** + pulse width (µs, ≤ 0 = leave): deep for bass, shallow for treble — same update. */
+    public static void setMasterStrength(int percent, boolean updateUi, boolean sendBle, int hz, int pw) {
         percent = clamp(percent);
-        if (percent == lastApplied) {
-            return;
-        }
         TrainItem item = targetItem;
         if (item == null) {
             return;
@@ -153,6 +163,17 @@ public final class MasterStrengthControl {
         ProgramDataBean bean = program.matchProgram();
         if (bean == null) {
             return;
+        }
+        boolean hzChange = hz > 0 && hz != bean.hz;
+        boolean pwChange = pw > 0 && pw != bean.pulseWidth;
+        if (percent == lastApplied && !hzChange && !pwChange) {
+            return;
+        }
+        if (hzChange) {
+            bean.hz = hz;
+        }
+        if (pwChange) {
+            bean.pulseWidth = pw;
         }
 
         bean.strenth = percent;
@@ -187,6 +208,44 @@ public final class MasterStrengthControl {
             return false;
         }
         return item.data == null || item.data.start;
+    }
+
+    /** Impulse Hz of the target slot's program, −1 if none. */
+    public static int getTargetHz() {
+        ProgramDataBean bean = targetBean();
+        return bean != null ? bean.hz : -1;
+    }
+
+    public static int getTargetPulseWidth() {
+        ProgramDataBean bean = targetBean();
+        return bean != null ? bean.pulseWidth : -1;
+    }
+
+    /** Put impulse Hz / pulse width (≤ 0 = leave) into the target slot's program; sent when it runs. */
+    public static void setTargetHz(int hz, int pw, boolean sendBle) {
+        TrainItem item = targetItem;
+        ProgramDataBean bean = targetBean();
+        if (bean == null || ((hz <= 0 || bean.hz == hz) && (pw <= 0 || bean.pulseWidth == pw))) {
+            return;
+        }
+        if (hz > 0) {
+            bean.hz = hz;
+        }
+        if (pw > 0) {
+            bean.pulseWidth = pw;
+        }
+        if (sendBle && item != null && item.data != null && item.data.connected && item.data.start) {
+            item.onParamsChange();
+        }
+    }
+
+    private static ProgramDataBean targetBean() {
+        TrainItem item = targetItem;
+        if (item == null) {
+            return null;
+        }
+        TrainProgram program = item.getTrainProgram();
+        return program != null ? program.matchProgram() : null;
     }
 
     public static TrainItem getTarget() {

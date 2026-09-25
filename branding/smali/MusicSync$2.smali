@@ -19,10 +19,10 @@
 
 # direct methods
 .method constructor <init>()V
-    .registers 1
+    .locals 0
 
     .prologue
-    .line 88
+    .line 117
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,13 +31,12 @@
 
 # virtual methods
 .method public run()V
-    .registers 1
+    .locals 0
 
     .prologue
-    .line 91
-    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->handleWriteComplete()V
+    .line 120
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()V
 
-    .line 92
+    .line 121
     return-void
 .end method

@@ -25,101 +25,97 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 486
+    .line 582
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 487
+    .line 583
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 488
+    .line 584
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .registers 11
+    .locals 10
 
     .prologue
     const-wide/16 v0, 0x1
 
-    .line 492
+    .line 588
     iget-object v4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 493
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
+    .line 589
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_16
+    if-eqz v2, :cond_0
 
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->player:Landroid/media/MediaPlayer;
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$100(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/media/MediaPlayer;
 
     move-result-object v2
 
-    if-eqz v2, :cond_16
+    if-eqz v2, :cond_0
 
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->envelope:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$200(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;
 
     move-result-object v2
 
-    if-nez v2, :cond_17
+    if-nez v2, :cond_1
 
-    .line 517
-    :cond_16
-    :goto_16
+    .line 613
+    :cond_0
+    :goto_0
     return-void
 
-    .line 497
-    :cond_17
-    :try_start_17
+    .line 593
+    :cond_1
+    :try_start_0
     invoke-virtual {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolvePlaybackPositionMs()I
 
     move-result v2
 
-    .line 498
+    .line 594
     invoke-virtual {v4, v2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->resolveEnvelopeIndex(I)I
 
     move-result v2
 
     invoke-virtual {v4, v2}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->dispatchLevel(I)V
-    :try_end_22
-    .catch Ljava/lang/Throwable; {:try_start_17 .. :try_end_22} :catch_55
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 501
-    :goto_22
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->tracking:Z
+    .line 597
+    :goto_1
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$000(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_16
+    if-eqz v2, :cond_0
 
-    .line 504
+    .line 600
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v2
 
-    .line 505
+    .line 601
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
     const-wide/16 v8, 0x0
 
     cmp-long v5, v6, v8
 
-    if-gtz v5, :cond_36
+    if-gtz v5, :cond_2
 
-    .line 506
+    .line 602
     iput-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
-    .line 508
-    :cond_36
+    .line 604
+    :cond_2
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
     const-wide/16 v8, 0x10
@@ -128,46 +124,45 @@
 
     iput-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
-    .line 509
+    .line 605
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
     cmp-long v5, v6, v2
 
-    if-gez v5, :cond_45
+    if-gez v5, :cond_3
 
-    .line 510
+    .line 606
     iput-wide v2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
-    .line 512
-    :cond_45
+    .line 608
+    :cond_3
     iget-wide v6, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$SyncRunnable;->nextPollUptimeMs:J
 
     sub-long v2, v6, v2
 
-    .line 513
+    .line 609
     cmp-long v5, v2, v0
 
-    if-gez v5, :cond_57
+    if-gez v5, :cond_4
 
-    .line 516
-    :goto_4d
-    # getter for: Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->handler:Landroid/os/Handler;
+    .line 612
+    :goto_2
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->access$300(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)Landroid/os/Handler;
 
     move-result-object v2
 
     invoke-virtual {v2, p0, v0, v1}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    goto :goto_16
+    goto :goto_0
 
-    .line 499
-    :catch_55
+    .line 595
+    :catch_0
     move-exception v2
 
-    goto :goto_22
+    goto :goto_1
 
-    :cond_57
+    :cond_4
     move-wide v0, v2
 
-    goto :goto_4d
+    goto :goto_2
 .end method

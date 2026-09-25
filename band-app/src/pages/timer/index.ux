@@ -126,6 +126,7 @@ export default {
   height: 520px;
 }
 .col {
+  flex-shrink: 0;
   width: 212px;
   flex-direction: column;
 }
@@ -160,11 +161,13 @@ export default {
   background-color: #ffffff;
 }
 .caps {
+  flex-shrink: 0;
   font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
+  flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
@@ -174,6 +177,7 @@ export default {
   transform: scale(0.92);
 }
 .btn {
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   transition-property: transform;

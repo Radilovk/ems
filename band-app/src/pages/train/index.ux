@@ -3,7 +3,7 @@
        own − / + (hold = 5 steps), end (hold). Swipe right = back. -->
   <stack class="root bg-start">
     <scroll class="scr" scroll-y="true">
-      <div class="col">
+      <div class="col" style="height: {{colH}}px">
         <div class="ctl">
           <text class="caps" style="color: {{runColor}}">{{caps}}</text>
           <text class="elapsed">{{elapsed}}</text>
@@ -16,7 +16,7 @@
           <text class="sync" style="opacity: {{busy ? 1 : 0}}">синхронизиране…</text>
         </div>
 
-        <div class="row">
+        <div class="row allrow">
           <text class="row-title">Всички канали</text>
           <div class="pm">
             <div class="btn pm-btn {{run ? '' : 'off'}} {{pressed === 'aminus' ? 'down' : ''}}" ontouchstart="press('aminus')"
@@ -33,7 +33,7 @@
 
         <text class="chcap">{{chCaps}}</text>
 
-        <div for="{{chans}}" class="row">
+        <div for="{{chans}}" class="row chrow">
           <div class="ch-top">
             <text class="ch-name">{{$item.name}}</text>
             <text class="ch-val" style="color: {{$item.color}}">{{$item.text}}</text>
@@ -89,7 +89,8 @@ export default {
     allHint: '',
     chCaps: 'КАНАЛИ',
     chans: [],
-    chKey: ''
+    chKey: '',
+    colH: 1032
   },
 
   onInit() {
@@ -141,6 +142,8 @@ export default {
     if (key !== this.chKey) {
       this.chKey = key
       this.chans = out
+      // the scroll needs the real content height (children never shrink)
+      this.colH = 410 + 208 + 44 + out.length * 228 + 370
     }
   },
 
@@ -234,6 +237,7 @@ export default {
   height: 520px;
 }
 .col {
+  flex-shrink: 0;
   width: 212px;
   flex-direction: column;
 }
@@ -268,11 +272,13 @@ export default {
   background-color: #ffffff;
 }
 .caps {
+  flex-shrink: 0;
   font-size: 24px;
   font-weight: bold;
   color: #8e8e93;
 }
 .sub {
+  flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
@@ -282,6 +288,7 @@ export default {
   transform: scale(0.92);
 }
 .btn {
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   transition-property: transform;
@@ -330,41 +337,50 @@ export default {
 }
 /* ---- page ---- */
 .bg-start {
+  flex-shrink: 0;
   background-image: url(/common/bg/start.png);
   background-size: cover;
 }
 .elapsed {
+  flex-shrink: 0;
   margin-top: 16px;
   font-size: 68px;
   font-weight: bold;
   color: #ffffff;
 }
 .meta {
+  flex-shrink: 0;
   font-size: 26px;
   font-weight: bold;
 }
 .sync {
+  flex-shrink: 0;
   margin-top: 10px;
   font-size: 22px;
   color: #ff9f0a;
 }
 .ctl {
+  flex-shrink: 0;
+  height: 410px;
   width: 212px;
   flex-direction: column;
   align-items: center;
   padding-top: 30px;
 }
 .play {
+  flex-shrink: 0;
   width: 130px;
   height: 130px;
   margin-top: 14px;
   border-radius: 65px;
 }
 .play-img {
+  flex-shrink: 0;
   width: 60px;
   height: 60px;
 }
 .row {
+  flex-shrink: 0;
   width: 196px;
   margin-left: 8px;
   margin-top: 12px;
@@ -374,17 +390,29 @@ export default {
   border-radius: 28px;
   background-color: #16171b;
 }
+.allrow {
+  flex-shrink: 0;
+  height: 196px;
+}
+.chrow {
+  flex-shrink: 0;
+  height: 216px;
+}
 .row-title {
+  flex-shrink: 0;
   font-size: 28px;
   font-weight: bold;
   color: #ffffff;
 }
 .row-hint {
+  flex-shrink: 0;
   margin-top: 6px;
   font-size: 20px;
   color: #8e8e93;
 }
 .chcap {
+  flex-shrink: 0;
+  height: 44px;
   width: 196px;
   margin-left: 8px;
   margin-top: 20px;
@@ -394,12 +422,14 @@ export default {
   color: #8e8e93;
 }
 .ch-top {
+  flex-shrink: 0;
   width: 168px;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
 .ch-name {
+  flex-shrink: 0;
   width: 110px;
   font-size: 26px;
   font-weight: bold;
@@ -407,10 +437,12 @@ export default {
   lines: 2;
 }
 .ch-val {
+  flex-shrink: 0;
   font-size: 30px;
   font-weight: bold;
 }
 .bar {
+  flex-shrink: 0;
   width: 164px;
   height: 12px;
   margin-top: 8px;
@@ -418,14 +450,17 @@ export default {
   background-color: #2c2c2e;
 }
 .bar-fill {
+  flex-shrink: 0;
   height: 12px;
   border-radius: 6px;
 }
 .pm {
+  flex-shrink: 0;
   flex-direction: row;
   margin-top: 12px;
 }
 .pm-btn {
+  flex-shrink: 0;
   width: 80px;
   height: 76px;
   margin-left: 4px;
@@ -434,13 +469,17 @@ export default {
   background-color: #2c2c2e;
 }
 .pm-plus {
+  flex-shrink: 0;
   background-color: #1f4a2a;
 }
 .pm-img {
+  flex-shrink: 0;
   width: 40px;
   height: 40px;
 }
 .stop-item {
+  flex-shrink: 0;
+  height: 370px;
   width: 212px;
   flex-direction: column;
   align-items: center;
@@ -448,6 +487,7 @@ export default {
   padding-bottom: 70px;
 }
 .stop-box {
+  flex-shrink: 0;
   width: 190px;
   height: 190px;
   margin-top: 12px;
@@ -455,6 +495,7 @@ export default {
   align-items: center;
 }
 .stop-ring {
+  flex-shrink: 0;
   width: 190px;
   height: 190px;
   stroke-width: 14px;
@@ -466,6 +507,7 @@ export default {
   radius: 86px;
 }
 .stop-core {
+  flex-shrink: 0;
   width: 140px;
   height: 140px;
   border-radius: 70px;
@@ -474,6 +516,7 @@ export default {
   align-items: center;
 }
 .stop-img {
+  flex-shrink: 0;
   width: 60px;
   height: 60px;
 }

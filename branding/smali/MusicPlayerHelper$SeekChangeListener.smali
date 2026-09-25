@@ -19,10 +19,9 @@
 
 # direct methods
 .method constructor <init>()V
-    .locals 0
+    .registers 1
 
-    .prologue
-    .line 2102
+    .line 2145
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,63 +30,66 @@
 
 # virtual methods
 .method public onChanged(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
-    .locals 2
+    .registers 3
 
-    .prologue
-    .line 2105
-    const/4 v0, 0x1
+    .line 2148
+    const/4 p1, 0x1
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
 
-    .line 2106
+    .line 2149
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
-    move-result v0
+    move-result p1
 
-    .line 2107
-    invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3600(II)I
+    .line 2150
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->mapSeekProgressToMs(II)I
+    invoke-static {p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3600(II)I
 
-    move-result v1
+    move-result p2
 
-    .line 2108
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3700(II)V
+    .line 2151
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->updateTimeLabel(II)V
+    invoke-static {p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3700(II)V
 
-    .line 2109
-    if-lez v0, :cond_0
+    .line 2152
+    if-lez p1, :cond_14
 
-    .line 2110
-    invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
+    .line 2153
+    invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 2112
-    :cond_0
+    .line 2155
+    :cond_14
     return-void
 .end method
 
 .method public onChangedEnd(Lcom/isaigu/gymapp/widget/CircleSeekBar;I)V
-    .locals 1
+    .registers 3
 
-    .prologue
-    .line 2116
+    .line 2159
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
-    move-result v0
+    move-result p1
 
-    .line 2117
-    if-lez v0, :cond_0
+    .line 2160
+    if-lez p1, :cond_d
 
-    .line 2118
-    invoke-static {p2, v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3600(II)I
+    .line 2161
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->mapSeekProgressToMs(II)I
+    invoke-static {p2, p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3600(II)I
 
-    move-result v0
+    move-result p1
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->seekPlaybackTo(I)V
 
-    .line 2120
-    :cond_0
-    const/4 v0, 0x0
+    .line 2163
+    :cond_d
+    const/4 p1, 0x0
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->userSeeking:Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3502(Z)Z
 
-    .line 2121
+    .line 2164
     return-void
 .end method

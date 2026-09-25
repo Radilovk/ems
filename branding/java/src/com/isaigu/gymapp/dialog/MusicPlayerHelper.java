@@ -79,6 +79,9 @@ public final class MusicPlayerHelper {
 
     private static final int OVERLAY_SIZE_DP = 192;
     private static final int OVERLAY_PANEL_WIDTH_DP = 300;
+    /** Cap modal height so the root ScrollView can scroll when settings/playlist are open. */
+    private static final float OVERLAY_MAX_HEIGHT_FRACTION = 0.82f;
+    private static final int OVERLAY_MAX_HEIGHT_MARGIN_DP = 48;
     private static final int SEEK_MAX = 1000;
     private static final long PROGRESS_TICK_MS = 200L;
     private static final long DRAG_LONG_PRESS_MS = 280L;
@@ -156,6 +159,7 @@ public final class MusicPlayerHelper {
     private static android.graphics.drawable.Drawable dragSourceBackground;
     private static float dragGhostOffsetX;
     private static float dragGhostOffsetY;
+    private static ScrollView overlayScrollView;
     private static ScrollView playlistScrollView;
     private static int dragRowHeightPx;
     private static long lastPlayClickMs;
@@ -580,6 +584,15 @@ public final class MusicPlayerHelper {
             return false;
         }
         overlayContent = content;
+        overlayScrollView = content instanceof ScrollView ? (ScrollView) content : null;
+        if (overlayScrollView == null) {
+            overlayScrollView = findAncestorScrollView(content);
+        }
+        if (overlayScrollView != null) {
+            overlayScrollView.setVerticalScrollBarEnabled(true);
+            overlayScrollView.setScrollbarFadingEnabled(false);
+            overlayScrollView.setSmoothScrollingEnabled(true);
+        }
         seekBar = (CircleSeekBar) content.findViewById(ID_SEEK);
         visualizerView = (MusicVisualizerView) content.findViewById(ID_VISUALIZER);
         playPauseBtn = (TextView) content.findViewById(ID_PLAY_PAUSE);
@@ -1660,6 +1673,8 @@ public final class MusicPlayerHelper {
     private static void clearOverlayRefs() {
         persistSettings();
         overlayContent = null;
+        overlayScrollView = null;
+        playlistScrollView = null;
         seekBar = null;
         playPauseBtn = null;
         playIcon = null;
@@ -1690,6 +1705,13 @@ public final class MusicPlayerHelper {
         overlayDialog.getWindow().setAttributes(lp);
     }
 
+    private static int overlayMaxHeightPx(Activity activity) {
+        int screenH = activity.getResources().getDisplayMetrics().heightPixels;
+        int byFraction = (int) (screenH * OVERLAY_MAX_HEIGHT_FRACTION);
+        int byMargin = screenH - 2 * dp(activity, OVERLAY_MAX_HEIGHT_MARGIN_DP);
+        return Math.max(dp(activity, OVERLAY_SIZE_DP + 80), Math.min(byFraction, byMargin));
+    }
+
     private static void resizeOverlayWindow() {
         Activity activity = resolveHostActivity(null, overlayContent);
         if (activity == null || overlayDialog == null || overlayContent == null
@@ -1697,20 +1719,41 @@ public final class MusicPlayerHelper {
             return;
         }
         int overlayWidthPx = dp(activity, OVERLAY_PANEL_WIDTH_DP);
+        int maxHeightPx = overlayMaxHeightPx(activity);
+        int minHeightPx = dp(activity, OVERLAY_SIZE_DP + 56);
         overlayContent.measure(
                 View.MeasureSpec.makeMeasureSpec(overlayWidthPx, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        int overlayHeightPx = overlayContent.getMeasuredHeight();
-        int minHeightPx = dp(activity, OVERLAY_SIZE_DP + 56);
-        if (overlayHeightPx < minHeightPx) {
-            overlayHeightPx = minHeightPx;
+        int contentHeightPx = overlayContent.getMeasuredHeight();
+        int windowHeightPx = Math.max(minHeightPx, Math.min(contentHeightPx, maxHeightPx));
+        boolean scrollable = contentHeightPx > windowHeightPx;
+        if (overlayScrollView != null) {
+            ViewGroup.LayoutParams slp = overlayScrollView.getLayoutParams();
+            if (slp == null) {
+                slp = new FrameLayout.LayoutParams(overlayWidthPx, windowHeightPx);
+            } else {
+                slp.width = overlayWidthPx;
+                slp.height = windowHeightPx;
+            }
+            overlayScrollView.setLayoutParams(slp);
+            overlayScrollView.setFillViewport(!scrollable);
+        }
+        ViewParent wrapperParent = overlayContent.getParent();
+        if (wrapperParent instanceof ViewGroup) {
+            ViewGroup wrapper = (ViewGroup) wrapperParent;
+            ViewGroup.LayoutParams wlp = wrapper.getLayoutParams();
+            if (wlp != null) {
+                wlp.width = overlayWidthPx;
+                wlp.height = windowHeightPx;
+                wrapper.setLayoutParams(wlp);
+            }
         }
         Window window = overlayDialog.getWindow();
         if (window != null) {
-            window.setLayout(overlayWidthPx, overlayHeightPx);
+            window.setLayout(overlayWidthPx, windowHeightPx);
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.width = overlayWidthPx;
-            lp.height = overlayHeightPx;
+            lp.height = windowHeightPx;
             window.setAttributes(lp);
         }
     }

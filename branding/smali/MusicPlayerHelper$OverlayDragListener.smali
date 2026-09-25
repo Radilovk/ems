@@ -19,10 +19,9 @@
 
 # direct methods
 .method constructor <init>()V
-    .locals 0
+    .registers 1
 
-    .prologue
-    .line 2146
+    .line 2189
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,222 +30,239 @@
 
 # virtual methods
 .method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .locals 5
+    .registers 7
 
-    .prologue
-    const/4 v0, 0x1
-
-    const/4 v1, 0x0
-
-    .line 2149
+    .line 2192
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()Landroid/support/v7/app/AlertDialog;
 
-    move-result-object v2
+    move-result-object p1
 
-    if-eqz v2, :cond_0
+    const/4 v0, 0x0
 
+    if-eqz p1, :cond_a6
+
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()Landroid/support/v7/app/AlertDialog;
 
-    move-result-object v2
+    move-result-object p1
 
-    invoke-virtual {v2}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
+    invoke-virtual {p1}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
 
-    move-result-object v2
+    move-result-object p1
 
-    if-nez v2, :cond_1
+    if-nez p1, :cond_13
 
-    :cond_0
-    move v0, v1
+    goto/16 :goto_a6
 
-    .line 2180
-    :goto_0
-    return v0
-
-    .line 2152
-    :cond_1
+    .line 2195
+    :cond_13
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1000()Landroid/support/v7/app/AlertDialog;
 
-    move-result-object v2
+    move-result-object p1
 
-    invoke-virtual {v2}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
+    invoke-virtual {p1}, Landroid/support/v7/app/AlertDialog;->getWindow()Landroid/view/Window;
 
-    move-result-object v2
+    move-result-object p1
 
-    invoke-virtual {v2}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
+    invoke-virtual {p1}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
-    move-result-object v2
+    move-result-object p1
 
-    .line 2153
+    .line 2196
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
-    move-result v3
-
-    packed-switch v3, :pswitch_data_0
-
-    move v0, v1
-
-    .line 2180
-    goto :goto_0
-
-    .line 2155
-    :pswitch_0
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
-
-    move-result v3
-
-    iget v4, v2, Landroid/view/WindowManager$LayoutParams;->x:I
-
-    int-to-float v4, v4
-
-    sub-float/2addr v3, v4
-
-    invoke-static {v3}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4002(F)F
-
-    .line 2156
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
-
-    move-result v3
-
-    iget v2, v2, Landroid/view/WindowManager$LayoutParams;->y:I
-
-    int-to-float v2, v2
-
-    sub-float v2, v3, v2
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4102(F)F
-
-    .line 2157
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
-
-    move-result v2
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4202(F)F
-
-    .line 2158
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
-
-    move-result v2
-
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4302(F)F
-
-    .line 2159
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4402(Z)Z
-
-    goto :goto_0
-
-    .line 2162
-    :pswitch_1
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
-
     move-result v1
 
+    const/4 v2, 0x1
+
+    if-eqz v1, :cond_7e
+
+    if-eq v1, v2, :cond_79
+
+    const/4 p1, 0x2
+
+    if-eq v1, p1, :cond_2f
+
+    const/4 p1, 0x3
+
+    if-eq v1, p1, :cond_79
+
+    .line 2223
+    return v0
+
+    .line 2205
+    :cond_2f
+    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
+
+    move-result p1
+
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawX:F
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4200()F
 
-    move-result v2
+    move-result v0
 
-    sub-float v2, v1, v2
+    sub-float/2addr p1, v0
 
-    .line 2163
+    .line 2206
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
+
+    move-result v0
+
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawY:F
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4300()F
 
     move-result v1
 
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4300()F
+    sub-float/2addr v0, v1
 
-    move-result v3
-
-    sub-float v3, v1, v3
-
-    .line 2164
+    .line 2207
     const/4 v1, 0x0
 
     invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 2165
-    if-eqz v1, :cond_3
+    .line 2208
+    if-eqz v1, :cond_50
 
-    .line 2166
-    const/16 v4, 0xa
+    .line 2209
+    const/16 v3, 0xa
 
-    invoke-static {v1, v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3300(Landroid/app/Activity;I)I
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->dp(Landroid/app/Activity;I)I
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$3300(Landroid/app/Activity;I)I
 
     move-result v1
 
     int-to-float v1, v1
 
-    .line 2168
-    :goto_1
-    mul-float/2addr v2, v2
+    goto :goto_52
 
-    mul-float/2addr v3, v3
+    .line 2210
+    :cond_50
+    const/high16 v1, 0x41c00000    # 24.0f
 
-    add-float/2addr v2, v3
+    .line 2211
+    :goto_52
+    mul-float p1, p1, p1
 
-    mul-float/2addr v1, v1
+    mul-float v0, v0, v0
 
-    cmpl-float v1, v2, v1
+    add-float/2addr p1, v0
 
-    if-lez v1, :cond_2
+    mul-float v1, v1, v1
 
-    .line 2169
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4402(Z)Z
+    cmpl-float p1, p1, v1
 
-    .line 2172
-    :cond_2
+    if-lez p1, :cond_60
+
+    .line 2212
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayMoved:Z
+    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4402(Z)Z
+
+    .line 2214
+    :cond_60
+    nop
+
+    .line 2215
+    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
+
+    move-result p1
+
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDx:F
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4000()F
+
+    move-result v0
+
+    sub-float/2addr p1, v0
+
+    float-to-int p1, p1
+
+    .line 2216
+    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
+
+    move-result p2
+
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDy:F
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4100()F
+
+    move-result v0
+
+    sub-float/2addr p2, v0
+
+    float-to-int p2, p2
+
+    .line 2214
+    # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->moveOverlayWindow(II)V
+    invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4500(II)V
+
+    .line 2217
+    return v2
+
+    .line 2221
+    :cond_79
+    # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayMoved:Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4400()Z
+
+    move-result p1
+
+    return p1
+
+    .line 2198
+    :cond_7e
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result v1
 
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4000()F
+    iget v3, p1, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    move-result v2
+    int-to-float v3, v3
 
-    sub-float/2addr v1, v2
+    sub-float/2addr v1, v3
 
-    float-to-int v1, v1
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDx:F
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4002(F)F
 
-    .line 2173
+    .line 2199
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
-    move-result v2
+    move-result v1
 
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4100()F
+    iget p1, p1, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    move-result v3
+    int-to-float p1, p1
 
-    sub-float/2addr v2, v3
+    sub-float/2addr v1, p1
 
-    float-to-int v2, v2
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayTouchDy:F
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4102(F)F
 
-    .line 2171
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4500(II)V
+    .line 2200
+    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
-    goto/16 :goto_0
+    move-result p1
 
-    .line 2167
-    :cond_3
-    const/high16 v1, 0x41c00000    # 24.0f
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawX:F
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4202(F)F
 
-    goto :goto_1
+    .line 2201
+    invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
-    .line 2178
-    :pswitch_2
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4400()Z
+    move-result p1
 
-    move-result v0
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDownRawY:F
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4302(F)F
 
-    goto/16 :goto_0
+    .line 2202
+    # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayMoved:Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4402(Z)Z
 
-    .line 2153
-    nop
+    .line 2203
+    return v2
 
-    :pswitch_data_0
-    .packed-switch 0x0
-        :pswitch_0
-        :pswitch_2
-        :pswitch_1
-        :pswitch_2
-    .end packed-switch
+    .line 2193
+    :cond_a6
+    :goto_a6
+    return v0
 .end method

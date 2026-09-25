@@ -25,14 +25,13 @@
 .method constructor <init>(Landroid/app/Activity;)V
     .registers 2
 
-    .prologue
-    .line 442
+    .line 477
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 443
+    .line 478
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RemoteToggle;->a:Landroid/app/Activity;
 
-    .line 444
+    .line 479
     return-void
 .end method
 
@@ -41,12 +40,11 @@
 .method public onToggle(Z)V
     .registers 3
 
-    .prologue
-    .line 448
+    .line 483
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RemoteToggle;->a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandRemoteEnabled(Landroid/content/Context;Z)V
 
-    .line 449
+    .line 484
     return-void
 .end method

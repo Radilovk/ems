@@ -30,8 +30,7 @@
         }
     .end annotation
 
-    .prologue
-    .line 200
+    .line 199
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$5;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,15 +41,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
-    .line 203
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$5;->val$a:Landroid/app/Activity;
+    .line 202
+    iget-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$5;->val$a:Landroid/app/Activity;
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->startTest(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$300(Landroid/app/Activity;)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$300(Landroid/app/Activity;)V
 
-    .line 204
+    .line 203
     return-void
 .end method

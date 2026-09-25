@@ -32,8 +32,7 @@
         }
     .end annotation
 
-    .prologue
-    .line 309
+    .line 308
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$bands:Ljava/util/List;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$clipKey:Ljava/lang/String;
@@ -46,31 +45,30 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .registers 6
+    .registers 5
 
-    .prologue
+    .line 311
+    iget-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$bands:Ljava/util/List;
+
+    invoke-interface {p1}, Ljava/util/List;->size()I
+
+    move-result p1
+
+    if-ge p2, p1, :cond_39
+
     .line 312
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$bands:Ljava/util/List;
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
-    invoke-interface {v0}, Ljava/util/List;->size()I
+    move-result-object p1
 
-    move-result v0
-
-    if-ge p2, v0, :cond_39
+    if-eqz p1, :cond_20
 
     .line 313
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
-    move-result-object v0
-
-    if-eqz v0, :cond_20
-
-    .line 314
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
-
-    move-result-object v1
+    move-result-object p1
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$bands:Ljava/util/List;
 
@@ -80,64 +78,64 @@
 
     check-cast v0, [Ljava/lang/String;
 
-    const/4 v2, 0x0
+    const/4 v1, 0x0
 
-    aget-object v0, v0, v2
+    aget-object v0, v0, v1
 
-    invoke-virtual {v1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {p1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 316
+    .line 315
     :cond_20
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/EditText;
 
-    move-result-object v0
+    move-result-object p1
 
-    if-eqz v0, :cond_38
+    if-eqz p1, :cond_48
 
-    .line 317
+    .line 316
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/EditText;
 
-    move-result-object v1
+    move-result-object p1
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$bands:Ljava/util/List;
 
     invoke-interface {v0, p2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    move-result-object v0
+    move-result-object p2
 
-    check-cast v0, [Ljava/lang/String;
+    check-cast p2, [Ljava/lang/String;
 
-    const/4 v2, 0x1
+    const/4 v0, 0x1
 
-    aget-object v0, v0, v2
+    aget-object p2, p2, v0
 
-    invoke-virtual {v1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {p1, p2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 322
-    :cond_38
-    :goto_38
-    return-void
+    goto :goto_48
 
-    .line 319
+    .line 318
     :cond_39
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/EditText;
 
-    move-result-object v0
+    move-result-object p1
 
-    if-eqz v0, :cond_38
+    if-eqz p1, :cond_48
 
-    .line 320
+    .line 319
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/EditText;
 
-    move-result-object v0
+    move-result-object p1
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$clipKey:Ljava/lang/String;
+    iget-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$clipKey:Ljava/lang/String;
 
-    invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {p1, p2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    goto :goto_38
+    .line 321
+    :cond_48
+    :goto_48
+    return-void
 .end method

@@ -200,6 +200,15 @@ public final class WearableConfig {
         prefs(context).edit().putInt("band_transport", Math.max(0, Math.min(2, mode))).apply();
     }
 
+    /** Pre-fill the lab band MAC/key when nothing is configured yet. */
+    public static void applyDefaultsIfEmpty(Context context) {
+        if (context == null || isConfigured(context)) {
+            return;
+        }
+        setBandMac(context, "04:34:C3:8C:6C:82");
+        setAuthKey(context, "3705b72bf5526ec74fdebc4b635e851f");
+    }
+
     public static boolean isDirectBleMode(Context context) {
         return isConfigured(context);
     }

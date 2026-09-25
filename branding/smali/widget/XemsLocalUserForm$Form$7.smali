@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 296
+    .line 300
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->val$key:Ljava/lang/String;
@@ -53,7 +53,7 @@
     .locals 4
 
     .prologue
-    .line 298
+    .line 302
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
@@ -66,7 +66,7 @@
 
     if-nez v0, :cond_0
 
-    .line 299
+    .line 303
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
@@ -75,7 +75,7 @@
 
     invoke-interface {v0, v1}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 301
+    .line 305
     :cond_0
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
@@ -93,11 +93,11 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->styleContra(Landroid/widget/TextView;Z)V
 
-    .line 302
+    .line 306
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->updateWarning()V
 
-    .line 303
+    .line 307
     return-void
 .end method

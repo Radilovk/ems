@@ -43,7 +43,7 @@
 
 # direct methods
 .method private static synthetic $values()[Lcom/isaigu/gymapp/ai/AiSession$Stage;
-    .registers 3
+    .locals 3
 
     .prologue
     .line 27
@@ -97,7 +97,7 @@
 .end method
 
 .method static constructor <clinit>()V
-    .registers 3
+    .locals 3
 
     .prologue
     .line 27
@@ -181,7 +181,7 @@
 .end method
 
 .method private constructor <init>(Ljava/lang/String;I)V
-    .registers 3
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -196,7 +196,7 @@
 .end method
 
 .method public static valueOf(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiSession$Stage;
-    .registers 2
+    .locals 1
 
     .prologue
     .line 27
@@ -212,7 +212,7 @@
 .end method
 
 .method public static values()[Lcom/isaigu/gymapp/ai/AiSession$Stage;
-    .registers 1
+    .locals 1
 
     .prologue
     .line 27

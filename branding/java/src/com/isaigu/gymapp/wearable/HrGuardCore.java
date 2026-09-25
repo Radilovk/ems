@@ -78,7 +78,9 @@ public final class HrGuardCore {
 
     private final AiHrFilter filter = new AiHrFilter();
     private final ArrayDeque<double[]> recent = new ArrayDeque<double[]>();
-    private final AiEnergy energy = new AiEnergy();
+    private AiEnergy energy = new AiEnergy();
+    /** The client's predicted maximum HR (sex, age), else the population value. */
+    private int hrMax = POP_HR_MAX;
     private AiRestHr calib;
     private int hrRest = -1;
     private int manualUpper = -1;
@@ -114,20 +116,48 @@ public final class HrGuardCore {
 
     public void setRestHr(int bpm) {
         hrRest = bpm >= 35 && bpm <= 120 ? bpm : -1;
-        energy.setHeart(hrRest, AiEnergy.DEFAULT_HR_MAX);
+        energy.setHeart(hrRest, hrMax);
+    }
+
+    /**
+     * The client in the slot (sex, age, weight, fitness from the client record): personal
+     * maximum HR for the upper limit and a personal energy model. null = no client data.
+     * Starts the kcal count again.
+     */
+    public void setPerson(com.isaigu.gymapp.ai.AiModel.SessionInput person) {
+        if (person == null) {
+            hrMax = POP_HR_MAX;
+            energy = new AiEnergy();
+        } else {
+            hrMax = com.isaigu.gymapp.ai.AiPlanner.hrMax(person.sex, person.age);
+            energy = AiEnergy.forSession(person, null);
+        }
+        energy.setHeart(hrRest, hrMax);
+    }
+
+    public int getHrMax() {
+        return hrMax;
     }
 
     /** Recommended upper limit from the resting HR (no other input). */
     public static int autoUpper(int rest) {
+        return autoUpper(rest, POP_HR_MAX);
+    }
+
+    /** Recommended upper limit from the resting HR and a (personal) maximum HR. */
+    public static int autoUpper(int rest, int max) {
         if (rest <= 0) {
-            return UPPER_DEFAULT;
+            if (max == POP_HR_MAX) {
+                return UPPER_DEFAULT;
+            }
+            rest = AiEnergy.DEFAULT_HR_REST;         // personal max, typical resting HR
         }
-        int u = (int) Math.round(rest + UPPER_SHARE * (POP_HR_MAX - rest));
+        int u = (int) Math.round(rest + UPPER_SHARE * (max - rest));
         return Math.max(UPPER_MIN, Math.min(UPPER_MAX, u));
     }
 
     public int getAutoUpper() {
-        return autoUpper(hrRest);
+        return autoUpper(hrRest, hrMax);
     }
 
     /** Trainer's value wins; otherwise the recommended one. */

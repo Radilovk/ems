@@ -6,19 +6,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -32,7 +30,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * New / edit client form — one screen, mostly taps: name, sex, age / height / weight steppers,
+ * New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels,
  * phone; goal, fitness and contraindications as in the AI session. Replaces the app's
  * EditUserPersonalDataDialog (UserFragment "+" and a user's row).
  *
@@ -194,9 +192,15 @@ public final class XemsLocalUserForm {
             renderSex();
 
             LinearLayout c3 = card(col, tr("Възраст · ръст · тегло", "Age · height · weight"));
-            c3.addView(stepper(tr("Възраст", "Age"), tr("г.", "y"), age, 10, 99, 1), match(0));
-            c3.addView(stepper(tr("Ръст", "Height"), "cm", height, 100, 230, 1), match(dp(10)));
-            c3.addView(stepper(tr("Тегло", "Weight"), "kg", weight, 30, 200, 1), match(dp(10)));
+            LinearLayout wheels = new LinearLayout(a);
+            wheels.setOrientation(LinearLayout.HORIZONTAL);
+            wheels.addView(wheel(tr("Възраст", "Age"), tr("г.", "y"), age, 10, 99),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            wheels.addView(wheel(tr("Ръст", "Height"), "cm", height, 100, 230),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            wheels.addView(wheel(tr("Тегло", "Weight"), "kg", weight, 30, 200),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            c3.addView(wheels, match(dp(6)));
 
             LinearLayout c4 = card(col, tr("Телефон (по желание)", "Phone (optional)"));
             phone = input("+359 …", InputType.TYPE_CLASS_PHONE);
@@ -428,80 +432,64 @@ public final class XemsLocalUserForm {
             row.addView(chip, lp);
         }
 
-        /** [−]  value unit  [+] ; hold a button to run. */
-        View stepper(String label, final String unit, final int[] value, final int min, final int max, final int step) {
-            LinearLayout row = new LinearLayout(a);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            row.addView(text(label, 16, TEXT, false), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            final TextView val = text(value[0] + " " + unit, 20, TEXT, true);
-            val.setGravity(Gravity.CENTER);
-            TextView minus = roundButton("−");
-            TextView plus = roundButton("+");
-            final Runnable refresh = new Runnable() {
-                public void run() {
-                    val.setText(value[0] + " " + unit);
-                }
-            };
-            repeat(minus, new Runnable() {
-                public void run() {
-                    value[0] = clamp(value[0] - step, min, max);
-                    refresh.run();
+        /** Label, a scroll wheel of values (flick or drag), unit. No keyboard. */
+        View wheel(String label, String unit, final int[] value, int min, int max) {
+            LinearLayout box = new LinearLayout(a);
+            box.setOrientation(LinearLayout.VERTICAL);
+            box.setGravity(Gravity.CENTER_HORIZONTAL);
+            TextView l = text(label, 15, MUTED, false);
+            l.setGravity(Gravity.CENTER);
+            box.addView(l, match(0));
+            NumberPicker np = new NumberPicker(a);
+            np.setMinValue(min);
+            np.setMaxValue(max);
+            np.setValue(clamp(value[0], min, max));
+            np.setWrapSelectorWheel(false);
+            np.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+            np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                    value[0] = newVal;
                 }
             });
-            repeat(plus, new Runnable() {
-                public void run() {
-                    value[0] = clamp(value[0] + step, min, max);
-                    refresh.run();
-                }
-            });
-            row.addView(minus, new LinearLayout.LayoutParams(dp(52), dp(52)));
-            row.addView(val, new LinearLayout.LayoutParams(dp(110), ViewGroup.LayoutParams.WRAP_CONTENT));
-            row.addView(plus, new LinearLayout.LayoutParams(dp(52), dp(52)));
-            return row;
+            paint(np);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, dp(190));
+            lp.gravity = Gravity.CENTER_HORIZONTAL;
+            box.addView(np, lp);
+            TextView u = text(unit, 14, MUTED, false);
+            u.setGravity(Gravity.CENTER);
+            box.addView(u, match(0));
+            return box;
         }
 
-        TextView roundButton(String s) {
-            TextView b = text(s, 26, TEXT, true);
-            b.setGravity(Gravity.CENTER);
-            GradientDrawable d = new GradientDrawable();
-            d.setShape(GradientDrawable.OVAL);
-            d.setColor(BG);
-            d.setStroke(dp(1), STROKE);
-            b.setBackground(d);
-            return b;
-        }
-
-        /** Tap = one step; hold = repeats, faster over time. */
-        void repeat(final View v, final Runnable step) {
-            final Handler h = new Handler(Looper.getMainLooper());
-            final long[] delay = {400L};
-            final Runnable tick = new Runnable() {
-                public void run() {
-                    step.run();
-                    delay[0] = Math.max(40L, delay[0] - 60L);
-                    h.postDelayed(this, delay[0]);
+        /** Light digits and accent dividers on the dark card (all Android versions). */
+        void paint(NumberPicker np) {
+            try {
+                if (android.os.Build.VERSION.SDK_INT >= 29) {
+                    np.setTextColor(TEXT);
+                    np.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 26,
+                            a.getResources().getDisplayMetrics()));
                 }
-            };
-            v.setOnTouchListener(new View.OnTouchListener() {
-                public boolean onTouch(View view, MotionEvent e) {
-                    switch (e.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            view.setAlpha(0.6f);
-                            step.run();
-                            delay[0] = 400L;
-                            h.postDelayed(tick, delay[0]);
-                            return true;
-                        case MotionEvent.ACTION_UP:
-                        case MotionEvent.ACTION_CANCEL:
-                            view.setAlpha(1f);
-                            h.removeCallbacks(tick);
-                            return true;
-                        default:
-                            return true;
+                for (int i = 0; i < np.getChildCount(); i++) {
+                    View c = np.getChildAt(i);
+                    if (c instanceof EditText) {
+                        ((EditText) c).setTextColor(TEXT);
+                        ((EditText) c).setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
                     }
                 }
-            });
+                java.lang.reflect.Field wheel = NumberPicker.class.getDeclaredField("mSelectorWheelPaint");
+                wheel.setAccessible(true);
+                android.graphics.Paint paint = (android.graphics.Paint) wheel.get(np);
+                paint.setColor(TEXT);
+                paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 26,
+                        a.getResources().getDisplayMetrics()));
+                java.lang.reflect.Field div = NumberPicker.class.getDeclaredField("mSelectionDivider");
+                div.setAccessible(true);
+                div.set(np, new android.graphics.drawable.ColorDrawable(ACCENT));
+            } catch (Throwable ignored) {
+                // hidden fields differ on some Android builds: keep the default look
+            }
+            np.invalidate();
         }
 
         EditText input(String hint, int type) {

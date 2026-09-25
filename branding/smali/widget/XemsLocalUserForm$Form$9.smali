@@ -3,12 +3,12 @@
 .source "XemsLocalUserForm.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/widget/NumberPicker$OnValueChangeListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->stepper(Ljava/lang/String;Ljava/lang/String;[IIII)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->wheel(Ljava/lang/String;Ljava/lang/String;[III)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,15 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$unit:Ljava/lang/String;
-
-.field final synthetic val$val:Landroid/widget/TextView;
-
 .field final synthetic val$value:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Landroid/widget/TextView;[ILjava/lang/String;)V
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;[I)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -37,14 +33,10 @@
     .end annotation
 
     .prologue
-    .line 441
+    .line 449
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$val:Landroid/widget/TextView;
-
-    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$value:[I
-
-    iput-object p4, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$unit:Ljava/lang/String;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$value:[I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -53,45 +45,17 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 4
+.method public onValueChange(Landroid/widget/NumberPicker;II)V
+    .locals 2
 
     .prologue
-    .line 443
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$val:Landroid/widget/TextView;
+    .line 451
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$value:[I
 
-    new-instance v1, Ljava/lang/StringBuilder;
+    const/4 v1, 0x0
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    aput p3, v0, v1
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$value:[I
-
-    const/4 v3, 0x0
-
-    aget v2, v2, v3
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, " "
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$unit:Ljava/lang/String;
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 444
+    .line 452
     return-void
 .end method

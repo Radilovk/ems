@@ -54,7 +54,7 @@
 
     const/4 v2, 0x0
 
-    .line 56
+    .line 54
     const/4 v0, 0x5
 
     new-array v0, v0, [Ljava/lang/String;
@@ -81,7 +81,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->GOALS:[Ljava/lang/String;
 
-    .line 57
+    .line 55
     new-array v0, v5, [Ljava/lang/String;
 
     const-string v1, "low"
@@ -98,7 +98,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->FITNESS:[Ljava/lang/String;
 
-    .line 59
+    .line 57
     const/16 v0, 0xd
 
     new-array v0, v0, [Ljava/lang/String;
@@ -180,7 +180,7 @@
     .locals 0
 
     .prologue
-    .line 64
+    .line 62
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -190,7 +190,7 @@
     .locals 0
 
     .prologue
-    .line 612
+    .line 600
     if-ge p0, p1, :cond_0
 
     :goto_0
@@ -213,7 +213,7 @@
     .locals 2
 
     .prologue
-    .line 584
+    .line 572
     const-string v0, "pregnancy"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -230,12 +230,12 @@
 
     move-result-object p0
 
-    .line 597
+    .line 585
     :cond_0
     :goto_0
     return-object p0
 
-    .line 585
+    .line 573
     :cond_1
     const-string v0, "implant"
 
@@ -255,7 +255,7 @@
 
     goto :goto_0
 
-    .line 586
+    .line 574
     :cond_2
     const-string v0, "cardiovascular"
 
@@ -275,7 +275,7 @@
 
     goto :goto_0
 
-    .line 587
+    .line 575
     :cond_3
     const-string v0, "circulation"
 
@@ -295,7 +295,7 @@
 
     goto :goto_0
 
-    .line 588
+    .line 576
     :cond_4
     const-string v0, "hernia"
 
@@ -315,7 +315,7 @@
 
     goto :goto_0
 
-    .line 589
+    .line 577
     :cond_5
     const-string v0, "cancer"
 
@@ -335,7 +335,7 @@
 
     goto :goto_0
 
-    .line 590
+    .line 578
     :cond_6
     const-string v0, "bleeding"
 
@@ -355,7 +355,7 @@
 
     goto :goto_0
 
-    .line 591
+    .line 579
     :cond_7
     const-string v0, "epilepsy"
 
@@ -375,7 +375,7 @@
 
     goto :goto_0
 
-    .line 592
+    .line 580
     :cond_8
     const-string v0, "neurological"
 
@@ -395,7 +395,7 @@
 
     goto/16 :goto_0
 
-    .line 593
+    .line 581
     :cond_9
     const-string v0, "recent_surgery"
 
@@ -415,7 +415,7 @@
 
     goto/16 :goto_0
 
-    .line 594
+    .line 582
     :cond_a
     const-string v0, "skin_lesion"
 
@@ -435,7 +435,7 @@
 
     goto/16 :goto_0
 
-    .line 595
+    .line 583
     :cond_b
     const-string v0, "kidney"
 
@@ -455,7 +455,7 @@
 
     goto/16 :goto_0
 
-    .line 596
+    .line 584
     :cond_c
     const-string v0, "tuberculosis"
 
@@ -480,7 +480,7 @@
     .locals 2
 
     .prologue
-    .line 578
+    .line 566
     const-string v0, "low"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -497,11 +497,11 @@
 
     move-result-object v0
 
-    .line 580
+    .line 568
     :goto_0
     return-object v0
 
-    .line 579
+    .line 567
     :cond_0
     const-string v0, "high"
 
@@ -521,7 +521,7 @@
 
     goto :goto_0
 
-    .line 580
+    .line 568
     :cond_1
     const-string v0, "\u0421\u0440\u0435\u0434\u0435\u043d"
 
@@ -538,7 +538,7 @@
     .locals 2
 
     .prologue
-    .line 570
+    .line 558
     const-string v0, "fat"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -555,11 +555,11 @@
 
     move-result-object v0
 
-    .line 574
+    .line 562
     :goto_0
     return-object v0
 
-    .line 571
+    .line 559
     :cond_0
     const-string v0, "massage"
 
@@ -579,7 +579,7 @@
 
     goto :goto_0
 
-    .line 572
+    .line 560
     :cond_1
     const-string v0, "drain"
 
@@ -599,7 +599,7 @@
 
     goto :goto_0
 
-    .line 573
+    .line 561
     :cond_2
     const-string v0, "cellulite"
 
@@ -619,7 +619,7 @@
 
     goto :goto_0
 
-    .line 574
+    .line 562
     :cond_3
     const-string v0, "\u0422\u043e\u043d\u0443\u0441"
 
@@ -636,7 +636,7 @@
     .locals 3
 
     .prologue
-    .line 616
+    .line 604
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -656,14 +656,14 @@
     .locals 3
 
     .prologue
-    .line 69
+    .line 67
     if-nez p0, :cond_0
 
-    .line 77
+    .line 75
     :goto_0
     return-void
 
-    .line 72
+    .line 70
     :cond_0
     :try_start_0
     instance-of v0, p1, Lcom/isaigu/gymapp/bean/TrainUser;
@@ -672,7 +672,7 @@
 
     check-cast p1, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 73
+    .line 71
     :goto_1
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
@@ -684,11 +684,11 @@
 
     goto :goto_0
 
-    .line 74
+    .line 72
     :catch_0
     move-exception v0
 
-    .line 75
+    .line 73
     const-string v1, "xems_form"
 
     const-string v2, "show"
@@ -697,7 +697,7 @@
 
     goto :goto_0
 
-    .line 72
+    .line 70
     :cond_1
     const/4 p1, 0x0
 
@@ -708,7 +708,7 @@
     .locals 1
 
     .prologue
-    .line 620
+    .line 608
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
@@ -732,20 +732,20 @@
 
     const/4 v3, 0x1
 
-    .line 601
+    .line 589
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v1
 
-    .line 602
+    .line 590
     invoke-virtual {v1, p0}, Ljava/util/Calendar;->setTime(Ljava/util/Date;)V
 
-    .line 603
+    .line 591
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v2
 
-    .line 604
+    .line 592
     invoke-virtual {v2, v3}, Ljava/util/Calendar;->get(I)I
 
     move-result v0
@@ -756,7 +756,7 @@
 
     sub-int/2addr v0, v3
 
-    .line 605
+    .line 593
     invoke-virtual {v2, v4}, Ljava/util/Calendar;->get(I)I
 
     move-result v2
@@ -767,10 +767,10 @@
 
     if-ge v2, v1, :cond_0
 
-    .line 606
+    .line 594
     add-int/lit8 v0, v0, -0x1
 
-    .line 608
+    .line 596
     :cond_0
     return v0
 .end method

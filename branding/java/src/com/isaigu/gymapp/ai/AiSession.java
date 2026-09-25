@@ -254,6 +254,12 @@ public final class AiSession {
 
     public static void beginSetup(Context context) {
         loadInput(context);
+        // The client of the slot: sex, age, weight, fitness, goal, contraindications are filled in
+        // (still editable here; the changes stay in the AI answers, not in the client record).
+        AiProfile client = AiProfile.of(leader());
+        if (client != null) {
+            client.applyTo(input);
+        }
         stage = Stage.SETUP;
         restHr = null;
         profile = null;

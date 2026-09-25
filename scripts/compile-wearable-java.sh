@@ -63,6 +63,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandRfcommPort.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiModel.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiProfile.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiScreening.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiRestHr.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiPlanner.java"

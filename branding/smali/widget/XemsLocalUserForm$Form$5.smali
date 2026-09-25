@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 270
+    .line 274
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$5;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$5;->val$g:Ljava/lang/String;
@@ -49,18 +49,18 @@
     .locals 2
 
     .prologue
-    .line 272
+    .line 276
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$5;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$5;->val$g:Ljava/lang/String;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goal:Ljava/lang/String;
 
-    .line 273
+    .line 277
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$5;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
 
-    .line 274
+    .line 278
     return-void
 .end method

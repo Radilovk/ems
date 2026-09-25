@@ -788,7 +788,7 @@
 
     if-nez v5, :cond_1a4
 
-    const-string v2, "\u041c\u0435\u0440\u0438 \u043f\u0443\u043b\u0441\u2026"
+    const-string v2, "\u0418\u0437\u043c\u0435\u0440\u0432\u0430\u2026"
 
     const-string v5, "Measuring\u2026"
 

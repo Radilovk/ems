@@ -244,7 +244,7 @@ final class WearableLivePanel {
         } else {
             hrView.setText("--");
             hrView.setTextColor(WearableUi.COLOR_MUTED);
-            zoneView.setText(hr == 0 ? WearableUi.tr("Мери пулс…", "Measuring…") : "");
+            zoneView.setText(hr == 0 ? WearableUi.tr("Измерва…", "Measuring…") : "");
         }
         stepsView.setText(num(c.getLastSteps()));
         caloriesView.setText(num(c.getLastCalories()));

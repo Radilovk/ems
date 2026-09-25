@@ -101,10 +101,10 @@ final class WearableUi {
             state = "";
         }
         if ("streaming".equals(state)) {
-            return tr("На живо", "Live");
+            return "";
         }
         if ("measuring".equals(state)) {
-            return tr("Мери пулс…", "Measuring…");
+            return tr("Измерва…", "Measuring…");
         }
         if ("connecting".equals(state) || "discovering".equals(state)
                 || "auth_start".equals(state) || "handshake".equals(state)) {

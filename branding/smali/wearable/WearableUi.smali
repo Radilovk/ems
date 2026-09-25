@@ -565,20 +565,10 @@
 
     if-eqz v0, :cond_15
 
-    .line 104
-    const-string v0, "\u041d\u0430 \u0436\u0438\u0432\u043e"
+    const-string v0, ""
 
-    const-string v1, "Live"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 141
-    :goto_14
     return-object v0
 
-    .line 106
     :cond_15
     const-string v0, "measuring"
 
@@ -589,7 +579,7 @@
     if-eqz v0, :cond_26
 
     .line 107
-    const-string v0, "\u041c\u0435\u0440\u0438 \u043f\u0443\u043b\u0441\u2026"
+    const-string v0, "\u0418\u0437\u043c\u0435\u0440\u0432\u0430\u2026"
 
     const-string v1, "Measuring\u2026"
 
@@ -887,6 +877,9 @@
     move-result-object v0
 
     goto/16 :goto_14
+
+    :goto_14
+    return-object v0
 .end method
 
 .method static text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;

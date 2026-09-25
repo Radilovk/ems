@@ -24,11 +24,9 @@
         </div>
 
         <!-- all zones = the main impulse: left half −, right half + -->
-        <stack class="cbox cbox-all {{run ? '' : 'off'}}">
-          <div class="halves">
-            <div class="half-minus"></div>
-            <div class="half-plus"></div>
-          </div>
+        <stack class="cbox {{run ? '' : 'off'}}">
+          <div class="afill aleft"></div>
+          <div class="afill aright"></div>
           <div class="cface cface-all">
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
@@ -527,14 +525,9 @@ export default {
   font-size: 20px;
   color: #8e8e93;
 }
-.cbox-all {
-  border-radius: 22px;
-}
 .cface-all {
   flex-direction: row;
   padding-top: 0px;
-  border-width: 0px;
-  background-color: transparent;
 }
 .bigsign {
   flex-shrink: 0;
@@ -544,12 +537,20 @@ export default {
   font-weight: bold;
   color: #ffffff;
 }
-.halves {
+.afill {
   flex-shrink: 0;
-  width: 196px;
-  height: 76px;
-  flex-direction: row;
-  border-radius: 22px;
+  width: 96px;
+  height: 72px;
+  margin-top: 2px;
+  border-radius: 20px;
+}
+.aleft {
+  margin-left: 2px;
+  background-color: #1f9d46;
+}
+.aright {
+  margin-left: 98px;
+  background-color: #e0342b;
 }
 .kpis {
   flex-shrink: 0;
@@ -584,20 +585,6 @@ export default {
   margin-top: 8px;
   font-size: 18px;
   color: #48484a;
-}
-.half-minus {
-  flex: 1;
-  height: 76px;
-  border-top-left-radius: 22px;
-  border-bottom-left-radius: 22px;
-  background-color: #1f9d46;
-}
-.half-plus {
-  flex: 1;
-  height: 76px;
-  border-top-right-radius: 22px;
-  border-bottom-right-radius: 22px;
-  background-color: #e0342b;
 }
 .ctouch {
   flex-shrink: 0;

@@ -25,13 +25,9 @@
 
         <!-- all zones = the main impulse: left half −, right half + -->
         <stack class="cbox {{run ? '' : 'off'}}">
-          <div class="cwrap">
-            <div class="cfill cfill-in" style="width: 96px; background-color: #1f9d46;"></div>
-            <div class="cfill cfill-in" style="width: 96px; background-color: #e0342b;"></div>
-          </div>
           <div class="cface cface-all">
-            <text class="bigsign">-</text>
-            <text class="bigsign">+</text>
+            <text class="bigsign" style="color: #1f9d46">-</text>
+            <text class="bigsign" style="color: #e0342b">+</text>
           </div>
           <div class="ctouch">
             <div class="chalf" onclick="allMinus"></div>
@@ -526,18 +522,6 @@ export default {
 .chint {
   font-size: 20px;
   color: #8e8e93;
-}
-.cwrap {
-  flex-shrink: 0;
-  width: 192px;
-  height: 72px;
-  margin-left: 2px;
-  margin-top: 2px;
-  flex-direction: row;
-}
-.cfill-in {
-  margin-left: 0px;
-  margin-top: 0px;
 }
 .cface-all {
   flex-direction: row;

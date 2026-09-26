@@ -3,48 +3,54 @@
     <!-- 1 · play / pause -->
     <div class="screen {{anim}}" if="{{cur === 'main'}}">
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
-      <marquee class="title" scrollamount="40" loop="-1">{{title}}</marquee>
-      <stack class="ring-box">
-        <progress class="ring" type="arc" percent="{{pct}}" style="color: #BF5AF2"></progress>
-        <div class="center">
-          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#2C2C2E' : '#BF5AF2'}}"
-               ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
-            <image class="play-img" src="{{play ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+      <div class="mid">
+        <marquee class="title" scrollamount="40" loop="-1">{{title}}</marquee>
+        <stack class="ring-box">
+          <progress class="ring" type="arc" percent="{{pct}}" style="color: #BF5AF2"></progress>
+          <div class="center">
+            <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#2C2C2E' : '#BF5AF2'}}"
+                 ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+              <image class="play-img" src="{{play ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+            </div>
           </div>
-        </div>
-      </stack>
-      <text class="sub">{{timeText}}</text>
+        </stack>
+        <text class="sub">{{timeText}}</text>
+      </div>
     </div>
 
     <!-- 2 · previous / next -->
     <div class="screen {{anim}}" if="{{cur === 'skip'}}">
       <text class="caps">ПЕСЕН</text>
-      <div class="btn big-pill {{pressed === 'next' ? 'down' : ''}}"
-           ontouchstart="press('next')" ontouchend="release" ontouchcancel="release" onclick="next">
-        <image class="pill-img" src="/common/icons/next.png"></image>
+      <div class="mid">
+        <div class="btn big-pill {{pressed === 'next' ? 'down' : ''}}"
+             ontouchstart="press('next')" ontouchend="release" ontouchcancel="release" onclick="next">
+          <image class="pill-img" src="/common/icons/next.png"></image>
+        </div>
+        <div class="btn big-pill {{pressed === 'prev' ? 'down' : ''}}"
+             ontouchstart="press('prev')" ontouchend="release" ontouchcancel="release" onclick="prev">
+          <image class="pill-img" src="/common/icons/prev.png"></image>
+        </div>
+        <text class="sub">следваща · предишна</text>
       </div>
-      <div class="btn big-pill {{pressed === 'prev' ? 'down' : ''}}"
-           ontouchstart="press('prev')" ontouchend="release" ontouchcancel="release" onclick="prev">
-        <image class="pill-img" src="/common/icons/prev.png"></image>
-      </div>
-      <text class="sub">следваща · предишна</text>
     </div>
 
     <!-- 3 · impulses follow the music: ceiling -->
     <div class="screen {{anim}}" if="{{cur === 'ceil'}}">
       <text class="caps">ТАВАН</text>
-      <text class="ceil-num">{{ceil}}</text>
-      <div class="lvl-track">
-        <div class="lvl-fill" style="width: {{lvl * 1.8}}px"></div>
-      </div>
-      <div class="pair">
-        <div class="btn round {{pressed === 'down' ? 'down' : ''}}"
-             ontouchstart="press('down')" ontouchend="release" ontouchcancel="release" onclick="ceilDown">
-          <image class="round-img" src="/common/icons/minus.png"></image>
+      <div class="mid">
+        <text class="ceil-num">{{ceil}}</text>
+        <div class="lvl-track">
+          <div class="lvl-fill" style="width: {{lvlW}}px"></div>
         </div>
-        <div class="btn round round-plus {{pressed === 'up' ? 'down' : ''}}"
-             ontouchstart="press('up')" ontouchend="release" ontouchcancel="release" onclick="ceilUp">
-          <image class="round-img" src="/common/icons/plus.png"></image>
+        <div class="pair">
+          <div class="btn round {{pressed === 'down' ? 'down' : ''}}"
+               ontouchstart="press('down')" ontouchend="release" ontouchcancel="release" onclick="ceilDown">
+            <image class="round-img" src="/common/icons/minus.png"></image>
+          </div>
+          <div class="btn round round-plus {{pressed === 'up' ? 'down' : ''}}"
+               ontouchstart="press('up')" ontouchend="release" ontouchcancel="release" onclick="ceilUp">
+            <image class="round-img" src="/common/icons/plus.png"></image>
+          </div>
         </div>
       </div>
     </div>
@@ -72,7 +78,7 @@ export default {
     pct: 0,
     play: false,
     timeText: '',
-    lvl: 0,
+    lvlW: 0,
     ceil: 0,
     pressed: ''
   },
@@ -113,7 +119,8 @@ export default {
     const pos = (mu.pos || 0) + (mu.play ? app.silence() : 0)
     this.pct = mu.dur > 0 ? Math.min(100, Math.round((pos / mu.dur) * 100)) : 0
     this.timeText = mu.dur > 0 ? mmss(pos) + ' / ' + mmss(mu.dur) : ''
-    this.lvl = Math.max(0, Math.min(100, mu.lvl || 0))
+    // whole pixels: the music level moves every message; sub-pixel widths only cost redraws
+    this.lvlW = Math.round(Math.max(0, Math.min(100, mu.lvl || 0)) * 1.8)
     this.ceil = mu.ceil || 0
   },
 
@@ -181,29 +188,39 @@ export default {
   animation-duration: 260ms;
   animation-timing-function: ease-out;
 }
+/* body under the title: fills the rest of the screen, content centred (no empty bottom half) */
+.mid {
+  flex-grow: 1;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 34px;
+}
 .dots {
-  width: 16px;
+  width: 10px;
   height: 520px;
-  margin-left: 196px;
+  margin-left: 202px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .pdot {
-  width: 8px;
-  height: 8px;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  border-radius: 4px;
-  background-color: #3a3a3c;
+  width: 6px;
+  height: 6px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  background-color: #48484a;
 }
 .pdot-on {
-  height: 22px;
+  height: 18px;
   background-color: #ffffff;
 }
 .caps {
   flex-shrink: 0;
-  font-size: 24px;
+  height: 30px;
+  font-size: 22px;
   font-weight: bold;
   color: #8e8e93;
 }
@@ -226,6 +243,87 @@ export default {
 }
 .off {
   opacity: 0.3;
+}
+/* on / off switch: track + knob (one tap target, 150 × 84) */
+.switch {
+  flex-shrink: 0;
+  width: 150px;
+  height: 84px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 42px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #3a3a3c;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.switch-on {
+  justify-content: flex-end;
+}
+.knob {
+  flex-shrink: 0;
+  width: 68px;
+  height: 68px;
+  border-radius: 34px;
+  background-color: #ffffff;
+}
+.state {
+  flex-shrink: 0;
+  margin-bottom: 18px;
+  font-size: 44px;
+  font-weight: bold;
+}
+/* number tiles (2 per row) */
+.tiles {
+  flex-shrink: 0;
+  flex-direction: row;
+  margin-top: 8px;
+}
+.tile {
+  flex-shrink: 0;
+  width: 88px;
+  height: 84px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 22px;
+  border-width: 1px;
+  border-color: #2c2c2e;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.tile-num {
+  flex-shrink: 0;
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.tile-lbl {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: #8e8e93;
+}
+.t-max {
+  color: #ff453a;
+}
+.t-kcal {
+  color: #ff9f0a;
+}
+/* time in heart-rate zones: one bar, a segment per zone */
+.zstack {
+  flex-shrink: 0;
+  width: 184px;
+  height: 14px;
+  margin-top: 16px;
+  border-radius: 7px;
+  flex-direction: row;
+  background-color: #1c1c1e;
+}
+.zpart {
+  height: 14px;
 }
 @keyframes inUp {
   from {
@@ -257,23 +355,14 @@ export default {
     opacity: 0.2;
   }
 }
-@keyframes beat {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.25);
-  }
-}
 /* ---- page ---- */
 .bg-music {
   background-image: url(/common/bg/music.png);
   background-size: cover;
 }
 .title {
-  width: 190px;
+  width: 184px;
   height: 40px;
-  margin-top: 10px;
   font-size: 28px;
   font-weight: bold;
   color: #ffffff;
@@ -281,7 +370,7 @@ export default {
 .ring-box {
   width: 196px;
   height: 196px;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 .ring {
   width: 196px;
@@ -314,8 +403,8 @@ export default {
 }
 .big-pill {
   width: 180px;
-  height: 130px;
-  margin-top: 16px;
+  height: 120px;
+  margin-bottom: 14px;
   border-radius: 65px;
   background-color: #2c2c2e;
 }
@@ -324,7 +413,6 @@ export default {
   height: 56px;
 }
 .ceil-num {
-  margin-top: 16px;
   font-size: 90px;
   font-weight: bold;
   color: #ffffff;
@@ -344,7 +432,7 @@ export default {
 }
 .pair {
   flex-direction: row;
-  margin-top: 40px;
+  margin-top: 30px;
 }
 .round {
   width: 98px;

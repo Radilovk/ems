@@ -5,3 +5,4 @@ tools/
 *.idsig
 fixed-aligned-debugSigned.apk
 __pycache__/
+band-app/preview/out/

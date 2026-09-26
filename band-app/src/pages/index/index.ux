@@ -40,11 +40,13 @@
 
 <script>
 import router from '@system.router'
-import { ZONE, ACCENT, RED, GREEN, AMBER, PURPLE, mmss, hms, zoneOf, mods, bind, shown, age } from '../../common/ui.js'
+import { ZONE, ACCENT, RED, GREEN, AMBER, PURPLE, mmss, hms, zoneOf, mods, bind, shown, age, putList } from '../../common/ui.js'
 
 /** Card tint when a module runs (solid colours: Vela draws them best). */
 const TINT = { train: '#0E2A17', ai: '#2E2607', timer: '#2E1F07', music: '#24122E', pulse: '#2E0F0D' }
 const IDLE = '#16171B'
+/** Card fields that change while the app runs (id, title, icon, colour stay). */
+const CARD_FIELDS = ['sub', 'active', 'bg', 'border', 'subColor']
 const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', music: '/pages/music', pulse: '/pages/pulse' }
 
 export default {
@@ -97,17 +99,27 @@ export default {
     for (let k = 1; k <= 5; k++) {
       bar.push({ c: ZONE[k], on: z >= k })
     }
-    this.zoneBar = bar
+    putList(this, 'zoneBar', bar)
 
     const list = this.buildCards(s, app)
-    // Redraw the cards only when something on them changed (keeps the scroll position still).
-    const key = JSON.stringify(list)
-    if (key !== this.cardsKey) {
-      this.cardsKey = key
+    // Same cards → change only the fields that moved (a running clock changes one text a second);
+    // a new list only when the set of cards changes. Keeps the scroll still and the band idle.
+    const ids = list.map((c) => c.id).join(',')
+    if (ids !== this.cardsKey) {
+      this.cardsKey = ids
       this.cards = list
       // the scroll needs the real content height (children never shrink)
       this.colH = 190 + list.length * 208 + 60
+      return
     }
+    list.forEach((n, k) => {
+      const c = this.cards[k]
+      CARD_FIELDS.forEach((f) => {
+        if (c[f] !== n[f]) {
+          c[f] = n[f]
+        }
+      })
+    })
   },
 
   /** Start is always first; then the modules the licence opens (all when XEMS does not say). */
@@ -207,29 +219,39 @@ export default {
   animation-duration: 260ms;
   animation-timing-function: ease-out;
 }
+/* body under the title: fills the rest of the screen, content centred (no empty bottom half) */
+.mid {
+  flex-grow: 1;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 34px;
+}
 .dots {
-  width: 16px;
+  width: 10px;
   height: 520px;
-  margin-left: 196px;
+  margin-left: 202px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .pdot {
-  width: 8px;
-  height: 8px;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  border-radius: 4px;
-  background-color: #3a3a3c;
+  width: 6px;
+  height: 6px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  background-color: #48484a;
 }
 .pdot-on {
-  height: 22px;
+  height: 18px;
   background-color: #ffffff;
 }
 .caps {
   flex-shrink: 0;
-  font-size: 24px;
+  height: 30px;
+  font-size: 22px;
   font-weight: bold;
   color: #8e8e93;
 }
@@ -252,6 +274,87 @@ export default {
 }
 .off {
   opacity: 0.3;
+}
+/* on / off switch: track + knob (one tap target, 150 × 84) */
+.switch {
+  flex-shrink: 0;
+  width: 150px;
+  height: 84px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 42px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #3a3a3c;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.switch-on {
+  justify-content: flex-end;
+}
+.knob {
+  flex-shrink: 0;
+  width: 68px;
+  height: 68px;
+  border-radius: 34px;
+  background-color: #ffffff;
+}
+.state {
+  flex-shrink: 0;
+  margin-bottom: 18px;
+  font-size: 44px;
+  font-weight: bold;
+}
+/* number tiles (2 per row) */
+.tiles {
+  flex-shrink: 0;
+  flex-direction: row;
+  margin-top: 8px;
+}
+.tile {
+  flex-shrink: 0;
+  width: 88px;
+  height: 84px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 22px;
+  border-width: 1px;
+  border-color: #2c2c2e;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.tile-num {
+  flex-shrink: 0;
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.tile-lbl {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: #8e8e93;
+}
+.t-max {
+  color: #ff453a;
+}
+.t-kcal {
+  color: #ff9f0a;
+}
+/* time in heart-rate zones: one bar, a segment per zone */
+.zstack {
+  flex-shrink: 0;
+  width: 184px;
+  height: 14px;
+  margin-top: 16px;
+  border-radius: 7px;
+  flex-direction: row;
+  background-color: #1c1c1e;
+}
+.zpart {
+  height: 14px;
 }
 @keyframes inUp {
   from {
@@ -281,14 +384,6 @@ export default {
   to {
     transform: scale(1.12);
     opacity: 0.2;
-  }
-}
-@keyframes beat {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.25);
   }
 }
 /* ---- page ---- */
@@ -386,10 +481,10 @@ export default {
 .cs {
   flex-shrink: 0;
   margin-top: 4px;
-  width: 170px;
-  height: 34px;
+  width: 184px;
+  height: 32px;
   text-align: center;
-  font-size: 24px;
+  font-size: 21px;
   lines: 1;
 }
 .offline {

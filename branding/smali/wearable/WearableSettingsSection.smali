@@ -1093,7 +1093,7 @@
 
     move-result v6
 
-    const/16 v8, 0x3a
+    const/16 v8, 0x3c
 
     if-lt v6, v8, :cond_294
 

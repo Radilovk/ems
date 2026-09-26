@@ -19,7 +19,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-avatar-card.py` (104L, build:L117[BETA_MUSIC]) — Training slot: the client's photo is a button, not part of the slider.
 - `scripts/apply-avatar-proportional-lock.py` (85L, build:L73) — Replace avatar column RelativeLayout with proportional AvatarClusterLayout.
 - `scripts/apply-avatar-timer.py` (315L, build:L49) — Remove avatar wave fill; show interval seconds only while training is running.
-- `scripts/apply-band-app.py` (49L, build:L118[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
+- `scripts/apply-band-app.py` (59L, build:L118[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
 - `scripts/apply-beta-features.py` (95L, build:L92[BETA_MUSIC]) — BETA music sync core: install MusicSync smali + shared strings (player only, no mic).
 - `scripts/apply-ble-scan-lifecycle.py` (151L, build:L87) — Stop background BleDeviceManager scan outside the device-connect flow.
 - `scripts/apply-block-program.py` (102L, build:L108[BETA_MUSIC]) — Block program pulse hook (global runner; UI lives in IntervalTimerHelper).
@@ -238,14 +238,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/src/manifest.json` (56L) — band app id, versionName/versionCode (must match app.ux APP_VERSION + BandAppInstall.VERSION), page list
 - `band-app/src/common/auto-route.js` (45L) — Jump from the home dial into the live session — once per session.
 - `band-app/src/common/train-touch.js` (147L) — Train screen touch helpers — shared by pages/train and band-app/test.
-- `band-app/src/common/ui.js` (180L) — Shared look and helpers for the XEMS band pages.
-- `band-app/src/pages/ai/index.ux` (616L) — band screen: Smart Session (AI) — live HR, strength, double impulse, hold-to-stop
-- `band-app/src/pages/index/index.ux` (470L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
-- `band-app/src/pages/music/index.ux` (365L) — band screen: music remote — play/pause, prev/next, impulse ceiling
-- `band-app/src/pages/pulse/index.ux` (391L) — band screen: heart rate, auto control on/off, last 3 minutes chart
-- `band-app/src/pages/summary/index.ux` (295L) — band screen: session summary after training
-- `band-app/src/pages/timer/index.ux` (286L) — band screen: interval timer remote
-- `band-app/src/pages/train/index.ux` (1135L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
+- `band-app/src/common/ui.js` (195L) — Shared look and helpers for the XEMS band pages.
+- `band-app/src/pages/ai/index.ux` (655L) — band screen: Smart Session (AI) — live HR, strength, double impulse, hold-to-stop
+- `band-app/src/pages/index/index.ux` (565L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
+- `band-app/src/pages/music/index.ux` (453L) — band screen: music remote — play/pause, prev/next, impulse ceiling
+- `band-app/src/pages/pulse/index.ux` (440L) — band screen: heart rate, auto control on/off, last 3 minutes chart
+- `band-app/src/pages/summary/index.ux` (342L) — band screen: session summary after training
+- `band-app/src/pages/timer/index.ux` (372L) — band screen: interval timer remote
+- `band-app/src/pages/train/index.ux` (1218L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
 - `band-app/test/app-screen.test.mjs` (29L) — Verifies screen wake policy: no setKeepScreenOn during training.
 - `band-app/test/auto-route.test.mjs` (41L) — 
 - `band-app/test/home-layout.test.mjs` (32L) — 
@@ -305,7 +305,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L51 ## Deeper context (read only the section you need — headings/lines are in MAP)
   - L63 ## Keeping the map true
 
-`band-app/CLAUDE.md` (16L)
+`band-app/CLAUDE.md` (20L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)
 
 `band-app/docs/native-first.md` (24L)
@@ -325,18 +325,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L61 ## Версии на train екрана
   - L68 ## Интеграция в тестовете
 
-`band-app/docs/ui-versions.md` (32L)
+`band-app/docs/ui-versions.md` (45L)
   - L1 # Band train screen — UI версии
   - L5 ## Home меню (не се пипа без изрично решение)
   - L10 ## v2 — стабилен play layout (baseline)
   - L21 ## v3 — естетика (текуща, върху v2)
+  - L33 ## Модулни екрани — v4 (5.9.34)
 
-`band-app/test/README.md` (45L)
+`band-app/test/README.md` (46L)
   - L1 # Band app testing (closest to Band 10 without hardware)
   - L3 ## Layers
-  - L16 ## Quick run (CI / agent)
-  - L22 ## Train screen preview — **canonical method for UI frames**
-  - L39 ## Not automatable without hardware
+  - L17 ## Quick run (CI / agent)
+  - L23 ## Train screen preview — **canonical method for UI frames**
+  - L40 ## Not automatable without hardware
 
 `branding/CLAUDE.md` (11L)
   - L1 # branding/ — resources patched into the APK

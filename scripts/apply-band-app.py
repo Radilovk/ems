@@ -31,6 +31,16 @@ def check_version() -> None:
     app = (BAND / "src" / "app.ux").read_text(encoding="utf-8")
     if f"const APP_VERSION = {code}" not in app:
         raise SystemExit(f"band-app/src/app.ux APP_VERSION != versionCode ({code})")
+    # The APK ships smali, not Java: a build without the Android SDK keeps the prebuilt smali, and
+    # javac inlines the constant into its users. Every copy must carry the new version.
+    smali = ROOT / "branding" / "smali" / "wearable"
+    field = re.search(r"\.field public static final VERSION:I = (0x[0-9a-f]+)", (smali / "BandAppInstall.smali").read_text(encoding="utf-8"))
+    if not field or int(field.group(1), 16) != code:
+        raise SystemExit(f"BandAppInstall.smali VERSION ({field.group(1) if field else '?'}) != {code} — recompile the wearable Java")
+    settings = (smali / "WearableSettingsSection.smali").read_text(encoding="utf-8")
+    m = re.search(r"getBandAppVersion\(Landroid/content/Context;\)I\s+move-result v\d+\s+const/16 v\d+, (0x[0-9a-f]+)", settings)
+    if m and int(m.group(1), 16) != code:
+        raise SystemExit(f"WearableSettingsSection.smali inlined VERSION ({m.group(1)}) != {code} — recompile the wearable Java")
 
 
 def main() -> int:

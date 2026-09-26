@@ -6,7 +6,7 @@
       <div class="col" style="height: {{colH}}px">
         <div class="hdr">
           <div class="hr-row">
-            <image class="hr-heart" src="/common/icons/heart.png"></image>
+            <image class="hr-heart" src="/common/art/heart-34.png"></image>
             <text class="hr-big" style="color: {{hrColor}}">{{hrBig}}</text>
           </div>
           <text class="hr-sub">{{hrSub}}</text>
@@ -15,9 +15,7 @@
           </div>
         </div>
         <div for="{{cards}}" class="card" style="background-color: {{$item.bg}}; border-color: {{$item.border}}" onclick="open($item.id)">
-          <div class="ic" style="background-color: {{$item.color}}">
-            <image class="ic-img" src="{{$item.icon}}"></image>
-          </div>
+          <div class="ic ic-{{$item.id}}"></div>
           <text class="ct">{{$item.title}}</text>
           <text class="cs" style="color: {{$item.subColor}}">{{$item.sub}}</text>
         </div>
@@ -132,7 +130,7 @@ export default {
 
     const trRun = !!m.tr.run && !ai
     out.push({
-      id: 'train', title: 'Старт', icon: '/common/icons/bolt.png', color: GREEN, active: trRun,
+      id: 'train', title: 'Старт', color: GREEN, active: trRun,
       sub: trRun ? 'активен · ' + hms((s.el || 0) + age(app, true))
         : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчна тренировка'
     })
@@ -144,7 +142,7 @@ export default {
           : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
             : (s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
       }
-      out.push({ id: 'ai', title: 'AI', icon: '/common/icons/ai.png', color: ACCENT, active: ai, sub: aiSub })
+      out.push({ id: 'ai', title: 'AI', color: ACCENT, active: ai, sub: aiSub })
     }
 
     if (has('timer')) {
@@ -154,13 +152,13 @@ export default {
         tmSub = tm.run ? mmss((tm.left || 0) - age(app, true)) + (tm.lbl ? ' · ' + tm.lbl : tm.loops > 0 ? ' · кръг ' + tm.loop + '/' + tm.loops : '')
           : tm.pau ? 'пауза · ' + mmss(tm.left || 0) : 'чака старт'
       }
-      out.push({ id: 'timer', title: 'Таймер', icon: '/common/icons/timer.png', color: AMBER, active: !!tm.run, sub: tmSub })
+      out.push({ id: 'timer', title: 'Таймер', color: AMBER, active: !!tm.run, sub: tmSub })
     }
 
     if (has('music')) {
       const mu = m.mu
       out.push({
-        id: 'music', title: 'Музика', icon: '/common/icons/music.png', color: PURPLE, active: !!mu.play,
+        id: 'music', title: 'Музика', color: PURPLE, active: !!mu.play,
         sub: mu.on ? (mu.title || 'музика') : 'импулси в такт'
       })
     }
@@ -168,7 +166,7 @@ export default {
     if (has('pulse')) {
       const hg = m.hg
       const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'сила по пулса'
-      out.push({ id: 'pulse', title: 'Пулс', icon: '/common/icons/heart.png', color: RED, active: !!hg.en && !hg.ai, sub: hgSub })
+      out.push({ id: 'pulse', title: 'Пулс', color: RED, active: !!hg.en && !hg.ai, sub: hgSub })
     }
 
     out.forEach((c) => {
@@ -455,18 +453,27 @@ export default {
   border-radius: 30px;
   border-width: 3px;
 }
+/* badge = the div's background (Vela centres a sized div reliably; an <image> child it may not) */
 .ic {
   flex-shrink: 0;
   width: 72px;
   height: 72px;
-  border-radius: 36px;
-  justify-content: center;
-  align-items: center;
+  background-size: cover;
 }
-.ic-img {
-  flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+.ic-train {
+  background-image: url(/common/art/badge-train.png);
+}
+.ic-ai {
+  background-image: url(/common/art/badge-ai.png);
+}
+.ic-timer {
+  background-image: url(/common/art/badge-timer.png);
+}
+.ic-music {
+  background-image: url(/common/art/badge-music.png);
+}
+.ic-pulse {
+  background-image: url(/common/art/badge-pulse.png);
 }
 .ct {
   flex-shrink: 0;

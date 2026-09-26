@@ -30,7 +30,7 @@
 
 .field public static final PACKAGE:Ljava/lang/String; = "com.xems.band"
 
-.field public static final VERSION:I = 0x3c
+.field public static final VERSION:I = 0x3d
 
 .field private static final autoCheck:Ljava/lang/Runnable;
 
@@ -202,7 +202,7 @@
 
     move-result-object p1
 
-    const/16 v1, 0x3c
+    const/16 v1, 0x3d
 
     invoke-virtual {p1, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
@@ -541,7 +541,7 @@
 
     invoke-direct {p0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string p1, "60/"
+    const-string p1, "61/"
 
     invoke-virtual {p0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1024,7 +1024,7 @@
 
     const/4 v1, 0x0
 
-    const/16 v2, 0x3c
+    const/16 v2, 0x3d
 
     if-ge v0, v2, :cond_a
 

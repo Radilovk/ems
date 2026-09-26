@@ -9,6 +9,9 @@ echo "=== 1/4 band-app compile ==="
 bash build.sh >/tmp/xems-band-build.log
 echo "built OK"
 
+echo "=== image budget (memory per page, files, missing images) ==="
+python3 scripts/check-art.py
+
 echo "=== 2/4 train touch + layout unit tests ==="
 node test/train-touch.test.mjs
 node test/train-layout.test.mjs

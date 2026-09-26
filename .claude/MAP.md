@@ -239,12 +239,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/src/common/auto-route.js` (45L) — Jump from the home dial into the live session — once per session.
 - `band-app/src/common/train-touch.js` (147L) — Train screen touch helpers — shared by pages/train and band-app/test.
 - `band-app/src/common/ui.js` (195L) — Shared look and helpers for the XEMS band pages.
-- `band-app/src/pages/ai/index.ux` (655L) — band screen: Smart Session (AI) — live HR, strength, double impulse, hold-to-stop
-- `band-app/src/pages/index/index.ux` (565L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
-- `band-app/src/pages/music/index.ux` (453L) — band screen: music remote — play/pause, prev/next, impulse ceiling
+- `band-app/src/pages/ai/index.ux` (665L) — band screen: Smart Session (AI) — live HR, strength, double impulse, hold-to-stop
+- `band-app/src/pages/index/index.ux` (572L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
+- `band-app/src/pages/music/index.ux` (466L) — band screen: music remote — play/pause, prev/next, impulse ceiling
 - `band-app/src/pages/pulse/index.ux` (440L) — band screen: heart rate, auto control on/off, last 3 minutes chart
-- `band-app/src/pages/summary/index.ux` (342L) — band screen: session summary after training
-- `band-app/src/pages/timer/index.ux` (372L) — band screen: interval timer remote
+- `band-app/src/pages/summary/index.ux` (336L) — band screen: session summary after training
+- `band-app/src/pages/timer/index.ux` (385L) — band screen: interval timer remote
 - `band-app/src/pages/train/index.ux` (1218L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
 - `band-app/test/app-screen.test.mjs` (29L) — Verifies screen wake policy: no setKeepScreenOn during training.
 - `band-app/test/auto-route.test.mjs` (41L) — 
@@ -252,15 +252,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/test/train-layout.test.mjs` (60L) — 
 - `band-app/test/train-touch.test.mjs` (136L) — Unit tests for train screen touch/layout logic (Node, no emulator).
 - `band-app/test/visibility.test.mjs` (73L) — Screen off → XEMS sends only the pulse; screen on → full state at once.
+- `band-app/scripts/check-art.py` (66L) — Image budget for the band app — keeps the look rich without making the band slow.
 - `band-app/scripts/gen-all-btn.py` (43L) — Green/red bar for Start screen. Vela clips images, not stacked CSS fills.
-- `band-app/scripts/gen-bg.py` (50L) — Screen backgrounds for the band app (212 × 520): near-black with a soft glow of the module's colour at the top and a fa…
+- `band-app/scripts/gen-art.py` (179L) — Baked artwork for the band app: module badges, glossy buttons ("orbs"), glows behind rings.
+- `band-app/scripts/gen-bg.py` (70L) — Screen backgrounds for the band app (212 × 520): near-black with a soft glow of the module's colour at the top (with a …
 - `band-app/scripts/gen-home-preview.py` (80L) — Render the card-menu home (212×520) from layout constants — no emulator.
 - `band-app/scripts/gen-icons.py` (161L) — Generate v4 band icons — white glyphs on transparent PNG.
 - `band-app/scripts/gen-lang.py` (47L) — Make the English band app from the Bulgarian source: copy the project, replace every Bulgarian phrase from scripts/en.j…
 - `band-app/scripts/gen-pages.py` (37L) — Stamp scripts/common.css into each page under src/pages/*/index.ux.
 - `band-app/scripts/gen-train-preview.py` (327L) — Render train screen preview PNG (212×520) from layout constants — no emulator.
-- `band-app/scripts/run-emulator-test.sh` (19L) — Quick train screen previews (212×520 PNG) — no emulator required.
-- `band-app/scripts/test-band.sh` (36L) — Closest-to-device automated checks without Band 10 hardware.
+- `band-app/scripts/run-emulator-test.sh` (18L) — Quick train screen previews (212×520 PNG) — no emulator required.
+- `band-app/scripts/test-band.sh` (39L) — Closest-to-device automated checks without Band 10 hardware.
 - `band-app/scripts/setup-emulator.mjs` (36L) — Create a Vela VVD sized like Band 10 (212×520 logical).
 
 ## server (Cloudflare Worker license server)
@@ -305,7 +307,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L51 ## Deeper context (read only the section you need — headings/lines are in MAP)
   - L63 ## Keeping the map true
 
-`band-app/CLAUDE.md` (20L)
+`band-app/CLAUDE.md` (25L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)
 
 `band-app/docs/native-first.md` (24L)
@@ -325,12 +327,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L61 ## Версии на train екрана
   - L68 ## Интеграция в тестовете
 
-`band-app/docs/ui-versions.md` (45L)
+`band-app/docs/ui-versions.md` (57L)
   - L1 # Band train screen — UI версии
   - L5 ## Home меню (не се пипа без изрично решение)
   - L10 ## v2 — стабилен play layout (baseline)
   - L21 ## v3 — естетика (текуща, върху v2)
   - L33 ## Модулни екрани — v4 (5.9.34)
+  - L46 ## Графика — v5 (5.9.35)
 
 `band-app/test/README.md` (46L)
   - L1 # Band app testing (closest to Band 10 without hardware)

@@ -4,13 +4,14 @@
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
       <div class="mid">
         <stack class="ring-box">
+          <image class="halo" if="{{run}}" src="/common/art/glow-timer.png"></image>
           <progress class="ring" type="arc" percent="{{pct}}" style="color: {{ringColor}}"></progress>
           <div class="center">
             <text class="left" style="color: {{leftColor}}">{{leftText}}</text>
             <text class="loop">{{loopText}}</text>
           </div>
         </stack>
-        <div class="btn play {{pressed ? 'down' : ''}} {{armed ? '' : 'off'}}" style="background-color: {{run ? '#2C2C2E' : '#FF9F0A'}}"
+        <div class="btn play {{run ? 'orb-dark' : 'orb'}} {{pressed ? 'down' : ''}} {{armed ? '' : 'off'}}"
              ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
           <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
         </div>
@@ -352,6 +353,18 @@ export default {
   font-size: 26px;
   color: #ff9f0a;
   font-weight: bold;
+}
+.halo {
+  width: 180px;
+  height: 180px;
+}
+.orb {
+  background-image: url(/common/art/orb-timer.png);
+  background-size: cover;
+}
+.orb-dark {
+  background-image: url(/common/art/orb-timer-dark.png);
+  background-size: cover;
 }
 .play {
   width: 112px;

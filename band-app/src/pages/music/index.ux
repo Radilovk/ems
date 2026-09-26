@@ -6,9 +6,10 @@
       <div class="mid">
         <marquee class="title" scrollamount="40" loop="-1">{{title}}</marquee>
         <stack class="ring-box">
+          <image class="halo" if="{{play}}" src="/common/art/glow-music.png"></image>
           <progress class="ring" type="arc" percent="{{pct}}" style="color: #BF5AF2"></progress>
           <div class="center">
-            <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#2C2C2E' : '#BF5AF2'}}"
+            <div class="btn play {{play ? 'orb-dark' : 'orb'}} {{pressed === 'play' ? 'down' : ''}}"
                  ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
               <image class="play-img" src="{{play ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
             </div>
@@ -388,6 +389,18 @@ export default {
   height: 196px;
   justify-content: center;
   align-items: center;
+}
+.halo {
+  width: 196px;
+  height: 196px;
+}
+.orb {
+  background-image: url(/common/art/orb-music.png);
+  background-size: cover;
+}
+.orb-dark {
+  background-image: url(/common/art/orb-music-dark.png);
+  background-size: cover;
 }
 .play {
   width: 140px;

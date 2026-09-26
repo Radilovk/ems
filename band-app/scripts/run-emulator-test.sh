@@ -5,9 +5,8 @@ D="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$D"
 ART="${ARTIFACT_DIR:-/opt/cursor/artifacts/screenshots}"
 mkdir -p "$ART"
-python3 scripts/gen-bg.py
-python3 scripts/gen-icons.py
-python3 scripts/gen-all-btn.py
+# Read-only: previews use the committed images. (gen-icons.py draws the reverted v4 icon set —
+# running it here used to overwrite the shipped v3 icons.)
 python3 scripts/gen-train-preview.py idle "$ART/train_play_idle.png"
 python3 scripts/gen-train-preview.py running "$ART/train_play_running.png"
 python3 scripts/gen-train-preview.py multi "$ART/train_play_multi_click.png"

@@ -1,7 +1,7 @@
 <template>
   <stack class="root bg-summary" onswipe="onSwipe">
     <div class="screen">
-      <div class="check"><image class="check-img" src="/common/icons/check.png"></image></div>
+      <div class="check"></div>
       <text class="caps">{{kindText}}</text>
       <text class="dur">{{durText}}</text>
       <text class="kcal">{{kcal}} kcal</text>
@@ -301,14 +301,8 @@ export default {
 .check {
   width: 60px;
   height: 60px;
-  border-radius: 30px;
-  background-color: #30d158;
-  justify-content: center;
-  align-items: center;
-}
-.check-img {
-  width: 36px;
-  height: 36px;
+  background-image: url(/common/art/badge-done.png);
+  background-size: cover;
 }
 .caps {
   margin-top: 12px;

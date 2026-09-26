@@ -4,7 +4,7 @@
     <div class="screen {{anim}}" if="{{cur === 'hr'}}">
       <text class="caps pulse-caps">ПУЛС</text>
       <div class="mid">
-        <image class="heart" src="/common/icons/heart.png"></image>
+        <image class="heart" src="/common/art/heart-40.png"></image>
         <text class="hr" style="color: {{zoneColor}}">{{hrText}}</text>
         <div class="zones">
           <div for="{{zoneBars}}" class="zseg {{$item.on ? 'zseg-on' : ''}}" style="background-color: {{$item.c}}"></div>

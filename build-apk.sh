@@ -213,6 +213,14 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
     fi
   elif [[ "${apk_dirty}" -eq 1 ]]; then
     echo ""
-    echo "WARN: xems27.apk bytes differ (normal after resign); version ${VERSION_NAME} (${VERSION_CODE}) is committed."
+    if [[ "${SKIP_APK_COMMIT_CHECK:-0}" == "1" ]]; then
+      echo "WARN: xems27.apk differs from git (SKIP_APK_COMMIT_CHECK=1)."
+    else
+      echo "ERROR: xems27.apk was rebuilt but is not committed. Users will NOT get these changes until you:"
+      echo "  git add xems27.apk RELEASE_VERSION band-app/xems-band.rpk band-app/xems-band-en.rpk"
+      echo "  git commit -m \"Build ${VERSION_NAME}\""
+      echo "  git push"
+      exit 1
+    fi
   fi
 fi

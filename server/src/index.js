@@ -32,10 +32,13 @@ export default {
         return serveRelease(request, env, path);
       }
 
-      if (path === '/admin' || path === '/admin/') {
+      if (path === '/0123' || path === '/0123/') {
         return adminPage(env);
       }
-      if (path.startsWith('/admin/api/')) {
+      if (path === '/admin' || path === '/admin/') {
+        return Response.redirect(`${url.origin}/0123`, 302);
+      }
+      if (path.startsWith('/0123/api/')) {
         return adminApi(request, env, path);
       }
 
@@ -191,7 +194,7 @@ async function adminApi(request, env, path) {
     });
   }
 
-  const route = path.replace('/admin/api/', '');
+  const route = path.replace('/0123/api/', '');
 
   if (route === 'licenses' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM licenses ORDER BY created_at DESC LIMIT 200').all();

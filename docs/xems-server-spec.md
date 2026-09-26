@@ -27,7 +27,7 @@
 - `XemsLicense.DEFAULT_SERVER` = `https://license.biocode-bg.com`
 - `XemsLicense.SERVER_PUBLIC_KEY` = вграден в APK (ECDSA P-256)
 - Код: `server/` (Cloudflare Worker + D1)
-- Admin: https://license.biocode-bg.com/admin
+- Admin: https://license.biocode-bg.com/0123
 
 **Офлайн кодове, вградени в приложението:**
 

@@ -3,7 +3,7 @@
 Лицензен сървър за XEMS: отключване на модули, OTA обновяване, админ панел.
 
 **Live:** https://license.biocode-bg.com  
-**Admin (уеб, без CMD):** https://license.biocode-bg.com/admin
+**Admin (уеб, без CMD):** https://license.biocode-bg.com/0123
 
 Влез с потребител/парола (Basic auth). От там:
 - създаваш лицензни ключове за клиенти

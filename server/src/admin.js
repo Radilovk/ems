@@ -279,7 +279,7 @@ const ACTION_LABELS={
 };
 
 async function api(path,opts={}){
-  const r=await fetch('/admin/api/'+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});
+  const r=await fetch('/0123/api/'+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});
   if(r.status===401){location.reload();throw new Error('Нужна е отново автентикация');}
   const j=await r.json().catch(()=>({ok:false,message:'Невалиден отговор'}));
   if(!j.ok) throw new Error(j.message||j.error||'Грешка');

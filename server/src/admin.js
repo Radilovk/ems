@@ -34,7 +34,15 @@ th,td{padding:.45rem .55rem;text-align:left;border-bottom:1px solid #21262d;vert
 th{color:#8b949e;font-weight:500}
 .tag{display:inline-block;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;background:#21262d}
 .tag.active{background:#23863633;color:#3fb950}
-.tag.disabled,.tag.removed{background:#da363333;color:#f85149}
+.tag.pending{background:#d2992233;color:#e3b341}
+.tag.disabled,.tag.removed,.tag.revoked{background:#da363333;color:#f85149}
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.45rem;margin:.5rem 0}
+.mod-item{display:flex;gap:.4rem;align-items:flex-start;padding:.45rem .55rem;background:#0d1117;border:1px solid #21262d;border-radius:6px;font-size:.82rem;cursor:pointer}
+.mod-item input{margin-top:.15rem}
+.modal-box.wide{max-width:760px}
+.tabs{display:flex;gap:.35rem;margin-bottom:.75rem}
+.tabs button{padding:.35rem .7rem;font-size:.8rem}
+.tabs button.on{background:#238636;border-color:#238636}
 #stats{display:flex;gap:.75rem;flex-wrap:wrap}
 .stat{background:#21262d;padding:.7rem .9rem;border-radius:6px;min-width:110px}
 .stat span{font-size:.75rem;color:#8b949e}
@@ -71,6 +79,7 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
   <button class="on" data-tab="dash" onclick="tab('dash')">Начало</button>
   <button data-tab="lic" onclick="tab('lic')">Ключове за клиенти</button>
   <button data-tab="dev" onclick="tab('dev')">Таблети</button>
+  <button data-tab="svc" onclick="tab('svc')">Модули & костюми</button>
   <button data-tab="rel" onclick="tab('rel')">Нова версия (APK)</button>
   <button data-tab="log" onclick="tab('log')">Журнал</button>
 </nav>
@@ -102,8 +111,8 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
     </div>
     <div class="task-card" onclick="tab('lic')">
       <div class="icon">🦾</div>
-      <h3>Добави костюм (MAC)</h3>
-      <p>Разреши нов EMS костюм за клиент — бутон „Костюми“ при лиценза.</p>
+      <h3>Дистанционно сдвояване на костюм</h3>
+      <p>Въведи MAC от етикета → таблетът го приема без твоето присъствие. Управление при ключа.</p>
     </div>
     <div class="task-card" onclick="tab('log')">
       <div class="icon">📋</div>
@@ -118,6 +127,7 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
       <div class="step"><b>1. Нов клиент</b> — Ключове → въведи име на залата → Създай ключ → копирай ключа → на таблета: Настройки → Достъп и лиценз → Активирай.</div>
       <div class="step"><b>2. Нова версия</b> — качи <code>xems27.apk</code> в GitHub → Нова версия → въведи version code/name → Регистрирай.</div>
       <div class="step"><b>3. Смяна на таблет</b> — Таблети → Премахни старото устройство → активирай ключа на новия таблет.</div>
+      <div class="step"><b>4. Нов EMS костюм (без посещение)</b> — Ключове → Управление → Костюми → MAC + име → клиентът включва костюма в залата → „Обнови от сървъра“ на таблета (или до 24 ч).</div>
     </div>
     <p class="footer-note">Сървър: Cloudflare (безплатен tier). APK: GitHub. Разходи при нормална употреба: $0.</p>
   </div>
@@ -157,12 +167,36 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
     <h2>Всички ключове</h2>
     <p class="hint" style="margin-bottom:.5rem">
       <b>Детайли</b> — виж таблетите по ключа.
-      <b>Костюми</b> — добави MAC адрес на EMS костюм.
+      <b>Управление</b> — модули (абонамент) и EMS костюми по MAC.
       <b>Спри</b> — заключва модулите (до 24 ч на таблета).
     </p>
     <table id="lic_table"><thead><tr>
       <th>ID</th><th>Клиент</th><th>План</th><th>Ключ (посл. 4)</th><th>Таблети</th><th>Костюми</th><th>Статус</th><th>Действия</th>
     </tr></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<section id="svc" class="panel">
+  <div class="intro">
+    <b>Канали за дистанционно управление.</b>
+    Модулите се включват/изключват по ключ (абонамент).
+    EMS костюмите се разрешават по <b>MAC адрес</b> преди клиентът да ги включи — без физическо присъствие при таблета.
+  </div>
+  <div class="card">
+    <h2>Каталог модули (абонамент)</h2>
+    <p class="hint">Нов модул в бъдеще: добавя се тук + в приложението. След това го включваш по ключ от „Управление“.</p>
+    <div id="catalog_modules"></div>
+    <h3 style="margin-top:1rem">Допълнителни функции</h3>
+    <div id="catalog_features"></div>
+  </div>
+  <div class="card">
+    <h2>Дистанционно сдвояване на EMS — как работи</h2>
+    <div class="steps">
+      <div class="step"><b>1.</b> Вземаш новия костюм → четеш MAC от етикета (напр. <code>AA:BB:CC:DD:EE:FF</code>).</div>
+      <div class="step"><b>2.</b> Админ → Ключове → <b>Управление</b> при клиента → раздел <b>Костюми</b> → въвеждаш MAC + име („Костюм 2“).</div>
+      <div class="step"><b>3.</b> Сървърът го добавя в жетона. Таблетът го получава при „Обнови от сървъра“ (Настройки → Таблет и данни) или до 24 ч.</div>
+      <div class="step"><b>4.</b> Клиентът в залата включва костюма → в приложението се появява в списъка за свързване → готово. Не е нужен код <code>0123</code> или настройка на място.</div>
+    </div>
   </div>
 </section>
 
@@ -247,16 +281,34 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
   </div>
 </div>
 
-<div id="ems_modal" class="modal" onclick="if(event.target===this)closeEms()">
-  <div class="modal-box">
-    <h2 id="ems_title">Костюми (MAC адреси)</h2>
-    <p class="hint">Въведи MAC адреси на EMS костюми, които този клиент може да ползва освен сдвоените в настройката на таблета. По един на ред.</p>
-    <p id="ems_paired" class="plan-box" style="margin-bottom:.5rem"></p>
-    <textarea id="ems_input" placeholder="AA:BB:CC:DD:EE:FF"></textarea>
-    <div class="row actions" style="margin-top:.75rem">
-      <button class="secondary" onclick="closeEms()">Отказ</button>
-      <button onclick="saveEms()">Запази костюми</button>
+<div id="manage_modal" class="modal" onclick="if(event.target===this)closeManage()">
+  <div class="modal-box wide">
+    <h2 id="manage_title">Управление</h2>
+    <div class="tabs">
+      <button class="on" id="tab_mods" onclick="manageTab('mods')">Модули (абонамент)</button>
+      <button id="tab_ems" onclick="manageTab('ems')">EMS костюми</button>
     </div>
+    <div id="manage_mods">
+      <p class="hint">Включи/изключи модули за този клиент. Промяната стига до таблета при следващо опресняване (до 24 ч).</p>
+      <div id="mods_grid" class="mod-grid"></div>
+      <h3 style="margin-top:.75rem">Функции</h3>
+      <div id="feat_grid" class="mod-grid"></div>
+      <div class="row actions" style="margin-top:.75rem"><button onclick="saveEntitlements()">Запази модули</button></div>
+    </div>
+    <div id="manage_ems" style="display:none">
+      <p class="hint">Добави MAC <b>преди</b> клиентът да включи костюма — таблетът ще го види дистанционно.</p>
+      <p id="ems_paired" class="plan-box"></p>
+      <div class="row">
+        <div><label>MAC адрес</label><input id="ems_mac" placeholder="AA:BB:CC:DD:EE:FF" style="width:180px"></div>
+        <div style="flex:1"><label>Име (за теб)</label><input id="ems_label" placeholder="Костюм 2 — горнище" style="width:100%"></div>
+        <button onclick="addEmsDevice()">Добави костюм</button>
+      </div>
+      <div class="row actions" style="margin-top:.35rem">
+        <button class="secondary" onclick="approvePaired()">Вземи сдвоените от таблетите</button>
+      </div>
+      <table style="margin-top:.75rem"><thead><tr><th>MAC</th><th>Име</th><th>Статус</th><th>Добавен</th><th></th></tr></thead><tbody id="ems_table"></tbody></table>
+    </div>
+    <div class="row actions" style="margin-top:.75rem"><button class="secondary" onclick="closeManage()">Затвори</button></div>
   </div>
 </div>
 
@@ -276,10 +328,16 @@ const ACTION_LABELS={
   remove_device:'Премахнат таблет',
   update_release:'Променена версия',
   delete_release:'Изтрита версия',
+  add_ems_device:'Добавен EMS костюм',
+  update_ems_device:'Променен EMS костюм',
+  delete_ems_device:'Премахнат EMS костюм',
+  approve_paired_ems:'Одобрени сдвоени костюми',
+  update_entitlements:'Променени модули',
 };
+const EMS_STATUS={active:'активен',pending:'чака клиента',revoked:'спрян'};
 
 async function api(path,opts={}){
-  const r=await fetch('/0123/api/'+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});
+  const r=await fetch('/admin/api/'+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});
   if(r.status===401){location.reload();throw new Error('Нужна е отново автентикация');}
   const j=await r.json().catch(()=>({ok:false,message:'Невалиден отговор'}));
   if(!j.ok) throw new Error(j.message||j.error||'Грешка');
@@ -292,6 +350,7 @@ function tab(id){
   document.getElementById(id).classList.add('on');
   if(id==='dev') loadDevices();
   if(id==='log') loadAudit();
+  if(id==='svc') loadCatalog();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -326,7 +385,7 @@ async function load(){
 
   const l=await api('licenses');
   window._licenses=l.licenses||[];
-  const licRows=window._licenses.map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td title="'+x.plan+'">'+planLabel(x.plan)+'</td><td>…'+x.key_hint+'</td><td>'+x.max_devices+'</td><td>'+emsCount(x.ems)+' <button class="secondary" onclick="editEms(\\''+x.id+'\\')">Костюми</button></td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td class="actions">'+
+  const licRows=window._licenses.map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td title="'+x.plan+'">'+planLabel(x.plan)+'</td><td>…'+x.key_hint+'</td><td>'+x.max_devices+'</td><td>'+emsCount(x.ems)+' <button class="secondary" onclick="openManage(\\''+x.id+'\\')">Управление</button></td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td class="actions">'+
     '<button class="secondary" onclick="showLic(\\''+x.id+'\\')">Детайли</button>'+
     (x.status==='active'?'<button class="danger" onclick="disable(\\''+x.id+'\\',\\''+(x.customer||x.id).replace(/'/g,"")+'\\')">Спри</button>':'<button class="secondary" onclick="enable(\\''+x.id+'\\')">Пусни отново</button>')+
     '</td></tr>').join('');
@@ -406,26 +465,101 @@ async function createLicense(){
   load();
 }
 
-let _emsLicId=null;
-async function editEms(id){
-  _emsLicId=id;
-  const lic=(window._licenses||[]).find(x=>x.id===id)||{};
-  let current=[];try{current=JSON.parse(lic.ems||'[]')}catch(e){}
-  const a=await api('activations/'+id);
-  const paired=new Set();
-  (a.activations||[]).forEach(t=>{try{JSON.parse(t.ems_local||'[]').forEach(m=>paired.add(m))}catch(e){}});
-  document.getElementById('ems_title').textContent='Костюми — '+(lic.customer||id);
-  document.getElementById('ems_paired').innerHTML=paired.size
-    ?'<b>Сдвоени от таблетите в настройка:</b> '+[...paired].join(', ')
-    :'<b>Сдвоени от таблетите:</b> все още няма (ще се появят след настройка).';
-  document.getElementById('ems_input').value=current.join('\\n');
-  document.getElementById('ems_modal').classList.add('on');
+let _manageLicId=null;
+let _catalog=null;
+
+async function loadCatalog(){
+  if(!_catalog) _catalog=await api('catalog');
+  document.getElementById('catalog_modules').innerHTML='<div class="mod-grid">'+(_catalog.modules||[]).map(m=>
+    '<div class="mod-item"><span><b>'+m.name+'</b> <code>'+m.id+'</code><br><span style="color:#8b949e;font-size:.75rem">'+m.desc+'</span></span></div>'
+  ).join('')+'</div>';
+  document.getElementById('catalog_features').innerHTML='<div class="mod-grid">'+(_catalog.features||[]).map(f=>
+    '<div class="mod-item"><span><b>'+f.name+'</b> <code>'+f.id+'</code><br><span style="color:#8b949e;font-size:.75rem">'+f.desc+'</span></span></div>'
+  ).join('')+'</div>';
 }
-function closeEms(){document.getElementById('ems_modal').classList.remove('on');_emsLicId=null;}
-async function saveEms(){
-  if(!_emsLicId) return;
-  await api('licenses/'+_emsLicId,{method:'PATCH',body:JSON.stringify({ems:document.getElementById('ems_input').value})});
-  closeEms();load();
+
+function manageTab(which){
+  document.getElementById('manage_mods').style.display=which==='mods'?'block':'none';
+  document.getElementById('manage_ems').style.display=which==='ems'?'block':'none';
+  document.getElementById('tab_mods').classList.toggle('on',which==='mods');
+  document.getElementById('tab_ems').classList.toggle('on',which==='ems');
+}
+
+async function openManage(id){
+  _manageLicId=id;
+  const lic=(window._licenses||[]).find(x=>x.id===id)||{};
+  if(!_catalog) _catalog=await api('catalog');
+  document.getElementById('manage_title').textContent='Управление — '+(lic.customer||id);
+  manageTab('ems');
+  let mods=[];let feat=[];
+  try{mods=JSON.parse(lic.mods||'[]')}catch(e){}
+  try{feat=JSON.parse(lic.feat||'[]')}catch(e){}
+  document.getElementById('mods_grid').innerHTML=(_catalog.modules||[]).map(m=>
+    '<label class="mod-item"><input type="checkbox" data-mod="'+m.id+'" '+(mods.includes(m.id)?'checked':'')+'><span><b>'+m.name+'</b><br><span style="color:#8b949e;font-size:.72rem">'+m.id+'</span></span></label>'
+  ).join('');
+  document.getElementById('feat_grid').innerHTML=(_catalog.features||[]).map(f=>
+    '<label class="mod-item"><input type="checkbox" data-feat="'+f.id+'" '+(feat.includes(f.id)?'checked':'')+'><span><b>'+f.name+'</b></span></label>'
+  ).join('');
+  await refreshEmsTable();
+  document.getElementById('manage_modal').classList.add('on');
+}
+function closeManage(){document.getElementById('manage_modal').classList.remove('on');_manageLicId=null;}
+
+async function refreshEmsTable(){
+  if(!_manageLicId) return;
+  const r=await api('licenses/'+_manageLicId+'/ems-devices');
+  document.getElementById('ems_paired').innerHTML=(r.paired||[]).length
+    ?'<b>Вече сдвоени от таблетите:</b> '+r.paired.join(', ')
+    :'<b>От таблетите:</b> все още няма сдвоени (нормално при дистанционно добавяне).';
+  document.getElementById('ems_table').innerHTML=(r.devices||[]).map(d=>
+    '<tr><td><code>'+d.mac+'</code></td><td>'+(d.label||'—')+'</td><td><span class="tag '+d.status+'">'+((EMS_STATUS[d.status])||d.status)+'</span></td><td>'+fmtTs(d.created_at)+'</td><td class="actions">'+
+    (d.status!=='revoked'?'<button class="danger" onclick="revokeEms('+d.id+')">Спри</button>':'<button class="secondary" onclick="activateEms('+d.id+')">Пусни</button>')+
+    '<button class="danger" onclick="deleteEms('+d.id+')">Изтрий</button></td></tr>'
+  ).join('')||'<tr><td colspan="5" class="empty">Няма костюми — добави MAC от етикета на устройството.</td></tr>';
+}
+
+async function saveEntitlements(){
+  if(!_manageLicId) return;
+  const mods=[...document.querySelectorAll('#mods_grid input[data-mod]:checked')].map(x=>x.dataset.mod);
+  const feat=[...document.querySelectorAll('#feat_grid input[data-feat]:checked')].map(x=>x.dataset.feat);
+  await api('licenses/'+_manageLicId+'/entitlements',{method:'PATCH',body:JSON.stringify({mods,feat})});
+  alert('Модулите са запазени. Таблетът ще ги получи при следващо опресняване.');
+  load();
+}
+
+async function addEmsDevice(){
+  if(!_manageLicId) return;
+  const mac=document.getElementById('ems_mac').value.trim();
+  const label=document.getElementById('ems_label').value.trim();
+  if(!mac){alert('Въведи MAC адрес от етикета на костюма.');return;}
+  await api('licenses/'+_manageLicId+'/ems-devices',{method:'POST',body:JSON.stringify({mac,label,status:'pending'})});
+  document.getElementById('ems_mac').value='';
+  document.getElementById('ems_label').value='';
+  await refreshEmsTable();load();
+  alert('Костюмът е добавен. Клиентът: Настройки → Таблет и данни → „Обнови от сървъра“, после включва костюма в залата.');
+}
+
+async function approvePaired(){
+  if(!_manageLicId) return;
+  const r=await api('licenses/'+_manageLicId+'/ems-devices/approve-paired',{method:'POST'});
+  await refreshEmsTable();load();
+  alert('Добавени '+r.added.length+' нови MAC от таблетите (общо видени: '+r.total+').');
+}
+
+async function revokeEms(id){
+  if(!_manageLicId||!confirm('Спри този костюм? Таблетът няма да може да се свърже с него.')) return;
+  await api('licenses/'+_manageLicId+'/ems-devices/'+id,{method:'PATCH',body:JSON.stringify({status:'revoked'})});
+  await refreshEmsTable();load();
+}
+async function activateEms(id){
+  if(!_manageLicId) return;
+  await api('licenses/'+_manageLicId+'/ems-devices/'+id,{method:'PATCH',body:JSON.stringify({status:'active'})});
+  await refreshEmsTable();load();
+}
+async function deleteEms(id){
+  if(!_manageLicId||!confirm('Изтрий записа за този костюм?')) return;
+  await api('licenses/'+_manageLicId+'/ems-devices/'+id,{method:'DELETE'});
+  await refreshEmsTable();load();
 }
 
 async function showLic(id){
@@ -442,7 +576,7 @@ async function showLic(id){
     acts.map(x=>'<tr><td><code>'+fmtDev(x.device_id)+'</code></td><td>'+(x.device_model||'—')+'</td><td>'+(x.app_version||'?')+'</td><td>'+fmtTs(x.last_seen)+'</td><td><span class="tag '+x.status+'">'+x.status+'</span></td></tr>').join('')+'</table>'
     :'<p class="hint">Ключът още не е активиран на таблет. Дай го на клиента: Настройки → Достъп и лиценз.</p>');
   document.getElementById('m_actions').innerHTML=
-    '<button class="secondary" onclick="closeLic();editEms(\\''+id+'\\')">Костюми</button>'+
+    '<button class="secondary" onclick="closeLic();openManage(\\''+id+'\\')">Управление</button>'+
     (lic.status==='active'?'<button class="danger" onclick="closeLic();disable(\\''+id+'\\',\\''+(lic.customer||id).replace(/'/g,"")+'\\')">Спри ключа</button>':'<button onclick="closeLic();enable(\\''+id+'\\')">Пусни ключа</button>');
   document.getElementById('lic_modal').classList.add('on');
 }

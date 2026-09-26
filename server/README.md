@@ -3,9 +3,9 @@
 Лицензен сървър за XEMS: отключване на модули, OTA обновяване, админ панел.
 
 **Live:** https://license.biocode-bg.com  
-**Admin (уеб, без CMD):** https://license.biocode-bg.com/0123
+**Admin (уеб, без CMD):** https://license.biocode-bg.com/admin
 
-Влез с потребител/парола (Basic auth). От там:
+Влез с **admin** / **0123** (Basic auth). От там:
 - създаваш лицензни ключове за клиенти
 - управляваш костюми (MAC) по лиценз
 - **регистрираш нов APK** за OTA (APK файлът е в GitHub, сървърът сочи таблетите към него)
@@ -47,6 +47,10 @@ npx wrangler deploy
 Секрети (не в git):
 ```bash
 npx wrangler secret put LICENSE_PRIVATE_KEY
+```
+
+По подразбиране админ входът е `admin` / `0123`. За друга парола:
+```bash
 npx wrangler secret put ADMIN_PASSWORD
 npx wrangler secret put ADMIN_USER
 ```

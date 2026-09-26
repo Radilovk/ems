@@ -44,7 +44,7 @@
               <text class="csign" style="color: {{$item.signColor}}">-</text>
               <div class="cmid">
                 <text class="cname">{{$item.name}}</text>
-                <text class="cval" style="color: {{$item.color}}">{{$item.text}}</text>
+                <text class="cval" style="color: {{$item.valColor}}">{{$item.text}}</text>
               </div>
               <text class="csign" style="color: {{$item.signColor}}">+</text>
             </div>
@@ -295,11 +295,15 @@ export default {
         text: String(pct),
         w: Math.round((FILL_W * pct) / 100),
         fill: style.fill,
-        color: style.color,
+        valColor: live ? '#D1D1D6' : style.color,
         signColor: style.signColor
       })
     })
-    const key = (live ? '1' : '0') + JSON.stringify(out)
+    let key = live ? '1' : '0'
+    for (let k = 0; k < out.length; k++) {
+      const n = out[k]
+      key += '|' + n.i + ':' + n.text + ':' + n.w + ':' + n.fill
+    }
     if (key === this.chKey) {
       return
     }
@@ -308,10 +312,10 @@ export default {
     if (same) {
       out.forEach((n, k) => {
         const c = this.chans[k]
-        if (c.text !== n.text || c.w !== n.w || c.color !== n.color || c.fill !== n.fill || c.signColor !== n.signColor) {
+        if (c.text !== n.text || c.w !== n.w || c.valColor !== n.valColor || c.fill !== n.fill || c.signColor !== n.signColor) {
           c.text = n.text
           c.w = n.w
-          c.color = n.color
+          c.valColor = n.valColor
           c.fill = n.fill
           c.signColor = n.signColor
         }
@@ -816,7 +820,7 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: bold;
   color: #ffffff;
   lines: 1;
@@ -847,7 +851,7 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 28px;
+  font-size: 18px;
   font-weight: bold;
   lines: 1;
 }

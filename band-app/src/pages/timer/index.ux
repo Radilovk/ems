@@ -44,7 +44,7 @@ export default {
 
   onInit() {
     setPages(this, ['main'])
-    this.unbind = bind(this)
+    this.unbind = bind(this, 'timer')
   },
 
   onShow() {

@@ -205,7 +205,7 @@ export default {
 
   onShow() {
     if (!this._bound) {
-      this.unbind = bind(this)
+      this.unbind = bind(this, 'train')
       this._bound = true
     }
     resetTrainSession(this)

@@ -7,6 +7,8 @@
 | **Compile** | `bash build.sh` | `.rpk` builds for Vela |
 | **Touch/layout logic** | `node test/train-touch.test.mjs` | Main ± args, tap/slider FSM, gap math |
 | **Layout static** | `node test/train-layout.test.mjs` | CSS/template rules from index.ux |
+| **Home dial** | `node test/home-layout.test.mjs` | Dial-home, no cards, auto-route wired |
+| **Auto-route** | `node test/auto-route.test.mjs` | Session jump once; swipe-back respected |
 | **Screen wake** | `node test/app-screen.test.mjs` | No `keepOn(running)` |
 | **Train preview PNG** | `bash scripts/run-emulator-test.sh` | 212×520 layout preview (Pillow, no emulator) |
 | **SPP protocol** | `scripts/ble-sim/run-spp.sh` | Phone↔band bytes, hello/state (not UI) |

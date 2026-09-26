@@ -414,14 +414,19 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         }
         long now = System.currentTimeMillis();
         boolean trainRunning = XemsPanel.isRunning();
-        if (trainRunning && !trainWasRunning) {
+        boolean trainStarted = trainRunning && !trainWasRunning;
+        if (trainStarted) {
             trainStartMs = now;
+            force = true;
         } else if (!trainRunning && trainWasRunning) {
             trainAccumMs += now - trainStartMs;
         }
         trainWasRunning = trainRunning;
         long trainMs = trainAccumMs + (trainRunning ? now - trainStartMs : 0);
         boolean aiNow = AiSession.getStage() == AiSession.Stage.RUNNING && AiSession.getEngine() != null;
+        if (aiNow && !aiWasRunning) {
+            force = true;
+        }
         if (aiNow) {
             aiElapsedS = Math.round(AiSession.getEngine().getElapsedPlanS());
         } else if (aiWasRunning) {
@@ -432,7 +437,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         int hr = NotifyWearableBridge.getLastHeartRate();
         int limit = WearableSyncHelper.getContext() != null
                 ? WearableConfig.getHrThreshold(WearableSyncHelper.getContext()) : 170;
-        String hrText = hr > 0 ? hr + " bpm · Z" + WearableUi.zoneFor(hr, limit) : "XEMS";
+        String hrText = hr > 0 ? hr + " bpm · Z" + WearableUi.zoneFor(hr, limit)
+                : WearableUi.tr("Тренировка", "Workout");
 
         String title;
         String sub;
@@ -465,15 +471,16 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = !trainRunning;
         } else if (musicOnly()) {
             String t = MusicPlayerHelper.currentTitle();
-            title = t != null && t.length() > 0 ? t : "XEMS";
-            sub = hr > 0 ? "XEMS ♫ · " + hr + " bpm" : "XEMS ♫";
+            title = t != null && t.length() > 0 ? t : WearableUi.tr("Музика", "Music");
+            sub = hr > 0 ? WearableUi.tr("Музика · ", "Music · ") + hr + " bpm"
+                    : WearableUi.tr("Музика", "Music");
             playing = !MusicSync.isPlaybackPaused();
             paused = !playing;
             pos = MusicSync.getPlaybackPositionMs() / 1000;
             dur = MusicSync.getPlaybackDurationMs() / 1000;
         } else {
             title = hrText;
-            sub = WearableUi.tr("Готов · ▶ старт", "Ready · ▶ start");
+            sub = WearableUi.tr("Музика · ▶ старт", "Music · ▶ start");
             playing = false;
             paused = true;
         }

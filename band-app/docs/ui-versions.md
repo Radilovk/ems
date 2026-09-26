@@ -26,3 +26,11 @@ CSS-only, без нови PNG:
 **Layout от v2 не се променя.**
 
 Band 5.9.27 / APK 1.1.139-ai.
+
+## v4 — native-first home (текуща)
+
+- `pages/index` е **dial-home** (пулс, play, чипове), не списък с карти
+- Auto-route: от home → train/ai/timer **веднъж** при старт на сесия; swipe-back не се презаписва
+- Radar „Свързване…“ само преди първи `state`; после dial остава
+- Music screen HUD: „Музика · ▶ старт“, force push при train/AI start
+

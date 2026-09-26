@@ -57,8 +57,14 @@ export function mods(s) {
  * Wire a page to the shared state: calls page.update() on every message and once a second
  * (local countdowns). Returns a function for onDestroy.
  */
-export function bind(page) {
+export function bind(page, pageId) {
+  if (pageId) {
+    page.pageId = pageId
+  }
   const app = page.$app.$def
+  if (page.pageId && app) {
+    app.page = page.pageId
+  }
   page.onScreen = true
   // A page under another one (home under Start…) does no work: the band has little CPU.
   const cb = () => {
@@ -79,6 +85,11 @@ export function bind(page) {
 export function shown(page, on) {
   page.onScreen = on
   if (on) {
+    try {
+      if (page.pageId) {
+        page.$app.$def.page = page.pageId
+      }
+    } catch (e) {}
     page.update()
   }
 }

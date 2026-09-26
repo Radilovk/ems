@@ -83,13 +83,22 @@
 
 <script>
 import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveSeconds } from '../../common/ui.js'
+import {
+  TAP_MAX_MS,
+  SLIDE_OPEN_MS,
+  SLIDE_CLOSE_MS,
+  TAP_MAX_MOVE,
+  isMainRow,
+  touchX,
+  touchY,
+  parseRowTouchStart,
+  tapSide,
+  isTap,
+  movedBeyondTap
+} from '../../common/train-touch.js'
 
 const HOLD_MS = 1200
-const SLIDE_OPEN_MS = 400
 const SLIDE_COMMIT_MS = 500
-const SLIDE_CLOSE_MS = 3000
-const TAP_MAX_MS = 320
-const TAP_MAX_MOVE = 16
 const SLIDE_TRACK_H = 418
 const SLIDE_TRACK_TOP = 72
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
@@ -101,10 +110,6 @@ const COL_PLAY = 160
 const COL_MAIN_GAP = 106
 const COL_ROW = 102
 const COL_STOP = 230
-
-function isMainRow(v) {
-  return v === 1 || v === '1' || v === true || v === 'true'
-}
 
 function channelRenderKey(out, live) {
   let key = live ? '1' : '0'
@@ -126,16 +131,6 @@ function channelStyle(pct, live) {
     return { fill: accent, color: '#FFFFFF', signColor: '#FFFFFF' }
   }
   return { fill: FILL_DIM[t], color: accent, signColor: '#AEAEB2' }
-}
-
-function touchY(e) {
-  const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0])
-  return t ? t.pageY : 0
-}
-
-function touchX(e) {
-  const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0])
-  return t ? t.pageX : 0
 }
 
 /** Batched strength change — channels use d≤10; main sends one command per step. */
@@ -471,21 +466,20 @@ export default {
     if (this.slideOn) {
       return
     }
-    const main = isMainRow(isMain)
+    const parsed = parseRowTouchStart(isMain, i, text, name, e)
+    const main = parsed.main
+    const ch = parsed.i
+    const label = parsed.name
+    const val = main ? this.mainMsVal() : parsed.val
     this.captureScroll()
-    const y = touchY(e)
-    const x = touchX(e)
-    const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
-    const label = main ? 'СИЛА' : name
-    const ch = main ? -1 : (parseInt(i, 10) || 0)
     this.rowTouch = {
       main: main,
       i: ch,
       name: label,
       val: val,
-      startX: x,
-      startY: y,
-      y: y,
+      startX: parsed.startX,
+      startY: parsed.startY,
+      y: parsed.y,
       t0: Date.now(),
       moved: false,
       opened: false
@@ -507,7 +501,7 @@ export default {
     const y = touchY(e)
     const x = touchX(e)
     touch.y = y
-    if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
+    if (movedBeyondTap(touch, x, y)) {
       touch.moved = true
     }
     if (this.slideOn && this.slideArmed) {
@@ -531,13 +525,13 @@ export default {
     if (elapsed >= SLIDE_OPEN_MS || touch.opened) {
       return
     }
-    if (!touch.moved && elapsed <= TAP_MAX_MS) {
+    if (isTap(touch, elapsed)) {
       const x = touchX(e) || touch.x
-      const minus = x < 106
+      const side = tapSide(x)
       if (touch.main) {
-        minus ? this.allMinus() : this.allPlus()
+        side === 'minus' ? this.allMinus() : this.allPlus()
       } else {
-        minus ? this.chMinus(touch.i) : this.chPlus(touch.i)
+        side === 'minus' ? this.chMinus(touch.i) : this.chPlus(touch.i)
       }
     }
   },

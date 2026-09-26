@@ -11,7 +11,7 @@
             <text class="loop">{{loopText}}</text>
           </div>
         </stack>
-        <div class="btn play {{run ? 'orb-dark' : 'orb'}} {{pressed ? 'down' : ''}} {{armed ? '' : 'off'}}"
+        <div class="btn play {{pressed ? 'down' : ''}} {{armed ? '' : 'off'}}" style="background-color: {{run ? '#2C2C2E' : '#FF9F0A'}}"
              ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
           <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
         </div>
@@ -348,15 +348,10 @@ export default {
   width: 180px;
   height: 180px;
 }
-.orb {
-  background-image: url(/common/art/orb-timer.png);
-  background-size: cover;
-}
-.orb-dark {
-  background-image: url(/common/art/orb-timer-dark.png);
-  background-size: cover;
-}
+/* colour from CSS (start / pause changes only that), light layer on top */
 .play {
+  background-image: url(/common/art/shine-112.png);
+  background-size: contain;
   width: 112px;
   height: 112px;
   margin-top: 18px;

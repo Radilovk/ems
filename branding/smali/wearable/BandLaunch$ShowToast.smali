@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 130
+    .line 94
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 131
+    .line 95
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandLaunch$ShowToast;->text:Ljava/lang/String;
 
-    .line 132
+    .line 96
     return-void
 .end method
 
@@ -42,16 +42,16 @@
     .registers 4
 
     .prologue
-    .line 136
+    .line 100
     # getter for: Lcom/isaigu/gymapp/wearable/BandLaunch;->app:Landroid/content/Context;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandLaunch;->access$200()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 137
+    .line 101
     if-eqz v0, :cond_10
 
-    .line 138
+    .line 102
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandLaunch$ShowToast;->text:Ljava/lang/String;
 
     const/4 v2, 0x0
@@ -62,7 +62,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 140
+    .line 104
     :cond_10
     return-void
 .end method

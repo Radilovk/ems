@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 117
+    .line 81
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,14 +34,14 @@
     .registers 3
 
     .prologue
-    .line 120
+    .line 84
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAppLink;->isLaunchPending()Z
 
     move-result v0
 
     if-eqz v0, :cond_11
 
-    .line 121
+    .line 85
     const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u0441\u0435 \u0441\u0432\u044a\u0440\u0437\u0430. \u0421\u043f\u0440\u0438 Mi Fitness / Notify / Gadgetbridge \u0438 \u043e\u043f\u0438\u0442\u0430\u0439 \u043f\u0430\u043a"
 
     const-string v1, "The band did not connect. Force-stop Mi Fitness / Notify / Gadgetbridge and retry"
@@ -52,7 +52,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandLaunch;->toast(Ljava/lang/String;)V
 
-    .line 124
+    .line 88
     :cond_11
     return-void
 .end method

@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 822
+    .prologue
+    .line 940
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,51 +31,51 @@
 
 # virtual methods
 .method public run()V
-    .registers 4
+    .registers 5
 
-    .line 825
+    .prologue
+    .line 943
     # getter for: Lcom/isaigu/gymapp/wearable/BandRemote;->running:Z
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$100()Z
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$300()Z
 
     move-result v0
 
     if-nez v0, :cond_7
 
-    .line 826
+    .line 952
+    :goto_6
     return-void
 
-    .line 829
+    .line 947
     :cond_7
     const/4 v0, 0x0
 
     :try_start_8
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->push(Z)V
     :try_end_b
-    .catchall {:try_start_8 .. :try_end_b} :catchall_c
+    .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_b} :catch_15
 
-    .line 832
-    goto :goto_12
+    .line 951
+    :goto_b
+    # getter for: Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$400()Landroid/os/Handler;
 
-    .line 830
-    :catchall_c
+    move-result-object v0
+
+    const-wide/16 v2, 0x3e8
+
+    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    goto :goto_6
+
+    .line 948
+    :catch_15
     move-exception v0
 
-    .line 831
+    .line 949
     const-string v1, "BandRemote.tick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 833
-    :goto_12
-    # getter for: Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$200()Landroid/os/Handler;
-
-    move-result-object v0
-
-    const-wide/16 v1, 0x3e8
-
-    invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    .line 834
-    return-void
+    goto :goto_b
 .end method

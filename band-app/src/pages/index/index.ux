@@ -15,7 +15,7 @@
           </div>
         </div>
         <div for="{{cards}}" class="card" style="background-color: {{$item.bg}}; border-color: {{$item.border}}" onclick="open($item.id)">
-          <div class="ic ic-{{$item.id}}"></div>
+          <div class="ic ic-{{$item.id}}" style="background-color: {{$item.color}}"></div>
           <text class="ct">{{$item.title}}</text>
           <text class="cs" style="color: {{$item.subColor}}">{{$item.sub}}</text>
         </div>
@@ -132,7 +132,7 @@ export default {
     out.push({
       id: 'train', title: 'Старт', color: GREEN, active: trRun,
       sub: trRun ? 'активен · ' + hms((s.el || 0) + age(app, true))
-        : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчна тренировка'
+        : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчен режим'
     })
 
     if (has('ai')) {
@@ -443,12 +443,14 @@ export default {
   border-radius: 30px;
   border-width: 3px;
 }
-/* badge = the div's background (Vela centres a sized div reliably; an <image> child it may not) */
+/* badge: the circle is CSS (colour + radius: always round, never clipped); the light and the glyph
+   are a translucent layer on top (Vela centres a sized div reliably; an <image> child it may not) */
 .ic {
   flex-shrink: 0;
   width: 72px;
   height: 72px;
-  background-size: cover;
+  border-radius: 36px;
+  background-size: contain;
 }
 .ic-train {
   background-image: url(/common/art/badge-train.png);

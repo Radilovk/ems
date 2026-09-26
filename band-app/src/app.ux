@@ -23,10 +23,12 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 62
+const APP_VERSION = 63
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
+/** Pages redraw at most this often: a burst of states (start of a workout) becomes one redraw. */
+const NOTIFY_GAP_MS = 150
 const MAX_RESENDS = 3
 /** Emulator tests only — scripts/run-emulator-test.sh sets true temporarily. */
 const DEV_MOCK = false
@@ -77,6 +79,7 @@ export default {
 
   onDestroy() {
     this.listeners = []
+    clearTimeout(this.notifyTimer)
     clearInterval(this.helloTimer)
     clearInterval(this.beat)
     clearInterval(this.mockTimer)
@@ -266,6 +269,11 @@ export default {
     if (!sum || sum.n === this.lastSum) {
       return
     }
+    const md = m.mods || {}
+    if (m.run || (md.tr || {}).run || (md.tm || {}).run) {
+      this.lastSum = sum.n                         // a new workout already runs: that summary is past
+      return
+    }
     this.lastSum = sum.n
     this.summary = sum
     this.buzz('long')
@@ -424,13 +432,28 @@ export default {
     this.listeners = this.listeners.filter((f) => f !== fn)
   },
 
+  notifyAt: 0,
+  notifyTimer: null,
+
+  /**
+   * Tell the pages about the new state — coalesced: the first change of a quiet moment goes out
+   * on the next tick, anything arriving meanwhile waits for it and then draws the latest state once.
+   */
   notify() {
-    const s = this.state
-    this.listeners.forEach((f) => {
-      try {
-        f(s)
-      } catch (e) {}
-    })
+    if (this.notifyTimer) {
+      return
+    }
+    const wait = Math.max(0, this.notifyAt + NOTIFY_GAP_MS - Date.now())
+    this.notifyTimer = setTimeout(() => {
+      this.notifyTimer = null
+      this.notifyAt = Date.now()
+      const s = this.state
+      this.listeners.forEach((f) => {
+        try {
+          f(s)
+        } catch (e) {}
+      })
+    }, wait)
   }
 }
 </script>

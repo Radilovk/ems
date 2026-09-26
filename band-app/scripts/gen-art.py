@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Baked artwork for the band app: module badges, button faces ("orbs"), glows behind rings.
+"""Baked artwork for the band app: light layers for CSS circles (badges, buttons), glows behind rings.
 
 Why images: the band draws a PNG as one cheap copy, while gradients, shadows and glows in CSS
 are drawn poorly (or not at all) and cost CPU on every frame. Everything here is rendered once,
@@ -59,22 +59,31 @@ def circle_mask(d, inset=0):
     return m
 
 
-def orb(color, d):
-    """Button face, d × d (supersampled): soft top light → deeper bottom, thin light edge on top.
-    Deliberately calm (no glass ball): reads like the system watch UI."""
-    top, bottom = lighten(color, 0.16), darken(color, 0.20)
+def shine(d):
+    """Light layer for a CSS circle (background-color + border-radius draw the circle itself, crisp
+    and never clipped): soft light from the top-left, a touch of shade at the bottom, a thin lit
+    edge on top. Translucent, so one image serves every colour — and start / pause only change the
+    CSS colour, no image to decode at that moment."""
     lin = Image.linear_gradient("L").resize((d, d))
-    face = Image.composite(Image.new("RGB", (d, d), bottom), Image.new("RGB", (d, d), top), lin)
-    # a little light from the upper left
-    hl = radial((d, d), (d * 0.32, d * 0.22), d * 0.75, (255, 255, 255), (0, 0, 0), power=1.6).convert("L")
-    face = Image.composite(Image.new("RGB", (d, d), lighten(color, 0.30)), face, hl.point(lambda v: int(v * 0.35)))
-    im = face.convert("RGBA")
-    # edge: brighter at the top, gone by the middle
+    im = Image.new("RGBA", (d, d), (0, 0, 0, 0))
+    white = Image.new("RGBA", (d, d), (255, 255, 255, 0))
+    white.putalpha(lin.point(lambda v: int(max(0.0, 1 - v / 140.0) * 58)))
+    black = Image.new("RGBA", (d, d), (0, 0, 0, 0))
+    black.putalpha(lin.point(lambda v: int(max(0.0, (v - 120) / 135.0) * 52)))
+    im.alpha_composite(white)
+    im.alpha_composite(black)
+    hl = radial((d, d), (d * 0.32, d * 0.22), d * 0.55, (255, 255, 255), (0, 0, 0), power=1.4).convert("L")
+    spot = Image.new("RGBA", (d, d), (255, 255, 255, 0))
+    spot.putalpha(hl.point(lambda v: int(v * 0.16)))
+    im.alpha_composite(spot)
     rim = Image.new("L", (d, d), 0)
     ImageDraw.Draw(rim).ellipse((0, 0, d - 1, d - 1), outline=255, width=max(2, d // 45))
-    fade = Image.linear_gradient("L").resize((d, d)).point(lambda v: max(0, int((180 - v) * 0.9)))
-    im = Image.composite(Image.new("RGBA", (d, d), lighten(color, 0.55) + (255,)), im, ImageChops.multiply(rim, fade))
-    im.putalpha(circle_mask(d))
+    fade = lin.point(lambda v: max(0, int((150 - v) * 0.75)))
+    edge = Image.new("RGBA", (d, d), (255, 255, 255, 0))
+    edge.putalpha(ImageChops.multiply(rim, fade))
+    im.alpha_composite(edge)
+    a = ImageChops.multiply(im.getchannel("A"), circle_mask(d))
+    im.putalpha(a)
     return im
 
 
@@ -106,17 +115,18 @@ def finish(im, px, name, colors=256):
     im.save(OUT / f"{name}.png", optimize=True)
 
 
-def badge(name, color, icon, px=72, icon_px=40):
+def badge(name, icon, px=72, icon_px=40):
+    """Light layer + glyph for a CSS circle of the module colour (see shine)."""
     d = px * SS
-    im = orb(color, d)
+    im = shine(d)
     g = glyph(icon, icon_px * SS)
     o = (d - g.width) // 2
     im.alpha_composite(g, (o, o))
-    finish(im, px, name)
+    finish(im, px, name, colors=0)
 
 
-def button(name, color, px):
-    finish(orb(color, px * SS), px, name, colors=0)  # big smooth gradient: a palette shows steps
+def button(name, px):
+    finish(shine(px * SS), px, name, colors=0)  # soft alpha ramps: a palette shows steps
 
 
 def glow(name, color, px, ring_r, width, dy=0):
@@ -158,29 +168,25 @@ def heart(name, px):
 
 
 def main():
-    # home: one badge per module (replaces a coloured div + glyph: one element instead of two)
-    badge("badge-train", GREEN, "bolt")
-    badge("badge-ai", YELLOW, "ai")
-    badge("badge-timer", AMBER, "timer")
-    badge("badge-music", PURPLE, "music")
-    badge("badge-pulse", RED, "heart")
-    badge("badge-done", GREEN, "check", px=60, icon_px=34)
-    # module play buttons: face only, the glyph stays an <image> on top (state changes it)
-    for name, color, px in (("orb-ai", GREEN, 92), ("orb-ai-dark", DARK, 92),
-                            ("orb-timer", AMBER, 112), ("orb-timer-dark", DARK, 112),
-                            ("orb-music", PURPLE, 140), ("orb-music-dark", DARK, 140)):
-        button(name, color, px)
-    # Start screen: play (152, green = start, amber = pause), the stop core (140)
-    for name, color, px in (("orb-train", GREEN, 152), ("orb-train-run", AMBER, 152)):
-        button(name, color, px)
-    # soft aura around the Start play button (the glow div is 168 px, button radius 76)
-    # the 168 px glow box starts 16 px above the button (tr-play-row padding): centre 8 px lower
-    glow("glow-train", GREEN, 168, 76, 7, dy=8)
-    glow("glow-train-run", AMBER, 168, 76, 7, dy=8)
+    for f in OUT.glob("*.png"):
+        f.unlink()                                  # nothing stale stays in the app
+    # home: glyph + light per module; the circle is the card's CSS colour
+    badge("badge-train", "bolt")
+    badge("badge-ai", "ai")
+    badge("badge-timer", "timer")
+    badge("badge-music", "music")
+    badge("badge-pulse", "heart")
+    badge("badge-done", "check", px=60, icon_px=34)
+    # button light layers (AI 92, Timer 112, Music 140, Start 152): colour comes from CSS
+    for px in (92, 112, 140, 152):
+        button(f"shine-{px}", px)
     # glows behind the rings (radius / stroke from each page's ring CSS)
     glow("glow-ai", YELLOW, 172, 79, 14)
     glow("glow-timer", AMBER, 180, 83, 14)
     glow("glow-music", PURPLE, 196, 90, 12)
+    # Start: aura while waiting for start only (none while running — nothing to swap at the start);
+    # the 168 px glow box starts 16 px above the button (tr-play-row padding): centre 8 px lower
+    glow("glow-train", GREEN, 168, 76, 7, dy=8)
     heart("heart-34", 34)
     heart("heart-40", 40)
     total = sum(p.stat().st_size for p in OUT.glob("*.png"))

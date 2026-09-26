@@ -62,6 +62,12 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
      * state when what runs changes; shown again: the full state at once.
      */
     private static boolean bandAppVisible = true;
+    /** The band app has said "vis" since the link came up (so bandAppVisible is real, not assumed). */
+    private static boolean visSeen;
+    /** Workout / AI start → open the band app, a little later than the start's own burst of messages. */
+    private static final long AUTO_OPEN_DELAY_MS = 3000L;
+    private static final Runnable autoOpen = new AutoOpen();
+    private static boolean dropLogged;
     private static final long HR_ONLY_KEEPALIVE_MS = 10000L;
     private static int lastHrSent = -1;
     private static long lastHrSentMs;
@@ -80,6 +86,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         XiaomiBandRemote.setListener(INSTANCE);
         com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.setListener(INSTANCE);
         lastSent = "";
+        visSeen = false;
         if (!running) {
             running = true;
             handler.post(tick);
@@ -124,9 +131,12 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         String t = jsonField(json, "t");
         if ("vis".equals(t)) {
             bandAppVisible = !"false".equals(jsonField(json, "on"));
+            visSeen = true;
             WearableBleDiagLog.log("applink", "band app " + (bandAppVisible ? "shown" : "hidden"));
             if (bandAppVisible) {
                 lastSig = "";                       // everything, now
+            } else {
+                musicAsked = true;                  // music screen was skipped while the app showed
             }
         } else if ("cmd".equals(t) || "hello".equals(t)) {
             bandAppVisible = true;                  // a tap or a (re)start: the app is on screen
@@ -440,16 +450,27 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
 
     static void push(boolean force) {
         XiaomiBandLink link = XiaomiBand.link();
-        if (link == null || !link.isConnected()
-                || !WearableConfig.isBandRemoteEnabled(WearableSyncHelper.getContext())) {
+        long now = System.currentTimeMillis();
+        if (link == null || !link.isConnected()) {
+            // Evidence for "the band crashed at the start": when the link went, relative to the start.
+            if (trainWasRunning && !dropLogged) {
+                dropLogged = true;
+                WearableBleDiagLog.log("remote", "band link lost " + (now - trainStartMs) / 1000
+                        + " s after the workout started");
+            }
             return;
         }
-        long now = System.currentTimeMillis();
+        dropLogged = false;
+        if (!WearableConfig.isBandRemoteEnabled(WearableSyncHelper.getContext())) {
+            return;
+        }
         boolean trainRunning = XemsPanel.isRunning();
         boolean trainStarted = trainRunning && !trainWasRunning;
         if (trainStarted) {
             trainStartMs = now;
             force = true;
+            WearableBleDiagLog.log("remote", "workout started");
+            scheduleAutoOpen();
         } else if (!trainRunning && trainWasRunning) {
             trainAccumMs += now - trainStartMs;
         }
@@ -458,6 +479,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         boolean aiNow = AiSession.getStage() == AiSession.Stage.RUNNING && AiSession.getEngine() != null;
         if (aiNow && !aiWasRunning) {
             force = true;
+            scheduleAutoOpen();
         }
         if (aiNow) {
             aiElapsedS = Math.round(AiSession.getEngine().getElapsedPlanS());
@@ -530,7 +552,11 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         boolean quiet = !bandAppVisible && com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.isLinked();
         boolean liveDue = !quiet && !live.equals(lastSentLive) && now - lastSentMs >= MUSIC_LIVE_MS;
         boolean keepAlive = !quiet && now - lastSentMs >= MUSIC_KEEPALIVE_MS;
-        if (musicAsked || structural || liveDue || keepAlive) {
+        // The band app is on screen: the system music screen is not, so it waits (sent when the app
+        // hides) — half the traffic at the start of a workout, when the band has the most to do.
+        boolean appShowing = visSeen && bandAppVisible
+                && com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.isLinked();
+        if (musicAsked || !appShowing && (structural || liveDue || keepAlive)) {
             musicAsked = false;
             lastSent = key;
             lastSentLive = live;
@@ -885,6 +911,31 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     }
 
     // ================================================================ runnables
+
+    private static void scheduleAutoOpen() {
+        if (!WearableConfig.isBandAutoOpen(WearableSyncHelper.getContext())) {
+            return;
+        }
+        handler.removeCallbacks(autoOpen);
+        handler.postDelayed(autoOpen, AUTO_OPEN_DELAY_MS);
+    }
+
+    /** Still running and the band app not on screen: open it (ThirdpartyApp 20/4). */
+    static final class AutoOpen implements Runnable {
+        @Override
+        public void run() {
+            try {
+                boolean on = XemsPanel.isRunning() || AiSession.getStage() == AiSession.Stage.RUNNING;
+                if (!on || visSeen && bandAppVisible) {
+                    return;
+                }
+                WearableBleDiagLog.log("remote", "auto-open band app");
+                com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.launch("");
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("BandRemote.autoOpen", t);
+            }
+        }
+    }
 
     static final class Tick implements Runnable {
         @Override

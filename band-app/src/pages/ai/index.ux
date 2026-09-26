@@ -16,7 +16,7 @@
       <text class="sub">{{bigLabel}}</text>
       <stack class="play-box">
         <div class="glow" style="background-color: {{playGlow}}"></div>
-        <div class="btn play {{st === 'run' ? 'orb-dark' : 'orb'}} {{pressed === 'play' ? 'down' : ''}}"
+        <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playColor}}"
              ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
           <image class="play-img" src="{{playIcon}}"></image>
         </div>
@@ -129,6 +129,7 @@ export default {
     bigLabel: '',
     timeColor: '#FFFFFF',
     playIcon: '/common/icons/play.png',
+    playColor: GREEN,
     playGlow: 'rgba(0,0,0,0)',
     pressed: '',
     lvlText: '100',
@@ -223,9 +224,11 @@ export default {
     }
     if (this.st === 'run') {
       this.playIcon = '/common/icons/pause.png'
+      this.playColor = '#2C2C2E'
       this.playGlow = 'rgba(0,0,0,0)'
     } else {
       this.playIcon = '/common/icons/play.png'
+      this.playColor = GREEN
       this.playGlow = this.st === 'ready' ? 'rgba(48,209,88,0.45)' : 'rgba(48,209,88,0.2)'
     }
 
@@ -566,15 +569,10 @@ export default {
   width: 172px;
   height: 172px;
 }
-.orb {
-  background-image: url(/common/art/orb-ai.png);
-  background-size: cover;
-}
-.orb-dark {
-  background-image: url(/common/art/orb-ai-dark.png);
-  background-size: cover;
-}
+/* colour from CSS (start / pause changes only that), light layer on top */
 .play {
+  background-image: url(/common/art/shine-92.png);
+  background-size: contain;
   width: 92px;
   height: 92px;
   border-radius: 46px;

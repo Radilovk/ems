@@ -19,6 +19,7 @@ node test/app-screen.test.mjs
 node test/auto-route.test.mjs
 node test/home-layout.test.mjs
 node test/visibility.test.mjs
+node test/stability.test.mjs
 
 echo "=== 3/4 SPP protocol sim (phone ↔ band bytes) ==="
 if command -v python3 >/dev/null && [[ -f "$REPO/scripts/ble-sim/run-spp.sh" ]]; then

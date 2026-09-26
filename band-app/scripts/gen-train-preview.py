@@ -208,9 +208,11 @@ def render_column(
 
 
 def draw_main_bar_at(im: Image.Image, d: ImageDraw.ImageDraw, running: bool, y: int) -> None:
-    png = UI / ("all-btn.png" if running else "all-btn-dim.png")
+    png = UI / "all-btn.png"
     if png.is_file():
         bar = Image.open(png).convert("RGBA").resize((CBOX_W, CBOX_H), Image.Resampling.LANCZOS)
+        if not running:  # .cfill-dim: opacity 0.62
+            bar.putalpha(bar.getchannel("A").point(lambda v: int(v * 0.62)))
         im.paste(bar, (CBOX_X, y), bar)
     else:
         rounded_rect(d, (CBOX_X, y, CBOX_X + CBOX_W, y + CBOX_H), 22, "#17462A")

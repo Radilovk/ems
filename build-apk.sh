@@ -137,6 +137,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   bash "${ROOT}/scripts/ble-sim/run-hr-policy.sh"
   python3 "${ROOT}/scripts/apply-wearable-settings-connect.py"
   python3 "${ROOT}/scripts/verify-wearable-smali.py"
+  python3 "${ROOT}/scripts/apply-band-shortcut.py"
 else
   echo "BETA music sync disabled (BETA_MUSIC=0)."
 fi

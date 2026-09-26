@@ -24,7 +24,13 @@
 # direct methods
 .method constructor <init>(Landroid/widget/TextView;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
+    .prologue
     .line 116
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;
 
@@ -36,43 +42,58 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 5
 
+    .prologue
     .line 119
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isKeyHidden()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$100()Z
 
-    move-result p1
+    move-result v1
 
     .line 120
-    xor-int/lit8 v0, p1, 0x1
+    if-nez v1, :cond_1a
 
+    const/4 v0, 0x1
+
+    :goto_7
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->setKeyHidden(Z)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$200(Z)V
 
     .line 121
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;
 
-    if-eqz p1, :cond_12
+    if-eqz v1, :cond_1c
 
-    const-string p1, "\u0421\u043a\u0440\u0438\u0439"
+    const-string v0, "\u0421\u043a\u0440\u0438\u0439"
 
     const-string v1, "Hide"
 
-    goto :goto_16
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    :cond_12
-    const-string p1, "\u041f\u043e\u043a\u0430\u0436\u0438"
-
-    const-string v1, "Show"
+    move-result-object v0
 
     :goto_16
-    invoke-static {p1, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 122
     return-void
+
+    .line 120
+    :cond_1a
+    const/4 v0, 0x0
+
+    goto :goto_7
+
+    .line 121
+    :cond_1c
+    const-string v0, "\u041f\u043e\u043a\u0430\u0436\u0438"
+
+    const-string v1, "Show"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_16
 .end method

@@ -31,6 +31,10 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
   Env: `BETA_MUSIC=1` (default; music/timer/wearable/AI/local stack), `DESIGN_PIPELINE=0`, `SKIP_JAVA_RECOMPILE=0`.
 - Compile needs `android-sdk/platforms/android-30/android.jar` + `build-tools/30.0.3/d8` in repo root (gitignored).
   **Missing SDK ⇒ compile scripts silently keep the prebuilt smali ⇒ Java edits are NOT shipped.** Check first.
+  Cloud session (no dl.google.com): `bash scripts/setup-android-toolchain.sh` (android.jar from Maven Central, d8 → dx
+  wrapper, baksmali). dx ≠ d8 output, so after `compile-*-java.sh` keep only the smali of classes you changed (with
+  their `$Inner` classes — never mix dx outer + d8 inner) and `git checkout` the rest of `branding/smali/`.
+  Then build the APK with `SKIP_JAVA_RECOMPILE=1 bash build-apk.sh` (else it recompiles everything with dx).
 - Patch scripts find anchors in vendor smali (`*_MARKER`, `OLD`/`NEW` constants) — outline shows them as `const`.
 - Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/music-sim/run.sh`,
   `cd band-app && bash scripts/test-band.sh`, `cd server && npm test`, `python3 scripts/ui-map.py --check`.

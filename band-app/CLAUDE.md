@@ -12,7 +12,7 @@
   idle|running|multi out.png` — never the Vela emulator. Details: `test/README.md`, `docs/screen-preview.md`.
 - Version bump = three places: `src/manifest.json` versionCode/versionName, `src/app.ux` `APP_VERSION`,
   `branding/java/.../wearable/BandAppInstall.java` `VERSION` (then compile-wearable-java.sh + APK rebuild).
-  No Android SDK → the constant is inlined in smali: `BandAppInstall.smali` (field, two `const/16`, `"N/"` string) and
+  Without a toolchain (see root CLAUDE.md) the constant is inlined in smali: `BandAppInstall.smali` (field, two `const/16`, `"N/"` string) and
   `WearableSettingsSection.smali` (`const/16` after `getBandAppVersion`). `apply-band-app.py` fails the build on a mismatch.
 - Any change under `src/` or `scripts/` ships only with rebuilt `.rpk` files **and** a rebuilt `xems27.apk`
   (the APK embeds the rpk via `scripts/apply-band-app.py`).

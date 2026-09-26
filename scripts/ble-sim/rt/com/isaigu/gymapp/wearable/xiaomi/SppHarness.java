@@ -43,6 +43,8 @@ public class SppHarness implements XiaomiBandSppPort {
     c.setListener(new Listen());
     XiaomiBandRemote.setListener(new Remote(c));
     XiaomiBandAppLink.setListener(new App());
+    // Home-screen icon before the link is up: must wait for the app list, then go out once.
+    System.out.println("  launch queued " + (!XiaomiBandAppLink.launch("") && XiaomiBandAppLink.isLaunchPending()));
     c.connect(new android.content.Context(), "D0:62:2C:26:49:60", a[1]);
     c.startRealtime();
     for (long t = 0; t < 30000 && dropped == null; t += 250) {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Baked artwork for the band app: module badges, glossy buttons ("orbs"), glows behind rings.
+"""Baked artwork for the band app: module badges, button faces ("orbs"), glows behind rings.
 
 Why images: the band draws a PNG as one cheap copy, while gradients, shadows and glows in CSS
 are drawn poorly (or not at all) and cost CPU on every frame. Everything here is rendered once,
@@ -119,23 +119,25 @@ def button(name, color, px):
     finish(orb(color, px * SS), px, name, colors=0)  # big smooth gradient: a palette shows steps
 
 
-def glow(name, color, px, ring_r, width):
-    """Soft halo around a ring of radius ring_r (display px), shipped at half size."""
+def glow(name, color, px, ring_r, width, dy=0):
+    """Soft halo around a ring of radius ring_r (display px), shipped at half size.
+    dy moves the centre down (display px) when the glow box and the ring are not concentric."""
     h = px // 2
     d = h * SS
     m = Image.new("L", (d, d), 0)
     r = ring_r / 2 * SS
     w = width / 2 * SS
     c = d / 2
-    ImageDraw.Draw(m).ellipse((c - r - w, c - r - w, c + r + w, c + r + w), outline=255, width=int(w * 2))
+    cy = c + dy / 2 * SS
+    ImageDraw.Draw(m).ellipse((c - r - w, cy - r - w, c + r + w, cy + r + w), outline=255, width=int(w * 2))
     m = m.filter(ImageFilter.GaussianBlur(w * 0.9)).point(lambda v: min(255, int(v * 1.15)))
     # fade to nothing before the image edge, so no square ever shows on the background
-    edge = radial((d, d), (c, c), c, (255, 255, 255), (0, 0, 0), power=6).convert("L")
+    edge = radial((d, d), (c, cy), c, (255, 255, 255), (0, 0, 0), power=6).convert("L")
     m = ImageChops.multiply(m, edge)
     # outside only: the centre of the ring holds the numbers and stays clean black
     hole = Image.new("L", (d, d), 255)
     ri = r - w * 0.5
-    ImageDraw.Draw(hole).ellipse((c - ri, c - ri, c + ri, c + ri), fill=0)
+    ImageDraw.Draw(hole).ellipse((c - ri, cy - ri, c + ri, cy + ri), fill=0)
     m = ImageChops.multiply(m, hole.filter(ImageFilter.GaussianBlur(w * 0.25)))
     # One colour, so a palette of that colour × 256 alpha levels is exact (and ~3× smaller than RGBA):
     # pixel value = alpha.
@@ -168,6 +170,13 @@ def main():
                             ("orb-timer", AMBER, 112), ("orb-timer-dark", DARK, 112),
                             ("orb-music", PURPLE, 140), ("orb-music-dark", DARK, 140)):
         button(name, color, px)
+    # Start screen: play (152, green = start, amber = pause), the stop core (140)
+    for name, color, px in (("orb-train", GREEN, 152), ("orb-train-run", AMBER, 152)):
+        button(name, color, px)
+    # soft aura around the Start play button (the glow div is 168 px, button radius 76)
+    # the 168 px glow box starts 16 px above the button (tr-play-row padding): centre 8 px lower
+    glow("glow-train", GREEN, 168, 76, 7, dy=8)
+    glow("glow-train-run", AMBER, 168, 76, 7, dy=8)
     # glows behind the rings (radius / stroke from each page's ring CSS)
     glow("glow-ai", YELLOW, 172, 79, 14)
     glow("glow-timer", AMBER, 180, 83, 14)

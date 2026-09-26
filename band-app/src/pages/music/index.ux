@@ -346,16 +346,6 @@ export default {
     opacity: 1;
   }
 }
-@keyframes breathe {
-  from {
-    transform: scale(0.86);
-    opacity: 0.9;
-  }
-  to {
-    transform: scale(1.12);
-    opacity: 0.2;
-  }
-}
 /* ---- page ---- */
 .bg-music {
   background-image: url(/common/bg/music.png);

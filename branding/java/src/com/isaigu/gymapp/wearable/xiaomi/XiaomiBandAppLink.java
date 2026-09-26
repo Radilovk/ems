@@ -17,7 +17,9 @@ import java.util.Map;
  *   <li>band → phone: field 9 MessageContent{BasicInfo, content} (the app's send());</li>
  *   <li>phone → band: 20/8 field 9 MessageContent{BasicInfo, content} (the app's onmessage);</li>
  *   <li>20/0 asks for the installed apps: field 1 list of AppItem{package, fingerprint,
- *       version, removable, name} — used to learn the fingerprint (and version) up front.</li>
+ *       version, removable, name} — used to learn the fingerprint (and version) up front;</li>
+ *   <li>phone → band: 20/4 field 6 LaunchInfo{BasicInfo, uri} opens the app ("" = its first
+ *       page) — what the home-screen shortcut sends. The band does not answer it.</li>
  * </ul>
  * Without the "connected" status the app's interconnect stays closed (send fails with 1006).
  * Protocol facts from the public AstroBox protobuf definitions; the code is written here.
@@ -34,6 +36,7 @@ public final class XiaomiBandAppLink {
 
     static final int T_APP = 20;
     static final int APP_LIST = 0;
+    static final int APP_LAUNCH = 4;
     static final int APP_STATUS_SYNC = 7;
     static final int APP_MESSAGE_TO_WEAR = 8;
     static final int STATUS_CONNECTED = 1;
@@ -43,6 +46,11 @@ public final class XiaomiBandAppLink {
     private static byte[] fingerprint;
     private static boolean announced;
     private static long lastMs;
+    /** A launch asked for before the band's app list (and so our fingerprint) arrived. */
+    private static String pendingLaunch;
+    private static long pendingUntil;
+    private static volatile Runnable launchCallback;
+    private static final long LAUNCH_WAIT_MS = 45000L;
 
     private XiaomiBandAppLink() {}
 
@@ -164,6 +172,57 @@ public final class XiaomiBandAppLink {
                 XiaomiBandProto.protoFieldMessage(22, XiaomiBandProto.protoFieldMessage(8, status))));
         announced = true;
         WearableBleDiagLog.log("applink", "announced connected");
+        flushLaunch();
+    }
+
+    /** Called (on the link's thread) each time a launch goes out to the band. */
+    public static void setLaunchCallback(Runnable r) {
+        launchCallback = r;
+    }
+
+    /** A launch is waiting for the link / app list. */
+    public static boolean isLaunchPending() {
+        return pendingLaunch != null && System.currentTimeMillis() < pendingUntil;
+    }
+
+    /**
+     * Open the XEMS app on the band. Sent now when the link is up and our fingerprint is known;
+     * otherwise kept for {@link #LAUNCH_WAIT_MS} and sent as soon as the app list arrives.
+     * True when it went out now.
+     */
+    public static boolean launch(String uri) {
+        String u = uri != null ? uri : "";
+        XiaomiBandLink link = XiaomiBand.link();
+        if (fingerprint == null || link == null || !link.isConnected()) {
+            pendingLaunch = u;
+            pendingUntil = System.currentTimeMillis() + LAUNCH_WAIT_MS;
+            WearableBleDiagLog.log("applink", "launch waits for the link");
+            return false;
+        }
+        pendingLaunch = null;
+        byte[] info = XiaomiBandProto.concat(
+                XiaomiBandProto.protoFieldMessage(1, basicInfo()),
+                XiaomiBandProto.protoFieldString(2, u));
+        link.sendCommand(XiaomiBandMessages.command(T_APP, APP_LAUNCH,
+                XiaomiBandProto.protoFieldMessage(22, XiaomiBandProto.protoFieldMessage(6, info))));
+        WearableBleDiagLog.log("applink", "launch " + (u.length() > 0 ? u : "app"));
+        Runnable r = launchCallback;
+        if (r != null) {
+            r.run();
+        }
+        return true;
+    }
+
+    private static void flushLaunch() {
+        String u = pendingLaunch;
+        if (u == null) {
+            return;
+        }
+        if (System.currentTimeMillis() > pendingUntil) {
+            pendingLaunch = null;
+            return;
+        }
+        launch(u);
     }
 
     /** Send JSON to the band app (no-op until its fingerprint is known). */

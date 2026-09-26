@@ -3,40 +3,41 @@
   <stack class="root bg-start" onswipe="onSwipe">
     <scroll id="trainScr" class="scr" scroll-y="true" onscroll="onScroll">
       <div class="col" style="height: {{colH}}px">
-        <div class="ctl">
-          <text class="elapsed">{{elapsed}}</text>
-          <div class="kpis">
-            <div class="kpi">
-              <text class="kpi-num">{{msText}}</text>
-              <text class="kpi-lbl">сила</text>
-            </div>
-            <div class="kpi">
-              <text class="kpi-num" style="color: {{zoneColor}}">{{hrText}}</text>
-              <text class="kpi-lbl">{{zoneText}}</text>
+        <div class="train-head">
+          <div class="ctl">
+            <text class="elapsed">{{elapsed}}</text>
+            <div class="kpis">
+              <div class="kpi">
+                <text class="kpi-num">{{msText}}</text>
+                <text class="kpi-lbl">сила</text>
+              </div>
+              <div class="kpi">
+                <text class="kpi-num" style="color: {{zoneColor}}">{{hrText}}</text>
+                <text class="kpi-lbl">{{zoneText}}</text>
+              </div>
             </div>
           </div>
+
+          <stack class="tr-play-row">
+            <div class="tr-play {{run ? 'tr-play-run' : 'tr-play-idle'}} {{pressed === 'play' ? 'tr-play-press' : ''}}"
+                 ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+              <image class="tr-play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+            </div>
+          </stack>
+
+          <stack class="cbox cbox-main">
+            <image class="cfill-main" src="{{allBtnSrc}}"></image>
+            <div class="cface cface-all">
+              <text class="bigsign">-</text>
+              <text class="bigsign">+</text>
+            </div>
+            <div class="ctouch"
+                 ontouchstart="mainTouchStart"
+                 ontouchmove="rowTouchMove"
+                 ontouchend="rowTouchEnd"
+                 ontouchcancel="rowTouchEnd"></div>
+          </stack>
         </div>
-
-        <stack class="tr-play-wrap" style="width: 152px; height: 152px; margin-top: 16px; margin-left: 30px;">
-          <div class="btn tr-play {{pressed === 'play' ? 'down' : ''}}"
-               style="width: 152px; height: 152px; border-radius: 76px; background-color: {{run ? '#FF9F0A' : '#30D158'}}"
-               ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
-            <image class="tr-play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
-          </div>
-        </stack>
-
-        <stack class="cbox cbox-main">
-          <image class="cfill-main" src="{{allBtnSrc}}"></image>
-          <div class="cface cface-all">
-            <text class="bigsign">-</text>
-            <text class="bigsign">+</text>
-          </div>
-          <div class="ctouch"
-               ontouchstart="mainTouchStart"
-               ontouchmove="rowTouchMove"
-               ontouchend="rowTouchEnd"
-               ontouchcancel="rowTouchEnd"></div>
-        </stack>
 
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{run ? $item.fillLive : $item.fillDim}}"></div>
@@ -800,6 +801,12 @@ export default {
   font-weight: bold;
   color: #ffffff;
 }
+.train-head {
+  flex-shrink: 0;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+}
 .ctl {
   flex-shrink: 0;
   height: 200px;
@@ -808,15 +815,14 @@ export default {
   align-items: center;
   padding-top: 40px;
 }
-.tr-play-wrap {
+.tr-play-row {
   flex-shrink: 0;
-  width: 152px;
-  height: 152px;
-  margin-top: 16px;
-  margin-left: 30px;
+  width: 212px;
+  height: 168px;
+  padding-top: 16px;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .tr-play {
   flex-shrink: 0;
@@ -825,6 +831,15 @@ export default {
   border-radius: 76px;
   justify-content: center;
   align-items: center;
+}
+.tr-play-idle {
+  background-color: #30d158;
+}
+.tr-play-run {
+  background-color: #ff9f0a;
+}
+.tr-play-press {
+  opacity: 0.88;
 }
 .tr-play-img {
   flex-shrink: 0;

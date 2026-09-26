@@ -34,3 +34,10 @@ Band 5.9.27 / APK 1.1.139-ai.
 - Radar „Свързване…“ само преди първи `state`; после dial остава
 - Music screen HUD: „Музика · ▶ старт“, force push при train/AI start
 
+## v4.1 — dial visual (леко)
+
+- Типография като циферблат: XEMS / време, голям HR, Z, 5 точки
+- Статичен пръстен зад play (без breathe)
+- Чипове ghost + цветен ръб само когато модулът е активен
+- Offline без looping wave
+

@@ -88,24 +88,21 @@ export function age(app, running) {
   return running ? app.silence() : 0
 }
 
-/**
- * Smooth training clock: interpolate between integer el from XEMS without jumping back
- * when the next state still carries the same second.
- */
-export function liveElapsed(s, running, page) {
-  const el = s && s.el != null ? s.el : 0
+/** Monotonic local clock between integer el values from XEMS. */
+export function liveSeconds(clock, el, running) {
+  const e = el != null ? el : 0
   if (!running) {
-    page.elBase = el
-    page.elAt = 0
-    return el
+    clock.base = e
+    clock.at = 0
+    return e
   }
-  if (el !== page.elBase) {
-    page.elBase = el
-    page.elAt = Date.now()
-  } else if (!page.elAt) {
-    page.elAt = Date.now()
+  if (e !== clock.base) {
+    clock.base = e
+    clock.at = Date.now()
+  } else if (!clock.at) {
+    clock.at = Date.now()
   }
-  return page.elBase + (Date.now() - page.elAt) / 1000
+  return clock.base + (Date.now() - clock.at) / 1000
 }
 
 // ================================================================ paging (one thing per screen)

@@ -27,16 +27,14 @@
 
     <!-- not linked yet -->
     <div class="offline" if="{{offline}}">
-      <div class="off-center">
-        <stack class="radar">
-          <div class="wave"></div>
-          <div class="wave wave2"></div>
-          <div class="core"><text class="core-x">X</text></div>
-        </stack>
-        <text class="off-title">XEMS</text>
-        <text class="off-sub">{{offText}}</text>
-        <text class="sub off-hint">Отвори XEMS на таблета</text>
-      </div>
+      <stack class="radar">
+        <div class="wave"></div>
+        <div class="wave wave2"></div>
+        <div class="core"><text class="core-x">X</text></div>
+      </stack>
+      <text class="off-title">XEMS</text>
+      <text class="off-sub">{{offText}}</text>
+      <text class="sub off-hint">Отвори XEMS на таблета</text>
     </div>
   </stack>
 </template>
@@ -400,13 +398,6 @@ export default {
   flex-shrink: 0;
   width: 212px;
   height: 520px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.off-center {
-  flex-shrink: 0;
-  width: 212px;
   flex-direction: column;
   align-items: center;
   justify-content: center;

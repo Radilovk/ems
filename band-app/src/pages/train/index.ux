@@ -27,11 +27,11 @@
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
           </div>
-          <div class="ctouch ch-row-touch"
-               ontouchstart="allTouchStart"
-               ontouchmove="allTouchMove"
-               ontouchend="allTouchEnd"
-               ontouchcancel="allTouchEnd"></div>
+          <div class="ctouch"
+               ontouchstart="rowTouchStart(true)"
+               ontouchmove="rowTouchMove"
+               ontouchend="rowTouchEnd"
+               ontouchcancel="rowTouchEnd"></div>
         </stack>
 
         <stack for="{{chans}}" class="cbox">
@@ -46,11 +46,11 @@
               <text class="csign" style="color: {{$item.signColor}}">+</text>
             </div>
           </div>
-          <div class="ctouch ch-row-touch"
-               ontouchstart="chTouchStart($item.i, $item.text, $item.name)"
-               ontouchmove="chTouchMove"
-               ontouchend="chTouchEnd"
-               ontouchcancel="chTouchEnd"></div>
+          <div class="ctouch"
+               ontouchstart="rowTouchStart(false, $item.i, $item.text, $item.name)"
+               ontouchmove="rowTouchMove"
+               ontouchend="rowTouchEnd"
+               ontouchcancel="rowTouchEnd"></div>
         </stack>
 
         <div class="stop-item">
@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveElapsed } from '../../common/ui.js'
+import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveSeconds } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 const SLIDE_OPEN_MS = 400
@@ -117,6 +117,26 @@ function touchX(e) {
   return t ? t.pageX : 0
 }
 
+/** Batched strength change — channels use d≤10; main sends one command per step. */
+function sendStrengthDelta(app, main, channel, delta) {
+  if (!delta) {
+    return
+  }
+  let rem = delta
+  while (rem !== 0) {
+    const step = rem > 0 ? Math.min(rem, 10) : Math.max(rem, -10)
+    if (main) {
+      const cmd = step > 0 ? 'train_plus' : 'train_minus'
+      for (let n = 0; n < Math.abs(step); n++) {
+        app.command(cmd, null, 'none')
+      }
+    } else {
+      app.command(step > 0 ? 'ch_plus' : 'ch_minus', { c: channel, d: Math.abs(step) }, 'none')
+    }
+    rem -= step
+  }
+}
+
 export default {
   private: {
     run: false,
@@ -129,6 +149,7 @@ export default {
     zoneText: 'пулс',
     chans: [],
     chKey: '',
+    chRaw: '',
     colH: 900,
     allBtnSrc: '/common/ui/all-btn-dim.png',
     slideOn: false,
@@ -147,8 +168,7 @@ export default {
   onInit() {
     this.optim = {}
     this.optMs = null
-    this.elBase = 0
-    this.elAt = 0
+    this.elClock = { base: 0, at: 0 }
     this.savedScroll = 0
     this.unbind = bind(this)
   },
@@ -213,7 +233,7 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
-    this.elapsed = hms(liveElapsed(s, run, this))
+    this.elapsed = hms(liveSeconds(this.elClock, s.el, run))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
     this.zoneText = s.hr > 0 ? 'пулс · Z' + z : 'пулс'
@@ -229,10 +249,16 @@ export default {
     this.msText = ms >= 0 ? String(ms) : '--'
     this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
     this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
+    this.slideDim = this.slideOn && !run
     if (this.slideOn) {
-      this.slideDim = !run
-    } else {
-      this.buildChannels(s.ch || [], run)
+      return
+    }
+    const ch = s.ch || []
+    const raw = (run ? '1' : '0') + ch.join(',')
+    const pending = this.optMs || Object.keys(this.optim).length > 0
+    if (raw !== this.chRaw || pending) {
+      this.chRaw = raw
+      this.buildChannels(ch, run)
     }
   },
 
@@ -240,12 +266,6 @@ export default {
     if (live === undefined) {
       live = this.run
     }
-    const now = Date.now()
-    Object.keys(this.optim).forEach((k) => {
-      if (now - this.optim[k].at > 2000) {
-        delete this.optim[k]
-      }
-    })
     const out = []
     ORDER.forEach((i) => {
       if (i >= ch.length) {
@@ -317,11 +337,8 @@ export default {
   },
 
   openSlide(i, val, name, isMain) {
-    if (this.chTouch) {
-      this.chTouch.opened = true
-    }
-    if (this.allTouch) {
-      this.allTouch.opened = true
+    if (this.rowTouch) {
+      this.rowTouch.opened = true
     }
     clearTimeout(this.slideCloseTimer)
     this.slideMain = !!isMain
@@ -335,8 +352,7 @@ export default {
     this.slideDim = !this.run
     this.slideTick = Math.floor(val / 10)
     this.updateSlideVisual(val)
-    const touch = this.chTouch || this.allTouch
-    const y = touch && touch.y
+    const y = this.rowTouch && this.rowTouch.y
     if (y) {
       this.setSlideFromY(y)
     }
@@ -376,46 +392,8 @@ export default {
     }, SLIDE_COMMIT_MS)
   },
 
-  /** Same as tap ±: batched ch_plus / ch_minus (d≤10 per command). */
-  sendChannelDelta(c, delta) {
-    if (!delta) {
-      return
-    }
-    const app = this.$app.$def
-    let rem = delta
-    while (rem !== 0) {
-      const step = rem > 0 ? Math.min(rem, 10) : Math.max(rem, -10)
-      app.command(step > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: Math.abs(step) }, 'none')
-      rem -= step
-    }
-  },
-
-  /** Same as tap main ±: train_plus / train_minus, one step per command. */
-  sendMainDelta(delta) {
-    if (!delta) {
-      return
-    }
-    const app = this.$app.$def
-    let rem = delta
-    while (rem !== 0) {
-      const step = rem > 0 ? Math.min(rem, 10) : Math.max(rem, -10)
-      const cmd = step > 0 ? 'train_plus' : 'train_minus'
-      for (let i = 0; i < Math.abs(step); i++) {
-        app.command(cmd, null, 'none')
-      }
-      rem -= step
-    }
-  },
-
   commitSlideDelta(delta) {
-    if (!delta) {
-      return
-    }
-    if (this.slideMain) {
-      this.sendMainDelta(delta)
-    } else {
-      this.sendChannelDelta(this.slideIdx, delta)
-    }
+    sendStrengthDelta(this.$app.$def, this.slideMain, this.slideIdx, delta)
   },
 
   commitSlide() {
@@ -438,15 +416,21 @@ export default {
     return ms >= 0 ? ms : 0
   },
 
-  allTouchStart(e) {
+  rowTouchStart(isMain, i, text, name, e) {
     if (this.slideOn) {
       return
     }
     this.captureScroll()
     const y = touchY(e)
     const x = touchX(e)
-    const val = this.mainMsVal()
-    this.allTouch = {
+    const main = isMain === true || isMain === 'true'
+    const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
+    const label = main ? 'СИЛА' : name
+    const ch = main ? -1 : i
+    this.rowTouch = {
+      main: main,
+      i: ch,
+      name: label,
       val: val,
       startX: x,
       startY: y,
@@ -455,16 +439,17 @@ export default {
       moved: false,
       opened: false
     }
-    clearTimeout(this.allOpenTimer)
-    this.allOpenTimer = setTimeout(() => {
-      if (this.allTouch && !this.allTouch.opened) {
-        this.openSlide(-1, this.allTouch.val, 'СИЛА', true)
+    clearTimeout(this.rowOpenTimer)
+    this.rowOpenTimer = setTimeout(() => {
+      const t = this.rowTouch
+      if (t && !t.opened && t.i === ch) {
+        this.openSlide(ch, t.val, label, main)
       }
     }, SLIDE_OPEN_MS)
   },
 
-  allTouchMove(e) {
-    const touch = this.allTouch
+  rowTouchMove(e) {
+    const touch = this.rowTouch
     if (!touch) {
       return
     }
@@ -474,20 +459,20 @@ export default {
     if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
       touch.moved = true
     }
-    if (this.slideOn && this.slideTouching && this.slideMain) {
+    if (this.slideOn && this.slideTouching) {
       this.setSlideFromY(y)
     }
   },
 
-  allTouchEnd(e) {
-    clearTimeout(this.allOpenTimer)
-    const touch = this.allTouch
+  rowTouchEnd(e) {
+    clearTimeout(this.rowOpenTimer)
+    const touch = this.rowTouch
     if (touch && touch.opened) {
-      this.allTouch = null
+      this.rowTouch = null
       this.slideEnd()
       return
     }
-    this.allTouch = null
+    this.rowTouch = null
     if (!touch) {
       return
     }
@@ -497,78 +482,11 @@ export default {
     }
     if (!touch.moved && elapsed <= TAP_MAX_MS) {
       const x = touchX(e) || touch.x
-      if (x < 106) {
-        this.allMinus()
+      const minus = x < 106
+      if (touch.main) {
+        minus ? this.allMinus() : this.allPlus()
       } else {
-        this.allPlus()
-      }
-    }
-  },
-
-  chTouchStart(i, text, name, e) {
-    if (this.slideOn) {
-      return
-    }
-    this.captureScroll()
-    const y = touchY(e)
-    const x = touchX(e)
-    this.chTouch = {
-      i: i,
-      name: name,
-      val: parseInt(text, 10) || 0,
-      startX: x,
-      startY: y,
-      y: y,
-      t0: Date.now(),
-      moved: false,
-      opened: false
-    }
-    clearTimeout(this.chOpenTimer)
-    this.chOpenTimer = setTimeout(() => {
-      if (this.chTouch && this.chTouch.i === i && !this.chTouch.opened) {
-        this.openSlide(i, this.chTouch.val, name)
-      }
-    }, SLIDE_OPEN_MS)
-  },
-
-  chTouchMove(e) {
-    const touch = this.chTouch
-    if (!touch) {
-      return
-    }
-    const y = touchY(e)
-    const x = touchX(e)
-    touch.y = y
-    if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
-      touch.moved = true
-    }
-    if (this.slideOn && this.slideTouching && !this.slideMain) {
-      this.setSlideFromY(y)
-    }
-  },
-
-  chTouchEnd(e) {
-    clearTimeout(this.chOpenTimer)
-    const touch = this.chTouch
-    if (touch && touch.opened) {
-      this.chTouch = null
-      this.slideEnd(e)
-      return
-    }
-    this.chTouch = null
-    if (!touch) {
-      return
-    }
-    const elapsed = Date.now() - touch.t0
-    if (elapsed >= SLIDE_OPEN_MS || touch.opened) {
-      return
-    }
-    if (!touch.moved && elapsed <= TAP_MAX_MS) {
-      const x = touchX(e) || touch.x
-      if (x < 106) {
-        this.chMinus(touch.i)
-      } else {
-        this.chPlus(touch.i)
+        minus ? this.chMinus(touch.i) : this.chPlus(touch.i)
       }
     }
   },
@@ -585,10 +503,8 @@ export default {
     const wasMain = this.slideMain
     this.slideTouching = false
     clearTimeout(this.slideCommitTimer)
-    clearTimeout(this.chOpenTimer)
-    clearTimeout(this.allOpenTimer)
-    this.chTouch = null
-    this.allTouch = null
+    clearTimeout(this.rowOpenTimer)
+    this.rowTouch = null
     if (this.slideDraft !== this.slideSent) {
       this.commitSlide()
     }
@@ -608,13 +524,11 @@ export default {
   closeSlideNow() {
     clearTimeout(this.slideCloseTimer)
     clearTimeout(this.slideCommitTimer)
-    clearTimeout(this.chOpenTimer)
-    clearTimeout(this.allOpenTimer)
+    clearTimeout(this.rowOpenTimer)
     this.slideOn = false
     this.slideTouching = false
     this.slideMain = false
-    this.chTouch = null
-    this.allTouch = null
+    this.rowTouch = null
   },
 
   step(c, d) {
@@ -961,14 +875,6 @@ export default {
   width: 196px;
   height: 76px;
   flex-direction: row;
-}
-.chalf {
-  flex-shrink: 0;
-  width: 98px;
-  height: 76px;
-}
-.ch-row-touch {
-  flex-direction: column;
 }
 .stop-item {
   flex-shrink: 0;

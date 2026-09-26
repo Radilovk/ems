@@ -25,7 +25,7 @@
         </div>
 
         <stack class="cbox cbox-main">
-          <image class="cfill all-fill" src="{{allBtnSrc}}"></image>
+          <image class="cfill-main" src="{{allBtnSrc}}"></image>
           <div class="cface cface-all">
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
@@ -881,15 +881,11 @@ export default {
   font-weight: bold;
   lines: 1;
 }
-.cbox-main .cfill {
+.cfill-main {
+  flex-shrink: 0;
   width: 196px;
   height: 92px;
-  margin-left: 0px;
-  margin-top: 0px;
   border-radius: 22px;
-}
-.all-fill {
-  width: 196px;
 }
 .cface-all {
   flex-direction: row;

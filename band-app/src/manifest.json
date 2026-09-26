@@ -1,8 +1,8 @@
 {
   "package": "com.xems.band",
   "name": "XEMS",
-  "versionName": "5.9.7",
-  "versionCode": 33,
+  "versionName": "5.9.12",
+  "versionCode": 38,
   "minPlatformVersion": 1200,
   "icon": "/common/logo.png",
   "deviceTypeList": [

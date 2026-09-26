@@ -20,7 +20,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 33
+const APP_VERSION = 38
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -328,9 +328,10 @@ export default {
   },
 
   notify() {
+    const s = this.state
     this.listeners.forEach((f) => {
       try {
-        f(this.state)
+        f(s)
       } catch (e) {}
     })
   }

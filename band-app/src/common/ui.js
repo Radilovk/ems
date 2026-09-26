@@ -88,6 +88,23 @@ export function age(app, running) {
   return running ? app.silence() : 0
 }
 
+/** Monotonic local clock between integer el values from XEMS. */
+export function liveSeconds(clock, el, running) {
+  const e = el != null ? el : 0
+  if (!running) {
+    clock.base = e
+    clock.at = 0
+    return e
+  }
+  if (e !== clock.base) {
+    clock.base = e
+    clock.at = Date.now()
+  } else if (!clock.at) {
+    clock.at = Date.now()
+  }
+  return clock.base + (Date.now() - clock.at) / 1000
+}
+
 // ================================================================ paging (one thing per screen)
 
 

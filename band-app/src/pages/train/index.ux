@@ -4,7 +4,6 @@
     <scroll id="trainScr" class="scr" scroll-y="true" onscroll="onScroll">
       <div class="col" style="height: {{colH}}px">
         <div class="ctl">
-          <text class="caps" style="color: {{runColor}}">{{caps}}</text>
           <text class="elapsed">{{elapsed}}</text>
           <div class="kpis">
             <div class="kpi">
@@ -28,13 +27,12 @@
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
           </div>
-          <div class="ctouch">
-            <div class="chalf" onclick="allMinus"></div>
-            <div class="chalf" onclick="allPlus"></div>
-          </div>
+          <div class="ctouch"
+               ontouchstart="rowTouchStart(true)"
+               ontouchmove="rowTouchMove"
+               ontouchend="rowTouchEnd"
+               ontouchcancel="rowTouchEnd"></div>
         </stack>
-
-        <text class="chcap">{{chCaps}}</text>
 
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
@@ -48,23 +46,20 @@
               <text class="csign" style="color: {{$item.signColor}}">+</text>
             </div>
           </div>
-          <div class="ctouch ch-row-touch"
-               ontouchstart="chTouchStart($item.i, $item.text, $item.name)"
-               ontouchmove="chTouchMove"
-               ontouchend="chTouchEnd"
-               ontouchcancel="chTouchEnd"></div>
+          <div class="ctouch"
+               ontouchstart="rowTouchStart(false, $item.i, $item.text, $item.name)"
+               ontouchmove="rowTouchMove"
+               ontouchend="rowTouchEnd"
+               ontouchcancel="rowTouchEnd"></div>
         </stack>
 
         <div class="stop-item">
-          <text class="caps">КРАЙ</text>
           <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
             <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
             <div class="stop-core">
               <image class="stop-img" src="/common/icons/stop.png"></image>
             </div>
           </stack>
-          <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 сек'}}</text>
-          <text class="rtt">{{rttText}}</text>
         </div>
       </div>
     </scroll>
@@ -84,7 +79,7 @@
 </template>
 
 <script>
-import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe } from '../../common/ui.js'
+import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveSeconds } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 const SLIDE_OPEN_MS = 400
@@ -122,10 +117,28 @@ function touchX(e) {
   return t ? t.pageX : 0
 }
 
+/** Batched strength change — channels use d≤10; main sends one command per step. */
+function sendStrengthDelta(app, main, channel, delta) {
+  if (!delta) {
+    return
+  }
+  let rem = delta
+  while (rem !== 0) {
+    const step = rem > 0 ? Math.min(rem, 10) : Math.max(rem, -10)
+    if (main) {
+      const cmd = step > 0 ? 'train_plus' : 'train_minus'
+      for (let n = 0; n < Math.abs(step); n++) {
+        app.command(cmd, null, 'none')
+      }
+    } else {
+      app.command(step > 0 ? 'ch_plus' : 'ch_minus', { c: channel, d: Math.abs(step) }, 'none')
+    }
+    rem -= step
+  }
+}
+
 export default {
   private: {
-    caps: 'СТАРТ',
-    runColor: '#8E8E93',
     run: false,
     elapsed: '0:00',
     zoneColor: '#AEAEB2',
@@ -134,11 +147,10 @@ export default {
     msText: '--',
     hrText: '--',
     zoneText: 'пулс',
-    rttText: '',
-    chCaps: 'КАНАЛИ',
     chans: [],
     chKey: '',
-    colH: 1052,
+    chRaw: '',
+    colH: 900,
     allBtnSrc: '/common/ui/all-btn-dim.png',
     slideOn: false,
     slideIdx: -1,
@@ -149,12 +161,14 @@ export default {
     slideFillH: 0,
     slideKnobB: 0,
     slideAnim: 'slide-in',
-    slideDim: false
+    slideDim: false,
+    slideMain: false
   },
 
   onInit() {
     this.optim = {}
     this.optMs = null
+    this.elClock = { base: 0, at: 0 }
     this.savedScroll = 0
     this.unbind = bind(this)
   },
@@ -219,9 +233,7 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
-    this.caps = run ? 'АКТИВЕН' : s.mode === 'manual' ? 'ПАУЗА' : 'ГОТОВ'
-    this.runColor = run ? GREEN : s.mode === 'manual' ? AMBER : '#8E8E93'
-    this.elapsed = hms((s.el || 0) + (run ? app.silence() : 0))
+    this.elapsed = hms(liveSeconds(this.elClock, s.el, run))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
     this.zoneText = s.hr > 0 ? 'пулс · Z' + z : 'пулс'
@@ -235,13 +247,19 @@ export default {
       }
     }
     this.msText = ms >= 0 ? String(ms) : '--'
-    this.rttText = app.rtt ? 'отговор ' + (app.rtt / 1000).toFixed(1) + ' с' : ''
     this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
     this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
+    this.slideDim = this.slideOn && !run
     if (this.slideOn) {
-      this.slideDim = !run
-    } else {
-      this.buildChannels(s.ch || [], run)
+      return
+    }
+    const ch = s.ch || []
+    const raw = (run ? '1' : '0') + ch.join(',')
+    // Rebuild only when tablet ch[] / run colours change, or a channel ± preview is active.
+    // Main strength (optMs) updates msText above — it does not touch channel rows.
+    if (raw !== this.chRaw || Object.keys(this.optim).length > 0) {
+      this.chRaw = raw
+      this.buildChannels(ch, run)
     }
   },
 
@@ -278,7 +296,6 @@ export default {
         signColor: style.signColor
       })
     })
-    this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'
     const key = (live ? '1' : '0') + JSON.stringify(out)
     if (key === this.chKey) {
       return
@@ -298,7 +315,7 @@ export default {
       })
     } else {
       this.chans = out
-      this.colH = 340 + 86 + 44 + out.length * 86 + 400
+      this.colH = 300 + 86 + out.length * 86 + 230
     }
   },
 
@@ -320,12 +337,13 @@ export default {
     }
   },
 
-  openSlide(i, val, name) {
-    if (this.chTouch) {
-      this.chTouch.opened = true
+  openSlide(i, val, name, isMain) {
+    if (this.rowTouch) {
+      this.rowTouch.opened = true
     }
     clearTimeout(this.slideCloseTimer)
-    this.slideIdx = i
+    this.slideMain = !!isMain
+    this.slideIdx = isMain ? -1 : i
     this.slideName = name
     this.slideDraft = val
     this.slideSent = val
@@ -335,7 +353,7 @@ export default {
     this.slideDim = !this.run
     this.slideTick = Math.floor(val / 10)
     this.updateSlideVisual(val)
-    const y = this.chTouch && this.chTouch.y
+    const y = this.rowTouch && this.rowTouch.y
     if (y) {
       this.setSlideFromY(y)
     }
@@ -354,7 +372,12 @@ export default {
     }
     this.slideDraft = v
     this.updateSlideVisual(v)
-    this.optim[this.slideIdx] = { v: v, at: Date.now() }
+    if (this.slideMain) {
+      this.optMs = { v: v, at: Date.now() }
+      this.msText = String(v)
+    } else {
+      this.optim[this.slideIdx] = { v: v, at: Date.now() }
+    }
     if (!this.slideDim) {
       this.armSlideCommit()
     }
@@ -364,45 +387,52 @@ export default {
     clearTimeout(this.slideCommitTimer)
     this.slideCommitTimer = setTimeout(() => {
       if (this.slideTouching && this.slideDraft !== this.slideSent && !this.slideDim) {
-        this.sendChannelDelta(this.slideIdx, this.slideDraft - this.slideSent)
+        this.commitSlideDelta(this.slideDraft - this.slideSent)
         this.slideSent = this.slideDraft
       }
     }, SLIDE_COMMIT_MS)
   },
 
-  /** Same as tap ±: batched ch_plus / ch_minus (d≤10 per command). */
-  sendChannelDelta(c, delta) {
-    if (!delta) {
-      return
-    }
-    const app = this.$app.$def
-    let rem = delta
-    while (rem !== 0) {
-      const step = rem > 0 ? Math.min(rem, 10) : Math.max(rem, -10)
-      app.command(step > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: Math.abs(step) }, 'none')
-      rem -= step
-    }
+  commitSlideDelta(delta) {
+    sendStrengthDelta(this.$app.$def, this.slideMain, this.slideIdx, delta)
   },
 
   commitSlide() {
-    if (this.slideIdx < 0 || this.slideDraft === this.slideSent || this.slideDim) {
+    if (this.slideDraft === this.slideSent || this.slideDim) {
       return
     }
-    this.sendChannelDelta(this.slideIdx, this.slideDraft - this.slideSent)
+    if (!this.slideMain && this.slideIdx < 0) {
+      return
+    }
+    this.commitSlideDelta(this.slideDraft - this.slideSent)
     this.slideSent = this.slideDraft
   },
 
-  chTouchStart(i, text, name, e) {
+  mainMsVal() {
+    const app = this.$app.$def
+    const ms = app.state && app.state.ms != null ? app.state.ms : -1
+    if (this.optMs) {
+      return this.optMs.v
+    }
+    return ms >= 0 ? ms : 0
+  },
+
+  rowTouchStart(isMain, i, text, name, e) {
     if (this.slideOn) {
       return
     }
     this.captureScroll()
     const y = touchY(e)
     const x = touchX(e)
-    this.chTouch = {
-      i: i,
-      name: name,
-      val: parseInt(text, 10) || 0,
+    const main = isMain === true || isMain === 'true'
+    const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
+    const label = main ? 'СИЛА' : name
+    const ch = main ? -1 : (parseInt(i, 10) || 0)
+    this.rowTouch = {
+      main: main,
+      i: ch,
+      name: label,
+      val: val,
       startX: x,
       startY: y,
       y: y,
@@ -410,16 +440,17 @@ export default {
       moved: false,
       opened: false
     }
-    clearTimeout(this.chOpenTimer)
-    this.chOpenTimer = setTimeout(() => {
-      if (this.chTouch && this.chTouch.i === i && !this.chTouch.opened) {
-        this.openSlide(i, this.chTouch.val, name)
+    clearTimeout(this.rowOpenTimer)
+    this.rowOpenTimer = setTimeout(() => {
+      const t = this.rowTouch
+      if (t && !t.opened && t.i === ch) {
+        this.openSlide(ch, t.val, label, main)
       }
     }, SLIDE_OPEN_MS)
   },
 
-  chTouchMove(e) {
-    const touch = this.chTouch
+  rowTouchMove(e) {
+    const touch = this.rowTouch
     if (!touch) {
       return
     }
@@ -434,15 +465,15 @@ export default {
     }
   },
 
-  chTouchEnd(e) {
-    clearTimeout(this.chOpenTimer)
-    const touch = this.chTouch
+  rowTouchEnd(e) {
+    clearTimeout(this.rowOpenTimer)
+    const touch = this.rowTouch
     if (touch && touch.opened) {
-      this.chTouch = null
-      this.slideEnd(e)
+      this.rowTouch = null
+      this.slideEnd()
       return
     }
-    this.chTouch = null
+    this.rowTouch = null
     if (!touch) {
       return
     }
@@ -452,10 +483,11 @@ export default {
     }
     if (!touch.moved && elapsed <= TAP_MAX_MS) {
       const x = touchX(e) || touch.x
-      if (x < 106) {
-        this.chMinus(touch.i)
+      const minus = x < 106
+      if (touch.main) {
+        minus ? this.allMinus() : this.allPlus()
       } else {
-        this.chPlus(touch.i)
+        minus ? this.chMinus(touch.i) : this.chPlus(touch.i)
       }
     }
   },
@@ -469,10 +501,11 @@ export default {
   },
 
   slideEnd() {
+    const wasMain = this.slideMain
     this.slideTouching = false
     clearTimeout(this.slideCommitTimer)
-    clearTimeout(this.chOpenTimer)
-    this.chTouch = null
+    clearTimeout(this.rowOpenTimer)
+    this.rowTouch = null
     if (this.slideDraft !== this.slideSent) {
       this.commitSlide()
     }
@@ -480,8 +513,11 @@ export default {
     this.slideCloseTimer = setTimeout(() => {
       this.slideOn = false
       this.slideIdx = -1
-      const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
-      this.buildChannels(ch, this.run)
+      this.slideMain = false
+      if (!wasMain) {
+        const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
+        this.buildChannels(ch, this.run)
+      }
       this.restoreScroll()
     }, SLIDE_CLOSE_MS)
   },
@@ -489,21 +525,24 @@ export default {
   closeSlideNow() {
     clearTimeout(this.slideCloseTimer)
     clearTimeout(this.slideCommitTimer)
-    clearTimeout(this.chOpenTimer)
+    clearTimeout(this.rowOpenTimer)
     this.slideOn = false
     this.slideTouching = false
-    this.chTouch = null
+    this.slideMain = false
+    this.rowTouch = null
   },
 
   step(c, d) {
     const app = this.$app.$def
     const ch = (app.state && app.state.ch) || []
-    if (c < ch.length && ch[c] >= 0) {
-      const base = this.optim[c] ? this.optim[c].v : ch[c]
-      this.optim[c] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
+    const ci = parseInt(c, 10) || 0
+    if (ci < ch.length && ch[ci] >= 0) {
+      const base = this.optim[ci] ? this.optim[ci].v : ch[ci]
+      this.optim[ci] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
+      this.chRaw = (this.run ? '1' : '0') + ch.join(',')
       this.buildChannels(ch)
     }
-    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: 1 })
+    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: ci, d: 1 })
   },
 
   chPlus(c) {
@@ -707,34 +746,23 @@ export default {
 }
 .ctl {
   flex-shrink: 0;
-  height: 340px;
+  height: 300px;
   width: 212px;
   flex-direction: column;
   align-items: center;
-  padding-top: 42px;
+  padding-top: 36px;
 }
 .play {
   flex-shrink: 0;
-  width: 96px;
-  height: 96px;
-  margin-top: 10px;
-  border-radius: 48px;
+  width: 120px;
+  height: 120px;
+  margin-top: 16px;
+  border-radius: 60px;
 }
 .play-img {
   flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-}
-.chcap {
-  flex-shrink: 0;
-  height: 44px;
-  width: 196px;
-  margin-left: 8px;
-  margin-top: 10px;
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  color: #8e8e93;
+  width: 58px;
+  height: 58px;
 }
 .cbox {
   flex-shrink: 0;
@@ -843,40 +871,26 @@ export default {
   font-size: 18px;
   color: #8e8e93;
 }
-.rtt {
-  flex-shrink: 0;
-  margin-top: 8px;
-  font-size: 18px;
-  color: #48484a;
-}
 .ctouch {
   flex-shrink: 0;
   width: 196px;
   height: 76px;
   flex-direction: row;
 }
-.chalf {
-  flex-shrink: 0;
-  width: 98px;
-  height: 76px;
-}
-.ch-row-touch {
-  flex-direction: column;
-}
 .stop-item {
   flex-shrink: 0;
-  height: 400px;
+  height: 230px;
   width: 212px;
   flex-direction: column;
   align-items: center;
-  padding-top: 24px;
-  padding-bottom: 100px;
+  padding-top: 20px;
+  padding-bottom: 40px;
 }
 .stop-box {
   flex-shrink: 0;
   width: 190px;
   height: 190px;
-  margin-top: 12px;
+  margin-top: 0px;
   justify-content: center;
   align-items: center;
 }

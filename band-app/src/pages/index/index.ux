@@ -35,7 +35,6 @@
       <text class="off-title">XEMS</text>
       <text class="off-sub">{{offText}}</text>
       <text class="sub off-hint">Отвори XEMS на таблета</text>
-      <text class="off-diag">{{diagText}}</text>
     </div>
   </stack>
 </template>
@@ -53,7 +52,6 @@ export default {
   private: {
     offline: true,
     offText: 'Свързване…',
-    diagText: '',
     hrBig: '--',
     hrSub: '',
     hrColor: '#FFFFFF',
@@ -87,8 +85,6 @@ export default {
     if (!s || quiet > 12) {
       this.offline = true
       this.offText = quiet > 9000 ? 'Свързване…' : 'Връзката прекъсна'
-      const d = app.diag || {}
-      this.diagText = d.failed > 0 || d.err ? 'връзка: ' + d.link + (d.err ? ' · ' + d.err : '') : ''
       return
     }
     this.offline = false
@@ -461,14 +457,6 @@ export default {
 .off-hint {
   flex-shrink: 0;
   margin-top: 22px;
-}
-.off-diag {
-  flex-shrink: 0;
-  margin-top: 14px;
-  width: 196px;
-  text-align: center;
-  font-size: 20px;
-  color: #48484a;
 }
 @keyframes wave {
   from {

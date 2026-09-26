@@ -25,13 +25,13 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 1979
+    .line 2029
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1980
+    .line 2030
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PresetListener;->index:I
 
-    .line 1981
+    .line 2031
     return-void
 .end method
 
@@ -40,12 +40,12 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1985
+    .line 2035
     iget p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PresetListener;->index:I
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyPreset(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$600(I)V
 
-    .line 1986
+    .line 2036
     return-void
 .end method

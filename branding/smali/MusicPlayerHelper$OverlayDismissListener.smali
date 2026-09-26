@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 2406
+    .line 2456
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public onDismiss(Landroid/content/DialogInterface;)V
     .registers 3
 
-    .line 2410
+    .line 2460
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->pickingFile:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$900()Z
 
@@ -42,31 +42,31 @@
 
     if-eqz p1, :cond_b
 
-    .line 2411
+    .line 2461
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4902(Z)Z
 
-    .line 2412
+    .line 2462
     return-void
 
-    .line 2414
+    .line 2464
     :cond_b
     const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$1002(Landroid/support/v7/app/AlertDialog;)Landroid/support/v7/app/AlertDialog;
 
-    .line 2415
+    .line 2465
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->overlayVisible:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4902(Z)Z
 
-    .line 2416
+    .line 2466
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->stop()V
 
-    .line 2417
+    .line 2467
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->clearOverlayRefs()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$5000()V
 
-    .line 2418
+    .line 2468
     return-void
 .end method

@@ -72,6 +72,8 @@ public class MusicSync {
     private static boolean autoTune = true;
     private static MusicAutoTune.Curve autoCurve;
     private static MusicPlayerEngine.Envelope lastEnvelope;
+    /** URI of {@link #lastEnvelope}, so the same file is not decoded again. */
+    private static String lastEnvelopeKey;
     private static float autoRhythm = DEFAULT_RHYTHM_MIX;
     private static float autoFloor = DEFAULT_FLOOR;
     private static float autoSmooth = DEFAULT_SMOOTHNESS;
@@ -100,6 +102,21 @@ public class MusicSync {
     private static int savedProgramHz = -1;
     private static boolean playerMode;
     private static volatile boolean playerPreparing;
+    /** Bumped when a foreground load is superseded or playback stops. */
+    private static int prepareToken;
+    /** Bumped when the standby track changes, so a late decode is dropped. */
+    private static int prefetchGen;
+    private static boolean prefetchInFlight;
+    /** The song already ended (or was skipped to) and is waiting on the standby load. */
+    private static boolean prefetchPromote;
+    private static boolean prefetchPrepared;
+    private static boolean prefetchPlayerPending;
+    private static int prefetchFailures;
+    private static String prefetchKey;
+    private static Uri prefetchUri;
+    private static Context prefetchContext;
+    private static MusicPlayerEngine.Envelope prefetchEnvelope;
+    private static MusicPlayerEngine prefetchEngine;
     static boolean running;
     static volatile int liveStrength;
 
@@ -790,38 +807,151 @@ public class MusicSync {
         return playerPreparing;
     }
 
+    /** True while the gap between tracks is waiting on a load that started early. */
+    public static boolean isAwaitingPrefetchedTrack() {
+        return prefetchPromote;
+    }
+
+    /**
+     * Decode and buffer {@code uri} while the current song is still playing.
+     * Pass null to drop the standby track. One standby at a time, keyed by URI.
+     */
+    public static void prefetchNext(Activity activity, Uri uri) {
+        if (!isMainThread()) {
+            ensureHandler();
+            handler.post(new PrefetchRequest(activity, uri));
+            return;
+        }
+        if (activity == null || uri == null) {
+            clearPrefetch();
+            return;
+        }
+        String key = uri.toString();
+        if (key.equals(prefetchKey)) {
+            prefetchContext = activity;
+            if (prefetchInFlight || prefetchEngine != null) {
+                return;
+            }
+            if (prefetchEnvelope != null && running && playerMode) {
+                beginPrefetchPrepare();
+            }
+            return;
+        }
+        clearPrefetch();
+        prefetchKey = key;
+        prefetchUri = uri;
+        prefetchContext = activity;
+        prefetchFailures = 0;
+        if (key.equals(lastEnvelopeKey) && lastEnvelope != null && lastEnvelope.length > 0) {
+            prefetchEnvelope = lastEnvelope;
+            MusicDiagLog.log("prefetch", "reuse envelope");
+            if (running && playerMode) {
+                beginPrefetchPrepare();
+            }
+            return;
+        }
+        prefetchInFlight = true;
+        MusicDiagLog.log("prefetch", "decode");
+        new Thread(new PrefetchTask(activity, uri, prefetchGen), "music-prefetch").start();
+    }
+
     public static void startPlayer(Activity activity, Uri uri) {
         if (activity == null || uri == null) {
             return;
         }
+        String key = uri.toString();
         if (playerPreparing) {
-            return;
+            if (!(prefetchPromote && prefetchKey != null && !prefetchKey.equals(key))) {
+                return;
+            }
+            prefetchPromote = false;
+            playerPreparing = false;
+            clearPrefetch();
         }
         hostActivity = activity;
+        if (prefetchKey != null && prefetchKey.equals(key)) {
+            if (prefetchPrepared && prefetchEngine != null && prefetchEnvelope != null) {
+                MusicPlayerEngine engine = prefetchEngine;
+                MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+                detachPrefetchOwned();
+                releaseCurrentPlayback();
+                MusicDiagLog.log("prefetch", "handoff prepared");
+                beginPlayback(activity, uri, envelope, engine, true);
+                return;
+            }
+            if (prefetchEngine != null) {
+                prefetchPromote = true;
+                releaseCurrentPlayback();
+                playerPreparing = true;
+                MusicPlayerHelper.showPreparing();
+                return;
+            }
+            if (prefetchEnvelope != null && !prefetchInFlight) {
+                MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+                detachPrefetchOwned();
+                releaseCurrentPlayback();
+                playerPreparing = true;
+                MusicPlayerHelper.showPreparing();
+                beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+                return;
+            }
+            if (prefetchInFlight) {
+                prefetchPromote = true;
+                releaseCurrentPlayback();
+                playerPreparing = true;
+                MusicPlayerHelper.showPreparing();
+                return;
+            }
+        }
+        releaseCurrentPlayback();
         playerPreparing = true;
+        prepareToken++;
+        MusicPlayerHelper.showPreparing();
+        new Thread(new PlayerPrepareTask(activity, uri, prepareToken), "music-player-prepare").start();
+    }
+
+    /** Stop the audible player and keep a standby next track ready for an immediate handoff. */
+    public static void stopKeepingNext() {
+        playerPreparing = false;
+        prefetchPromote = false;
+        prepareToken++;
+        pausedByTraining = false;
+        trainingGateOpen = true;
+        stopCaptureOnly();
+    }
+
+    private static void releaseCurrentPlayback() {
         stopCaptureOnly();
         MasterStrengthControl.ensureMaMode();
         resetAudioLevels();
         playerSmoothedSound = 0f;
         MasterStrengthControl.captureCeilingFromSlider();
-        MusicPlayerHelper.showPreparing();
-        new Thread(new PlayerPrepareTask(activity, uri), "music-player-prepare").start();
     }
 
-    private static void finishStartPlayer(
-            Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope) {
+    private static void beginPlayback(
+            Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope,
+            MusicPlayerEngine engine, boolean alreadyPrepared) {
         playerPreparing = false;
-        if (activity == null || uri == null) {
+        prefetchPromote = false;
+        if (activity == null || uri == null || envelope == null || engine == null) {
+            if (engine != null) {
+                engine.release();
+            }
             MusicPlayerHelper.showError(ERROR_PLAYER);
             return;
         }
         try {
             lastEnvelope = envelope;
+            lastEnvelopeKey = uri.toString();
             if (autoTune) {
                 armAutoTune(envelope, true);
             }
-            MusicPlayerEngine engine = new MusicPlayerEngine();
-            engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
+            if (alreadyPrepared) {
+                engine.setListener(new PlayerSyncListener());
+                engine.startPrepared();
+            } else {
+                engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
+            }
             playerEngine = engine;
             playerMode = true;
             running = true;
@@ -836,8 +966,129 @@ public class MusicSync {
             MusicPlayerHelper.onPlaybackStarted();
             MusicDiagLog.log("ble-pacing", "player start leadMs=" + getPlayerLeadMs());
         } catch (Throwable t) {
+            engine.release();
             stopCaptureOnly();
             MusicPlayerHelper.showError(ERROR_PLAYER);
+        }
+    }
+
+    private static void finishStartPlayer(
+            Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope) {
+        beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+    }
+
+    private static void beginPrefetchPrepare() {
+        if (prefetchEnvelope == null || prefetchUri == null || prefetchContext == null) {
+            return;
+        }
+        if (prefetchEngine != null) {
+            return;
+        }
+        MusicPlayerEngine engine = new MusicPlayerEngine();
+        try {
+            prefetchPlayerPending = true;
+            prefetchPrepared = false;
+            engine.preparePlayback(prefetchContext, prefetchUri, prefetchEnvelope,
+                    new PrefetchPrepareCallback(prefetchGen));
+            prefetchEngine = engine;
+            MusicDiagLog.log("prefetch", "prepare");
+        } catch (Throwable t) {
+            prefetchPlayerPending = false;
+            prefetchPrepared = false;
+            engine.release();
+            MusicDiagLog.logError("prefetch_prepare", t);
+        }
+    }
+
+    private static void clearPrefetch() {
+        prefetchGen++;
+        prefetchInFlight = false;
+        prefetchPromote = false;
+        prefetchPrepared = false;
+        prefetchPlayerPending = false;
+        prefetchFailures = 0;
+        prefetchKey = null;
+        prefetchUri = null;
+        prefetchContext = null;
+        prefetchEnvelope = null;
+        MusicPlayerEngine engine = prefetchEngine;
+        prefetchEngine = null;
+        if (engine != null) {
+            engine.release();
+        }
+    }
+
+    /** Drop standby bookkeeping without releasing {@link #prefetchEngine}; the caller owns it. */
+    private static void detachPrefetchOwned() {
+        prefetchGen++;
+        prefetchInFlight = false;
+        prefetchPromote = false;
+        prefetchPrepared = false;
+        prefetchPlayerPending = false;
+        prefetchKey = null;
+        prefetchUri = null;
+        prefetchContext = null;
+        prefetchEnvelope = null;
+        prefetchEngine = null;
+    }
+
+    private static void releasePrefetchPlayer() {
+        prefetchPrepared = false;
+        prefetchPlayerPending = false;
+        MusicPlayerEngine engine = prefetchEngine;
+        prefetchEngine = null;
+        if (engine != null) {
+            engine.release();
+        }
+    }
+
+    private static void handlePrefetchFailure() {
+        prefetchInFlight = false;
+        if (prefetchPromote) {
+            prefetchPromote = false;
+            playerPreparing = false;
+            clearPrefetch();
+            stopCaptureOnly();
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+            return;
+        }
+        Context context = prefetchContext;
+        Uri uri = prefetchUri;
+        if (prefetchFailures < 1 && running && playerMode && context != null && uri != null) {
+            prefetchFailures++;
+            prefetchInFlight = true;
+            new Thread(new PrefetchTask(context, uri, prefetchGen), "music-prefetch").start();
+            return;
+        }
+        clearPrefetch();
+    }
+
+    private static void onPrefetchEnvelope(int gen, MusicPlayerEngine.Envelope envelope) {
+        if (gen != prefetchGen) {
+            return;
+        }
+        prefetchInFlight = false;
+        if (envelope == null || envelope.length == 0) {
+            handlePrefetchFailure();
+            return;
+        }
+        prefetchFailures = 0;
+        prefetchEnvelope = envelope;
+        if (prefetchPromote) {
+            if (hostActivity == null || !MusicPlayerHelper.isCurrentTrack(prefetchUri)) {
+                prefetchPromote = false;
+                playerPreparing = false;
+                MusicPlayerHelper.showIdle();
+                return;
+            }
+            Activity activity = hostActivity;
+            Uri uri = prefetchUri;
+            detachPrefetchOwned();
+            beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+            return;
+        }
+        if (running && playerMode) {
+            beginPrefetchPrepare();
         }
     }
 
@@ -849,10 +1100,12 @@ public class MusicSync {
     static final class PlayerPrepareTask implements Runnable {
         private final Activity activity;
         private final Uri uri;
+        private final int token;
 
-        PlayerPrepareTask(Activity activity, Uri uri) {
+        PlayerPrepareTask(Activity activity, Uri uri, int token) {
             this.activity = activity;
             this.uri = uri;
+            this.token = token;
         }
 
         @Override
@@ -860,10 +1113,10 @@ public class MusicSync {
             try {
                 MusicPlayerEngine.Envelope envelope = MusicPlayerEngine.buildEnvelope(activity, uri);
                 ensureHandler();
-                handler.post(new PlayerPrepareSuccess(activity, uri, envelope));
+                handler.post(new PlayerPrepareSuccess(activity, uri, envelope, token));
             } catch (Throwable t) {
                 ensureHandler();
-                handler.post(new PlayerPrepareFailure());
+                handler.post(new PlayerPrepareFailure(token));
             }
         }
     }
@@ -872,24 +1125,172 @@ public class MusicSync {
         private final Activity activity;
         private final Uri uri;
         private final MusicPlayerEngine.Envelope envelope;
+        private final int token;
 
-        PlayerPrepareSuccess(Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope) {
+        PlayerPrepareSuccess(Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope, int token) {
             this.activity = activity;
             this.uri = uri;
             this.envelope = envelope;
+            this.token = token;
         }
 
         @Override
         public void run() {
+            if (token != prepareToken) {
+                return;
+            }
             finishStartPlayer(activity, uri, envelope);
         }
     }
 
     static final class PlayerPrepareFailure implements Runnable {
+        private final int token;
+
+        PlayerPrepareFailure(int token) {
+            this.token = token;
+        }
+
         @Override
         public void run() {
+            if (token != prepareToken) {
+                return;
+            }
             playerPreparing = false;
             stopCaptureOnly();
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+        }
+    }
+
+    static final class PrefetchRequest implements Runnable {
+        private final Activity activity;
+        private final Uri uri;
+
+        PrefetchRequest(Activity activity, Uri uri) {
+            this.activity = activity;
+            this.uri = uri;
+        }
+
+        @Override
+        public void run() {
+            prefetchNext(activity, uri);
+        }
+    }
+
+    static final class PrefetchTask implements Runnable {
+        private final Context context;
+        private final Uri uri;
+        private final int gen;
+
+        PrefetchTask(Context context, Uri uri, int gen) {
+            this.context = context;
+            this.uri = uri;
+            this.gen = gen;
+        }
+
+        @Override
+        public void run() {
+            try {
+                MusicPlayerEngine.Envelope envelope = MusicPlayerEngine.buildEnvelope(context, uri);
+                ensureHandler();
+                handler.post(new PrefetchReady(gen, envelope));
+            } catch (Throwable t) {
+                ensureHandler();
+                handler.post(new PrefetchFailed(gen));
+            }
+        }
+    }
+
+    static final class PrefetchReady implements Runnable {
+        private final int gen;
+        private final MusicPlayerEngine.Envelope envelope;
+
+        PrefetchReady(int gen, MusicPlayerEngine.Envelope envelope) {
+            this.gen = gen;
+            this.envelope = envelope;
+        }
+
+        @Override
+        public void run() {
+            onPrefetchEnvelope(gen, envelope);
+        }
+    }
+
+    static final class PrefetchFailed implements Runnable {
+        private final int gen;
+
+        PrefetchFailed(int gen) {
+            this.gen = gen;
+        }
+
+        @Override
+        public void run() {
+            if (gen != prefetchGen) {
+                return;
+            }
+            handlePrefetchFailure();
+        }
+    }
+
+    static final class PrefetchPrepareCallback implements MusicPlayerEngine.PrepareCallback {
+        private final int gen;
+
+        PrefetchPrepareCallback(int gen) {
+            this.gen = gen;
+        }
+
+        @Override
+        public void onPrepared() {
+            if (gen != prefetchGen || prefetchEngine == null) {
+                return;
+            }
+            prefetchPrepared = true;
+            prefetchPlayerPending = false;
+            if (!prefetchPromote) {
+                MusicDiagLog.log("prefetch", "ready");
+                return;
+            }
+            if (hostActivity == null || !MusicPlayerHelper.isCurrentTrack(prefetchUri)) {
+                prefetchPromote = false;
+                playerPreparing = false;
+                MusicPlayerHelper.showIdle();
+                return;
+            }
+            Activity activity = hostActivity;
+            Uri uri = prefetchUri;
+            MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+            MusicPlayerEngine engine = prefetchEngine;
+            detachPrefetchOwned();
+            MusicDiagLog.log("prefetch", "handoff prepared");
+            beginPlayback(activity, uri, envelope, engine, true);
+        }
+
+        @Override
+        public void onPrepareFailed() {
+            if (gen != prefetchGen) {
+                return;
+            }
+            MusicPlayerEngine engine = prefetchEngine;
+            prefetchEngine = null;
+            prefetchPrepared = false;
+            prefetchPlayerPending = false;
+            if (engine != null) {
+                engine.release();
+            }
+            if (!prefetchPromote) {
+                return;
+            }
+            prefetchPromote = false;
+            if (hostActivity != null && prefetchEnvelope != null
+                    && MusicPlayerHelper.isCurrentTrack(prefetchUri)) {
+                Activity activity = hostActivity;
+                Uri uri = prefetchUri;
+                MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+                detachPrefetchOwned();
+                playerPreparing = true;
+                beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+                return;
+            }
+            playerPreparing = false;
             MusicPlayerHelper.showError(ERROR_PLAYER);
         }
     }
@@ -926,6 +1327,9 @@ public class MusicSync {
 
     public static void stop() {
         playerPreparing = false;
+        prefetchPromote = false;
+        prepareToken++;
+        releasePrefetchPlayer();
         pausedByTraining = false;
         trainingGateOpen = true;
         stopCaptureOnly();

@@ -25,13 +25,13 @@
 .method constructor <init>(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)V
     .registers 2
 
-    .line 638
+    .line 727
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 639
+    .line 728
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$CompletionHandler;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 640
+    .line 729
     return-void
 .end method
 
@@ -40,11 +40,11 @@
 .method public onCompletion(Landroid/media/MediaPlayer;)V
     .registers 2
 
-    .line 644
+    .line 733
     iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$CompletionHandler;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->dispatchEnded()V
 
-    .line 645
+    .line 734
     return-void
 .end method

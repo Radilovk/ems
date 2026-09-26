@@ -291,7 +291,17 @@ public final class MusicPlayerHelper {
             return false;
         }
         currentIndex++;
-        return startCurrentTrack(false);
+        // The player that just finished is still marked running, but it has completed.
+        return startCurrentTrack(false, true);
+    }
+
+    /** True when {@code uri} is the playlist entry now selected. */
+    public static boolean isCurrentTrack(Uri uri) {
+        if (uri == null || currentIndex < 0 || currentIndex >= playlist.size()) {
+            return false;
+        }
+        Uri current = playlist.get(currentIndex).uri;
+        return current != null && current.toString().equals(uri.toString());
     }
 
     public static void refreshTransportState() {
@@ -365,6 +375,7 @@ public final class MusicPlayerHelper {
     public static void onPlaybackStarted() {
         MusicSync.onPlayerPlaybackStarted();
         requestTrainingStart();
+        refreshNextPrefetch();
     }
 
     public static void onPlaybackPausedByUser() {
@@ -1025,9 +1036,11 @@ public final class MusicPlayerHelper {
         if (next < 0 || next >= playlist.size()) {
             return;
         }
-        boolean wasPlaying = MusicSync.isRunning() && MusicSync.isPlayerMode() && !MusicSync.isPlaybackPaused();
-        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
-            MusicSync.stop();
+        boolean awaiting = MusicSync.isAwaitingPrefetchedTrack();
+        boolean wasPlaying = (MusicSync.isRunning() && MusicSync.isPlayerMode()
+                && !MusicSync.isPlaybackPaused()) || awaiting;
+        if ((MusicSync.isRunning() && MusicSync.isPlayerMode()) || awaiting) {
+            MusicSync.stopKeepingNext();
         }
         currentIndex = next;
         refreshTrackTitle();
@@ -1037,6 +1050,7 @@ public final class MusicPlayerHelper {
             startCurrentTrack(true);
         } else {
             showIdle();
+            refreshNextPrefetch();
         }
     }
 
@@ -1061,6 +1075,7 @@ public final class MusicPlayerHelper {
         }
         refreshTrackTitle();
         resizeOverlayWindow();
+        refreshNextPrefetch();
     }
 
     private static String tr(String bg, String en) {
@@ -1183,10 +1198,17 @@ public final class MusicPlayerHelper {
     }
 
     private static boolean startCurrentTrack(boolean fromUser) {
-        if (MusicSync.isPlayerPreparing()) {
+        return startCurrentTrack(fromUser, false);
+    }
+
+    /**
+     * @param forceNew the previous player has finished; start this index instead of resuming it
+     */
+    private static boolean startCurrentTrack(boolean fromUser, boolean forceNew) {
+        if (MusicSync.isPlayerPreparing() && !forceNew) {
             return false;
         }
-        if (MusicSync.isRunning() && MusicSync.isPlayerMode()) {
+        if (!forceNew && MusicSync.isRunning() && MusicSync.isPlayerMode()) {
             if (MusicSync.isPlaybackPaused()) {
                 MusicSync.togglePlaybackPause();
                 if (fromUser) {
@@ -1211,7 +1233,8 @@ public final class MusicPlayerHelper {
         refreshTrackTitle();
         rebuildPlaylistViews(activity);
         MusicSync.startPlayer(activity, uri);
-        return true;
+        return MusicSync.isRunning() || MusicSync.isPlayerPreparing()
+                || MusicSync.isAwaitingPrefetchedTrack();
     }
 
     private static void addTrackSafe(Activity activity, Uri uri) {
@@ -1238,6 +1261,7 @@ public final class MusicPlayerHelper {
         if (isOverlayShowing()) {
             resizeOverlayWindow();
         }
+        refreshNextPrefetch();
     }
 
     /** hide() before SAF picker does not fire onDismiss — same pattern as interval timer. */
@@ -1280,6 +1304,32 @@ public final class MusicPlayerHelper {
         if (activity != null) {
             persistPlaylist(activity);
             rebuildPlaylistViews(activity);
+        }
+        refreshNextPrefetch();
+    }
+
+    /**
+     * While a song is playing, decode and buffer the next one so the handoff does not wait.
+     */
+    private static void refreshNextPrefetch() {
+        try {
+            if (!MusicSync.isRunning() || !MusicSync.isPlayerMode()) {
+                return;
+            }
+            int next = currentIndex + 1;
+            if (next < 0 || next >= playlist.size()) {
+                MusicSync.prefetchNext(null, null);
+                return;
+            }
+            Activity activity = resolveHostActivity(null, overlayContent);
+            if (activity == null) {
+                activity = MusicSync.getHostActivity();
+            }
+            if (activity == null) {
+                return;
+            }
+            MusicSync.prefetchNext(activity, playlist.get(next).uri);
+        } catch (Throwable ignored) {
         }
     }
 

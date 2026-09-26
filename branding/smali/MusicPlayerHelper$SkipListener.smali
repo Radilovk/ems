@@ -25,13 +25,13 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 2298
+    .line 2348
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2299
+    .line 2349
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SkipListener;->dir:I
 
-    .line 2300
+    .line 2350
     return-void
 .end method
 
@@ -40,12 +40,12 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 2304
+    .line 2354
     iget p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SkipListener;->dir:I
 
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->skip(I)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$4700(I)V
 
-    .line 2305
+    .line 2355
     return-void
 .end method

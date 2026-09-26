@@ -29,6 +29,13 @@ public final class MusicPlayerEngine {
         void onError();
     }
 
+    /** Fired when a standby player has finished {@code prepareAsync}, or failed to. */
+    public interface PrepareCallback {
+        void onPrepared();
+
+        void onPrepareFailed();
+    }
+
     /** Envelope bucket size (ms). */
     private static final int WINDOW_MS = 20;
     /** Sync poll interval (ms). */
@@ -38,8 +45,13 @@ public final class MusicPlayerEngine {
     private SyncRunnable syncRunnable;
     private MediaPlayer player;
     private Listener listener;
+    private PrepareCallback prepareCallback;
     private Envelope envelope;
     private volatile boolean tracking;
+    /** False while {@link #release()} is tearing the player down, so its error is ignored. */
+    private boolean callbacksOpen;
+    private boolean prepared;
+    private boolean started;
 
     /**
      * Pre-analysed track: raw loudness per bucket + rhythm (onset) curve 0..1 + tone 0..1
@@ -414,21 +426,57 @@ public final class MusicPlayerEngine {
 
     public void startPlayback(Context context, Uri uri, Envelope preparedEnvelope, Listener callback)
             throws Exception {
-        release();
+        openPlayer(context, uri, preparedEnvelope);
         listener = callback;
+        player.prepare();
+        started = true;
+        player.start();
+        tracking = true;
+        syncRunnable = new SyncRunnable(this);
+        handler.post(syncRunnable);
+    }
+
+    /**
+     * Decode and buffer the next track while another player is still audible.
+     * The player stays paused at the start until {@link #startPrepared()}.
+     */
+    public void preparePlayback(Context context, Uri uri, Envelope preparedEnvelope,
+            PrepareCallback callback) throws Exception {
+        openPlayer(context, uri, preparedEnvelope);
+        prepareCallback = callback;
+        player.setOnPreparedListener(new PreparedHandler(this));
+        player.prepareAsync();
+    }
+
+    /** Start a player that {@link #preparePlayback} has already prepared. */
+    public void startPrepared() {
+        if (!prepared || player == null || !callbacksOpen) {
+            throw new IllegalStateException("not prepared");
+        }
+        player.start();
+        started = true;
+        tracking = true;
+        syncRunnable = new SyncRunnable(this);
+        handler.post(syncRunnable);
+    }
+
+    public void setListener(Listener callback) {
+        listener = callback;
+    }
+
+    private void openPlayer(Context context, Uri uri, Envelope preparedEnvelope) throws Exception {
+        release();
+        callbacksOpen = true;
+        started = false;
+        prepared = false;
         envelope = preparedEnvelope;
-        if (envelope == null || envelope.length == 0) {
+        if (context == null || uri == null || envelope == null || envelope.length == 0) {
             throw new IllegalStateException("empty envelope");
         }
         player = new MediaPlayer();
         player.setDataSource(context, uri);
         player.setOnCompletionListener(new CompletionHandler(this));
         player.setOnErrorListener(new ErrorHandler(this));
-        player.prepare();
-        player.start();
-        tracking = true;
-        syncRunnable = new SyncRunnable(this);
-        handler.post(syncRunnable);
     }
 
     void dispatchLevel(int index) {
@@ -551,7 +599,22 @@ public final class MusicPlayerEngine {
         }
     }
 
+    void dispatchPrepared() {
+        if (!callbacksOpen || started) {
+            return;
+        }
+        prepared = true;
+        PrepareCallback callback = prepareCallback;
+        prepareCallback = null;
+        if (callback != null) {
+            callback.onPrepared();
+        }
+    }
+
     void dispatchEnded() {
+        if (!callbacksOpen || !started) {
+            return;
+        }
         tracking = false;
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
@@ -562,9 +625,18 @@ public final class MusicPlayerEngine {
     }
 
     void dispatchError() {
+        if (!callbacksOpen) {
+            return;
+        }
         tracking = false;
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
+        }
+        if (!started && prepareCallback != null) {
+            PrepareCallback callback = prepareCallback;
+            prepareCallback = null;
+            callback.onPrepareFailed();
+            return;
         }
         if (listener != null) {
             listener.onError();
@@ -572,7 +644,11 @@ public final class MusicPlayerEngine {
     }
 
     public void release() {
+        callbacksOpen = false;
         tracking = false;
+        prepared = false;
+        started = false;
+        prepareCallback = null;
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
             syncRunnable = null;
@@ -629,6 +705,19 @@ public final class MusicPlayerEngine {
                 delay = 1L;
             }
             target.handler.postDelayed(this, delay);
+        }
+    }
+
+    static final class PreparedHandler implements MediaPlayer.OnPreparedListener {
+        private final MusicPlayerEngine engine;
+
+        PreparedHandler(MusicPlayerEngine engine) {
+            this.engine = engine;
+        }
+
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            engine.dispatchPrepared();
         }
     }
 

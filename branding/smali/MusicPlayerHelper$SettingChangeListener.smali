@@ -35,13 +35,13 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 1998
+    .line 2048
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1999
+    .line 2049
     iput p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;->which:I
 
-    .line 2000
+    .line 2050
     return-void
 .end method
 
@@ -50,12 +50,12 @@
 .method public onAmountChange(Landroid/view/View;I)V
     .registers 4
 
-    .line 2004
+    .line 2054
     const/4 p1, 0x0
 
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setAutoTune(Z)V
 
-    .line 2005
+    .line 2055
     iget p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$SettingChangeListener;->which:I
 
     if-eqz p1, :cond_28
@@ -76,55 +76,55 @@
 
     if-eq p1, v0, :cond_18
 
-    .line 2022
+    .line 2072
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSmoothness(I)V
 
     goto :goto_2c
 
-    .line 2019
+    .line 2069
     :cond_18
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHzTreble(I)V
 
-    .line 2020
+    .line 2070
     goto :goto_2c
 
-    .line 2016
+    .line 2066
     :cond_1c
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setHzBass(I)V
 
-    .line 2017
+    .line 2067
     goto :goto_2c
 
-    .line 2013
+    .line 2063
     :cond_20
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setFloorPercent(I)V
 
-    .line 2014
+    .line 2064
     goto :goto_2c
 
-    .line 2010
+    .line 2060
     :cond_24
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setRhythmMix(I)V
 
-    .line 2011
+    .line 2061
     goto :goto_2c
 
-    .line 2007
+    .line 2057
     :cond_28
     invoke-static {p2}, Lcom/isaigu/gymapp/train/utils/MusicSync;->setSensitivity(I)V
 
-    .line 2008
+    .line 2058
     nop
 
-    .line 2025
+    .line 2075
     :goto_2c
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->persistSettings()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$500()V
 
-    .line 2026
+    .line 2076
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->refreshPresetHighlight()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$700()V
 
-    .line 2027
+    .line 2077
     return-void
 .end method

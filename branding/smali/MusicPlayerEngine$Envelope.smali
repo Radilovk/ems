@@ -34,30 +34,30 @@
 .method constructor <init>([F[F[FIDDD)V
     .registers 11
 
-    .line 62
+    .line 74
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 63
+    .line 75
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->loudRms:[F
 
-    .line 64
+    .line 76
     iput-object p2, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->rhythm:[F
 
-    .line 65
+    .line 77
     iput-object p3, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->tone:[F
 
-    .line 66
+    .line 78
     iput p4, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->length:I
 
-    .line 67
+    .line 79
     iput-wide p5, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->peakRms:D
 
-    .line 68
+    .line 80
     iput-wide p7, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->toneSpanDb:D
 
-    .line 69
+    .line 81
     iput-wide p9, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$Envelope;->toneMedianDb:D
 
-    .line 70
+    .line 82
     return-void
 .end method

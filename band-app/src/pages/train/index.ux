@@ -101,7 +101,7 @@ const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прас�
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
-const COL_CTL = 200
+const COL_CTL = 212
 const PLAY_GAP = 16
 const PLAY_SIZE = 152
 const COL_PLAY = PLAY_GAP + PLAY_SIZE
@@ -811,7 +811,7 @@ export default {
 }
 .ctl {
   flex-shrink: 0;
-  height: 200px;
+  height: 212px;
   width: 212px;
   flex-direction: column;
   align-items: center;
@@ -822,12 +822,13 @@ export default {
   width: 212px;
   height: 168px;
   padding-top: 16px;
-  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 }
 .tr-play-glow {
-  flex-shrink: 0;
+  position: absolute;
+  top: 0px;
+  left: 22px;
   width: 168px;
   height: 168px;
   border-radius: 84px;
@@ -1038,8 +1039,6 @@ export default {
   height: 140px;
   border-radius: 70px;
   background-color: #c62828;
-  border-width: 2px;
-  border-color: #ff6961;
   justify-content: center;
   align-items: center;
 }

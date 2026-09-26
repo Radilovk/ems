@@ -265,6 +265,7 @@ public final class MasterStrengthControl {
             if (program != null
                     && program.programDataBean != null
                     && program.programDataBean.activePause) {
+                item.setMaSelected(false);
                 return;
             }
             item.setMaSelected(true);

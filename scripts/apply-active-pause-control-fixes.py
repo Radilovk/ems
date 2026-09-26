@@ -1130,20 +1130,17 @@ def _lambda_routing_ok(lambda_body: str) -> bool:
         return False
     if ":cond_4" in lambda_body:
         return False
-    cond_3_tail = lambda_body.split(":cond_3", 1)[-1]
+    cond_3_tail = lambda_body.split(":cond_3", 1)[-1].split(".end method", 1)[0]
     if "addMainAndPauseStrenth(I)V" not in cond_3_tail:
         return False
     if ":cond_coupled" not in cond_3_tail:
         return False
     if "if-nez v0, :cond_coupled" not in cond_3_tail:
         return False
-    active_pause_head = cond_3_tail.split(":cond_coupled", 1)[0]
-    if "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" not in active_pause_head:
+    if "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" not in cond_3_tail:
         return False
-    if (
-        "ProgramDataBean;->activePause:Z"
-        not in active_pause_head
-    ):
+    active_pause_head = cond_3_tail.split(":cond_coupled", 1)[0]
+    if "activePause:Z" not in active_pause_head:
         return False
     markers = (
         "isPauseMaSelected()Z",
@@ -1153,6 +1150,24 @@ def _lambda_routing_ok(lambda_body: str) -> bool:
     )
     positions = [lambda_body.find(m) for m in markers]
     return all(pos >= 0 for pos in positions) and positions == sorted(positions)
+
+
+def _seekbar_routing_ok(text: str) -> bool:
+    strength_tail = text.split(":cond_strength", 1)[-1].split(".end method", 1)[0]
+    if "if-eqz v0, :cond_coupled_slider_end" in strength_tail:
+        return False
+    if "if-eqz v0, :cond_ma_index_strength" in strength_tail:
+        return False
+    if "if-nez v0, :cond_coupled_slider_end" not in strength_tail:
+        return False
+    if "if-nez v0, :cond_ma_index_strength" not in strength_tail:
+        return False
+    on_changed_end = text.split("onChangedEnd", 1)[-1]
+    if "if-nez v1, :cond_pause_ma_active" not in on_changed_end:
+        return False
+    if "if-nez v1, :cond_pause_hz_active" not in on_changed_end:
+        return False
+    return True
 
 
 def patch_train_item_manager() -> None:
@@ -1237,12 +1252,54 @@ ENSURE_MA_MODE_BODY_NEW = """    :cond_3
 
     iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-nez v0, :goto_13
+    if-nez v0, :cond_clear_ma_for_pause
+
+    :cond_do_ma
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
+    goto :cond_ma_mode_done
+
+    :cond_clear_ma_for_pause
+    const/4 v0, 0x0
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
+    goto :goto_13
+
+    :cond_ma_mode_done"""
+
+ENSURE_MA_CLEAR_PATCH_OLD = """    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-eqz v0, :cond_do_ma
+
+    goto :goto_13
 
     :cond_do_ma
     const/4 v0, 0x1
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V"""
+
+ENSURE_MA_CLEAR_PATCH_NEW = """    iget-boolean v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+
+    if-nez v0, :cond_clear_ma_for_pause
+
+    :cond_do_ma
+    const/4 v0, 0x1
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
+    goto :cond_ma_mode_done
+
+    :cond_clear_ma_for_pause
+    const/4 v0, 0x0
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->setMaSelected(Z)V
+
+    goto :goto_13
+
+    :cond_ma_mode_done"""
 
 RELEASE_MA_MODE_METHOD = """
 .method public static releaseMaModeForActivePause()V
@@ -1315,13 +1372,12 @@ def patch_master_strength_control() -> None:
         ".method public static ensureMaMode(Lcom/isaigu/gymapp/train/model/TrainItem;)V"
     )
     ensure_ma_body = text.split(ensure_ma_marker, 1)[-1].split(".end method", 1)[0]
-    ensure_ma_ok = (
-        "matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;" in ensure_ma_body
-        and "if-nez v0, :goto_13" in ensure_ma_body
-        and "activePause:Z" in ensure_ma_body
-    )
+    ensure_ma_ok = "cond_clear_ma_for_pause" in ensure_ma_body
     if ensure_ma_ok:
         print("MasterStrengthControl.ensureMaMode: active-pause guard already applied")
+    elif ENSURE_MA_CLEAR_PATCH_OLD in ensure_ma_body:
+        text = text.replace(ENSURE_MA_CLEAR_PATCH_OLD, ENSURE_MA_CLEAR_PATCH_NEW, 1)
+        print("MasterStrengthControl.ensureMaMode: clear stale MA index during yellow coupled mode")
     elif ENSURE_MA_MODE_BODY_OLD in ensure_ma_body:
         text = text.replace(ENSURE_MA_MODE_BODY_OLD, ENSURE_MA_MODE_BODY_NEW, 1)
         text = text.replace(

@@ -20,7 +20,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 38
+const APP_VERSION = 42
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -38,6 +38,7 @@ export default {
   pending: [],
   langSaid: false,
   listeners: [],
+  uiSig: '',
   conn: null,
   helloTimer: null,
   /** Shown on the connecting screen: what the band's link to the phone does. */
@@ -150,13 +151,20 @@ export default {
       this.langSaid = true
       this.hello()                                 // XEMS installs the build in its language
     }
+    const tr = (m.mods && m.mods.tr) || {}
+    const sig = (m.el | 0) + '|' + (m.hr | 0) + '|' + (m.ms | 0) + '|' + (tr.run ? 1 : 0)
+      + '|' + (m.ch || []).join(',') + '|' + this.pending.length
+    const changed = sig !== this.uiSig
+    this.uiSig = sig
     this.state = m
     this.rx = Date.now()
     this.checkSummary(m)
     if (m.vib) {
       this.buzz(m.vib)
     }
-    this.notify()
+    if (changed || m.vib || m.sum) {
+      this.notify()
+    }
   },
 
   lastLeft: {},

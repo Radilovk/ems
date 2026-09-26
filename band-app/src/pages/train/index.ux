@@ -15,20 +15,23 @@
               <text class="kpi-lbl">{{zoneText}}</text>
             </div>
           </div>
-          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
+        </div>
+
+        <div class="play-wrap">
+          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#FF9F0A' : '#30D158'}}"
                ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
             <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
           </div>
         </div>
 
-        <stack class="cbox">
+        <stack class="cbox cbox-main">
           <image class="cfill all-fill" src="{{allBtnSrc}}"></image>
           <div class="cface cface-all">
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
           </div>
           <div class="ctouch"
-               ontouchstart="rowTouchStart(true)"
+               ontouchstart="rowTouchStart(1)"
                ontouchmove="rowTouchMove"
                ontouchend="rowTouchEnd"
                ontouchcancel="rowTouchEnd"></div>
@@ -41,13 +44,13 @@
               <text class="csign" style="color: {{$item.signColor}}">-</text>
               <div class="cmid">
                 <text class="cname">{{$item.name}}</text>
-                <text class="cval" style="color: {{$item.color}}">{{$item.text}}</text>
+                <text class="cval" style="color: {{$item.valColor}}">{{$item.text}}</text>
               </div>
               <text class="csign" style="color: {{$item.signColor}}">+</text>
             </div>
           </div>
           <div class="ctouch"
-               ontouchstart="rowTouchStart(false, $item.i, $item.text, $item.name)"
+               ontouchstart="rowTouchStart(0, $item.i, $item.text, $item.name)"
                ontouchmove="rowTouchMove"
                ontouchend="rowTouchEnd"
                ontouchcancel="rowTouchEnd"></div>
@@ -93,6 +96,24 @@ const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прас�
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
+const COL_CTL = 200
+const COL_PLAY = 160
+const COL_MAIN_GAP = 90
+const COL_ROW = 86
+const COL_STOP = 230
+
+function isMainRow(v) {
+  return v === 1 || v === '1' || v === true || v === 'true'
+}
+
+function channelRenderKey(out, live) {
+  let key = live ? '1' : '0'
+  for (let k = 0; k < out.length; k++) {
+    const n = out[k]
+    key += '|' + n.i + ':' + n.text + ':' + n.w + ':' + n.fill
+  }
+  return key
+}
 
 function tier(pct) {
   return pct >= 80 ? 2 : pct >= 50 ? 1 : 0
@@ -148,8 +169,8 @@ export default {
     hrText: '--',
     zoneText: 'пулс',
     chans: [],
+    chPre: '',
     chKey: '',
-    chRaw: '',
     colH: 900,
     allBtnSrc: '/common/ui/all-btn-dim.png',
     slideOn: false,
@@ -253,20 +274,18 @@ export default {
     if (this.slideOn) {
       return
     }
-    const ch = s.ch || []
-    const raw = (run ? '1' : '0') + ch.join(',')
-    // Rebuild only when tablet ch[] / run colours change, or a channel ± preview is active.
-    // Main strength (optMs) updates msText above — it does not touch channel rows.
-    if (raw !== this.chRaw || Object.keys(this.optim).length > 0) {
-      this.chRaw = raw
-      this.buildChannels(ch, run)
-    }
+    this.buildChannels(s.ch || [], run)
   },
 
   buildChannels(ch, live) {
     if (live === undefined) {
       live = this.run
     }
+    const pre = (live ? '1' : '0') + ch.join(',')
+    if (!Object.keys(this.optim).length && pre === this.chPre) {
+      return
+    }
+    this.chPre = pre
     const out = []
     ORDER.forEach((i) => {
       if (i >= ch.length) {
@@ -292,11 +311,11 @@ export default {
         text: String(pct),
         w: Math.round((FILL_W * pct) / 100),
         fill: style.fill,
-        color: style.color,
+        valColor: live ? '#D1D1D6' : style.color,
         signColor: style.signColor
       })
     })
-    const key = (live ? '1' : '0') + JSON.stringify(out)
+    const key = channelRenderKey(out, live)
     if (key === this.chKey) {
       return
     }
@@ -305,17 +324,17 @@ export default {
     if (same) {
       out.forEach((n, k) => {
         const c = this.chans[k]
-        if (c.text !== n.text || c.w !== n.w || c.color !== n.color || c.fill !== n.fill || c.signColor !== n.signColor) {
+        if (c.text !== n.text || c.w !== n.w || c.valColor !== n.valColor || c.fill !== n.fill || c.signColor !== n.signColor) {
           c.text = n.text
           c.w = n.w
-          c.color = n.color
+          c.valColor = n.valColor
           c.fill = n.fill
           c.signColor = n.signColor
         }
       })
     } else {
       this.chans = out
-      this.colH = 300 + 86 + out.length * 86 + 230
+      this.colH = COL_CTL + COL_PLAY + COL_MAIN_GAP + out.length * COL_ROW + COL_STOP
     }
   },
 
@@ -347,17 +366,13 @@ export default {
     this.slideName = name
     this.slideDraft = val
     this.slideSent = val
-    this.slideTouching = true
+    this.slideTouching = false
+    this.slideArmed = false
     this.slideOn = true
     this.slideAnim = 'slide-in'
     this.slideDim = !this.run
     this.slideTick = Math.floor(val / 10)
     this.updateSlideVisual(val)
-    const y = this.rowTouch && this.rowTouch.y
-    if (y) {
-      this.setSlideFromY(y)
-    }
-    this.armSlideCommit()
   },
 
   setSlideFromY(y) {
@@ -421,10 +436,13 @@ export default {
     if (this.slideOn) {
       return
     }
+    const main = isMainRow(isMain)
+    if (main && !this.run) {
+      return
+    }
     this.captureScroll()
     const y = touchY(e)
     const x = touchX(e)
-    const main = isMain === true || isMain === 'true'
     const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
     const label = main ? 'СИЛА' : name
     const ch = main ? -1 : (parseInt(i, 10) || 0)
@@ -460,7 +478,7 @@ export default {
     if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
       touch.moved = true
     }
-    if (this.slideOn && this.slideTouching) {
+    if (this.slideOn && this.slideArmed) {
       this.setSlideFromY(y)
     }
   },
@@ -470,7 +488,9 @@ export default {
     const touch = this.rowTouch
     if (touch && touch.opened) {
       this.rowTouch = null
-      this.slideEnd()
+      if (!this.slideArmed) {
+        this.slideArmed = true
+      }
       return
     }
     this.rowTouch = null
@@ -493,7 +513,7 @@ export default {
   },
 
   slideTouch(e) {
-    if (!this.slideOn) {
+    if (!this.slideOn || !this.slideArmed) {
       return
     }
     this.slideTouching = true
@@ -503,6 +523,7 @@ export default {
   slideEnd() {
     const wasMain = this.slideMain
     this.slideTouching = false
+    this.slideArmed = false
     clearTimeout(this.slideCommitTimer)
     clearTimeout(this.rowOpenTimer)
     this.rowTouch = null
@@ -528,6 +549,7 @@ export default {
     clearTimeout(this.rowOpenTimer)
     this.slideOn = false
     this.slideTouching = false
+    this.slideArmed = false
     this.slideMain = false
     this.rowTouch = null
   },
@@ -539,7 +561,6 @@ export default {
     if (ci < ch.length && ch[ci] >= 0) {
       const base = this.optim[ci] ? this.optim[ci].v : ch[ci]
       this.optim[ci] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
-      this.chRaw = (this.run ? '1' : '0') + ch.join(',')
       this.buildChannels(ch)
     }
     app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: ci, d: 1 })
@@ -746,23 +767,34 @@ export default {
 }
 .ctl {
   flex-shrink: 0;
-  height: 300px;
+  height: 200px;
   width: 212px;
   flex-direction: column;
   align-items: center;
-  padding-top: 36px;
+  padding-top: 40px;
+}
+.play-wrap {
+  flex-shrink: 0;
+  width: 212px;
+  height: 140px;
+  margin-bottom: 20px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .play {
   flex-shrink: 0;
-  width: 120px;
-  height: 120px;
-  margin-top: 16px;
-  border-radius: 60px;
+  width: 128px;
+  height: 128px;
+  margin-left: 42px;
+  border-radius: 64px;
+  justify-content: center;
+  align-items: center;
 }
 .play-img {
   flex-shrink: 0;
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
 }
 .cbox {
   flex-shrink: 0;
@@ -770,6 +802,10 @@ export default {
   height: 76px;
   margin-left: 8px;
   margin-top: 10px;
+}
+.cbox-main {
+  margin-top: 8px;
+  margin-bottom: 6px;
 }
 .cfill {
   flex-shrink: 0;
@@ -793,7 +829,7 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: bold;
   color: #ffffff;
   lines: 1;
@@ -824,7 +860,7 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 28px;
+  font-size: 18px;
   font-weight: bold;
   lines: 1;
 }

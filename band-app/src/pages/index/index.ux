@@ -2,7 +2,7 @@
   <!-- home: one vertical scroll — heart rate, then a big card per module (Start first).
        Tap a card to open it; hold the heart rate to pause everything; swipe right = exit. -->
   <stack class="root bg-home">
-    <scroll class="scr" scroll-y="true" if="{{!offline}}">
+    <scroll class="scr" scroll-y="true" if="{{active && !offline}}">
       <div class="col" style="height: {{colH}}px">
         <div class="hdr">
           <div class="hr-row">
@@ -19,8 +19,7 @@
             <image class="ic-img" src="{{$item.icon}}"></image>
           </div>
           <text class="ct">{{$item.title}}</text>
-          <marquee class="cs" if="{{$item.long}}" scrollamount="30" loop="-1" style="color: {{$item.subColor}}">{{$item.sub}}</marquee>
-          <text class="cs" if="{{!$item.long}}" style="color: {{$item.subColor}}">{{$item.sub}}</text>
+          <text class="cs" style="color: {{$item.subColor}}">{{$item.sub}}</text>
         </div>
       </div>
     </scroll>
@@ -50,6 +49,7 @@ const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', m
 
 export default {
   private: {
+    active: true,
     offline: true,
     offText: 'Свързване…',
     hrBig: '--',
@@ -67,10 +67,12 @@ export default {
   },
 
   onShow() {
+    this.active = true
     shown(this, true)
   },
 
   onHide() {
+    this.active = false
     shown(this, false)
   },
 
@@ -164,7 +166,6 @@ export default {
       c.bg = c.active ? TINT[c.id] : IDLE
       c.border = c.active ? c.color : '#26272C'
       c.subColor = c.active ? c.color : '#AEAEB2'
-      c.long = c.sub.length > 14
     })
     return out
   },

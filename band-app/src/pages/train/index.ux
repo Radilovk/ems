@@ -15,20 +15,23 @@
               <text class="kpi-lbl">{{zoneText}}</text>
             </div>
           </div>
-          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#2C2C2E' : '#30D158'}}"
+        </div>
+
+        <div class="play-wrap">
+          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playBg}}"
                ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
             <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
           </div>
         </div>
 
-        <stack class="cbox">
+        <stack class="cbox cbox-main">
           <image class="cfill all-fill" src="{{allBtnSrc}}"></image>
           <div class="cface cface-all">
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
           </div>
           <div class="ctouch"
-               ontouchstart="rowTouchStart(true)"
+               ontouchstart="rowTouchStart(1)"
                ontouchmove="rowTouchMove"
                ontouchend="rowTouchEnd"
                ontouchcancel="rowTouchEnd"></div>
@@ -47,7 +50,7 @@
             </div>
           </div>
           <div class="ctouch"
-               ontouchstart="rowTouchStart(false, $item.i, $item.text, $item.name)"
+               ontouchstart="rowTouchStart(0, $item.i, $item.text, $item.name)"
                ontouchmove="rowTouchMove"
                ontouchend="rowTouchEnd"
                ontouchcancel="rowTouchEnd"></div>
@@ -80,6 +83,9 @@
 
 <script>
 import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveSeconds } from '../../common/ui.js'
+
+const PLAY_RUN = AMBER
+const PLAY_IDLE = GREEN
 
 const HOLD_MS = 1200
 const SLIDE_OPEN_MS = 400
@@ -140,6 +146,7 @@ function sendStrengthDelta(app, main, channel, delta) {
 export default {
   private: {
     run: false,
+    playBg: PLAY_IDLE,
     elapsed: '0:00',
     zoneColor: '#AEAEB2',
     pressed: '',
@@ -233,6 +240,7 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
+    this.playBg = run ? PLAY_RUN : PLAY_IDLE
     this.elapsed = hms(liveSeconds(this.elClock, s.el, run))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
@@ -315,7 +323,7 @@ export default {
       })
     } else {
       this.chans = out
-      this.colH = 300 + 86 + out.length * 86 + 230
+      this.colH = 200 + 148 + 102 + out.length * 86 + 230
     }
   },
 
@@ -347,17 +355,13 @@ export default {
     this.slideName = name
     this.slideDraft = val
     this.slideSent = val
-    this.slideTouching = true
+    this.slideTouching = false
+    this.slideArmed = false
     this.slideOn = true
     this.slideAnim = 'slide-in'
     this.slideDim = !this.run
     this.slideTick = Math.floor(val / 10)
     this.updateSlideVisual(val)
-    const y = this.rowTouch && this.rowTouch.y
-    if (y) {
-      this.setSlideFromY(y)
-    }
-    this.armSlideCommit()
   },
 
   setSlideFromY(y) {
@@ -424,7 +428,7 @@ export default {
     this.captureScroll()
     const y = touchY(e)
     const x = touchX(e)
-    const main = isMain === true || isMain === 'true'
+    const main = isMain === 1 || isMain === '1' || isMain === true || isMain === 'true'
     const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
     const label = main ? 'СИЛА' : name
     const ch = main ? -1 : (parseInt(i, 10) || 0)
@@ -460,7 +464,7 @@ export default {
     if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
       touch.moved = true
     }
-    if (this.slideOn && this.slideTouching) {
+    if (this.slideOn && this.slideArmed) {
       this.setSlideFromY(y)
     }
   },
@@ -470,7 +474,9 @@ export default {
     const touch = this.rowTouch
     if (touch && touch.opened) {
       this.rowTouch = null
-      this.slideEnd()
+      if (!this.slideArmed) {
+        this.slideArmed = true
+      }
       return
     }
     this.rowTouch = null
@@ -493,7 +499,7 @@ export default {
   },
 
   slideTouch(e) {
-    if (!this.slideOn) {
+    if (!this.slideOn || !this.slideArmed) {
       return
     }
     this.slideTouching = true
@@ -503,6 +509,7 @@ export default {
   slideEnd() {
     const wasMain = this.slideMain
     this.slideTouching = false
+    this.slideArmed = false
     clearTimeout(this.slideCommitTimer)
     clearTimeout(this.rowOpenTimer)
     this.rowTouch = null
@@ -528,6 +535,7 @@ export default {
     clearTimeout(this.rowOpenTimer)
     this.slideOn = false
     this.slideTouching = false
+    this.slideArmed = false
     this.slideMain = false
     this.rowTouch = null
   },
@@ -746,23 +754,32 @@ export default {
 }
 .ctl {
   flex-shrink: 0;
-  height: 300px;
+  height: 200px;
   width: 212px;
   flex-direction: column;
   align-items: center;
-  padding-top: 36px;
+  padding-top: 40px;
+}
+.play-wrap {
+  flex-shrink: 0;
+  width: 212px;
+  height: 148px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .play {
   flex-shrink: 0;
-  width: 120px;
-  height: 120px;
-  margin-top: 16px;
-  border-radius: 60px;
+  width: 132px;
+  height: 132px;
+  border-radius: 66px;
+  justify-content: center;
+  align-items: center;
 }
 .play-img {
   flex-shrink: 0;
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
 }
 .cbox {
   flex-shrink: 0;
@@ -772,6 +789,10 @@ export default {
   margin-top: 10px;
   border-radius: 22px;
   overflow: hidden;
+}
+.cbox-main {
+  margin-top: 18px;
+  margin-bottom: 4px;
 }
 .cfill {
   flex-shrink: 0;

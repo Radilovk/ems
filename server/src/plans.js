@@ -1,4 +1,4 @@
-/** Plan presets → mods / feat arrays (server is source of truth). */
+/** Plan presets → mods / feat arrays (applied at license creation). */
 export const PLANS = {
   base: { mods: [], feat: [] },
   pro: { mods: ['timer', 'music', 'pulse'], feat: [] },
@@ -7,17 +7,21 @@ export const PLANS = {
   custom: null,
 };
 
-export function resolveEntitlements(plan, modsJson, featJson) {
-  const preset = PLANS[plan];
-  if (preset) {
-    return { mods: [...preset.mods], feat: [...preset.feat] };
-  }
+/**
+ * Entitlements for token minting — DB arrays are source of truth.
+ * Presets are copied into DB at creation; admin PATCH updates DB directly.
+ */
+export function resolveEntitlements(_plan, modsJson, featJson) {
+  const mods = parseJsonArray(modsJson);
+  const feat = parseJsonArray(featJson);
+  return { mods, feat };
+}
+
+function parseJsonArray(jsonText) {
   try {
-    return {
-      mods: JSON.parse(modsJson || '[]'),
-      feat: JSON.parse(featJson || '[]'),
-    };
+    const arr = JSON.parse(jsonText || '[]');
+    return Array.isArray(arr) ? arr : [];
   } catch {
-    return { mods: [], feat: [] };
+    return [];
   }
 }

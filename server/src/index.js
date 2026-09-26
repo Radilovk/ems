@@ -2,6 +2,11 @@ import { signToken, sha256Hex } from './crypto.js';
 import { resolveEntitlements, PLANS } from './plans.js';
 import { adminHtml } from './admin.js';
 import { LIMITS, limitsSummary } from './limits.js';
+import {
+  now, normKey, normDevice, normMacList, parseMacList,
+  parseTokenBody, parseTokenLic, isHttpsUrl,
+  generateLicenseKey, generateLicenseId,
+} from './utils.js';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
 
@@ -11,7 +16,7 @@ export default {
     const path = url.pathname;
 
     try {
-      if (path === '/health') return json({ ok: true, service: 'xems-license' });
+      if (path === '/health') return json({ ok: true, service: 'xems-license', ts: now() });
 
       if (path === '/v1/license/activate' && request.method === 'POST') {
         return handleActivate(request, env);
@@ -46,14 +51,22 @@ export default {
 
 async function handleActivate(request, env) {
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-  if (!(await rateLimit(env, `activate:${ip}`, 10, 60))) {
+  if (!(await rateLimit(env, `activate:ip:${ip}`, LIMITS.activatePerMinutePerIp, 60))) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many attempts' }, 429);
   }
 
-  const body = await request.json();
+  const body = await readJsonBody(request);
+  if (!body) return err('invalid_request', 'Invalid JSON body');
+
   const key = normKey(body.key);
   const deviceId = normDevice(body.device_id);
-  if (!key || !deviceId) return err('invalid_request', 'Missing key or device_id');
+  if (!key || !deviceId || deviceId.length !== 16) {
+    return err('invalid_request', 'Missing or invalid key or device_id');
+  }
+
+  if (!(await rateLimit(env, `activate:dev:${deviceId}`, LIMITS.activatePerDayPerDevice, 86400))) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many attempts for this device' }, 429);
+  }
 
   const keyHash = await sha256Hex(key);
   const lic = await env.DB.prepare('SELECT * FROM licenses WHERE key_hash = ?').bind(keyHash).first();
@@ -92,11 +105,20 @@ async function handleActivate(request, env) {
 }
 
 async function handleRefresh(request, env) {
-  const body = await request.json();
+  const body = await readJsonBody(request);
+  if (!body) return err('unknown', 'Invalid JSON body');
+
   const deviceId = normDevice(body.device_id);
-  const token = body.token || '';
-  const licId = parseTokenLic(token);
-  if (!licId || !deviceId) return err('unknown', 'Invalid token');
+  const tokenBody = parseTokenBody(body.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || deviceId.length !== 16) return err('unknown', 'Invalid token');
+
+  // Token must belong to this device — prevents replay with stolen token payload.
+  if (normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Token device mismatch');
+
+  if (!(await rateLimit(env, `refresh:dev:${deviceId}`, LIMITS.refreshPerMinutePerDevice, 60))) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many refresh attempts' }, 429);
+  }
 
   const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
   if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
@@ -120,8 +142,11 @@ async function handleUpdate(url, env) {
   if (app !== 'xems') return json({ ok: true, version_code: 0 });
 
   const rel = await env.DB.prepare(
-    'SELECT * FROM releases WHERE channel = ? AND version_code > ? ORDER BY version_code DESC LIMIT 1',
-  ).bind(channel, code).first();
+    `SELECT * FROM releases
+     WHERE channel = ? AND version_code > ?
+       AND (min_code IS NULL OR min_code <= ?)
+     ORDER BY version_code DESC LIMIT 1`,
+  ).bind(channel, code, code).first();
 
   if (!rel) return json({ ok: true, version_code: 0 });
 
@@ -129,6 +154,9 @@ async function handleUpdate(url, env) {
   const apkUrl = rel.object_key.startsWith('https://')
     ? rel.object_key
     : `${base}/releases/${rel.object_key}`;
+
+  if (!isHttpsUrl(apkUrl)) return json({ ok: true, version_code: 0 });
+
   return json({
     ok: true,
     version_code: rel.version_code,
@@ -144,7 +172,9 @@ async function handleUpdate(url, env) {
 async function serveRelease(request, env, path) {
   const key = path.replace(/^\/releases\//, '');
   if (!key || key.includes('..')) return new Response('Not found', { status: 404 });
-  const rel = await env.DB.prepare('SELECT object_key FROM releases WHERE object_key = ? OR object_key LIKE ?').bind(key, `%${key}`).first();
+  const rel = await env.DB.prepare(
+    'SELECT object_key FROM releases WHERE object_key = ? OR object_key LIKE ?',
+  ).bind(key, `%${key}`).first();
   if (rel?.object_key?.startsWith('https://')) {
     return Response.redirect(rel.object_key, 302);
   }
@@ -155,7 +185,10 @@ async function serveRelease(request, env, path) {
 
 async function adminApi(request, env, path) {
   if (!checkAdmin(request, env)) {
-    return new Response('Unauthorized', { status: 401, headers: { 'WWW-Authenticate': 'Basic realm="XEMS Admin"' } });
+    return new Response('Unauthorized', {
+      status: 401,
+      headers: { 'WWW-Authenticate': 'Basic realm="XEMS Admin"' },
+    });
   }
 
   const route = path.replace('/admin/api/', '');
@@ -166,12 +199,14 @@ async function adminApi(request, env, path) {
   }
 
   if (route === 'licenses/create' && request.method === 'POST') {
-    const b = await request.json();
-    const rawKey = generateKey();
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+
+    const rawKey = generateLicenseKey();
     const keyHash = await sha256Hex(normKey(rawKey));
-    const id = `L-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, '0')}`;
+    const id = await uniqueLicenseId(env);
     const plan = b.plan || 'pro';
-    const preset = PLANS[plan] || PLANS.custom;
+    const preset = PLANS[plan] ?? PLANS.custom;
     const mods = JSON.stringify(b.mods || preset?.mods || []);
     const feat = JSON.stringify(b.feat || preset?.feat || []);
     const ems = JSON.stringify(normMacList(b.ems));
@@ -190,7 +225,9 @@ async function adminApi(request, env, path) {
 
   if (route.startsWith('licenses/') && request.method === 'PATCH') {
     const id = route.split('/')[1];
-    const b = await request.json();
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+
     const sets = [];
     const vals = [];
     for (const [k, col] of [['status', 'status'], ['plan', 'plan'], ['max_devices', 'max_devices'], ['customer', 'customer'], ['note', 'note']]) {
@@ -239,13 +276,19 @@ async function adminApi(request, env, path) {
   }
 
   if ((route === 'releases/upload' || route === 'releases/register') && request.method === 'POST') {
-    const b = await request.json();
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+
     const version_code = +b.version_code;
     const version_name = String(b.version_name || '').trim();
     const object_key = String(b.object_key || b.url || '').trim();
     if (!version_code || !version_name || !object_key) {
       return json({ ok: false, error: 'missing_fields', message: 'version_code, version_name and url are required' }, 400);
     }
+    if (!isHttpsUrl(object_key) && !object_key.match(/^[\w.-]+\.apk$/)) {
+      return json({ ok: false, error: 'invalid_url', message: 'APK URL must be HTTPS' }, 400);
+    }
+
     let sha256 = String(b.sha256 || '').trim().toLowerCase();
     let size = +b.size || 0;
     if (!sha256 || !size) {
@@ -254,12 +297,14 @@ async function adminApi(request, env, path) {
       sha256 = fetched.sha256;
       size = fetched.size;
     }
+
+    const min_code = b.min_code != null ? +b.min_code : null;
     await env.DB.prepare(
-      `INSERT OR REPLACE INTO releases (version_code, version_name, channel, object_key, sha256, size, notes, mandatory, published_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT OR REPLACE INTO releases (version_code, version_name, channel, object_key, sha256, size, notes, mandatory, min_code, published_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       version_code, version_name, b.channel || 'stable', object_key, sha256, size,
-      b.notes || '', b.mandatory ? 1 : 0, now(),
+      b.notes || '', b.mandatory ? 1 : 0, min_code, now(),
     ).run();
     return json({ ok: true, version_code, version_name, sha256, size });
   }
@@ -279,9 +324,14 @@ async function adminApi(request, env, path) {
   }
 
   if (route === 'releases/verify' && request.method === 'POST') {
-    const b = await request.json();
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+
     const object_key = String(b.object_key || b.url || '').trim();
     if (!object_key) return json({ ok: false, error: 'missing_url', message: 'URL is required' }, 400);
+    if (!isHttpsUrl(object_key)) {
+      return json({ ok: false, error: 'invalid_url', message: 'URL must be HTTPS' }, 400);
+    }
     const fetched = await fetchReleaseMeta(object_key);
     if (!fetched.ok) return json({ ok: false, error: fetched.error, message: fetched.message }, 400);
     return json({ ok: true, sha256: fetched.sha256, size: fetched.size });
@@ -289,11 +339,14 @@ async function adminApi(request, env, path) {
 
   if (route.match(/^releases\/\d+$/) && request.method === 'PATCH') {
     const version_code = +route.split('/')[1];
-    const b = await request.json();
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+
     const sets = [];
     const vals = [];
     if (b.mandatory !== undefined) { sets.push('mandatory = ?'); vals.push(b.mandatory ? 1 : 0); }
     if (b.notes !== undefined) { sets.push('notes = ?'); vals.push(String(b.notes)); }
+    if (b.min_code !== undefined) { sets.push('min_code = ?'); vals.push(b.min_code ? +b.min_code : null); }
     if (!sets.length) return json({ ok: false, error: 'nothing_to_update' }, 400);
     vals.push(version_code);
     await env.DB.prepare(`UPDATE releases SET ${sets.join(', ')} WHERE version_code = ?`).bind(...vals).run();
@@ -347,12 +400,13 @@ async function mintToken(env, lic, deviceId) {
   return signToken(env.LICENSE_PRIVATE_KEY, payload);
 }
 
-function parseTokenLic(token) {
-  try {
-    const body = token.split('.')[0];
-    const json = JSON.parse(atob(body.replace(/-/g, '+').replace(/_/g, '/')));
-    return json.lic || null;
-  } catch { return null; }
+async function uniqueLicenseId(env) {
+  for (let i = 0; i < 5; i++) {
+    const id = generateLicenseId();
+    const exists = await env.DB.prepare('SELECT 1 FROM licenses WHERE id = ?').bind(id).first();
+    if (!exists) return id;
+  }
+  throw new Error('Could not generate unique license ID');
 }
 
 async function touchActivation(env, act, body) {
@@ -374,12 +428,21 @@ async function rateLimit(env, key, max, windowSec) {
   const ts = now();
   const row = await env.DB.prepare('SELECT * FROM rate_limits WHERE key = ?').bind(key).first();
   if (!row || ts - row.window_start >= windowSec) {
-    await env.DB.prepare('INSERT OR REPLACE INTO rate_limits (key, count, window_start) VALUES (?, 1, ?)').bind(key, ts).run();
+    await env.DB.prepare(
+      'INSERT OR REPLACE INTO rate_limits (key, count, window_start) VALUES (?, 1, ?)',
+    ).bind(key, ts).run();
+    pruneRateLimits(env, ts);
     return true;
   }
   if (row.count >= max) return false;
   await env.DB.prepare('UPDATE rate_limits SET count = count + 1 WHERE key = ?').bind(key).run();
   return true;
+}
+
+/** Drop rate-limit rows older than retention window (best-effort, non-blocking). */
+async function pruneRateLimits(env, ts) {
+  const cutoff = ts - LIMITS.rateLimitRetentionSec;
+  await env.DB.prepare('DELETE FROM rate_limits WHERE window_start < ?').bind(cutoff).run();
 }
 
 async function audit(env, action, licenseId, deviceId, detail) {
@@ -388,31 +451,11 @@ async function audit(env, action, licenseId, deviceId, detail) {
   ).bind(now(), 'api', action, licenseId || '', deviceId || '', detail || '').run();
 }
 
-function generateKey() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const part = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  return `XEMS-${part()}-${part()}`;
-}
-
-/** One spelling for a suit MAC: AA:BB:CC:DD:EE:FF (12 hex digits, anything else is dropped). */
-function normMac(m) {
-  const hex = String(m || '').toUpperCase().replace(/[^0-9A-F]/g, '');
-  return hex.length === 12 ? hex.match(/../g).join(':') : null;
-}
-/** Array or text (comma / space / new line separated) → unique normalized MACs. */
-function normMacList(v) {
-  const items = Array.isArray(v) ? v : String(v || '').split(/[\s,;]+/);
-  return [...new Set(items.map(normMac).filter(Boolean))];
-}
-function parseMacList(jsonText) {
-  try { return normMacList(JSON.parse(jsonText || '[]')); } catch { return []; }
-}
-function normKey(k) { return (k || '').trim().toUpperCase(); }
-function normDevice(d) { return (d || '').trim().toUpperCase().replace(/[^A-F0-9]/g, ''); }
-function now() { return Math.floor(Date.now() / 1000); }
-
 /** Download APK (or any file) and return sha256 + size for the admin web form. */
 async function fetchReleaseMeta(url) {
+  if (!isHttpsUrl(url)) {
+    return { ok: false, error: 'invalid_url', message: 'URL must be HTTPS' };
+  }
   try {
     const res = await fetch(url, { redirect: 'follow' });
     if (!res.ok) {
@@ -437,11 +480,26 @@ async function fetchReleaseMeta(url) {
   }
 }
 
+async function readJsonBody(request) {
+  const cl = parseInt(request.headers.get('content-length') || '0', 10);
+  if (cl > LIMITS.maxBodyBytes) return null;
+  try {
+    const text = await request.text();
+    if (text.length > LIMITS.maxBodyBytes) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 function checkAdmin(request, env) {
   const auth = request.headers.get('Authorization') || '';
   if (!auth.startsWith('Basic ')) return false;
   const decoded = atob(auth.slice(6));
-  const [user, pass] = decoded.split(':');
+  const colon = decoded.indexOf(':');
+  if (colon < 0) return false;
+  const user = decoded.slice(0, colon);
+  const pass = decoded.slice(colon + 1);
   const expected = env.ADMIN_PASSWORD || '';
   const expectedUser = env.ADMIN_USER || 'admin';
   return user === expectedUser && pass === expected && expected.length > 0;

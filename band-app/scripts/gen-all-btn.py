@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 OUT = Path(__file__).resolve().parent.parent / "src" / "common" / "ui"
-W, H = 196, 76
+W, H = 196, 92
 R = 22
 BRIGHT_GREEN = (48, 209, 88)   # #30D158 — active training
 BRIGHT_RED = (255, 69, 58)     # #FF453A

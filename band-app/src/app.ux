@@ -20,13 +20,11 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 44
+const APP_VERSION = 47
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
 const MAX_RESENDS = 3
-/** Emulator tests only — scripts/run-emulator-test.sh sets true temporarily. */
-const DEV_MOCK = false
 
 export default {
   state: null,
@@ -48,9 +46,6 @@ export default {
 
   onCreate() {
     this.open()
-    if (DEV_MOCK) {
-      this.startDevMock()
-    }
     // One clock for the whole app: 3-2-1 buzz before a phase / interval ends.
     this.beat = setInterval(() => this.tick(), 400)
     this.nextId = Date.now() % 100000000
@@ -68,7 +63,6 @@ export default {
     this.listeners = []
     clearInterval(this.helloTimer)
     clearInterval(this.beat)
-    clearInterval(this.mockTimer)
     this.keepOn(false)
   },
 
@@ -272,31 +266,6 @@ export default {
     try {
       brightness.setKeepScreenOn({ keepScreenOn: on })
     } catch (e) {}
-  },
-
-  /** Fake XEMS state for Vela emulator (no system.interconnect peer). */
-  startDevMock() {
-    let seq = 0
-    const push = () => {
-      seq++
-      this.receive({
-        t: 'state',
-        v: 2,
-        mode: 'manual',
-        boot: 1,
-        seq: seq,
-        el: 95 + seq,
-        hr: 88,
-        z: 3,
-        lim: 170,
-        ms: 42,
-        mods: { tr: { run: true } },
-        ch: [30, 20, 40, 55, 10, 0, 25, 15, 35, 45],
-        lic: ['train', 'ai', 'timer', 'music', 'pulse']
-      })
-    }
-    push()
-    this.mockTimer = setInterval(push, 2000)
   },
 
   hello() {

@@ -25,7 +25,7 @@
         </div>
 
         <stack class="cbox cbox-main">
-          <image class="cfill all-fill" src="{{allBtnSrc}}"></image>
+          <image class="cfill-main" src="{{allBtnSrc}}"></image>
           <div class="cface cface-all">
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
@@ -83,22 +83,13 @@
 
 <script>
 import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveSeconds } from '../../common/ui.js'
-import {
-  TAP_MAX_MS,
-  SLIDE_OPEN_MS,
-  SLIDE_CLOSE_MS,
-  TAP_MAX_MOVE,
-  isMainRow,
-  touchX,
-  touchY,
-  parseRowTouchStart,
-  tapSide,
-  isTap,
-  movedBeyondTap
-} from '../../common/train-touch.js'
 
 const HOLD_MS = 1200
+const SLIDE_OPEN_MS = 400
 const SLIDE_COMMIT_MS = 500
+const SLIDE_CLOSE_MS = 3000
+const TAP_MAX_MS = 320
+const TAP_MAX_MOVE = 16
 const SLIDE_TRACK_H = 418
 const SLIDE_TRACK_TOP = 72
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
@@ -106,10 +97,16 @@ const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
 const COL_CTL = 200
-const COL_PLAY = 160
-const COL_MAIN_GAP = 106
+const PLAY_GAP = 16
+const PLAY_SIZE = 152
+const COL_PLAY = PLAY_GAP + PLAY_SIZE
+const COL_MAIN_GAP = PLAY_GAP + 92 + 22
 const COL_ROW = 102
 const COL_STOP = 230
+
+function isMainRow(v) {
+  return v === 1 || v === '1' || v === true || v === 'true'
+}
 
 function channelRenderKey(out, live) {
   let key = live ? '1' : '0'
@@ -131,6 +128,16 @@ function channelStyle(pct, live) {
     return { fill: accent, color: '#FFFFFF', signColor: '#FFFFFF' }
   }
   return { fill: FILL_DIM[t], color: accent, signColor: '#AEAEB2' }
+}
+
+function touchY(e) {
+  const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0])
+  return t ? t.pageY : 0
+}
+
+function touchX(e) {
+  const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0])
+  return t ? t.pageX : 0
 }
 
 /** Batched strength change — channels use d≤10; main sends one command per step. */
@@ -466,20 +473,21 @@ export default {
     if (this.slideOn) {
       return
     }
-    const parsed = parseRowTouchStart(isMain, i, text, name, e)
-    const main = parsed.main
-    const ch = parsed.i
-    const label = parsed.name
-    const val = main ? this.mainMsVal() : parsed.val
+    const main = isMainRow(isMain)
     this.captureScroll()
+    const y = touchY(e)
+    const x = touchX(e)
+    const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
+    const label = main ? 'СИЛА' : name
+    const ch = main ? -1 : (parseInt(i, 10) || 0)
     this.rowTouch = {
       main: main,
       i: ch,
       name: label,
       val: val,
-      startX: parsed.startX,
-      startY: parsed.startY,
-      y: parsed.y,
+      startX: x,
+      startY: y,
+      y: y,
       t0: Date.now(),
       moved: false,
       opened: false
@@ -501,7 +509,7 @@ export default {
     const y = touchY(e)
     const x = touchX(e)
     touch.y = y
-    if (movedBeyondTap(touch, x, y)) {
+    if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
       touch.moved = true
     }
     if (this.slideOn && this.slideArmed) {
@@ -525,13 +533,13 @@ export default {
     if (elapsed >= SLIDE_OPEN_MS || touch.opened) {
       return
     }
-    if (isTap(touch, elapsed)) {
+    if (!touch.moved && elapsed <= TAP_MAX_MS) {
       const x = touchX(e) || touch.x
-      const side = tapSide(x)
+      const minus = x < 106
       if (touch.main) {
-        side === 'minus' ? this.allMinus() : this.allPlus()
+        minus ? this.allMinus() : this.allPlus()
       } else {
-        side === 'minus' ? this.chMinus(touch.i) : this.chPlus(touch.i)
+        minus ? this.chMinus(touch.i) : this.chPlus(touch.i)
       }
     }
   },
@@ -759,6 +767,9 @@ export default {
   }
 }
 /* ---- page ---- */
+.col {
+  align-items: center;
+}
 .bg-start {
   flex-shrink: 0;
   background-image: url(/common/bg/start.png);
@@ -782,35 +793,33 @@ export default {
 .play-wrap {
   flex-shrink: 0;
   width: 212px;
-  height: 140px;
-  margin-bottom: 20px;
+  height: 152px;
+  margin-top: 16px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 .play {
   flex-shrink: 0;
-  width: 128px;
-  height: 128px;
-  border-radius: 64px;
+  width: 152px;
+  height: 152px;
+  border-radius: 76px;
   justify-content: center;
   align-items: center;
-  align-self: center;
 }
 .play-img {
   flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 76px;
+  height: 76px;
 }
 .cbox {
   flex-shrink: 0;
   width: 196px;
   height: 92px;
-  margin-left: 8px;
   margin-top: 10px;
 }
 .cbox-main {
-  margin-top: 8px;
+  margin-top: 16px;
   margin-bottom: 22px;
 }
 .cfill {
@@ -870,15 +879,11 @@ export default {
   font-weight: bold;
   lines: 1;
 }
-.cbox-main .cfill {
+.cfill-main {
+  flex-shrink: 0;
   width: 196px;
   height: 92px;
-  margin-left: 0px;
-  margin-top: 0px;
   border-radius: 22px;
-}
-.all-fill {
-  width: 196px;
 }
 .cface-all {
   flex-direction: row;

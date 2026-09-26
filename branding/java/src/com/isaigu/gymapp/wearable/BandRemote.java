@@ -328,7 +328,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 + (ok && v != null && c < v.length ? " → " + v[c] : " (not applied)"));
     }
 
-    /** Slider on the band: set one channel's real strength (0–100). */
+    /** Slider on the band: set one channel's real strength (0–100). Steps in chunks like the tablet slider. */
     static void channelSet(int c, int v) {
         com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
         int[] vals = item != null ? channelValues(item) : null;
@@ -336,11 +336,19 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             return;
         }
         int target = Math.max(0, Math.min(100, v));
-        int delta = target - vals[c];
-        if (delta == 0) {
-            return;
+        int guard = 0;
+        while (guard++ < 8) {
+            vals = channelValues(item);
+            if (vals == null || c >= vals.length) {
+                break;
+            }
+            int delta = target - vals[c];
+            if (delta == 0) {
+                break;
+            }
+            int step = delta > 0 ? Math.min(delta, 20) : Math.max(delta, -20);
+            channelStep(c, step);
         }
-        channelStep(c, delta);
         vals = channelValues(item);
         WearableBleDiagLog.log("applink", "channel " + c + " =" + target
                 + (vals != null && c < vals.length ? " → " + vals[c] : ""));

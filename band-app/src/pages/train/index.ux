@@ -39,11 +39,13 @@
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
           <div class="cface">
-            <text class="cname">{{$item.name}}</text>
             <div class="cline">
-              <text class="csign">-</text>
-              <text class="cval" style="color: {{$item.color}}">{{$item.text}}</text>
-              <text class="csign">+</text>
+              <text class="csign" style="color: {{$item.signColor}}">-</text>
+              <div class="cmid">
+                <text class="cname">{{$item.name}}</text>
+                <text class="cval" style="color: {{$item.color}}">{{$item.text}}</text>
+              </div>
+              <text class="csign" style="color: {{$item.signColor}}">+</text>
             </div>
           </div>
           <div class="ctouch ch-row-touch"
@@ -90,8 +92,8 @@ const SLIDE_COMMIT_MS = 500
 const SLIDE_CLOSE_MS = 3000
 const TAP_MAX_MS = 320
 const TAP_MAX_MOVE = 16
-const SLIDE_TRACK_H = 300
-const SLIDE_TRACK_TOP = 158
+const SLIDE_TRACK_H = 418
+const SLIDE_TRACK_TOP = 72
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
@@ -105,9 +107,9 @@ function channelStyle(pct, live) {
   const t = tier(pct)
   const accent = t === 2 ? RED : t === 1 ? AMBER : GREEN
   if (live) {
-    return { fill: accent, color: '#FFFFFF' }
+    return { fill: accent, color: '#FFFFFF', signColor: '#FFFFFF' }
   }
-  return { fill: FILL_DIM[t], color: accent }
+  return { fill: FILL_DIM[t], color: accent, signColor: '#AEAEB2' }
 }
 
 function touchY(e) {
@@ -272,7 +274,8 @@ export default {
         text: String(pct),
         w: Math.round((FILL_W * pct) / 100),
         fill: style.fill,
-        color: style.color
+        color: style.color,
+        signColor: style.signColor
       })
     })
     this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'
@@ -285,11 +288,12 @@ export default {
     if (same) {
       out.forEach((n, k) => {
         const c = this.chans[k]
-        if (c.text !== n.text || c.w !== n.w || c.color !== n.color || c.fill !== n.fill) {
+        if (c.text !== n.text || c.w !== n.w || c.color !== n.color || c.fill !== n.fill || c.signColor !== n.signColor) {
           c.text = n.text
           c.w = n.w
           c.color = n.color
           c.fill = n.fill
+          c.signColor = n.signColor
         }
       })
     } else {
@@ -737,18 +741,18 @@ export default {
   flex-shrink: 0;
   width: 196px;
   height: 76px;
-  padding-top: 4px;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
   border-width: 2px;
   border-color: #48484a;
   border-radius: 22px;
 }
 .cname {
   flex-shrink: 0;
-  width: 180px;
+  width: 104px;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: #ffffff;
   lines: 1;
@@ -756,23 +760,30 @@ export default {
 .cline {
   flex-shrink: 0;
   width: 196px;
+  height: 76px;
   flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.cmid {
+  flex-shrink: 0;
+  width: 104px;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 .csign {
   flex-shrink: 0;
-  width: 44px;
+  width: 46px;
   text-align: center;
-  font-size: 42px;
+  font-size: 46px;
   font-weight: bold;
-  color: #aeaeb2;
 }
 .cval {
   flex-shrink: 0;
-  width: 108px;
+  width: 104px;
   text-align: center;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: bold;
   lines: 1;
 }
@@ -912,23 +923,23 @@ export default {
 }
 .slide-val {
   flex-shrink: 0;
-  margin-top: 36px;
-  font-size: 72px;
+  margin-top: 8px;
+  font-size: 36px;
   font-weight: bold;
   color: #ffffff;
 }
 .slide-name {
   flex-shrink: 0;
   margin-top: 2px;
-  font-size: 26px;
+  font-size: 22px;
   font-weight: bold;
   color: #8e8e93;
 }
 .slide-track {
   flex-shrink: 0;
   width: 56px;
-  height: 300px;
-  margin-top: 18px;
+  height: 418px;
+  margin-top: 8px;
   justify-content: flex-end;
   align-items: center;
 }
@@ -937,7 +948,7 @@ export default {
   left: 0px;
   bottom: 0px;
   width: 56px;
-  height: 300px;
+  height: 418px;
   border-radius: 28px;
   background-color: #1c1c1e;
   border-width: 2px;

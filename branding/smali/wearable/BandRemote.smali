@@ -428,7 +428,7 @@
 .end method
 
 .method static channelSet(II)V
-    .locals 3
+    .locals 6
 
     .prologue
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -439,48 +439,94 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelValues(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
 
-    move-result-object v0
+    move-result-object v1
 
     goto :goto_0
 
     :cond_0
-    const/4 v0, 0x0
+    const/4 v1, 0x0
 
     :goto_0
-    if-nez v0, :cond_1
+    if-nez v1, :cond_1
 
     return-void
 
     :cond_1
     if-ltz p0, :cond_4
 
-    array-length v1, v0
+    array-length v2, v1
 
-    if-ge p0, v1, :cond_4
+    if-ge p0, v2, :cond_4
 
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
-    const/16 v2, 0x64
+    const/16 v3, 0x64
 
-    invoke-static {v1, p1}, Ljava/lang/Math;->max(II)I
-
-    move-result p1
-
-    invoke-static {v2, p1}, Ljava/lang/Math;->min(II)I
+    invoke-static {v2, p1}, Ljava/lang/Math;->max(II)I
 
     move-result p1
 
-    aget v1, v0, p0
+    invoke-static {v3, p1}, Ljava/lang/Math;->min(II)I
 
-    sub-int v2, p1, v1
+    move-result p1
 
-    if-nez v2, :cond_2
+    const/4 v2, 0x0
 
-    return-void
+    :goto_1
+    const/16 v3, 0x8
+
+    if-ge v2, v3, :cond_4
+
+    add-int/lit8 v2, v2, 0x1
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelValues(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
+
+    move-result-object v1
+
+    if-nez v1, :cond_2
+
+    goto :goto_2
 
     :cond_2
-    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelStep(II)V
+    array-length v3, v1
 
+    if-lt p0, v3, :cond_3
+
+    goto :goto_2
+
+    :cond_3
+    aget v3, v1, p0
+
+    sub-int v4, p1, v3
+
+    if-nez v4, :cond_5
+
+    goto :goto_2
+
+    :cond_5
+    if-lez v4, :cond_6
+
+    const/16 v5, 0x14
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->min(II)I
+
+    move-result v4
+
+    goto :goto_3
+
+    :cond_6
+    const/16 v5, -0x14
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->max(II)I
+
+    move-result v4
+
+    :goto_3
+    invoke-static {p0, v4}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelStep(II)V
+
+    goto :goto_1
+
+    :goto_2
     :cond_4
     return-void
 .end method
@@ -1008,7 +1054,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_d
+    if-eqz v0, :cond_d
 
     const-string v0, "ch_minus"
 
@@ -1955,7 +2001,7 @@
 
     move-result v3
 
-    if-nez v3, :cond_d
+    if-eqz v3, :cond_d
 
     const-string v3, "ch_minus"
 
@@ -1963,7 +2009,25 @@
 
     move-result v3
 
+    if-eqz v3, :cond_d
+
+    const-string v3, "ch_set"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_ch_set_cmd
+
+    const-string v3, "hg_toggle"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
     if-eqz v3, :cond_f
+
+    goto/16 :goto_0
 
     .line 190
     :cond_d
@@ -2002,22 +2066,6 @@
 
     .line 191
     :cond_f
-    const-string v3, "ch_set"
-
-    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_ch_set_cmd
-
-    const-string v3, "hg_toggle"
-
-    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_0
-
     if-eqz v2, :cond_0
 
     .line 192

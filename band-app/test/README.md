@@ -6,9 +6,10 @@
 |-------|---------|----------------|
 | **Compile** | `bash build.sh` | `.rpk` builds for Vela |
 | **Touch/layout logic** | `node test/train-touch.test.mjs` | Main ± args, tap/slider FSM, gap math |
+| **Layout static** | `node test/train-layout.test.mjs` | CSS/template rules from index.ux |
 | **Screen wake** | `node test/app-screen.test.mjs` | No `keepOn(running)` |
+| **Train preview PNG** | `bash scripts/run-emulator-test.sh` | 212×520 layout preview (Pillow, no emulator) |
 | **SPP protocol** | `scripts/ble-sim/run-spp.sh` | Phone↔band bytes, hello/state (not UI) |
-| **Vela emulator** | `bash scripts/run-emulator-test.sh` | Real `.ux` runtime, 212×520, train page + mock state |
 
 ## Quick run (CI / agent)
 
@@ -16,20 +17,20 @@
 cd band-app && bash scripts/test-band.sh
 ```
 
-## Emulator (local machine with KVM)
+## Train screen preview (easy, reliable)
 
 ```bash
 cd band-app
-npx aiot initEmulatorEnv          # once (~600 MB)
-node scripts/setup-emulator.mjs   # creates Vela_XEMS_Band 212×520
-bash scripts/run-emulator-test.sh # mock XEMS state + train page
+python3 scripts/gen-train-preview.py idle    /tmp/train_idle.png
+python3 scripts/gen-train-preview.py running /tmp/train_running.png
 ```
 
-Without KVM the emulator is too slow in cloud VMs — use unit tests + real Band 10.
+Uses the same 212×520 dimensions and colours as `src/pages/train/index.ux`.  
+**Not** a substitute for a photo from the real band — use that to confirm fonts and Vela rendering.
 
 ## Not automatable without hardware
 
-- `system.interconnect` with real XEMS tablet (mock only in emulator script)
+- `system.interconnect` with real XEMS tablet
 - Wrist-wake display timing
 - True touch feel, fonts, Cyrillic on device
 - Full train_plus → EMS impulse loop

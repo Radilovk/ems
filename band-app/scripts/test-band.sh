@@ -25,12 +25,8 @@ else
   echo "SKIP: ble-sim not available"
 fi
 
-echo "=== 4/4 Vela emulator (optional) ==="
-if [[ -r /dev/kvm ]] && [[ -d "$HOME/.export_dev" ]]; then
-  echo "KVM available — run: cd band-app && bash scripts/run-emulator-test.sh"
-else
-  echo "SKIP emulator UI: no KVM or SDK (init with: npx aiot initEmulatorEnv)"
-fi
+echo "=== 4/4 train layout preview PNG (212×520) ==="
+bash scripts/run-emulator-test.sh
 
 echo ""
 echo "All automated checks passed."

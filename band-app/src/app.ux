@@ -21,7 +21,7 @@ import router from '@system.router'
 import { sessionTarget, shouldRoute } from './common/auto-route.js'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 56
+const APP_VERSION = 57
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200

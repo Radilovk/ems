@@ -96,6 +96,24 @@ const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прас�
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
+const COL_CTL = 200
+const COL_PLAY = 160
+const COL_MAIN_GAP = 90
+const COL_ROW = 86
+const COL_STOP = 230
+
+function isMainRow(v) {
+  return v === 1 || v === '1' || v === true || v === 'true'
+}
+
+function channelRenderKey(out, live) {
+  let key = live ? '1' : '0'
+  for (let k = 0; k < out.length; k++) {
+    const n = out[k]
+    key += '|' + n.i + ':' + n.text + ':' + n.w + ':' + n.fill
+  }
+  return key
+}
 
 function tier(pct) {
   return pct >= 80 ? 2 : pct >= 50 ? 1 : 0
@@ -151,8 +169,8 @@ export default {
     hrText: '--',
     zoneText: 'пулс',
     chans: [],
+    chPre: '',
     chKey: '',
-    chRaw: '',
     colH: 900,
     allBtnSrc: '/common/ui/all-btn-dim.png',
     slideOn: false,
@@ -256,20 +274,18 @@ export default {
     if (this.slideOn) {
       return
     }
-    const ch = s.ch || []
-    const raw = (run ? '1' : '0') + ch.join(',')
-    // Rebuild only when tablet ch[] / run colours change, or a channel ± preview is active.
-    // Main strength (optMs) updates msText above — it does not touch channel rows.
-    if (raw !== this.chRaw || Object.keys(this.optim).length > 0) {
-      this.chRaw = raw
-      this.buildChannels(ch, run)
-    }
+    this.buildChannels(s.ch || [], run)
   },
 
   buildChannels(ch, live) {
     if (live === undefined) {
       live = this.run
     }
+    const pre = (live ? '1' : '0') + ch.join(',')
+    if (!Object.keys(this.optim).length && pre === this.chPre) {
+      return
+    }
+    this.chPre = pre
     const out = []
     ORDER.forEach((i) => {
       if (i >= ch.length) {
@@ -299,11 +315,7 @@ export default {
         signColor: style.signColor
       })
     })
-    let key = live ? '1' : '0'
-    for (let k = 0; k < out.length; k++) {
-      const n = out[k]
-      key += '|' + n.i + ':' + n.text + ':' + n.w + ':' + n.fill
-    }
+    const key = channelRenderKey(out, live)
     if (key === this.chKey) {
       return
     }
@@ -322,7 +334,7 @@ export default {
       })
     } else {
       this.chans = out
-      this.colH = 200 + 160 + 90 + out.length * 86 + 230
+      this.colH = COL_CTL + COL_PLAY + COL_MAIN_GAP + out.length * COL_ROW + COL_STOP
     }
   },
 
@@ -424,7 +436,7 @@ export default {
     if (this.slideOn) {
       return
     }
-    const main = isMain === 1 || isMain === '1' || isMain === true || isMain === 'true'
+    const main = isMainRow(isMain)
     if (main && !this.run) {
       return
     }
@@ -549,7 +561,6 @@ export default {
     if (ci < ch.length && ch[ci] >= 0) {
       const base = this.optim[ci] ? this.optim[ci].v : ch[ci]
       this.optim[ci] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
-      this.chRaw = (this.run ? '1' : '0') + ch.join(',')
       this.buildChannels(ch)
     }
     app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: ci, d: 1 })

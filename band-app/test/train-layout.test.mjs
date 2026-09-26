@@ -35,6 +35,8 @@ ok(ux.match(/\.cfill-main\s*\{[^}]*height:\s*92px/s), 'cfill-main height 92px ma
 ok(!ux.includes('.cbox-main .cfill'), 'no unsupported Vela descendant selector for main fill')
 ok(!ux.includes('active && !offline'), 'home scroll stays mounted while modules open')
 ok(ux.includes('resetTrainSession'), 'train page resets session on show/hide')
+ok(ux.includes("'Глутеус'"), 'glutes channel matches tablet label (Глутеус)')
+ok(!ux.includes("'Седалище'"), 'no old Седалище channel name')
 
 console.log(failed ? '\nFAILED' : '\nAll layout checks passed')
 process.exit(failed ? 1 : 0)

@@ -28,6 +28,13 @@
 
 Договор: [`../docs/xems-license-api.md`](../docs/xems-license-api.md)
 
+## Тестове
+
+```bash
+cd server
+npm test
+```
+
 ## Deploy
 
 ```bash

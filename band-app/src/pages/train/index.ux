@@ -18,7 +18,7 @@
         </div>
 
         <div class="play-wrap">
-          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playBg}}"
+          <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#FF9F0A' : '#30D158'}}"
                ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
             <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
           </div>
@@ -84,9 +84,6 @@
 <script>
 import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveSeconds } from '../../common/ui.js'
 
-const PLAY_RUN = AMBER
-const PLAY_IDLE = GREEN
-
 const HOLD_MS = 1200
 const SLIDE_OPEN_MS = 400
 const SLIDE_COMMIT_MS = 500
@@ -146,7 +143,6 @@ function sendStrengthDelta(app, main, channel, delta) {
 export default {
   private: {
     run: false,
-    playBg: PLAY_IDLE,
     elapsed: '0:00',
     zoneColor: '#AEAEB2',
     pressed: '',
@@ -240,7 +236,6 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
-    this.playBg = run ? PLAY_RUN : PLAY_IDLE
     this.elapsed = hms(liveSeconds(this.elClock, s.el, run))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
@@ -323,7 +318,7 @@ export default {
       })
     } else {
       this.chans = out
-      this.colH = 200 + 148 + 102 + out.length * 86 + 230
+      this.colH = 200 + 160 + 90 + out.length * 86 + 230
     }
   },
 
@@ -425,10 +420,13 @@ export default {
     if (this.slideOn) {
       return
     }
+    const main = isMain === 1 || isMain === '1' || isMain === true || isMain === 'true'
+    if (main && !this.run) {
+      return
+    }
     this.captureScroll()
     const y = touchY(e)
     const x = touchX(e)
-    const main = isMain === 1 || isMain === '1' || isMain === true || isMain === 'true'
     const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
     const label = main ? 'СИЛА' : name
     const ch = main ? -1 : (parseInt(i, 10) || 0)
@@ -763,16 +761,18 @@ export default {
 .play-wrap {
   flex-shrink: 0;
   width: 212px;
-  height: 148px;
+  height: 140px;
+  margin-bottom: 20px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 .play {
   flex-shrink: 0;
-  width: 132px;
-  height: 132px;
-  border-radius: 66px;
+  width: 128px;
+  height: 128px;
+  margin-left: 42px;
+  border-radius: 64px;
   justify-content: center;
   align-items: center;
 }
@@ -791,8 +791,8 @@ export default {
   overflow: hidden;
 }
 .cbox-main {
-  margin-top: 18px;
-  margin-bottom: 4px;
+  margin-top: 8px;
+  margin-bottom: 6px;
 }
 .cfill {
   flex-shrink: 0;

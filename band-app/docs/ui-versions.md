@@ -2,6 +2,11 @@
 
 Запис на одобрени baseline-и. При промяна на layout първо провери, че не нарушаваш активната версия.
 
+## Home меню (не се пипа без изрично решение)
+
+Няколкоекранно меню с карти: пулс горе, после Старт / AI / Таймер / Музика / Пулс.
+Dial-home и auto-route са отменени (2026-09-26).
+
 ## v2 — стабилен play layout (baseline)
 
 - Play: **152×152 px**, центриран в `tr-play-row` (212 px)
@@ -24,20 +29,3 @@ CSS-only, без нови PNG:
 - `stop-core` highlight border
 
 **Layout от v2 не се променя.**
-
-Band 5.9.27 / APK 1.1.139-ai.
-
-## v4 — native-first home (текуща)
-
-- `pages/index` е **dial-home** (пулс, play, чипове), не списък с карти
-- Auto-route: от home → train/ai/timer **веднъж** при старт на сесия; swipe-back не се презаписва
-- Radar „Свързване…“ само преди първи `state`; после dial остава
-- Music screen HUD: „Музика · ▶ старт“, force push при train/AI start
-
-## v4.1 — dial visual (леко)
-
-- Типография като циферблат: XEMS / време, голям HR, Z, 5 точки
-- Статичен пръстен зад play (без breathe)
-- Чипове ghost + цветен ръб само когато модулът е активен
-- Offline без looping wave
-

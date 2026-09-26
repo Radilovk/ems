@@ -78,7 +78,7 @@ export default {
 
   onInit() {
     setPages(this, ['hr', 'auto', 'chart'])
-    this.unbind = bind(this)
+    this.unbind = bind(this, 'pulse')
   },
 
   onShow() {

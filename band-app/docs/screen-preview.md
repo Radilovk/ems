@@ -9,6 +9,8 @@ cd band-app
 python3 scripts/gen-train-preview.py idle    /path/train_idle.png
 python3 scripts/gen-train-preview.py running /path/train_running.png
 python3 scripts/gen-train-preview.py multi   /path/train_multi_click.png
+python3 scripts/gen-home-preview.py idle     /path/home_idle.png
+python3 scripts/gen-home-preview.py running  /path/home_running.png
 
 # или всички наведнъж:
 bash scripts/run-emulator-test.sh

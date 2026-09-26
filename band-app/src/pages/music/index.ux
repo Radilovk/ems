@@ -78,7 +78,7 @@ export default {
   },
 
   onInit() {
-    this.unbind = bind(this)
+    this.unbind = bind(this, 'music')
   },
 
   onShow() {

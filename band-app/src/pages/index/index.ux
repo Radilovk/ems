@@ -1,31 +1,39 @@
 <template>
-  <!-- home: one vertical scroll — heart rate, then a big card per module (Start first).
-       Tap a card to open it; hold the heart rate to pause everything; swipe right = exit. -->
-  <stack class="root bg-home">
-    <scroll class="scr" scroll-y="true" if="{{!offline}}">
-      <div class="col" style="height: {{colH}}px">
-        <div class="hdr">
-          <div class="hr-row">
-            <image class="hr-heart" src="/common/icons/heart.png"></image>
-            <text class="hr-big" style="color: {{hrColor}}">{{hrBig}}</text>
-          </div>
-          <text class="hr-sub">{{hrSub}}</text>
-          <div class="zones">
-            <div for="{{zoneBar}}" class="zseg" style="background-color: {{$item.c}}; opacity: {{$item.on ? 1 : 0.22}}"></div>
-          </div>
+  <!-- Dial-home: watch-face layout. Tap play = train toggle; chips open modules.
+       Hold HR = pause everything. Swipe right = exit. -->
+  <stack class="root bg-home" onswipe="onSwipe">
+    <div class="dial" if="{{!cold}}">
+      <text class="dial-clock">{{clock}}</text>
+      <text class="dial-hr" style="color: {{hrColor}}"
+            ontouchstart="hrDown" ontouchend="hrUp" ontouchcancel="hrUp">{{hrBig}}</text>
+      <text class="dial-sub">{{hrSub}}</text>
+      <div class="zones">
+        <div for="{{zoneBar}}" class="zseg" style="background-color: {{$item.c}}; opacity: {{$item.on ? 1 : 0.22}}"></div>
+      </div>
+      <div class="home-play {{run ? 'home-play-run' : 'home-play-idle'}} {{pressed === 'play' ? 'home-play-press' : ''}}"
+           ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
+        <image class="home-play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+      </div>
+      <text class="dial-hint">{{hint}}</text>
+      <div class="chip-row">
+        <div class="chip {{trainOn ? 'chip-on' : ''}}" if="{{hasTrain}}" onclick="open('train')">
+          <text class="chip-t">Старт</text>
         </div>
-        <div for="{{cards}}" class="card" style="background-color: {{$item.bg}}; border-color: {{$item.border}}" onclick="open($item.id)">
-          <div class="ic" style="background-color: {{$item.color}}">
-            <image class="ic-img" src="{{$item.icon}}"></image>
-          </div>
-          <text class="ct">{{$item.title}}</text>
-          <text class="cs" style="color: {{$item.subColor}}">{{$item.sub}}</text>
+        <div class="chip {{aiOn ? 'chip-on' : ''}}" if="{{hasAi}}" onclick="open('ai')">
+          <text class="chip-t">AI</text>
         </div>
       </div>
-    </scroll>
+      <div class="chip-row">
+        <div class="chip {{tmOn ? 'chip-on' : ''}}" if="{{hasTimer}}" onclick="open('timer')">
+          <text class="chip-t">Таймер</text>
+        </div>
+        <div class="chip {{hgOn ? 'chip-on' : ''}}" if="{{hasPulse}}" onclick="open('pulse')">
+          <text class="chip-t">Пулс</text>
+        </div>
+      </div>
+    </div>
 
-    <!-- not linked yet -->
-    <div class="offline" if="{{offline}}">
+    <div class="offline" if="{{cold}}">
       <stack class="radar">
         <div class="wave"></div>
         <div class="wave wave2"></div>
@@ -40,29 +48,35 @@
 
 <script>
 import router from '@system.router'
-import { ZONE, ACCENT, RED, GREEN, AMBER, PURPLE, mmss, hms, zoneOf, mods, bind, shown, age } from '../../common/ui.js'
+import { ZONE, hms, zoneOf, mods, bind, shown, age } from '../../common/ui.js'
 
-/** Card tint when a module runs (solid colours: Vela draws them best). */
-const TINT = { train: '#0E2A17', ai: '#2E2607', timer: '#2E1F07', music: '#24122E', pulse: '#2E0F0D' }
-const IDLE = '#16171B'
 const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', music: '/pages/music', pulse: '/pages/pulse' }
 
 export default {
   private: {
-    offline: true,
+    cold: true,
     offText: 'Свързване…',
+    clock: '--:--',
     hrBig: '--',
     hrSub: '',
     hrColor: '#FFFFFF',
+    hint: '',
     zoneBar: [],
-    busy: false,
-    cards: [],
-    cardsKey: '',
-    colH: 900
+    run: false,
+    pressed: '',
+    hasTrain: true,
+    hasAi: true,
+    hasTimer: true,
+    hasPulse: true,
+    trainOn: false,
+    aiOn: false,
+    tmOn: false,
+    hgOn: false
   },
 
   onInit() {
-    this.unbind = bind(this)
+    this.unbind = bind(this, 'index')
+    this.hrT0 = 0
   },
 
   onShow() {
@@ -77,94 +91,81 @@ export default {
     this.unbind()
   },
 
+  onSwipe(e) {
+    if (e && e.direction === 'right') {
+      router.back()
+    }
+  },
+
   update() {
     const app = this.$app.$def
     const s = app.state
     const quiet = app.silence()
-    if (!s || quiet > 12) {
-      this.offline = true
-      this.offText = quiet > 9000 ? 'Свързване…' : 'Връзката прекъсна'
+    if (!app.rx) {
+      this.cold = true
+      this.offText = 'Свързване…'
       return
     }
-    this.offline = false
-    this.busy = app.busy()
-    const lim = s.lim || 170
-    const z = s.hr > 0 ? s.z || zoneOf(s.hr, lim) : 0
-    this.hrBig = s.hr > 0 ? String(s.hr) : '--'
-    this.hrSub = s.hr > 0 ? 'Z' + z + ' · лимит ' + lim : 'няма пулс'
-    this.hrColor = s.hr > 0 ? ZONE[z] : '#8E8E93'
+    this.cold = false
+    const stale = !s || quiet > 12
+    const lim = (s && s.lim) || 170
+    const hr = s && s.hr > 0 ? s.hr : 0
+    const z = hr > 0 ? (s.z || zoneOf(hr, lim)) : 0
+    this.hrBig = hr > 0 ? String(hr) : '--'
+    this.hrColor = hr > 0 ? ZONE[z] : '#8E8E93'
+    const m = mods(s)
+    const ai = !!(s && s.mode === 'ai')
+    const trRun = !!(m.tr.run && !ai)
+    this.run = !!(s && (s.run || trRun || ai && s.st === 'run'))
+    if (stale) {
+      this.hrSub = 'връзката прекъсна'
+      this.clock = this.clock || '--:--'
+      this.hint = 'Отвори XEMS на таблета'
+      return
+    }
+    this.hrSub = hr > 0 ? 'Z' + z + ' · лимит ' + lim : 'няма пулс'
+    const el = (s.el || 0) + age(app, this.run)
+    this.clock = this.run || s.mode === 'manual' || ai ? hms(el) : '--:--'
+    this.hint = this.run ? 'музика · ▶' : '▶ старт'
     const bar = []
     for (let k = 1; k <= 5; k++) {
       bar.push({ c: ZONE[k], on: z >= k })
     }
     this.zoneBar = bar
-
-    const list = this.buildCards(s, app)
-    // Redraw the cards only when something on them changed (keeps the scroll position still).
-    const key = JSON.stringify(list)
-    if (key !== this.cardsKey) {
-      this.cardsKey = key
-      this.cards = list
-      // the scroll needs the real content height (children never shrink)
-      this.colH = 190 + list.length * 208 + 60
-    }
-  },
-
-  /** Start is always first; then the modules the licence opens (all when XEMS does not say). */
-  buildCards(s, app) {
-    const m = mods(s)
     const lic = s.lic || null
     const has = (id) => !lic || lic.indexOf(id) >= 0
-    const ai = s.mode === 'ai'
-    const out = []
+    this.hasTrain = true
+    this.hasAi = has('ai')
+    this.hasTimer = has('timer')
+    this.hasPulse = has('pulse')
+    this.trainOn = trRun
+    this.aiOn = ai
+    this.tmOn = !!m.tm.run
+    this.hgOn = !!(m.hg.en && !m.hg.ai)
+  },
 
-    const trRun = !!m.tr.run && !ai
-    out.push({
-      id: 'train', title: 'Старт', icon: '/common/icons/bolt.png', color: GREEN, active: trRun,
-      sub: trRun ? 'активен · ' + hms((s.el || 0) + age(app, true))
-        : s.mode === 'manual' ? 'пауза · ' + hms(s.el || 0) : 'ръчна тренировка'
-    })
+  press(id) {
+    this.pressed = id
+  },
 
-    if (has('ai')) {
-      let aiSub = 'умна сесия'
-      if (ai) {
-        aiSub = s.st === 'ready' ? 'почивката стига'
-          : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
-            : (s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
-      }
-      out.push({ id: 'ai', title: 'AI', icon: '/common/icons/ai.png', color: ACCENT, active: ai, sub: aiSub })
+  release() {
+    this.pressed = ''
+  },
+
+  toggle() {
+    this.pressed = ''
+    this.$app.$def.command('train_toggle')
+  },
+
+  hrDown() {
+    this.hrT0 = Date.now()
+  },
+
+  hrUp() {
+    if (this.hrT0 && Date.now() - this.hrT0 >= 600) {
+      this.$app.$def.command('pause_all')
     }
-
-    if (has('timer')) {
-      const tm = m.tm
-      let tmSub = 'интервали'
-      if (tm.arm) {
-        tmSub = tm.run ? mmss((tm.left || 0) - age(app, true)) + (tm.lbl ? ' · ' + tm.lbl : tm.loops > 0 ? ' · кръг ' + tm.loop + '/' + tm.loops : '')
-          : tm.pau ? 'пауза · ' + mmss(tm.left || 0) : 'чака старт'
-      }
-      out.push({ id: 'timer', title: 'Таймер', icon: '/common/icons/timer.png', color: AMBER, active: !!tm.run, sub: tmSub })
-    }
-
-    if (has('music')) {
-      const mu = m.mu
-      out.push({
-        id: 'music', title: 'Музика', icon: '/common/icons/music.png', color: PURPLE, active: !!mu.play,
-        sub: mu.on ? (mu.title || 'музика') : 'импулси в такт'
-      })
-    }
-
-    if (has('pulse')) {
-      const hg = m.hg
-      const hgSub = hg.ai ? 'AI управлява' : hg.en ? (hg.hold ? 'задържа силата' : 'сила ' + (hg.sf || 100) + '%') : 'сила по пулса'
-      out.push({ id: 'pulse', title: 'Пулс', icon: '/common/icons/heart.png', color: RED, active: !!hg.en && !hg.ai, sub: hgSub })
-    }
-
-    out.forEach((c) => {
-      c.bg = c.active ? TINT[c.id] : IDLE
-      c.border = c.active ? c.color : '#26272C'
-      c.subColor = c.active ? c.color : '#AEAEB2'
-    })
-    return out
+    this.hrT0 = 0
   },
 
   open(id) {
@@ -297,100 +298,106 @@ export default {
   background-image: url(/common/bg/home.png);
   background-size: cover;
 }
-.hdr {
+.dial {
   flex-shrink: 0;
-  height: 190px;
   width: 212px;
+  height: 520px;
   flex-direction: column;
   align-items: center;
-  padding-top: 42px;
-  padding-bottom: 6px;
+  padding-top: 36px;
 }
-.hr-row {
+.dial-clock {
   flex-shrink: 0;
-  flex-direction: row;
-  align-items: center;
-}
-.hr-heart {
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  margin-right: 8px;
-}
-.hr-big {
-  flex-shrink: 0;
-  font-size: 62px;
+  font-size: 28px;
   font-weight: bold;
+  color: #aeaeb2;
 }
-.hr-sub {
+.dial-hr {
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 56px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.dial-sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
-  font-size: 22px;
+  font-size: 20px;
   color: #c7c7cc;
 }
 .zones {
   flex-shrink: 0;
   flex-direction: row;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 .zseg {
   flex-shrink: 0;
   width: 32px;
-  height: 10px;
+  height: 8px;
   margin-left: 3px;
   margin-right: 3px;
-  border-radius: 5px;
+  border-radius: 4px;
 }
-.sync {
+.home-play {
   flex-shrink: 0;
-  margin-top: 8px;
-  font-size: 20px;
-  color: #ff9f0a;
-}
-.card {
-  flex-shrink: 0;
-  height: 196px;
-  width: 196px;
-  margin-left: 8px;
-  margin-top: 12px;
-  padding-top: 14px;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 30px;
-  border-width: 3px;
-}
-.ic {
-  flex-shrink: 0;
-  width: 72px;
-  height: 72px;
-  border-radius: 36px;
+  width: 140px;
+  height: 140px;
+  margin-top: 14px;
+  border-radius: 70px;
   justify-content: center;
   align-items: center;
 }
-.ic-img {
-  flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+.home-play-idle {
+  background-color: #30d158;
 }
-.ct {
+.home-play-run {
+  background-color: #ff9f0a;
+}
+.home-play-press {
+  opacity: 0.9;
+}
+.home-play-img {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+}
+.dial-hint {
   flex-shrink: 0;
   margin-top: 8px;
-  width: 180px;
+  width: 196px;
   text-align: center;
-  font-size: 32px;
+  font-size: 18px;
+  color: #8e8e93;
+}
+.chip-row {
+  flex-shrink: 0;
+  width: 212px;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+}
+.chip {
+  flex-shrink: 0;
+  width: 92px;
+  height: 56px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 18px;
+  background-color: #1c1c1e;
+  border-width: 2px;
+  border-color: #2c2c2e;
+  justify-content: center;
+  align-items: center;
+}
+.chip-on {
+  border-color: #30d158;
+}
+.chip-t {
+  flex-shrink: 0;
+  font-size: 22px;
   font-weight: bold;
   color: #ffffff;
-  lines: 1;
-}
-.cs {
-  flex-shrink: 0;
-  margin-top: 4px;
-  width: 170px;
-  height: 34px;
-  text-align: center;
-  font-size: 24px;
-  lines: 1;
 }
 .offline {
   flex-shrink: 0;

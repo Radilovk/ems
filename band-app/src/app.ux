@@ -18,9 +18,10 @@ import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
 import brightness from '@system.brightness'
 import router from '@system.router'
+import { sessionTarget, shouldRoute } from './common/auto-route.js'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 55
+const APP_VERSION = 56
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -43,6 +44,10 @@ export default {
   uiSig: '',
   conn: null,
   helloTimer: null,
+  /** Current page id (index/train/ai/…); pages set this in shown(). */
+  page: 'index',
+  /** Session we already jumped into — swipe-back to home is not overridden. */
+  lastRouted: '',
   /** Shown on the connecting screen: what the band's link to the phone does. */
   diag: { link: '?', sent: 0, failed: 0, err: '', rxAny: 0 },
 
@@ -164,6 +169,7 @@ export default {
     this.state = m
     this.rx = Date.now()
     this.checkSummary(m)
+    this.autoRoute(m)
     if (m.vib) {
       this.buzz(m.vib)
     }
@@ -235,6 +241,19 @@ export default {
 
   summary: null,
   lastSum: -1,
+
+  /** From the home dial, open the live session once. Does not fight swipe-back. */
+  autoRoute(s) {
+    const target = sessionTarget(s)
+    const next = shouldRoute(this.lastRouted, this.page || 'index', target)
+    this.lastRouted = next.routed
+    if (!next.route) {
+      return
+    }
+    try {
+      router.push({ uri: '/pages/' + next.route })
+    } catch (e) {}
+  },
 
   /** XEMS reports a finished session (kept for 90 s): open its summary once. */
   checkSummary(m) {

@@ -154,8 +154,8 @@ public final class WearableSettingsSection {
         // The band's music screen as the training remote (no app to install on the band).
         LinearLayout remote = !bandApp ? null : com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
                 WearableUi.tr("Управление от гривната", "Control from the band"),
-                WearableUi.tr("Музикалният екран на гривната показва пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±",
-                        "The band's music screen shows HR and block; ▶ start/pause, ⏭ ⏮ strength ±"),
+                WearableUi.tr("Плъзни до Музика: пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±. Приложението XEMS е за канали и стоп. Подреди го най-горе в Mi Fitness.",
+                        "Swipe to Music: HR and block; ▶ start/pause, ⏭ ⏮ strength ±. The XEMS app is for channels and stop. Pin it first in Mi Fitness."),
                 WearableConfig.isBandRemoteEnabled(a), new RemoteToggle(a));
         if (remote != null) {
             remote.setPadding(0, WearableUi.dp(a, 12), 0, 0);

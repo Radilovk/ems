@@ -20,11 +20,13 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 51
+const APP_VERSION = 53
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
 const MAX_RESENDS = 3
+/** Emulator tests only — scripts/run-emulator-test.sh sets true temporarily. */
+const DEV_MOCK = false
 
 export default {
   state: null,
@@ -46,6 +48,9 @@ export default {
 
   onCreate() {
     this.open()
+    if (DEV_MOCK) {
+      this.startDevMock()
+    }
     // One clock for the whole app: 3-2-1 buzz before a phase / interval ends.
     this.beat = setInterval(() => this.tick(), 400)
     this.nextId = Date.now() % 100000000
@@ -63,6 +68,7 @@ export default {
     this.listeners = []
     clearInterval(this.helloTimer)
     clearInterval(this.beat)
+    clearInterval(this.mockTimer)
     this.keepOn(false)
   },
 
@@ -268,6 +274,39 @@ export default {
     } catch (e) {}
   },
 
+  /** Fake XEMS state for Vela emulator (no system.interconnect peer). */
+  startDevMock() {
+    this.mockTr = { run: false }
+    this.mockSeq = 0
+    this.pushMockState()
+  },
+
+  pushMockState() {
+    this.mockSeq = (this.mockSeq || 0) + 1
+    this.receive({
+      t: 'state',
+      v: 2,
+      mode: 'manual',
+      boot: 1,
+      seq: this.mockSeq,
+      el: 42,
+      hr: 88,
+      z: 3,
+      lim: 170,
+      ms: 42,
+      mods: { tr: { run: !!this.mockTr.run } },
+      ch: [30, 20, 40, 55, 10, 0, 25, 15, 35, 45],
+      lic: ['train', 'ai', 'timer', 'music', 'pulse']
+    })
+  },
+
+  mockCommand(a) {
+    if (a === 'train_toggle') {
+      this.mockTr.run = !this.mockTr.run
+      this.pushMockState()
+    }
+  },
+
   hello() {
     this.send({ t: 'hello', v: APP_VERSION, lang: APP_LANG })
   },
@@ -296,6 +335,14 @@ export default {
 
   /** A command to XEMS, confirmed by the next state (resent until then). extra: {c, d}. */
   command(a, extra, buzz) {
+    if (DEV_MOCK) {
+      this.mockCommand(a)
+      if (buzz !== 'none') {
+        this.buzz(buzz || 'short')
+      }
+      this.notify()
+      return
+    }
     const msg = { t: 'cmd', a: a, id: String(++this.nextId) }
     if (this.rtt) {
       msg.rtt = this.rtt                           // last round trip, for XEMS's link log

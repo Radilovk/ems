@@ -34,6 +34,21 @@ DESIGN_PIPELINE=1 bash build-apk.sh  # вкарва branding/design/ train layou
 BETA_MUSIC=0 bash build-apk.sh       # без music sync stack
 ```
 
+### APK винаги с кода (задължително)
+
+**Никога не commit-вай промени в `band-app/`, `branding/java/`, `translations/` или `scripts/apply-*` без същия commit/PR да включва:**
+
+- `xems27.apk`
+- `RELEASE_VERSION`
+- `band-app/xems-band.rpk` и `band-app/xems-band-en.rpk` (когато band-app е променен)
+
+`build-apk.sh` **спира с грешка**, ако APK е пресглобен, но не е commit-нат. CI (`apk-shipped.yml`) блокира PR без APK.
+
+```bash
+# преди push
+python3 scripts/verify-apk-shipped.py --base origin/main
+```
+
 ### Ред на скриптовете (важен)
 
 1. **Статични layout-и** — `branding/layouts/*.xml` → login, splash, main, settings (не train rows)

@@ -1,0 +1,38 @@
+# Block merges when APK-shipping source changed without a committed xems27.apk.
+name: APK shipped with source
+
+on:
+  pull_request:
+    paths:
+      - "band-app/**"
+      - "branding/java/**"
+      - "branding/smali/**"
+      - "translations/**"
+      - "scripts/apply-*.py"
+      - "scripts/compile-*.sh"
+      - "xems27.apk"
+      - "RELEASE_VERSION"
+      - "scripts/verify-apk-shipped.py"
+      - ".github/workflows/apk-shipped.yml"
+  push:
+    branches: [main]
+    paths:
+      - "band-app/**"
+      - "branding/java/**"
+      - "branding/smali/**"
+      - "translations/**"
+      - "scripts/apply-*.py"
+      - "scripts/compile-*.sh"
+      - "xems27.apk"
+      - "RELEASE_VERSION"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify APK shipped with source changes
+        run: python3 scripts/verify-apk-shipped.py --base origin/main --skip-worktree

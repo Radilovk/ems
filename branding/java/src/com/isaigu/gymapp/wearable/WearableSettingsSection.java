@@ -167,8 +167,8 @@ public final class WearableSettingsSection {
                 && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(bandName));
         if (classic && bandApp) {
             TextView openHint = WearableUi.text(a,
-                    WearableUi.tr("Отвори XEMS: вдигни китката, плъзни нагоре, натисни XEMS. За да е първо — Mi Fitness → гривната → приложения → ред.",
-                            "Open XEMS: raise the wrist, swipe up, tap XEMS. To put it first — Mi Fitness → band → apps → sort."),
+                    WearableUi.tr("Отвори XEMS от гривната: вдигни китката, плъзни нагоре, превърти до XEMS. В Mi Fitness го няма — там са само системните приложения и не се подрежда.",
+                            "Open XEMS on the band: raise the wrist, swipe up, scroll to XEMS. It is not in Mi Fitness — that list is system apps only and cannot be sorted."),
                     13f, mutedCol, false);
             openHint.setPadding(0, WearableUi.dp(a, 12), 0, 0);
             card.addView(openHint);

@@ -2,7 +2,7 @@
   <!-- home: one vertical scroll — heart rate, then a big card per module (Start first).
        Tap a card to open it; hold the heart rate to pause everything; swipe right = exit. -->
   <stack class="root bg-home">
-    <scroll class="scr" scroll-y="true" if="{{active && !offline}}">
+    <scroll class="scr" scroll-y="true" if="{{!offline}}">
       <div class="col" style="height: {{colH}}px">
         <div class="hdr">
           <div class="hr-row">
@@ -49,7 +49,6 @@ const PAGES = { ai: '/pages/ai', train: '/pages/train', timer: '/pages/timer', m
 
 export default {
   private: {
-    active: true,
     offline: true,
     offText: 'Свързване…',
     hrBig: '--',
@@ -67,12 +66,10 @@ export default {
   },
 
   onShow() {
-    this.active = true
     shown(this, true)
   },
 
   onHide() {
-    this.active = false
     shown(this, false)
   },
 

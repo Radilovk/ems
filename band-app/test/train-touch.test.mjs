@@ -20,7 +20,8 @@ import {
   openSlideModel,
   rowTouchEndAfterOpen,
   slideTouchBegin,
-  slideTouchEnd
+  slideTouchEnd,
+  resetTrainSession
 } from '../src/common/train-touch.js'
 
 let passed = 0
@@ -99,6 +100,33 @@ const t = setTimeout(() => {
 }, SLIDE_CLOSE_MS)
 clearTimeout(t)
 assert(!closed, 'idle timer can be cancelled on touch')
+
+// --- session reset (re-enter train after pulse / back) ---
+const page = {
+  rowOpenTimer: setTimeout(() => {}, 1000),
+  slideCloseTimer: setTimeout(() => {}, 1000),
+  slideCommitTimer: setTimeout(() => {}, 1000),
+  holdTimer: setInterval(() => {}, 1000),
+  rowTouch: { main: true },
+  slideOn: true,
+  slideIdx: 2,
+  slideMain: true,
+  slideTouching: true,
+  slideArmed: true,
+  slideAnim: 'slide-out',
+  slideDim: true,
+  optim: { 1: { v: 50, at: 0 } },
+  optMs: { v: 40, at: 0 },
+  chPre: '1|1:50',
+  chKey: 'key',
+  pressed: 'play',
+  holdPct: 50,
+  elClock: { base: 10, at: 100 }
+}
+resetTrainSession(page)
+assert(!page.slideOn && !page.rowTouch && !Object.keys(page.optim).length, 'reset clears slide/touch/cache')
+assert(page.chPre === '' && page.chKey === '', 'reset clears channel cache keys')
+assert(page.elClock.base === 0 && page.elClock.at === 0, 'reset clears elapsed clock')
 
 // --- resolveTouchEvent priority ---
 assert(resolveTouchEvent(1, brokenEv, '', 'СИЛА', undefined) === brokenEv, 'resolve 2nd arg')

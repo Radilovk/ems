@@ -32,8 +32,14 @@ import java.util.Locale;
  */
 public final class BandRemote implements XiaomiBandRemote.Listener,
         com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.Listener {
-    /** How often the tablet looks for a change to tell the band (sent at once when it changed). */
+    /** How often the tablet looks. A real change is sent at once; the clock and the bpm are not. */
     private static final long TICK_MS = 1000L;
+    /**
+     * Music-screen text (training clock, bpm) refreshes at this pace. The clock changes every
+     * second; sending that often, on top of the live heart-rate stream, fills the band's music
+     * service and reboots Band 10.
+     */
+    private static final long MUSIC_REFRESH_MS = 20000L;
     /** Volume we report; a band request above / below it is a +/− step. */
     private static final int VOL = 50;
 
@@ -446,13 +452,15 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         boolean paused;
         int pos = 0;
         int dur = 0;
+        String stable;
         AiEngine e = AiSession.getEngine();
         if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null) {
             AiEngine.State st = e.getState();
             AiModel.Phase ph = e.phase();
             double kcal = AiSession.getKcal();
+            boolean restReady = st == AiEngine.State.REST && e.isRestReady();
             title = hrText;
-            if (st == AiEngine.State.REST && e.isRestReady()) {
+            if (restReady) {
                 sub = WearableUi.tr("Почивката стига · ▶ продължи", "Rest done · ▶ continue");
             } else {
                 sub = phaseName(ph.id) + " · " + mmss(ph.durationS - e.getPhaseElapsedS())
@@ -462,6 +470,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = !playing;
             pos = (int) e.getElapsedPlanS();
             dur = e.getPlan().totalS;
+            stable = "ai|" + playing + "|" + ph.id + "|" + restReady;
         } else if (trainRunning || trainMs > 0 && !musicOnly()) {
             double kcal = HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
             title = hrText;
@@ -469,6 +478,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                     + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
             playing = trainRunning;
             paused = !trainRunning;
+            stable = "tr|" + playing;
         } else if (musicOnly()) {
             String t = MusicPlayerHelper.currentTitle();
             title = t != null && t.length() > 0 ? t : WearableUi.tr("Музика", "Music");
@@ -478,22 +488,25 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = !playing;
             pos = MusicSync.getPlaybackPositionMs() / 1000;
             dur = MusicSync.getPlaybackDurationMs() / 1000;
+            stable = "mu|" + playing + "|" + title;
         } else {
             title = hrText;
             sub = WearableUi.tr("Музика · ▶ старт", "Music · ▶ start");
             playing = false;
             paused = true;
+            stable = "idle";
         }
-        String key = title + "|" + sub + "|" + playing + "|" + (dur > 0 ? pos / 5 : 0);
-        boolean changed = !key.equals(lastSent);
-        if (force || changed || now - lastSentMs >= 20000L) {
-            lastSent = key;
+        // Clock and bpm stay out of this key: they change every second and were sent as a new
+        // music command each tick, which reboots the band. Play, pause, phase, song: at once.
+        boolean structure = !stable.equals(lastSent);
+        if (force || structure || now - lastSentMs >= MUSIC_REFRESH_MS) {
+            lastSent = stable;
             lastSentMs = now;
             link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
         }
         // The band app counts down by itself; a fresh state every few seconds keeps HR and charts
         // live, and any change of what runs (either side) goes at once.
-        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, force || changed, now);
+        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, force || structure, now);
     }
 
     private static boolean aiWasRunning;

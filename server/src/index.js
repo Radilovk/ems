@@ -1,5 +1,10 @@
 import { signToken, sha256Hex } from './crypto.js';
 import { resolveEntitlements, PLANS } from './plans.js';
+import { catalogSummary, filterMods, filterFeat } from './catalog.js';
+import {
+  listEmsDevices, addEmsDevice, updateEmsDevice, deleteEmsDevice,
+  approvePairedMacs, collectPairedMacs, resolveEmsForLicense, ensureLegacyEmsMigrated,
+} from './ems.js';
 import { adminHtml } from './admin.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
@@ -26,6 +31,9 @@ export default {
       }
       if (path === '/v1/app/update' && request.method === 'GET') {
         return handleUpdate(url, env);
+      }
+      if (path === '/v1/catalog' && request.method === 'GET') {
+        return json({ ok: true, ...catalogSummary() });
       }
 
       if (path.startsWith('/releases/')) {
@@ -266,8 +274,75 @@ async function adminApi(request, env, path) {
     return json({ ok: true, activations: rows.results });
   }
 
+  if (route === 'catalog' && request.method === 'GET') {
+    return json({ ok: true, ...catalogSummary() });
+  }
+
   if (route === 'limits' && request.method === 'GET') {
     return json({ ok: true, limits: limitsSummary() });
+  }
+
+  const emsListMatch = route.match(/^licenses\/(.+)\/ems-devices$/);
+  if (emsListMatch && request.method === 'GET') {
+    const licId = emsListMatch[1];
+    const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
+    if (!lic) return json({ ok: false, error: 'not_found' }, 404);
+    await ensureLegacyEmsMigrated(env, licId, lic);
+    const devices = await listEmsDevices(env, licId);
+    const paired = await collectPairedMacs(env, licId);
+    return json({ ok: true, devices, paired });
+  }
+
+  if (emsListMatch && request.method === 'POST') {
+    const licId = emsListMatch[1];
+    const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
+    if (!lic) return json({ ok: false, error: 'not_found' }, 404);
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+    const result = await addEmsDevice(env, licId, b);
+    if (!result.ok) return json(result, 400);
+    await audit(env, 'add_ems_device', licId, null, `${result.mac} ${b.label || ''}`);
+    return json({ ok: true, device: result });
+  }
+
+  const emsApproveMatch = route.match(/^licenses\/(.+)\/ems-devices\/approve-paired$/);
+  if (emsApproveMatch && request.method === 'POST') {
+    const licId = emsApproveMatch[1];
+    const result = await approvePairedMacs(env, licId);
+    await audit(env, 'approve_paired_ems', licId, null, `added:${result.added.length}`);
+    return json({ ok: true, ...result });
+  }
+
+  const emsOneMatch = route.match(/^licenses\/(.+)\/ems-devices\/(\d+)$/);
+  if (emsOneMatch && request.method === 'PATCH') {
+    const [, licId, deviceId] = emsOneMatch;
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+    const result = await updateEmsDevice(env, licId, +deviceId, b);
+    if (!result.ok) return json(result, 400);
+    await audit(env, 'update_ems_device', licId, null, String(deviceId));
+    return json({ ok: true });
+  }
+
+  if (emsOneMatch && request.method === 'DELETE') {
+    const [, licId, deviceId] = emsOneMatch;
+    await deleteEmsDevice(env, licId, +deviceId);
+    await audit(env, 'delete_ems_device', licId, null, String(deviceId));
+    return json({ ok: true });
+  }
+
+  const entMatch = route.match(/^licenses\/(.+)\/entitlements$/);
+  if (entMatch && request.method === 'PATCH') {
+    const licId = entMatch[1];
+    const b = await readJsonBody(request);
+    if (!b) return json({ ok: false, error: 'invalid_json' }, 400);
+    const mods = filterMods(b.mods || []);
+    const feat = filterFeat(b.feat || []);
+    await env.DB.prepare('UPDATE licenses SET mods = ?, feat = ?, plan = ? WHERE id = ?').bind(
+      JSON.stringify(mods), JSON.stringify(feat), 'custom', licId,
+    ).run();
+    await audit(env, 'update_entitlements', licId, null, JSON.stringify({ mods, feat }));
+    return json({ ok: true, mods, feat });
   }
 
   if (route === 'releases' && request.method === 'GET') {
@@ -386,6 +461,7 @@ function adminPage(env) {
 
 async function mintToken(env, lic, deviceId) {
   const { mods, feat } = resolveEntitlements(lic.plan, lic.mods, lic.feat);
+  const ems = await resolveEmsForLicense(env, lic);
   const payload = {
     v: 1,
     lic: lic.id,
@@ -393,7 +469,7 @@ async function mintToken(env, lic, deviceId) {
     plan: lic.plan,
     mods,
     feat,
-    ems: parseMacList(lic.ems),
+    ems,
     iat: now(),
     exp: lic.expires_at || 0,
   };

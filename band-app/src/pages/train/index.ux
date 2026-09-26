@@ -31,7 +31,7 @@
             <text class="bigsign">+</text>
           </div>
           <div class="ctouch"
-               ontouchstart="rowTouchStart(1)"
+               ontouchstart="mainTouchStart"
                ontouchmove="rowTouchMove"
                ontouchend="rowTouchEnd"
                ontouchcancel="rowTouchEnd"></div>
@@ -50,7 +50,7 @@
             </div>
           </div>
           <div class="ctouch"
-               ontouchstart="rowTouchStart(0, $item.i, $item.text, $item.name)"
+               ontouchstart="chTouchStart($item.i, $item.text, $item.name)"
                ontouchmove="rowTouchMove"
                ontouchend="rowTouchEnd"
                ontouchcancel="rowTouchEnd"></div>
@@ -98,8 +98,8 @@ const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
 const COL_CTL = 200
 const COL_PLAY = 160
-const COL_MAIN_GAP = 90
-const COL_ROW = 86
+const COL_MAIN_GAP = 106
+const COL_ROW = 102
 const COL_STOP = 230
 
 function isMainRow(v) {
@@ -360,7 +360,6 @@ export default {
     if (this.rowTouch) {
       this.rowTouch.opened = true
     }
-    clearTimeout(this.slideCloseTimer)
     this.slideMain = !!isMain
     this.slideIdx = isMain ? -1 : i
     this.slideName = name
@@ -370,9 +369,37 @@ export default {
     this.slideArmed = false
     this.slideOn = true
     this.slideAnim = 'slide-in'
-    this.slideDim = !this.run
+    this.slideDim = isMain && !this.run
     this.slideTick = Math.floor(val / 10)
     this.updateSlideVisual(val)
+    this.scheduleSlideIdleClose()
+  },
+
+  scheduleSlideIdleClose() {
+    clearTimeout(this.slideCloseTimer)
+    this.slideCloseTimer = setTimeout(() => {
+      if (this.slideOn) {
+        this.dismissSlide()
+      }
+    }, SLIDE_CLOSE_MS)
+  },
+
+  dismissSlide() {
+    const wasMain = this.slideMain
+    clearTimeout(this.slideCloseTimer)
+    clearTimeout(this.slideCommitTimer)
+    clearTimeout(this.rowOpenTimer)
+    this.slideOn = false
+    this.slideIdx = -1
+    this.slideMain = false
+    this.slideTouching = false
+    this.slideArmed = false
+    this.rowTouch = null
+    if (!wasMain) {
+      const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
+      this.buildChannels(ch, this.run)
+    }
+    this.restoreScroll()
   },
 
   setSlideFromY(y) {
@@ -432,14 +459,19 @@ export default {
     return ms >= 0 ? ms : 0
   },
 
+  mainTouchStart(e) {
+    this.rowTouchStart(true, -1, '', 'СИЛА', e)
+  },
+
+  chTouchStart(i, text, name, e) {
+    this.rowTouchStart(false, i, text, name, e)
+  },
+
   rowTouchStart(isMain, i, text, name, e) {
     if (this.slideOn) {
       return
     }
     const main = isMainRow(isMain)
-    if (main && !this.run) {
-      return
-    }
     this.captureScroll()
     const y = touchY(e)
     const x = touchX(e)
@@ -488,9 +520,7 @@ export default {
     const touch = this.rowTouch
     if (touch && touch.opened) {
       this.rowTouch = null
-      if (!this.slideArmed) {
-        this.slideArmed = true
-      }
+      this.slideArmed = true
       return
     }
     this.rowTouch = null
@@ -513,45 +543,27 @@ export default {
   },
 
   slideTouch(e) {
-    if (!this.slideOn || !this.slideArmed) {
+    if (!this.slideOn) {
       return
     }
+    this.slideArmed = true
     this.slideTouching = true
+    clearTimeout(this.slideCloseTimer)
     this.setSlideFromY(touchY(e))
   },
 
   slideEnd() {
-    const wasMain = this.slideMain
     this.slideTouching = false
-    this.slideArmed = false
+    this.slideArmed = true
     clearTimeout(this.slideCommitTimer)
-    clearTimeout(this.rowOpenTimer)
-    this.rowTouch = null
     if (this.slideDraft !== this.slideSent) {
       this.commitSlide()
     }
-    clearTimeout(this.slideCloseTimer)
-    this.slideCloseTimer = setTimeout(() => {
-      this.slideOn = false
-      this.slideIdx = -1
-      this.slideMain = false
-      if (!wasMain) {
-        const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
-        this.buildChannels(ch, this.run)
-      }
-      this.restoreScroll()
-    }, SLIDE_CLOSE_MS)
+    this.scheduleSlideIdleClose()
   },
 
   closeSlideNow() {
-    clearTimeout(this.slideCloseTimer)
-    clearTimeout(this.slideCommitTimer)
-    clearTimeout(this.rowOpenTimer)
-    this.slideOn = false
-    this.slideTouching = false
-    this.slideArmed = false
-    this.slideMain = false
-    this.rowTouch = null
+    this.dismissSlide()
   },
 
   step(c, d) {
@@ -786,10 +798,10 @@ export default {
   flex-shrink: 0;
   width: 128px;
   height: 128px;
-  margin-left: 42px;
   border-radius: 64px;
   justify-content: center;
   align-items: center;
+  align-self: center;
 }
 .play-img {
   flex-shrink: 0;
@@ -799,17 +811,17 @@ export default {
 .cbox {
   flex-shrink: 0;
   width: 196px;
-  height: 76px;
+  height: 92px;
   margin-left: 8px;
   margin-top: 10px;
 }
 .cbox-main {
   margin-top: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 22px;
 }
 .cfill {
   flex-shrink: 0;
-  height: 72px;
+  height: 88px;
   margin-left: 2px;
   margin-top: 2px;
   border-radius: 20px;
@@ -817,7 +829,7 @@ export default {
 .cface {
   flex-shrink: 0;
   width: 196px;
-  height: 76px;
+  height: 92px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -829,15 +841,15 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 22px;
+  font-size: 17px;
   font-weight: bold;
   color: #ffffff;
-  lines: 1;
+  lines: 2;
 }
 .cline {
   flex-shrink: 0;
   width: 196px;
-  height: 76px;
+  height: 92px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -860,16 +872,24 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 18px;
+  font-size: 26px;
   font-weight: bold;
   lines: 1;
 }
+.cbox-main .cfill {
+  width: 196px;
+  height: 92px;
+  margin-left: 0px;
+  margin-top: 0px;
+  border-radius: 22px;
+}
 .all-fill {
-  width: 192px;
+  width: 196px;
 }
 .cface-all {
   flex-direction: row;
   padding-top: 0px;
+  border-width: 0px;
 }
 .bigsign {
   flex-shrink: 0;
@@ -910,7 +930,7 @@ export default {
 .ctouch {
   flex-shrink: 0;
   width: 196px;
-  height: 76px;
+  height: 92px;
   flex-direction: row;
 }
 .stop-item {

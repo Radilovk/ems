@@ -5,8 +5,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 OUT = Path(__file__).resolve().parent.parent / "src" / "common" / "ui"
-W, H = 192, 72
-R = 20
+W, H = 196, 76
+R = 22
 BRIGHT_GREEN = (48, 209, 88)   # #30D158 — active training
 BRIGHT_RED = (255, 69, 58)     # #FF453A
 DIM_GREEN = (31, 157, 70)      # #1F9D46 — pause / before start

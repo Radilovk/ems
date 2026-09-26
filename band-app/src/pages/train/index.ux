@@ -363,18 +363,33 @@ export default {
   armSlideCommit() {
     clearTimeout(this.slideCommitTimer)
     this.slideCommitTimer = setTimeout(() => {
-      if (this.slideTouching && this.slideDraft !== this.slideSent) {
-        this.commitSlide()
+      if (this.slideTouching && this.slideDraft !== this.slideSent && !this.slideDim) {
+        this.sendChannelDelta(this.slideIdx, this.slideDraft - this.slideSent)
+        this.slideSent = this.slideDraft
       }
     }, SLIDE_COMMIT_MS)
+  },
+
+  /** Same path as tap ±: batched ch_plus / ch_minus with d up to 10 per command. */
+  sendChannelDelta(c, delta) {
+    if (!delta) {
+      return
+    }
+    const app = this.$app.$def
+    let rem = delta
+    while (rem !== 0) {
+      const step = rem > 0 ? Math.min(rem, 10) : Math.max(rem, -10)
+      app.command(step > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: Math.abs(step) }, 'none')
+      rem -= step
+    }
   },
 
   commitSlide() {
     if (this.slideIdx < 0 || this.slideDraft === this.slideSent || this.slideDim) {
       return
     }
+    this.sendChannelDelta(this.slideIdx, this.slideDraft - this.slideSent)
     this.slideSent = this.slideDraft
-    this.$app.$def.command('ch_set', { c: this.slideIdx, v: this.slideDraft }, 'none')
   },
 
   chTouchStart(i, text, name, e) {

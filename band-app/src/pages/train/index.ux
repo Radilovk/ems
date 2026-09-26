@@ -17,12 +17,12 @@
           </div>
         </div>
 
-        <div class="play-wrap">
+        <stack class="play-wrap">
           <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{run ? '#FF9F0A' : '#30D158'}}"
                ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
             <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
           </div>
-        </div>
+        </stack>
 
         <stack class="cbox cbox-main">
           <image class="cfill-main" src="{{allBtnSrc}}"></image>
@@ -805,7 +805,7 @@ export default {
 }
 .play-wrap {
   flex-shrink: 0;
-  width: 212px;
+  width: 152px;
   height: 152px;
   margin-top: 16px;
   flex-direction: column;
@@ -859,7 +859,7 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: bold;
   color: #ffffff;
   lines: 2;
@@ -890,7 +890,7 @@ export default {
   flex-shrink: 0;
   width: 104px;
   text-align: center;
-  font-size: 26px;
+  font-size: 22px;
   font-weight: bold;
   lines: 1;
 }

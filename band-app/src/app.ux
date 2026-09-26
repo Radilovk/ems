@@ -20,7 +20,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 43
+const APP_VERSION = 44
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -46,8 +46,7 @@ export default {
 
   onCreate() {
     this.open()
-    // One clock for the whole app: 3-2-1 buzz before a phase / interval ends, screen kept on
-    // while something runs.
+    // One clock for the whole app: 3-2-1 buzz before a phase / interval ends.
     this.beat = setInterval(() => this.tick(), 400)
     this.nextId = Date.now() % 100000000
     // Until XEMS answers, say hello every 4 s (the link may open after the app).
@@ -212,7 +211,6 @@ export default {
       this.countdown('tm', (tm.left || 0) - age)
     }
     const running = !!(s.run || tm.run || mu.play || (m.tr || {}).run)
-    this.keepOn(running)
     this.zoneBuzz(running ? s.z || 0 : 0)
   },
 

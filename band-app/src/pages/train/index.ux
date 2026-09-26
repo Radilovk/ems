@@ -98,7 +98,7 @@ const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
 const COL_CTL = 200
 const COL_PLAY = 160
-const COL_MAIN_GAP = 90
+const COL_MAIN_GAP = 106
 const COL_ROW = 102
 const COL_STOP = 230
 
@@ -819,7 +819,7 @@ export default {
 }
 .cbox-main {
   margin-top: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 22px;
 }
 .cfill {
   flex-shrink: 0;

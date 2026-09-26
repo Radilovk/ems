@@ -90,14 +90,27 @@ def draw_ctl(d: ImageDraw.ImageDraw, elapsed: str, ms: str, hr: str, zone: str, 
     for i, (num, lbl, col) in enumerate(boxes):
         x = x0 + i * (92 + 8)
         y = 44 + 70
-        rounded_rect(d, (x, y, x + 92, y + 70), 20, "#1C1C1E")
+        rounded_rect(d, (x, y, x + 92, y + 70), 20, "#1C1C1E", outline="#2C2C2E", width=1)
         nw = d.textlength(num, font=f_kpi)
         d.text((x + (92 - nw) / 2, y + 8), num, fill=col, font=f_kpi)
         lw = d.textlength(lbl, font=f_lbl)
         d.text((x + (92 - lw) / 2, y + 46), lbl, fill="#8E8E93", font=f_lbl)
+    rule_w = 128
+    rule_x = (W - rule_w) // 2
+    rule_y = y + 70 + 10
+    rounded_rect(d, (rule_x, rule_y, rule_x + rule_w, rule_y + 2), 1, "#2C2C2E")
+
+
+def draw_play_glow(d: ImageDraw.ImageDraw, running: bool) -> None:
+    glow = 168
+    gx = PLAY_X - (glow - PLAY) // 2
+    gy = PLAY_Y - (glow - PLAY) // 2
+    col = "#FF9F0A" if running else "#30D158"
+    rounded_rect(d, (gx, gy, gx + glow, gy + glow), 84, None, outline=col, width=3)
 
 
 def draw_play(im: Image.Image, d: ImageDraw.ImageDraw, running: bool) -> None:
+    draw_play_glow(d, running)
     col = "#FF9F0A" if running else "#30D158"
     rounded_rect(d, (PLAY_X, PLAY_Y, PLAY_X + PLAY, PLAY_Y + PLAY), 76, col)
     icon = "pause.png" if running else "play.png"
@@ -121,11 +134,12 @@ def draw_channel(d: ImageDraw.ImageDraw, y: int, name: str, pct: int, live: bool
     t = tier(pct)
     accent = ACCENT[t]
     fill = accent if live else FILL_DIM[t]
+    border = "#636366" if live else "#3A3A3C"
     rounded_rect(d, (CBOX_X, y, CBOX_X + CBOX_W, y + CBOX_H), 22, "#000000")
     fw = int(192 * pct / 100)
     if fw > 0:
         rounded_rect(d, (CBOX_X + 2, y + 2, CBOX_X + 2 + fw, y + 2 + 88), 20, fill)
-    rounded_rect(d, (CBOX_X, y, CBOX_X + CBOX_W, y + CBOX_H), 22, None, outline="#48484A", width=2)
+    rounded_rect(d, (CBOX_X, y, CBOX_X + CBOX_W, y + CBOX_H), 22, None, outline=border, width=2)
     f_sign = font(46, True)
     f_name = font(20, True)
     f_val = font(22, True)

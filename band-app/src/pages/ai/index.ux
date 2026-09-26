@@ -53,7 +53,7 @@
       <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
         <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
         <div class="stop-core">
-          <image class="stop-img" src="/common/icons/stop.png"></image>
+          <div class="stop-mark"></div>
         </div>
       </stack>
       <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 сек'}}</text>
@@ -536,6 +536,9 @@ export default {
   align-items: center;
 }
 .stop-ring {
+  position: absolute;
+  top: 0px;
+  left: 0px;
   width: 190px;
   height: 190px;
   stroke-width: 14px;
@@ -547,6 +550,9 @@ export default {
   radius: 86px;
 }
 .stop-core {
+  position: absolute;
+  top: 25px;
+  left: 25px;
   width: 140px;
   height: 140px;
   border-radius: 70px;
@@ -554,9 +560,11 @@ export default {
   justify-content: center;
   align-items: center;
 }
-.stop-img {
-  width: 60px;
-  height: 60px;
+.stop-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  background-color: #ffffff;
 }
 .elapsed {
   font-size: 62px;

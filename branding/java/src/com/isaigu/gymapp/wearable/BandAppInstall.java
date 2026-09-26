@@ -30,7 +30,7 @@ public final class BandAppInstall {
     public static final String ASSET_EN = "xems-band-en.rpk";
     public static final String PACKAGE = "com.xems.band";
     /** versionCode in band-app/src/manifest.json (apply-band-app.py checks they match). */
-    public static final int VERSION = 54;
+    public static final int VERSION = 55;
 
     /** "bg" / "en": the band app for the tablet's language. */
     static String tabletLang() {

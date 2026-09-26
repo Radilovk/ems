@@ -29,6 +29,13 @@ public final class MusicPlayerEngine {
         void onError();
     }
 
+    /** Fired when a standby player has finished {@code prepareAsync}, or failed to. */
+    public interface PrepareCallback {
+        void onPrepared();
+
+        void onPrepareFailed();
+    }
+
     /** Envelope bucket size (ms). */
     private static final int WINDOW_MS = 20;
     /** Sync poll interval (ms). */
@@ -38,12 +45,19 @@ public final class MusicPlayerEngine {
     private SyncRunnable syncRunnable;
     private MediaPlayer player;
     private Listener listener;
+    private PrepareCallback prepareCallback;
     private Envelope envelope;
     private volatile boolean tracking;
+    /** False while {@link #release()} is tearing the player down, so its error is ignored. */
+    private boolean callbacksOpen;
+    private boolean prepared;
+    private boolean started;
 
     /**
      * Pre-analysed track: raw loudness per bucket + rhythm (onset) curve 0..1 + tone 0..1
      * (0 = bass-heavy, 1 = treble-heavy, spread over the track's own range).
+     * {@code toneSpanDb} / {@code toneMedianDb} keep the absolute treble-minus-bass
+     * balance, because {@code tone} itself is stretched to this track's own range.
      */
     public static final class Envelope {
         final float[] loudRms;
@@ -51,13 +65,20 @@ public final class MusicPlayerEngine {
         final float[] tone;
         final int length;
         final double peakRms;
+        /** 90th − 10th percentile of treble-minus-bass, dB. Near 0 = the tone barely moves. */
+        final double toneSpanDb;
+        /** Median treble-minus-bass, dB. Negative = the track is bassy. */
+        final double toneMedianDb;
 
-        Envelope(float[] loudRms, float[] rhythm, float[] tone, int length, double peakRms) {
+        Envelope(float[] loudRms, float[] rhythm, float[] tone, int length, double peakRms,
+                double toneSpanDb, double toneMedianDb) {
             this.loudRms = loudRms;
             this.rhythm = rhythm;
             this.tone = tone;
             this.length = length;
             this.peakRms = peakRms;
+            this.toneSpanDb = toneSpanDb;
+            this.toneMedianDb = toneMedianDb;
         }
     }
 
@@ -193,6 +214,9 @@ public final class MusicPlayerEngine {
         private double sumMid;
         private float[] treble = new float[4096];
         private float[] mid = new float[4096];
+        /** Absolute treble-minus-bass spread and centre, filled by {@link #toneCurve}. */
+        private double toneSpanDb;
+        private double toneMedianDb;
         private int bucket = -1;
         private double sumSq;
         private double sumBass;
@@ -276,7 +300,7 @@ public final class MusicPlayerEngine {
         Envelope finish() {
             flush();
             if (count == 0) {
-                return new Envelope(new float[]{0f}, new float[]{0f}, new float[]{0.5f}, 1, 80.0);
+                return new Envelope(new float[]{0f}, new float[]{0f}, new float[]{0.5f}, 1, 80.0, 0.0, 0.0);
             }
             // Onsets per band (bass / mids / highs), each against its own slow level: a sustained
             // voice raises the mids' level but not their jumps, so guitar / drum hits stay visible.
@@ -313,7 +337,8 @@ public final class MusicPlayerEngine {
                 rhythm[i] = held;
             }
             double peak = SoundEnvelopeMapper.percentilePeak(loud, count, 96.0);
-            return new Envelope(loud, rhythm, toneCurve(peak), count, peak);
+            float[] tone = toneCurve(peak);
+            return new Envelope(loud, rhythm, tone, count, peak, toneSpanDb, toneMedianDb);
         }
 
         /**
@@ -336,12 +361,16 @@ public final class MusicPlayerEngine {
             }
             float[] tone = new float[count];
             if (n < 10) {
+                toneSpanDb = 0.0;
+                toneMedianDb = 0.0;
                 Arrays.fill(tone, 0.5f);
                 return tone;
             }
             Arrays.sort(sample, 0, n);
             float lo = sample[(int) Math.round(0.10 * (n - 1))];
             float hi = sample[(int) Math.round(0.90 * (n - 1))];
+            toneSpanDb = Math.max(0f, hi - lo);
+            toneMedianDb = sample[n / 2];
             float span = Math.max(1f, hi - lo);
             float last = 0.5f;
             float[] raw = new float[count];
@@ -397,21 +426,57 @@ public final class MusicPlayerEngine {
 
     public void startPlayback(Context context, Uri uri, Envelope preparedEnvelope, Listener callback)
             throws Exception {
-        release();
+        openPlayer(context, uri, preparedEnvelope);
         listener = callback;
+        player.prepare();
+        started = true;
+        player.start();
+        tracking = true;
+        syncRunnable = new SyncRunnable(this);
+        handler.post(syncRunnable);
+    }
+
+    /**
+     * Decode and buffer the next track while another player is still audible.
+     * The player stays paused at the start until {@link #startPrepared()}.
+     */
+    public void preparePlayback(Context context, Uri uri, Envelope preparedEnvelope,
+            PrepareCallback callback) throws Exception {
+        openPlayer(context, uri, preparedEnvelope);
+        prepareCallback = callback;
+        player.setOnPreparedListener(new PreparedHandler(this));
+        player.prepareAsync();
+    }
+
+    /** Start a player that {@link #preparePlayback} has already prepared. */
+    public void startPrepared() {
+        if (!prepared || player == null || !callbacksOpen) {
+            throw new IllegalStateException("not prepared");
+        }
+        player.start();
+        started = true;
+        tracking = true;
+        syncRunnable = new SyncRunnable(this);
+        handler.post(syncRunnable);
+    }
+
+    public void setListener(Listener callback) {
+        listener = callback;
+    }
+
+    private void openPlayer(Context context, Uri uri, Envelope preparedEnvelope) throws Exception {
+        release();
+        callbacksOpen = true;
+        started = false;
+        prepared = false;
         envelope = preparedEnvelope;
-        if (envelope == null || envelope.length == 0) {
+        if (context == null || uri == null || envelope == null || envelope.length == 0) {
             throw new IllegalStateException("empty envelope");
         }
         player = new MediaPlayer();
         player.setDataSource(context, uri);
         player.setOnCompletionListener(new CompletionHandler(this));
         player.setOnErrorListener(new ErrorHandler(this));
-        player.prepare();
-        player.start();
-        tracking = true;
-        syncRunnable = new SyncRunnable(this);
-        handler.post(syncRunnable);
     }
 
     void dispatchLevel(int index) {
@@ -428,6 +493,8 @@ public final class MusicPlayerEngine {
             if (index >= envelope.length) {
                 index = envelope.length - 1;
             }
+            // Section settings (including sensitivity) before this bucket is mapped.
+            MusicSync.followAutoTune(index * WINDOW_MS);
             // Mapped at play time: sensitivity and rhythm mix apply live.
             int loud = SoundEnvelopeMapper.rmsToPercent(
                     envelope.loudRms[index], envelope.peakRms, MusicSync.getSensitivity());
@@ -532,7 +599,22 @@ public final class MusicPlayerEngine {
         }
     }
 
+    void dispatchPrepared() {
+        if (!callbacksOpen || started) {
+            return;
+        }
+        prepared = true;
+        PrepareCallback callback = prepareCallback;
+        prepareCallback = null;
+        if (callback != null) {
+            callback.onPrepared();
+        }
+    }
+
     void dispatchEnded() {
+        if (!callbacksOpen || !started) {
+            return;
+        }
         tracking = false;
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
@@ -543,9 +625,18 @@ public final class MusicPlayerEngine {
     }
 
     void dispatchError() {
+        if (!callbacksOpen) {
+            return;
+        }
         tracking = false;
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
+        }
+        if (!started && prepareCallback != null) {
+            PrepareCallback callback = prepareCallback;
+            prepareCallback = null;
+            callback.onPrepareFailed();
+            return;
         }
         if (listener != null) {
             listener.onError();
@@ -553,7 +644,11 @@ public final class MusicPlayerEngine {
     }
 
     public void release() {
+        callbacksOpen = false;
         tracking = false;
+        prepared = false;
+        started = false;
+        prepareCallback = null;
         if (syncRunnable != null) {
             handler.removeCallbacks(syncRunnable);
             syncRunnable = null;
@@ -610,6 +705,19 @@ public final class MusicPlayerEngine {
                 delay = 1L;
             }
             target.handler.postDelayed(this, delay);
+        }
+    }
+
+    static final class PreparedHandler implements MediaPlayer.OnPreparedListener {
+        private final MusicPlayerEngine engine;
+
+        PreparedHandler(MusicPlayerEngine engine) {
+            this.engine = engine;
+        }
+
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            engine.dispatchPrepared();
         }
     }
 

@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(I)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 746
     iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$4;->val$y:I
 
@@ -44,7 +38,6 @@
 .method public run()V
     .registers 4
 
-    .prologue
     .line 749
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$400()Lcom/isaigu/gymapp/widget/XemsUi$Shell;

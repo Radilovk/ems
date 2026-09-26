@@ -26,14 +26,8 @@
 # direct methods
 .method constructor <init>(Landroid/app/Activity;Ljava/lang/String;)V
     .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
-    .line 314
+    .line 322
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$message:Ljava/lang/String;
@@ -48,8 +42,7 @@
 .method public run()V
     .registers 3
 
-    .prologue
-    .line 317
+    .line 325
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$message:Ljava/lang/String;
@@ -57,6 +50,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->toastMessage(Landroid/app/Activity;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$400(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 318
+    .line 326
     return-void
 .end method

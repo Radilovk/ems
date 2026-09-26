@@ -25,7 +25,6 @@
 .method constructor <init>(Ljava/lang/Runnable;)V
     .registers 2
 
-    .prologue
     .line 216
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -39,39 +38,38 @@
 
 # virtual methods
 .method public execute(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)Z
-    .registers 6
+    .registers 4
 
-    .prologue
     .line 229
     :try_start_0
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$RunnableOp;->runnable:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$RunnableOp;->runnable:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
     :try_end_5
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_7
+    .catchall {:try_start_0 .. :try_end_5} :catchall_6
 
-    .line 233
-    :goto_5
-    const/4 v0, 0x0
-
-    return v0
+    .line 232
+    goto :goto_c
 
     .line 230
-    :catch_7
-    move-exception v0
+    :catchall_6
+    move-exception p1
 
     .line 231
-    const-string v1, "write_runnable"
+    const-string p2, "write_runnable"
 
-    invoke-virtual {p3, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
+    invoke-virtual {p3, p2, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_5
+    .line 233
+    :goto_c
+    const/4 p1, 0x0
+
+    return p1
 .end method
 
 .method public needsBandAck()Z
     .registers 2
 
-    .prologue
     .line 222
     const/4 v0, 0x0
 

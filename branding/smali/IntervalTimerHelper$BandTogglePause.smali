@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 229
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -33,20 +32,18 @@
 .method public run()V
     .registers 3
 
-    .prologue
     .line 233
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toggleTimerPause()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$000()V
     :try_end_3
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
+    .catchall {:try_start_0 .. :try_end_3} :catchall_4
 
-    .line 237
-    :goto_3
-    return-void
+    .line 236
+    goto :goto_a
 
     .line 234
-    :catch_4
+    :catchall_4
     move-exception v0
 
     .line 235
@@ -54,5 +51,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_3
+    .line 237
+    :goto_a
+    return-void
 .end method

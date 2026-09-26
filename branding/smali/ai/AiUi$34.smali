@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 1799
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$34;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
 
@@ -42,13 +36,12 @@
 
 # virtual methods
 .method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 1802
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$34;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$34;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
 
-    invoke-interface {v0, p2}, Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;->onToggle(Z)V
+    invoke-interface {p1, p2}, Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;->onToggle(Z)V
 
     .line 1803
     return-void

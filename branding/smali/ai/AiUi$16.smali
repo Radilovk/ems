@@ -26,13 +26,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;Landroid/widget/LinearLayout;)V
     .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 690
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -48,7 +42,6 @@
 .method public onToggle(Z)V
     .registers 3
 
-    .prologue
     .line 693
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -57,10 +50,10 @@
     iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->hydrated:Z
 
     .line 694
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$verdict:Landroid/widget/LinearLayout;
+    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$verdict:Landroid/widget/LinearLayout;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->renderVerdict(Landroid/widget/LinearLayout;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
 
     .line 695
     return-void

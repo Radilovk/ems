@@ -25,7 +25,6 @@
 .method constructor <init>(Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1$1;)V
     .registers 2
 
-    .prologue
     .line 65
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1$1$1;->this$1:Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1$1;
 
@@ -39,7 +38,6 @@
 .method public run()V
     .registers 3
 
-    .prologue
     .line 68
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1$1$1;->this$1:Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1$1;
 

@@ -23,14 +23,8 @@
 
 # direct methods
 .method constructor <init>(Landroid/app/Activity;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 2
 
-    .prologue
     .line 120
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$a:Landroid/app/Activity;
 
@@ -42,9 +36,8 @@
 
 # virtual methods
 .method public run()V
-    .locals 3
+    .registers 4
 
-    .prologue
     .line 123
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$2;->val$a:Landroid/app/Activity;
 

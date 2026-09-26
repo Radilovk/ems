@@ -26,13 +26,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;I)V
     .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 593
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -46,9 +40,8 @@
 
 # virtual methods
 .method public onDelta(I)V
-    .registers 5
+    .registers 4
 
-    .prologue
     .line 596
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -56,28 +49,28 @@
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$total:I
 
-    mul-int/lit8 v2, p1, 0x3c
+    mul-int/lit8 p1, p1, 0x3c
 
-    add-int/2addr v1, v2
+    add-int/2addr v1, p1
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiPlanner;->clampSeconds(Lcom/isaigu/gymapp/ai/AiModel$Goal;I)I
 
-    move-result v0
+    move-result p1
 
     .line 597
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$9;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    move-result-object v0
+    move-result-object p1
 
-    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
+    iput-object p1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
 
     .line 598
-    const/4 v0, 0x1
+    const/4 p1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
     .line 599
     return-void

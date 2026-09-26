@@ -36,7 +36,6 @@
 .method public constructor <init>()V
     .registers 2
 
-    .prologue
     .line 154
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -56,32 +55,29 @@
 
 # virtual methods
 .method public phiAt(D)D
-    .registers 12
+    .registers 7
 
-    .prologue
     .line 166
+    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+
+    invoke-static {v0, v1, p1, p2}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide p1
+
     const-wide/16 v0, 0x0
 
-    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+    invoke-static {v0, v1, p1, p2}, Ljava/lang/Math;->max(DD)D
 
-    invoke-static {v2, v3, p1, p2}, Ljava/lang/Math;->min(DD)D
-
-    move-result-wide v2
-
-    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->max(DD)D
-
-    move-result-wide v0
+    move-result-wide p1
 
     .line 167
-    iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiStart:D
+    iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiStart:D
 
-    iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiEnd:D
+    iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiEnd:D
 
-    iget-wide v6, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiStart:D
+    sub-double/2addr v2, v0
 
-    sub-double/2addr v4, v6
-
-    mul-double/2addr v0, v4
+    mul-double v2, v2, p1
 
     add-double/2addr v0, v2
 

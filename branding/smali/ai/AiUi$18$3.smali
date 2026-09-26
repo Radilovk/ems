@@ -25,7 +25,6 @@
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$18;)V
     .registers 2
 
-    .prologue
     .line 829
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$18$3;->this$0:Lcom/isaigu/gymapp/ai/AiUi$18;
 
@@ -37,19 +36,18 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 832
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getRestHr()Lcom/isaigu/gymapp/ai/AiRestHr;
 
-    move-result-object v0
+    move-result-object p1
 
     .line 833
-    if-eqz v0, :cond_9
+    if-eqz p1, :cond_9
 
     .line 834
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiRestHr;->acceptUnstable()V
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AiRestHr;->acceptUnstable()V
 
     .line 836
     :cond_9

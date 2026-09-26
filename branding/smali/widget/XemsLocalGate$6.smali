@@ -23,14 +23,8 @@
 
 # direct methods
 .method constructor <init>(Ljava/lang/Runnable;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 2
 
-    .prologue
     .line 219
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;->val$tap:Ljava/lang/Runnable;
 
@@ -42,26 +36,25 @@
 
 # virtual methods
 .method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .locals 2
+    .registers 3
 
-    .prologue
     .line 222
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getAction()I
 
-    move-result v0
+    move-result p1
 
-    const/4 v1, 0x1
+    const/4 p2, 0x1
 
-    if-ne v0, v1, :cond_0
+    if-ne p1, p2, :cond_c
 
     .line 223
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;->val$tap:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$6;->val$tap:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
     .line 225
-    :cond_0
-    const/4 v0, 0x0
+    :cond_c
+    const/4 p1, 0x0
 
-    return v0
+    return p1
 .end method

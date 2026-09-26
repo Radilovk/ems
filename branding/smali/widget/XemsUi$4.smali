@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 530
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,80 +30,79 @@
 
 # virtual methods
 .method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .registers 7
-
-    .prologue
-    const/high16 v2, 0x3f800000    # 1.0f
-
-    const v1, 0x3f75c28f    # 0.96f
+    .registers 5
 
     .line 533
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
-    move-result v0
+    move-result p2
 
     .line 534
-    if-nez v0, :cond_22
+    if-nez p2, :cond_1f
 
     .line 535
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
+    const p2, 0x3f75c28f    # 0.96f
 
-    move-result-object v0
+    invoke-virtual {p1, p2}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
 
-    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
+    move-result-object p1
 
-    move-result-object v0
+    invoke-virtual {p1, p2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
 
-    const-wide/16 v2, 0x46
+    move-result-object p1
 
-    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
+    const-wide/16 v0, 0x46
 
-    move-result-object v0
+    invoke-virtual {p1, v0, v1}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
 
-    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
+    move-result-object p1
 
-    .line 539
-    :cond_20
-    :goto_20
-    const/4 v0, 0x0
+    invoke-virtual {p1}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    return v0
+    goto :goto_3c
 
     .line 536
-    :cond_22
-    const/4 v1, 0x1
+    :cond_1f
+    const/4 v0, 0x1
 
-    if-eq v0, v1, :cond_28
+    if-eq p2, v0, :cond_25
 
-    const/4 v1, 0x3
+    const/4 v0, 0x3
 
-    if-ne v0, v1, :cond_20
+    if-ne p2, v0, :cond_3c
 
     .line 537
-    :cond_28
+    :cond_25
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
+    const/high16 p2, 0x3f800000    # 1.0f
 
-    move-result-object v0
+    invoke-virtual {p1, p2}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
 
-    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
+    move-result-object p1
 
-    move-result-object v0
+    invoke-virtual {p1, p2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
 
-    const-wide/16 v2, 0x78
+    move-result-object p1
 
-    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
+    const-wide/16 v0, 0x78
 
-    move-result-object v0
+    invoke-virtual {p1, v0, v1}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
 
-    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
+    move-result-object p1
 
-    goto :goto_20
+    invoke-virtual {p1}, Landroid/view/ViewPropertyAnimator;->start()V
+
+    .line 539
+    :cond_3c
+    :goto_3c
+    const/4 p1, 0x0
+
+    return p1
 .end method

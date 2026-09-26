@@ -25,13 +25,13 @@
 .method constructor <init>(Z)V
     .registers 2
 
-    .line 1907
+    .line 1923
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1908
+    .line 1924
     iput-boolean p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PanelToggleListener;->settings:Z
 
-    .line 1909
+    .line 1925
     return-void
 .end method
 
@@ -40,12 +40,12 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1913
+    .line 1929
     iget-boolean p1, p0, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper$PanelToggleListener;->settings:Z
 
     if-eqz p1, :cond_e
 
-    .line 1914
+    .line 1930
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->settingsExpanded:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$100()Z
 
@@ -58,7 +58,7 @@
 
     goto :goto_17
 
-    .line 1916
+    .line 1932
     :cond_e
     # getter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistExpanded:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$200()Z
@@ -70,15 +70,15 @@
     # setter for: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->playlistExpanded:Z
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$202(Z)Z
 
-    .line 1918
+    .line 1934
     :goto_17
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->applyExpandedState()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$300()V
 
-    .line 1919
+    .line 1935
     # invokes: Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resizeOverlayWindow()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->access$400()V
 
-    .line 1920
+    .line 1936
     return-void
 .end method

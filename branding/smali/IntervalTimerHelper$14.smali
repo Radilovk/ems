@@ -26,13 +26,7 @@
 # direct methods
 .method constructor <init>(ILjava/lang/Runnable;)V
     .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 971
     iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$14;->val$s:I
 
@@ -46,28 +40,27 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 974
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
     .line 975
-    iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$14;->val$s:I
+    iget p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$14;->val$s:I
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalSec:I
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(I)I
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(I)I
 
     .line 976
-    const-string v0, ""
+    const-string p1, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
 
     .line 977
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$14;->val$refresh:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$14;->val$refresh:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
     .line 978
     return-void

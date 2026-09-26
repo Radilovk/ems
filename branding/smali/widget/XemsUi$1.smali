@@ -26,13 +26,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;I)V
     .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 363
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
 
@@ -46,18 +40,17 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 366
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
     .line 367
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
 
-    iget v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$idx:I
+    iget v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$1;->val$idx:I
 
-    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;->onIndex(I)V
+    invoke-interface {p1, v0}, Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;->onIndex(I)V
 
     .line 368
     return-void

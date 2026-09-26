@@ -25,13 +25,13 @@
 .method constructor <init>(Landroid/app/Activity;)V
     .registers 2
 
-    .line 523
+    .line 529
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 524
+    .line 530
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
-    .line 525
+    .line 531
     return-void
 .end method
 
@@ -40,11 +40,11 @@
 .method public afterTextChanged(Landroid/text/Editable;)V
     .registers 5
 
-    .line 535
+    .line 541
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->colorFields()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1200()V
 
-    .line 536
+    .line 542
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
@@ -63,7 +63,7 @@
 
     move-result-object p1
 
-    invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
+    invoke-virtual {p1}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
     move-result-object p1
 
@@ -76,7 +76,7 @@
     :cond_1c
     move-object p1, v0
 
-    .line 537
+    .line 543
     :goto_1d
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/EditText;
@@ -94,7 +94,7 @@
 
     move-result-object v1
 
-    invoke-interface {v1}, Landroid/text/Editable;->toString()Ljava/lang/String;
+    invoke-virtual {v1}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
     move-result-object v1
 
@@ -107,7 +107,7 @@
     :cond_34
     move-object v1, v0
 
-    .line 538
+    .line 544
     :goto_35
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidMac(Ljava/lang/String;)Z
 
@@ -115,7 +115,7 @@
 
     if-eqz v2, :cond_45
 
-    .line 539
+    .line 545
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
@@ -126,7 +126,7 @@
 
     goto :goto_50
 
-    .line 540
+    .line 546
     :cond_45
     invoke-virtual {p1}, Ljava/lang/String;->length()I
 
@@ -134,12 +134,12 @@
 
     if-nez v2, :cond_50
 
-    .line 541
+    .line 547
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 543
+    .line 549
     :cond_50
     :goto_50
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidKey(Ljava/lang/String;)Z
@@ -154,13 +154,13 @@
 
     if-nez v0, :cond_61
 
-    .line 544
+    .line 550
     :cond_5c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 546
+    .line 552
     :cond_61
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidMac(Ljava/lang/String;)Z
 
@@ -168,32 +168,32 @@
 
     if-eqz v0, :cond_9c
 
-    .line 547
+    .line 553
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p1
 
-    .line 548
+    .line 554
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidKey(Ljava/lang/String;)Z
 
     move-result v0
 
     if-eqz v0, :cond_7b
 
-    .line 550
+    .line 556
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
-    .line 551
+    .line 557
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->bondedName(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 550
+    .line 556
     invoke-static {v0, p1, v1, v2}, Lcom/isaigu/gymapp/wearable/WearableConfig;->rememberBand(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
     goto :goto_9c
 
-    .line 552
+    .line 558
     :cond_7b
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
@@ -208,14 +208,14 @@
 
     if-eqz v0, :cond_9c
 
-    .line 554
+    .line 560
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->savedKeyFor(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p1
 
-    .line 555
+    .line 561
     invoke-virtual {p1}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -224,7 +224,7 @@
 
     if-ne v0, v1, :cond_9c
 
-    .line 556
+    .line 562
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/EditText;
 
@@ -232,7 +232,7 @@
 
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 560
+    .line 566
     :cond_9c
     :goto_9c
     iget-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;->activity:Landroid/app/Activity;
@@ -240,20 +240,20 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->refreshStatus(Landroid/app/Activity;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700(Landroid/app/Activity;)V
 
-    .line 561
+    .line 567
     return-void
 .end method
 
 .method public beforeTextChanged(Ljava/lang/CharSequence;III)V
     .registers 5
 
-    .line 528
+    .line 534
     return-void
 .end method
 
 .method public onTextChanged(Ljava/lang/CharSequence;III)V
     .registers 5
 
-    .line 531
+    .line 537
     return-void
 .end method

@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 584
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$8;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -42,45 +36,42 @@
 
 # virtual methods
 .method public onDelta(I)V
-    .registers 12
+    .registers 7
 
-    .prologue
     .line 587
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$8;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    const-wide/16 v2, 0x23
+    iget-wide v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    const-wide/16 v4, 0xc8
+    invoke-static {v1, v2}, Ljava/lang/Math;->round(D)J
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$8;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    move-result-wide v1
 
-    iget-wide v6, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
+    int-to-long v3, p1
 
-    invoke-static {v6, v7}, Ljava/lang/Math;->round(D)J
+    add-long/2addr v1, v3
 
-    move-result-wide v6
+    const-wide/16 v3, 0xc8
 
-    int-to-long v8, p1
+    invoke-static {v3, v4, v1, v2}, Ljava/lang/Math;->min(JJ)J
 
-    add-long/2addr v6, v8
+    move-result-wide v1
 
-    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->min(JJ)J
+    const-wide/16 v3, 0x23
 
-    move-result-wide v4
+    invoke-static {v3, v4, v1, v2}, Ljava/lang/Math;->max(JJ)J
 
-    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(JJ)J
+    move-result-wide v1
 
-    move-result-wide v2
+    long-to-double v1, v1
 
-    long-to-double v2, v2
-
-    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
+    iput-wide v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
     .line 588
-    const/4 v0, 0x1
+    const/4 p1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
     .line 589
     return-void

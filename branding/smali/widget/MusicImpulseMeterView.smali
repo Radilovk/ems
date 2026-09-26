@@ -66,10 +66,7 @@
 
 # direct methods
 .method public constructor <init>(Landroid/content/Context;)V
-    .registers 5
-
-    .prologue
-    const/4 v2, 0x1
+    .registers 4
 
     .line 54
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
@@ -88,56 +85,58 @@
     .line 31
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    const/4 v1, 0x1
+
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
 
     .line 32
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
 
     .line 33
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
 
     .line 34
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
 
     .line 35
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
 
     .line 36
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
     .line 37
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
 
     .line 38
     new-instance v0, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
@@ -191,122 +190,121 @@
 .end method
 
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
-    .registers 6
-
-    .prologue
-    const/4 v2, 0x1
+    .registers 4
 
     .line 59
     invoke-direct {p0, p1, p2}, Landroid/view/View;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
 
     .line 30
-    new-instance v0, Landroid/os/Handler;
+    new-instance p2, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
 
-    move-result-object v1
+    move-result-object v0
 
-    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+    invoke-direct {p2, v0}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
 
     .line 31
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    const/4 v0, 0x1
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
 
     .line 32
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
 
     .line 33
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
 
     .line 34
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
 
     .line 35
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
 
     .line 36
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
     .line 37
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
 
     .line 38
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
     .line 39
-    new-instance v0, Landroid/graphics/RectF;
+    new-instance p2, Landroid/graphics/RectF;
 
-    invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
+    invoke-direct {p2}, Landroid/graphics/RectF;-><init>()V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
     .line 41
-    const v0, -0x994496
+    const p2, -0x994496
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorGreen:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorGreen:I
 
     .line 42
-    const v0, -0xa8400
+    const p2, -0xa8400
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
 
     .line 43
-    const v0, -0x171718
+    const p2, -0x171718
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
 
     .line 44
-    const v0, -0x616162
+    const p2, -0x616162
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
 
     .line 45
-    const v0, 0x33ffffff
+    const p2, 0x33ffffff
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTrack:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTrack:I
 
     .line 46
-    const/16 v0, -0x4d00
+    const/16 p2, -0x4d00
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorWarn:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorWarn:I
 
     .line 47
-    const v0, -0x1ac6cb
+    const p2, -0x1ac6cb
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorBad:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorBad:I
 
     .line 60
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->init(Landroid/content/Context;)V
@@ -316,122 +314,121 @@
 .end method
 
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
-    .registers 7
-
-    .prologue
-    const/4 v2, 0x1
+    .registers 4
 
     .line 64
     invoke-direct {p0, p1, p2, p3}, Landroid/view/View;-><init>(Landroid/content/Context;Landroid/util/AttributeSet;I)V
 
     .line 30
-    new-instance v0, Landroid/os/Handler;
+    new-instance p2, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
 
-    move-result-object v1
+    move-result-object p3
 
-    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+    invoke-direct {p2, p3}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
 
     .line 31
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    const/4 p3, 0x1
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
 
     .line 32
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
 
     .line 33
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
 
     .line 34
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
 
     .line 35
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
 
     .line 36
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
     .line 37
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
 
     .line 38
-    new-instance v0, Landroid/graphics/Paint;
+    new-instance p2, Landroid/graphics/Paint;
 
-    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+    invoke-direct {p2, p3}, Landroid/graphics/Paint;-><init>(I)V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
     .line 39
-    new-instance v0, Landroid/graphics/RectF;
+    new-instance p2, Landroid/graphics/RectF;
 
-    invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
+    invoke-direct {p2}, Landroid/graphics/RectF;-><init>()V
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
     .line 41
-    const v0, -0x994496
+    const p2, -0x994496
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorGreen:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorGreen:I
 
     .line 42
-    const v0, -0xa8400
+    const p2, -0xa8400
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
 
     .line 43
-    const v0, -0x171718
+    const p2, -0x171718
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
 
     .line 44
-    const v0, -0x616162
+    const p2, -0x616162
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
 
     .line 45
-    const v0, 0x33ffffff
+    const p2, 0x33ffffff
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTrack:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTrack:I
 
     .line 46
-    const/16 v0, -0x4d00
+    const/16 p2, -0x4d00
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorWarn:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorWarn:I
 
     .line 47
-    const v0, -0x1ac6cb
+    const p2, -0x1ac6cb
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorBad:I
+    iput p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorBad:I
 
     .line 65
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->init(Landroid/content/Context;)V
@@ -443,130 +440,120 @@
 .method private dp(F)F
     .registers 4
 
-    .prologue
     .line 223
-    const/4 v0, 0x1
+    nop
 
     .line 224
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->getResources()Landroid/content/res/Resources;
 
-    move-result-object v1
+    move-result-object v0
 
-    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
 
-    move-result-object v1
+    move-result-object v0
 
     .line 223
-    invoke-static {v0, p1, v1}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
+    const/4 v1, 0x1
 
-    move-result v0
+    invoke-static {v1, p1, v0}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
 
-    return v0
+    move-result p1
+
+    return p1
 .end method
 
 .method private drawFill(Landroid/graphics/Canvas;FFFFF)V
-    .registers 12
-
-    .prologue
-    const/high16 v4, 0x40000000    # 2.0f
+    .registers 9
 
     .line 194
     const v0, 0x3ba3d70a    # 0.005f
 
     cmpg-float v0, p6, v0
 
-    if-gtz v0, :cond_a
+    if-gtz v0, :cond_8
 
-    .line 200
-    :goto_9
+    .line 195
     return-void
 
     .line 197
-    :cond_a
-    sub-float v0, p3, p2
+    :cond_8
+    sub-float/2addr p3, p2
 
-    const/high16 v1, 0x3f800000    # 1.0f
+    const/high16 v0, 0x3f800000    # 1.0f
 
-    invoke-static {v1, p6}, Ljava/lang/Math;->min(FF)F
+    invoke-static {v0, p6}, Ljava/lang/Math;->min(FF)F
 
-    move-result v1
+    move-result p6
 
-    mul-float/2addr v0, v1
+    mul-float p3, p3, p6
 
-    add-float/2addr v0, p2
+    add-float/2addr p3, p2
 
     .line 198
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iget-object p6, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    div-float v2, p5, v4
+    const/high16 v0, 0x40000000    # 2.0f
 
-    sub-float v2, p4, v2
+    div-float v0, p5, v0
 
-    add-float v3, p2, p5
+    sub-float v1, p4, v0
 
-    invoke-static {v0, v3}, Ljava/lang/Math;->max(FF)F
+    add-float/2addr p5, p2
 
-    move-result v0
+    invoke-static {p3, p5}, Ljava/lang/Math;->max(FF)F
 
-    div-float v3, p5, v4
+    move-result p3
 
-    add-float/2addr v3, p4
+    add-float/2addr p4, v0
 
-    invoke-virtual {v1, p2, v2, v0, v3}, Landroid/graphics/RectF;->set(FFFF)V
+    invoke-virtual {p6, p2, v1, p3, p4}, Landroid/graphics/RectF;->set(FFFF)V
 
     .line 199
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iget-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    div-float v1, p5, v4
+    iget-object p3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
 
-    div-float v2, p5, v4
+    invoke-virtual {p1, p2, v0, v0, p3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
-
-    goto :goto_9
+    .line 200
+    return-void
 .end method
 
 .method private drawIcon(Landroid/graphics/Canvas;Ljava/lang/String;F)V
-    .registers 7
+    .registers 6
 
-    .prologue
     .line 185
-    const/4 v0, 0x0
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+    invoke-virtual {v0}, Landroid/graphics/Paint;->getTextSize()F
 
-    invoke-virtual {v1}, Landroid/graphics/Paint;->getTextSize()F
+    move-result v0
 
-    move-result v1
+    const v1, 0x3eb851ec    # 0.36f
 
-    const v2, 0x3eb851ec    # 0.36f
+    mul-float v0, v0, v1
 
-    mul-float/2addr v1, v2
+    add-float/2addr p3, v0
 
-    add-float/2addr v1, p3
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+    const/4 v1, 0x0
 
-    invoke-virtual {p1, p2, v0, v1, v2}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    invoke-virtual {p1, p2, v1, p3, v0}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
     .line 186
     return-void
 .end method
 
 .method private drawLatencyChip(Landroid/graphics/Canvas;FFF)V
-    .registers 12
-
-    .prologue
-    const/high16 v6, 0x40000000    # 2.0f
+    .registers 11
 
     .line 206
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->hasBleLatencySample()Z
 
     move-result v0
 
-    if-eqz v0, :cond_79
+    if-eqz v0, :cond_31
 
     .line 207
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getBleLatencyMs()I
@@ -582,17 +569,11 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
-
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
 
     const-string v2, " ms"
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -601,12 +582,39 @@
     .line 209
     const/16 v2, 0x3c
 
-    if-gt v0, v2, :cond_6f
+    if-gt v0, v2, :cond_27
 
     iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorGreen:I
 
+    goto :goto_30
+
+    :cond_27
+    const/16 v2, 0x78
+
+    if-gt v0, v2, :cond_2e
+
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorWarn:I
+
+    goto :goto_30
+
+    :cond_2e
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorBad:I
+
+    .line 210
+    :goto_30
+    goto :goto_36
+
+    .line 211
+    :cond_31
+    nop
+
+    .line 212
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
+
+    const-string v1, "BLE \u2014"
+
     .line 214
-    :goto_2b
+    :goto_36
     const/high16 v2, 0x41800000    # 16.0f
 
     invoke-direct {p0, v2}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
@@ -616,136 +624,98 @@
     .line 215
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    div-float v4, v2, v6
+    const/high16 v4, 0x40000000    # 2.0f
 
-    sub-float v4, p4, v4
+    div-float/2addr v2, v4
 
-    div-float v5, v2, v6
+    sub-float v4, p4, v2
 
-    add-float/2addr v5, p4
+    add-float v5, p4, v2
 
     invoke-virtual {v3, p2, v4, p3, v5}, Landroid/graphics/RectF;->set(FFFF)V
 
     .line 216
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
+    iget-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
 
-    const v4, 0x3e4ccccd    # 0.2f
+    const p3, 0x3e4ccccd    # 0.2f
 
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->withAlpha(IF)I
+    invoke-static {v0, p3}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->withAlpha(IF)I
 
-    move-result v4
+    move-result p3
 
-    invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {p2, p3}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 217
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iget-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    div-float v4, v2, v6
+    iget-object p3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
 
-    div-float/2addr v2, v6
-
-    iget-object v5, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipPaint:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v3, v4, v2, v5}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+    invoke-virtual {p1, p2, v2, v2, p3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
     .line 218
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iget-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
-    invoke-virtual {v2, v0}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {p2, v0}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 219
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iget-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    invoke-virtual {v0}, Landroid/graphics/RectF;->centerX()F
+    invoke-virtual {p2}, Landroid/graphics/RectF;->centerX()F
 
-    move-result v0
+    move-result p2
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iget-object p3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
-    invoke-virtual {v2}, Landroid/graphics/Paint;->getTextSize()F
+    invoke-virtual {p3}, Landroid/graphics/Paint;->getTextSize()F
 
-    move-result v2
+    move-result p3
 
-    const v3, 0x3eb851ec    # 0.36f
+    const v0, 0x3eb851ec    # 0.36f
 
-    mul-float/2addr v2, v3
+    mul-float p3, p3, v0
 
-    add-float/2addr v2, p4
+    add-float/2addr p4, p3
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iget-object p3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
-    invoke-virtual {p1, v1, v0, v2, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    invoke-virtual {p1, v1, p2, p4, p3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
     .line 220
     return-void
-
-    .line 209
-    :cond_6f
-    const/16 v2, 0x78
-
-    if-gt v0, v2, :cond_76
-
-    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorWarn:I
-
-    goto :goto_2b
-
-    :cond_76
-    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorBad:I
-
-    goto :goto_2b
-
-    .line 211
-    :cond_79
-    const-string v1, "BLE \u2014"
-
-    .line 212
-    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
-
-    goto :goto_2b
 .end method
 
 .method private drawTrack(Landroid/graphics/Canvas;FFFF)V
-    .registers 10
-
-    .prologue
-    const/high16 v3, 0x40000000    # 2.0f
+    .registers 8
 
     .line 189
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    div-float v1, p5, v3
+    const/high16 v1, 0x40000000    # 2.0f
 
-    sub-float v1, p4, v1
+    div-float/2addr p5, v1
 
-    div-float v2, p5, v3
+    sub-float v1, p4, p5
 
-    add-float/2addr v2, p4
+    add-float/2addr p4, p5
 
-    invoke-virtual {v0, p2, v1, p3, v2}, Landroid/graphics/RectF;->set(FFFF)V
+    invoke-virtual {v0, p2, v1, p3, p4}, Landroid/graphics/RectF;->set(FFFF)V
 
     .line 190
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iget-object p2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    div-float v1, p5, v3
+    iget-object p3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
 
-    div-float v2, p5, v3
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+    invoke-virtual {p1, p2, p5, p5, p3}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
     .line 191
     return-void
 .end method
 
 .method private init(Landroid/content/Context;)V
-    .registers 6
-
-    .prologue
-    const/4 v3, 0x1
+    .registers 4
 
     .line 70
-    :try_start_1
+    :try_start_0
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -787,118 +757,125 @@
     .line 73
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
-    move-result-object v0
+    move-result-object p1
 
-    const v1, 0x7f0600e7
+    const v0, 0x7f0600e7
 
-    invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getColor(I)I
+    invoke-virtual {p1, v0}, Landroid/content/res/Resources;->getColor(I)I
 
-    move-result v0
+    move-result p1
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
-    :try_end_35
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_35} :catch_b3
+    iput p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
+    :try_end_34
+    .catchall {:try_start_0 .. :try_end_34} :catchall_35
+
+    .line 75
+    goto :goto_36
+
+    .line 74
+    :catchall_35
+    move-exception p1
 
     .line 76
-    :goto_35
-    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
+    :goto_36
+    iget p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
 
-    const v1, 0x3e6147ae    # 0.22f
+    const v0, 0x3e6147ae    # 0.22f
+
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->withAlpha(IF)I
+
+    move-result p1
+
+    iput p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTrack:I
+
+    .line 77
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
+
+    invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 78
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
+
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
+
+    const v1, 0x3e8f5c29    # 0.28f
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->withAlpha(IF)I
 
     move-result v0
 
-    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTrack:I
-
-    .line 77
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->trackPaint:Landroid/graphics/Paint;
-
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTrack:I
-
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 78
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
-
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
-
-    const v2, 0x3e8f5c29    # 0.28f
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->withAlpha(IF)I
-
-    move-result v1
-
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 79
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
 
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 80
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
 
-    const/high16 v1, 0x40000000    # 2.0f
+    const/high16 v0, 0x40000000    # 2.0f
 
-    invoke-direct {p0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
 
-    move-result v1
+    move-result v0
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
     .line 81
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
 
-    sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
+    sget-object v0, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
     .line 82
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
 
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorTextSecondary:I
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 83
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
 
-    const/high16 v1, 0x41300000    # 11.0f
+    const/high16 v0, 0x41300000    # 11.0f
 
-    invoke-direct {p0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->sp(F)F
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->sp(F)F
 
-    move-result v1
+    move-result v0
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setTextSize(F)V
 
     .line 84
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorText:I
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 85
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
-    const/high16 v1, 0x41500000    # 13.0f
+    const/high16 v0, 0x41500000    # 13.0f
 
-    invoke-direct {p0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->sp(F)F
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->sp(F)F
 
-    move-result v1
+    move-result v0
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setTextSize(F)V
 
     .line 86
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
-    invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
+    const/4 v0, 0x1
+
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
     .line 87
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41200000    # 10.0f
 
@@ -906,92 +883,86 @@
 
     move-result v1
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
+    invoke-virtual {p1, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
     .line 88
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
-    invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setFakeBoldText(Z)V
 
     .line 89
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->chipTextPaint:Landroid/graphics/Paint;
 
-    sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
+    sget-object v0, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+    invoke-virtual {p1, v0}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
     .line 90
-    const/4 v0, 0x0
+    const/4 p1, 0x0
 
-    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->setWillNotDraw(Z)V
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->setWillNotDraw(Z)V
 
     .line 91
     return-void
-
-    .line 74
-    :catch_b3
-    move-exception v0
-
-    goto :goto_35
 .end method
 
 .method private sp(F)F
     .registers 4
 
-    .prologue
     .line 228
-    const/4 v0, 0x2
+    nop
 
     .line 229
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->getResources()Landroid/content/res/Resources;
 
-    move-result-object v1
+    move-result-object v0
 
-    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
 
-    move-result-object v1
+    move-result-object v0
 
     .line 228
-    invoke-static {v0, p1, v1}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
+    const/4 v1, 0x2
 
-    move-result v0
+    invoke-static {v1, p1, v0}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
 
-    return v0
+    move-result p1
+
+    return p1
 .end method
 
 .method private static withAlpha(IF)I
-    .registers 5
+    .registers 3
 
-    .prologue
     .line 233
+    const/high16 v0, 0x437f0000    # 255.0f
+
+    mul-float p1, p1, v0
+
+    float-to-int p1, p1
+
+    const/16 v0, 0xff
+
+    invoke-static {v0, p1}, Ljava/lang/Math;->min(II)I
+
+    move-result p1
+
     const/4 v0, 0x0
 
-    const/16 v1, 0xff
+    invoke-static {v0, p1}, Ljava/lang/Math;->max(II)I
 
-    const/high16 v2, 0x437f0000    # 255.0f
-
-    mul-float/2addr v2, p1
-
-    float-to-int v2, v2
-
-    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
-
-    move-result v1
-
-    invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
-
-    move-result v0
+    move-result p1
 
     .line 234
-    const v1, 0xffffff
+    const v0, 0xffffff
 
-    and-int/2addr v1, p0
+    and-int/2addr p0, v0
 
-    shl-int/lit8 v0, v0, 0x18
+    shl-int/lit8 p1, p1, 0x18
 
-    or-int/2addr v0, v1
+    or-int/2addr p0, p1
 
-    return v0
+    return p0
 .end method
 
 
@@ -999,7 +970,6 @@
 .method protected onAttachedToWindow()V
     .registers 2
 
-    .prologue
     .line 95
     invoke-super {p0}, Landroid/view/View;->onAttachedToWindow()V
 
@@ -1025,7 +995,6 @@
 .method protected onDetachedFromWindow()V
     .registers 2
 
-    .prologue
     .line 103
     const/4 v0, 0x0
 
@@ -1044,21 +1013,24 @@
 .end method
 
 .method protected onDraw(Landroid/graphics/Canvas;)V
-    .registers 16
+    .registers 22
 
-    .prologue
     .line 138
-    invoke-super {p0, p1}, Landroid/view/View;->onDraw(Landroid/graphics/Canvas;)V
+    move-object/from16 v7, p0
+
+    move-object/from16 v8, p1
+
+    invoke-super/range {p0 .. p1}, Landroid/view/View;->onDraw(Landroid/graphics/Canvas;)V
 
     .line 139
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->getWidth()I
+    invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->getWidth()I
 
     move-result v0
 
-    int-to-float v11, v0
+    int-to-float v9, v0
 
     .line 140
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->getHeight()I
+    invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->getHeight()I
 
     move-result v0
 
@@ -1067,194 +1039,198 @@
     .line 141
     const/4 v1, 0x0
 
-    cmpg-float v1, v11, v1
+    cmpg-float v2, v9, v1
 
-    if-lez v1, :cond_17
-
-    const/4 v1, 0x0
+    if-lez v2, :cond_12c
 
     cmpg-float v1, v0, v1
 
-    if-gtz v1, :cond_18
+    if-gtz v1, :cond_1c
 
-    .line 182
-    :cond_17
-    :goto_17
-    return-void
+    goto/16 :goto_12c
 
     .line 144
-    :cond_18
+    :cond_1c
     const/high16 v1, 0x41a00000    # 20.0f
 
-    invoke-direct {p0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+    invoke-direct {v7, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
 
-    move-result v2
+    move-result v10
 
     .line 145
     const/high16 v1, 0x42800000    # 64.0f
 
-    invoke-direct {p0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+    invoke-direct {v7, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
 
-    move-result v12
+    move-result v1
+
+    .line 146
+    nop
 
     .line 147
-    sub-float v1, v11, v12
+    sub-float v11, v9, v1
 
-    const/high16 v3, 0x40c00000    # 6.0f
+    const/high16 v1, 0x40c00000    # 6.0f
 
-    invoke-direct {p0, v3}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+    invoke-direct {v7, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
 
-    move-result v3
+    move-result v1
 
-    sub-float v3, v1, v3
+    sub-float v12, v11, v1
 
     .line 148
     const/high16 v1, 0x41000000    # 8.0f
 
-    invoke-direct {p0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+    invoke-direct {v7, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
 
-    move-result v5
+    move-result v13
 
     .line 149
-    const/high16 v1, 0x40000000    # 2.0f
+    const/high16 v14, 0x40000000    # 2.0f
 
-    div-float v7, v0, v1
+    div-float v15, v0, v14
 
     .line 151
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getStrengthCeiling()I
 
-    move-result v13
+    move-result v6
 
     .line 152
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->getFloorStrength()I
 
-    move-result v8
+    move-result v5
 
     .line 155
     const/high16 v0, 0x3f000000    # 0.5f
 
-    mul-float v4, v7, v0
+    mul-float v4, v15, v0
 
     .line 156
     const-string v0, "\u266a"
 
-    invoke-direct {p0, p1, v0, v4}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawIcon(Landroid/graphics/Canvas;Ljava/lang/String;F)V
-
-    move-object v0, p0
-
-    move-object v1, p1
+    invoke-direct {v7, v8, v0, v4}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawIcon(Landroid/graphics/Canvas;Ljava/lang/String;F)V
 
     .line 157
+    move-object/from16 v0, p0
+
+    move-object/from16 v1, p1
+
+    move v2, v10
+
+    move v3, v12
+
+    move/from16 v16, v4
+
+    move v14, v5
+
+    move v5, v13
+
     invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawTrack(Landroid/graphics/Canvas;FFFF)V
 
     .line 158
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
+    iget-object v0, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
 
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorGreen:I
+    iget v1, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorGreen:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 159
-    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
+    iget v0, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
 
-    const/high16 v1, 0x42c80000    # 100.0f
+    const/high16 v17, 0x42c80000    # 100.0f
 
-    div-float v6, v0, v1
+    div-float v18, v0, v17
 
-    move-object v0, p0
+    move-object/from16 v0, p0
 
-    move-object v1, p1
+    move-object/from16 v1, p1
+
+    move/from16 v19, v6
+
+    move/from16 v6, v18
 
     invoke-direct/range {v0 .. v6}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawFill(Landroid/graphics/Canvas;FFFFF)V
 
     .line 160
-    sub-float v0, v11, v12
+    move/from16 v0, v16
 
-    invoke-direct {p0, p1, v0, v11, v4}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawLatencyChip(Landroid/graphics/Canvas;FFF)V
+    invoke-direct {v7, v8, v11, v9, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawLatencyChip(Landroid/graphics/Canvas;FFF)V
 
     .line 163
     const/high16 v0, 0x3fc00000    # 1.5f
 
-    mul-float v4, v7, v0
+    mul-float v15, v15, v0
 
     .line 164
     const-string v0, "\u26a1"
 
-    invoke-direct {p0, p1, v0, v4}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawIcon(Landroid/graphics/Canvas;Ljava/lang/String;F)V
-
-    move-object v0, p0
-
-    move-object v1, p1
+    invoke-direct {v7, v8, v0, v15}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawIcon(Landroid/graphics/Canvas;Ljava/lang/String;F)V
 
     .line 165
+    move-object/from16 v0, p0
+
+    move v4, v15
+
     invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawTrack(Landroid/graphics/Canvas;FFFF)V
 
     .line 166
-    sub-float v7, v3, v2
+    sub-float v9, v12, v10
 
     .line 167
-    if-lez v8, :cond_9c
+    if-lez v14, :cond_a5
 
     .line 168
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iget-object v0, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
     const/high16 v1, 0x40000000    # 2.0f
 
-    div-float v1, v5, v1
+    div-float v2, v13, v1
 
-    sub-float v1, v4, v1
+    sub-float v1, v15, v2
 
-    int-to-float v6, v8
+    int-to-float v3, v14
 
-    mul-float/2addr v6, v7
+    mul-float v3, v3, v9
 
-    const/high16 v8, 0x42c80000    # 100.0f
+    div-float v3, v3, v17
 
-    div-float/2addr v6, v8
+    add-float/2addr v3, v10
 
-    add-float/2addr v6, v2
+    add-float v4, v15, v2
 
-    const/high16 v8, 0x40000000    # 2.0f
-
-    div-float v8, v5, v8
-
-    add-float/2addr v8, v4
-
-    invoke-virtual {v0, v2, v1, v6, v8}, Landroid/graphics/RectF;->set(FFFF)V
+    invoke-virtual {v0, v10, v1, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
     .line 169
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
+    iget-object v0, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->rect:Landroid/graphics/RectF;
 
-    const/high16 v1, 0x40000000    # 2.0f
+    iget-object v1, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
 
-    div-float v1, v5, v1
-
-    const/high16 v6, 0x40000000    # 2.0f
-
-    div-float v6, v5, v6
-
-    iget-object v8, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->bandPaint:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v1, v6, v8}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+    invoke-virtual {v8, v0, v2, v2, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
     .line 171
-    :cond_9c
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
+    :cond_a5
+    iget-object v0, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->fillPaint:Landroid/graphics/Paint;
 
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
+    iget v1, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->colorOrange:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 172
-    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
+    iget v0, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
 
-    const/high16 v1, 0x42c80000    # 100.0f
+    div-float v6, v0, v17
 
-    div-float v6, v0, v1
+    move-object/from16 v0, p0
 
-    move-object v0, p0
+    move-object/from16 v1, p1
 
-    move-object v1, p1
+    move v2, v10
+
+    move v3, v12
+
+    move v4, v15
+
+    move v5, v13
 
     invoke-direct/range {v0 .. v6}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->drawFill(Landroid/graphics/Canvas;FFFFF)V
 
@@ -1263,7 +1239,9 @@
 
     const/4 v1, 0x1
 
-    invoke-static {v1, v13}, Ljava/lang/Math;->max(II)I
+    move/from16 v6, v19
+
+    invoke-static {v1, v6}, Ljava/lang/Math;->max(II)I
 
     move-result v1
 
@@ -1273,33 +1251,31 @@
 
     int-to-float v0, v0
 
-    mul-float/2addr v0, v7
+    mul-float v9, v9, v0
 
-    const/high16 v1, 0x42c80000    # 100.0f
+    div-float v9, v9, v17
 
-    div-float/2addr v0, v1
-
-    add-float v6, v2, v0
+    add-float v3, v10, v9
 
     .line 174
-    sub-float v7, v4, v5
+    sub-float v2, v15, v13
 
-    add-float v9, v4, v5
+    add-float v4, v15, v13
 
-    iget-object v10, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
+    iget-object v5, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->markerPaint:Landroid/graphics/Paint;
 
-    move-object v5, p1
+    move-object/from16 v0, p1
 
-    move v8, v6
+    move v1, v3
 
-    invoke-virtual/range {v5 .. v10}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
+    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
     .line 176
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
+    iget v1, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
 
     invoke-static {v1}, Ljava/lang/Math;->round(F)I
 
@@ -1307,139 +1283,131 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
     const-string v1, "%"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     .line 177
-    new-instance v1, Ljava/lang/StringBuilder;
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v2, "/"
+    const-string v3, "/"
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    invoke-virtual {v2, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1, v13}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
-
-    const-string v2, "%"
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v1
 
     .line 178
-    sub-float v2, v11, v12
+    nop
 
     .line 179
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
+    iget-object v2, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
-    invoke-virtual {v3}, Landroid/graphics/Paint;->getTextSize()F
-
-    move-result v3
-
-    const v5, 0x3eb851ec    # 0.36f
-
-    mul-float/2addr v3, v5
-
-    add-float/2addr v3, v4
-
-    .line 180
-    iget-object v4, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
-
-    invoke-virtual {p1, v0, v2, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
-
-    .line 181
-    iget-object v4, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
-
-    invoke-virtual {v4, v0}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
-
-    move-result v0
-
-    add-float/2addr v0, v2
-
-    const/high16 v2, 0x40000000    # 2.0f
-
-    invoke-direct {p0, v2}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+    invoke-virtual {v2}, Landroid/graphics/Paint;->getTextSize()F
 
     move-result v2
 
-    add-float/2addr v0, v2
+    const v3, 0x3eb851ec    # 0.36f
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+    mul-float v2, v2, v3
 
-    invoke-virtual {p1, v1, v0, v3, v2}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    add-float/2addr v15, v2
 
-    goto/16 :goto_17
-.end method
+    .line 180
+    iget-object v2, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
 
-.method protected onMeasure(II)V
-    .registers 5
+    invoke-virtual {v8, v0, v11, v15, v2}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .prologue
-    .line 110
-    invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
+    .line 181
+    iget-object v2, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->valuePaint:Landroid/graphics/Paint;
+
+    invoke-virtual {v2, v0}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
 
     move-result v0
 
+    add-float/2addr v11, v0
+
+    const/high16 v0, 0x40000000    # 2.0f
+
+    invoke-direct {v7, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+
+    move-result v0
+
+    add-float/2addr v11, v0
+
+    iget-object v0, v7, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->labelPaint:Landroid/graphics/Paint;
+
+    invoke-virtual {v8, v1, v11, v15, v0}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 182
+    return-void
+
+    .line 142
+    :cond_12c
+    :goto_12c
+    return-void
+.end method
+
+.method protected onMeasure(II)V
+    .registers 4
+
+    .line 110
+    invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
+
+    move-result p1
+
     .line 111
-    const/high16 v1, 0x42600000    # 56.0f
+    const/high16 v0, 0x42600000    # 56.0f
 
-    invoke-direct {p0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
+    invoke-direct {p0, v0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->dp(F)F
 
-    move-result v1
+    move-result v0
 
-    float-to-int v1, v1
+    float-to-int v0, v0
 
-    invoke-static {v1, p2}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->resolveSize(II)I
+    invoke-static {v0, p2}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->resolveSize(II)I
 
-    move-result v1
+    move-result p2
 
-    invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->setMeasuredDimension(II)V
+    invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->setMeasuredDimension(II)V
 
     .line 112
     return-void
 .end method
 
 .method protected onVisibilityChanged(Landroid/view/View;I)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 129
     invoke-super {p0, p1, p2}, Landroid/view/View;->onVisibilityChanged(Landroid/view/View;I)V
 
     .line 130
-    iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->attached:Z
+    iget-boolean p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->attached:Z
 
-    if-eqz v0, :cond_13
+    if-eqz p1, :cond_13
 
     if-nez p2, :cond_13
 
     .line 131
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
 
-    invoke-virtual {v0, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
+    invoke-virtual {p1, p0}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
     .line 132
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
 
-    invoke-virtual {v0, p0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+    invoke-virtual {p1, p0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
     .line 134
     :cond_13
@@ -1447,79 +1415,85 @@
 .end method
 
 .method public run()V
-    .registers 8
-
-    .prologue
-    const v2, 0x3f19999a    # 0.6f
-
-    const/high16 v3, 0x3e800000    # 0.25f
-
-    const/4 v0, 0x0
+    .registers 7
 
     .line 116
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
-    move-result v4
+    move-result v0
 
     .line 117
-    if-eqz v4, :cond_4f
+    const/4 v1, 0x0
+
+    if-eqz v0, :cond_d
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getLiveStrength()I
 
-    move-result v1
+    move-result v2
 
-    int-to-float v1, v1
+    int-to-float v2, v2
+
+    goto :goto_e
+
+    :cond_d
+    const/4 v2, 0x0
 
     .line 118
-    :goto_11
-    if-eqz v4, :cond_18
+    :goto_e
+    if-eqz v0, :cond_15
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getEffectiveStrength()I
 
     move-result v0
 
-    int-to-float v0, v0
+    int-to-float v1, v0
 
     .line 119
-    :cond_18
-    iget v4, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
+    :cond_15
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
 
-    iget v5, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
+    sub-float v3, v2, v0
 
-    sub-float v5, v1, v5
+    const v4, 0x3f19999a    # 0.6f
 
-    iget v6, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
+    const/high16 v5, 0x3e800000    # 0.25f
 
-    cmpl-float v1, v1, v6
+    cmpl-float v2, v2, v0
 
-    if-lez v1, :cond_51
+    if-lez v2, :cond_26
 
-    move v1, v2
+    const v2, 0x3f19999a    # 0.6f
 
-    :goto_25
-    mul-float/2addr v1, v5
+    goto :goto_28
 
-    add-float/2addr v1, v4
+    :cond_26
+    const/high16 v2, 0x3e800000    # 0.25f
 
-    iput v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
+    :goto_28
+    mul-float v3, v3, v2
+
+    add-float/2addr v0, v3
+
+    iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->musicShown:F
 
     .line 120
-    iget v1, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
+    iget v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
 
-    iget v4, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
+    sub-float v2, v1, v0
 
-    sub-float v4, v0, v4
+    cmpl-float v1, v1, v0
 
-    iget v5, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
+    if-lez v1, :cond_36
 
-    cmpl-float v0, v0, v5
+    goto :goto_38
 
-    if-lez v0, :cond_53
+    :cond_36
+    const/high16 v4, 0x3e800000    # 0.25f
 
-    :goto_35
-    mul-float v0, v4, v2
+    :goto_38
+    mul-float v2, v2, v4
 
-    add-float/2addr v0, v1
+    add-float/2addr v0, v2
 
     iput v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->impulseShown:F
 
@@ -1529,40 +1503,22 @@
     .line 122
     iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->attached:Z
 
-    if-eqz v0, :cond_4e
+    if-eqz v0, :cond_51
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->getVisibility()I
 
     move-result v0
 
-    if-nez v0, :cond_4e
+    if-nez v0, :cond_51
 
     .line 123
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/MusicImpulseMeterView;->handler:Landroid/os/Handler;
 
-    const-wide/16 v2, 0x21
+    const-wide/16 v1, 0x21
 
-    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     .line 125
-    :cond_4e
-    return-void
-
-    :cond_4f
-    move v1, v0
-
-    .line 117
-    goto :goto_11
-
     :cond_51
-    move v1, v3
-
-    .line 119
-    goto :goto_25
-
-    :cond_53
-    move v2, v3
-
-    .line 120
-    goto :goto_35
+    return-void
 .end method

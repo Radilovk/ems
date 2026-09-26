@@ -34,7 +34,6 @@
 .method public constructor <init>()V
     .registers 3
 
-    .prologue
     .line 127
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -48,9 +47,8 @@
 .end method
 
 .method public constructor <init>(IIIID)V
-    .registers 10
+    .registers 9
 
-    .prologue
     .line 129
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -83,40 +81,40 @@
 .method public copy()Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
     .registers 9
 
-    .prologue
     .line 138
-    new-instance v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
+    new-instance v7, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
-    iget v2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
-    iget v3, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pwUs:I
+    iget v2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pwUs:I
 
-    iget v4, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->onS:I
+    iget v3, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->onS:I
 
-    iget v5, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->offS:I
+    iget v4, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->offS:I
 
-    iget-wide v6, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
+    iget-wide v5, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
 
-    invoke-direct/range {v1 .. v7}, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;-><init>(IIIID)V
+    move-object v0, v7
+
+    invoke-direct/range {v0 .. v6}, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;-><init>(IIIID)V
 
     .line 139
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseHz:I
 
-    iput v0, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseHz:I
+    iput v0, v7, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseHz:I
 
     .line 140
-    iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseSigma:D
+    iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseSigma:D
 
-    iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseSigma:D
+    iput-wide v0, v7, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseSigma:D
 
     .line 141
-    return-object v1
+    return-object v7
 .end method
 
 .method public hasActivePause()Z
-    .registers 5
+    .registers 6
 
-    .prologue
     .line 145
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseHz:I
 
@@ -126,9 +124,9 @@
 
     const-wide/16 v2, 0x0
 
-    cmpl-double v0, v0, v2
+    cmpl-double v4, v0, v2
 
-    if-lez v0, :cond_12
+    if-lez v4, :cond_12
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->offS:I
 
@@ -136,19 +134,18 @@
 
     const/4 v0, 0x1
 
-    :goto_11
-    return v0
+    goto :goto_13
 
     :cond_12
     const/4 v0, 0x0
 
-    goto :goto_11
+    :goto_13
+    return v0
 .end method
 
 .method public isTetanic()Z
     .registers 3
 
-    .prologue
     .line 149
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
@@ -158,11 +155,11 @@
 
     const/4 v0, 0x1
 
-    :goto_7
-    return v0
+    goto :goto_9
 
     :cond_8
     const/4 v0, 0x0
 
-    goto :goto_7
+    :goto_9
+    return v0
 .end method

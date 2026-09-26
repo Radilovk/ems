@@ -27,7 +27,6 @@
 .method constructor <init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRfcommPort;[B)V
     .registers 3
 
-    .prologue
     .line 172
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,7 +45,6 @@
 .method public run()V
     .registers 3
 
-    .prologue
     .line 179
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRfcommPort$Write;->port:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRfcommPort;
 

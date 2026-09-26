@@ -21,7 +21,6 @@
 .method private constructor <init>()V
     .registers 1
 
-    .prologue
     .line 301
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,7 +30,6 @@
 .method synthetic constructor <init>(Lcom/isaigu/gymapp/wearable/WearableLivePanel$1;)V
     .registers 2
 
-    .prologue
     .line 301
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel$ShareListener;-><init>()V
 
@@ -41,20 +39,19 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 304
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
 
-    move-result-object v0
+    move-result-object p1
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableLivePanel;->shareRecording(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->access$700(Landroid/app/Activity;)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->access$700(Landroid/app/Activity;)V
 
     .line 305
     return-void

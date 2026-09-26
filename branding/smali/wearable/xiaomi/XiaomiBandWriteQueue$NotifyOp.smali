@@ -27,7 +27,6 @@
 .method constructor <init>(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
     .registers 3
 
-    .prologue
     .line 179
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -44,112 +43,110 @@
 
 # virtual methods
 .method public execute(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)Z
-    .registers 8
-
-    .prologue
-    const/4 v0, 0x0
+    .registers 6
 
     .line 193
+    const/4 p2, 0x0
+
     :try_start_1
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    const/4 v2, 0x1
+    const/4 v1, 0x1
 
-    invoke-virtual {p1, v1, v2}, Landroid/bluetooth/BluetoothGatt;->setCharacteristicNotification(Landroid/bluetooth/BluetoothGattCharacteristic;Z)Z
+    invoke-virtual {p1, v0, v1}, Landroid/bluetooth/BluetoothGatt;->setCharacteristicNotification(Landroid/bluetooth/BluetoothGattCharacteristic;Z)Z
     :try_end_7
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_7} :catch_32
+    .catchall {:try_start_1 .. :try_end_7} :catchall_42
+
+    .line 197
+    nop
 
     .line 198
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
 
     # getter for: Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->CCCD:Ljava/util/UUID;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue;->access$000()Ljava/util/UUID;
 
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Landroid/bluetooth/BluetoothGattCharacteristic;->getDescriptor(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattDescriptor;
-
     move-result-object v1
 
+    invoke-virtual {v0, v1}, Landroid/bluetooth/BluetoothGattCharacteristic;->getDescriptor(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattDescriptor;
+
+    move-result-object v0
+
     .line 199
-    if-nez v1, :cond_39
+    if-nez v0, :cond_31
 
     .line 200
-    const-string v1, "notify"
+    new-instance p1, Ljava/lang/StringBuilder;
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v0, "no CCCD on "
 
-    const-string v3, "no CCCD on "
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    move-result-object v2
+    invoke-virtual {v0}, Landroid/bluetooth/BluetoothGattCharacteristic;->getUuid()Ljava/util/UUID;
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWriteQueue$NotifyOp;->characteristic:Landroid/bluetooth/BluetoothGattCharacteristic;
+    move-result-object v0
 
-    invoke-virtual {v3}, Landroid/bluetooth/BluetoothGattCharacteristic;->getUuid()Ljava/util/UUID;
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    move-result-object v3
+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+    move-result-object p1
 
-    move-result-object v2
+    const-string v0, "notify"
 
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {p3, v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    move-result-object v2
-
-    invoke-virtual {p3, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->log(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 208
-    :goto_31
-    return v0
-
-    .line 194
-    :catch_32
-    move-exception v1
-
-    .line 195
-    const-string v2, "notify_enable"
-
-    invoke-virtual {p3, v2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    goto :goto_31
+    .line 201
+    return p2
 
     .line 204
-    :cond_39
-    :try_start_39
-    sget-object v2, Landroid/bluetooth/BluetoothGattDescriptor;->ENABLE_NOTIFICATION_VALUE:[B
+    :cond_31
+    :try_start_31
+    sget-object v1, Landroid/bluetooth/BluetoothGattDescriptor;->ENABLE_NOTIFICATION_VALUE:[B
 
-    invoke-virtual {v1, v2}, Landroid/bluetooth/BluetoothGattDescriptor;->setValue([B)Z
+    invoke-virtual {v0, v1}, Landroid/bluetooth/BluetoothGattDescriptor;->setValue([B)Z
 
     .line 205
-    invoke-virtual {p1, v1}, Landroid/bluetooth/BluetoothGatt;->writeDescriptor(Landroid/bluetooth/BluetoothGattDescriptor;)Z
-    :try_end_41
-    .catch Ljava/lang/Throwable; {:try_start_39 .. :try_end_41} :catch_43
+    invoke-virtual {p1, v0}, Landroid/bluetooth/BluetoothGatt;->writeDescriptor(Landroid/bluetooth/BluetoothGattDescriptor;)Z
 
-    move-result v0
+    move-result p1
+    :try_end_3a
+    .catchall {:try_start_31 .. :try_end_3a} :catchall_3b
 
-    goto :goto_31
+    return p1
 
     .line 206
-    :catch_43
-    move-exception v1
+    :catchall_3b
+    move-exception p1
 
     .line 207
-    const-string v2, "notify_cccd"
+    const-string v0, "notify_cccd"
 
-    invoke-virtual {p3, v2, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
+    invoke-virtual {p3, v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_31
+    .line 208
+    return p2
+
+    .line 194
+    :catchall_42
+    move-exception p1
+
+    .line 195
+    const-string v0, "notify_enable"
+
+    invoke-virtual {p3, v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    .line 196
+    return p2
 .end method
 
 .method public needsBandAck()Z
     .registers 2
 
-    .prologue
     .line 186
     const/4 v0, 0x0
 

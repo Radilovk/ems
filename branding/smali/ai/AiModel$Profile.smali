@@ -24,8 +24,7 @@
 .field public final flags:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/List",
-            "<",
+            "Ljava/util/List<",
             "Ljava/lang/String;",
             ">;"
         }
@@ -59,7 +58,6 @@
 .method public constructor <init>()V
     .registers 3
 
-    .prologue
     .line 85
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -86,9 +84,8 @@
 
 # virtual methods
 .method public hrAt(D)I
-    .registers 8
+    .registers 7
 
-    .prologue
     .line 105
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
 
@@ -98,45 +95,42 @@
 
     int-to-double v2, v2
 
-    mul-double/2addr v2, p1
+    mul-double p1, p1, v2
 
-    add-double/2addr v0, v2
+    add-double/2addr v0, p1
 
     invoke-static {v0, v1}, Ljava/lang/Math;->round(D)J
 
-    move-result-wide v0
+    move-result-wide p1
 
-    long-to-int v0, v0
+    long-to-int p2, p1
 
-    return v0
+    return p2
 .end method
 
 .method public xOf(D)D
-    .registers 8
+    .registers 6
 
-    .prologue
     .line 109
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrr:I
 
-    if-lez v0, :cond_e
+    if-lez v0, :cond_b
 
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
+
+    int-to-double v1, v1
+
+    sub-double/2addr p1, v1
 
     int-to-double v0, v0
 
-    sub-double v0, p1, v0
-
-    iget v2, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrr:I
-
-    int-to-double v2, v2
-
-    div-double/2addr v0, v2
-
-    :goto_d
-    return-wide v0
-
-    :cond_e
-    const-wide/16 v0, 0x0
+    div-double/2addr p1, v0
 
     goto :goto_d
+
+    :cond_b
+    const-wide/16 p1, 0x0
+
+    :goto_d
+    return-wide p1
 .end method

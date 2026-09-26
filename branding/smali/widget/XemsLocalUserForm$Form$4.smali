@@ -23,9 +23,8 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
-    .locals 0
+    .registers 2
 
-    .prologue
     .line 314
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
@@ -37,9 +36,8 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .registers 3
 
-    .prologue
     .line 316
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 

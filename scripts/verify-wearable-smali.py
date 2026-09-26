@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -61,7 +62,7 @@ def check_branding_wearable() -> list[str]:
             errors.append("NotifyWearableBridge.applyHr must delegate to HrDemandPolicy")
     if policy.is_file():
         text = policy.read_text(encoding="utf-8")
-        if 'const-string v0, "settings"' not in text:
+        if not re.search(r'const-string v\d+, "settings"', text):
             errors.append("HrDemandPolicy.smali missing settings owner check")
     return errors
 

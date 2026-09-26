@@ -30,13 +30,7 @@
 # direct methods
 .method constructor <init>(Ljava/util/ArrayList;ILcom/isaigu/gymapp/dialog/ProgramSegment;Ljava/lang/Runnable;)V
     .registers 5
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 124
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$working:Ljava/util/ArrayList;
 
@@ -54,32 +48,31 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 5
+    .registers 4
 
-    .prologue
     .line 127
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$working:Ljava/util/ArrayList;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$working:Ljava/util/ArrayList;
 
-    iget v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$index:I
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$index:I
 
-    add-int/lit8 v1, v1, 0x1
+    add-int/lit8 v0, v0, 0x1
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$seg:Lcom/isaigu/gymapp/dialog/ProgramSegment;
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$seg:Lcom/isaigu/gymapp/dialog/ProgramSegment;
 
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->serialize()Ljava/lang/String;
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->serialize()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->deserialize(Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/ProgramSegment;
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ProgramSegment;->deserialize(Ljava/lang/String;)Lcom/isaigu/gymapp/dialog/ProgramSegment;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {v0, v1, v2}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
+    invoke-virtual {p1, v0, v1}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
 
     .line 128
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$rebuild:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$4;->val$rebuild:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
     .line 129
     return-void

@@ -26,7 +26,6 @@
 .method constructor <init>(Landroid/widget/LinearLayout;Landroid/widget/TextView;Landroid/widget/TextView;)V
     .registers 4
 
-    .prologue
     .line 381
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,52 +45,49 @@
 
 # virtual methods
 .method public set(Ljava/lang/String;Ljava/lang/String;)V
-    .registers 5
+    .registers 4
 
-    .prologue
     .line 388
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->value:Landroid/widget/TextView;
 
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 389
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->unit:Landroid/widget/TextView;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->unit:Landroid/widget/TextView;
 
-    if-eqz p2, :cond_1c
+    if-eqz p2, :cond_b
 
     move-object v0, p2
 
-    :goto_a
-    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    goto :goto_d
+
+    :cond_b
+    const-string v0, ""
+
+    :goto_d
+    invoke-virtual {p1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 390
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->unit:Landroid/widget/TextView;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->unit:Landroid/widget/TextView;
 
-    if-eqz p2, :cond_1f
+    if-eqz p2, :cond_1c
 
     invoke-virtual {p2}, Ljava/lang/String;->length()I
 
-    move-result v0
+    move-result p2
 
-    if-lez v0, :cond_1f
+    if-lez p2, :cond_1c
 
-    const/4 v0, 0x0
+    const/4 p2, 0x0
 
-    :goto_18
-    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setVisibility(I)V
+    goto :goto_1e
+
+    :cond_1c
+    const/16 p2, 0x8
+
+    :goto_1e
+    invoke-virtual {p1, p2}, Landroid/widget/TextView;->setVisibility(I)V
 
     .line 391
     return-void
-
-    .line 389
-    :cond_1c
-    const-string v0, ""
-
-    goto :goto_a
-
-    .line 390
-    :cond_1f
-    const/16 v0, 0x8
-
-    goto :goto_18
 .end method

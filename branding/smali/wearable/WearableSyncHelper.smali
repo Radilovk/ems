@@ -6,21 +6,21 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$OverlayDragListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConfigDismissListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$CloseOverlayListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$OverlayInfoListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$OverlayConnectListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$AuthKeyWatcher;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$LiveDataListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$PickBandListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConfigInfoListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConnectListener;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ArmAfterPermission;,
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ActivateListener;,
         Lcom/isaigu/gymapp/wearable/WearableSyncHelper$MasterOpenListener;,
         Lcom/isaigu/gymapp/wearable/WearableSyncHelper$RefreshOverlayRunnable;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConnectListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConfigInfoListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ActivateListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ConfigDismissListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$PickBandListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$AuthKeyWatcher;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$ArmAfterPermission;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$CloseOverlayListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$OverlayConnectListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$OverlayInfoListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$OverlayDragListener;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$DialTick;,
-        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$LiveDataListener;
+        Lcom/isaigu/gymapp/wearable/WearableSyncHelper$DialTick;
     }
 .end annotation
 
@@ -1462,7 +1462,7 @@
 
     move-result-object p0
 
-    invoke-interface {p0}, Landroid/text/Editable;->toString()Ljava/lang/String;
+    invoke-virtual {p0}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
     move-result-object p0
 
@@ -2294,7 +2294,7 @@
 
     move-result-object p0
 
-    invoke-interface {p0}, Landroid/text/Editable;->toString()Ljava/lang/String;
+    invoke-virtual {p0}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
     move-result-object p0
 
@@ -3618,7 +3618,7 @@
 
     move-result-object v0
 
-    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
+    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
     move-result-object v0
 
@@ -3639,7 +3639,7 @@
 
     move-result-object v0
 
-    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
+    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
     move-result-object v0
 

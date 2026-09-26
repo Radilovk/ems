@@ -14,7 +14,6 @@
 .method constructor <init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;)V
     .registers 2
 
-    .prologue
     .line 7
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -30,7 +29,6 @@
 .method public run()V
     .registers 3
 
-    .prologue
     .line 13
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthStartRunnable;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient;
 

@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 582
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,9 +30,8 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .registers 4
 
-    .prologue
     .line 585
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->ticking:Z
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$000()Z
@@ -42,8 +40,7 @@
 
     if-nez v0, :cond_7
 
-    .line 598
-    :goto_6
+    .line 586
     return-void
 
     .line 589
@@ -71,24 +68,14 @@
     .line 592
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->refresh()V
     :try_end_1a
-    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_1a} :catch_24
+    .catchall {:try_start_7 .. :try_end_1a} :catchall_1b
 
-    .line 597
+    .line 596
     :cond_1a
-    :goto_1a
-    # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$400()Landroid/os/Handler;
-
-    move-result-object v0
-
-    const-wide/16 v2, 0x3e8
-
-    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    goto :goto_6
+    goto :goto_21
 
     .line 594
-    :catch_24
+    :catchall_1b
     move-exception v0
 
     .line 595
@@ -96,5 +83,17 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_1a
+    .line 597
+    :goto_21
+    # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->handler:Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$400()Landroid/os/Handler;
+
+    move-result-object v0
+
+    const-wide/16 v1, 0x3e8
+
+    invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 598
+    return-void
 .end method

@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 80
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$2;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -42,15 +36,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 83
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$2;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$2;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
+    iget-object p1, p1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
-    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+    invoke-virtual {p1}, Landroid/app/Dialog;->dismiss()V
 
     .line 84
     return-void

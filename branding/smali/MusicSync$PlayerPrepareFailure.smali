@@ -17,36 +17,58 @@
 .end annotation
 
 
-# direct methods
-.method constructor <init>()V
-    .locals 0
+# instance fields
+.field private final token:I
 
-    .prologue
-    .line 699
+
+# direct methods
+.method constructor <init>(I)V
+    .registers 2
+
+    .line 1149
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
+    .line 1150
+    iput p1, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareFailure;->token:I
+
+    .line 1151
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .locals 1
+    .registers 3
 
-    .prologue
-    .line 702
+    .line 1155
+    iget v0, p0, Lcom/isaigu/gymapp/train/utils/MusicSync$PlayerPrepareFailure;->token:I
+
+    # getter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->prepareToken:I
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$300()I
+
+    move-result v1
+
+    if-eq v0, v1, :cond_9
+
+    .line 1156
+    return-void
+
+    .line 1158
+    :cond_9
     const/4 v0, 0x0
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$402(Z)Z
+    # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerPreparing:Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$502(Z)Z
 
-    .line 703
-    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$500()V
+    .line 1159
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$600()V
 
-    .line 704
+    .line 1160
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 705
+    .line 1161
     return-void
 .end method

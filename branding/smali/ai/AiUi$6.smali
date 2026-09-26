@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 565
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -44,7 +38,6 @@
 .method public onSelect(I)V
     .registers 4
 
-    .prologue
     .line 568
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -52,15 +45,15 @@
 
     move-result-object v1
 
-    aget-object v1, v1, p1
+    aget-object p1, v1, p1
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
+    iput-object p1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     .line 569
-    const/4 v0, 0x1
+    const/4 p1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
     .line 570
     return-void

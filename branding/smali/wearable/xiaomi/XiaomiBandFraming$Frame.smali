@@ -34,7 +34,6 @@
 .method private constructor <init>(Ljava/lang/String;Z[BIIII)V
     .registers 8
 
-    .prologue
     .line 75
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -64,157 +63,163 @@
 .end method
 
 .method static ack(I)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
-    .registers 9
-
-    .prologue
-    const/4 v2, 0x0
+    .registers 10
 
     .line 102
-    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
+    new-instance v8, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
 
     const-string v1, "ack"
 
+    const/4 v2, 0x0
+
     const/4 v3, 0x0
 
-    move v4, v2
+    const/4 v4, 0x0
 
-    move v5, v2
+    const/4 v5, 0x0
 
-    move v6, v2
+    const/4 v6, 0x0
+
+    move-object v0, v8
 
     move v7, p0
 
     invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;-><init>(Ljava/lang/String;Z[BIIII)V
 
-    return-object v0
+    return-object v8
 .end method
 
 .method static chunkAck(I)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
-    .registers 9
-
-    .prologue
-    const/4 v2, 0x0
+    .registers 10
 
     .line 94
-    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
+    new-instance v8, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
 
     const-string v1, "chunk_ack"
 
+    const/4 v2, 0x0
+
     const/4 v3, 0x0
 
-    move v4, v2
+    const/4 v4, 0x0
 
-    move v5, v2
+    const/4 v5, 0x0
+
+    const/4 v7, 0x0
+
+    move-object v0, v8
 
     move v6, p0
 
-    move v7, v2
-
     invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;-><init>(Ljava/lang/String;Z[BIIII)V
 
-    return-object v0
+    return-object v8
 .end method
 
 .method static chunkData(I[B)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
-    .registers 10
-
-    .prologue
-    const/4 v2, 0x0
+    .registers 11
 
     .line 90
-    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
+    new-instance v8, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
 
     const-string v1, "chunk_data"
 
-    move-object v3, p1
+    const/4 v2, 0x0
 
-    move v4, v2
+    const/4 v4, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    move-object v0, v8
+
+    move-object v3, p1
 
     move v5, p0
 
-    move v6, v2
-
-    move v7, v2
-
     invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;-><init>(Ljava/lang/String;Z[BIIII)V
 
-    return-object v0
+    return-object v8
 .end method
 
 .method static chunkStart(ZI)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
-    .registers 10
-
-    .prologue
-    const/4 v5, 0x0
+    .registers 11
 
     .line 86
-    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
+    new-instance v8, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
 
     const-string v1, "chunk_start"
 
     const/4 v3, 0x0
 
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    move-object v0, v8
+
     move v2, p0
 
     move v4, p1
 
-    move v6, v5
-
-    move v7, v5
-
     invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;-><init>(Ljava/lang/String;Z[BIIII)V
 
-    return-object v0
+    return-object v8
 .end method
 
 .method static single(Z[B)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
-    .registers 10
-
-    .prologue
-    const/4 v4, 0x0
+    .registers 11
 
     .line 98
-    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
+    new-instance v8, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
 
     const-string v1, "single"
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    move-object v0, v8
 
     move v2, p0
 
     move-object v3, p1
 
-    move v5, v4
-
-    move v6, v4
-
-    move v7, v4
-
     invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;-><init>(Ljava/lang/String;Z[BIIII)V
 
-    return-object v0
+    return-object v8
 .end method
 
 .method static unknown()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
-    .registers 8
-
-    .prologue
-    const/4 v2, 0x0
+    .registers 9
 
     .line 106
-    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
+    new-instance v8, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;
 
     const-string v1, "unknown"
 
+    const/4 v2, 0x0
+
     const/4 v3, 0x0
 
-    move v4, v2
+    const/4 v4, 0x0
 
-    move v5, v2
+    const/4 v5, 0x0
 
-    move v6, v2
+    const/4 v6, 0x0
 
-    move v7, v2
+    const/4 v7, 0x0
+
+    move-object v0, v8
 
     invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandFraming$Frame;-><init>(Ljava/lang/String;Z[BIIII)V
 
-    return-object v0
+    return-object v8
 .end method

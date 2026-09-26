@@ -15,8 +15,7 @@
 
 .annotation system Ldalvik/annotation/Signature;
     value = {
-        "Ljava/lang/Enum",
-        "<",
+        "Ljava/lang/Enum<",
         "Lcom/isaigu/gymapp/ai/AiModel$Mode;",
         ">;"
     }
@@ -32,34 +31,9 @@
 
 
 # direct methods
-.method private static synthetic $values()[Lcom/isaigu/gymapp/ai/AiModel$Mode;
-    .registers 3
-
-    .prologue
-    .line 17
-    const/4 v0, 0x2
-
-    new-array v0, v0, [Lcom/isaigu/gymapp/ai/AiModel$Mode;
-
-    const/4 v1, 0x0
-
-    sget-object v2, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
-
-    aput-object v2, v0, v1
-
-    const/4 v1, 0x1
-
-    sget-object v2, Lcom/isaigu/gymapp/ai/AiModel$Mode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
-
-    aput-object v2, v0, v1
-
-    return-object v0
-.end method
-
 .method static constructor <clinit>()V
-    .registers 3
+    .registers 5
 
-    .prologue
     .line 17
     new-instance v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
@@ -75,17 +49,23 @@
 
     const-string v1, "PASSIVE"
 
-    const/4 v2, 0x1
+    const/4 v3, 0x1
 
-    invoke-direct {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiModel$Mode;-><init>(Ljava/lang/String;I)V
+    invoke-direct {v0, v1, v3}, Lcom/isaigu/gymapp/ai/AiModel$Mode;-><init>(Ljava/lang/String;I)V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Mode;->$values()[Lcom/isaigu/gymapp/ai/AiModel$Mode;
+    const/4 v1, 0x2
 
-    move-result-object v0
+    new-array v1, v1, [Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    sput-object v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;->$VALUES:[Lcom/isaigu/gymapp/ai/AiModel$Mode;
+    sget-object v4, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
+
+    aput-object v4, v1, v2
+
+    aput-object v0, v1, v3
+
+    sput-object v1, Lcom/isaigu/gymapp/ai/AiModel$Mode;->$VALUES:[Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     return-void
 .end method
@@ -98,7 +78,6 @@
         }
     .end annotation
 
-    .prologue
     .line 17
     invoke-direct {p0, p1, p2}, Ljava/lang/Enum;-><init>(Ljava/lang/String;I)V
 
@@ -108,23 +87,21 @@
 .method public static valueOf(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiModel$Mode;
     .registers 2
 
-    .prologue
     .line 17
     const-class v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     invoke-static {v0, p0}, Ljava/lang/Enum;->valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
 
-    move-result-object v0
+    move-result-object p0
 
-    check-cast v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;
+    check-cast p0, Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    return-object v0
+    return-object p0
 .end method
 
 .method public static values()[Lcom/isaigu/gymapp/ai/AiModel$Mode;
     .registers 1
 
-    .prologue
     .line 17
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;->$VALUES:[Lcom/isaigu/gymapp/ai/AiModel$Mode;
 

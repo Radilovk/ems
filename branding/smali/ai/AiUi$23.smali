@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 1249
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -42,29 +36,19 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 1252
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
 
-    move-result v0
+    move-result p1
 
-    if-nez v0, :cond_d
+    xor-int/lit8 p1, p1, 0x1
 
-    const/4 v0, 0x1
-
-    :goto_9
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
 
     .line 1253
     return-void
-
-    .line 1252
-    :cond_d
-    const/4 v0, 0x0
-
-    goto :goto_9
 .end method

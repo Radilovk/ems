@@ -25,7 +25,6 @@
 .method constructor <init>(Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;)V
     .registers 2
 
-    .prologue
     .line 1157
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20$1;->this$0:Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;
 
@@ -39,7 +38,6 @@
 .method public onName(Ljava/lang/String;)V
     .registers 5
 
-    .prologue
     .line 1160
     invoke-static {}, Lcom/isaigu/gymapp/dialog/TimerPresetStorage;->newId()Ljava/lang/String;
 
@@ -77,18 +75,14 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
     invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object p1
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toastText(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2100(Ljava/lang/String;)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2100(Ljava/lang/String;)V
 
     .line 1164
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSheets()V

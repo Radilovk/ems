@@ -34,13 +34,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$Shell;Ljava/util/ArrayList;Landroid/app/Activity;[I[Ljava/lang/Runnable;Lcom/isaigu/gymapp/train/model/TrainItem;)V
     .registers 7
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 46
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -62,10 +56,7 @@
 
 # virtual methods
 .method public run()V
-    .registers 9
-
-    .prologue
-    const/4 v6, 0x0
+    .registers 10
 
     .line 49
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -74,68 +65,71 @@
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    move v2, v6
-
     .line 50
+    const/4 v0, 0x0
+
+    const/4 v7, 0x0
+
     :goto_9
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$working:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
-
-    move-result v0
-
-    if-ge v2, v0, :cond_37
-
-    .line 51
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-
-    iget-object v7, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$activity:Landroid/app/Activity;
-
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$working:Ljava/util/ArrayList;
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$onOff:[I
+    invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
 
-    iget-object v4, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$rebuild:[Ljava/lang/Runnable;
+    move-result v1
 
-    aget-object v4, v4, v6
+    if-ge v7, v1, :cond_38
 
-    iget-object v5, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    .line 51
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+
+    iget-object v8, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$activity:Landroid/app/Activity;
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$working:Ljava/util/ArrayList;
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$onOff:[I
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$rebuild:[Ljava/lang/Runnable;
+
+    aget-object v5, v3, v0
+
+    iget-object v6, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+
+    move v3, v7
 
     # invokes: Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->blockCard(Landroid/app/Activity;Ljava/util/ArrayList;I[ILjava/lang/Runnable;Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Landroid/view/View;
-    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->access$000(Landroid/app/Activity;Ljava/util/ArrayList;I[ILjava/lang/Runnable;Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Landroid/view/View;
+    invoke-static/range {v1 .. v6}, Lcom/isaigu/gymapp/dialog/BlockProgramEditor;->access$000(Landroid/app/Activity;Ljava/util/ArrayList;I[ILjava/lang/Runnable;Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Landroid/view/View;
 
     move-result-object v1
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$activity:Landroid/app/Activity;
+    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$activity:Landroid/app/Activity;
 
     .line 52
-    if-nez v2, :cond_34
+    if-nez v7, :cond_2c
 
-    const/4 v0, 0x4
+    const/4 v3, 0x4
 
-    :goto_2a
-    invoke-static {v3, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+    goto :goto_2e
 
-    move-result-object v0
+    :cond_2c
+    const/16 v3, 0xc
+
+    :goto_2e
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v2
 
     .line 51
-    invoke-virtual {v7, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v8, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 50
-    add-int/lit8 v2, v2, 0x1
+    add-int/lit8 v7, v7, 0x1
 
     goto :goto_9
 
-    .line 52
-    :cond_34
-    const/16 v0, 0xc
-
-    goto :goto_2a
-
     .line 54
-    :cond_37
+    :cond_38
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$1;->val$activity:Landroid/app/Activity;
 
     const-string v1, "+ \u0414\u043e\u0431\u0430\u0432\u0438 \u0431\u043b\u043e\u043a"

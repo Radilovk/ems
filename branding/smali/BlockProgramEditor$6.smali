@@ -32,13 +32,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/dialog/ProgramSegment;[ILandroid/widget/TextView;Lcom/isaigu/gymapp/widget/XemsUi$Shell;Ljava/util/ArrayList;)V
     .registers 6
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 147
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$6;->val$seg:Lcom/isaigu/gymapp/dialog/ProgramSegment;
 
@@ -58,12 +52,7 @@
 
 # virtual methods
 .method public run()V
-    .registers 9
-
-    .prologue
-    const/4 v7, 0x1
-
-    const/4 v6, 0x0
+    .registers 8
 
     .line 150
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$6;->val$seg:Lcom/isaigu/gymapp/dialog/ProgramSegment;
@@ -72,57 +61,53 @@
 
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$6;->val$onOff:[I
 
-    aget v1, v1, v6
+    const/4 v2, 0x0
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$6;->val$onOff:[I
+    aget v3, v1, v2
 
-    aget v2, v2, v7
+    const/4 v4, 0x1
 
-    add-int/2addr v1, v2
+    aget v1, v1, v4
 
-    mul-int/2addr v0, v1
+    add-int/2addr v3, v1
+
+    mul-int v0, v0, v3
 
     .line 151
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$6;->val$title:Landroid/widget/TextView;
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    new-instance v3, Ljava/lang/StringBuilder;
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$6;->val$seg:Lcom/isaigu/gymapp/dialog/ProgramSegment;
+    iget-object v5, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$6;->val$seg:Lcom/isaigu/gymapp/dialog/ProgramSegment;
 
-    iget v3, v3, Lcom/isaigu/gymapp/dialog/ProgramSegment;->cycles:I
+    iget v5, v5, Lcom/isaigu/gymapp/dialog/ProgramSegment;->cycles:I
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    const-string v5, " \u0446\u0438\u043a\u044a\u043b\u0430 \u00b7 "
 
-    const-string v3, " \u0446\u0438\u043a\u044a\u043b\u0430 \u00b7 "
+    const-string v6, " cycles \u00b7 "
 
-    const-string v4, " cycles \u00b7 "
-
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    const-string v3, "%d:%02d"
-
-    const/4 v4, 0x2
-
-    new-array v4, v4, [Ljava/lang/Object;
-
-    div-int/lit8 v5, v0, 0x3c
-
-    .line 152
-    invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    invoke-static {v5, v6}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    aput-object v5, v4, v6
+    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const/4 v5, 0x2
+
+    new-array v5, v5, [Ljava/lang/Object;
+
+    div-int/lit8 v6, v0, 0x3c
+
+    .line 152
+    invoke-static {v6}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v6
+
+    aput-object v6, v5, v2
 
     rem-int/lit8 v0, v0, 0x3c
 
@@ -130,17 +115,17 @@
 
     move-result-object v0
 
-    aput-object v0, v4, v7
+    aput-object v0, v5, v4
 
-    invoke-static {v3, v4}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    const-string v0, "%d:%02d"
 
-    move-result-object v0
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-static {v0, v5}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 

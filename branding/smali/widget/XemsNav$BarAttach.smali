@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 601
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -33,7 +32,6 @@
 .method public onViewAttachedToWindow(Landroid/view/View;)V
     .registers 2
 
-    .prologue
     .line 604
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->startTicking()V
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$500()V
@@ -43,9 +41,8 @@
 .end method
 
 .method public onViewDetachedFromWindow(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 609
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->stopTicking()V
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$600()V
@@ -54,40 +51,41 @@
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
 
-    move-result-object v0
+    move-result-object p1
 
-    if-eqz v0, :cond_1a
+    if-eqz p1, :cond_1c
 
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-virtual {v0}, Landroid/widget/PopupWindow;->isShowing()Z
+    invoke-virtual {p1}, Landroid/widget/PopupWindow;->isShowing()Z
 
-    move-result v0
+    move-result p1
 
-    if-eqz v0, :cond_1a
+    if-eqz p1, :cond_1c
 
     .line 612
     :try_start_13
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-virtual {v0}, Landroid/widget/PopupWindow;->dismiss()V
+    invoke-virtual {p1}, Landroid/widget/PopupWindow;->dismiss()V
     :try_end_1a
-    .catch Ljava/lang/Throwable; {:try_start_13 .. :try_end_1a} :catch_1b
+    .catchall {:try_start_13 .. :try_end_1a} :catchall_1b
 
-    .line 616
-    :cond_1a
-    :goto_1a
-    return-void
+    .line 614
+    goto :goto_1c
 
     .line 613
-    :catch_1b
-    move-exception v0
+    :catchall_1b
+    move-exception p1
 
-    goto :goto_1a
+    .line 616
+    :cond_1c
+    :goto_1c
+    return-void
 .end method

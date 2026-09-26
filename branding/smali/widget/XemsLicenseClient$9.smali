@@ -27,14 +27,8 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 4
 
-    .prologue
     .line 432
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
@@ -50,9 +44,8 @@
 
 # virtual methods
 .method public run()V
-    .locals 3
+    .registers 4
 
-    .prologue
     .line 435
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$9;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 

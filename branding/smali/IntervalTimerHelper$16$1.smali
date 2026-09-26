@@ -25,7 +25,6 @@
 .method constructor <init>(Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;)V
     .registers 2
 
-    .prologue
     .line 1036
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16$1;->this$0:Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$16;
 
@@ -39,7 +38,6 @@
 .method public run()V
     .registers 2
 
-    .prologue
     .line 1039
     const-string v0, ""
 

@@ -39,6 +39,9 @@ public class MusicSync {
     private static final String KEY_SMOOTHNESS = "smoothness";
     private static final String KEY_HZ_BASS = "hz_bass";
     private static final String KEY_HZ_TREBLE = "hz_treble";
+    private static final String KEY_AUTO = "auto_tune";
+    /** Full-scale settings glide to the next section over this long. */
+    private static final float AUTO_SLEW_MS = 2500f;
     /** Impulse Hz at bass-heavy music; 0 = Hz does not follow the sound (default). */
     public static final int DEFAULT_HZ_BASS = 0;
     /** Impulse Hz at treble-heavy music. */
@@ -65,6 +68,20 @@ public class MusicSync {
     /** Hz by sound: bass → hzBass, treble → hzTreble (hzBass 0 = off). */
     private static int hzBass = DEFAULT_HZ_BASS;
     private static int hzTreble = DEFAULT_HZ_TREBLE;
+    /** On: each track calibrates rhythm, floor, softness, sensitivity and Hz. */
+    private static boolean autoTune = true;
+    private static MusicAutoTune.Curve autoCurve;
+    private static MusicPlayerEngine.Envelope lastEnvelope;
+    /** URI of {@link #lastEnvelope}, so the same file is not decoded again. */
+    private static String lastEnvelopeKey;
+    private static float autoRhythm = DEFAULT_RHYTHM_MIX;
+    private static float autoFloor = DEFAULT_FLOOR;
+    private static float autoSmooth = DEFAULT_SMOOTHNESS;
+    private static float autoSens = DEFAULT_SENSITIVITY;
+    private static float autoHzBass;
+    private static float autoHzTreble;
+    private static long autoSlewLastMs;
+    private static int autoLastPosMs = -1;
     /** Latest tone from the player (0 bass … 100 treble), same moment as the level. */
     private static volatile int latestTone = 50;
     /** Tone through the same smoothing and rise limit as the strength. */
@@ -85,6 +102,21 @@ public class MusicSync {
     private static int savedProgramHz = -1;
     private static boolean playerMode;
     private static volatile boolean playerPreparing;
+    /** Bumped when a foreground load is superseded or playback stops. */
+    private static int prepareToken;
+    /** Bumped when the standby track changes, so a late decode is dropped. */
+    private static int prefetchGen;
+    private static boolean prefetchInFlight;
+    /** The song already ended (or was skipped to) and is waiting on the standby load. */
+    private static boolean prefetchPromote;
+    private static boolean prefetchPrepared;
+    private static boolean prefetchPlayerPending;
+    private static int prefetchFailures;
+    private static String prefetchKey;
+    private static Uri prefetchUri;
+    private static Context prefetchContext;
+    private static MusicPlayerEngine.Envelope prefetchEnvelope;
+    private static MusicPlayerEngine prefetchEngine;
     static boolean running;
     static volatile int liveStrength;
 
@@ -561,6 +593,170 @@ public class MusicSync {
         smoothness = clampPercent(value);
     }
 
+    public static boolean isAutoTune() {
+        return autoTune;
+    }
+
+    /**
+     * Turn calibration on or off. On uses the current track's envelope when one
+     * is loaded. Manual sliders and presets call this with false and keep the
+     * value the trainer just set.
+     */
+    public static void setAutoTune(boolean on) {
+        if (autoTune == on) {
+            if (on) {
+                armAutoTune(lastEnvelope, false);
+            }
+            return;
+        }
+        autoTune = on;
+        if (!on) {
+            autoCurve = null;
+            MusicPlayerHelper.onAutoTuneApplied();
+            return;
+        }
+        armAutoTune(lastEnvelope, false);
+        if (lastEnvelope == null) {
+            MusicPlayerHelper.onAutoTuneApplied();
+        }
+    }
+
+    /**
+     * Glide settings toward the section under {@code positionMs}. Called on the
+     * player tick, before that bucket's loudness is mapped.
+     */
+    public static void followAutoTune(int positionMs) {
+        if (!autoTune || autoCurve == null) {
+            return;
+        }
+        MusicAutoTune.Snapshot target = autoCurve.at(positionMs);
+        if (autoLastPosMs >= 0 && Math.abs(positionMs - autoLastPosMs) > 2000) {
+            autoRhythm = target.rhythmMix;
+            autoFloor = target.floor;
+            autoSmooth = target.smoothness;
+            autoSens = target.sensitivity;
+            autoHzBass = target.hzBass;
+            autoHzTreble = target.hzTreble;
+            autoLastPosMs = positionMs;
+            autoSlewLastMs = SystemClock.elapsedRealtime();
+            if (applyAuto(target.sensitivity, target.rhythmMix, target.floor, target.smoothness,
+                    target.hzBass, target.hzTreble)) {
+                MusicPlayerHelper.onAutoTuneApplied();
+            }
+            return;
+        }
+        autoLastPosMs = positionMs;
+        long now = SystemClock.elapsedRealtime();
+        long dt = autoSlewLastMs == 0L ? 16L : now - autoSlewLastMs;
+        autoSlewLastMs = now;
+        if (dt < 1L) {
+            dt = 1L;
+        } else if (dt > 1000L) {
+            dt = 1000L;
+        }
+        float step = 100f * dt / AUTO_SLEW_MS;
+        float hzStep = 48f * dt / AUTO_SLEW_MS;
+        autoSens = glide(autoSens, target.sensitivity, step);
+        autoRhythm = glide(autoRhythm, target.rhythmMix, step);
+        autoFloor = glide(autoFloor, target.floor, step);
+        autoSmooth = glide(autoSmooth, target.smoothness, step);
+        autoHzBass = glide(autoHzBass, target.hzBass, hzStep);
+        autoHzTreble = glide(autoHzTreble, target.hzTreble, hzStep);
+        if (applyAuto(Math.round(autoSens), Math.round(autoRhythm), Math.round(autoFloor),
+                Math.round(autoSmooth), Math.round(autoHzBass), Math.round(autoHzTreble))) {
+            MusicPlayerHelper.onAutoTuneApplied();
+        }
+    }
+
+    private static float glide(float current, int target, float step) {
+        float goal = target;
+        if (Math.abs(goal - current) <= step) {
+            return goal;
+        }
+        return goal > current ? current + step : current - step;
+    }
+
+    private static void armAutoTune(MusicPlayerEngine.Envelope envelope, boolean snap) {
+        if (!autoTune || envelope == null || envelope.length <= 0) {
+            return;
+        }
+        lastEnvelope = envelope;
+        autoCurve = MusicAutoTune.analyze(envelope.loudRms, envelope.rhythm, envelope.tone,
+                envelope.length, envelope.toneSpanDb, envelope.toneMedianDb);
+        int position = 0;
+        boolean playing = false;
+        MusicPlayerEngine engine = playerEngine;
+        if (!snap && engine != null) {
+            position = engine.resolvePlaybackPositionMs() + getPlayerLeadMs();
+            playing = running && playerMode && engine.isPlaying();
+        }
+        MusicAutoTune.Snapshot target = autoCurve.at(Math.max(0, position));
+        autoLastPosMs = -1;
+        autoSlewLastMs = 0L;
+        if (snap || !playing) {
+            autoSens = target.sensitivity;
+            autoRhythm = target.rhythmMix;
+            autoFloor = target.floor;
+            autoSmooth = target.smoothness;
+            autoHzBass = target.hzBass;
+            autoHzTreble = target.hzTreble;
+            applyAuto(target.sensitivity, target.rhythmMix, target.floor, target.smoothness,
+                    target.hzBass, target.hzTreble);
+        } else {
+            autoSens = sensitivity;
+            autoRhythm = rhythmMix;
+            autoFloor = MasterStrengthControl.getFloorPercent();
+            autoSmooth = smoothness;
+            autoHzBass = hzBass <= 0 ? target.hzBass : hzBass;
+            autoHzTreble = hzTreble;
+            if (hzBass <= 0) {
+                applyAuto(sensitivity, rhythmMix, MasterStrengthControl.getFloorPercent(), smoothness,
+                        target.hzBass, target.hzTreble);
+                autoHzBass = target.hzBass;
+                autoHzTreble = target.hzTreble;
+            }
+        }
+        MusicDiagLog.log("auto-tune",
+                "rhythm=" + target.rhythmMix
+                        + " floor=" + target.floor
+                        + " soft=" + target.smoothness
+                        + " sens=" + target.sensitivity
+                        + " hz=" + target.hzBass + "-" + target.hzTreble
+                        + " sections=" + autoCurve.size());
+        MusicPlayerHelper.onAutoTuneApplied();
+    }
+
+    /** @return true when a knob actually moved */
+    private static boolean applyAuto(int sensitivityValue, int rhythm, int floor, int smooth,
+            int bass, int treble) {
+        boolean changed = false;
+        if (sensitivity != sensitivityValue) {
+            setSensitivity(sensitivityValue);
+            changed = true;
+        }
+        if (rhythmMix != rhythm) {
+            setRhythmMix(rhythm);
+            changed = true;
+        }
+        if (MasterStrengthControl.getFloorPercent() != floor) {
+            setFloorPercent(floor);
+            changed = true;
+        }
+        if (smoothness != smooth) {
+            setSmoothness(smooth);
+            changed = true;
+        }
+        if (hzBass != bass) {
+            setHzBass(bass);
+            changed = true;
+        }
+        if (hzTreble != treble) {
+            setHzTreble(treble);
+            changed = true;
+        }
+        return changed;
+    }
+
     public static boolean hasBleLatencySample() {
         return bleLatencySamples > 0;
     }
@@ -578,6 +774,7 @@ public class MusicSync {
             setSmoothness(prefs.getInt(KEY_SMOOTHNESS, DEFAULT_SMOOTHNESS));
             hzBass = prefs.getInt(KEY_HZ_BASS, DEFAULT_HZ_BASS);
             setHzTreble(prefs.getInt(KEY_HZ_TREBLE, DEFAULT_HZ_TREBLE));
+            autoTune = prefs.getBoolean(KEY_AUTO, true);
         } catch (Throwable t) {
             MusicDiagLog.logError("music_settings_load", t);
         }
@@ -588,14 +785,19 @@ public class MusicSync {
             return;
         }
         try {
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                    .putInt(KEY_SENSITIVITY, sensitivity)
-                    .putInt(KEY_RHYTHM_MIX, rhythmMix)
-                    .putInt(KEY_FLOOR, MasterStrengthControl.getFloorPercent())
-                    .putInt(KEY_SMOOTHNESS, smoothness)
-                    .putInt(KEY_HZ_BASS, hzBass)
-                    .putInt(KEY_HZ_TREBLE, hzTreble)
-                    .apply();
+            android.content.SharedPreferences.Editor editor = context
+                    .getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                    .putBoolean(KEY_AUTO, autoTune);
+            // Live calibration must not overwrite the trainer's manual knobs.
+            if (!autoTune) {
+                editor.putInt(KEY_SENSITIVITY, sensitivity)
+                        .putInt(KEY_RHYTHM_MIX, rhythmMix)
+                        .putInt(KEY_FLOOR, MasterStrengthControl.getFloorPercent())
+                        .putInt(KEY_SMOOTHNESS, smoothness)
+                        .putInt(KEY_HZ_BASS, hzBass)
+                        .putInt(KEY_HZ_TREBLE, hzTreble);
+            }
+            editor.apply();
         } catch (Throwable t) {
             MusicDiagLog.logError("music_settings_save", t);
         }
@@ -605,34 +807,151 @@ public class MusicSync {
         return playerPreparing;
     }
 
+    /** True while the gap between tracks is waiting on a load that started early. */
+    public static boolean isAwaitingPrefetchedTrack() {
+        return prefetchPromote;
+    }
+
+    /**
+     * Decode and buffer {@code uri} while the current song is still playing.
+     * Pass null to drop the standby track. One standby at a time, keyed by URI.
+     */
+    public static void prefetchNext(Activity activity, Uri uri) {
+        if (!isMainThread()) {
+            ensureHandler();
+            handler.post(new PrefetchRequest(activity, uri));
+            return;
+        }
+        if (activity == null || uri == null) {
+            clearPrefetch();
+            return;
+        }
+        String key = uri.toString();
+        if (key.equals(prefetchKey)) {
+            prefetchContext = activity;
+            if (prefetchInFlight || prefetchEngine != null) {
+                return;
+            }
+            if (prefetchEnvelope != null && running && playerMode) {
+                beginPrefetchPrepare();
+            }
+            return;
+        }
+        clearPrefetch();
+        prefetchKey = key;
+        prefetchUri = uri;
+        prefetchContext = activity;
+        prefetchFailures = 0;
+        if (key.equals(lastEnvelopeKey) && lastEnvelope != null && lastEnvelope.length > 0) {
+            prefetchEnvelope = lastEnvelope;
+            MusicDiagLog.log("prefetch", "reuse envelope");
+            if (running && playerMode) {
+                beginPrefetchPrepare();
+            }
+            return;
+        }
+        prefetchInFlight = true;
+        MusicDiagLog.log("prefetch", "decode");
+        new Thread(new PrefetchTask(activity, uri, prefetchGen), "music-prefetch").start();
+    }
+
     public static void startPlayer(Activity activity, Uri uri) {
         if (activity == null || uri == null) {
             return;
         }
+        String key = uri.toString();
         if (playerPreparing) {
-            return;
+            if (!(prefetchPromote && prefetchKey != null && !prefetchKey.equals(key))) {
+                return;
+            }
+            prefetchPromote = false;
+            playerPreparing = false;
+            clearPrefetch();
         }
         hostActivity = activity;
+        if (prefetchKey != null && prefetchKey.equals(key)) {
+            if (prefetchPrepared && prefetchEngine != null && prefetchEnvelope != null) {
+                MusicPlayerEngine engine = prefetchEngine;
+                MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+                detachPrefetchOwned();
+                releaseCurrentPlayback();
+                MusicDiagLog.log("prefetch", "handoff prepared");
+                beginPlayback(activity, uri, envelope, engine, true);
+                return;
+            }
+            if (prefetchEngine != null) {
+                prefetchPromote = true;
+                releaseCurrentPlayback();
+                playerPreparing = true;
+                MusicPlayerHelper.showPreparing();
+                return;
+            }
+            if (prefetchEnvelope != null && !prefetchInFlight) {
+                MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+                detachPrefetchOwned();
+                releaseCurrentPlayback();
+                playerPreparing = true;
+                MusicPlayerHelper.showPreparing();
+                beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+                return;
+            }
+            if (prefetchInFlight) {
+                prefetchPromote = true;
+                releaseCurrentPlayback();
+                playerPreparing = true;
+                MusicPlayerHelper.showPreparing();
+                return;
+            }
+        }
+        releaseCurrentPlayback();
         playerPreparing = true;
+        prepareToken++;
+        MusicPlayerHelper.showPreparing();
+        new Thread(new PlayerPrepareTask(activity, uri, prepareToken), "music-player-prepare").start();
+    }
+
+    /** Stop the audible player and keep a standby next track ready for an immediate handoff. */
+    public static void stopKeepingNext() {
+        playerPreparing = false;
+        prefetchPromote = false;
+        prepareToken++;
+        pausedByTraining = false;
+        trainingGateOpen = true;
+        stopCaptureOnly();
+    }
+
+    private static void releaseCurrentPlayback() {
         stopCaptureOnly();
         MasterStrengthControl.ensureMaMode();
         resetAudioLevels();
         playerSmoothedSound = 0f;
         MasterStrengthControl.captureCeilingFromSlider();
-        MusicPlayerHelper.showPreparing();
-        new Thread(new PlayerPrepareTask(activity, uri), "music-player-prepare").start();
     }
 
-    private static void finishStartPlayer(
-            Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope) {
+    private static void beginPlayback(
+            Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope,
+            MusicPlayerEngine engine, boolean alreadyPrepared) {
         playerPreparing = false;
-        if (activity == null || uri == null) {
+        prefetchPromote = false;
+        if (activity == null || uri == null || envelope == null || engine == null) {
+            if (engine != null) {
+                engine.release();
+            }
             MusicPlayerHelper.showError(ERROR_PLAYER);
             return;
         }
         try {
-            MusicPlayerEngine engine = new MusicPlayerEngine();
-            engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
+            lastEnvelope = envelope;
+            lastEnvelopeKey = uri.toString();
+            if (autoTune) {
+                armAutoTune(envelope, true);
+            }
+            if (alreadyPrepared) {
+                engine.setListener(new PlayerSyncListener());
+                engine.startPrepared();
+            } else {
+                engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
+            }
             playerEngine = engine;
             playerMode = true;
             running = true;
@@ -647,8 +966,129 @@ public class MusicSync {
             MusicPlayerHelper.onPlaybackStarted();
             MusicDiagLog.log("ble-pacing", "player start leadMs=" + getPlayerLeadMs());
         } catch (Throwable t) {
+            engine.release();
             stopCaptureOnly();
             MusicPlayerHelper.showError(ERROR_PLAYER);
+        }
+    }
+
+    private static void finishStartPlayer(
+            Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope) {
+        beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+    }
+
+    private static void beginPrefetchPrepare() {
+        if (prefetchEnvelope == null || prefetchUri == null || prefetchContext == null) {
+            return;
+        }
+        if (prefetchEngine != null) {
+            return;
+        }
+        MusicPlayerEngine engine = new MusicPlayerEngine();
+        try {
+            prefetchPlayerPending = true;
+            prefetchPrepared = false;
+            engine.preparePlayback(prefetchContext, prefetchUri, prefetchEnvelope,
+                    new PrefetchPrepareCallback(prefetchGen));
+            prefetchEngine = engine;
+            MusicDiagLog.log("prefetch", "prepare");
+        } catch (Throwable t) {
+            prefetchPlayerPending = false;
+            prefetchPrepared = false;
+            engine.release();
+            MusicDiagLog.logError("prefetch_prepare", t);
+        }
+    }
+
+    private static void clearPrefetch() {
+        prefetchGen++;
+        prefetchInFlight = false;
+        prefetchPromote = false;
+        prefetchPrepared = false;
+        prefetchPlayerPending = false;
+        prefetchFailures = 0;
+        prefetchKey = null;
+        prefetchUri = null;
+        prefetchContext = null;
+        prefetchEnvelope = null;
+        MusicPlayerEngine engine = prefetchEngine;
+        prefetchEngine = null;
+        if (engine != null) {
+            engine.release();
+        }
+    }
+
+    /** Drop standby bookkeeping without releasing {@link #prefetchEngine}; the caller owns it. */
+    private static void detachPrefetchOwned() {
+        prefetchGen++;
+        prefetchInFlight = false;
+        prefetchPromote = false;
+        prefetchPrepared = false;
+        prefetchPlayerPending = false;
+        prefetchKey = null;
+        prefetchUri = null;
+        prefetchContext = null;
+        prefetchEnvelope = null;
+        prefetchEngine = null;
+    }
+
+    private static void releasePrefetchPlayer() {
+        prefetchPrepared = false;
+        prefetchPlayerPending = false;
+        MusicPlayerEngine engine = prefetchEngine;
+        prefetchEngine = null;
+        if (engine != null) {
+            engine.release();
+        }
+    }
+
+    private static void handlePrefetchFailure() {
+        prefetchInFlight = false;
+        if (prefetchPromote) {
+            prefetchPromote = false;
+            playerPreparing = false;
+            clearPrefetch();
+            stopCaptureOnly();
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+            return;
+        }
+        Context context = prefetchContext;
+        Uri uri = prefetchUri;
+        if (prefetchFailures < 1 && running && playerMode && context != null && uri != null) {
+            prefetchFailures++;
+            prefetchInFlight = true;
+            new Thread(new PrefetchTask(context, uri, prefetchGen), "music-prefetch").start();
+            return;
+        }
+        clearPrefetch();
+    }
+
+    private static void onPrefetchEnvelope(int gen, MusicPlayerEngine.Envelope envelope) {
+        if (gen != prefetchGen) {
+            return;
+        }
+        prefetchInFlight = false;
+        if (envelope == null || envelope.length == 0) {
+            handlePrefetchFailure();
+            return;
+        }
+        prefetchFailures = 0;
+        prefetchEnvelope = envelope;
+        if (prefetchPromote) {
+            if (hostActivity == null || !MusicPlayerHelper.isCurrentTrack(prefetchUri)) {
+                prefetchPromote = false;
+                playerPreparing = false;
+                MusicPlayerHelper.showIdle();
+                return;
+            }
+            Activity activity = hostActivity;
+            Uri uri = prefetchUri;
+            detachPrefetchOwned();
+            beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+            return;
+        }
+        if (running && playerMode) {
+            beginPrefetchPrepare();
         }
     }
 
@@ -660,10 +1100,12 @@ public class MusicSync {
     static final class PlayerPrepareTask implements Runnable {
         private final Activity activity;
         private final Uri uri;
+        private final int token;
 
-        PlayerPrepareTask(Activity activity, Uri uri) {
+        PlayerPrepareTask(Activity activity, Uri uri, int token) {
             this.activity = activity;
             this.uri = uri;
+            this.token = token;
         }
 
         @Override
@@ -671,10 +1113,10 @@ public class MusicSync {
             try {
                 MusicPlayerEngine.Envelope envelope = MusicPlayerEngine.buildEnvelope(activity, uri);
                 ensureHandler();
-                handler.post(new PlayerPrepareSuccess(activity, uri, envelope));
+                handler.post(new PlayerPrepareSuccess(activity, uri, envelope, token));
             } catch (Throwable t) {
                 ensureHandler();
-                handler.post(new PlayerPrepareFailure());
+                handler.post(new PlayerPrepareFailure(token));
             }
         }
     }
@@ -683,24 +1125,172 @@ public class MusicSync {
         private final Activity activity;
         private final Uri uri;
         private final MusicPlayerEngine.Envelope envelope;
+        private final int token;
 
-        PlayerPrepareSuccess(Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope) {
+        PlayerPrepareSuccess(Activity activity, Uri uri, MusicPlayerEngine.Envelope envelope, int token) {
             this.activity = activity;
             this.uri = uri;
             this.envelope = envelope;
+            this.token = token;
         }
 
         @Override
         public void run() {
+            if (token != prepareToken) {
+                return;
+            }
             finishStartPlayer(activity, uri, envelope);
         }
     }
 
     static final class PlayerPrepareFailure implements Runnable {
+        private final int token;
+
+        PlayerPrepareFailure(int token) {
+            this.token = token;
+        }
+
         @Override
         public void run() {
+            if (token != prepareToken) {
+                return;
+            }
             playerPreparing = false;
             stopCaptureOnly();
+            MusicPlayerHelper.showError(ERROR_PLAYER);
+        }
+    }
+
+    static final class PrefetchRequest implements Runnable {
+        private final Activity activity;
+        private final Uri uri;
+
+        PrefetchRequest(Activity activity, Uri uri) {
+            this.activity = activity;
+            this.uri = uri;
+        }
+
+        @Override
+        public void run() {
+            prefetchNext(activity, uri);
+        }
+    }
+
+    static final class PrefetchTask implements Runnable {
+        private final Context context;
+        private final Uri uri;
+        private final int gen;
+
+        PrefetchTask(Context context, Uri uri, int gen) {
+            this.context = context;
+            this.uri = uri;
+            this.gen = gen;
+        }
+
+        @Override
+        public void run() {
+            try {
+                MusicPlayerEngine.Envelope envelope = MusicPlayerEngine.buildEnvelope(context, uri);
+                ensureHandler();
+                handler.post(new PrefetchReady(gen, envelope));
+            } catch (Throwable t) {
+                ensureHandler();
+                handler.post(new PrefetchFailed(gen));
+            }
+        }
+    }
+
+    static final class PrefetchReady implements Runnable {
+        private final int gen;
+        private final MusicPlayerEngine.Envelope envelope;
+
+        PrefetchReady(int gen, MusicPlayerEngine.Envelope envelope) {
+            this.gen = gen;
+            this.envelope = envelope;
+        }
+
+        @Override
+        public void run() {
+            onPrefetchEnvelope(gen, envelope);
+        }
+    }
+
+    static final class PrefetchFailed implements Runnable {
+        private final int gen;
+
+        PrefetchFailed(int gen) {
+            this.gen = gen;
+        }
+
+        @Override
+        public void run() {
+            if (gen != prefetchGen) {
+                return;
+            }
+            handlePrefetchFailure();
+        }
+    }
+
+    static final class PrefetchPrepareCallback implements MusicPlayerEngine.PrepareCallback {
+        private final int gen;
+
+        PrefetchPrepareCallback(int gen) {
+            this.gen = gen;
+        }
+
+        @Override
+        public void onPrepared() {
+            if (gen != prefetchGen || prefetchEngine == null) {
+                return;
+            }
+            prefetchPrepared = true;
+            prefetchPlayerPending = false;
+            if (!prefetchPromote) {
+                MusicDiagLog.log("prefetch", "ready");
+                return;
+            }
+            if (hostActivity == null || !MusicPlayerHelper.isCurrentTrack(prefetchUri)) {
+                prefetchPromote = false;
+                playerPreparing = false;
+                MusicPlayerHelper.showIdle();
+                return;
+            }
+            Activity activity = hostActivity;
+            Uri uri = prefetchUri;
+            MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+            MusicPlayerEngine engine = prefetchEngine;
+            detachPrefetchOwned();
+            MusicDiagLog.log("prefetch", "handoff prepared");
+            beginPlayback(activity, uri, envelope, engine, true);
+        }
+
+        @Override
+        public void onPrepareFailed() {
+            if (gen != prefetchGen) {
+                return;
+            }
+            MusicPlayerEngine engine = prefetchEngine;
+            prefetchEngine = null;
+            prefetchPrepared = false;
+            prefetchPlayerPending = false;
+            if (engine != null) {
+                engine.release();
+            }
+            if (!prefetchPromote) {
+                return;
+            }
+            prefetchPromote = false;
+            if (hostActivity != null && prefetchEnvelope != null
+                    && MusicPlayerHelper.isCurrentTrack(prefetchUri)) {
+                Activity activity = hostActivity;
+                Uri uri = prefetchUri;
+                MusicPlayerEngine.Envelope envelope = prefetchEnvelope;
+                detachPrefetchOwned();
+                playerPreparing = true;
+                beginPlayback(activity, uri, envelope, new MusicPlayerEngine(), false);
+                return;
+            }
+            playerPreparing = false;
             MusicPlayerHelper.showError(ERROR_PLAYER);
         }
     }
@@ -737,6 +1327,9 @@ public class MusicSync {
 
     public static void stop() {
         playerPreparing = false;
+        prefetchPromote = false;
+        prepareToken++;
+        releasePrefetchPlayer();
         pausedByTraining = false;
         trainingGateOpen = true;
         stopCaptureOnly();

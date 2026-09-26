@@ -26,13 +26,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;I)V
     .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 1829
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
@@ -46,15 +40,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 1832
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$v:I
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AiUi$35;->val$v:I
 
-    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
+    invoke-interface {p1, v0}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
 
     .line 1833
     return-void

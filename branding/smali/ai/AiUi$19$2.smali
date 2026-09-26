@@ -25,7 +25,6 @@
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$19;)V
     .registers 2
 
-    .prologue
     .line 1079
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$19$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$19;
 
@@ -39,7 +38,6 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .prologue
     .line 1082
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopSoloRamp()V
 

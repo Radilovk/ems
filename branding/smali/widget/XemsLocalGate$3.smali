@@ -25,14 +25,8 @@
 
 # direct methods
 .method constructor <init>(Landroid/view/ViewGroup;Landroid/app/Activity;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 3
 
-    .prologue
     .line 131
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$3;->val$group:Landroid/view/ViewGroup;
 
@@ -46,12 +40,12 @@
 
 # virtual methods
 .method public run()V
-    .locals 3
+    .registers 4
 
-    .prologue
     .line 134
     const/4 v0, 0x1
 
+    # setter for: Lcom/isaigu/gymapp/widget/XemsLocalGate;->licenceRevealed:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->access$102(Z)Z
 
     .line 135

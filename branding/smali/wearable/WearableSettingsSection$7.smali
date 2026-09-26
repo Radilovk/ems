@@ -24,13 +24,8 @@
 # direct methods
 .method constructor <init>(Landroid/app/Activity;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .line 371
+    .line 377
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$7;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,12 +38,12 @@
 .method public run()V
     .registers 2
 
-    .line 374
+    .line 380
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$7;->val$a:Landroid/app/Activity;
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->startTestAfterPermission(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$500(Landroid/app/Activity;)V
 
-    .line 375
+    .line 381
     return-void
 .end method

@@ -24,11 +24,6 @@
 # direct methods
 .method constructor <init>(Landroid/widget/TextView;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .line 116
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;

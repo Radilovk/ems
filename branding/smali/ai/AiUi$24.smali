@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 1258
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,17 +30,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 1261
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stop()V
 
     .line 1262
-    const/4 v0, 0x7
+    const/4 p1, 0x7
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
     .line 1263
     return-void

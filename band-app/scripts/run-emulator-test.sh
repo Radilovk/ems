@@ -1,28 +1,49 @@
 #!/usr/bin/env bash
-# Build with dev mock state, start Vela emulator on train page, capture screenshot.
-# Needs KVM for reasonable speed; falls back with a clear message.
+# Build band app, boot Vela 212×520 emulator on train page with mock XEMS state,
+# capture pixel-perfect gRPC screenshots (idle + after play tap).
 set -euo pipefail
 D="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$D"
+ART="${ARTIFACT_DIR:-/opt/cursor/artifacts/screenshots}"
+VVD=Vela_XEMS_Band
+PLAY_X=106
+PLAY_Y=292
 
 if [[ ! -r /dev/kvm ]]; then
-  echo "WARN: no /dev/kvm — emulator will be very slow or may fail in CI/cloud VMs."
-  echo "      Run this script on a Linux machine with KVM for real UI verification."
+  echo "WARN: no /dev/kvm — emulator may be slow."
 fi
 
 node scripts/setup-emulator.mjs
+bash build.sh >/tmp/xems-band-build.log
 
-# Enable interconnect mock for emulator (no XEMS tablet peer).
 APP_UX="$D/src/app.ux"
 BAK="$(mktemp)"
 cp "$APP_UX" "$BAK"
-trap 'mv "$BAK" "$APP_UX"' EXIT
+trap 'mv "$BAK" "$APP_UX"; pkill -f "qemu-system-armel.*${VVD}" 2>/dev/null || true' EXIT
 sed -i 's/const DEV_MOCK = false/const DEV_MOCK = true/' "$APP_UX"
 
-echo "Starting emulator → pages/train ..."
-printf 'Y\n' | timeout 180 npx aiot start \
-  --start-page 'pages/train' \
-  2>&1 | tee /tmp/xems-emulator.log || {
-  echo "Emulator start failed or timed out. See /tmp/xems-emulator.log"
-  exit 1
-}
+# Rebuild with mock enabled
+bash build.sh >/tmp/xems-band-build-mock.log
+
+echo "Starting emulator → pages/train (background) ..."
+pkill -f "qemu-system-armel.*${VVD}" 2>/dev/null || true
+sleep 1
+printf 'Y\n' | npx aiot start --start-page 'pages/train' > /tmp/xems-emulator.log 2>&1 &
+EMU_PID=$!
+
+echo "Waiting for emulator boot (30s) ..."
+sleep 30
+mkdir -p "$ART"
+
+echo "Capture: train idle (play green) ..."
+node scripts/capture-emulator-screenshot.mjs "$ART/train_play_idle.png"
+
+echo "Tap play at ${PLAY_X},${PLAY_Y} ..."
+node scripts/capture-emulator-screenshot.mjs --tap "$PLAY_X" "$PLAY_Y" "$ART/train_play_running.png"
+
+echo ""
+echo "Screenshots:"
+ls -la "$ART"/train_play_*.png
+echo "Done. Emulator log: /tmp/xems-emulator.log"
+
+kill "$EMU_PID" 2>/dev/null || pkill -f "qemu-system-armel.*${VVD}" 2>/dev/null || true

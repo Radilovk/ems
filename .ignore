@@ -1,0 +1,4 @@
+# ripgrep / Claude Grep+Glob skip these (generated text). Binary files are skipped by rg anyway.
+# Need them? Bash: grep -rn PATTERN branding/smali/   or   rg -uu PATTERN
+branding/smali/
+**/package-lock.json

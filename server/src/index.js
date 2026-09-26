@@ -32,13 +32,10 @@ export default {
         return serveRelease(request, env, path);
       }
 
-      if (path === '/0123' || path === '/0123/') {
+      if (path === '/admin' || path === '/admin/') {
         return adminPage(env);
       }
-      if (path === '/admin' || path === '/admin/') {
-        return Response.redirect(`${url.origin}/0123`, 302);
-      }
-      if (path.startsWith('/0123/api/')) {
+      if (path.startsWith('/admin/api/')) {
         return adminApi(request, env, path);
       }
 
@@ -194,7 +191,7 @@ async function adminApi(request, env, path) {
     });
   }
 
-  const route = path.replace('/0123/api/', '');
+  const route = path.replace('/admin/api/', '');
 
   if (route === 'licenses' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM licenses ORDER BY created_at DESC LIMIT 200').all();
@@ -503,9 +500,9 @@ function checkAdmin(request, env) {
   if (colon < 0) return false;
   const user = decoded.slice(0, colon);
   const pass = decoded.slice(colon + 1);
-  const expected = env.ADMIN_PASSWORD || '';
   const expectedUser = env.ADMIN_USER || 'admin';
-  return user === expectedUser && pass === expected && expected.length > 0;
+  const expected = env.ADMIN_PASSWORD || '0123';
+  return user === expectedUser && pass === expected;
 }
 
 function json(obj, status = 200) {

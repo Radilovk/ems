@@ -23,7 +23,7 @@ import java.util.Locale;
  * <pre>
  *            AI session                  manual training            music only
  * title      128 bpm · Z3                128 bpm · Z3               song title
- * subtitle   Main · 04:20 · 86 kcal      Training 12:30 · 86 kcal   XEMS ♫
+ * subtitle   Main · 04:20 · 86 kcal      Training 12:30 · 86 kcal   Music · bpm
  * ▶ / ❚❚     pause / resume; next block  start / pause              play / pause
  *            once the rest is done
  * ⏭ · vol+   strength + (AI rules)       master +                   next song

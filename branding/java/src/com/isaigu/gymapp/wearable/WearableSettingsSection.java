@@ -154,8 +154,8 @@ public final class WearableSettingsSection {
         // The band's music screen as the training remote (no app to install on the band).
         LinearLayout remote = !bandApp ? null : com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
                 WearableUi.tr("Управление от гривната", "Control from the band"),
-                WearableUi.tr("Плъзни до Музика: пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±. Приложението XEMS е за канали и стоп. Подреди го най-горе в Mi Fitness.",
-                        "Swipe to Music: HR and block; ▶ start/pause, ⏭ ⏮ strength ±. The XEMS app is for channels and stop. Pin it first in Mi Fitness."),
+                WearableUi.tr("Плъзни до Музика: пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±.",
+                        "Swipe to Music: HR and block; ▶ start/pause, ⏭ ⏮ strength ±."),
                 WearableConfig.isBandRemoteEnabled(a), new RemoteToggle(a));
         if (remote != null) {
             remote.setPadding(0, WearableUi.dp(a, 12), 0, 0);
@@ -166,6 +166,12 @@ public final class WearableSettingsSection {
                 || (WearableConfig.getBandTransport(a) == 0
                 && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(bandName));
         if (classic && bandApp) {
+            TextView openHint = WearableUi.text(a,
+                    WearableUi.tr("Отвори XEMS: вдигни китката, плъзни нагоре, натисни XEMS. За да е първо — Mi Fitness → гривната → приложения → ред.",
+                            "Open XEMS: raise the wrist, swipe up, tap XEMS. To put it first — Mi Fitness → band → apps → sort."),
+                    13f, mutedCol, false);
+            openHint.setPadding(0, WearableUi.dp(a, 12), 0, 0);
+            card.addView(openHint);
             LinearLayout appRow = row(a);
             appRow.setPadding(0, WearableUi.dp(a, 12), 0, 0);
             final TextView appStatus = WearableUi.text(a, BandAppInstall.statusText(a), 13f, mutedCol, false);

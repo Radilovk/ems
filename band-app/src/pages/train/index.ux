@@ -83,6 +83,7 @@
 
 <script>
 import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveSeconds } from '../../common/ui.js'
+import { resetTrainSession } from '../../common/train-touch.js'
 
 const HOLD_MS = 1200
 const SLIDE_OPEN_MS = 400
@@ -193,23 +194,33 @@ export default {
     this.optMs = null
     this.elClock = { base: 0, at: 0 }
     this.savedScroll = 0
-    this.unbind = bind(this)
+    this._bound = false
   },
 
   onShow() {
+    if (!this._bound) {
+      this.unbind = bind(this)
+      this._bound = true
+    }
+    resetTrainSession(this)
     shown(this, true)
   },
 
   onHide() {
     shown(this, false)
-    this.holdEnd()
-    this.closeSlideNow()
+    resetTrainSession(this)
+    if (this._bound && this.unbind) {
+      this.unbind()
+      this._bound = false
+    }
   },
 
   onDestroy() {
-    this.unbind()
-    this.holdEnd()
-    this.closeSlideNow()
+    if (this._bound && this.unbind) {
+      this.unbind()
+      this._bound = false
+    }
+    resetTrainSession(this)
   },
 
   onScroll(e) {
@@ -565,7 +576,9 @@ export default {
   },
 
   closeSlideNow() {
-    this.dismissSlide()
+    if (this.slideOn) {
+      this.dismissSlide()
+    }
   },
 
   step(c, d) {

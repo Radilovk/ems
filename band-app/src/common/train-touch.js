@@ -106,3 +106,41 @@ export function slideTouchEnd(m) {
   m.slideTouching = false
   m.slideArmed = true
 }
+
+/** Clear touch/slider/cache state when leaving or re-entering the train page. */
+export function resetTrainSession(page) {
+  if (page.rowOpenTimer) {
+    clearTimeout(page.rowOpenTimer)
+    page.rowOpenTimer = null
+  }
+  if (page.slideCloseTimer) {
+    clearTimeout(page.slideCloseTimer)
+    page.slideCloseTimer = null
+  }
+  if (page.slideCommitTimer) {
+    clearTimeout(page.slideCommitTimer)
+    page.slideCommitTimer = null
+  }
+  if (page.holdTimer) {
+    clearInterval(page.holdTimer)
+    page.holdTimer = null
+  }
+  page.rowTouch = null
+  page.slideOn = false
+  page.slideIdx = -1
+  page.slideMain = false
+  page.slideTouching = false
+  page.slideArmed = false
+  page.slideAnim = 'slide-in'
+  page.slideDim = false
+  page.optim = {}
+  page.optMs = null
+  page.chPre = ''
+  page.chKey = ''
+  page.pressed = ''
+  page.holdPct = 0
+  if (page.elClock) {
+    page.elClock.base = 0
+    page.elClock.at = 0
+  }
+}

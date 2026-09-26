@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 2087
+    .line 2037
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,18 +32,18 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 2090
+    .line 2040
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    .line 2091
+    .line 2041
     if-nez p1, :cond_7
 
-    .line 2092
+    .line 2042
     return-void
 
-    .line 2094
+    .line 2044
     :cond_7
     const v0, 0x7f0d0172
 
@@ -51,6 +51,6 @@
 
     invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
 
-    .line 2095
+    .line 2045
     return-void
 .end method

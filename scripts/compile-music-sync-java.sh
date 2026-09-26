@@ -103,33 +103,96 @@ fi
 
 if [[ "${INSTALL_SMALI}" -eq 1 ]]; then
 echo "Installing smali to branding/smali..."
-find "${BRANDING_SMALI}" -name 'MusicSync*.smali' -delete
-find "${BRANDING_SMALI}" -name 'MasterStrengthControl.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicSyncBridge.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicPlayerHelper*.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicDial*.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicPlaylist*.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicTrackLabel*.smali' -delete
-find "${BRANDING_SMALI}" -name 'ModalInfoHelper*.smali' -delete
-find "${BRANDING_SMALI}/widget" -name 'MusicVisualizerView*.smali' -delete 2>/dev/null || true
-find "${BRANDING_SMALI}/widget" -name 'MusicImpulseMeterView*.smali' -delete 2>/dev/null || true
-find "${BRANDING_SMALI}/widget" -name 'XemsUi*.smali' -delete 2>/dev/null || true
-find "${BRANDING_SMALI}/widget" -name 'XemsGuard*.smali' -delete 2>/dev/null || true
-find "${BRANDING_SMALI}/widget" -name 'XemsNav*.smali' -delete 2>/dev/null || true
-for n in XemsLang XemsIcon XemsPanel XemsFullscreen; do find "${BRANDING_SMALI}/widget" -name "${n}*.smali" -delete 2>/dev/null || true; done
-find "${BRANDING_SMALI}" -name 'MusicPlayerEngine*.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicAutoTune*.smali' -delete
-find "${BRANDING_SMALI}" -name 'MusicDiagLog.smali' -delete
-while IFS= read -r -d '' file; do
-  cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
-  echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicDial*.smali' -o -name 'MusicPlaylist*.smali' -o -name 'MusicTrackLabel*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'ModalInfoHelper*.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicAutoTune*.smali' -o -name 'MusicDiagLog.smali' \) -print0)
+# Keep an existing file when the compiler only renumbered .line directives.
+ROOT="${ROOT}" SMALI_OUT="${SMALI_OUT}" BRANDING_SMALI="${BRANDING_SMALI}" python3 - << 'PY'
+import os
+import shutil
 
-mkdir -p "${BRANDING_SMALI}/widget"
-while IFS= read -r -d '' file; do
-  cp "${file}" "${BRANDING_SMALI}/widget/$(basename "${file}")"
-  echo "  -> widget/$(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -path '*/widget/MusicVisualizerView*.smali' -o -path '*/widget/MusicImpulseMeterView*.smali' -o -path '*/widget/XemsUi*.smali' -o -path '*/widget/XemsGuard*.smali' -o -path '*/widget/XemsNav*.smali' -o -path '*/widget/XemsLang*.smali' -o -path '*/widget/XemsIcon*.smali' -o -path '*/widget/XemsPanel*.smali' -o -path '*/widget/XemsFullscreen*.smali' \) -print0)
+smali_out = os.environ["SMALI_OUT"]
+branding = os.environ["BRANDING_SMALI"]
+
+MUSIC_EXACT = {
+    "MasterStrengthControl.smali",
+    "MusicSyncBridge.smali",
+    "MusicUriSource.smali",
+    "SoundEnvelopeMapper.smali",
+    "MusicDiagLog.smali",
+}
+MUSIC_PREFIXES = (
+    "MusicSync",
+    "MusicPlayerHelper",
+    "MusicDial",
+    "MusicPlaylist",
+    "MusicTrackLabel",
+    "MusicPlayerEngine",
+    "ModalInfoHelper",
+    "MusicAutoTune",
+)
+WIDGET_PREFIXES = (
+    "MusicVisualizerView",
+    "MusicImpulseMeterView",
+    "XemsUi",
+    "XemsGuard",
+    "XemsNav",
+    "XemsLang",
+    "XemsIcon",
+    "XemsPanel",
+    "XemsFullscreen",
+)
+
+
+def strip_lines(path):
+    with open(path, encoding="utf-8") as handle:
+        return "".join(
+            line for line in handle if not line.strip().startswith(".line ")
+        )
+
+
+def generated_files():
+    found = []
+    for dirpath, _, names in os.walk(smali_out):
+        for name in names:
+            if not name.endswith(".smali"):
+                continue
+            path = os.path.join(dirpath, name)
+            rel = os.path.relpath(path, smali_out).replace("\\", "/")
+            if "/widget/" in ("/" + rel) or rel.startswith("widget/"):
+                if name.startswith(WIDGET_PREFIXES):
+                    found.append(("widget/" + name, path))
+            elif name in MUSIC_EXACT or name.startswith(MUSIC_PREFIXES):
+                found.append((name, path))
+    return found
+
+
+generated = {}
+for rel, path in generated_files():
+    generated[rel] = path
+
+for dirpath, _, names in os.walk(branding):
+    for name in names:
+        if not name.endswith(".smali"):
+            continue
+        path = os.path.join(dirpath, name)
+        rel = os.path.relpath(path, branding).replace("\\", "/")
+        managed = False
+        if rel.startswith("widget/"):
+            managed = name.startswith(WIDGET_PREFIXES)
+        elif "/" not in rel:
+            managed = name in MUSIC_EXACT or name.startswith(MUSIC_PREFIXES)
+        if managed and rel not in generated:
+            os.remove(path)
+            print(f"  delete {rel}")
+
+for rel in sorted(generated):
+    src = generated[rel]
+    dest = os.path.join(branding, rel)
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    if os.path.isfile(dest) and strip_lines(src) == strip_lines(dest):
+        print(f"  keep {rel}")
+        continue
+    shutil.copyfile(src, dest)
+    print(f"  -> {rel}")
+PY
 fi
 
 echo "Music-sync Java compile complete."

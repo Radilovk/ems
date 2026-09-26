@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 149
+    .line 132
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,10 +32,10 @@
 .method public run()V
     .registers 1
 
-    .line 152
+    .line 135
     # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->handleWriteComplete()V
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$100()V
 
-    .line 153
+    .line 136
     return-void
 .end method

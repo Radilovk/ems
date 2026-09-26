@@ -255,8 +255,9 @@ export default {
     }
     const ch = s.ch || []
     const raw = (run ? '1' : '0') + ch.join(',')
-    const pending = this.optMs || Object.keys(this.optim).length > 0
-    if (raw !== this.chRaw || pending) {
+    // Rebuild only when tablet ch[] / run colours change, or a channel ± preview is active.
+    // Main strength (optMs) updates msText above — it does not touch channel rows.
+    if (raw !== this.chRaw || Object.keys(this.optim).length > 0) {
       this.chRaw = raw
       this.buildChannels(ch, run)
     }
@@ -426,7 +427,7 @@ export default {
     const main = isMain === true || isMain === 'true'
     const val = main ? this.mainMsVal() : (parseInt(text, 10) || 0)
     const label = main ? 'СИЛА' : name
-    const ch = main ? -1 : i
+    const ch = main ? -1 : (parseInt(i, 10) || 0)
     this.rowTouch = {
       main: main,
       i: ch,
@@ -534,12 +535,14 @@ export default {
   step(c, d) {
     const app = this.$app.$def
     const ch = (app.state && app.state.ch) || []
-    if (c < ch.length && ch[c] >= 0) {
-      const base = this.optim[c] ? this.optim[c].v : ch[c]
-      this.optim[c] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
+    const ci = parseInt(c, 10) || 0
+    if (ci < ch.length && ch[ci] >= 0) {
+      const base = this.optim[ci] ? this.optim[ci].v : ch[ci]
+      this.optim[ci] = { v: Math.max(0, Math.min(100, base + d)), at: Date.now() }
+      this.chRaw = (this.run ? '1' : '0') + ch.join(',')
       this.buildChannels(ch)
     }
-    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: c, d: 1 })
+    app.command(d > 0 ? 'ch_plus' : 'ch_minus', { c: ci, d: 1 })
   },
 
   chPlus(c) {

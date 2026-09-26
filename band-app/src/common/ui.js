@@ -84,6 +84,9 @@ export function bind(page, pageId) {
 /** onShow / onHide of a bound page. */
 export function shown(page, on) {
   page.onScreen = on
+  try {
+    page.$app.$def.setVisible(on)
+  } catch (e) {}
   if (on) {
     try {
       if (page.pageId) {

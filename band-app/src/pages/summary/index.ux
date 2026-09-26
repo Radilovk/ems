@@ -58,6 +58,18 @@ export default {
     this.zones = zt.map((v, i) => ({ w: total > 0 ? Math.max(v, 0.0001) : 1, c: ZONE[i + 1] }))
   },
 
+  onShow() {
+    try {
+      this.$app.$def.setVisible(true)
+    } catch (e) {}
+  },
+
+  onHide() {
+    try {
+      this.$app.$def.setVisible(false)
+    } catch (e) {}
+  },
+
   onSwipe(e) {
     swipe(this, e)
   },

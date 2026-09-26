@@ -56,6 +56,16 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     private static long lastSentMs;
     /** The band's music screen asked for the track: answer even if nothing changed. */
     private static boolean musicAsked;
+    /**
+     * A page of the XEMS band app is on screen ({"t":"vis"} from band app v59+; older apps never
+     * say, so this stays true). Hidden (screen off, app left): only the pulse goes, plus one full
+     * state when what runs changes; shown again: the full state at once.
+     */
+    private static boolean bandAppVisible = true;
+    private static final long HR_ONLY_KEEPALIVE_MS = 10000L;
+    private static int lastHrSent = -1;
+    private static long lastHrSentMs;
+    private static String lastCore = "";
     private static long trainStartMs;
     private static long trainAccumMs;
     private static boolean trainWasRunning;
@@ -112,6 +122,15 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
 
     static void handleApp(String json) {
         String t = jsonField(json, "t");
+        if ("vis".equals(t)) {
+            bandAppVisible = !"false".equals(jsonField(json, "on"));
+            WearableBleDiagLog.log("applink", "band app " + (bandAppVisible ? "shown" : "hidden"));
+            if (bandAppVisible) {
+                lastSig = "";                       // everything, now
+            }
+        } else if ("cmd".equals(t) || "hello".equals(t)) {
+            bandAppVisible = true;                  // a tap or a (re)start: the app is on screen
+        }
         if ("cmd".equals(t)) {
             String id = jsonField(json, "id");
             if (id != null && id.length() > 0) {
@@ -507,8 +526,11 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         String key = what + "|" + playing;
         String live = title + "|" + sub + "|" + (dur > 0 ? pos / 5 : 0);
         boolean structural = !key.equals(lastSent);
-        boolean liveDue = !live.equals(lastSentLive) && now - lastSentMs >= MUSIC_LIVE_MS;
-        if (musicAsked || structural || liveDue || now - lastSentMs >= MUSIC_KEEPALIVE_MS) {
+        // Band app hidden (screen off): the music screen gets only what runs and its own requests.
+        boolean quiet = !bandAppVisible && com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.isLinked();
+        boolean liveDue = !quiet && !live.equals(lastSentLive) && now - lastSentMs >= MUSIC_LIVE_MS;
+        boolean keepAlive = !quiet && now - lastSentMs >= MUSIC_KEEPALIVE_MS;
+        if (musicAsked || structural || liveDue || keepAlive) {
             musicAsked = false;
             lastSent = key;
             lastSentLive = live;
@@ -724,23 +746,43 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             o.put("ms", ms);
             o.put("ack", lastAck);
 
-            // What the band shows as "what runs and how": a change there is sent at once.
-            String sig = mode + "|" + o.optString("st") + "|" + playing + "|" + o.optString("ph")
-                    + "|" + o.opt("can") + "|" + o.optBoolean("dbl") + "|" + lic + "|" + ch + "|" + ms + "|" + lastAck
-                    + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0)
-                    + "|" + o.optInt("hr") + "|" + o.optLong("kcal");
-            boolean changedSig = !sig.equals(lastSig);
-            if (!force && !changedSig && nowMs - lastAppMs < APP_MS) {
+            // What runs (mode, play / pause, phase, modules, summary): sent at once, screen on or off.
+            String core = mode + "|" + o.optString("st") + "|" + playing + "|" + o.optString("ph")
+                    + "|" + o.opt("can") + "|" + o.optBoolean("dbl") + "|" + lic
+                    + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0);
+            // Plus what the wearer reads and moves: channels, main strength, pulse, kcal, ack.
+            String sig = core + "|" + ch + "|" + ms + "|" + lastAck + "|" + o.optInt("hr") + "|" + o.optLong("kcal");
+            if (!bandAppVisible) {
+                if (core.equals(lastCore)) {
+                    sendHrOnly(hr, o.optInt("z"), nowMs);
+                    return;
+                }
+                // what runs changed with the screen off: one full state (3-2-1, rest, summary)
+            } else if (!force && sig.equals(lastSig) && nowMs - lastAppMs < APP_MS) {
                 return;
             }
             lastSig = sig;
+            lastCore = core;
             lastAppMs = nowMs;
+            lastHrSent = Math.max(0, hr);
+            lastHrSentMs = nowMs;
             o.put("seq", ++seq);
             o.put("boot", BOOT);
             com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.send(o.toString());
         } catch (Throwable t) {
             WearableBleDiagLog.log("applink", "state: " + t);
         }
+    }
+
+    /** Screen off: only the pulse (and its zone, for the band's zone buzz), on change or every 10 s. */
+    private static void sendHrOnly(int hr, int zone, long nowMs) {
+        int v = Math.max(0, hr);
+        if (v == lastHrSent && nowMs - lastHrSentMs < HR_ONLY_KEEPALIVE_MS) {
+            return;
+        }
+        lastHrSent = v;
+        lastHrSentMs = nowMs;
+        com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.send("{\"t\":\"hr\",\"hr\":" + v + ",\"z\":" + zone + "}");
     }
 
     /** Real impulse per channel 0..100, or −1 when off — band slider uses full absolute range. */

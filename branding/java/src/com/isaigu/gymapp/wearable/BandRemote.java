@@ -42,8 +42,20 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     private static final Runnable tick = new Tick();
 
     private static boolean running;
+    /**
+     * The band's own music screen (18/1 MusicInfo) is fed to the system media service, not to
+     * our app. It gets what runs (mode, play / pause, phase, song) at once and live numbers
+     * (clock, HR, kcal) at most every {@link #MUSIC_LIVE_MS}: a new "track" every second during
+     * training is the one flood that only training produced. The XEMS band app gets every
+     * change at once through its own channel (see sendApp).
+     */
+    private static final long MUSIC_LIVE_MS = 5000L;
+    private static final long MUSIC_KEEPALIVE_MS = 20000L;
     private static String lastSent = "";
+    private static String lastSentLive = "";
     private static long lastSentMs;
+    /** The band's music screen asked for the track: answer even if nothing changed. */
+    private static boolean musicAsked;
     private static long trainStartMs;
     private static long trainAccumMs;
     private static boolean trainWasRunning;
@@ -73,6 +85,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
 
     @Override
     public void onMusicRequest() {
+        musicAsked = true;
         handler.post(new Push(true));
     }
 
@@ -446,13 +459,16 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         boolean paused;
         int pos = 0;
         int dur = 0;
+        /** What runs: a change here goes to the music screen at once. */
+        String what;
         AiEngine e = AiSession.getEngine();
         if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null) {
             AiEngine.State st = e.getState();
             AiModel.Phase ph = e.phase();
             double kcal = AiSession.getKcal();
+            boolean restReady = st == AiEngine.State.REST && e.isRestReady();
             title = hrText;
-            if (st == AiEngine.State.REST && e.isRestReady()) {
+            if (restReady) {
                 sub = WearableUi.tr("Почивката стига · ▶ продължи", "Rest done · ▶ continue");
             } else {
                 sub = phaseName(ph.id) + " · " + mmss(ph.durationS - e.getPhaseElapsedS())
@@ -462,6 +478,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = !playing;
             pos = (int) e.getElapsedPlanS();
             dur = e.getPlan().totalS;
+            what = "ai|" + st + "|" + e.getPhaseIndex() + "|" + restReady;
         } else if (trainRunning || trainMs > 0 && !musicOnly()) {
             double kcal = HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
             title = hrText;
@@ -469,6 +486,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                     + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
             playing = trainRunning;
             paused = !trainRunning;
+            what = "tr";
         } else if (musicOnly()) {
             String t = MusicPlayerHelper.currentTitle();
             title = t != null && t.length() > 0 ? t : WearableUi.tr("Музика", "Music");
@@ -478,22 +496,28 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = !playing;
             pos = MusicSync.getPlaybackPositionMs() / 1000;
             dur = MusicSync.getPlaybackDurationMs() / 1000;
+            what = "mu|" + title;
         } else {
             title = hrText;
             sub = WearableUi.tr("Музика · ▶ старт", "Music · ▶ start");
             playing = false;
             paused = true;
+            what = "idle";
         }
-        String key = title + "|" + sub + "|" + playing + "|" + (dur > 0 ? pos / 5 : 0);
-        boolean changed = !key.equals(lastSent);
-        if (force || changed || now - lastSentMs >= 20000L) {
+        String key = what + "|" + playing;
+        String live = title + "|" + sub + "|" + (dur > 0 ? pos / 5 : 0);
+        boolean structural = !key.equals(lastSent);
+        boolean liveDue = !live.equals(lastSentLive) && now - lastSentMs >= MUSIC_LIVE_MS;
+        if (musicAsked || structural || liveDue || now - lastSentMs >= MUSIC_KEEPALIVE_MS) {
+            musicAsked = false;
             lastSent = key;
+            lastSentLive = live;
             lastSentMs = now;
             link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
         }
-        // The band app counts down by itself; a fresh state every few seconds keeps HR and charts
-        // live, and any change of what runs (either side) goes at once.
-        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, force || changed, now);
+        // The band app counts time down by itself; HR, channels, strength and what runs go at
+        // once when they change (sendApp's signature), everything else every few seconds.
+        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, force || structural, now);
     }
 
     private static boolean aiWasRunning;
@@ -703,7 +727,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             // What the band shows as "what runs and how": a change there is sent at once.
             String sig = mode + "|" + o.optString("st") + "|" + playing + "|" + o.optString("ph")
                     + "|" + o.opt("can") + "|" + o.optBoolean("dbl") + "|" + lic + "|" + ch + "|" + ms + "|" + lastAck
-                    + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0);
+                    + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0)
+                    + "|" + o.optInt("hr") + "|" + o.optLong("kcal");
             boolean changedSig = !sig.equals(lastSig);
             if (!force && !changedSig && nowMs - lastAppMs < APP_MS) {
                 return;

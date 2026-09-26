@@ -4,6 +4,7 @@
 Usage:
   python3 scripts/gen-train-preview.py idle  /path/train_idle.png
   python3 scripts/gen-train-preview.py running /path/train_running.png
+  python3 scripts/gen-train-preview.py multi /path/train_multi_click.png
 
 Uses the same dimensions/CSS colours as src/pages/train/index.ux.
 """
@@ -140,7 +141,7 @@ def draw_channel(d: ImageDraw.ImageDraw, y: int, name: str, pct: int, live: bool
     d.text((CBOX_X + (CBOX_W - vw) / 2, y + 50), txt, fill=val_col, font=f_val)
 
 
-def render(running: bool) -> Image.Image:
+def render(running: bool, overlay_play_box: bool = False) -> Image.Image:
     im = draw_bg()
     d = ImageDraw.Draw(im)
     draw_ctl(d, "0:42", "42", "88", "пулс · Z3", "#FF9F0A")
@@ -150,22 +151,51 @@ def render(running: bool) -> Image.Image:
     for idx in ORDER[:3]:
         draw_channel(d, y, NAMES[idx], CH[idx], running)
         y += 102
+    if overlay_play_box:
+        d.rounded_rectangle(
+            (PLAY_X, PLAY_Y, PLAY_X + PLAY, PLAY_Y + PLAY),
+            radius=76,
+            outline="#FF375F",
+            width=2,
+        )
     return im
+
+
+def render_multi_click() -> Image.Image:
+    """Strip: start + 5 toggles — play button box must align on every frame."""
+    labels = ["начало", "1 клик", "2 клика", "3 клика", "4 клика", "5 клика"]
+    frames = [render(running=(i % 2 == 1), overlay_play_box=True) for i in range(len(labels))]
+    gap = 12
+    label_h = 28
+    strip_w = len(frames) * W + (len(frames) - 1) * gap
+    strip = Image.new("RGB", (strip_w, H + label_h), (12, 12, 14))
+    d = ImageDraw.Draw(strip)
+    f = font(16, True)
+    for i, (frame, lbl) in enumerate(zip(frames, labels)):
+        x = i * (W + gap)
+        strip.paste(frame, (x, label_h))
+        tw = d.textlength(lbl, font=f)
+        d.text((x + (W - tw) / 2, 4), lbl, fill="#FFFFFF", font=f)
+    return strip
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Render train screen preview 212×520")
-    ap.add_argument("mode", choices=["idle", "running"], help="idle=green play, running=orange pause")
+    ap.add_argument("mode", choices=["idle", "running", "multi"], help="idle/running single frame; multi=6-frame click strip")
     ap.add_argument("out", type=Path, help="output PNG path")
     args = ap.parse_args()
     UI.mkdir(parents=True, exist_ok=True)
     if not (UI / "all-btn.png").is_file():
         import subprocess
         subprocess.run([sys.executable, str(ROOT / "scripts" / "gen-all-btn.py")], check=True)
-    im = render(args.mode == "running")
+    if args.mode == "multi":
+        im = render_multi_click()
+    else:
+        im = render(args.mode == "running")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     im.save(args.out, optimize=True)
-    print(f"gen-train-preview: {args.out} ({W}×{H}, {args.out.stat().st_size} B, {args.mode})")
+    sz = f"{im.size[0]}×{im.size[1]}"
+    print(f"gen-train-preview: {args.out} ({sz}, {args.out.stat().st_size} B, {args.mode})")
     return 0
 
 

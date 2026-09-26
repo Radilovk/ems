@@ -234,201 +234,7 @@
 .end method
 
 .method static channelStep(II)V
-    .locals 6
-
-    .prologue
-    const/4 v2, 0x0
-
-    .line 305
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
-
-    move-result-object v5
-
-    .line 306
-    if-eqz v5, :cond_1
-
-    iget-object v0, v5, Lcom/isaigu/gymapp/train/model/TrainItem;->partsControl:[Z
-
-    move-object v4, v0
-
-    .line 307
-    :goto_0
-    if-eqz v4, :cond_0
-
-    if-ltz p0, :cond_0
-
-    array-length v0, v4
-
-    if-lt p0, v0, :cond_2
-
-    .line 323
-    :cond_0
-    :goto_1
-    return-void
-
-    .line 306
-    :cond_1
-    const/4 v0, 0x0
-
-    move-object v4, v0
-
-    goto :goto_0
-
-    .line 310
-    :cond_2
-    invoke-virtual {v4}, [Z->clone()Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, [Z
-
-    move v3, v2
-
-    .line 313
-    :goto_2
-    :try_start_0
-    array-length v1, v4
-
-    if-ge v3, v1, :cond_4
-
-    .line 314
-    if-ne v3, p0, :cond_3
-
-    const/4 v1, 0x1
-
-    :goto_3
-    aput-boolean v1, v4, v3
-
-    .line 313
-    add-int/lit8 v1, v3, 0x1
-
-    move v3, v1
-
-    goto :goto_2
-
-    :cond_3
-    move v1, v2
-
-    .line 314
-    goto :goto_3
-
-    .line 316
-    :cond_4
-    invoke-static {v5, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->addSelected(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
-    :try_end_0
-    .catchall {:try_start_0 .. :try_end_0} :catchall_0
-
-    move-result v1
-
-    .line 318
-    array-length v3, v0
-
-    invoke-static {v0, v2, v4, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
-
-    .line 320
-    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelValues(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
-
-    move-result-object v2
-
-    .line 321
-    const-string v3, "applink"
-
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v4, "channel "
-
-    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    if-lez p1, :cond_5
-
-    const-string v0, " +"
-
-    :goto_4
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    .line 322
-    if-eqz v1, :cond_6
-
-    if-eqz v2, :cond_6
-
-    array-length v0, v2
-
-    if-ge p0, v0, :cond_6
-
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v1, " \u2192 "
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    aget v1, v2, p0
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    :goto_5
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 321
-    invoke-static {v3, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_1
-
-    .line 318
-    :catchall_0
-    move-exception v1
-
-    array-length v3, v0
-
-    invoke-static {v0, v2, v4, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
-
-    .line 319
-    throw v1
-
-    .line 321
-    :cond_5
-    const-string v0, " "
-
-    goto :goto_4
-
-    .line 322
-    :cond_6
-    const-string v0, " (not applied)"
-
-    goto :goto_5
-.end method
-
-.method static channelSet(II)V
-    .locals 6
+    .locals 4
 
     .prologue
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -441,22 +247,82 @@
 
     move-result-object v1
 
-    goto :goto_0
-
-    :cond_0
-    const/4 v1, 0x0
-
-    :goto_0
     if-nez v1, :cond_1
 
+    :cond_0
     return-void
 
     :cond_1
-    if-ltz p0, :cond_4
+    if-ltz p0, :cond_0
 
     array-length v2, v1
 
-    if-ge p0, v2, :cond_4
+    if-ge p0, v2, :cond_0
+
+    if-nez p1, :cond_2
+
+    return-void
+
+    :cond_2
+    aget v2, v1, p0
+
+    add-int v3, v2, p1
+
+    const/4 v2, 0x0
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
+
+    move-result v3
+
+    const/16 v2, 0x64
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
+
+    move-result v3
+
+    aget v2, v1, p0
+
+    if-ne v3, v2, :cond_3
+
+    return-void
+
+    :cond_3
+    aput v3, v1, p0
+
+    const/4 v1, 0x0
+
+    const/4 v2, 0x1
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->addAllPartValue(IZ)V
+
+    return-void
+.end method
+
+.method static channelSet(II)V
+    .locals 3
+
+    .prologue
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelValues(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
+
+    move-result-object v1
+
+    if-nez v1, :cond_1
+
+    :cond_0
+    return-void
+
+    :cond_1
+    if-ltz p0, :cond_0
+
+    array-length v2, v1
+
+    if-ge p0, v2, :cond_0
 
     const/4 v2, 0x0
 
@@ -470,74 +336,30 @@
 
     move-result p1
 
-    const/4 v2, 0x0
+    aget v2, v1, p0
 
-    :goto_1
-    const/16 v3, 0x8
+    if-ne p1, v2, :cond_2
 
-    if-ge v2, v3, :cond_4
-
-    add-int/lit8 v2, v2, 0x1
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelValues(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
-
-    move-result-object v1
-
-    if-nez v1, :cond_2
-
-    goto :goto_2
+    return-void
 
     :cond_2
-    array-length v3, v1
+    aput p1, v1, p0
 
-    if-lt p0, v3, :cond_3
+    const/4 v1, 0x0
 
-    goto :goto_2
+    const/4 v2, 0x1
 
-    :cond_3
-    aget v3, v1, p0
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/train/model/TrainItem;->addAllPartValue(IZ)V
 
-    sub-int v4, p1, v3
-
-    if-nez v4, :cond_5
-
-    goto :goto_2
-
-    :cond_5
-    if-lez v4, :cond_6
-
-    const/16 v5, 0x14
-
-    invoke-static {v4, v5}, Ljava/lang/Math;->min(II)I
-
-    move-result v4
-
-    goto :goto_3
-
-    :cond_6
-    const/16 v5, -0x14
-
-    invoke-static {v4, v5}, Ljava/lang/Math;->max(II)I
-
-    move-result v4
-
-    :goto_3
-    invoke-static {p0, v4}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelStep(II)V
-
-    goto :goto_1
-
-    :goto_2
-    :cond_4
     return-void
 .end method
 
 .method static channelValues(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
-    .locals 7
+    .locals 3
 
     .prologue
     const/4 v1, 0x0
 
-    .line 284
     :try_start_0
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
@@ -545,82 +367,29 @@
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    move-result-object v3
-
-    .line 285
-    if-eqz v3, :cond_0
-
-    iget-object v0, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    move-result-object v0
 
     if-eqz v0, :cond_0
 
-    iget-object v0, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v2, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+
+    if-eqz v2, :cond_0
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
-
-    if-nez v0, :cond_2
-
-    :cond_0
-    move-object v0, v1
-
-    .line 295
-    :cond_1
-    :goto_0
-    return-object v0
-
-    .line 288
-    :cond_2
-    iget-object v0, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
-
-    iget-object v4, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
-
-    .line 289
-    array-length v0, v4
-
-    new-array v0, v0, [I
-
-    .line 290
-    const/4 v2, 0x0
-
-    :goto_1
-    array-length v5, v4
-
-    if-ge v2, v5, :cond_1
-
-    .line 291
-    aget v5, v4, v2
-
-    int-to-float v5, v5
-
-    const/high16 v6, 0x42c80000    # 100.0f
-
-    div-float/2addr v5, v6
-
-    iget v6, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
-
-    int-to-float v6, v6
-
-    mul-float/2addr v5, v6
-
-    float-to-int v5, v5
-
-    aput v5, v0, v2
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 290
-    add-int/lit8 v2, v2, 0x1
+    return-object v0
 
-    goto :goto_1
+    :cond_0
+    return-object v1
 
-    .line 294
     :catch_0
     move-exception v0
 
-    move-object v0, v1
-
-    .line 295
-    goto :goto_0
+    return-object v1
 .end method
 
 .method private static channels()Lorg/json/JSONArray;

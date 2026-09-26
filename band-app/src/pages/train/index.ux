@@ -898,41 +898,40 @@ export default {
   align-items: center;
   justify-content: center;
 }
-/* baked aura, centred on the button (gen-art glow-train*); static — no breathing animation */
+/* baked aura centred on the button (gen-art glow-train), only while waiting for start: at the start
+   nothing new has to be decoded; static — no breathing animation */
 .tr-play-glow {
   position: absolute;
   top: 0px;
   left: 22px;
   width: 168px;
   height: 168px;
-  background-size: cover;
+  background-size: contain;
 }
 .tr-play-glow-idle {
   background-image: url(/common/art/glow-train.png);
 }
 .tr-play-glow-run {
-  background-image: url(/common/art/glow-train-run.png);
+  opacity: 0;
 }
 .tr-play {
   flex-shrink: 0;
   width: 152px;
   height: 152px;
   border-radius: 76px;
+  background-image: url(/common/art/shine-152.png);
+  background-size: contain;
   justify-content: center;
   align-items: center;
   transition-property: transform, opacity;
   transition-duration: 140ms;
 }
-/* colour stays as the fallback under the baked face */
+/* the colour is the state; one light layer (.tr-play) serves both: start / pause decode nothing */
 .tr-play-idle {
   background-color: #30d158;
-  background-image: url(/common/art/orb-train.png);
-  background-size: cover;
 }
 .tr-play-run {
   background-color: #ff9f0a;
-  background-image: url(/common/art/orb-train-run.png);
-  background-size: cover;
 }
 .tr-play-press {
   opacity: 0.9;

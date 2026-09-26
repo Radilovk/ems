@@ -10,17 +10,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/ai-sim/AiSim.java` (369L) — Offline scenarios for the Smart Session engine.
 - `scripts/ai-sim/run.sh` (9L) — Offline test of the Smart Session engine (branding/java/src/com/isaigu/gymapp/ai) on the JVM.
 - `scripts/apply-active-pause-avatar-button.py` (2421L, build:L64) — Active pause avatar button: Hz-style control around the user icon (default mode only).
-- `scripts/apply-active-pause-control-fixes.py` (1464L, build:L146) — Fix active-pause control routing, main-mode button styling, and mode-exit behavior.
+- `scripts/apply-active-pause-control-fixes.py` (1464L, build:L145) — Fix active-pause control routing, main-mode button styling, and mode-exit behavior.
 - `scripts/apply-active-pause-fixes.py` (1368L, build:L62) — Fix active-pause Hz input and persistence (does not change training +/- or slider).
 - `scripts/apply-active-pause-pulse-labels.py` (358L, build:L74) — Switch impulse/pause time labels when active pause mode is enabled.
 - `scripts/apply-active-pause.py` (929L, build:L61) — Active pause (impulse change during pause) settings and training logic.
 - `scripts/apply-ai-session.py` (168L, build:L109[BETA_MUSIC]) — XEMS Smart Session ("AI" button): install ai smali, hook device cycles, route ramp bytes.
-- `scripts/apply-arms-channel-scale.py` (77L, build:L148) — Apply encode-time 20× arms channel strength reduction (buwei5 / index 4).
+- `scripts/apply-arms-channel-scale.py` (77L, build:L147) — Apply encode-time 20× arms channel strength reduction (buwei5 / index 4).
 - `scripts/apply-avatar-card.py` (104L, build:L117[BETA_MUSIC]) — Training slot: the client's photo is a button, not part of the slider.
 - `scripts/apply-avatar-proportional-lock.py` (85L, build:L73) — Replace avatar column RelativeLayout with proportional AvatarClusterLayout.
 - `scripts/apply-avatar-timer.py` (315L, build:L49) — Remove avatar wave fill; show interval seconds only while training is running.
 - `scripts/apply-band-app.py` (59L, build:L118[BETA_MUSIC]) — Ship the XEMS band app inside the APK, both languages: band-app/xems-band.rpk (Bulgarian) → assets/xems-band.rpk, band-…
-- `scripts/apply-band-shortcut.py` (115L, build:L140[BETA_MUSIC]) — Home-screen icon that opens XEMS on the band (BandLaunchActivity, v1.1.154).
 - `scripts/apply-beta-features.py` (95L, build:L92[BETA_MUSIC]) — BETA music sync core: install MusicSync smali + shared strings (player only, no mic).
 - `scripts/apply-ble-scan-lifecycle.py` (151L, build:L87) — Stop background BleDeviceManager scan outside the device-connect flow.
 - `scripts/apply-block-program.py` (102L, build:L108[BETA_MUSIC]) — Block program pulse hook (global runner; UI lives in IntervalTimerHelper).
@@ -50,7 +49,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-music-sync-pulse.py` (108L, build:L93[BETA_MUSIC]) — Remove PDU hooks — music-sync drives bean.strenth / slider directly.
 - `scripts/apply-music-sync-slider.py` (76L, build:L94[BETA_MUSIC]) — Register circle slider + MA label with MusicSync when TrainViewHolder binds.
 - `scripts/apply-music-training-sync.py` (207L, build:L102[BETA_MUSIC]) — Music-sync BLE hooks.
-- `scripts/apply-part-strength.py` (134L, build:L151) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
+- `scripts/apply-part-strength.py` (134L, build:L150) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
 - `scripts/apply-ramp-limits.py` (418L, NOT-IN-BUILD) — Input/output ramp in milliseconds (0-3000 ms); device encoding (ms+9)/10.
 - `scripts/apply-ramp-setting.py` (64L, build:L115[BETA_MUSIC]) — Soft rise / fall (ramp) back in the program parameters dialog, in seconds (0.0–2.0 s).
 - `scripts/apply-security-hardening.py` (124L, NOT-IN-BUILD) — Harden APK manifest and network config to reduce install / Play Protect warnings.
@@ -79,12 +78,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-channel-scale-java.sh` (57L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L99[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (199L, build:L90[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (150L, build:L104[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI and the Smart Session (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (149L, build:L104[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI and the Smart Session (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (63L, build:L67[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (79L, build:L111[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
 - `scripts/design_config_schema.py` (116L) — Safe bounds and validation for branding/design-config.yaml.
-- `scripts/gen-band-shortcut-icon.py` (66L) — Icon of the "XEMS band" home-screen shortcut: the XEMS X on a band's screen.
 - `scripts/install_interval_timer_smali.py` (77L) — Install interval timer stack smali (helper, presets, block program) into decompiled APK.
 - `scripts/layout-implement.py` (301L) — Generate Android layout XML from approved layout brief.
 - `scripts/layout_brief_lib.py` (109L) — Shared layout brief load/validate (imported by CLI and implement).
@@ -105,10 +103,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/setup-android-toolchain.sh` (41L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
 - `scripts/test-apk-safety.sh` (118L) — Automated safety test: BETA build must not change login-critical code vs baseline.
 - `scripts/ui-map.py` (126L, build:L54[DESIGN_PIPELINE]) — UI map utilities — validate layouts, explain structure, guide safe edits.
-- `scripts/verify-active-pause-routing.py` (284L, build:L147) — Verify master slider and +/- routing stay aligned for active pause.
+- `scripts/verify-active-pause-routing.py` (284L, build:L146) — Verify master slider and +/- routing stay aligned for active pause.
 - `scripts/verify-apk-hrfix.py` (136L) — Verify v1.1.55-ble HR fix markers in built APK / smali.
 - `scripts/verify-apk-shipped.py` (167L) — Fail when APK-shipping source changed but xems27.apk was not rebuilt and committed.
-- `scripts/verify-arms-channel-scale.py` (56L, build:L149) — Verify arms channel strength scale hook is present in decompiled smali.
+- `scripts/verify-arms-channel-scale.py` (56L, build:L148) — Verify arms channel strength scale hook is present in decompiled smali.
 - `scripts/verify-beta-safety.py` (73L, build:L123[BETA_MUSIC]) — Fail the build if BETA music hooks touch login-critical classes.
 - `scripts/verify-interval-timer-smali.py` (59L, build:L136[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
 - `scripts/verify-login-path.py` (89L) — Fail the build if login -> MainFragment -> NewTrainFragment path looks broken.
@@ -166,9 +164,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 **wearable/** (`branding/java/src/com/isaigu/gymapp/wearable/`)
 - `BandAppInstall.java` (303L, compile:music-sync*,wearable) — The XEMS app on the band (Band 9 / 10) installs and updates itself: once the band is connected over the classic link an…
-- `BandLaunch.java` (143L, compile:music-sync*,wearable) — Open the XEMS app on the band from the phone: the home-screen icon ({@link BandLaunchActivity}, static launcher shortcu…
-- `BandLaunchActivity.java` (18L, compile:music-sync*,wearable) — Target of the "XEMS band" home-screen icon: no screen of its own (translucent theme in the manifest), asks {@link BandL…
-- `BandRemote.java` (957L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
+- `BandLaunch.java` (107L, compile:music-sync*,wearable) — Open the XEMS app on the band from XEMS: the Settings button (and {@link BandRemote} at the start of a workout).
+- `BandRemote.java` (1008L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -180,10 +177,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableBandPicker.java` (206L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
 - `WearableBlePermissions.java` (180L, compile:music-sync*,wearable) — Runtime BLUETOOTH_CONNECT + BLUETOOTH_SCAN (Android 12+) — required for GATT connect/discover.
-- `WearableConfig.java` (269L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
+- `WearableConfig.java` (278L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
 - `WearableHrPanel.java` (324L, compile:music-sync*,wearable) — The "i" of the HR dial: what matters during a session, drawn — the HR now with its zone, the HR chart (5 / 15 min / all…
 - `WearableLivePanel.java` (340L, compile:music-sync*,wearable) — "Band data" panel: every live field from 8/47, event rate, share the raw recording.
-- `WearableSettingsSection.java` (628L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
+- `WearableSettingsSection.java` (627L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
 - `WearableSyncHelper.java` (1349L, compile:music-sync*,wearable) — Wearable sync UI: config modal + floating HR dial (same pattern as interval timer).
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
@@ -239,27 +236,28 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsUi.java` (659L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
 
 ## band-app (Xiaomi Vela quick app, Band 10)
-- `band-app/src/app.ux` (437L) — 
+- `band-app/src/app.ux` (460L) — 
 - `band-app/src/manifest.json` (56L) — band app id, versionName/versionCode (must match app.ux APP_VERSION + BandAppInstall.VERSION), page list
 - `band-app/src/common/auto-route.js` (45L) — Jump from the home dial into the live session — once per session.
 - `band-app/src/common/train-touch.js` (147L) — Train screen touch helpers — shared by pages/train and band-app/test.
 - `band-app/src/common/ui.js` (195L) — Shared look and helpers for the XEMS band pages.
-- `band-app/src/pages/ai/index.ux` (655L) — band screen: Smart Session (AI) — live HR, strength, double impulse, hold-to-stop
-- `band-app/src/pages/index/index.ux` (562L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
-- `band-app/src/pages/music/index.ux` (456L) — band screen: music remote — play/pause, prev/next, impulse ceiling
+- `band-app/src/pages/ai/index.ux` (653L) — band screen: Smart Session (AI) — live HR, strength, double impulse, hold-to-stop
+- `band-app/src/pages/index/index.ux` (564L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
+- `band-app/src/pages/music/index.ux` (451L) — band screen: music remote — play/pause, prev/next, impulse ceiling
 - `band-app/src/pages/pulse/index.ux` (430L) — band screen: heart rate, auto control on/off, last 3 minutes chart
-- `band-app/src/pages/summary/index.ux` (326L) — band screen: session summary after training
-- `band-app/src/pages/timer/index.ux` (375L) — band screen: interval timer remote
-- `band-app/src/pages/train/index.ux` (1214L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
+- `band-app/src/pages/summary/index.ux` (328L) — band screen: session summary after training
+- `band-app/src/pages/timer/index.ux` (370L) — band screen: interval timer remote
+- `band-app/src/pages/train/index.ux` (1213L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
 - `band-app/test/app-screen.test.mjs` (29L) — Verifies screen wake policy: no setKeepScreenOn during training.
 - `band-app/test/auto-route.test.mjs` (41L) — 
 - `band-app/test/home-layout.test.mjs` (32L) — 
+- `band-app/test/stability.test.mjs` (68L) — Start of a workout without a burst on the band: states arriving together redraw the pages once (latest state), and a su…
 - `band-app/test/train-layout.test.mjs` (60L) — 
 - `band-app/test/train-touch.test.mjs` (136L) — Unit tests for train screen touch/layout logic (Node, no emulator).
 - `band-app/test/visibility.test.mjs` (73L) — Screen off → XEMS sends only the pulse; screen on → full state at once.
 - `band-app/scripts/check-art.py` (66L) — Image budget for the band app — keeps the look rich without making the band slow.
 - `band-app/scripts/gen-all-btn.py` (58L) — Green/red bar for Start screen (main − / +). Vela clips images, not stacked CSS fills.
-- `band-app/scripts/gen-art.py` (192L) — Baked artwork for the band app: module badges, button faces ("orbs"), glows behind rings.
+- `band-app/scripts/gen-art.py` (198L) — Baked artwork for the band app: light layers for CSS circles (badges, buttons), glows behind rings.
 - `band-app/scripts/gen-bg.py` (70L) — Screen backgrounds for the band app (212 × 520): near-black with a soft glow of the module's colour at the top (with a …
 - `band-app/scripts/gen-home-preview.py` (80L) — Render the card-menu home (212×520) from layout constants — no emulator.
 - `band-app/scripts/gen-icons.py` (161L) — Generate v4 band icons — white glyphs on transparent PNG.
@@ -267,7 +265,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/scripts/gen-pages.py` (37L) — Stamp scripts/common.css into each page under src/pages/*/index.ux.
 - `band-app/scripts/gen-train-preview.py` (329L) — Render train screen preview PNG (212×520) from layout constants — no emulator.
 - `band-app/scripts/run-emulator-test.sh` (18L) — Quick train screen previews (212×520 PNG) — no emulator required.
-- `band-app/scripts/test-band.sh` (39L) — Closest-to-device automated checks without Band 10 hardware.
+- `band-app/scripts/test-band.sh` (40L) — Closest-to-device automated checks without Band 10 hardware.
 - `band-app/scripts/setup-emulator.mjs` (36L) — Create a Vela VVD sized like Band 10 (212×520 logical).
 
 ## server (Cloudflare Worker license server)
@@ -304,15 +302,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (69L)
+`CLAUDE.md` (70L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
-  - L41 ## Invariants (breaking one = broken release)
-  - L54 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L66 ## Keeping the map true
+  - L42 ## Invariants (breaking one = broken release)
+  - L55 ## Deeper context (read only the section you need — headings/lines are in MAP)
+  - L67 ## Keeping the map true
 
-`band-app/CLAUDE.md` (25L)
+`band-app/CLAUDE.md` (27L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)
 
 `band-app/docs/native-first.md` (24L)
@@ -332,7 +330,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L61 ## Версии на train екрана
   - L68 ## Интеграция в тестовете
 
-`band-app/docs/ui-versions.md` (72L)
+`band-app/docs/ui-versions.md` (82L)
   - L1 # Band train screen — UI версии
   - L5 ## Home меню (не се пипа без изрично решение)
   - L10 ## v2 — стабилен play layout (baseline)
@@ -340,6 +338,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L33 ## Модулни екрани — v4 (5.9.34)
   - L46 ## Графика — v5 (5.9.35)
   - L58 ## Старт — v4 (5.9.36)
+  - L73 ## Графика — v6 (5.9.37)
 
 `band-app/test/README.md` (46L)
   - L1 # Band app testing (closest to Band 10 without hardware)
@@ -617,7 +616,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L606 ## 13. Референции
   - L623 ## 14. Changelog на документа
 
-`docs/xiaomi-band10.md` (267L)
+`docs/xiaomi-band10.md` (280L)
   - L1 # Xiaomi Smart Band 9 / 10 — връзка през класически Bluetooth (v1.1.65)
   - L5 ## Защо е нужен втори път
   - L11 ## Избор на връзката

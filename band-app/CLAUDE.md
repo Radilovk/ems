@@ -18,7 +18,9 @@
   (the APK embeds the rpk via `scripts/apply-band-app.py`).
 - Tablet side of the link: `branding/java/src/com/isaigu/gymapp/wearable/` (`BandRemote`, `xiaomi/XiaomiBandSpp*`).
 - UI baselines that must not drift without a decision: `docs/ui-versions.md` (train v2/v3, home cards, modules v4).
-- Graphics: bake effects into PNGs with `scripts/gen-art.py` / `gen-bg.py` (never CSS gradients/shadows); put
-  them as `background-image` of a sized div; keep `python3 scripts/check-art.py` green (memory per page).
+- Graphics: bake effects into PNGs with `scripts/gen-art.py` / `gen-bg.py` (never CSS gradients/shadows). Circles
+  are CSS (colour + border-radius); the baked part is a translucent layer (`background-image`, `contain`) — Vela
+  clipped full-image circles on the real band. State changes swap CSS colours, never images (no decode at start).
+  Keep `python3 scripts/check-art.py` green (memory per page).
   Do not run `gen-icons.py` — it draws the reverted v4 set over the shipped v3 icons.
-- Lightness rules: no infinite animations; lists via `putList` (ui.js); mutate list items in place for per-second text.
+- Lightness rules: pages redraw via app `notify` (coalesced, 150 ms); no infinite animations; lists via `putList` (ui.js); mutate list items in place for per-second text.

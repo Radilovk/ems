@@ -165,6 +165,15 @@ public final class WearableConfig {
         prefs(context).edit().putBoolean("band_remote", on).apply();
     }
 
+    /** Open the XEMS app on the band when a workout / AI session starts (default on). */
+    public static boolean isBandAutoOpen(Context context) {
+        return context == null || prefs(context).getBoolean("band_auto_open", true);
+    }
+
+    public static void setBandAutoOpen(Context context, boolean on) {
+        prefs(context).edit().putBoolean("band_auto_open", on).apply();
+    }
+
     /** Version of the XEMS app last installed on (or reported by) the band; 0 = none known. */
     public static int getBandAppVersion(Context context) {
         return context == null ? 0 : prefs(context).getInt("band_app_ver", 0);

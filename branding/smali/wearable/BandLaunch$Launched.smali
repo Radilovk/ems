@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 109
+    .line 73
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 112
+    .line 76
     # getter for: Lcom/isaigu/gymapp/wearable/BandLaunch;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandLaunch;->access$100()Landroid/os/Handler;
 
@@ -47,7 +47,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 113
+    .line 77
     const-string v0, "XEMS \u0441\u0435 \u043e\u0442\u0432\u0430\u0440\u044f \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
 
     const-string v1, "Opening XEMS on the band"
@@ -58,6 +58,6 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandLaunch;->toast(Ljava/lang/String;)V
 
-    .line 114
+    .line 78
     return-void
 .end method

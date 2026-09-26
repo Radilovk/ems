@@ -56,7 +56,6 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAppLink.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/BandAppInstall.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/BandLaunch.java"
-  "${JAVA_SRC}/com/isaigu/gymapp/wearable/BandLaunchActivity.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBand.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages.java"

@@ -291,8 +291,10 @@ export default {
 .check {
   width: 60px;
   height: 60px;
+  border-radius: 30px;
+  background-color: #30d158;
   background-image: url(/common/art/badge-done.png);
-  background-size: cover;
+  background-size: contain;
 }
 .caps {
   margin-top: 12px;

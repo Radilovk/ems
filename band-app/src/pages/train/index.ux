@@ -1,7 +1,7 @@
 <template>
   <!-- Start: scroll list + hold-to-slide overlay for per-channel strength. -->
-  <stack class="root bg-start">
-    <scroll id="trainScr" class="scr" scroll-y="true" scroll-top="{{scrollTop}}" onscroll="onScroll">
+  <stack class="root bg-start" onswipe="onSwipe">
+    <scroll id="trainScr" class="scr" scroll-y="true" onscroll="onScroll">
       <div class="col" style="height: {{colH}}px">
         <div class="ctl">
           <text class="caps" style="color: {{runColor}}">{{caps}}</text>
@@ -38,19 +38,19 @@
 
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
-          <stack class="cface">
+          <div class="cface">
+            <text class="cname">{{$item.name}}</text>
             <div class="cline">
               <text class="csign">-</text>
               <text class="cval" style="color: {{$item.color}}">{{$item.text}}</text>
               <text class="csign">+</text>
             </div>
-            <text class="cname">{{$item.name}}</text>
-          </stack>
+          </div>
           <div class="ctouch ch-row-touch"
-               ontouchstart="chTouchStart($item.i, $item.text, $item.name, $event)"
-               ontouchmove="chTouchMove($event)"
-               ontouchend="chTouchEnd($event)"
-               ontouchcancel="chTouchEnd($event)"></div>
+               ontouchstart="chTouchStart($item.i, $item.text, $item.name)"
+               ontouchmove="chTouchMove"
+               ontouchend="chTouchEnd"
+               ontouchcancel="chTouchEnd"></div>
         </stack>
 
         <div class="stop-item">
@@ -70,7 +70,6 @@
     <!-- Hold any channel → vertical slider; scroll position kept underneath. -->
     <div class="slide-screen {{slideAnim}} {{slideDim ? 'slide-dim' : ''}}" if="{{slideOn}}"
          ontouchstart="slideTouch" ontouchmove="slideTouch" ontouchend="slideEnd" ontouchcancel="slideEnd">
-      <div class="slide-bg"></div>
       <text class="slide-val" style="color: {{slideColor}}">{{slideVal}}</text>
       <text class="slide-name">{{slideName}}</text>
       <stack class="slide-track">
@@ -83,7 +82,7 @@
 </template>
 
 <script>
-import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown } from '../../common/ui.js'
+import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 const SLIDE_OPEN_MS = 400
@@ -93,7 +92,6 @@ const TAP_MAX_MS = 320
 const TAP_MAX_MOVE = 16
 const SLIDE_TRACK_H = 300
 const SLIDE_TRACK_TOP = 158
-const SLIDE_TRACK_W = 56
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
@@ -140,7 +138,6 @@ export default {
     chKey: '',
     colH: 1052,
     allBtnSrc: '/common/ui/all-btn-dim.png',
-    scrollTop: 0,
     slideOn: false,
     slideIdx: -1,
     slideName: '',
@@ -178,9 +175,37 @@ export default {
 
   onScroll(e) {
     if (!this.slideOn) {
-      const y = e.scrollY != null ? e.scrollY : (e.detail && e.detail.scrollY) || 0
-      this.savedScroll = y
-      this.scrollTop = y
+      this.savedScroll = e.scrollY != null ? e.scrollY : (e.detail && e.detail.scrollY) || 0
+    }
+  },
+
+  onSwipe(e) {
+    if (this.slideOn) {
+      return
+    }
+    swipe(this, e)
+  },
+
+  captureScroll() {
+    try {
+      const el = this.$element('trainScr')
+      if (el && el.scrollTop != null) {
+        this.savedScroll = el.scrollTop
+      }
+    } catch (err) {
+      /* optional on older Vela builds */
+    }
+  },
+
+  restoreScroll() {
+    const y = this.savedScroll || 0
+    try {
+      const el = this.$element('trainScr')
+      if (el && el.scrollTo) {
+        el.scrollTo({ top: y })
+      }
+    } catch (err) {
+      /* scrollTo optional on older Vela builds */
     }
   },
 
@@ -224,10 +249,14 @@ export default {
     }
     const out = []
     ORDER.forEach((i) => {
-      if (i >= ch.length || ch[i] < 0) {
+      if (i >= ch.length) {
         return
       }
-      let pct = Math.max(0, Math.min(100, ch[i]))
+      const raw = parseInt(ch[i], 10)
+      if (isNaN(raw) || raw < 0) {
+        return
+      }
+      let pct = Math.max(0, Math.min(100, raw))
       const o = this.optim[i]
       if (o) {
         if (o.v === pct || Date.now() - o.at > 1500) {
@@ -301,7 +330,6 @@ export default {
     this.slideAnim = 'slide-in'
     this.slideDim = !this.run
     this.slideTick = Math.floor(val / 10)
-    this.scrollTop = this.savedScroll
     this.updateSlideVisual(val)
     const y = this.chTouch && this.chTouch.y
     if (y) {
@@ -323,8 +351,6 @@ export default {
     this.slideDraft = v
     this.updateSlideVisual(v)
     this.optim[this.slideIdx] = { v: v, at: Date.now() }
-    const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
-    this.buildChannels(ch, this.run)
     if (!this.slideDim) {
       this.armSlideCommit()
     }
@@ -351,6 +377,7 @@ export default {
     if (this.slideOn) {
       return
     }
+    this.captureScroll()
     const y = touchY(e)
     const x = touchX(e)
     this.chTouch = {
@@ -422,7 +449,7 @@ export default {
     this.setSlideFromY(touchY(e))
   },
 
-  slideEnd(e) {
+  slideEnd() {
     this.slideTouching = false
     clearTimeout(this.slideCommitTimer)
     clearTimeout(this.chOpenTimer)
@@ -434,9 +461,9 @@ export default {
     this.slideCloseTimer = setTimeout(() => {
       this.slideOn = false
       this.slideIdx = -1
-      this.scrollTop = this.savedScroll
       const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
       this.buildChannels(ch, this.run)
+      this.restoreScroll()
     }, SLIDE_CLOSE_MS)
   },
 
@@ -708,11 +735,12 @@ export default {
   flex-shrink: 0;
   width: 196px;
   height: 76px;
+  padding-top: 4px;
+  flex-direction: column;
+  align-items: center;
   border-width: 2px;
   border-color: #48484a;
   border-radius: 22px;
-  justify-content: center;
-  align-items: center;
 }
 .cname {
   flex-shrink: 0;
@@ -722,14 +750,10 @@ export default {
   font-weight: bold;
   color: #ffffff;
   lines: 1;
-  position: absolute;
-  top: 4px;
-  left: 8px;
 }
 .cline {
   flex-shrink: 0;
   width: 196px;
-  height: 76px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -864,6 +888,7 @@ export default {
   height: 520px;
   flex-direction: column;
   align-items: center;
+  background-color: rgba(0, 0, 0, 0.92);
 }
 .slide-in {
   animation-name: slideIn;
@@ -882,14 +907,6 @@ export default {
     transform: translateY(0px);
     opacity: 1;
   }
-}
-.slide-bg {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  width: 212px;
-  height: 520px;
-  background-color: rgba(0, 0, 0, 0.92);
 }
 .slide-val {
   flex-shrink: 0;

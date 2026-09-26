@@ -21,7 +21,6 @@
 .method private constructor <init>()V
     .registers 1
 
-    .prologue
     .line 198
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,7 +30,6 @@
 .method synthetic constructor <init>(Lcom/isaigu/gymapp/wearable/WearableBandPicker$1;)V
     .registers 2
 
-    .prologue
     .line 198
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableBandPicker$CancelListener;-><init>()V
 
@@ -41,14 +39,13 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
     .line 201
-    const/4 v0, 0x0
+    const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->target:Landroid/widget/EditText;
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$102(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$102(Landroid/widget/EditText;)Landroid/widget/EditText;
 
     .line 202
     # invokes: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->close()V

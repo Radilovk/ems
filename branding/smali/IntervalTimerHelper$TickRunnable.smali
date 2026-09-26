@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 2111
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,9 +30,8 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .registers 8
 
-    .prologue
     .line 2115
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->armed:Z
@@ -41,14 +39,14 @@
 
     move-result v0
 
-    if-eqz v0, :cond_12
+    if-eqz v0, :cond_5f
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->countdownRunning:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4900()Z
 
     move-result v0
 
-    if-eqz v0, :cond_12
+    if-eqz v0, :cond_5f
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainingRunning:Z
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5000()Z
@@ -57,10 +55,7 @@
 
     if-nez v0, :cond_13
 
-    .line 2136
-    :cond_12
-    :goto_12
-    return-void
+    goto :goto_5f
 
     .line 2118
     :cond_13
@@ -86,13 +81,15 @@
 
     move-result v0
 
-    if-eqz v0, :cond_47
+    const-wide/16 v4, 0x32
+
+    if-eqz v0, :cond_40
 
     invoke-static {}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->isArmed()Z
 
     move-result v0
 
-    if-eqz v0, :cond_47
+    if-eqz v0, :cond_40
 
     .line 2122
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/BlockProgramRunner;->tickBlock(J)V
@@ -112,28 +109,13 @@
 
     move-result-object v1
 
-    const-wide/16 v2, 0x32
+    invoke-virtual {v0, v1, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-    :try_end_3f
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3f} :catch_40
-
-    goto :goto_12
-
-    .line 2133
-    :catch_40
-    move-exception v0
-
-    .line 2134
-    const-string v1, "IntervalTimerHelper.tick"
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    goto :goto_12
+    .line 2125
+    return-void
 
     .line 2127
-    :cond_47
-    :try_start_47
+    :cond_40
     # -= operator for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->remainingMs:J
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5522(J)J
 
@@ -145,16 +127,16 @@
 
     const-wide/16 v2, 0x0
 
-    cmp-long v0, v0, v2
+    cmp-long v6, v0, v2
 
-    if-gtz v0, :cond_57
+    if-gtz v6, :cond_50
 
     .line 2129
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->onIntervalFinished()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5600()V
 
     .line 2131
-    :cond_57
+    :cond_50
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshOverlayText()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$5200()V
 
@@ -169,11 +151,28 @@
 
     move-result-object v1
 
-    const-wide/16 v2, 0x32
+    invoke-virtual {v0, v1, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    :try_end_5e
+    .catchall {:try_start_0 .. :try_end_5e} :catchall_60
 
-    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-    :try_end_67
-    .catch Ljava/lang/Throwable; {:try_start_47 .. :try_end_67} :catch_40
+    .line 2135
+    goto :goto_66
 
-    goto :goto_12
+    .line 2116
+    :cond_5f
+    :goto_5f
+    return-void
+
+    .line 2133
+    :catchall_60
+    move-exception v0
+
+    .line 2134
+    const-string v1, "IntervalTimerHelper.tick"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    .line 2136
+    :goto_66
+    return-void
 .end method

@@ -39,6 +39,9 @@ public class MusicSync {
     private static final String KEY_SMOOTHNESS = "smoothness";
     private static final String KEY_HZ_BASS = "hz_bass";
     private static final String KEY_HZ_TREBLE = "hz_treble";
+    private static final String KEY_AUTO = "auto_tune";
+    /** Full-scale settings glide to the next section over this long. */
+    private static final float AUTO_SLEW_MS = 2500f;
     /** Impulse Hz at bass-heavy music; 0 = Hz does not follow the sound (default). */
     public static final int DEFAULT_HZ_BASS = 0;
     /** Impulse Hz at treble-heavy music. */
@@ -65,6 +68,18 @@ public class MusicSync {
     /** Hz by sound: bass → hzBass, treble → hzTreble (hzBass 0 = off). */
     private static int hzBass = DEFAULT_HZ_BASS;
     private static int hzTreble = DEFAULT_HZ_TREBLE;
+    /** On: each track calibrates rhythm, floor, softness, sensitivity and Hz. */
+    private static boolean autoTune = true;
+    private static MusicAutoTune.Curve autoCurve;
+    private static MusicPlayerEngine.Envelope lastEnvelope;
+    private static float autoRhythm = DEFAULT_RHYTHM_MIX;
+    private static float autoFloor = DEFAULT_FLOOR;
+    private static float autoSmooth = DEFAULT_SMOOTHNESS;
+    private static float autoSens = DEFAULT_SENSITIVITY;
+    private static float autoHzBass;
+    private static float autoHzTreble;
+    private static long autoSlewLastMs;
+    private static int autoLastPosMs = -1;
     /** Latest tone from the player (0 bass … 100 treble), same moment as the level. */
     private static volatile int latestTone = 50;
     /** Tone through the same smoothing and rise limit as the strength. */
@@ -561,6 +576,170 @@ public class MusicSync {
         smoothness = clampPercent(value);
     }
 
+    public static boolean isAutoTune() {
+        return autoTune;
+    }
+
+    /**
+     * Turn calibration on or off. On uses the current track's envelope when one
+     * is loaded. Manual sliders and presets call this with false and keep the
+     * value the trainer just set.
+     */
+    public static void setAutoTune(boolean on) {
+        if (autoTune == on) {
+            if (on) {
+                armAutoTune(lastEnvelope, false);
+            }
+            return;
+        }
+        autoTune = on;
+        if (!on) {
+            autoCurve = null;
+            MusicPlayerHelper.onAutoTuneApplied();
+            return;
+        }
+        armAutoTune(lastEnvelope, false);
+        if (lastEnvelope == null) {
+            MusicPlayerHelper.onAutoTuneApplied();
+        }
+    }
+
+    /**
+     * Glide settings toward the section under {@code positionMs}. Called on the
+     * player tick, before that bucket's loudness is mapped.
+     */
+    public static void followAutoTune(int positionMs) {
+        if (!autoTune || autoCurve == null) {
+            return;
+        }
+        MusicAutoTune.Snapshot target = autoCurve.at(positionMs);
+        if (autoLastPosMs >= 0 && Math.abs(positionMs - autoLastPosMs) > 2000) {
+            autoRhythm = target.rhythmMix;
+            autoFloor = target.floor;
+            autoSmooth = target.smoothness;
+            autoSens = target.sensitivity;
+            autoHzBass = target.hzBass;
+            autoHzTreble = target.hzTreble;
+            autoLastPosMs = positionMs;
+            autoSlewLastMs = SystemClock.elapsedRealtime();
+            if (applyAuto(target.sensitivity, target.rhythmMix, target.floor, target.smoothness,
+                    target.hzBass, target.hzTreble)) {
+                MusicPlayerHelper.onAutoTuneApplied();
+            }
+            return;
+        }
+        autoLastPosMs = positionMs;
+        long now = SystemClock.elapsedRealtime();
+        long dt = autoSlewLastMs == 0L ? 16L : now - autoSlewLastMs;
+        autoSlewLastMs = now;
+        if (dt < 1L) {
+            dt = 1L;
+        } else if (dt > 1000L) {
+            dt = 1000L;
+        }
+        float step = 100f * dt / AUTO_SLEW_MS;
+        float hzStep = 48f * dt / AUTO_SLEW_MS;
+        autoSens = glide(autoSens, target.sensitivity, step);
+        autoRhythm = glide(autoRhythm, target.rhythmMix, step);
+        autoFloor = glide(autoFloor, target.floor, step);
+        autoSmooth = glide(autoSmooth, target.smoothness, step);
+        autoHzBass = glide(autoHzBass, target.hzBass, hzStep);
+        autoHzTreble = glide(autoHzTreble, target.hzTreble, hzStep);
+        if (applyAuto(Math.round(autoSens), Math.round(autoRhythm), Math.round(autoFloor),
+                Math.round(autoSmooth), Math.round(autoHzBass), Math.round(autoHzTreble))) {
+            MusicPlayerHelper.onAutoTuneApplied();
+        }
+    }
+
+    private static float glide(float current, int target, float step) {
+        float goal = target;
+        if (Math.abs(goal - current) <= step) {
+            return goal;
+        }
+        return goal > current ? current + step : current - step;
+    }
+
+    private static void armAutoTune(MusicPlayerEngine.Envelope envelope, boolean snap) {
+        if (!autoTune || envelope == null || envelope.length <= 0) {
+            return;
+        }
+        lastEnvelope = envelope;
+        autoCurve = MusicAutoTune.analyze(envelope.loudRms, envelope.rhythm, envelope.tone,
+                envelope.length, envelope.toneSpanDb, envelope.toneMedianDb);
+        int position = 0;
+        boolean playing = false;
+        MusicPlayerEngine engine = playerEngine;
+        if (!snap && engine != null) {
+            position = engine.resolvePlaybackPositionMs() + getPlayerLeadMs();
+            playing = running && playerMode && engine.isPlaying();
+        }
+        MusicAutoTune.Snapshot target = autoCurve.at(Math.max(0, position));
+        autoLastPosMs = -1;
+        autoSlewLastMs = 0L;
+        if (snap || !playing) {
+            autoSens = target.sensitivity;
+            autoRhythm = target.rhythmMix;
+            autoFloor = target.floor;
+            autoSmooth = target.smoothness;
+            autoHzBass = target.hzBass;
+            autoHzTreble = target.hzTreble;
+            applyAuto(target.sensitivity, target.rhythmMix, target.floor, target.smoothness,
+                    target.hzBass, target.hzTreble);
+        } else {
+            autoSens = sensitivity;
+            autoRhythm = rhythmMix;
+            autoFloor = MasterStrengthControl.getFloorPercent();
+            autoSmooth = smoothness;
+            autoHzBass = hzBass <= 0 ? target.hzBass : hzBass;
+            autoHzTreble = hzTreble;
+            if (hzBass <= 0) {
+                applyAuto(sensitivity, rhythmMix, MasterStrengthControl.getFloorPercent(), smoothness,
+                        target.hzBass, target.hzTreble);
+                autoHzBass = target.hzBass;
+                autoHzTreble = target.hzTreble;
+            }
+        }
+        MusicDiagLog.log("auto-tune",
+                "rhythm=" + target.rhythmMix
+                        + " floor=" + target.floor
+                        + " soft=" + target.smoothness
+                        + " sens=" + target.sensitivity
+                        + " hz=" + target.hzBass + "-" + target.hzTreble
+                        + " sections=" + autoCurve.size());
+        MusicPlayerHelper.onAutoTuneApplied();
+    }
+
+    /** @return true when a knob actually moved */
+    private static boolean applyAuto(int sensitivityValue, int rhythm, int floor, int smooth,
+            int bass, int treble) {
+        boolean changed = false;
+        if (sensitivity != sensitivityValue) {
+            setSensitivity(sensitivityValue);
+            changed = true;
+        }
+        if (rhythmMix != rhythm) {
+            setRhythmMix(rhythm);
+            changed = true;
+        }
+        if (MasterStrengthControl.getFloorPercent() != floor) {
+            setFloorPercent(floor);
+            changed = true;
+        }
+        if (smoothness != smooth) {
+            setSmoothness(smooth);
+            changed = true;
+        }
+        if (hzBass != bass) {
+            setHzBass(bass);
+            changed = true;
+        }
+        if (hzTreble != treble) {
+            setHzTreble(treble);
+            changed = true;
+        }
+        return changed;
+    }
+
     public static boolean hasBleLatencySample() {
         return bleLatencySamples > 0;
     }
@@ -578,6 +757,7 @@ public class MusicSync {
             setSmoothness(prefs.getInt(KEY_SMOOTHNESS, DEFAULT_SMOOTHNESS));
             hzBass = prefs.getInt(KEY_HZ_BASS, DEFAULT_HZ_BASS);
             setHzTreble(prefs.getInt(KEY_HZ_TREBLE, DEFAULT_HZ_TREBLE));
+            autoTune = prefs.getBoolean(KEY_AUTO, true);
         } catch (Throwable t) {
             MusicDiagLog.logError("music_settings_load", t);
         }
@@ -588,14 +768,19 @@ public class MusicSync {
             return;
         }
         try {
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                    .putInt(KEY_SENSITIVITY, sensitivity)
-                    .putInt(KEY_RHYTHM_MIX, rhythmMix)
-                    .putInt(KEY_FLOOR, MasterStrengthControl.getFloorPercent())
-                    .putInt(KEY_SMOOTHNESS, smoothness)
-                    .putInt(KEY_HZ_BASS, hzBass)
-                    .putInt(KEY_HZ_TREBLE, hzTreble)
-                    .apply();
+            android.content.SharedPreferences.Editor editor = context
+                    .getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                    .putBoolean(KEY_AUTO, autoTune);
+            // Live calibration must not overwrite the trainer's manual knobs.
+            if (!autoTune) {
+                editor.putInt(KEY_SENSITIVITY, sensitivity)
+                        .putInt(KEY_RHYTHM_MIX, rhythmMix)
+                        .putInt(KEY_FLOOR, MasterStrengthControl.getFloorPercent())
+                        .putInt(KEY_SMOOTHNESS, smoothness)
+                        .putInt(KEY_HZ_BASS, hzBass)
+                        .putInt(KEY_HZ_TREBLE, hzTreble);
+            }
+            editor.apply();
         } catch (Throwable t) {
             MusicDiagLog.logError("music_settings_save", t);
         }
@@ -631,6 +816,10 @@ public class MusicSync {
             return;
         }
         try {
+            lastEnvelope = envelope;
+            if (autoTune) {
+                armAutoTune(envelope, true);
+            }
             MusicPlayerEngine engine = new MusicPlayerEngine();
             engine.startPlayback(activity, uri, envelope, new PlayerSyncListener());
             playerEngine = engine;

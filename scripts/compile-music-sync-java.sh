@@ -71,6 +71,7 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/train/utils/MusicPlayerEngine*.class' \
      -o -path '*/train/utils/MusicUriSource.class' \
      -o -path '*/train/utils/SoundEnvelopeMapper.class' \
+     -o -path '*/train/utils/MusicAutoTune*.class' \
      -o -path '*/train/utils/MusicDiagLog.class' \
      -o -path '*/dialog/MusicPlayerHelper*.class' \
      -o -path '*/dialog/MusicDial*.class' \
@@ -117,11 +118,12 @@ find "${BRANDING_SMALI}/widget" -name 'XemsGuard*.smali' -delete 2>/dev/null || 
 find "${BRANDING_SMALI}/widget" -name 'XemsNav*.smali' -delete 2>/dev/null || true
 for n in XemsLang XemsIcon XemsPanel XemsFullscreen; do find "${BRANDING_SMALI}/widget" -name "${n}*.smali" -delete 2>/dev/null || true; done
 find "${BRANDING_SMALI}" -name 'MusicPlayerEngine*.smali' -delete
+find "${BRANDING_SMALI}" -name 'MusicAutoTune*.smali' -delete
 find "${BRANDING_SMALI}" -name 'MusicDiagLog.smali' -delete
 while IFS= read -r -d '' file; do
   cp "${file}" "${BRANDING_SMALI}/$(basename "${file}")"
   echo "  -> $(basename "${file}")"
-done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicDial*.smali' -o -name 'MusicPlaylist*.smali' -o -name 'MusicTrackLabel*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'ModalInfoHelper*.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicDiagLog.smali' \) -print0)
+done < <(find "${SMALI_OUT}" \( -name 'MusicSync*.smali' -o -name 'MasterStrengthControl.smali' -o -name 'MusicSyncBridge.smali' -o -name 'MusicPlayerHelper*.smali' -o -name 'MusicDial*.smali' -o -name 'MusicPlaylist*.smali' -o -name 'MusicTrackLabel*.smali' -o -name 'MusicPlayerEngine*.smali' -o -name 'ModalInfoHelper*.smali' -o -name 'MusicUriSource.smali' -o -name 'SoundEnvelopeMapper.smali' -o -name 'MusicAutoTune*.smali' -o -name 'MusicDiagLog.smali' \) -print0)
 
 mkdir -p "${BRANDING_SMALI}/widget"
 while IFS= read -r -d '' file; do

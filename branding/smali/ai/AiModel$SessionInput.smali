@@ -42,7 +42,6 @@
 .method public constructor <init>()V
     .registers 3
 
-    .prologue
     .line 55
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -101,7 +100,6 @@
 .method public isTraining()Z
     .registers 3
 
-    .prologue
     .line 72
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
@@ -111,11 +109,11 @@
 
     const/4 v0, 0x1
 
-    :goto_7
-    return v0
+    goto :goto_9
 
     :cond_8
     const/4 v0, 0x0
 
-    goto :goto_7
+    :goto_9
+    return v0
 .end method

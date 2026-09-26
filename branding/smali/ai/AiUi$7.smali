@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 576
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
@@ -42,37 +36,34 @@
 
 # virtual methods
 .method public onDelta(I)V
-    .registers 6
+    .registers 4
 
-    .prologue
     .line 579
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
+
+    add-int/2addr v1, p1
+
+    const/16 p1, 0x5a
+
+    invoke-static {p1, v1}, Ljava/lang/Math;->min(II)I
+
+    move-result p1
+
     const/16 v1, 0xe
 
-    const/16 v2, 0x5a
+    invoke-static {v1, p1}, Ljava/lang/Math;->max(II)I
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    move-result p1
 
-    iget v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
-
-    add-int/2addr v3, p1
-
-    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
-
-    move-result v2
-
-    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
-
-    move-result v1
-
-    iput v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
+    iput p1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
     .line 580
-    const/4 v0, 0x1
+    const/4 p1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
 
     .line 581
     return-void

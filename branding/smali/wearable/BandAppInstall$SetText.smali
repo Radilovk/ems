@@ -23,9 +23,8 @@
 
 # direct methods
 .method constructor <init>(Ljava/lang/String;)V
-    .locals 0
+    .registers 2
 
-    .prologue
     .line 272
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -39,22 +38,22 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .registers 3
 
-    .prologue
     .line 278
+    # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->statusView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$400()Landroid/widget/TextView;
 
     move-result-object v0
 
     .line 279
-    if-eqz v0, :cond_0
+    if-eqz v0, :cond_11
 
     invoke-virtual {v0}, Landroid/widget/TextView;->isAttachedToWindow()Z
 
     move-result v1
 
-    if-eqz v1, :cond_0
+    if-eqz v1, :cond_11
 
     .line 280
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$SetText;->s:Ljava/lang/String;
@@ -62,6 +61,6 @@
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 282
-    :cond_0
+    :cond_11
     return-void
 .end method

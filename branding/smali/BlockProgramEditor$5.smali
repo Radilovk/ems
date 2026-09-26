@@ -28,13 +28,7 @@
 # direct methods
 .method constructor <init>(Ljava/util/ArrayList;ILjava/lang/Runnable;)V
     .registers 4
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 134
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$5;->val$working:Ljava/util/ArrayList;
 
@@ -50,20 +44,19 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 137
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$5;->val$working:Ljava/util/ArrayList;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$5;->val$working:Ljava/util/ArrayList;
 
-    iget v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$5;->val$index:I
+    iget v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$5;->val$index:I
 
-    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+    invoke-virtual {p1, v0}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
 
     .line 138
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$5;->val$rebuild:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$5;->val$rebuild:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
     .line 139
     return-void

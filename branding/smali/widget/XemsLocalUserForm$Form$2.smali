@@ -23,9 +23,8 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
-    .locals 0
+    .registers 2
 
-    .prologue
     .line 158
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
@@ -37,13 +36,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 1
+    .registers 2
 
-    .prologue
     .line 160
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$2;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->save()V
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->save()V
 
     .line 161
     return-void

@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 1225
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -33,7 +32,6 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .prologue
     .line 1228
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 

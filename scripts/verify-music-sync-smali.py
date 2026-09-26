@@ -97,6 +97,12 @@ def check_player_engine_deps() -> list[str]:
                 errs.append(f"MusicPlayerEngine references {cls} but smali not installed")
     if not (UTILS_DIR / "SoundEnvelopeMapper.smali").is_file():
         errs.append("MISSING in APK: train/utils/SoundEnvelopeMapper.smali")
+    if not (UTILS_DIR / "MusicAutoTune.smali").is_file():
+        errs.append("MISSING in APK: train/utils/MusicAutoTune.smali")
+    if not (UTILS_DIR / "MusicAutoTune$Snapshot.smali").is_file():
+        errs.append("MISSING in APK: train/utils/MusicAutoTune$Snapshot.smali")
+    if not (UTILS_DIR / "MusicAutoTune$Curve.smali").is_file():
+        errs.append("MISSING in APK: train/utils/MusicAutoTune$Curve.smali")
     return errs
 
 

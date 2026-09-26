@@ -21,7 +21,6 @@
 .method private constructor <init>()V
     .registers 1
 
-    .prologue
     .line 324
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,7 +30,6 @@
 .method synthetic constructor <init>(Lcom/isaigu/gymapp/wearable/WearableLivePanel$1;)V
     .registers 2
 
-    .prologue
     .line 324
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel$CloseListener;-><init>()V
 
@@ -43,7 +41,6 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .prologue
     .line 327
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->dismiss()V
 

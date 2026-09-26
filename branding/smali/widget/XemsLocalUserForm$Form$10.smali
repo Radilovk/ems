@@ -25,14 +25,8 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;[I)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 3
 
-    .prologue
     .line 515
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
@@ -46,15 +40,14 @@
 
 # virtual methods
 .method public onValueChange(Landroid/widget/NumberPicker;II)V
-    .locals 2
+    .registers 4
 
-    .prologue
     .line 517
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->val$value:[I
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->val$value:[I
 
-    const/4 v1, 0x0
+    const/4 p2, 0x0
 
-    aput p3, v0, v1
+    aput p3, p1, p2
 
     .line 518
     return-void

@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(I)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 1292
     iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$26;->val$snd:I
 
@@ -44,7 +38,6 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .prologue
     .line 1295
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
@@ -63,17 +56,14 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startRingtonePick(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2500(Landroid/view/View;)V
 
-    .line 1310
-    :goto_e
+    .line 1299
     return-void
 
     .line 1301
     :cond_f
-    iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$26;->val$snd:I
-
     const/16 v1, 0x8
 
-    if-ne v0, v1, :cond_1c
+    if-ne v0, v1, :cond_1a
 
     .line 1302
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->closeSub()V
@@ -83,20 +73,19 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startSignalPick(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2600(Landroid/view/View;)V
 
-    goto :goto_e
+    .line 1304
+    return-void
 
     .line 1306
-    :cond_1c
-    iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$26;->val$snd:I
-
+    :cond_1a
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2702(I)I
 
     .line 1307
-    const-string v0, ""
+    const-string p1, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
 
     .line 1308
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
@@ -106,5 +95,6 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSheets()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2200()V
 
-    goto :goto_e
+    .line 1310
+    return-void
 .end method

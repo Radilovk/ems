@@ -11,7 +11,6 @@
 .method private constructor <init>()V
     .registers 1
 
-    .prologue
     .line 15
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -21,7 +20,6 @@
 .method public static init(Landroid/content/Context;)V
     .registers 2
 
-    .prologue
     .line 18
     if-eqz p0, :cond_12
 
@@ -49,81 +47,74 @@
 .end method
 
 .method public static isBg()Z
-    .registers 6
-
-    .prologue
-    const/4 v1, 0x0
-
-    const/4 v0, 0x1
+    .registers 5
 
     .line 25
-    :try_start_2
-    sget-object v2, Lcom/isaigu/gymapp/widget/XemsLang;->appContext:Landroid/content/Context;
+    const/4 v0, 0x1
+
+    :try_start_1
+    sget-object v1, Lcom/isaigu/gymapp/widget/XemsLang;->appContext:Landroid/content/Context;
 
     .line 26
-    if-nez v2, :cond_d
+    if-nez v1, :cond_c
 
     .line 27
     invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
 
-    move-result-object v2
+    move-result-object v1
 
     .line 28
-    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLang;->init(Landroid/content/Context;)V
+    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLang;->init(Landroid/content/Context;)V
 
     .line 30
-    :cond_d
-    if-nez v2, :cond_10
+    :cond_c
+    if-nez v1, :cond_f
 
-    .line 36
-    :cond_f
-    :goto_f
+    .line 31
     return v0
 
     .line 33
-    :cond_10
-    const-string v3, "setting_share"
+    :cond_f
+    const-string v2, "setting_share"
 
-    const/4 v4, 0x0
+    const/4 v3, 0x0
 
-    invoke-virtual {v2, v3, v4}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+    invoke-virtual {v1, v2, v3}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
 
-    move-result-object v2
+    move-result-object v1
 
     .line 34
-    const-string v3, "en"
+    const-string v2, "en"
 
-    const-string v4, "language"
+    const-string v3, "language"
 
-    const-string v5, "bg"
+    const-string v4, "bg"
 
-    invoke-interface {v2, v4, v5}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-interface {v1, v3, v4}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {v3, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
     :try_end_24
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_24} :catch_29
+    .catchall {:try_start_1 .. :try_end_24} :catchall_26
 
-    move-result v2
+    xor-int/2addr v0, v1
 
-    if-eqz v2, :cond_f
-
-    move v0, v1
-
-    goto :goto_f
+    return v0
 
     .line 35
-    :catch_29
+    :catchall_26
     move-exception v1
 
-    goto :goto_f
+    .line 36
+    return v0
 .end method
 
 .method public static tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
-    .prologue
     .line 41
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
@@ -131,11 +122,11 @@
 
     if-eqz v0, :cond_7
 
-    :goto_6
-    return-object p0
+    goto :goto_8
 
     :cond_7
     move-object p0, p1
 
-    goto :goto_6
+    :goto_8
+    return-object p0
 .end method

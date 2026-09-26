@@ -27,14 +27,8 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;Ljava/lang/String;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 4
 
-    .prologue
     .line 85
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$c:Landroid/content/Context;
 
@@ -50,101 +44,88 @@
 
 # virtual methods
 .method public run()V
-    .locals 5
-
-    .prologue
-    const/4 v2, 0x0
+    .registers 6
 
     .line 89
-    :try_start_0
-    new-instance v0, Ljava/lang/StringBuilder;
+    const-string v0, "token"
 
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const/4 v1, 0x0
 
-    const-string v1, "{"
+    :try_start_3
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    move-result-object v0
+    const-string v3, "{"
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$c:Landroid/content/Context;
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->common(Landroid/content/Context;)Ljava/lang/String;
+    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$c:Landroid/content/Context;
 
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    const-string v1, ",\"key\":"
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$k:Ljava/lang/String;
-
-    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->quote(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    const-string v1, "}"
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 90
-    const-string v1, "POST"
-
-    const-string v3, "/v1/license/activate"
-
-    invoke-static {v1, v3, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->http(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->parseFlat(Ljava/lang/String;)Ljava/util/Map;
-
-    move-result-object v0
-
-    .line 91
-    sget-object v1, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
-
-    const-string v3, "ok"
-
-    invoke-interface {v0, v3}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->common(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v3
 
-    invoke-virtual {v1, v3}, Ljava/lang/Boolean;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result v1
+    const-string v3, ",\"key\":"
 
-    if-eqz v1, :cond_2
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string v1, "token"
+    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$k:Ljava/lang/String;
 
-    invoke-interface {v0, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->quote(Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object v3
 
-    if-eqz v1, :cond_2
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v3, "}"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 90
+    const-string v3, "POST"
+
+    const-string v4, "/v1/license/activate"
+
+    invoke-static {v3, v4, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->http(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->parseFlat(Ljava/lang/String;)Ljava/util/Map;
+
+    move-result-object v2
+
+    .line 91
+    sget-object v3, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
+
+    const-string v4, "ok"
+
+    invoke-interface {v2, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/Boolean;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_6a
+
+    invoke-interface {v2, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v3
+
+    if-eqz v3, :cond_6a
 
     .line 92
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$k:Ljava/lang/String;
+    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$k:Ljava/lang/String;
 
-    const-string v3, "token"
-
-    invoke-interface {v0, v3}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-interface {v2, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
@@ -152,67 +133,70 @@
 
     move-result-object v0
 
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->applyToken(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v3, v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->applyToken(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     .line 93
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    if-nez v0, :cond_1
+    if-nez v0, :cond_61
 
-    const/4 v1, 0x1
+    const/4 v3, 0x1
 
-    :goto_0
-    if-nez v0, :cond_0
+    goto :goto_62
+
+    :cond_61
+    const/4 v3, 0x0
+
+    :goto_62
+    if-nez v0, :cond_66
 
     const-string v0, "server"
 
-    :cond_0
-    invoke-static {v3, v1, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    :cond_66
+    # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    invoke-static {v2, v3, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 
-    .line 100
-    :goto_1
-    return-void
-
-    :cond_1
-    move v1, v2
-
-    .line 93
-    goto :goto_0
+    .line 94
+    goto :goto_79
 
     .line 95
-    :cond_2
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
+    :cond_6a
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    const/4 v3, 0x0
+    const-string v3, "error"
 
-    const-string v4, "error"
+    invoke-interface {v2, v3}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
-    invoke-interface {v0, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    move-result-object v2
 
-    move-result-object v0
+    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->str(Ljava/lang/Object;)Ljava/lang/String;
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->str(Ljava/lang/Object;)Ljava/lang/String;
+    move-result-object v2
 
-    move-result-object v0
+    # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    :try_end_79
+    .catchall {:try_start_3 .. :try_end_79} :catchall_7a
 
-    invoke-static {v1, v3, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
-
-    goto :goto_1
+    .line 99
+    :goto_79
+    goto :goto_82
 
     .line 97
-    :catch_0
+    :catchall_7a
     move-exception v0
 
     .line 98
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    const-string v1, "offline"
+    const-string v2, "offline"
 
-    invoke-static {v0, v2, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 
-    goto :goto_1
+    .line 100
+    :goto_82
+    return-void
 .end method

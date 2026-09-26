@@ -30,13 +30,7 @@
 # direct methods
 .method constructor <init>(Ljava/util/ArrayList;Ljava/util/ArrayList;Lcom/isaigu/gymapp/widget/XemsUi$Shell;Ljava/lang/Runnable;)V
     .registers 5
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 87
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$target:Ljava/util/ArrayList;
 
@@ -54,39 +48,36 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 90
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$target:Ljava/util/ArrayList;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$target:Ljava/util/ArrayList;
 
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
+    invoke-virtual {p1}, Ljava/util/ArrayList;->clear()V
 
     .line 91
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$target:Ljava/util/ArrayList;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$target:Ljava/util/ArrayList;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$working:Ljava/util/ArrayList;
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$working:Ljava/util/ArrayList;
 
-    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
+    invoke-virtual {p1, v0}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
 
     .line 92
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
+    iget-object p1, p1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
-    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+    invoke-virtual {p1}, Landroid/app/Dialog;->dismiss()V
 
     .line 93
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$onDone:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$onDone:Ljava/lang/Runnable;
 
-    if-eqz v0, :cond_1c
+    if-eqz p1, :cond_1a
 
     .line 94
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/BlockProgramEditor$3;->val$onDone:Ljava/lang/Runnable;
-
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
     .line 96
-    :cond_1c
+    :cond_1a
     return-void
 .end method

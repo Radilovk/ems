@@ -27,14 +27,8 @@
 
 # direct methods
 .method constructor <init>([I[JLjava/lang/Runnable;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 4
 
-    .prologue
     .line 206
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$count:[I
 
@@ -50,54 +44,58 @@
 
 # virtual methods
 .method public run()V
-    .locals 9
-
-    .prologue
-    const/4 v8, 0x0
+    .registers 11
 
     .line 209
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
-    move-result-wide v2
+    move-result-wide v0
 
     .line 210
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$count:[I
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$count:[I
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$last:[J
+    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$last:[J
 
-    aget-wide v4, v0, v8
+    const/4 v4, 0x0
 
-    sub-long v4, v2, v4
+    aget-wide v5, v3, v4
 
-    const-wide/16 v6, 0xbb8
+    sub-long v5, v0, v5
 
-    cmp-long v0, v4, v6
+    const/4 v3, 0x1
 
-    if-lez v0, :cond_1
+    const-wide/16 v7, 0xbb8
 
-    const/4 v0, 0x1
+    cmp-long v9, v5, v7
 
-    :goto_0
-    aput v0, v1, v8
+    if-lez v9, :cond_15
+
+    goto :goto_18
+
+    :cond_15
+    aget v5, v2, v4
+
+    add-int/2addr v3, v5
+
+    :goto_18
+    aput v3, v2, v4
 
     .line 211
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$last:[J
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$last:[J
 
-    aput-wide v2, v0, v8
+    aput-wide v0, v2, v4
 
     .line 212
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$count:[I
 
-    aget v0, v0, v8
+    aget v1, v0, v4
 
-    const/4 v1, 0x7
+    const/4 v2, 0x7
 
-    if-lt v0, v1, :cond_0
+    if-lt v1, v2, :cond_2c
 
     .line 213
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$count:[I
-
-    aput v8, v0, v8
+    aput v4, v0, v4
 
     .line 214
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$action:Ljava/lang/Runnable;
@@ -105,16 +103,6 @@
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
     .line 216
-    :cond_0
+    :cond_2c
     return-void
-
-    .line 210
-    :cond_1
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$5;->val$count:[I
-
-    aget v0, v0, v8
-
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_0
 .end method

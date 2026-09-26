@@ -25,7 +25,6 @@
 .method constructor <init>(Ljava/lang/String;)V
     .registers 2
 
-    .prologue
     .line 180
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,7 +40,6 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .prologue
     .line 186
     # getter for: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->target:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$100()Landroid/widget/EditText;
@@ -71,26 +69,26 @@
     .line 188
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
 
-    move-result-object v0
+    move-result-object p1
 
     .line 189
-    if-eqz v0, :cond_26
+    if-eqz p1, :cond_26
 
     .line 190
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableBandPicker$PickListener;->mac:Ljava/lang/String;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableBandPicker$PickListener;->mac:Ljava/lang/String;
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
     .line 193
     :cond_26
-    const/4 v0, 0x0
+    const/4 p1, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->target:Landroid/widget/EditText;
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$102(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$102(Landroid/widget/EditText;)Landroid/widget/EditText;
 
     .line 194
     # invokes: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->close()V

@@ -25,7 +25,6 @@
 .method constructor <init>(Landroid/view/View;)V
     .registers 4
 
-    .prologue
     .line 290
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,9 +44,8 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 6
+    .registers 5
 
-    .prologue
     .line 296
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsPanel$StartClick;->delegate:Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;
 
@@ -58,9 +56,9 @@
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/widget/XemsPanel$Refresh;-><init>()V
 
-    const-wide/16 v2, 0xfa
+    const-wide/16 v1, 0xfa
 
-    invoke-virtual {p1, v0, v2, v3}, Landroid/view/View;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {p1, v0, v1, v2}, Landroid/view/View;->postDelayed(Ljava/lang/Runnable;J)Z
 
     .line 298
     return-void

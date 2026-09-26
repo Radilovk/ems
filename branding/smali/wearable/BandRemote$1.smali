@@ -20,10 +20,9 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .locals 3
+    .registers 3
 
-    .prologue
-    .line 781
+    .line 807
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$PhaseId;->values()[Lcom/isaigu/gymapp/ai/AiModel$PhaseId;
 
     move-result-object v0
@@ -34,9 +33,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$PhaseId:[I
 
-    :try_start_0
-    sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$PhaseId:[I
-
+    :try_start_9
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$PhaseId;->WARMUP:Lcom/isaigu/gymapp/ai/AiModel$PhaseId;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$PhaseId;->ordinal()I
@@ -46,11 +43,16 @@
     const/4 v2, 0x1
 
     aput v2, v0, v1
-    :try_end_0
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_0 .. :try_end_0} :catch_2
+    :try_end_12
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_9 .. :try_end_12} :catch_13
 
-    :goto_0
-    :try_start_1
+    goto :goto_14
+
+    :catch_13
+    move-exception v0
+
+    :goto_14
+    :try_start_14
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$PhaseId:[I
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$PhaseId;->MAIN:Lcom/isaigu/gymapp/ai/AiModel$PhaseId;
@@ -62,11 +64,16 @@
     const/4 v2, 0x2
 
     aput v2, v0, v1
-    :try_end_1
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_1 .. :try_end_1} :catch_1
+    :try_end_1f
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_14 .. :try_end_1f} :catch_20
 
-    :goto_1
-    :try_start_2
+    goto :goto_21
+
+    :catch_20
+    move-exception v0
+
+    :goto_21
+    :try_start_21
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$PhaseId:[I
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$PhaseId;->METABOLIC:Lcom/isaigu/gymapp/ai/AiModel$PhaseId;
@@ -78,24 +85,14 @@
     const/4 v2, 0x3
 
     aput v2, v0, v1
-    :try_end_2
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_2 .. :try_end_2} :catch_0
+    :try_end_2c
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_21 .. :try_end_2c} :catch_2d
 
-    :goto_2
+    goto :goto_2e
+
+    :catch_2d
+    move-exception v0
+
+    :goto_2e
     return-void
-
-    :catch_0
-    move-exception v0
-
-    goto :goto_2
-
-    :catch_1
-    move-exception v0
-
-    goto :goto_1
-
-    :catch_2
-    move-exception v0
-
-    goto :goto_0
 .end method

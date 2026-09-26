@@ -18,7 +18,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 288
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -28,7 +27,6 @@
 .method static now()Ljava/lang/String;
     .registers 2
 
-    .prologue
     .line 290
     const-string v0, "\u0441\u0435\u0433\u0430"
 
@@ -44,7 +42,6 @@
 .method static waiting()Ljava/lang/String;
     .registers 2
 
-    .prologue
     .line 294
     const-string v0, "\u0427\u0430\u043a\u0430 \u043f\u0443\u043b\u0441 \u043e\u0442 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430\u2026"
 

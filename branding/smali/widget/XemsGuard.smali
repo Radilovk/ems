@@ -24,7 +24,6 @@
 .method static constructor <clinit>()V
     .registers 2
 
-    .prologue
     .line 18
     new-instance v0, Landroid/os/Handler;
 
@@ -42,7 +41,6 @@
 .method private constructor <init>()V
     .registers 1
 
-    .prologue
     .line 22
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -52,14 +50,12 @@
 .method public static installLoopGuard()V
     .registers 2
 
-    .prologue
     .line 46
     sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsGuard;->loopGuard:Z
 
     if-eqz v0, :cond_5
 
-    .line 51
-    :goto_4
+    .line 47
     return-void
 
     .line 49
@@ -77,39 +73,38 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    goto :goto_4
+    .line 51
+    return-void
 .end method
 
 .method static place(Ljava/lang/Throwable;)Ljava/lang/String;
-    .registers 8
-
-    .prologue
-    const/4 v1, 0x0
+    .registers 10
 
     .line 69
-    if-nez p0, :cond_6
-
-    .line 70
     const-string v0, ""
 
-    .line 83
-    :goto_5
+    if-nez p0, :cond_5
+
+    .line 70
     return-object v0
 
+    .line 72
+    :cond_5
+    nop
+
     .line 73
-    :cond_6
     :goto_6
     invoke-virtual {p0}, Ljava/lang/Throwable;->getCause()Ljava/lang/Throwable;
 
-    move-result-object v0
+    move-result-object v1
 
-    if-eqz v0, :cond_17
+    if-eqz v1, :cond_17
 
     invoke-virtual {p0}, Ljava/lang/Throwable;->getCause()Ljava/lang/Throwable;
 
-    move-result-object v0
+    move-result-object v1
 
-    if-eq v0, p0, :cond_17
+    if-eq v1, p0, :cond_17
 
     .line 74
     invoke-virtual {p0}, Ljava/lang/Throwable;->getCause()Ljava/lang/Throwable;
@@ -122,153 +117,132 @@
     :cond_17
     invoke-virtual {p0}, Ljava/lang/Throwable;->getStackTrace()[Ljava/lang/StackTraceElement;
 
-    move-result-object v2
+    move-result-object v1
 
-    array-length v3, v2
+    array-length v2, v1
 
-    move v0, v1
+    const/4 v3, 0x0
 
-    :goto_1d
-    if-ge v0, v3, :cond_6a
+    const/4 v4, 0x0
 
-    aget-object v4, v2, v0
+    :goto_1e
+    const-string v5, "."
+
+    if-ge v4, v2, :cond_66
+
+    aget-object v6, v1, v4
 
     .line 77
-    invoke-virtual {v4}, Ljava/lang/StackTraceElement;->getClassName()Ljava/lang/String;
+    invoke-virtual {v6}, Ljava/lang/StackTraceElement;->getClassName()Ljava/lang/String;
 
-    move-result-object v5
+    move-result-object v7
 
-    const-string v6, "com.isaigu"
+    const-string v8, "com.isaigu"
 
-    invoke-virtual {v5, v6}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    invoke-virtual {v7, v8}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
-    move-result v5
+    move-result v7
 
-    if-eqz v5, :cond_67
+    if-eqz v7, :cond_63
 
     .line 78
-    invoke-virtual {v4}, Ljava/lang/StackTraceElement;->getClassName()Ljava/lang/String;
+    invoke-virtual {v6}, Ljava/lang/StackTraceElement;->getClassName()Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object p0
 
     .line 79
-    new-instance v1, Ljava/lang/StringBuilder;
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const/16 v2, 0x2e
+    const/16 v1, 0x2e
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->lastIndexOf(I)I
+    invoke-virtual {p0, v1}, Ljava/lang/String;->lastIndexOf(I)I
 
-    move-result v2
+    move-result v1
 
-    add-int/lit8 v2, v2, 0x1
+    add-int/lit8 v1, v1, 0x1
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+    invoke-virtual {p0, v1}, Ljava/lang/String;->substring(I)Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object p0
 
-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string v1, "."
+    invoke-virtual {v6}, Ljava/lang/StackTraceElement;->getMethodName()Ljava/lang/String;
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object p0
 
-    move-result-object v0
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v4}, Ljava/lang/StackTraceElement;->getMethodName()Ljava/lang/String;
+    const-string p0, ":"
+
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v6}, Ljava/lang/StackTraceElement;->getLineNumber()I
+
+    move-result p0
+
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p0
+
+    return-object p0
+
+    .line 76
+    :cond_63
+    add-int/lit8 v4, v4, 0x1
+
+    goto :goto_1e
+
+    .line 82
+    :cond_66
+    invoke-virtual {p0}, Ljava/lang/Throwable;->getStackTrace()[Ljava/lang/StackTraceElement;
+
+    move-result-object p0
+
+    .line 83
+    array-length v1, p0
+
+    if-lez v1, :cond_8b
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    aget-object v1, p0, v3
+
+    invoke-virtual {v1}, Ljava/lang/StackTraceElement;->getClassName()Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string v1, ":"
+    aget-object p0, p0, v3
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {p0}, Ljava/lang/StackTraceElement;->getMethodName()Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object p0
 
-    invoke-virtual {v4}, Ljava/lang/StackTraceElement;->getLineNumber()I
-
-    move-result v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v0
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    goto :goto_5
-
-    .line 76
-    :cond_67
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_1d
-
-    .line 82
-    :cond_6a
-    invoke-virtual {p0}, Ljava/lang/Throwable;->getStackTrace()[Ljava/lang/StackTraceElement;
-
-    move-result-object v0
-
-    .line 83
-    array-length v2, v0
-
-    if-lez v2, :cond_96
-
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
-
-    aget-object v3, v0, v1
-
-    invoke-virtual {v3}, Ljava/lang/StackTraceElement;->getClassName()Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    const-string v3, "."
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    aget-object v0, v0, v1
-
-    invoke-virtual {v0}, Ljava/lang/StackTraceElement;->getMethodName()Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    goto/16 :goto_5
-
-    :cond_96
-    const-string v0, ""
-
-    goto/16 :goto_5
+    :cond_8b
+    return-object v0
 .end method
 
 .method public static report(Ljava/lang/String;Ljava/lang/Throwable;)V
-    .registers 8
+    .registers 9
 
-    .prologue
     .line 26
     :try_start_0
     new-instance v0, Ljava/lang/StringBuilder;
@@ -279,19 +253,22 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
     invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->logError(Ljava/lang/String;Ljava/lang/Throwable;)V
-    :try_end_16
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_16} :catch_34
+    :try_end_14
+    .catchall {:try_start_0 .. :try_end_14} :catchall_15
+
+    .line 28
+    goto :goto_16
+
+    .line 27
+    :catchall_15
+    move-exception v0
 
     .line 29
     :goto_16
@@ -306,12 +283,11 @@
 
     const-wide/16 v4, 0xfa0
 
-    cmp-long v2, v2, v4
+    cmp-long v6, v2, v4
 
-    if-gez v2, :cond_25
+    if-gez v6, :cond_25
 
-    .line 38
-    :goto_24
+    .line 31
     return-void
 
     .line 33
@@ -328,19 +304,16 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
     :try_end_31
-    .catch Ljava/lang/Throwable; {:try_start_27 .. :try_end_31} :catch_32
+    .catchall {:try_start_27 .. :try_end_31} :catchall_32
 
-    goto :goto_24
+    .line 37
+    goto :goto_33
 
     .line 36
-    :catch_32
-    move-exception v0
+    :catchall_32
+    move-exception p0
 
-    goto :goto_24
-
-    .line 27
-    :catch_34
-    move-exception v0
-
-    goto :goto_16
+    .line 38
+    :goto_33
+    return-void
 .end method

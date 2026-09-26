@@ -21,7 +21,6 @@
 .method static constructor <clinit>()V
     .registers 1
 
-    .prologue
     .line 28
     new-instance v0, Ljava/lang/Object;
 
@@ -35,7 +34,6 @@
 .method private constructor <init>()V
     .registers 1
 
-    .prologue
     .line 30
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -44,21 +42,17 @@
 .end method
 
 .method private static appendToFile(Ljava/lang/String;Ljava/lang/String;)V
-    .registers 6
+    .registers 5
 
-    .prologue
     .line 86
     sget-object v0, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appContext:Landroid/content/Context;
 
     .line 87
-    if-eqz v0, :cond_6
+    if-eqz v0, :cond_47
 
     if-nez p1, :cond_7
 
-    .line 105
-    :cond_6
-    :goto_6
-    return-void
+    goto :goto_47
 
     .line 90
     :cond_7
@@ -73,99 +67,97 @@
     move-result-object v0
 
     .line 92
-    if-nez v0, :cond_15
+    if-nez v0, :cond_12
 
     .line 93
     monitor-exit v1
 
-    goto :goto_6
-
-    .line 104
-    :catchall_12
-    move-exception v0
-
-    monitor-exit v1
-    :try_end_14
-    .catchall {:try_start_a .. :try_end_14} :catchall_12
-
-    throw v0
+    return-void
 
     .line 95
-    :cond_15
-    :try_start_15
+    :cond_12
     new-instance v2, Ljava/io/File;
 
     invoke-direct {v2, v0, p0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
-    :try_end_1a
-    .catchall {:try_start_15 .. :try_end_1a} :catchall_12
+    :try_end_17
+    .catchall {:try_start_a .. :try_end_17} :catchall_44
 
     .line 97
-    :try_start_1a
+    :try_start_17
     invoke-static {v2}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->rotateIfNeeded(Ljava/io/File;)V
 
     .line 98
-    new-instance v0, Ljava/io/FileOutputStream;
+    new-instance p0, Ljava/io/FileOutputStream;
 
-    const/4 v3, 0x1
+    const/4 v0, 0x1
 
-    invoke-direct {v0, v2, v3}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;Z)V
+    invoke-direct {p0, v2, v0}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;Z)V
 
     .line 99
-    new-instance v2, Ljava/lang/StringBuilder;
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    const-string p1, "\n"
 
-    const-string v3, "\n"
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object p1
 
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    const-string v0, "UTF-8"
 
-    move-result-object v2
+    invoke-virtual {p1, v0}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
 
-    const-string v3, "UTF-8"
+    move-result-object p1
 
-    invoke-virtual {v2, v3}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
-
-    move-result-object v2
-
-    invoke-virtual {v0, v2}, Ljava/io/FileOutputStream;->write([B)V
+    invoke-virtual {p0, p1}, Ljava/io/FileOutputStream;->write([B)V
 
     .line 100
-    invoke-virtual {v0}, Ljava/io/FileOutputStream;->flush()V
+    invoke-virtual {p0}, Ljava/io/FileOutputStream;->flush()V
 
     .line 101
-    invoke-virtual {v0}, Ljava/io/FileOutputStream;->close()V
-    :try_end_45
-    .catch Ljava/lang/Throwable; {:try_start_1a .. :try_end_45} :catch_47
-    .catchall {:try_start_1a .. :try_end_45} :catchall_12
+    invoke-virtual {p0}, Ljava/io/FileOutputStream;->close()V
+    :try_end_40
+    .catchall {:try_start_17 .. :try_end_40} :catchall_41
 
-    .line 104
-    :goto_45
-    :try_start_45
-    monitor-exit v1
-    :try_end_46
-    .catchall {:try_start_45 .. :try_end_46} :catchall_12
-
-    goto :goto_6
+    .line 103
+    goto :goto_42
 
     .line 102
-    :catch_47
-    move-exception v0
+    :catchall_41
+    move-exception p0
 
-    goto :goto_45
+    .line 104
+    :goto_42
+    :try_start_42
+    monitor-exit v1
+
+    .line 105
+    return-void
+
+    .line 104
+    :catchall_44
+    move-exception p0
+
+    monitor-exit v1
+    :try_end_46
+    .catchall {:try_start_42 .. :try_end_46} :catchall_44
+
+    throw p0
+
+    .line 88
+    :cond_47
+    :goto_47
+    return-void
 .end method
 
 .method private static formatLine(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     .registers 4
 
-    .prologue
     .line 72
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -177,52 +169,40 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
     const-string v1, " ["
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string p0, "] "
 
     invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    if-eqz p1, :cond_1c
 
-    const-string v1, "] "
+    goto :goto_1e
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    :cond_1c
+    const-string p1, ""
 
-    move-result-object v0
-
-    if-eqz p1, :cond_28
-
-    :goto_1f
+    :goto_1e
     invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object p0
 
-    return-object v0
-
-    :cond_28
-    const-string p1, ""
-
-    goto :goto_1f
+    return-object p0
 .end method
 
 .method public static init(Landroid/content/Context;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 34
     if-nez p0, :cond_3
 
-    .line 44
-    :goto_2
+    .line 35
     return-void
 
     .line 37
@@ -237,105 +217,98 @@
     :try_start_9
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsGuard;->installLoopGuard()V
     :try_end_c
-    .catch Ljava/lang/Throwable; {:try_start_9 .. :try_end_c} :catch_41
+    .catchall {:try_start_9 .. :try_end_c} :catchall_d
+
+    .line 41
+    goto :goto_e
+
+    .line 40
+    :catchall_d
+    move-exception v0
 
     .line 42
-    :goto_c
-    const-string v0, "init"
+    :goto_e
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    new-instance v1, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "MusicDiagLog ready version="
 
-    const-string v2, "MusicDiagLog ready version="
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->readVersionName(Landroid/content/Context;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object p0
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    const-string p0, " sdk="
 
-    const-string v2, " sdk="
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget p0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    move-result-object v1
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    sget v2, Landroid/os/Build$VERSION;->SDK_INT:I
+    const-string p0, " model="
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    sget-object p0, Landroid/os/Build;->MODEL:Ljava/lang/String;
 
-    const-string v2, " model="
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object p0
 
-    sget-object v2, Landroid/os/Build;->MODEL:Ljava/lang/String;
+    const-string v0, "init"
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-
-    goto :goto_2
-
-    .line 40
-    :catch_41
-    move-exception v0
-
-    goto :goto_c
+    .line 44
+    return-void
 .end method
 
 .method public static log(Ljava/lang/String;Ljava/lang/String;)V
-    .registers 4
+    .registers 2
 
-    .prologue
     .line 47
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->formatLine(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object p0
 
     .line 48
-    const-string v1, "MusicDiag"
+    const-string p1, "MusicDiag"
 
-    invoke-static {v1, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {p1, p0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     .line 49
-    const-string v1, "music-diag.log"
+    const-string p1, "music-diag.log"
 
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appendToFile(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-static {p1, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appendToFile(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 50
     return-void
 .end method
 
 .method public static logError(Ljava/lang/String;Ljava/lang/Throwable;)V
-    .registers 6
+    .registers 5
 
-    .prologue
     .line 53
-    if-eqz p1, :cond_3b
+    if-eqz p1, :cond_7
 
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->stackTrace(Ljava/lang/Throwable;)Ljava/lang/String;
 
     move-result-object v0
 
+    goto :goto_9
+
+    :cond_7
+    const-string v0, "null"
+
     .line 54
-    :goto_6
+    :goto_9
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -344,65 +317,52 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
-
     invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object p0
 
-    const/16 v2, 0xa
+    const/16 v1, 0xa
 
-    const/16 v3, 0x7c
+    const/16 v2, 0x7c
 
-    invoke-virtual {v0, v2, v3}, Ljava/lang/String;->replace(CC)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->formatLine(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v0, v1, v2}, Ljava/lang/String;->replace(CC)Ljava/lang/String;
 
     move-result-object v0
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->formatLine(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
 
     .line 55
-    const-string v1, "MusicDiag"
+    const-string v0, "MusicDiag"
 
-    invoke-static {v1, v0, p1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    invoke-static {v0, p0, p1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
     .line 56
-    const-string v1, "music-diag.log"
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appendToFile(Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 57
-    if-eqz p1, :cond_3a
-
-    .line 58
     const-string v0, "music-diag.log"
 
+    invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appendToFile(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 57
+    if-eqz p1, :cond_39
+
+    .line 58
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->stackTrace(Ljava/lang/Throwable;)Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object p0
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appendToFile(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appendToFile(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 60
-    :cond_3a
+    :cond_39
     return-void
-
-    .line 53
-    :cond_3b
-    const-string v0, "null"
-
-    goto :goto_6
 .end method
 
 .method private static readVersionName(Landroid/content/Context;)Ljava/lang/String;
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 131
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
@@ -412,80 +372,72 @@
     .line 132
     invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object p0
 
-    const/4 v2, 0x0
+    const/4 v1, 0x0
 
-    invoke-virtual {v0, v1, v2}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
+    invoke-virtual {v0, p0, v1}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
 
-    move-result-object v0
+    move-result-object p0
 
     .line 133
-    if-eqz v0, :cond_36
+    if-eqz p0, :cond_31
 
-    iget-object v1, v0, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
+    iget-object v0, p0, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
 
-    if-eqz v1, :cond_36
+    if-eqz v0, :cond_31
 
     .line 134
-    new-instance v1, Ljava/lang/StringBuilder;
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    iget-object v2, v0, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, " ("
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget v0, v0, Landroid/content/pm/PackageInfo;->versionCode:I
-
-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    const-string v1, ")"
+    iget-object v1, p0, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    const-string v1, " ("
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    iget p0, p0, Landroid/content/pm/PackageInfo;->versionCode:I
+
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string p0, ")"
+
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-    :try_end_33
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_33} :catch_35
 
-    move-result-object v0
+    move-result-object p0
+    :try_end_30
+    .catchall {:try_start_0 .. :try_end_30} :catchall_32
 
-    .line 138
-    :goto_34
-    return-object v0
+    return-object p0
+
+    .line 137
+    :cond_31
+    goto :goto_33
 
     .line 136
-    :catch_35
-    move-exception v0
+    :catchall_32
+    move-exception p0
 
     .line 138
-    :cond_36
-    const-string v0, "unknown"
+    :goto_33
+    const-string p0, "unknown"
 
-    goto :goto_34
+    return-object p0
 .end method
 
 .method public static recordCrash(Ljava/lang/Throwable;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 63
     if-nez p0, :cond_3
 
-    .line 69
-    :goto_2
+    .line 64
     return-void
 
     .line 66
@@ -498,21 +450,15 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->timestamp()Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
     const-string v1, " ===\n"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
 
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->stackTrace(Ljava/lang/Throwable;)Ljava/lang/String;
 
@@ -520,13 +466,9 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
     const-string v1, "\n"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -538,130 +480,126 @@
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->appendToFile(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 68
-    const-string v0, "CRASH"
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {v2}, Ljava/lang/Class;->getName()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1}, Ljava/lang/Class;->getName()Ljava/lang/String;
 
     move-result-object v1
 
-    const-string v2, ": "
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v1, ": "
 
-    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {p0}, Ljava/lang/Throwable;->getMessage()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object p0
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v1
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object p0
 
-    move-result-object v1
+    const-string v0, "CRASH"
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_2
+    .line 69
+    return-void
 .end method
 
 .method private static resolveDir(Landroid/content/Context;)Ljava/io/File;
     .registers 4
 
-    .prologue
     .line 109
-    :try_start_0
     const-string v0, "diag-logs"
 
+    :try_start_2
     invoke-virtual {p0, v0}, Landroid/content/Context;->getExternalFilesDir(Ljava/lang/String;)Ljava/io/File;
-
-    move-result-object v0
-
-    .line 110
-    if-eqz v0, :cond_13
-
-    .line 111
-    invoke-virtual {v0}, Ljava/io/File;->exists()Z
-
-    move-result v1
-
-    if-nez v1, :cond_11
-
-    .line 112
-    invoke-virtual {v0}, Ljava/io/File;->mkdirs()Z
-    :try_end_11
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_11} :catch_12
-
-    .line 125
-    :cond_11
-    :goto_11
-    return-object v0
-
-    .line 116
-    :catch_12
-    move-exception v0
-
-    .line 119
-    :cond_13
-    :try_start_13
-    new-instance v0, Ljava/io/File;
-
-    invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
 
     move-result-object v1
 
-    const-string v2, "diag-logs"
+    .line 110
+    if-eqz v1, :cond_12
 
-    invoke-direct {v0, v1, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    .line 111
+    invoke-virtual {v1}, Ljava/io/File;->exists()Z
+
+    move-result v2
+
+    if-nez v2, :cond_11
+
+    .line 112
+    invoke-virtual {v1}, Ljava/io/File;->mkdirs()Z
+    :try_end_11
+    .catchall {:try_start_2 .. :try_end_11} :catchall_13
+
+    .line 114
+    :cond_11
+    return-object v1
+
+    .line 117
+    :cond_12
+    goto :goto_14
+
+    .line 116
+    :catchall_13
+    move-exception v1
+
+    .line 119
+    :goto_14
+    :try_start_14
+    new-instance v1, Ljava/io/File;
+
+    invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
+
+    move-result-object p0
+
+    invoke-direct {v1, p0, v0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
     .line 120
-    invoke-virtual {v0}, Ljava/io/File;->exists()Z
+    invoke-virtual {v1}, Ljava/io/File;->exists()Z
 
-    move-result v1
+    move-result p0
 
-    if-nez v1, :cond_11
+    if-nez p0, :cond_26
 
     .line 121
-    invoke-virtual {v0}, Ljava/io/File;->mkdirs()Z
-    :try_end_27
-    .catch Ljava/lang/Throwable; {:try_start_13 .. :try_end_27} :catch_28
+    invoke-virtual {v1}, Ljava/io/File;->mkdirs()Z
+    :try_end_26
+    .catchall {:try_start_14 .. :try_end_26} :catchall_27
 
-    goto :goto_11
+    .line 123
+    :cond_26
+    return-object v1
 
     .line 124
-    :catch_28
-    move-exception v0
+    :catchall_27
+    move-exception p0
 
     .line 125
-    const/4 v0, 0x0
+    const/4 p0, 0x0
 
-    goto :goto_11
+    return-object p0
 .end method
 
 .method private static rotateIfNeeded(Ljava/io/File;)V
-    .registers 5
+    .registers 6
 
-    .prologue
     .line 142
     invoke-virtual {p0}, Ljava/io/File;->exists()Z
 
     move-result v0
 
-    if-eqz v0, :cond_3d
+    if-eqz v0, :cond_3b
 
     invoke-virtual {p0}, Ljava/io/File;->length()J
 
@@ -669,9 +607,9 @@
 
     const-wide/32 v2, 0x80000
 
-    cmp-long v0, v0, v2
+    cmp-long v4, v0, v2
 
-    if-lez v0, :cond_3d
+    if-lez v4, :cond_3b
 
     .line 143
     new-instance v0, Ljava/io/File;
@@ -690,13 +628,9 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
-
     const-string v3, ".old"
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
 
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -709,24 +643,23 @@
 
     move-result v1
 
-    if-eqz v1, :cond_3a
+    if-eqz v1, :cond_38
 
     .line 145
     invoke-virtual {v0}, Ljava/io/File;->delete()Z
 
     .line 147
-    :cond_3a
+    :cond_38
     invoke-virtual {p0, v0}, Ljava/io/File;->renameTo(Ljava/io/File;)Z
 
     .line 149
-    :cond_3d
+    :cond_3b
     return-void
 .end method
 
 .method private static stackTrace(Ljava/lang/Throwable;)Ljava/lang/String;
     .registers 3
 
-    .prologue
     .line 80
     new-instance v0, Ljava/io/StringWriter;
 
@@ -742,23 +675,22 @@
     .line 82
     invoke-virtual {v0}, Ljava/io/StringWriter;->toString()Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object p0
 
-    return-object v0
+    return-object p0
 .end method
 
 .method private static timestamp()Ljava/lang/String;
     .registers 3
 
-    .prologue
     .line 76
     new-instance v0, Ljava/text/SimpleDateFormat;
 
-    const-string v1, "yyyy-MM-dd HH:mm:ss.SSS"
+    sget-object v1, Ljava/util/Locale;->US:Ljava/util/Locale;
 
-    sget-object v2, Ljava/util/Locale;->US:Ljava/util/Locale;
+    const-string v2, "yyyy-MM-dd HH:mm:ss.SSS"
 
-    invoke-direct {v0, v1, v2}, Ljava/text/SimpleDateFormat;-><init>(Ljava/lang/String;Ljava/util/Locale;)V
+    invoke-direct {v0, v2, v1}, Ljava/text/SimpleDateFormat;-><init>(Ljava/lang/String;Ljava/util/Locale;)V
 
     new-instance v1, Ljava/util/Date;
 

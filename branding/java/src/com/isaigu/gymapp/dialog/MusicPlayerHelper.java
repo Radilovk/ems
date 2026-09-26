@@ -129,6 +129,7 @@ public final class MusicPlayerHelper {
     private static AmountView floorView;
     private static AmountView smoothView;
     private static TextView[] presetViews = new TextView[0];
+    private static TextView autoChip;
     private static View settingsButton;
     private static View playlistButton;
     private static MusicImpulseMeterView meterView;
@@ -746,6 +747,7 @@ public final class MusicPlayerHelper {
         if (index < 0 || index >= PRESETS.length) {
             return;
         }
+        MusicSync.setAutoTune(false);
         int[] preset = PRESETS[index];
         MusicSync.setRhythmMix(preset[0]);
         MusicSync.setFloorPercent(preset[1]);
@@ -758,20 +760,32 @@ public final class MusicPlayerHelper {
         refreshPresetHighlight();
     }
 
-    /** Highlight the preset chip that matches the current values (none after manual edits). */
+    /** Highlight Авто while calibration runs; otherwise the preset that matches. */
     private static void refreshPresetHighlight() {
+        boolean auto = MusicSync.isAutoTune();
         for (int i = 0; i < presetViews.length; i++) {
             TextView chip = presetViews[i];
             if (chip == null) {
                 continue;
             }
             int[] preset = PRESETS[i];
-            boolean active = MusicSync.getRhythmMix() == preset[0]
+            boolean active = !auto
+                    && MusicSync.getRhythmMix() == preset[0]
                     && MusicSync.getFloorPercent() == preset[1]
                     && MusicSync.getSmoothness() == preset[2];
             styleChip(chip, active);
             chip.setSelected(active);
         }
+        if (autoChip != null) {
+            styleChip(autoChip, auto);
+            autoChip.setSelected(auto);
+        }
+    }
+
+    /** Steppers follow a calibration change. Safe when the player overlay is closed. */
+    public static void onAutoTuneApplied() {
+        refreshSettingSteppers();
+        refreshPresetHighlight();
     }
 
     private static void persistSettings() {
@@ -893,6 +907,7 @@ public final class MusicPlayerHelper {
             replaceAmount(a, floorView, 2, 5, 0, 80);
             replaceAmount(a, smoothView, 3, 10, 0, 100);
             addHzRows(a);
+            addAutoChip(a);
         } catch (Throwable t) {
             MusicDiagLog.logError("music_player_style", t);
         }
@@ -1689,6 +1704,7 @@ public final class MusicPlayerHelper {
         floorView = null;
         smoothView = null;
         presetViews = new TextView[0];
+        autoChip = null;
         settingsButton = null;
         playlistButton = null;
         meterView = null;
@@ -1920,6 +1936,43 @@ public final class MusicPlayerHelper {
         }
     }
 
+    /**
+     * Fourth chip on the preset row. On: the open track (and each section of it)
+     * sets rhythm, minimum, softness, sensitivity and the two impulse frequencies.
+     */
+    private static void addAutoChip(Activity a) {
+        if (presetViews.length == 0 || presetViews[0] == null) {
+            return;
+        }
+        if (!(presetViews[0].getParent() instanceof LinearLayout)) {
+            return;
+        }
+        LinearLayout row = (LinearLayout) presetViews[0].getParent();
+        if (row.findViewWithTag("music-auto") != null) {
+            return;
+        }
+        TextView chip = new TextView(a);
+        chip.setTag("music-auto");
+        chip.setText(tr("Авто", "Auto"));
+        chip.setGravity(Gravity.CENTER);
+        chip.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13f);
+        chip.setAllCaps(false);
+        chip.setOnClickListener(new AutoTuneListener());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(a, 34), 1f);
+        lp.leftMargin = dp(a, 6);
+        row.addView(chip, lp);
+        autoChip = chip;
+        refreshPresetHighlight();
+    }
+
+    static final class AutoTuneListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            MusicSync.setAutoTune(true);
+            persistSettings();
+        }
+    }
+
     static final class PresetListener implements View.OnClickListener {
         private final int index;
 
@@ -1948,6 +2001,7 @@ public final class MusicPlayerHelper {
 
         @Override
         public void onAmountChange(View view, int amount) {
+            MusicSync.setAutoTune(false);
             switch (which) {
                 case SENSITIVITY:
                     MusicSync.setSensitivity(amount);

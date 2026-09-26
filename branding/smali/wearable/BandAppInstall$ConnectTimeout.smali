@@ -19,9 +19,8 @@
 
 # direct methods
 .method constructor <init>()V
-    .locals 0
+    .registers 1
 
-    .prologue
     .line 232
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,25 +30,27 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .registers 3
 
-    .prologue
     .line 235
+    # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$000()Z
 
     move-result v0
 
-    if-eqz v0, :cond_0
+    if-eqz v0, :cond_1b
 
+    # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->classicLinkUp()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$100()Z
 
     move-result v0
 
-    if-nez v0, :cond_0
+    if-nez v0, :cond_1b
 
     .line 236
     const/4 v0, 0x0
 
+    # setter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$002(Z)Z
 
     .line 237
@@ -61,9 +62,10 @@
 
     move-result-object v0
 
+    # invokes: Lcom/isaigu/gymapp/wearable/BandAppInstall;->show(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$200(Ljava/lang/String;)V
 
     .line 240
-    :cond_0
+    :cond_1b
     return-void
 .end method

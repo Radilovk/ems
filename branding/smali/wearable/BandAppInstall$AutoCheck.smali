@@ -19,9 +19,8 @@
 
 # direct methods
 .method constructor <init>()V
-    .locals 0
+    .registers 1
 
-    .prologue
     .line 221
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,21 +30,19 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .registers 3
 
-    .prologue
     .line 225
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->check()V
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+    :try_end_3
+    .catchall {:try_start_0 .. :try_end_3} :catchall_4
 
-    .line 229
-    :goto_0
-    return-void
+    .line 228
+    goto :goto_a
 
     .line 226
-    :catch_0
+    :catchall_4
     move-exception v0
 
     .line 227
@@ -53,5 +50,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_0
+    .line 229
+    :goto_a
+    return-void
 .end method

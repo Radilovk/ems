@@ -23,14 +23,8 @@
 
 # direct methods
 .method constructor <init>(Landroid/app/Dialog;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 2
 
-    .prologue
     .line 430
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$3;->val$dlg:Landroid/app/Dialog;
 
@@ -42,13 +36,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 1
+    .registers 2
 
-    .prologue
     .line 432
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$3;->val$dlg:Landroid/app/Dialog;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$3;->val$dlg:Landroid/app/Dialog;
 
-    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+    invoke-virtual {p1}, Landroid/app/Dialog;->dismiss()V
 
     .line 433
     return-void

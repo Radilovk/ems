@@ -27,7 +27,6 @@
 .method constructor <init>(Ljava/lang/String;Ljava/lang/Throwable;)V
     .registers 3
 
-    .prologue
     .line 90
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,24 +45,23 @@
 .method public run()V
     .registers 6
 
-    .prologue
     .line 98
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/MainActivity;->getInstance()Lcom/isaigu/gymapp/MainActivity;
 
-    move-result-object v1
+    move-result-object v0
 
     .line 99
-    if-eqz v1, :cond_5e
+    if-eqz v0, :cond_5a
 
     .line 100
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsGuard$ToastRunnable;->t:Ljava/lang/Throwable;
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsGuard$ToastRunnable;->t:Ljava/lang/Throwable;
 
-    if-eqz v0, :cond_5f
+    if-eqz v1, :cond_2f
 
-    new-instance v0, Ljava/lang/StringBuilder;
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsGuard$ToastRunnable;->t:Ljava/lang/Throwable;
 
@@ -75,15 +73,11 @@
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     const-string v2, ": "
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsGuard$ToastRunnable;->t:Ljava/lang/Throwable;
 
@@ -91,13 +85,16 @@
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v1
 
-    move-result-object v0
+    goto :goto_31
+
+    :cond_2f
+    const-string v1, ""
 
     .line 101
     :goto_31
@@ -115,52 +112,39 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
-
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsGuard$ToastRunnable;->where:Ljava/lang/String;
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
 
     const-string v3, "\n"
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
+    move-result-object v1
 
     const/4 v2, 0x1
 
-    invoke-static {v1, v0, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
     move-result-object v0
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
+    :try_end_5a
+    .catchall {:try_start_0 .. :try_end_5a} :catchall_5b
 
-    .line 105
-    :cond_5e
-    :goto_5e
-    return-void
-
-    .line 100
-    :cond_5f
-    const-string v0, ""
-    :try_end_61
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_61} :catch_62
-
-    goto :goto_31
+    .line 104
+    :cond_5a
+    goto :goto_5c
 
     .line 103
-    :catch_62
+    :catchall_5b
     move-exception v0
 
-    goto :goto_5e
+    .line 105
+    :goto_5c
+    return-void
 .end method

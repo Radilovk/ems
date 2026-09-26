@@ -18,8 +18,7 @@
 .field public final rejects:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/List",
-            "<",
+            "Ljava/util/List<",
             "Ljava/lang/String;",
             ">;"
         }
@@ -29,8 +28,7 @@
 .field public final warns:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/List",
-            "<",
+            "Ljava/util/List<",
             "Ljava/lang/String;",
             ">;"
         }
@@ -42,7 +40,6 @@
 .method public constructor <init>()V
     .registers 2
 
-    .prologue
     .line 29
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -68,7 +65,6 @@
 .method public isRejected()Z
     .registers 2
 
-    .prologue
     .line 34
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiScreening$Result;->rejects:Ljava/util/List;
 
@@ -76,15 +72,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_a
+    xor-int/lit8 v0, v0, 0x1
 
-    const/4 v0, 0x1
-
-    :goto_9
     return v0
-
-    :cond_a
-    const/4 v0, 0x0
-
-    goto :goto_9
 .end method

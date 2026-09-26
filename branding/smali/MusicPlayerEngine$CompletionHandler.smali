@@ -23,30 +23,28 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;)V
-    .locals 0
+    .registers 2
 
-    .prologue
-    .line 619
+    .line 638
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 620
+    .line 639
     iput-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$CompletionHandler;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    .line 621
+    .line 640
     return-void
 .end method
 
 
 # virtual methods
 .method public onCompletion(Landroid/media/MediaPlayer;)V
-    .locals 1
+    .registers 2
 
-    .prologue
-    .line 625
-    iget-object v0, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$CompletionHandler;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
+    .line 644
+    iget-object p1, p0, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine$CompletionHandler;->engine:Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->dispatchEnded()V
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/train/utils/MusicPlayerEngine;->dispatchEnded()V
 
-    .line 626
+    .line 645
     return-void
 .end method

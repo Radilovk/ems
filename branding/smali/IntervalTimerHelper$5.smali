@@ -28,13 +28,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$Stepper;Lcom/isaigu/gymapp/widget/XemsUi$Stepper;Landroid/widget/TextView;)V
     .registers 4
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 767
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -52,9 +46,6 @@
 .method public run()V
     .registers 7
 
-    .prologue
-    const/4 v4, 0x0
-
     .line 770
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
@@ -63,14 +54,16 @@
 
     move-result v1
 
-    int-to-long v2, v1
+    int-to-long v1, v1
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900(J)Ljava/lang/String;
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900(J)Ljava/lang/String;
 
     move-result-object v1
 
-    invoke-virtual {v0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 771
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
@@ -85,22 +78,22 @@
 
     move-result-object v1
 
-    invoke-virtual {v0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 772
-    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$summary:Landroid/widget/TextView;
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$summary:Landroid/widget/TextView;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000()I
 
-    move-result v0
+    move-result v1
 
-    if-lez v0, :cond_50
+    if-lez v1, :cond_4c
 
     .line 773
-    new-instance v0, Ljava/lang/StringBuilder;
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
     const-string v2, "\u041e\u0431\u0449\u043e "
 
@@ -110,9 +103,7 @@
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000()I
@@ -128,46 +119,37 @@
 
     int-to-long v4, v4
 
-    mul-long/2addr v2, v4
+    mul-long v2, v2, v4
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->formatSeconds(J)Ljava/lang/String;
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900(J)Ljava/lang/String;
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v1
 
-    move-result-object v0
-
-    .line 772
-    :goto_4c
-    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 776
-    return-void
+    goto :goto_77
 
     .line 775
-    :cond_50
-    new-instance v0, Ljava/lang/StringBuilder;
+    :cond_4c
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
+    .line 774
     const-string v2, "\u0421\u0438\u0433\u043d\u0430\u043b \u043d\u0430 \u0432\u0441\u0435\u043a\u0438 "
 
     const-string v3, "A signal every "
 
-    .line 774
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalSec:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$800()I
@@ -181,26 +163,27 @@
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
-
+    .line 775
     const-string v2, ", \u0431\u0435\u0437 \u043a\u0440\u0430\u0439"
 
     const-string v3, ", no end"
 
-    .line 775
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v0
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v1
 
-    move-result-object v0
+    .line 772
+    :goto_77
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    goto :goto_4c
+    .line 776
+    return-void
 .end method

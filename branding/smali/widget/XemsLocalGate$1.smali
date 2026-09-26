@@ -23,14 +23,8 @@
 
 # direct methods
 .method constructor <init>(Ljava/lang/Object;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 2
 
-    .prologue
     .line 61
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;->val$fragment:Ljava/lang/Object;
 
@@ -42,12 +36,12 @@
 
 # virtual methods
 .method public run()V
-    .locals 1
+    .registers 2
 
-    .prologue
     .line 64
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalGate$1;->val$fragment:Ljava/lang/Object;
 
+    # invokes: Lcom/isaigu/gymapp/widget/XemsLocalGate;->autoLogin(Ljava/lang/Object;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalGate;->access$000(Ljava/lang/Object;)V
 
     .line 65

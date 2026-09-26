@@ -27,14 +27,8 @@
 
 # direct methods
 .method constructor <init>(Landroid/app/Dialog;Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 4
 
-    .prologue
     .line 435
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$4;->val$dlg:Landroid/app/Dialog;
 
@@ -50,20 +44,19 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .registers 3
 
-    .prologue
     .line 437
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$4;->val$dlg:Landroid/app/Dialog;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$4;->val$dlg:Landroid/app/Dialog;
 
-    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+    invoke-virtual {p1}, Landroid/app/Dialog;->dismiss()V
 
     .line 438
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$4;->val$a:Landroid/app/Activity;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$4;->val$a:Landroid/app/Activity;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$4;->val$u:Lcom/isaigu/gymapp/bean/TrainUser;
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$4;->val$u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->show(Landroid/app/Activity;Ljava/lang/Object;)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->show(Landroid/app/Activity;Ljava/lang/Object;)V
 
     .line 439
     return-void

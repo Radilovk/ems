@@ -24,7 +24,6 @@
 .method constructor <init>(I)V
     .registers 3
 
-    .prologue
     .line 65
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -34,9 +33,9 @@
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
 
     .line 67
-    new-array v0, p1, [I
+    new-array p1, p1, [I
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
     .line 68
     return-void
@@ -45,258 +44,236 @@
 
 # virtual methods
 .method public avg()I
-    .registers 15
-
-    .prologue
-    const-wide/16 v4, 0x0
+    .registers 16
 
     .line 96
-    .line 98
-    const/4 v0, 0x1
+    nop
 
-    move-wide v2, v4
+    .line 97
+    nop
+
+    .line 98
+    const-wide/16 v0, 0x0
+
+    const/4 v2, 0x1
+
+    move-wide v4, v0
 
     move-wide v6, v4
 
-    :goto_5
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
+    const/4 v3, 0x1
 
-    array-length v1, v1
+    :goto_8
+    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
-    if-ge v0, v1, :cond_39
+    array-length v9, v8
+
+    if-ge v3, v9, :cond_34
 
     .line 99
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
+    iget-object v9, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
 
-    aget-wide v8, v1, v0
+    aget-wide v10, v9, v3
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
+    add-int/lit8 v12, v3, -0x1
 
-    add-int/lit8 v10, v0, -0x1
+    aget-wide v13, v9, v12
 
-    aget-wide v10, v1, v10
-
-    sub-long/2addr v8, v10
+    sub-long/2addr v10, v13
 
     .line 100
-    const-wide/16 v10, 0x0
+    const-wide/16 v13, 0x0
 
-    cmp-long v1, v8, v10
+    cmp-long v9, v10, v13
 
-    if-lez v1, :cond_21
+    if-lez v9, :cond_31
 
-    const-wide/16 v10, 0x2ee0
+    const-wide/16 v13, 0x2ee0
 
-    cmp-long v1, v8, v10
+    cmp-long v9, v10, v13
 
-    if-lez v1, :cond_24
+    if-lez v9, :cond_23
 
-    .line 98
-    :cond_21
-    :goto_21
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_5
+    .line 101
+    goto :goto_31
 
     .line 103
-    :cond_24
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
+    :cond_23
+    aget v9, v8, v3
 
-    aget v1, v1, v0
+    aget v8, v8, v12
 
-    iget-object v10, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
+    add-int/2addr v9, v8
 
-    add-int/lit8 v11, v0, -0x1
-
-    aget v10, v10, v11
-
-    add-int/2addr v1, v10
-
-    int-to-double v10, v1
+    int-to-double v8, v9
 
     const-wide/high16 v12, 0x4000000000000000L    # 2.0
 
-    div-double/2addr v10, v12
+    div-double/2addr v8, v12
 
-    long-to-double v12, v8
+    long-to-double v10, v10
 
-    mul-double/2addr v10, v12
+    mul-double v8, v8, v10
 
-    add-double/2addr v6, v10
+    add-double/2addr v6, v8
 
     .line 104
-    long-to-double v8, v8
+    add-double/2addr v4, v10
 
-    add-double/2addr v2, v8
+    .line 98
+    :cond_31
+    :goto_31
+    add-int/lit8 v3, v3, 0x1
 
-    goto :goto_21
+    goto :goto_8
 
     .line 106
-    :cond_39
-    cmpg-double v0, v2, v4
+    :cond_34
+    cmpg-double v3, v4, v0
 
-    if-gtz v0, :cond_4e
-
-    .line 107
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
-
-    array-length v0, v0
-
-    if-lez v0, :cond_4c
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
-
-    array-length v1, v1
-
-    add-int/lit8 v1, v1, -0x1
-
-    aget v0, v0, v1
-
-    .line 109
-    :goto_4b
-    return v0
+    if-gtz v3, :cond_42
 
     .line 107
-    :cond_4c
+    array-length v0, v8
+
+    if-lez v0, :cond_40
+
+    array-length v0, v8
+
+    sub-int/2addr v0, v2
+
+    aget v0, v8, v0
+
+    goto :goto_41
+
+    :cond_40
     const/4 v0, 0x0
 
-    goto :goto_4b
+    :goto_41
+    return v0
 
     .line 109
-    :cond_4e
-    div-double v0, v6, v2
+    :cond_42
+    div-double/2addr v6, v4
 
-    invoke-static {v0, v1}, Ljava/lang/Math;->round(D)J
+    invoke-static {v6, v7}, Ljava/lang/Math;->round(D)J
 
     move-result-wide v0
 
-    long-to-int v0, v0
+    long-to-int v1, v0
 
-    goto :goto_4b
+    return v1
 .end method
 
 .method public last()I
     .registers 3
 
-    .prologue
     .line 75
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
-    array-length v0, v0
+    array-length v1, v0
 
-    if-lez v0, :cond_f
+    if-lez v1, :cond_b
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
-
-    array-length v1, v1
+    array-length v1, v0
 
     add-int/lit8 v1, v1, -0x1
 
     aget v0, v0, v1
 
-    :goto_e
-    return v0
+    goto :goto_c
 
-    :cond_f
+    :cond_b
     const/4 v0, 0x0
 
-    goto :goto_e
+    :goto_c
+    return v0
 .end method
 
 .method public max()I
     .registers 6
 
-    .prologue
-    const/4 v1, 0x0
-
     .line 87
+    nop
+
     .line 88
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
-    array-length v4, v3
+    array-length v1, v0
 
-    move v0, v1
+    const/4 v2, 0x0
 
-    move v2, v1
+    const/4 v3, 0x0
 
     :goto_6
-    if-ge v0, v4, :cond_12
+    if-ge v2, v1, :cond_11
 
-    aget v1, v3, v0
+    aget v4, v0, v2
 
     .line 89
-    invoke-static {v2, v1}, Ljava/lang/Math;->max(II)I
+    invoke-static {v3, v4}, Ljava/lang/Math;->max(II)I
 
-    move-result v1
+    move-result v3
 
     .line 88
-    add-int/lit8 v0, v0, 0x1
-
-    move v2, v1
+    add-int/lit8 v2, v2, 0x1
 
     goto :goto_6
 
     .line 91
-    :cond_12
-    return v2
+    :cond_11
+    return v3
 .end method
 
 .method public min()I
     .registers 7
 
-    .prologue
-    const/4 v1, 0x0
-
     .line 79
-    const v0, 0x7fffffff
+    nop
 
     .line 80
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
-    array-length v4, v3
+    array-length v1, v0
 
-    move v2, v1
+    const/4 v2, 0x0
 
-    :goto_8
-    if-ge v2, v4, :cond_13
+    const v3, 0x7fffffff
 
-    aget v5, v3, v2
+    const/4 v4, 0x0
+
+    :goto_9
+    if-ge v4, v1, :cond_14
+
+    aget v5, v0, v4
 
     .line 81
-    invoke-static {v0, v5}, Ljava/lang/Math;->min(II)I
+    invoke-static {v3, v5}, Ljava/lang/Math;->min(II)I
 
-    move-result v0
+    move-result v3
 
     .line 80
-    add-int/lit8 v2, v2, 0x1
+    add-int/lit8 v4, v4, 0x1
 
-    goto :goto_8
+    goto :goto_9
 
     .line 83
-    :cond_13
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
+    :cond_14
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
-    array-length v2, v2
+    array-length v0, v0
 
-    if-lez v2, :cond_19
+    if-lez v0, :cond_1a
 
-    :goto_18
-    return v0
+    move v2, v3
 
-    :cond_19
-    move v0, v1
-
-    goto :goto_18
+    :cond_1a
+    return v2
 .end method
 
 .method public size()I
     .registers 2
 
-    .prologue
     .line 71
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
 
@@ -306,78 +283,72 @@
 .end method
 
 .method public zoneMs(I)[J
-    .registers 10
+    .registers 11
 
-    .prologue
     .line 114
     const/4 v0, 0x6
 
-    new-array v1, v0, [J
+    new-array v0, v0, [J
 
     .line 115
-    const/4 v0, 0x1
+    const/4 v1, 0x1
 
     :goto_4
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
-    array-length v2, v2
+    array-length v3, v2
 
-    if-ge v0, v2, :cond_33
+    if-ge v1, v3, :cond_2d
 
     .line 116
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
 
-    aget-wide v2, v2, v0
+    aget-wide v4, v3, v1
 
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
+    add-int/lit8 v6, v1, -0x1
 
-    add-int/lit8 v5, v0, -0x1
+    aget-wide v7, v3, v6
 
-    aget-wide v4, v4, v5
-
-    sub-long/2addr v2, v4
+    sub-long/2addr v4, v7
 
     .line 117
-    const-wide/16 v4, 0x0
+    const-wide/16 v7, 0x0
 
-    cmp-long v4, v2, v4
+    cmp-long v3, v4, v7
 
-    if-lez v4, :cond_20
+    if-lez v3, :cond_2a
 
-    const-wide/16 v4, 0x2ee0
+    const-wide/16 v7, 0x2ee0
 
-    cmp-long v4, v2, v4
+    cmp-long v3, v4, v7
 
-    if-lez v4, :cond_23
+    if-lez v3, :cond_1f
+
+    .line 118
+    goto :goto_2a
+
+    .line 120
+    :cond_1f
+    aget v2, v2, v6
+
+    invoke-static {v2, p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->zoneFor(II)I
+
+    move-result v2
+
+    aget-wide v6, v0, v2
+
+    add-long/2addr v6, v4
+
+    aput-wide v6, v0, v2
 
     .line 115
-    :cond_20
-    :goto_20
-    add-int/lit8 v0, v0, 0x1
+    :cond_2a
+    :goto_2a
+    add-int/lit8 v1, v1, 0x1
 
     goto :goto_4
 
-    .line 120
-    :cond_23
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
-
-    add-int/lit8 v5, v0, -0x1
-
-    aget v4, v4, v5
-
-    invoke-static {v4, p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->zoneFor(II)I
-
-    move-result v4
-
-    aget-wide v6, v1, v4
-
-    add-long/2addr v2, v6
-
-    aput-wide v2, v1, v4
-
-    goto :goto_20
-
     .line 122
-    :cond_33
-    return-object v1
+    :cond_2d
+    return-object v0
 .end method

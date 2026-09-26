@@ -23,8 +23,8 @@
 .field private final history:Ljava/util/ArrayDeque;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/ArrayDeque",
-            "<[J>;"
+            "Ljava/util/ArrayDeque<",
+            "[J>;"
         }
     .end annotation
 .end field
@@ -44,10 +44,7 @@
 
 # direct methods
 .method public constructor <init>()V
-    .registers 5
-
-    .prologue
-    const-wide/16 v2, -0x1
+    .registers 3
 
     .line 7
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -63,10 +60,12 @@
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
 
     .line 17
-    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
+    const-wide/16 v0, -0x1
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
 
     .line 18
-    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
 
     .line 20
     new-instance v0, Ljava/util/ArrayDeque;
@@ -79,45 +78,44 @@
 .end method
 
 .method private trim(J)V
-    .registers 10
+    .registers 9
 
-    .prologue
     .line 77
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->history:Ljava/util/ArrayDeque;
 
     invoke-virtual {v0}, Ljava/util/ArrayDeque;->iterator()Ljava/util/Iterator;
 
-    move-result-object v1
+    move-result-object v0
 
     .line 78
     :goto_6
-    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
 
-    move-result v0
+    move-result v1
 
-    if-eqz v0, :cond_22
+    if-eqz v1, :cond_22
 
     .line 79
-    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
-    move-result-object v0
+    move-result-object v1
 
-    check-cast v0, [J
+    check-cast v1, [J
 
     const/4 v2, 0x0
 
-    aget-wide v2, v0, v2
+    aget-wide v2, v1, v2
 
     const-wide/32 v4, 0xea60
 
     sub-long v4, p1, v4
 
-    cmp-long v0, v2, v4
+    cmp-long v1, v2, v4
 
-    if-gez v0, :cond_22
+    if-gez v1, :cond_22
 
     .line 80
-    invoke-interface {v1}, Ljava/util/Iterator;->remove()V
+    invoke-interface {v0}, Ljava/util/Iterator;->remove()V
 
     goto :goto_6
 
@@ -127,9 +125,8 @@
 .end method
 
 .method private updateArtifactFlag()V
-    .registers 5
+    .registers 6
 
-    .prologue
     .line 88
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->history:Ljava/util/ArrayDeque;
 
@@ -151,9 +148,9 @@
 
     const-wide v2, 0x3fc999999999999aL    # 0.2
 
-    cmpl-double v0, v0, v2
+    cmpl-double v4, v0, v2
 
-    if-lez v0, :cond_1c
+    if-lez v4, :cond_1c
 
     .line 89
     const/4 v0, 0x1
@@ -170,33 +167,29 @@
 .method public ageMs(J)J
     .registers 8
 
-    .prologue
     .line 114
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
 
     const-wide/16 v2, 0x0
 
-    cmp-long v0, v0, v2
+    cmp-long v4, v0, v2
 
-    if-gez v0, :cond_e
+    if-gez v4, :cond_e
 
-    const-wide v0, 0x7fffffffffffffffL
+    const-wide p1, 0x7fffffffffffffffL
 
-    :goto_d
-    return-wide v0
+    goto :goto_f
 
     :cond_e
-    iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
+    sub-long/2addr p1, v0
 
-    sub-long v0, p1, v0
-
-    goto :goto_d
+    :goto_f
+    return-wide p1
 .end method
 
 .method public getHrS()D
     .registers 3
 
-    .prologue
     .line 106
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->hrS:D
 
@@ -206,7 +199,6 @@
 .method public getLastAcceptedMs()J
     .registers 3
 
-    .prologue
     .line 110
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
 
@@ -216,7 +208,6 @@
 .method public getRejectedTotal()I
     .registers 2
 
-    .prologue
     .line 126
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->rejectedTotal:I
 
@@ -226,7 +217,6 @@
 .method public getTotal()I
     .registers 2
 
-    .prologue
     .line 122
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->total:I
 
@@ -236,7 +226,6 @@
 .method public isArtifactFlag()Z
     .registers 2
 
-    .prologue
     .line 118
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->artifactFlag:Z
 
@@ -244,214 +233,203 @@
 .end method
 
 .method public onSample(JIZ)Z
-    .registers 16
+    .registers 25
 
-    .prologue
     .line 49
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->total:I
+    move-object/from16 v0, p0
 
-    add-int/lit8 v0, v0, 0x1
+    move-wide/from16 v1, p1
 
-    iput v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->total:I
+    move/from16 v3, p3
 
-    .line 50
-    const/16 v0, 0x1e
-
-    if-lt p3, v0, :cond_72
-
-    const/16 v0, 0xdc
-
-    if-gt p3, v0, :cond_72
-
-    const/4 v0, 0x1
-
-    .line 51
-    :goto_f
-    if-eqz v0, :cond_4c
-
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
-
-    if-lez v1, :cond_4c
-
-    iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
-
-    const-wide/16 v4, 0x0
-
-    cmp-long v1, v2, v4
-
-    if-lez v1, :cond_4c
-
-    .line 52
-    const-wide/16 v2, 0x1
-
-    iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
-
-    sub-long v4, p1, v4
-
-    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(JJ)J
-
-    move-result-wide v2
-
-    .line 53
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
-
-    sub-int v1, p3, v1
-
-    invoke-static {v1}, Ljava/lang/Math;->abs(I)I
-
-    move-result v1
-
-    .line 54
-    int-to-double v4, v1
-
-    long-to-double v6, v2
-
-    const-wide v8, 0x408f400000000000L    # 1000.0
-
-    div-double/2addr v6, v8
-
-    div-double/2addr v4, v6
-
-    const-wide/high16 v6, 0x4014000000000000L    # 5.0
-
-    cmpl-double v4, v4, v6
-
-    if-lez v4, :cond_3f
-
-    .line 55
-    const/4 v0, 0x0
-
-    .line 57
-    :cond_3f
-    if-eqz p4, :cond_4c
-
-    const/16 v4, 0xf
-
-    if-le v1, v4, :cond_4c
-
-    const-wide/16 v4, 0xbb8
-
-    cmp-long v1, v2, v4
-
-    if-gez v1, :cond_4c
-
-    .line 58
-    const/4 v0, 0x0
-
-    .line 61
-    :cond_4c
-    iput p3, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
-
-    .line 62
-    iput-wide p1, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
-
-    .line 63
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->history:Ljava/util/ArrayDeque;
-
-    const/4 v2, 0x2
-
-    new-array v4, v2, [J
-
-    const/4 v2, 0x0
-
-    aput-wide p1, v4, v2
+    iget v4, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->total:I
 
     const/4 v5, 0x1
 
-    if-eqz v0, :cond_74
+    add-int/2addr v4, v5
 
-    const-wide/16 v2, 0x1
-
-    :goto_5d
-    aput-wide v2, v4, v5
-
-    invoke-virtual {v1, v4}, Ljava/util/ArrayDeque;->addLast(Ljava/lang/Object;)V
-
-    .line 64
-    invoke-direct {p0, p1, p2}, Lcom/isaigu/gymapp/ai/AiHrFilter;->trim(J)V
-
-    .line 65
-    if-nez v0, :cond_77
-
-    .line 66
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->rejectedTotal:I
-
-    add-int/lit8 v0, v0, 0x1
-
-    iput v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->rejectedTotal:I
-
-    .line 67
-    invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiHrFilter;->updateArtifactFlag()V
-
-    .line 68
-    const/4 v0, 0x0
-
-    .line 73
-    :goto_71
-    return v0
+    iput v4, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->total:I
 
     .line 50
-    :cond_72
-    const/4 v0, 0x0
+    const/4 v4, 0x0
 
-    goto :goto_f
+    const/16 v6, 0x1e
+
+    if-lt v3, v6, :cond_17
+
+    const/16 v6, 0xdc
+
+    if-gt v3, v6, :cond_17
+
+    const/4 v6, 0x1
+
+    goto :goto_18
+
+    :cond_17
+    const/4 v6, 0x0
+
+    .line 51
+    :goto_18
+    const-wide/16 v7, 0x1
+
+    const-wide/16 v9, 0x0
+
+    if-eqz v6, :cond_54
+
+    iget v11, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
+
+    if-lez v11, :cond_54
+
+    iget-wide v11, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
+
+    cmp-long v13, v11, v9
+
+    if-lez v13, :cond_54
+
+    .line 52
+    sub-long v11, v1, v11
+
+    invoke-static {v7, v8, v11, v12}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v11
+
+    .line 53
+    iget v13, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
+
+    sub-int v13, v3, v13
+
+    invoke-static {v13}, Ljava/lang/Math;->abs(I)I
+
+    move-result v13
+
+    .line 54
+    int-to-double v14, v13
+
+    long-to-double v7, v11
+
+    const-wide v18, 0x408f400000000000L    # 1000.0
+
+    div-double v7, v7, v18
+
+    div-double/2addr v14, v7
+
+    const-wide/high16 v7, 0x4014000000000000L    # 5.0
+
+    cmpl-double v18, v14, v7
+
+    if-lez v18, :cond_47
+
+    .line 55
+    const/4 v6, 0x0
+
+    .line 57
+    :cond_47
+    if-eqz p4, :cond_54
+
+    const/16 v7, 0xf
+
+    if-le v13, v7, :cond_54
+
+    const-wide/16 v7, 0xbb8
+
+    cmp-long v13, v11, v7
+
+    if-gez v13, :cond_54
+
+    .line 58
+    const/4 v6, 0x0
+
+    .line 61
+    :cond_54
+    iput v3, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
+
+    .line 62
+    iput-wide v1, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
 
     .line 63
-    :cond_74
-    const-wide/16 v2, 0x0
+    iget-object v7, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->history:Ljava/util/ArrayDeque;
 
-    goto :goto_5d
+    const/4 v8, 0x2
+
+    new-array v8, v8, [J
+
+    aput-wide v1, v8, v4
+
+    if-eqz v6, :cond_64
+
+    const-wide/16 v16, 0x1
+
+    goto :goto_66
+
+    :cond_64
+    move-wide/from16 v16, v9
+
+    :goto_66
+    aput-wide v16, v8, v5
+
+    invoke-virtual {v7, v8}, Ljava/util/ArrayDeque;->addLast(Ljava/lang/Object;)V
+
+    .line 64
+    invoke-direct/range {p0 .. p2}, Lcom/isaigu/gymapp/ai/AiHrFilter;->trim(J)V
+
+    .line 65
+    if-nez v6, :cond_79
+
+    .line 66
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->rejectedTotal:I
+
+    add-int/2addr v1, v5
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->rejectedTotal:I
+
+    .line 67
+    invoke-direct/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AiHrFilter;->updateArtifactFlag()V
+
+    .line 68
+    return v4
 
     .line 70
-    :cond_77
-    iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->hrS:D
+    :cond_79
+    iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->hrS:D
 
-    const-wide/16 v2, 0x0
+    const-wide/16 v8, 0x0
 
-    cmpg-double v0, v0, v2
+    cmpg-double v4, v6, v8
 
-    if-gez v0, :cond_89
+    if-gez v4, :cond_83
 
-    int-to-double v0, p3
+    int-to-double v3, v3
 
-    :goto_80
-    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->hrS:D
+    goto :goto_93
+
+    :cond_83
+    const-wide v8, 0x3fd3333333333333L    # 0.3
+
+    int-to-double v3, v3
+
+    mul-double v3, v3, v8
+
+    const-wide v8, 0x3fe6666666666666L    # 0.7
+
+    mul-double v6, v6, v8
+
+    add-double/2addr v3, v6
+
+    :goto_93
+    iput-wide v3, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->hrS:D
 
     .line 71
-    iput-wide p1, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
+    iput-wide v1, v0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
 
     .line 72
-    invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiHrFilter;->updateArtifactFlag()V
+    invoke-direct/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/AiHrFilter;->updateArtifactFlag()V
 
     .line 73
-    const/4 v0, 0x1
-
-    goto :goto_71
-
-    .line 70
-    :cond_89
-    const-wide v0, 0x3fd3333333333333L    # 0.3
-
-    int-to-double v2, p3
-
-    mul-double/2addr v0, v2
-
-    const-wide v2, 0x3fe6666666666666L    # 0.7
-
-    iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->hrS:D
-
-    mul-double/2addr v2, v4
-
-    add-double/2addr v0, v2
-
-    goto :goto_80
+    return v5
 .end method
 
 .method public reset()V
-    .registers 5
-
-    .prologue
-    const-wide/16 v2, -0x1
+    .registers 3
 
     .line 26
     const-wide/high16 v0, -0x4010000000000000L    # -1.0
@@ -464,10 +442,12 @@
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastBpm:I
 
     .line 28
-    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
+    const-wide/16 v0, -0x1
+
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastMs:J
 
     .line 29
-    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->lastAcceptedMs:J
 
     .line 30
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->history:Ljava/util/ArrayDeque;
@@ -486,7 +466,6 @@
 .method public seed(IJ)V
     .registers 6
 
-    .prologue
     .line 36
     if-lez p1, :cond_b
 
@@ -510,9 +489,8 @@
 .end method
 
 .method public validShare()D
-    .registers 7
+    .registers 6
 
-    .prologue
     .line 95
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->history:Ljava/util/ArrayDeque;
 
@@ -525,8 +503,6 @@
     .line 96
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
-    .line 102
-    :goto_a
     return-wide v0
 
     .line 98
@@ -538,40 +514,36 @@
 
     invoke-virtual {v1}, Ljava/util/ArrayDeque;->iterator()Ljava/util/Iterator;
 
+    move-result-object v1
+
+    :goto_12
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_24
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
     move-result-object v2
 
-    move v1, v0
-
-    :goto_13
-    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_26
-
-    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, [J
+    check-cast v2, [J
 
     .line 100
     const/4 v3, 0x1
 
-    aget-wide v4, v0, v3
+    aget-wide v3, v2, v3
 
-    long-to-int v0, v4
+    long-to-int v2, v3
 
-    add-int/2addr v0, v1
-
-    move v1, v0
+    add-int/2addr v0, v2
 
     .line 101
-    goto :goto_13
+    goto :goto_12
 
     .line 102
-    :cond_26
-    int-to-double v0, v1
+    :cond_24
+    int-to-double v0, v0
 
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AiHrFilter;->history:Ljava/util/ArrayDeque;
 
@@ -583,5 +555,5 @@
 
     div-double/2addr v0, v2
 
-    goto :goto_a
+    return-wide v0
 .end method

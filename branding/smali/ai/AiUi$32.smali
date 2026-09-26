@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 1756
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$32;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
@@ -42,15 +36,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 1759
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$32;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$32;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
-    const/4 v1, -0x1
+    const/4 v0, -0x1
 
-    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;->onDelta(I)V
+    invoke-interface {p1, v0}, Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;->onDelta(I)V
 
     .line 1760
     return-void

@@ -16,6 +16,7 @@ D8="${ROOT}/android-sdk/build-tools/30.0.3/d8"
 BAKSMALI="${ROOT}/tools/baksmali.jar"
 INTERVAL_CLASSES="${ROOT}/build/interval-timer-java/classes"
 MUSIC_CLASSES="${ROOT}/build/music-sync-java/classes"
+LICENSE_CLASSES="${ROOT}/build/xems-license-java/classes"
 
 WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBlePermissions.java"
@@ -99,7 +100,7 @@ rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
 javac \
   --release 8 \
-  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${MUSIC_CLASSES}:${INTERVAL_CLASSES}" \
+  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}:${MUSIC_CLASSES}:${INTERVAL_CLASSES}" \
   -d "${CLASSES_DIR}" \
   "${STUB_FILES[@]}" \
   "${WEARABLE_JAVA[@]}"

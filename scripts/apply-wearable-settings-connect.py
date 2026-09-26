@@ -51,7 +51,7 @@ def patch_direct_ble_listener(text: str) -> str:
     :catch_hr
     return-void
 """
-    if ":cond_hr_try" in text:
+    if ":cond_hr_try" in text or "NotifyWearableBridge;->applyHr(" in text:
         return text
     if needle not in text:
         raise SystemExit("DirectBleListener.onState patch anchor missing")

@@ -25,14 +25,8 @@
 
 # direct methods
 .method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 3
 
-    .prologue
     .line 228
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
@@ -46,36 +40,35 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 3
+    .registers 4
 
-    .prologue
     .line 231
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
-    const-string v1, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u2026"
+    const-string p2, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u2026"
 
-    const/4 v2, 0x0
+    const/4 v0, 0x0
 
-    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+    invoke-static {p1, p2, v0}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
+    invoke-virtual {p1}, Landroid/widget/Toast;->show()V
 
     .line 232
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
-    invoke-virtual {v0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
+    invoke-virtual {p1}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
 
-    move-result-object v0
+    move-result-object p1
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+    iget-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
-    new-instance v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;
+    new-instance v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;
 
-    invoke-direct {v2, p0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;-><init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;)V
+    invoke-direct {v0, p0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;-><init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;)V
 
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
+    invoke-static {p1, p2, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 
     .line 241
     return-void

@@ -25,14 +25,8 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/Runnable;)V
-    .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+    .registers 3
 
-    .prologue
     .line 489
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
@@ -46,13 +40,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 1
+    .registers 2
 
-    .prologue
     .line 491
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$pick:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$pick:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
     .line 492
     return-void

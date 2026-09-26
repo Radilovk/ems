@@ -24,14 +24,8 @@
 # direct methods
 .method constructor <init>(Landroid/app/Activity;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
-    .line 112
+    .line 109
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableHrPanel$1;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,17 +36,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
-    .prologue
-    .line 115
+    .line 112
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->dismiss()V
 
-    .line 116
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableHrPanel$1;->val$a:Landroid/app/Activity;
+    .line 113
+    iget-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableHrPanel$1;->val$a:Landroid/app/Activity;
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->show(Landroid/app/Activity;)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->show(Landroid/app/Activity;)V
 
-    .line 117
+    .line 114
     return-void
 .end method

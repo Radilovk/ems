@@ -22,8 +22,7 @@
 .field public final contraindications:Ljava/util/Map;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/Map",
-            "<",
+            "Ljava/util/Map<",
             "Ljava/lang/String;",
             "Ljava/lang/Boolean;",
             ">;"
@@ -44,10 +43,7 @@
 
 # direct methods
 .method public constructor <init>()V
-    .registers 3
-
-    .prologue
-    const/4 v1, 0x1
+    .registers 2
 
     .line 42
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -60,13 +56,15 @@
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->contraindications:Ljava/util/Map;
 
     .line 47
-    iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->ateLast2h:Z
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->ateLast2h:Z
 
     .line 48
-    iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->hydrated:Z
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->hydrated:Z
 
     .line 51
-    iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->restedLast10min:Z
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->restedLast10min:Z
 
     return-void
 .end method

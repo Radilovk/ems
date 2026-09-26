@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Ljava/lang/Runnable;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 804
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$refresh:Ljava/lang/Runnable;
 
@@ -42,39 +36,38 @@
 
 # virtual methods
 .method public onStep(I)V
-    .registers 5
+    .registers 4
 
-    .prologue
     .line 807
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1000()I
 
-    move-result v0
+    move-result p1
 
-    add-int/lit8 v0, v0, 0x1
+    add-int/lit8 p1, p1, 0x1
 
-    const/4 v1, 0x0
+    const/4 v0, 0x0
 
-    const/16 v2, 0x1e
+    const/16 v1, 0x1e
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->clamp(III)I
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1300(III)I
+    invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1300(III)I
 
-    move-result v0
+    move-result p1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1002(I)I
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1002(I)I
 
     .line 808
-    const-string v0, ""
+    const-string p1, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
 
     .line 809
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$refresh:Ljava/lang/Runnable;
+    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$refresh:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
     .line 810
     return-void

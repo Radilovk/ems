@@ -221,7 +221,7 @@ EN_STRINGS = """
     <string name="beta_music_player_close">Close player</string>
     <string name="beta_music_player_brand">Beat Impulse Sync&#174;</string>
     <string name="beta_music_player_info_title">Beat Impulse Sync — help</string>
-    <string name="beta_music_player_info_body">The player plays music and drives EMS pulse strength from it.\\n\\n1. Add a participant on the Train screen.\\n2. Set the strength limit (MA) with the circle slider on their row — this is the ceiling.\\n3. Add tracks with ☰ and press ▶.\\n\\n⚙ Settings (apply live):\\n• Rhythm — 0% follows loudness, 100% only the beats (kick/bass hits).\\n• Minimum — lowest strength while music plays, % of the ceiling.\\n• Softness — how gently strength rises; drops stay instant.\\n• Sensitivity — contrast between quiet and loud parts.\\nPresets: Soft / Balanced / Beat.\\n\\nMeter: ♪ music level, ⚡ strength sent to the suit (shaded = minimum, line = ceiling). BLE shows the measured delay to the suit; the player compensates it automatically.\\n\\nHold ☰ next to a track to reorder. ✕ stops and closes.</string>
+    <string name="beta_music_player_info_body">The player plays music and drives EMS pulse strength from it.\\n\\n1. Add a participant on the Train screen.\\n2. Set the strength limit (MA) with the circle slider on their row — this is the ceiling.\\n3. Add tracks with ☰ and press ▶.\\n\\n⚙ Settings (apply live):\\n• Rhythm — 0% follows loudness, 100% only the beats (kick/bass hits).\\n• Minimum — lowest strength while music plays, % of the ceiling.\\n• Softness — how gently strength rises; drops stay instant.\\n• Sensitivity — contrast between quiet and loud parts.\\nAuto sets rhythm, minimum, softness, sensitivity and frequency from the track (bass → lower Hz, treble → higher Hz) and eases them between sections. Soft / Balanced / Beat stay a manual choice.\\n\\nMeter: ♪ music level, ⚡ strength sent to the suit (shaded = minimum, line = ceiling). BLE shows the measured delay to the suit; the player compensates it automatically.\\n\\nHold ☰ next to a track to reorder. ✕ stops and closes.</string>
     <string name="beta_music_player_settings">Settings</string>
     <string name="beta_music_player_rhythm">Rhythm</string>
     <string name="beta_music_player_floor">Minimum</string>
@@ -256,7 +256,7 @@ BG_STRINGS = """
     <string name="beta_music_player_close">Затвори плейъра</string>
     <string name="beta_music_player_brand">Beat Impulse Sync&#174;</string>
     <string name="beta_music_player_info_title">Beat Impulse Sync — помощ</string>
-    <string name="beta_music_player_info_body">Плейърът пуска музика и управлява силата на EMS импулса според нея.\\n\\n1. Добавете участник на екрана „Тренировка“.\\n2. Задайте ограничение на силата (MA) от кръговия слайдер на реда му — това е таванът.\\n3. Добавете песни с ☰ и натиснете ▶.\\n\\n⚙ Настройки (важат веднага):\\n• Ритъм — 0% следва силата на звука, 100% само ударите (бас/барабан).\\n• Минимум — най-ниската сила, докато свири музика, в % от тавана.\\n• Мекота — колко плавно се покачва силата; спадът е мигновен.\\n• Чувствителност — контраст между тихите и силните части.\\nГотови режими: Плавно / Баланс / Удари.\\n\\nИндикатор: ♪ ниво на музиката, ⚡ сила към костюма (оцветено = минимум, черта = таван). BLE показва измереното забавяне до костюма — плейърът го компенсира сам.\\n\\nЗадръжте ☰ до песен, за да я пренаредите. ✕ спира и затваря.</string>
+    <string name="beta_music_player_info_body">Плейърът пуска музика и управлява силата на EMS импулса според нея.\\n\\n1. Добавете участник на екрана „Тренировка“.\\n2. Задайте ограничение на силата (MA) от кръговия слайдер на реда му — това е таванът.\\n3. Добавете песни с ☰ и натиснете ▶.\\n\\n⚙ Настройки (важат веднага):\\n• Ритъм — 0% следва силата на звука, 100% само ударите (бас/барабан).\\n• Минимум — най-ниската сила, докато свири музика, в % от тавана.\\n• Мекота — колко плавно се покачва силата; спадът е мигновен.\\n• Чувствителност — контраст между тихите и силните части.\\nАвто смята ритъм, минимум, мекота, чувствителност и честота от песента (бас → по-ниски Hz, високи → по-високи) и ги мести плавно между частите. Плавно / Баланс / Удари остават ръчен избор.\\n\\nИндикатор: ♪ ниво на музиката, ⚡ сила към костюма (оцветено = минимум, черта = таван). BLE показва измереното забавяне до костюма — плейърът го компенсира сам.\\n\\nЗадръжте ☰ до песен, за да я пренаредите. ✕ спира и затваря.</string>
     <string name="beta_music_player_settings">Настройки</string>
     <string name="beta_music_player_rhythm">Ритъм</string>
     <string name="beta_music_player_floor">Минимум</string>
@@ -382,14 +382,18 @@ def install_smali() -> None:
         "MusicSyncBridge.smali",
         "SoundEnvelopeMapper.smali",
         "MusicUriSource.smali",
+        "MusicAutoTune.smali",
     )
     for name in utils_smali:
         src = BRANDING / f"smali/{name}"
         if src.is_file():
             shutil.copy2(src, UTILS_DIR / name)
             print(f"installed train/utils/{name}")
-        elif name == "MusicUriSource.smali":
+        elif name in ("MusicUriSource.smali", "MusicAutoTune.smali"):
             raise SystemExit(f"Missing {name} — run compile-music-sync-java.sh")
+    for src in sorted((BRANDING / "smali").glob("MusicAutoTune$*.smali")):
+        shutil.copy2(src, UTILS_DIR / src.name)
+        print(f"installed train/utils/{src.name}")
     for src in sorted((BRANDING / "smali").glob("MusicSync$*.smali")):
         shutil.copy2(src, UTILS_DIR / src.name)
         print(f"installed train/utils/{src.name}")

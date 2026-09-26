@@ -23,9 +23,8 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;)V
-    .locals 0
+    .registers 2
 
-    .prologue
     .line 254
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3$1;->this$1:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;
 
@@ -37,9 +36,8 @@
 
 # virtual methods
 .method public onPicked(Landroid/graphics/Bitmap;)V
-    .locals 1
+    .registers 3
 
-    .prologue
     .line 256
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3$1;->this$1:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;
 

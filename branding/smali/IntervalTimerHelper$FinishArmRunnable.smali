@@ -21,7 +21,6 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
     .line 2058
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -33,7 +32,6 @@
 .method public run()V
     .registers 1
 
-    .prologue
     .line 2061
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->finishArm()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4400()V

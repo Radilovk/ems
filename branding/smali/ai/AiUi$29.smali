@@ -24,13 +24,7 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
     .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
-    .prologue
     .line 1534
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -42,18 +36,17 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 3
 
-    .prologue
     .line 1537
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
-    move-result-object v0
+    move-result-object p1
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->shareReport(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$900(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$900(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
 
     .line 1538
     return-void

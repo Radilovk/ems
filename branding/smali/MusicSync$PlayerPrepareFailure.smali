@@ -19,10 +19,9 @@
 
 # direct methods
 .method constructor <init>()V
-    .locals 0
+    .registers 1
 
-    .prologue
-    .line 699
+    .line 888
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,22 +30,23 @@
 
 # virtual methods
 .method public run()V
-    .locals 1
+    .registers 2
 
-    .prologue
-    .line 702
+    .line 891
     const/4 v0, 0x0
 
+    # setter for: Lcom/isaigu/gymapp/train/utils/MusicSync;->playerPreparing:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$402(Z)Z
 
-    .line 703
+    .line 892
+    # invokes: Lcom/isaigu/gymapp/train/utils/MusicSync;->stopCaptureOnly()V
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->access$500()V
 
-    .line 704
+    .line 893
     const v0, 0x7f0d0113
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->showError(I)V
 
-    .line 705
+    .line 894
     return-void
 .end method

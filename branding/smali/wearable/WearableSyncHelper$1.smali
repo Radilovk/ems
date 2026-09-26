@@ -21,8 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
-    .line 175
+    .line 183
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -33,8 +32,7 @@
 .method public run()V
     .registers 3
 
-    .prologue
-    .line 178
+    .line 186
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
@@ -42,8 +40,8 @@
 
     move-result-object v0
 
-    .line 179
-    if-eqz v0, :cond_d
+    .line 187
+    if-eqz v0, :cond_29
 
     invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
 
@@ -51,12 +49,9 @@
 
     if-eqz v0, :cond_e
 
-    .line 189
-    :cond_d
-    :goto_d
-    return-void
+    goto :goto_29
 
-    .line 183
+    .line 191
     :cond_e
     :try_start_e
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
@@ -75,25 +70,34 @@
 
     move-result v0
 
-    if-nez v0, :cond_d
+    if-nez v0, :cond_21
 
-    .line 184
+    .line 192
     :cond_1e
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->showOverlayDialog()Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$200()Z
     :try_end_21
-    .catch Ljava/lang/Throwable; {:try_start_e .. :try_end_21} :catch_22
+    .catchall {:try_start_e .. :try_end_21} :catchall_22
 
-    goto :goto_d
+    .line 196
+    :cond_21
+    goto :goto_28
 
-    .line 186
-    :catch_22
+    .line 194
+    :catchall_22
     move-exception v0
 
-    .line 187
+    .line 195
     const-string v1, "WearableSyncHelper.showDial"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_d
+    .line 197
+    :goto_28
+    return-void
+
+    .line 188
+    :cond_29
+    :goto_29
+    return-void
 .end method

@@ -21,7 +21,6 @@
 .method private constructor <init>()V
     .registers 1
 
-    .prologue
     .line 290
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -31,7 +30,6 @@
 .method synthetic constructor <init>(Lcom/isaigu/gymapp/wearable/WearableLivePanel$1;)V
     .registers 2
 
-    .prologue
     .line 290
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel$RefreshTask;-><init>()V
 
@@ -41,9 +39,8 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .registers 4
 
-    .prologue
     .line 293
     # getter for: Lcom/isaigu/gymapp/wearable/WearableLivePanel;->dialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->access$500()Landroid/support/v7/app/AlertDialog;
@@ -52,8 +49,7 @@
 
     if-nez v0, :cond_7
 
-    .line 298
-    :goto_6
+    .line 294
     return-void
 
     .line 296
@@ -66,9 +62,10 @@
 
     move-result-object v0
 
-    const-wide/16 v2, 0x3e8
+    const-wide/16 v1, 0x3e8
 
-    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    goto :goto_6
+    .line 298
+    return-void
 .end method

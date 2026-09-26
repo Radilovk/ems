@@ -21,8 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .prologue
-    .line 300
+    .line 297
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,89 +30,87 @@
 
 # virtual methods
 .method public onIndex(I)V
-    .registers 5
+    .registers 4
 
-    .prologue
-    const/4 v2, 0x0
-
-    .line 303
+    .line 300
     const/4 v0, 0x2
 
     invoke-static {v0, p1}, Ljava/lang/Math;->min(II)I
 
-    move-result v0
+    move-result p1
 
-    invoke-static {v2, v0}, Ljava/lang/Math;->max(II)I
+    const/4 v0, 0x0
 
-    move-result v0
+    invoke-static {v0, p1}, Ljava/lang/Math;->max(II)I
+
+    move-result p1
 
     # setter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->windowIdx:I
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$402(I)I
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$402(I)I
+
+    .line 301
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chart:Lcom/isaigu/gymapp/wearable/HrChartView;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$300()Lcom/isaigu/gymapp/wearable/HrChartView;
+
+    move-result-object p1
+
+    if-eqz p1, :cond_20
+
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chart:Lcom/isaigu/gymapp/wearable/HrChartView;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$300()Lcom/isaigu/gymapp/wearable/HrChartView;
+
+    move-result-object p1
+
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/wearable/HrChartView;->getContext()Landroid/content/Context;
+
+    move-result-object p1
+
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
+
+    move-result-object p1
+
+    goto :goto_21
+
+    :cond_20
+    const/4 p1, 0x0
+
+    .line 302
+    :goto_21
+    if-eqz p1, :cond_3e
+
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chartCard:Landroid/widget/LinearLayout;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$500()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_3e
+
+    .line 303
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chartCard:Landroid/widget/LinearLayout;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$500()Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->removeViewAt(I)V
 
     .line 304
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chart:Lcom/isaigu/gymapp/wearable/HrChartView;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$300()Lcom/isaigu/gymapp/wearable/HrChartView;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_3d
-
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chart:Lcom/isaigu/gymapp/wearable/HrChartView;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$300()Lcom/isaigu/gymapp/wearable/HrChartView;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/HrChartView;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
-
-    move-result-object v0
-
-    .line 305
-    :goto_1f
-    if-eqz v0, :cond_3c
-
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chartCard:Landroid/widget/LinearLayout;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$500()Landroid/widget/LinearLayout;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_3c
-
-    .line 306
-    # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chartCard:Landroid/widget/LinearLayout;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$500()Landroid/widget/LinearLayout;
-
-    move-result-object v1
-
-    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->removeViewAt(I)V
-
-    .line 307
     # getter for: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->chartCard:Landroid/widget/LinearLayout;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$500()Landroid/widget/LinearLayout;
 
     move-result-object v1
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->range(Landroid/app/Activity;)Landroid/view/View;
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$600(Landroid/app/Activity;)Landroid/view/View;
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$600(Landroid/app/Activity;)Landroid/view/View;
 
-    move-result-object v0
+    move-result-object p1
 
-    invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;I)V
+    invoke-virtual {v1, p1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;I)V
 
-    .line 308
+    .line 305
     # invokes: Lcom/isaigu/gymapp/wearable/WearableHrPanel;->refresh()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableHrPanel;->access$700()V
 
-    .line 310
-    :cond_3c
+    .line 307
+    :cond_3e
     return-void
-
-    .line 304
-    :cond_3d
-    const/4 v0, 0x0
-
-    goto :goto_1f
 .end method

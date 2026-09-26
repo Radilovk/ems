@@ -30,8 +30,7 @@
 .field public final phases:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/List",
-            "<",
+            "Ljava/util/List<",
             "Lcom/isaigu/gymapp/ai/AiModel$Phase;",
             ">;"
         }
@@ -57,7 +56,6 @@
 .method public constructor <init>()V
     .registers 3
 
-    .prologue
     .line 171
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 

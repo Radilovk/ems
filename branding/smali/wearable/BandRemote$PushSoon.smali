@@ -19,10 +19,9 @@
 
 # direct methods
 .method constructor <init>()V
-    .locals 0
+    .registers 1
 
-    .prologue
-    .line 202
+    .line 207
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,34 +30,35 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .registers 3
 
-    .prologue
-    .line 205
+    .line 210
     const/4 v0, 0x0
 
+    # setter for: Lcom/isaigu/gymapp/wearable/BandRemote;->pushQueued:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$002(Z)Z
 
-    .line 207
+    .line 212
     const/4 v0, 0x1
 
-    :try_start_0
+    :try_start_5
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->push(Z)V
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+    :try_end_8
+    .catchall {:try_start_5 .. :try_end_8} :catchall_9
 
-    .line 211
-    :goto_0
-    return-void
+    .line 215
+    goto :goto_f
 
-    .line 208
-    :catch_0
+    .line 213
+    :catchall_9
     move-exception v0
 
-    .line 209
+    .line 214
     const-string v1, "BandRemote.pushSoon"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_0
+    .line 216
+    :goto_f
+    return-void
 .end method

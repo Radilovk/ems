@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
+import com.isaigu.gymapp.ai.AiSession;
+import com.isaigu.gymapp.dialog.IntervalTimerHelper;
 import com.isaigu.gymapp.train.TrainItemManager;
 import com.isaigu.gymapp.train.model.TrainItem;
+import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBand;
+import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandBleClient;
 import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandLink;
+import com.isaigu.gymapp.widget.XemsPanel;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -378,11 +383,13 @@ public final class NotifyWearableBridge {
     private static final HrPolicy hrPolicy = new HrPolicy();
 
     /**
-     * Heart rate is measured only while something uses it: pulse auto-control, AI session, the HR
-     * dial, or a settings connection test. Otherwise the band stops measuring; the link stays up.
+     * Heart rate while something needs it: HR dial / AI / settings test, an active training or
+     * module, or pulse auto-control while the band app was used recently. Otherwise stop 8/45;
+     * the BLE link stays up.
      */
     static void applyHr(Context context) {
-        boolean want = HrDemandPolicy.wantsHeartRate(context, owners);
+        boolean want = HrDemandPolicy.wantsHeartRate(context, owners, isSessionActive(),
+                XiaomiBandAppLink.getLastMessageMs(), System.currentTimeMillis());
         if (hrOn != null && hrOn.booleanValue() == want) {
             return;
         }
@@ -566,6 +573,38 @@ public final class NotifyWearableBridge {
             sb.append(compact.charAt(i + 1));
         }
         return sb.toString();
+    }
+
+    /** Tablet session that still needs live HR (even if the band quick app is closed). */
+    private static boolean isSessionActive() {
+        if (isAnyTrainingRunning()) {
+            return true;
+        }
+        try {
+            if (XemsPanel.isRunning()) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (AiSession.ownsOutput()) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (MusicSync.isRunning()) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (IntervalTimerHelper.isCounting()) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     private static boolean isAnyTrainingRunning() {

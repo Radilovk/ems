@@ -42,8 +42,8 @@ public class MusicSync {
     private static final String KEY_AUTO = "auto_tune";
     /** Full-scale settings glide to the next section over this long. */
     private static final float AUTO_SLEW_MS = 2500f;
-    /** Impulse Hz at bass-heavy music; 0 = Hz does not follow the sound (default). */
-    public static final int DEFAULT_HZ_BASS = 0;
+    /** Impulse Hz at bass-heavy music. Hz always follows the sound: there is no off. */
+    public static final int DEFAULT_HZ_BASS = 30;
     /** Impulse Hz at treble-heavy music. */
     public static final int DEFAULT_HZ_TREBLE = 85;
     public static final int HZ_MIN = 5;
@@ -65,7 +65,7 @@ public class MusicSync {
     private static int smoothness = DEFAULT_SMOOTHNESS;
     private static float slewLevel;
     private static long slewLastMs;
-    /** Hz by sound: bass → hzBass, treble → hzTreble (hzBass 0 = off). */
+    /** Hz by sound: bass → hzBass, treble → hzTreble. Always on while the player runs. */
     private static int hzBass = DEFAULT_HZ_BASS;
     private static int hzTreble = DEFAULT_HZ_TREBLE;
     /** On: each track calibrates rhythm, floor, softness, sensitivity and Hz. */
@@ -336,7 +336,7 @@ public class MusicSync {
     }
 
     /**
-     * Impulse Hz for the current moment, or −1 when Hz-by-sound is off. The tone (bass 0 …
+     * Impulse Hz for the current moment, or −1 outside player mode. The tone (bass 0 …
      * treble 100) goes through exactly the strength's path: same player look-ahead, same
      * attack / release smoothing, same rise limit (smoothness), same BLE update.
      */
@@ -390,12 +390,10 @@ public class MusicSync {
         return hzTreble;
     }
 
-    /** 0 = off (the program's Hz is put back at once). */
+    /** Never off: 0 or an old saved "off" falls back to the default bass Hz. */
     public static void setHzBass(int value) {
-        hzBass = value <= 0 ? 0 : Math.max(HZ_MIN, Math.min(HZ_MAX, value));
-        if (hzBass == 0) {
-            restoreProgramHz();
-        } else if (running) {
+        hzBass = value <= 0 ? DEFAULT_HZ_BASS : Math.max(HZ_MIN, Math.min(HZ_MAX, value));
+        if (running) {
             rememberProgramHz();
         }
     }
@@ -707,14 +705,8 @@ public class MusicSync {
             autoRhythm = rhythmMix;
             autoFloor = MasterStrengthControl.getFloorPercent();
             autoSmooth = smoothness;
-            autoHzBass = hzBass <= 0 ? target.hzBass : hzBass;
+            autoHzBass = hzBass;
             autoHzTreble = hzTreble;
-            if (hzBass <= 0) {
-                applyAuto(sensitivity, rhythmMix, MasterStrengthControl.getFloorPercent(), smoothness,
-                        target.hzBass, target.hzTreble);
-                autoHzBass = target.hzBass;
-                autoHzTreble = target.hzTreble;
-            }
         }
         MusicDiagLog.log("auto-tune",
                 "rhythm=" + target.rhythmMix
@@ -772,7 +764,8 @@ public class MusicSync {
             setRhythmMix(prefs.getInt(KEY_RHYTHM_MIX, DEFAULT_RHYTHM_MIX));
             MasterStrengthControl.setFloorPercent(prefs.getInt(KEY_FLOOR, DEFAULT_FLOOR));
             setSmoothness(prefs.getInt(KEY_SMOOTHNESS, DEFAULT_SMOOTHNESS));
-            hzBass = prefs.getInt(KEY_HZ_BASS, DEFAULT_HZ_BASS);
+            // Saved 0 was the old "off"; Hz by sound is now always on.
+            setHzBass(prefs.getInt(KEY_HZ_BASS, DEFAULT_HZ_BASS));
             setHzTreble(prefs.getInt(KEY_HZ_TREBLE, DEFAULT_HZ_TREBLE));
             autoTune = prefs.getBoolean(KEY_AUTO, true);
         } catch (Throwable t) {
@@ -956,9 +949,7 @@ public class MusicSync {
             playerMode = true;
             running = true;
             setSyncActive(true);
-            if (hzBass > 0) {
-                rememberProgramHz();
-            }
+            rememberProgramHz();
             liveStrength = 0;
             trainingGateOpen = true;
             pausedByTraining = false;
@@ -1190,6 +1181,8 @@ public class MusicSync {
         @Override
         public void run() {
             try {
+                // The song that is playing drives the suit; this decode must not delay its ticks.
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                 MusicPlayerEngine.Envelope envelope = MusicPlayerEngine.buildEnvelope(context, uri);
                 ensureHandler();
                 handler.post(new PrefetchReady(gen, envelope));

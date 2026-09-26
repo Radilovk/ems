@@ -370,7 +370,7 @@ export default {
     }, SLIDE_COMMIT_MS)
   },
 
-  /** Same path as tap ±: batched ch_plus / ch_minus with d up to 10 per command. */
+  /** Same as tap ±: batched ch_plus / ch_minus (d≤10 per command). */
   sendChannelDelta(c, delta) {
     if (!delta) {
       return

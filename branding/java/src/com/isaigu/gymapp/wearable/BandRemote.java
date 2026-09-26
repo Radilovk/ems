@@ -281,58 +281,64 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         return null;
     }
 
-    /** Channel percent (buwei 0–100) — same scale as the tablet's vertical channel bars. */
-    static int[] channelPercents(com.isaigu.gymapp.train.model.TrainItem item) {
+    /**
+     * Real impulse strength per channel (0–100), what the suit gets:
+     * buwei% × main strength — same number the tablet shows next to each bar.
+     */
+    static int[] channelRealStrength(com.isaigu.gymapp.train.model.TrainItem item) {
         try {
             com.isaigu.gymapp.bean.ProgramDataBean b = item.getTrainProgram().matchProgram();
             if (b == null || b.strenthBean == null || b.strenthBean.buwei == null) {
                 return null;
             }
-            return b.strenthBean.buwei;
+            int[] parts = b.strenthBean.buwei;
+            int[] out = new int[parts.length];
+            for (int i = 0; i < parts.length; i++) {
+                out[i] = (int) (parts[i] / 100.0f * b.strenth);
+            }
+            return out;
         } catch (Throwable t) {
             return null;
         }
     }
 
-    /** Push buwei change to the suit (same as tablet bar release → sendPulse). */
-    static void applyChannelPercent(com.isaigu.gymapp.train.model.TrainItem item) {
-        try {
-            item.addAllPartValue(0, true);
-        } catch (Throwable t) {
-            XemsGuard.report("BandRemote.applyChannelPercent", t);
-        }
-    }
-
-    /** One channel ±d percent — same buwei step as tablet vertical bar tap. */
+    /**
+     * ±d on real impulse for one channel — PartStrength path (may raise main strength).
+     */
     static void channelStep(int c, int d) {
         com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
-        int[] parts = item != null ? channelPercents(item) : null;
-        if (parts == null || c < 0 || c >= parts.length || d == 0) {
+        boolean[] ctl = item != null ? item.partsControl : null;
+        if (ctl == null || c < 0 || c >= ctl.length || d == 0) {
             return;
         }
-        int next = Math.max(0, Math.min(100, parts[c] + d));
-        if (next == parts[c]) {
-            return;
+        boolean[] saved = ctl.clone();
+        boolean ok;
+        try {
+            for (int i = 0; i < ctl.length; i++) {
+                ctl[i] = i == c;
+            }
+            ok = com.isaigu.gymapp.train.utils.PartStrength.addSelected(item, d);
+        } finally {
+            System.arraycopy(saved, 0, ctl, 0, saved.length);
         }
-        parts[c] = next;
-        applyChannelPercent(item);
-        WearableBleDiagLog.log("applink", "channel " + c + (d > 0 ? " +" : " ") + d + " → " + next + "%");
+        int[] v = channelRealStrength(item);
+        WearableBleDiagLog.log("applink", "channel " + c + (d > 0 ? " +" : " ") + d
+                + (ok && v != null && c < v.length ? " → " + v[c] : " (not applied)"));
     }
 
-    /** Absolute buwei target (kept for ch_set); band slider uses batched ch_plus/ch_minus instead. */
+    /** ch_set fallback: one channelStep with full delta (band slider uses ch_plus/ch_minus batches). */
     static void channelSet(int c, int v) {
         com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
-        int[] parts = item != null ? channelPercents(item) : null;
-        if (parts == null || c < 0 || c >= parts.length) {
+        int[] vals = item != null ? channelRealStrength(item) : null;
+        if (vals == null || c < 0 || c >= vals.length) {
             return;
         }
         int target = Math.max(0, Math.min(100, v));
-        if (parts[c] == target) {
+        int delta = target - vals[c];
+        if (delta == 0) {
             return;
         }
-        parts[c] = target;
-        applyChannelPercent(item);
-        WearableBleDiagLog.log("applink", "channel " + c + " =" + target + "%");
+        channelStep(c, delta);
     }
 
     /** Tiny reader for our own flat JSON ({"k":"v"}); no nesting needed on this side. */
@@ -705,11 +711,11 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         }
     }
 
-    /** The slot's channels: [value 0..100, or −1 when the channel is switched off], by index. */
+    /** Real impulse per channel 0..100, or −1 when off — band slider uses full absolute range. */
     private static org.json.JSONArray channels() {
         org.json.JSONArray a = new org.json.JSONArray();
         com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
-        int[] v = item != null ? channelPercents(item) : null;
+        int[] v = item != null ? channelRealStrength(item) : null;
         if (v == null) {
             return a;
         }

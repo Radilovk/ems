@@ -32,7 +32,7 @@ def make(color):
     px = im.load()
     for y in range(H):
         for x in range(W):
-            g = 0.95 * glow(W * 0.5, -30, 150, 180, x, y) + 0.35 * glow(W * 0.95, H + 20, 115, 130, x, y)
+            g = 0.95 * glow(W * 0.5, -30, 150, 180, x, y)
             px[x, y] = tuple(int(BASE[i] + (color[i] - BASE[i]) * g * 0.62) for i in range(3))
     return im.quantize(colors=48, dither=Image.Dither.FLOYDSTEINBERG)
 

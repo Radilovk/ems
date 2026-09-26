@@ -30,7 +30,7 @@
 
 .field public static final PACKAGE:Ljava/lang/String; = "com.xems.band"
 
-.field public static final VERSION:I = 0x22
+.field public static final VERSION:I = 0x23
 
 .field private static final autoCheck:Ljava/lang/Runnable;
 

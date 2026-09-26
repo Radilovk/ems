@@ -20,7 +20,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 34
+const APP_VERSION = 35
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -38,6 +38,7 @@ export default {
   pending: [],
   langSaid: false,
   listeners: [],
+  notifyTimer: null,
   conn: null,
   helloTimer: null,
   /** Shown on the connecting screen: what the band's link to the phone does. */
@@ -61,6 +62,7 @@ export default {
 
   onDestroy() {
     this.listeners = []
+    clearTimeout(this.notifyTimer)
     clearInterval(this.helloTimer)
     clearInterval(this.beat)
     this.keepOn(false)
@@ -300,6 +302,9 @@ export default {
       })
     }
     const now = Date.now()
+    if (this.pending.length > 12) {
+      this.pending.shift()
+    }
     this.pending.push({ id: this.nextId, msg: msg, at: now, t0: now, tries: 0 })
     this.send(msg)
     if (buzz !== 'none') {
@@ -328,11 +333,18 @@ export default {
   },
 
   notify() {
-    this.listeners.forEach((f) => {
-      try {
-        f(this.state)
-      } catch (e) {}
-    })
+    if (this.notifyTimer) {
+      return
+    }
+    this.notifyTimer = setTimeout(() => {
+      this.notifyTimer = null
+      const s = this.state
+      this.listeners.forEach((f) => {
+        try {
+          f(s)
+        } catch (e) {}
+      })
+    }, 80)
   }
 }
 </script>

@@ -4,7 +4,6 @@
     <scroll id="trainScr" class="scr" scroll-y="true" onscroll="onScroll">
       <div class="col" style="height: {{colH}}px">
         <div class="ctl">
-          <text class="caps" style="color: {{runColor}}">{{caps}}</text>
           <text class="elapsed">{{elapsed}}</text>
           <div class="kpis">
             <div class="kpi">
@@ -35,8 +34,6 @@
                ontouchcancel="allTouchEnd"></div>
         </stack>
 
-        <text class="chcap">{{chCaps}}</text>
-
         <stack for="{{chans}}" class="cbox">
           <div class="cfill" style="width: {{$item.w}}px; background-color: {{$item.fill}}"></div>
           <div class="cface">
@@ -57,15 +54,12 @@
         </stack>
 
         <div class="stop-item">
-          <text class="caps">КРАЙ</text>
           <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
             <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
             <div class="stop-core">
               <image class="stop-img" src="/common/icons/stop.png"></image>
             </div>
           </stack>
-          <text class="sub">{{holdPct > 0 ? 'дръж…' : 'задръж 1 сек'}}</text>
-          <text class="rtt">{{rttText}}</text>
         </div>
       </div>
     </scroll>
@@ -85,7 +79,7 @@
 </template>
 
 <script>
-import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe } from '../../common/ui.js'
+import { GREEN, AMBER, RED, hms, zoneOf, zoneColor, mods, bind, shown, swipe, liveElapsed } from '../../common/ui.js'
 
 const HOLD_MS = 1200
 const SLIDE_OPEN_MS = 400
@@ -125,8 +119,6 @@ function touchX(e) {
 
 export default {
   private: {
-    caps: 'СТАРТ',
-    runColor: '#8E8E93',
     run: false,
     elapsed: '0:00',
     zoneColor: '#AEAEB2',
@@ -135,11 +127,9 @@ export default {
     msText: '--',
     hrText: '--',
     zoneText: 'пулс',
-    rttText: '',
-    chCaps: 'КАНАЛИ',
     chans: [],
     chKey: '',
-    colH: 1052,
+    colH: 900,
     allBtnSrc: '/common/ui/all-btn-dim.png',
     slideOn: false,
     slideIdx: -1,
@@ -157,6 +147,8 @@ export default {
   onInit() {
     this.optim = {}
     this.optMs = null
+    this.elBase = 0
+    this.elAt = 0
     this.savedScroll = 0
     this.unbind = bind(this)
   },
@@ -221,9 +213,7 @@ export default {
     }
     const run = !!mods(s).tr.run
     this.run = run
-    this.caps = run ? 'АКТИВЕН' : s.mode === 'manual' ? 'ПАУЗА' : 'ГОТОВ'
-    this.runColor = run ? GREEN : s.mode === 'manual' ? AMBER : '#8E8E93'
-    this.elapsed = hms((s.el || 0) + (run ? app.silence() : 0))
+    this.elapsed = hms(liveElapsed(s, run, this))
     const z = s.hr > 0 ? s.z || zoneOf(s.hr, s.lim || 170) : 0
     this.hrText = s.hr > 0 ? String(s.hr) : '--'
     this.zoneText = s.hr > 0 ? 'пулс · Z' + z : 'пулс'
@@ -237,7 +227,6 @@ export default {
       }
     }
     this.msText = ms >= 0 ? String(ms) : '--'
-    this.rttText = app.rtt ? 'отговор ' + (app.rtt / 1000).toFixed(1) + ' с' : ''
     this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
     this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
     if (this.slideOn) {
@@ -251,6 +240,12 @@ export default {
     if (live === undefined) {
       live = this.run
     }
+    const now = Date.now()
+    Object.keys(this.optim).forEach((k) => {
+      if (now - this.optim[k].at > 2000) {
+        delete this.optim[k]
+      }
+    })
     const out = []
     ORDER.forEach((i) => {
       if (i >= ch.length) {
@@ -280,7 +275,6 @@ export default {
         signColor: style.signColor
       })
     })
-    this.chCaps = out.length ? 'КАНАЛИ · ' + out.length : 'няма канали'
     const key = (live ? '1' : '0') + JSON.stringify(out)
     if (key === this.chKey) {
       return
@@ -300,7 +294,7 @@ export default {
       })
     } else {
       this.chans = out
-      this.colH = 340 + 86 + 44 + out.length * 86 + 400
+      this.colH = 300 + 86 + out.length * 86 + 230
     }
   },
 
@@ -835,34 +829,23 @@ export default {
 }
 .ctl {
   flex-shrink: 0;
-  height: 340px;
+  height: 300px;
   width: 212px;
   flex-direction: column;
   align-items: center;
-  padding-top: 42px;
+  padding-top: 36px;
 }
 .play {
   flex-shrink: 0;
-  width: 96px;
-  height: 96px;
-  margin-top: 10px;
-  border-radius: 48px;
+  width: 120px;
+  height: 120px;
+  margin-top: 16px;
+  border-radius: 60px;
 }
 .play-img {
   flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-}
-.chcap {
-  flex-shrink: 0;
-  height: 44px;
-  width: 196px;
-  margin-left: 8px;
-  margin-top: 10px;
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  color: #8e8e93;
+  width: 58px;
+  height: 58px;
 }
 .cbox {
   flex-shrink: 0;
@@ -973,12 +956,6 @@ export default {
   font-size: 18px;
   color: #8e8e93;
 }
-.rtt {
-  flex-shrink: 0;
-  margin-top: 8px;
-  font-size: 18px;
-  color: #48484a;
-}
 .ctouch {
   flex-shrink: 0;
   width: 196px;
@@ -995,18 +972,18 @@ export default {
 }
 .stop-item {
   flex-shrink: 0;
-  height: 400px;
+  height: 230px;
   width: 212px;
   flex-direction: column;
   align-items: center;
-  padding-top: 24px;
-  padding-bottom: 100px;
+  padding-top: 20px;
+  padding-bottom: 40px;
 }
 .stop-box {
   flex-shrink: 0;
   width: 190px;
   height: 190px;
-  margin-top: 12px;
+  margin-top: 0px;
   justify-content: center;
   align-items: center;
 }

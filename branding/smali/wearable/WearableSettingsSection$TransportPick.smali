@@ -27,53 +27,54 @@
 .method constructor <init>(Landroid/app/Activity;Landroid/view/View;)V
     .registers 3
 
-    .line 497
+    .prologue
+    .line 539
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 498
+    .line 540
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;->a:Landroid/app/Activity;
 
-    .line 499
+    .line 541
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;->root:Landroid/view/View;
 
-    .line 500
+    .line 542
     return-void
 .end method
 
 
 # virtual methods
 .method public onIndex(I)V
-    .registers 3
+    .registers 4
 
-    .line 505
+    .prologue
+    .line 547
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;->a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandTransport(Landroid/content/Context;I)V
 
-    .line 506
-    iget-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;->a:Landroid/app/Activity;
+    .line 548
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;->a:Landroid/app/Activity;
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;->root:Landroid/view/View;
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;->root:Landroid/view/View;
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->build(Landroid/app/Activity;Landroid/view/View;)V
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1100(Landroid/app/Activity;Landroid/view/View;)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1100(Landroid/app/Activity;Landroid/view/View;)V
     :try_end_c
-    .catchall {:try_start_0 .. :try_end_c} :catchall_d
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
 
-    .line 509
-    goto :goto_13
-
-    .line 507
-    :catchall_d
-    move-exception p1
-
-    .line 508
-    const-string v0, "WearableSettingsSection.transport"
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    .line 510
-    :goto_13
+    .line 552
+    :goto_c
     return-void
+
+    .line 549
+    :catch_d
+    move-exception v0
+
+    .line 550
+    const-string v1, "WearableSettingsSection.transport"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_c
 .end method

@@ -28,7 +28,7 @@
           </stack>
 
           <stack class="cbox cbox-main">
-            <image class="cfill-main" src="{{allBtnSrc}}"></image>
+            <image class="cfill-main {{run ? '' : 'cfill-dim'}}" src="/common/ui/all-btn.png"></image>
             <div class="cface cface-all">
               <text class="bigsign">-</text>
               <text class="bigsign">+</text>
@@ -48,7 +48,7 @@
               <text class="csign" style="color: {{run ? '#FFFFFF' : $item.signColorDim}}">-</text>
               <div class="cmid">
                 <text class="cname">{{$item.name}}</text>
-                <text class="cval" style="color: {{run ? '#D1D1D6' : $item.valColorDim}}">{{$item.text}}</text>
+                <text class="cval" style="color: {{run ? '#FFFFFF' : $item.valColorDim}}">{{$item.text}}</text>
               </div>
               <text class="csign" style="color: {{run ? '#FFFFFF' : $item.signColorDim}}">+</text>
             </div>
@@ -101,6 +101,8 @@ const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прас�
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
+/** Fill while running: the tier colour a step deeper, so white text on it stays readable. */
+const FILL_LIVE = ['#24A04C', '#D9860C', '#D93B30']
 const COL_CTL = 212
 const PLAY_GAP = 16
 const PLAY_SIZE = 152
@@ -131,7 +133,7 @@ function channelPalette(pct) {
   const accent = t === 2 ? RED : t === 1 ? AMBER : GREEN
   return {
     fillDim: FILL_DIM[t],
-    fillLive: accent,
+    fillLive: FILL_LIVE[t],
     valColorDim: accent,
     signColorDim: '#AEAEB2'
   }
@@ -181,7 +183,6 @@ export default {
     chPre: '',
     chKey: '',
     colH: 900,
-    allBtnSrc: '/common/ui/all-btn-dim.png',
     slideOn: false,
     slideIdx: -1,
     slideName: '',
@@ -288,7 +289,6 @@ export default {
     }
     this.msText = ms >= 0 ? String(ms) : '--'
     this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
-    this.allBtnSrc = run ? '/common/ui/all-btn.png' : '/common/ui/all-btn-dim.png'
     this.slideDim = this.slideOn && !run
     if (this.slideOn) {
       return
@@ -703,29 +703,39 @@ export default {
   animation-duration: 260ms;
   animation-timing-function: ease-out;
 }
+/* body under the title: fills the rest of the screen, content centred (no empty bottom half) */
+.mid {
+  flex-grow: 1;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 34px;
+}
 .dots {
-  width: 16px;
+  width: 10px;
   height: 520px;
-  margin-left: 196px;
+  margin-left: 202px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .pdot {
-  width: 8px;
-  height: 8px;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  border-radius: 4px;
-  background-color: #3a3a3c;
+  width: 6px;
+  height: 6px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  background-color: #48484a;
 }
 .pdot-on {
-  height: 22px;
+  height: 18px;
   background-color: #ffffff;
 }
 .caps {
   flex-shrink: 0;
-  font-size: 24px;
+  height: 30px;
+  font-size: 22px;
   font-weight: bold;
   color: #8e8e93;
 }
@@ -749,6 +759,87 @@ export default {
 .off {
   opacity: 0.3;
 }
+/* on / off switch: track + knob (one tap target, 150 × 84) */
+.switch {
+  flex-shrink: 0;
+  width: 150px;
+  height: 84px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 42px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #3a3a3c;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.switch-on {
+  justify-content: flex-end;
+}
+.knob {
+  flex-shrink: 0;
+  width: 68px;
+  height: 68px;
+  border-radius: 34px;
+  background-color: #ffffff;
+}
+.state {
+  flex-shrink: 0;
+  margin-bottom: 18px;
+  font-size: 44px;
+  font-weight: bold;
+}
+/* number tiles (2 per row) */
+.tiles {
+  flex-shrink: 0;
+  flex-direction: row;
+  margin-top: 8px;
+}
+.tile {
+  flex-shrink: 0;
+  width: 88px;
+  height: 84px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 22px;
+  border-width: 1px;
+  border-color: #2c2c2e;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.tile-num {
+  flex-shrink: 0;
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.tile-lbl {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: #8e8e93;
+}
+.t-max {
+  color: #ff453a;
+}
+.t-kcal {
+  color: #ff9f0a;
+}
+/* time in heart-rate zones: one bar, a segment per zone */
+.zstack {
+  flex-shrink: 0;
+  width: 184px;
+  height: 14px;
+  margin-top: 16px;
+  border-radius: 7px;
+  flex-direction: row;
+  background-color: #1c1c1e;
+}
+.zpart {
+  height: 14px;
+}
 @keyframes inUp {
   from {
     transform: translateY(90px);
@@ -767,24 +858,6 @@ export default {
   to {
     transform: translateY(0px);
     opacity: 1;
-  }
-}
-@keyframes breathe {
-  from {
-    transform: scale(0.86);
-    opacity: 0.9;
-  }
-  to {
-    transform: scale(1.12);
-    opacity: 0.2;
-  }
-}
-@keyframes beat {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.25);
   }
 }
 /* ---- page ---- */
@@ -825,26 +898,20 @@ export default {
   align-items: center;
   justify-content: center;
 }
+/* baked aura, centred on the button (gen-art glow-train*); static — no breathing animation */
 .tr-play-glow {
   position: absolute;
   top: 0px;
   left: 22px;
   width: 168px;
   height: 168px;
-  border-radius: 84px;
-  border-width: 3px;
-  opacity: 0.3;
+  background-size: cover;
 }
 .tr-play-glow-idle {
-  border-color: #30d158;
-  animation-name: breathe;
-  animation-duration: 2400ms;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  background-image: url(/common/art/glow-train.png);
 }
 .tr-play-glow-run {
-  border-color: #ff9f0a;
-  opacity: 0.26;
+  background-image: url(/common/art/glow-train-run.png);
 }
 .tr-play {
   flex-shrink: 0;
@@ -856,11 +923,16 @@ export default {
   transition-property: transform, opacity;
   transition-duration: 140ms;
 }
+/* colour stays as the fallback under the baked face */
 .tr-play-idle {
   background-color: #30d158;
+  background-image: url(/common/art/orb-train.png);
+  background-size: cover;
 }
 .tr-play-run {
   background-color: #ff9f0a;
+  background-image: url(/common/art/orb-train-run.png);
+  background-size: cover;
 }
 .tr-play-press {
   opacity: 0.9;
@@ -871,11 +943,14 @@ export default {
   width: 76px;
   height: 76px;
 }
+/* the row is a dark card; the fill shows the level inside it */
 .cbox {
   flex-shrink: 0;
   width: 196px;
   height: 92px;
   margin-top: 10px;
+  border-radius: 22px;
+  background-color: #17181c;
 }
 .cbox-main {
   margin-top: 16px;
@@ -946,6 +1021,10 @@ export default {
   width: 196px;
   height: 92px;
   border-radius: 22px;
+}
+/* before start / paused: the same bar, dimmed (one image in memory instead of two) */
+.cfill-dim {
+  opacity: 0.62;
 }
 .cface-all {
   flex-direction: row;

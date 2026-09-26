@@ -2,18 +2,21 @@
   <stack class="root bg-timer" onswipe="onSwipe">
     <div class="screen">
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
-      <stack class="ring-box">
-        <progress class="ring" type="arc" percent="{{pct}}" style="color: {{ringColor}}"></progress>
-        <div class="center">
-          <text class="left" style="color: {{leftColor}}">{{leftText}}</text>
-          <text class="loop">{{loopText}}</text>
+      <div class="mid">
+        <stack class="ring-box">
+          <image class="halo" if="{{run}}" src="/common/art/glow-timer.png"></image>
+          <progress class="ring" type="arc" percent="{{pct}}" style="color: {{ringColor}}"></progress>
+          <div class="center">
+            <text class="left" style="color: {{leftColor}}">{{leftText}}</text>
+            <text class="loop">{{loopText}}</text>
+          </div>
+        </stack>
+        <div class="btn play {{run ? 'orb-dark' : 'orb'}} {{pressed ? 'down' : ''}} {{armed ? '' : 'off'}}"
+             ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
+          <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
         </div>
-      </stack>
-      <div class="btn play {{pressed ? 'down' : ''}} {{armed ? '' : 'off'}}" style="background-color: {{run ? '#2C2C2E' : '#FF9F0A'}}"
-           ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
-        <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
+        <text class="sub">{{status}}</text>
       </div>
-      <text class="sub">{{status}}</text>
     </div>
   </stack>
 </template>
@@ -148,29 +151,39 @@ export default {
   animation-duration: 260ms;
   animation-timing-function: ease-out;
 }
+/* body under the title: fills the rest of the screen, content centred (no empty bottom half) */
+.mid {
+  flex-grow: 1;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 34px;
+}
 .dots {
-  width: 16px;
+  width: 10px;
   height: 520px;
-  margin-left: 196px;
+  margin-left: 202px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 .pdot {
-  width: 8px;
-  height: 8px;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  border-radius: 4px;
-  background-color: #3a3a3c;
+  width: 6px;
+  height: 6px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  background-color: #48484a;
 }
 .pdot-on {
-  height: 22px;
+  height: 18px;
   background-color: #ffffff;
 }
 .caps {
   flex-shrink: 0;
-  font-size: 24px;
+  height: 30px;
+  font-size: 22px;
   font-weight: bold;
   color: #8e8e93;
 }
@@ -194,6 +207,87 @@ export default {
 .off {
   opacity: 0.3;
 }
+/* on / off switch: track + knob (one tap target, 150 × 84) */
+.switch {
+  flex-shrink: 0;
+  width: 150px;
+  height: 84px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 42px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #3a3a3c;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+.switch-on {
+  justify-content: flex-end;
+}
+.knob {
+  flex-shrink: 0;
+  width: 68px;
+  height: 68px;
+  border-radius: 34px;
+  background-color: #ffffff;
+}
+.state {
+  flex-shrink: 0;
+  margin-bottom: 18px;
+  font-size: 44px;
+  font-weight: bold;
+}
+/* number tiles (2 per row) */
+.tiles {
+  flex-shrink: 0;
+  flex-direction: row;
+  margin-top: 8px;
+}
+.tile {
+  flex-shrink: 0;
+  width: 88px;
+  height: 84px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 22px;
+  border-width: 1px;
+  border-color: #2c2c2e;
+  background-color: #1c1c1e;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.tile-num {
+  flex-shrink: 0;
+  font-size: 34px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.tile-lbl {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: #8e8e93;
+}
+.t-max {
+  color: #ff453a;
+}
+.t-kcal {
+  color: #ff9f0a;
+}
+/* time in heart-rate zones: one bar, a segment per zone */
+.zstack {
+  flex-shrink: 0;
+  width: 184px;
+  height: 14px;
+  margin-top: 16px;
+  border-radius: 7px;
+  flex-direction: row;
+  background-color: #1c1c1e;
+}
+.zpart {
+  height: 14px;
+}
 @keyframes inUp {
   from {
     transform: translateY(90px);
@@ -214,24 +308,6 @@ export default {
     opacity: 1;
   }
 }
-@keyframes breathe {
-  from {
-    transform: scale(0.86);
-    opacity: 0.9;
-  }
-  to {
-    transform: scale(1.12);
-    opacity: 0.2;
-  }
-}
-@keyframes beat {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.25);
-  }
-}
 /* ---- page ---- */
 .bg-timer {
   background-image: url(/common/bg/timer.png);
@@ -240,18 +316,17 @@ export default {
 .ring-box {
   width: 180px;
   height: 180px;
-  margin-top: 12px;
 }
 .ring {
   width: 180px;
   height: 180px;
-  stroke-width: 18px;
+  stroke-width: 14px;
   background-color: #1c1c1e;
   start-angle: 0deg;
   total-angle: 360deg;
   center-x: 90px;
   center-y: 90px;
-  radius: 81px;
+  radius: 83px;
 }
 .center {
   width: 180px;
@@ -269,6 +344,18 @@ export default {
   color: #ff9f0a;
   font-weight: bold;
 }
+.halo {
+  width: 180px;
+  height: 180px;
+}
+.orb {
+  background-image: url(/common/art/orb-timer.png);
+  background-size: cover;
+}
+.orb-dark {
+  background-image: url(/common/art/orb-timer-dark.png);
+  background-size: cover;
+}
 .play {
   width: 112px;
   height: 112px;
@@ -280,6 +367,8 @@ export default {
   height: 60px;
 }
 .sub {
-  margin-top: 10px;
+  margin-top: 12px;
+  width: 184px;
+  font-size: 22px;
 }
 </style>

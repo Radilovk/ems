@@ -20,10 +20,6 @@
       "Bash(git show:*)"
     ],
     "deny": [
-      "Read(**/*.apk)",
-      "Read(**/*.rpk)",
-      "Read(**/*.zip)",
-      "Read(**/*.jar)",
       "Read(**/*.keystore)",
       "Read(**/package-lock.json)"
     ]

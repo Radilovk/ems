@@ -47,6 +47,21 @@ export function zoneColor(z) {
   return ZONE[i]
 }
 
+/**
+ * Assign a list to the page only when its content changed. A new array makes the band re-render
+ * every row of it, and pages update every second — most seconds nothing in the list moved.
+ */
+export function putList(page, key, list) {
+  const sig = JSON.stringify(list)
+  const k = '_sig_' + key
+  if (page[k] === sig) {
+    return false
+  }
+  page[k] = sig
+  page[key] = list
+  return true
+}
+
 /** Module blocks of the state (empty objects when XEMS is older or silent). */
 export function mods(s) {
   const m = (s && s.mods) || {}

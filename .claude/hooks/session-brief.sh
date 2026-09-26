@@ -8,6 +8,6 @@ echo "recent: $(git log --format='%s' -12 2>/dev/null | grep -v '^Merge\|^Build 
 if ! python3 scripts/repo-map.py --check >/dev/null 2>&1; then
   python3 scripts/repo-map.py >/dev/null 2>&1 && echo "map: .claude/MAP.md was stale → regenerated (commit it with your change)"
 fi
-[[ -f android-sdk/platforms/android-30/android.jar ]] || echo "sdk: android-sdk/ missing → compile-*-java.sh keep prebuilt smali (Java edits would NOT ship)"
+[[ -f android-sdk/platforms/android-30/android.jar ]] || echo "sdk: android-sdk/ missing → Java edits would NOT ship; run: bash scripts/setup-android-toolchain.sh"
 echo "nav: grep -in <concept> .claude/MAP.md · python3 scripts/repo-map.py outline <file>"
 exit 0

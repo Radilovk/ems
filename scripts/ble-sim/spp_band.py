@@ -207,6 +207,11 @@ def on_command(proto):
         ok = st["phone_connected"] and basic[1][0] == b"com.xems.band" and basic[2][0] == FP and js.startswith('{"t":"state"')
         log("app reply %s %s" % (js, "ok" if ok else "BAD"))
         st["applink_ok"] = ok
+    elif t == 20 and s == 4:
+        li = pb(pb(d[22][0])[6][0])
+        basic = pb(li[1][0])
+        ok = basic[1][0] == b"com.xems.band" and basic[2][0] == FP and li[2][0] == b""
+        log("launch app %s" % ("LAUNCH ok" if ok else "BAD"))
     elif t == 20 and s == 1:
         info = pb(pb(d[22][0])[2][0])
         st["rpk"] = (info[1][0].decode(), info[2][0], info[3][0])

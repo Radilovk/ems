@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Green/red bar for Start screen. Vela clips images, not stacked CSS fills."""
+"""Green/red bar for Start screen (main − / +). Vela clips images, not stacked CSS fills."""
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -13,19 +13,35 @@ DIM_GREEN = (31, 157, 70)      # #1F9D46 — pause / before start
 DIM_RED = (224, 52, 43)        # #E0342B
 
 
+SS = 4
+
+
+def shade(c, k):
+    """k > 0 lighter, k < 0 darker."""
+    return tuple(int(round(v + ((255 - v) if k > 0 else v) * k)) for v in c)
+
+
 def write_bar(name: str, green: tuple[int, int, int], red: tuple[int, int, int]) -> None:
-    mask = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(mask).rounded_rectangle((0, 0, W - 1, H - 1), radius=R, fill=255)
-
-    rgb = Image.new("RGB", (W, H))
-    px = rgb.load()
-    for y in range(H):
-        for x in range(W):
-            if mask.getpixel((x, y)):
-                px[x, y] = green if x < W // 2 else red
-
-    bar = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    bar.paste(rgb, mask=mask)
+    """Two halves, each a soft top-light → deeper-bottom gradient, a thin dark seam between them
+    and a faint light edge along the top — baked once, drawn as one image (cheap on the band)."""
+    w, h, r = W * SS, H * SS, R * SS
+    rgb = Image.new("RGB", (w, h))
+    d = ImageDraw.Draw(rgb)
+    for y in range(h):
+        k = 0.14 - 0.30 * y / (h - 1)                 # +14 % at the top → −16 % at the bottom
+        d.line((0, y, w // 2, y), fill=shade(green, k))
+        d.line((w // 2, y, w, y), fill=shade(red, k))
+    d.rectangle((w // 2 - SS, 0, w // 2 + SS, h), fill=(0, 0, 0))   # seam
+    edge = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(edge).rounded_rectangle((0, 0, w - 1, h - 1), radius=r, outline=255, width=2 * SS)
+    fade = Image.linear_gradient("L").resize((w, h)).point(lambda v: max(0, int((110 - v) * 0.8)))
+    from PIL import ImageChops
+    rgb = Image.composite(Image.new("RGB", (w, h), (255, 255, 255)), rgb, ImageChops.multiply(edge, fade))
+    mask = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, w - 1, h - 1), radius=r, fill=255)
+    bar = rgb.convert("RGBA")
+    bar.putalpha(mask)
+    bar = bar.resize((W, H), Image.LANCZOS)
 
     path = OUT / name
     bar.save(path, optimize=True)
@@ -34,8 +50,7 @@ def write_bar(name: str, green: tuple[int, int, int], red: tuple[int, int, int])
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    write_bar("all-btn.png", BRIGHT_GREEN, BRIGHT_RED)
-    write_bar("all-btn-dim.png", DIM_GREEN, DIM_RED)
+    write_bar("all-btn.png", BRIGHT_GREEN, BRIGHT_RED)   # paused: same image, .cfill-dim opacity
 
 
 if __name__ == "__main__":

@@ -167,8 +167,8 @@ public final class WearableSettingsSection {
                 && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(bandName));
         if (classic && bandApp) {
             TextView openHint = WearableUi.text(a,
-                    WearableUi.tr("Отвори XEMS от гривната: вдигни китката, плъзни нагоре, превърти до XEMS. В Mi Fitness го няма — там са само системните приложения и не се подрежда.",
-                            "Open XEMS on the band: raise the wrist, swipe up, scroll to XEMS. It is not in Mi Fitness — that list is system apps only and cannot be sorted."),
+                    WearableUi.tr("Отвори XEMS на гривната от телефона: бутонът по-долу или иконата „XEMS гривна“ на началния екран. На самата гривна: вдигни китката, плъзни нагоре, превърти до XEMS.",
+                            "Open XEMS on the band from the phone: the button below or the \"XEMS band\" home-screen icon. On the band itself: raise the wrist, swipe up, scroll to XEMS."),
                     13f, mutedCol, false);
             openHint.setPadding(0, WearableUi.dp(a, 12), 0, 0);
             card.addView(openHint);
@@ -189,6 +189,18 @@ public final class WearableSettingsSection {
             });
             appRow.addView(install, sideButton(a));
             card.addView(appRow);
+            // Open it from the phone: now, or through a home-screen icon.
+            LinearLayout launchRow = row(a);
+            launchRow.setPadding(0, WearableUi.dp(a, 10), 0, 0);
+            TextView open = WearableUi.button(a, WearableUi.tr("Отвори на гривната", "Open on the band"),
+                    0xFF2E7D32, 0xFFFFFFFF);
+            open.setOnClickListener(new OpenOnBand(a));
+            launchRow.addView(open, new LinearLayout.LayoutParams(0, WearableUi.dp(a, 44), 1f));
+            TextView pin = WearableUi.button(a, WearableUi.tr("Икона на телефона", "Phone icon"),
+                    WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
+            pin.setOnClickListener(new PinToHome(a));
+            launchRow.addView(pin, sideButton(a));
+            card.addView(launchRow);
         }
         bandInfoView = WearableUi.text(a, "", 13f, mutedCol, false);
         bandInfoView.setPadding(0, WearableUi.dp(a, 6), 0, 0);
@@ -475,6 +487,36 @@ public final class WearableSettingsSection {
             }
         }
         return sb.toString();
+    }
+
+    static final class OpenOnBand implements View.OnClickListener {
+        private final Activity activity;
+
+        OpenOnBand(Activity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onClick(View v) {
+            BandLaunch.request(activity);
+        }
+    }
+
+    static final class PinToHome implements View.OnClickListener {
+        private final Activity activity;
+
+        PinToHome(Activity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (!BandLaunch.pinToHome(activity)) {
+                BandLaunch.toast(WearableUi.tr(
+                        "Задръж иконата на XEMS → „Отвори на гривната“ и я плъзни на началния екран",
+                        "Long-press the XEMS icon → \"Open on the band\" and drag it to the home screen"));
+            }
+        }
     }
 
     static final class RemoteToggle implements com.isaigu.gymapp.widget.XemsUi.OnToggle {

@@ -28,10 +28,11 @@
             <text class="bigsign">-</text>
             <text class="bigsign">+</text>
           </div>
-          <div class="ctouch">
-            <div class="chalf" onclick="allMinus"></div>
-            <div class="chalf" onclick="allPlus"></div>
-          </div>
+          <div class="ctouch ch-row-touch"
+               ontouchstart="allTouchStart"
+               ontouchmove="allTouchMove"
+               ontouchend="allTouchEnd"
+               ontouchcancel="allTouchEnd"></div>
         </stack>
 
         <text class="chcap">{{chCaps}}</text>
@@ -149,7 +150,8 @@ export default {
     slideFillH: 0,
     slideKnobB: 0,
     slideAnim: 'slide-in',
-    slideDim: false
+    slideDim: false,
+    slideMain: false
   },
 
   onInit() {
@@ -320,12 +322,16 @@ export default {
     }
   },
 
-  openSlide(i, val, name) {
+  openSlide(i, val, name, isMain) {
     if (this.chTouch) {
       this.chTouch.opened = true
     }
+    if (this.allTouch) {
+      this.allTouch.opened = true
+    }
     clearTimeout(this.slideCloseTimer)
-    this.slideIdx = i
+    this.slideMain = !!isMain
+    this.slideIdx = isMain ? -1 : i
     this.slideName = name
     this.slideDraft = val
     this.slideSent = val
@@ -335,7 +341,8 @@ export default {
     this.slideDim = !this.run
     this.slideTick = Math.floor(val / 10)
     this.updateSlideVisual(val)
-    const y = this.chTouch && this.chTouch.y
+    const touch = this.chTouch || this.allTouch
+    const y = touch && touch.y
     if (y) {
       this.setSlideFromY(y)
     }
@@ -354,7 +361,12 @@ export default {
     }
     this.slideDraft = v
     this.updateSlideVisual(v)
-    this.optim[this.slideIdx] = { v: v, at: Date.now() }
+    if (this.slideMain) {
+      this.optMs = { v: v, at: Date.now() }
+      this.msText = String(v)
+    } else {
+      this.optim[this.slideIdx] = { v: v, at: Date.now() }
+    }
     if (!this.slideDim) {
       this.armSlideCommit()
     }
@@ -364,7 +376,7 @@ export default {
     clearTimeout(this.slideCommitTimer)
     this.slideCommitTimer = setTimeout(() => {
       if (this.slideTouching && this.slideDraft !== this.slideSent && !this.slideDim) {
-        this.sendChannelDelta(this.slideIdx, this.slideDraft - this.slideSent)
+        this.commitSlideDelta(this.slideDraft - this.slideSent)
         this.slideSent = this.slideDraft
       }
     }, SLIDE_COMMIT_MS)
@@ -384,12 +396,119 @@ export default {
     }
   },
 
-  commitSlide() {
-    if (this.slideIdx < 0 || this.slideDraft === this.slideSent || this.slideDim) {
+  /** Same as tap main ±: train_plus / train_minus, one step per command. */
+  sendMainDelta(delta) {
+    if (!delta) {
       return
     }
-    this.sendChannelDelta(this.slideIdx, this.slideDraft - this.slideSent)
+    const app = this.$app.$def
+    let rem = delta
+    while (rem !== 0) {
+      const step = rem > 0 ? Math.min(rem, 10) : Math.max(rem, -10)
+      const cmd = step > 0 ? 'train_plus' : 'train_minus'
+      for (let i = 0; i < Math.abs(step); i++) {
+        app.command(cmd, null, 'none')
+      }
+      rem -= step
+    }
+  },
+
+  commitSlideDelta(delta) {
+    if (!delta) {
+      return
+    }
+    if (this.slideMain) {
+      this.sendMainDelta(delta)
+    } else {
+      this.sendChannelDelta(this.slideIdx, delta)
+    }
+  },
+
+  commitSlide() {
+    if (this.slideDraft === this.slideSent || this.slideDim) {
+      return
+    }
+    if (!this.slideMain && this.slideIdx < 0) {
+      return
+    }
+    this.commitSlideDelta(this.slideDraft - this.slideSent)
     this.slideSent = this.slideDraft
+  },
+
+  mainMsVal() {
+    const app = this.$app.$def
+    const ms = app.state && app.state.ms != null ? app.state.ms : -1
+    if (this.optMs) {
+      return this.optMs.v
+    }
+    return ms >= 0 ? ms : 0
+  },
+
+  allTouchStart(e) {
+    if (this.slideOn) {
+      return
+    }
+    this.captureScroll()
+    const y = touchY(e)
+    const x = touchX(e)
+    const val = this.mainMsVal()
+    this.allTouch = {
+      val: val,
+      startX: x,
+      startY: y,
+      y: y,
+      t0: Date.now(),
+      moved: false,
+      opened: false
+    }
+    clearTimeout(this.allOpenTimer)
+    this.allOpenTimer = setTimeout(() => {
+      if (this.allTouch && !this.allTouch.opened) {
+        this.openSlide(-1, this.allTouch.val, 'СИЛА', true)
+      }
+    }, SLIDE_OPEN_MS)
+  },
+
+  allTouchMove(e) {
+    const touch = this.allTouch
+    if (!touch) {
+      return
+    }
+    const y = touchY(e)
+    const x = touchX(e)
+    touch.y = y
+    if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
+      touch.moved = true
+    }
+    if (this.slideOn && this.slideTouching && this.slideMain) {
+      this.setSlideFromY(y)
+    }
+  },
+
+  allTouchEnd(e) {
+    clearTimeout(this.allOpenTimer)
+    const touch = this.allTouch
+    if (touch && touch.opened) {
+      this.allTouch = null
+      this.slideEnd()
+      return
+    }
+    this.allTouch = null
+    if (!touch) {
+      return
+    }
+    const elapsed = Date.now() - touch.t0
+    if (elapsed >= SLIDE_OPEN_MS || touch.opened) {
+      return
+    }
+    if (!touch.moved && elapsed <= TAP_MAX_MS) {
+      const x = touchX(e) || touch.x
+      if (x < 106) {
+        this.allMinus()
+      } else {
+        this.allPlus()
+      }
+    }
   },
 
   chTouchStart(i, text, name, e) {
@@ -429,7 +548,7 @@ export default {
     if (Math.abs(x - touch.startX) > TAP_MAX_MOVE || Math.abs(y - touch.startY) > TAP_MAX_MOVE) {
       touch.moved = true
     }
-    if (this.slideOn && this.slideTouching) {
+    if (this.slideOn && this.slideTouching && !this.slideMain) {
       this.setSlideFromY(y)
     }
   },
@@ -469,10 +588,13 @@ export default {
   },
 
   slideEnd() {
+    const wasMain = this.slideMain
     this.slideTouching = false
     clearTimeout(this.slideCommitTimer)
     clearTimeout(this.chOpenTimer)
+    clearTimeout(this.allOpenTimer)
     this.chTouch = null
+    this.allTouch = null
     if (this.slideDraft !== this.slideSent) {
       this.commitSlide()
     }
@@ -480,8 +602,11 @@ export default {
     this.slideCloseTimer = setTimeout(() => {
       this.slideOn = false
       this.slideIdx = -1
-      const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
-      this.buildChannels(ch, this.run)
+      this.slideMain = false
+      if (!wasMain) {
+        const ch = (this.$app.$def.state && this.$app.$def.state.ch) || []
+        this.buildChannels(ch, this.run)
+      }
       this.restoreScroll()
     }, SLIDE_CLOSE_MS)
   },
@@ -490,9 +615,12 @@ export default {
     clearTimeout(this.slideCloseTimer)
     clearTimeout(this.slideCommitTimer)
     clearTimeout(this.chOpenTimer)
+    clearTimeout(this.allOpenTimer)
     this.slideOn = false
     this.slideTouching = false
+    this.slideMain = false
     this.chTouch = null
+    this.allTouch = null
   },
 
   step(c, d) {

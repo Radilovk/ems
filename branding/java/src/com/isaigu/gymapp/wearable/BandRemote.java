@@ -35,11 +35,11 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     /** How often the tablet looks. A real change is sent at once; the clock and the bpm are not. */
     private static final long TICK_MS = 1000L;
     /**
-     * Music-screen text (training clock, bpm) refreshes at this pace. The clock changes every
-     * second; sending that often, on top of the live heart-rate stream, fills the band's music
-     * service and reboots Band 10.
+     * Training clock and kcal on the band's music screen refresh at this pace. The clock ticks
+     * every second; pushing that each tick, on top of live HR, reboots Band 10. HR itself is
+     * sent as soon as it changes.
      */
-    private static final long MUSIC_REFRESH_MS = 20000L;
+    private static final long MUSIC_CLOCK_MS = 20000L;
     /** Volume we report; a band request above / below it is a +/− step. */
     private static final int VOL = 50;
 
@@ -49,6 +49,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
 
     private static boolean running;
     private static String lastSent = "";
+    private static int lastSentHr = -1;
     private static long lastSentMs;
     private static long trainStartMs;
     private static long trainAccumMs;
@@ -64,6 +65,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         XiaomiBandRemote.setListener(INSTANCE);
         com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.setListener(INSTANCE);
         lastSent = "";
+        lastSentHr = -1;
         if (!running) {
             running = true;
             handler.post(tick);
@@ -496,17 +498,20 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = true;
             stable = "idle";
         }
-        // Clock and bpm stay out of this key: they change every second and were sent as a new
-        // music command each tick, which reboots the band. Play, pause, phase, song: at once.
+        // Mode/play/phase/song: at once. HR: at once when it changes. Clock/kcal: at most every
+        // MUSIC_CLOCK_MS — the timer ticked every second and was flooding the band.
         boolean structure = !stable.equals(lastSent);
-        if (force || structure || now - lastSentMs >= MUSIC_REFRESH_MS) {
+        boolean hrChanged = hr != lastSentHr;
+        boolean clockDue = now - lastSentMs >= MUSIC_CLOCK_MS;
+        if (force || structure || hrChanged || clockDue) {
             lastSent = stable;
+            lastSentHr = hr;
             lastSentMs = now;
             link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
         }
         // The band app counts down by itself; a fresh state every few seconds keeps HR and charts
         // live, and any change of what runs (either side) goes at once.
-        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, force || structure, now);
+        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, force || structure || hrChanged, now);
     }
 
     private static boolean aiWasRunning;

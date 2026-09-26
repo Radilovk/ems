@@ -97,8 +97,10 @@ const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
 const FILL_DIM = ['#17462A', '#5A3A0C', '#5C1A16']
 const COL_CTL = 200
-const COL_PLAY = 182
-const COL_MAIN_GAP = 114
+const PLAY_GAP = 16
+const PLAY_SIZE = 152
+const COL_PLAY = PLAY_GAP + PLAY_SIZE
+const COL_MAIN_GAP = PLAY_GAP + 92 + 22
 const COL_ROW = 102
 const COL_STOP = 230
 
@@ -765,6 +767,9 @@ export default {
   }
 }
 /* ---- page ---- */
+.col {
+  align-items: center;
+}
 .bg-start {
   flex-shrink: 0;
   background-image: url(/common/bg/start.png);
@@ -787,39 +792,36 @@ export default {
 }
 .play-wrap {
   flex-shrink: 0;
-  width: 196px;
-  height: 168px;
-  margin-left: 8px;
-  padding-top: 14px;
-  padding-bottom: 14px;
+  width: 212px;
+  height: 152px;
+  margin-top: 16px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 .play {
   flex-shrink: 0;
-  width: 140px;
-  height: 140px;
-  border-radius: 70px;
+  width: 152px;
+  height: 152px;
+  border-radius: 76px;
   justify-content: center;
   align-items: center;
 }
 .play-img {
   flex-shrink: 0;
-  width: 70px;
-  height: 70px;
+  width: 76px;
+  height: 76px;
 }
 .cbox {
   flex-shrink: 0;
   width: 196px;
   height: 92px;
-  margin-left: 8px;
   margin-top: 10px;
   border-radius: 22px;
   overflow: hidden;
 }
 .cbox-main {
-  margin-top: 14px;
+  margin-top: 16px;
   margin-bottom: 22px;
 }
 .cfill {

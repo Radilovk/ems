@@ -14,8 +14,6 @@ import com.isaigu.gymapp.wearable.xiaomi.XiaomiBandRemote;
 import com.isaigu.gymapp.widget.XemsGuard;
 import com.isaigu.gymapp.widget.XemsPanel;
 
-import java.util.Locale;
-
 /**
  * XEMS on the wrist without installing anything: the band's own music screen becomes the
  * training remote. The "track" carries the live state, the buttons control the training.
@@ -32,7 +30,7 @@ import java.util.Locale;
  */
 public final class BandRemote implements XiaomiBandRemote.Listener,
         com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.Listener {
-    /** How often the tablet looks for a change to tell the band (sent at once when it changed). */
+    /** How often the tablet looks for HR / kcal / command changes to tell the band. */
     private static final long TICK_MS = 1000L;
     /** Volume we report; a band request above / below it is a +/− step. */
     private static final int VOL = 50;
@@ -42,8 +40,16 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     private static final Runnable tick = new Tick();
 
     private static boolean running;
+    /** Last music-screen payload key (no live clock — the band counts time locally). */
     private static String lastSent = "";
-    private static long lastSentMs;
+    /** Band-app timer anchors: resync elapsed / phase clocks only on run or phase edges. */
+    private static boolean syncAppRun;
+    private static String syncAppSt = "";
+    private static int syncAppPi = -1;
+    private static long syncAppEl;
+    private static long syncAppPl;
+    private static long syncAppRl;
+    private static boolean syncAppRlActive;
     private static long trainStartMs;
     private static long trainAccumMs;
     private static boolean trainWasRunning;
@@ -58,6 +64,11 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         XiaomiBandRemote.setListener(INSTANCE);
         com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.setListener(INSTANCE);
         lastSent = "";
+        syncAppRun = false;
+        syncAppSt = "";
+        syncAppPi = -1;
+        syncAppEl = 0;
+        syncAppRlActive = false;
         if (!running) {
             running = true;
             handler.post(tick);
@@ -446,29 +457,34 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         boolean paused;
         int pos = 0;
         int dur = 0;
+        String stable;
+        int kcalI = 0;
         AiEngine e = AiSession.getEngine();
         if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null) {
             AiEngine.State st = e.getState();
             AiModel.Phase ph = e.phase();
             double kcal = AiSession.getKcal();
+            kcalI = Math.max(0, (int) Math.round(kcal));
+            boolean restReady = st == AiEngine.State.REST && e.isRestReady();
             title = hrText;
-            if (st == AiEngine.State.REST && e.isRestReady()) {
+            if (restReady) {
                 sub = WearableUi.tr("Почивката стига · ▶ продължи", "Rest done · ▶ continue");
             } else {
-                sub = phaseName(ph.id) + " · " + mmss(ph.durationS - e.getPhaseElapsedS())
-                        + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
+                sub = phaseName(ph.id) + kcalTag(kcalI);
             }
             playing = st == AiEngine.State.RUN;
             paused = !playing;
             pos = (int) e.getElapsedPlanS();
             dur = e.getPlan().totalS;
+            stable = "ai|" + playing + "|" + ph.id + "|" + restReady + "|" + hr + "|" + kcalI;
         } else if (trainRunning || trainMs > 0 && !musicOnly()) {
             double kcal = HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
+            kcalI = Math.max(0, (int) Math.round(kcal));
             title = hrText;
-            sub = WearableUi.tr("Тренировка ", "Training ") + mmss(trainMs / 1000.0)
-                    + (kcal > 0 ? " · " + Math.round(kcal) + " kcal" : "");
+            sub = WearableUi.tr("Тренировка", "Training") + kcalTag(kcalI);
             playing = trainRunning;
             paused = !trainRunning;
+            stable = "tr|" + playing + "|" + hr + "|" + kcalI;
         } else if (musicOnly()) {
             String t = MusicPlayerHelper.currentTitle();
             title = t != null && t.length() > 0 ? t : WearableUi.tr("Музика", "Music");
@@ -478,22 +494,22 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             paused = !playing;
             pos = MusicSync.getPlaybackPositionMs() / 1000;
             dur = MusicSync.getPlaybackDurationMs() / 1000;
+            stable = "mu|" + playing + "|" + title + "|" + hr + "|" + (dur > 0 ? pos / 5 : 0);
         } else {
             title = hrText;
             sub = WearableUi.tr("Музика · ▶ старт", "Music · ▶ start");
             playing = false;
             paused = true;
+            stable = "idle|" + hr;
         }
-        String key = title + "|" + sub + "|" + playing + "|" + (dur > 0 ? pos / 5 : 0);
-        boolean changed = !key.equals(lastSent);
-        if (force || changed || now - lastSentMs >= 20000L) {
-            lastSent = key;
-            lastSentMs = now;
+        // No live clock in the text — the band counts locally. Send on HR, kcal, play/pause,
+        // phase, song; never because the tablet timer ticked.
+        boolean changed = force || !stable.equals(lastSent);
+        if (changed) {
+            lastSent = stable;
             link.sendCommand(XiaomiBandRemote.musicInfo(playing, paused, VOL, title, sub, pos, dur));
         }
-        // The band app counts down by itself; a fresh state every few seconds keeps HR and charts
-        // live, and any change of what runs (either side) goes at once.
-        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, force || changed, now);
+        sendApp(title, sub, playing, hr, limit, trainMs, pos, dur, kcalI, changed, now);
     }
 
     private static boolean aiWasRunning;
@@ -582,14 +598,13 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     private static String lastSig = "";
 
     private static void sendApp(String title, String sub, boolean playing, int hr, int limit,
-            long trainMs, int pos, int dur, boolean force, long nowMs) {
+            long trainMs, int pos, int dur, int kcalI, boolean force, long nowMs) {
         if (!com.isaigu.gymapp.wearable.xiaomi.XiaomiBandAppLink.isLinked()) {
             return;
         }
         AiEngine e = AiSession.getEngine();
         boolean ai = AiSession.getStage() == AiSession.Stage.RUNNING && e != null;
         String mode = ai ? "ai" : XemsPanel.isRunning() || trainWasRunning ? "manual" : musicOnly() ? "music" : "idle";
-        double kcal = ai ? AiSession.getKcal() : HrGuard.core() != null ? HrGuard.core().getKcal() : 0;
         boolean restReady = ai && e.getState() == AiEngine.State.REST && e.isRestReady();
         String vib = "";
         if (restReady && !lastRestReady) {
@@ -610,7 +625,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             o.put("lim", limit);
             o.put("title", ai || XemsPanel.isRunning() ? sub : title);
             o.put("sub", ai || XemsPanel.isRunning() ? "" : sub);
-            o.put("kcal", Math.max(0, Math.round(kcal)));
+            o.put("kcal", kcalI);
             o.put("run", playing);
             org.json.JSONObject can = new org.json.JSONObject();
             can.put("plus", ai ? e.canIncrease() : XemsPanel.isRunning() || musicOnly());
@@ -621,18 +636,17 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             o.put("vib", vib);
 
             long elapsedS;
+            String stKey;
             if (ai) {
                 AiEngine.State st = e.getState();
-                o.put("st", restReady ? "ready" : st == AiEngine.State.REST ? "rest"
-                        : st == AiEngine.State.RUN ? "run" : "pause");
+                stKey = restReady ? "ready" : st == AiEngine.State.REST ? "rest"
+                        : st == AiEngine.State.RUN ? "run" : "pause";
+                o.put("st", stKey);
                 AiModel.Phase ph = e.phase();
+                int pi = e.getPhaseIndex();
                 o.put("ph", phaseName(ph.id));
-                o.put("pi", e.getPhaseIndex());
+                o.put("pi", pi);
                 o.put("pd", ph.durationS);
-                o.put("pl", Math.max(0, Math.round(ph.durationS - e.getPhaseElapsedS())));
-                if (st == AiEngine.State.REST) {
-                    o.put("rl", Math.max(0, Math.round(e.getRestRemainingS(now))));
-                }
                 org.json.JSONArray pds = new org.json.JSONArray();
                 org.json.JSONArray pns = new org.json.JSONArray();
                 for (AiModel.Phase p : e.getPlan().phases) {
@@ -644,16 +658,39 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 o.put("u", (int) Math.round(e.getUUser() * 100));
                 elapsedS = Math.round(e.getElapsedPlanS());
                 o.put("tot", e.getPlan().totalS);
+                long plLive = Math.max(0, Math.round(ph.durationS - e.getPhaseElapsedS()));
+                long rlLive = st == AiEngine.State.REST
+                        ? Math.max(0, Math.round(e.getRestRemainingS(now))) : 0;
+                boolean runEdge = playing != syncAppRun;
+                if (runEdge || pi != syncAppPi || !stKey.equals(syncAppSt)) {
+                    syncAppEl = elapsedS;
+                    syncAppPl = plLive;
+                    syncAppRl = rlLive;
+                    syncAppRlActive = st == AiEngine.State.REST;
+                    syncAppPi = pi;
+                    syncAppSt = stKey;
+                }
+                if (runEdge) {
+                    syncAppRun = playing;
+                }
+                o.put("pl", syncAppPl);
+                if (syncAppRlActive) {
+                    o.put("rl", syncAppRl);
+                }
             } else if ("music".equals(mode)) {
-                o.put("st", playing ? "run" : "pause");
+                stKey = playing ? "run" : "pause";
+                o.put("st", stKey);
                 o.put("pos", pos);
                 o.put("dur", dur);
                 elapsedS = trainMs / 1000;
+                resyncAppClock(playing, elapsedS);
             } else {
-                o.put("st", playing ? "run" : "idle".equals(mode) ? "idle" : "pause");
+                stKey = playing ? "run" : "idle".equals(mode) ? "idle" : "pause";
+                o.put("st", stKey);
                 elapsedS = trainMs / 1000;
+                resyncAppClock(playing, elapsedS);
             }
-            o.put("el", elapsedS);
+            o.put("el", syncAppEl);
 
             // HR: last 3 min in 30 bars, and over the session average / peak / time in zones.
             HrHistory.Series recent = HrHistory.since(now, HISTORY_MS);
@@ -703,7 +740,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             // What the band shows as "what runs and how": a change there is sent at once.
             String sig = mode + "|" + o.optString("st") + "|" + playing + "|" + o.optString("ph")
                     + "|" + o.opt("can") + "|" + o.optBoolean("dbl") + "|" + lic + "|" + ch + "|" + ms + "|" + lastAck
-                    + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0);
+                    + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0)
+                    + "|" + hr + "|" + kcalI;
             boolean changedSig = !sig.equals(lastSig);
             if (!force && !changedSig && nowMs - lastAppMs < APP_MS) {
                 return;
@@ -812,9 +850,17 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         }
     }
 
-    private static String mmss(double s) {
-        long v = Math.max(0, Math.round(s));
-        return String.format(Locale.US, "%d:%02d", v / 60, v % 60);
+    private static String kcalTag(int kcalI) {
+        return kcalI > 0 ? " · " + kcalI + " kcal" : "";
+    }
+
+    /** Anchor elapsed time on the band app; it ticks locally between start/pause/resume. */
+    private static void resyncAppClock(boolean playing, long elapsedS) {
+        boolean runEdge = playing != syncAppRun;
+        if (runEdge) {
+            syncAppEl = elapsedS;
+            syncAppRun = playing;
+        }
     }
 
     // ================================================================ runnables

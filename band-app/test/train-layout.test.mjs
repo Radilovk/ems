@@ -16,8 +16,9 @@ function ok(cond, msg) {
 }
 
 ok(ux.includes('ontouchstart="mainTouchStart"'), 'main uses dedicated touch handler')
-ok(!ux.match(/\.play\s*\{[^}]*margin-left:\s*42px/s), 'play has no margin-left hack')
-ok(ux.includes('align-self: center'), 'play uses align-self center')
+ok(ux.match(/\.play-wrap\s*\{[^}]*width:\s*196px/s), 'play-wrap aligned like channel rows (196px)')
+ok(ux.match(/\.play-wrap\s*\{[^}]*margin-left:\s*8px/s), 'play-wrap margin-left 8px like cbox')
+ok(ux.match(/\.play\s*\{[^}]*width:\s*140px/s), 'play button 140px')
 ok(ux.includes('margin-bottom: 22px'), 'main→channel gap margin-bottom 22px')
 ok(ux.includes('lines: 2'), 'channel name allows 2 lines')
 ok(ux.includes('font-size: 26px'), 'channel value 26px')

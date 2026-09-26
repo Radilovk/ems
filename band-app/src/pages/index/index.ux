@@ -27,10 +27,16 @@
 
     <!-- not linked yet -->
     <div class="offline" if="{{offline}}">
-      <image class="off-logo" src="/common/logo.png"></image>
-      <text class="off-title">XEMS</text>
-      <text class="off-sub">{{offText}}</text>
-      <text class="sub off-hint">Отвори XEMS на таблета</text>
+      <div class="off-center">
+        <stack class="radar">
+          <div class="wave"></div>
+          <div class="wave wave2"></div>
+          <div class="core"><text class="core-x">X</text></div>
+        </stack>
+        <text class="off-title">XEMS</text>
+        <text class="off-sub">{{offText}}</text>
+        <text class="sub off-hint">Отвори XEMS на таблета</text>
+      </div>
     </div>
   </stack>
 </template>
@@ -398,14 +404,53 @@ export default {
   align-items: center;
   justify-content: center;
 }
-.off-logo {
+.off-center {
   flex-shrink: 0;
-  width: 120px;
-  height: 120px;
+  width: 212px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.radar {
+  flex-shrink: 0;
+  width: 170px;
+  height: 170px;
+  justify-content: center;
+  align-items: center;
+}
+.wave {
+  flex-shrink: 0;
+  width: 160px;
+  height: 160px;
+  border-radius: 80px;
+  border-width: 3px;
+  border-color: #ff3b5c;
+  animation-name: wave;
+  animation-duration: 2000ms;
+  animation-iteration-count: infinite;
+}
+.wave2 {
+  flex-shrink: 0;
+  animation-delay: 1000ms;
+}
+.core {
+  flex-shrink: 0;
+  width: 86px;
+  height: 86px;
+  border-radius: 43px;
+  background-color: #ff3b5c;
+  justify-content: center;
+  align-items: center;
+}
+.core-x {
+  flex-shrink: 0;
+  font-size: 46px;
+  font-weight: bold;
+  color: #ffffff;
 }
 .off-title {
   flex-shrink: 0;
-  margin-top: 16px;
+  margin-top: 18px;
   font-size: 36px;
   font-weight: bold;
   color: #ffffff;
@@ -421,5 +466,15 @@ export default {
 .off-hint {
   flex-shrink: 0;
   margin-top: 22px;
+}
+@keyframes wave {
+  from {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.1);
+    opacity: 0;
+  }
 }
 </style>

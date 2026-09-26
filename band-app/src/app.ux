@@ -13,6 +13,9 @@
  *                 hr, z, lim, title, sub, kcal, run, can:{plus,minus,dbl}, dbl, vib:'short'|'long'|'',
  *                 ph, pi, pd, pl, rl, pds[], pns[], u, el, tot, pos, dur, hh[30], avg, max, zt[5]}
  *   Times are seconds; the band counts them down itself between messages (rx = arrival time).
+ *   band → XEMS  {t:'vis', on} — a page came up (on) or went away (off: screen off / app left).
+ *                Hidden, XEMS sends only {t:'hr', hr, z} (and what runs, when it changes);
+ *                shown again, it sends the full state at once.
  */
 import interconnect from '@system.interconnect'
 import vibrator from '@system.vibrator'
@@ -20,7 +23,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 58
+const APP_VERSION = 59
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -31,6 +34,12 @@ const DEV_MOCK = false
 export default {
   state: null,
   rx: 0,
+  /** Last message of any kind (state or hr-only): the link is alive. */
+  rxAny: 0,
+  /** A page of this app is on screen (told to XEMS as {t:'vis'}). */
+  visible: true,
+  /** Pages shown now (onShow +1, onHide −1): order-proof across page changes. */
+  shownPages: 0,
   lastSeq: 0,
   boot: null,
   nextId: 0,
@@ -58,7 +67,7 @@ export default {
     this.nextId = Date.now() % 100000000
     // Until XEMS answers, say hello every 4 s (the link may open after the app).
     this.helloTimer = setInterval(() => {
-      if (this.silence() > 12) {
+      if (this.quiet() > 12) {
         this.probe()
         this.hello()
         this.notify()
@@ -131,6 +140,18 @@ export default {
     } catch (e) {
       return
     }
+    if (m && m.t === 'hr') {
+      // Screen was off: XEMS keeps only the pulse (zone buzz still works).
+      this.rxAny = Date.now()
+      if (this.state) {
+        this.state.hr = m.hr | 0
+        this.state.z = m.z | 0
+      }
+      if (this.visible && Date.now() - this.rx > 2000) {
+        this.send({ t: 'vis', on: true })            // XEMS missed our "on": ask for everything
+      }
+      return
+    }
     if (!m || m.t !== 'state') {
       return
     }
@@ -165,6 +186,7 @@ export default {
     this.uiSig = sig
     this.state = m
     this.rx = Date.now()
+    this.rxAny = this.rx
     this.checkSummary(m)
     if (m.vib) {
       this.buzz(m.vib)
@@ -204,7 +226,7 @@ export default {
   tick() {
     this.resend()
     const s = this.state
-    if (!s || this.silence() > 12) {
+    if (!s || this.quiet() > 12) {
       this.keepOn(false)
       return
     }
@@ -313,6 +335,20 @@ export default {
     this.send({ t: 'hello', v: APP_VERSION, lang: APP_LANG })
   },
 
+  /**
+   * A page shows (on) or hides (off). XEMS hears only the edges: the last page gone
+   * (screen off, app left) and the first one back (it answers with the full state).
+   */
+  setVisible(on) {
+    this.shownPages = Math.max(0, this.shownPages + (on ? 1 : -1))
+    const vis = this.shownPages > 0
+    if (vis === this.visible) {
+      return
+    }
+    this.visible = vis
+    this.send({ t: 'vis', on: vis })
+  },
+
   send(obj) {
     if (!this.conn) {
       this.diag.err = 'няма връзка (instance)'
@@ -369,9 +405,15 @@ export default {
     } catch (e) {}
   },
 
-  /** Seconds since XEMS last spoke (large when never). */
+  /** Seconds since the last full state: the age of its times (large when never). */
   silence() {
     return this.rx ? (Date.now() - this.rx) / 1000 : 9999
+  },
+
+  /** Seconds since XEMS last spoke at all (state or pulse): is the link alive. */
+  quiet() {
+    const t = Math.max(this.rx || 0, this.rxAny || 0)
+    return t ? (Date.now() - t) / 1000 : 9999
   },
 
   watch(fn) {

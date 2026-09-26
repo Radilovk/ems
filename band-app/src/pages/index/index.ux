@@ -80,7 +80,7 @@ export default {
   update() {
     const app = this.$app.$def
     const s = app.state
-    const quiet = app.silence()
+    const quiet = app.quiet()
     if (!s || quiet > 12) {
       this.offline = true
       this.offText = quiet > 9000 ? 'Свързване…' : 'Връзката прекъсна'

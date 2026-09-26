@@ -2358,7 +2358,7 @@ public final class MusicPlayerHelper {
     /** Kit stepper → the same path as the old AmountView listener. */
     /**
      * Hz by sound: two rows under Smoothness — impulse Hz at bass-heavy and at treble-heavy
-     * music (bass 0 = off). Same look as the rows above.
+     * music. Always on; same look as the rows above.
      */
     private static void addHzRows(Activity a) {
         if (smoothView == null || !(smoothView.getParent() instanceof LinearLayout)) {
@@ -2371,7 +2371,8 @@ public final class MusicPlayerHelper {
         ViewGroup panel = (ViewGroup) smoothRow.getParent();
         int at = panel.indexOfChild(smoothRow) + 1;
         TextView ref = smoothRow.getChildAt(0) instanceof TextView ? (TextView) smoothRow.getChildAt(0) : null;
-        panel.addView(hzRow(a, smoothRow, ref, tr("Hz при бас", "Hz on bass"), 4, 5, 0, MusicSync.HZ_MAX), at);
+        panel.addView(hzRow(a, smoothRow, ref, tr("Hz при бас", "Hz on bass"), 4, 5, MusicSync.HZ_MIN,
+                MusicSync.HZ_MAX), at);
         panel.addView(hzRow(a, smoothRow, ref, tr("Hz при високи", "Hz on treble"), 5, 5, MusicSync.HZ_MIN,
                 MusicSync.HZ_MAX), at + 1);
     }
@@ -2408,19 +2409,11 @@ public final class MusicPlayerHelper {
         return row;
     }
 
-    /** Stepper text: Hz-at-bass 0 reads "off". */
     static String settingText(int which) {
-        int v = settingValue(which);
-        if (which == 4 && v <= 0) {
-            return tr("изкл.", "off");
-        }
-        return String.valueOf(v);
+        return String.valueOf(settingValue(which));
     }
 
     static String settingUnit(int which) {
-        if (which == 4 && settingValue(which) <= 0) {
-            return "";
-        }
         return which >= 4 ? "Hz" : "%";
     }
 
@@ -2443,11 +2436,6 @@ public final class MusicPlayerHelper {
         public void onStep(int d) {
             int cur = settingValue(which);
             int v = Math.max(min, Math.min(max, cur + d * step));
-            if (which == 4 && cur <= 0 && d > 0) {
-                v = 30;                                  // switching Hz-by-sound on: a sensible bass Hz
-            } else if (which == 4 && v < MusicSync.HZ_MIN) {
-                v = 0;
-            }
             new SettingChangeListener(which).onAmountChange(null, v);
             stepper.set(settingText(which), settingUnit(which));
         }

@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-brief.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python3 scripts/repo-map.py:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)"
+    ],
+    "deny": [
+      "Read(**/*.apk)",
+      "Read(**/*.rpk)",
+      "Read(**/*.zip)",
+      "Read(**/*.jar)",
+      "Read(**/*.keystore)",
+      "Read(**/package-lock.json)"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+# Keep git diff/show/log -p readable (and cheap for agents): generated or binary → no text diff.
+# See the text anyway with: git diff -a -- <path>
+branding/smali/** -diff linguist-generated=true
+**/package-lock.json -diff linguist-generated=true
+.claude/MAP.md -diff linguist-generated=true
+*.apk binary
+*.rpk binary
+*.zip binary
+*.jar binary
+*.keystore binary

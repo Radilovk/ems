@@ -78,7 +78,7 @@ def hue_rules(rgb, al, side):
     rows = np.nonzero(al.max(1) > 0.5)[0]
     top, bot = rows[0], rows[-1]
     ry = ((np.arange(rgb.shape[0]) - top) / max(1, bot - top))[:, None] * np.ones(rgb.shape[:2])
-    sat = (al > 0.5) & (s > 0.5) & (v > 0.3)
+    sat = (al > 0.5) & (s > 0.5) & (v > 0.33)
     z = np.full(rgb.shape[:2], -1, np.int8)
     blue = sat & (h >= 180) & (h < 245)
     green = sat & (h >= 85) & (h < 165)
@@ -138,33 +138,59 @@ def zones(rgb, al, side, layers):
     return zone, cov.max(0)
 
 
+def smooth(x, a, b):
+    t = np.clip((x - a) / (b - a), 0, 1)
+    return t * t * (3 - 2 * t)
+
+
 def build(rgb, al, side, layers):
-    zone, cov = zones(rgb, al, side, layers)
+    """Colour follows the painting itself. Each pixel belongs to a zone by its own hue (and height
+    on the body); how much of it is muscle comes from its saturation and brightness in the art,
+    so every edge is the painted, anti-aliased edge. Crumbs are dropped; low-saturation pixels
+    enclosed by a muscle (highlights, creases between heads) count as fully inside it."""
     lum = rgb @ np.array([0.3, 0.59, 0.11], np.float32)
-    grey_under = rgb.min(-1)                      # the body under a coloured glow
     h, s, v = hsv(rgb)
-    inz = zone >= 0
-    body = (~inz) & (al > 0.9) & (s < 0.25)
-    body_l = float(np.median(lum[body])) if body.any() else 0.25
+    px = hue_rules(rgb, al, side)                       # sat > .5, v > .3, by hue and height
+    body_m = al > 0.5
+    zone = np.full(al.shape, -1, np.int8)
+    w = np.zeros(al.shape, np.float32)
     shade = np.zeros_like(lum)
+    wsat = smooth(s, 0.3, 0.62) * smooth(v, 0.3, 0.55)
     for k in range(10):
-        m = (zone == k) & (cov > 0.5)
-        if m.any():
-            lo, hi = np.percentile(lum[m], 3), np.percentile(lum[m], 97)
-            shade[zone == k] = np.clip((lum[zone == k] - lo) / max(hi - lo, 1e-3), 0, 1)
-    # neutral art: the body as painted where it is grey; where a zone's colour or glow tints it,
-    # the grey underneath; the zones themselves in the body tone with their own light
-    tinted = np.clip((s - 0.18) / 0.25, 0, 1)
-    base = lum * (1 - tinted) + grey_under * 1.15 * tinted
+        m = px == k
+        if not m.any():
+            continue
+        lab, n = ndimage.label(m)
+        sizes = ndimage.sum(m, lab, range(1, n + 1))
+        m = np.isin(lab, [i + 1 for i, sz in enumerate(sizes) if sz >= max(300, sizes.max() * 0.04)])
+        filled = ndimage.binary_fill_holes(m) & body_m
+        edge = ndimage.binary_dilation(filled, iterations=2) & body_m & (zone < 0)
+        wk = np.where(filled & ~m, 1.0, 0.0)            # enclosed highlights / creases
+        wk = np.maximum(wk, np.where(edge, wsat, 0.0))  # painted edge and body of the muscle
+        take = (wk > 0.02) & (wk > w)
+        zone[take] = k
+        w[take] = wk[take]
+        # light = the painted HSL lightness, scaled so the zone's typical lightness sits at 0.5:
+        # the card recolours with it (dark → black, 0.5 → the colour, bright → white), so every
+        # shadow, highlight and fibre of the painting stays, in the client's colour
+        L = (rgb.max(-1) + rgb.min(-1)) / 2
+        med = float(np.median(L[m]))
+        shade[take] = np.clip(L[take] * 0.5 / max(med, 1e-3), 0, 1)
+    w *= al
+    body = (zone < 0) & (al > 0.9) & (s < 0.2)
+    body_l = float(np.median(lum[body])) if body.any() else 0.25
+    # neutral art: grey body as painted; coloured glow left on the skin loses its colour
+    tinted = smooth(s, 0.12, 0.35)
+    base = lum * (1 - tinted) + rgb.min(-1) * 1.15 * tinted
     zgrey = body_l * (0.55 + 0.75 * shade)
-    grey = base * (1 - cov) + zgrey * cov
+    grey = base * (1 - w) + zgrey * w
     tint = np.array([0.97, 0.99, 1.06], np.float32)
     art = np.clip(grey[..., None] * tint[None, None, :], 0, 1)
     art_rgba = np.dstack([art, al])
     zmap = np.zeros(al.shape + (3,), np.uint8)
-    zmap[..., 0] = np.where(inz, zone + 1, 0)
-    zmap[..., 1] = (np.clip(shade * 255, 0, 255).astype(np.uint8) & 0xF8)
-    zmap[..., 2] = np.clip(cov * 255, 0, 255).astype(np.uint8)
+    zmap[..., 0] = np.where(zone >= 0, zone + 1, 0)
+    zmap[..., 1] = np.clip(shade * 255, 0, 255).astype(np.uint8)
+    zmap[..., 2] = np.clip(w * 255, 0, 255).astype(np.uint8)
     return Image.fromarray((art_rgba * 255).astype(np.uint8), "RGBA"), Image.fromarray(zmap, "RGB")
 
 

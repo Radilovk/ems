@@ -344,13 +344,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (73L)
+`CLAUDE.md` (81L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L42 ## Invariants (breaking one = broken release)
-  - L55 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L70 ## Keeping the map true
+  - L55 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
+  - L63 ## Deeper context (read only the section you need — headings/lines are in MAP)
+  - L78 ## Keeping the map true
 
 `band-app/CLAUDE.md` (27L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)

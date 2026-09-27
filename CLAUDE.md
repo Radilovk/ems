@@ -52,6 +52,14 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
   = `BandAppInstall.VERSION`.
 - Commits: `type(scope): summary (band 5.9.N / 1.1.N-ai)` for source, then `Build 1.1.N-ai` for the APK.
 
+## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
+- **Attention priority:** the one thing the user needs now is biggest and first; secondary info smaller or folded;
+  rare/edge content (e.g. contraindication lists) behind one question, never a central block.
+- **Intuitive:** one-tap choices over typing and dropdowns; plain, warm, natural Bulgarian (no form-speak);
+  the next step is obvious; state is visible (sent ✓, changed, loading).
+- **Strong aesthetics + interactivity:** consistent kit (`XemsUi` / page tokens), press feedback, smooth
+  enter/transition, clear selected state, light and dark themes. Check with a screenshot before shipping.
+
 ## Deeper context (read only the section you need — headings/lines are in MAP)
 | Topic | File |
 |---|---|

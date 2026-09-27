@@ -99,6 +99,11 @@ public final class XemsLocalUserForm {
         final LinearLayout[] sexRow = new LinearLayout[1];
         final LinearLayout[] goalRow = new LinearLayout[1];
         final LinearLayout[] fitRow = new LinearLayout[1];
+        /** Wears the Xiaomi band: trainings also run as a native band workout (Mi Fitness). */
+        boolean owner;
+        int miSport = 3;
+        final LinearLayout[] ownRow = new LinearLayout[1];
+        final LinearLayout[] sportRow = new LinearLayout[1];
 
         Form(Activity a, TrainUser editing) {
             this.a = a;
@@ -122,6 +127,8 @@ public final class XemsLocalUserForm {
             if (u.weight > 0) {
                 weight[0] = Math.round(u.weight);
             }
+            owner = prefs(a).getBoolean("own" + u.id, false);
+            miSport = prefs(a).getInt("misport" + u.id, 3);
             String saved = prefs(a).getString("u" + u.id, "");
             String[] parts = saved.split("\\|", -1);
             if (parts.length >= 3) {
@@ -147,6 +154,17 @@ public final class XemsLocalUserForm {
             head.setPadding(dp(24), dp(14), dp(24), dp(14));
             TextView title = text(editing == null ? tr("Нов клиент", "New client") : tr("Клиент", "Client"), 24, TEXT, true);
             head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            if (editing != null) {
+                TextView history = button(tr("История и доклади", "History and reports"), false);
+                history.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        openReports();
+                    }
+                });
+                head.addView(history, wrap(0, 0));
+                View gap = new View(a);
+                head.addView(gap, new LinearLayout.LayoutParams(dp(12), 1));
+            }
             TextView cancel = button(tr("Отказ", "Cancel"), false);
             cancel.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -280,6 +298,14 @@ public final class XemsLocalUserForm {
             fitRow[0] = chips(c2);
             renderFitness();
 
+            LinearLayout cm = card(col, tr("Гривна и Mi Fitness", "Band and Mi Fitness"));
+            TextView mh = text(tr("Собственикът на гривната получава всяка тренировка и като тренировка в гривната: пулс, калории и време влизат в Mi Fitness.",
+                    "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness."), 13, MUTED, false);
+            cm.addView(mh, match(dp(4)));
+            ownRow[0] = chips(cm);
+            sportRow[0] = chips(cm);
+            renderOwner();
+
             LinearLayout c3 = card(col, tr("Противопоказания", "Contraindications"));
             TextView hint = text(tr("Отбележи, ако има. EMS не се препоръчва при нито едно от тях.",
                     "Mark any that apply. EMS is not advised with any of them."), 13, MUTED, false);
@@ -323,6 +349,48 @@ public final class XemsLocalUserForm {
                     renderSex();
                 }
             });
+        }
+
+        void renderOwner() {
+            LinearLayout row = ownRow[0];
+            row.removeAllViews();
+            addChoice(row, tr("Не носи гривна", "No band"), !owner, new Runnable() {
+                public void run() {
+                    owner = false;
+                    renderOwner();
+                }
+            });
+            addChoice(row, tr("Собственик на гривната", "Band owner"), owner, new Runnable() {
+                public void run() {
+                    owner = true;
+                    renderOwner();
+                }
+            });
+            LinearLayout sr = sportRow[0];
+            sr.removeAllViews();
+            sr.setVisibility(owner ? View.VISIBLE : View.GONE);
+            addChoice(sr, tr("Бягане на закрито", "Indoor running"), miSport == 3, new Runnable() {
+                public void run() {
+                    miSport = 3;
+                    renderOwner();
+                }
+            });
+            addChoice(sr, tr("Свободна (проба)", "Free (test)"), miSport == 8, new Runnable() {
+                public void run() {
+                    miSport = 8;
+                    renderOwner();
+                }
+            });
+        }
+
+        void openReports() {
+            try {
+                Class.forName("com.isaigu.gymapp.wearable.ReportScreen")
+                        .getMethod("open", Activity.class, Object.class)
+                        .invoke(null, a, editing);
+            } catch (Throwable t) {
+                android.util.Log.e("xems_form", "reports", t);
+            }
         }
 
         void renderGoal() {
@@ -426,7 +494,8 @@ public final class XemsLocalUserForm {
                     cs.append(c);
                 }
             }
-            prefs(a).edit().putString("u" + u.id, goal + "|" + fitness + "|" + cs).apply();
+            prefs(a).edit().putString("u" + u.id, goal + "|" + fitness + "|" + cs)
+                    .putBoolean("own" + u.id, owner).putInt("misport" + u.id, miSport).apply();
             dialog.dismiss();
         }
 

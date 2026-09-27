@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderFitness()V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$f:Ljava/lang/String;
-
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/String;)V
-    .registers 3
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
+    .registers 2
 
-    .line 345
+    .prologue
+    .line 357
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->val$f:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -42,18 +39,19 @@
 .method public run()V
     .registers 3
 
-    .line 347
+    .prologue
+    .line 359
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->val$f:Ljava/lang/String;
+    const/4 v1, 0x0
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->fitness:Ljava/lang/String;
+    iput-boolean v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->owner:Z
 
-    .line 348
+    .line 360
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$7;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderFitness()V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
 
-    .line 349
+    .line 361
     return-void
 .end method

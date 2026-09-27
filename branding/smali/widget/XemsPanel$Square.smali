@@ -16,20 +16,21 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;)V
-    .registers 2
+    .registers 3
 
-    .line 251
+    .prologue
+    .line 259
     invoke-direct {p0, p1}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 252
-    const/4 p1, 0x1
+    .line 260
+    const/4 v0, 0x1
 
-    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/widget/XemsPanel$Square;->setClickable(Z)V
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsPanel$Square;->setClickable(Z)V
 
-    .line 253
+    .line 261
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->pressable(Landroid/view/View;)V
 
-    .line 254
+    .line 262
     return-void
 .end method
 
@@ -38,9 +39,10 @@
 .method protected onMeasure(II)V
     .registers 3
 
-    .line 258
+    .prologue
+    .line 266
     invoke-super {p0, p1, p1}, Landroid/widget/FrameLayout;->onMeasure(II)V
 
-    .line 259
+    .line 267
     return-void
 .end method

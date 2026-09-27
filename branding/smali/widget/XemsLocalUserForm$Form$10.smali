@@ -3,12 +3,12 @@
 .source "XemsLocalUserForm.java"
 
 # interfaces
-.implements Landroid/widget/NumberPicker$OnValueChangeListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->wheel(Ljava/lang/String;Ljava/lang/String;[III)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$value:[I
-
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;[I)V
-    .registers 3
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
+    .registers 2
 
-    .line 515
+    .prologue
+    .line 378
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->val$value:[I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -39,16 +36,22 @@
 
 
 # virtual methods
-.method public onValueChange(Landroid/widget/NumberPicker;II)V
-    .registers 4
+.method public run()V
+    .registers 3
 
-    .line 517
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->val$value:[I
+    .prologue
+    .line 380
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    const/4 p2, 0x0
+    const/16 v1, 0x8
 
-    aput p3, p1, p2
+    iput v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->miSport:I
 
-    .line 518
+    .line 381
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
+
+    .line 382
     return-void
 .end method

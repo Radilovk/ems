@@ -41,68 +41,135 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 14
+    .registers 7
+
+    .prologue
+    const/4 v6, 0x4
+
+    const/4 v5, 0x3
+
+    const/4 v4, 0x2
+
+    const/4 v3, 0x1
+
+    const/4 v2, 0x0
 
     .line 54
-    const-string v0, "tone"
+    const/4 v0, 0x5
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const-string v1, "tone"
+
+    aput-object v1, v0, v2
 
     const-string v1, "fat"
 
-    const-string v2, "massage"
+    aput-object v1, v0, v3
 
-    const-string v3, "drain"
+    const-string v1, "massage"
 
-    const-string v4, "cellulite"
+    aput-object v1, v0, v4
 
-    filled-new-array {v0, v1, v2, v3, v4}, [Ljava/lang/String;
+    const-string v1, "drain"
 
-    move-result-object v0
+    aput-object v1, v0, v5
+
+    const-string v1, "cellulite"
+
+    aput-object v1, v0, v6
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->GOALS:[Ljava/lang/String;
 
     .line 55
-    const-string v0, "low"
+    new-array v0, v5, [Ljava/lang/String;
+
+    const-string v1, "low"
+
+    aput-object v1, v0, v2
 
     const-string v1, "mid"
 
-    const-string v2, "high"
+    aput-object v1, v0, v3
 
-    filled-new-array {v0, v1, v2}, [Ljava/lang/String;
+    const-string v1, "high"
 
-    move-result-object v0
+    aput-object v1, v0, v4
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->FITNESS:[Ljava/lang/String;
 
     .line 57
+    const/16 v0, 0xd
+
+    new-array v0, v0, [Ljava/lang/String;
+
     const-string v1, "pregnancy"
 
-    const-string v2, "implant"
+    aput-object v1, v0, v2
 
-    const-string v3, "cardiovascular"
+    const-string v1, "implant"
 
-    const-string v4, "circulation"
+    aput-object v1, v0, v3
 
-    const-string v5, "hernia"
+    const-string v1, "cardiovascular"
 
-    const-string v6, "cancer"
+    aput-object v1, v0, v4
 
-    const-string v7, "bleeding"
+    const-string v1, "circulation"
 
-    const-string v8, "epilepsy"
+    aput-object v1, v0, v5
 
-    const-string v9, "neurological"
+    const-string v1, "hernia"
 
-    const-string v10, "recent_surgery"
+    aput-object v1, v0, v6
 
-    const-string v11, "skin_lesion"
+    const/4 v1, 0x5
 
-    const-string v12, "kidney"
+    const-string v2, "cancer"
 
-    const-string v13, "tuberculosis"
+    aput-object v2, v0, v1
 
-    filled-new-array/range {v1 .. v13}, [Ljava/lang/String;
+    const/4 v1, 0x6
 
-    move-result-object v0
+    const-string v2, "bleeding"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    const-string v2, "epilepsy"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    const-string v2, "neurological"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    const-string v2, "recent_surgery"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xa
+
+    const-string v2, "skin_lesion"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xb
+
+    const-string v2, "kidney"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xc
+
+    const-string v2, "tuberculosis"
+
+    aput-object v2, v0, v1
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
 
@@ -112,6 +179,7 @@
 .method private constructor <init>()V
     .registers 1
 
+    .prologue
     .line 62
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -121,27 +189,31 @@
 .method static clamp(III)I
     .registers 3
 
-    .line 666
-    if-ge p0, p1, :cond_4
+    .prologue
+    .line 735
+    if-ge p0, p1, :cond_3
 
-    move p0, p1
+    :goto_2
+    return p1
 
-    goto :goto_7
-
-    :cond_4
+    :cond_3
     if-le p0, p2, :cond_7
 
-    move p0, p2
+    move p1, p2
+
+    goto :goto_2
 
     :cond_7
-    :goto_7
-    return p0
+    move p1, p0
+
+    goto :goto_2
 .end method
 
 .method static contraName(Ljava/lang/String;)Ljava/lang/String;
-    .registers 2
+    .registers 3
 
-    .line 638
+    .prologue
+    .line 707
     const-string v0, "pregnancy"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -150,17 +222,20 @@
 
     if-eqz v0, :cond_11
 
-    const-string p0, "\u0411\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0441\u0442"
+    const-string v0, "\u0411\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0441\u0442"
 
-    const-string v0, "Pregnancy"
+    const-string v1, "Pregnancy"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
+    .line 720
+    :cond_10
+    :goto_10
     return-object p0
 
-    .line 639
+    .line 708
     :cond_11
     const-string v0, "implant"
 
@@ -170,17 +245,17 @@
 
     if-eqz v0, :cond_22
 
-    const-string p0, "\u041f\u0435\u0439\u0441\u043c\u0435\u0439\u043a\u044a\u0440 / \u0438\u043c\u043f\u043b\u0430\u043d\u0442"
+    const-string v0, "\u041f\u0435\u0439\u0441\u043c\u0435\u0439\u043a\u044a\u0440 / \u0438\u043c\u043f\u043b\u0430\u043d\u0442"
 
-    const-string v0, "Pacemaker / implant"
+    const-string v1, "Pacemaker / implant"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto :goto_10
 
-    .line 640
+    .line 709
     :cond_22
     const-string v0, "cardiovascular"
 
@@ -190,17 +265,17 @@
 
     if-eqz v0, :cond_33
 
-    const-string p0, "\u0421\u044a\u0440\u0434\u0435\u0447\u043d\u043e-\u0441\u044a\u0434\u043e\u0432\u043e"
+    const-string v0, "\u0421\u044a\u0440\u0434\u0435\u0447\u043d\u043e-\u0441\u044a\u0434\u043e\u0432\u043e"
 
-    const-string v0, "Cardiovascular"
+    const-string v1, "Cardiovascular"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto :goto_10
 
-    .line 641
+    .line 710
     :cond_33
     const-string v0, "circulation"
 
@@ -210,17 +285,17 @@
 
     if-eqz v0, :cond_44
 
-    const-string p0, "\u0422\u0440\u043e\u043c\u0431\u043e\u0437\u0430 / \u0430\u0440\u0442\u0435\u0440\u0438\u0438"
+    const-string v0, "\u0422\u0440\u043e\u043c\u0431\u043e\u0437\u0430 / \u0430\u0440\u0442\u0435\u0440\u0438\u0438"
 
-    const-string v0, "Thrombosis / arteries"
+    const-string v1, "Thrombosis / arteries"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto :goto_10
 
-    .line 642
+    .line 711
     :cond_44
     const-string v0, "hernia"
 
@@ -230,17 +305,17 @@
 
     if-eqz v0, :cond_55
 
-    const-string p0, "\u0425\u0435\u0440\u043d\u0438\u044f"
+    const-string v0, "\u0425\u0435\u0440\u043d\u0438\u044f"
 
-    const-string v0, "Hernia"
+    const-string v1, "Hernia"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto :goto_10
 
-    .line 643
+    .line 712
     :cond_55
     const-string v0, "cancer"
 
@@ -250,17 +325,17 @@
 
     if-eqz v0, :cond_66
 
-    const-string p0, "\u041e\u043d\u043a\u043e\u043b\u043e\u0433\u0438\u0447\u043d\u043e"
+    const-string v0, "\u041e\u043d\u043a\u043e\u043b\u043e\u0433\u0438\u0447\u043d\u043e"
 
-    const-string v0, "Cancer"
+    const-string v1, "Cancer"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto :goto_10
 
-    .line 644
+    .line 713
     :cond_66
     const-string v0, "bleeding"
 
@@ -270,17 +345,17 @@
 
     if-eqz v0, :cond_77
 
-    const-string p0, "\u041a\u0440\u044a\u0432\u043e\u0441\u044a\u0441\u0438\u0440\u0432\u0430\u043d\u0435"
+    const-string v0, "\u041a\u0440\u044a\u0432\u043e\u0441\u044a\u0441\u0438\u0440\u0432\u0430\u043d\u0435"
 
-    const-string v0, "Bleeding disorder"
+    const-string v1, "Bleeding disorder"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto :goto_10
 
-    .line 645
+    .line 714
     :cond_77
     const-string v0, "epilepsy"
 
@@ -290,17 +365,17 @@
 
     if-eqz v0, :cond_88
 
-    const-string p0, "\u0415\u043f\u0438\u043b\u0435\u043f\u0441\u0438\u044f"
+    const-string v0, "\u0415\u043f\u0438\u043b\u0435\u043f\u0441\u0438\u044f"
 
-    const-string v0, "Epilepsy"
+    const-string v1, "Epilepsy"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto :goto_10
 
-    .line 646
+    .line 715
     :cond_88
     const-string v0, "neurological"
 
@@ -308,107 +383,104 @@
 
     move-result v0
 
-    if-eqz v0, :cond_99
+    if-eqz v0, :cond_9a
 
-    const-string p0, "\u041d\u0435\u0432\u0440\u043e\u043b\u043e\u0433\u0438\u0447\u043d\u043e"
+    const-string v0, "\u041d\u0435\u0432\u0440\u043e\u043b\u043e\u0433\u0438\u0447\u043d\u043e"
 
-    const-string v0, "Neurological"
+    const-string v1, "Neurological"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto/16 :goto_10
 
-    .line 647
-    :cond_99
+    .line 716
+    :cond_9a
     const-string v0, "recent_surgery"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_aa
+    if-eqz v0, :cond_ac
 
-    const-string p0, "\u0421\u043a\u043e\u0440\u043e\u0448\u043d\u0430 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u044f"
+    const-string v0, "\u0421\u043a\u043e\u0440\u043e\u0448\u043d\u0430 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u044f"
 
-    const-string v0, "Recent surgery"
+    const-string v1, "Recent surgery"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto/16 :goto_10
 
-    .line 648
-    :cond_aa
+    .line 717
+    :cond_ac
     const-string v0, "skin_lesion"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_bb
+    if-eqz v0, :cond_be
 
-    const-string p0, "\u0420\u0430\u043d\u0438 \u043f\u043e\u0434 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435"
+    const-string v0, "\u0420\u0430\u043d\u0438 \u043f\u043e\u0434 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435"
 
-    const-string v0, "Wounds under electrodes"
+    const-string v1, "Wounds under electrodes"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto/16 :goto_10
 
-    .line 649
-    :cond_bb
+    .line 718
+    :cond_be
     const-string v0, "kidney"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_cc
+    if-eqz v0, :cond_d0
 
-    const-string p0, "\u0411\u044a\u0431\u0440\u0435\u0447\u043d\u043e"
+    const-string v0, "\u0411\u044a\u0431\u0440\u0435\u0447\u043d\u043e"
 
-    const-string v0, "Kidney disease"
+    const-string v1, "Kidney disease"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
+    goto/16 :goto_10
 
-    .line 650
-    :cond_cc
+    .line 719
+    :cond_d0
     const-string v0, "tuberculosis"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_dd
+    if-eqz v0, :cond_10
 
-    const-string p0, "\u0422\u0443\u0431\u0435\u0440\u043a\u0443\u043b\u043e\u0437\u0430"
+    const-string v0, "\u0422\u0443\u0431\u0435\u0440\u043a\u0443\u043b\u043e\u0437\u0430"
 
-    const-string v0, "Tuberculosis"
+    const-string v1, "Tuberculosis"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    return-object p0
-
-    .line 651
-    :cond_dd
-    return-object p0
+    goto/16 :goto_10
 .end method
 
 .method static fitnessName(Ljava/lang/String;)Ljava/lang/String;
-    .registers 2
+    .registers 3
 
-    .line 632
+    .prologue
+    .line 701
     const-string v0, "low"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -417,53 +489,56 @@
 
     if-eqz v0, :cond_11
 
-    const-string p0, "\u041d\u0430\u0447\u0438\u043d\u0430\u0435\u0449"
+    const-string v0, "\u041d\u0430\u0447\u0438\u043d\u0430\u0435\u0449"
 
-    const-string v0, "Beginner"
+    const-string v1, "Beginner"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    .line 703
+    :goto_10
+    return-object v0
 
-    .line 633
+    .line 702
     :cond_11
     const-string v0, "high"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result p0
+    move-result v0
 
-    if-eqz p0, :cond_22
+    if-eqz v0, :cond_22
 
-    const-string p0, "\u041d\u0430\u043f\u0440\u0435\u0434\u043d\u0430\u043b"
+    const-string v0, "\u041d\u0430\u043f\u0440\u0435\u0434\u043d\u0430\u043b"
 
-    const-string v0, "Advanced"
+    const-string v1, "Advanced"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    goto :goto_10
 
-    .line 634
+    .line 703
     :cond_22
-    const-string p0, "\u0421\u0440\u0435\u0434\u0435\u043d"
+    const-string v0, "\u0421\u0440\u0435\u0434\u0435\u043d"
 
-    const-string v0, "Intermediate"
+    const-string v1, "Intermediate"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    goto :goto_10
 .end method
 
 .method static goalName(Ljava/lang/String;)Ljava/lang/String;
-    .registers 2
+    .registers 3
 
-    .line 624
+    .prologue
+    .line 693
     const-string v0, "fat"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -472,17 +547,19 @@
 
     if-eqz v0, :cond_11
 
-    const-string p0, "\u041e\u0442\u0441\u043b\u0430\u0431\u0432\u0430\u043d\u0435"
+    const-string v0, "\u041e\u0442\u0441\u043b\u0430\u0431\u0432\u0430\u043d\u0435"
 
-    const-string v0, "Fat loss"
+    const-string v1, "Fat loss"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    .line 697
+    :goto_10
+    return-object v0
 
-    .line 625
+    .line 694
     :cond_11
     const-string v0, "massage"
 
@@ -492,17 +569,17 @@
 
     if-eqz v0, :cond_22
 
-    const-string p0, "\u041c\u0430\u0441\u0430\u0436"
+    const-string v0, "\u041c\u0430\u0441\u0430\u0436"
 
-    const-string v0, "Massage"
+    const-string v1, "Massage"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    goto :goto_10
 
-    .line 626
+    .line 695
     :cond_22
     const-string v0, "drain"
 
@@ -512,75 +589,78 @@
 
     if-eqz v0, :cond_33
 
-    const-string p0, "\u0414\u0440\u0435\u043d\u0430\u0436"
+    const-string v0, "\u0414\u0440\u0435\u043d\u0430\u0436"
 
-    const-string v0, "Drainage"
+    const-string v1, "Drainage"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    goto :goto_10
 
-    .line 627
+    .line 696
     :cond_33
     const-string v0, "cellulite"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result p0
+    move-result v0
 
-    if-eqz p0, :cond_44
+    if-eqz v0, :cond_44
 
-    const-string p0, "\u0426\u0435\u043b\u0443\u043b\u0438\u0442"
+    const-string v0, "\u0426\u0435\u043b\u0443\u043b\u0438\u0442"
 
-    const-string v0, "Cellulite"
+    const-string v1, "Cellulite"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    goto :goto_10
 
-    .line 628
+    .line 697
     :cond_44
-    const-string p0, "\u0422\u043e\u043d\u0443\u0441"
+    const-string v0, "\u0422\u043e\u043d\u0443\u0441"
 
-    const-string v0, "Tone"
+    const-string v1, "Tone"
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    goto :goto_10
 .end method
 
 .method static prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
-    .registers 3
+    .registers 4
 
-    .line 670
+    .prologue
+    .line 739
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
-    move-result-object p0
+    move-result-object v0
 
-    const-string v0, "xems_user_profiles"
+    const-string v1, "xems_user_profiles"
 
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
-    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
 
-    move-result-object p0
+    move-result-object v0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method public static show(Landroid/app/Activity;Ljava/lang/Object;)V
-    .registers 3
+    .registers 5
 
+    .prologue
     .line 67
     if-nez p0, :cond_3
 
-    .line 68
+    .line 75
+    :goto_2
     return-void
 
     .line 70
@@ -588,109 +668,109 @@
     :try_start_3
     instance-of v0, p1, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    if-eqz v0, :cond_a
+    if-eqz v0, :cond_1b
 
     check-cast p1, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    goto :goto_b
-
-    :cond_a
-    const/4 p1, 0x0
-
     .line 71
-    :goto_b
+    :goto_9
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {v0, p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;-><init>(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;)V
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->open()V
-    :try_end_13
-    .catchall {:try_start_3 .. :try_end_13} :catchall_14
+    :try_end_11
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_11} :catch_12
 
-    .line 74
-    goto :goto_1c
+    goto :goto_2
 
     .line 72
-    :catchall_14
-    move-exception p0
+    :catch_12
+    move-exception v0
 
     .line 73
-    const-string p1, "xems_form"
+    const-string v1, "xems_form"
 
-    const-string v0, "show"
+    const-string v2, "show"
 
-    invoke-static {p1, v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 75
-    :goto_1c
-    return-void
+    goto :goto_2
+
+    .line 70
+    :cond_1b
+    const/4 p1, 0x0
+
+    goto :goto_9
 .end method
 
 .method static tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
-    .line 674
+    .prologue
+    .line 743
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
 
     if-eqz v0, :cond_7
 
-    goto :goto_8
+    :goto_6
+    return-object p0
 
     :cond_7
     move-object p0, p1
 
-    :goto_8
-    return-object p0
+    goto :goto_6
 .end method
 
 .method static yearsSince(Ljava/util/Date;)I
-    .registers 4
+    .registers 6
 
-    .line 655
+    .prologue
+    const/4 v4, 0x6
+
+    const/4 v3, 0x1
+
+    .line 724
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
-    move-result-object v0
+    move-result-object v1
 
-    .line 656
-    invoke-virtual {v0, p0}, Ljava/util/Calendar;->setTime(Ljava/util/Date;)V
+    .line 725
+    invoke-virtual {v1, p0}, Ljava/util/Calendar;->setTime(Ljava/util/Date;)V
 
-    .line 657
+    .line 726
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
-    move-result-object p0
+    move-result-object v2
 
-    .line 658
-    const/4 v1, 0x1
-
-    invoke-virtual {p0, v1}, Ljava/util/Calendar;->get(I)I
-
-    move-result v2
-
-    invoke-virtual {v0, v1}, Ljava/util/Calendar;->get(I)I
-
-    move-result v1
-
-    sub-int/2addr v2, v1
-
-    .line 659
-    const/4 v1, 0x6
-
-    invoke-virtual {p0, v1}, Ljava/util/Calendar;->get(I)I
-
-    move-result p0
-
-    invoke-virtual {v0, v1}, Ljava/util/Calendar;->get(I)I
+    .line 727
+    invoke-virtual {v2, v3}, Ljava/util/Calendar;->get(I)I
 
     move-result v0
 
-    if-ge p0, v0, :cond_22
+    invoke-virtual {v1, v3}, Ljava/util/Calendar;->get(I)I
 
-    .line 660
-    add-int/lit8 v2, v2, -0x1
+    move-result v3
 
-    .line 662
+    sub-int/2addr v0, v3
+
+    .line 728
+    invoke-virtual {v2, v4}, Ljava/util/Calendar;->get(I)I
+
+    move-result v2
+
+    invoke-virtual {v1, v4}, Ljava/util/Calendar;->get(I)I
+
+    move-result v1
+
+    if-ge v2, v1, :cond_22
+
+    .line 729
+    add-int/lit8 v0, v0, -0x1
+
+    .line 731
     :cond_22
-    return v2
+    return v0
 .end method

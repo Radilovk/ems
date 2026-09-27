@@ -60,3 +60,15 @@ are still unknown → try them from XEMS and watch what the band shows.
 1. Is 8/49 (phone data every second) needed, or does the band time out without it?
 2. Band codes for strength / HIIT / free training.
 3. Exact meaning of `WorkoutStatusWatch` fields 2 / 6 / 10 on the phone→band direction.
+
+## Sport codes (second capture, 2026-09-27 04:00–05:48)
+
+| Code | What | Evidence |
+|---|---|---|
+| 3 | indoor running | started from the phone by Mi Fitness, band accepted (`responseCode 0`) |
+| 8 | free training | band-started; Mi Fitness parses it with `FreeTrainingDataProcesser` |
+| 16 | HIIT | band-started; synced as `key=high_interval_training` |
+| 308, 313, 399 | strength-type workouts from the band's list (started 05:44 / 05:45 / 05:46) | band pre-requests only; names not in the log |
+
+Only code 3 is verified as a **phone** start. XEMS defaults the band owner to 16 (HIIT); `wearable-ble.log`
+`band_workout` lines show what was sent. If the band ignores a code, pick another one in the client form.

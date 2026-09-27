@@ -38,7 +38,9 @@ public final class ReportScreen {
             s.setAllowFileAccess(true);
             s.setBuiltInZoomControls(false);
             s.setSupportZoom(false);
-            w.addJavascriptInterface(new ReportBridge(a, d, (TrainUser) trainUser, sessionId), "XemsReport");
+            ReportBridge bridge = new ReportBridge(a, d, (TrainUser) trainUser, sessionId);
+            bridge.setWebView(w);
+            w.addJavascriptInterface(bridge, "XemsReport");
             w.loadUrl(PAGE);
             d.setContentView(w, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));

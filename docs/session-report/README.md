@@ -29,3 +29,12 @@
   `xems_user_profiles`: `own<id>`, `misport<id>`).
 - All maths (stimulus S, HR reserve C, intensity, modes, efficiency, load, kcal, recovery) run in the page — see the
   "Как се смята" section there. Channel tolerance = the client's highest real strength per channel in any session.
+
+## Share / export (1.1.157-ai)
+
+"Сподели" in the report header: PNG card 1080×1350 (canvas, dark), PDF (system print dialog on the WebView,
+page switched to the light theme with print CSS), short text, TCX (`Sport="Other"`, HR every 5 s, calories — Strava
+upload, Garmin Connect import, TrainingPeaks, Intervals.icu, Runalyze), CSV per second and CSV client history
+(`;` separated, UTF-8 BOM for Excel). Files go through `ReportBridge.shareFile` → cache/xems_share →
+FileProvider `<package>.provider` (manifest `root-path`) → ACTION_SEND chooser.
+Health Connect / Google Fit direct writing is not done: it needs the Health Connect client and new manifest permissions.

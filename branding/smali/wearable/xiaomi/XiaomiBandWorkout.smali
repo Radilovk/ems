@@ -14,6 +14,10 @@
 
 .field public static final RESUME:I = 0x2
 
+.field public static final SPORT_FREE:I = 0x8
+
+.field public static final SPORT_HIIT:I = 0x10
+
 .field public static final SPORT_INDOOR_RUN:I = 0x3
 
 .field public static final START:I
@@ -24,7 +28,7 @@
     .registers 1
 
     .prologue
-    .line 27
+    .line 31
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,12 +38,12 @@
     .registers 1
 
     .prologue
-    .line 30
+    .line 34
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
 
-    .line 31
+    .line 35
     if-eqz v0, :cond_e
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;->isConnected()Z
@@ -67,50 +71,50 @@
 
     const/4 v3, 0x2
 
-    .line 35
+    .line 39
     new-array v0, v3, [[B
 
     const/4 v1, 0x0
 
-    .line 36
+    .line 40
     invoke-static {v4, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v2
 
     aput-object v2, v0, v1
 
-    .line 37
+    .line 41
     invoke-static {v3, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v1
 
     aput-object v1, v0, v4
 
-    .line 35
+    .line 39
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v0
 
-    .line 38
+    .line 42
     const/16 v1, 0x19
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 39
+    .line 43
     const/16 v1, 0x8
 
     const/16 v2, 0x1e
 
     const/16 v3, 0xa
 
-    .line 40
+    .line 44
     invoke-static {v3, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 39
+    .line 43
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->command(II[B)[B
 
     move-result-object v0
@@ -126,12 +130,12 @@
     .registers 3
 
     .prologue
-    .line 56
+    .line 60
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v0
 
-    .line 57
+    .line 61
     if-eqz v0, :cond_c
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;->isConnected()Z
@@ -140,19 +144,19 @@
 
     if-nez v1, :cond_e
 
-    .line 58
+    .line 62
     :cond_c
     const/4 v0, 0x0
 
-    .line 61
+    .line 65
     :goto_d
     return v0
 
-    .line 60
+    .line 64
     :cond_e
     invoke-interface {v0, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;->sendCommand([B)V
 
-    .line 61
+    .line 65
     const/4 v0, 0x1
 
     goto :goto_d
@@ -170,7 +174,7 @@
 
     const/4 v4, 0x1
 
-    .line 44
+    .line 48
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -181,26 +185,26 @@
 
     long-to-int v0, v0
 
-    .line 45
+    .line 49
     new-array v1, v7, [[B
 
     const/4 v2, 0x0
 
-    .line 46
+    .line 50
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v0
 
     aput-object v0, v1, v2
 
-    .line 47
+    .line 51
     invoke-static {v6, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v0
 
     aput-object v0, v1, v4
 
-    .line 48
+    .line 52
     invoke-static {v7, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v0
@@ -209,38 +213,38 @@
 
     const/4 v0, 0x6
 
-    .line 49
+    .line 53
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldVarint(II)[B
 
     move-result-object v0
 
     aput-object v0, v1, v6
 
-    .line 45
+    .line 49
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->concat([[B)[B
 
     move-result-object v0
 
-    .line 50
+    .line 54
     const/16 v1, 0x14
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 51
+    .line 55
     const/16 v1, 0x8
 
     const/16 v2, 0x1a
 
     const/16 v3, 0xa
 
-    .line 52
+    .line 56
     invoke-static {v3, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandProto;->protoFieldMessage(I[B)[B
 
     move-result-object v0
 
-    .line 51
+    .line 55
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandMessages;->command(II[B)[B
 
     move-result-object v0

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 133
+    .line 239
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 134
+    .line 240
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Dismiss;->d:Landroid/app/Dialog;
 
-    .line 135
+    .line 241
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 140
+    .line 246
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Dismiss;->d:Landroid/app/Dialog;
 
@@ -50,11 +50,11 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 143
+    .line 249
     :goto_5
     return-void
 
-    .line 141
+    .line 247
     :catch_6
     move-exception v0
 

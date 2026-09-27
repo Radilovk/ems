@@ -23,6 +23,10 @@ public final class XiaomiBandWorkout {
 
     /** Mi Fitness phone-launch sport code that is verified to start on the Band 10: indoor running. */
     public static final int SPORT_INDOOR_RUN = 3;
+    /** Free training (Mi Fitness FreeTrainingDataProcesser). */
+    public static final int SPORT_FREE = 8;
+    /** HIIT: synced into Mi Fitness as high_interval_training. */
+    public static final int SPORT_HIIT = 16;
 
     private XiaomiBandWorkout() {}
 

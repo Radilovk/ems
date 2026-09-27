@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
+.field final synthetic val$g:Ljava/lang/String;
+
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/String;)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 378
+    .line 403
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->val$g:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,18 +49,18 @@
     .registers 3
 
     .prologue
-    .line 380
+    .line 405
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    const/16 v1, 0x8
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->val$g:Ljava/lang/String;
 
-    iput v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->miSport:I
+    iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goal:Ljava/lang/String;
 
-    .line 381
+    .line 406
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$10;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
 
-    .line 382
+    .line 407
     return-void
 .end method

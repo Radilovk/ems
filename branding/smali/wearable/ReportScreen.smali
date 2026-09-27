@@ -51,7 +51,7 @@
 
     if-nez v2, :cond_7
 
-    .line 50
+    .line 52
     :cond_6
     :goto_6
     return-void
@@ -74,7 +74,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_7d
+    if-eqz v2, :cond_80
 
     const v2, -0xf4f2ef
 
@@ -126,16 +126,20 @@
 
     invoke-direct/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/ReportBridge;-><init>(Landroid/app/Activity;Landroid/app/Dialog;Lcom/isaigu/gymapp/bean/TrainUser;J)V
 
+    .line 42
+    invoke-virtual {v2, v8}, Lcom/isaigu/gymapp/wearable/ReportBridge;->setWebView(Landroid/webkit/WebView;)V
+
+    .line 43
     const-string v3, "XemsReport"
 
     invoke-virtual {v8, v2, v3}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 42
+    .line 44
     const-string v2, "file:///android_asset/report/session-report.html"
 
     invoke-virtual {v8, v2}, Landroid/webkit/WebView;->loadUrl(Ljava/lang/String;)V
 
-    .line 43
+    .line 45
     new-instance v2, Landroid/view/ViewGroup$LayoutParams;
 
     const/4 v3, -0x1
@@ -146,25 +150,25 @@
 
     invoke-virtual {v4, v8, v2}, Landroid/app/Dialog;->setContentView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 45
+    .line 47
     new-instance v2, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;
 
     invoke-direct {v2, v8}, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;-><init>(Landroid/webkit/WebView;)V
 
     invoke-virtual {v4, v2}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
 
-    .line 46
+    .line 48
     invoke-virtual {v4}, Landroid/app/Dialog;->show()V
-    :try_end_62
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_62} :catch_63
+    :try_end_65
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_65} :catch_66
 
     goto :goto_6
 
-    .line 47
-    :catch_63
+    .line 49
+    :catch_66
     move-exception v2
 
-    .line 48
+    .line 50
     const-string v3, "report"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -190,7 +194,7 @@
     goto :goto_6
 
     .line 34
-    :cond_7d
+    :cond_80
     const v2, -0x110e0b
 
     goto :goto_1d

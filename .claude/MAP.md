@@ -178,8 +178,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `HrHistory.java` (126L, compile:music-sync*,wearable) — Heart-rate samples of the last hour (ring buffer) for the HR panel: chart, averages and time in zones.
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (636L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `ReportBridge.java` (175L, compile:music-sync*,wearable) — window.XemsReport in the report page.
-- `ReportScreen.java` (69L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
+- `ReportBridge.java` (281L, compile:music-sync*,wearable) — window.XemsReport in the report page.
+- `ReportScreen.java` (71L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
 - `SessionInts.java` (36L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
 - `SessionRec.java` (244L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
 - `SessionRecorder.java` (217L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
@@ -220,7 +220,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XiaomiBandSppPort.java` (9L, compile:music-sync*,wearable) — Byte pipe to the band.
 - `XiaomiBandSppTask.java` (73L, compile:music-sync*,wearable) — Main-thread steps of the SPP link (named class: no lambdas / anonymous classes for dx).
 - `XiaomiBandStatus.java` (157L, compile:music-sync*,wearable) — What the band says about itself besides heart rate: battery, charging, worn / not worn, asleep, firmware and model.
-- `XiaomiBandWorkout.java` (64L, compile:music-sync*,wearable) — A workout the band records itself (HR, calories, time), started from the phone — the band keeps it in its own history a…
+- `XiaomiBandWorkout.java` (68L, compile:music-sync*,wearable) — A workout the band records itself (HR, calories, time), started from the phone — the band keeps it in its own history a…
 - `XiaomiBandWriteQueue.java` (237L, compile:music-sync*,wearable) — Serialized GATT writes with band-ACK gating for encrypted commands.
 
 **widget/** (`branding/java/src/com/isaigu/gymapp/widget/`)
@@ -241,7 +241,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalGate.java` (248L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (249L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1013L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
-- `XemsLocalUserForm.java` (746L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
+- `XemsLocalUserForm.java` (749L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsNav.java` (682L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsUi.java` (659L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -443,9 +443,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## Build notes
   - L52 ## v1.1.56-sync: microphone mode removed
 
-`docs/session-report/README.md` (32L)
+`docs/session-report/README.md` (41L)
   - L1 # Session report — design assets
   - L14 ## Implementation (1.1.156-ai)
+  - L33 ## Share / export (1.1.157-ai)
 
 `docs/xems-ai-session-implementation.md` (213L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -631,12 +632,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L606 ## 13. Референции
   - L623 ## 14. Changelog на документа
 
-`docs/xiaomi-band-native-workout.md` (63L)
+`docs/xiaomi-band-native-workout.md` (75L)
   - L1 # Native band workout started from the phone (Band 10)
   - L11 ## Sequence Mi Fitness sends (type 8 = Health, over the v2 protobuf channel)
   - L44 ## Sport types seen
   - L51 ## Band behaviour
   - L58 ## Open questions
+  - L64 ## Sport codes (second capture, 2026-09-27 04:00–05:48)
 
 `docs/xiaomi-band10.md` (280L)
   - L1 # Xiaomi Smart Band 9 / 10 — връзка през класически Bluetooth (v1.1.65)

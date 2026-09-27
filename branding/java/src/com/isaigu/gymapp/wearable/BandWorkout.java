@@ -25,8 +25,8 @@ final class BandWorkout {
     }
 
     static int sport(Context c, long userId) {
-        return c != null ? prefs(c).getInt("misport" + userId, XiaomiBandWorkout.SPORT_INDOOR_RUN)
-                : XiaomiBandWorkout.SPORT_INDOOR_RUN;
+        return c != null ? prefs(c).getInt("misport" + userId, XiaomiBandWorkout.SPORT_HIIT)
+                : XiaomiBandWorkout.SPORT_HIIT;
     }
 
     private static SharedPreferences prefs(Context c) {

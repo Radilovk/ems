@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
+.field final synthetic val$code:I
+
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;I)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 372
+    .line 381
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    iput p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$code:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,18 +49,18 @@
     .registers 3
 
     .prologue
-    .line 374
+    .line 383
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    const/4 v1, 0x3
+    iget v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$code:I
 
     iput v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->miSport:I
 
-    .line 375
+    .line 384
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
 
-    .line 376
+    .line 385
     return-void
 .end method

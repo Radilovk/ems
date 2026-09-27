@@ -332,10 +332,10 @@
     .registers 8
 
     .prologue
-    const/4 v0, 0x3
+    const/16 v0, 0x10
 
     .line 28
-    if-eqz p0, :cond_1e
+    if-eqz p0, :cond_1f
 
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/BandWorkout;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -363,6 +363,6 @@
 
     move-result v0
 
-    :cond_1e
+    :cond_1f
     return v0
 .end method

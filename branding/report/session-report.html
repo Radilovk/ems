@@ -101,6 +101,19 @@ h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
 .ghost:focus-visible,.closeb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 .nohr{font-size:12px;color:var(--hint)}
+.ghost.share{border-color:var(--go);color:var(--go)}
+.sheet{position:fixed;z-index:20;right:max(16px,calc((100vw - 1400px)/2 + 16px));top:calc(env(safe-area-inset-top,0px) + 70px);width:min(380px,calc(100vw - 32px));padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.opt{all:unset;cursor:pointer;display:grid;gap:2px;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px}
+.opt:hover,.opt:focus-visible{background:var(--surface)}
+.opt b{font-weight:500;font-size:14px}.opt span{font-size:12px;color:var(--hint)}
+@media print{
+  :root{--bg:#fff;--card:#fff;--card-hi:#fff;--surface:#F3F5F8;--stroke:#DDE2E9;--text:#0F1419;--muted:#475061;--hint:#7A8394;--shadow:none;--halo:none}
+  body{background:#fff!important;padding:0}
+  .rail,.sheet,.seg,.ghost,.closeb,details summary::before{display:none!important}
+  .app{grid-template-columns:1fr;max-width:none}
+  .card{break-inside:avoid;box-shadow:none}
+  details{display:none}
+}
 
 /* ---------- report ---------- */
 .report{display:grid;gap:16px;min-width:0}
@@ -219,6 +232,17 @@ details[open] summary::before{transform:rotate(45deg)}
       <p class="muted" style="max-width:60ch">Всяка тренировка на този клиент над 1 минута се записва секунда по секунда: сила по зони, честота, импулс и пауза, пулс от гривната. Докладът се появява тук веднага след края.</p>
       <div class="row"><button type="button" class="ghost" id="demoBtn">Покажи пример</button><button type="button" class="closeb" id="closeBtn2" aria-label="Затвори">✕</button></div>
     </section>
+    <div class="sheet card" id="sheet" hidden role="menu" aria-label="Сподели и експорт">
+      <div class="eyebrow" style="margin-bottom:10px">Сподели доклада</div>
+      <button type="button" class="opt" data-share="image"><b>Картина</b><span>Viber, WhatsApp, Messenger, Instagram, Facebook, имейл</span></button>
+      <button type="button" class="opt" data-share="pdf"><b>PDF на целия доклад</b><span>Печат или „Запази като PDF“, после имейл</span></button>
+      <button type="button" class="opt" data-share="text"><b>Кратко съобщение</b><span>Текст с резултатите, за чат или SMS</span></button>
+      <div class="eyebrow" style="margin:14px 0 10px">Експорт към други програми</div>
+      <button type="button" class="opt" data-share="tcx"><b>TCX тренировка</b><span>Strava, Garmin Connect, TrainingPeaks, Intervals.icu, Runalyze</span></button>
+      <button type="button" class="opt" data-share="csv"><b>CSV по секунди</b><span>Excel, Google Sheets, Numbers</span></button>
+      <button type="button" class="opt" data-share="history"><b>CSV история на клиента</b><span>Всички тренировки, по един ред</span></button>
+      <div class="hint" id="shareMsg" style="font-size:12px;margin-top:8px" hidden></div>
+    </div>
     <header class="head">
       <div>
         <div class="eyebrow" id="rWhen"></div>
@@ -230,6 +254,7 @@ details[open] summary::before{transform:rotate(45deg)}
           <button type="button" id="cmpOff" aria-pressed="true">Само тази</button>
           <button type="button" id="cmpOn" aria-pressed="false">Спрямо предишната</button>
         </div>
+        <button type="button" class="ghost share" id="shareBtn" aria-haspopup="true">Сподели</button>
         <button type="button" class="ghost" id="delBtn">Изтрий</button>
         <button type="button" class="closeb" id="closeBtn" aria-label="Затвори">✕</button>
       </div>
@@ -627,8 +652,8 @@ function loadIdx(key,cb){if(imgCache[key])return cb(imgCache[key]);const im=new 
 let selCh=-1,hovCh=-1,sex="female";
 function setSex(v){sex=v;$("#sxF").setAttribute("aria-pressed",String(v==="female"));$("#sxM").setAttribute("aria-pressed",String(v==="male"));}
 function lvl(a){const mx=Math.max(...a.chDose.map((v,i)=>v/CH[i][1]));return i=>a.chDose[i]/CH[i][1]/mx;}
-function paintFig(canvas,key,lv){loadIdx(key,M=>{
-  const dpr=Math.min(2,window.devicePixelRatio||1);const cw=canvas.clientWidth||200;const W=Math.round(cw*dpr),H=Math.round(W*M.h/M.w);
+function paintFig(canvas,key,lv,forceW,done){loadIdx(key,M=>{
+  const dpr=forceW?1:Math.min(2,window.devicePixelRatio||1);const cw=forceW||canvas.clientWidth||200;const W=Math.round(cw*dpr),H=Math.round(W*M.h/M.w);
   const full=document.createElement("canvas");full.width=M.w;full.height=M.h;const fx=full.getContext("2d");const img=fx.createImageData(M.w,M.h);const o=img.data;
   const glowC=document.createElement("canvas");glowC.width=M.w;glowC.height=M.h;const gx=glowC.getContext("2d");const gimg=gx.createImageData(M.w,M.h);const g=gimg.data;
   const body=hex2rgb(css("--fig-body")),neu=hex2rgb(css("--fig-neu"));const dark=css("--glow")==="1";
@@ -644,7 +669,7 @@ function paintFig(canvas,key,lv){loadIdx(key,M=>{
   canvas.width=W;canvas.height=H;const x=canvas.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.clearRect(0,0,W,H);
   x.save();x.filter="blur("+Math.round(W/22)+"px)";x.globalAlpha=dark?.9:.55;x.drawImage(glowC,0,0,W,H);x.restore();
   x.drawImage(full,0,0,W,H);
-  canvas._map={M};});}
+  canvas._map={M};if(done)done(canvas);});}
 function hex2rgb2(s){const m=s.match(/\d+/g);return m?m.slice(0,3).map(Number):[128,128,128];}
 function drawBody(){
   const a=sessions[cur].a,lv=lvl(a);
@@ -674,6 +699,102 @@ function drawTrend(){
   sessions.forEach((s,i)=>{const c=el("circle",{cx:x(i),cy:ye(s.a.eff),r:i===cur?6:3.5,fill:i===cur?css("--accent"):css("--card"),stroke:css("--accent"),"stroke-width":2},svg);c.style.cursor="pointer";c.addEventListener("click",()=>show(i));const t=document.createElementNS(NS,"title");t.textContent=s.date.getDate()+" "+MON[s.date.getMonth()]+": "+s.a.eff+" %, "+s.a.load+" т.";c.appendChild(t);});
   [...new Set([0,Math.floor(n/2),n-1])].forEach(i=>{const t=el("text",{x:x(i),y:H-8,"text-anchor":"middle","font-size":10,fill:css("--hint")},svg);t.textContent=sessions[i].date.getDate()+" "+MON[sessions[i].date.getMonth()];});
 }
+
+/* ---------------- share / export ---------------- */
+const pad2=n=>String(n).padStart(2,"0");
+const isoT=ms=>new Date(ms).toISOString().replace(/\.\d{3}Z$/,"Z");
+const stamp=d=>d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+"-"+pad2(d.getHours())+pad2(d.getMinutes());
+const slug=t=>(t||"client").replace(/[^0-9A-Za-zЀ-ӿ]+/g,"_").replace(/^_|_$/g,"").slice(0,40)||"client";
+const b64utf8=str=>btoa(unescape(encodeURIComponent(str)));
+function shareMsg(t){const m=$("#shareMsg");m.textContent=t||"";m.hidden=!t;}
+function sendFile(name,mime,b64,subject,text){
+  if(!BR||!BR.shareFile){shareMsg("Споделянето работи в приложението на таблета.");return;}
+  try{BR.shareFile(name,mime,b64,subject||"",text||"");$("#sheet").hidden=true;shareMsg("");}catch(e){shareMsg("Грешка при споделяне: "+e);}
+}
+function topZones(a,n){const mx=Math.max(...a.chDose.map((v,i)=>v/CH[i][1]))||1;return CH.map((c,i)=>[c[0],a.chDose[i]/c[1]/mx]).sort((x,y)=>y[1]-x[1]).slice(0,n);}
+function summaryText(s){
+  const a=s.a,d=s.date;
+  return [`XEMS · ${CLIENT.name||""} · ${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}, ${hhmm(d)}`,
+    `${s.type} · цел: ${GOAL.n}`,
+    `Ефективност ${a.eff} % · ${mmss(a.act)} активни от ${mmss(s.sim.T)} · ${a.kcal} kcal`,
+    a.hrAvg?`Пулс ${a.hrAvg} средно / ${a.hrMax} макс.${s.sim.recDrop!=null?` · възстановяване −${s.sim.recDrop} уд за 60 s`:""}`:"Без пулс (без гривна)",
+    `Натоварване ${a.load} т. · импулсно време ${mmss(a.onSec)}`,
+    `Най-натоварени зони: ${topZones(a,3).map(z=>z[0].toLowerCase()).join(", ")}`].join("\n");
+}
+function tcx(s){
+  const a=s.a,t0=s.date.getTime(),T=s.sim.T;let pts="";
+  for(let t=0;t<T;t+=5){const p=s.sim.s[t];pts+=`<Trackpoint><Time>${isoT(t0+t*1000)}</Time>${p.hr>0?`<HeartRateBpm><Value>${p.hr}</Value></HeartRateBpm>`:""}</Trackpoint>`;}
+  const hr=a.hrAvg?`<AverageHeartRateBpm><Value>${a.hrAvg}</Value></AverageHeartRateBpm><MaximumHeartRateBpm><Value>${a.hrMax}</Value></MaximumHeartRateBpm>`:"";
+  const note=summaryText(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">\n<Activities><Activity Sport="Other"><Id>${isoT(t0)}</Id><Lap StartTime="${isoT(t0)}"><TotalTimeSeconds>${T}</TotalTimeSeconds><DistanceMeters>0</DistanceMeters><Calories>${a.kcal}</Calories>${hr}<Intensity>Active</Intensity><TriggerMethod>Manual</TriggerMethod><Track>${pts}</Track></Lap><Notes>${note}</Notes><Creator xsi:type="Device_t"><Name>XEMS EMS</Name><UnitId>0</UnitId><ProductID>0</ProductID><Version><VersionMajor>1</VersionMajor><VersionMinor>0</VersionMinor></Version></Creator></Activity></Activities>\n</TrainingCenterDatabase>\n`;
+}
+function csvSeconds(s){
+  const head=["sec","time","phase","running","impulse","hr","strength_pct","hz","width_us","stimulus_pct","intensity_pct"].concat(CH.map(c=>c[0]+" %"));
+  const t0=s.date.getTime();const rows=[head.join(";")];
+  s.sim.s.forEach(p=>rows.push([p.t,hhmm(new Date(t0+p.t*1000))+":"+pad2(new Date(t0+p.t*1000).getSeconds()),p.ph,p.paused?0:1,p.on?1:0,p.hr||"",p.ma,p.hz,p.us,Math.round(p.S*100),Math.round(p.I*100)].concat(p.chs.map(v=>Math.round(v*100))).join(";")));
+  return "﻿"+rows.join("\r\n")+"\r\n";
+}
+function csvHistory(){
+  const head=["date","time","type","goal","duration","active","pauses","efficiency_pct","kcal","load","hr_avg","hr_max","recovery_60s","impulse_time","top_zone"];
+  const rows=[head.join(";")];
+  sessions.forEach(s=>{const a=s.a,d=s.date;rows.push([d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()),hhmm(d),'"'+s.type.replace(/"/g,"'")+'"',(GOALS[s.goal]||GOALS.tone).n,mmss(s.sim.T),mmss(a.act),s.sim.pauses.length,a.eff,a.kcal,a.load,a.hrAvg||"",a.hrMax||"",s.sim.recDrop!=null?s.sim.recDrop:"",mmss(a.onSec),topZones(a,1)[0][0]].join(";"));});
+  return "﻿"+rows.join("\r\n")+"\r\n";
+}
+function figAsync(key,lv,w){return new Promise(res=>{const c=document.createElement("canvas");paintFig(c,key,lv,w,res);});}
+async function shareImage(){
+  const s=sessions[cur],a=s.a,Wc=1080,Hc=1350;const c=document.createElement("canvas");c.width=Wc;c.height=Hc;const x=c.getContext("2d");
+  const P={bg:"#0B0D11",card:"#151922",text:"#ECEFF4",muted:"#A9B1BF",hint:"#7C8594",go:"#34D399",stim:"#4F9DFF",amber:"#FACC15",acc:"#FF4D5E",hr:"#FB5A78"};
+  const F=(w,sz,fam)=>`${w} ${sz}px ${fam==="c"?'"Roboto Condensed",Roboto,sans-serif':'Roboto,sans-serif'}`;
+  let g=x.createLinearGradient(0,0,0,Hc);g.addColorStop(0,"#10141C");g.addColorStop(1,P.bg);x.fillStyle=g;x.fillRect(0,0,Wc,Hc);
+  let rg=x.createRadialGradient(160,0,0,160,0,700);rg.addColorStop(0,"rgba(61,139,255,.18)");rg.addColorStop(1,"rgba(61,139,255,0)");x.fillStyle=rg;x.fillRect(0,0,Wc,Hc);
+  rg=x.createRadialGradient(Wc,80,0,Wc,80,600);rg.addColorStop(0,"rgba(244,63,94,.12)");rg.addColorStop(1,"rgba(244,63,94,0)");x.fillStyle=rg;x.fillRect(0,0,Wc,Hc);
+  const round=(X,Y,w,h,r,fill)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();x.fillStyle=fill;x.fill();};
+  // header
+  x.fillStyle=P.acc;x.font=F(700,28,"c");x.fillText("XEMS",64,86);
+  x.fillStyle=P.hint;x.font=F(500,24);x.fillText(`${WD[s.date.getDay()].toUpperCase()}, ${s.date.getDate()} ${MONL[s.date.getMonth()]} ${s.date.getFullYear()} · ${hhmm(s.date)}`,160,86);
+  x.fillStyle=P.text;x.font=F(700,56,"c");x.fillText(CLIENT.name||"",64,160);
+  x.fillStyle=P.muted;x.font=F(400,28);x.fillText(`${s.type} · цел: ${GOAL.n}`,64,204);
+  // ring
+  const cx=250,cy=440,R=165,cc=2*Math.PI*R;x.lineCap="round";x.lineWidth=34;x.strokeStyle="#1D222C";x.beginPath();x.arc(cx,cy,R,0,Math.PI*2);x.stroke();
+  let st=-Math.PI/2;[[a.T*.40,P.go],[a.D*.30,P.stim],[a.Q*.15,P.amber],[a.P*.15,P.acc]].forEach(([v,col])=>{const len=v*Math.PI*2;if(len<.02)return;x.save();x.shadowColor=col;x.shadowBlur=18;x.strokeStyle=col;x.beginPath();x.arc(cx,cy,R,st+.03,st+len-.03);x.stroke();x.restore();st+=len;});
+  x.textAlign="center";x.fillStyle=P.hint;x.font=F(500,22);x.fillText("ЕФЕКТИВНОСТ",cx,cy-56);
+  x.fillStyle=P.text;x.font=F(700,120,"c");x.fillText(String(a.eff),cx-18,cy+40);x.font=F(700,48,"c");x.fillText("%",cx+76,cy+40);x.textAlign="left";
+  // KPIs
+  const K=[["Активно време",mmss(a.act),`от ${mmss(s.sim.T)}`],["Калории",a.kcal+" kcal","оценка XEMS"],["Пулс",a.hrAvg?`${a.hrAvg} / ${a.hrMax}`:"—",a.hrAvg?"среден / макс.":"без гривна"],["Натоварване",a.load+" т.",`импулс ${mmss(a.onSec)}`]];
+  K.forEach((k,i)=>{const X=500+(i%2)*270,Y=270+Math.floor(i/2)*170;round(X,Y,250,150,22,P.card);x.fillStyle=P.hint;x.font=F(500,20);x.fillText(k[0].toUpperCase(),X+22,Y+40);x.fillStyle=P.text;x.font=F(700,46,"c");x.fillText(k[1],X+22,Y+96);x.fillStyle=P.hint;x.font=F(400,20);x.fillText(k[2],X+22,Y+128);});
+  // intensity strip
+  const sy=680,sh=110,sx=64,sw=Wc-128;round(sx-16,sy-50,sw+32,sh+80,22,P.card);x.fillStyle=P.muted;x.font=F(500,22);x.fillText("Карта на интензитета",sx,sy-16);
+  const n=120;for(let k=0;k<n;k++){const seg=s.sim.s.slice(Math.floor(k*s.sim.T/n),Math.max(Math.floor(k*s.sim.T/n)+1,Math.floor((k+1)*s.sim.T/n)));const I=seg.reduce((q,p)=>q+p.I,0)/seg.length;const pz=seg.every(p=>p.paused);const h=Math.max(4,sh*I);
+    x.fillStyle=pz?"#262C38":heat(I);x.fillRect(sx+k*sw/n,sy+sh-h,sw/n-2,h);}
+  // bodies
+  const lv=lvl(a),sexK=sex;const [f,b]=await Promise.all([figAsync(sexK+"_front",lv,230),figAsync(sexK+"_back",lv,230)]);
+  round(48,860,Wc-96,430,22,P.card);
+  const fh=400,fw=fh*f.width/f.height,bw=fh*b.width/b.height;x.drawImage(f,110,875,fw,fh);x.drawImage(b,110+fw+30,875,bw,fh);
+  const lx=110+fw+bw+80;x.fillStyle=P.muted;x.font=F(500,22);x.fillText("Най-натоварени зони",lx,920);
+  topZones(a,5).forEach((z,i)=>{const Y=965+i*62;x.fillStyle=P.text;x.font=F(500,26);x.fillText(z[0],lx,Y);round(lx,Y+14,Wc-96-lx+20,10,5,"#262C38");round(lx,Y+14,Math.max(10,(Wc-96-lx+20)*z[1]),10,5,heat(clamp((z[1]-.3)/.7,0,1)));});
+  x.fillStyle=P.hint;x.font=F(400,18);x.fillText("Ефективност, калории и натоварване са оценки по модела на XEMS.",64,Hc-26);
+  const data=c.toDataURL("image/png").split(",")[1];
+  sendFile(`XEMS_${slug(CLIENT.name)}_${stamp(s.date)}.png`,"image/png",data,`XEMS · ${CLIENT.name||""}`,summaryText(s));
+}
+let printTheme=null;
+function sharePdf(){
+  if(!BR||!BR.printPdf){shareMsg("PDF работи в приложението на таблета.");return;}
+  printTheme=document.documentElement.getAttribute("data-theme");document.documentElement.setAttribute("data-theme","light");
+  $("#sheet").hidden=true;setTimeout(()=>{try{BR.printPdf(`XEMS ${CLIENT.name||""} ${stamp(sessions[cur].date)}`);}catch(e){}},400);
+}
+document.addEventListener("pointerdown",()=>{if(printTheme){document.documentElement.setAttribute("data-theme",printTheme);printTheme=null;}},true);
+function doShare(kind){
+  const s=sessions[cur];if(!s)return;const base=`XEMS_${slug(CLIENT.name)}_${stamp(s.date)}`;
+  if(kind==="image")shareImage();
+  else if(kind==="pdf")sharePdf();
+  else if(kind==="text"){if(BR&&BR.shareText){BR.shareText(`XEMS · ${CLIENT.name||""}`,summaryText(s));$("#sheet").hidden=true;}else shareMsg(summaryText(s));}
+  else if(kind==="tcx")sendFile(base+".tcx","application/vnd.garmin.tcx+xml",b64utf8(tcx(s)),`XEMS тренировка ${CLIENT.name||""}`,"TCX файл: качи го в Strava (Качване на активност), Garmin Connect (Импорт на данни), TrainingPeaks или Intervals.icu.");
+  else if(kind==="csv")sendFile(base+".csv","text/csv",b64utf8(csvSeconds(s)),`XEMS данни ${CLIENT.name||""}`,summaryText(s));
+  else if(kind==="history")sendFile(`XEMS_${slug(CLIENT.name)}_history.csv`,"text/csv",b64utf8(csvHistory()),`XEMS история ${CLIENT.name||""}`,"");
+}
+$("#shareBtn").onclick=e=>{e.stopPropagation();shareMsg("");$("#sheet").hidden=!$("#sheet").hidden;};
+document.querySelectorAll("[data-share]").forEach(b=>b.onclick=e=>{e.stopPropagation();doShare(b.dataset.share);});
+document.addEventListener("click",e=>{const sh=$("#sheet");if(!sh.hidden&&!sh.contains(e.target))sh.hidden=true;});
 
 /* ---------------- controls ---------------- */
 $("#cmpOff").onclick=()=>{compare=false;$("#cmpOff").setAttribute("aria-pressed","true");$("#cmpOn").setAttribute("aria-pressed","false");draw();};

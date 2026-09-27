@@ -101,7 +101,7 @@ public final class XemsLocalUserForm {
         final LinearLayout[] fitRow = new LinearLayout[1];
         /** Wears the Xiaomi band: trainings also run as a native band workout (Mi Fitness). */
         boolean owner;
-        int miSport = 3;
+        int miSport = 16;
         final LinearLayout[] ownRow = new LinearLayout[1];
         final LinearLayout[] sportRow = new LinearLayout[1];
 
@@ -128,7 +128,7 @@ public final class XemsLocalUserForm {
                 weight[0] = Math.round(u.weight);
             }
             owner = prefs(a).getBoolean("own" + u.id, false);
-            miSport = prefs(a).getInt("misport" + u.id, 3);
+            miSport = prefs(a).getInt("misport" + u.id, 16);
             String saved = prefs(a).getString("u" + u.id, "");
             String[] parts = saved.split("\\|", -1);
             if (parts.length >= 3) {
@@ -369,15 +369,18 @@ public final class XemsLocalUserForm {
             LinearLayout sr = sportRow[0];
             sr.removeAllViews();
             sr.setVisibility(owner ? View.VISIBLE : View.GONE);
-            addChoice(sr, tr("Бягане на закрито", "Indoor running"), miSport == 3, new Runnable() {
+            addSport(sr, tr("HIIT", "HIIT"), 16);
+            addSport(sr, tr("Силова (проба)", "Strength (test)"), 308);
+            addSport(sr, tr("Свободна", "Free"), 8);
+            addSport(sr, tr("Бягане на закрито", "Indoor run"), 3);
+        }
+
+        /** Band sport codes from Mi Fitness logs: 3 indoor run (phone start verified), 8 free training,
+         *  16 HIIT (synced as high_interval_training); 308 is a strength-type code seen from the band. */
+        void addSport(LinearLayout row, String label, final int code) {
+            addChoice(row, label, miSport == code, new Runnable() {
                 public void run() {
-                    miSport = 3;
-                    renderOwner();
-                }
-            });
-            addChoice(sr, tr("Свободна (проба)", "Free (test)"), miSport == 8, new Runnable() {
-                public void run() {
-                    miSport = 8;
+                    miSport = code;
                     renderOwner();
                 }
             });

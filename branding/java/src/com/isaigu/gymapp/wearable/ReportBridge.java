@@ -18,12 +18,118 @@ final class ReportBridge {
     private final Dialog dialog;
     private final TrainUser user;
     private final long focus;
+    private android.webkit.WebView web;
 
     ReportBridge(Activity a, Dialog dialog, TrainUser user, long focus) {
         this.a = a;
         this.dialog = dialog;
         this.user = user;
         this.focus = focus;
+    }
+
+    void setWebView(android.webkit.WebView w) {
+        web = w;
+    }
+
+    /** A file made by the page (PNG / TCX / CSV, base64) → the Android share sheet (Viber, mail, Drive…). */
+    @JavascriptInterface
+    public void shareFile(String name, String mime, String base64, String subject, String text) {
+        try {
+            File dir = new File(a.getCacheDir(), "xems_share");
+            if (!dir.isDirectory()) {
+                dir.mkdirs();
+            }
+            File[] old = dir.listFiles();
+            if (old != null) {
+                for (File f : old) {
+                    if (System.currentTimeMillis() - f.lastModified() > 86400000L) {
+                        f.delete();
+                    }
+                }
+            }
+            String safe = name.replaceAll("[\\\\/:*?\"<>|]", "_");
+            File f = new File(dir, safe);
+            java.io.FileOutputStream out = new java.io.FileOutputStream(f);
+            try {
+                out.write(Base64.decode(base64, Base64.DEFAULT));
+            } finally {
+                out.close();
+            }
+            android.net.Uri uri = android.support.v4.content.FileProvider.getUriForFile(a, a.getPackageName() + ".provider", f);
+            android.content.Intent send = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            send.setType(mime);
+            send.putExtra(android.content.Intent.EXTRA_STREAM, uri);
+            if (subject != null && subject.length() > 0) {
+                send.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
+            }
+            if (text != null && text.length() > 0) {
+                send.putExtra(android.content.Intent.EXTRA_TEXT, text);
+            }
+            send.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            a.runOnUiThread(new Start(a, android.content.Intent.createChooser(send, WearableUi.tr("Сподели", "Share"))));
+            WearableBleDiagLog.log("report", "share " + safe + " " + f.length() + " B");
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "share failed: " + t);
+        }
+    }
+
+    @JavascriptInterface
+    public void shareText(String subject, String text) {
+        android.content.Intent send = new android.content.Intent(android.content.Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
+        send.putExtra(android.content.Intent.EXTRA_TEXT, text);
+        a.runOnUiThread(new Start(a, android.content.Intent.createChooser(send, WearableUi.tr("Сподели", "Share"))));
+    }
+
+    /** The whole report through the system print dialog ("Save as PDF" or a printer). */
+    @JavascriptInterface
+    public void printPdf(String title) {
+        a.runOnUiThread(new Print(a, web, title));
+    }
+
+    static final class Start implements Runnable {
+        final Activity a;
+        final android.content.Intent i;
+
+        Start(Activity a, android.content.Intent i) {
+            this.a = a;
+            this.i = i;
+        }
+
+        @Override
+        public void run() {
+            try {
+                a.startActivity(i);
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("report", "share start: " + t);
+            }
+        }
+    }
+
+    static final class Print implements Runnable {
+        final Activity a;
+        final android.webkit.WebView w;
+        final String title;
+
+        Print(Activity a, android.webkit.WebView w, String title) {
+            this.a = a;
+            this.w = w;
+            this.title = title;
+        }
+
+        @Override
+        public void run() {
+            try {
+                android.print.PrintManager pm = (android.print.PrintManager) a.getSystemService(android.content.Context.PRINT_SERVICE);
+                if (pm != null && w != null) {
+                    pm.print(title, w.createPrintDocumentAdapter(title), new android.print.PrintAttributes.Builder()
+                            .setMediaSize(android.print.PrintAttributes.MediaSize.ISO_A4).build());
+                }
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("report", "print: " + t);
+            }
+        }
     }
 
     static boolean isDark() {

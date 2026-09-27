@@ -368,6 +368,11 @@ public final class XemsNav {
         clickModule(module);
     }
 
+    /** The training page is on screen (the automatic mode's hint card shows only there). */
+    public static boolean isTrainingPage() {
+        return currentPage == ID_TAB_FIRST;
+    }
+
     static void clickModule(int module) {
         if (module == M_AUTO) {
             android.app.Activity a = AiSession.activityOf(mainRoot);

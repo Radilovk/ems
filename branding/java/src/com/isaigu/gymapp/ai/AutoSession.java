@@ -70,6 +70,21 @@ public final class AutoSession {
     private static long lastGuardToastMs;
     private static boolean recorded;
     private static String lastNotice = "";
+    public static final int INFO = 0;
+    public static final int LIMIT = 1;
+    public static final int SAFETY = 2;
+    private static int lastNoticeKind;
+    private static long lastNoticeMs;
+    // engine events already announced
+    private static int seenCorridorExt;
+    private static int seenDoseExt;
+    private static boolean seenRaiseLocked;
+    private static boolean seenDoseStop;
+    private static long hrNearMs;
+    // first-use tips (info hints): on / off and the ones already shown (prefs "auto_tips")
+    private static final String TIPS_PREFS = "auto_tips";
+    private static boolean tipsOn = true;
+    private static final java.util.Set<String> seenTips = new java.util.HashSet<String>();
 
     // heart rate before the start (resting estimate) and live
     private static final int[] restRing = new int[40];
@@ -164,6 +179,83 @@ public final class AutoSession {
         return lastNotice;
     }
 
+    // ================================================================ tips
+
+    /** Info hints on (first use of each key control); limits and safety are shown anyway. */
+    public static boolean tipsOn() {
+        return tipsOn;
+    }
+
+    /** Off: only limit / safety hints. On again: every tip shows once more. */
+    public static void setTips(Context c, boolean on) {
+        tipsOn = on;
+        if (on) {
+            seenTips.clear();
+        }
+        saveTips(c);
+    }
+
+    /** A tip not shown yet (and tips are on). */
+    public static boolean isNewTip(String key) {
+        return tipsOn && key != null && !seenTips.contains(key);
+    }
+
+    public static void markTip(String key) {
+        if (key != null && seenTips.add(key)) {
+            saveTips(panelRoot != null ? panelRoot.getContext() : null);
+        }
+    }
+
+    /** An info hint: only the first time this control is used, and only with tips on. */
+    static void tip(String key, String text, long now) {
+        if (!isNewTip(key)) {
+            return;
+        }
+        markTip(key);
+        notice(text, INFO, now);
+    }
+
+    private static void loadTips(Context c) {
+        if (c == null) {
+            return;
+        }
+        try {
+            SharedPreferences p = c.getSharedPreferences(TIPS_PREFS, Context.MODE_PRIVATE);
+            tipsOn = p.getBoolean("on", true);
+            seenTips.clear();
+            for (String k : p.getString("seen", "").split(",")) {
+                if (k.length() > 0) {
+                    seenTips.add(k);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void saveTips(Context c) {
+        if (c == null) {
+            return;
+        }
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (String k : seenTips) {
+                sb.append(sb.length() > 0 ? "," : "").append(k);
+            }
+            c.getSharedPreferences(TIPS_PREFS, Context.MODE_PRIVATE).edit()
+                    .putBoolean("on", tipsOn).putString("seen", sb.toString()).apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** {@link #INFO} (a change was taken), {@link #LIMIT} (brought back to a limit), {@link #SAFETY}. */
+    public static int getLastNoticeKind() {
+        return lastNoticeKind;
+    }
+
+    public static long getLastNoticeMs() {
+        return lastNoticeMs;
+    }
+
     /** Median of the band's samples in the last 60 s before stimulation, or −1. */
     public static int restHrEstimate() {
         long now = System.currentTimeMillis();
@@ -217,6 +309,7 @@ public final class AutoSession {
 
     public static void beginSetup(Context c) {
         loadOptions(c);
+        loadTips(c);
         rows.clear();
         List<TrainItem> list = items();
         long now = System.currentTimeMillis();
@@ -474,6 +567,13 @@ public final class AutoSession {
         engine = new AutoEngine(plan);
         long now = System.currentTimeMillis();
         engine.start(now);
+        seenCorridorExt = 0;
+        seenDoseExt = 0;
+        seenRaiseLocked = false;
+        seenDoseStop = false;
+        hrNearMs = 0;
+        lastNotice = "";
+        lastNoticeKind = INFO;
         setWorkLengthAll(plan.totalS + 1800);
         stage = Stage.RUNNING;
         applyCycle(engine.getCurrent());
@@ -501,6 +601,7 @@ public final class AutoSession {
             stop();
         }
         stopTicker();
+        AutoHints.hide();
         AiRamp.clear();
         stage = Stage.IDLE;
         written = null;
@@ -534,15 +635,36 @@ public final class AutoSession {
         if (engine != null && engine.getState() == AutoEngine.State.RUN && written != null) {
             writeRows(written, false);
         }
+        tip("btn_reduce", AiText.t("−10 % за всички редове. Не се връща само — върни с „+5 %“ или с + на реда.",
+                "−10 % for all rows. Not given back automatically — use +5 % or the row's +."), System.currentTimeMillis());
     }
 
     /** +5 % on every row, inside the envelope (the engine and the limits decide how far). */
     public static void raiseAll() {
-        for (Row r : rows) {
+        int[] before = new int[rows.size()];
+        for (int i = 0; i < rows.size(); i++) {
+            Row r = rows.get(i);
+            before[i] = r.writtenStrength;
             r.user = Math.min(2.0, r.user + 0.05);
         }
         if (engine != null && engine.getState() == AutoEngine.State.RUN && written != null) {
             writeRows(written, false);
+            boolean any = false;
+            for (int i = 0; i < rows.size(); i++) {
+                Row r = rows.get(i);
+                if (r.writtenStrength > before[i]) {
+                    any = true;
+                } else if (r.cal > 0 && r.block == null) {
+                    r.user = Math.max(0.1, r.user - 0.05);     // at the ceiling: do not bank the step
+                }
+            }
+            if (any) {
+                tip("btn_raise", AiText.t("+5 % за всички, но никога над тавана на фазата и най-много +5 на импулс.",
+                        "+5 % for all, never above the phase ceiling and at most +5 per pulse."), System.currentTimeMillis());
+            } else {
+                notice(AiText.t("Таванът на силата за тази фаза е достигнат", "Strength ceiling of this phase reached"),
+                        LIMIT, System.currentTimeMillis());
+            }
         }
     }
 
@@ -569,6 +691,7 @@ public final class AutoSession {
 
     private static void finishToReport() {
         stage = Stage.REPORT;
+        AutoHints.hide();
         if (!recorded && engine != null) {
             recorded = true;
             Context c = panelRoot != null ? panelRoot.getContext() : null;
@@ -605,6 +728,7 @@ public final class AutoSession {
                 handler.postDelayed(this, TICK_MS);
             }
             AutoUi.refresh();
+            AutoHints.refresh();
         }
     }
 
@@ -636,6 +760,7 @@ public final class AutoSession {
         AutoEngine.State before = engine.getState();
         engine.tick(now);
         AutoEngine.State after = engine.getState();
+        engineEvents(now);
         if (after == AutoEngine.State.RUN) {
             AutoEngine.Cmd c = engine.getCurrent();
             if (c != null && c != lastApplied) {
@@ -653,7 +778,12 @@ public final class AutoSession {
         if (before != after) {
             WearableBleDiagLog.log("auto", "state " + before + " → " + after);
             if (after == AutoEngine.State.HR_PAUSE) {
-                notice(AiText.t("Пулсът стигна тавана — пауза.", "Heart rate at the ceiling — paused."), now, true);
+                notice(AiText.t("Пулсът стигна тавана (" + plan.hrCap + ") — импулсите спират, докато спадне",
+                        "HR at the ceiling (" + plan.hrCap + ") — pulses stop until it drops"), SAFETY, now);
+            } else if (before == AutoEngine.State.HR_PAUSE && after == AutoEngine.State.RUN) {
+                notice(AiText.t("Пулсът спадна — продължаваме по-меко (" + Math.round(engine.getCurrent() != null
+                        ? 100 * engine.getReentry() : 80) + " %, +10 % на импулс)",
+                        "HR is down — resuming softer (+10 % per pulse)"), LIMIT, now);
                 AutoUi.show();
             }
         }
@@ -832,7 +962,8 @@ public final class AutoSession {
             }
             if (calib || engine == null) {
                 writeRows(written, calib);
-                notice(AiText.t("Честотата и паузите са на програмата.", "Frequency and pauses belong to the program."), now, false);
+                notice(AiText.t("При калибриране честотата и паузите са на програмата.",
+                        "During calibration frequency and pauses belong to the program."), LIMIT, now);
                 return;
             }
             if (pause && !params) {
@@ -842,9 +973,12 @@ public final class AutoSession {
                     AutoEngine.Cmd c = engine.refresh(now);
                     lastApplied = c;
                     writeRows(c, false);
+                    tip("double_main", AiText.t("Двоен импулс: лек нискочестотен импулс в паузата. Програмата решава в кои фази.",
+                            "Double impulse: a light low-frequency pulse in the pause. The program decides in which phases."), now);
                 } else {
                     writeRows(written, false);
-                    notice(AiText.t("Тази програма няма двоен импулс.", "This program has no double impulse."), now, false);
+                    notice(AiText.t("Тази програма / фаза няма двоен импулс.", "No double impulse in this program / phase."),
+                            LIMIT, now);
                 }
                 return;
             }
@@ -856,20 +990,27 @@ public final class AutoSession {
             AutoEngine.Cmd c = engine.userParams(wantHz, wantOn, wantOff, wantPw, now);
             writeRows(c, false);
             lastApplied = c;
-            if ((wantHz > 0 && c.hz != wantHz) || (wantOn > 0 && c.onS != wantOn)
-                    || (wantOff > 0 && c.offS != b.pulsePause) || (wantPw > 0 && c.pwUs != wantPw)) {
-                boolean locked = ph != null && !ph.window.hz && !ph.window.on && !ph.window.off && !ph.window.pw;
-                notice(locked
-                        ? AiText.t("В тази фаза параметрите са фиксирани.", "Parameters are fixed in this phase.")
-                        : AiText.t("В лимита на фазата: " + c.hz + " Hz · " + c.onS + "/" + c.offS + " s · " + c.pwUs + " µs",
-                        "Within the phase limit: " + c.hz + " Hz · " + c.onS + "/" + c.offS + " s · " + c.pwUs + " µs"),
-                        now, false);
+            boolean clamped = (wantHz > 0 && c.hz != wantHz) || (wantOn > 0 && c.onS != wantOn)
+                    || (wantOff > 0 && c.offS != b.pulsePause) || (wantPw > 0 && c.pwUs != wantPw);
+            boolean locked = ph != null && !ph.window.hz && !ph.window.on && !ph.window.off && !ph.window.pw;
+            String now3 = c.hz + " Hz · " + c.onS + "/" + c.offS + " s · " + c.pwUs + " µs";
+            if (locked) {
+                notice(AiText.t("В тази фаза параметрите са фиксирани: ", "Parameters are fixed in this phase: ")
+                        + now3, LIMIT, now);
+            } else if (clamped) {
+                notice(AiText.t("Лимит на фазата: ", "Phase limit: ") + windowText(ph, c)
+                        + AiText.t(" → сега ", " → now ") + now3, LIMIT, now);
+            } else {
+                tip("params", AiText.t("Прието: ", "Taken: ") + now3 + AiText.t(". Важи до края на фазата; прозорец: ",
+                        ". Holds until the phase ends; window: ") + windowText(ph, c), now);
             }
             return;
         }
         // 2 · zones and strength (per row)
         boolean rewrite = false;
         String msg = null;
+        String msgKey = null;
+        int msgKind = INFO;
         for (Row r : rows) {
             ProgramDataBean b = bean(r.item);
             if (b == null) {
@@ -885,15 +1026,32 @@ public final class AutoSession {
                 }
                 if (changed) {
                     if (written.zones != null || r.block != null) {
-                        msg = AiText.t("Зоните на вълната са фиксирани.", "Wave zones are fixed.");
+                        msg = AiText.t("Вълната води зоните сама — ръчно не се местят.", "The wave drives the zones — no manual change.");
+                        msgKind = LIMIT;
                     } else {
                         int[] z = AutoLimits.clampZones(now10, rp);
                         for (int i = 0; i < AutoModel.CHANNELS; i++) {
                             r.zoneOffset[i] = z[i] - rp.zones[i];
                         }
-                        if (!Arrays.equals(z, now10)) {
-                            msg = AiText.t("Зоната е в лимита (±" + rp.zoneDelta + ", баланс корем/кръст, бедра, гърди/гръб).",
-                                    "Zone kept in its limit (±" + rp.zoneDelta + ", balance rules).");
+                        int bad = -1;
+                        int moved = -1;
+                        for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                            if (z[i] != now10[i] && bad < 0) {
+                                bad = i;
+                            }
+                            if (now10[i] != r.writtenZones[i] && moved < 0) {
+                                moved = i;
+                            }
+                        }
+                        if (bad >= 0) {
+                            msg = who(r) + zoneReason(bad, now10[bad], z[bad], rp);
+                            msgKind = LIMIT;
+                        } else if (moved >= 0 && msgKind == INFO) {
+                            msgKey = "zone";
+                            msg = who(r) + AutoCues.zoneNames()[moved] + " " + z[moved]
+                                    + AiText.t(" %. Зоните се местят ±", " %. Zones move ±") + rp.zoneDelta
+                                    + AiText.t(" от програмата; балансът корем/кръст, бедра и гърди/гръб се пази.",
+                                    " from the program; abs/low back, thigh and chest/back balance is kept.");
                         }
                     }
                     rewrite = true;
@@ -905,11 +1063,17 @@ public final class AutoSession {
             }
             if (r.block != null) {
                 rewrite = true;
-                msg = r.block;
+                msg = who(r) + r.block;
+                msgKind = LIMIT;
                 continue;
             }
             if (s < r.writtenStrength) {
                 acceptStrength(r, s, calib);
+                if (msgKind == INFO) {
+                    msgKey = "strength_down";
+                    msg = who(r) + AiText.t("сила ", "strength ") + s + " ↓" + limitText(r, calib)
+                            + AiText.t(". Намалението се пази до края.", ". A reduction is kept to the end.");
+                }
                 continue;
             }
             // up: rate and envelope
@@ -925,21 +1089,59 @@ public final class AutoSession {
                     allowed = Math.min(allowed, (int) Math.floor(r.cal * ceil + 1e-9));
                 }
             }
+            int rateCap = r.writtenStrength + (int) Math.floor(r.raiseBudget);
             allowed = Math.max(r.writtenStrength, Math.min(100, allowed));
             r.raiseBudget = Math.max(0, r.raiseBudget - (allowed - r.writtenStrength));
             acceptStrength(r, allowed, calib);
             if (allowed < s) {
                 rewrite = true;
-                msg = AiText.t("Лимит на силата сега: " + allowed + (calib ? " (плавно покачване)" : ""),
-                        "Strength limit now: " + allowed + (calib ? " (gradual rise)" : ""));
+                msgKind = LIMIT;
+                if (allowed >= rateCap && allowed < 100) {
+                    msg = who(r) + AiText.t("сила " + allowed + " — плавно: най-много +5 " + (calib ? "в секунда" : "на импулс"),
+                            "strength " + allowed + " — gradually: at most +5 per " + (calib ? "second" : "pulse"));
+                } else if (!calib) {
+                    AutoModel.Plan rpl = r.plan != null ? r.plan : plan;
+                    AutoModel.Phase cur = engine.phase();
+                    msg = who(r) + AiText.t("таван на силата сега " + allowed + " (калибриране " + r.cal + " × "
+                            + Math.round(100 * engine.rowCeiling(written, rpl.phiMax, rpl.envMax)) + " % в „"
+                            + (cur != null ? cur.nameBg : "") + "“)",
+                            "strength ceiling now " + allowed + " (calibration " + r.cal + " × "
+                            + Math.round(100 * engine.rowCeiling(written, rpl.phiMax, rpl.envMax)) + " % in "
+                            + (cur != null ? cur.nameEn : "") + ")");
+                    if (engine.isRaiseLocked()) {
+                        msg += AiText.t(" · дозата е над плана", " · dose above plan");
+                    }
+                } else {
+                    msg = who(r) + AiText.t("сила 100 — максимумът на уреда", "strength 100 — the device maximum");
+                }
+            } else if (msgKind == INFO) {
+                msgKey = calib ? "calib_up" : "strength_up";
+                msg = who(r) + AiText.t("сила ", "strength ") + allowed + " ↑" + limitText(r, calib)
+                        + (calib ? AiText.t(". Качвай до целевото усещане, най-много +5 в секунда.",
+                        ". Raise to the target feeling, at most +5 per second.")
+                        : AiText.t(". Нагоре — до тавана на фазата, +5 на импулс.", ". Up — to the phase ceiling, +5 per pulse."));
             }
         }
         if (rewrite) {
             writeRows(written, calib);
         }
         if (msg != null) {
-            notice(msg, now, false);
+            if (msgKind == INFO) {
+                tip(msgKey, msg, now);
+            } else {
+                notice(msg, msgKind, now);
+            }
         }
+    }
+
+    /** " (limit now 42)" for a row, "" during the calibration. */
+    private static String limitText(Row r, boolean calib) {
+        if (calib || engine == null || written == null || r.cal <= 0) {
+            return "";
+        }
+        AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+        int lim = (int) Math.floor(r.cal * engine.rowCeiling(written, rp.phiMax, rp.envMax) + 1e-9);
+        return AiText.t(" (лимит сега ", " (limit now ") + Math.min(100, lim) + ")";
     }
 
     private static void acceptStrength(Row r, int s, boolean calib) {
@@ -955,9 +1157,31 @@ public final class AutoSession {
     }
 
     private static void notice(String text, long now, boolean force) {
+        notice(text, force ? SAFETY : LIMIT, now);
+    }
+
+    /**
+     * A hint for the screen: the hint card and the board show it; a toast only when neither is on
+     * screen. A lower kind does not replace a higher one younger than 3 s.
+     */
+    static void notice(String text, int kind, long now) {
+        if (text == null || text.length() == 0) {
+            return;
+        }
+        if (kind < lastNoticeKind && now - lastNoticeMs < 3000L) {
+            return;
+        }
+        boolean same = text.equals(lastNotice);
         lastNotice = text;
-        WearableBleDiagLog.log("auto", "notice: " + text);
-        if (!force && now - lastGuardToastMs < GUARD_TOAST_GAP_MS) {
+        lastNoticeKind = kind;
+        lastNoticeMs = now;
+        if (!same) {
+            WearableBleDiagLog.log("auto", "notice[" + kind + "]: " + text);
+        }
+        if (AutoHints.isShowing() || AutoUi.isShowing() || kind == INFO) {
+            return;
+        }
+        if (kind < SAFETY && now - lastGuardToastMs < GUARD_TOAST_GAP_MS) {
             return;
         }
         lastGuardToastMs = now;
@@ -967,6 +1191,106 @@ public final class AutoSession {
             }
         } catch (Throwable ignored) {
         }
+    }
+
+    /** Safety / regulation events of the engine, told once each (spec §4, §7). */
+    private static void engineEvents(long now) {
+        if (engine == null || plan == null) {
+            return;
+        }
+        int ce = engine.getCorridorExt();
+        if (ce > seenCorridorExt) {
+            notice(AiText.t("Пулсът е над зоната (" + engine.getHr(now) + " > " + plan.corridorHiHr()
+                    + ") — паузата става +" + ce + " s", "HR above the zone (" + engine.getHr(now) + " > "
+                    + plan.corridorHiHr() + ") — pause +" + ce + " s"), LIMIT, now);
+        } else if (ce == 0 && seenCorridorExt > 0) {
+            tip("corridor_ok", AiText.t("Пулсът е в зоната — паузите са отново нормални.", "HR back in the zone — normal pauses again."), now);
+        }
+        seenCorridorExt = ce;
+        int de = engine.getDoseExt();
+        if (de > seenDoseExt) {
+            notice(AiText.t("Над плановата доза — паузата става +" + de + " s",
+                    "Above the planned dose — pause +" + de + " s"), LIMIT, now);
+        }
+        seenDoseExt = de;
+        boolean rl = engine.isRaiseLocked();
+        if (rl && !seenRaiseLocked) {
+            notice(AiText.t("Дозата е 20 % над плана — силата не се качва повече в тази сесия",
+                    "Dose 20 % above plan — no more raising this session"), LIMIT, now);
+        }
+        seenRaiseLocked = rl;
+        if (engine.isDoseStopped() && !seenDoseStop) {
+            seenDoseStop = true;
+            notice(AiText.t("Бюджетът на дозата е изчерпан — към охлаждане", "Dose budget used up — to the cool-down"),
+                    SAFETY, now);
+        }
+        int hr = engine.getHr(now);
+        if (hr > 0 && plan.hrUse != AutoModel.HrUse.NONE && hr >= plan.hrCap - 5 && hr < plan.hrCap
+                && now - hrNearMs > 60000L) {
+            hrNearMs = now;
+            notice(AiText.t("Пулсът наближава тавана: " + hr + " / " + plan.hrCap + " — забави темпото",
+                    "HR near the ceiling: " + hr + " / " + plan.hrCap + " — slow down"), SAFETY, now);
+        }
+    }
+
+    /** Name of a row for a hint ("" in a single-client session). */
+    private static String who(Row r) {
+        if (rows.size() <= 1) {
+            return "";
+        }
+        return (r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (rows.indexOf(r) + 1)) + ": ";
+    }
+
+    /** Why zone {@code i} was brought back (locks, ±delta, balance rules). */
+    private static String zoneReason(int i, int wanted, int got, AutoModel.Plan rp) {
+        String[] n = AutoCues.zoneNames();
+        if (rp.zoneLocked[i]) {
+            return n[i] + AiText.t(" е заключена на ", " is locked at ") + got + " %";
+        }
+        if (wanted > rp.zoneMax[i]) {
+            return n[i] + AiText.t(" най-много ", " at most ") + rp.zoneMax[i] + " %";
+        }
+        if (Math.abs(wanted - rp.zones[i]) > rp.zoneDelta) {
+            return n[i] + " " + got + AiText.t(" % — до ±", " % — up to ±") + rp.zoneDelta
+                    + AiText.t(" от програмата (", " from the program (") + rp.zones[i] + ")";
+        }
+        if (i == AutoModel.ABS) {
+            return AiText.t("Корем ≤ 1.3 × кръст — пази гръбнака (", "Abs ≤ 1.3 × low back — protects the spine (") + got + " %)";
+        }
+        if (i == AutoModel.FRONT_THIGH) {
+            return AiText.t("Предно бедро ≤ задно / 0.6 — пази коляното (", "Quads ≤ hamstrings / 0.6 — protects the knee (") + got + " %)";
+        }
+        if (i == AutoModel.CHEST) {
+            return AiText.t("Гърди ≤ 1.2 × гръб — стойка (", "Chest ≤ 1.2 × back — posture (") + got + " %)";
+        }
+        return n[i] + " " + got + " %";
+    }
+
+    /** The phase window as text: what a person may set now. */
+    private static String windowText(AutoModel.Phase ph, AutoEngine.Cmd c) {
+        if (ph == null || c == null || c.base == null) {
+            return "";
+        }
+        AutoModel.Window w = ph.window;
+        AutoModel.Step b = c.base;
+        StringBuilder sb = new StringBuilder();
+        if (w.hz) {
+            int d = Math.max(1, (int) Math.round(b.hz * w.hzShare));
+            sb.append(b.hz - d).append("–").append(Math.min(AutoLimits.hzMax(plan), b.hz + d)).append(" Hz");
+        }
+        if (w.on) {
+            sb.append(sb.length() > 0 ? " · " : "").append("ON ").append(Math.max(1, b.onS - w.onMinus)).append("–")
+                    .append(Math.min(b.onS + w.onPlus, AutoLimits.onMax(plan, ph))).append(" s");
+        }
+        if (w.off) {
+            sb.append(sb.length() > 0 ? " · " : "").append(AiText.t("пауза ", "pause ")).append(Math.max(1, b.offS - w.offMinus))
+                    .append("–").append(b.offS + w.offPlus).append(" s");
+        }
+        if (w.pw) {
+            sb.append(sb.length() > 0 ? " · " : "").append(b.pwUs - w.pwDelta).append("–")
+                    .append(Math.min(AutoLimits.pwMax(c.hz), b.pwUs + w.pwDelta)).append(" µs");
+        }
+        return sb.toString();
     }
 
     // ================================================================ device

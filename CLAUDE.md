@@ -36,7 +36,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
   their `$Inner` classes — never mix dx outer + d8 inner) and `git checkout` the rest of `branding/smali/`.
   Then build the APK with `SKIP_JAVA_RECOMPILE=1 bash build-apk.sh` (else it recompiles everything with dx).
 - Patch scripts find anchors in vendor smali (`*_MARKER`, `OLD`/`NEW` constants) — outline shows them as `const`.
-- Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/music-sim/run.sh`,
+- Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/ai-sim/run-auto.sh`, `bash scripts/music-sim/run.sh`,
   `cd band-app && bash scripts/test-band.sh`, `cd server && npm test`, `python3 scripts/ui-map.py --check`.
 
 ## Invariants (breaking one = broken release)
@@ -61,6 +61,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Shared UI kit `XemsUi` | `docs/xems-ui-kit.md` |
 | Band 10 app & link | `band-app/CLAUDE.md`, `docs/xiaomi-band10.md` |
 | Smart Session (AI) | `docs/xems-smart-session-spec.md`, `docs/xems-ai-session-implementation.md` |
+| Automatic mode (ready programs) | `docs/xems-auto-mode-spec.md` |
 | Pulse / strength control | `docs/xems-pulse-control.md`, `docs/xems-part-strength.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |
 

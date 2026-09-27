@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 653
+    .prologue
+    .line 671
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,31 +31,31 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
-    .line 657
+    .prologue
+    .line 675
     :try_start_0
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 658
+    .line 676
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->showMenu(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsNav;->access$900(Landroid/view/View;)V
     :try_end_6
-    .catchall {:try_start_0 .. :try_end_6} :catchall_7
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_6} :catch_7
 
-    .line 661
-    goto :goto_d
-
-    .line 659
-    :catchall_7
-    move-exception p1
-
-    .line 660
-    const-string v0, "XemsNav.menu"
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    .line 662
-    :goto_d
+    .line 680
+    :goto_6
     return-void
+
+    .line 677
+    :catch_7
+    move-exception v0
+
+    .line 678
+    const-string v1, "XemsNav.menu"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_6
 .end method

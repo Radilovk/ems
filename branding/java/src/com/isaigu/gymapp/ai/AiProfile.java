@@ -28,6 +28,8 @@ public final class AiProfile {
     /** null = not known. */
     public Integer age;
     public Double weightKg;
+    /** 0 = not in the client record. */
+    public int heightCm;
     public AiModel.Fitness fitness;
     public AiModel.Goal goal;
     public final Set<String> contraindications = new HashSet<String>();
@@ -73,6 +75,9 @@ public final class AiProfile {
             if (years >= 10 && years <= 100) {
                 p.age = years;
             }
+        }
+        if (u.height >= 100 && u.height <= 230) {
+            p.heightCm = u.height;
         }
         if (u.weight >= 30 && u.weight <= 250) {
             p.weightKg = (double) u.weight;

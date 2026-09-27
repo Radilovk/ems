@@ -6,6 +6,7 @@ export const MODULES = [
   { id: 'timer', name: 'Таймер', desc: 'Плочка „Таймер“', subscription: true },
   { id: 'music', name: 'Музика', desc: 'Плейър и импулси по музиката', subscription: true },
   { id: 'pulse', name: 'Пулс', desc: 'Циферблат и автоматично намаляване по пулса', subscription: true },
+  { id: 'auto', name: 'Авто', desc: 'Автоматичен режим: готови програми с лимити (идва и с AI)', subscription: true },
   { id: 'ai', name: 'AI', desc: 'Умна тренировка', subscription: true },
   { id: 'band', name: 'Гривна', desc: 'Управление от гривната и приложение на часовника', subscription: true },
 ];

@@ -32,8 +32,10 @@ public final class XemsLicense {
     public static final String MUSIC = "music";
     public static final String PULSE = "pulse";
     public static final String AI = "ai";
+    /** Automatic mode (ready programs). Licences with the AI module have it too. */
+    public static final String AUTO = "auto";
     public static final String BAND = "band";
-    public static final String[] ALL = {TIMER, MUSIC, PULSE, AI, BAND};
+    public static final String[] ALL = {TIMER, MUSIC, PULSE, AUTO, AI, BAND};
 
     /** Feature (not a module): the arms channel goes out 1:1 instead of ×0.05. */
     public static final String FEAT_ARMS_FULL = "arms_full";
@@ -93,7 +95,7 @@ public final class XemsLicense {
     }
 
     public static boolean has(String module) {
-        return setup || unlocked.contains(module);
+        return setup || unlocked.contains(module) || (AUTO.equals(module) && unlocked.contains(AI));
     }
 
     /** Feature switch (e.g. {@link #FEAT_ARMS_FULL}); off until the licence turns it on. */

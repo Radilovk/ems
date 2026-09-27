@@ -34,10 +34,11 @@
 .method constructor <init>()V
     .registers 2
 
-    .line 68
+    .prologue
+    .line 69
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 74
+    .line 75
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/widget/XemsNav$Tile;->lastState:I

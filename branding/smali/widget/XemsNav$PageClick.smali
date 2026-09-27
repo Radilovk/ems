@@ -25,43 +25,44 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 668
+    .prologue
+    .line 686
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 669
+    .line 687
     iput p1, p0, Lcom/isaigu/gymapp/widget/XemsNav$PageClick;->id:I
 
-    .line 670
+    .line 688
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
-    .line 675
+    .prologue
+    .line 693
     :try_start_0
-    iget p1, p0, Lcom/isaigu/gymapp/widget/XemsNav$PageClick;->id:I
+    iget v0, p0, Lcom/isaigu/gymapp/widget/XemsNav$PageClick;->id:I
 
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->goPage(I)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsNav;->access$1000(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsNav;->access$1000(I)V
     :try_end_5
-    .catchall {:try_start_0 .. :try_end_5} :catchall_6
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 678
-    goto :goto_c
-
-    .line 676
-    :catchall_6
-    move-exception p1
-
-    .line 677
-    const-string v0, "XemsNav.page"
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    .line 679
-    :goto_c
+    .line 697
+    :goto_5
     return-void
+
+    .line 694
+    :catch_6
+    move-exception v0
+
+    .line 695
+    const-string v1, "XemsNav.page"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_5
 .end method

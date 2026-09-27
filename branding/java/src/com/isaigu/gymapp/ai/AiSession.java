@@ -73,6 +73,7 @@ public final class AiSession {
         panelRoot = root;
         manager = itemManager;
         AiUi.attachButton(root);
+        AutoSession.attach(root, itemManager);
     }
 
     /** TrainItem$2.onFinish — the device is entering an ON phase for this row. */
@@ -85,6 +86,7 @@ public final class AiSession {
     }
 
     private static void onPulseCycleImpl(TrainItem item) {
+        AutoSession.onPulseCycle(item);
         try {
             if (item == null || item != leader()) {
                 return;
@@ -110,6 +112,7 @@ public final class AiSession {
     }
 
     private static void onHeartRateImpl(int bpm) {
+        AutoSession.onHeartRate(bpm);
         long now = System.currentTimeMillis();
         lastBandHr = bpm;
         lastBandHrMs = now;
@@ -166,8 +169,14 @@ public final class AiSession {
         return getLastBandHrAgeMs() < 10000L;
     }
 
-    /** True while the AI drives the output (calibration stimulation or a running plan). */
+    /**
+     * True while the AI or the automatic mode drives the output (calibration stimulation or a
+     * running plan) — the pulse module and the HR dial keep their hands off.
+     */
     public static boolean ownsOutput() {
+        if (AutoSession.ownsOutput()) {
+            return true;
+        }
         return (stage == Stage.RUNNING && engine != null
                 && engine.getState() != AiEngine.State.DONE
                 && engine.getState() != AiEngine.State.STOPPED
@@ -232,6 +241,9 @@ public final class AiSession {
 
     /** Returns an error text if another automatic mode owns the output, else null. */
     public static String conflict() {
+        if (AutoSession.isActive()) {
+            return AiText.t("Затвори автоматичната тренировка преди AI.", "Close the automatic session before AI.");
+        }
         try {
             if (MasterStrengthControl.isSyncActive()) {
                 return AiText.t("Спри музикалната синхронизация преди AI сесия.",
@@ -922,7 +934,7 @@ public final class AiSession {
         }
     }
 
-    static Activity activityOf(View v) {
+    public static Activity activityOf(View v) {
         Context c = v != null ? v.getContext() : panelRoot != null ? panelRoot.getContext() : null;
         while (c instanceof android.content.ContextWrapper) {
             if (c instanceof Activity) {

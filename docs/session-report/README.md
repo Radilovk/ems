@@ -48,3 +48,9 @@ Targets are personal, not absolute: `persona()` in the page → k = fitness (low
 lowers the score; the verdict says when the stimulus is above / below the personal zone.
 Mi Fitness type: no custom "EMS" type exists in Mi Fitness; "Авто по цел" picks strength (308) for tone,
 HIIT (16) for fat loss / cellulite, free training (8) for drainage / massage.
+
+## Languages (1.1.160-ai)
+
+The page follows the app language (`XemsReport.lang()` → WearableUi.tr): every JS string is `tr(bg, en)`,
+static HTML is translated at boot from `STATIC_EN`. Client data (name, program name) stays as entered.
+Share image, text, TCX notes and file subjects follow the same language. Browser preview: add `#en` to the URL.

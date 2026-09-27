@@ -32,6 +32,7 @@
 .method public constructor <init>()V
     .registers 2
 
+    .prologue
     .line 43
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,12 +42,18 @@
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->versionName:Ljava/lang/String;
 
     .line 46
+    const-string v0, ""
+
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->url:Ljava/lang/String;
 
     .line 47
+    const-string v0, ""
+
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->sha256:Ljava/lang/String;
 
     .line 48
+    const-string v0, ""
+
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->notes:Ljava/lang/String;
 
     return-void

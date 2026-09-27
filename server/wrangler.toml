@@ -3,6 +3,12 @@ main = "src/index.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
+# The client card page (../branding/report/client-card.html) is bundled as text.
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true
+
 [vars]
 PUBLIC_URL = "https://license.biocode-bg.com"
 

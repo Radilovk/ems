@@ -320,6 +320,31 @@ public final class XemsLicenseClient {
         }
     }
 
+    // ================================================================ client card
+
+    /**
+     * The client card on the server (POST /v1/card): returns its link. The same client always keeps
+     * the same link; this call only refreshes its data. Call it off the main thread.
+     */
+    public static String postCard(Context c, String clientKey, String dataJson) throws Exception {
+        String token = XemsLicense.token();
+        if (!serverConfigured() || token == null || token.length() == 0) {
+            throw new IllegalStateException("no license server");
+        }
+        if (dataJson == null || !dataJson.trim().startsWith("{")) {
+            throw new IllegalArgumentException("card data");
+        }
+        String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token)
+                + ",\"client_key\":" + XemsLicenseToken.quote(clientKey)
+                + ",\"data\":" + dataJson + "}";
+        Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/card", body));
+        Object url = r.get("url");
+        if (Boolean.TRUE.equals(r.get("ok")) && url != null && String.valueOf(url).startsWith("https://")) {
+            return String.valueOf(url);
+        }
+        throw new Exception("card: " + r.get("error"));
+    }
+
     // ================================================================ plumbing
 
     /** Fields every request carries (the server's input data). */

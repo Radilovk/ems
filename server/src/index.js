@@ -1,4 +1,4 @@
-import { signToken, sha256Hex } from './crypto.js';
+import { signToken, sha256Hex, verifyToken } from './crypto.js';
 import { resolveEntitlements, PLANS } from './plans.js';
 import { catalogSummary, filterMods, filterFeat } from './catalog.js';
 import {
@@ -7,6 +7,11 @@ import {
 } from './ems.js';
 import { adminHtml } from './admin.js';
 import { LIMITS, limitsSummary } from './limits.js';
+import {
+  cardId, isCardId, normClientKey, validCardData, renderCard, cardGonePage,
+  CARD_MAX_BYTES, CARD_TTL_SEC,
+} from './card.js';
+import cardTemplate from '../../branding/report/client-card.html';
 import {
   now, normKey, normDevice, normMacList, parseMacList,
   parseTokenBody, parseTokenLic, isHttpsUrl,
@@ -34,6 +39,13 @@ export default {
       }
       if (path === '/v1/catalog' && request.method === 'GET') {
         return json({ ok: true, ...catalogSummary() });
+      }
+
+      if (path === '/v1/card' && request.method === 'POST') {
+        return handleCardPut(request, env);
+      }
+      if (path.startsWith('/c/') && request.method === 'GET') {
+        return serveCard(env, path.slice(3));
       }
 
       if (path.startsWith('/releases/')) {
@@ -141,6 +153,68 @@ async function handleRefresh(request, env) {
   const newToken = await mintToken(env, lic, deviceId);
   await audit(env, 'refresh', lic.id, deviceId, null);
   return json({ ok: true, token: newToken });
+}
+
+// ─── Client card (a phone page the studio sends to its client) ───────────────
+
+/** POST {token, device_id, client_key, data} → {ok, url}. Same client → same link, new data. */
+async function handleCardPut(request, env) {
+  const body = await readJsonBody(request, CARD_MAX_BYTES);
+  if (!body) return err('unknown', 'Invalid JSON body');
+  const deviceId = normDevice(body.device_id);
+  const tokenBody = parseTokenBody(body.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  // a card is public: only a token this server signed may create or change one
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  const clientKey = normClientKey(body.client_key);
+  if (!clientKey) return err('bad_request', 'client_key');
+  const bad = validCardData(body.data);
+  if (bad) return err('bad_request', 'data: ' + bad);
+
+  if (!(await rateLimit(env, `card:dev:${deviceId}`, LIMITS.cardPerMinutePerDevice, 60))) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many cards' }, 429);
+  }
+  const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
+  if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
+  if (lic.expires_at && lic.expires_at < now()) return err('expired', 'License expired');
+  const act = await env.DB.prepare(
+    'SELECT status FROM activations WHERE license_id = ? AND device_id = ?',
+  ).bind(licId, deviceId).first();
+  if (!act || act.status !== 'active') return err('revoked', 'Device removed');
+
+  const ts = now();
+  const data = JSON.stringify(body.data);
+  const row = await env.DB.prepare(
+    'SELECT id FROM client_cards WHERE license_id = ? AND client_key = ?',
+  ).bind(licId, clientKey).first();
+  let id = row?.id;
+  if (id) {
+    await env.DB.prepare('UPDATE client_cards SET data = ?, updated_at = ?, expires_at = ? WHERE id = ?')
+      .bind(data, ts, ts + CARD_TTL_SEC, id).run();
+  } else {
+    id = cardId();
+    await env.DB.prepare(
+      'INSERT INTO client_cards (id, license_id, client_key, data, created_at, updated_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    ).bind(id, licId, clientKey, data, ts, ts, ts + CARD_TTL_SEC).run();
+  }
+  const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
+  return json({ ok: true, url: `${base}/c/${id}` });
+}
+
+async function serveCard(env, id) {
+  const headers = {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'private, max-age=60',
+    'X-Robots-Tag': 'noindex, nofollow',
+    'Referrer-Policy': 'no-referrer',
+  };
+  const row = isCardId(id)
+    ? await env.DB.prepare('SELECT data, expires_at FROM client_cards WHERE id = ?').bind(id).first()
+    : null;
+  if (!row || row.expires_at < now()) return new Response(cardGonePage(), { status: 404, headers });
+  await env.DB.prepare('UPDATE client_cards SET views = views + 1 WHERE id = ?').bind(id).run();
+  return new Response(renderCard(cardTemplate, JSON.parse(row.data)), { headers });
 }
 
 async function handleUpdate(url, env) {
@@ -556,12 +630,12 @@ async function fetchReleaseMeta(url) {
   }
 }
 
-async function readJsonBody(request) {
+async function readJsonBody(request, maxBytes = LIMITS.maxBodyBytes) {
   const cl = parseInt(request.headers.get('content-length') || '0', 10);
-  if (cl > LIMITS.maxBodyBytes) return null;
+  if (cl > maxBytes) return null;
   try {
     const text = await request.text();
-    if (text.length > LIMITS.maxBodyBytes) return null;
+    if (text.length > maxBytes) return null;
     return JSON.parse(text);
   } catch {
     return null;

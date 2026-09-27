@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Ship the client report page: branding/report/session-report.html → assets/report/session-report.html.
+"""Ship the client report page: branding/report/session-report.html → assets/report/session-report.html,
+and the shareable client card template: branding/report/client-card.html → assets/report/client-card.html.
 The page (history, training report, muscle map) is opened by wearable/ReportScreen in a WebView and
 reads the recorded sessions through window.XemsReport (wearable/ReportBridge).
 """
@@ -24,6 +25,15 @@ def main() -> int:
     DEST.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SRC, DEST)
     print(f"assets/report/session-report.html ({DEST.stat().st_size} B)")
+    card = SRC.parent / "client-card.html"
+    ctext = card.read_text(encoding="utf-8")
+    if "__XEMS_CARD_DATA__" not in ctext:
+        raise SystemExit("client-card.html: no __XEMS_CARD_DATA__ placeholder")
+    for key in ("female_front", "female_back", "male_front", "male_back"):
+        if f'id="fig-{key}">data:image/webp;base64,' not in ctext or f'id="art-{key}">data:image/webp;base64,' not in ctext:
+            raise SystemExit(f"client-card.html: figure {key} missing — run scripts/gen-card-art.py")
+    shutil.copy2(card, DEST.parent / "client-card.html")
+    print(f"assets/report/client-card.html ({card.stat().st_size} B)")
     return 0
 
 

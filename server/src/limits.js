@@ -6,6 +6,7 @@ export const LIMITS = {
   activatePerMinutePerIp: 10,
   activatePerDayPerDevice: 20,
   refreshPerMinutePerDevice: 30,
+  cardPerMinutePerDevice: 10,
   rateLimitRetentionSec: 7 * 86400,
 };
 

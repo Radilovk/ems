@@ -434,6 +434,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## Build notes
   - L52 ## v1.1.56-sync: microphone mode removed
 
+`docs/session-report/README.md` (11L)
+  - L1 # Session report — design assets
+
 `docs/xems-ai-session-implementation.md` (213L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
   - L6 ## 1. Архитектура

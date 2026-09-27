@@ -189,7 +189,7 @@ function layers(M,selCh){const w=M.w,h=M.h,d=M.d,hs=M.hs;
   const K=(x,y)=>(x<0||y<0||x>=w||y>=h)?-1:(d[(y*w+x)*4+2]?d[(y*w+x)*4]:-1);
   const Hs=(x,y)=>hs[(y<0?0:y>=h?h-1:y)*w+(x<0?0:x>=w?w-1:x)];
   const Lx=-.5,Ly=-.62,Lz=.6,hx=Lx,hy=Ly,hz=Lz+1,hl=Math.hypot(hx,hy,hz);
-  const SKIN=[46,54,72],NEU=[70,80,102],UNDER=[38,44,58];
+  const SKIN=[62,72,94],NEU=[84,96,122],UNDER=[50,58,76];
   for(let y=0;y<h;y++){const vy=y/h;for(let x=0;x<w;x++){const p=(y*w+x)*4,al=d[p+2];if(!al)continue;const k=d[p],rel=hs[y*w+x];
     const zone=k>=1&&k<=10?k-1:-1;
     // light from the relief
@@ -202,7 +202,7 @@ function layers(M,selCh){const w=M.w,h=M.h,d=M.d,hs=M.hs;
     const on=zone>=0&&(selCh<0||zone===selCh);
     let base=zone>=0?UNDER:(k===11?NEU:SKIN);
     if(zone>=0&&!on){const c=cols[zone];base=[NEU[0]*.8+c[0]*.2,NEU[1]*.8+c[1]*.2,NEU[2]*.8+c[2]*.2];}
-    const f=(.38+.8*dif)*ao*(1.06-.12*vy),s2=spc*(k===0?26:40);
+    const f=(.86+.2*dif)*(.9+.1*Math.min(1,rel*1.8))*(1.04-.1*vy),s2=spc*6;
     let r=base[0]*f+s2,g=base[1]*f+s2,bl=base[2]*f+s2;
     if(grv&&!on){r*=.52;g*=.52;bl*=.56;}
     if(sil){const e=.6*sil;r=r*(1-e)+196*e;g=g*(1-e)+210*e;bl=bl*(1-e)+236*e;}
@@ -219,7 +219,7 @@ function paint(canvas,key){mask(key,M=>{const dpr=Math.min(3,devicePixelRatio||1
   if(!cache[ck]){const[body,mus]=layers(M,sel);const B=stepDown(body,W,H),Mu=stepDown(mus,W,H);
     const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");
     x.drawImage(B,0,0);
-    x.save();x.globalCompositeOperation="lighter";x.filter=`blur(${Math.round(W/18)}px)`;x.globalAlpha=.42;x.drawImage(Mu,0,0);x.filter=`blur(${Math.round(W/70)}px)`;x.globalAlpha=.75;x.drawImage(Mu,0,0);x.restore();
+    x.save();x.globalCompositeOperation="lighter";x.filter=`blur(${Math.round(W/18)}px)`;x.globalAlpha=.3;x.drawImage(Mu,0,0);x.filter=`blur(${Math.round(W/70)}px)`;x.globalAlpha=.75;x.drawImage(Mu,0,0);x.restore();
     x.drawImage(Mu,0,0);cache[ck]=o;}
   const c=cache[ck];if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}const x=canvas.getContext("2d");x.clearRect(0,0,W,H);x.drawImage(c,0,0);canvas._ck=ck;canvas._m=M;});}
 let raf=0;const draw=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;paint($("#cF"),sexK+"_front");paint($("#cB"),sexK+"_back");label();});};

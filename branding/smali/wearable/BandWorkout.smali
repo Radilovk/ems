@@ -46,14 +46,14 @@
     return-void
 .end method
 
-.method static autoSport(Landroid/content/Context;J)I
-    .registers 8
+.method static autoSport(Landroid/content/Context;JI)I
+    .registers 9
 
     .prologue
-    .line 38
+    .line 40
     const-string v0, "tone"
 
-    .line 40
+    .line 42
     :try_start_2
     const-string v1, "xems_user_profiles"
 
@@ -95,7 +95,7 @@
 
     move-result-object v1
 
-    .line 41
+    .line 43
     array-length v2, v1
 
     if-lez v2, :cond_38
@@ -110,72 +110,78 @@
 
     if-lez v2, :cond_38
 
-    .line 42
+    .line 44
     const/4 v2, 0x0
 
     aget-object v0, v1, v2
     :try_end_38
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_38} :catch_61
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_38} :catch_67
 
-    .line 46
+    .line 48
     :cond_38
     :goto_38
-    const-string v1, "fat"
-
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-nez v1, :cond_48
-
-    const-string v1, "cellulite"
-
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_4b
-
-    .line 47
-    :cond_48
-    const/16 v0, 0x10
-
-    .line 52
-    :goto_4a
-    return v0
-
-    .line 49
-    :cond_4b
     const-string v1, "drain"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-nez v1, :cond_5b
+    if-nez v1, :cond_4e
 
     const-string v1, "massage"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
+    move-result v1
+
+    if-nez v1, :cond_4e
+
+    if-lez p3, :cond_51
+
+    const/16 v1, 0xa
+
+    if-gt p3, v1, :cond_51
+
+    .line 49
+    :cond_4e
+    const/16 v0, 0x137
+
+    .line 54
+    :goto_50
+    return v0
+
+    .line 51
+    :cond_51
+    const-string v1, "fat"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_61
+
+    const-string v1, "cellulite"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
     move-result v0
 
-    if-eqz v0, :cond_5e
-
-    .line 50
-    :cond_5b
-    const/16 v0, 0x8
-
-    goto :goto_4a
+    if-eqz v0, :cond_64
 
     .line 52
-    :cond_5e
+    :cond_61
+    const/16 v0, 0x133
+
+    goto :goto_50
+
+    .line 54
+    :cond_64
     const/16 v0, 0x134
 
-    goto :goto_4a
+    goto :goto_50
 
-    .line 44
-    :catch_61
+    .line 46
+    :catch_67
     move-exception v1
 
     goto :goto_38
@@ -228,16 +234,16 @@
     .registers 4
 
     .prologue
-    .line 86
+    .line 88
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSent:Z
 
     if-nez v0, :cond_5
 
-    .line 90
+    .line 92
     :goto_4
     return-void
 
-    .line 89
+    .line 91
     :cond_5
     new-instance v0, Lcom/isaigu/gymapp/wearable/BandWorkout$Send;
 
@@ -252,16 +258,16 @@
     goto :goto_4
 .end method
 
-.method static onStart(Lcom/isaigu/gymapp/wearable/SessionRec;)V
-    .registers 5
+.method static onStart(Lcom/isaigu/gymapp/wearable/SessionRec;I)V
+    .registers 6
 
     .prologue
-    .line 60
+    .line 62
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 61
+    .line 63
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->userId:J
 
     invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/BandWorkout;->isOwner(Landroid/content/Context;J)Z
@@ -270,7 +276,7 @@
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandOwner:Z
 
-    .line 62
+    .line 64
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->leader:Z
 
     if-eqz v1, :cond_14
@@ -279,12 +285,12 @@
 
     if-nez v1, :cond_15
 
-    .line 75
+    .line 77
     :cond_14
     :goto_14
     return-void
 
-    .line 65
+    .line 67
     :cond_15
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWorkout;->isConnected()Z
 
@@ -292,7 +298,7 @@
 
     if-nez v1, :cond_3c
 
-    .line 66
+    .line 68
     const-string v0, "band_workout"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -325,32 +331,32 @@
 
     goto :goto_14
 
-    .line 69
+    .line 71
     :cond_3c
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->userId:J
 
-    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/BandWorkout;->sport(Landroid/content/Context;J)I
+    invoke-static {v0, v2, v3, p1}, Lcom/isaigu/gymapp/wearable/BandWorkout;->sport(Landroid/content/Context;JI)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSport:I
 
-    .line 70
+    .line 72
     iget v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSport:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandWorkout;->open(I)Z
 
     move-result v0
 
-    .line 71
+    .line 73
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSent:Z
 
-    .line 72
+    .line 74
     const/4 v1, 0x1
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandRunning:Z
 
-    .line 73
+    .line 75
     const-string v1, "band_workout"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -385,7 +391,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 74
+    .line 76
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandWorkout;->H:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/BandWorkout$Send;
@@ -407,7 +413,7 @@
     .registers 5
 
     .prologue
-    .line 78
+    .line 80
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSent:Z
 
     if-eqz v0, :cond_8
@@ -416,16 +422,16 @@
 
     if-ne p1, v0, :cond_9
 
-    .line 83
+    .line 85
     :cond_8
     :goto_8
     return-void
 
-    .line 81
+    .line 83
     :cond_9
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandRunning:Z
 
-    .line 82
+    .line 84
     new-instance v1, Lcom/isaigu/gymapp/wearable/BandWorkout$Send;
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSport:I
@@ -451,7 +457,7 @@
     .registers 3
 
     .prologue
-    .line 56
+    .line 58
     const-string v0, "xems_user_profiles"
 
     const/4 v1, 0x0
@@ -463,8 +469,8 @@
     return-object v0
 .end method
 
-.method static sport(Landroid/content/Context;J)I
-    .registers 8
+.method static sport(Landroid/content/Context;JI)I
+    .registers 9
 
     .prologue
     const/4 v0, 0x0
@@ -506,7 +512,7 @@
     return v0
 
     :cond_21
-    invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/BandWorkout;->autoSport(Landroid/content/Context;J)I
+    invoke-static {p0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/BandWorkout;->autoSport(Landroid/content/Context;JI)I
 
     move-result v0
 

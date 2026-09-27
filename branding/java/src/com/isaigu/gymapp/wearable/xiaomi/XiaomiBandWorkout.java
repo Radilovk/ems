@@ -27,8 +27,17 @@ public final class XiaomiBandWorkout {
     public static final int SPORT_FREE = 8;
     /** HIIT: synced into Mi Fitness as high_interval_training. */
     public static final int SPORT_HIIT = 16;
-    /** First strength-type code the band sent (list: 308, 313, 399) — name to be confirmed. */
+    /*
+     * Band-started workouts seen in Mi Fitness logs (2026-09-27), names matched by start order to what was
+     * picked on the band: 308 weights, 313 physical training, 399 ?, 311 yoga, 310 stretching,
+     * 304 flexibility, 307 aerobics. Only 3 is verified as a phone start.
+     */
     public static final int SPORT_STRENGTH = 308;
+    public static final int SPORT_PHYSICAL = 313;
+    public static final int SPORT_YOGA = 311;
+    public static final int SPORT_STRETCHING = 310;
+    public static final int SPORT_FLEXIBILITY = 304;
+    public static final int SPORT_AEROBICS = 307;
 
     private XiaomiBandWorkout() {}
 

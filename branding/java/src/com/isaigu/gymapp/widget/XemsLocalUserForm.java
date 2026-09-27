@@ -104,6 +104,7 @@ public final class XemsLocalUserForm {
         int miSport = 0;
         final LinearLayout[] ownRow = new LinearLayout[1];
         final LinearLayout[] sportRow = new LinearLayout[1];
+        final LinearLayout[] sportRow2 = new LinearLayout[1];
 
         Form(Activity a, TrainUser editing) {
             this.a = a;
@@ -299,11 +300,12 @@ public final class XemsLocalUserForm {
             renderFitness();
 
             LinearLayout cm = card(col, tr("Гривна и Mi Fitness", "Band and Mi Fitness"));
-            TextView mh = text(tr("Собственикът на гривната получава всяка тренировка и като тренировка в гривната: пулс, калории и време влизат в Mi Fitness.",
-                    "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness."), 13, MUTED, false);
+            TextView mh = text(tr("Собственикът на гривната получава всяка тренировка и като тренировка в гривната: пулс, калории и време влизат в Mi Fitness. Авто: пасивни процедури → йога, кардио → аеробна, силови → тежести.",
+                    "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness. Auto: passive procedures → yoga, cardio → aerobics, strength → weights."), 13, MUTED, false);
             cm.addView(mh, match(dp(4)));
             ownRow[0] = chips(cm);
             sportRow[0] = chips(cm);
+            sportRow2[0] = chips(cm);
             renderOwner();
 
             LinearLayout c3 = card(col, tr("Противопоказания", "Contraindications"));
@@ -369,11 +371,17 @@ public final class XemsLocalUserForm {
             LinearLayout sr = sportRow[0];
             sr.removeAllViews();
             sr.setVisibility(owner ? View.VISIBLE : View.GONE);
-            addSport(sr, tr("Авто по цел", "Auto by goal"), 0);
+            addSport(sr, tr("Авто", "Auto"), 0);
+            addSport(sr, tr("Тежести", "Weights"), 308);
             addSport(sr, tr("HIIT", "HIIT"), 16);
-            addSport(sr, tr("Силова", "Strength"), 308);
-            addSport(sr, tr("Свободна", "Free"), 8);
-            addSport(sr, tr("Бягане", "Run"), 3);
+            addSport(sr, tr("Аеробна", "Aerobics"), 307);
+            LinearLayout sr2 = sportRow2[0];
+            sr2.removeAllViews();
+            sr2.setVisibility(owner ? View.VISIBLE : View.GONE);
+            addSport(sr2, tr("Йога", "Yoga"), 311);
+            addSport(sr2, tr("Стречинг", "Stretching"), 310);
+            addSport(sr2, tr("Гъвкавост", "Flexibility"), 304);
+            addSport(sr2, tr("Свободна", "Free"), 8);
         }
 
         /** Band sport codes from Mi Fitness logs: 3 indoor run (phone start verified), 8 free training,

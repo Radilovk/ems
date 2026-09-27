@@ -68,6 +68,8 @@
 
 .field final sportRow:[Landroid/widget/LinearLayout;
 
+.field final sportRow2:[Landroid/widget/LinearLayout;
+
 .field warning:Landroid/widget/TextView;
 
 .field final weight:[I
@@ -82,7 +84,7 @@
 
     const/4 v2, 0x1
 
-    .line 108
+    .line 109
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 91
@@ -162,13 +164,18 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sportRow:[Landroid/widget/LinearLayout;
 
-    .line 109
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
+    .line 107
+    new-array v0, v2, [Landroid/widget/LinearLayout;
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sportRow2:[Landroid/widget/LinearLayout;
 
     .line 110
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     .line 111
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
+
+    .line 112
     new-instance v0, Landroid/app/Dialog;
 
     const v1, 0x103000a
@@ -177,14 +184,14 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dialog:Landroid/app/Dialog;
 
-    .line 112
-    if-eqz p2, :cond_59
-
     .line 113
+    if-eqz p2, :cond_5d
+
+    .line 114
     invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->load(Lcom/isaigu/gymapp/bean/TrainUser;)V
 
-    .line 115
-    :cond_59
+    .line 116
+    :cond_5d
     return-void
 .end method
 
@@ -200,7 +207,7 @@
 
     const/16 v6, 0x8
 
-    .line 558
+    .line 566
     const/16 v2, 0x10
 
     if-eqz p3, :cond_56
@@ -212,12 +219,12 @@
 
     move-result-object v3
 
-    .line 559
+    .line 567
     const/16 v0, 0x11
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 560
+    .line 568
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v0
@@ -236,7 +243,7 @@
 
     invoke-virtual {v3, v0, v2, v4, v5}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 561
+    .line 569
     if-eqz p3, :cond_5a
 
     move v2, v1
@@ -253,14 +260,14 @@
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 562
+    .line 570
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;
 
     invoke-direct {v0, p0, p4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/Runnable;)V
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 567
+    .line 575
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, 0x0
@@ -271,34 +278,34 @@
 
     invoke-direct {v0, v1, v2, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 568
+    .line 576
     invoke-virtual {p1}, Landroid/widget/LinearLayout;->getChildCount()I
 
     move-result v1
 
     if-lez v1, :cond_52
 
-    .line 569
+    .line 577
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v1
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 571
+    .line 579
     :cond_52
     invoke-virtual {p1, v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 572
+    .line 580
     return-void
 
-    .line 558
+    .line 566
     :cond_56
     const v0, -0x13100c
 
     goto :goto_c
 
-    .line 561
+    .line 569
     :cond_5a
     const v0, -0xedebe8
 
@@ -316,7 +323,7 @@
     .registers 6
 
     .prologue
-    .line 382
+    .line 390
     iget v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->miSport:I
 
     if-ne v0, p3, :cond_e
@@ -330,10 +337,10 @@
 
     invoke-virtual {p0, p1, p2, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
 
-    .line 388
+    .line 396
     return-void
 
-    .line 382
+    .line 390
     :cond_e
     const/4 v0, 0x0
 
@@ -352,7 +359,7 @@
 
     const v1, -0xbc5fb9
 
-    .line 648
+    .line 656
     if-eqz p2, :cond_35
 
     const/4 v0, -0x1
@@ -364,10 +371,10 @@
 
     move-result-object v3
 
-    .line 649
+    .line 657
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 650
+    .line 658
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v0
@@ -386,7 +393,7 @@
 
     invoke-virtual {v3, v0, v2, v4, v5}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 651
+    .line 659
     if-eqz p2, :cond_39
 
     move v2, v1
@@ -403,16 +410,16 @@
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 652
+    .line 660
     return-object v3
 
-    .line 648
+    .line 656
     :cond_35
     const v0, -0x13100c
 
     goto :goto_c
 
-    .line 651
+    .line 659
     :cond_39
     const v0, -0xe3e0da
 
@@ -438,17 +445,17 @@
 
     const/4 v0, 0x0
 
-    .line 539
+    .line 547
     new-instance v1, Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v1, v2}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 540
+    .line 548
     invoke-virtual {v1, v6}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 541
+    .line 549
     invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v2
@@ -471,7 +478,7 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 542
+    .line 550
     const v2, -0xe3e0da
 
     const v3, -0xd3cec5
@@ -482,7 +489,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 543
+    .line 551
     invoke-virtual {p2}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
 
     move-result-object v2
@@ -493,19 +500,19 @@
 
     move-result-object v2
 
-    .line 544
+    .line 552
     const v3, 0x3da3d70a    # 0.08f
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setLetterSpacing(F)V
 
-    .line 545
+    .line 553
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->match(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 546
+    .line 554
     invoke-virtual {p1}, Landroid/widget/LinearLayout;->getChildCount()I
 
     move-result v2
@@ -519,10 +526,10 @@
 
     invoke-virtual {p1, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 547
+    .line 555
     return-object v1
 
-    .line 546
+    .line 554
     :cond_5a
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
@@ -535,19 +542,19 @@
     .registers 4
 
     .prologue
-    .line 551
+    .line 559
     new-instance v0, Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 552
+    .line 560
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 553
+    .line 561
     const/16 v1, 0xa
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -560,7 +567,7 @@
 
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 554
+    .line 562
     return-object v0
 .end method
 
@@ -568,19 +575,19 @@
     .registers 3
 
     .prologue
-    .line 526
+    .line 534
     new-instance v0, Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 527
+    .line 535
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 528
+    .line 536
     return-object v0
 .end method
 
@@ -592,7 +599,7 @@
 
     const/16 v4, 0xa
 
-    .line 427
+    .line 435
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->contraName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
@@ -607,7 +614,7 @@
 
     move-result-object v0
 
-    .line 428
+    .line 436
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v1
@@ -626,7 +633,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 429
+    .line 437
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
 
     invoke-interface {v1, p1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
@@ -635,14 +642,14 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->styleContra(Landroid/widget/TextView;Z)V
 
-    .line 430
+    .line 438
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;
 
     invoke-direct {v1, p0, p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/String;Landroid/widget/TextView;)V
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 439
+    .line 447
     return-object v0
 .end method
 
@@ -650,7 +657,7 @@
     .registers 5
 
     .prologue
-    .line 690
+    .line 698
     const/4 v0, 0x1
 
     int-to-float v1, p1
@@ -682,42 +689,42 @@
 
     const/16 v4, 0xc
 
-    .line 635
+    .line 643
     new-instance v0, Landroid/widget/EditText;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 636
+    .line 644
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
-    .line 637
+    .line 645
     invoke-virtual {v0, p2}, Landroid/widget/EditText;->setInputType(I)V
 
-    .line 638
+    .line 646
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 639
+    .line 647
     const v1, -0x13100c
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 640
+    .line 648
     const v1, -0x675e50
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 641
+    .line 649
     const/4 v1, 0x2
 
     const/high16 v2, 0x41a00000    # 20.0f
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/EditText;->setTextSize(IF)V
 
-    .line 642
+    .line 650
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v1
@@ -736,7 +743,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/EditText;->setPadding(IIII)V
 
-    .line 643
+    .line 651
     const v1, -0xedebe8
 
     const v2, -0xd3cec5
@@ -747,7 +754,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 644
+    .line 652
     return-object v0
 .end method
 
@@ -765,12 +772,12 @@
 
     const/4 v9, 0x0
 
-    .line 205
+    .line 206
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->column()Landroid/widget/LinearLayout;
 
     move-result-object v6
 
-    .line 206
+    .line 207
     const-string v0, "\u0421\u043d\u0438\u043c\u043a\u0430 \u0438 \u0438\u043c\u0435"
 
     const-string v1, "Photo and name"
@@ -783,20 +790,20 @@
 
     move-result-object v0
 
-    .line 207
+    .line 208
     new-instance v1, Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v1, v2}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 208
+    .line 209
     invoke-virtual {v1, v9}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 209
+    .line 210
     invoke-virtual {v1, v7}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 210
+    .line 211
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photoBox()Landroid/view/View;
 
     move-result-object v2
@@ -819,7 +826,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 211
+    .line 212
     const-string v2, "\u0418\u043c\u0435 \u0438 \u0444\u0430\u043c\u0438\u043b\u0438\u044f"
 
     const-string v3, "Full name"
@@ -836,7 +843,7 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->name:Landroid/widget/EditText;
 
-    .line 212
+    .line 213
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-eqz v2, :cond_5f
@@ -847,7 +854,7 @@
 
     if-eqz v2, :cond_5f
 
-    .line 213
+    .line 214
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->name:Landroid/widget/EditText;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -856,32 +863,32 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 215
+    .line 216
     :cond_5f
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v2, v9, v11, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 216
+    .line 217
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v3
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 217
+    .line 218
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->name:Landroid/widget/EditText;
 
     invoke-virtual {v1, v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 218
+    .line 219
     invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->match(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v2
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 220
+    .line 221
     const-string v0, "\u041f\u043e\u043b"
 
     const-string v1, "Sex"
@@ -894,7 +901,7 @@
 
     move-result-object v0
 
-    .line 221
+    .line 222
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sexRow:[Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->chips(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
@@ -903,10 +910,10 @@
 
     aput-object v0, v1, v9
 
-    .line 222
+    .line 223
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderSex()V
 
-    .line 224
+    .line 225
     const-string v0, "\u0412\u044a\u0437\u0440\u0430\u0441\u0442 \u00b7 \u0440\u044a\u0441\u0442 \u00b7 \u0442\u0435\u0433\u043b\u043e"
 
     const-string v1, "Age \u00b7 height \u00b7 weight"
@@ -919,17 +926,17 @@
 
     move-result-object v7
 
-    .line 225
+    .line 226
     new-instance v8, Landroid/widget/LinearLayout;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v8, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 226
+    .line 227
     invoke-virtual {v8, v9}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 227
+    .line 228
     const-string v0, "\u0412\u044a\u0437\u0440\u0430\u0441\u0442"
 
     const-string v1, "Age"
@@ -964,7 +971,7 @@
 
     invoke-virtual {v8, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 229
+    .line 230
     const-string v0, "\u0420\u044a\u0441\u0442"
 
     const-string v1, "Height"
@@ -993,7 +1000,7 @@
 
     invoke-virtual {v8, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 231
+    .line 232
     const-string v0, "\u0422\u0435\u0433\u043b\u043e"
 
     const-string v1, "Weight"
@@ -1022,7 +1029,7 @@
 
     invoke-virtual {v8, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 233
+    .line 234
     invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v0
@@ -1033,7 +1040,7 @@
 
     invoke-virtual {v7, v8, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 235
+    .line 236
     const-string v0, "\u041a\u043e\u043d\u0442\u0430\u043a\u0442 (\u043f\u043e \u0436\u0435\u043b\u0430\u043d\u0438\u0435)"
 
     const-string v1, "Contact (optional)"
@@ -1046,7 +1053,7 @@
 
     move-result-object v0
 
-    .line 236
+    .line 237
     const-string v1, "\u0422\u0435\u043b\u0435\u0444\u043e\u043d  +359 \u2026"
 
     const-string v2, "Phone  +359 \u2026"
@@ -1063,14 +1070,14 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->phone:Landroid/widget/EditText;
 
-    .line 237
+    .line 238
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->phone:Landroid/widget/EditText;
 
     const/4 v2, 0x5
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setImeOptions(I)V
 
-    .line 238
+    .line 239
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-eqz v1, :cond_13f
@@ -1081,7 +1088,7 @@
 
     if-eqz v1, :cond_13f
 
-    .line 239
+    .line 240
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->phone:Landroid/widget/EditText;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -1090,7 +1097,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 241
+    .line 242
     :cond_13f
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->phone:Landroid/widget/EditText;
 
@@ -1100,7 +1107,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 242
+    .line 243
     const-string v1, "\u0418\u043c\u0435\u0439\u043b"
 
     const-string v2, "Email"
@@ -1117,12 +1124,12 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->email:Landroid/widget/EditText;
 
-    .line 243
+    .line 244
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->email:Landroid/widget/EditText;
 
     invoke-virtual {v1, v12}, Landroid/widget/EditText;->setImeOptions(I)V
 
-    .line 244
+    .line 245
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-eqz v1, :cond_170
@@ -1133,7 +1140,7 @@
 
     if-eqz v1, :cond_170
 
-    .line 245
+    .line 246
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->email:Landroid/widget/EditText;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -1142,7 +1149,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 247
+    .line 248
     :cond_170
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->email:Landroid/widget/EditText;
 
@@ -1158,7 +1165,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 248
+    .line 249
     return-object v6
 .end method
 
@@ -1170,23 +1177,23 @@
 
     const/4 v1, 0x0
 
-    .line 118
+    .line 119
     iget-object v0, p1, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
     if-eqz v0, :cond_a
 
-    .line 119
+    .line 120
     iget-object v0, p1, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sex:Lcom/isaigu/gymapp/bean/Gender;
 
-    .line 121
+    .line 122
     :cond_a
     iget-object v0, p1, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
     if-eqz v0, :cond_20
 
-    .line 122
+    .line 123
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->age:[I
 
     iget-object v2, p1, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
@@ -1205,20 +1212,20 @@
 
     aput v2, v0, v1
 
-    .line 124
+    .line 125
     :cond_20
     iget v0, p1, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
 
     if-lez v0, :cond_2a
 
-    .line 125
+    .line 126
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->height:[I
 
     iget v2, p1, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
 
     aput v2, v0, v1
 
-    .line 127
+    .line 128
     :cond_2a
     iget v0, p1, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
 
@@ -1228,7 +1235,7 @@
 
     if-lez v0, :cond_3b
 
-    .line 128
+    .line 129
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->weight:[I
 
     iget v2, p1, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
@@ -1239,7 +1246,7 @@
 
     aput v2, v0, v1
 
-    .line 130
+    .line 131
     :cond_3b
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
@@ -1273,7 +1280,7 @@
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->owner:Z
 
-    .line 131
+    .line 132
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -1306,7 +1313,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->miSport:I
 
-    .line 132
+    .line 133
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -1339,7 +1346,7 @@
 
     move-result-object v0
 
-    .line 133
+    .line 134
     const-string v2, "\\|"
 
     const/4 v3, -0x1
@@ -1348,14 +1355,14 @@
 
     move-result-object v2
 
-    .line 134
+    .line 135
     array-length v0, v2
 
     const/4 v3, 0x3
 
     if-lt v0, v3, :cond_e4
 
-    .line 135
+    .line 136
     aget-object v0, v2, v1
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1369,7 +1376,7 @@
     :goto_b3
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goal:Ljava/lang/String;
 
-    .line 136
+    .line 137
     aget-object v0, v2, v6
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1383,7 +1390,7 @@
     :goto_bf
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->fitness:Ljava/lang/String;
 
-    .line 137
+    .line 138
     const/4 v0, 0x2
 
     aget-object v0, v2, v0
@@ -1403,37 +1410,37 @@
 
     aget-object v1, v2, v0
 
-    .line 138
+    .line 139
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v4
 
     if-lez v4, :cond_db
 
-    .line 139
+    .line 140
     iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
 
     invoke-interface {v4, v1}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 137
+    .line 138
     :cond_db
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_cc
 
-    .line 135
+    .line 136
     :cond_de
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goal:Ljava/lang/String;
 
     goto :goto_b3
 
-    .line 136
+    .line 137
     :cond_e1
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->fitness:Ljava/lang/String;
 
     goto :goto_bf
 
-    .line 143
+    .line 144
     :cond_e4
     return-void
 .end method
@@ -1442,7 +1449,7 @@
     .registers 5
 
     .prologue
-    .line 675
+    .line 683
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x1
@@ -1451,10 +1458,10 @@
 
     invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 677
+    .line 685
     iput p1, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 678
+    .line 686
     return-object v0
 .end method
 
@@ -1472,35 +1479,35 @@
 
     const/4 v6, 0x0
 
-    .line 146
+    .line 147
     new-instance v1, Landroid/widget/LinearLayout;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v1, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 147
+    .line 148
     invoke-virtual {v1, v9}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 148
+    .line 149
     const v0, -0xedebe8
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setBackgroundColor(I)V
 
-    .line 151
+    .line 152
     new-instance v2, Landroid/widget/LinearLayout;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v2, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 152
+    .line 153
     invoke-virtual {v2, v6}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 153
+    .line 154
     invoke-virtual {v2, v7}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 154
+    .line 155
     const/16 v0, 0x18
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -1527,7 +1534,7 @@
 
     invoke-virtual {v2, v0, v3, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 155
+    .line 156
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-nez v0, :cond_13b
@@ -1549,7 +1556,7 @@
 
     move-result-object v0
 
-    .line 156
+    .line 157
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v4, -0x2
@@ -1558,12 +1565,12 @@
 
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 157
+    .line 158
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-eqz v0, :cond_91
 
-    .line 158
+    .line 159
     const-string v0, "\u0418\u0441\u0442\u043e\u0440\u0438\u044f \u0438 \u0434\u043e\u043a\u043b\u0430\u0434\u0438"
 
     const-string v3, "History and reports"
@@ -1576,28 +1583,28 @@
 
     move-result-object v0
 
-    .line 159
+    .line 160
     new-instance v3, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$1;
 
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$1;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 164
+    .line 165
     invoke-virtual {p0, v6, v6}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->wrap(II)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 165
+    .line 166
     new-instance v0, Landroid/view/View;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v3}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 166
+    .line 167
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/16 v4, 0xc
@@ -1610,7 +1617,7 @@
 
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 168
+    .line 169
     :cond_91
     const-string v0, "\u041e\u0442\u043a\u0430\u0437"
 
@@ -1624,21 +1631,21 @@
 
     move-result-object v0
 
-    .line 169
+    .line 170
     new-instance v3, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$2;
 
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$2;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 174
+    .line 175
     invoke-virtual {p0, v6, v6}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->wrap(II)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 175
+    .line 176
     const-string v0, "\u0417\u0430\u043f\u0430\u0437\u0438"
 
     const-string v3, "Save"
@@ -1651,14 +1658,14 @@
 
     move-result-object v0
 
-    .line 176
+    .line 177
     new-instance v3, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;
 
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 181
+    .line 182
     const/16 v3, 0xc
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -1671,20 +1678,20 @@
 
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 182
+    .line 183
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 185
+    .line 186
     new-instance v0, Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v2}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 186
+    .line 187
     invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 187
+    .line 188
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v2
@@ -1699,7 +1706,7 @@
 
     invoke-virtual {v0, v2, v6, v3, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 188
+    .line 189
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->leftColumn()Landroid/view/View;
 
     move-result-object v2
@@ -1714,19 +1721,19 @@
 
     invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 189
+    .line 190
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v2, v6, v10, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 190
+    .line 191
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v3
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 191
+    .line 192
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->rightColumn()Landroid/view/View;
 
     move-result-object v3
@@ -1737,59 +1744,59 @@
 
     invoke-virtual {v0, v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 192
+    .line 193
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v2, v10, v6, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 194
+    .line 195
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 195
+    .line 196
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v1
 
-    .line 196
+    .line 197
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-nez v0, :cond_145
 
     const/4 v0, 0x4
 
-    .line 197
+    .line 198
     :goto_127
     or-int/lit8 v0, v0, 0x10
 
-    .line 195
+    .line 196
     invoke-virtual {v1, v0}, Landroid/view/Window;->setSoftInputMode(I)V
 
-    .line 198
+    .line 199
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 199
+    .line 200
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-nez v0, :cond_13a
 
-    .line 200
+    .line 201
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->name:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->requestFocus()Z
 
-    .line 202
+    .line 203
     :cond_13a
     return-void
 
-    .line 155
+    .line 156
     :cond_13b
     const-string v0, "\u041a\u043b\u0438\u0435\u043d\u0442"
 
@@ -1801,7 +1808,7 @@
 
     goto/16 :goto_4b
 
-    .line 197
+    .line 198
     :cond_145
     const/4 v0, 0x2
 
@@ -1812,7 +1819,7 @@
     .registers 6
 
     .prologue
-    .line 392
+    .line 400
     :try_start_0
     const-string v0, "com.isaigu.gymapp.wearable.ReportScreen"
 
@@ -1838,7 +1845,7 @@
 
     aput-object v4, v2, v3
 
-    .line 393
+    .line 401
     invoke-virtual {v0, v1, v2}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
 
     move-result-object v0
@@ -1861,20 +1868,20 @@
 
     aput-object v4, v2, v3
 
-    .line 394
+    .line 402
     invoke-virtual {v0, v1, v2}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
     :try_end_2a
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_2a} :catch_2b
 
-    .line 398
+    .line 406
     :goto_2a
     return-void
 
-    .line 395
+    .line 403
     :catch_2b
     move-exception v0
 
-    .line 396
+    .line 404
     const-string v1, "xems_form"
 
     const-string v2, "reports"
@@ -1888,7 +1895,7 @@
     .registers 7
 
     .prologue
-    .line 607
+    .line 615
     :try_start_0
     sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
 
@@ -1896,19 +1903,19 @@
 
     if-lt v1, v2, :cond_20
 
-    .line 608
+    .line 616
     const v1, -0x13100c
 
     invoke-virtual {p1, v1}, Landroid/widget/NumberPicker;->setTextColor(I)V
 
-    .line 609
+    .line 617
     const/4 v1, 0x2
 
     const/high16 v2, 0x41d00000    # 26.0f
 
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
-    .line 610
+    .line 618
     invoke-virtual {v3}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v3
@@ -1917,14 +1924,14 @@
 
     move-result-object v3
 
-    .line 609
+    .line 617
     invoke-static {v1, v2, v3}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
 
     move-result v1
 
     invoke-virtual {p1, v1}, Landroid/widget/NumberPicker;->setTextSize(F)V
 
-    .line 612
+    .line 620
     :cond_20
     const/4 v1, 0x0
 
@@ -1937,17 +1944,17 @@
 
     if-ge v3, v1, :cond_46
 
-    .line 613
+    .line 621
     invoke-virtual {p1, v3}, Landroid/widget/NumberPicker;->getChildAt(I)Landroid/view/View;
 
     move-result-object v2
 
-    .line 614
+    .line 622
     instance-of v1, v2, Landroid/widget/EditText;
 
     if-eqz v1, :cond_42
 
-    .line 615
+    .line 623
     move-object v0, v2
 
     check-cast v0, Landroid/widget/EditText;
@@ -1958,7 +1965,7 @@
 
     invoke-virtual {v1, v4}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 616
+    .line 624
     check-cast v2, Landroid/widget/EditText;
 
     const/4 v1, 0x2
@@ -1967,7 +1974,7 @@
 
     invoke-virtual {v2, v1, v4}, Landroid/widget/EditText;->setTextSize(IF)V
 
-    .line 612
+    .line 620
     :cond_42
     add-int/lit8 v1, v3, 0x1
 
@@ -1975,7 +1982,7 @@
 
     goto :goto_22
 
-    .line 619
+    .line 627
     :cond_46
     const-class v1, Landroid/widget/NumberPicker;
 
@@ -1985,31 +1992,31 @@
 
     move-result-object v1
 
-    .line 620
+    .line 628
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 621
+    .line 629
     invoke-virtual {v1, p1}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Landroid/graphics/Paint;
 
-    .line 622
+    .line 630
     const v2, -0x13100c
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 623
+    .line 631
     const/4 v2, 0x2
 
     const/high16 v3, 0x41d00000    # 26.0f
 
     iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
-    .line 624
+    .line 632
     invoke-virtual {v4}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v4
@@ -2018,14 +2025,14 @@
 
     move-result-object v4
 
-    .line 623
+    .line 631
     invoke-static {v2, v3, v4}, Landroid/util/TypedValue;->applyDimension(IFLandroid/util/DisplayMetrics;)F
 
     move-result v2
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 625
+    .line 633
     const-class v1, Landroid/widget/NumberPicker;
 
     const-string v2, "mSelectionDivider"
@@ -2034,12 +2041,12 @@
 
     move-result-object v1
 
-    .line 626
+    .line 634
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 627
+    .line 635
     new-instance v2, Landroid/graphics/drawable/ColorDrawable;
 
     const v3, -0xbc5fb9
@@ -2050,14 +2057,14 @@
     :try_end_89
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_89} :catch_8d
 
-    .line 631
+    .line 639
     :goto_89
     invoke-virtual {p1}, Landroid/widget/NumberPicker;->invalidate()V
 
-    .line 632
+    .line 640
     return-void
 
-    .line 628
+    .line 636
     :catch_8d
     move-exception v1
 
@@ -2072,27 +2079,27 @@
 
     const/4 v4, -0x1
 
-    .line 253
+    .line 254
     new-instance v0, Landroid/widget/FrameLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 254
+    .line 255
     new-instance v1, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v1}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 255
+    .line 256
     invoke-virtual {v1, v5}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 256
+    .line 257
     const v2, -0xedebe8
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 257
+    .line 258
     const/4 v2, 0x2
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -2103,10 +2110,10 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 258
+    .line 259
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 259
+    .line 260
     new-instance v1, Landroid/widget/ImageView;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
@@ -2115,14 +2122,14 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photo:Landroid/widget/ImageView;
 
-    .line 260
+    .line 261
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photo:Landroid/widget/ImageView;
 
     sget-object v2, Landroid/widget/ImageView$ScaleType;->CENTER_CROP:Landroid/widget/ImageView$ScaleType;
 
     invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
-    .line 261
+    .line 262
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photo:Landroid/widget/ImageView;
 
     new-instance v2, Landroid/widget/FrameLayout$LayoutParams;
@@ -2131,7 +2138,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 263
+    .line 264
     const-string v1, "+ \u0441\u043d\u0438\u043c\u043a\u0430"
 
     const-string v2, "+ photo"
@@ -2150,14 +2157,14 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photoHint:Landroid/widget/TextView;
 
-    .line 264
+    .line 265
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photoHint:Landroid/widget/TextView;
 
     const/16 v2, 0x11
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 265
+    .line 266
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photoHint:Landroid/widget/TextView;
 
     new-instance v2, Landroid/widget/FrameLayout$LayoutParams;
@@ -2166,12 +2173,12 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 267
+    .line 268
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-eqz v1, :cond_73
 
-    .line 268
+    .line 269
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUser;->iconUrl:Ljava/lang/String;
@@ -2184,7 +2191,7 @@
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->showPhoto(Landroid/graphics/Bitmap;)V
 
-    .line 270
+    .line 271
     :cond_73
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;
 
@@ -2192,7 +2199,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 280
+    .line 281
     return-object v0
 .end method
 
@@ -2202,15 +2209,15 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 414
+    .line 422
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->fitRow:[Landroid/widget/LinearLayout;
 
     aget-object v1, v1, v0
 
-    .line 415
+    .line 423
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 416
+    .line 424
     sget-object v2, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->FITNESS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -2220,7 +2227,7 @@
 
     aget-object v4, v2, v0
 
-    .line 417
+    .line 425
     invoke-static {v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->fitnessName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -2237,12 +2244,12 @@
 
     invoke-virtual {p0, v1, v5, v6, v7}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
 
-    .line 416
+    .line 424
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_b
 
-    .line 424
+    .line 432
     :cond_24
     return-void
 .end method
@@ -2253,15 +2260,15 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 401
+    .line 409
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goalRow:[Landroid/widget/LinearLayout;
 
     aget-object v1, v1, v0
 
-    .line 402
+    .line 410
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 403
+    .line 411
     sget-object v2, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->GOALS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -2271,7 +2278,7 @@
 
     aget-object v4, v2, v0
 
-    .line 404
+    .line 412
     invoke-static {v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->goalName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -2288,12 +2295,12 @@
 
     invoke-virtual {p0, v1, v5, v6, v7}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
 
-    .line 403
+    .line 411
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_b
 
-    .line 411
+    .line 419
     :cond_24
     return-void
 .end method
@@ -2306,15 +2313,15 @@
 
     const/4 v1, 0x0
 
-    .line 355
+    .line 357
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->ownRow:[Landroid/widget/LinearLayout;
 
     aget-object v3, v0, v1
 
-    .line 356
+    .line 358
     invoke-virtual {v3}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 357
+    .line 359
     const-string v0, "\u041d\u0435 \u043d\u043e\u0441\u0438 \u0433\u0440\u0438\u0432\u043d\u0430"
 
     const-string v4, "No band"
@@ -2325,7 +2332,7 @@
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->owner:Z
 
-    if-nez v0, :cond_7d
+    if-nez v0, :cond_b3
 
     const/4 v0, 0x1
 
@@ -2336,7 +2343,7 @@
 
     invoke-virtual {p0, v3, v4, v0, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
 
-    .line 363
+    .line 365
     const-string v0, "\u0421\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u0438\u043a \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
 
     const-string v4, "Band owner"
@@ -2353,28 +2360,28 @@
 
     invoke-virtual {p0, v3, v0, v4, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
 
-    .line 369
+    .line 371
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sportRow:[Landroid/widget/LinearLayout;
 
     aget-object v3, v0, v1
 
-    .line 370
+    .line 372
     invoke-virtual {v3}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 371
+    .line 373
     iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->owner:Z
 
-    if-eqz v0, :cond_7f
+    if-eqz v0, :cond_b6
 
     move v0, v1
 
     :goto_3d
     invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 372
-    const-string v0, "\u0410\u0432\u0442\u043e \u043f\u043e \u0446\u0435\u043b"
+    .line 374
+    const-string v0, "\u0410\u0432\u0442\u043e"
 
-    const-string v4, "Auto by goal"
+    const-string v4, "Auto"
 
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -2382,70 +2389,131 @@
 
     invoke-virtual {p0, v3, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    .line 373
-    const-string v0, "HIIT"
-
-    const-string v1, "HIIT"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    const/16 v1, 0x10
-
-    invoke-virtual {p0, v3, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
-
-    .line 374
-    const-string v0, "\u0421\u0438\u043b\u043e\u0432\u0430"
-
-    const-string v1, "Strength"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    const/16 v1, 0x134
-
-    invoke-virtual {p0, v3, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
-
     .line 375
-    const-string v0, "\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u0430"
+    const-string v0, "\u0422\u0435\u0436\u0435\u0441\u0442\u0438"
 
-    const-string v1, "Free"
+    const-string v4, "Weights"
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-virtual {p0, v3, v0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+    const/16 v4, 0x134
+
+    invoke-virtual {p0, v3, v0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
     .line 376
-    const-string v0, "\u0411\u044f\u0433\u0430\u043d\u0435"
+    const-string v0, "HIIT"
 
-    const-string v1, "Run"
+    const-string v4, "HIIT"
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    const/4 v1, 0x3
+    const/16 v4, 0x10
 
-    invoke-virtual {p0, v3, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+    invoke-virtual {p0, v3, v0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
     .line 377
+    const-string v0, "\u0410\u0435\u0440\u043e\u0431\u043d\u0430"
+
+    const-string v4, "Aerobics"
+
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const/16 v4, 0x133
+
+    invoke-virtual {p0, v3, v0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    .line 378
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sportRow2:[Landroid/widget/LinearLayout;
+
+    aget-object v0, v0, v1
+
+    .line 379
+    invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
+
+    .line 380
+    iget-boolean v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->owner:Z
+
+    if-eqz v3, :cond_b8
+
+    :goto_7d
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setVisibility(I)V
+
+    .line 381
+    const-string v1, "\u0419\u043e\u0433\u0430"
+
+    const-string v3, "Yoga"
+
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/16 v3, 0x137
+
+    invoke-virtual {p0, v0, v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    .line 382
+    const-string v1, "\u0421\u0442\u0440\u0435\u0447\u0438\u043d\u0433"
+
+    const-string v3, "Stretching"
+
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/16 v3, 0x136
+
+    invoke-virtual {p0, v0, v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    .line 383
+    const-string v1, "\u0413\u044a\u0432\u043a\u0430\u0432\u043e\u0441\u0442"
+
+    const-string v3, "Flexibility"
+
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/16 v3, 0x130
+
+    invoke-virtual {p0, v0, v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    .line 384
+    const-string v1, "\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u0430"
+
+    const-string v3, "Free"
+
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    .line 385
     return-void
 
-    :cond_7d
+    :cond_b3
     move v0, v1
 
-    .line 357
-    goto :goto_17
+    .line 359
+    goto/16 :goto_17
 
-    :cond_7f
+    :cond_b6
     move v0, v2
 
-    .line 371
+    .line 373
     goto :goto_3d
+
+    :cond_b8
+    move v1, v2
+
+    .line 380
+    goto :goto_7d
 .end method
 
 .method renderSex()V
@@ -2456,15 +2524,15 @@
 
     const/4 v2, 0x0
 
-    .line 338
+    .line 340
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sexRow:[Landroid/widget/LinearLayout;
 
     aget-object v3, v0, v2
 
-    .line 339
+    .line 341
     invoke-virtual {v3}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 340
+    .line 342
     const-string v0, "\u041c\u044a\u0436"
 
     const-string v4, "Male"
@@ -2488,7 +2556,7 @@
 
     invoke-virtual {p0, v3, v4, v0, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
 
-    .line 346
+    .line 348
     const-string v0, "\u0416\u0435\u043d\u0430"
 
     const-string v4, "Female"
@@ -2510,19 +2578,19 @@
 
     invoke-virtual {p0, v3, v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
 
-    .line 352
+    .line 354
     return-void
 
     :cond_37
     move v0, v2
 
-    .line 340
+    .line 342
     goto :goto_18
 
     :cond_39
     move v1, v2
 
-    .line 346
+    .line 348
     goto :goto_2e
 .end method
 
@@ -2540,12 +2608,12 @@
 
     const/4 v1, 0x0
 
-    .line 292
+    .line 293
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->column()Landroid/widget/LinearLayout;
 
     move-result-object v3
 
-    .line 293
+    .line 294
     const-string v0, "\u0426\u0435\u043b"
 
     const-string v2, "Goal"
@@ -2558,7 +2626,7 @@
 
     move-result-object v0
 
-    .line 294
+    .line 295
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goalRow:[Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->chips(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
@@ -2567,10 +2635,10 @@
 
     aput-object v0, v2, v1
 
-    .line 295
+    .line 296
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
 
-    .line 297
+    .line 298
     const-string v0, "\u0424\u0438\u0437\u0438\u0447\u0435\u0441\u043a\u0430 \u0444\u043e\u0440\u043c\u0430"
 
     const-string v2, "Fitness"
@@ -2583,7 +2651,7 @@
 
     move-result-object v0
 
-    .line 298
+    .line 299
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->fitRow:[Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->chips(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
@@ -2592,10 +2660,10 @@
 
     aput-object v0, v2, v1
 
-    .line 299
+    .line 300
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderFitness()V
 
-    .line 301
+    .line 302
     const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430 \u0438 Mi Fitness"
 
     const-string v2, "Band and Mi Fitness"
@@ -2608,10 +2676,10 @@
 
     move-result-object v0
 
-    .line 302
-    const-string v2, "\u0421\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u0438\u043a\u044a\u0442 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043f\u043e\u043b\u0443\u0447\u0430\u0432\u0430 \u0432\u0441\u044f\u043a\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0438 \u043a\u0430\u0442\u043e \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0432 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430: \u043f\u0443\u043b\u0441, \u043a\u0430\u043b\u043e\u0440\u0438\u0438 \u0438 \u0432\u0440\u0435\u043c\u0435 \u0432\u043b\u0438\u0437\u0430\u0442 \u0432 Mi Fitness."
+    .line 303
+    const-string v2, "\u0421\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u0438\u043a\u044a\u0442 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043f\u043e\u043b\u0443\u0447\u0430\u0432\u0430 \u0432\u0441\u044f\u043a\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0438 \u043a\u0430\u0442\u043e \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0432 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430: \u043f\u0443\u043b\u0441, \u043a\u0430\u043b\u043e\u0440\u0438\u0438 \u0438 \u0432\u0440\u0435\u043c\u0435 \u0432\u043b\u0438\u0437\u0430\u0442 \u0432 Mi Fitness. \u0410\u0432\u0442\u043e: \u043f\u0430\u0441\u0438\u0432\u043d\u0438 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438 \u2192 \u0439\u043e\u0433\u0430, \u043a\u0430\u0440\u0434\u0438\u043e \u2192 \u0430\u0435\u0440\u043e\u0431\u043d\u0430, \u0441\u0438\u043b\u043e\u0432\u0438 \u2192 \u0442\u0435\u0436\u0435\u0441\u0442\u0438."
 
-    const-string v4, "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness."
+    const-string v4, "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness. Auto: passive procedures \u2192 yoga, cardio \u2192 aerobics, strength \u2192 weights."
 
     invoke-static {v2, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -2623,7 +2691,7 @@
 
     move-result-object v2
 
-    .line 304
+    .line 305
     invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v4
@@ -2634,7 +2702,7 @@
 
     invoke-virtual {v0, v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 305
+    .line 306
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->ownRow:[Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->chips(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
@@ -2643,8 +2711,17 @@
 
     aput-object v4, v2, v1
 
-    .line 306
+    .line 307
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sportRow:[Landroid/widget/LinearLayout;
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->chips(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
+
+    move-result-object v4
+
+    aput-object v4, v2, v1
+
+    .line 308
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sportRow2:[Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->chips(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
 
@@ -2652,10 +2729,10 @@
 
     aput-object v0, v2, v1
 
-    .line 307
+    .line 309
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
 
-    .line 309
+    .line 311
     const-string v0, "\u041f\u0440\u043e\u0442\u0438\u0432\u043e\u043f\u043e\u043a\u0430\u0437\u0430\u043d\u0438\u044f"
 
     const-string v2, "Contraindications"
@@ -2668,7 +2745,7 @@
 
     move-result-object v4
 
-    .line 310
+    .line 312
     const-string v0, "\u041e\u0442\u0431\u0435\u043b\u0435\u0436\u0438, \u0430\u043a\u043e \u0438\u043c\u0430. EMS \u043d\u0435 \u0441\u0435 \u043f\u0440\u0435\u043f\u043e\u0440\u044a\u0447\u0432\u0430 \u043f\u0440\u0438 \u043d\u0438\u0442\u043e \u0435\u0434\u043d\u043e \u043e\u0442 \u0442\u044f\u0445."
 
     const-string v2, "Mark any that apply. EMS is not advised with any of them."
@@ -2683,14 +2760,14 @@
 
     move-result-object v0
 
-    .line 312
+    .line 314
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->match(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v2
 
     invoke-virtual {v4, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 313
+    .line 315
     const-string v0, ""
 
     const/16 v2, 0xe
@@ -2703,12 +2780,12 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->warning:Landroid/widget/TextView;
 
-    .line 314
+    .line 316
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->warning:Landroid/widget/TextView;
 
     invoke-virtual {v0, v11}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 315
+    .line 317
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->warning:Landroid/widget/TextView;
 
     invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -2721,40 +2798,40 @@
 
     invoke-virtual {v4, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 316
+    .line 318
     new-instance v5, Landroid/widget/LinearLayout;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v5, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 317
+    .line 319
     invoke-virtual {v5, v12}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
     move v0, v1
 
-    .line 318
-    :goto_bd
+    .line 320
+    :goto_c5
     sget-object v2, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
 
     array-length v2, v2
 
-    if-ge v0, v2, :cond_111
+    if-ge v0, v2, :cond_119
 
-    .line 319
+    .line 321
     new-instance v6, Landroid/widget/LinearLayout;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v6, v2}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 320
+    .line 322
     invoke-virtual {v6, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
     move v2, v0
 
-    .line 321
-    :goto_cd
+    .line 323
+    :goto_d5
     add-int/lit8 v7, v0, 0x2
 
     sget-object v8, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
@@ -2765,9 +2842,9 @@
 
     move-result v7
 
-    if-ge v2, v7, :cond_103
+    if-ge v2, v7, :cond_10b
 
-    .line 322
+    .line 324
     sget-object v7, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
 
     aget-object v7, v7, v2
@@ -2786,17 +2863,17 @@
 
     invoke-virtual {v6, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 323
-    if-ne v2, v0, :cond_100
+    .line 325
+    if-ne v2, v0, :cond_108
 
-    .line 324
+    .line 326
     new-instance v7, Landroid/view/View;
 
     iget-object v8, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v7, v8}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 325
+    .line 327
     new-instance v8, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -2807,14 +2884,14 @@
 
     invoke-virtual {v6, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 321
-    :cond_100
+    .line 323
+    :cond_108
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_cd
+    goto :goto_d5
 
-    .line 328
-    :cond_103
+    .line 330
+    :cond_10b
     invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v2
@@ -2825,13 +2902,13 @@
 
     invoke-virtual {v5, v6, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 318
+    .line 320
     add-int/lit8 v0, v0, 0x2
 
-    goto :goto_bd
+    goto :goto_c5
 
-    .line 330
-    :cond_111
+    .line 332
+    :cond_119
     invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v0
@@ -2842,10 +2919,10 @@
 
     invoke-virtual {v4, v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 331
+    .line 333
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->updateWarning()V
 
-    .line 332
+    .line 334
     return-object v3
 .end method
 
@@ -2853,15 +2930,15 @@
     .registers 5
 
     .prologue
-    .line 667
+    .line 675
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 668
+    .line 676
     invoke-virtual {v0, p1}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 669
+    .line 677
     const/16 v1, 0xe
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -2872,7 +2949,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 670
+    .line 678
     const/4 v1, 0x1
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
@@ -2881,7 +2958,7 @@
 
     invoke-virtual {v0, v1, p2}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 671
+    .line 679
     return-object v0
 .end method
 
@@ -2893,7 +2970,7 @@
 
     const/4 v3, 0x0
 
-    .line 463
+    .line 471
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->name:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -2908,14 +2985,14 @@
 
     move-result-object v4
 
-    .line 464
+    .line 472
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
     move-result v0
 
     if-nez v0, :cond_29
 
-    .line 465
+    .line 473
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->name:Landroid/widget/EditText;
 
     const-string v1, "\u0412\u044a\u0432\u0435\u0434\u0438 \u0438\u043c\u0435"
@@ -2928,16 +3005,16 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setError(Ljava/lang/CharSequence;)V
 
-    .line 466
+    .line 474
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->name:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->requestFocus()Z
 
-    .line 504
+    .line 512
     :goto_28
     return-void
 
-    .line 469
+    .line 477
     :cond_29
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->editing:Lcom/isaigu/gymapp/bean/TrainUser;
 
@@ -2947,11 +3024,11 @@
 
     move-object v1, v0
 
-    .line 470
+    .line 478
     :goto_30
     iput-object v4, v1, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 471
+    .line 479
     iget-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
     invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
@@ -2960,23 +3037,23 @@
 
     if-eqz v0, :cond_3c
 
-    .line 472
+    .line 480
     iput-object v4, v1, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
-    .line 474
+    .line 482
     :cond_3c
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sex:Lcom/isaigu/gymapp/bean/Gender;
 
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
-    .line 475
+    .line 483
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->height:[I
 
     aget v0, v0, v3
 
     iput v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
 
-    .line 476
+    .line 484
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->weight:[I
 
     aget v0, v0, v3
@@ -2985,12 +3062,12 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
 
-    .line 477
+    .line 485
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v0
 
-    .line 478
+    .line 486
     iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->age:[I
 
     aget v4, v4, v3
@@ -2999,14 +3076,14 @@
 
     invoke-virtual {v0, v2, v4}, Ljava/util/Calendar;->add(II)V
 
-    .line 479
+    .line 487
     invoke-virtual {v0}, Ljava/util/Calendar;->getTime()Ljava/util/Date;
 
     move-result-object v0
 
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
-    .line 480
+    .line 488
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->phone:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -3021,7 +3098,7 @@
 
     move-result-object v0
 
-    .line 481
+    .line 489
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v4
@@ -3031,7 +3108,7 @@
     :goto_73
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->phone:Ljava/lang/String;
 
-    .line 482
+    .line 490
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->email:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -3046,7 +3123,7 @@
 
     move-result-object v0
 
-    .line 483
+    .line 491
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v4
@@ -3056,12 +3133,12 @@
     :goto_89
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
 
-    .line 484
+    .line 492
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->newPhoto:Landroid/graphics/Bitmap;
 
     if-eqz v0, :cond_9d
 
-    .line 485
+    .line 493
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->newPhoto:Landroid/graphics/Bitmap;
@@ -3072,13 +3149,13 @@
 
     move-result-object v0
 
-    .line 486
+    .line 494
     if-eqz v0, :cond_9d
 
-    .line 487
+    .line 495
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->iconUrl:Ljava/lang/String;
 
-    .line 490
+    .line 498
     :cond_9d
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->summary()Ljava/lang/String;
 
@@ -3086,7 +3163,7 @@
 
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->remark:Ljava/lang/String;
 
-    .line 491
+    .line 499
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     check-cast v0, Lcom/isaigu/gymapp/BaseActivity;
@@ -3098,12 +3175,12 @@
     :goto_ab
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUser(Lcom/isaigu/gymapp/BaseActivity;Lcom/isaigu/gymapp/bean/TrainUser;Z)V
 
-    .line 492
+    .line 500
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 493
+    .line 501
     sget-object v2, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
 
     array-length v4, v2
@@ -3113,7 +3190,7 @@
 
     aget-object v5, v2, v3
 
-    .line 494
+    .line 502
     iget-object v6, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
 
     invoke-interface {v6, v5}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
@@ -3122,29 +3199,29 @@
 
     if-eqz v6, :cond_d0
 
-    .line 495
+    .line 503
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->length()I
 
     move-result v6
 
     if-lez v6, :cond_cd
 
-    .line 496
+    .line 504
     const/16 v6, 0x2c
 
     invoke-virtual {v0, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 498
+    .line 506
     :cond_cd
     invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 493
+    .line 501
     :cond_d0
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_b6
 
-    .line 469
+    .line 477
     :cond_d3
     new-instance v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
@@ -3154,13 +3231,13 @@
 
     goto/16 :goto_30
 
-    .line 481
+    .line 489
     :cond_db
     iget-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->phone:Ljava/lang/String;
 
     goto :goto_73
 
-    .line 483
+    .line 491
     :cond_de
     iget-object v0, v1, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
 
@@ -3169,10 +3246,10 @@
     :cond_e1
     move v2, v3
 
-    .line 491
+    .line 499
     goto :goto_ab
 
-    .line 501
+    .line 509
     :cond_e3
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
@@ -3266,7 +3343,7 @@
 
     iget-boolean v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->owner:Z
 
-    .line 502
+    .line 510
     invoke-interface {v0, v2, v3}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -3299,7 +3376,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 503
+    .line 511
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
@@ -3311,22 +3388,22 @@
     .registers 4
 
     .prologue
-    .line 532
+    .line 540
     new-instance v0, Landroid/widget/ScrollView;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
 
-    .line 533
+    .line 541
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->setFillViewport(Z)V
 
-    .line 534
+    .line 542
     invoke-virtual {v0, p1}, Landroid/widget/ScrollView;->addView(Landroid/view/View;)V
 
-    .line 535
+    .line 543
     return-object v0
 .end method
 
@@ -3334,14 +3411,14 @@
     .registers 4
 
     .prologue
-    .line 284
+    .line 285
     if-nez p1, :cond_3
 
-    .line 289
+    .line 290
     :goto_2
     return-void
 
-    .line 287
+    .line 288
     :cond_3
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photo:Landroid/widget/ImageView;
 
@@ -3351,7 +3428,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
 
-    .line 288
+    .line 289
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photoHint:Landroid/widget/TextView;
 
     const/16 v1, 0x8
@@ -3365,7 +3442,7 @@
     .registers 5
 
     .prologue
-    .line 443
+    .line 451
     if-eqz p2, :cond_1a
 
     const v0, 0x33e53935
@@ -3384,7 +3461,7 @@
 
     invoke-virtual {p1, v0}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 444
+    .line 452
     if-eqz p2, :cond_23
 
     const/16 v0, -0x7580
@@ -3392,10 +3469,10 @@
     :goto_16
     invoke-virtual {p1, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 445
+    .line 453
     return-void
 
-    .line 443
+    .line 451
     :cond_1a
     const v0, -0xe3e0da
 
@@ -3408,7 +3485,7 @@
 
     goto :goto_b
 
-    .line 444
+    .line 452
     :cond_23
     const v0, -0x13100c
 
@@ -3421,12 +3498,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 507
+    .line 515
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 508
+    .line 516
     const-string v0, "\u0426\u0435\u043b: "
 
     const-string v2, "Goal: "
@@ -3451,7 +3528,7 @@
 
     const-string v2, " \u00b7 "
 
-    .line 509
+    .line 517
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -3476,7 +3553,7 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 510
+    .line 518
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
 
     invoke-interface {v0}, Ljava/util/Set;->isEmpty()Z
@@ -3485,7 +3562,7 @@
 
     if-nez v0, :cond_77
 
-    .line 511
+    .line 519
     const-string v0, " \u00b7 "
 
     invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -3502,10 +3579,10 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 512
+    .line 520
     const/4 v0, 0x1
 
-    .line 513
+    .line 521
     sget-object v4, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
 
     array-length v5, v4
@@ -3517,7 +3594,7 @@
 
     aget-object v6, v4, v2
 
-    .line 514
+    .line 522
     iget-object v7, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
 
     invoke-interface {v7, v6}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
@@ -3526,7 +3603,7 @@
 
     if-eqz v7, :cond_71
 
-    .line 515
+    .line 523
     if-eqz v0, :cond_74
 
     const-string v0, ""
@@ -3544,19 +3621,19 @@
 
     move v0, v1
 
-    .line 513
+    .line 521
     :cond_71
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_55
 
-    .line 515
+    .line 523
     :cond_74
     const-string v0, ", "
 
     goto :goto_65
 
-    .line 520
+    .line 528
     :cond_77
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -3569,35 +3646,35 @@
     .registers 8
 
     .prologue
-    .line 656
+    .line 664
     new-instance v0, Landroid/widget/TextView;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 657
+    .line 665
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 658
+    .line 666
     const/4 v1, 0x2
 
     int-to-float v2, p2
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 659
+    .line 667
     invoke-virtual {v0, p3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 660
+    .line 668
     if-eqz p4, :cond_19
 
-    .line 661
+    .line 669
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 663
+    .line 671
     :cond_19
     return-object v0
 .end method
@@ -3606,16 +3683,16 @@
     .registers 4
 
     .prologue
-    .line 448
+    .line 456
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->warning:Landroid/widget/TextView;
 
     if-nez v0, :cond_5
 
-    .line 458
+    .line 466
     :goto_4
     return-void
 
-    .line 451
+    .line 459
     :cond_5
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
 
@@ -3625,7 +3702,7 @@
 
     if-eqz v0, :cond_15
 
-    .line 452
+    .line 460
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->warning:Landroid/widget/TextView;
 
     const/16 v1, 0x8
@@ -3634,7 +3711,7 @@
 
     goto :goto_4
 
-    .line 454
+    .line 462
     :cond_15
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->warning:Landroid/widget/TextView;
 
@@ -3648,7 +3725,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 456
+    .line 464
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->warning:Landroid/widget/TextView;
 
     const/4 v1, 0x0
@@ -3670,50 +3747,50 @@
 
     const/4 v5, 0x0
 
-    .line 576
+    .line 584
     new-instance v0, Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 577
+    .line 585
     invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 578
+    .line 586
     invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 579
+    .line 587
     const/16 v1, 0xf
 
     invoke-virtual {p0, p1, v1, v7, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->text(Ljava/lang/String;IIZ)Landroid/widget/TextView;
 
     move-result-object v1
 
-    .line 580
+    .line 588
     invoke-virtual {v1, v8}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 581
+    .line 589
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->match(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v2
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 582
+    .line 590
     new-instance v1, Landroid/widget/NumberPicker;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
 
     invoke-direct {v1, v2}, Landroid/widget/NumberPicker;-><init>(Landroid/content/Context;)V
 
-    .line 583
+    .line 591
     invoke-virtual {v1, p4}, Landroid/widget/NumberPicker;->setMinValue(I)V
 
-    .line 584
+    .line 592
     invoke-virtual {v1, p5}, Landroid/widget/NumberPicker;->setMaxValue(I)V
 
-    .line 585
+    .line 593
     aget v2, p3, v5
 
     invoke-static {v2, p4, p5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->clamp(III)I
@@ -3722,62 +3799,62 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/NumberPicker;->setValue(I)V
 
-    .line 586
+    .line 594
     invoke-virtual {v1, v5}, Landroid/widget/NumberPicker;->setWrapSelectorWheel(Z)V
 
-    .line 587
+    .line 595
     const/high16 v2, 0x60000
 
     invoke-virtual {v1, v2}, Landroid/widget/NumberPicker;->setDescendantFocusability(I)V
 
-    .line 588
+    .line 596
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;
 
     invoke-direct {v2, p0, p3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;[I)V
 
     invoke-virtual {v1, v2}, Landroid/widget/NumberPicker;->setOnValueChangedListener(Landroid/widget/NumberPicker$OnValueChangeListener;)V
 
-    .line 593
+    .line 601
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->paint(Landroid/widget/NumberPicker;)V
 
-    .line 594
+    .line 602
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x2
 
     const/16 v4, 0xbe
 
-    .line 595
+    .line 603
     invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->dp(I)I
 
     move-result v4
 
     invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 596
+    .line 604
     iput v6, v2, Landroid/widget/LinearLayout$LayoutParams;->gravity:I
 
-    .line 597
+    .line 605
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 598
+    .line 606
     const/16 v1, 0xe
 
     invoke-virtual {p0, p2, v1, v7, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->text(Ljava/lang/String;IIZ)Landroid/widget/TextView;
 
     move-result-object v1
 
-    .line 599
+    .line 607
     invoke-virtual {v1, v8}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 600
+    .line 608
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->match(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v2
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 601
+    .line 609
     return-object v0
 .end method
 
@@ -3787,17 +3864,17 @@
     .prologue
     const/4 v1, -0x2
 
-    .line 682
+    .line 690
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v0, v1, v1}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 684
+    .line 692
     iput p1, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 685
+    .line 693
     iput p2, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 686
+    .line 694
     return-object v0
 .end method

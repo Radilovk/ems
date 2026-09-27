@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 363
+    .line 365
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$8;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,18 +40,18 @@
     .registers 3
 
     .prologue
-    .line 365
+    .line 367
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$8;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->owner:Z
 
-    .line 366
+    .line 368
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$8;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
 
-    .line 367
+    .line 369
     return-void
 .end method

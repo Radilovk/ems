@@ -186,7 +186,7 @@ final class ReportBridge {
                 o.put("height", user.height);
             }
             o.put("owner", BandWorkout.isOwner(a, user.id));
-            o.put("misport", BandWorkout.sport(a, user.id));
+            o.put("misport", BandWorkout.sport(a, user.id, 0));
             int rest = WearableConfig.getRestHr(a);
             if (rest > 0) {
                 o.put("restHr", rest);

@@ -24,17 +24,19 @@ final class BandWorkout {
         return c != null && prefs(c).getBoolean("own" + userId, false);
     }
 
-    /** 0 = automatic (by the client's goal), else a band sport code chosen in the client form. */
-    static int sport(Context c, long userId) {
+    /** 0 = automatic (by the program), else a band sport code chosen in the client form. */
+    static int sport(Context c, long userId, int hz) {
         int v = c != null ? prefs(c).getInt("misport" + userId, 0) : 0;
-        return v > 0 ? v : autoSport(c, userId);
+        return v > 0 ? v : autoSport(c, userId, hz);
     }
 
     /**
-     * Mi Fitness has a fixed list of workout types (no custom "EMS"): tone / strength goals → strength,
-     * fat loss / cellulite → HIIT, drainage / massage → free training.
+     * Mi Fitness has a fixed list of workout types (no "EMS"), so the closest one by what the suit does:
+     * passive procedures (drainage / massage goal, or massage frequencies up to 10 Hz) → yoga;
+     * cardio (fat loss / cellulite) → aerobics; everything else (tone, strength) → weights.
+     * The band then counts its own HR, time and calories for that type.
      */
-    static int autoSport(Context c, long userId) {
+    static int autoSport(Context c, long userId, int hz) {
         String goal = "tone";
         try {
             String[] p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("u" + userId, "").split("\\|", -1);
@@ -43,11 +45,11 @@ final class BandWorkout {
             }
         } catch (Throwable ignored) {
         }
-        if ("fat".equals(goal) || "cellulite".equals(goal)) {
-            return XiaomiBandWorkout.SPORT_HIIT;
+        if ("drain".equals(goal) || "massage".equals(goal) || hz > 0 && hz <= 10) {
+            return XiaomiBandWorkout.SPORT_YOGA;
         }
-        if ("drain".equals(goal) || "massage".equals(goal)) {
-            return XiaomiBandWorkout.SPORT_FREE;
+        if ("fat".equals(goal) || "cellulite".equals(goal)) {
+            return XiaomiBandWorkout.SPORT_AEROBICS;
         }
         return XiaomiBandWorkout.SPORT_STRENGTH;
     }
@@ -56,7 +58,7 @@ final class BandWorkout {
         return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    static void onStart(SessionRec r) {
+    static void onStart(SessionRec r, int hz) {
         Context c = WearableSyncHelper.getContext();
         r.bandOwner = isOwner(c, r.userId);
         if (!r.leader || !r.bandOwner) {
@@ -66,7 +68,7 @@ final class BandWorkout {
             WearableBleDiagLog.log("band_workout", "owner " + r.userId + " — band not connected, no native workout");
             return;
         }
-        r.bandSport = sport(c, r.userId);
+        r.bandSport = sport(c, r.userId, hz);
         boolean ok = XiaomiBandWorkout.open(r.bandSport);
         r.bandSent = ok;
         r.bandRunning = true;

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 417
+    .line 425
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$11;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$11;->val$f:Ljava/lang/String;
@@ -49,18 +49,18 @@
     .registers 3
 
     .prologue
-    .line 419
+    .line 427
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$11;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$11;->val$f:Ljava/lang/String;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->fitness:Ljava/lang/String;
 
-    .line 420
+    .line 428
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$11;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderFitness()V
 
-    .line 421
+    .line 429
     return-void
 .end method

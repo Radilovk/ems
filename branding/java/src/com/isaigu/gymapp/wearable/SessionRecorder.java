@@ -97,7 +97,12 @@ public final class SessionRecorder {
                     r = new SessionRec(it, now);
                     r.leader = lead;
                     OPEN.put(i, r);
-                    BandWorkout.onStart(r);
+                    int hz0 = 0;
+                    try {
+                        hz0 = it.getTrainProgram().matchProgram().hz;
+                    } catch (Throwable ignored) {
+                    }
+                    BandWorkout.onStart(r, hz0);
                     WearableBleDiagLog.log("report", "session start slot " + i + " user " + r.userId
                             + " plan " + r.planS + " s");
                 }

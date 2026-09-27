@@ -72,3 +72,14 @@ are still unknown → try them from XEMS and watch what the band shows.
 
 Only code 3 is verified as a **phone** start. XEMS defaults the band owner to 16 (HIIT); `wearable-ble.log`
 `band_workout` lines show what was sent. If the band ignores a code, pick another one in the client form.
+
+## Third capture (06:10–06:16) and the mapping XEMS uses (1.1.159-ai)
+
+Band-started codes in start order: 308, 313, 399 (strength list, after HIIT 16) and 311, 310, 304, 307. Matched to the
+user's picks: 308 weights, 313 physical training, 399 unknown, 311 yoga, 310 stretching, 304 flexibility,
+307 aerobics — by order only, names are not in the logs. Mi Fitness has no custom type, so XEMS "Auto"
+(client form, default): passive procedures (drainage / massage goal or ≤ 10 Hz) → 311 yoga, cardio (fat loss /
+cellulite) → 307 aerobics, the rest → 308 weights. Manual: weights, HIIT, aerobics, yoga, stretching, flexibility,
+free. The band computes its own calories from HR for the chosen type; the XEMS report keeps its own estimate
+(stimulus + HR model) and shows it as kcal and MET. Writing XEMS calories into the band workout would need the 8/49
+phone-data message, whose fields are not known yet.

@@ -61,13 +61,13 @@ import { ZONE, hms, swipe, dots } from '../../common/ui.js'
 import { BODY } from '../../common/body-map.js'
 
 // Muscle load colour: the same scale as the tablet report and the client card.
-const STOPS = [[0, [124, 92, 255]], [0.3, [34, 211, 238]], [0.55, [163, 230, 53]], [0.78, [251, 191, 36]], [1, [255, 61, 110]]]
+const STOPS = [[0, [0, 229, 255]], [0.3, [61, 123, 255]], [0.55, [139, 92, 255]], [0.78, [224, 60, 255]], [1, [255, 45, 122]]]
 const MUSCLE = ['Гърди', 'Корем', 'Предно бедро', 'Прасци', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 // both sexes listed so the image budget check sees them
 const STENCILS = ['/common/body/f-front.png', '/common/body/f-back.png', '/common/body/m-front.png', '/common/body/m-back.png']
 
 function heat(v) {
-  v = Math.max(0, Math.min(1, v))
+  v = Math.max(0, Math.min(1, (v - 0.45) / 0.55))   // loads sit between ~45 and 100 %
   for (let i = 1; i < STOPS.length; i++) {
     if (v <= STOPS[i][0]) {
       const a = STOPS[i - 1]
@@ -76,7 +76,7 @@ function heat(v) {
       return '#' + a[1].map((x, j) => ('0' + Math.round(x + (b[1][j] - x) * k).toString(16)).slice(-2)).join('')
     }
   }
-  return '#ff3d6e'
+  return '#ff2d7a'
 }
 
 function boxes(key, col) {

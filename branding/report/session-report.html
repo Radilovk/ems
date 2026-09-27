@@ -338,7 +338,7 @@ details[open] summary::before{transform:rotate(45deg)}
         <div class="figs"><figure><canvas id="bodyF" aria-label="Отпред"></canvas><figcaption>Отпред</figcaption></figure><figure><canvas id="bodyB" aria-label="Отзад"></canvas><figcaption>Отзад</figcaption></figure><div class="tip" id="tip3" hidden></div></div>
         <div>
           <div class="ch-list" id="chList"></div>
-          <div class="legend" style="margin-top:14px"><span><i class="sw" style="width:120px;height:8px;background:linear-gradient(90deg,#7C5CFF,#22D3EE 30%,#A3E635 55%,#FBBF24 78%,#FF3D6E)"></i></span><span>ниска → висока доза</span></div>
+          <div class="legend" style="margin-top:14px"><span><i class="sw" style="width:120px;height:8px;background:linear-gradient(90deg,#00E5FF,#3D7BFF 30%,#8B5CFF 55%,#E03CFF 78%,#FF2D7A)"></i></span><span>ниска → висока доза</span></div>
         </div>
       </div>
     </section>
@@ -603,8 +603,8 @@ function renderList(sel){const L=$("#list");L.innerHTML="";[...sessions].reverse
 /* ---------------- colour scale ---------------- */
 function hex2rgb(h){h=h.replace("#","");return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
 // Muscle load colour — the same continuous scale as the client card (violet → cyan → lime → amber → pink).
-const MSTOPS=[[0,[124,92,255]],[.3,[34,211,238]],[.55,[163,230,53]],[.78,[251,191,36]],[1,[255,61,110]]];
-function mheat(v){v=clamp(v,0,1);for(let i=1;i<MSTOPS.length;i++)if(v<=MSTOPS[i][0]){const a=MSTOPS[i-1],b=MSTOPS[i],k=(v-a[0])/(b[0]-a[0]);return`rgb(${a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k)).join(",")})`;}return"rgb(255,61,110)";}
+const MSTOPS=[[0,[0,229,255]],[.3,[61,123,255]],[.55,[139,92,255]],[.78,[224,60,255]],[1,[255,45,122]]];
+function mheat(v){v=clamp((v-.45)/.55,0,1);for(let i=1;i<MSTOPS.length;i++)if(v<=MSTOPS[i][0]){const a=MSTOPS[i-1],b=MSTOPS[i],k=(v-a[0])/(b[0]-a[0]);return`rgb(${a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k)).join(",")})`;}return"rgb(255,45,122)";}
 function heat(v){const st=["--h1","--h2","--h3","--h4","--h5"];const k=Math.min(4,Math.floor(clamp(v,0,1)*5));return `rgb(${hex2rgb(css(st[k])).join(",")})`;}
 
 /* ---------------- report ---------------- */
@@ -769,7 +769,7 @@ function paintFig(canvas,key,lv,forceW,done){loadIdx(key,M=>{
   const cols=CH.map((c,i)=>hex2rgb2(mheat(lv(i))));
   const mc=document.createElement("canvas");mc.width=M.w;mc.height=M.h;const mx=mc.getContext("2d");const im=mx.createImageData(M.w,M.h),o=im.data,D=M.d;
   for(let p=0;p<D.length;p+=4){const z=D[p]-1;if(z<0||z>9||(dim&&z!==focus))continue;const c=cols[z],l=D[p+1]/255;
-    for(let k=0;k<3;k++)o[p+k]=l<.5?c[k]*2*l:c[k]+(255-c[k])*(2*l-1);o[p+3]=D[p+2];}
+    for(let k=0;k<3;k++)o[p+k]=l<.5?c[k]*2*l:c[k]+(255-c[k])*(2*l-1)*.55;o[p+3]=D[p+2];}
   mx.putImageData(im,0,0);const Mu=stepDown(mc,W,H);
   canvas.width=W;canvas.height=H;const x=canvas.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.clearRect(0,0,W,H);
   x.drawImage(stepDown(M.art,W,H),0,0);

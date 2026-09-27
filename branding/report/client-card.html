@@ -70,7 +70,7 @@ button{font:inherit;color:inherit}
 .pick i{width:10px;height:10px;border-radius:50%}
 .pick b{font:600 15px var(--f-body);white-space:nowrap}
 .pick .num{font-size:17px;font-weight:700}
-.scale{width:min(100%,300px);height:4px;border-radius:2px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5));opacity:.8}
+.scale{background:linear-gradient(90deg,#00E5FF,#3D7BFF 30%,#8B5CFF 55%,#E03CFF 78%,#FF2D7A)!important;width:min(100%,300px);height:4px;border-radius:2px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5));opacity:.8}
 
 /* numbers */
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -148,8 +148,8 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(EN){document.documentElement.lang="en";$("#sF").textContent="Front";$("#sB").textContent="Back";$("#lN").textContent="trainings";$("#lH").textContent="hours";$("#copy").setAttribute("aria-label","Copy link");}
 
 // colour scale: violet → cyan → lime → amber → hot pink, continuous
-const STOPS=[[0,[124,92,255]],[.3,[34,211,238]],[.55,[163,230,53]],[.78,[251,191,36]],[1,[255,61,110]]];
-function heat(v){v=clamp(v,0,1);for(let i=1;i<STOPS.length;i++)if(v<=STOPS[i][0]){const a=STOPS[i-1],b=STOPS[i],k=(v-a[0])/(b[0]-a[0]);return a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k));}return STOPS[4][1];}
+const STOPS=[[0,[0,229,255]],[.3,[61,123,255]],[.55,[139,92,255]],[.78,[224,60,255]],[1,[255,45,122]]];
+function heat(v){v=clamp((v-.45)/.55,0,1);for(let i=1;i<STOPS.length;i++)if(v<=STOPS[i][0]){const a=STOPS[i-1],b=STOPS[i],k=(v-a[0])/(b[0]-a[0]);return a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k));}return STOPS[4][1];}
 const css=c=>`rgb(${c.join(",")})`;
 // Three views of the same client: all time, the last 30 days, the last training (older cards: all only).
 const V={all:{mus:D.mus,eff:D.eff}};
@@ -205,7 +205,7 @@ function muscles(M,selCh){const w=M.w,h=M.h,c=document.createElement("canvas");c
   const cols=CH.map((q,i)=>heat(lv(i)));
   for(let i=0;i<w*h;i++){const z=M.lab[i];if(z<0||(selCh>=0&&z!==selCh))continue;const c=cols[z],l=M.shade[i],p=i*4;
     // the painted light in the client colour: dark → black, 0.5 → the colour, bright → white
-    for(let k=0;k<3;k++)o[p+k]=l<.5?c[k]*2*l:c[k]+(255-c[k])*(2*l-1);o[p+3]=M.cov[i];}
+    for(let k=0;k<3;k++)o[p+k]=l<.5?c[k]*2*l:c[k]+(255-c[k])*(2*l-1)*.55;o[p+3]=M.cov[i];}
   x.putImageData(im,0,0);return c;}
 function stepDown(src,W,H){let c=src;while(c.width/2>=W*1.05){const n=document.createElement("canvas");n.width=Math.round(c.width/2);n.height=Math.round(c.height/2);const x=n.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,n.width,n.height);c=n;}
   const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,W,H);return o;}

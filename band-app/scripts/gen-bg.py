@@ -17,7 +17,7 @@ THEMES = {
     "timer": (255, 138, 31),
     "music": (180, 77, 255),
     "pulse": (255, 46, 99),
-    "summary": (255, 214, 0),
+    "summary": (139, 92, 255),   # violet: matches the muscle colours
 }
 BASE_TOP = (9, 10, 14)
 BASE_BOTTOM = (4, 4, 6)

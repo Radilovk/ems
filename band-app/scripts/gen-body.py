@@ -48,8 +48,8 @@ def stencil(rgb, al, side):
     l = Z[..., 1] / 255
     w = Z[..., 2] / 255
     cov = A[..., 3]
-    m = np.where(l < 0.5, 2 * l, 2 - 2 * l)
-    q = np.where(l < 0.5, 0, 2 * l - 1)
+    m = np.where(l < 0.5, 2 * l, 1 - (2 * l - 1) * 0.55)
+    q = np.where(l < 0.5, 0, (2 * l - 1) * 0.55)          # soft highlight, as the card
     k = w * m * cov                                        # how much of the zone colour shows
     Sa = A[..., :3] * (1 - w)[..., None] * cov[..., None] + (w * q * cov)[..., None]
     a = cov - k

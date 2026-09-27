@@ -1192,7 +1192,7 @@
 
     move-result v0
 
-    const/16 v7, 0x41
+    const/16 v7, 0x42
 
     if-lt v0, v7, :cond_3df
 

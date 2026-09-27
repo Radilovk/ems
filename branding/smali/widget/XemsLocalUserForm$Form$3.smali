@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->photoBox()Landroid/view/View;
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->open()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -25,7 +25,8 @@
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
     .registers 2
 
-    .line 252
+    .prologue
+    .line 177
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -38,17 +39,12 @@
 .method public onClick(Landroid/view/View;)V
     .registers 3
 
-    .line 254
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+    .prologue
+    .line 179
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iget-object p1, p1, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->save()V
 
-    new-instance v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3$1;
-
-    invoke-direct {v0, p0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3$1;-><init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$3;)V
-
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->pick(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;)V
-
-    .line 260
+    .line 180
     return-void
 .end method

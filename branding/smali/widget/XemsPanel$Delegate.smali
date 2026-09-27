@@ -27,59 +27,60 @@
 .method constructor <init>(Landroid/view/View;I)V
     .registers 3
 
-    .line 268
+    .prologue
+    .line 276
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 269
+    .line 277
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;->root:Landroid/view/View;
 
-    .line 270
+    .line 278
     iput p2, p0, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;->id:I
 
-    .line 271
+    .line 279
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
-    .line 276
+    .prologue
+    .line 284
     :try_start_0
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 277
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;->root:Landroid/view/View;
+    .line 285
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;->root:Landroid/view/View;
 
-    iget v0, p0, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;->id:I
+    iget v1, p0, Lcom/isaigu/gymapp/widget/XemsPanel$Delegate;->id:I
 
-    invoke-virtual {p1, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
+    invoke-virtual {v0, v1}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
-    move-result-object p1
+    move-result-object v0
 
-    .line 278
-    if-eqz p1, :cond_10
+    .line 286
+    if-eqz v0, :cond_10
 
-    .line 279
-    invoke-virtual {p1}, Landroid/view/View;->performClick()Z
+    .line 287
+    invoke-virtual {v0}, Landroid/view/View;->performClick()Z
     :try_end_10
-    .catchall {:try_start_0 .. :try_end_10} :catchall_11
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_10} :catch_11
 
-    .line 283
+    .line 292
     :cond_10
-    goto :goto_17
-
-    .line 281
-    :catchall_11
-    move-exception p1
-
-    .line 282
-    const-string v0, "XemsPanel.click"
-
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    .line 284
-    :goto_17
+    :goto_10
     return-void
+
+    .line 289
+    :catch_11
+    move-exception v0
+
+    .line 290
+    const-string v1, "XemsPanel.click"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_10
 .end method

@@ -3,12 +3,12 @@
 .source "XemsLocalUserForm.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addSport(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$pick:Ljava/lang/Runnable;
+.field final synthetic val$code:I
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;I)V
     .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 489
+    .prologue
+    .line 390
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$pick:Ljava/lang/Runnable;
+    iput p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$code:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -39,14 +45,22 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 2
+.method public run()V
+    .registers 3
 
-    .line 491
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$pick:Ljava/lang/Runnable;
+    .prologue
+    .line 392
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
+    iget v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->val$code:I
 
-    .line 492
+    iput v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->miSport:I
+
+    .line 393
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$9;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderOwner()V
+
+    .line 394
     return-void
 .end method

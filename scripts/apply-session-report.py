@@ -30,8 +30,8 @@ def main() -> int:
     if "__XEMS_CARD_DATA__" not in ctext:
         raise SystemExit("client-card.html: no __XEMS_CARD_DATA__ placeholder")
     for key in ("female_front", "female_back", "male_front", "male_back"):
-        if f'id="fig-{key}">data:image/png;base64,' not in ctext:
-            raise SystemExit(f"client-card.html: figure {key} missing — run scripts/gen-card-figures.py")
+        if f'id="fig-{key}">data:image/webp;base64,' not in ctext or f'id="art-{key}">data:image/webp;base64,' not in ctext:
+            raise SystemExit(f"client-card.html: figure {key} missing — run scripts/gen-card-art.py")
     shutil.copy2(card, DEST.parent / "client-card.html")
     print(f"assets/report/client-card.html ({card.stat().st_size} B)")
     return 0

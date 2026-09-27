@@ -73,7 +73,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/ble-sim/run-hr-policy.sh` (33L, build:L137[BETA_MUSIC]) — Offline HR demand policy test (settings/dial/AI vs idle link). No device, no Android SDK.
 - `scripts/ble-sim/run-spp.sh` (17L) — Offline protocol test: real XiaomiBandSppClient (JVM, stubbed android.*) vs spp_band.py (Band 9/10 over SPP).
 - `scripts/ble-sim/run.sh` (15L) — Offline protocol test: real XiaomiBandBleClient (JVM, stubbed android.*) vs Python Band 8 simulator.
+- `scripts/ble-sim/snoop_decode.py` (306L) — Decode a Xiaomi Band 9/10 session (Bluetooth Classic / SPP) from an Android btsnoop_hci.log.
 - `scripts/ble-sim/spp_band.py` (391L) — Xiaomi Band 9/10 simulator over Bluetooth Classic (SPP) — written for the XEMS test, independent of the Java client. By…
+- `scripts/ble-sim/test_snoop_decode.py` (77L) — Offline test for snoop_decode.py: builds a btsnoop log (v2 auth + encrypted workout-like command, ACL split in two frag…
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L68[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-channel-scale-java.sh` (57L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L99[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.

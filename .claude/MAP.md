@@ -295,16 +295,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 ## server (Cloudflare Worker license server)
 - `server/src/admin.js` (603L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
-- `server/src/card.js` (69L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
+- `server/src/card.js` (75L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
-- `server/src/crypto.js` (88L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
+- `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/index.js` (663L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (665L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (22L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/utils.js` (83L) — Shared helpers for license server (testable, no Worker bindings).
-- `server/test/card.test.js` (73L) — 
+- `server/test/card.test.js` (79L) — 
 - `server/test/catalog.test.js` (29L) — 
+- `server/test/crypto-verify.test.js` (24L) — 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
 - `server/test/ems.test.js` (15L) — 
 - `server/test/plans.test.js` (30L) — 

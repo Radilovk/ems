@@ -50,6 +50,8 @@ export function keepFigure(template, sex) {
   return i >= 0 && j > i ? template.slice(0, i) + template.slice(j + b.length) : template;
 }
 
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
 /** The page: the card template with the data embedded (never able to close its script tag). */
 export function renderCard(template, data) {
   template = keepFigure(template, data && data.sex);
@@ -57,7 +59,11 @@ export function renderCard(template, data) {
   const lang = data && data.lang === 'en' ? 'en' : 'bg';
   return '<!doctype html><html lang="' + lang + '"><head><meta charset="utf-8">'
     + '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
-    + '<meta property="og:title" content="XEMS">'
+    + '<meta property="og:title" content="' + esc((data && data.name ? data.name + ' · ' : '') + 'XEMS') + '">'
+    + '<meta property="og:description" content="' + esc(lang === 'en'
+      ? `${data.n} trainings · ${Math.round((data.sec || 0) / 360) / 10} h · ${data.kcal} kcal`
+      : `${data.n} тренировки · ${Math.round((data.sec || 0) / 360) / 10} ч · ${data.kcal} kcal`) + '">'
+    + '<meta name="theme-color" content="#07080C">'
     + '</head><body>' + template.replace(CARD_PLACEHOLDER, () => json) + '</body></html>';
 }
 

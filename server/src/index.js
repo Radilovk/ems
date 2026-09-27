@@ -1,4 +1,4 @@
-import { signToken, sha256Hex } from './crypto.js';
+import { signToken, sha256Hex, verifyToken } from './crypto.js';
 import { resolveEntitlements, PLANS } from './plans.js';
 import { catalogSummary, filterMods, filterFeat } from './catalog.js';
 import {
@@ -165,6 +165,8 @@ async function handleCardPut(request, env) {
   const tokenBody = parseTokenBody(body.token);
   const licId = tokenBody?.lic;
   if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  // a card is public: only a token this server signed may create or change one
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
   const clientKey = normClientKey(body.client_key);
   if (!clientKey) return err('bad_request', 'client_key');
   const bad = validCardData(body.data);

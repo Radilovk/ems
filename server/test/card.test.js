@@ -59,6 +59,12 @@ describe('renderCard', () => {
     const html = renderCard(`<script>${CARD_PLACEHOLDER}</script>`, d);
     assert.equal(html.split('</script>').length, 2);
   });
+  it('gives link previews the first name and totals, escaped', () => {
+    const d = ok(); d.name = 'Ана"<x>';
+    const html = renderCard(CARD_PLACEHOLDER, d);
+    assert.ok(html.includes('og:title" content="Ана&quot;&lt;x> · XEMS"'));
+    assert.ok(html.includes('22 тренировки'));
+  });
   it('does not expand $ patterns from the data', () => {
     const d = ok(); d.name = "$&$'";
     assert.ok(renderCard(CARD_PLACEHOLDER, d).includes("$&$'"));

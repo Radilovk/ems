@@ -915,7 +915,7 @@ function cardData(){
   const W=Array(104).fill(0);all.forEach(s=>{const k=wk(s.date);if(k<104)W[k]++;});
   let st=0;for(let k=W[0]?0:1;k<104&&W[k];k++)st++;
   const tail=all.slice(-24),last=all[n-1];
-  return{v:1,lang:LANG,name:(CLIENT.name||"").trim().split(/\s+/)[0]||tr("Клиент","Client"),goal:CLIENT.goal||"",studio:"",gen:Date.now(),since:all[0].date.getTime(),
+  return{v:1,lang:LANG,sex:CLIENT.sex==="M"?"M":"F",name:(CLIENT.name||"").trim().split(/\s+/)[0]||tr("Клиент","Client"),goal:CLIENT.goal||"",studio:"",gen:Date.now(),since:all[0].date.getTime(),
     n,sec:T,act,kcal:Math.round(kcal),contr,weeks:W.slice(0,12).reverse(),streak:st,
     eff:tail.map(s=>[s.date.getTime(),s.a.eff]),ma:tail.map(s=>s.a.maMax),rec:tail.map(s=>s.sim.recDrop!=null?s.sim.recDrop:null),
     mus:dose.map(v=>+(v/mx).toFixed(3)),musMin:sec.map(v=>Math.round(v/60)),

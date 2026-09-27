@@ -39,8 +39,17 @@ export function validCardData(d) {
   return null;
 }
 
+/** Only the client's figure (female unless the client is a man): the other one is ~400 KB. */
+export function keepFigure(template, sex) {
+  const drop = sex === 'M' ? 'female' : 'male';
+  const a = `<!--FIG:${drop}-->`, b = `<!--/FIG:${drop}-->`;
+  const i = template.indexOf(a), j = template.indexOf(b);
+  return i >= 0 && j > i ? template.slice(0, i) + template.slice(j + b.length) : template;
+}
+
 /** The page: the card template with the data embedded (never able to close its script tag). */
 export function renderCard(template, data) {
+  template = keepFigure(template, data && data.sex);
   const json = JSON.stringify(data).replace(/</g, '\\u003c');
   const lang = data && data.lang === 'en' ? 'en' : 'bg';
   return '<!doctype html><html lang="' + lang + '"><head><meta charset="utf-8">'

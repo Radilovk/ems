@@ -135,6 +135,11 @@ final class ReportBridge {
         }
         try {
             String tpl = asset("report/client-card.html");
+            String drop = json.contains("\"sex\":\"M\"") ? "female" : "male";   // only the client's figure
+            int fi = tpl.indexOf("<!--FIG:" + drop + "-->"), fj = tpl.indexOf("<!--/FIG:" + drop + "-->");
+            if (fi >= 0 && fj > fi) {
+                tpl = tpl.substring(0, fi) + tpl.substring(fj + ("<!--/FIG:" + drop + "-->").length());
+            }
             boolean en = "en".equals(lang());
             String html = "<!doctype html><html lang=\"" + (en ? "en" : "bg") + "\"><head><meta charset=\"utf-8\">"
                     + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">"

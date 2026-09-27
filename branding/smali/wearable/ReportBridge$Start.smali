@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 234
+    .line 239
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 235
+    .line 240
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Start;->a:Landroid/app/Activity;
 
-    .line 236
+    .line 241
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Start;->i:Landroid/content/Intent;
 
-    .line 237
+    .line 242
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 5
 
     .prologue
-    .line 242
+    .line 247
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Start;->a:Landroid/app/Activity;
 
@@ -57,15 +57,15 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 246
+    .line 251
     :goto_7
     return-void
 
-    .line 243
+    .line 248
     :catch_8
     move-exception v0
 
-    .line 244
+    .line 249
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;

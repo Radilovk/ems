@@ -29,6 +29,12 @@ def main() -> int:
     ctext = card.read_text(encoding="utf-8")
     if "__XEMS_CARD_DATA__" not in ctext:
         raise SystemExit("client-card.html: no __XEMS_CARD_DATA__ placeholder")
+    import re
+    idx = text[text.index("const IDX="):]
+    idx = idx[: idx.index("\n")]
+    for key, uri in re.findall(r'"(\w+)": "(data:image/png;base64,[^"]+)"', idx):
+        if f'id="fig-{key}">{uri}</script>' not in ctext:
+            raise SystemExit(f"client-card.html: figure {key} differs from session-report.html IDX")
     shutil.copy2(card, DEST.parent / "client-card.html")
     print(f"assets/report/client-card.html ({card.stat().st_size} B)")
     return 0

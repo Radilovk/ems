@@ -618,6 +618,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L606 ## 13. Референции
   - L623 ## 14. Changelog на документа
 
+`docs/xiaomi-band-native-workout.md` (63L)
+  - L1 # Native band workout started from the phone (Band 10)
+  - L11 ## Sequence Mi Fitness sends (type 8 = Health, over the v2 protobuf channel)
+  - L44 ## Sport types seen
+  - L51 ## Band behaviour
+  - L58 ## Open questions
+
 `docs/xiaomi-band10.md` (280L)
   - L1 # Xiaomi Smart Band 9 / 10 — връзка през класически Bluetooth (v1.1.65)
   - L5 ## Защо е нужен втори път

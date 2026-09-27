@@ -271,7 +271,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/src/pages/index/index.ux` (564L) — home: one vertical scroll — heart rate, then a big card per module (Start first).
 - `band-app/src/pages/music/index.ux` (451L) — band screen: music remote — play/pause, prev/next, impulse ceiling
 - `band-app/src/pages/pulse/index.ux` (430L) — band screen: heart rate, auto control on/off, last 3 minutes chart
-- `band-app/src/pages/summary/index.ux` (481L) — band screen: session summary after training
+- `band-app/src/pages/summary/index.ux` (485L) — band screen: session summary after training
 - `band-app/src/pages/timer/index.ux` (370L) — band screen: interval timer remote
 - `band-app/src/pages/train/index.ux` (1213L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
 - `band-app/test/app-screen.test.mjs` (29L) — Verifies screen wake policy: no setKeepScreenOn during training.

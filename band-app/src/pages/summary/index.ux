@@ -61,22 +61,26 @@ import { ZONE, hms, swipe, dots } from '../../common/ui.js'
 import { BODY } from '../../common/body-map.js'
 
 // Muscle load colour: the same scale as the tablet report and the client card.
-const STOPS = [[0, [0, 229, 255]], [0.3, [61, 123, 255]], [0.55, [139, 92, 255]], [0.78, [224, 60, 255]], [1, [255, 45, 122]]]
+// One gamut per figure (warm magenta for a woman, cool cyan for a man), as the tablet report.
+const STOPS_F = [[0, [196, 120, 255]], [0.5, [226, 64, 251]], [1, [255, 45, 149]]]
+const STOPS_M = [[0, [125, 150, 255]], [0.5, [61, 165, 255]], [1, [0, 229, 255]]]
+const BODY_GREY = [66, 71, 88]      // the figure's graphite: a lightly loaded muscle leans toward it
 const MUSCLE = ['Гърди', 'Корем', 'Предно бедро', 'Прасци', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 // both sexes listed so the image budget check sees them
 const STENCILS = ['/common/body/f-front.png', '/common/body/f-back.png', '/common/body/m-front.png', '/common/body/m-back.png']
 
-function heat(v) {
+function heat(v, STOPS) {
   v = Math.max(0, Math.min(1, (v - 0.45) / 0.55))   // loads sit between ~45 and 100 %
+  const op = 0.4 + 0.6 * v                          // less load → closer to the body
   for (let i = 1; i < STOPS.length; i++) {
     if (v <= STOPS[i][0]) {
       const a = STOPS[i - 1]
       const b = STOPS[i]
       const k = (v - a[0]) / (b[0] - a[0])
-      return '#' + a[1].map((x, j) => ('0' + Math.round(x + (b[1][j] - x) * k).toString(16)).slice(-2)).join('')
+      return '#' + a[1].map((x, j) => ('0' + Math.round((x + (b[1][j] - x) * k) * op + BODY_GREY[j] * (1 - op)).toString(16)).slice(-2)).join('')
     }
   }
-  return '#ff2d7a'
+  return '#' + STOPS[STOPS.length - 1][1].map((x) => ('0' + x.toString(16)).slice(-2)).join('')
 }
 
 function boxes(key, col) {
@@ -134,7 +138,7 @@ export default {
     if (mus && mus.length === 10 && Math.max(...mus) > 0) {
       const mx = Math.max(...mus)
       const lv = mus.map((v) => v / mx)
-      const col = lv.map(heat)
+      const col = lv.map((v) => heat(v, s.sex === 'M' ? STOPS_M : STOPS_F))
       this.sexK = s.sex === 'M' ? 'm' : 'f'
       this.figH = BODY.views[this.sexK + '-front'].h
       this.front = boxes(this.sexK + '-front', col)

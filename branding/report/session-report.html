@@ -80,9 +80,9 @@ h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
 .stat{background:var(--surface);border-radius:10px;padding:10px}
 .stat .num{font-size:22px;line-height:1.1}
 .stat .eyebrow{font-size:10px}
-.cal{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
-.cal i{aspect-ratio:1;border-radius:3px;background:var(--surface);display:block}
-.cal-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--hint);margin-top:6px}
+.stat .sub{font-size:10px;color:var(--hint);margin-top:2px}
+.mini{display:grid;gap:6px}
+.mini-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px}
 .list{display:grid;gap:8px;max-height:560px;overflow:auto;padding:4px;margin:-4px}
 .sess{all:unset;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;border:1px solid transparent;background:var(--surface)}
 .sess:hover{border-color:var(--stroke)}
@@ -132,11 +132,16 @@ h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
 .factor .lbl small{display:block;color:var(--hint);font-size:11px}
 .bar{height:10px;border-radius:5px;background:var(--surface);overflow:hidden;position:relative}
 .bar i{position:absolute;inset:0 auto 0 0;border-radius:5px}
-.verdict{margin-top:6px;padding:12px 14px;background:var(--surface);border-radius:10px;font-size:13px;color:var(--muted)}
+.verdict{font-size:15px;line-height:1.5;color:var(--muted)}
+.verdict .lead{display:block;font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
 .verdict b{color:var(--text);font-weight:500}
-.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#report[data-view="short"] .full-only{display:none!important}
+.full-sep{display:flex;align-items:center;gap:12px;color:var(--hint);font:500 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+.full-sep::before,.full-sep::after{content:"";flex:1;height:1px;background:var(--stroke)}
+.hero-txt{display:grid;gap:16px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 @media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.kpi{padding:14px 16px}
+.kpi{padding:12px 14px;background:var(--surface);border-radius:12px}
 .kpi .num{font-size:30px;line-height:1.05;display:block;margin-top:6px}
 .kpi .num small{font-size:15px;color:var(--muted);font-weight:500}
 .kpi .sub{font-size:12px;color:var(--hint);margin-top:2px}
@@ -170,7 +175,7 @@ svg text{font-family:var(--f-body)}
 .body-wrap{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:24px;align-items:center}
 @media (max-width:760px){.body-wrap{grid-template-columns:1fr}}
 .figs{position:relative;display:flex;justify-content:center;gap:20px;background:radial-gradient(ellipse 60% 55% at 50% 42%,var(--surface),transparent 75%);border-radius:14px;padding-block:12px}
-.figs figure{margin:0;display:grid;justify-items:center;gap:6px;flex:1;max-width:300px}
+.figs figure{margin:0;display:grid;justify-items:center;gap:6px;flex:1;max-width:230px}
 .figs canvas{width:100%;height:auto;cursor:pointer;touch-action:none}
 .figs figcaption{font-size:11px;color:var(--hint);letter-spacing:.08em;text-transform:uppercase}
 .ch{cursor:pointer}
@@ -210,14 +215,17 @@ details[open] summary::before{transform:rotate(45deg)}
         </div>
       </div>
       <div class="stats">
-        <div class="stat"><div class="eyebrow">Сесии</div><div class="num" id="sCount">0</div></div>
-        <div class="stat"><div class="eyebrow">Ефективност</div><div class="num" id="sEff">0</div></div>
-        <div class="stat"><div class="eyebrow">Общо</div><div class="num" id="sTime">0</div></div>
+        <div class="stat"><div class="eyebrow">Тренировки</div><div class="num" id="sCount">0</div></div>
+        <div class="stat"><div class="eyebrow">Ефективност</div><div class="num" id="sEff">0</div><div class="sub">последните 4</div></div>
+        <div class="stat"><div class="eyebrow">Време</div><div class="num" id="sTime">0</div></div>
       </div>
-      <div>
-        <div class="eyebrow" style="margin-bottom:8px">Последни 12 седмици</div>
-        <div class="cal" id="cal" role="img" aria-label="Календар на посещенията"></div>
-        <div class="cal-legend" id="calLeg"></div>
+      <div class="mini">
+        <div class="mini-h"><span class="eyebrow">Прогрес</span><span class="hint" id="trendTxt"></span></div>
+        <svg id="trend" viewBox="0 0 300 84" width="100%" role="img" aria-label="Ефективност по тренировки"></svg>
+      </div>
+      <div class="mini">
+        <div class="mini-h"><span class="eyebrow">Редовност</span><span class="hint" id="regTxt"></span></div>
+        <svg id="weeks" viewBox="0 0 300 40" width="100%" role="img" aria-label="Тренировки по седмици"></svg>
       </div>
     </section>
     <section class="card pad" aria-label="История">
@@ -226,7 +234,7 @@ details[open] summary::before{transform:rotate(45deg)}
     </section>
   </aside>
 
-  <main class="report" id="report">
+  <main class="report" id="report" data-view="short">
     <section class="card pad empty" id="empty" hidden>
       <h2 style="font-size:22px">Още няма записани тренировки</h2>
       <p class="muted" style="max-width:60ch">Всяка тренировка на този клиент над 1 минута се записва секунда по секунда: сила по зони, честота, импулс и пауза, пулс от гривната. Докладът се появява тук веднага след края.</p>
@@ -247,12 +255,12 @@ details[open] summary::before{transform:rotate(45deg)}
       <div>
         <div class="eyebrow" id="rWhen"></div>
         <h1 id="rTitle"></h1>
-        <div class="row" style="margin-top:10px" id="rChips"></div>
+        <div class="row full-only" style="margin-top:10px" id="rChips"></div>
       </div>
       <div class="row">
-        <div class="seg" role="group" aria-label="Сравнение">
-          <button type="button" id="cmpOff" aria-pressed="true">Само тази</button>
-          <button type="button" id="cmpOn" aria-pressed="false">Спрямо предишната</button>
+        <div class="seg" role="group" aria-label="Изглед">
+          <button type="button" id="vShort" aria-pressed="true">Кратък</button>
+          <button type="button" id="vFull" aria-pressed="false">Пълен</button>
         </div>
         <button type="button" class="ghost share" id="shareBtn" aria-haspopup="true">Сподели</button>
         <button type="button" class="ghost" id="delBtn">Изтрий</button>
@@ -266,19 +274,26 @@ details[open] summary::before{transform:rotate(45deg)}
           <svg viewBox="0 0 240 240" width="240" height="240" aria-hidden="true" id="ring" style="overflow:visible"></svg>
           <div class="center"><div><div class="eyebrow">Ефективност</div><div class="big" id="rEff">0<small>%</small></div><div class="delta" id="rEffD"></div></div></div>
         </div>
-        <div>
-          <div class="factors" id="factors"></div>
+        <div class="hero-txt">
           <div class="verdict" id="verdict"></div>
+          <div class="factors" id="factors"></div>
         </div>
       </div>
     </section>
 
-    <section class="kpis" id="kpis"></section>
+    <section class="card pad">
+      <div class="sec-h"><h3>Основни показатели</h3>
+        <div class="seg" role="group" aria-label="Сравнение">
+          <button type="button" id="cmpOff" aria-pressed="true">Само тази</button>
+          <button type="button" id="cmpOn" aria-pressed="false">Спрямо предишната</button>
+        </div></div>
+      <div class="kpis" id="kpis"></div>
+    </section>
 
     <section class="card pad">
       <div class="sec-h">
-        <div><h3>Карта на интензитета</h3><div class="hint" style="font-size:12px">Интензитет = стимул × пулс, всяка секунда. Плъзнете по графиката за подробности.</div></div>
-        <div class="seg" role="group" aria-label="Слоеве">
+        <div><h3>Ход на тренировката</h3><div class="hint" style="font-size:12px">Горе — колко силно работи тялото, долу — пулсът. Щрихованото е пауза. Докоснете графиката за подробности.</div></div>
+        <div class="seg full-only" role="group" aria-label="Слоеве">
           <button type="button" data-layer="hr" aria-pressed="true">Пулс</button>
           <button type="button" data-layer="stim" aria-pressed="true">Стимул</button>
           <button type="button" data-layer="ma" aria-pressed="false">Сила mA</button>
@@ -297,13 +312,7 @@ details[open] summary::before{transform:rotate(45deg)}
     </section>
 
     <section class="card pad">
-        <div class="sec-h"><div><h3>Режими на тялото</h3><div class="hint" style="font-size:12px" id="modesHint"></div></div></div>
-        <div class="modes-wrap"><div class="chart-box"><svg id="mmap" viewBox="0 0 420 300" width="100%" role="img" aria-label="Карта на режимите"></svg><div class="tip" id="tip2" hidden></div></div>
-        <div class="modes-list" id="modes"></div></div>
-      </section>
-
-    <section class="card pad">
-      <div class="sec-h"><div><h3>Мускулна карта</h3><div class="hint" style="font-size:12px">Доза стимул по зони на костюма: сила × време × маса на мускула. Докоснете зона.</div></div>
+      <div class="sec-h"><div><h3>Натоварени мускули</h3><div class="hint" style="font-size:12px">Колко работи всяка зона на костюма: сила × време × маса на мускула. Докоснете зона.</div></div>
         <div class="seg" role="group" aria-label="Фигура"><button type="button" id="sxF" aria-pressed="true">Жена</button><button type="button" id="sxM" aria-pressed="false">Мъж</button></div></div>
       <div class="body-wrap">
         <div class="figs"><figure><canvas id="bodyF" aria-label="Отпред"></canvas><figcaption>Отпред</figcaption></figure><figure><canvas id="bodyB" aria-label="Отзад"></canvas><figcaption>Отзад</figcaption></figure><div class="tip" id="tip3" hidden></div></div>
@@ -314,19 +323,20 @@ details[open] summary::before{transform:rotate(45deg)}
       </div>
     </section>
 
-    <div class="two">
-      <section class="card pad">
-        <div class="sec-h"><h3>Параметри по фази</h3></div>
-        <div class="tbl"><table id="phaseTbl"></table></div>
-      </section>
-      <section class="card pad">
-        <div class="sec-h"><div><h3>Прогрес</h3><div class="hint" style="font-size:12px">Ефективност и натоварване по сесии</div></div></div>
-        <svg id="trend" viewBox="0 0 520 230" width="100%" role="img" aria-label="Прогрес по сесии"></svg>
-        <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Ефективност %</span><span><i class="sw" style="background:var(--stim)"></i>Натоварване, точки</span></div>
-      </section>
-    </div>
+    <div class="full-sep full-only"><span>Подробно</span></div>
 
-    <section class="card pad">
+    <section class="card pad full-only">
+        <div class="sec-h"><div><h3>Режими на тялото</h3><div class="hint" style="font-size:12px" id="modesHint"></div></div></div>
+        <div class="modes-wrap"><div class="chart-box"><svg id="mmap" viewBox="0 0 420 300" width="100%" role="img" aria-label="Карта на режимите"></svg><div class="tip" id="tip2" hidden></div></div>
+        <div class="modes-list" id="modes"></div></div>
+      </section>
+
+    <section class="card pad full-only">
+      <div class="sec-h"><div><h3>Параметри по фази</h3><div class="hint" style="font-size:12px">Настройките на костюма във всяка фаза и какво са дали.</div></div></div>
+      <div class="tbl"><table id="phaseTbl"></table></div>
+    </section>
+
+    <section class="card pad full-only">
       <div class="mi" id="miBox">
         <div class="badge">Mi</div>
         <div style="flex:1;min-width:220px">
@@ -369,6 +379,7 @@ function rng(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return
 
 /* ---------------- static text in English ---------------- */
 const STATIC_EN={"Сесии": "Sessions", "Ефективност": "Efficiency", "Общо": "Total", "Последни 12 седмици": "Last 12 weeks", "История": "History", "примерни данни": "sample data", "Още няма записани тренировки": "No recorded trainings yet", "Всяка тренировка на този клиент над 1 минута се записва секунда по секунда: сила по зони, честота, импулс и пауза, пулс от гривната. Докладът се появява тук веднага след края.": "Every training of this client longer than 1 minute is recorded second by second: strength per zone, frequency, impulse and pause, heart rate from the band. The report appears here right after the end.", "Покажи пример": "Show an example", "Сподели доклада": "Share the report", "Картина": "Image", "Viber, WhatsApp, Messenger, Instagram, Facebook, имейл": "Viber, WhatsApp, Messenger, Instagram, Facebook, e-mail", "PDF на целия доклад": "PDF of the whole report", "Печат или „Запази като PDF“, после имейл": "Print or “Save as PDF”, then e-mail", "Кратко съобщение": "Short message", "Текст с резултатите, за чат или SMS": "Text with the results, for chat or SMS", "Експорт към други програми": "Export to other apps", "TCX тренировка": "TCX workout", "CSV по секунди": "CSV per second", "CSV история на клиента": "CSV client history", "Всички тренировки, по един ред": "All trainings, one row each", "Само тази": "This one only", "Спрямо предишната": "Vs. previous", "Сподели": "Share", "Изтрий": "Delete", "Карта на интензитета": "Intensity map", "Интензитет = стимул × пулс, всяка секунда. Плъзнете по графиката за подробности.": "Intensity = stimulus × heart rate, every second. Drag across the chart for details.", "Пулс": "Heart rate", "Стимул": "Stimulus", "Сила mA": "Strength mA", "Интензитет 0–100 %": "Intensity 0–100 %", "Пулс, уд/мин": "Heart rate, bpm", "Стимул, % от поносимото": "Stimulus, % of tolerated", "Пауза": "Pause", "Режими на тялото": "Body modes", "Мускулна карта": "Muscle map", "Доза стимул по зони на костюма: сила × време × маса на мускула. Докоснете зона.": "Stimulus dose per suit zone: strength × time × muscle mass. Tap a zone.", "Жена": "Female", "Мъж": "Male", "Отпред": "Front", "Отзад": "Back", "ниска → висока доза": "low → high dose", "Параметри по фази": "Parameters by phase", "Прогрес": "Progress", "Ефективност и натоварване по сесии": "Efficiency and load by session", "Ефективност %": "Efficiency %", "Натоварване, точки": "Load, points", "Как се смята ефективността": "How efficiency is calculated", "Всяка секунда се записват силата по канали, честотата, ширината на импулса, фазата (импулс или пауза) и пулсът от гривната.": "Every second XEMS records the strength per channel, frequency, pulse width, phase (impulse or pause) and the band heart rate.", "Стимул S": "Stimulus S", "= Σ (площ на мускула × сила ÷ поносимата сила на клиента × фактор на честотата × дял на импулса) ÷ Σ площ. От 0 до 1.": "= Σ (muscle area × strength ÷ the client’s tolerated strength × frequency factor × impulse share) ÷ Σ area. From 0 to 1.", "Пулс C": "Heart rate C", "= (пулс − пулс в покой) ÷ (макс. пулс − пулс в покой), резерв на сърдечната честота по Карвонен.": "= (HR − resting HR) ÷ (max HR − resting HR), Karvonen heart-rate reserve.", "Интензитет I": "Intensity I", "= 0,55·S + 0,45·C. Без гривна I = S.": "= 0.55·S + 0.45·C. Without a band I = S.", "Лична база k": "Personal base k", ": същият стимул е по-голямо натоварване за начинаещ, за по-тежък или по-възрастен човек, затова целите му са по-ниски. Форма: начинаещ ×0,75, среден ×1, напреднал ×1,2. ИТМ над 25: до ×0,78. Възраст над 30: до ×0,78. Жена ×0,95. Първите 4 сесии (адаптация): ×0,85…1. Целевата зона по стимул и дозата се умножават по k, зоната по пулс се мести с (k−1)·30 %. Максималният пулс е по пол: 208 − 0,7·възраст (мъже), 206 − 0,88·възраст (жени).": ": the same stimulus is a bigger load for a beginner or a heavier or older person, so their targets are lower. Fitness: beginner ×0.75, intermediate ×1, advanced ×1.2. BMI over 25: down to ×0.78. Age over 30: down to ×0.78. Female ×0.95. First 4 sessions (adaptation): ×0.85…1. The stimulus zone and the dose are multiplied by k, the heart-rate zone moves by (k−1)·30 %. Max HR by sex: 208 − 0.7·age (men), 206 − 0.88·age (women).", "(доза над 140 % от личната цел сваля оценката) = 40 % време в целевата зона + 30 % доза стимул спрямо целта + 15 % плътност (импулсно време без непланирани паузи) + 15 % прогрес спрямо последните 3 сесии.": "(a dose over 140 % of the personal target lowers the score) = 40 % time in the target zone + 30 % stimulus dose vs. target + 15 % density (impulse time without unplanned pauses) + 15 % progress vs. the last 3 sessions.", "Натоварване": "Load", "= ∫ I dt в минути. Сравнимо между сесии и клиенти, по подобие на TRIMP.": "= ∫ I dt in minutes. Comparable across sessions and clients, like TRIMP.", "Калориите са от модела на XEMS (кислородна консумация по пулс и по активирана мускулна маса). Това е оценка, не лабораторно измерване.": "Calories come from the XEMS model (oxygen uptake from heart rate and activated muscle mass). It is an estimate, not a lab measurement.", "Клиент": "Client", "Календар на посещенията": "Visit calendar", "Затвори": "Close", "Сподели и експорт": "Share and export", "Сравнение": "Comparison", "Слоеве": "Layers", "Интензитет във времето": "Intensity over time", "Карта на режимите": "Mode map", "Фигура": "Figure", "Прогрес по сесии": "Progress by session"};
+Object.assign(STATIC_EN,{"Тренировки":"Trainings","последните 4":"last 4","Време":"Time","Прогрес":"Progress","Ефективност по тренировки":"Efficiency by training","Редовност":"Regularity","Тренировки по седмици":"Trainings per week","Изглед":"View","Кратък":"Short","Пълен":"Full","Основни показатели":"Key numbers","Ход на тренировката":"Training timeline","Горе — колко силно работи тялото, долу — пулсът. Щрихованото е пауза. Докоснете графиката за подробности.":"Top — how hard the body works, bottom — heart rate. Hatched is a pause. Tap the chart for details.","Натоварени мускули":"Muscles worked","Колко работи всяка зона на костюма: сила × време × маса на мускула. Докоснете зона.":"How much each suit zone worked: strength × time × muscle mass. Tap a zone.","Подробно":"In detail","Настройките на костюма във всяка фаза и какво са дали.":"The suit settings of each phase and what they gave."});
 if(LANG==="en"){document.documentElement.lang="en";
   const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);const nodes=[];while(w.nextNode())nodes.push(w.currentNode);
   nodes.forEach(n=>{const t=n.nodeValue.trim();if(t&&STATIC_EN[t])n.nodeValue=n.nodeValue.replace(t,STATIC_EN[t]);});
@@ -547,13 +558,19 @@ function renderStats(){
   $("#sCount").textContent=sessions.length;
   const last=sessions.slice(-4);$("#sEff").textContent=last.length?Math.round(last.reduce((a,s)=>a+s.a.eff,0)/last.length)+"%":"—";
   const hrs=sessions.reduce((a,s)=>a+s.sim.T,0)/3600;$("#sTime").textContent=(hrs<10?hrs.toFixed(1):Math.round(hrs))+tr(" ч"," h");
-  const cal=$("#cal");cal.innerHTML="";cal.style.gridAutoFlow="column";cal.style.gridTemplateRows="repeat(7,1fr)";cal.style.gridTemplateColumns="repeat(12,1fr)";
-  const today=new Date();today.setHours(0,0,0,0);const start=new Date(today);start.setDate(start.getDate()-83-((today.getDay()+6)%7)+6);
-  const months=[];
-  for(let d=0;d<84;d++){const dd=new Date(start);dd.setDate(start.getDate()+d);const hit=sessions.filter(s=>s.date.toDateString()===dd.toDateString());const i=document.createElement("i");
-    if(hit.length){const e=Math.max(...hit.map(h=>h.a.eff));i.style.background=effColor(e);i.title=dd.getDate()+" "+MON[dd.getMonth()]+" · "+e+"%";}
-    if(dd>today)i.style.opacity=".35";if(!months.includes(dd.getMonth()))months.push(dd.getMonth());cal.appendChild(i);}
-  $("#calLeg").innerHTML=months.slice(-3).map(m=>`<span>${MONL[m]}</span>`).join("");
+  // Regularity: trainings per week, last 12 weeks (Monday first), the current week last.
+  const svg=$("#weeks");svg.innerHTML="";const n=12,Wd=300,H=40,B=12,bw=Wd/n;
+  const today=new Date();today.setHours(0,0,0,0);const mon=new Date(today);mon.setDate(today.getDate()-(today.getDay()+6)%7);
+  const cnt=Array(n).fill(0);sessions.forEach(s=>{const days=Math.round((mon-new Date(s.date.getFullYear(),s.date.getMonth(),s.date.getDate()))/864e5);const w=days<=0?n-1:n-1-Math.ceil(days/7);if(w>=0)cnt[w]++;});
+  const mx=Math.max(3,...cnt);
+  cnt.forEach((c,i)=>{const h=c?Math.max(4,(H-B-4)*c/mx):2;el("rect",{x:i*bw+3,y:H-B-h,width:bw-6,height:h,rx:2,fill:c?css(i===n-1?"--accent":"--stim"):css("--elev"),opacity:c?(i===n-1?1:.75):1},svg);
+    if(c){const t=el("text",{x:i*bw+bw/2,y:H-B-h-2,"text-anchor":"middle","font-size":8,fill:css("--hint")},svg);t.textContent=c;}});
+  const lb=(x,txt,anc)=>{const t=el("text",{x,y:H-1,"text-anchor":anc,"font-size":9,fill:css("--hint")},svg);t.textContent=txt;};
+  const first=new Date(mon);first.setDate(mon.getDate()-7*(n-1));lb(2,first.getDate()+" "+MON[first.getMonth()],"start");lb(Wd-2,tr("тази седм.","this week"),"end");
+  const lastS=sessions.length?sessions[sessions.length-1].date:null;
+  const ago=lastS?Math.round((today-new Date(lastS.getFullYear(),lastS.getMonth(),lastS.getDate()))/864e5):null;
+  const per=cnt.slice(-4).reduce((q,v)=>q+v,0)/4;
+  $("#regTxt").textContent=lastS?(ago<=0?tr("последна днес","last today"):ago===1?tr("последна вчера","last yesterday"):tr("последна преди ","last ")+ago+tr(" дни"," days ago"))+" · "+per.toFixed(1).replace(".",LANG==="en"?".":",")+tr(" / седм."," / wk"):"";
 }
 function stripGradient(sim){const n=24,step=sim.T/n;const stops=[];for(let k=0;k<n;k++){const seg=sim.s.slice(Math.floor(k*step),Math.max(Math.floor(k*step)+1,Math.floor((k+1)*step)));const I=seg.reduce((a,p)=>a+p.I,0)/seg.length;stops.push(heat(I)+" "+(k/n*100).toFixed(1)+"%");}return"linear-gradient(90deg,"+stops.join(",")+")";}
 function miniRing(e){const r=16,c=2*Math.PI*r;return`<svg class="mini-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="${r}" fill="none" stroke="var(--elev)" stroke-width="4"/><circle cx="20" cy="20" r="${r}" fill="none" stroke="${effColor(e)}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-e/100)}" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)" font-family="Roboto Condensed">${e}</text></svg>`;}
@@ -592,19 +609,22 @@ function draw(){
   const best=a.modes.slice().sort((x,y)=>y.sec-x.sec)[0];
   const zoneTip=a.over>.4?`${tr("<b>Стимулът е над личната зона</b> ","<b>Stimulus above the personal zone</b> ")}${Math.round(a.over*100)}${tr(" % от времето: за този клиент силата може да се намали. "," % of the time: for this client the strength can be lowered. ")}`:a.under>.4?`${tr("<b>Стимулът е под личната зона</b> ","<b>Stimulus below the personal zone</b> ")}${Math.round(a.under*100)}${tr(" % от времето: силата може да се вдигне. "," % of the time: the strength can be raised. ")}`:"";
   const trend=cur===0?tr("Това е първата записана тренировка: прогресът се оценява от следващата.","This is the first recorded training: progress is scored from the next one."):a.P>=.7?tr("Натоварването расте спрямо последните сесии.","The load is rising vs. recent sessions."):a.P>=.5?tr("Натоварването е около средното от последните сесии.","The load is about the average of recent sessions."):tr("Натоварването е под средното от последните сесии: може да се вдигне силата в основната част.","The load is below the average of recent sessions: the strength in the main part can be raised.");
-  $("#verdict").innerHTML=`<b>${Math.round(a.T*100)}${tr(" %</b> от основната част е в зоната за "," %</b> of the main part is in the zone for ")}${GOAL.n}${tr(". Дозата стимул е <b>",". Stimulus dose is <b>")}${Math.round(a.D*100)}${tr(" %</b> от целта. Най-много време тялото е в режим <b>„"," %</b> of the target. Most of the time the body is in <b>“")}${best.n.toLowerCase()}“</b>. ${zoneTip}${trend}${s.sim.hasHr?"":tr(" <span class='nohr'>Без пулс: оценката е само по стимула.</span>"," <span class='nohr'>No heart rate: scored on the stimulus only.</span>")}${tr("<br><span class='nohr'>Целите са лични: ","<br><span class='nohr'>Targets are personal: ")}${a.persona.parts.length?a.persona.parts.map(x=>x[0]).join(", "):tr("стандартни (няма данни за форма, ръст, възраст)","standard (no fitness, height or age data)")} → ${Math.round(a.persona.k*100)}${tr(" % от стандартната доза и зона.</span>"," % of the standard dose and zone.</span>")}`;
+  const lead=a.eff>=80?tr("Много добра тренировка за целта „","A very good training for the goal “"):a.eff>=60?tr("Добра тренировка за целта „","A good training for the goal “"):tr("Слаба тренировка за целта „","A weak training for the goal “");
+  $("#verdict").innerHTML=`<span class="lead">${lead}${GOAL.n}${tr("“","”")}</span><b>${Math.round(a.T*100)}${tr(" %</b> от основната част е в зоната за "," %</b> of the main part is in the zone for ")}${GOAL.n}${tr(". Дозата стимул е <b>",". Stimulus dose is <b>")}${Math.round(a.D*100)}${tr(" %</b> от целта. Най-много време тялото е в режим <b>„"," %</b> of the target. Most of the time the body is in <b>“")}${best.n.toLowerCase()}“</b>. ${zoneTip}${trend}${s.sim.hasHr?"":tr(" <span class='nohr'>Без пулс: оценката е само по стимула.</span>"," <span class='nohr'>No heart rate: scored on the stimulus only.</span>")}${tr("<span class='nohr full-only' style='display:block;margin-top:6px'>Целите са лични: ","<span class='nohr full-only' style='display:block;margin-top:6px'>Targets are personal: ")}${a.persona.parts.length?a.persona.parts.map(x=>x[0]).join(", "):tr("стандартни (няма данни за форма, ръст, възраст)","standard (no fitness, height or age data)")} → ${Math.round(a.persona.k*100)}${tr(" % от стандартната доза и зона.</span>"," % of the standard dose and zone.</span>")}`;
   const d=(v,pv,unit,inv)=>{if(!compare||pv==null)return"";const x=v-pv;if(!Math.round(x))return`${tr("<span class=\"delta hint\">без промяна</span>","<span class=\"delta hint\">no change</span>")}`;const good=inv?x<0:x>0;return`<span class="delta ${good?"up":"down"}">${x>0?"▲":"▼"} ${Math.abs(Math.round(x))}${unit}</span>`;};
   const K=[
     [tr("Активно време","Active time"),mmss(a.act),"",`${tr("от ","of ")}${mmss(s.sim.T)}${tr(" общо"," total")}`,d(a.act/60,p&&p.act/60,tr(" мин"," min"))],
-    [tr("Паузи","Pauses"),s.sim.pauses.length,"",`${mmss(a.pauseS)}${tr(" общо"," total")}`,d(a.pauseS,p&&p.pauseS," s",true)],
     [tr("Калории","Calories"),a.kcal,"kcal",`≈ ${a.met.toFixed(1)}${tr(" MET · оценка XEMS"," MET · XEMS estimate")}`,d(a.kcal,p&&p.kcal," kcal")],
-    [tr("Натоварване","Load"),a.load,tr("т.","pts"),tr("∫ интензитет","∫ intensity"),d(a.load,p&&p.load,tr(" т."," pts"))],
     [tr("Пулс","Heart rate"),a.hrAvg||"—",a.hrMax?"/ "+a.hrMax:"",s.sim.hasHr?tr("среден / макс.","average / max"):tr("няма данни от гривна","no band data"),d(a.hrAvg,p&&p.hrAvg,tr(" уд"," bpm"))],
+    [tr("Натоварване","Load"),a.load,tr("т.","pts"),tr("∫ интензитет","∫ intensity"),d(a.load,p&&p.load,tr(" т."," pts"))]
+  ],K2=[
+    [tr("Паузи","Pauses"),s.sim.pauses.length,"",`${mmss(a.pauseS)}${tr(" общо"," total")}`,d(a.pauseS,p&&p.pauseS," s",true)],
     [tr("Възстановяване","Recovery"),s.sim.recDrop!=null?s.sim.recDrop:"—",s.sim.recDrop!=null?tr("уд","bpm"):"",tr("спад за 60 s след края","drop in 60 s after the end"),d(s.sim.recDrop||0,ps&&ps.sim.recDrop,tr(" уд"," bpm"))],
     [tr("Макс. сила","Max strength"),a.maMax,"%",tr("основна сила","main strength"),d(a.maMax,p&&p.maMax," %")],
     [tr("Импулсно време","Impulse time"),mmss(a.onSec),"",tr("мускулите реално работят","muscles actually working"),d(a.onSec/60,p&&p.onSec/60,tr(" мин"," min"))]
   ];
-  $("#kpis").innerHTML=K.map(k=>`<div class="card kpi"><div class="eyebrow">${k[0]}</div><span class="num">${k[1]} <small>${k[2]}</small></span><div class="sub">${k[3]} ${k[4]}</div></div>`).join("");
+  const tile=(k,cls)=>`<div class="kpi ${cls}"><div class="eyebrow">${k[0]}</div><span class="num">${k[1]} <small>${k[2]}</small></span><div class="sub">${k[3]} ${k[4]}</div></div>`;
+  $("#kpis").innerHTML=K.map(k=>tile(k,"")).join("")+K2.map(k=>tile(k,"full-only")).join("");
   drawImap();drawModes();drawBody();drawPhases();drawTrend();
   const band=(s.meta&&s.meta.band)||{};const mi=$("#miBox");
   if(band.owner){mi.hidden=false;
@@ -744,13 +764,19 @@ function drawPhases(){
   $("#phaseTbl").innerHTML=`${tr("<thead><tr><th>Фаза</th><th>Време</th><th>Hz · µs</th><th>Имп. / пауза</th><th>Стимул</th><th>Пулс</th></tr></thead><tbody>","<thead><tr><th>Phase</th><th>Time</th><th>Hz · µs</th><th>Imp. / pause</th><th>Stimulus</th><th>HR</th></tr></thead><tbody>")}`+a.phases.map(p=>`<tr><td>${p.id}</td><td>${mmss(p.dur)}</td><td>${p.hz} · ${p.us}</td><td>${p.off?p.on+"/"+p.off+" s":tr("постоянен","continuous")}</td><td><span class="dot" style="background:${heat(p.S)};margin-right:6px"></span>${Math.round(p.S*100)} %</td><td>${p.hr?p.hr+" / "+p.hrMax:"—"}</td></tr>`).join("")+"</tbody>";
 }
 function drawTrend(){
-  const svg=$("#trend");svg.innerHTML="";const L=34,R=14,T=14,B=26,Wd=520,H=230;const n=sessions.length;
-  const x=i=>n>1?L+(Wd-L-R)*i/(n-1):(L+Wd-R)/2;const ye=v=>T+(H-T-B)*(1-(clamp(v,0,100)-0)/100);const ml=Math.max(...sessions.map(s=>s.a.load))*1.1;const yl=v=>T+(H-T-B)*(1-v/ml);
-  [0,50,100].forEach(v=>{el("line",{x1:L,x2:Wd-R,y1:ye(v),y2:ye(v),stroke:css("--grid")},svg);const t=el("text",{x:L-6,y:ye(v)+4,"text-anchor":"end","font-size":10,fill:css("--hint")},svg);t.textContent=v;});
-  sessions.forEach((s,i)=>{el("rect",{x:x(i)-5,y:yl(s.a.load),width:10,height:H-B-yl(s.a.load),rx:3,fill:css("--stim"),opacity:i===cur?.9:.3},svg);});
-  let d="";sessions.forEach((s,i)=>d+=(i?"L":"M")+x(i)+","+ye(s.a.eff));el("path",{d,fill:"none",stroke:css("--accent"),"stroke-width":2.5,"stroke-linejoin":"round"},svg);
-  sessions.forEach((s,i)=>{const c=el("circle",{cx:x(i),cy:ye(s.a.eff),r:i===cur?6:3.5,fill:i===cur?css("--accent"):css("--card"),stroke:css("--accent"),"stroke-width":2},svg);c.style.cursor="pointer";c.addEventListener("click",()=>show(i));const t=document.createElementNS(NS,"title");t.textContent=s.date.getDate()+" "+MON[s.date.getMonth()]+": "+s.a.eff+" %, "+s.a.load+tr(" т."," pts");c.appendChild(t);});
-  [...new Set([0,Math.floor(n/2),n-1])].forEach(i=>{const t=el("text",{x:x(i),y:H-8,"text-anchor":"middle","font-size":10,fill:css("--hint")},svg);t.textContent=sessions[i].date.getDate()+" "+MON[sessions[i].date.getMonth()];});
+  // Efficiency of the last 12 trainings: the open one is the big dot; tap a dot to open it.
+  const svg=$("#trend");svg.innerHTML="";const all=sessions.length;const i0=Math.max(0,Math.min(all-12,cur-6));const list=sessions.slice(i0,i0+12);const n=list.length;
+  const L=22,R=10,T=10,B=14,Wd=300,H=84;
+  const lo=Math.max(0,Math.min(50,Math.floor((Math.min(...list.map(s=>s.a.eff))-8)/10)*10));
+  const x=i=>n>1?L+(Wd-L-R)*i/(n-1):(L+Wd-R)/2;const y=v=>T+(H-T-B)*(1-(clamp(v,lo,100)-lo)/(100-lo));
+  [[80,"--go"],[60,"--amber"]].filter(([v])=>v>lo).forEach(([v,c])=>{el("line",{x1:L,x2:Wd-R,y1:y(v),y2:y(v),stroke:css(c),"stroke-opacity":.35,"stroke-dasharray":"3 3"},svg);const t=el("text",{x:L-4,y:y(v)+3,"text-anchor":"end","font-size":9,fill:css("--hint")},svg);t.textContent=v;});
+  let d="";list.forEach((s,i)=>d+=(i?"L":"M")+x(i).toFixed(1)+","+y(s.a.eff).toFixed(1));el("path",{d,fill:"none",stroke:css("--muted"),"stroke-width":1.5,"stroke-linejoin":"round",opacity:.7},svg);
+  list.forEach((s,i)=>{const on=s.i===cur;const c=el("circle",{cx:x(i),cy:y(s.a.eff),r:on?5.5:3.5,fill:on?effColor(s.a.eff):css("--card"),stroke:effColor(s.a.eff),"stroke-width":2},svg);c.style.cursor="pointer";c.addEventListener("click",()=>show(s.i));
+    const t=document.createElementNS(NS,"title");t.textContent=s.date.getDate()+" "+MON[s.date.getMonth()]+": "+s.a.eff+" %";c.appendChild(t);
+    if(on){const tx=el("text",{x:clamp(x(i),L+8,Wd-R-8),y:Math.max(9,y(s.a.eff)-8),"text-anchor":"middle","font-size":10,"font-weight":700,fill:css("--text")},svg);tx.textContent=s.a.eff+"%";}});
+  if(n){const f=list[0].date,l=list[n-1].date;[[L,f,"start"],[Wd-R,l,"end"]].forEach(([X,dt,anc])=>{const t=el("text",{x:X,y:H-2,"text-anchor":anc,"font-size":9,fill:css("--hint")},svg);t.textContent=dt.getDate()+" "+MON[dt.getMonth()];});}
+  const prev=sessions.slice(Math.max(0,cur-4),cur);const avg=prev.length?prev.reduce((q,s)=>q+s.a.eff,0)/prev.length:null;const dv=avg==null?null:Math.round(sessions[cur].a.eff-avg);
+  $("#trendTxt").innerHTML=dv==null?"":`<span class="delta ${dv>=0?"up":"down"}">${dv>=0?"▲":"▼"} ${Math.abs(dv)}</span> ${tr("спрямо предните","vs. previous")} ${prev.length}`;
 }
 
 /* ---------------- share / export ---------------- */
@@ -850,6 +876,10 @@ document.querySelectorAll("[data-share]").forEach(b=>b.onclick=e=>{e.stopPropaga
 document.addEventListener("click",e=>{const sh=$("#sheet");if(!sh.hidden&&!sh.contains(e.target))sh.hidden=true;});
 
 /* ---------------- controls ---------------- */
+let VIEW="short";try{if(localStorage.getItem("xems.report.view")==="full")VIEW="full";}catch(e){}
+function setView(v){VIEW=v;$("#report").dataset.view=v;$("#vShort").setAttribute("aria-pressed",String(v==="short"));$("#vFull").setAttribute("aria-pressed",String(v==="full"));
+  try{localStorage.setItem("xems.report.view",v);}catch(e){}if(sessions.length&&v==="full"){drawModes();drawPhases();}}
+$("#vShort").onclick=()=>setView("short");$("#vFull").onclick=()=>setView("full");setView(VIEW);
 $("#cmpOff").onclick=()=>{compare=false;$("#cmpOff").setAttribute("aria-pressed","true");$("#cmpOn").setAttribute("aria-pressed","false");draw();};
 $("#cmpOn").onclick=()=>{compare=true;$("#cmpOn").setAttribute("aria-pressed","true");$("#cmpOff").setAttribute("aria-pressed","false");draw();};
 document.querySelectorAll("[data-layer]").forEach(b=>b.onclick=()=>{const k=b.dataset.layer;layers[k]=!layers[k];b.setAttribute("aria-pressed",String(layers[k]));drawImap();});

@@ -13,7 +13,7 @@ Every zone is cleaned the same way: whiskers opened away, holes filled, crumbs d
 smoothed at sub-pixel level. The art keeps the whole body; zone pixels and the coloured glow
 around them turn to the body's graphite, the zones keep their painted light for the card.
 
-Writes into branding/report/client-card.html, per view (<sex>_<side>):
+Writes into branding/report/client-card.html and session-report.html, per view (<sex>_<side>):
   art-…  WebP with alpha: the neutral figure
   fig-…  lossless WebP map: R = zone + 1 (0 = none), G = the zone's light (32 levels),
          B = zone coverage (soft edge)
@@ -33,6 +33,7 @@ from scipy import ndimage
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "branding" / "report" / "figures"
 CARD = ROOT / "branding" / "report" / "client-card.html"
+REPORT = ROOT / "branding" / "report" / "session-report.html"
 
 CHEST, ABS, QUADS, CALVES, ARMS, TRAPS, BACK, LOWBACK, GLUTES, HAMS = range(10)
 
@@ -228,11 +229,13 @@ def main() -> int:
             print(f"{key}: {art.size} art {len(a) // 1024} KB, map {len(m) // 1024} KB"
                   + (" (layers)" if layers is not None else ""))
         blocks += f"<!--/FIG:{sex}-->\n"
-    card = CARD.read_text(encoding="utf-8")
-    i = card.index("<!--FIG:female-->")
-    j = card.index("<!--/FIG:male-->") + len("<!--/FIG:male-->\n")
-    CARD.write_text(card[:i] + blocks + card[j:], encoding="utf-8")
-    print(f"{CARD.relative_to(ROOT)} updated")
+    for page in (CARD, REPORT):                 # the client card and the tablet report share them
+        html = page.read_text(encoding="utf-8")
+        i = html.index("<!--FIG:female-->")
+        j = html.index("<!--/FIG:male-->") + len("<!--/FIG:male-->")
+        tail = "\n" if html[j:j + 1] == "\n" else ""
+        page.write_text(html[:i] + blocks.rstrip("\n") + tail + html[j + len(tail):], encoding="utf-8")
+        print(f"{page.relative_to(ROOT)} updated")
     return 0
 
 

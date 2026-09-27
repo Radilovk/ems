@@ -32,6 +32,15 @@ describe('validCardData', () => {
     const d = ok(); d.mus = [1];
     assert.equal(validCardData(d), 'mus');
   });
+  it('accepts the period views', () => {
+    const d = ok(); d.p30 = { n: 3, sec: 1, kcal: 1, mus: Array(10).fill(0.5), eff: [[1, 70]] };
+    d.last.mus = Array(10).fill(0.4);
+    assert.equal(validCardData(d), null);
+  });
+  it('rejects a broken 30-day view', () => {
+    const d = ok(); d.p30 = { n: 3, mus: [1] };
+    assert.equal(validCardData(d), 'p30');
+  });
   it('rejects non-numbers', () => {
     const d = ok(); d.kcal = '9';
     assert.equal(validCardData(d), 'kcal');

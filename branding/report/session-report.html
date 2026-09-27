@@ -338,7 +338,7 @@ details[open] summary::before{transform:rotate(45deg)}
         <div class="figs"><figure><canvas id="bodyF" aria-label="Отпред"></canvas><figcaption>Отпред</figcaption></figure><figure><canvas id="bodyB" aria-label="Отзад"></canvas><figcaption>Отзад</figcaption></figure><div class="tip" id="tip3" hidden></div></div>
         <div>
           <div class="ch-list" id="chList"></div>
-          <div class="legend" style="margin-top:14px"><span><i class="sw" style="width:120px;height:8px;background:linear-gradient(90deg,var(--h1) 0 20%,var(--h2) 20% 40%,var(--h3) 40% 60%,var(--h4) 60% 80%,var(--h5) 80%)"></i></span><span>ниска → висока доза</span></div>
+          <div class="legend" style="margin-top:14px"><span><i class="sw" style="width:120px;height:8px;background:linear-gradient(90deg,#7C5CFF,#22D3EE 30%,#A3E635 55%,#FBBF24 78%,#FF3D6E)"></i></span><span>ниска → висока доза</span></div>
         </div>
       </div>
     </section>
@@ -602,6 +602,9 @@ function renderList(sel){const L=$("#list");L.innerHTML="";[...sessions].reverse
 
 /* ---------------- colour scale ---------------- */
 function hex2rgb(h){h=h.replace("#","");return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+// Muscle load colour — the same continuous scale as the client card (violet → cyan → lime → amber → pink).
+const MSTOPS=[[0,[124,92,255]],[.3,[34,211,238]],[.55,[163,230,53]],[.78,[251,191,36]],[1,[255,61,110]]];
+function mheat(v){v=clamp(v,0,1);for(let i=1;i<MSTOPS.length;i++)if(v<=MSTOPS[i][0]){const a=MSTOPS[i-1],b=MSTOPS[i],k=(v-a[0])/(b[0]-a[0]);return`rgb(${a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k)).join(",")})`;}return"rgb(255,61,110)";}
 function heat(v){const st=["--h1","--h2","--h3","--h4","--h5"];const k=Math.min(4,Math.floor(clamp(v,0,1)*5));return `rgb(${hex2rgb(css(st[k])).join(",")})`;}
 
 /* ---------------- report ---------------- */
@@ -763,7 +766,7 @@ function paintFig(canvas,key,lv,forceW,done){loadIdx(key,M=>{
   if(ck&&figCache[ck]){const c=figCache[ck];if(canvas.width!==c.width||canvas.height!==c.height){canvas.width=c.width;canvas.height=c.height;}const x=canvas.getContext("2d");x.clearRect(0,0,c.width,c.height);x.drawImage(c,0,0);canvas._ck=ck;canvas._map={M};if(done)done(canvas);return;}
   const dpr=forceW?1:Math.min(3,window.devicePixelRatio||1);const cw=forceW||canvas.clientWidth||200;const W=Math.round(cw*dpr),H=Math.round(W*M.h/M.w);
   // muscles: the painted light in the zone's colour (dark → black, 0.5 → the colour, bright → white)
-  const cols=CH.map((c,i)=>hex2rgb2(heat(clamp((lv(i)-.3)/.7,0,1))));
+  const cols=CH.map((c,i)=>hex2rgb2(mheat(lv(i))));
   const mc=document.createElement("canvas");mc.width=M.w;mc.height=M.h;const mx=mc.getContext("2d");const im=mx.createImageData(M.w,M.h),o=im.data,D=M.d;
   for(let p=0;p<D.length;p+=4){const z=D[p]-1;if(z<0||z>9||(dim&&z!==focus))continue;const c=cols[z],l=D[p+1]/255;
     for(let k=0;k<3;k++)o[p+k]=l<.5?c[k]*2*l:c[k]+(255-c[k])*(2*l-1);o[p+3]=D[p+2];}
@@ -786,7 +789,7 @@ function drawBodyNow(){
   if(L.dataset.k===lk){L.querySelectorAll(".ch").forEach(r=>{const i=+r.dataset.i;r.classList.toggle("on",i===selCh||i===hovCh);});return;}
   L.dataset.k=lk;
   const order=CH.map((c,i)=>i).sort((x,y)=>lv(y)-lv(x));
-  L.innerHTML=order.map(i=>`<div class="ch${i===selCh||i===hovCh?" on":""}" data-i="${i}"><div>${CH[i][0]}<div class="bar"><i style="width:${(lv(i)*100).toFixed(0)}%;background:${heat(clamp((lv(i)-.3)/.7,0,1))}"></i></div></div><div class="mono" style="text-align:right">${Math.round(lv(i)*100)}%</div></div>`).join("");
+  L.innerHTML=order.map(i=>`<div class="ch${i===selCh||i===hovCh?" on":""}" data-i="${i}"><div>${CH[i][0]}<div class="bar"><i style="width:${(lv(i)*100).toFixed(0)}%;background:${mheat(lv(i))}"></i></div></div><div class="mono" style="text-align:right">${Math.round(lv(i)*100)}%</div></div>`).join("");
   document.querySelectorAll("#chList .ch").forEach(r=>{r.onclick=()=>{const i=+r.dataset.i;selCh=selCh===i?-1:i;drawBody();};r.onpointerenter=e=>{if(e.pointerType!=="mouse")return;const i=+r.dataset.i;if(hovCh!==i){hovCh=i;drawBody();}};r.onpointerleave=e=>{if(e.pointerType!=="mouse")return;if(hovCh!==-1){hovCh=-1;drawBody();}};});
 }
 function chAt(canvas,e){const m=canvas._map;if(!m)return -1;const r=canvas.getBoundingClientRect();const X=Math.floor((e.clientX-r.left)/r.width*m.M.w),Y=Math.floor((e.clientY-r.top)/r.height*m.M.h);if(X<0||Y<0||X>=m.M.w||Y>=m.M.h)return -1;const k=m.M.d[(Y*m.M.w+X)*4];return k>=1&&k<=10?k-1:-1;}
@@ -903,28 +906,32 @@ async function shareImage(){
   const my=1440;round(M-16,my,CW+32,400,28,P.card);
   const fh=360,fw=fh*f.width/f.height,bw=fh*b.width/b.height;x.drawImage(f,M+10,my+20,fw,fh);x.drawImage(b,M+10+fw+20,my+20,bw,fh);
   const lx=M+10+fw+bw+60,lw=Wc-M-lx;x.fillStyle=P.muted;x.font=F(500,26);x.fillText(tr("Най-натоварени мускули","Muscles worked most"),lx,my+60);
-  topZones(a,5).forEach((z,i)=>{const Y=my+110+i*58;x.fillStyle=P.text;x.font=F(500,28);x.fillText(z[0],lx,Y);round(lx,Y+14,lw,10,5,P.line);round(lx,Y+14,Math.max(10,lw*z[1]),10,5,heat(clamp((z[1]-.3)/.7,0,1)));});
+  topZones(a,5).forEach((z,i)=>{const Y=my+110+i*58;x.fillStyle=P.text;x.font=F(500,28);x.fillText(z[0],lx,Y);round(lx,Y+14,lw,10,5,P.line);round(lx,Y+14,Math.max(10,lw*z[1]),10,5,mheat(z[1]));});
   x.fillStyle=P.hint;x.font=F(400,20);x.fillText(tr("Ефективност, калории и натоварване са оценки по модела на XEMS.","Efficiency, calories and load are estimates from the XEMS model."),M,Hc-40);
   const data=c.toDataURL("image/png").split(",")[1];
   sendFile(`XEMS_${slug(CLIENT.name)}_${stamp(s.date)}.png`,"image/png",data,`XEMS · ${CLIENT.name||""}`,summaryText(s));
 }
 // The client's own card (branding/report/client-card.html): only totals and trends, no per-second data.
+// The client's web card (client-card.html): totals and trends only — three views: all time, the last
+// 30 days and the last training, each with its own muscle map. No per-second data, no body data.
 function cardData(){
-  const all=sessions,n=all.length,mass=CH.map(c=>c[1]);const dose=Array(10).fill(0),sec=Array(10).fill(0);let contr=0,T=0,act=0,kcal=0;
-  all.forEach(s=>{const a=s.a;T+=s.sim.T;act+=a.act;kcal+=a.kcal;a.chDose.forEach((v,i)=>dose[i]+=v/mass[i]);
-    let run=0;const flush=()=>{if(run){contr+=Math.max(1,Math.round(run/4));run=0;}};
+  const all=sessions,n=all.length,mass=CH.map(c=>c[1]);
+  const musOf=list=>{const d=Array(10).fill(0);list.forEach(s=>s.a.chDose.forEach((v,i)=>d[i]+=v/mass[i]));const mx=Math.max(...d)||1;return d.map(v=>+(v/mx).toFixed(3));};
+  const sum=(list,f)=>list.reduce((q,s)=>q+f(s),0);
+  let contr=0;const sec=Array(10).fill(0);
+  all.forEach(s=>{let run=0;const flush=()=>{if(run){contr+=Math.max(1,Math.round(run/4));run=0;}};
     s.sim.s.forEach(p=>{if(p.on&&!p.paused){run++;p.chs.forEach((v,i)=>{if(v>.02)sec[i]++;});}else flush();});flush();});
-  const mx=Math.max(...dose)||1;
   const today=new Date();today.setHours(0,0,0,0);const mon=new Date(today);mon.setDate(today.getDate()-(today.getDay()+6)%7);
   const wk=d=>{const days=Math.round((mon-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);return days<=0?0:Math.ceil(days/7);};
   const W=Array(104).fill(0);all.forEach(s=>{const k=wk(s.date);if(k<104)W[k]++;});
   let st=0;for(let k=W[0]?0:1;k<104&&W[k];k++)st++;
-  const tail=all.slice(-24),last=all[n-1];
+  const tail=all.slice(-24),last=all[n-1],m30=all.filter(s=>today-s.date<30*864e5);
   return{v:1,lang:LANG,sex:CLIENT.sex==="M"?"M":"F",name:(CLIENT.name||"").trim().split(/\s+/)[0]||tr("Клиент","Client"),goal:CLIENT.goal||"",studio:"",gen:Date.now(),since:all[0].date.getTime(),
-    n,sec:T,act,kcal:Math.round(kcal),contr,weeks:W.slice(0,12).reverse(),streak:st,
+    n,sec:sum(all,s=>s.sim.T),act:sum(all,s=>s.a.act),kcal:Math.round(sum(all,s=>s.a.kcal)),contr,weeks:W.slice(0,12).reverse(),streak:st,
     eff:tail.map(s=>[s.date.getTime(),s.a.eff]),ma:tail.map(s=>s.a.maMax),rec:tail.map(s=>s.sim.recDrop!=null?s.sim.recDrop:null),
-    mus:dose.map(v=>+(v/mx).toFixed(3)),musMin:sec.map(v=>Math.round(v/60)),
-    last:{d:last.date.getTime(),t:last.type,e:last.a.eff,k:last.a.kcal,a:last.a.act,h:last.a.hrAvg||0}};
+    mus:musOf(all),musMin:sec.map(v=>Math.round(v/60)),
+    p30:{n:m30.length,sec:sum(m30,s=>s.sim.T),kcal:Math.round(sum(m30,s=>s.a.kcal)),mus:musOf(m30),eff:m30.slice(-24).map(s=>[s.date.getTime(),s.a.eff])},
+    last:{d:last.date.getTime(),t:last.type,e:last.a.eff,k:last.a.kcal,a:last.a.act,h:last.a.hrAvg||0,mus:musOf([last])}};
 }
 window.xemsCardDone=how=>{if(how==="fail")shareMsg(tr("Картонът не можа да се подготви.","The card could not be prepared."));else{shareMsg("");$("#sheet").hidden=true;}};
 function shareCard(){
@@ -980,6 +987,8 @@ $("#demoBtn").onclick=()=>{demoSessions();start(null);};
 let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(sessions.length){drawImap();drawBody();}},150);});
 new MutationObserver(()=>{if(sessions.length){renderStats();renderList(cur);draw();}}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 
+function refreshCard(){try{if(DEMO||!BR||!BR.cardUrl||!BR.cardUrl()||!sessions.length)return;const L=sessions[sessions.length-1];
+  BR.refreshCard(JSON.stringify(cardData()),sessions.length+":"+L.id);}catch(e){}}
 function start(focusId){
   renderClient();
   const has=sessions.length>0;
@@ -990,6 +999,7 @@ function start(focusId){
   if(!has){$("#list").innerHTML="";return;}
   let i=sessions.length-1;if(focusId){const k=sessions.findIndex(s=>String(s.id)===String(focusId));if(k>=0)i=k;}
   show(i);
+  setTimeout(refreshCard,1500);
 }
 function boot(first){
   if(BR){

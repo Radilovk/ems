@@ -36,6 +36,9 @@ export function validCardData(d) {
   if (!arr(d.mus, 10) || d.mus.length !== 10 || !d.mus.every(num)) return 'mus';
   if (!arr(d.eff, 60)) return 'eff';
   if (!d.last || typeof d.last !== 'object') return 'last';
+  const mus10 = (m) => m === undefined || (arr(m, 10) && m.length === 10 && m.every(num));
+  if (!mus10(d.last.mus)) return 'last.mus';
+  if (d.p30 !== undefined && (typeof d.p30 !== 'object' || !mus10(d.p30.mus) || !arr(d.p30.eff || [], 60))) return 'p30';
   return null;
 }
 

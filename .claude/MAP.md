@@ -192,7 +192,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `HrHistory.java` (126L, compile:music-sync*,wearable) — Heart-rate samples of the last hour (ring buffer) for the HR panel: chart, averages and time in zones.
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (636L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `ReportBridge.java` (425L, compile:music-sync*,wearable) — window.XemsReport in the report page.
+- `ReportBridge.java` (468L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (86L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
 - `SessionInts.java` (36L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
 - `SessionRec.java` (263L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
@@ -295,7 +295,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 ## server (Cloudflare Worker license server)
 - `server/src/admin.js` (603L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
-- `server/src/card.js` (66L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
+- `server/src/card.js` (69L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/crypto.js` (88L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
@@ -303,7 +303,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/limits.js` (22L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/utils.js` (83L) — Shared helpers for license server (testable, no Worker bindings).
-- `server/test/card.test.js` (64L) — 
+- `server/test/card.test.js` (73L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
 - `server/test/ems.test.js` (15L) — 
@@ -513,6 +513,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L343 ## 8. Какво човекът може по време на сесия
   - L354 ## 9. Реализация
   - L397 ## 10. Подсказки (1.1.157-ai)
+
+`docs/xems-client-data.md` (44L)
+  - L1 # XEMS — какви данни къде живеят
+  - L6 ## 1. Само на таблета
+  - L15 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
+  - L26 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
 
 `docs/xems-license-api.md` (159L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

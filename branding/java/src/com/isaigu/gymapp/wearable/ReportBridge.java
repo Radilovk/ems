@@ -99,18 +99,60 @@ final class ReportBridge {
         new Thread(new CardTask(this, json), "xems-card").start();
     }
 
+    /** The client's card link, once the trainer has shared it ("" = never shared). */
+    @JavascriptInterface
+    public String cardUrl() {
+        return cardPrefs().getString("url_" + user.id, "");
+    }
+
+    /**
+     * A card already shared follows every new training: the page sends fresh totals when it opens
+     * with a training the link does not have yet ({@code key} = count + newest id). Silent, same link.
+     */
+    @JavascriptInterface
+    public void refreshCard(String json, String key) {
+        if (cardUrl().length() == 0 || key == null || key.equals(cardPrefs().getString("key_" + user.id, ""))) {
+            return;
+        }
+        new Thread(new CardTask(this, json, key), "xems-card-refresh").start();
+    }
+
+    private android.content.SharedPreferences cardPrefs() {
+        return a.getSharedPreferences("xems_client_cards", android.content.Context.MODE_PRIVATE);
+    }
+
     static final class CardTask implements Runnable {
         final ReportBridge b;
         final String json;
+        final String refreshKey;
 
         CardTask(ReportBridge b, String json) {
+            this(b, json, null);
+        }
+
+        CardTask(ReportBridge b, String json, String refreshKey) {
             this.b = b;
             this.json = json;
+            this.refreshKey = refreshKey;
         }
 
         @Override
         public void run() {
-            b.cardNow(json);
+            if (refreshKey != null) {
+                b.refreshNow(json, refreshKey);
+            } else {
+                b.cardNow(json);
+            }
+        }
+    }
+
+    void refreshNow(String json, String key) {
+        try {
+            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json);
+            cardPrefs().edit().putString("url_" + user.id, url).putString("key_" + user.id, key).apply();
+            WearableBleDiagLog.log("report", "card refreshed " + url);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "card refresh: " + t);     // offline: next opening tries again
         }
     }
 
@@ -125,8 +167,9 @@ final class ReportBridge {
                 ? WearableUi.tr("Здравей, " + first + "! ", "Hi " + first + "! ") : "";
         try {
             String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json);
-            shareText(subject, hello + WearableUi.tr("Ето твоя XEMS картон — напредък, мускули и значки: ",
-                    "Here is your XEMS card — progress, muscles and badges: ") + url);
+            cardPrefs().edit().putString("url_" + user.id, url).apply();
+            shareText(subject, hello + WearableUi.tr("Ето твоя XEMS картон — напредъкът ти, обновява се след всяка тренировка: ",
+                    "Here is your XEMS card — your progress, updated after every training: ") + url);
             WearableBleDiagLog.log("report", "card link " + url);
             done("link");
             return;

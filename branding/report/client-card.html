@@ -15,6 +15,7 @@ html{background:var(--bg)}
 body{background:var(--bg);color:var(--text);font:15px/1.45 var(--f-body);padding-inline:16px;padding-block:14px 40px;
   -webkit-tap-highlight-color:transparent;overflow-x:hidden;min-height:100%}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 .aura{position:fixed;inset:-20%;z-index:0;pointer-events:none;filter:blur(60px);opacity:.75}
 .aura i{position:absolute;border-radius:50%;mix-blend-mode:screen}
 .aura i:nth-child(1){width:55vmax;height:55vmax;left:-8%;top:-12%;background:radial-gradient(circle,rgba(124,92,255,.55),transparent 65%);animation:a1 18s ease-in-out infinite alternate}
@@ -58,6 +59,8 @@ button{font:inherit;color:inherit}
 .seg{display:inline-flex;padding:4px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--edge)}
 .seg button{all:unset;cursor:pointer;padding:7px 16px;border-radius:999px;font:500 13px var(--f-body);color:var(--muted);transition:background .25s,color .25s}
 .seg button[aria-pressed="true"]{background:rgba(255,255,255,.14);color:var(--text)}
+.per{display:grid;justify-items:center;gap:6px}
+.persub{color:var(--muted);font-size:12.5px;min-height:18px}
 .stage{position:relative;width:min(100%,260px);touch-action:pan-y;user-select:none}
 .stage canvas{display:block;width:100%;height:auto;transition:opacity .45s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
 .stage canvas+canvas{position:absolute;inset:0}
@@ -109,6 +112,8 @@ footer{text-align:center;color:var(--faint);font-size:11.5px;padding-top:6px}
     <div class="rl" id="ringsTxt"></div>
   </div>
 
+  <div class="per rise" style="animation-delay:.12s"><div class="seg" id="per" role="group" aria-label="Период"><button type="button" data-p="last" aria-pressed="false">Последна</button><button type="button" data-p="p30" aria-pressed="false">30 дни</button><button type="button" data-p="all" aria-pressed="true">Всичко</button></div><div class="persub" id="persub"></div></div>
+
   <div class="bodyc glass rise" style="animation-delay:.16s">
     <div class="seg" role="group" aria-label="Страна"><button type="button" id="sF" aria-pressed="true">Отпред</button><button type="button" id="sB" aria-pressed="false">Отзад</button></div>
     <div class="stage boot" id="stage"><canvas id="cF" aria-label="Отпред"></canvas><canvas id="cB" class="off" aria-label="Отзад"></canvas></div>
@@ -119,7 +124,7 @@ footer{text-align:center;color:var(--faint);font-size:11.5px;padding-top:6px}
   <div class="stats rise" style="animation-delay:.24s">
     <div class="stat glass"><span class="num" id="tN"></span><small id="lN">тренировки</small></div>
     <div class="stat glass"><span class="num" id="tH"></span><small id="lH">часа</small></div>
-    <div class="stat glass"><span class="num" id="tK"></span><small>kcal</small></div>
+    <div class="stat glass"><span class="num" id="tK"></span><small id="lK">kcal</small></div>
   </div>
 
   <div class="trend glass rise" id="trend" style="animation-delay:.32s"></div>
@@ -146,13 +151,26 @@ if(EN){document.documentElement.lang="en";$("#sF").textContent="Front";$("#sB").
 const STOPS=[[0,[124,92,255]],[.3,[34,211,238]],[.55,[163,230,53]],[.78,[251,191,36]],[1,[255,61,110]]];
 function heat(v){v=clamp(v,0,1);for(let i=1;i<STOPS.length;i++)if(v<=STOPS[i][0]){const a=STOPS[i-1],b=STOPS[i],k=(v-a[0])/(b[0]-a[0]);return a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k));}return STOPS[4][1];}
 const css=c=>`rgb(${c.join(",")})`;
-const lv=i=>clamp(D.mus[i]||0,0,1);
+// Three views of the same client: all time, the last 30 days, the last training (older cards: all only).
+const V={all:{mus:D.mus,eff:D.eff}};
+if(D.p30&&D.p30.n)V.p30={mus:D.p30.mus,eff:D.p30.eff};
+if(D.last&&D.last.mus)V.last={mus:D.last.mus,eff:null};
+let P="all";const lv=i=>clamp((V[P].mus||D.mus)[i]||0,0,1);
 
 // ---- name, streak, numbers
 $("#name").textContent=D.name;
 if(D.streak>=2){const s=$("#streak");s.hidden=false;s.querySelector("span").textContent=tr(`${D.streak} седмици подред`,`${D.streak} weeks in a row`);}
 const hrs=D.sec/3600;
 countUp($("#tN"),D.n,0);countUp($("#tK"),D.kcal,0);countUp($("#tH"),hrs,hrs<10?1:0);
+const f1=v=>v<10?v.toFixed(1).replace(".",EN?".":","):fmt(v),mmss=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
+function tiles(){let t;
+  if(P==="last"){const L=D.last;t=[[mmss(L.a),tr("активно","active")],[fmt(L.k),"kcal"],[L.e+"%",tr("ефективност","efficiency")]];}
+  else{const q=P==="p30"?D.p30:D;t=[[fmt(q.n),tr("тренировки","trainings")],[f1(q.sec/3600),tr("часа","hours")],[fmt(q.kcal),"kcal"]];}
+  [["#tN","#lN"],["#tH","#lH"],["#tK","#lK"]].forEach((id,i)=>{$(id[0]).textContent=t[i][0];$(id[1]).textContent=t[i][1];});
+  const d=new Date(D.last.d);$("#persub").textContent=P==="last"?`${d.getDate()} ${MON[d.getMonth()]}${D.last.t?" · "+D.last.t:""}`:P==="p30"?tr(`${D.p30.n} тренировки за 30 дни`,`${D.p30.n} trainings in 30 days`):tr(`от ${new Date(D.since).getDate()} ${MON[new Date(D.since).getMonth()]} ${new Date(D.since).getFullYear()}`,`since ${new Date(D.since).getDate()} ${MON[new Date(D.since).getMonth()]} ${new Date(D.since).getFullYear()}`);}
+function setPeriod(p){P=p;document.querySelectorAll("#per button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));tiles();trend();draw();}
+document.querySelectorAll("#per button").forEach(b=>{if(!V[b.dataset.p])b.hidden=true;b.onclick=()=>setPeriod(b.dataset.p);});
+if(EN){const L={last:"Last",p30:"30 days",all:"All"};document.querySelectorAll("#per button").forEach(b=>b.textContent=L[b.dataset.p]);}
 function countUp(el,to,dec){const f=v=>dec?v.toFixed(dec).replace(".",EN?".":","):fmt(v);el.textContent=f(to);if(reduce)return;const t0=performance.now()+250,ms=1300;
   const step=t=>{const k=clamp((t-t0)/ms,0,1),e=1-Math.pow(1-k,4);el.textContent=f(to*e);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
 
@@ -191,7 +209,7 @@ function muscles(M,selCh){const w=M.w,h=M.h,c=document.createElement("canvas");c
   x.putImageData(im,0,0);return c;}
 function stepDown(src,W,H){let c=src;while(c.width/2>=W*1.05){const n=document.createElement("canvas");n.width=Math.round(c.width/2);n.height=Math.round(c.height/2);const x=n.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,n.width,n.height);c=n;}
   const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,W,H);return o;}
-function paint(canvas,key){mask(key,M=>{const dpr=Math.min(3,devicePixelRatio||1),W=Math.round((canvas.parentNode.clientWidth||280)*dpr),H=Math.round(W*M.h/M.w),ck=key+"|"+sel+"|"+W;
+function paint(canvas,key){mask(key,M=>{const dpr=Math.min(3,devicePixelRatio||1),W=Math.round((canvas.parentNode.clientWidth||280)*dpr),H=Math.round(W*M.h/M.w),ck=key+"|"+sel+"|"+W+"|"+P;
   if(canvas._ck===ck)return;
   if(!cache[ck]){const Mu=stepDown(muscles(M,sel),W,H);const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");x.imageSmoothingQuality="high";
     x.drawImage(stepDown(M.art,W,H),0,0);
@@ -200,8 +218,7 @@ function paint(canvas,key){mask(key,M=>{const dpr=Math.min(3,devicePixelRatio||1
     x.drawImage(Mu,0,0);cache[ck]=o;}
   const c=cache[ck];if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}const x=canvas.getContext("2d");x.clearRect(0,0,W,H);x.drawImage(c,0,0);canvas._ck=ck;canvas._m=M;});}
 let raf=0;const draw=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;paint($("#cF"),sexK+"_front");paint($("#cB"),sexK+"_back");label();});};
-const top=CH.map((c,i)=>i).sort((a,b)=>lv(b)-lv(a))[0];
-function label(){const i=sel>=0?sel:top;$("#pick").innerHTML=`<i style="background:${css(heat(lv(i)))};box-shadow:0 0 12px ${css(heat(lv(i)))}"></i><b>${CH[i]}</b><span class="num">${Math.round(lv(i)*100)}%</span>`;}
+function label(){const i=sel>=0?sel:CH.map((c,k)=>k).sort((a,b)=>lv(b)-lv(a))[0];$("#pick").innerHTML=`<i style="background:${css(heat(lv(i)))};box-shadow:0 0 12px ${css(heat(lv(i)))}"></i><b>${CH[i]}</b><span class="num">${Math.round(lv(i)*100)}%</span>`;}
 function at(canvas,e){const M=canvas._m;if(!M)return -1;const r=canvas.getBoundingClientRect();const X=Math.floor((e.clientX-r.left)/r.width*M.w),Y=Math.floor((e.clientY-r.top)/r.height*M.h);if(X<0||Y<0||X>=M.w||Y>=M.h)return -1;return M.lab[Y*M.w+X];}
 function setSide(s){side=s;$("#cF").classList.toggle("off",s!=="front");$("#cB").classList.toggle("off",s!=="back");$("#sF").setAttribute("aria-pressed",String(s==="front"));$("#sB").setAttribute("aria-pressed",String(s==="back"));}
 $("#sF").onclick=()=>setSide("front");$("#sB").onclick=()=>setSide("back");
@@ -214,8 +231,8 @@ draw();setTimeout(()=>stage.classList.remove("boot"),150);
 addEventListener("resize",()=>{for(const k in cache)delete cache[k];$("#cF")._ck=$("#cB")._ck="";draw();});
 
 // ---- efficiency over the trainings
-const E=D.eff.map(x=>x[1]),avg=a=>a.reduce((q,v)=>q+v,0)/Math.max(1,a.length);
-if(E.length>=2){const k=Math.max(1,Math.min(3,Math.floor(E.length/2))),dv=Math.round(avg(E.slice(-k))-avg(E.slice(0,k)));
+function trend(){const src=V[P].eff||[];const E=src.map(x=>x[1]),avg=a=>a.reduce((q,v)=>q+v,0)/Math.max(1,a.length);
+if(E.length>=2){$("#trend").hidden=false;const k=Math.max(1,Math.min(3,Math.floor(E.length/2))),dv=Math.round(avg(E.slice(-k))-avg(E.slice(0,k)));
   const W=300,H=84,lo=Math.min(...E)-6,hi=Math.max(...E)+4,X=i=>i*(W/(E.length-1)),Y=v=>H-6-(v-lo)/(hi-lo)*(H-18);
   const pts=E.map((v,i)=>[X(i),Y(v)]);let d=`M${pts[0][0]},${pts[0][1]}`;
   for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;d+=` C${p1[0]+(p2[0]-p0[0])/6},${p1[1]+(p2[1]-p0[1])/6} ${p2[0]-(p3[0]-p1[0])/6},${p2[1]-(p3[1]-p1[1])/6} ${p2[0]},${p2[1]}`;}
@@ -225,7 +242,8 @@ if(E.length>=2){const k=Math.max(1,Math.min(3,Math.floor(E.length/2))),dv=Math.r
    <linearGradient id="ta" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22D3EE" stop-opacity=".28"/><stop offset="1" stop-color="#22D3EE" stop-opacity="0"/></linearGradient><filter id="tg"><feGaussianBlur stdDeviation="3"/></filter></defs>
    <path d="${d} L${W},${H} L0,${H}Z" fill="url(#ta)"/><path d="${d}" fill="none" stroke="url(#tl)" stroke-width="5" opacity=".5" filter="url(#tg)"/><path d="${d}" fill="none" stroke="url(#tl)" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
    <circle cx="${last[0]}" cy="${last[1]}" r="5" fill="#A3E635" style="filter:drop-shadow(0 0 6px #A3E635)"/></svg>`;}
-else $("#trend").hidden=true;
+else $("#trend").hidden=true;}
+trend();tiles();
 
 const g=new Date(D.gen);$("#foot").textContent=(SAMPLE?tr("Примерни данни · ","Sample data · "):"")+tr("обновено ","updated ")+g.getDate()+" "+MON[g.getMonth()];
 
@@ -236,6 +254,7 @@ $("#copy").onclick=()=>{const u=location.href.split("#")[0];try{navigator.clipbo
 
 function sample(){const now=Date.now(),dd=864e5,eff=[];for(let i=0;i<14;i++)eff.push([now-(50-i*3.6)*dd,Math.round(69+i*1.0+(i%4===2?-5:0))]);
   return{v:1,lang:/[?&]en\b/.test(location.search)?"en":"bg",name:"Мария",sex:"F",gen:now,since:now-80*dd,n:22,sec:31944,act:30800,kcal:3213,contr:0,
-    weeks:[2,2,1,2,2,1,2,2,2,2,2,1],streak:12,eff,mus:[.78,.85,1,.67,.52,.61,.81,.57,.95,.9],last:{d:now,t:"",e:83,k:164,a:1404,h:115}};}
+    weeks:[2,2,1,2,2,1,2,2,2,2,2,1],streak:12,eff,mus:[.78,.85,1,.67,.52,.61,.81,.57,.95,.9],p30:{n:8,sec:11616,kcal:1180,mus:[.7,.8,1,.72,.45,.58,.76,.6,.92,.86],eff:eff.slice(-8)},
+    last:{d:now-2*dd,t:"Силова база",e:83,k:164,a:1404,h:115,mus:[.62,.9,1,.55,.35,.5,.7,.66,.98,.8]}};}
 })();
 </script>

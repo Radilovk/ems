@@ -27,6 +27,8 @@ public final class XiaomiBandWorkout {
     public static final int SPORT_FREE = 8;
     /** HIIT: synced into Mi Fitness as high_interval_training. */
     public static final int SPORT_HIIT = 16;
+    /** First strength-type code the band sent (list: 308, 313, 399) — name to be confirmed. */
+    public static final int SPORT_STRENGTH = 308;
 
     private XiaomiBandWorkout() {}
 

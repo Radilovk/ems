@@ -38,3 +38,13 @@ upload, Garmin Connect import, TrainingPeaks, Intervals.icu, Runalyze), CSV per 
 (`;` separated, UTF-8 BOM for Excel). Files go through `ReportBridge.shareFile` → cache/xems_share →
 FileProvider `<package>.provider` (manifest `root-path`) → ACTION_SEND chooser.
 Health Connect / Google Fit direct writing is not done: it needs the Health Connect client and new manifest permissions.
+
+## Personal context (1.1.158-ai)
+
+Targets are personal, not absolute: `persona()` in the page → k = fitness (low 0.75 / mid 1 / high 1.2) × BMI
+(> 25 down to 0.78) × age (> 30 down to 0.78) × sex (F 0.95) × adaptation (first 4 sessions 0.85…1), clamped
+0.5…1.3. Goal stimulus zone and dose × k, HR zone shifted by (k−1)·0.3. HRmax: 208 − 0.7·age (M, Tanaka),
+206 − 0.88·age (F, Gulati). kcal EMS branch × muscle-mass share (F 0.31/0.38). Dose > 140 % of the personal target
+lowers the score; the verdict says when the stimulus is above / below the personal zone.
+Mi Fitness type: no custom "EMS" type exists in Mi Fitness; "Авто по цел" picks strength (308) for tone,
+HIIT (16) for fat loss / cellulite, free training (8) for drainage / massage.

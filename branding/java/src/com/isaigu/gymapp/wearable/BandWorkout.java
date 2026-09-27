@@ -24,9 +24,32 @@ final class BandWorkout {
         return c != null && prefs(c).getBoolean("own" + userId, false);
     }
 
+    /** 0 = automatic (by the client's goal), else a band sport code chosen in the client form. */
     static int sport(Context c, long userId) {
-        return c != null ? prefs(c).getInt("misport" + userId, XiaomiBandWorkout.SPORT_HIIT)
-                : XiaomiBandWorkout.SPORT_HIIT;
+        int v = c != null ? prefs(c).getInt("misport" + userId, 0) : 0;
+        return v > 0 ? v : autoSport(c, userId);
+    }
+
+    /**
+     * Mi Fitness has a fixed list of workout types (no custom "EMS"): tone / strength goals → strength,
+     * fat loss / cellulite → HIIT, drainage / massage → free training.
+     */
+    static int autoSport(Context c, long userId) {
+        String goal = "tone";
+        try {
+            String[] p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("u" + userId, "").split("\\|", -1);
+            if (p.length > 0 && p[0].length() > 0) {
+                goal = p[0];
+            }
+        } catch (Throwable ignored) {
+        }
+        if ("fat".equals(goal) || "cellulite".equals(goal)) {
+            return XiaomiBandWorkout.SPORT_HIIT;
+        }
+        if ("drain".equals(goal) || "massage".equals(goal)) {
+            return XiaomiBandWorkout.SPORT_FREE;
+        }
+        return XiaomiBandWorkout.SPORT_STRENGTH;
     }
 
     private static SharedPreferences prefs(Context c) {

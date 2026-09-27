@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 73
+    .line 96
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 74
+    .line 97
     iput p1, p0, Lcom/isaigu/gymapp/wearable/BandWorkout$Send;->sport:I
 
-    .line 75
+    .line 98
     iput p2, p0, Lcom/isaigu/gymapp/wearable/BandWorkout$Send;->status:I
 
-    .line 76
+    .line 99
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 5
 
     .prologue
-    .line 81
+    .line 104
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/wearable/BandWorkout$Send;->sport:I
 
@@ -57,7 +57,7 @@
 
     move-result v0
 
-    .line 82
+    .line 105
     const-string v1, "band_workout"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -106,15 +106,15 @@
     :try_end_38
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_38} :catch_39
 
-    .line 86
+    .line 109
     :goto_38
     return-void
 
-    .line 83
+    .line 106
     :catch_39
     move-exception v0
 
-    .line 84
+    .line 107
     const-string v1, "band_workout"
 
     new-instance v2, Ljava/lang/StringBuilder;

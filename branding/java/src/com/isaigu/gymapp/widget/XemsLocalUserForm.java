@@ -101,7 +101,7 @@ public final class XemsLocalUserForm {
         final LinearLayout[] fitRow = new LinearLayout[1];
         /** Wears the Xiaomi band: trainings also run as a native band workout (Mi Fitness). */
         boolean owner;
-        int miSport = 16;
+        int miSport = 0;
         final LinearLayout[] ownRow = new LinearLayout[1];
         final LinearLayout[] sportRow = new LinearLayout[1];
 
@@ -128,7 +128,7 @@ public final class XemsLocalUserForm {
                 weight[0] = Math.round(u.weight);
             }
             owner = prefs(a).getBoolean("own" + u.id, false);
-            miSport = prefs(a).getInt("misport" + u.id, 16);
+            miSport = prefs(a).getInt("misport" + u.id, 0);
             String saved = prefs(a).getString("u" + u.id, "");
             String[] parts = saved.split("\\|", -1);
             if (parts.length >= 3) {
@@ -369,10 +369,11 @@ public final class XemsLocalUserForm {
             LinearLayout sr = sportRow[0];
             sr.removeAllViews();
             sr.setVisibility(owner ? View.VISIBLE : View.GONE);
+            addSport(sr, tr("Авто по цел", "Auto by goal"), 0);
             addSport(sr, tr("HIIT", "HIIT"), 16);
-            addSport(sr, tr("Силова (проба)", "Strength (test)"), 308);
+            addSport(sr, tr("Силова", "Strength"), 308);
             addSport(sr, tr("Свободна", "Free"), 8);
-            addSport(sr, tr("Бягане на закрито", "Indoor run"), 3);
+            addSport(sr, tr("Бягане", "Run"), 3);
         }
 
         /** Band sport codes from Mi Fitness logs: 3 indoor run (phone start verified), 8 free training,

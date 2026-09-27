@@ -507,7 +507,9 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   return{met,over,under,persona:P0,goalP:goal,onSec:s.filter(p=>p.on&&!p.paused).length,eff,T:Tg,D,Q,P,dose,load,kcal:Math.round(kcal),pauseS,act:act.length,
     hrAvg:hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):0,hrMax:hrs.length?Math.max(...hrs):0,modes,chDose,phases,maMax:Math.max(0,...s.map(p=>p.ma))};
 }
-function typeLabel(m){return m.type==="ai"?"Smart Session":(m.program?(tr("Програма „","Program “")+m.program+tr("“","”")):tr("Тренировка","Training"));}
+function typeLabel(m){if(m.type==="ai")return "Smart Session";if(m.type==="auto")return tr("Авто · ","Auto · ")+(m.program||"");const md=m.modes|0,massage=(md&8)!==0,work=(md&7)!==0;
+  if(massage&&!work)return tr("Процедура · масаж","Procedure · massage");
+  return (m.program?(tr("Програма „","Program “")+m.program+tr("“","”")):tr("Тренировка","Training"))+(massage?tr(" + масаж"," + massage"):"");}
 function loadReal(){
   CLIENT=JSON.parse(BR.client()||"{}");
   const L=(JSON.parse(BR.sessions()||"[]")||[]).sort((a,b)=>a.start-b.start);

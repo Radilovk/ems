@@ -17,9 +17,15 @@ import java.util.Map;
  * Records every training on the tablet, one sample per second per slot, for the client report.
  * <p>
  * A slot's training starts when the trainer presses Start (data.start). Pause = start off while the
- * countdown (TrainItem.workLength, seconds left) keeps its value; the end = start off and the
- * countdown back at the planned time (reset after Stop or at 0:00), another client in the slot, or a
- * pause longer than {@link #MAX_PAUSE_S}. Trainings with less than a minute of work are dropped.
+ * countdown (TrainItem.workLength, seconds left) keeps its value; a mode ends = start off and the
+ * countdown back at the planned time (reset after Stop or at 0:00).
+ * <p>
+ * Manual mode: one training = the work modes (main, muscle, cardio) and the massage after them. A work
+ * mode that ends only waits for the next mode; the training ends when a massage ends (a massage on its
+ * own is a procedure and ends the same way). AI and automatic mode end with their own end
+ * ({@link #finishAssisted}). The report opens on the screen after the end. Another client in the slot,
+ * or a pause / wait longer than {@link #MAX_PAUSE_S}, also closes the training (saved, not shown).
+ * Trainings with less than a minute of work are dropped.
  * The client in the first running slot wears the band: only that one gets heart rate, the native
  * band workout ({@link BandWorkout}) and 60 s of recovery heart rate after the end.
  */
@@ -29,10 +35,13 @@ public final class SessionRecorder {
     static final int MAX_PAUSE_S = 30 * 60;
     static final int POST_S = 60;
     static final long HR_FRESH_MS = 8000L;
+    static final int TYPE_MASSAGE = 3;
 
     private static final Handler H = new Handler(Looper.getMainLooper());
     private static final Map<Integer, SessionRec> OPEN = new HashMap<Integer, SessionRec>();
     private static final List<SessionRec> POST = new ArrayList<SessionRec>();
+    /** Assisted trainings saved while their own report (AI) was still up: shown by finishAssisted. */
+    private static final List<SessionRec> PENDING = new ArrayList<SessionRec>();
     private static boolean started;
     private static Context app;
 
@@ -70,6 +79,8 @@ public final class SessionRecorder {
         List<TrainItem> items = m != null ? m.getItemList() : null;
         int bpm = freshHr(now);
         int aiPhase = aiPhase();
+        boolean assisted = assistActive();
+        String autoProgram = autoProgram();
         boolean music = musicOn();
         boolean leaderTaken = false;
         if (items != null) {
@@ -78,7 +89,7 @@ public final class SessionRecorder {
                 SessionRec r = OPEN.get(i);
                 boolean hasUser = it != null && !it.isEmpty() && it.data != null && it.data.trainUser != null;
                 if (r != null && (!hasUser || it.data.trainUser.id != r.userId)) {
-                    close(i, r, now);
+                    close(i, r, now, false);
                     r = null;
                 }
                 if (!hasUser) {
@@ -107,17 +118,56 @@ public final class SessionRecorder {
                             + " plan " + r.planS + " s");
                 }
                 if (!running) {
+                    if (r.between) {
+                        // A work mode is done: wait for the next mode (not recorded).
+                        if (++r.betweenS > MAX_PAUSE_S) {
+                            close(i, r, now, false);
+                        }
+                        continue;
+                    }
                     // Paused, or ended: the countdown goes back to the planned time (reset) or to 0.
-                    boolean reset = it.workLength <= 0 || r.planS > 0 && it.workLength >= r.planS;
+                    boolean reset = it.workLength <= 0 || r.segPlanS > 0 && it.workLength >= r.segPlanS;
                     r.idle = reset ? r.idle + 1 : 0;
                     r.pausedS = reset ? r.pausedS : r.pausedS + 1;
-                    if (reset && r.idle >= END_CONFIRM_S || r.pausedS > MAX_PAUSE_S) {
-                        close(i, r, now);
+                    if (reset && r.idle >= END_CONFIRM_S) {
+                        if (r.assist) {
+                            close(i, r, now, true);
+                        } else if (r.curType == TYPE_MASSAGE || r.curType < 0) {
+                            close(i, r, now, true);        // massage (or a procedure) done: training over
+                        } else {
+                            r.between = true;              // work mode done: the massage may follow
+                            r.betweenS = 0;
+                            r.idle = 0;
+                            BandWorkout.onState(r, false);
+                            WearableBleDiagLog.log("report", "slot " + i + " mode " + r.curType + " done, waiting");
+                        }
+                        continue;
+                    }
+                    if (r.pausedS > MAX_PAUSE_S) {
+                        close(i, r, now, false);
                         continue;
                     }
                 } else {
+                    if (r.between) {
+                        r.between = false;
+                        r.segPlanS = Math.max(0, it.workLength);
+                        r.planS += r.segPlanS;
+                        WearableBleDiagLog.log("report", "slot " + i + " next mode, plan " + r.segPlanS + " s");
+                    }
                     r.pausedS = 0;
                     r.idle = 0;
+                    int type = useType(it);
+                    if (type >= 0) {
+                        r.curType = type;
+                        r.modes |= 1 << type;
+                    }
+                    if (assisted) {
+                        r.assist = true;
+                    }
+                    if (autoProgram != null) {
+                        r.auto = true;
+                        r.program = autoProgram;
+                    }
                 }
                 if (aiPhase > 0 && r.leader) {
                     r.ai = true;
@@ -141,7 +191,7 @@ public final class SessionRecorder {
             }
         }
         for (int k = 0; k < gone.size(); k++) {
-            close(gone.get(k), OPEN.get(gone.get(k)), now);
+            close(gone.get(k), OPEN.get(gone.get(k)), now, false);
         }
         // Recovery heart rate after the end.
         for (int k = POST.size() - 1; k >= 0; k--) {
@@ -150,12 +200,44 @@ public final class SessionRecorder {
             r.postLeft--;
             if (r.postLeft <= 0 || leaderTaken) {
                 POST.remove(k);
-                save(r);
+                save(r, !r.shown);
             }
         }
     }
 
-    private static void close(int slot, SessionRec r, long now) {
+    /**
+     * AI or automatic mode has ended (its board closed): end the trainings it ran now and open their
+     * reports, with those already saved while its own report was up.
+     */
+    public static void finishAssisted() {
+        try {
+            long now = System.currentTimeMillis();
+            List<Integer> slots = new ArrayList<Integer>();
+            for (Map.Entry<Integer, SessionRec> en : OPEN.entrySet()) {
+                if (en.getValue() != null && en.getValue().assist) {
+                    slots.add(en.getKey());
+                }
+            }
+            for (int k = 0; k < slots.size(); k++) {
+                close(slots.get(k), OPEN.get(slots.get(k)), now, true);
+            }
+            showPending();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "finishAssisted: " + t);
+        }
+    }
+
+    /** True while an AI or automatic board is up (its own report included): reports wait for it. */
+    private static boolean boardUp() {
+        try {
+            return com.isaigu.gymapp.ai.AiSession.getStage() != com.isaigu.gymapp.ai.AiSession.Stage.IDLE
+                    || com.isaigu.gymapp.ai.AutoSession.getStage() != com.isaigu.gymapp.ai.AutoSession.Stage.IDLE;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private static void close(int slot, SessionRec r, long now, boolean show) {
         OPEN.remove(slot);
         if (r == null) {
             return;
@@ -166,26 +248,99 @@ public final class SessionRecorder {
             WearableBleDiagLog.log("report", "session dropped (" + r.activeS() + " s active) user " + r.userId);
             return;
         }
-        if (r.leader && freshHr(now) > 0) {
+        WearableBleDiagLog.log("report", "session end user " + r.userId + " modes=" + r.modes
+                + " assist=" + r.assist + " show=" + show);
+        boolean post = r.leader && freshHr(now) > 0;
+        if (show) {
+            // Saved now so the report opens at once; the recovery heart rate is added in 60 s.
+            save(r, false);
+            if (r.assist && boardUp()) {
+                PENDING.add(r);
+            } else {
+                show(r);
+            }
+        }
+        if (post) {
             r.postLeft = POST_S;
             POST.add(r);
-        } else {
-            save(r);
+        } else if (!show) {
+            save(r, true);
         }
     }
 
-    private static void save(SessionRec r) {
+    private static void showPending() {
+        for (int k = 0; k < PENDING.size(); k++) {
+            show(PENDING.get(k));
+        }
+        PENDING.clear();
+    }
+
+    private static void show(SessionRec r) {
+        r.shown = true;
+        try {
+            android.app.Activity a = WearableSyncHelper.resolveActivityForPermissions();
+            if (a != null && r.user != null) {
+                ReportScreen.open(a, r.user, r.start);
+                return;
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "show: " + t);
+        }
+        toastSaved(r);
+    }
+
+    private static void save(SessionRec r, boolean toast) {
         Context c = app;
         if (c == null) {
             return;
         }
         int rest = WearableConfig.getRestHr(c);
         SessionStore.save(c, r, rest);
+        if (toast) {
+            toastSaved(r);
+        }
+    }
+
+    private static void toastSaved(SessionRec r) {
+        Context c = app;
         try {
             android.widget.Toast.makeText(c, WearableUi.tr("Докладът за тренировката е записан в профила на ",
                     "Training report saved to the profile of ") + (r.userName != null ? r.userName : ""),
                     android.widget.Toast.LENGTH_LONG).show();
         } catch (Throwable ignored) {
+        }
+    }
+
+    private static int useType(TrainItem it) {
+        try {
+            return it.getTrainProgram() != null ? it.getTrainProgram().useType : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    /** AI or automatic mode drives the suits (calibration or the run). */
+    private static boolean assistActive() {
+        try {
+            com.isaigu.gymapp.ai.AiSession.Stage a = com.isaigu.gymapp.ai.AiSession.getStage();
+            com.isaigu.gymapp.ai.AutoSession.Stage b = com.isaigu.gymapp.ai.AutoSession.getStage();
+            return a == com.isaigu.gymapp.ai.AiSession.Stage.CALIB || a == com.isaigu.gymapp.ai.AiSession.Stage.RUNNING
+                    || b == com.isaigu.gymapp.ai.AutoSession.Stage.CALIB || b == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** The automatic program's name while it runs, else null. */
+    private static String autoProgram() {
+        try {
+            if (com.isaigu.gymapp.ai.AutoSession.getStage() != com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING
+                    || com.isaigu.gymapp.ai.AutoSession.getPlan() == null) {
+                return null;
+            }
+            return com.isaigu.gymapp.ai.AutoSession.getPlan().program.name();
+        } catch (Throwable t) {
+            return null;
         }
     }
 

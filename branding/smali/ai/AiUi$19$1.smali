@@ -25,7 +25,8 @@
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$19;)V
     .registers 2
 
-    .line 1069
+    .prologue
+    .line 1007
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$19$1;->this$0:Lcom/isaigu/gymapp/ai/AiUi$19;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,15 +37,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
-    .line 1072
+    .prologue
+    .line 1010
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    move-result-object p1
+    move-result-object v0
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->startCalibrationStim(Landroid/content/Context;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->startCalibrationStim(Landroid/content/Context;)V
 
-    .line 1073
+    .line 1011
     return-void
 .end method

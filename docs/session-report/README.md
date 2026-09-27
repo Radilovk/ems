@@ -54,3 +54,17 @@ HIIT (16) for fat loss / cellulite, free training (8) for drainage / massage.
 The page follows the app language (`XemsReport.lang()` → WearableUi.tr): every JS string is `tr(bg, en)`,
 static HTML is translated at boot from `STATIC_EN`. Client data (name, program name) stays as entered.
 Share image, text, TCX notes and file subjects follow the same language. Browser preview: add `#en` to the URL.
+
+## One training, shown at the end (1.1.162-ai)
+
+- Manual mode: a training = the work modes (main 0, muscle 1, cardio 2 — `TrainProgram.useType`) and the massage
+  (3) after them. A work mode that ends (reset / 0:00) keeps the record open and waits (`between`, not sampled, up to
+  30 min) for the next mode; the next Start continues the same record (`segPlanS` = the new mode's plan, `planS`
+  sums them). The training ends when a massage ends — a massage alone is a procedure and ends the same way.
+- AI / automatic mode (`assist`: their calibration or run drove the slot) end with their own end:
+  `SessionRecorder.finishAssisted()` from `AutoUi.onFinished` (auto run over, STOP) and from the AI report's
+  "Затвори". Records closed by the reset rule while the AI report is still up wait in `PENDING` until then.
+- At the end the record is saved at once and `ReportScreen` opens on that session; the 60 s recovery HR is added to
+  the same file afterwards. Another client in the slot or a pause / wait > 30 min closes silently (toast).
+- Summary: `modes` (bitmask of useType), `type` = `auto` / `ai` / `program`. The page labels
+  "Авто · <program>", "Procedure · massage", "Program „X“ + massage".

@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1401
+    .prologue
+    .line 1339
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,9 +33,10 @@
 .method public onSelect(I)V
     .registers 2
 
-    .line 1404
+    .prologue
+    .line 1342
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->answerCheckpoint(I)V
 
-    .line 1405
+    .line 1343
     return-void
 .end method

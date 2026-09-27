@@ -94,6 +94,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoHistory.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoSession.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoUi.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoLook.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"

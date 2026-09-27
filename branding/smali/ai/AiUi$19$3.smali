@@ -26,8 +26,14 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$19;I)V
     .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 1093
+    .prologue
+    .line 1031
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$19$3;->this$0:Lcom/isaigu/gymapp/ai/AiUi$19;
 
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$19$3;->val$d:I
@@ -40,13 +46,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
-    .line 1096
-    iget p1, p0, Lcom/isaigu/gymapp/ai/AiUi$19$3;->val$d:I
+    .prologue
+    .line 1034
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AiUi$19$3;->val$d:I
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->adjustCalibration(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->adjustCalibration(I)V
 
-    .line 1097
+    .line 1035
     return-void
 .end method

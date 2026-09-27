@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenCheck(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,19 @@
 # instance fields
 .field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-.field final synthetic val$verdict:Landroid/widget/LinearLayout;
-
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;Landroid/widget/LinearLayout;)V
-    .registers 3
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
+    .prologue
     .line 690
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$verdict:Landroid/widget/LinearLayout;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -42,18 +44,19 @@
 .method public onToggle(Z)V
     .registers 3
 
+    .prologue
     .line 693
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->hydrated:Z
+    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->knownArrhythmia:Z
 
     .line 694
-    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$verdict:Landroid/widget/LinearLayout;
+    const/4 v0, 0x1
 
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->renderVerdict(Landroid/widget/LinearLayout;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
     .line 695
     return-void

@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenProfile(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,17 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
-    .registers 2
+.method constructor <init>()V
+    .registers 1
 
-    .line 565
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
+    .prologue
+    .line 586
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -35,26 +30,20 @@
 
 
 # virtual methods
-.method public onSelect(I)V
-    .registers 4
+.method public onClick(Landroid/view/View;)V
+    .registers 3
 
-    .line 568
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .prologue
+    const/4 v0, 0x1
 
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->values()[Lcom/isaigu/gymapp/ai/AiModel$Fitness;
+    .line 589
+    # setter for: Lcom/isaigu/gymapp/ai/AiUi;->profileOpen:Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$502(Z)Z
 
-    move-result-object v1
-
-    aget-object p1, v1, p1
-
-    iput-object p1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
-
-    .line 569
-    const/4 p1, 0x1
-
+    .line 590
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 570
+    .line 591
     return-void
 .end method

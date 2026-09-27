@@ -25,31 +25,33 @@
 .method constructor <init>(I)V
     .registers 2
 
-    .line 368
+    .prologue
+    .line 384
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 369
+    .line 385
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiUi$StepListener;->dir:I
 
-    .line 370
+    .line 386
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
-    .line 374
+    .prologue
+    .line 390
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    move-result-object p1
+    move-result-object v0
 
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AiUi$StepListener;->dir:I
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$StepListener;->dir:I
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->onStep(Landroid/content/Context;I)V
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$200(Landroid/content/Context;I)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(Landroid/content/Context;I)V
 
-    .line 375
+    .line 391
     return-void
 .end method

@@ -19,19 +19,19 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with
- * goal & kind → program → check → plan → calibration → live board → report.
+ * Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with four short
+ * steps — program · client · plan · strength. Only what the system cannot decide is asked; the rest
+ * (profile from the client record, phases, zones) stays folded. After Start the sheet hides itself
+ * (the tile brings the live board back); at the end the client's report opens.
  * Named listener classes only (dx): every tap goes through {@link Act} with an action code.
  */
 public final class AutoUi {
-    static final int STEP_GOAL = 0;
-    static final int STEP_PROGRAM = 1;
-    static final int STEP_CHECK = 2;
-    static final int STEP_PLAN = 3;
-    static final int STEP_CALIB = 4;
-    static final int STEP_RUN = 5;
-    static final int STEP_REPORT = 6;
-    private static final int SETUP_STEPS = 5;
+    static final int STEP_PROGRAM = 0;
+    static final int STEP_CLIENT = 1;
+    static final int STEP_PLAN = 2;
+    static final int STEP_CALIB = 3;
+    static final int STEP_RUN = 4;
+    private static final int SETUP_STEPS = 4;
 
     // action codes
     private static final int A_CLOSE = 1;
@@ -53,33 +53,43 @@ public final class AutoUi {
     private static final int A_INTENSITY = 17;
     private static final int A_VARIANT = 18;
     private static final int A_DOUBLE = 19;
-    private static final int A_CALIB_START = 20;
     private static final int A_CALIB_ROW = 21;
     private static final int A_PAUSE = 22;
     private static final int A_REDUCE = 23;
     private static final int A_RAISE = 24;
     private static final int A_DOUBLE_LIVE = 25;
-    private static final int A_COOLDOWN = 26;
+    private static final int A_FINISH_EARLY = 26;
     private static final int A_STOP = 27;
     private static final int A_SEX = 28;
+    private static final int A_EDIT_PROFILE = 29;
+    private static final int A_HEALTH_OK = 30;
+    private static final int A_HEALTH_OPEN = 31;
+    private static final int A_DETAILS = 32;
+    private static final int A_HIDE = 33;
 
     private static XemsUi.Shell shell;
     private static Activity host;
     private static int step;
     private static boolean heightTouched;
     private static boolean calibStarted;
+    /** Client step: the profile editors are open (else one summary line). */
+    private static boolean profileOpen;
+    /** Client step: "no contraindications, fine today" confirmed. */
+    private static boolean healthOk;
+    /** Client step: the full list of contraindications / today is open. */
+    private static boolean healthOpen;
+    /** Plan step: phases and zones unfolded. */
+    private static boolean details;
 
     // live refs
     private static TextView runPhase;
     private static TextView runTime;
-    private static TextView runParams;
-    private static TextView runHint;
     private static TextView runHr;
     private static TextView runNotice;
     private static TextView runPause;
     private static TextView runDouble;
+    private static TextView runFinish;
     private static View runBar;
-    private static LinearLayout runRows;
     private static TextView calibRowsInfo;
     private static TextView primary;
     private static final List<TextView> rowLabels = new ArrayList<TextView>();
@@ -100,14 +110,22 @@ public final class AutoUi {
                 return;
             }
             AutoSession.beginSetup(a);
-            heightTouched = AutoSession.getInput().heightCm > 0;
+            AutoModel.Input in = AutoSession.getInput();
+            heightTouched = in.heightCm > 0;
             calibStarted = false;
-            show(a, STEP_GOAL);
+            profileOpen = in.heightCm <= 0;
+            healthOk = false;
+            healthOpen = hasHealthFlag(in);
+            details = false;
+            show(a, STEP_PROGRAM);
+            return;
+        }
+        if (st == AutoSession.Stage.REPORT) {
+            onFinished();
             return;
         }
         show(a, st == AutoSession.Stage.RUNNING ? STEP_RUN
-                : st == AutoSession.Stage.REPORT ? STEP_REPORT
-                : st == AutoSession.Stage.CALIB ? STEP_CALIB : STEP_GOAL);
+                : st == AutoSession.Stage.CALIB ? STEP_CALIB : STEP_PROGRAM);
     }
 
     /** Bring the board back (HR pause, stop from the main screen). */
@@ -146,15 +164,22 @@ public final class AutoUi {
         runPhase = null;
     }
 
+    /** The run ended (time, STOP, or from the main screen): close the board, open the client's report. */
+    static void onFinished() {
+        dismiss();
+        try {
+            com.isaigu.gymapp.wearable.SessionRecorder.finishAssisted();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.widget.XemsGuard.report("AutoUi.onFinished", t);
+        }
+        AutoSession.close();
+    }
+
     static void refresh() {
         if (shell == null || !shell.dialog.isShowing()) {
             return;
         }
         try {
-            if (step == STEP_RUN && AutoSession.getStage() == AutoSession.Stage.REPORT) {
-                go(STEP_REPORT);
-                return;
-            }
             if (step == STEP_RUN) {
                 refreshRun();
             } else if (step == STEP_CALIB) {
@@ -175,18 +200,17 @@ public final class AutoUi {
         shell.footer.removeAllViews();
         rowLabels.clear();
         runPhase = null;
+        calibRowsInfo = null;
         switch (s) {
-            case STEP_GOAL: screenGoal(c); break;
             case STEP_PROGRAM: screenProgram(c); break;
-            case STEP_CHECK: screenCheck(c); break;
+            case STEP_CLIENT: screenClient(c); break;
             case STEP_PLAN: screenPlan(c); break;
             case STEP_CALIB: screenCalib(c); break;
-            case STEP_RUN: screenRun(c); break;
-            default: screenReport(c); break;
+            default: screenRun(c); break;
         }
         if (s < SETUP_STEPS) {
             shell.badge.setVisibility(View.VISIBLE);
-            XemsUi.setBadge(shell.badge, AiText.t("Стъпка ", "Step ") + (s + 1) + " / " + SETUP_STEPS, XemsUi.GO_TEXT);
+            XemsUi.setBadge(shell.badge, (s + 1) + " / " + SETUP_STEPS, XemsUi.GO_TEXT);
         } else {
             shell.badge.setVisibility(View.GONE);
         }
@@ -221,19 +245,22 @@ public final class AutoUi {
         shell.footer.addView(primary);
     }
 
+    private static void enable(boolean on) {
+        if (primary != null) {
+            primary.setAlpha(on ? 1f : 0.45f);
+        }
+    }
+
     private static void next() {
         AutoModel.Input in = AutoSession.getInput();
         switch (step) {
-            case STEP_GOAL:
-                go(STEP_PROGRAM);
-                break;
             case STEP_PROGRAM:
                 if (in.programId != null) {
-                    go(STEP_CHECK);
+                    go(STEP_CLIENT);
                 }
                 break;
-            case STEP_CHECK:
-                if (checkBlocker() == null) {
+            case STEP_CLIENT:
+                if (clientBlocker() == null) {
                     if (heightTouched) {
                         AutoSession.saveHeight(host, in.heightCm);
                     }
@@ -245,14 +272,15 @@ public final class AutoUi {
                 go(STEP_CALIB);
                 break;
             case STEP_CALIB:
-                if (calibStarted && AutoSession.canStart()) {
+                if (!calibStarted) {
+                    AutoSession.beginCalibration();
+                    calibStarted = true;
+                    go(STEP_CALIB);
+                } else if (AutoSession.canStart()) {
                     AutoSession.startRun(host);
-                    go(STEP_RUN);
+                    // The program runs by itself: the sheet steps aside, the tile brings it back.
+                    dismiss();
                 }
-                break;
-            case STEP_REPORT:
-                AutoSession.close();
-                dismiss();
                 break;
             default:
                 break;
@@ -264,164 +292,156 @@ public final class AutoUi {
             AutoSession.stop();
             calibStarted = false;
         }
-        if (step > STEP_GOAL && step <= STEP_CALIB) {
+        if (step > STEP_PROGRAM && step <= STEP_CALIB) {
             go(step - 1);
         }
     }
 
-    // ================================================================ 1 · goal and kind
-
-    private static void screenGoal(Context c) {
-        shell.title.setText(AiText.t("Автоматична тренировка", "Automatic session"));
-        subtitle(AiText.t("Цел → вид → програма. Силата я нагласяш ти, останалото е в лимити.",
-                "Goal → kind → program. You set the strength, the rest stays within limits."));
-        AutoModel.Input in = AutoSession.getInput();
-        LinearLayout body = shell.body;
-        body.addView(XemsUi.label(c, AiText.t("Цел", "Goal")), XemsUi.matchWrap(c, 8));
-        LinearLayout row = XemsUi.horizontal(c);
-        Goal[] goals = Goal.values();
-        String[][] txt = {
-                {AiText.t("Стягане", "Toning"), AiText.t("Форма и тонус", "Shape and tone")},
-                {AiText.t("Отслабване", "Weight loss"), AiText.t("Енергоразход, по-дълго", "Energy use, longer")},
-                {AiText.t("Здраве", "Health"), AiText.t("Гръб, дренаж, възстановяване", "Back, drainage, recovery")},
-        };
-        for (int i = 0; i < goals.length; i++) {
-            boolean sel = in.goal == goals[i];
-            LinearLayout card = choiceCard(c, txt[i][0], txt[i][1], sel, goalColor(goals[i]));
-            card.setOnClickListener(new Act(A_GOAL, i));
-            row.addView(card, XemsUi.weight(1, i == 0 ? 0 : 10, c));
-        }
-        body.addView(row, XemsUi.matchWrap(c, 8));
-
-        body.addView(XemsUi.label(c, AiText.t("Вид", "Kind")), XemsUi.matchWrap(c, 18));
-        LinearLayout kinds = XemsUi.segmented(c, new String[] {
-                AiText.t("Активна · с упражнения", "Active · with exercises"),
-                AiText.t("Пасивна · процедура", "Passive · procedure")},
-                in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0));
-        body.addView(kinds, XemsUi.matchWrap(c, 8));
-        body.addView(hint(c, in.kind == Kind.ACTIVE
-                ? AiText.t("Движение с всеки импулс; програмите са силови или метаболитни.",
-                "Move with every pulse; strength or metabolic programs.")
-                : AiText.t("Легнал или седнал, без движение; ниски сили и дълги паузи.",
-                "Lying or sitting, no movement; low strength and long pauses.")), XemsUi.matchWrap(c, 6));
-
-        body.addView(XemsUi.label(c, AiText.t("Кой управлява", "Who operates")), XemsUi.matchWrap(c, 18));
-        body.addView(XemsUi.segmented(c, new String[] {
-                AiText.t("Треньор", "Trainer"), AiText.t("Самостоятелно", "On my own")},
-                in.operator == AiModel.Operator.TRAINER ? 0 : 1, new Act(A_OPERATOR, 0)), XemsUi.matchWrap(c, 8));
-        if (in.solo()) {
-            body.addView(hint(c, AiText.t("Самостоятелно: по-тесни граници — импулс ≤ 4 s, сила ≤ 90 %, таван на пулса −5 %.",
-                    "On your own: tighter limits — pulse ≤ 4 s, strength ≤ 90 %, HR ceiling −5 %.")), XemsUi.matchWrap(c, 6));
-        }
-        footer(c, AiText.t("Избери програма", "Choose a program"), false);
-    }
-
-    // ================================================================ 2 · program
+    // ================================================================ 1 · program
 
     private static void screenProgram(Context c) {
         AutoModel.Input in = AutoSession.getInput();
-        shell.title.setText(AiText.t("Програма", "Program"));
-        subtitle(goalName(in.goal) + " · " + (in.kind == Kind.ACTIVE ? AiText.t("активна", "active")
-                : AiText.t("пасивна", "passive")));
+        shell.title.setText(AiText.t("Какво правим днес?", "What are we doing today?"));
+        subtitle(null);
+        LinearLayout body = shell.body;
+        Goal[] goals = Goal.values();
+        String[] names = new String[goals.length];
+        int sel = 0;
+        for (int i = 0; i < goals.length; i++) {
+            names[i] = goalName(goals[i]);
+            if (goals[i] == in.goal) {
+                sel = i;
+            }
+        }
+        body.addView(XemsUi.segmented(c, names, sel, new Act(A_GOAL, 0)), XemsUi.matchWrap(c, 4));
+        // Active / passive only where the goal has both.
+        boolean both = !AutoCatalog.menu(in.goal, Kind.ACTIVE).isEmpty() && !AutoCatalog.menu(in.goal, Kind.PASSIVE).isEmpty();
+        if (both) {
+            body.addView(XemsUi.segmented(c, new String[] {
+                    AiText.t("С движение", "With movement"), AiText.t("Процедура в покой", "Procedure at rest")},
+                    in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.matchWrap(c, 10));
+        }
+
         List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
         Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
         Program chosen = AutoCatalog.get(in.programId);
         if (chosen == null || !menu.contains(chosen) || AutoCatalog.blockReason(chosen, in.goal, in, false) != null) {
             in.programId = AutoCatalog.blockReason(rec, in.goal, in, false) == null ? rec.id : null;
         }
+        String firstBlock = null;
+        int shown = 0;
         for (int i = 0; i < menu.size(); i++) {
             Program p = menu.get(i);
             String block = AutoCatalog.blockReason(p, in.goal, in, false);
-            boolean sel = p.id.equals(in.programId);
+            if (block != null) {
+                // Not for this client today: not offered at all.
+                if (firstBlock == null) {
+                    firstBlock = block;
+                }
+                continue;
+            }
+            boolean on = p.id.equals(in.programId);
             LinearLayout card = XemsUi.card(c);
-            card.setBackgroundDrawable(XemsUi.rounded(sel ? XemsUi.mix(XemsUi.CARD, goalColor(in.goal), 0.18f) : XemsUi.CARD,
-                    XemsUi.dp(c, 16), sel ? goalColor(in.goal) : XemsUi.STROKE, XemsUi.dp(c, sel ? 2 : 1)));
+            card.setBackgroundDrawable(XemsUi.rounded(on ? XemsUi.mix(XemsUi.CARD, goalColor(in.goal), 0.18f) : XemsUi.CARD,
+                    XemsUi.dp(c, 16), on ? goalColor(in.goal) : XemsUi.STROKE, XemsUi.dp(c, on ? 2 : 1)));
             LinearLayout head = XemsUi.horizontal(c);
             head.addView(XemsUi.text(c, p.name(), 17, XemsUi.TEXT, true),
                     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            if (p == rec && block == null) {
+            if (p == rec) {
                 head.addView(XemsUi.badge(c, AiText.t("Препоръчана", "Recommended"), XemsUi.GO_TEXT));
             }
+            head.addView(XemsUi.text(c, "  " + AutoPlanner.maxSeconds(p, in.goal, in) / 60 + AiText.t(" мин", " min"),
+                    14, XemsUi.MUTED, false));
             card.addView(head);
-            TextView d = XemsUi.text(c, p.desc() + " · " + summary(p, in), 13, XemsUi.MUTED, false);
+            TextView d = XemsUi.text(c, p.desc(), 13, XemsUi.MUTED, false);
             d.setPadding(0, XemsUi.dp(c, 4), 0, 0);
             card.addView(d);
-            if (block != null) {
-                TextView b = XemsUi.text(c, "⊘ " + block, 13, XemsUi.DANGER, true);
-                b.setPadding(0, XemsUi.dp(c, 6), 0, 0);
-                card.addView(b);
-                card.setAlpha(0.55f);
-            } else {
-                card.setOnClickListener(new Act(A_PROGRAM, i));
-                XemsUi.pressable(card);
+            card.setOnClickListener(new Act(A_PROGRAM, i));
+            XemsUi.pressable(card);
+            body.addView(card, XemsUi.matchWrap(c, shown == 0 ? 14 : 10));
+            shown++;
+        }
+        if (shown == 0) {
+            body.addView(banner(c, XemsUi.AMBER, firstBlock != null ? firstBlock
+                    : AiText.t("Няма програма за този избор.", "No program for this choice.")), XemsUi.matchWrap(c, 14));
+        }
+        // Who operates: remembered, so only a quiet line.
+        TextView op = XemsUi.text(c, AiText.t("Управлява: ", "Operated by: ") + (in.solo()
+                ? AiText.t("клиентът сам · смени", "the client alone · change")
+                : AiText.t("треньор · смени", "trainer · change")), 13, XemsUi.MUTED, false);
+        op.setPadding(0, XemsUi.dp(c, 6), 0, XemsUi.dp(c, 6));
+        op.setOnClickListener(new Act(A_OPERATOR, 0));
+        body.addView(op, XemsUi.matchWrap(c, 16));
+        footer(c, AiText.t("Напред", "Next"), false);
+        enable(in.programId != null);
+    }
+
+    // ================================================================ 2 · client
+
+    private static boolean hasHealthFlag(AutoModel.Input in) {
+        for (Boolean v : in.screening.contraindications.values()) {
+            if (v != null && v) {
+                return true;
             }
-            shell.body.addView(card, XemsUi.matchWrap(c, i == 0 ? 4 : 10));
         }
-        footer(c, AiText.t("Проверка", "Check"), true);
+        return in.screening.feverOrIllness || in.screening.alcoholOrStress48h || in.screening.knownArrhythmia;
     }
 
-    private static String summary(Program p, AutoModel.Input in) {
-        int min = AutoPlanner.maxSeconds(p, in.goal, in) / 60;
-        String hr;
-        switch (AutoCatalog.hrUse(p, in.goal)) {
-            case CORRIDOR: hr = AiText.t("пулс в зона", "HR zone"); break;
-            default: hr = AiText.t("таван на пулса", "HR ceiling"); break;
-        }
-        return min + AiText.t(" мин · ", " min · ") + hr;
-    }
-
-    // ================================================================ 3 · check
-
-    private static void screenCheck(Context c) {
+    private static void screenClient(Context c) {
         AutoModel.Input in = AutoSession.getInput();
         Program p = AutoCatalog.get(in.programId);
-        shell.title.setText(AiText.t("Проверка", "Check"));
-        subtitle(p != null ? p.name() : "");
+        shell.title.setText(AutoSession.getRows().isEmpty() || AutoSession.getRows().get(0).name.length() == 0
+                ? AiText.t("Клиент", "Client") : AutoSession.getRows().get(0).name);
+        subtitle(p != null ? p.name() : null);
         LinearLayout body = shell.body;
 
+        // Profile: from the client record — one line; open only when something is missing or on request.
         LinearLayout prof = XemsUi.card(c);
-        prof.addView(XemsUi.label(c, AiText.t("Клиент", "Client")));
-        prof.addView(XemsUi.segmented(c, new String[] {AiText.t("Жена", "Female"), AiText.t("Мъж", "Male")},
-                in.sex == AiModel.Sex.FEMALE ? 0 : 1, new Act(A_SEX, 0)), XemsUi.matchWrap(c, 8));
-        LinearLayout nums = XemsUi.horizontal(c);
-        nums.addView(labeled(c, AiText.t("Възраст", "Age"),
-                XemsUi.stepper(c, "" + in.age, AiText.t("г.", "y"), 20, new Act(A_AGE, 0)).view), XemsUi.weight(1, 0, c));
-        nums.addView(labeled(c, AiText.t("Тегло", "Weight"),
-                XemsUi.stepper(c, "" + Math.round(in.weightKg), "kg", 20, new Act(A_WEIGHT, 0)).view), XemsUi.weight(1, 10, c));
-        nums.addView(labeled(c, AiText.t("Ръст · задължително", "Height · required"),
-                XemsUi.stepper(c, in.heightCm > 0 ? "" + in.heightCm : "—", "cm", 20, new Act(A_HEIGHT, 0)).view),
-                XemsUi.weight(1, 10, c));
-        prof.addView(nums, XemsUi.matchWrap(c, 10));
-        String bmi = in.heightCm > 0 ? String.format(Locale.US, "%.1f", in.bmi()) : "—";
-        String last = in.hoursSinceActive < 0 ? AiText.t("няма", "none")
-                : in.hoursSinceActive < 48 ? Math.round(in.hoursSinceActive) + AiText.t(" ч", " h")
-                : Math.round(in.hoursSinceActive / 24) + AiText.t(" дни", " days");
-        prof.addView(hint(c, AiText.t("ИТМ ", "BMI ") + bmi + AiText.t(" · сесии досега: ", " · sessions so far: ")
-                + in.sessions + AiText.t(" · последна активна: ", " · last active: ") + last), XemsUi.matchWrap(c, 8));
-        prof.addView(XemsUi.label(c, AiText.t("Кондиция", "Fitness")), XemsUi.matchWrap(c, 10));
-        prof.addView(XemsUi.segmented(c, new String[] {AiText.t("Ниска", "Low"), AiText.t("Средна", "Medium"),
-                AiText.t("Висока", "High")}, in.fitness.ordinal(), new Act(A_FITNESS, 0)), XemsUi.matchWrap(c, 6));
+        if (!profileOpen) {
+            LinearLayout line = XemsUi.horizontal(c);
+            line.setGravity(Gravity.CENTER_VERTICAL);
+            String fit = in.fitness == AiModel.Fitness.LOW ? AiText.t("ниска кондиция", "low fitness")
+                    : in.fitness == AiModel.Fitness.HIGH ? AiText.t("висока кондиция", "high fitness")
+                    : AiText.t("средна кондиция", "medium fitness");
+            line.addView(XemsUi.text(c, (in.sex == AiModel.Sex.FEMALE ? AiText.t("Жена", "Female") : AiText.t("Мъж", "Male"))
+                    + " · " + in.age + AiText.t(" г.", " y") + " · " + Math.round(in.weightKg) + " kg · "
+                    + in.heightCm + " cm · " + fit, 15, XemsUi.TEXT, false),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView edit = XemsUi.button(c, AiText.t("Промени", "Edit"), XemsUi.GHOST);
+            edit.setOnClickListener(new Act(A_EDIT_PROFILE, 0));
+            line.addView(edit);
+            prof.addView(line);
+        } else {
+            prof.addView(XemsUi.segmented(c, new String[] {AiText.t("Жена", "Female"), AiText.t("Мъж", "Male")},
+                    in.sex == AiModel.Sex.FEMALE ? 0 : 1, new Act(A_SEX, 0)));
+            LinearLayout nums = XemsUi.horizontal(c);
+            nums.addView(labeled(c, AiText.t("Възраст", "Age"),
+                    XemsUi.stepper(c, "" + in.age, AiText.t("г.", "y"), 20, new Act(A_AGE, 0)).view), XemsUi.weight(1, 0, c));
+            nums.addView(labeled(c, AiText.t("Тегло", "Weight"),
+                    XemsUi.stepper(c, "" + Math.round(in.weightKg), "kg", 20, new Act(A_WEIGHT, 0)).view), XemsUi.weight(1, 10, c));
+            nums.addView(labeled(c, AiText.t("Ръст", "Height"),
+                    XemsUi.stepper(c, in.heightCm > 0 ? "" + in.heightCm : "—", "cm", 20, new Act(A_HEIGHT, 0)).view),
+                    XemsUi.weight(1, 10, c));
+            prof.addView(nums, XemsUi.matchWrap(c, 10));
+            prof.addView(XemsUi.segmented(c, new String[] {AiText.t("Ниска кондиция", "Low fitness"),
+                    AiText.t("Средна", "Medium"), AiText.t("Висока", "High")}, in.fitness.ordinal(),
+                    new Act(A_FITNESS, 0)), XemsUi.matchWrap(c, 10));
+        }
         body.addView(prof, XemsUi.matchWrap(c, 4));
 
+        // The program's own questions: only where the program needs them.
         if (p != null && p.asksPostpartum) {
             LinearLayout pp = XemsUi.card(c);
-            pp.addView(XemsUi.label(c, AiText.t("След раждането", "After birth")));
             pp.addView(labeled(c, AiText.t("Седмици след раждането", "Weeks since birth"),
-                    XemsUi.stepper(c, "" + in.extra.weeksSinceBirth, AiText.t("седм.", "wk"), 20, new Act(A_WEEKS, 0)).view),
-                    XemsUi.matchWrap(c, 8));
-            pp.addView(toggle(c, AiText.t("Цезарово сечение", "Cesarean section"),
-                    AiText.t("Най-рано 12 седмици и с разрешение от лекар", "12 weeks at the earliest, doctor's clearance"),
-                    in.extra.cesarean, 1));
-            pp.addView(toggle(c, AiText.t("Кърми", "Breastfeeding"),
-                    AiText.t("Гърдите се изключват", "Chest channel off"), in.extra.breastfeeding, 2));
-            pp.addView(toggle(c, AiText.t("Диастаза (≥ 2 пръста между правите мускули)", "Diastasis (≥ 2 fingers)"),
-                    AiText.t("Коремът до 40 %", "Abs up to 40 %"), in.extra.diastasis, 3));
+                    XemsUi.stepper(c, "" + in.extra.weeksSinceBirth, AiText.t("седм.", "wk"), 20, new Act(A_WEEKS, 0)).view));
+            pp.addView(toggle(c, AiText.t("Цезарово сечение", "Cesarean section"), null, in.extra.cesarean, 1));
+            pp.addView(toggle(c, AiText.t("Кърми", "Breastfeeding"), null, in.extra.breastfeeding, 2));
+            pp.addView(toggle(c, AiText.t("Диастаза (≥ 2 пръста)", "Diastasis (≥ 2 fingers)"), null, in.extra.diastasis, 3));
             body.addView(pp, XemsUi.matchWrap(c, 12));
         }
         if (p != null && p.asksBack) {
             LinearLayout bk = XemsUi.card(c);
-            bk.addView(XemsUi.label(c, AiText.t("Гръб — сигнали за тревога (всяко „да“ → лекар)",
-                    "Back — red flags (any yes → doctor)")));
+            bk.addView(XemsUi.label(c, AiText.t("Гръб: има ли някое от тези?", "Back: any of these?")));
             bk.addView(toggle(c, AiText.t("Остра болка (под 6 седмици)", "Acute pain (under 6 weeks)"), null, in.extra.backAcute, 10));
             bk.addView(toggle(c, AiText.t("Болка към крака, изтръпване, слабост", "Pain down the leg, numbness, weakness"), null, in.extra.backRadiating, 11));
             bk.addView(toggle(c, AiText.t("Скорошна травма", "Recent trauma"), null, in.extra.backTrauma, 12));
@@ -431,42 +451,52 @@ public final class AutoUi {
             body.addView(bk, XemsUi.matchWrap(c, 12));
         }
 
+        // Health: one confirmation; the full list only when something is not fine.
         LinearLayout sc = XemsUi.card(c);
-        sc.addView(XemsUi.label(c, AiText.t("Противопоказания", "Contraindications")));
-        for (int i = 0; i < AiScreening.CONTRAINDICATIONS.length; i++) {
-            String k = AiScreening.CONTRAINDICATIONS[i];
-            Boolean v = in.screening.contraindications.get(k);
-            sc.addView(XemsUi.toggleRow(c, AiText.contraindication(k), null, v != null && v, new Act(A_CONTRA, i)));
+        if (!healthOpen) {
+            TextView ok = XemsUi.button(c, (healthOk ? "✓ " : "") + AiText.t("Без противопоказания, добре е днес",
+                    "No contraindications, feeling fine today"), healthOk ? XemsUi.PRIMARY : XemsUi.SECONDARY);
+            ok.setOnClickListener(new Act(A_HEALTH_OK, 0));
+            sc.addView(ok, XemsUi.matchWrap(c, 0));
+            TextView more = XemsUi.button(c, AiText.t("Има нещо…", "Something is not fine…"), XemsUi.GHOST);
+            more.setOnClickListener(new Act(A_HEALTH_OPEN, 0));
+            sc.addView(more, XemsUi.matchWrap(c, 6));
+        } else {
+            sc.addView(XemsUi.label(c, AiText.t("Отбележи какво важи", "Mark what applies")));
+            for (int i = 0; i < AiScreening.CONTRAINDICATIONS.length; i++) {
+                String k = AiScreening.CONTRAINDICATIONS[i];
+                Boolean v = in.screening.contraindications.get(k);
+                sc.addView(XemsUi.toggleRow(c, AiText.contraindication(k), null, v != null && v, new Act(A_CONTRA, i)));
+            }
+            sc.addView(XemsUi.toggleRow(c, AiText.t("Температура или болест", "Fever or illness"), null,
+                    in.screening.feverOrIllness, new Act(A_TODAY, 0)));
+            sc.addView(XemsUi.toggleRow(c, AiText.t("Алкохол или силен стрес (48 ч)", "Alcohol or heavy stress (48 h)"), null,
+                    in.screening.alcoholOrStress48h, new Act(A_TODAY, 1)));
+            sc.addView(XemsUi.toggleRow(c, AiText.t("Известна аритмия", "Known arrhythmia"), null,
+                    in.screening.knownArrhythmia, new Act(A_TODAY, 2)));
         }
-        sc.addView(XemsUi.label(c, AiText.t("Днес", "Today")), XemsUi.matchWrap(c, 10));
-        sc.addView(XemsUi.toggleRow(c, AiText.t("Температура или болест", "Fever or illness"), null,
-                in.screening.feverOrIllness, new Act(A_TODAY, 0)));
-        sc.addView(XemsUi.toggleRow(c, AiText.t("Алкохол или силен стрес (48 ч)", "Alcohol or heavy stress (48 h)"), null,
-                in.screening.alcoholOrStress48h, new Act(A_TODAY, 1)));
-        sc.addView(XemsUi.toggleRow(c, AiText.t("Известна аритмия", "Known arrhythmia"), null,
-                in.screening.knownArrhythmia, new Act(A_TODAY, 2)));
-        sc.addView(XemsUi.toggleRow(c, AiText.t("Хранене в последните 2 ч", "Ate in the last 2 h"),
-                AiText.t("Иначе ≈ 250 kcal въглехидрати преди", "Otherwise ≈ 250 kcal carbs first"),
-                in.screening.ateLast2h, new Act(A_TODAY, 3)));
-        sc.addView(XemsUi.toggleRow(c, AiText.t("Пил вода (250–500 ml)", "Drank water (250–500 ml)"), null,
-                in.screening.hydrated, new Act(A_TODAY, 4)));
         body.addView(sc, XemsUi.matchWrap(c, 12));
 
-        String blocker = checkBlocker();
-        body.addView(banner(c, blocker == null ? XemsUi.GO : XemsUi.DANGER, blocker == null
-                ? AiText.t("Може да продължиш.", "You may continue.") : blocker), XemsUi.matchWrap(c, 12));
-        footer(c, AiText.t("План", "Plan"), true);
-        primary.setAlpha(blocker == null ? 1f : 0.45f);
+        String blocker = clientBlocker();
+        boolean ready = blocker == null && (healthOk || healthOpen);
+        if (blocker != null && (healthOk || healthOpen || in.heightCm <= 0)) {
+            body.addView(banner(c, XemsUi.DANGER, blocker), XemsUi.matchWrap(c, 12));
+        }
+        footer(c, AiText.t("Напред", "Next"), true);
+        enable(ready);
     }
 
-    /** Why the check step does not let go, or null. */
-    private static String checkBlocker() {
+    /** Why the client step does not let go, or null. */
+    private static String clientBlocker() {
         AutoModel.Input in = AutoSession.getInput();
         if (in.heightCm <= 0) {
-            return AiText.t("Въведи ръста — нужен е за ИТМ и лимитите.", "Enter the height — needed for BMI and the limits.");
+            return AiText.t("Въведи ръста.", "Enter the height.");
         }
         if (in.age < 18) {
             return AiText.t("Под 18 г. — не.", "Under 18 — no.");
+        }
+        if (!healthOk && !healthOpen) {
+            return AiText.t("Потвърди здравето.", "Confirm the health check.");
         }
         AiScreening.Result r = AiScreening.evaluate(AutoSession.screeningInput(in));
         if (r.isRejected()) {
@@ -479,107 +509,53 @@ public final class AutoUi {
             return sb.toString();
         }
         Program p = AutoCatalog.get(in.programId);
-        String b = p != null ? AutoCatalog.blockReason(p, in.goal, in) : AiText.t("Няма програма", "No program");
-        return b;
+        return p != null ? AutoCatalog.blockReason(p, in.goal, in) : AiText.t("Няма програма", "No program");
     }
 
-    // ================================================================ 4 · plan
+    // ================================================================ 3 · plan
 
     private static void screenPlan(Context c) {
         AutoModel.Plan plan = AutoSession.getPlan();
         AutoModel.Input in = AutoSession.getInput();
         shell.title.setText(plan.program.name());
-        subtitle(AiText.t("План и лимити за ", "Plan and limits for ") + goalName(in.goal).toLowerCase(Locale.ROOT));
+        subtitle(null);
         LinearLayout body = shell.body;
 
         LinearLayout tiles = XemsUi.horizontal(c);
         tile(c, tiles, AiText.t("Време", "Time"), (plan.totalS / 60) + AiText.t(" мин", " min"), 0);
-        tile(c, tiles, AiText.t("Сила до", "Strength up to"), Math.round(plan.phiMax * plan.envMax * 100) + " %", 10);
-        tile(c, tiles, AiText.t("Усещане", "Feeling"), "CR10 " + plan.cr10Lo + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : ""), 10);
-        String hr = plan.hrCap + " bpm";
-        if (plan.hrUse == AutoModel.HrUse.CORRIDOR) {
-            hr = plan.corridorLoHr() + "–" + plan.corridorHiHr() + " · ≤ " + plan.hrCap;
+        tile(c, tiles, AiText.t("Усещане", "Feeling"), plan.cr10Lo + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "")
+                + AiText.t(" от 10", " of 10"), 10);
+        boolean band = AutoSession.isBandConfigured(host);
+        if (plan.hrUse != AutoModel.HrUse.NONE && band) {
+            tile(c, tiles, AiText.t("Пулс до", "HR up to"), plan.hrCap + "", 10);
         }
-        tile(c, tiles, plan.hrUse == AutoModel.HrUse.CORRIDOR ? AiText.t("Пулс зона · таван", "HR zone · ceiling")
-                : AiText.t("Таван на пулса", "HR ceiling"), hr, 10);
         body.addView(tiles, XemsUi.matchWrap(c, 4));
-        if (!plan.hrRestMeasured) {
-            body.addView(hint(c, AiText.t("Пулс в покой: 70 (приет — гривната не е подала пулс преди старта).",
-                    "Resting HR: 70 (assumed — no band reading before the start).")), XemsUi.matchWrap(c, 6));
-        }
-
-        LinearLayout ph = XemsUi.card(c);
-        ph.addView(XemsUi.label(c, AiText.t("Фази", "Phases")));
-        for (AutoModel.Phase p : plan.phases) {
-            AutoModel.Step s = p.steps.get(0);
-            StringBuilder sb = new StringBuilder();
-            sb.append(Math.round(p.durationS / 60.0)).append(AiText.t(" мин · ", " min · "));
-            if (p.wave) {
-                sb.append(AiText.t("вълна по зоните · ", "wave through the zones · ")).append(s.hz).append(" Hz");
-            } else {
-                for (int i = 0; i < p.steps.size(); i++) {
-                    AutoModel.Step st = p.steps.get(i);
-                    sb.append(i > 0 ? " ↔ " : "").append(st.hz).append(" Hz ").append(st.onS).append("/").append(st.offS).append(" s");
-                }
-                sb.append(" · ").append(s.pwUs).append(" µs");
-            }
-            sb.append(" · ").append(Math.round(Math.min(plan.phiMax, p.phiStart) * 100));
-            if (Math.abs(p.phiEnd - p.phiStart) > 0.01) {
-                sb.append("→").append(Math.round(Math.min(plan.phiMax, p.phiEnd) * 100));
-            }
-            sb.append(" %");
-            LinearLayout r = XemsUi.horizontal(c);
-            r.addView(XemsUi.text(c, AiText.t(p.nameBg, p.nameEn), 14, XemsUi.TEXT, true),
-                    new LinearLayout.LayoutParams(XemsUi.dp(c, 170), ViewGroup.LayoutParams.WRAP_CONTENT));
-            r.addView(XemsUi.text(c, sb.toString(), 13, XemsUi.MUTED, false),
-                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            ph.addView(r, XemsUi.matchWrap(c, 6));
-        }
-        body.addView(ph, XemsUi.matchWrap(c, 12));
-
-        LinearLayout zc = XemsUi.card(c);
-        zc.addView(XemsUi.label(c, AiText.t("Зони (% от силата) · ±", "Zones (% of strength) · ±") + plan.zoneDelta
-                + AiText.t(" на живо", " live")));
-        zc.addView(zoneBars(c, plan), XemsUi.matchWrap(c, 8));
-        body.addView(zc, XemsUi.matchWrap(c, 12));
 
         LinearLayout opt = XemsUi.card(c);
-        opt.addView(XemsUi.label(c, AiText.t("Настройки", "Options")));
         opt.addView(labeled(c, AiText.t("Продължителност", "Duration"),
-                XemsUi.stepper(c, "" + (plan.totalS / 60), AiText.t("мин (до ", "min (up to ")
-                        + AutoPlanner.maxSeconds(plan.program, in.goal, in) / 60 + ")", 20, new Act(A_MINUTES, 0)).view),
-                XemsUi.matchWrap(c, 8));
+                XemsUi.stepper(c, "" + (plan.totalS / 60), AiText.t("мин", "min"), 20, new Act(A_MINUTES, 0)).view));
         String[] levels = AutoPlanner.intenseAllowed(plan.program, in)
                 ? new String[] {AiText.t("Мек", "Soft"), AiText.t("Стандартен", "Standard"), AiText.t("Интензивен", "Intense")}
                 : new String[] {AiText.t("Мек", "Soft"), AiText.t("Стандартен", "Standard")};
-        opt.addView(XemsUi.label(c, AiText.t("Интензитет", "Intensity")), XemsUi.matchWrap(c, 10));
         opt.addView(XemsUi.segmented(c, levels, Math.min(levels.length - 1, in.intensity.ordinal()),
-                new Act(A_INTENSITY, 0)), XemsUi.matchWrap(c, 6));
+                new Act(A_INTENSITY, 0)), XemsUi.matchWrap(c, 12));
         if (plan.program.variantsBg != null) {
             String[] v = new String[plan.program.variantsBg.length];
             for (int i = 0; i < v.length; i++) {
                 v[i] = AiText.t(plan.program.variantsBg[i], plan.program.variantsEn[i]);
             }
-            opt.addView(XemsUi.label(c, AiText.t("Вариант", "Variant")), XemsUi.matchWrap(c, 10));
-            opt.addView(XemsUi.segmented(c, v, in.variant, new Act(A_VARIANT, 0)), XemsUi.matchWrap(c, 6));
+            opt.addView(XemsUi.segmented(c, v, in.variant, new Act(A_VARIANT, 0)), XemsUi.matchWrap(c, 10));
         }
         if (plan.doublePulseAllowed) {
-            opt.addView(XemsUi.toggleRow(c, AiText.t("Двоен импулс (активна пауза)", "Double impulse (active pause)"),
-                    AiText.t("Лек нискочестотен импулс в паузата — програмата решава къде", "A light low-frequency pulse in the pause — the program decides where"),
+            opt.addView(XemsUi.toggleRow(c, AiText.t("Двоен импулс", "Double impulse"), null,
                     in.doublePulse, new Act(A_DOUBLE, 0)), XemsUi.matchWrap(c, 8));
         }
-        String band = AutoSession.isBandConfigured(host)
-                ? (AutoSession.getLastBandHr() > 0 ? AiText.t("Гривна: ", "Band: ") + AutoSession.getLastBandHr() + " bpm"
-                : AiText.t("Гривна: свързване…", "Band: connecting…"))
-                : AiText.t("Без гривна: таванът на пулса не работи.", "No band: the HR ceiling is off.");
-        opt.addView(hint(c, band + AiText.t(" · Музика: само от друго приложение (синхронизацията сменя честотата и паузите).",
-                " · Music: from another app only (sync changes frequency and pauses).")), XemsUi.matchWrap(c, 10));
         body.addView(opt, XemsUi.matchWrap(c, 12));
 
+        // Only what needs attention.
         StringBuilder notes = new StringBuilder();
-        List<String> list = AiText.t("x", "y").equals("x") ? plan.notesBg : plan.notesEn;
-        for (String n : list) {
-            notes.append("• ").append(n).append('\n');
+        if (plan.hrUse != AutoModel.HrUse.NONE && !band) {
+            notes.append("• ").append(AiText.t("Без гривна — пулсът не се следи.", "No band — heart rate is not watched.")).append('\n');
         }
         for (AutoSession.Row r : AutoSession.getRows()) {
             if (r.block != null) {
@@ -588,9 +564,51 @@ public final class AutoUi {
             }
         }
         if (notes.length() > 0) {
-            body.addView(hint(c, notes.toString().trim()), XemsUi.matchWrap(c, 10));
+            body.addView(banner(c, XemsUi.AMBER, notes.toString().trim()), XemsUi.matchWrap(c, 12));
         }
-        footer(c, AiText.t("Калибриране", "Calibration"), true);
+
+        TextView more = XemsUi.button(c, details ? AiText.t("Скрий подробностите", "Hide details")
+                : AiText.t("Подробности", "Details"), XemsUi.GHOST);
+        more.setOnClickListener(new Act(A_DETAILS, 0));
+        body.addView(more, XemsUi.matchWrap(c, 6));
+        if (details) {
+            LinearLayout ph = XemsUi.card(c);
+            for (AutoModel.Phase p : plan.phases) {
+                AutoModel.Step s = p.steps.get(0);
+                StringBuilder sb = new StringBuilder();
+                sb.append(Math.round(p.durationS / 60.0)).append(AiText.t(" мин · ", " min · "));
+                if (p.wave) {
+                    sb.append(AiText.t("вълна по зоните · ", "wave through the zones · ")).append(s.hz).append(" Hz");
+                } else {
+                    for (int i = 0; i < p.steps.size(); i++) {
+                        AutoModel.Step st = p.steps.get(i);
+                        sb.append(i > 0 ? " ↔ " : "").append(st.hz).append(" Hz ").append(st.onS).append("/").append(st.offS).append(" s");
+                    }
+                }
+                sb.append(" · ").append(Math.round(Math.min(plan.phiMax, p.phiStart) * 100));
+                if (Math.abs(p.phiEnd - p.phiStart) > 0.01) {
+                    sb.append("→").append(Math.round(Math.min(plan.phiMax, p.phiEnd) * 100));
+                }
+                sb.append(" %");
+                LinearLayout r = XemsUi.horizontal(c);
+                r.addView(XemsUi.text(c, AiText.t(p.nameBg, p.nameEn), 14, XemsUi.TEXT, true),
+                        new LinearLayout.LayoutParams(XemsUi.dp(c, 170), ViewGroup.LayoutParams.WRAP_CONTENT));
+                r.addView(XemsUi.text(c, sb.toString(), 13, XemsUi.MUTED, false),
+                        new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                ph.addView(r, XemsUi.matchWrap(c, 6));
+            }
+            ph.addView(zoneBars(c, plan), XemsUi.matchWrap(c, 14));
+            StringBuilder pn = new StringBuilder();
+            List<String> list = AiText.t("x", "y").equals("x") ? plan.notesBg : plan.notesEn;
+            for (String n : list) {
+                pn.append("• ").append(n).append('\n');
+            }
+            if (pn.length() > 0) {
+                ph.addView(hint(c, pn.toString().trim()), XemsUi.matchWrap(c, 10));
+            }
+            body.addView(ph, XemsUi.matchWrap(c, 8));
+        }
+        footer(c, AiText.t("Напред", "Next"), true);
     }
 
     private static View zoneBars(Context c, AutoModel.Plan plan) {
@@ -636,51 +654,57 @@ public final class AutoUi {
         return n;
     }
 
-    // ================================================================ 5 · calibration
+    // ================================================================ 4 · strength
 
     private static void screenCalib(Context c) {
         AutoModel.Plan plan = AutoSession.getPlan();
-        shell.title.setText(AiText.t("Калибриране на силата", "Strength calibration"));
-        subtitle(AiText.t("Целево усещане: CR10 ", "Target feeling: CR10 ") + plan.cr10Lo
-                + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "") + " · " + cr10Text(plan.cr10Hi));
+        shell.title.setText(AiText.t("Сила", "Strength"));
+        subtitle(AiText.t("До усещане ", "Up to a feeling of ") + plan.cr10Lo
+                + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "") + AiText.t(" от 10 · ", " of 10 · ") + cr10Text(plan.cr10Hi));
         LinearLayout body = shell.body;
-        body.addView(hint(c, AiText.t(
-                "Импулсите са като в основната част на програмата. Качвай силата на всеки клиент до целевото усещане — тук или с + / − и плъзгача на основния екран (най-много +5 в секунда). Зоните може да се местят ±20. После „Старт“: програмата тръгва от загрявката и не минава над калибрирането освен в лимита на фазата.",
-                "Pulses are as in the program's main part. Raise each client's strength to the target feeling — here or with + / − and the slider on the main screen (at most +5 per second). Zones may move ±20. Then Start: the program begins with the warm-up and never goes above the calibration except within the phase limit.")),
-                XemsUi.matchWrap(c, 4));
         if (!calibStarted) {
-            TextView b = XemsUi.button(c, AiText.t("▶ Пусни импулсите за калибриране", "▶ Start calibration pulses"), XemsUi.ACCENT_BTN);
-            b.setOnClickListener(new Act(A_CALIB_START, 0));
-            body.addView(b, XemsUi.matchWrap(c, 16));
-        } else {
-            List<AutoSession.Row> rows = AutoSession.getRows();
-            for (int i = 0; i < rows.size(); i++) {
-                AutoSession.Row r = rows.get(i);
-                LinearLayout card = XemsUi.card(c);
-                LinearLayout head = XemsUi.horizontal(c);
-                head.addView(XemsUi.text(c, r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (i + 1),
-                        16, XemsUi.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-                TextView lbl = XemsUi.text(c, "", 22, XemsUi.GO_TEXT, true);
-                rowLabels.add(lbl);
+            body.addView(hint(c, AiText.t("Костюмът е облечен и свързан? Импулсите тръгват с бутона долу.",
+                    "Suit on and connected? The pulses start with the button below.")), XemsUi.matchWrap(c, 4));
+            footer(c, AiText.t("▶ Пусни импулсите", "▶ Start the pulses"), true);
+            return;
+        }
+        body.addView(hint(c, AiText.t("Качвай силата тук или с + / − на основния екран.",
+                "Raise the strength here or with + / − on the main screen.")), XemsUi.matchWrap(c, 4));
+        List<AutoSession.Row> rows = AutoSession.getRows();
+        for (int i = 0; i < rows.size(); i++) {
+            AutoSession.Row r = rows.get(i);
+            LinearLayout card = XemsUi.card(c);
+            LinearLayout head = XemsUi.horizontal(c);
+            head.setGravity(Gravity.CENTER_VERTICAL);
+            head.addView(XemsUi.text(c, r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (i + 1),
+                    16, XemsUi.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView lbl = XemsUi.text(c, "", 22, XemsUi.GO_TEXT, true);
+            rowLabels.add(lbl);
+            if (r.block != null) {
                 head.addView(lbl);
                 card.addView(head);
-                if (r.block != null) {
-                    card.addView(XemsUi.text(c, "⊘ " + r.block, 13, XemsUi.DANGER, true));
-                } else {
-                    LinearLayout keys = XemsUi.horizontal(c);
-                    int[] steps = {-5, -1, +1, +5};
-                    for (int k = 0; k < steps.length; k++) {
-                        TextView key = XemsUi.button(c, (steps[k] > 0 ? "+" : "−") + Math.abs(steps[k]), XemsUi.SECONDARY);
-                        key.setOnClickListener(new Act(A_CALIB_ROW, i * 100 + (steps[k] + 50)));
-                        keys.addView(key, XemsUi.weight(1, k == 0 ? 0 : 8, c));
-                    }
-                    card.addView(keys, XemsUi.matchWrap(c, 8));
+                card.addView(XemsUi.text(c, "⊘ " + r.block, 13, XemsUi.DANGER, true));
+            } else {
+                int[] steps = {-5, -1};
+                for (int k = 0; k < steps.length; k++) {
+                    TextView key = XemsUi.button(c, "−" + Math.abs(steps[k]), XemsUi.SECONDARY);
+                    key.setOnClickListener(new Act(A_CALIB_ROW, i * 100 + (steps[k] + 50)));
+                    head.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 72), ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
-                body.addView(card, XemsUi.matchWrap(c, 12));
+                lbl.setGravity(Gravity.CENTER);
+                head.addView(lbl, new LinearLayout.LayoutParams(XemsUi.dp(c, 80), ViewGroup.LayoutParams.WRAP_CONTENT));
+                int[] up = {+1, +5};
+                for (int k = 0; k < up.length; k++) {
+                    TextView key = XemsUi.button(c, "+" + up[k], XemsUi.SECONDARY);
+                    key.setOnClickListener(new Act(A_CALIB_ROW, i * 100 + (up[k] + 50)));
+                    head.addView(key, new LinearLayout.LayoutParams(XemsUi.dp(c, 72), ViewGroup.LayoutParams.WRAP_CONTENT));
+                }
+                card.addView(head);
             }
-            calibRowsInfo = hint(c, "");
-            body.addView(calibRowsInfo, XemsUi.matchWrap(c, 8));
+            body.addView(card, XemsUi.matchWrap(c, 12));
         }
+        calibRowsInfo = hint(c, "");
+        body.addView(calibRowsInfo, XemsUi.matchWrap(c, 8));
         footer(c, AiText.t("Старт", "Start"), true);
         refreshCalib();
     }
@@ -691,8 +715,8 @@ public final class AutoUi {
             AutoSession.Row r = rows.get(i);
             rowLabels.get(i).setText(r.block != null ? "—" : r.lastStrength + "");
         }
-        if (primary != null) {
-            primary.setAlpha(calibStarted && AutoSession.canStart() ? 1f : 0.45f);
+        if (calibStarted) {
+            enable(AutoSession.canStart());
         }
         if (calibRowsInfo != null) {
             String n = AutoSession.getLastNotice();
@@ -710,12 +734,12 @@ public final class AutoUi {
         return AiText.t("много силно, издържимо", "very strong, bearable");
     }
 
-    // ================================================================ 6 · live
+    // ================================================================ live board (from the tile)
 
     private static void screenRun(Context c) {
         AutoModel.Plan plan = AutoSession.getPlan();
         shell.title.setText(plan.program.name());
-        subtitle(AiText.t("Автоматичен режим · на живо", "Automatic mode · live"));
+        subtitle(null);
         LinearLayout body = shell.body;
 
         LinearLayout top = XemsUi.card(c);
@@ -732,30 +756,20 @@ public final class AutoUi {
         track.addView(runBar, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 8), 0f));
         track.addView(new View(c), new LinearLayout.LayoutParams(0, XemsUi.dp(c, 8), 1f));
         top.addView(track, XemsUi.matchWrap(c, 10));
-        runParams = XemsUi.text(c, "", 14, XemsUi.MUTED, false);
-        top.addView(runParams, XemsUi.matchWrap(c, 8));
-        runHint = XemsUi.text(c, "", 15, XemsUi.AMBER, true);
-        top.addView(runHint, XemsUi.matchWrap(c, 6));
         runHr = XemsUi.text(c, "", 15, XemsUi.TEXT, true);
-        top.addView(runHr, XemsUi.matchWrap(c, 6));
-        body.addView(top, XemsUi.matchWrap(c, 4));
-
-        runRows = XemsUi.vertical(c);
+        top.addView(runHr, XemsUi.matchWrap(c, 8));
         List<AutoSession.Row> rows = AutoSession.getRows();
         for (int i = 0; i < rows.size(); i++) {
             AutoSession.Row r = rows.get(i);
             LinearLayout line = XemsUi.horizontal(c);
             line.addView(XemsUi.text(c, r.name.length() > 0 ? r.name : AiText.t("Участник ", "Participant ") + (i + 1),
-                    15, XemsUi.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            TextView v = XemsUi.text(c, "", 15, XemsUi.GO_TEXT, true);
+                    15, XemsUi.MUTED, false), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView v = XemsUi.text(c, "", 15, XemsUi.TEXT, true);
             rowLabels.add(v);
             line.addView(v);
-            runRows.addView(line, XemsUi.matchWrap(c, 6));
+            top.addView(line, XemsUi.matchWrap(c, 6));
         }
-        LinearLayout rc = XemsUi.card(c);
-        rc.addView(XemsUi.label(c, AiText.t("Сила · сега / лимит сега (калибриране)", "Strength · now / limit now (calibration)")));
-        rc.addView(runRows);
-        body.addView(rc, XemsUi.matchWrap(c, 12));
+        body.addView(top, XemsUi.matchWrap(c, 4));
 
         runNotice = hint(c, "");
         body.addView(runNotice, XemsUi.matchWrap(c, 8));
@@ -764,22 +778,25 @@ public final class AutoUi {
         runPause = XemsUi.button(c, "", XemsUi.SECONDARY);
         runPause.setOnClickListener(new Act(A_PAUSE, 0));
         keys.addView(runPause, XemsUi.weight(1, 0, c));
-        TextView minus = XemsUi.button(c, AiText.t("− Сила 10 %", "− Strength 10 %"), XemsUi.SECONDARY);
+        TextView minus = XemsUi.button(c, AiText.t("− 10 %", "− 10 %"), XemsUi.SECONDARY);
         minus.setOnClickListener(new Act(A_REDUCE, 0));
         keys.addView(minus, XemsUi.weight(1, 8, c));
-        TextView plus = XemsUi.button(c, AiText.t("+ Сила 5 %", "+ Strength 5 %"), XemsUi.SECONDARY);
+        TextView plus = XemsUi.button(c, AiText.t("+ 5 %", "+ 5 %"), XemsUi.SECONDARY);
         plus.setOnClickListener(new Act(A_RAISE, 0));
         keys.addView(plus, XemsUi.weight(1, 8, c));
         body.addView(keys, XemsUi.matchWrap(c, 12));
-        LinearLayout keys2 = XemsUi.horizontal(c);
         runDouble = XemsUi.button(c, "", XemsUi.SECONDARY);
         runDouble.setOnClickListener(new Act(A_DOUBLE_LIVE, 0));
-        keys2.addView(runDouble, XemsUi.weight(1, 0, c));
-        TextView cool = XemsUi.button(c, AiText.t("Към охлаждане", "To cool-down"), XemsUi.SECONDARY);
-        cool.setOnClickListener(new Act(A_COOLDOWN, 0));
-        keys2.addView(cool, XemsUi.weight(1, 8, c));
-        body.addView(keys2, XemsUi.matchWrap(c, 8));
+        body.addView(runDouble, XemsUi.matchWrap(c, 8));
+        // Finish early: the program goes straight into its recovery (cool-down) part.
+        runFinish = XemsUi.button(c, AiText.t("Приключи по-рано · към възстановяване", "Finish early · to recovery"),
+                XemsUi.SECONDARY);
+        runFinish.setOnClickListener(new Act(A_FINISH_EARLY, 0));
+        body.addView(runFinish, XemsUi.matchWrap(c, 8));
 
+        TextView hide = XemsUi.button(c, AiText.t("Скрий", "Hide"), XemsUi.GHOST);
+        hide.setOnClickListener(new Act(A_HIDE, 0));
+        shell.footer.addView(hide);
         shell.footer.addView(XemsUi.spacer(c));
         TextView stop = XemsUi.button(c, AiText.t("■ СТОП", "■ STOP"), XemsUi.ACCENT_BTN);
         stop.setOnClickListener(new Act(A_STOP, 0));
@@ -798,12 +815,14 @@ public final class AutoUi {
         AutoEngine.State st = e.getState();
         String state = "";
         if (st == AutoEngine.State.USER_PAUSE) {
-            state = AiText.t(" · ПАУЗА", " · PAUSED");
+            state = AiText.t(" · пауза", " · paused");
         } else if (st == AutoEngine.State.HR_PAUSE) {
-            state = e.isResumeWaiting() ? AiText.t(" · пулсът спадна — продължи", " · HR down — resume")
-                    : AiText.t(" · ПАУЗА: пулс", " · PAUSED: HR");
+            state = e.isResumeWaiting() ? AiText.t(" · пулсът спадна", " · HR down")
+                    : AiText.t(" · пауза: пулс", " · paused: HR");
         }
-        runPhase.setText((ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "") + state);
+        boolean recovery = ph != null && ph.isCooldown();
+        runPhase.setText((recovery ? AiText.t("Възстановяване", "Recovery")
+                : ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "") + state);
         runTime.setText(AiText.mmss(e.getRemainingS()));
         float share = plan.totalS > 0 ? (float) (e.getElapsedS() / plan.totalS) : 0;
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) runBar.getLayoutParams();
@@ -811,31 +830,17 @@ public final class AutoUi {
         View rest = ((ViewGroup) runBar.getParent()).getChildAt(1);
         ((LinearLayout.LayoutParams) rest.getLayoutParams()).weight = Math.max(0.001f, 1 - share);
         runBar.requestLayout();
-        AutoEngine.Cmd c = e.getCurrent();
-        if (c != null) {
-            String ext = e.getOffExtension() > 0 ? " (+" + e.getOffExtension() + " s)" : "";
-            String pause = c.pauseHz > 0 ? AiText.t(" · пауза ", " · pause ") + c.pauseHz + " Hz" : "";
-            String locked = ph != null && !ph.window.hz && !ph.window.on && !ph.window.off && !ph.window.pw
-                    ? AiText.t(" · фиксирани", " · fixed") : "";
-            runParams.setText(c.hz + " Hz · " + c.pwUs + " µs · " + c.onS + "/" + c.offS + " s" + ext + pause
-                    + AiText.t(" · фаза: ", " · phase: ") + AiText.mmss(e.phaseRemainingS()) + locked);
-        }
-        runHint.setText(ph != null ? AiText.t(ph.hintBg, ph.hintEn) : "");
-        runHint.setVisibility(ph != null && ph.hintBg.length() > 0 ? View.VISIBLE : View.GONE);
         int hr = e.getHr(now);
-        String hrText;
-        if (plan.hrUse == AutoModel.HrUse.NONE) {
-            hrText = "";
-        } else if (hr <= 0) {
-            hrText = AiText.t("♥ — (няма пулс: таванът не работи)", "♥ — (no HR: ceiling off)");
-        } else if (plan.hrUse == AutoModel.HrUse.CORRIDOR) {
-            hrText = "♥ " + hr + AiText.t(" · зона ", " · zone ") + plan.corridorLoHr() + "–" + plan.corridorHiHr()
-                    + AiText.t(" · таван ", " · ceiling ") + plan.hrCap;
-        } else {
-            hrText = "♥ " + hr + AiText.t(" · таван ", " · ceiling ") + plan.hrCap;
+        String hrText = "";
+        if (plan.hrUse != AutoModel.HrUse.NONE && hr > 0) {
+            hrText = plan.hrUse == AutoModel.HrUse.CORRIDOR
+                    ? "♥ " + hr + AiText.t(" · зона ", " · zone ") + plan.corridorLoHr() + "–" + plan.corridorHiHr()
+                    : "♥ " + hr + AiText.t(" · до ", " · up to ") + plan.hrCap;
         }
         runHr.setText(hrText);
+        runHr.setVisibility(hrText.length() > 0 ? View.VISIBLE : View.GONE);
         runHr.setTextColor(hr > 0 && hr >= plan.hrCap - 5 ? XemsUi.DANGER : XemsUi.TEXT);
+        AutoEngine.Cmd c = e.getCurrent();
         List<AutoSession.Row> rows = AutoSession.getRows();
         for (int i = 0; i < rowLabels.size() && i < rows.size(); i++) {
             AutoSession.Row r = rows.get(i);
@@ -845,52 +850,19 @@ public final class AutoUi {
             }
             AutoModel.Plan rp = r.plan != null ? r.plan : plan;
             int limit = c != null ? (int) Math.floor(r.cal * e.rowCeiling(c, rp.phiMax, rp.envMax) + 1e-9) : 0;
-            rowLabels.get(i).setText(Math.max(0, r.writtenStrength) + " / " + limit + "  (" + r.cal + ")");
+            rowLabels.get(i).setText(Math.max(0, r.writtenStrength) + AiText.t(" · до ", " · up to ") + limit);
         }
         String n = AutoSession.getLastNotice();
         runNotice.setText(n != null ? n : "");
+        runNotice.setVisibility(n != null && n.length() > 0 ? View.VISIBLE : View.GONE);
         runPause.setText(e.canResume() ? AiText.t("▶ Продължи", "▶ Resume")
                 : st == AutoEngine.State.HR_PAUSE ? AiText.t("… пулсът спада", "… HR coming down")
                 : AiText.t("❚❚ Пауза", "❚❚ Pause"));
         boolean dp = e.isDoublePulseAvailable();
-        runDouble.setVisibility(dp ? View.VISIBLE : View.INVISIBLE);
+        runDouble.setVisibility(dp ? View.VISIBLE : View.GONE);
         runDouble.setText(AiText.t("Двоен импулс: ", "Double impulse: ") + (e.isDoublePulseOn()
                 ? AiText.t("вкл.", "on") : AiText.t("изкл.", "off")));
-    }
-
-    // ================================================================ 7 · report
-
-    private static void screenReport(Context c) {
-        AutoEngine e = AutoSession.getEngine();
-        AutoModel.Plan plan = AutoSession.getPlan();
-        shell.title.setText(AiText.t("Отчет", "Report"));
-        subtitle(plan != null ? plan.program.name() : "");
-        LinearLayout body = shell.body;
-        if (e != null && plan != null) {
-            LinearLayout tiles = XemsUi.horizontal(c);
-            tile(c, tiles, AiText.t("Време", "Time"), AiText.mmss(e.getElapsedS()), 0);
-            tile(c, tiles, AiText.t("Ср. / макс. пулс", "Avg / max HR"),
-                    e.getHrAvg() > 0 ? e.getHrAvg() + " / " + e.getHrMaxSeen() : "—", 10);
-            tile(c, tiles, AiText.t("Пауза по пулс", "HR pauses"), "" + e.getCapHits(), 10);
-            tile(c, tiles, AiText.t("Доза", "Dose"), Math.round(e.getDoseRatio() * 100) + " %", 10);
-            body.addView(tiles, XemsUi.matchWrap(c, 4));
-            if (e.getCorridorShare() >= 0) {
-                body.addView(hint(c, AiText.t("В пулсовата зона: ", "In the HR zone: ")
-                        + Math.round(e.getCorridorShare() * 100) + " %"), XemsUi.matchWrap(c, 8));
-            }
-            body.addView(hint(c, AiText.t("Най-висока лична сила спрямо плана: ×", "Highest personal strength vs plan: ×")
-                    + String.format(Locale.US, "%.2f", e.getUserScaleMax())
-                    + AiText.t(" · паузи общо: ", " · pauses total: ") + AiText.mmss(e.getTotalPauseS())), XemsUi.matchWrap(c, 6));
-            LinearLayout lg = XemsUi.card(c);
-            lg.addView(XemsUi.label(c, AiText.t("Събития", "Events")));
-            List<String> log = e.getLog();
-            int from = Math.max(0, log.size() - 14);
-            for (int i = from; i < log.size(); i++) {
-                lg.addView(XemsUi.text(c, log.get(i), 12.5f, XemsUi.MUTED, false));
-            }
-            body.addView(lg, XemsUi.matchWrap(c, 12));
-        }
-        footer(c, AiText.t("Затвори", "Close"), false);
+        runFinish.setVisibility(recovery ? View.GONE : View.VISIBLE);
     }
 
     // ================================================================ actions
@@ -909,17 +881,29 @@ public final class AutoUi {
                 return;
             case A_NEXT: next(); return;
             case A_BACK: back(); return;
-            case A_GOAL:
-                in.goal = Goal.values()[arg];
-                in.programId = null;
+            case A_HIDE: dismiss(); return;     // the session keeps running; the tile brings it back
+            case A_GOAL: {
+                Goal g = Goal.values()[value];
+                if (g != in.goal) {
+                    in.goal = g;
+                    if (AutoCatalog.menu(g, in.kind).isEmpty()) {
+                        in.kind = in.kind == Kind.ACTIVE ? Kind.PASSIVE : Kind.ACTIVE;
+                    }
+                    in.programId = null;
+                }
                 break;
+            }
             case A_KIND:
                 in.kind = value == 0 ? Kind.ACTIVE : Kind.PASSIVE;
                 in.programId = null;
                 break;
             case A_OPERATOR:
-                in.operator = value == 0 ? AiModel.Operator.TRAINER : AiModel.Operator.SELF;
+                in.operator = in.solo() ? AiModel.Operator.TRAINER : AiModel.Operator.SELF;
                 break;
+            case A_EDIT_PROFILE: profileOpen = true; break;
+            case A_HEALTH_OK: healthOk = !healthOk; break;
+            case A_HEALTH_OPEN: healthOpen = true; healthOk = false; break;
+            case A_DETAILS: details = !details; break;
             case A_PROGRAM: {
                 List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
                 if (arg < menu.size()) {
@@ -983,10 +967,6 @@ public final class AutoUi {
                 in.doublePulse = value == 1;
                 AutoSession.buildPlan();
                 return;
-            case A_CALIB_START:
-                AutoSession.beginCalibration();
-                calibStarted = true;
-                break;
             case A_CALIB_ROW:
                 AutoSession.adjustCalibration(arg / 100, arg % 100 - 50);
                 refreshCalib();
@@ -1002,15 +982,14 @@ public final class AutoUi {
                 refreshRun();
                 return;
             }
-            case A_COOLDOWN: AutoSession.skipToCooldown(); return;
+            case A_FINISH_EARLY: AutoSession.skipToCooldown(); refreshRun(); return;
             case A_STOP:
-                AutoSession.stop();
-                go(STEP_REPORT);
+                AutoSession.stop();             // → report stage → onFinished
                 return;
             default:
                 return;
         }
-        if (step == STEP_CHECK) {
+        if (step == STEP_CLIENT) {
             AutoSession.syncLeaderInput();
         }
         go(step);

@@ -22,9 +22,10 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 6
+    .registers 3
 
-    .line 2001
+    .prologue
+    .line 1939
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     move-result-object v0
@@ -35,136 +36,114 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
 
-    const/4 v1, 0x1
+    :try_start_9
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
 
-    :try_start_a
-    sget-object v2, Lcom/isaigu/gymapp/ai/AiModel$Goal;->TONE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->TONE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
 
-    move-result v2
+    move-result v1
 
-    aput v1, v0, v2
-    :try_end_12
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_a .. :try_end_12} :catch_13
+    const/4 v2, 0x1
 
-    goto :goto_14
-
-    :catch_13
-    move-exception v0
+    aput v2, v0, v1
+    :try_end_14
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_9 .. :try_end_14} :catch_6c
 
     :goto_14
-    const/4 v0, 0x2
+    :try_start_14
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
 
-    :try_start_15
-    sget-object v2, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->FAT:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    sget-object v3, Lcom/isaigu/gymapp/ai/AiModel$Goal;->FAT:Lcom/isaigu/gymapp/ai/AiModel$Goal;
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
 
-    invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
+    move-result v1
 
-    move-result v3
+    const/4 v2, 0x2
 
-    aput v0, v2, v3
+    aput v2, v0, v1
     :try_end_1f
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_15 .. :try_end_1f} :catch_20
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_14 .. :try_end_1f} :catch_6a
 
-    goto :goto_21
+    :goto_1f
+    :try_start_1f
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
 
-    :catch_20
-    move-exception v2
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->MASSAGE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    :goto_21
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
+
+    move-result v1
+
     const/4 v2, 0x3
 
-    :try_start_22
-    sget-object v3, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
+    aput v2, v0, v1
+    :try_end_2a
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_1f .. :try_end_2a} :catch_68
 
-    sget-object v4, Lcom/isaigu/gymapp/ai/AiModel$Goal;->MASSAGE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
+    :goto_2a
+    :try_start_2a
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
 
-    invoke-virtual {v4}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Goal;->DRAIN:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    move-result v4
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
 
-    aput v2, v3, v4
-    :try_end_2c
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_22 .. :try_end_2c} :catch_2d
+    move-result v1
 
-    goto :goto_2e
+    const/4 v2, 0x4
 
-    :catch_2d
-    move-exception v3
+    aput v2, v0, v1
+    :try_end_35
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_2a .. :try_end_35} :catch_66
 
-    :goto_2e
-    :try_start_2e
-    sget-object v3, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$Goal:[I
-
-    sget-object v4, Lcom/isaigu/gymapp/ai/AiModel$Goal;->DRAIN:Lcom/isaigu/gymapp/ai/AiModel$Goal;
-
-    invoke-virtual {v4}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->ordinal()I
-
-    move-result v4
-
-    const/4 v5, 0x4
-
-    aput v5, v3, v4
-    :try_end_39
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_2e .. :try_end_39} :catch_3a
-
-    goto :goto_3b
-
-    :catch_3a
-    move-exception v3
-
-    .line 175
-    :goto_3b
+    .line 177
+    :goto_35
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->values()[Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    move-result-object v3
+    move-result-object v0
 
-    array-length v3, v3
+    array-length v0, v0
 
-    new-array v3, v3, [I
+    new-array v0, v0, [I
 
-    sput-object v3, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
 
-    :try_start_44
-    sget-object v4, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REST_HR:Lcom/isaigu/gymapp/ai/AiSession$Stage;
+    :try_start_3e
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
 
-    invoke-virtual {v4}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->ordinal()I
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REST_HR:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    move-result v4
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->ordinal()I
 
-    aput v1, v3, v4
-    :try_end_4c
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_44 .. :try_end_4c} :catch_4d
+    move-result v1
 
-    goto :goto_4e
+    const/4 v2, 0x1
 
-    :catch_4d
-    move-exception v1
+    aput v2, v0, v1
+    :try_end_49
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_3e .. :try_end_49} :catch_64
 
-    :goto_4e
-    :try_start_4e
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
+    :goto_49
+    :try_start_49
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
 
-    sget-object v3, Lcom/isaigu/gymapp/ai/AiSession$Stage;->PLAN:Lcom/isaigu/gymapp/ai/AiSession$Stage;
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->PLAN:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->ordinal()I
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiSession$Stage;->ordinal()I
 
-    move-result v3
+    move-result v1
 
-    aput v0, v1, v3
-    :try_end_58
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_4e .. :try_end_58} :catch_59
+    const/4 v2, 0x2
 
-    goto :goto_5a
+    aput v2, v0, v1
+    :try_end_54
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_49 .. :try_end_54} :catch_62
 
-    :catch_59
-    move-exception v0
-
-    :goto_5a
-    :try_start_5a
+    :goto_54
+    :try_start_54
     sget-object v0, Lcom/isaigu/gymapp/ai/AiUi$36;->$SwitchMap$com$isaigu$gymapp$ai$AiSession$Stage:[I
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -173,15 +152,48 @@
 
     move-result v1
 
+    const/4 v2, 0x3
+
     aput v2, v0, v1
-    :try_end_64
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_5a .. :try_end_64} :catch_65
+    :try_end_5f
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_54 .. :try_end_5f} :catch_60
 
-    goto :goto_66
+    :goto_5f
+    return-void
 
-    :catch_65
+    :catch_60
     move-exception v0
 
-    :goto_66
-    return-void
+    goto :goto_5f
+
+    :catch_62
+    move-exception v0
+
+    goto :goto_54
+
+    :catch_64
+    move-exception v0
+
+    goto :goto_49
+
+    .line 1939
+    :catch_66
+    move-exception v0
+
+    goto :goto_35
+
+    :catch_68
+    move-exception v0
+
+    goto :goto_2a
+
+    :catch_6a
+    move-exception v0
+
+    goto :goto_1f
+
+    :catch_6c
+    move-exception v0
+
+    goto :goto_14
 .end method

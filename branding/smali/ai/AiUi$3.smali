@@ -3,7 +3,7 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+.implements Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
 
 # annotations
@@ -20,13 +20,23 @@
 # instance fields
 .field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
+.field final synthetic val$total:I
+
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;I)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 491
+    .prologue
+    .line 501
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$3;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$3;->val$total:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -35,30 +45,39 @@
 
 
 # virtual methods
-.method public onSelect(I)V
-    .registers 3
+.method public onDelta(I)V
+    .registers 6
 
-    .line 494
+    .prologue
+    .line 504
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$3;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    if-nez p1, :cond_7
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$3;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    sget-object p1, Lcom/isaigu/gymapp/ai/AiModel$Operator;->TRAINER:Lcom/isaigu/gymapp/ai/AiModel$Operator;
+    iget-object v1, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    goto :goto_9
+    iget v2, p0, Lcom/isaigu/gymapp/ai/AiUi$3;->val$total:I
 
-    :cond_7
-    sget-object p1, Lcom/isaigu/gymapp/ai/AiModel$Operator;->SELF:Lcom/isaigu/gymapp/ai/AiModel$Operator;
+    mul-int/lit8 v3, p1, 0x3c
 
-    :goto_9
-    iput-object p1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
+    add-int/2addr v2, v3
 
-    .line 495
-    const/4 p1, 0x0
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiPlanner;->clampSeconds(Lcom/isaigu/gymapp/ai/AiModel$Goal;I)I
+
+    move-result v1
+
+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->totalSeconds:Ljava/lang/Integer;
+
+    .line 505
+    const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 496
+    .line 506
     return-void
 .end method

@@ -19,16 +19,30 @@ final class SessionRec {
     final long start;
     final long userId;
     final String userName;
-    final String program;
+    final TrainUser user;
+    String program;
     final JSONObject person;
     long end;
     boolean ai;
+    /** Automatic mode (ready programs) ran this training. */
+    boolean auto;
+    /** AI or automatic mode owned the slot at some point (their own end, no mode chaining). */
+    boolean assist;
     boolean music;
     boolean bandOwner;
     boolean bandSent;
     boolean bandRunning;
     int bandSport;
     int planS;
+    /** Planned seconds of the mode that runs now (the countdown's full value). */
+    int segPlanS;
+    /** TrainProgram.useType of the running mode: 0 main, 1 muscle, 2 cardio, 3 massage; -1 unknown. */
+    int curType = -1;
+    /** Bit per useType that ran. */
+    int modes;
+    /** A work mode ended; waiting for the next mode (massage closes the training). */
+    boolean between;
+    int betweenS;
 
     final SessionInts run = new SessionInts();
     final SessionInts hr = new SessionInts();
@@ -56,11 +70,14 @@ final class SessionRec {
     int postLeft = -1;
     boolean leader;
     boolean lastRun;
+    /** The report was opened on the screen. */
+    boolean shown;
 
     SessionRec(TrainItem item, long now) {
         start = now;
         TrainUser u = item.data.trainUser;
         userId = u.id;
+        user = u;
         userName = u.nickName != null && u.nickName.length() > 0 ? u.nickName : u.name;
         String p = null;
         try {
@@ -74,6 +91,7 @@ final class SessionRec {
         }
         // TrainItem.workLength counts the seconds left; at the start it is the whole planned time.
         planS = Math.max(0, item.workLength);
+        segPlanS = planS;
     }
 
     private static JSONObject person(TrainUser u) {
@@ -166,7 +184,7 @@ final class SessionRec {
     }
 
     String type() {
-        return ai ? "ai" : "program";
+        return auto ? "auto" : ai ? "ai" : "program";
     }
 
     String toJson(int restHr) {
@@ -226,6 +244,7 @@ final class SessionRec {
         o.put("program", program != null ? program : "");
         o.put("music", music);
         o.put("planS", planS);
+        o.put("modes", modes);
         o.put("hasHr", hrAvg() > 0);
         o.put("hrAvg", hrAvg());
         org.json.JSONArray pk = new org.json.JSONArray();

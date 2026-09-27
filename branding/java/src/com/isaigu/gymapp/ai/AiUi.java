@@ -41,14 +41,13 @@ final class AiUi {
     private static final String BTN_TAG = "xems_ai_button";
 
     static final int STEP_GOAL = 0;
-    static final int STEP_PROFILE = 1;
-    static final int STEP_CHECK = 2;
-    static final int STEP_REST = 3;
-    static final int STEP_PLAN = 4;
-    static final int STEP_CALIB = 5;
-    static final int STEP_RUN = 6;
-    static final int STEP_REPORT = 7;
-    private static final int SETUP_STEPS = 6;
+    static final int STEP_CLIENT = 1;
+    static final int STEP_REST = 2;
+    static final int STEP_PLAN = 3;
+    static final int STEP_CALIB = 4;
+    static final int STEP_RUN = 5;
+    static final int STEP_REPORT = 6;
+    private static final int SETUP_STEPS = 5;
 
     private static Dialog dialog;
     private static int step;
@@ -154,6 +153,9 @@ final class AiUi {
                 return;
             }
             AiSession.beginSetup(activity);
+            profileOpen = false;
+            healthOk = false;
+            healthOpen = hasHealthFlag(AiSession.getInput());
             show(activity, STEP_GOAL);
             return;
         }
@@ -270,9 +272,24 @@ final class AiUi {
                 dismiss();
                 return;
             }
+            if (st == AiSession.Stage.REPORT) {
+                closeReport();
+                return;
+            }
             AiSession.close();
             dismiss();
             styleSideButton();
+        }
+    }
+
+    /** The AI report is closed: the session ends and the client's report (client record) opens. */
+    private static void closeReport() {
+        AiSession.close();
+        dismiss();
+        try {
+            com.isaigu.gymapp.wearable.SessionRecorder.finishAssisted();
+        } catch (Throwable t) {
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("ai", "report: " + t);
         }
     }
 
@@ -317,8 +334,7 @@ final class AiUi {
         primaryBtn.setOnClickListener(new StepListener(+1));
         switch (s) {
             case STEP_GOAL: screenGoal(a); break;
-            case STEP_PROFILE: screenProfile(a); break;
-            case STEP_CHECK: screenCheck(a); break;
+            case STEP_CLIENT: screenClient(a); break;
             case STEP_REST: screenRest(a); break;
             case STEP_PLAN: screenPlan(a); break;
             case STEP_CALIB: screenCalib(a); break;
@@ -381,15 +397,15 @@ final class AiUi {
                 AiSession.stop();
             }
             if (step > STEP_GOAL && step < STEP_RUN) {
-                go(step == STEP_PLAN ? STEP_CHECK : step - 1);
+                go(step == STEP_PLAN ? STEP_CLIENT : step - 1);
             }
             return;
         }
         switch (step) {
-            case STEP_GOAL: go(STEP_PROFILE); break;
-            case STEP_PROFILE: go(STEP_CHECK); break;
-            case STEP_CHECK:
-                if (!AiScreening.evaluate(AiSession.getInput()).isRejected()) {
+            case STEP_GOAL: go(STEP_CLIENT); break;
+            case STEP_CLIENT:
+                if (!AiScreening.evaluate(AiSession.getInput()).isRejected() && (healthOk || healthOpen)
+                        && AiSession.getInput().age >= 18) {
                     go(STEP_REST);
                 }
                 break;
@@ -406,8 +422,7 @@ final class AiUi {
                 }
                 break;
             case STEP_REPORT:
-                AiSession.close();
-                dismiss();
+                closeReport();
                 break;
             default:
                 break;
@@ -418,8 +433,7 @@ final class AiUi {
 
     private static void screenGoal(Context a) {
         titleView.setText(AiText.t("Каква е целта днес?", "What is today's goal?"));
-        subtitleView.setText(AiText.t("Стъпка 1 от 6 · програмата се изгражда от целта",
-                "Step 1 of 6 · the program is built from the goal"));
+        subtitleView.setText("");
         final AiModel.SessionInput in = AiSession.getInput();
         LinearLayout col = vertical(a);
         LinearLayout row = horizontal(a);
@@ -437,12 +451,6 @@ final class AiUi {
             name.setPadding(0, dp(a, 14), 0, dp(a, 6));
             card.addView(name);
             card.addView(text(a, AiText.goalHint(g), 13, AiViews.MUTED, false));
-            TextView tag = text(a, (g == Goal.TONE || g == Goal.FAT)
-                    ? AiText.t("Активно · Пасивно", "Active · Passive")
-                    : AiText.t("Пасивно", "Passive"), 11, AiViews.MUTED, true);
-            tag.setPadding(0, dp(a, 14), 0, 0);
-            tag.setAllCaps(true);
-            card.addView(tag);
             card.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -472,46 +480,31 @@ final class AiUi {
         col.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 190)));
 
         LinearLayout opts = horizontal(a);
-        LinearLayout modeBox = labeled(a, AiText.t("Режим", "Mode"),
-                segmented(a, new String[] {AiText.t("Активно · с упражнения", "Active · exercises"),
-                        AiText.t("Пасивно · без движение", "Passive · no movement")},
-                        in.mode == Mode.ACTIVE ? 0 : 1,
-                        new boolean[] {AiModel.isAllowed(in.goal, Mode.ACTIVE), true},
-                        new SegmentCallback() {
-                            @Override
-                            public void onSelect(int i) {
-                                in.mode = i == 0 ? Mode.ACTIVE : Mode.PASSIVE;
-                                go(STEP_GOAL);
-                            }
-                        }));
-        LinearLayout opBox = labeled(a, AiText.t("Кой управлява", "Who operates"),
-                segmented(a, new String[] {AiText.t("Треньор", "Trainer"),
-                        AiText.t("Самостоятелно", "Self")},
-                        in.operator == Operator.TRAINER ? 0 : 1, null,
-                        new SegmentCallback() {
-                            @Override
-                            public void onSelect(int i) {
-                                in.operator = i == 0 ? Operator.TRAINER : Operator.SELF;
-                                go(STEP_GOAL);
-                            }
-                        }));
-        TextView opHint = text(a, in.operator == Operator.TRAINER
-                ? AiText.t("Треньорът калибрира и потвърждава продължаването.",
-                "The trainer calibrates and confirms continuation.")
-                : AiText.t("По-тесни граници, задължителни контролни точки, таван 90%.",
-                "Tighter limits, mandatory checkpoints, 90% ceiling."), 12, AiViews.MUTED, false);
-        opHint.setPadding(dp(a, 4), dp(a, 8), 0, 0);
-        opBox.addView(opHint);
         // Mode only when the goal allows both (massage, drainage, cellulite are passive only).
         boolean modeChoice = AiModel.isAllowed(in.goal, Mode.ACTIVE) && AiModel.isAllowed(in.goal, Mode.PASSIVE);
         if (modeChoice) {
-            opts.addView(modeBox, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            opts.addView(segmented(a, new String[] {AiText.t("С движение", "With movement"),
+                            AiText.t("В покой", "At rest")},
+                    in.mode == Mode.ACTIVE ? 0 : 1, null, new SegmentCallback() {
+                        @Override
+                        public void onSelect(int i) {
+                            in.mode = i == 0 ? Mode.ACTIVE : Mode.PASSIVE;
+                            go(STEP_GOAL);
+                        }
+                    }), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         }
-        LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        final int total = in.totalSeconds != null ? in.totalSeconds : AiPlanner.defaultSeconds(in.goal);
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         if (modeChoice) {
-            op.leftMargin = dp(a, 16);
+            dlp.leftMargin = dp(a, 16);
         }
-        opts.addView(opBox, op);
+        opts.addView(stepper(a, (total / 60) + "", AiText.t("минути", "minutes"), new StepperCallback() {
+            @Override
+            public void onDelta(int d) {
+                in.totalSeconds = AiPlanner.clampSeconds(in.goal, total + d * 60);
+                go(STEP_GOAL);
+            }
+        }), dlp);
         LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         olp.topMargin = dp(a, 22);
@@ -531,217 +524,211 @@ final class AiUi {
                             in.pause = on ? AiModel.PauseMode.AUTO : AiModel.PauseMode.PASSIVE;
                         }
                     }));
-            TextView pauseHint = text(a, AiText.pauseHint(in.goal), 12, AiViews.MUTED, false);
-            pauseBox.addView(pauseHint);
             LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             plp.topMargin = dp(a, 14);
             col.addView(pauseBox, plp);
         }
+        // Who operates: remembered between sessions, so only a quiet line.
+        TextView op = text(a, AiText.t("Управлява: ", "Operated by: ") + (in.operator == Operator.TRAINER
+                ? AiText.t("треньор · смени", "trainer · change")
+                : AiText.t("клиентът сам (по-тесни граници) · смени", "the client alone (tighter limits) · change")),
+                13, AiViews.MUTED, false);
+        op.setPadding(dp(a, 4), dp(a, 18), 0, dp(a, 4));
+        op.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                in.operator = in.operator == Operator.TRAINER ? Operator.SELF : Operator.TRAINER;
+                go(STEP_GOAL);
+            }
+        });
+        col.addView(op);
         body.addView(scroll(a, col));
         setupFooter(a, AiText.t("Напред", "Next"), false);
     }
 
-    // ================================================================ 2 · profile
+    // ================================================================ 2 · client (profile + health)
 
-    private static void screenProfile(Context a) {
-        final AiModel.SessionInput in = AiSession.getInput();
-        titleView.setText(AiText.t("Профил", "Profile"));
-        subtitleView.setText(AiText.t("Стъпка 2 от 6 · от профила идват максималният пулс и зоните",
-                "Step 2 of 6 · max HR and zones come from the profile"));
-        LinearLayout col = vertical(a);
-        LinearLayout r1 = horizontal(a);
-        r1.addView(labeled(a, AiText.t("Пол", "Sex"), segmented(a,
-                new String[] {AiText.t("Мъж", "Male"), AiText.t("Жена", "Female")},
-                in.sex == AiModel.Sex.MALE ? 0 : 1, null, new SegmentCallback() {
-                    @Override
-                    public void onSelect(int i) {
-                        in.sex = i == 0 ? AiModel.Sex.MALE : AiModel.Sex.FEMALE;
-                        go(STEP_PROFILE);
-                    }
-                })), weight(a, 0));
-        r1.addView(labeled(a, AiText.t("Кондиция", "Fitness"), segmented(a,
-                new String[] {AiText.t("Ниска", "Low"), AiText.t("Средна", "Mid"), AiText.t("Висока", "High")},
-                in.fitness.ordinal(), null, new SegmentCallback() {
-                    @Override
-                    public void onSelect(int i) {
-                        in.fitness = AiModel.Fitness.values()[i];
-                        go(STEP_PROFILE);
-                    }
-                })), weight(a, 16));
-        col.addView(r1);
+    /** Client step: profile editors open (else one line from the client record). */
+    private static boolean profileOpen;
+    /** Client step: "no contraindications, fine today" confirmed. */
+    private static boolean healthOk;
+    /** Client step: the full health list is open. */
+    private static boolean healthOpen;
 
-        LinearLayout r2 = horizontal(a);
-        r2.addView(labeled(a, AiText.t("Възраст", "Age"), stepper(a, in.age + "", AiText.t("години", "years"),
-                new StepperCallback() {
-                    @Override
-                    public void onDelta(int d) {
-                        in.age = Math.max(14, Math.min(90, in.age + d));
-                        go(STEP_PROFILE);
-                    }
-                })), weight(a, 0));
-        r2.addView(labeled(a, AiText.t("Тегло", "Weight"), stepper(a, Math.round(in.weightKg) + "", "kg",
-                new StepperCallback() {
-                    @Override
-                    public void onDelta(int d) {
-                        in.weightKg = Math.max(35, Math.min(200, Math.round(in.weightKg) + d));
-                        go(STEP_PROFILE);
-                    }
-                })), weight(a, 16));
-        final int total = in.totalSeconds != null ? in.totalSeconds : AiPlanner.defaultSeconds(in.goal);
-        r2.addView(labeled(a, AiText.t("Продължителност", "Duration"),
-                stepper(a, (total / 60) + "", AiText.t("минути", "minutes"), new StepperCallback() {
-                    @Override
-                    public void onDelta(int d) {
-                        int nt = AiPlanner.clampSeconds(in.goal, total + d * 60);
-                        in.totalSeconds = nt;
-                        go(STEP_PROFILE);
-                    }
-                })), weight(a, 16));
-        LinearLayout.LayoutParams r2p = matchWrap(a, 22);
-        col.addView(r2, r2p);
-
-        int hrMax = AiPlanner.hrMax(in.sex, in.age);
-        LinearLayout info = card(a);
-        info.setOrientation(LinearLayout.HORIZONTAL);
-        info.setGravity(Gravity.CENTER_VERTICAL);
-        info.addView(text(a, AiText.t("Максимален пулс по формула", "Formula max HR"), 14, AiViews.MUTED, false),
-                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        info.addView(text(a, hrMax + " " + AiText.t("уд/мин", "bpm"), 22, AiViews.TEXT, true));
-        col.addView(info, matchWrap(a, 22));
-        if (in.age < 18) {
-            col.addView(banner(a, AiViews.DANGER,
-                    AiText.t("AI сесията е само за пълнолетни.", "AI sessions are for adults only.")),
-                    matchWrap(a, 12));
+    private static boolean hasHealthFlag(AiModel.SessionInput in) {
+        for (Boolean v : in.screening.contraindications.values()) {
+            if (v != null && v) {
+                return true;
+            }
         }
-        body.addView(scroll(a, col));
-        setupFooter(a, AiText.t("Напред", "Next"), true);
-        primaryBtn.setEnabled(in.age >= 18);
-        primaryBtn.setAlpha(in.age >= 18 ? 1f : 0.4f);
+        return in.screening.feverOrIllness || in.screening.alcoholOrStress48h || in.screening.knownArrhythmia
+                || in.screening.hrLoweringMedication;
     }
 
-    // ================================================================ 3 · screening
-
-    private static void screenCheck(Context a) {
+    private static void screenClient(final Context a) {
         final AiModel.SessionInput in = AiSession.getInput();
-        titleView.setText(AiText.t("Проверка преди сесия", "Pre-session check"));
-        subtitleView.setText(AiText.t("Стъпка 3 от 6 · отговаря се всеки път",
-                "Step 3 of 6 · answered every time"));
+        titleView.setText(AiText.t("Клиент", "Client"));
+        subtitleView.setText("");
         LinearLayout col = vertical(a);
-        final LinearLayout verdict = vertical(a);
-        col.addView(verdict);
-        LinearLayout cols = horizontal(a);
-        LinearLayout contra = card(a);
-        contra.addView(sectionLabel(a, AiText.t("Противопоказания", "Contraindications")));
-        for (final String key : AiScreening.CONTRAINDICATIONS) {
-            Boolean v = in.screening.contraindications.get(key);
-            contra.addView(toggleRow(a, AiText.contraindication(key), v != null && v,
-                    new ToggleCallback() {
+
+        LinearLayout prof = card(a);
+        if (!profileOpen && in.age >= 18) {
+            LinearLayout line = horizontal(a);
+            line.setGravity(Gravity.CENTER_VERTICAL);
+            String fit = in.fitness == AiModel.Fitness.LOW ? AiText.t("ниска кондиция", "low fitness")
+                    : in.fitness == AiModel.Fitness.HIGH ? AiText.t("висока кондиция", "high fitness")
+                    : AiText.t("средна кондиция", "medium fitness");
+            line.addView(text(a, (in.sex == AiModel.Sex.FEMALE ? AiText.t("Жена", "Female") : AiText.t("Мъж", "Male"))
+                    + " · " + in.age + AiText.t(" г.", " y") + " · " + Math.round(in.weightKg) + " kg · " + fit,
+                    16, AiViews.TEXT, false), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView edit = ghostButton(a, AiText.t("Промени", "Edit"));
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    profileOpen = true;
+                    go(STEP_CLIENT);
+                }
+            });
+            line.addView(edit, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(a, 48)));
+            prof.addView(line);
+        } else {
+            LinearLayout r1 = horizontal(a);
+            r1.addView(segmented(a, new String[] {AiText.t("Мъж", "Male"), AiText.t("Жена", "Female")},
+                    in.sex == AiModel.Sex.MALE ? 0 : 1, null, new SegmentCallback() {
+                        @Override
+                        public void onSelect(int i) {
+                            in.sex = i == 0 ? AiModel.Sex.MALE : AiModel.Sex.FEMALE;
+                            go(STEP_CLIENT);
+                        }
+                    }), weight(a, 0));
+            r1.addView(segmented(a, new String[] {AiText.t("Ниска кондиция", "Low fitness"), AiText.t("Средна", "Mid"),
+                    AiText.t("Висока", "High")}, in.fitness.ordinal(), null, new SegmentCallback() {
+                        @Override
+                        public void onSelect(int i) {
+                            in.fitness = AiModel.Fitness.values()[i];
+                            go(STEP_CLIENT);
+                        }
+                    }), weight(a, 16));
+            prof.addView(r1);
+            LinearLayout r2 = horizontal(a);
+            r2.addView(labeled(a, AiText.t("Възраст", "Age"), stepper(a, in.age + "", AiText.t("години", "years"),
+                    new StepperCallback() {
+                        @Override
+                        public void onDelta(int d) {
+                            in.age = Math.max(14, Math.min(90, in.age + d));
+                            go(STEP_CLIENT);
+                        }
+                    })), weight(a, 0));
+            r2.addView(labeled(a, AiText.t("Тегло", "Weight"), stepper(a, Math.round(in.weightKg) + "", "kg",
+                    new StepperCallback() {
+                        @Override
+                        public void onDelta(int d) {
+                            in.weightKg = Math.max(35, Math.min(200, Math.round(in.weightKg) + d));
+                            go(STEP_CLIENT);
+                        }
+                    })), weight(a, 16));
+            prof.addView(r2, matchWrap(a, 16));
+        }
+        col.addView(prof);
+
+        LinearLayout health = card(a);
+        if (!healthOpen) {
+            TextView ok = healthOk ? pillButton(a, "✓ " + AiText.t("Без противопоказания, добре е днес",
+                    "No contraindications, feeling fine today"), AiViews.OK)
+                    : pillButton(a, AiText.t("Без противопоказания, добре е днес",
+                    "No contraindications, feeling fine today"), AiViews.MUTED);
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    healthOk = !healthOk;
+                    go(STEP_CLIENT);
+                }
+            });
+            health.addView(ok, matchWrap(a, 0));
+            TextView more = text(a, AiText.t("Има нещо…", "Something is not fine…"), 15, AiViews.MUTED, true);
+            more.setGravity(Gravity.CENTER);
+            more.setPadding(0, dp(a, 14), 0, dp(a, 4));
+            more.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    healthOpen = true;
+                    healthOk = false;
+                    go(STEP_CLIENT);
+                }
+            });
+            health.addView(more, matchWrap(a, 0));
+        } else {
+            health.addView(sectionLabel(a, AiText.t("Отбележи какво важи", "Mark what applies")));
+            for (final String key : AiScreening.CONTRAINDICATIONS) {
+                Boolean v = in.screening.contraindications.get(key);
+                health.addView(toggleRow(a, AiText.contraindication(key), v != null && v, new ToggleCallback() {
+                    @Override
+                    public void onToggle(boolean on) {
+                        in.screening.contraindications.put(key, on);
+                        go(STEP_CLIENT);
+                    }
+                }));
+            }
+            health.addView(toggleRow(a, AiText.t("Температура или заболяване", "Fever or illness"),
+                    in.screening.feverOrIllness, new ToggleCallback() {
                         @Override
                         public void onToggle(boolean on) {
-                            in.screening.contraindications.put(key, on);
-                            renderVerdict(verdict);
+                            in.screening.feverOrIllness = on;
+                            go(STEP_CLIENT);
+                        }
+                    }));
+            health.addView(toggleRow(a, AiText.t("Алкохол или силен стрес (48 ч)", "Alcohol or heavy stress (48 h)"),
+                    in.screening.alcoholOrStress48h, new ToggleCallback() {
+                        @Override
+                        public void onToggle(boolean on) {
+                            in.screening.alcoholOrStress48h = on;
+                            go(STEP_CLIENT);
+                        }
+                    }));
+            health.addView(toggleRow(a, AiText.t("Известна аритмия", "Known arrhythmia"),
+                    in.screening.knownArrhythmia, new ToggleCallback() {
+                        @Override
+                        public void onToggle(boolean on) {
+                            in.screening.knownArrhythmia = on;
+                            go(STEP_CLIENT);
+                        }
+                    }));
+            health.addView(toggleRow(a, AiText.t("Лекарства, понижаващи пулса", "HR-lowering medication"),
+                    in.screening.hrLoweringMedication, new ToggleCallback() {
+                        @Override
+                        public void onToggle(boolean on) {
+                            in.screening.hrLoweringMedication = on;
+                            go(STEP_CLIENT);
                         }
                     }));
         }
-        LinearLayout today = card(a);
-        today.addView(sectionLabel(a, AiText.t("Днес", "Today")));
-        today.addView(toggleRow(a, AiText.t("Температура или заболяване", "Fever or illness"),
-                in.screening.feverOrIllness, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.feverOrIllness = on;
-                        renderVerdict(verdict);
-                    }
-                }));
-        today.addView(toggleRow(a, AiText.t("Алкохол или силен стрес (48 ч)", "Alcohol or heavy stress (48 h)"),
-                in.screening.alcoholOrStress48h, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.alcoholOrStress48h = on;
-                        renderVerdict(verdict);
-                    }
-                }));
-        today.addView(toggleRow(a, AiText.t("Известна аритмия", "Known arrhythmia"),
-                in.screening.knownArrhythmia, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.knownArrhythmia = on;
-                        renderVerdict(verdict);
-                    }
-                }));
-        today.addView(toggleRow(a, AiText.t("Лекарства, понижаващи пулса", "HR-lowering medication"),
-                in.screening.hrLoweringMedication, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.hrLoweringMedication = on;
-                        renderVerdict(verdict);
-                    }
-                }));
-        today.addView(toggleRow(a, AiText.t("Хранене в последните 2 ч", "Ate in the last 2 h"),
-                in.screening.ateLast2h, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.ateLast2h = on;
-                        renderVerdict(verdict);
-                    }
-                }));
-        today.addView(toggleRow(a, AiText.t("Пил вода преди сесията", "Drank water before"),
-                in.screening.hydrated, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.hydrated = on;
-                        renderVerdict(verdict);
-                    }
-                }));
-        today.addView(toggleRow(a, AiText.t("Почивал поне 10 мин", "Rested at least 10 min"),
-                in.screening.restedLast10min, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.restedLast10min = on;
-                        renderVerdict(verdict);
-                    }
-                }));
-        cols.addView(contra, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        cols.addView(today, weight(a, 16));
-        col.addView(cols, matchWrap(a, 14));
-        body.addView(scroll(a, col));
-        setupFooter(a, AiText.t("Измери пулса в покой", "Measure resting HR"), true);
-        renderVerdict(verdict);
-    }
+        col.addView(health, matchWrap(a, 14));
 
-    private static void renderVerdict(LinearLayout verdict) {
-        Context a = verdict.getContext();
-        verdict.removeAllViews();
-        AiScreening.Result r = AiScreening.evaluate(AiSession.getInput());
-        if (r.isRejected()) {
-            StringBuilder sb = new StringBuilder(AiText.t("Сесията не може да започне: ", "Session cannot start: "));
+        AiScreening.Result r = AiScreening.evaluate(in);
+        boolean ready = !r.isRejected() && (healthOk || healthOpen) && in.age >= 18;
+        if (in.age < 18) {
+            col.addView(banner(a, AiViews.DANGER, AiText.t("AI сесията е само за пълнолетни.",
+                    "AI sessions are for adults only.")), matchWrap(a, 14));
+        } else if (r.isRejected() && healthOpen) {
+            StringBuilder sb = new StringBuilder(AiText.t("Не може днес: ", "Not today: "));
             for (int i = 0; i < r.rejects.size(); i++) {
                 sb.append(i > 0 ? " · " : "").append(AiText.screeningCode(r.rejects.get(i)));
             }
-            verdict.addView(banner(a, AiViews.DANGER, sb.toString()));
-        } else if (!r.warns.isEmpty()) {
-            StringBuilder sb = new StringBuilder(AiText.t("Може да продължи. ", "OK to continue. "));
-            for (int i = 0; i < r.warns.size(); i++) {
-                sb.append(i > 0 ? " · " : "").append(AiText.screeningCode(r.warns.get(i)));
-            }
-            verdict.addView(banner(a, AiViews.WARN, sb.toString()));
-        } else {
-            verdict.addView(banner(a, AiViews.OK, AiText.t("Всичко е наред — може да продължи.",
-                    "All clear — OK to continue.")));
+            col.addView(banner(a, AiViews.DANGER, sb.toString()), matchWrap(a, 14));
         }
-        if (primaryBtn != null && step == STEP_CHECK) {
-            primaryBtn.setEnabled(!r.isRejected());
-            primaryBtn.setAlpha(r.isRejected() ? 0.4f : 1f);
-        }
+        body.addView(scroll(a, col));
+        setupFooter(a, AiText.t("Напред", "Next"), true);
+        primaryBtn.setEnabled(ready);
+        primaryBtn.setAlpha(ready ? 1f : 0.4f);
     }
 
     // ================================================================ 4 · resting HR
 
     private static void screenRest(final Context a) {
         titleView.setText(AiText.t("Пулс в покой", "Resting heart rate"));
-        subtitleView.setText(AiText.t("Стъпка 4 от 6 · седни или легни спокойно, без стимулация",
-                "Step 4 of 6 · sit or lie still, no stimulation"));
+        subtitleView.setText(AiText.t("Седни или легни спокойно, без стимулация",
+                "Sit or lie still, no stimulation"));
         final boolean self = AiSession.getInput().operator == Operator.SELF;
         LinearLayout row = horizontal(a);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -769,11 +756,6 @@ final class AiUi {
         final TextView detail = text(a, "", 14, AiViews.MUTED, false);
         detail.setPadding(0, dp(a, 8), 0, dp(a, 16));
         side.addView(detail);
-        final LinearLayout stats = horizontal(a);
-        final TextView sMedian = statTile(a, stats, AiText.t("Медиана", "Median"));
-        final TextView sSigma = statTile(a, stats, AiText.t("Разсейване", "Spread"));
-        final TextView sDt = statTile(a, stats, AiText.t("Интервал", "Interval"));
-        side.addView(stats);
         final LinearLayout actions = horizontal(a);
         actions.setPadding(0, dp(a, 18), 0, 0);
         side.addView(actions);
@@ -864,11 +846,6 @@ final class AiUi {
                     ring.setValue(r.getMeasuredMs() / (float) r.getTargetMs());
                     timeLeft.setText(AiText.mmss((r.getTargetMs() - r.getMeasuredMs()) / 1000.0));
                     AiRestHr.Status st = r.getStatus();
-                    int med = r.liveMedian();
-                    sMedian.setText(med > 0 ? med + "" : "—");
-                    sSigma.setText(r.getStatus() == AiRestHr.Status.DONE || r.getStatus() == AiRestHr.Status.UNSTABLE
-                            ? String.format(Locale.US, "±%.1f", r.getSigma()) : "—");
-                    sDt.setText(r.getDtHrMs() > 0 ? String.format(Locale.US, "%.1f s", r.getDtHrMs() / 1000.0) : "~3 s");
                     if (st == AiRestHr.Status.DONE) {
                         done = true;
                         status.setText(AiText.t("Готово · ", "Done · ") + r.getHrRest() + " " + AiText.t("уд/мин", "bpm"));
@@ -926,24 +903,21 @@ final class AiUi {
         AiModel.Profile p = AiSession.getProfile();
         AiModel.SessionInput in = AiSession.getInput();
         titleView.setText(AiText.t("Твоят план", "Your plan"));
-        subtitleView.setText(AiText.t("Стъпка 5 от 6 · ", "Step 5 of 6 · ") + AiText.goal(in.goal)
+        subtitleView.setText(AiText.goal(in.goal)
                 + " · " + (in.mode == Mode.ACTIVE ? AiText.t("активно", "active") : AiText.t("пасивно", "passive"))
                 + " · " + AiText.mmss(plan.totalS));
         LinearLayout col = vertical(a);
         LinearLayout tiles = horizontal(a);
         String bpmU = " " + AiText.t("уд/мин", "bpm");
         bigTile(a, tiles, AiText.t("Покой", "Rest"), p.hrAvailable ? p.hrRest + "" : "—", p.hrAvailable ? bpmU : "");
-        bigTile(a, tiles, AiText.t("Максимум", "Max"), p.hrMax + "", bpmU);
         String corridor = p.hrAvailable
                 ? (Double.isNaN(p.xLo) ? "≤ " + p.hrAt(p.xHi) : p.hrAt(p.xLo) + "–" + p.hrAt(p.xHi))
                 : "—";
         bigTile(a, tiles, AiText.t("Коридор", "Corridor"), corridor, p.hrAvailable ? bpmU : "");
-        bigTile(a, tiles, AiText.t("Таван", "Ceiling"), p.hrAvailable ? p.hrCap + "" : "—", p.hrAvailable ? bpmU : "");
         bigTile(a, tiles, AiText.t("Време", "Time"), AiText.mmss(plan.totalS), "");
         col.addView(tiles);
 
         LinearLayout tl = card(a);
-        tl.addView(sectionLabel(a, AiText.t("Структура", "Structure")));
         AiViews.Timeline timeline = new AiViews.Timeline(a);
         timeline.setPlan(plan);
         tl.addView(timeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 34)));
@@ -954,58 +928,22 @@ final class AiUi {
             TextView n = text(a, AiText.phase(ph.id) + " · " + AiText.mmss(ph.durationS), 15,
                     AiViews.phaseColor(ph.id), true);
             pl.addView(n);
-            String cyc = ph.a.hz + " Hz · " + ph.a.pwUs + " µs · " + ph.a.onS + "/" + ph.a.offS + " s";
-            if (ph.b != null) {
-                cyc += "  ↔  " + ph.b.hz + " Hz";
-            }
-            pl.addView(text(a, cyc, 12, AiViews.MUTED, false));
-            pl.addView(text(a, (ph.blockMode == AiModel.BlockMode.FATIGUE_DRIVEN
-                    ? AiText.t("блокове по умора", "fatigue-driven blocks")
-                    : AiText.t("непрекъснато", "continuous"))
-                    + " · " + Math.round(ph.phiStart * 100)
-                    + (ph.phiEnd != ph.phiStart ? "→" + Math.round(ph.phiEnd * 100) : "") + "%", 12, AiViews.MUTED, false));
             labels.addView(pl, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,
                     Math.max(0.12f, ph.durationS / (float) plan.totalS)));
         }
         tl.addView(labels);
         col.addView(tl, matchWrap(a, 16));
 
-        LinearLayout guards = card(a);
-        guards.addView(sectionLabel(a, AiText.t("Защита по време на сесията", "Protection during the session")));
-        FlowRow chips = new FlowRow(a);
-        chips.add(chip(a, AiText.t("Стоп с един допир", "One-tap stop"), AiViews.DANGER));
-        if (p.hrAvailable) {
-            chips.add(chip(a, AiText.t("Таван ", "Ceiling ") + p.hrCap + AiText.t(" → пауза", " → pause"), AiViews.DANGER));
-        }
-        boolean fatigueRest = false;
-        for (AiModel.Phase ph : plan.phases) {
-            fatigueRest |= ph.blockMode == AiModel.BlockMode.FATIGUE_DRIVEN;
-        }
-        if (fatigueRest) {
-            chips.add(chip(a, AiText.t("Почивка по мускулна умора", "Rest on muscle fatigue"), AiViews.VIOLET));
-        }
-        if (plan.pauseOn) {
-            chips.add(chip(a, AiText.t("Двоен импулс", "Double impulse"), AiViews.CYAN));
-        }
-        chips.add(chip(a, AiText.t("3 контролни точки", "3 checkpoints"), AiViews.VIOLET));
-        if (p.hrAvailable && !p.safetyOnly) {
-            chips.add(chip(a, AiText.t("Корекции по пулса", "HR corrections"), AiViews.OK));
-        }
-        guards.addView(chips);
-        if (p.safetyOnly) {
-            TextView n = text(a, p.hrAvailable
-                    ? AiText.t("Пасивна програма — пулсът служи само за тавана.", "Passive program — HR only guards the ceiling.")
-                    : AiText.t("Без гривна — управлява само планът и моделът на умората.", "No band — plan and fatigue model only."),
-                    13, AiViews.MUTED, false);
-            n.setPadding(0, dp(a, 10), 0, 0);
-            guards.addView(n);
+        // Only what needs attention: no band, and the profile flags.
+        if (!p.hrAvailable) {
+            col.addView(banner(a, AiViews.WARN, AiText.t("Без гривна — управлява само планът.",
+                    "No band — the plan alone controls.")), matchWrap(a, 14));
         }
         for (String f : p.flags) {
             if (!"NO_BAND".equals(f)) {
-                guards.addView(banner(a, AiViews.WARN, AiText.flag(f)), matchWrap(a, 10));
+                col.addView(banner(a, AiViews.WARN, AiText.flag(f)), matchWrap(a, 10));
             }
         }
-        col.addView(guards, matchWrap(a, 16));
         body.addView(scroll(a, col));
         setupFooter(a, AiText.t("Калибриране на силата", "Calibrate strength"), true);
     }
@@ -1016,7 +954,7 @@ final class AiUi {
         final AiModel.Plan plan = AiSession.getPlan();
         final boolean self = AiSession.getInput().operator == Operator.SELF;
         titleView.setText(AiText.t("Калибриране на силата", "Strength calibration"));
-        subtitleView.setText(AiText.t("Стъпка 6 от 6 · цел: усещане ", "Step 6 of 6 · target sensation ")
+        subtitleView.setText(AiText.t("Цел: усещане ", "Target sensation ")
                 + plan.cr10Lo + "–" + plan.cr10Hi + AiText.t(" от 10", " of 10"));
         LinearLayout row = horizontal(a);
         row.setGravity(Gravity.CENTER_VERTICAL);

@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenCheck(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,21 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
-.field final synthetic val$verdict:Landroid/widget/LinearLayout;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;Landroid/widget/LinearLayout;)V
-    .registers 3
+.method constructor <init>()V
+    .registers 1
 
-    .line 650
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$11;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$11;->val$verdict:Landroid/widget/LinearLayout;
-
+    .prologue
+    .line 641
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -39,22 +30,36 @@
 
 
 # virtual methods
-.method public onToggle(Z)V
-    .registers 3
+.method public onClick(Landroid/view/View;)V
+    .registers 4
 
-    .line 653
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$11;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .prologue
+    const/4 v1, 0x1
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
+    .line 644
+    # getter for: Lcom/isaigu/gymapp/ai/AiUi;->healthOk:Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$600()Z
 
-    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->feverOrIllness:Z
+    move-result v0
 
-    .line 654
-    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$11;->val$verdict:Landroid/widget/LinearLayout;
+    if-nez v0, :cond_f
 
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->renderVerdict(Landroid/widget/LinearLayout;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(Landroid/widget/LinearLayout;)V
+    move v0, v1
 
-    .line 655
+    :goto_8
+    # setter for: Lcom/isaigu/gymapp/ai/AiUi;->healthOk:Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$602(Z)Z
+
+    .line 645
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
+    invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
+
+    .line 646
     return-void
+
+    .line 644
+    :cond_f
+    const/4 v0, 0x0
+
+    goto :goto_8
 .end method

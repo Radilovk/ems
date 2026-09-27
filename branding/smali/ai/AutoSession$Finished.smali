@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 620
+    .line 744
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,21 +34,21 @@
     .registers 5
 
     .prologue
-    .line 624
+    .line 748
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->onFinished()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 628
+    .line 752
     :goto_3
     return-void
 
-    .line 625
+    .line 749
     :catch_4
     move-exception v0
 
-    .line 626
+    .line 750
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;

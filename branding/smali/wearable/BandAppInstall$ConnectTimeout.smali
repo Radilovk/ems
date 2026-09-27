@@ -21,6 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
+    .prologue
     .line 232
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -32,6 +33,7 @@
 .method public run()V
     .registers 3
 
+    .prologue
     .line 235
     # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->pendingManual:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$000()Z

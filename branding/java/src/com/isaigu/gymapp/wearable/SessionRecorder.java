@@ -244,6 +244,9 @@ public final class SessionRecorder {
         }
         r.end = now;
         BandWorkout.onEnd(r);
+        if (r.bandOwner || r.leader) {
+            BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
+        }
         if (r.activeS() < MIN_ACTIVE_S) {
             WearableBleDiagLog.log("report", "session dropped (" + r.activeS() + " s active) user " + r.userId);
             return;

@@ -61,6 +61,8 @@ final class SessionRec {
     final SessionInts[] ch = new SessionInts[CH];
     final SessionInts post = new SessionInts();
     final int[] chPeak = new int[CH];
+    /** Work per channel: Σ (share × main strength) over the impulse seconds — the muscle map's load. */
+    final long[] chLoad = new long[CH];
 
     /** Seconds the slot has been paused without a break. */
     int pausedS;
@@ -157,10 +159,36 @@ final class SessionRec {
                 if (real > chPeak[i]) {
                     chPeak[i] = real;
                 }
+                if (item.data.inStart) {
+                    chLoad[i] += real;
+                }
             }
         }
         dis.add(mask);
         ph.add(aiPhase);
+    }
+
+    /** Load per muscle, 0–100 against the most worked one (all 0 when nothing ran). */
+    int[] muscleLevels() {
+        long mx = 0;
+        for (long v : chLoad) {
+            mx = Math.max(mx, v);
+        }
+        int[] out = new int[CH];
+        for (int i = 0; i < CH; i++) {
+            out[i] = mx > 0 ? (int) Math.round(chLoad[i] * 100.0 / mx) : 0;
+        }
+        return out;
+    }
+
+    /** "M" / "F" for the band's figure (female when unknown). */
+    String sex() {
+        try {
+            com.isaigu.gymapp.ai.AiProfile p = com.isaigu.gymapp.ai.AiProfile.of(user);
+            return p != null && p.sex == com.isaigu.gymapp.ai.AiModel.Sex.MALE ? "M" : "F";
+        } catch (Throwable t) {
+            return "F";
+        }
     }
 
     int activeS() {

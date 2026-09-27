@@ -25,6 +25,7 @@
 .method constructor <init>(Ljava/lang/String;)V
     .registers 2
 
+    .prologue
     .line 272
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,6 +41,7 @@
 .method public run()V
     .registers 3
 
+    .prologue
     .line 278
     # getter for: Lcom/isaigu/gymapp/wearable/BandAppInstall;->statusView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->access$400()Landroid/widget/TextView;

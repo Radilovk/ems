@@ -1,6 +1,6 @@
 <template>
   <stack class="root bg-summary" onswipe="onSwipe">
-    <div class="screen">
+    <div class="screen {{anim}}" if="{{cur === 'main'}}">
       <div class="check"></div>
       <text class="caps">{{kindText}}</text>
       <text class="dur">{{durText}}</text>
@@ -22,12 +22,66 @@
         <text class="done-text">Готово</text>
       </div>
     </div>
+
+    <!-- 2 · the muscles this training worked: colour boxes under a stencil of the figure -->
+    <div class="screen body-screen {{anim}}" if="{{cur === 'body'}}">
+      <text class="caps">МУСКУЛИ</text>
+      <div class="figs">
+        <stack class="fig" style="height: {{figH}}px">
+          <div class="boxes">
+            <div for="{{front}}" class="bx" style="left: {{$item.x}}px; top: {{$item.y}}px; width: {{$item.w}}px; height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+          </div>
+          <div class="stencil {{sexK}}-front" style="height: {{figH}}px"></div>
+        </stack>
+        <stack class="fig fig-b" style="height: {{figH}}px">
+          <div class="boxes">
+            <div for="{{back}}" class="bx" style="left: {{$item.x}}px; top: {{$item.y}}px; width: {{$item.w}}px; height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+          </div>
+          <div class="stencil {{sexK}}-back" style="height: {{figH}}px"></div>
+        </stack>
+      </div>
+      <div class="tops">
+        <div for="{{tops}}" class="top">
+          <div class="tdot" style="background-color: {{$item.c}}"></div>
+          <text class="tname">{{$item.n}}</text>
+          <text class="tpct">{{$item.p}}%</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="dots" if="{{ids.length > 1}}">
+      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
+    </div>
   </stack>
 </template>
 
 <script>
 import router from '@system.router'
-import { ZONE, hms, swipe } from '../../common/ui.js'
+import { ZONE, hms, swipe, dots } from '../../common/ui.js'
+import { BODY } from '../../common/body-map.js'
+
+// Muscle load colour: the same scale as the tablet report and the client card.
+const STOPS = [[0, [124, 92, 255]], [0.3, [34, 211, 238]], [0.55, [163, 230, 53]], [0.78, [251, 191, 36]], [1, [255, 61, 110]]]
+const MUSCLE = ['Гърди', 'Корем', 'Предно бедро', 'Прасци', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
+// both sexes listed so the image budget check sees them
+const STENCILS = ['/common/body/f-front.png', '/common/body/f-back.png', '/common/body/m-front.png', '/common/body/m-back.png']
+
+function heat(v) {
+  v = Math.max(0, Math.min(1, v))
+  for (let i = 1; i < STOPS.length; i++) {
+    if (v <= STOPS[i][0]) {
+      const a = STOPS[i - 1]
+      const b = STOPS[i]
+      const k = (v - a[0]) / (b[0] - a[0])
+      return '#' + a[1].map((x, j) => ('0' + Math.round(x + (b[1][j] - x) * k).toString(16)).slice(-2)).join('')
+    }
+  }
+  return '#ff3d6e'
+}
+
+function boxes(key, col) {
+  return BODY.views[key].boxes.map((b) => ({ x: b[0], y: b[1], w: b[2], h: b[3], c: col[b[4]] }))
+}
 
 export default {
   private: {
@@ -43,10 +97,30 @@ export default {
     avg: '--',
     max: '--',
     zones: [],
+    sexK: 'f',
+    figH: 236,
+    front: [],
+    back: [],
+    tops: [],
     pressed: false
   },
 
   onInit() {
+    this.fill()
+    this.onApp = () => {
+      const s = this.$app.$def.summary || {}
+      if (s.mus && this.ids.length < 2) {
+        this.fill()                                // the muscle map arrived after the page opened
+      }
+    }
+    this.$app.$def.watch(this.onApp)
+  },
+
+  onDestroy() {
+    this.$app.$def.unwatch(this.onApp)
+  },
+
+  fill() {
     const s = this.$app.$def.summary || {}
     this.kindText = s.kind === 'ai' ? 'AI СЕСИЯ' : 'ТРЕНИРОВКА'
     this.durText = hms(s.dur || 0)
@@ -56,6 +130,20 @@ export default {
     const zt = s.zt || [0, 0, 0, 0, 0]
     const total = zt.reduce((a, b) => a + b, 0)
     this.zones = zt.map((v, i) => ({ w: total > 0 ? Math.max(v, 0.0001) : 1, c: ZONE[i + 1] }))
+    const mus = s.mus
+    if (mus && mus.length === 10 && Math.max(...mus) > 0) {
+      const mx = Math.max(...mus)
+      const lv = mus.map((v) => v / mx)
+      const col = lv.map(heat)
+      this.sexK = s.sex === 'M' ? 'm' : 'f'
+      this.figH = BODY.views[this.sexK + '-front'].h
+      this.front = boxes(this.sexK + '-front', col)
+      this.back = boxes(this.sexK + '-back', col)
+      this.tops = lv.map((v, i) => ({ i, v })).sort((a, b) => b.v - a.v).slice(0, 3)
+        .map((t) => ({ n: MUSCLE[t.i], p: Math.round(t.v * 100), c: col[t.i] }))
+      this.ids = ['main', 'body']
+    }
+    this.dots = dots(0, this.ids.length)
   },
 
   onShow() {
@@ -318,6 +406,71 @@ export default {
   margin-top: 18px;
   border-radius: 35px;
   background-color: #2c2c2e;
+}
+.body-screen {
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+.figs {
+  width: 200px;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-right: 8px;
+}
+.fig {
+  width: 96px;
+}
+.boxes {
+  width: 96px;
+  height: 236px;
+}
+.bx {
+  position: absolute;
+}
+.stencil {
+  width: 96px;
+  background-size: contain;
+}
+.f-front {
+  background-image: url(/common/body/f-front.png);
+}
+.f-back {
+  background-image: url(/common/body/f-back.png);
+}
+.m-front {
+  background-image: url(/common/body/m-front.png);
+}
+.m-back {
+  background-image: url(/common/body/m-back.png);
+}
+.tops {
+  width: 196px;
+  flex-direction: column;
+  margin-top: 16px;
+}
+.top {
+  height: 30px;
+  flex-direction: row;
+  align-items: center;
+}
+.tdot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+.tname {
+  flex-grow: 1;
+  lines: 1;
+  font-size: 19px;
+  color: #ffffff;
+}
+.tpct {
+  margin-left: 8px;
+  font-size: 19px;
+  font-weight: bold;
+  color: #aeaeb2;
 }
 .done-text {
   font-size: 28px;

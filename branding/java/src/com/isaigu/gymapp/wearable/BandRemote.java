@@ -589,6 +589,44 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         }
     }
 
+    private static org.json.JSONArray lastMus;
+    private static String lastSex = "F";
+    private static long lastMusMs;
+    private static boolean lastMusOwner;
+
+    /**
+     * The muscle map of the training that just closed (the band owner's slot, else the leading one):
+     * joins the band's summary — the one already out, or the next within 5 minutes.
+     */
+    static void onMuscles(int[] levels, String sex, boolean owner) {
+        try {
+            long now = System.currentTimeMillis();
+            if (!owner && lastMusOwner && now - lastMusMs < 300000L) {
+                return;                                   // the owner's map wins
+            }
+            boolean any = false;
+            org.json.JSONArray a = new org.json.JSONArray();
+            for (int v : levels) {
+                a.put(v);
+                any |= v > 0;
+            }
+            if (!any) {
+                return;
+            }
+            lastMus = a;
+            lastSex = sex;
+            lastMusMs = now;
+            lastMusOwner = owner;
+            if (summary != null && now < summaryUntilMs) {
+                summary.put("mus", a);
+                summary.put("sex", sex);
+                handler.postDelayed(new Push(true), 300);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("applink", "muscles: " + t);
+        }
+    }
+
     /** A session ended: keep its summary in the state for 90 s (the band opens it once). */
     static void onSessionEnd(String kind, long durS) {
         try {
@@ -611,6 +649,10 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 zt.put(zm[z] / 1000);
             }
             o.put("zt", zt);
+            if (lastMus != null && now - lastMusMs < 300000L) {
+                o.put("mus", lastMus);
+                o.put("sex", lastSex);
+            }
             summary = o;
             summaryUntilMs = now + 90000L;
             WearableBleDiagLog.log("applink", "session end " + kind + " " + durS + "s");

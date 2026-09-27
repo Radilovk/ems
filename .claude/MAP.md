@@ -284,13 +284,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/scripts/check-art.py` (66L) — Image budget for the band app — keeps the look rich without making the band slow.
 - `band-app/scripts/gen-all-btn.py` (58L) — Green/red bar for Start screen (main − / +). Vela clips images, not stacked CSS fills.
 - `band-app/scripts/gen-art.py` (198L) — Baked artwork for the band app: light layers for CSS circles (badges, buttons), glows behind rings.
-- `band-app/scripts/gen-bg.py` (70L) — Screen backgrounds for the band app (212 × 520): near-black with a soft glow of the module's colour at the top (with a …
+- `band-app/scripts/gen-bg.py` (70L) — Screen backgrounds for the band app (212 × 520): near-black with a neon glow of the module's colour at the top (with a …
 - `band-app/scripts/gen-body.py` (150L) — The muscle figure for the band (summary page, screen 2), from the same art as the client card.
 - `band-app/scripts/gen-home-preview.py` (80L) — Render the card-menu home (212×520) from layout constants — no emulator.
 - `band-app/scripts/gen-icons.py` (161L) — Generate v4 band icons — white glyphs on transparent PNG.
 - `band-app/scripts/gen-lang.py` (47L) — Make the English band app from the Bulgarian source: copy the project, replace every Bulgarian phrase from scripts/en.j…
 - `band-app/scripts/gen-pages.py` (37L) — Stamp scripts/common.css into each page under src/pages/*/index.ux.
 - `band-app/scripts/gen-train-preview.py` (329L) — Render train screen preview PNG (212×520) from layout constants — no emulator.
+- `band-app/scripts/neon.py` (98L) — Neon palette for the band app (5.9.39): one table old → new, applied to every page, the shared CSS/JS and the art gener…
 - `band-app/scripts/run-emulator-test.sh` (18L) — Quick train screen previews (212×520 PNG) — no emulator required.
 - `band-app/scripts/test-band.sh` (40L) — Closest-to-device automated checks without Band 10 hardware.
 - `band-app/scripts/setup-emulator.mjs` (36L) — Create a Vela VVD sized like Band 10 (212×520 logical).

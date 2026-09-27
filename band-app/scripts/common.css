@@ -52,7 +52,7 @@
   margin-top: 3px;
   margin-bottom: 3px;
   border-radius: 3px;
-  background-color: #48484a;
+  background-color: #3A3F55;
 }
 .pdot-on {
   height: 18px;
@@ -63,14 +63,14 @@
   height: 30px;
   font-size: 22px;
   font-weight: bold;
-  color: #8e8e93;
+  color: #8C93AB;
 }
 .sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
-  color: #aeaeb2;
+  color: #ADB3C7;
 }
 .down {
   transform: scale(0.92);
@@ -96,7 +96,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: #3a3a3c;
+  background-color: #2D3142;
   transition-property: transform;
   transition-duration: 120ms;
 }
@@ -130,8 +130,8 @@
   margin-right: 4px;
   border-radius: 22px;
   border-width: 1px;
-  border-color: #2c2c2e;
-  background-color: #1c1c1e;
+  border-color: #222532;
+  background-color: #15171F;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -145,13 +145,13 @@
 .tile-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8e8e93;
+  color: #8C93AB;
 }
 .t-max {
-  color: #ff453a;
+  color: #FF2E63;
 }
 .t-kcal {
-  color: #ff9f0a;
+  color: #FF8A1F;
 }
 /* time in heart-rate zones: one bar, a segment per zone */
 .zstack {
@@ -161,7 +161,7 @@
   margin-top: 16px;
   border-radius: 7px;
   flex-direction: row;
-  background-color: #1c1c1e;
+  background-color: #15171F;
 }
 .zpart {
   height: 14px;

@@ -7,10 +7,10 @@ from PIL import Image, ImageDraw
 OUT = Path(__file__).resolve().parent.parent / "src" / "common" / "ui"
 W, H = 196, 92
 R = 22
-BRIGHT_GREEN = (48, 209, 88)   # #30D158 — active training
-BRIGHT_RED = (255, 69, 58)     # #FF453A
-DIM_GREEN = (31, 157, 70)      # #1F9D46 — pause / before start
-DIM_RED = (224, 52, 43)        # #E0342B
+BRIGHT_GREEN = (0, 245, 155)   # #30D158 — active training
+BRIGHT_RED = (255, 46, 99)     # #FF453A
+DIM_GREEN = (0, 178, 112)      # #1F9D46 — pause / before start
+DIM_RED = (214, 28, 82)        # #E0342B
 
 
 SS = 4

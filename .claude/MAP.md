@@ -88,7 +88,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-xems-local-java.sh` (79L, build:L111[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
 - `scripts/design_config_schema.py` (116L) — Safe bounds and validation for branding/design-config.yaml.
-- `scripts/gen-card-art.py` (166L) — Client card figures from the illustrated art (branding/report/figures/{female,male}.png).
+- `scripts/gen-card-art.py` (215L) — Client card figures from the illustrated art in branding/report/figures/.
 - `scripts/install_interval_timer_smali.py` (77L) — Install interval timer stack smali (helper, presets, block program) into decompiled APK.
 - `scripts/layout-implement.py` (301L) — Generate Android layout XML from approved layout brief.
 - `scripts/layout_brief_lib.py` (109L) — Shared layout brief load/validate (imported by CLI and implement).

@@ -8,7 +8,7 @@ import {
 import { adminHtml } from './admin.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
-  cardId, isCardId, normClientKey, validCardData, renderCard, cardGonePage,
+  cardId, isCardId, normClientKey, validCardData, renderCard, cardGonePage, lookupHash, lookupMatches,
   CARD_MAX_BYTES, CARD_TTL_SEC,
 } from './card.js';
 import cardTemplate from '../../branding/report/client-card.html';
@@ -19,6 +19,18 @@ import {
 } from './utils.js';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
+// /v1/card/find is called from the client's browser (the booking PWA on another origin)
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400',
+};
+
+function cors(res) {
+  for (const [k, v] of Object.entries(CORS_HEADERS)) res.headers.set(k, v);
+  return res;
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -43,6 +55,10 @@ export default {
 
       if (path === '/v1/card' && request.method === 'POST') {
         return handleCardPut(request, env);
+      }
+      if (path === '/v1/card/find') {
+        if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+        if (request.method === 'POST') return handleCardFind(request, env);
       }
       if (path.startsWith('/c/') && request.method === 'GET') {
         return serveCard(env, path.slice(3));
@@ -185,21 +201,46 @@ async function handleCardPut(request, env) {
 
   const ts = now();
   const data = JSON.stringify(body.data);
+  // hashes of the client's e-mail / phone (from the tablet) so the client can find the card in the PWA
+  const ek = lookupHash(body.ek);
+  const pk = lookupHash(body.pk);
   const row = await env.DB.prepare(
     'SELECT id FROM client_cards WHERE license_id = ? AND client_key = ?',
   ).bind(licId, clientKey).first();
   let id = row?.id;
   if (id) {
-    await env.DB.prepare('UPDATE client_cards SET data = ?, updated_at = ?, expires_at = ? WHERE id = ?')
-      .bind(data, ts, ts + CARD_TTL_SEC, id).run();
+    await env.DB.prepare(
+      'UPDATE client_cards SET data = ?, updated_at = ?, expires_at = ?, email_hash = ?, phone_hash = ? WHERE id = ?',
+    ).bind(data, ts, ts + CARD_TTL_SEC, ek, pk, id).run();
   } else {
     id = cardId();
     await env.DB.prepare(
-      'INSERT INTO client_cards (id, license_id, client_key, data, created_at, updated_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    ).bind(id, licId, clientKey, data, ts, ts, ts + CARD_TTL_SEC).run();
+      'INSERT INTO client_cards (id, license_id, client_key, data, created_at, updated_at, expires_at, email_hash, phone_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    ).bind(id, licId, clientKey, data, ts, ts, ts + CARD_TTL_SEC, ek, pk).run();
   }
   const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
   return json({ ok: true, url: `${base}/c/${id}` });
+}
+
+/** The booking PWA asks for the client's card: {ek, pk} → the newest matching card's link. */
+async function handleCardFind(request, env) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!(await rateLimit(env, `cardfind:ip:${ip}`, LIMITS.cardFindPerMinutePerIp, 60))) {
+    return cors(json({ ok: false, error: 'rate_limit' }, 429));
+  }
+  const body = await readJsonBody(request);
+  const ek = lookupHash(body?.ek);
+  const pk = lookupHash(body?.pk);
+  if (!ek && !pk) return cors(err('bad_request', 'ek / pk'));
+  const { results } = await env.DB.prepare(
+    `SELECT id, email_hash, phone_hash FROM client_cards
+     WHERE expires_at > ? AND (email_hash = ? OR phone_hash = ?)
+     ORDER BY updated_at DESC LIMIT 20`,
+  ).bind(now(), ek || '-', pk || '-').all();
+  const hit = (results || []).find((r) => lookupMatches(r, ek, pk));
+  if (!hit) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
+  return cors(json({ ok: true, url: `${base}/c/${hit.id}` }));
 }
 
 async function serveCard(env, id) {

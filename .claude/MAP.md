@@ -196,7 +196,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (636L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
 - `PlanScreen.java` (603L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
-- `ReportBridge.java` (468L, compile:music-sync*,wearable) — window.XemsReport in the report page.
+- `ReportBridge.java` (508L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (86L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
 - `Schedule.java` (429L, compile:music-sync*,wearable) — The studio's appointments from the tablet's own calendar (Acuity → Google Calendar sync, or any calendar the tablet sho…
 - `SessionInts.java` (36L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
@@ -252,7 +252,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsIcon.java` (178L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (401L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
-- `XemsLicenseClient.java` (465L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
+- `XemsLicenseClient.java` (470L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
 - `XemsLicenseSection.java` (324L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (288L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
@@ -303,15 +303,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 ## server (Cloudflare Worker license server)
 - `server/src/admin.js` (603L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
-- `server/src/card.js` (75L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
+- `server/src/card.js` (94L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/index.js` (665L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
-- `server/src/limits.js` (22L) — Caps and rate-limit settings — stay safe on Workers free tier.
+- `server/src/index.js` (706L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/limits.js` (23L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/utils.js` (83L) — Shared helpers for license server (testable, no Worker bindings).
-- `server/test/card.test.js` (79L) — 
+- `server/test/card.test.js` (95L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/crypto-verify.test.js` (24L) — 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
@@ -322,6 +322,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/migrations/0002_ems_devices.sql` (7L) — 
 - `server/migrations/0003_ems_devices_catalog.sql` (16L) — 
 - `server/migrations/0004_client_cards.sql` (14L) — 
+- `server/migrations/0005_client_card_lookup.sql` (7L) — 
 - `server/scripts/seed-release.sh` (25L) — Register current APK as a release on the license server.
 
 ## Branding YAML maps (top-level keys)
@@ -523,13 +524,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L354 ## 9. Реализация
   - L397 ## 10. Подсказки (1.1.157-ai)
 
-`docs/xems-client-data.md` (46L)
+`docs/xems-client-data.md` (49L)
   - L1 # XEMS — какви данни къде живеят
   - L6 ## 1. Само на таблета
   - L17 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
   - L28 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
 
-`docs/xems-license-api.md` (162L)
+`docs/xems-license-api.md` (171L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -540,9 +541,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L83 ### 2. Опресняване (веднъж на 24 h, във фон)
   - L96 ### 3. Проверка за нова версия
   - L113 ### 4. Клиентски картон (линк за клиента)
-  - L134 ## Жетон (подписан от сървъра)
-  - L150 ## Какво остава за сървъра
-  - L157 ## Проверки (без Android)
+  - L143 ## Жетон (подписан от сървъра)
+  - L159 ## Какво остава за сървъра
+  - L166 ## Проверки (без Android)
 
 `docs/xems-part-strength.md` (43L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85)

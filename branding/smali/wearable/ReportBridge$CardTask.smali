@@ -30,12 +30,12 @@
     .registers 4
 
     .prologue
-    .line 130
+    .line 168
     const/4 v0, 0x0
 
     invoke-direct {p0, p1, p2, v0}, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;-><init>(Lcom/isaigu/gymapp/wearable/ReportBridge;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 131
+    .line 169
     return-void
 .end method
 
@@ -43,19 +43,19 @@
     .registers 4
 
     .prologue
-    .line 133
+    .line 171
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 134
+    .line 172
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;->b:Lcom/isaigu/gymapp/wearable/ReportBridge;
 
-    .line 135
+    .line 173
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;->json:Ljava/lang/String;
 
-    .line 136
+    .line 174
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;->refreshKey:Ljava/lang/String;
 
-    .line 137
+    .line 175
     return-void
 .end method
 
@@ -65,12 +65,12 @@
     .registers 4
 
     .prologue
-    .line 141
+    .line 179
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;->refreshKey:Ljava/lang/String;
 
     if-eqz v0, :cond_e
 
-    .line 142
+    .line 180
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;->b:Lcom/isaigu/gymapp/wearable/ReportBridge;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;->json:Ljava/lang/String;
@@ -79,11 +79,11 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/ReportBridge;->refreshNow(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 146
+    .line 184
     :goto_d
     return-void
 
-    .line 144
+    .line 182
     :cond_e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;->b:Lcom/isaigu/gymapp/wearable/ReportBridge;
 

@@ -206,7 +206,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 417
+    .line 422
     :try_start_1
     invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
 
@@ -222,16 +222,16 @@
 
     move-result-object v1
 
-    .line 418
+    .line 423
     iget v0, v1, Landroid/content/pm/PackageInfo;->versionCode:I
     :try_end_10
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_10} :catch_11
 
-    .line 420
+    .line 425
     :goto_10
     return v0
 
-    .line 419
+    .line 424
     :catch_11
     move-exception v1
 
@@ -242,7 +242,7 @@
     .registers 4
 
     .prologue
-    .line 426
+    .line 431
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
 
@@ -258,20 +258,20 @@
 
     move-result-object v0
 
-    .line 427
+    .line 432
     iget-object v0, v0, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_f} :catch_10
 
-    .line 429
+    .line 434
     :goto_f
     return-object v0
 
-    .line 428
+    .line 433
     :catch_10
     move-exception v0
 
-    .line 429
+    .line 434
     const-string v0, ""
 
     goto :goto_f
@@ -411,7 +411,7 @@
     .registers 4
 
     .prologue
-    .line 352
+    .line 357
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -466,7 +466,7 @@
 
     move-result-object v1
 
-    .line 353
+    .line 358
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->quote(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -493,7 +493,7 @@
 
     move-result-object v0
 
-    .line 355
+    .line 360
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->appVersion(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
@@ -512,7 +512,7 @@
 
     move-result-object v0
 
-    .line 356
+    .line 361
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->appCode(Landroid/content/Context;)I
 
     move-result v1
@@ -527,7 +527,7 @@
 
     move-result-object v1
 
-    .line 357
+    .line 362
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0
@@ -551,7 +551,7 @@
 
     move-result-object v0
 
-    .line 358
+    .line 363
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isSetupMode()Z
 
     move-result v1
@@ -566,7 +566,7 @@
 
     move-result-object v0
 
-    .line 359
+    .line 364
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->pairedSuits(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
@@ -579,10 +579,10 @@
 
     move-result-object v0
 
-    .line 352
+    .line 357
     return-object v0
 
-    .line 357
+    .line 362
     :cond_a3
     const-string v0, "en"
 
@@ -617,12 +617,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 434
+    .line 439
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 435
+    .line 440
     array-length v3, p0
 
     move v0, v1
@@ -632,7 +632,7 @@
 
     aget-byte v4, p0, v0
 
-    .line 436
+    .line 441
     const-string v5, "%02x"
 
     const/4 v6, 0x1
@@ -653,12 +653,12 @@
 
     invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 435
+    .line 440
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_8
 
-    .line 438
+    .line 443
     :cond_23
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -680,12 +680,12 @@
 
     const/4 v4, 0x0
 
-    .line 383
+    .line 388
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->server()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 384
+    .line 389
     :goto_7
     const-string v1, "/"
 
@@ -695,7 +695,7 @@
 
     if-eqz v1, :cond_1a
 
-    .line 385
+    .line 390
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -708,7 +708,7 @@
 
     goto :goto_7
 
-    .line 387
+    .line 392
     :cond_1a
     new-instance v1, Ljava/net/URL;
 
@@ -736,50 +736,50 @@
 
     check-cast v0, Ljava/net/HttpURLConnection;
 
-    .line 388
+    .line 393
     invoke-virtual {v0, p0}, Ljava/net/HttpURLConnection;->setRequestMethod(Ljava/lang/String;)V
 
-    .line 389
+    .line 394
     invoke-virtual {v0, v3}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 390
+    .line 395
     invoke-virtual {v0, v3}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 391
+    .line 396
     const-string v1, "Accept"
 
     const-string v2, "application/json"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 392
+    .line 397
     const-string v1, "User-Agent"
 
     const-string v2, "XEMS-Android"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 393
+    .line 398
     if-eqz p2, :cond_6a
 
-    .line 394
+    .line 399
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setDoOutput(Z)V
 
-    .line 395
+    .line 400
     const-string v1, "Content-Type"
 
     const-string v2, "application/json; charset=utf-8"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 396
+    .line 401
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v1
 
-    .line 397
+    .line 402
     const-string v2, "UTF-8"
 
     invoke-virtual {p2, v2}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
@@ -788,16 +788,16 @@
 
     invoke-virtual {v1, v2}, Ljava/io/OutputStream;->write([B)V
 
-    .line 398
+    .line 403
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
 
-    .line 400
+    .line 405
     :cond_6a
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v1
 
-    .line 401
+    .line 406
     const/16 v2, 0x190
 
     if-ge v1, v2, :cond_91
@@ -806,11 +806,11 @@
 
     move-result-object v0
 
-    .line 402
+    .line 407
     :goto_76
     if-nez v0, :cond_96
 
-    .line 403
+    .line 408
     new-instance v0, Ljava/lang/Exception;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -835,7 +835,7 @@
 
     throw v0
 
-    .line 401
+    .line 406
     :cond_91
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getErrorStream()Ljava/io/InputStream;
 
@@ -843,18 +843,18 @@
 
     goto :goto_76
 
-    .line 405
+    .line 410
     :cond_96
     new-instance v1, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v1}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 406
+    .line 411
     const/16 v2, 0x2000
 
     new-array v2, v2, [B
 
-    .line 408
+    .line 413
     :goto_9f
     invoke-virtual {v0, v2}, Ljava/io/InputStream;->read([B)I
 
@@ -862,16 +862,16 @@
 
     if-lez v3, :cond_a9
 
-    .line 409
+    .line 414
     invoke-virtual {v1, v2, v4, v3}, Ljava/io/ByteArrayOutputStream;->write([BII)V
 
     goto :goto_9f
 
-    .line 411
+    .line 416
     :cond_a9
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 412
+    .line 417
     new-instance v0, Ljava/lang/String;
 
     invoke-virtual {v1}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
@@ -1050,14 +1050,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 364
+    .line 369
     new-instance v1, Ljava/lang/StringBuilder;
 
     const-string v2, "["
 
     invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    .line 366
+    .line 371
     :try_start_8
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
@@ -1067,7 +1067,7 @@
 
     const/4 v4, 0x0
 
-    .line 367
+    .line 372
     invoke-virtual {v2, v3, v4}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
 
     move-result-object v2
@@ -1076,12 +1076,12 @@
 
     const-string v4, ""
 
-    .line 368
+    .line 373
     invoke-interface {v2, v3, v4}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 369
+    .line 374
     const-string v3, ","
 
     invoke-virtual {v2, v3}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -1095,7 +1095,7 @@
 
     aget-object v4, v2, v0
 
-    .line 370
+    .line 375
     invoke-virtual {v4}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v5
@@ -1106,7 +1106,7 @@
 
     if-lez v5, :cond_47
 
-    .line 371
+    .line 376
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v5
@@ -1115,12 +1115,12 @@
 
     if-le v5, v6, :cond_3c
 
-    .line 372
+    .line 377
     const/16 v5, 0x2c
 
     invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 374
+    .line 379
     :cond_3c
     invoke-virtual {v4}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -1134,17 +1134,17 @@
     :try_end_47
     .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_47} :catch_4a
 
-    .line 369
+    .line 374
     :cond_47
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_22
 
-    .line 377
+    .line 382
     :catch_4a
     move-exception v0
 
-    .line 379
+    .line 384
     :cond_4b
     const/16 v0, 0x5d
 
@@ -1163,14 +1163,14 @@
     .registers 5
 
     .prologue
-    .line 442
+    .line 447
     if-nez p0, :cond_3
 
-    .line 451
+    .line 456
     :goto_2
     return-void
 
-    .line 445
+    .line 450
     :cond_3
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->main:Landroid/os/Handler;
 
@@ -1184,7 +1184,7 @@
 .end method
 
 .method public static postCard(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    .registers 7
+    .registers 4
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
@@ -1193,11 +1193,30 @@
 
     .prologue
     .line 330
+    const-string v0, ""
+
+    invoke-static {p0, p1, p2, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->postCard(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static postCard(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .registers 8
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Ljava/lang/Exception;
+        }
+    .end annotation
+
+    .prologue
+    .line 335
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->token()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 331
+    .line 336
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->serverConfigured()Z
 
     move-result v1
@@ -1212,7 +1231,7 @@
 
     if-nez v1, :cond_1a
 
-    .line 332
+    .line 337
     :cond_12
     new-instance v0, Ljava/lang/IllegalStateException;
 
@@ -1222,7 +1241,7 @@
 
     throw v0
 
-    .line 334
+    .line 339
     :cond_1a
     if-eqz p2, :cond_28
 
@@ -1238,7 +1257,7 @@
 
     if-nez v1, :cond_30
 
-    .line 335
+    .line 340
     :cond_28
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
@@ -1248,7 +1267,7 @@
 
     throw v0
 
-    .line 337
+    .line 342
     :cond_30
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -1288,7 +1307,7 @@
 
     move-result-object v0
 
-    .line 338
+    .line 343
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLicenseToken;->quote(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -1307,6 +1326,14 @@
 
     move-result-object v0
 
+    .line 344
+    if-eqz p3, :cond_ac
+
+    :goto_6b
+    invoke-virtual {v0, p3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
     const-string v1, "}"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1317,7 +1344,7 @@
 
     move-result-object v0
 
-    .line 340
+    .line 345
     const-string v1, "POST"
 
     const-string v2, "/v1/card"
@@ -1330,14 +1357,14 @@
 
     move-result-object v0
 
-    .line 341
+    .line 346
     const-string v1, "url"
 
     invoke-interface {v0, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v1
 
-    .line 342
+    .line 347
     sget-object v2, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
 
     const-string v3, "ok"
@@ -1350,9 +1377,9 @@
 
     move-result v2
 
-    if-eqz v2, :cond_a6
+    if-eqz v2, :cond_af
 
-    if-eqz v1, :cond_a6
+    if-eqz v1, :cond_af
 
     invoke-static {v1}, Ljava/lang/String;->valueOf(Ljava/lang/Object;)Ljava/lang/String;
 
@@ -1364,17 +1391,23 @@
 
     move-result v2
 
-    if-eqz v2, :cond_a6
+    if-eqz v2, :cond_af
 
-    .line 343
+    .line 348
     invoke-static {v1}, Ljava/lang/String;->valueOf(Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
 
     return-object v0
 
-    .line 345
-    :cond_a6
+    .line 344
+    :cond_ac
+    const-string p3, ""
+
+    goto :goto_6b
+
+    .line 350
+    :cond_af
     new-instance v1, Ljava/lang/Exception;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -1410,14 +1443,14 @@
     .registers 5
 
     .prologue
-    .line 454
+    .line 459
     if-nez p0, :cond_3
 
-    .line 463
+    .line 468
     :goto_2
     return-void
 
-    .line 457
+    .line 462
     :cond_3
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->main:Landroid/os/Handler;
 

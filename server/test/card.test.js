@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { cardId, isCardId, normClientKey, validCardData, renderCard, keepFigure, CARD_PLACEHOLDER } from '../src/card.js';
+import { cardId, isCardId, normClientKey, validCardData, renderCard, keepFigure, CARD_PLACEHOLDER, lookupHash, lookupMatches } from '../src/card.js';
 
 const ok = () => ({
   v: 1, lang: 'bg', name: 'Мария', n: 22, sec: 31944, kcal: 3213, contr: 4865, streak: 12, since: 1, gen: 2,
@@ -75,4 +75,20 @@ describe('keepFigure', () => {
   const t = 'a<!--FIG:female-->F<!--/FIG:female--><!--FIG:male-->M<!--/FIG:male-->b';
   it('keeps the woman\'s figure by default', () => assert.equal(keepFigure(t, 'F'), 'a<!--FIG:female-->F<!--/FIG:female-->b'));
   it('keeps the man\'s figure for M', () => assert.equal(keepFigure(t, 'M'), 'a<!--FIG:male-->M<!--/FIG:male-->b'));
+});
+
+describe('card lookup', () => {
+  const h = (c) => c.repeat(64);
+  it('accepts 64 hex only', () => {
+    assert.equal(lookupHash(h('A')), h('a'));
+    assert.equal(lookupHash('abc'), null);
+    assert.equal(lookupHash(null), null);
+  });
+  it('needs every hash the card has', () => {
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, h('a'), h('b')), true);
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, h('a'), h('c')), false);
+    assert.equal(lookupMatches({ email_hash: null, phone_hash: h('b') }, h('x'), h('b')), true);
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: null }, h('a'), null), true);
+    assert.equal(lookupMatches({ email_hash: null, phone_hash: null }, h('a'), h('b')), false);
+  });
 });

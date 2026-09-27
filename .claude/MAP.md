@@ -191,11 +191,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `HrGuard.java` (286L, compile:music-sync*,wearable) — Pulse module driver: feeds {@link HrGuardCore} with band HR and the running program, and writes its factors to the runn…
 - `HrGuardCore.java` (528L, compile:music-sync*,wearable) — Pulse module: heart-rate driven control of the impulse output, without any extra input.
 - `HrHistory.java` (126L, compile:music-sync*,wearable) — Heart-rate samples of the last hour (ring buffer) for the HR panel: chart, averages and time in zones.
-- `NextClient.java` (520L, compile:music-sync*,wearable) — The next client from the calendar: shortly before the appointment, when nothing runs on the tablet, asks the trainer an…
+- `NextClient.java` (632L, compile:music-sync*,wearable) — The next client from the calendar: shortly before the appointment, when nothing runs on the tablet, asks the trainer an…
 - `NextPlan.java` (636L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (636L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `PlanScreen.java` (901L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
+- `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
 - `ReportBridge.java` (508L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (86L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
 - `Schedule.java` (516L, compile:music-sync*,wearable) — The studio's appointments from the tablet's own calendar (Acuity → Google Calendar sync, or any calendar the tablet sho…
@@ -563,14 +563,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L29 ## Къде е вързано (`scripts/apply-part-strength.py`, последен в `build-apk.sh`)
   - L36 ## Проверки
 
-`docs/xems-plan.md` (52L)
+`docs/xems-plan.md` (60L)
   - L1 # XEMS — „План“ и следващ клиент (1.1.188-ai)
   - L8 ## Откъде идват часовете
   - L15 ## Разпознаване на клиента (по ред)
   - L22 ## Кога пита
   - L31 ## Кой костюм
   - L35 ## Настройките
-  - L49 ## Статус в таба
+  - L49 ## Изглед (приоритет на вниманието)
+  - L57 ## Статус в таба
 
 `docs/xems-pulse-control.md` (143L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59)

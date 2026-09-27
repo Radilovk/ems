@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 612
+    .line 724
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,19 +34,19 @@
     .registers 6
 
     .prologue
-    .line 615
+    .line 727
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/PlanScreen;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 616
+    .line 728
     if-nez v0, :cond_7
 
-    .line 628
+    .line 740
     :goto_6
     return-void
 
-    .line 619
+    .line 731
     :cond_7
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/Schedule;->canRead(Landroid/content/Context;)Z
 
@@ -60,7 +60,7 @@
 
     if-nez v1, :cond_3a
 
-    .line 620
+    .line 732
     :cond_13
     sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
 
@@ -68,7 +68,7 @@
 
     if-lt v1, v2, :cond_2b
 
-    .line 621
+    .line 733
     const/4 v1, 0x2
 
     new-array v1, v1, [Ljava/lang/String;
@@ -89,7 +89,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/app/Activity;->requestPermissions([Ljava/lang/String;I)V
 
-    .line 624
+    .line 736
     :cond_2b
     # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$100()Landroid/os/Handler;
@@ -106,7 +106,7 @@
 
     goto :goto_6
 
-    .line 627
+    .line 739
     :cond_3a
     new-instance v1, Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;
 

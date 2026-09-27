@@ -26,13 +26,13 @@
     .registers 4
 
     .prologue
-    .line 889
+    .line 1001
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 890
+    .line 1002
     iput-wide p1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$CalClick;->id:J
 
-    .line 891
+    .line 1003
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 6
 
     .prologue
-    .line 895
+    .line 1007
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -55,12 +55,12 @@
 
     invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/Schedule;->setCalendarId(Landroid/content/Context;J)V
 
-    .line 896
+    .line 1008
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->invalidate()V
 
-    .line 897
+    .line 1009
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->refresh()V
 
-    .line 898
+    .line 1010
     return-void
 .end method

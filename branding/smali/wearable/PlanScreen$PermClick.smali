@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 488
+    .line 573
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,12 +34,12 @@
     .registers 6
 
     .prologue
-    .line 491
+    .line 576
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/PlanScreen;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 492
+    .line 577
     if-eqz v0, :cond_19
 
     sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
@@ -48,7 +48,7 @@
 
     if-lt v1, v2, :cond_19
 
-    .line 493
+    .line 578
     const/4 v1, 0x1
 
     new-array v1, v1, [Ljava/lang/String;
@@ -63,7 +63,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/app/Activity;->requestPermissions([Ljava/lang/String;I)V
 
-    .line 495
+    .line 580
     :cond_19
     # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$100()Landroid/os/Handler;
@@ -78,6 +78,6 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 496
+    .line 581
     return-void
 .end method

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 849
+    .line 961
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 850
+    .line 962
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$NaSave;->n:Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;
 
-    .line 851
+    .line 963
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 855
+    .line 967
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$NaSave;->n:Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;->save()V
 
-    .line 856
+    .line 968
     return-void
 .end method

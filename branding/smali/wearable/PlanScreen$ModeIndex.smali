@@ -31,7 +31,7 @@
 
 # virtual methods
 .method public onIndex(I)V
-    .registers 2
+    .registers 3
 
     .prologue
     .line 153
@@ -42,5 +42,22 @@
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->refresh()V
 
     .line 155
+    # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->content:Landroid/widget/LinearLayout;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$300()Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_13
+
+    .line 156
+    # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->content:Landroid/widget/LinearLayout;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$300()Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->enter(Landroid/view/View;)V
+
+    .line 158
+    :cond_13
     return-void
 .end method

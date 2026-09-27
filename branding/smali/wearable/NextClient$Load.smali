@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 426
+    .line 538
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 427
+    .line 539
     iput-boolean p1, p0, Lcom/isaigu/gymapp/wearable/NextClient$Load;->recommended:Z
 
-    .line 428
+    .line 540
     return-void
 .end method
 
@@ -42,25 +42,25 @@
     .registers 7
 
     .prologue
-    .line 432
+    .line 544
     # getter for: Lcom/isaigu/gymapp/wearable/NextClient;->pAppt:Lcom/isaigu/gymapp/wearable/Schedule$Appt;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$000()Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
     move-result-object v1
 
-    .line 433
+    .line 545
     # getter for: Lcom/isaigu/gymapp/wearable/NextClient;->pRec:Lcom/isaigu/gymapp/wearable/NextPlan$Rec;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$300()Lcom/isaigu/gymapp/wearable/NextPlan$Rec;
 
     move-result-object v2
 
-    .line 434
+    .line 546
     # getter for: Lcom/isaigu/gymapp/wearable/NextClient;->pSlot:I
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$500()I
 
     move-result v3
 
-    .line 435
+    .line 547
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -75,26 +75,26 @@
 
     check-cast v0, Landroid/app/Activity;
 
-    .line 437
+    .line 549
     :goto_1a
     if-eqz v1, :cond_23
 
     if-eqz v0, :cond_23
 
-    .line 438
+    .line 550
     iget-boolean v4, p0, Lcom/isaigu/gymapp/wearable/NextClient$Load;->recommended:Z
 
     invoke-static {v0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/wearable/NextClient;->load(Landroid/app/Activity;Lcom/isaigu/gymapp/wearable/Schedule$Appt;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;IZ)V
 
-    .line 440
+    .line 552
     :cond_23
     # invokes: Lcom/isaigu/gymapp/wearable/NextClient;->close()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$400()V
 
-    .line 441
+    .line 553
     return-void
 
-    .line 436
+    .line 548
     :cond_27
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
 

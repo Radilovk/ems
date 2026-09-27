@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 807
+    .line 919
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 808
+    .line 920
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$NaUser;->n:Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;
 
-    .line 809
+    .line 921
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$NaUser;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 810
+    .line 922
     return-void
 .end method
 
@@ -47,18 +47,18 @@
     .registers 4
 
     .prologue
-    .line 814
+    .line 926
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$NaUser;->n:Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$NaUser;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 815
+    .line 927
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$NaUser;->n:Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/PlanScreen$NewAppt;->render()V
 
-    .line 816
+    .line 928
     return-void
 .end method

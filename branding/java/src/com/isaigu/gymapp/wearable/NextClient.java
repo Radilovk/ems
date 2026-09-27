@@ -321,53 +321,76 @@ public final class NextClient {
         s.badge.setText(suit.length() > 0 ? suit : tr("Костюм " + (slot + 1), "Suit " + (slot + 1)));
         s.badge.setVisibility(View.VISIBLE);
         LinearLayout body = s.body;
-        if (ap.title.length() > 0 && !ap.title.equals(ap.name())) {
-            TextView t = XemsUi.text(a, ap.title, 13, XemsUi.MUTED, false);
-            t.setPadding(0, 0, 0, XemsUi.dp(a, 10));
-            body.addView(t);
+        // 1. what the trainer must not miss: medical reasons, what to mind, focus (from the client's profile)
+        View flags = flags(a, ap.user);
+        if (flags != null) {
+            body.addView(flags, XemsUi.matchWrap(a, 0));
+        }
+        // 2. what will be loaded — big, with the change against last time
+        LinearLayout hero = XemsUi.surface(a);
+        hero.addView(XemsUi.label(a, rec.first ? tr("Първа тренировка", "First training")
+                : rec.same ? tr("Като последния път", "As last time") : tr("Препоръка за днес", "Recommended today")));
+        if (rec.next != null) {
+            LinearLayout line = XemsUi.horizontal(a);
+            line.addView(XemsUi.text(a, NextPlan.line(rec.next), 22, XemsUi.TEXT, true),
+                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            int pct = rec.last != null && rec.last.st > 0
+                    ? (int) Math.round((rec.next.st - rec.last.st) * 100.0 / rec.last.st) : 0;
+            if (pct != 0) {
+                line.addView(XemsUi.badge(a, (pct > 0 ? "+" : "−") + Math.abs(pct) + " %", pct > 0 ? XemsUi.GO_TEXT : XemsUi.AMBER));
+            }
+            hero.addView(line);
+        } else {
+            hero.addView(XemsUi.text(a, tr("Програмата на клиента · силата се нагласява на място",
+                    "The client's program · set the strength on the spot"), 17, XemsUi.TEXT, true));
         }
         if (rec.last != null) {
-            LinearLayout card = XemsUi.surface(a);
-            card.addView(XemsUi.label(a, tr("Последния път", "Last time")));
-            String head = (rec.lastMs > 0 ? ago(rec.lastMs, now) : "")
-                    + (rec.last.program.length() > 0 ? " · " + rec.last.program : "");
-            card.addView(XemsUi.text(a, head, 14, XemsUi.TEXT, false));
-            TextView v = XemsUi.text(a, NextPlan.line(rec.last), 16, XemsUi.TEXT, true);
-            v.setPadding(0, XemsUi.dp(a, 6), 0, 0);
-            card.addView(v);
-            body.addView(card, XemsUi.matchWrap(a, 0));
+            String head = tr("Последно: ", "Last: ") + (rec.lastMs > 0 ? ago(rec.lastMs, now) : "")
+                    + (rec.last.program.length() > 0 ? " · " + rec.last.program : "") + " · " + NextPlan.line(rec.last);
+            TextView h = XemsUi.text(a, head, 13, XemsUi.MUTED, false);
+            h.setPadding(0, XemsUi.dp(a, 8), 0, 0);
+            hero.addView(h);
         }
-        LinearLayout card = XemsUi.surface(a);
-        card.addView(XemsUi.label(a, tr("Препоръка за днес", "Recommended today")));
-        if (rec.next != null) {
-            TextView v = XemsUi.text(a, NextPlan.line(rec.next), 16, XemsUi.GO_TEXT, true);
-            v.setPadding(0, 0, 0, XemsUi.dp(a, 6));
-            card.addView(v);
+        // 3. why — folded, one tap
+        if (!rec.why.isEmpty()) {
+            LinearLayout why = XemsUi.vertical(a);
+            why.setVisibility(View.GONE);
+            for (int i = 0; i < rec.why.size(); i++) {
+                TextView w = XemsUi.text(a, "• " + rec.why.get(i), 13.5f, XemsUi.TEXT, false);
+                w.setPadding(0, XemsUi.dp(a, 4), 0, 0);
+                w.setLineSpacing(0, 1.15f);
+                why.addView(w);
+            }
+            TextView more = XemsUi.text(a, tr("Защо така? (" + rec.why.size() + ")", "Why? (" + rec.why.size() + ")") + "  ›",
+                    13.5f, XemsUi.GO_TEXT, true);
+            more.setPadding(0, XemsUi.dp(a, 12), 0, XemsUi.dp(a, 2));
+            more.setOnClickListener(new Fold(why));
+            hero.addView(more);
+            hero.addView(why);
         }
-        for (int i = 0; i < rec.why.size(); i++) {
-            TextView w = XemsUi.text(a, "• " + rec.why.get(i), 13.5f, XemsUi.TEXT, false);
-            w.setPadding(0, XemsUi.dp(a, 3), 0, 0);
-            w.setLineSpacing(0, 1.15f);
-            card.addView(w);
-        }
+        body.addView(hero, XemsUi.matchWrap(a, flags != null ? 12 : 0));
+        // 4. context, small
+        StringBuilder ctx = new StringBuilder();
         if (rec.nextApptMs > 0) {
-            TextView w = XemsUi.text(a, tr("Следващ час: ", "Next appointment: ") + day(rec.nextApptMs) + " " + hm(rec.nextApptMs),
-                    12.5f, XemsUi.MUTED, false);
-            w.setPadding(0, XemsUi.dp(a, 8), 0, 0);
-            card.addView(w);
+            ctx.append(tr("Следващ час: ", "Next appointment: ")).append(day(rec.nextApptMs)).append(' ').append(hm(rec.nextApptMs));
         }
-        body.addView(card, XemsUi.matchWrap(a, 10));
         String who = item.data != null && item.data.trainUser != null ? item.data.trainUser.name : null;
         if (who != null && ap.user != null && item.data.trainUser.id != ap.user.id) {
-            TextView w = XemsUi.text(a, tr("Заменя „" + who + "“ в костюма.", "Replaces \"" + who + "\" in the suit."),
-                    12.5f, XemsUi.MUTED, false);
-            w.setPadding(0, XemsUi.dp(a, 10), 0, 0);
+            ctx.append(ctx.length() > 0 ? "  ·  " : "").append(tr("заменя „" + who + "“", "replaces \"" + who + "\""));
+        }
+        if (ap.title.length() > 0 && !ap.title.equals(ap.name())) {
+            ctx.append(ctx.length() > 0 ? "  ·  " : "").append(ap.title);
+        }
+        if (ctx.length() > 0) {
+            TextView w = XemsUi.text(a, ctx.toString(), 12.5f, XemsUi.MUTED, false);
+            w.setPadding(XemsUi.dp(a, 2), XemsUi.dp(a, 10), 0, 0);
             body.addView(w);
         }
-        TextView skip = XemsUi.text(a, tr("Не за този час", "Not for this appointment"), 13, XemsUi.MUTED, false);
-        skip.setPadding(0, XemsUi.dp(a, 14), 0, XemsUi.dp(a, 4));
+        TextView skip = XemsUi.text(a, tr("Не за този час", "Not for this appointment"), 13, XemsUi.HINT, false);
+        skip.setPadding(XemsUi.dp(a, 2), XemsUi.dp(a, 14), 0, XemsUi.dp(a, 4));
         skip.setOnClickListener(new Skip());
         body.addView(skip);
+        XemsUi.enter(body);
 
         LinearLayout f = s.footer;
         TextView later = XemsUi.button(a, tr("По-късно", "Later"), XemsUi.GHOST);
@@ -378,8 +401,7 @@ public final class NextClient {
             asLast.setOnClickListener(new Load(false));
             f.addView(asLast, XemsUi.weight(1.1f, 8, a));
         }
-        TextView go = XemsUi.button(a, rec.next != null && !rec.same ? tr("Зареди препоръката", "Load recommended")
-                : tr("Зареди", "Load"), XemsUi.PRIMARY);
+        TextView go = XemsUi.button(a, tr("Зареди", "Load"), XemsUi.PRIMARY);
         go.setOnClickListener(new Load(true));
         f.addView(go, XemsUi.weight(1.4f, 8, a));
         s.dialog.setOnDismissListener(new Dismissed());
@@ -388,6 +410,96 @@ public final class NextClient {
         s.dialog.show();
         WearableBleDiagLog.log("next", "ask " + ap.name() + " at " + hm(ap.begin) + " slot " + slot
                 + " by " + ap.by + (manual ? " (plan)" : ""));
+    }
+
+    /** Medical reasons (red), what to mind (amber), focus zones (green) — the client's own profile. */
+    static View flags(Activity a, TrainUser u) {
+        if (u == null) {
+            return null;
+        }
+        android.content.SharedPreferences p = a.getSharedPreferences("xems_user_profiles", Context.MODE_PRIVATE);
+        String[] parts = p.getString("u" + u.id, "").split("\\|", -1);
+        String contra = parts.length > 2 ? parts[2] : "";
+        String[] own = NextPlan.own(a, u);
+        if (contra.length() == 0 && own[0].length() == 0 && own[1].length() == 0) {
+            return null;
+        }
+        LinearLayout box = XemsUi.vertical(a);
+        if (contra.length() > 0) {
+            StringBuilder b = new StringBuilder();
+            for (String k : contra.split(",")) {
+                b.append(b.length() > 0 ? ", " : "").append(contraName(k));
+            }
+            TextView t = XemsUi.text(a, "⚠  " + b + tr(" — обсъди преди старта", " — talk it through before the start"),
+                    14.5f, XemsUi.DANGER, true);
+            t.setPadding(XemsUi.dp(a, 14), XemsUi.dp(a, 10), XemsUi.dp(a, 14), XemsUi.dp(a, 10));
+            t.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.DANGER, 0x22), XemsUi.dp(a, 12),
+                    XemsUi.alpha(XemsUi.DANGER, 0x66), XemsUi.dp(a, 1)));
+            box.addView(t);
+        }
+        if (own[0].length() > 0 || own[1].length() > 0) {
+            LinearLayout[] row = new LinearLayout[1];
+            box.addView(XemsUi.chipRow(a, row), XemsUi.matchWrap(a, contra.length() > 0 ? 8 : 0));
+            for (String k : own[1].split(",")) {
+                if (k.length() > 0) {
+                    XemsUi.addChip(a, row[0], XemsUi.badge(a, condName(k), XemsUi.AMBER));
+                }
+            }
+            for (String k : own[0].split(",")) {
+                if (k.length() > 0) {
+                    XemsUi.addChip(a, row[0], XemsUi.badge(a, "＋ " + NextPlan.focusName(k), XemsUi.GO_TEXT));
+                }
+            }
+        }
+        return box;
+    }
+
+    static String condName(String k) {
+        if ("back".equals(k)) return tr("кръст", "lower back");
+        if ("neck".equals(k)) return tr("врат / рамене", "neck / shoulders");
+        if ("knees".equals(k)) return tr("колене", "knees");
+        if ("injury".equals(k)) return tr("стара травма", "old injury");
+        if ("desk".equals(k)) return tr("седяща работа", "desk job");
+        if ("stress".equals(k)) return tr("стрес / сън", "stress / sleep");
+        if ("sensitive".equals(k)) return tr("чувствителност към тока", "sensitive to current");
+        if ("postpartum".equals(k)) return tr("раждане до 1 г.", "birth within a year");
+        return k;
+    }
+
+    static String contraName(String k) {
+        if ("pregnancy".equals(k)) return tr("бременност", "pregnancy");
+        if ("implant".equals(k)) return tr("пейсмейкър / имплант", "pacemaker / implant");
+        if ("cardiovascular".equals(k)) return tr("сърдечно заболяване", "heart disease");
+        if ("circulation".equals(k)) return tr("тромбоза / вени", "thrombosis / veins");
+        if ("hernia".equals(k)) return tr("херния", "hernia");
+        if ("cancer".equals(k)) return tr("онкологично", "cancer");
+        if ("bleeding".equals(k)) return tr("кървене", "bleeding");
+        if ("epilepsy".equals(k)) return tr("епилепсия", "epilepsy");
+        if ("neurological".equals(k)) return tr("неврологично", "neurological");
+        if ("recent_surgery".equals(k)) return tr("скорошна операция", "recent surgery");
+        if ("skin_lesion".equals(k)) return tr("рани по кожата", "skin lesions");
+        if ("kidney".equals(k)) return tr("бъбреци", "kidneys");
+        if ("tuberculosis".equals(k)) return tr("туберкулоза", "tuberculosis");
+        return k;
+    }
+
+    /** "Why?" opens / closes the reasons. */
+    static final class Fold implements View.OnClickListener {
+        final View target;
+
+        Fold(View target) {
+            this.target = target;
+        }
+
+        @Override
+        public void onClick(View v) {
+            boolean open = target.getVisibility() != View.VISIBLE;
+            target.setVisibility(open ? View.VISIBLE : View.GONE);
+            if (open) {
+                XemsUi.enter(target);
+            }
+            XemsUi.haptic(v);
+        }
     }
 
     /** ✕ or back: ask again in a few minutes. */

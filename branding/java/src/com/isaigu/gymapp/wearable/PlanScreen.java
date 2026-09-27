@@ -152,6 +152,9 @@ public final class PlanScreen {
         public void onIndex(int index) {
             mode = index;
             refresh();
+            if (content != null) {
+                XemsUi.enter(content);
+            }
         }
     }
 
@@ -181,10 +184,14 @@ public final class PlanScreen {
             long from = cal.getTimeInMillis();
             long to = from + (mode == 0 ? 1 : 7) * NextPlan.DAY;
             List<Schedule.Appt> list = Schedule.read(c, from, to);
+            Schedule.Appt next = mode == 0 ? nextUp(c, list, now) : null;
             if (list.isEmpty()) {
                 content.addView(emptyCard(c));
             } else {
-                content.addView(summary(c, list, now));
+                if (next != null) {
+                    content.addView(hero(c, next, now));
+                }
+                content.addView(summary(c, list, now), XemsUi.matchWrap(c, next != null ? 16 : 0));
                 int lastDay = -1;
                 LinearLayout card = null;
                 for (int i = 0; i < list.size(); i++) {
@@ -202,7 +209,7 @@ public final class PlanScreen {
                         card.setPadding(XemsUi.dp(c, 6), XemsUi.dp(c, 4), XemsUi.dp(c, 6), XemsUi.dp(c, 4));
                         content.addView(card, XemsUi.matchWrap(c, mode == 1 ? 0 : 12));
                     }
-                    card.addView(row(c, a, now));
+                    card.addView(row(c, a, now, a == next));
                 }
             }
             content.addView(settingsCard(c), XemsUi.matchWrap(c, 20));
@@ -231,6 +238,57 @@ public final class PlanScreen {
         return now >= a.begin - NextClient.lead(c) * MIN ? 1 : 0;
     }
 
+    /** Today's appointment that needs the trainer next: the one on now, else the first to come. */
+    static Schedule.Appt nextUp(Context c, List<Schedule.Appt> list, long now) {
+        for (int i = 0; i < list.size(); i++) {
+            int st = status(c, list.get(i), now);
+            if ((st == 0 || st == 1) || (st == 4 && list.get(i).end > now)) {
+                return list.get(i);
+            }
+        }
+        return null;
+    }
+
+    /** The big card on top: who comes next, when, what to mind, one button. */
+    private static View hero(Context c, Schedule.Appt a, long now) {
+        LinearLayout card = XemsUi.card(c);
+        card.setPadding(XemsUi.dp(c, 22), XemsUi.dp(c, 18), XemsUi.dp(c, 22), XemsUi.dp(c, 18));
+        card.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, XemsUi.GO, 0.10f), XemsUi.dp(c, 20),
+                XemsUi.alpha(XemsUi.GO, 0x88), XemsUi.dp(c, 1)));
+        long m = Math.round((a.begin - now) / (double) MIN);
+        boolean on = now >= a.begin && now <= a.end;
+        LinearLayout top = XemsUi.horizontal(c);
+        top.addView(XemsUi.label(c, on ? tr("Сега", "Now") : tr("Следващ", "Next")),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        String when = on ? tr("тече от " + (-m) + " мин", "running " + (-m) + " min")
+                : m <= 0 ? tr("сега", "now") : m < 60 ? tr("след " + m + " мин", "in " + m + " min")
+                : tr("след " + (m / 60) + " ч " + (m % 60) + " мин", "in " + (m / 60) + " h " + (m % 60) + " min");
+        top.addView(XemsUi.badge(c, when, m <= 15 ? XemsUi.AMBER : XemsUi.GO_TEXT));
+        card.addView(top);
+        LinearLayout main = XemsUi.horizontal(c);
+        main.addView(XemsUi.text(c, NextClient.hm(a.begin), 38, XemsUi.TEXT, true));
+        LinearLayout who = XemsUi.vertical(c);
+        who.setPadding(XemsUi.dp(c, 18), 0, 0, 0);
+        who.addView(XemsUi.text(c, a.name(), 22, a.user != null ? XemsUi.TEXT : XemsUi.MUTED, true));
+        String sub = a.user == null ? tr("Не е разпознат — избери клиента", "Not recognised — pick the client")
+                : a.title.equals(a.name()) ? tr("до ", "until ") + NextClient.hm(a.end) : a.title;
+        TextView sv = XemsUi.text(c, sub, 13.5f, XemsUi.MUTED, false);
+        sv.setPadding(0, XemsUi.dp(c, 4), 0, 0);
+        sv.setMaxLines(1);
+        who.addView(sv);
+        main.addView(who, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView go = XemsUi.button(c, a.user != null ? tr("Зареди", "Load") : tr("Избери", "Pick"), XemsUi.PRIMARY);
+        go.setOnClickListener(new RowClick(a));
+        main.addView(go);
+        card.addView(main, XemsUi.matchWrap(c, 6));
+        Activity act = activity(root);
+        View flags = act != null ? NextClient.flags(act, a.user) : null;
+        if (flags != null) {
+            card.addView(flags, XemsUi.matchWrap(c, 12));
+        }
+        return card;
+    }
+
     private static View summary(Context c, List<Schedule.Appt> list, long now) {
         int held = 0;
         int missed = 0;
@@ -245,15 +303,35 @@ public final class PlanScreen {
                 open++;
             }
         }
-        String t = list.size() + tr(list.size() == 1 ? " час" : " часа", list.size() == 1 ? " appointment" : " appointments")
-                + " · " + held + tr(" проведени", " held") + (missed > 0 ? " · " + missed + tr(" пропуснати", " missed") : "")
-                + (open > 0 ? " · " + open + tr(" предстоят", " to come") : "");
-        TextView v = XemsUi.text(c, t, 14, XemsUi.MUTED, false);
-        v.setPadding(XemsUi.dp(c, 4), 0, 0, 0);
-        return v;
+        LinearLayout row = XemsUi.horizontal(c);
+        row.setPadding(XemsUi.dp(c, 2), 0, 0, 0);
+        TextView total = XemsUi.text(c, list.size() + tr(list.size() == 1 ? " час" : " часа", list.size() == 1 ? " booking" : " bookings"),
+                15, XemsUi.TEXT, true);
+        row.addView(total);
+        View gap = new View(c);
+        row.addView(gap, new LinearLayout.LayoutParams(XemsUi.dp(c, 12), 1));
+        if (held > 0) {
+            row.addView(pill(c, "✓ " + held + tr(" проведени", " held"), XemsUi.GO_TEXT));
+        }
+        if (missed > 0) {
+            row.addView(pill(c, "✗ " + missed + tr(" пропуснати", " missed"), XemsUi.DANGER));
+        }
+        if (open > 0) {
+            row.addView(pill(c, open + tr(" предстоят", " to come"), XemsUi.MUTED));
+        }
+        return row;
     }
 
-    private static View row(Context c, Schedule.Appt a, long now) {
+    private static View pill(Context c, String t, int color) {
+        TextView b = XemsUi.badge(c, t, color);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.rightMargin = XemsUi.dp(c, 8);
+        b.setLayoutParams(lp);
+        return b;
+    }
+
+    private static View row(Context c, Schedule.Appt a, long now, boolean isNext) {
         LinearLayout r = XemsUi.horizontal(c);
         int p = XemsUi.dp(c, 12);
         r.setPadding(p, p, p, p);
@@ -303,8 +381,15 @@ public final class PlanScreen {
                 break;
         }
         r.addView(XemsUi.badge(c, label, color));
-        r.setBackgroundDrawable(XemsUi.ripple(new android.graphics.drawable.ColorDrawable(0x00000000), XemsUi.TEXT,
-                XemsUi.dp(c, 12)));
+        // attention: the next one is marked, what is over steps back
+        android.graphics.drawable.Drawable bg = isNext
+                ? XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x1A), XemsUi.dp(c, 12), 0, 0)
+                : new android.graphics.drawable.ColorDrawable(0x00000000);
+        r.setBackgroundDrawable(XemsUi.ripple(bg, XemsUi.TEXT, XemsUi.dp(c, 12)));
+        if (st == 2 || st == 3) {
+            r.setAlpha(0.6f);
+        }
+        XemsUi.pressable(r);
         r.setOnClickListener(new RowClick(a));
         r.setOnLongClickListener(new RowLong(a));
         return r;
@@ -520,9 +605,37 @@ public final class PlanScreen {
         return card;
     }
 
+    private static boolean settingsOpen;
+
+    static final class SettingsFold implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            settingsOpen = !settingsOpen;
+            XemsUi.haptic(v);
+            refresh();
+        }
+    }
+
     private static View settingsCard(Context c) {
         LinearLayout card = XemsUi.card(c);
-        card.addView(XemsUi.label(c, tr("Следващ клиент", "Next client")));
+        LinearLayout head = XemsUi.horizontal(c);
+        LinearLayout ht = XemsUi.vertical(c);
+        ht.addView(XemsUi.text(c, tr("Настройки", "Settings"), 16, XemsUi.TEXT, true));
+        String code = c.getSharedPreferences("xems_client_sync", Context.MODE_PRIVATE).getString("studio", "");
+        TextView hs = XemsUi.text(c, (NextClient.enabled(c)
+                ? tr("Следващ клиент: " + NextClient.lead(c) + " мин преди часа", "Next client: " + NextClient.lead(c) + " min before")
+                : tr("Следващ клиент: изключено", "Next client: off"))
+                + (code.length() > 0 ? tr(" · код на студиото ", " · studio code ") + code : ""), 12.5f, XemsUi.MUTED, false);
+        hs.setPadding(0, XemsUi.dp(c, 3), 0, 0);
+        ht.addView(hs);
+        head.addView(ht, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        head.addView(XemsUi.text(c, settingsOpen ? "⌃" : "⌄", 20, XemsUi.MUTED, true));
+        head.setOnClickListener(new SettingsFold());
+        card.addView(head);
+        if (!settingsOpen) {
+            return card;
+        }
+        card.addView(XemsUi.label(c, tr("Следващ клиент", "Next client")), XemsUi.matchWrap(c, 16));
         card.addView(XemsUi.toggleRow(c, tr("Предлагай следващия клиент", "Offer the next client"),
                 tr("Преди часа, когато нищо не тренира — с въпрос; зарежда клиента в свободен костюм с последните или препоръчаните настройки.",
                    "Before the appointment, when nothing is training — asks first; loads the client into a free suit with the last or the recommended settings."),
@@ -563,7 +676,6 @@ public final class PlanScreen {
         hint.setGravity(Gravity.START);
         card.addView(hint);
         card.addView(XemsUi.label(c, tr("Приложение за клиентите", "Client app")), XemsUi.matchWrap(c, 22));
-        String code = c.getSharedPreferences("xems_client_sync", Context.MODE_PRIVATE).getString("studio", "");
         LinearLayout row = XemsUi.horizontal(c);
         LinearLayout texts = XemsUi.vertical(c);
         texts.addView(XemsUi.text(c, code.length() > 0 ? tr("Код на студиото: ", "Studio code: ") + code

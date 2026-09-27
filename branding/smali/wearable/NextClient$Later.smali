@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 406
+    .line 518
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 2
 
     .prologue
-    .line 409
+    .line 521
     # invokes: Lcom/isaigu/gymapp/wearable/NextClient;->close()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$400()V
 
-    .line 410
+    .line 522
     return-void
 .end method

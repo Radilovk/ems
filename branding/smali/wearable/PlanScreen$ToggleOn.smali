@@ -26,17 +26,17 @@
     .registers 3
 
     .prologue
-    .line 862
+    .line 974
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 863
+    .line 975
     invoke-virtual {p1}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$ToggleOn;->c:Landroid/content/Context;
 
-    .line 864
+    .line 976
     return-void
 .end method
 
@@ -46,11 +46,11 @@
     .registers 3
 
     .prologue
-    .line 868
+    .line 980
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$ToggleOn;->c:Landroid/content/Context;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/NextClient;->setEnabled(Landroid/content/Context;Z)V
 
-    .line 869
+    .line 981
     return-void
 .end method

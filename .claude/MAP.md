@@ -191,8 +191,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `HrHistory.java` (126L, compile:music-sync*,wearable) — Heart-rate samples of the last hour (ring buffer) for the HR panel: chart, averages and time in zones.
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (636L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
-- `ReportBridge.java` (281L, compile:music-sync*,wearable) — window.XemsReport in the report page.
-- `ReportScreen.java` (71L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
+- `ReportBridge.java` (311L, compile:music-sync*,wearable) — window.XemsReport in the report page.
+- `ReportScreen.java` (86L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
 - `SessionInts.java` (36L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
 - `SessionRec.java` (263L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
 - `SessionRecorder.java` (377L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
@@ -228,7 +228,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XiaomiBandReconnectTask.java` (16L, compile:music-sync*,wearable) — Reconnect after unexpected GATT drop while realtime is armed.
 - `XiaomiBandRemote.java` (58L, compile:music-sync*,wearable) — The band's own screens talking back to XEMS: the music screen asks for the current "track" and sends its buttons.
 - `XiaomiBandRfcommPort.java` (183L, compile:music-sync*,wearable) — RFCOMM (Serial Port Profile) socket to the band.
-- `XiaomiBandSppClient.java` (868L, compile:music-sync*,wearable) — Xiaomi band over Bluetooth Classic (RFCOMM / SPP): Band 8 Pro, 9, 9 Pro, 10, 10 Pro.
+- `XiaomiBandSppClient.java` (928L, compile:music-sync*,wearable) — Xiaomi band over Bluetooth Classic (RFCOMM / SPP): Band 8 Pro, 9, 9 Pro, 10, 10 Pro.
 - `XiaomiBandSppFrames.java` (247L, compile:music-sync*,wearable) — Byte framing of the Xiaomi link over Bluetooth Classic (RFCOMM / SPP).
 - `XiaomiBandSppPort.java` (9L, compile:music-sync*,wearable) — Byte pipe to the band.
 - `XiaomiBandSppTask.java` (73L, compile:music-sync*,wearable) — Main-thread steps of the SPP link (named class: no lambdas / anonymous classes for dx).

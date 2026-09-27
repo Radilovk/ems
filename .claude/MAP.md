@@ -8,6 +8,8 @@ Big file? `python3 scripts/repo-map.py outline <file>` → symbols with line num
 build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] = inside `if` on that env var
 (BETA_MUSIC default 1, DESIGN_PIPELINE default 0, SKIP_JAVA_RECOMPILE default 0). NOT-IN-BUILD = dead/manual patch.
 - `scripts/ai-sim/AiSim.java` (369L) — Offline scenarios for the Smart Session engine.
+- `scripts/ai-sim/AutoSim.java` (418L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
+- `scripts/ai-sim/run-auto.sh` (10L) — Offline test of the automatic mode (AutoCatalog / AutoPlanner / AutoLimits / AutoEngine) on the JVM.
 - `scripts/ai-sim/run.sh` (9L) — Offline test of the Smart Session engine (branding/java/src/com/isaigu/gymapp/ai) on the JVM.
 - `scripts/apply-active-pause-avatar-button.py` (2421L, build:L64) — Active pause avatar button: Hz-style control around the user icon (default mode only).
 - `scripts/apply-active-pause-control-fixes.py` (1464L, build:L146) — Fix active-pause control routing, main-mode button styling, and mode-exit behavior.
@@ -81,7 +83,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-channel-scale-java.sh` (57L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L99[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (199L, build:L90[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (157L, build:L104[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI and the Smart Session (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (165L, build:L104[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (63L, build:L67[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (79L, build:L111[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -125,14 +127,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiHrFilter.java` (129L, compile:music-sync*,wearable) — §7 — realtime HR validation, EMA smoothing, stimulation-artifact rejection, c_valid.
 - `AiModel.java` (194L, compile:music-sync*,wearable) — XEMS Smart Session data model (docs/xems-smart-session-spec.md §1, §3, §4).
 - `AiPlanner.java` (419L, compile:music-sync*,wearable) — §2.1, §3 (DERIVE) and §4, §6 (PLAN): deterministic plan from the session input.
-- `AiProfile.java` (177L, compile:music-sync*,wearable) — The client of a training slot as the AI session and the pulse module see them: sex, age and weight from the client reco…
+- `AiProfile.java` (182L, compile:music-sync*,wearable) — The client of a training slot as the AI session and the pulse module see them: sex, age and weight from the client reco…
 - `AiRamp.java` (107L, compile:music-sync*,wearable) — Ramp bytes for the work-params PDU (device unit: 10 ms per step).
 - `AiRestHr.java` (204L, compile:music-sync*,wearable) — §2 CALIB_REST_HR — resting HR over a 30 s window (median / SD of the whole window), with sample validation, stale handl…
 - `AiScreening.java` (86L, compile:music-sync*,wearable) — §1.1, §1.2, G11 — input validation and pre-session questionnaire.
-- `AiSession.java` (940L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
+- `AiSession.java` (952L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
 - `AiText.java` (180L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
 - `AiUi.java` (2094L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 6-step setup (goal · profile · check · resting HR · pla…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
+- `AutoCatalog.java` (655L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
+- `AutoEngine.java` (597L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
+- `AutoHistory.java` (93L, compile:music-sync*,wearable) — How many sessions a client has had and when the last active one was — for the adaptation and recovery limits of the aut…
+- `AutoLimits.java` (173L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
+- `AutoModel.java` (280L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
+- `AutoPlanner.java` (247L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
+- `AutoSession.java` (1110L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
+- `AutoUi.java` (1147L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with goal & kind → program → check → …
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `BlockProgramEditor.java` (234L, compile:interval-timer,music-sync*) — Block list editor (opened from the interval timer): one card per block with steppers for cycles, strength, frequency an…
@@ -232,9 +242,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
 - `XemsIcon.java` (178L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
-- `XemsLicense.java` (399L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
+- `XemsLicense.java` (401L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
 - `XemsLicenseClient.java` (440L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
-- `XemsLicenseSection.java` (321L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
+- `XemsLicenseSection.java` (324L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (288L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
 - `XemsLocalAvatar.java` (579L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
@@ -242,7 +252,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalSection.java` (249L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1013L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (758L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
-- `XemsNav.java` (682L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (700L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsUi.java` (659L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
 
@@ -281,7 +291,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 ## server (Cloudflare Worker license server)
 - `server/src/admin.js` (603L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
-- `server/src/catalog.js` (38L) — Каталог на модули и функции — източник на истина за абонаменти.
+- `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/crypto.js` (88L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/index.js` (591L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
@@ -313,13 +323,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (70L)
+`CLAUDE.md` (71L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L42 ## Invariants (breaking one = broken release)
   - L55 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L67 ## Keeping the map true
+  - L68 ## Keeping the map true
 
 `band-app/CLAUDE.md` (27L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)
@@ -443,11 +453,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## Build notes
   - L52 ## v1.1.56-sync: microphone mode removed
 
-`docs/session-report/README.md` (51L)
+`docs/session-report/README.md` (57L)
   - L1 # Session report — design assets
   - L14 ## Implementation (1.1.156-ai)
   - L33 ## Share / export (1.1.157-ai)
   - L42 ## Personal context (1.1.158-ai)
+  - L52 ## Languages (1.1.160-ai)
 
 `docs/xems-ai-session-implementation.md` (213L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
@@ -463,6 +474,36 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L157 ## 9. Сглобяване
   - L164 ## Двоен импулс (активна пауза) — v1.1.68
   - L193 ## Действия по време на сесията (v1.1.68)
+
+`docs/xems-auto-mode-spec.md` (388L)
+  - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai)
+  - L20 ## 1. Място в менюто
+  - L28 ## 2. Стъпки (5 + на живо + отчет)
+  - L48 ## 3. Входни данни и формули
+  - L50 ### 3.1 Профил
+  - L61 ### 3.2 Модификатори (прилагат се към всяка програма)
+  - L77 ### 3.3 Сила: какво е „лимит“
+  - L92 ### 3.4 Доза
+  - L98 ## 4. Твърди лимити (проверяват се на всеки тик)
+  - L100 ### 4.1 Абсолютни — за всички програми
+  - L118 ### 4.2 Обвивка във времето E(t) и прозорци на параметрите
+  - L133 ## 5. Зони (10 канала)
+  - L156 ## 6. Програми
+  - L158 ### 6.0 Йерархия на избора
+  - L182 ### 6.1 Общо стягане и оформяне (активна)
+  - L192 ### 6.2 Сила и бързина (активна)
+  - L206 ### 6.3 Седалище и бедра (активна)
+  - L216 ### 6.4 Талия и корем (активна)
+  - L227 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
+  - L238 ### 6.6 Дренаж (пасивна) — вълна по канали
+  - L254 ### 6.7 Антицелулит (пасивна)
+  - L266 ### 6.8 Болки в гърба и кръста (пасивна)
+  - L282 ### 6.9 Следродилно възстановяване (пасивна)
+  - L295 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
+  - L304 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
+  - L314 ## 7. Опции по програма
+  - L336 ## 8. Какво човекът може по време на сесия
+  - L347 ## 9. Реализация
 
 `docs/xems-license-api.md` (141L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

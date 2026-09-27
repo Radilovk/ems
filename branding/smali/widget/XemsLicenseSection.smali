@@ -881,43 +881,43 @@
 
     const/high16 v2, 0x41400000    # 12.0f
 
-    .line 301
+    .line 304
     new-instance v0, Landroid/widget/EditText;
 
     invoke-direct {v0, p0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 302
+    .line 305
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
-    .line 303
+    .line 306
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 304
+    .line 307
     const/high16 v1, 0x41800000    # 16.0f
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextSize(F)V
 
-    .line 305
+    .line 308
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 306
+    .line 309
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 307
+    .line 310
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 308
+    .line 311
     invoke-virtual {v0, v1, v3, v1, v3}, Landroid/widget/EditText;->setPadding(IIII)V
 
-    .line 309
+    .line 312
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -940,7 +940,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 310
+    .line 313
     return-object v0
 .end method
 
@@ -966,7 +966,7 @@
 
     move-result-object v0
 
-    .line 297
+    .line 300
     :goto_10
     return-object v0
 
@@ -1029,6 +1029,27 @@
 
     .line 297
     :cond_3e
+    const-string v0, "auto"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4f
+
+    .line 298
+    const-string v0, "\u0410\u0432\u0442\u043e"
+
+    const-string v1, "Auto"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseSection;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_10
+
+    .line 300
+    :cond_4f
     const-string v0, "\u0427\u0430\u0441\u043e\u0432\u043d\u0438\u043a"
 
     const-string v1, "Band"
@@ -1759,7 +1780,7 @@
     .registers 3
 
     .prologue
-    .line 315
+    .line 318
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     :try_end_3
@@ -1767,11 +1788,11 @@
 
     move-result-object p0
 
-    .line 317
+    .line 320
     :goto_4
     return-object p0
 
-    .line 316
+    .line 319
     :catch_5
     move-exception v0
 

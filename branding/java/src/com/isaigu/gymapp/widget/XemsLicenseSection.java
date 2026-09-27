@@ -294,6 +294,9 @@ public final class XemsLicenseSection {
         if (XemsLicense.AI.equals(id)) {
             return "AI";
         }
+        if (XemsLicense.AUTO.equals(id)) {
+            return tr("Авто", "Auto");
+        }
         return tr("Часовник", "Band");
     }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compile the wearable bridge + band UI and the Smart Session (ai package) from Java to smali.
+# Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -86,6 +86,14 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiViews.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiUi.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiSession.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoModel.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoCatalog.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoLimits.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoPlanner.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoEngine.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoHistory.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoSession.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoUi.java"
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}" "${OUT_DIR}"

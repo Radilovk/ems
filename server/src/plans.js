@@ -2,7 +2,7 @@
 export const PLANS = {
   base: { mods: [], feat: [] },
   pro: { mods: ['timer', 'music', 'pulse'], feat: [] },
-  full: { mods: ['timer', 'music', 'pulse', 'ai', 'band'], feat: [] },
+  full: { mods: ['timer', 'music', 'pulse', 'auto', 'ai', 'band'], feat: [] },
   'base+arms': { mods: [], feat: ['arms_full'] },
   custom: null,
 };

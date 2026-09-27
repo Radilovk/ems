@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 582
+    .prologue
+    .line 600
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,9 +31,10 @@
 
 # virtual methods
 .method public run()V
-    .registers 4
+    .registers 5
 
-    .line 585
+    .prologue
+    .line 603
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->ticking:Z
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$000()Z
 
@@ -40,16 +42,17 @@
 
     if-nez v0, :cond_7
 
-    .line 586
+    .line 616
+    :goto_6
     return-void
 
-    .line 589
+    .line 607
     :cond_7
     :try_start_7
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->refreshTiles()V
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$100()V
 
-    .line 590
+    .line 608
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->currentPage:I
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$200()I
 
@@ -59,41 +62,39 @@
 
     if-ne v0, v1, :cond_1a
 
-    .line 591
+    .line 609
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->hideSidebarModules(Landroid/view/View;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsNav;->access$300(Landroid/view/View;)V
 
-    .line 592
+    .line 610
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->refresh()V
     :try_end_1a
-    .catchall {:try_start_7 .. :try_end_1a} :catchall_1b
+    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_1a} :catch_24
 
-    .line 596
+    .line 615
     :cond_1a
-    goto :goto_21
-
-    .line 594
-    :catchall_1b
-    move-exception v0
-
-    .line 595
-    const-string v1, "XemsNav.tick"
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
-
-    .line 597
-    :goto_21
+    :goto_1a
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$400()Landroid/os/Handler;
 
     move-result-object v0
 
-    const-wide/16 v1, 0x3e8
+    const-wide/16 v2, 0x3e8
 
-    invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 598
-    return-void
+    goto :goto_6
+
+    .line 612
+    :catch_24
+    move-exception v0
+
+    .line 613
+    const-string v1, "XemsNav.tick"
+
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    goto :goto_1a
 .end method

@@ -52,6 +52,7 @@ public final class XemsNav {
     static final int M_MUSIC = 1;
     static final int M_PULSE = 2;
     static final int M_AI = 3;
+    static final int M_AUTO = 4;
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static final Runnable tick = new Tick();
@@ -59,7 +60,7 @@ public final class XemsNav {
     private static View mainRoot;
     private static TextView menuButton;
     private static PopupWindow menu;
-    private static final Tile[] tiles = new Tile[4];
+    private static final Tile[] tiles = new Tile[5];
     private static int currentPage = ID_TAB_FIRST;
     private static boolean ticking;
 
@@ -163,6 +164,7 @@ public final class XemsNav {
         addTile(bar, M_TIMER, "⏱", tr("Таймер", "Timer"), XemsUi.AMBER);
         addTile(bar, M_MUSIC, "♫", tr("Музика", "Music"), XemsUi.GO);
         addTile(bar, M_PULSE, "♥", tr("Пулс", "Heart rate"), XemsUi.ACCENT);
+        addTile(bar, M_AUTO, "A", tr("Авто", "Auto"), 0xFF26A69A);
         addTile(bar, M_AI, "AI", tr("AI тренировка", "AI session"), XemsUi.ORANGE);
         return bar;
     }
@@ -181,7 +183,7 @@ public final class XemsNav {
         tile.setOnClickListener(new TileClick(module));
         XemsUi.pressable(tile);
 
-        TextView icon = XemsUi.text(c, glyph, "AI".equals(glyph) ? 15 : 19, tint, true);
+        TextView icon = XemsUi.text(c, glyph, "AI".equals(glyph) || "A".equals(glyph) ? 15 : 19, tint, true);
         icon.setGravity(Gravity.CENTER);
         int is = XemsUi.dp(c, 38);
         tile.addView(icon, new LinearLayout.LayoutParams(is, is));
@@ -367,6 +369,14 @@ public final class XemsNav {
     }
 
     static void clickModule(int module) {
+        if (module == M_AUTO) {
+            android.app.Activity a = AiSession.activityOf(mainRoot);
+            if (a != null) {
+                com.isaigu.gymapp.ai.AutoUi.open(a);
+            }
+            refreshTiles();
+            return;
+        }
         View target = findModuleButton(module);
         if (target != null) {
             target.performClick();
@@ -446,6 +456,8 @@ public final class XemsNav {
                 return XemsLicense.MUSIC;
             case M_PULSE:
                 return XemsLicense.PULSE;
+            case M_AUTO:
+                return XemsLicense.AUTO;
             default:
                 return XemsLicense.AI;
         }
@@ -511,6 +523,12 @@ public final class XemsNav {
                 } else {
                     text = tr("Гривната не слуша", "Band idle");
                 }
+                break;
+            case M_AUTO:
+                com.isaigu.gymapp.ai.AutoSession.Stage as = com.isaigu.gymapp.ai.AutoSession.getStage();
+                state = as == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING ? 1
+                        : as == com.isaigu.gymapp.ai.AutoSession.Stage.IDLE ? 0 : 2;
+                text = com.isaigu.gymapp.ai.AutoUi.status();
                 break;
             default:
                 AiSession.Stage st = AiSession.getStage();

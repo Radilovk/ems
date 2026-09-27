@@ -24,6 +24,6 @@ describe('resolveEntitlements', () => {
 
 describe('PLANS presets', () => {
   it('full plan includes all modules', () => {
-    assert.deepEqual(PLANS.full.mods, ['timer', 'music', 'pulse', 'ai', 'band']);
+    assert.deepEqual(PLANS.full.mods, ['timer', 'music', 'pulse', 'auto', 'ai', 'band']);
   });
 });

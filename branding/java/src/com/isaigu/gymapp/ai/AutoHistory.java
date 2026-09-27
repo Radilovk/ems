@@ -1,0 +1,92 @@
+package com.isaigu.gymapp.ai;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.isaigu.gymapp.bean.vo.TrainRecordVO;
+
+import java.util.List;
+
+/**
+ * How many sessions a client has had and when the last active one was — for the adaptation and
+ * recovery limits of the automatic mode (spec §3.2). Two sources, the larger count wins:
+ * the tablet's training history (XemsLocalApi, read by reflection: the local stack is compiled
+ * separately) and the automatic mode's own log (prefs "xems_auto_history").
+ */
+public final class AutoHistory {
+    static final String PREFS = "xems_auto_history";
+    /** A session shorter than this does not count. */
+    static final long MIN_SESSION_S = 300;
+
+    private AutoHistory() {}
+
+    public static final class Info {
+        public int sessions;
+        /** Milliseconds of the last active (tetanic) session, 0 = none known. */
+        public long lastActiveMs;
+    }
+
+    public static Info of(Context c, long userId) {
+        Info info = new Info();
+        int records = 0;
+        long lastRec = 0;
+        try {
+            Class<?> api = Class.forName("com.isaigu.gymapp.widget.XemsLocalApi");
+            java.lang.reflect.Method m = api.getDeclaredMethod("allRecords");
+            m.setAccessible(true);
+            Object all = m.invoke(null);
+            if (all instanceof List) {
+                for (Object o : (List<?>) all) {
+                    if (!(o instanceof TrainRecordVO)) {
+                        continue;
+                    }
+                    TrainRecordVO r = (TrainRecordVO) o;
+                    if (r.userId == null || r.userId.longValue() != userId) {
+                        continue;
+                    }
+                    records++;
+                    if (r.hz >= 20 && r.createTime != null) {
+                        lastRec = Math.max(lastRec, r.createTime.getTime());
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        int own = 0;
+        long lastOwn = 0;
+        if (c != null) {
+            try {
+                SharedPreferences p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+                own = p.getInt("n" + userId, 0);
+                lastOwn = p.getLong("a" + userId, 0);
+            } catch (Throwable ignored) {
+            }
+        }
+        info.sessions = Math.max(records, own);
+        info.lastActiveMs = Math.max(lastRec, lastOwn);
+        return info;
+    }
+
+    public static double hoursSince(long ms, long now) {
+        return ms > 0 && now >= ms ? (now - ms) / 3600000.0 : -1;
+    }
+
+    /** An automatic session ended after {@code seconds} of work. */
+    public static void record(Context c, long userId, boolean active, double seconds, long now) {
+        if (c == null || seconds < MIN_SESSION_S) {
+            return;
+        }
+        try {
+            SharedPreferences p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            Info before = of(c, userId);
+            SharedPreferences.Editor e = p.edit();
+            // the history may already hold this session (the app saves a record when it stops)
+            e.putInt("n" + userId, Math.max(p.getInt("n" + userId, 0) + 1, before.sessions));
+            if (active) {
+                e.putLong("a" + userId, now);
+            }
+            e.apply();
+        } catch (Throwable ignored) {
+        }
+    }
+}

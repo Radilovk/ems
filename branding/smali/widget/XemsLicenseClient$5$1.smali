@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 232
+    .line 237
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,10 +40,10 @@
     .registers 6
 
     .prologue
-    .line 235
+    .line 240
     if-nez p1, :cond_21
 
-    .line 236
+    .line 241
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;->this$0:Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
@@ -72,10 +72,10 @@
 
     move-result-object v0
 
-    .line 237
+    .line 242
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 239
+    .line 244
     :cond_21
     return-void
 .end method

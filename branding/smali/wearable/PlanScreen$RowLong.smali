@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 332
+    .line 339
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 333
+    .line 340
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$RowLong;->a:Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
-    .line 334
+    .line 341
     return-void
 .end method
 
@@ -42,20 +42,20 @@
     .registers 4
 
     .prologue
-    .line 338
+    .line 345
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/PlanScreen;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 339
+    .line 346
     if-eqz v0, :cond_b
 
-    .line 340
+    .line 347
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$RowLong;->a:Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/PlanScreen;->pickClient(Landroid/app/Activity;Lcom/isaigu/gymapp/wearable/Schedule$Appt;)V
 
-    .line 342
+    .line 349
     :cond_b
     const/4 v0, 0x1
 

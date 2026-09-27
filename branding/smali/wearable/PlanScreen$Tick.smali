@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 121
+    .line 128
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 125
+    .line 132
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->root:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$000()Landroid/view/View;
@@ -54,12 +54,12 @@
 
     if-eqz v0, :cond_13
 
-    .line 126
+    .line 133
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->refresh()V
     :try_end_13
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_13} :catch_1d
 
-    .line 130
+    .line 137
     :cond_13
     :goto_13
     # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->H:Landroid/os/Handler;
@@ -71,10 +71,10 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 131
+    .line 138
     return-void
 
-    .line 128
+    .line 135
     :catch_1d
     move-exception v0
 

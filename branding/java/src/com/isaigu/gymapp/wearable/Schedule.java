@@ -127,6 +127,93 @@ public final class Schedule {
         return out;
     }
 
+    public static boolean canWrite(Context c) {
+        if (c == null) {
+            return false;
+        }
+        return Build.VERSION.SDK_INT < 23
+                || c.checkSelfPermission(Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /** Where new appointments go: the chosen calendar if writable, else the primary writable one, else any. */
+    public static long writableCalendar(Context c) {
+        if (!canRead(c)) {
+            return -1;
+        }
+        long chosen = calendarId(c);
+        long primary = -1;
+        long any = -1;
+        Cursor cur = null;
+        try {
+            cur = c.getContentResolver().query(CalendarContract.Calendars.CONTENT_URI,
+                    new String[] {CalendarContract.Calendars._ID, CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL,
+                            CalendarContract.Calendars.IS_PRIMARY, CalendarContract.Calendars.VISIBLE},
+                    null, null, null);
+            while (cur != null && cur.moveToNext()) {
+                long id = cur.getLong(0);
+                if (cur.getInt(1) < CalendarContract.Calendars.CAL_ACCESS_CONTRIBUTOR || cur.getInt(3) == 0) {
+                    continue;
+                }
+                if (id == chosen) {
+                    return id;
+                }
+                if (primary < 0 && !cur.isNull(2) && cur.getInt(2) == 1) {
+                    primary = id;
+                }
+                if (any < 0) {
+                    any = id;
+                }
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("plan", "calendars: " + t);
+        } finally {
+            if (cur != null) {
+                cur.close();
+            }
+        }
+        return primary >= 0 ? primary : any;
+    }
+
+    /** A new appointment in the tablet's calendar (studios without an online booking). Event id or -1. */
+    public static long add(Context c, TrainUser u, long begin, long end) {
+        long cal = writableCalendar(c);
+        if (cal < 0 || !canWrite(c) || u == null) {
+            return -1;
+        }
+        try {
+            String name = u.name != null ? u.name : "";
+            StringBuilder d = new StringBuilder("XEMS");
+            if (u.phone != null && u.phone.trim().length() > 0) {
+                d.append("\n").append(u.phone.trim());
+            }
+            if (u.email != null && u.email.trim().length() > 0) {
+                d.append("\n").append(u.email.trim());
+            }
+            android.content.ContentValues v = new android.content.ContentValues();
+            v.put(CalendarContract.Events.CALENDAR_ID, cal);
+            v.put(CalendarContract.Events.TITLE, name);
+            v.put(CalendarContract.Events.DESCRIPTION, d.toString());
+            v.put(CalendarContract.Events.DTSTART, begin);
+            v.put(CalendarContract.Events.DTEND, end);
+            v.put(CalendarContract.Events.EVENT_TIMEZONE, java.util.TimeZone.getDefault().getID());
+            Uri uri = c.getContentResolver().insert(CalendarContract.Events.CONTENT_URI, v);
+            long id = uri != null ? ContentUris.parseId(uri) : -1;
+            if (id >= 0) {
+                Appt a = new Appt();
+                a.eventId = id;
+                a.begin = begin;
+                a.end = end;
+                a.title = name;
+                a.desc = d.toString();
+                link(c, a, u);
+            }
+            return id;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("plan", "add: " + t);
+            return -1;
+        }
+    }
+
     // ================================================================ reading
 
     /** Appointments that overlap [from, to], oldest first, each matched to a client when possible. */

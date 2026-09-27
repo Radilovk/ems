@@ -32,7 +32,7 @@
     .registers 1
 
     .prologue
-    .line 196
+    .line 283
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 7
 
     .prologue
-    .line 199
+    .line 286
     iget-wide v0, p1, Lcom/isaigu/gymapp/wearable/Schedule$Appt;->begin:J
 
     iget-wide v2, p2, Lcom/isaigu/gymapp/wearable/Schedule$Appt;->begin:J
@@ -81,7 +81,7 @@
     .registers 4
 
     .prologue
-    .line 196
+    .line 283
     check-cast p1, Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
     check-cast p2, Lcom/isaigu/gymapp/wearable/Schedule$Appt;

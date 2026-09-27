@@ -124,6 +124,11 @@ public final class XemsLicenseClient {
                     Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/license/refresh", body));
                     if (Boolean.TRUE.equals(r.get("ok")) && r.get("token") != null) {
                         XemsLicense.applyToken(null, String.valueOf(r.get("token")));
+                        Object studio = r.get("studio");
+                        if (studio != null && String.valueOf(studio).matches("[2-9a-km-z]{8}")) {
+                            c.getApplicationContext().getSharedPreferences("xems_client_sync", Context.MODE_PRIVATE)
+                                    .edit().putString("studio", String.valueOf(studio)).apply();
+                        }
                     } else if ("revoked".equals(r.get("error")) || "unknown".equals(r.get("error"))) {
                         XemsLicense.revoke();
                     } else {

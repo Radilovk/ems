@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 153
+    .line 158
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$3;->val$c:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$3;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
@@ -51,7 +51,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 157
+    .line 162
     :try_start_1
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$3;->val$c:Landroid/content/Context;
 
@@ -59,7 +59,7 @@
 
     move-result v2
 
-    .line 158
+    .line 163
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -80,7 +80,7 @@
 
     move-result-object v0
 
-    .line 159
+    .line 164
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->deviceId()Ljava/lang/String;
 
     move-result-object v3
@@ -99,7 +99,7 @@
 
     move-result-object v0
 
-    .line 160
+    .line 165
     const-string v3, "GET"
 
     const/4 v4, 0x0
@@ -112,12 +112,12 @@
 
     move-result-object v3
 
-    .line 161
+    .line 166
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;-><init>()V
 
-    .line 162
+    .line 167
     const-string v4, "version_code"
 
     invoke-interface {v3, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -132,7 +132,7 @@
 
     iput v4, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->versionCode:I
 
-    .line 163
+    .line 168
     const-string v4, "version_name"
 
     invoke-interface {v3, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -145,7 +145,7 @@
 
     iput-object v4, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->versionName:Ljava/lang/String;
 
-    .line 164
+    .line 169
     const-string v4, "url"
 
     invoke-interface {v3, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -158,7 +158,7 @@
 
     iput-object v4, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->url:Ljava/lang/String;
 
-    .line 165
+    .line 170
     const-string v4, "sha256"
 
     invoke-interface {v3, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -175,7 +175,7 @@
 
     iput-object v4, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->sha256:Ljava/lang/String;
 
-    .line 166
+    .line 171
     const-string v4, "notes"
 
     invoke-interface {v3, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -188,7 +188,7 @@
 
     iput-object v4, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->notes:Ljava/lang/String;
 
-    .line 167
+    .line 172
     sget-object v4, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
 
     const-string v5, "mandatory"
@@ -203,7 +203,7 @@
 
     iput-boolean v3, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->mandatory:Z
 
-    .line 168
+    .line 173
     iget v3, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->versionCode:I
 
     if-le v3, v2, :cond_ac
@@ -222,7 +222,7 @@
 
     move v3, v2
 
-    .line 169
+    .line 174
     :goto_9d
     if-eqz v3, :cond_af
 
@@ -232,7 +232,7 @@
     # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->lastUpdate:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
     invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$202(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
-    .line 170
+    .line 175
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$3;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
     if-eqz v3, :cond_b1
@@ -245,11 +245,11 @@
     :try_end_ab
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_ab} :catch_b3
 
-    .line 174
+    .line 179
     :goto_ab
     return-void
 
-    .line 168
+    .line 173
     :cond_ac
     const/4 v2, 0x0
 
@@ -260,20 +260,20 @@
     :cond_af
     move-object v2, v1
 
-    .line 169
+    .line 174
     goto :goto_a0
 
     :cond_b1
     move-object v0, v1
 
-    .line 170
+    .line 175
     goto :goto_a7
 
-    .line 171
+    .line 176
     :catch_b3
     move-exception v0
 
-    .line 172
+    .line 177
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$3;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
     const-string v2, "offline"

@@ -119,6 +119,14 @@ POST {server}/v1/card
 200 {"ok":true,"url":"https://license.biocode-bg.com/c/Xk7pQ2mRt9aB"}
 GET  {server}/c/<id>   → страницата branding/report/client-card.html с вградените данни
 
+POST {server}/v1/profile            (от PWA, CORS *, 10 / мин / IP, до 4 KB)
+{"studio":"<код>","key":"<sha256 ek или pk>","profile":{"consent":true,"name":"…","email":"…","phone":"…",
+ "sex":"F|M","by":1990,"h":168,"w":61,"goal":"tone","fit":"mid","contra":["implant"],"note":"…","t":<unix>}}
+200 {"ok":true} · 404 unknown_studio · 429 full / rate_limit
+
+POST {server}/v1/inbox              (таблет: {"token","device_id","since"}; само подпис + възраст на жетона)
+200 {"ok":true,"items":[{"k":"…","t":<unix>,"p":{…}}],"more":false}
+
 POST {server}/v1/card/find          (CORS *, 20 заявки / мин / IP)
 {"ek":"<sha256>","pk":"<sha256>"}
 200 {"ok":true,"url":"…/c/<id>"}   ·   404 {"ok":false,"error":"not_found"}

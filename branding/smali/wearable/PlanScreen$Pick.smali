@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 443
+    .line 450
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 444
+    .line 451
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$Pick;->a:Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
-    .line 445
+    .line 452
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$Pick;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 446
+    .line 453
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 5
 
     .prologue
-    .line 450
+    .line 457
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -62,7 +62,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/Schedule;->link(Landroid/content/Context;Lcom/isaigu/gymapp/wearable/Schedule$Appt;Lcom/isaigu/gymapp/bean/TrainUser;)V
 
-    .line 452
+    .line 459
     :try_start_f
     # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->picker:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$300()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -71,7 +71,7 @@
 
     if-eqz v0, :cond_1e
 
-    .line 453
+    .line 460
     # getter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->picker:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$300()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -83,7 +83,7 @@
     :try_end_1e
     .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_1e} :catch_29
 
-    .line 457
+    .line 464
     :cond_1e
     :goto_1e
     const/4 v0, 0x0
@@ -91,16 +91,16 @@
     # setter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->picker:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$302(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 458
+    .line 465
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->invalidate()V
 
-    .line 459
+    .line 466
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->refresh()V
 
-    .line 460
+    .line 467
     return-void
 
-    .line 455
+    .line 462
     :catch_29
     move-exception v0
 

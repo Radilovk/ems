@@ -72,6 +72,7 @@ public final class PlanScreen {
         }
         if (!hidden) {
             NextClient.invalidate();
+            sync("poke", null);
             refresh();
         }
         return true;
@@ -102,6 +103,12 @@ public final class PlanScreen {
         head.addView(titles, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         modeHolder = XemsUi.horizontal(c);
         head.addView(modeHolder, new LinearLayout.LayoutParams(XemsUi.dp(c, 250), ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView add = XemsUi.button(c, tr("+ Час", "+ Booking"), XemsUi.PRIMARY);
+        add.setOnClickListener(new AddClick());
+        LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        dl.rightMargin = XemsUi.dp(c, 10);
+        head.addView(add, head.getChildCount() - 1, dl);
         TextView again = XemsUi.iconButton(c, "↻", XemsUi.SURFACE, XemsUi.TEXT, 44);
         again.setOnClickListener(new RefreshClick());
         LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(XemsUi.dp(c, 44), XemsUi.dp(c, 44));
@@ -555,7 +562,298 @@ public final class PlanScreen {
         hint.setPadding(0, XemsUi.dp(c, 14), 0, 0);
         hint.setGravity(Gravity.START);
         card.addView(hint);
+        card.addView(XemsUi.label(c, tr("Приложение за клиентите", "Client app")), XemsUi.matchWrap(c, 22));
+        String code = c.getSharedPreferences("xems_client_sync", Context.MODE_PRIVATE).getString("studio", "");
+        LinearLayout row = XemsUi.horizontal(c);
+        LinearLayout texts = XemsUi.vertical(c);
+        texts.addView(XemsUi.text(c, code.length() > 0 ? tr("Код на студиото: ", "Studio code: ") + code
+                : tr("Кодът на студиото идва от сървъра за лиценза (до 24 ч).", "The studio code comes from the license server (within 24 h)."),
+                15, XemsUi.TEXT, code.length() > 0));
+        Object st = sync("status", c);
+        TextView s2 = XemsUi.text(c, tr("Профили от клиентите: ", "Client profiles: ") + (st != null ? st : ""), 12.5f,
+                XemsUi.MUTED, false);
+        s2.setPadding(0, XemsUi.dp(c, 4), 0, 0);
+        texts.addView(s2);
+        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView now = XemsUi.button(c, tr("Синхронизирай", "Sync now"), XemsUi.SECONDARY);
+        now.setOnClickListener(new SyncClick());
+        row.addView(now);
+        card.addView(row);
+        TextView how = XemsUi.text(c, tr("Клиентите попълват профила си в приложението за записване (кодът на студиото е вграден в него). "
+                        + "Новите клиенти и промените идват тук сами; данните, които ти си променил по-късно, не се презаписват.",
+                "Clients fill in their profile in the booking app (it carries the studio code). New clients and changes "
+                        + "arrive here by themselves; what you changed later is not overwritten."), 12.5f, XemsUi.HINT, false);
+        how.setPadding(0, XemsUi.dp(c, 8), 0, 0);
+        card.addView(how);
         return card;
+    }
+
+    /** widget/XemsClientSync (compiled after this package): "poke" or "status". */
+    static Object sync(String m, Context c) {
+        try {
+            Class<?> k = Class.forName("com.isaigu.gymapp.widget.XemsClientSync");
+            return c == null ? k.getMethod(m).invoke(null) : k.getMethod(m, Context.class).invoke(null, c);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    static final class SyncClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            sync("poke", null);
+            H.postDelayed(new Runnable0(), 6000L);
+        }
+    }
+
+    // ================================================================ new appointment (the tablet's calendar)
+
+    static final class AddClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Activity a = activity(v);
+            if (a == null) {
+                return;
+            }
+            if (!Schedule.canRead(a) || !Schedule.canWrite(a)) {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    a.requestPermissions(new String[] {Manifest.permission.READ_CALENDAR,
+                            Manifest.permission.WRITE_CALENDAR}, REQ_CALENDAR);
+                }
+                H.postDelayed(new Runnable0(), 4000L);
+                return;
+            }
+            new NewAppt(a).open();
+        }
+    }
+
+    /** Client, day, time, length → an event in the tablet's calendar. */
+    static final class NewAppt {
+        final Activity a;
+        XemsUi.Shell s;
+        TrainUser user;
+        int day;
+        int hour;
+        int minute;
+        int dur = 30;
+        String query = "";
+        LinearLayout form;
+        List<TrainUser> users;
+
+        NewAppt(Activity a) {
+            this.a = a;
+            Calendar k = Calendar.getInstance();
+            int m = k.get(Calendar.HOUR_OF_DAY) * 60 + k.get(Calendar.MINUTE) + 30;
+            m = (m + 14) / 15 * 15;
+            if (m >= 22 * 60) {
+                day = 1;
+                m = 9 * 60;
+            }
+            hour = Math.max(6, m / 60);
+            minute = m % 60;
+        }
+
+        void open() {
+            users = Schedule.users();
+            Collections.sort(users, new ByName());
+            s = XemsUi.shell(a, tr("Нов час", "New booking"), tr("В календара на таблета", "In the tablet's calendar"), 620);
+            EditText q = new EditText(a);
+            q.setHint(tr("Търси клиент", "Search client"));
+            q.setSingleLine(true);
+            q.setTextColor(XemsUi.TEXT);
+            q.setHintTextColor(XemsUi.HINT);
+            q.addTextChangedListener(new NaFilter(this));
+            s.body.addView(q, XemsUi.matchWrap(a, 0));
+            form = XemsUi.vertical(a);
+            s.body.addView(form, XemsUi.matchWrap(a, 6));
+            TextView save = XemsUi.button(a, tr("Запиши часа", "Save booking"), XemsUi.PRIMARY);
+            save.setOnClickListener(new NaSave(this));
+            s.footer.addView(XemsUi.spacer(a));
+            s.footer.addView(save);
+            render();
+            XemsUi.fitHeight(a, s, 0.92f);
+            s.dialog.show();
+        }
+
+        void render() {
+            form.removeAllViews();
+            Context c = a;
+            if (user != null) {
+                TextView who = XemsUi.text(c, "✓ " + user.name, 17, XemsUi.GO_TEXT, true);
+                who.setPadding(0, XemsUi.dp(c, 8), 0, XemsUi.dp(c, 4));
+                form.addView(who);
+            }
+            int shown = 0;
+            String f = Schedule.fold(query).trim();
+            LinearLayout[] hl = new LinearLayout[1];
+            form.addView(XemsUi.chipRow(c, hl));
+            for (int i = 0; i < users.size() && shown < 30; i++) {
+                TrainUser u = users.get(i);
+                String n = u.name != null ? u.name : "";
+                if (f.length() > 0 && !Schedule.fold(n + " " + (u.nickName != null ? u.nickName : "")).contains(f)) {
+                    continue;
+                }
+                if (f.length() == 0 && shown >= 12) {
+                    break;
+                }
+                TextView ch = XemsUi.chip(c, n, user != null && user.id == u.id, XemsUi.GO_TEXT);
+                ch.setOnClickListener(new NaUser(this, u));
+                XemsUi.addChip(c, hl[0], ch);
+                shown++;
+            }
+            form.addView(section(c, tr("Ден", "Day")));
+            LinearLayout[] dl = new LinearLayout[1];
+            form.addView(XemsUi.chipRow(c, dl));
+            Calendar k = Calendar.getInstance();
+            for (int d = 0; d < 14; d++) {
+                String label = d == 0 ? tr("Днес", "Today") : d == 1 ? tr("Утре", "Tomorrow")
+                        : NextClient.day(k.getTimeInMillis());
+                TextView ch = XemsUi.chip(c, label, d == day, XemsUi.GO_TEXT);
+                ch.setOnClickListener(new NaPick(this, 0, d));
+                XemsUi.addChip(c, dl[0], ch);
+                k.add(Calendar.DAY_OF_YEAR, 1);
+            }
+            form.addView(section(c, tr("Час", "Time")));
+            LinearLayout[] tl = new LinearLayout[1];
+            form.addView(XemsUi.chipRow(c, tl));
+            for (int h = 6; h <= 22; h++) {
+                TextView ch = XemsUi.chip(c, String.valueOf(h), h == hour, XemsUi.GO_TEXT);
+                ch.setOnClickListener(new NaPick(this, 1, h));
+                XemsUi.addChip(c, tl[0], ch);
+            }
+            LinearLayout[] ml = new LinearLayout[1];
+            form.addView(XemsUi.chipRow(c, ml), XemsUi.matchWrap(c, 8));
+            for (int m = 0; m < 60; m += 15) {
+                TextView ch = XemsUi.chip(c, ":" + (m < 10 ? "0" : "") + m, m == minute, XemsUi.GO_TEXT);
+                ch.setOnClickListener(new NaPick(this, 2, m));
+                XemsUi.addChip(c, ml[0], ch);
+            }
+            form.addView(section(c, tr("Продължителност", "Length")));
+            LinearLayout[] ul = new LinearLayout[1];
+            form.addView(XemsUi.chipRow(c, ul));
+            int[] opts = {20, 30, 45, 60};
+            for (int i = 0; i < opts.length; i++) {
+                TextView ch = XemsUi.chip(c, opts[i] + tr(" мин", " min"), opts[i] == dur, XemsUi.GO_TEXT);
+                ch.setOnClickListener(new NaPick(this, 3, opts[i]));
+                XemsUi.addChip(c, ul[0], ch);
+            }
+        }
+
+        static TextView section(Context c, String t) {
+            TextView v = XemsUi.text(c, t, 13, XemsUi.MUTED, false);
+            v.setPadding(0, XemsUi.dp(c, 14), 0, XemsUi.dp(c, 8));
+            return v;
+        }
+
+        long begin() {
+            Calendar k = Calendar.getInstance();
+            k.add(Calendar.DAY_OF_YEAR, day);
+            k.set(Calendar.HOUR_OF_DAY, hour);
+            k.set(Calendar.MINUTE, minute);
+            k.set(Calendar.SECOND, 0);
+            k.set(Calendar.MILLISECOND, 0);
+            return k.getTimeInMillis();
+        }
+
+        void save() {
+            if (user == null) {
+                android.widget.Toast.makeText(a, tr("Избери клиент.", "Pick a client."), android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+            long b = begin();
+            long id = Schedule.add(a, user, b, b + dur * MIN);
+            if (id < 0) {
+                android.widget.Toast.makeText(a, tr("Няма календар за запис на таблета (добави Google акаунт или разреши достъпа).",
+                        "No writable calendar on the tablet (add a Google account or allow access)."),
+                        android.widget.Toast.LENGTH_LONG).show();
+                return;
+            }
+            try {
+                s.dialog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            android.widget.Toast.makeText(a, user.name + " · " + NextClient.day(b) + " " + NextClient.hm(b),
+                    android.widget.Toast.LENGTH_LONG).show();
+            NextClient.invalidate();
+            refresh();
+        }
+    }
+
+    static final class NaFilter implements TextWatcher {
+        final NewAppt n;
+
+        NaFilter(NewAppt n) {
+            this.n = n;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            n.query = s.toString();
+            n.render();
+        }
+    }
+
+    static final class NaUser implements View.OnClickListener {
+        final NewAppt n;
+        final TrainUser u;
+
+        NaUser(NewAppt n, TrainUser u) {
+            this.n = n;
+            this.u = u;
+        }
+
+        @Override
+        public void onClick(View v) {
+            n.user = u;
+            n.render();
+        }
+    }
+
+    /** kind 0 day, 1 hour, 2 minute, 3 length. */
+    static final class NaPick implements View.OnClickListener {
+        final NewAppt n;
+        final int kind;
+        final int value;
+
+        NaPick(NewAppt n, int kind, int value) {
+            this.n = n;
+            this.kind = kind;
+            this.value = value;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (kind == 0) {
+                n.day = value;
+            } else if (kind == 1) {
+                n.hour = value;
+            } else if (kind == 2) {
+                n.minute = value;
+            } else {
+                n.dur = value;
+            }
+            n.render();
+        }
+    }
+
+    static final class NaSave implements View.OnClickListener {
+        final NewAppt n;
+
+        NaSave(NewAppt n) {
+            this.n = n;
+        }
+
+        @Override
+        public void onClick(View v) {
+            n.save();
+        }
     }
 
     static final class ToggleOn implements XemsUi.OnToggle {

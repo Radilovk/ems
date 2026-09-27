@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 577
+    .line 875
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 578
+    .line 876
     iput p1, p0, Lcom/isaigu/gymapp/wearable/PlanScreen$LeadClick;->m:I
 
-    .line 579
+    .line 877
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 583
+    .line 881
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -55,9 +55,9 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->setLead(Landroid/content/Context;I)V
 
-    .line 584
+    .line 882
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->refresh()V
 
-    .line 585
+    .line 883
     return-void
 .end method

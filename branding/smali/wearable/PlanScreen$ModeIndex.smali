@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 143
+    .line 150
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,13 +34,13 @@
     .registers 2
 
     .prologue
-    .line 146
+    .line 153
     # setter for: Lcom/isaigu/gymapp/wearable/PlanScreen;->mode:I
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/PlanScreen;->access$202(I)I
 
-    .line 147
+    .line 154
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PlanScreen;->refresh()V
 
-    .line 148
+    .line 155
     return-void
 .end method

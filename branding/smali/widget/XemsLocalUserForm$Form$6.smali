@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderSex()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$g:Ljava/lang/String;
-
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/String;)V
-    .registers 3
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
+    .registers 2
 
-    .line 332
+    .prologue
+    .line 348
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->val$g:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -42,18 +39,19 @@
 .method public run()V
     .registers 3
 
-    .line 334
+    .prologue
+    .line 350
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->val$g:Ljava/lang/String;
+    sget-object v1, Lcom/isaigu/gymapp/bean/Gender;->Female:Lcom/isaigu/gymapp/bean/Gender;
 
-    iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->goal:Ljava/lang/String;
+    iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sex:Lcom/isaigu/gymapp/bean/Gender;
 
-    .line 335
+    .line 351
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderSex()V
 
-    .line 336
+    .line 352
     return-void
 .end method

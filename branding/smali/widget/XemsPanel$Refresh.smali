@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 301
+    .prologue
+    .line 309
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,25 +33,25 @@
 .method public run()V
     .registers 3
 
-    .line 305
+    .prologue
+    .line 313
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->refresh()V
     :try_end_3
-    .catchall {:try_start_0 .. :try_end_3} :catchall_4
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 308
-    goto :goto_a
+    .line 317
+    :goto_3
+    return-void
 
-    .line 306
-    :catchall_4
+    .line 314
+    :catch_4
     move-exception v0
 
-    .line 307
+    .line 315
     const-string v1, "XemsPanel.refresh"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 309
-    :goto_a
-    return-void
+    goto :goto_3
 .end method

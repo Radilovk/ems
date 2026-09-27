@@ -99,6 +99,12 @@ public final class XemsLocalUserForm {
         final LinearLayout[] sexRow = new LinearLayout[1];
         final LinearLayout[] goalRow = new LinearLayout[1];
         final LinearLayout[] fitRow = new LinearLayout[1];
+        /** Wears the Xiaomi band: trainings also run as a native band workout (Mi Fitness). */
+        boolean owner;
+        int miSport = 0;
+        final LinearLayout[] ownRow = new LinearLayout[1];
+        final LinearLayout[] sportRow = new LinearLayout[1];
+        final LinearLayout[] sportRow2 = new LinearLayout[1];
 
         Form(Activity a, TrainUser editing) {
             this.a = a;
@@ -122,6 +128,8 @@ public final class XemsLocalUserForm {
             if (u.weight > 0) {
                 weight[0] = Math.round(u.weight);
             }
+            owner = prefs(a).getBoolean("own" + u.id, false);
+            miSport = prefs(a).getInt("misport" + u.id, 0);
             String saved = prefs(a).getString("u" + u.id, "");
             String[] parts = saved.split("\\|", -1);
             if (parts.length >= 3) {
@@ -147,6 +155,17 @@ public final class XemsLocalUserForm {
             head.setPadding(dp(24), dp(14), dp(24), dp(14));
             TextView title = text(editing == null ? tr("Нов клиент", "New client") : tr("Клиент", "Client"), 24, TEXT, true);
             head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            if (editing != null) {
+                TextView history = button(tr("История и доклади", "History and reports"), false);
+                history.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        openReports();
+                    }
+                });
+                head.addView(history, wrap(0, 0));
+                View gap = new View(a);
+                head.addView(gap, new LinearLayout.LayoutParams(dp(12), 1));
+            }
             TextView cancel = button(tr("Отказ", "Cancel"), false);
             cancel.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -280,6 +299,15 @@ public final class XemsLocalUserForm {
             fitRow[0] = chips(c2);
             renderFitness();
 
+            LinearLayout cm = card(col, tr("Гривна и Mi Fitness", "Band and Mi Fitness"));
+            TextView mh = text(tr("Собственикът на гривната получава всяка тренировка и като тренировка в гривната: пулс, калории и време влизат в Mi Fitness. Авто: пасивни процедури → йога, кардио → аеробна, силови → тежести.",
+                    "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness. Auto: passive procedures → yoga, cardio → aerobics, strength → weights."), 13, MUTED, false);
+            cm.addView(mh, match(dp(4)));
+            ownRow[0] = chips(cm);
+            sportRow[0] = chips(cm);
+            sportRow2[0] = chips(cm);
+            renderOwner();
+
             LinearLayout c3 = card(col, tr("Противопоказания", "Contraindications"));
             TextView hint = text(tr("Отбележи, ако има. EMS не се препоръчва при нито едно от тях.",
                     "Mark any that apply. EMS is not advised with any of them."), 13, MUTED, false);
@@ -323,6 +351,58 @@ public final class XemsLocalUserForm {
                     renderSex();
                 }
             });
+        }
+
+        void renderOwner() {
+            LinearLayout row = ownRow[0];
+            row.removeAllViews();
+            addChoice(row, tr("Не носи гривна", "No band"), !owner, new Runnable() {
+                public void run() {
+                    owner = false;
+                    renderOwner();
+                }
+            });
+            addChoice(row, tr("Собственик на гривната", "Band owner"), owner, new Runnable() {
+                public void run() {
+                    owner = true;
+                    renderOwner();
+                }
+            });
+            LinearLayout sr = sportRow[0];
+            sr.removeAllViews();
+            sr.setVisibility(owner ? View.VISIBLE : View.GONE);
+            addSport(sr, tr("Авто", "Auto"), 0);
+            addSport(sr, tr("Тежести", "Weights"), 308);
+            addSport(sr, tr("HIIT", "HIIT"), 16);
+            addSport(sr, tr("Аеробна", "Aerobics"), 307);
+            LinearLayout sr2 = sportRow2[0];
+            sr2.removeAllViews();
+            sr2.setVisibility(owner ? View.VISIBLE : View.GONE);
+            addSport(sr2, tr("Йога", "Yoga"), 311);
+            addSport(sr2, tr("Стречинг", "Stretching"), 310);
+            addSport(sr2, tr("Гъвкавост", "Flexibility"), 304);
+            addSport(sr2, tr("Свободна", "Free"), 8);
+        }
+
+        /** Band sport codes from Mi Fitness logs: 3 indoor run (phone start verified), 8 free training,
+         *  16 HIIT (synced as high_interval_training); 308 is a strength-type code seen from the band. */
+        void addSport(LinearLayout row, String label, final int code) {
+            addChoice(row, label, miSport == code, new Runnable() {
+                public void run() {
+                    miSport = code;
+                    renderOwner();
+                }
+            });
+        }
+
+        void openReports() {
+            try {
+                Class.forName("com.isaigu.gymapp.wearable.ReportScreen")
+                        .getMethod("open", Activity.class, Object.class)
+                        .invoke(null, a, editing);
+            } catch (Throwable t) {
+                android.util.Log.e("xems_form", "reports", t);
+            }
         }
 
         void renderGoal() {
@@ -426,7 +506,8 @@ public final class XemsLocalUserForm {
                     cs.append(c);
                 }
             }
-            prefs(a).edit().putString("u" + u.id, goal + "|" + fitness + "|" + cs).apply();
+            prefs(a).edit().putString("u" + u.id, goal + "|" + fitness + "|" + cs)
+                    .putBoolean("own" + u.id, owner).putInt("misport" + u.id, miSport).apply();
             dialog.dismiss();
         }
 

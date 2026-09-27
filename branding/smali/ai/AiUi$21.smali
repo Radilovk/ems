@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1233
+    .prologue
+    .line 1171
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,9 +33,10 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1236
+    .prologue
+    .line 1174
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->reduce()V
 
-    .line 1237
+    .line 1175
     return-void
 .end method

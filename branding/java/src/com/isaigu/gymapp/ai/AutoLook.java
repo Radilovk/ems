@@ -1,0 +1,201 @@
+package com.isaigu.gymapp.ai;
+
+import android.content.Context;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.isaigu.gymapp.widget.XemsUi;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+/**
+ * The training screen while automatic mode owns the suits (calibration and the run): every train row
+ * loses the controls the program decides (Hz, active pause, impulse / pause seconds, row settings,
+ * save) and the four mode buttons (main, muscle, cardio, massage) give their place to an "АВТО" sign.
+ * What stays: strength (slider, + / −), zones, start / pause / stop, the time. Applied on every
+ * automatic-mode tick (the list rebinds rows), undone when the session closes.
+ */
+public final class AutoLook {
+    private static final String[] MODE_IDS = {"mainModeBtn", "strenthExist", "youyangyundong", "anmo"};
+    private static final String[] HIDE_IDS = {"hzValue", "pauseMaValue", "pauseHzValue", "paulsecontinue",
+            "pulseContinueLabel", "paulsestop", "pulsePauseLabel", "setting", "save"};
+
+    /** Views we changed → their visibility before. */
+    private static final Map<View, Integer> SAVED = new WeakHashMap<View, Integer>();
+    /** Mode-button column → the sign we put there. */
+    private static final Map<ViewGroup, TextView> SIGNS = new WeakHashMap<ViewGroup, TextView>();
+    private static int[] modeIds;
+    private static int[] hideIds;
+    private static boolean on;
+
+    private AutoLook() {}
+
+    public static boolean isOn() {
+        return on;
+    }
+
+    /** @param any any view of the training screen; @param program the program name under the sign */
+    static void apply(View any, String program) {
+        if (any == null) {
+            return;
+        }
+        try {
+            View root = any.getRootView();
+            if (modeIds == null) {
+                modeIds = ids(root.getContext(), MODE_IDS);
+                hideIds = ids(root.getContext(), HIDE_IDS);
+            }
+            on = true;
+            walk(root, program != null ? program : "");
+        } catch (Throwable t) {
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("auto", "look: " + t);
+        }
+    }
+
+    static void restore() {
+        if (!on) {
+            return;
+        }
+        on = false;
+        try {
+            for (Map.Entry<View, Integer> e : SAVED.entrySet()) {
+                if (e.getKey() != null) {
+                    e.getKey().setVisibility(e.getValue());
+                }
+            }
+            List<ViewGroup> cols = new ArrayList<ViewGroup>(SIGNS.keySet());
+            for (int i = 0; i < cols.size(); i++) {
+                ViewGroup col = cols.get(i);
+                TextView sign = SIGNS.get(col);
+                if (col != null && sign != null) {
+                    col.removeView(sign);
+                }
+            }
+        } catch (Throwable t) {
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("auto", "look restore: " + t);
+        }
+        SAVED.clear();
+        SIGNS.clear();
+    }
+
+    private static int[] ids(Context c, String[] names) {
+        int[] out = new int[names.length];
+        for (int i = 0; i < names.length; i++) {
+            out[i] = c.getResources().getIdentifier(names[i], "id", c.getPackageName());
+        }
+        return out;
+    }
+
+    private static boolean in(int id, int[] set) {
+        if (id == View.NO_ID || id == 0) {
+            return false;
+        }
+        for (int i = 0; i < set.length; i++) {
+            if (set[i] == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Finds the mode buttons (only the train rows have them) and treats each row they sit in. */
+    private static void walk(View v, String program) {
+        if (!(v instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup g = (ViewGroup) v;
+        boolean column = false;
+        for (int i = 0; i < g.getChildCount(); i++) {
+            View b = g.getChildAt(i);
+            if (in(b.getId(), modeIds)) {
+                hide(b, View.GONE);
+                column = true;
+            }
+        }
+        if (column) {
+            if (g instanceof LinearLayout) {
+                sign((LinearLayout) g, program);
+            }
+            View row = rowOf(g);
+            if (row != null) {
+                hideIn(row);
+            }
+            return;
+        }
+        for (int i = 0; i < g.getChildCount(); i++) {
+            walk(g.getChildAt(i), program);
+        }
+    }
+
+    /** The list item that holds this view (its parent is the RecyclerView / ListView), or null. */
+    private static View rowOf(View v) {
+        View cur = v;
+        for (int depth = 0; depth < 8 && cur != null; depth++) {
+            Object parent = cur.getParent();
+            if (!(parent instanceof ViewGroup)) {
+                return null;
+            }
+            if (parent instanceof android.widget.AbsListView
+                    || parent.getClass().getName().indexOf("RecyclerView") >= 0) {
+                return cur;
+            }
+            cur = (View) parent;
+        }
+        return null;
+    }
+
+    private static void hideIn(View v) {
+        if (in(v.getId(), hideIds)) {
+            hide(v, View.INVISIBLE);
+            return;
+        }
+        if (v instanceof ViewGroup) {
+            ViewGroup g = (ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) {
+                hideIn(g.getChildAt(i));
+            }
+        }
+    }
+
+    private static void hide(View v, int visibility) {
+        if (!SAVED.containsKey(v)) {
+            SAVED.put(v, v.getVisibility());
+        }
+        if (v.getVisibility() != visibility) {
+            v.setVisibility(visibility);
+        }
+    }
+
+    private static void sign(LinearLayout col, String program) {
+        TextView t = SIGNS.get(col);
+        String text = AiText.t("АВТО", "AUTO") + (program.length() > 0 ? "\n" + program : "");
+        if (t == null) {
+            Context c = col.getContext();
+            t = XemsUi.text(c, text, 13, XemsUi.GO_TEXT, true);
+            t.setGravity(Gravity.CENTER);
+            t.setMaxLines(4);
+            int p = XemsUi.dp(c, 8);
+            t.setPadding(p, p, p, p);
+            t.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.GO, 0x26), XemsUi.dp(c, 10),
+                    XemsUi.alpha(XemsUi.GO, 0x99), XemsUi.dp(c, 1)));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            int m = XemsUi.dp(c, 4);
+            lp.setMargins(m, m, m, m);
+            col.addView(t, lp);
+            SIGNS.put(col, t);
+        } else if (!text.contentEquals(t.getText())) {
+            t.setText(text);
+        }
+        // A rebound row may have lost the sign: keep it attached.
+        if (t.getParent() == null) {
+            col.addView(t);
+        }
+    }
+}

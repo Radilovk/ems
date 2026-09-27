@@ -603,6 +603,7 @@ public final class AutoSession {
         stopTicker();
         AutoHints.hide();
         AiRamp.clear();
+        AutoLook.restore();
         stage = Stage.IDLE;
         written = null;
         engine = null;
@@ -692,6 +693,9 @@ public final class AutoSession {
     private static void finishToReport() {
         stage = Stage.REPORT;
         AutoHints.hide();
+        AutoLook.restore();
+        // The board closes and the client's report opens (after this tick).
+        handler.post(new Finished());
         if (!recorded && engine != null) {
             recorded = true;
             Context c = panelRoot != null ? panelRoot.getContext() : null;
@@ -727,8 +731,24 @@ public final class AutoSession {
             if (stage != Stage.IDLE && stage != Stage.REPORT) {
                 handler.postDelayed(this, TICK_MS);
             }
+            if ((stage == Stage.CALIB || stage == Stage.RUNNING) && plan != null) {
+                AutoLook.apply(panelRoot, plan.program.name());
+            } else {
+                AutoLook.restore();
+            }
             AutoUi.refresh();
             AutoHints.refresh();
+        }
+    }
+
+    static final class Finished implements Runnable {
+        @Override
+        public void run() {
+            try {
+                AutoUi.onFinished();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("auto", "finished: " + t);
+            }
         }
     }
 

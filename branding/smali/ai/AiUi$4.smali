@@ -24,8 +24,14 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 528
+    .prologue
+    .line 521
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,23 +42,25 @@
 
 # virtual methods
 .method public onToggle(Z)V
-    .registers 3
+    .registers 4
 
-    .line 531
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .prologue
+    .line 524
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    if-eqz p1, :cond_7
+    if-eqz p1, :cond_9
 
-    sget-object p1, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->AUTO:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->AUTO:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
-    goto :goto_9
+    :goto_6
+    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
-    :cond_7
-    sget-object p1, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
-
-    :goto_9
-    iput-object p1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
-
-    .line 532
+    .line 525
     return-void
+
+    .line 524
+    :cond_9
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+
+    goto :goto_6
 .end method

@@ -25,7 +25,8 @@
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$19;)V
     .registers 2
 
-    .line 1079
+    .prologue
+    .line 1017
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$19$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$19;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -38,9 +39,10 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1082
+    .prologue
+    .line 1020
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopSoloRamp()V
 
-    .line 1083
+    .line 1021
     return-void
 .end method

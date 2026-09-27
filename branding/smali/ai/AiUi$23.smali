@@ -24,8 +24,14 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 1249
+    .prologue
+    .line 1187
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,19 +42,29 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
-    .line 1252
-    iget-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+    .prologue
+    .line 1190
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
 
-    move-result p1
+    move-result v0
 
-    xor-int/lit8 p1, p1, 0x1
+    if-nez v0, :cond_d
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
+    const/4 v0, 0x1
 
-    .line 1253
+    :goto_9
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
+
+    .line 1191
     return-void
+
+    .line 1190
+    :cond_d
+    const/4 v0, 0x0
+
+    goto :goto_9
 .end method

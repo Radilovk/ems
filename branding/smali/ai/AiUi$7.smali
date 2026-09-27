@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenProfile(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -24,8 +24,14 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 576
+    .prologue
+    .line 598
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -35,36 +41,32 @@
 
 
 # virtual methods
-.method public onDelta(I)V
+.method public onSelect(I)V
     .registers 4
 
-    .line 579
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .prologue
+    .line 601
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$7;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    iget v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
+    if-nez p1, :cond_d
 
-    add-int/2addr v1, p1
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->MALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    const/16 p1, 0x5a
+    :goto_6
+    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    invoke-static {p1, v1}, Ljava/lang/Math;->min(II)I
-
-    move-result p1
-
-    const/16 v1, 0xe
-
-    invoke-static {v1, p1}, Ljava/lang/Math;->max(II)I
-
-    move-result p1
-
-    iput p1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
-
-    .line 580
-    const/4 p1, 0x1
+    .line 602
+    const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 581
+    .line 603
     return-void
+
+    .line 601
+    :cond_d
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    goto :goto_6
 .end method

@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 264
+    .prologue
+    .line 266
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,37 +31,50 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
-    .line 267
+    .prologue
+    .line 269
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    move-result-object p1
-
-    .line 268
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
-
-    if-ne p1, v0, :cond_c
+    move-result-object v0
 
     .line 270
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
+
+    if-ne v0, v1, :cond_c
+
+    .line 272
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->dismiss()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$000()V
 
-    .line 271
+    .line 282
+    :goto_b
     return-void
-
-    .line 273
-    :cond_c
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->close()V
-
-    .line 274
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->dismiss()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$000()V
 
     .line 275
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->styleSideButton()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$100()V
+    :cond_c
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AiSession$Stage;
+
+    if-ne v0, v1, :cond_14
 
     .line 276
-    return-void
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->closeReport()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$100()V
+
+    goto :goto_b
+
+    .line 279
+    :cond_14
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->close()V
+
+    .line 280
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->dismiss()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$000()V
+
+    .line 281
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->styleSideButton()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$200()V
+
+    goto :goto_b
 .end method

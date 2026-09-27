@@ -62,6 +62,9 @@ public final class AutoUi {
     private static final int A_COOLDOWN = 26;
     private static final int A_STOP = 27;
     private static final int A_SEX = 28;
+    private static final int A_TIP_OK = 29;
+    private static final int A_TIP_OFF = 30;
+    private static final int A_TIPS = 31;
 
     private static XemsUi.Shell shell;
     private static Activity host;
@@ -125,6 +128,7 @@ public final class AutoUi {
     }
 
     private static void show(Activity a, int s) {
+        AutoHints.hide();
         if (shell == null || !shell.dialog.isShowing()) {
             host = a;
             shell = XemsUi.shell(a, "", "", 1180);
@@ -144,6 +148,10 @@ public final class AutoUi {
         }
         shell = null;
         runPhase = null;
+    }
+
+    static boolean isShowing() {
+        return shell != null && shell.dialog.isShowing();
     }
 
     static void refresh() {
@@ -184,6 +192,7 @@ public final class AutoUi {
             case STEP_RUN: screenRun(c); break;
             default: screenReport(c); break;
         }
+        stepTip(c, s);
         if (s < SETUP_STEPS) {
             shell.badge.setVisibility(View.VISIBLE);
             XemsUi.setBadge(shell.badge, AiText.t("Стъпка ", "Step ") + (s + 1) + " / " + SETUP_STEPS, XemsUi.GO_TEXT);
@@ -207,6 +216,61 @@ public final class AutoUi {
                 shell.scroll.scrollTo(0, y);
             }
         }
+    }
+
+    /** First visit of a step (tips on): a short explanation on top, "Got it" / "No tips". */
+    private static void stepTip(Context c, int s) {
+        String key = "step_" + s;
+        String text = stepTipText(s);
+        if (text == null || !AutoSession.isNewTip(key)) {
+            return;
+        }
+        LinearLayout card = XemsUi.card(c);
+        card.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, 0xFF42A5F5, 0.16f), XemsUi.dp(c, 14),
+                0xFF42A5F5, XemsUi.dp(c, 1)));
+        card.addView(XemsUi.text(c, "💡 " + text, 14, XemsUi.TEXT, false));
+        LinearLayout keys = XemsUi.horizontal(c);
+        keys.addView(XemsUi.spacer(c));
+        TextView off = XemsUi.button(c, AiText.t("Без подсказки", "No tips"), XemsUi.GHOST);
+        off.setOnClickListener(new Act(A_TIP_OFF, s));
+        keys.addView(off);
+        TextView ok = XemsUi.button(c, AiText.t("Разбрах", "Got it"), XemsUi.SECONDARY);
+        ok.setOnClickListener(new Act(A_TIP_OK, s));
+        keys.addView(ok);
+        card.addView(keys, XemsUi.matchWrap(c, 8));
+        shell.body.addView(card, 0, XemsUi.matchWrap(c, 0));
+    }
+
+    private static String stepTipText(int s) {
+        switch (s) {
+            case STEP_GOAL:
+                return AiText.t("Целта и видът идват от профила на клиента — провери ги. Самостоятелно = по-тесни лимити.",
+                        "Goal and kind come from the client record — check them. On my own = tighter limits.");
+            case STEP_PROGRAM:
+                return AiText.t("Сивите програми не са позволени за този клиент — причината е на картата. „Препоръчана“ е по профила.",
+                        "Grey programs are not allowed for this client — the reason is on the card. \u201cRecommended\u201d follows the profile.");
+            case STEP_CHECK:
+                return AiText.t("Ръстът е задължителен. Всяко „да“ в противопоказанията и в „днес“ спира сесията. Отговорите решават лимитите.",
+                        "Height is required. Any yes in contraindications or today stops the session. The answers set the limits.");
+            case STEP_PLAN:
+                return AiText.t("Всичко е изчислено от профила: време, таван на силата, пулс. Може да скъсиш времето и да смениш интензитета, не и да минеш лимитите.",
+                        "Everything comes from the profile: time, strength ceiling, HR. You may shorten the time and change the intensity, not pass the limits.");
+            case STEP_CALIB:
+                return AiText.t("Пусни импулсите и качи силата на всеки клиент до целевото усещане. „Старт“ започва от загрявката с 60 % от нея.",
+                        "Start the pulses and raise each client's strength to the target feeling. Start begins with the warm-up at 60 % of it.");
+            case STEP_RUN:
+                return AiText.t("✕ скрива таблото — сесията продължава, подсказките са над тренировъчния екран. Лимитите и защитите се показват винаги.",
+                        "✕ hides the board — the session goes on, hints are above the training screen. Limits and safety always show.");
+            default:
+                return null;
+        }
+    }
+
+    private static View tipsToggle(Context c) {
+        return XemsUi.toggleRow(c, AiText.t("Подсказки", "Tips"),
+                AiText.t("При първото ползване на бутоните и менютата. Лимитите и защитите се показват винаги.",
+                        "On the first use of buttons and menus. Limits and safety always show."),
+                AutoSession.tipsOn(), new Act(A_TIPS, 0));
     }
 
     private static void footer(Context c, String next, boolean back) {
@@ -568,6 +632,7 @@ public final class AutoUi {
                     AiText.t("Лек нискочестотен импулс в паузата — програмата решава къде", "A light low-frequency pulse in the pause — the program decides where"),
                     in.doublePulse, new Act(A_DOUBLE, 0)), XemsUi.matchWrap(c, 8));
         }
+        opt.addView(tipsToggle(c), XemsUi.matchWrap(c, 8));
         String band = AutoSession.isBandConfigured(host)
                 ? (AutoSession.getLastBandHr() > 0 ? AiText.t("Гривна: ", "Band: ") + AutoSession.getLastBandHr() + " bpm"
                 : AiText.t("Гривна: свързване…", "Band: connecting…"))
@@ -779,6 +844,7 @@ public final class AutoUi {
         cool.setOnClickListener(new Act(A_COOLDOWN, 0));
         keys2.addView(cool, XemsUi.weight(1, 8, c));
         body.addView(keys2, XemsUi.matchWrap(c, 8));
+        body.addView(tipsToggle(c), XemsUi.matchWrap(c, 12));
 
         shell.footer.addView(XemsUi.spacer(c));
         TextView stop = XemsUi.button(c, AiText.t("■ СТОП", "■ STOP"), XemsUi.ACCENT_BTN);
@@ -987,14 +1053,32 @@ public final class AutoUi {
                 AutoSession.beginCalibration();
                 calibStarted = true;
                 break;
+            case A_TIP_OK:
+                AutoSession.markTip("step_" + arg);
+                break;
+            case A_TIP_OFF:
+                AutoSession.setTips(host, false);
+                break;
+            case A_TIPS:
+                AutoSession.setTips(host, value == 1);
+                return;
             case A_CALIB_ROW:
+                AutoSession.tip("calib_keys", AiText.t("±1 / ±5 на реда. Качването е плавно: най-много +5 в секунда.",
+                        "±1 / ±5 per row. Raising is gradual: at most +5 per second."), now);
                 AutoSession.adjustCalibration(arg / 100, arg % 100 - 50);
                 refreshCalib();
                 return;
-            case A_PAUSE: AutoSession.togglePause(); refreshRun(); return;
+            case A_PAUSE:
+                AutoSession.tip("btn_pause", AiText.t("Пауза: изходът е 0 и часовникът на плана спира. След пауза над 30 s импулсите тръгват по-меко.",
+                        "Pause: output 0 and the plan clock stops. After more than 30 s the pulses restart softer."), now);
+                AutoSession.togglePause();
+                refreshRun();
+                return;
             case A_REDUCE: AutoSession.reduceAll(); return;
             case A_RAISE: AutoSession.raiseAll(); return;
             case A_DOUBLE_LIVE: {
+                AutoSession.tip("btn_double", AiText.t("Двоен импулс: лек нискочестотен импулс в паузата — само във фазите, където програмата го има.",
+                        "Double impulse: a light low-frequency pulse in the pause — only in the phases where the program has it."), now);
                 AutoEngine e = AutoSession.getEngine();
                 if (e != null) {
                     AutoSession.setDoublePulse(!e.isDoublePulseOn());
@@ -1002,7 +1086,11 @@ public final class AutoUi {
                 refreshRun();
                 return;
             }
-            case A_COOLDOWN: AutoSession.skipToCooldown(); return;
+            case A_COOLDOWN:
+                AutoSession.tip("btn_cool", AiText.t("Към охлаждане: работната част се прескача, охлаждането не. Назад не се връща.",
+                        "To cool-down: the work part is skipped, the cool-down is not. There is no way back."), now);
+                AutoSession.skipToCooldown();
+                return;
             case A_STOP:
                 AutoSession.stop();
                 go(STEP_REPORT);

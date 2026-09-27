@@ -1,5 +1,6 @@
 import com.isaigu.gymapp.ai.AiModel;
 import com.isaigu.gymapp.ai.AutoCatalog;
+import com.isaigu.gymapp.ai.AutoCues;
 import com.isaigu.gymapp.ai.AutoEngine;
 import com.isaigu.gymapp.ai.AutoLimits;
 import com.isaigu.gymapp.ai.AutoModel;
@@ -46,6 +47,7 @@ public final class AutoSim {
         dose();
         pauseReentry();
         drainWave();
+        cues();
         System.out.println((fails == 0 ? "OK" : "FAIL") + " — " + checks + " checks, " + fails + " failures");
         if (fails > 0) {
             System.exit(1);
@@ -403,6 +405,40 @@ public final class AutoSim {
             e.onCycle(t);
         }
         check(e.getCurrent().frac == 0, "drain: refill pause after the wave");
+    }
+
+    /** Hint card texts: every phase of every program has a hint and both cues; "next" names the next phase. */
+    static void cues() {
+        for (AutoCatalog.Program p : AutoCatalog.all()) {
+            AutoModel.Input in = input(AiModel.Sex.FEMALE, 35, 65, 168, AiModel.Fitness.MID, 10, -1);
+            in.programId = p.id;
+            in.kind = p.kind;
+            in.extra.weeksSinceBirth = 20;
+            AutoModel.Plan plan = AutoPlanner.build(in, 70);
+            AutoEngine e = new AutoEngine(plan);
+            long t = 0;
+            e.start(t);
+            int lastPhase = -1;
+            while (e.getState() == AutoEngine.State.RUN) {
+                AutoModel.Phase ph = e.phase();
+                AutoEngine.Cmd c = e.getCurrent();
+                if (e.getPhaseIndex() != lastPhase) {
+                    lastPhase = e.getPhaseIndex();
+                    check(AutoCues.phaseHint(plan, ph).length() > 0, p.id + " " + ph.id + ": phase hint");
+                }
+                check(AutoCues.onCue(plan, ph, c).length() > 0 && AutoCues.offCue(plan, ph, c).length() > 0,
+                        p.id + " " + ph.id + ": cues");
+                if (ph.wave && c.frac > 0) {
+                    check(AutoCues.waveZones(c).length() > 0, p.id + ": wave step names its zones");
+                }
+                t += c.durationMs();
+                e.tick(t - 1);
+                e.onCycle(t);
+            }
+            String n = AutoCues.next(plan, 0, 10);
+            check(plan.phases.size() < 2 || n.contains(plan.phases.get(1).nameBg), p.id + ": next names phase 2 (" + n + ")");
+            check(AutoCues.next(plan, 0, 60).length() == 0, p.id + ": next is quiet 60 s before");
+        }
     }
 
     static void check(boolean ok, String what) {

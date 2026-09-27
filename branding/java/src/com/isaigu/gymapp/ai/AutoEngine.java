@@ -92,6 +92,7 @@ public final class AutoEngine {
     private double qPlanned;
     private int doseExt;
     private boolean raiseLocked;
+    private boolean doseStopped;
     private double userScale = 1.0;
     private double userScaleMax = 1.0;
 
@@ -372,6 +373,7 @@ public final class AutoEngine {
         }
         if (qUsed >= plan.qBudget && !ph.isCooldown() && plan.qBudget > 0) {
             log(now, "dose budget reached → cool-down");
+            doseStopped = true;
             skipToCooldown(now);
             ph = phase();
         }
@@ -544,6 +546,11 @@ public final class AutoEngine {
 
     public double getDoseRatio() {
         return plan.qBudget > 0 ? qUsed / plan.qBudget : 0;
+    }
+
+    /** The dose budget ended the main work early (straight to the cool-down). */
+    public boolean isDoseStopped() {
+        return doseStopped;
     }
 
     public boolean isRaiseLocked() {

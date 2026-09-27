@@ -240,8 +240,10 @@ public final class NextPlan {
             lastMs = Math.max(lastMs, hist.get(i).optLong("start"));
         }
         rec.lastMs = lastMs;
+        String[] own = own(c, u);
         if (last == null) {
             rec.first = true;
+            mindOnly(own, rec);
             rec.why.add(hist.isEmpty()
                     ? tr("Първа тренировка със запис — програмата на клиента, силата се нагласява на място.",
                          "First recorded training — the client's program, set the strength on the spot.")
@@ -314,6 +316,7 @@ public final class NextPlan {
         if (!down.isEmpty()) {
             rec.why.add(tr("Най-натоварени: " + join(down) + " — −5 %.", "Most loaded: " + join(down) + " — −5%."));
         }
+        k = individual(own, n, rec, k);
         n.st = clamp((int) Math.round(last.st * k), 0, 100);
         if (last.assisted) {
             rec.why.add(0, tr("Последната беше в автоматичен режим („" + last.program + "“) — ръчните настройки от преди нея.",
@@ -325,6 +328,128 @@ public final class NextPlan {
             rec.why.add(tr("Както последния път.", "As last time."));
         }
         return rec;
+    }
+
+    // ================================================================ the client's own profile
+
+    /** {focus csv, cond csv} the client gave in the booking app (widget/XemsClientSync keeps them). */
+    static String[] own(Context c, TrainUser u) {
+        if (c == null || u == null) {
+            return new String[] {"", ""};
+        }
+        SharedPreferences p = c.getSharedPreferences("xems_user_profiles", Context.MODE_PRIVATE);
+        return new String[] {p.getString("focus" + u.id, ""), p.getString("cond" + u.id, "")};
+    }
+
+    static boolean has(String csv, String k) {
+        return ("," + csv + ",").contains("," + k + ",");
+    }
+
+    /** Focus zones → channels (chest 0, abs 1, front thigh 2, arms 4, back 6, glutes 8, back thigh 9). */
+    static int[] focusChannels(String k) {
+        if ("abs".equals(k)) return new int[] {1};
+        if ("glutes".equals(k)) return new int[] {8};
+        if ("legs".equals(k)) return new int[] {2, 9};
+        if ("arms".equals(k)) return new int[] {4};
+        if ("back".equals(k)) return new int[] {6};
+        if ("chest".equals(k)) return new int[] {0};
+        return new int[0];
+    }
+
+    /**
+     * What the client asked for and what to mind, on top of the history: focus zones +5 %, a sore lower back /
+     * neck −15 % on that zone, birth within a year −15 % on the abs, sensitive to current −10 % overall,
+     * stress / poor sleep: no increase today. Returns the new overall factor.
+     */
+    static double individual(String[] own, Snap n, Rec rec, double k) {
+        List<String> fz = new ArrayList<String>();
+        for (String f : own[0].split(",")) {
+            int[] chs = focusChannels(f);
+            boolean any = false;
+            for (int ch : chs) {
+                if (n.ch[ch] > 0 && n.ch[ch] < 100) {
+                    n.ch[ch] = Math.min(100, n.ch[ch] + 5);
+                    any = true;
+                }
+            }
+            if (any) {
+                fz.add(focusName(f));
+            }
+        }
+        if (!fz.isEmpty()) {
+            rec.why.add(tr("Клиентът иска акцент на: " + join(fz) + " — +5 %.", "The client wants more on: " + join(fz) + " — +5%."));
+        }
+        String cond = own[1];
+        if (has(cond, "back") && n.ch[7] > 20) {
+            n.ch[7] = Math.max(20, n.ch[7] - 15);
+            rec.why.add(tr("Болки в кръста — кръстът −15 %.", "Lower back pain — lower back −15%."));
+        }
+        if (has(cond, "neck") && n.ch[5] > 20) {
+            n.ch[5] = Math.max(20, n.ch[5] - 15);
+            rec.why.add(tr("Врат / рамене — трапецът −15 %.", "Neck / shoulders — traps −15%."));
+        }
+        if (has(cond, "postpartum") && n.ch[1] > 20) {
+            n.ch[1] = Math.max(20, n.ch[1] - 15);
+            rec.why.add(tr("Раждане до 1 година — коремът −15 %.", "Birth within a year — abs −15%."));
+        }
+        if (has(cond, "sensitive")) {
+            k *= 0.9;
+            rec.why.add(tr("Чувствителност към тока — −10 %, по-плавно качване.", "Sensitive to current — −10%, raise slowly."));
+        }
+        if (has(cond, "stress") && k > 1.0) {
+            k = 1.0;
+            rec.why.add(tr("Стрес / лош сън — без увеличение днес.", "Stress / poor sleep — no increase today."));
+        }
+        mindNotes(cond, rec);
+        return k;
+    }
+
+    /** First training (no settings yet): only what to tell the trainer. */
+    static void mindOnly(String[] own, Rec rec) {
+        List<String> fz = new ArrayList<String>();
+        for (String f : own[0].split(",")) {
+            if (f.length() > 0) {
+                fz.add(focusName(f));
+            }
+        }
+        if (!fz.isEmpty()) {
+            rec.why.add(tr("Клиентът иска акцент на: " + join(fz) + ".", "The client wants more on: " + join(fz) + "."));
+        }
+        String cond = own[1];
+        List<String> m = new ArrayList<String>();
+        String[][] names = {{"back", "кръст", "lower back"}, {"neck", "врат / рамене", "neck / shoulders"},
+                {"postpartum", "раждане до 1 г.", "birth within a year"}, {"sensitive", "чувствителност към тока", "sensitive to current"},
+                {"stress", "стрес / сън", "stress / sleep"}};
+        for (String[] r : names) {
+            if (has(cond, r[0])) {
+                m.add(XemsLang.isBg() ? r[1] : r[2]);
+            }
+        }
+        if (!m.isEmpty()) {
+            rec.why.add(tr("Да се съобрази: " + join(m) + ".", "Mind: " + join(m) + "."));
+        }
+        mindNotes(cond, rec);
+    }
+
+    private static void mindNotes(String cond, Rec rec) {
+        if (has(cond, "knees")) {
+            rec.why.add(tr("Колене — внимание при клякания и напади.", "Knees — careful with squats and lunges."));
+        }
+        if (has(cond, "injury")) {
+            rec.why.add(tr("Стара травма — попитай къде, преди старта.", "Old injury — ask where before the start."));
+        }
+        if (has(cond, "desk")) {
+            rec.why.add(tr("Седяща работа — повече гръб и седалище, стойка.", "Desk job — more back and glutes, posture."));
+        }
+    }
+
+    static String focusName(String k) {
+        if ("abs".equals(k)) return tr("корем", "abs");
+        if ("glutes".equals(k)) return tr("седалище", "glutes");
+        if ("legs".equals(k)) return tr("бедра", "legs");
+        if ("arms".equals(k)) return tr("ръце", "arms");
+        if ("back".equals(k)) return tr("гръб", "back");
+        return tr("гърди", "chest");
     }
 
     private static int shorter(int work, double f) {

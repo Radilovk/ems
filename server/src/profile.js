@@ -12,6 +12,11 @@ export const FITNESS = ['low', 'mid', 'high'];
 export const CONTRA = ['pregnancy', 'implant', 'cardiovascular', 'circulation', 'hernia', 'cancer', 'bleeding',
   'epilepsy', 'neurological', 'recent_surgery', 'skin_lesion', 'kidney', 'tuberculosis'];
 
+/** Zones the client wants worked more (tablet: +5 % on those channels). */
+export const FOCUS = ['abs', 'glutes', 'legs', 'arms', 'back', 'chest'];
+/** Not obstacles — what to take into account (tablet: gentler zones / start, reasons for the trainer). */
+export const COND = ['back', 'neck', 'knees', 'injury', 'desk', 'stress', 'sensitive', 'postpartum'];
+
 const CODE_ALPHABET = '23456789abcdefghijkmnpqrstuvwxyz';
 
 export function studioCode() {
@@ -26,6 +31,7 @@ export function isStudioCode(s) {
   return typeof s === 'string' && /^[2-9a-km-z]{8}$/.test(s);
 }
 
+const pick = (v, allowed) => (Array.isArray(v) ? [...new Set(v.filter((x) => allowed.includes(x)))] : []);
 const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const int = (v, lo, hi) => (Number.isInteger(v) && v >= lo && v <= hi ? v : null);
 
@@ -46,7 +52,9 @@ export function cleanProfile(p, nowSec) {
     w: int(p.w, 30, 250),
     goal: GOALS.includes(p.goal) ? p.goal : '',
     fit: FITNESS.includes(p.fit) ? p.fit : '',
-    contra: Array.isArray(p.contra) ? [...new Set(p.contra.filter((c) => CONTRA.includes(c)))] : [],
+    focus: pick(p.focus, FOCUS),
+    cond: pick(p.cond, COND),
+    contra: pick(p.contra, CONTRA),
     note: str(p.note, 300),
     t: int(p.t, 0, nowSec + 86400) ?? nowSec,
   };

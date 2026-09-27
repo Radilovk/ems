@@ -308,6 +308,19 @@ public final class XemsClientSync {
         for (int i = 0; pc != null && i < pc.length(); i++) {
             changed |= contra.add(pc.optString(i));
         }
+        // focus zones and what to take into account: the client's own, replaced when newer
+        String focus = csv(p.optJSONArray("focus"));
+        String cond = csv(p.optJSONArray("cond"));
+        String oldFocus = form.getString("focus" + u.id, "");
+        String oldCond = form.getString("cond" + u.id, "");
+        if ((newer || oldFocus.length() == 0) && !focus.equals(oldFocus) && (focus.length() > 0 || newer)) {
+            oldFocus = focus;
+            changed = true;
+        }
+        if ((newer || oldCond.length() == 0) && !cond.equals(oldCond) && (cond.length() > 0 || newer)) {
+            oldCond = cond;
+            changed = true;
+        }
         String note = p.optString("note", "").trim();
         if (!changed && note.equals(form.getString("note" + u.id, ""))) {
             return 0;
@@ -320,11 +333,44 @@ public final class XemsClientSync {
         }
         String g = goal.length() > 0 ? goal : "tone";
         String f = fit.length() > 0 ? fit : "mid";
-        form.edit().putString("u" + u.id, g + "|" + f + "|" + cs).putString("note" + u.id, note).apply();
+        form.edit().putString("u" + u.id, g + "|" + f + "|" + cs).putString("note" + u.id, note)
+                .putString("focus" + u.id, oldFocus).putString("cond" + u.id, oldCond).apply();
         u.remark = XemsLocalUserForm.summaryOf(g, f, contra)
+                + (oldFocus.length() > 0 ? " · " + XemsLang.tr("Фокус: ", "Focus: ") + names(oldFocus, FOCUS_NAMES) : "")
+                + (oldCond.length() > 0 ? " · " + XemsLang.tr("Да се съобрази: ", "Mind: ") + names(oldCond, COND_NAMES) : "")
                 + (note.length() > 0 ? " · " + XemsLang.tr("От клиента: ", "From the client: ") + note : "");
         XemsLocalStore.saveUserQuiet(u, true);
         return created ? 1 : 2;
+    }
+
+    static final String[][] FOCUS_NAMES = {{"abs", "корем", "abs"}, {"glutes", "седалище", "glutes"},
+            {"legs", "бедра", "legs"}, {"arms", "ръце", "arms"}, {"back", "гръб", "back"}, {"chest", "гърди", "chest"}};
+    static final String[][] COND_NAMES = {{"back", "кръст", "lower back"}, {"neck", "врат / рамене", "neck / shoulders"},
+            {"knees", "колене", "knees"}, {"injury", "стара травма", "old injury"}, {"desk", "седяща работа", "desk job"},
+            {"stress", "стрес / сън", "stress / sleep"}, {"sensitive", "чувствителност към тока", "sensitive to current"},
+            {"postpartum", "раждане до 1 г.", "birth within a year"}};
+
+    static String csv(JSONArray a) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; a != null && i < a.length(); i++) {
+            String v = a.optString(i, "").replaceAll("[^a-z_]", "");
+            if (v.length() > 0) {
+                b.append(b.length() > 0 ? "," : "").append(v);
+            }
+        }
+        return b.toString();
+    }
+
+    static String names(String csv, String[][] table) {
+        StringBuilder b = new StringBuilder();
+        for (String k : csv.split(",")) {
+            for (String[] row : table) {
+                if (row[0].equals(k)) {
+                    b.append(b.length() > 0 ? ", " : "").append(XemsLang.isBg() ? row[1] : row[2]);
+                }
+            }
+        }
+        return b.toString();
     }
 
     static TrainUser find(String email, String phone) {

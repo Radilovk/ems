@@ -21,6 +21,11 @@ describe('cleanProfile', () => {
     assert.deepEqual(c.contra, ['implant']);
     assert.equal(c.by, 1990);
   });
+  it('keeps focus zones and conditions from the known lists', () => {
+    const c = cleanProfile(p({ focus: ['abs', 'x', 'abs'], cond: ['back', 'nope'] }), NOW);
+    assert.deepEqual(c.focus, ['abs']);
+    assert.deepEqual(c.cond, ['back']);
+  });
   it('needs consent, a name and a contact', () => {
     assert.equal(cleanProfile(p({ consent: false }), NOW), 'consent');
     assert.equal(cleanProfile(p({ name: 'M' }), NOW), 'name');

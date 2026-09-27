@@ -44,8 +44,15 @@ public final class ReportScreen {
             w.loadUrl(PAGE);
             d.setContentView(w, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
-            d.setOnDismissListener(new Cleanup(w));
+            // The host is locked to landscape; the report may also be read upright (portrait):
+            // it follows the tablet's rotation while open, the page's rotate button forces either.
+            int before = a.getRequestedOrientation();
+            d.setOnDismissListener(new Cleanup(w, a, before));
             d.show();
+            try {
+                a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+            } catch (Throwable ignored) {
+            }
         } catch (Throwable t) {
             WearableBleDiagLog.log("report", "open failed: " + t);
         }
@@ -53,13 +60,21 @@ public final class ReportScreen {
 
     static final class Cleanup implements DialogInterface.OnDismissListener {
         final WebView w;
+        final Activity a;
+        final int orientation;
 
-        Cleanup(WebView w) {
+        Cleanup(WebView w, Activity a, int orientation) {
             this.w = w;
+            this.a = a;
+            this.orientation = orientation;
         }
 
         @Override
         public void onDismiss(DialogInterface dialog) {
+            try {
+                a.setRequestedOrientation(orientation);
+            } catch (Throwable ignored) {
+            }
             try {
                 w.removeJavascriptInterface("XemsReport");
                 w.destroy();

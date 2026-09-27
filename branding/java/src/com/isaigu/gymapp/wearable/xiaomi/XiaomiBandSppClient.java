@@ -18,8 +18,11 @@ import java.util.Random;
  *
  * Flow: open RFCOMM → v1 version request → (reply ≥ 2 → v2 session config) → auth 1/26, 1/27
  * → clock, device info, user profile, device state, battery → realtime START 8/45 → 8/47 events.
- * Watch: no first event in 12 s → one START retry, then reconnect; stream silent 15 s →
- * reconnect; device state + battery polled every 30 s (worn / not worn, battery %).
+ * Watch: device state + battery polled every 30 s (worn / not worn, battery %); that reply keeps
+ * the link provably alive. No bytes at all for 75 s → the link is dead → reconnect. A silent heart
+ * rate stream alone never drops a live link: START is sent again every 15 s; only after 3 such
+ * restarts, and only while the band app is not in use as the remote, is the link rebuilt.
+ * Link lost while a module uses it → reconnect for as long as it is wanted, back-off 2 → 15 s.
  * Everything runs on the main thread; the port posts its events here.
  */
 public final class XiaomiBandSppClient implements XiaomiBandLink {
@@ -32,6 +35,13 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     private static final long STATUS_POLL_MS = 30000L;
     private static final long START_DELAY_MS = 400L;
     private static final long RECONNECT_MS = 2000L;
+    private static final long RECONNECT_MAX_MS = 15000L;
+    /** No packet at all for this long (status is polled every 30 s): the link is dead. */
+    private static final long LINK_DEAD_MS = 75000L;
+    /** HR stream restarts on a live link before it may be rebuilt. */
+    private static final int SOFT_RESTARTS = 3;
+    /** The band app spoke this recently: it is the remote — never tear the link down for HR. */
+    private static final long REMOTE_ACTIVE_MS = 120000L;
     private static final String RAW_FILE = "band-raw.csv";
     private static final String REALTIME_FILE = "band-realtime.csv";
 
@@ -71,6 +81,9 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     private boolean realtimeStarted;
     private boolean userDisconnect;
     private int startRetries;
+    /** Reconnect attempts since the link was last up (0 = a fresh connect by a module). */
+    private int reconnectAttempt;
+    private long lastRxMs;
 
     private String state = "idle";
     private int hrEvents;
@@ -199,12 +212,19 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
 
     @Override
     public void connect(Context context, String macAddress, String authKeyHex) {
+        reconnectAttempt = 0;
+        open(context, macAddress, authKeyHex, false);
+    }
+
+    private void open(Context context, String macAddress, String authKeyHex, boolean retry) {
         if (context == null) {
             return;
         }
         appContext = context.getApplicationContext() != null ? context.getApplicationContext() : context;
         WearableBleDiagLog.init(appContext);
-        WearableBleDiagLog.clear();
+        if (!retry) {
+            WearableBleDiagLog.clear();     // a retry keeps the log: it holds why the link dropped
+        }
         log("build", BUILD_TAG);
         String mark = "# session " + System.currentTimeMillis() + " " + BUILD_TAG;
         WearableBleDiagLog.appendRaw(RAW_FILE, mark);
@@ -239,6 +259,10 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         }
         try {
             if (!adapter.isEnabled()) {
+                if (retry) {
+                    dropped("no_bluetooth");        // Bluetooth off for a moment: keep trying
+                    return;
+                }
                 setState("no_bluetooth");
                 return;
             }
@@ -257,6 +281,11 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             setState("bad_mac");
         } catch (Throwable t) {
             log("ERR:connect", String.valueOf(t));
+            port = null;
+            if (retry) {
+                dropped("connect_fail");
+                return;
+            }
             setState("connect_fail");
         }
     }
@@ -314,6 +343,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         authenticated = false;
         realtimeStarted = false;
         startRetries = 0;
+        lastRxMs = 0L;
         hrEvents = 0;
         packetsIn = 0;
         packetsOut = 0;
@@ -383,10 +413,12 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         if (wasAuth) {
             notifyConnected(false);
         }
-        if (wanted && appContext != null) {
+        if (wanted && appContext != null && authKey != null) {
             setState("reconnecting");
+            long delay = Math.min(RECONNECT_MAX_MS, RECONNECT_MS << Math.min(3, reconnectAttempt));
+            log("spp", "reconnect #" + (reconnectAttempt + 1) + " in " + delay + " ms");
             main.removeCallbacks(reconnect);
-            main.postDelayed(reconnect, RECONNECT_MS);
+            main.postDelayed(reconnect, delay);
             return;
         }
         setState(failState);
@@ -414,6 +446,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
                 continue;
             }
             packetsIn++;
+            lastRxMs = System.currentTimeMillis();
             onPacket(pk);
         }
     }
@@ -548,8 +581,12 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     void onAuthTimeout() {
         if (!authenticated && port != null) {
             log("auth", "timeout");
-            userDisconnect = true;
             closePort();
+            if (reconnectAttempt > 0) {
+                dropped("auth_timeout");        // the link was up before: the band is busy, try again
+                return;
+            }
+            userDisconnect = true;
             resetSession();
             setState("auth_timeout");
         }
@@ -605,6 +642,8 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
                 return;
             }
             authenticated = true;
+            reconnectAttempt = 0;
+            lastRxMs = System.currentTimeMillis();
             main.removeCallbacks(authTimeout);
             setState("authenticated");
             notifyConnected(true);
@@ -677,6 +716,12 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             return;
         }
         long now = System.currentTimeMillis();
+        if (lastRxMs > 0L && now - lastRxMs > LINK_DEAD_MS) {
+            log("spp", "no bytes for " + (now - lastRxMs) / 1000L + " s — link dead, reconnect");
+            closePort();
+            dropped("disconnected");
+            return;
+        }
         if (!realtimeStarted) {
             // no heart rate wanted: only keep the band status fresh
             if (now - lastStatusPollMs > STATUS_POLL_MS) {
@@ -685,21 +730,22 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             main.postDelayed(watch, WATCH_MS);
             return;
         }
-        if (lastEventMs == 0L && now - streamStartMs > FIRST_EVENT_MS) {
-            if (startRetries < 1) {
-                startRetries++;
-                log("health", "no first 8/47 — START once more");
+        long since = lastEventMs > 0L ? lastEventMs : streamStartMs;
+        long limit = lastEventMs > 0L ? STALL_MS : FIRST_EVENT_MS;
+        if (now - since > limit) {
+            if (startRetries < SOFT_RESTARTS || !mayRebuildForHr(now)) {
+                // The link itself answers (status poll): restart only the HR stream, keep the link.
+                startRetries = Math.min(startRetries + 1, SOFT_RESTARTS);
+                log("health", (lastEventMs > 0L ? "stream stalled" : "no first 8/47")
+                        + " — START again (" + startRetries + ")");
+                send(XiaomiBandMessages.request(XiaomiBandMessages.T_HEALTH, XiaomiBandMessages.HEALTH_RT_STOP));
                 realtimeStarted = false;
+                lastEventMs = 0L;
                 onStartRealtimeDue();
+                pollStatus();
                 return;
             }
-            log("health", "no 8/47 — reconnect");
-            closePort();
-            dropped("disconnected");
-            return;
-        }
-        if (lastEventMs > 0L && now - lastEventMs > STALL_MS) {
-            log("health", "stream stalled — reconnect");
+            log("health", "no heart rate after " + SOFT_RESTARTS + " restarts — rebuild the link");
             closePort();
             dropped("disconnected");
             return;
@@ -710,13 +756,26 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         main.postDelayed(watch, WATCH_MS);
     }
 
+    /**
+     * A stuck HR stream may cost a reconnect only when nobody feels it: never while the band is
+     * off the wrist (no HR is expected) or while its app is used as the remote.
+     */
+    private boolean mayRebuildForHr(long now) {
+        if (XiaomiBandStatus.isKnownNotWorn()) {
+            return false;
+        }
+        long app = XiaomiBandAppLink.getLastMessageMs();
+        return app <= 0L || now - app > REMOTE_ACTIVE_MS;
+    }
+
     void onReconnectTick() {
         if (userDisconnect || !(keepLink || realtimeWanted) || appContext == null || authKey == null) {
             return;
         }
-        log("spp", "reconnecting");
+        reconnectAttempt++;
+        log("spp", "reconnecting (#" + reconnectAttempt + ")");
         boolean wanted = realtimeWanted;
-        connect(appContext, mac, hex(authKey));
+        open(appContext, mac, hex(authKey), true);
         realtimeWanted = wanted;
     }
 
@@ -733,6 +792,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             firstEventMs = now;
         }
         eventCount++;
+        startRetries = 0;
         int hr = Math.max(0, XiaomiBandMessages.intField(rt, 4));
         lastSteps = XiaomiBandMessages.intField(rt, 1);
         lastCalories = XiaomiBandMessages.intField(rt, 2);

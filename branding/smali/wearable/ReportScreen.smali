@@ -51,7 +51,7 @@
 
     if-nez v2, :cond_7
 
-    .line 52
+    .line 59
     :cond_6
     :goto_6
     return-void
@@ -74,7 +74,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_80
+    if-eqz v2, :cond_71
 
     const v2, -0xf4f2ef
 
@@ -150,25 +150,50 @@
 
     invoke-virtual {v4, v8, v2}, Landroid/app/Dialog;->setContentView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 47
-    new-instance v2, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;
+    .line 49
+    invoke-virtual {p0}, Landroid/app/Activity;->getRequestedOrientation()I
 
-    invoke-direct {v2, v8}, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;-><init>(Landroid/webkit/WebView;)V
+    move-result v2
 
-    invoke-virtual {v4, v2}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
+    .line 50
+    new-instance v3, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;
 
-    .line 48
+    invoke-direct {v3, v8, p0, v2}, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;-><init>(Landroid/webkit/WebView;Landroid/app/Activity;I)V
+
+    invoke-virtual {v4, v3}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
+
+    .line 51
     invoke-virtual {v4}, Landroid/app/Dialog;->show()V
-    :try_end_65
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_65} :catch_66
+    :try_end_69
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_69} :catch_75
+
+    .line 53
+    const/16 v2, 0xd
+
+    :try_start_6b
+    invoke-virtual {p0, v2}, Landroid/app/Activity;->setRequestedOrientation(I)V
+    :try_end_6e
+    .catch Ljava/lang/Throwable; {:try_start_6b .. :try_end_6e} :catch_6f
 
     goto :goto_6
 
-    .line 49
-    :catch_66
+    .line 54
+    :catch_6f
     move-exception v2
 
-    .line 50
+    goto :goto_6
+
+    .line 34
+    :cond_71
+    const v2, -0x110e0b
+
+    goto :goto_1d
+
+    .line 56
+    :catch_75
+    move-exception v2
+
+    .line 57
     const-string v3, "report"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -191,11 +216,5 @@
 
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_6
-
-    .line 34
-    :cond_80
-    const v2, -0x110e0b
-
-    goto :goto_1d
+    goto/16 :goto_6
 .end method

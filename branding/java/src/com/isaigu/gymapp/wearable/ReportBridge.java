@@ -83,6 +83,36 @@ final class ReportBridge {
     }
 
     /** The whole report through the system print dialog ("Save as PDF" or a printer). */
+    /** Turn the report upright / back: returns "portrait" or "landscape" (what it turns to). */
+    @JavascriptInterface
+    public String rotate() {
+        boolean portrait = a.getResources().getConfiguration().orientation
+                != android.content.res.Configuration.ORIENTATION_PORTRAIT;
+        a.runOnUiThread(new Rotate(a, portrait));
+        return portrait ? "portrait" : "landscape";
+    }
+
+    static final class Rotate implements Runnable {
+        final Activity a;
+        final boolean portrait;
+
+        Rotate(Activity a, boolean portrait) {
+            this.a = a;
+            this.portrait = portrait;
+        }
+
+        @Override
+        public void run() {
+            try {
+                a.setRequestedOrientation(portrait
+                        ? android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+                        : android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("report", "rotate: " + t);
+            }
+        }
+    }
+
     @JavascriptInterface
     public void printPdf(String title) {
         a.runOnUiThread(new Print(a, web, title));

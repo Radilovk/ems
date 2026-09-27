@@ -18,21 +18,31 @@
 
 
 # instance fields
+.field final a:Landroid/app/Activity;
+
+.field final orientation:I
+
 .field final w:Landroid/webkit/WebView;
 
 
 # direct methods
-.method constructor <init>(Landroid/webkit/WebView;)V
-    .registers 2
+.method constructor <init>(Landroid/webkit/WebView;Landroid/app/Activity;I)V
+    .registers 4
 
     .prologue
-    .line 57
+    .line 66
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 58
+    .line 67
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;->w:Landroid/webkit/WebView;
 
-    .line 59
+    .line 68
+    iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;->a:Landroid/app/Activity;
+
+    .line 69
+    iput p3, p0, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;->orientation:I
+
+    .line 70
     return-void
 .end method
 
@@ -42,28 +52,45 @@
     .registers 4
 
     .prologue
-    .line 64
+    .line 75
     :try_start_0
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;->a:Landroid/app/Activity;
+
+    iget v1, p0, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;->orientation:I
+
+    invoke-virtual {v0, v1}, Landroid/app/Activity;->setRequestedOrientation(I)V
+    :try_end_7
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_16
+
+    .line 79
+    :goto_7
+    :try_start_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;->w:Landroid/webkit/WebView;
 
     const-string v1, "XemsReport"
 
     invoke-virtual {v0, v1}, Landroid/webkit/WebView;->removeJavascriptInterface(Ljava/lang/String;)V
 
-    .line 65
+    .line 80
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportScreen$Cleanup;->w:Landroid/webkit/WebView;
 
     invoke-virtual {v0}, Landroid/webkit/WebView;->destroy()V
-    :try_end_c
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
+    :try_end_13
+    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_13} :catch_14
 
-    .line 68
-    :goto_c
+    .line 83
+    :goto_13
     return-void
 
-    .line 66
-    :catch_d
+    .line 81
+    :catch_14
     move-exception v0
 
-    goto :goto_c
+    goto :goto_13
+
+    .line 76
+    :catch_16
+    move-exception v0
+
+    goto :goto_7
 .end method

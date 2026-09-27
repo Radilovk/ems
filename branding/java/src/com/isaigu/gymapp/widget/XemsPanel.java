@@ -86,6 +86,14 @@ public final class XemsPanel {
         }
         LinearLayout sidebar = (LinearLayout) side;
         sidebarRef = sidebar;
+        try {
+            // Training report: one sample per second of every slot (wearable/SessionRecorder).
+            Class.forName("com.isaigu.gymapp.wearable.SessionRecorder")
+                    .getMethod("ensure", android.content.Context.class)
+                    .invoke(null, sidebar.getContext());
+        } catch (Throwable t) {
+            XemsGuard.report("SessionRecorder.ensure", t);
+        }
         panelRootRef = panelRoot;
         Context c = sidebar.getContext();
         XemsUi.init(c);

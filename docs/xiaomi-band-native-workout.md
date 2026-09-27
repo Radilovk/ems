@@ -20,7 +20,7 @@ Field numbers: Gadgetbridge `xiaomi.proto` (`Health` = command type 8).
 | Every 1 s while running | 8/49 | unknown | phone sport data (duration, HR, pace…) — phone-led data, maybe optional |
 | After start | 8/52 | unknown | per-sport records (best distance/duration) — optional |
 
-`status` on the wire = Mi Fitness `sprotState` in `[SportWearSender]` (0 start, 1 pause→ see below).
+`status` on the wire = Mi Fitness `sprotState` in `[SportWearSender]`.
 Log mapping, verified on all three sessions:
 
 ```

@@ -14,8 +14,8 @@ Field numbers: Gadgetbridge `xiaomi.proto` (`Health` = command type 8).
 |---|---|---|---|
 | Start, step 1 | 8/30 | `workoutOpenWatch` = 25 | `sport=1:<type>`, `unknown2=2:2` (sport version 2). Band answers 8/30 `workoutOpenReply` = 26 (`0,2,10` = ok) |
 | Start, step 2 | 8/26 | `workoutStatusWatch` = 20 | `timestamp=1` (unix s), `sport=3`, `status=4:0` |
-| Pause | 8/26 | 20 | same, `status=2` |
-| Resume | 8/26 | 20 | same, `status=1` |
+| Pause | 8/26 | 20 | same, `status=1` |
+| Resume | 8/26 | 20 | same, `status=2` |
 | Finish | 8/26 | 20 | same, `status=3` |
 | Every 1 s while running | 8/49 | unknown | phone sport data (duration, HR, pace…) — phone-led data, maybe optional |
 | After start | 8/52 | unknown | per-sport records (best distance/duration) — optional |

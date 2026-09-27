@@ -29,6 +29,7 @@
 .method constructor <init>(Landroid/content/Context;Ljava/io/File;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
     .registers 4
 
+    .prologue
     .line 297
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -50,6 +51,7 @@
 .method public run()V
     .registers 4
 
+    .prologue
     .line 306
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->c:Landroid/content/Context;
@@ -67,9 +69,13 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
+    move-result-object v1
+
     const-string v2, ".updateFileProvider"
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
 
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -107,7 +113,7 @@
     .line 312
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    if-eqz v0, :cond_42
+    if-eqz v0, :cond_44
 
     .line 313
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
@@ -117,31 +123,31 @@
     const-string v2, "installing"
 
     invoke-interface {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;->done(ZLjava/lang/String;)V
-    :try_end_42
-    .catchall {:try_start_0 .. :try_end_42} :catchall_43
+    :try_end_44
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_44} :catch_45
 
-    .line 319
-    :cond_42
-    goto :goto_4e
+    .line 320
+    :cond_44
+    :goto_44
+    return-void
 
     .line 315
-    :catchall_43
+    :catch_45
     move-exception v0
 
     .line 316
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    if-eqz v0, :cond_4e
+    if-eqz v0, :cond_44
 
     .line 317
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
+
     const/4 v1, 0x0
 
     const-string v2, "install_failed"
 
     invoke-interface {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;->done(ZLjava/lang/String;)V
 
-    .line 320
-    :cond_4e
-    :goto_4e
-    return-void
+    goto :goto_44
 .end method

@@ -1,0 +1,358 @@
+<title>XEMS Картон</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* One deliberate look: the XEMS app's own dark ground and impulse red, on any host background. */
+:root{color-scheme:dark;
+  --bg:#0A0C10;--surface:#12161D;--surface2:#171C25;--line:#232A35;
+  --text:#EEF1F6;--muted:#9AA3B2;--hint:#6B7486;
+  --red:#FF4D5E;--red-soft:rgba(255,77,94,.14);--blue:#4F9DFF;--green:#34D399;--green-soft:rgba(52,211,153,.14);--amber:#FACC15;
+  --f-disp:"Unbounded","Roboto Condensed",system-ui,sans-serif;--f-body:"Manrope",Roboto,system-ui,sans-serif}
+html{background:var(--bg)}
+body{background:radial-gradient(900px 520px at 85% -120px,rgba(255,77,94,.16),transparent 70%),radial-gradient(700px 480px at -10% 20%,rgba(79,157,255,.10),transparent 70%),var(--bg);
+  color:var(--text);font:15px/1.5 var(--f-body);padding-inline:16px;padding-block:18px 48px;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+.wrap{max-width:600px;margin:0 auto;display:grid;gap:28px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.eyebrow{font:600 11px/1.2 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--hint)}
+.num{font-family:var(--f-disp);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:8px}
+
+/* top */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font:800 15px var(--f-disp);letter-spacing:.06em}
+.brand i{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px var(--red-soft)}
+.brand small{font:500 12px var(--f-body);letter-spacing:0;color:var(--muted)}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;border:1px solid var(--line);font:600 13px var(--f-body);color:var(--text);background:var(--surface)}
+.btn:hover{border-color:var(--muted)}
+
+/* hero */
+.hero{display:grid;gap:18px}
+.hero h1{font:700 clamp(28px,7.4vw,40px)/1.08 var(--f-disp);letter-spacing:-.02em}
+.hero h1 em{font-style:normal;color:var(--red)}
+.lede{color:var(--muted);max-width:52ch;margin:0}
+.pulse{position:relative;border-radius:22px;background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);overflow:hidden;padding:22px 20px 78px}
+.pulse canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.pulse .in{position:relative;display:grid;gap:4px}
+.pulse .big{font:800 clamp(44px,13vw,68px)/1 var(--f-disp);letter-spacing:-.03em}
+.pulse .cap{color:var(--muted);font-size:14px;max-width:34ch}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.trio div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 12px 10px;display:grid;gap:2px;min-width:0}
+.trio .num{font-size:22px;font-weight:700}
+.trio small{color:var(--hint);font-size:12px;line-height:1.3}
+
+/* sections */
+section{display:grid;gap:14px}
+.sh{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.sh h2{font:700 19px/1.2 var(--f-disp);letter-spacing:-.01em}
+.sh span{color:var(--hint);font-size:13px}
+
+/* changes */
+.chg{display:grid;gap:10px}
+.c{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.c .k{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.c .d{font:700 26px/1 var(--f-disp)}
+.c .d.up{color:var(--green)} .c .d.flat{color:var(--text)}
+.c .t{font-weight:600}
+.c p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.c svg{width:100%;height:48px;display:block}
+
+/* body */
+.bodyc{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;display:grid;gap:12px}
+.figs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.figs figure{margin:0;display:grid;justify-items:center;gap:4px}
+.figs svg{width:100%;max-width:220px;height:auto;display:block;touch-action:pan-y;user-select:none}
+.figs figcaption{font:600 10px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--hint)}
+.zone{cursor:pointer;transition:fill .35s ease,opacity .35s ease,stroke-width .2s ease;stroke:#fff;stroke-width:0;stroke-opacity:.85}
+.figs.focus .zone{opacity:.35}
+.figs.focus .zone.on{opacity:1;stroke-width:1.6}
+.zinfo{display:grid;gap:6px;padding:12px 14px;border-radius:14px;background:var(--surface2)}
+.zinfo b{font:700 17px var(--f-disp)}
+.zinfo .r{color:var(--muted);font-size:13px}
+.zinfo .m{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font:700 20px var(--f-disp)}
+.zbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.zbar i{display:block;height:100%;border-radius:3px;transition:width .4s ease,background .4s ease}
+.legend{display:flex;align-items:center;gap:8px;color:var(--hint);font-size:12px}
+.legend i{flex:0 0 90px;height:6px;border-radius:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{all:unset;cursor:pointer;padding:6px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.chip[aria-pressed="true"]{color:var(--text);border-color:var(--muted)}
+
+/* rhythm */
+.rhythm{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.streak{display:grid;justify-items:center;gap:2px;min-width:84px}
+.streak .num{font-size:44px;font-weight:800;line-height:1;color:var(--amber)}
+.streak small{color:var(--muted);font-size:12px;text-align:center;line-height:1.25}
+.weeks svg{width:100%;height:64px;display:block}
+.weeks p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+/* badges */
+.next{display:grid;gap:10px;padding:16px;border-radius:18px;background:linear-gradient(135deg,rgba(255,77,94,.16),rgba(79,157,255,.08));border:1px solid rgba(255,77,94,.35)}
+.next .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.next b{font:700 17px var(--f-disp)}
+.next .left{color:var(--muted);font-size:13px}
+.pbar{height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--red),var(--amber))}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.bd{all:unset;cursor:pointer;display:grid;justify-items:center;gap:6px;padding:12px 6px 10px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:center}
+.bd svg{width:54px;height:60px}
+.bd span{font-size:12px;line-height:1.25;color:var(--muted)}
+.bd.got span{color:var(--text);font-weight:600}
+.bd[aria-expanded="true"]{border-color:var(--muted)}
+.bdinfo{padding:12px 14px;border-radius:14px;background:var(--surface2);color:var(--muted);font-size:13px}
+.bdinfo b{color:var(--text)}
+
+/* last */
+.last{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.last .ring{width:78px;height:78px}
+.last .t{font-weight:700}
+.last .s{color:var(--muted);font-size:13px}
+.kv{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+.kv div{display:grid}
+.kv b{font:700 17px var(--f-disp)}
+.kv small{color:var(--hint);font-size:11.5px}
+
+footer{color:var(--hint);font-size:12px;display:grid;gap:6px;border-top:1px solid var(--line);padding-top:16px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px}
+@media (min-width:720px){.wrap{gap:34px}.hero h1{font-size:44px}}
+@media (max-width:380px){.trio .num{font-size:19px}.c{grid-template-columns:minmax(0,1fr) 84px}}
+@media (prefers-reduced-motion:reduce){.zone,.zbar i{transition:none}}
+</style>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <div class="brand"><i aria-hidden="true"></i><span>XEMS</span><small id="studio"></small></div>
+    <button class="btn" id="shareBtn" type="button">Копирай линка</button>
+  </header>
+
+  <div class="hero">
+    <div class="eyebrow" id="since"></div>
+    <h1 id="headline"></h1>
+    <p class="lede" id="lede"></p>
+    <div class="pulse" aria-label="Мускулни свивания досега">
+      <canvas id="wave" aria-hidden="true"></canvas>
+      <div class="in">
+        <div class="eyebrow" style="color:var(--red)">Досега</div>
+        <div class="big num" id="contr">0</div>
+        <div class="cap" id="contrCap"></div>
+      </div>
+    </div>
+    <div class="trio">
+      <div><span class="num" id="nT">0</span><small>тренировки</small></div>
+      <div><span class="num" id="nH">0</span><small>часа в костюма</small></div>
+      <div><span class="num" id="nK">0</span><small id="nKc">kcal</small></div>
+    </div>
+  </div>
+
+  <section id="changeSec">
+    <div class="sh"><h2>Какво се промени</h2><span id="chgSpan"></span></div>
+    <div class="chg" id="changes"></div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Какво работи тялото ти</h2><span>докосни мускул</span></div>
+    <div class="bodyc">
+      <div class="figs" id="figs">
+        <figure><svg id="figF" viewBox="0 0 200 420" role="img" aria-label="Отпред"></svg><figcaption>Отпред</figcaption></figure>
+        <figure><svg id="figB" viewBox="0 0 200 420" role="img" aria-label="Отзад"></svg><figcaption>Отзад</figcaption></figure>
+      </div>
+      <div class="zinfo" id="zinfo" aria-live="polite"></div>
+      <div class="chips" id="zchips" role="group" aria-label="Мускули"></div>
+      <div class="legend"><span>по-малко</span><i id="legBar"></i><span>повече работа</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Ритъм</h2><span>последните 12 седмици</span></div>
+    <div class="rhythm">
+      <div class="streak"><span class="num" id="streak">0</span><small id="streakCap"></small></div>
+      <div class="weeks"><svg id="weeks" viewBox="0 0 300 64" preserveAspectRatio="none" aria-label="Тренировки по седмици"></svg><p id="rhythmTxt"></p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Значки</h2><span id="bdCount"></span></div>
+    <div class="next" id="next"></div>
+    <div class="badges" id="badges"></div>
+    <div class="bdinfo" id="bdinfo" hidden></div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Последна тренировка</h2><span id="lastWhen"></span></div>
+    <div class="last" id="last"></div>
+  </section>
+
+  <footer>
+    <div id="updated"></div>
+    <div>Калориите, ефективността и броят свивания са оценки по модела на XEMS от записа на всяка тренировка, не лабораторно измерване.</div>
+  </footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script id="card-data" type="application/json">__XEMS_CARD_DATA__</script>
+<script>
+(function(){
+"use strict";
+// ---------- data (the app / server put the client's numbers here; opened alone it shows a sample)
+let D=null;try{const t=document.getElementById("card-data").textContent.trim();if(t&&t.charAt(0)==="{")D=JSON.parse(t);}catch(e){}
+const SAMPLE=!D;
+if(!D)D=sample();
+const EN=D.lang==="en";const tr=(bg,en)=>EN?en:bg;
+const $=s=>document.querySelector(s);
+const nf=new Intl.NumberFormat(EN?"en-GB":"bg-BG");
+const fmt=v=>nf.format(Math.round(v));
+const MON=EN?["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]:["яну","фев","мар","апр","май","юни","юли","авг","сеп","окт","ное","дек"];
+const MONL=EN?["January","February","March","April","May","June","July","August","September","October","November","December"]:["януари","февруари","март","април","май","юни","юли","август","септември","октомври","ноември","декември"];
+const day=ms=>{const d=new Date(ms);return d.getDate()+" "+MON[d.getMonth()];};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CH=EN?["Chest","Abs","Front thigh","Calves","Arms","Traps","Back","Lower back","Glutes","Back thigh"]:["Гърди","Корем","Предно бедро","Прасци","Ръце","Трапец","Гръб","Кръст","Седалище","Задно бедро"];
+if(EN){document.documentElement.lang="en";const map={"Копирай линка":"Copy link","Досега":"So far","тренировки":"trainings","часа в костюма":"hours in the suit","Какво се промени":"What changed","Какво работи тялото ти":"What your body worked","докосни мускул":"tap a muscle","Отпред":"Front","Отзад":"Back","по-малко":"less","повече работа":"more work","Ритъм":"Rhythm","последните 12 седмици":"last 12 weeks","Значки":"Badges","Последна тренировка":"Last training","Калориите, ефективността и броят свивания са оценки по модела на XEMS от записа на всяка тренировка, не лабораторно измерване.":"Calories, efficiency and the contraction count are XEMS model estimates from each recorded training, not a lab measurement."};
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);const ns=[];while(w.nextNode())ns.push(w.currentNode);ns.forEach(n=>{const t=n.nodeValue.trim();if(map[t])n.nodeValue=n.nodeValue.replace(t,map[t]);});}
+
+// ---------- derived numbers
+const effs=D.eff.map(x=>x[1]);
+const avg=a=>a.length?a.reduce((q,v)=>q+v,0)/a.length:0;
+const firstLast=(arr,k)=>{const v=arr.filter(x=>x!=null&&x>0);if(v.length<4)return null;const kk=Math.min(k,Math.floor(v.length/2));return[avg(v.slice(0,kk)),avg(v.slice(-kk))];};
+const ma=firstLast(D.ma||[],3),ef=firstLast(effs,3),rc=firstLast(D.rec||[],3);
+const strengthPct=ma?Math.round((ma[1]-ma[0])/ma[0]*100):0;
+const hours=D.sec/3600;
+
+// ---------- hero
+$("#studio").textContent=D.studio||"";
+$("#since").textContent=tr("Твоят картон · от ","Your card · since ")+new Date(D.since).getDate()+" "+MONL[new Date(D.since).getMonth()]+" "+new Date(D.since).getFullYear();
+let head,lede;
+if(D.n<3){head=tr(`${D.name}, <em>началото</em> е поставено.`,`${D.name}, the <em>start</em> is made.`);lede=tr("Първите тренировки учат мускулите на импулса. Истинският напредък се вижда след 4–6 посещения.","The first trainings teach the muscles the impulse. Real progress shows after 4–6 visits.");}
+else if(strengthPct>=5){head=tr(`${D.name}, силата ти <em>расте</em>.`,`${D.name}, your strength is <em>growing</em>.`);lede=tr(`Костюмът вече работи с ${strengthPct} % повече сила, отколкото в началото. Мускулите ти понасят и изпълняват повече.`,`The suit now works with ${strengthPct} % more strength than at the start. Your muscles take and do more.`);}
+else if(D.streak>=3){head=tr(`${D.name}, <em>${D.streak} седмици</em> в ритъм.`,`${D.name}, <em>${D.streak} weeks</em> in rhythm.`);lede=tr("Редовността е това, което превръща тренировките в резултат. Продължавай така.","Regularity is what turns trainings into results. Keep it going.");}
+else{head=tr(`${D.name}, <em>продължаваме</em>.`,`${D.name}, <em>let's keep going</em>.`);lede=tr("Всяка тренировка се записва секунда по секунда. Ето какво е свършило тялото ти досега.","Every training is recorded second by second. Here is what your body has done so far.");}
+$("#headline").innerHTML=head;$("#lede").textContent=lede;
+$("#contrCap").textContent=tr(`пълни мускулни свивания в ${D.n} тренировки. При всяко работят едновременно до 90 % от мускулите.`,`full muscle contractions in ${D.n} trainings. Each one works up to 90 % of the muscles at once.`);
+const choc=D.kcal/535;
+$("#nKc").textContent=choc>=1?tr(`kcal ≈ ${fmt(choc)} шоколада`,`kcal ≈ ${fmt(choc)} chocolate bars`):"kcal";
+count($("#contr"),D.contr,1400);count($("#nT"),D.n,900);count($("#nK"),D.kcal,1100);
+$("#nH").textContent=hours<10?hours.toFixed(1).replace(".",EN?".":","):fmt(hours);
+function count(el,to,ms){el.textContent=fmt(to);if(reduce||to<2)return;const t0=performance.now();const step=t=>{const k=clamp((t-t0)/ms,0,1);const e=1-Math.pow(1-k,3);el.textContent=fmt(to*e);if(k<1)requestAnimationFrame(step);};el.textContent="0";requestAnimationFrame(step);}
+
+// impulse wave: bursts of work and rest, the rhythm of an EMS training
+(function wave(){const c=$("#wave"),x=c.getContext("2d");let W=0,H=0,dpr=1;
+  const size=()=>{dpr=Math.min(2,devicePixelRatio||1);W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);};
+  const draw=t=>{x.clearRect(0,0,W,H);const base=H-16,per=150,sp=t*.05;
+    for(let layer=0;layer<2;layer++){x.beginPath();for(let px=0;px<=W;px+=2){const u=(px+sp*(layer?0.6:1))%per;const on=u<per*.55;const env=on?Math.sin(Math.PI*u/(per*.55)):0;
+        const y=base-(on?env*46*(layer?.55:1)*Math.abs(Math.sin(px*(layer?.7:1.3)+t*.02)):Math.sin(px*.2+t*.01)*1.2);px?x.lineTo(px,y):x.moveTo(px,y);}
+      x.strokeStyle=layer?"rgba(79,157,255,.35)":"rgba(255,77,94,.55)";x.lineWidth=layer?1:1.4;x.stroke();}
+    if(!reduce)requestAnimationFrame(draw);};
+  size();addEventListener("resize",size);requestAnimationFrame(draw);})();
+
+// ---------- what changed
+const spark=(vals,col)=>{const v=vals.filter(x=>x!=null&&x>0);if(v.length<2)return"";const lo=Math.min(...v),hi=Math.max(...v),r=hi-lo||1;const X=i=>4+i*(104/(v.length-1)),Y=q=>42-(q-lo)/r*34;
+  let d="";v.forEach((q,i)=>d+=(i?"L":"M")+X(i).toFixed(1)+","+Y(q).toFixed(1));
+  return`<svg viewBox="0 0 112 48" aria-hidden="true"><path d="${d}L${X(v.length-1)},46L4,46Z" fill="${col}" fill-opacity=".12"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(v.length-1)}" cy="${Y(v[v.length-1])}" r="3.5" fill="${col}"/></svg>`;};
+const C=[];
+if(ma)C.push({t:tr("Сила, която понасяш","Strength you take"),d:strengthPct,unit:" %",from:Math.round(ma[0])+" %",to:Math.round(ma[1])+" %",p:tr("Колкото повече сила понасят мускулите, толкова по-дълбоко работят.","The more strength the muscles take, the deeper they work."),s:spark(D.ma,"#34D399")});
+if(ef)C.push({t:tr("Ефективност на тренировката","Training efficiency"),d:Math.round(ef[1]-ef[0]),unit:tr(" т."," pts"),from:Math.round(ef[0])+" %",to:Math.round(ef[1])+" %",p:tr("Колко от тренировката е в зоната за твоята цел.","How much of the training is in the zone for your goal."),s:spark(effs,"#4F9DFF")});
+if(rc)C.push({t:tr("Възстановяване на пулса","Heart rate recovery"),d:Math.round(rc[1]-rc[0]),unit:tr(" уд"," bpm"),from:Math.round(rc[0]),to:Math.round(rc[1]),p:tr("С колко пада пулсът за минута след края. Повече значи по-здраво сърце.","How much the heart rate drops in a minute after the end. More means a fitter heart."),s:spark(D.rec,"#FACC15")});
+if(!C.length){$("#changeSec").hidden=true;}
+else{$("#chgSpan").textContent=tr("начало → сега","start → now");
+  $("#changes").innerHTML=C.map(c=>`<div class="c"><div><div class="k"><span class="d ${c.d>0?"up":"flat"}">${c.d>0?"+":""}${c.d}${c.unit}</span><span class="t">${c.t}</span></div><p>${c.from} → ${c.to}. ${c.p}</p></div>${c.s}</div>`).join("");}
+
+// ---------- body
+const HEAT=[[0,"#26324A"],[.25,"#3D8BFF"],[.5,"#22D3EE"],[.7,"#34D399"],[.85,"#FACC15"],[1,"#FF4D5E"]];
+const lerp=(a,b,k)=>Math.round(a+(b-a)*k);const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+function heat(v){v=clamp(v,0,1);for(let i=1;i<HEAT.length;i++)if(v<=HEAT[i][0]){const[a0,c0]=HEAT[i-1],[a1,c1]=HEAT[i];const k=(v-a0)/(a1-a0);const A=hx(c0),B=hx(c1);return`rgb(${lerp(A[0],B[0],k)},${lerp(A[1],B[1],k)},${lerp(A[2],B[2],k)})`;}return HEAT[HEAT.length-1][1];}
+$("#legBar").style.background=`linear-gradient(90deg,${HEAT.map(h=>h[1]+" "+h[0]*100+"%").join(",")})`;
+const mir=d=>d.replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g,(m,a,b)=>(200-+a)+","+b);
+const SIL=`<g fill="#1C2330"><circle cx="100" cy="36" r="19"/><rect x="90" y="50" width="20" height="20" rx="7"/>
+  <path d="M56,78 Q100,66 144,78 Q152,82 150,96 L142,150 Q137,182 134,206 L66,206 Q63,182 58,150 L50,96 Q48,82 56,78Z"/>
+  <path d="M66,200 L134,200 Q142,222 136,244 L64,244 Q58,222 66,200Z"/></g>
+  <g stroke="#1C2330" stroke-linecap="round" fill="none"><path d="M52,90 L41,160 L35,232" stroke-width="21"/><path d="M148,90 L159,160 L165,232" stroke-width="21"/>
+  <path d="M82,236 L78,318" stroke-width="34"/><path d="M118,236 L122,318" stroke-width="34"/><path d="M78,318 L76,402" stroke-width="23"/><path d="M122,318 L124,402" stroke-width="23"/></g>
+  <g fill="#1C2330"><ellipse cx="72" cy="410" rx="14" ry="7"/><ellipse cx="128" cy="410" rx="14" ry="7"/><circle cx="34" cy="244" r="9"/><circle cx="166" cy="244" r="9"/></g>`;
+const both=(ch,d)=>`<path class="zone" data-ch="${ch}" d="${d}"/><path class="zone" data-ch="${ch}" d="${mir(d)}"/>`;
+const ell=(ch,cx,cy,rx,ry,rot)=>`<ellipse class="zone" data-ch="${ch}" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot||0} ${cx} ${cy})"/><ellipse class="zone" data-ch="${ch}" cx="${200-cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${-(rot||0)} ${200-cx} ${cy})"/>`;
+const FRONT=SIL+both(0,"M62,92 Q80,83 98,89 L98,118 Q80,127 64,117 Q57,104 62,92Z")
+  +[128,146,164,182].map((y,i)=>`<rect class="zone" data-ch="1" x="86" y="${y}" width="12.5" height="${i===3?14:15}" rx="5"/><rect class="zone" data-ch="1" x="101.5" y="${y}" width="12.5" height="${i===3?14:15}" rx="5"/>`).join("")
+  +ell(4,44,126,8,21,8)+ell(2,81,276,14,40,2);
+const BACK=SIL+`<path class="zone" data-ch="5" d="M80,68 Q100,60 120,68 L136,86 Q100,100 64,86Z"/>`
+  +both(6,"M64,96 Q82,92 96,102 L96,150 Q80,160 70,148 Q60,122 64,96Z")
+  +`<rect class="zone" data-ch="7" x="80" y="156" width="40" height="36" rx="11"/>`
+  +ell(4,44,126,8,21,8)+ell(8,85,222,17,17,0)+ell(9,81,284,13,33,2)+ell(3,78,350,10,26,1);
+$("#figF").innerHTML=FRONT;$("#figB").innerHTML=BACK;
+const mus=D.mus,musMin=D.musMin||[];
+const order=CH.map((c,i)=>i).sort((a,b)=>mus[b]-mus[a]);
+document.querySelectorAll(".zone").forEach(z=>z.setAttribute("fill",heat(mus[+z.dataset.ch])));
+$("#zchips").innerHTML=order.map(i=>`<button class="chip" type="button" data-ch="${i}" aria-pressed="false">${CH[i]}</button>`).join("");
+let sel=-1;
+function pick(ch){sel=ch;const figs=$("#figs");figs.classList.toggle("focus",ch>=0);
+  document.querySelectorAll(".zone").forEach(z=>z.classList.toggle("on",+z.dataset.ch===ch));
+  document.querySelectorAll("#zchips .chip").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.ch===ch)));
+  const i=ch>=0?ch:order[0];const rank=order.indexOf(i)+1;const m=musMin[i]||0;
+  const tm=m>=60?tr(`${Math.floor(m/60)} ч ${m%60} мин`,`${Math.floor(m/60)} h ${m%60} min`):tr(`${m} мин`,`${m} min`);
+  $("#zinfo").innerHTML=`<div><b>${CH[i]}</b><div class="r">${ch>=0?(rank===1?tr("работи най-много от всички","works the most of all"):tr(`№ ${rank} от 10 по работа`,`No. ${rank} of 10 by work`)):tr("работи най-много — докосни друг мускул","works the most — tap another muscle")}</div></div><div class="m">${tm}<span class="r" style="font:500 12px var(--f-body)">${tr("под импулс · натоварване ","under impulse · load ")}${Math.round(mus[i]*100)} %</span></div><div class="zbar"><i style="width:${Math.round(mus[i]*100)}%;background:${heat(mus[i])}"></i></div>`;}
+document.querySelectorAll(".figs svg").forEach(s=>s.addEventListener("click",e=>{const z=e.target.closest(".zone");const ch=z?+z.dataset.ch:-1;pick(ch===sel?-1:ch);}));
+$("#zchips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const ch=+b.dataset.ch;pick(ch===sel?-1:ch);});
+pick(-1);
+
+// ---------- rhythm
+$("#streak").textContent=D.streak;
+$("#streakCap").textContent=D.streak===1?tr("седмица подред","week in a row"):tr("седмици подред","weeks in a row");
+(function(){const svg=$("#weeks"),w=D.weeks,n=w.length,mx=Math.max(3,...w),bw=300/n;let h="";
+  w.forEach((c,i)=>{const bh=c?Math.max(6,50*c/mx):3;h+=`<rect x="${i*bw+3}" y="${60-bh}" width="${bw-6}" height="${bh}" rx="3" fill="${c?(i===n-1?"#FF4D5E":"#4F9DFF"):"#232A35"}" fill-opacity="${c&&i!==n-1?.8:1}"/>`;});
+  svg.innerHTML=h;})();
+const per=avg(D.weeks.slice(-4));
+$("#rhythmTxt").textContent=tr(`Средно ${per.toFixed(1).replace(".",",")} тренировки седмично за последния месец. `,`On average ${per.toFixed(1)} trainings a week this month. `)+(per>=2?tr("Точно ритъмът, при който резултатите растат най-бързо.","Exactly the rhythm where results grow fastest."):tr("Две тренировки седмично дават най-бърз резултат.","Two trainings a week give the fastest results."));
+
+// ---------- badges
+const best=Math.max(0,...effs);
+const B=[
+  {n:tr("Първа крачка","First step"),g:1,v:D.n,u:"t",l:"1",d:tr("Първата тренировка в костюма.","Your first training in the suit.")},
+  {n:tr("10 тренировки","10 trainings"),g:10,v:D.n,u:"t",l:"10",d:tr("Десет тренировки — тялото вече знае импулса.","Ten trainings — your body knows the impulse.")},
+  {n:tr("25 тренировки","25 trainings"),g:25,v:D.n,u:"t",l:"25",d:tr("Двадесет и пет тренировки.","Twenty-five trainings.")},
+  {n:tr("50 тренировки","50 trainings"),g:50,v:D.n,u:"t",l:"50",d:tr("Петдесет тренировки.","Fifty trainings.")},
+  {n:tr("4 седмици подред","4 weeks in a row"),g:4,v:D.streak,u:"w",l:"4w",d:tr("Поне по една тренировка четири седмици подред.","At least one training four weeks in a row.")},
+  {n:tr("8 седмици подред","8 weeks in a row"),g:8,v:D.streak,u:"w",l:"8w",d:tr("Два месеца без прекъсване.","Two months without a break.")},
+  {n:"1 000 kcal",g:1000,v:D.kcal,u:"k",l:"1k",d:tr("Хиляда изгорени калории.","A thousand calories burned.")},
+  {n:"5 000 kcal",g:5000,v:D.kcal,u:"k",l:"5k",d:tr("Пет хиляди изгорени калории.","Five thousand calories burned.")},
+  {n:tr("10 000 свивания","10 000 contractions"),g:10000,v:D.contr,u:"c",l:"10k",d:tr("Десет хиляди пълни мускулни свивания.","Ten thousand full muscle contractions.")},
+  {n:tr("Топ форма","Top form"),g:85,v:best,u:"e",l:"85",d:tr("Тренировка с ефективност 85 % или повече.","A training with 85 % efficiency or more.")}];
+B.forEach(b=>{b.got=b.v>=b.g;b.p=clamp(b.v/b.g,0,1);});
+const got=B.filter(b=>b.got).length;$("#bdCount").textContent=tr(`${got} от ${B.length}`,`${got} of ${B.length}`);
+const nx=B.filter(b=>!b.got).sort((a,b)=>b.p-a.p)[0];
+if(nx){const left=nx.g-nx.v;const unit={t:tr(" тренировки"," trainings"),w:tr(" седмици"," weeks"),k:" kcal",c:tr(" свивания"," contractions"),e:tr(" точки ефективност"," efficiency points")}[nx.u];
+  $("#next").innerHTML=`<div class="eyebrow" style="color:var(--red)">${tr("Следваща цел","Next goal")}</div><div class="row"><b>${nx.n}</b><span class="left">${tr("остават ","to go: ")}${fmt(left)}${unit}</span></div><div class="pbar"><i style="width:${Math.round(nx.p*100)}%"></i></div>`;}
+else $("#next").innerHTML=`<b>${tr("Всички значки са твои.","Every badge is yours.")}</b>`;
+const hex=(b)=>{const col=b.got?"url(#bg"+b.l+")":"#1C2330";const r=24,cx=27,cy=30;const pts=[0,1,2,3,4,5].map(k=>{const a=Math.PI/3*k-Math.PI/2;return(cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1);}).join(" ");
+  const ring=b.got?"":`<polygon points="${pts}" fill="none" stroke="#FF4D5E" stroke-width="2.5" stroke-dasharray="${(144*b.p).toFixed(1)} 200" transform="rotate(0 ${cx} ${cy})"/>`;
+  return`<svg viewBox="0 0 54 60" aria-hidden="true"><defs><linearGradient id="bg${b.l}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF4D5E"/><stop offset="1" stop-color="#FACC15"/></linearGradient></defs><polygon points="${pts}" fill="${col}" stroke="${b.got?"none":"#232A35"}" stroke-width="1.5"/>${ring}<text x="${cx}" y="${cy+5}" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="700" font-size="${b.l.length>2?11:13}" fill="${b.got?"#0A0C10":"#6B7486"}">${b.l}</text></svg>`;};
+$("#badges").innerHTML=B.map((b,i)=>`<button class="bd${b.got?" got":""}" type="button" data-i="${i}" aria-expanded="false">${hex(b)}<span>${b.n}</span></button>`).join("");
+$("#badges").addEventListener("click",e=>{const el=e.target.closest(".bd");if(!el)return;const i=+el.dataset.i,b=B[i];const open=el.getAttribute("aria-expanded")!=="true";
+  document.querySelectorAll(".bd").forEach(x=>x.setAttribute("aria-expanded","false"));el.setAttribute("aria-expanded",String(open));const info=$("#bdinfo");info.hidden=!open;
+  if(open)info.innerHTML=`<b>${b.n}</b> · ${b.d} ${b.got?tr("Спечелена.","Earned."):tr(`Напредък: ${Math.round(b.p*100)} %.`,`Progress: ${Math.round(b.p*100)} %.`)}`;});
+
+// ---------- last training
+const L=D.last;$("#lastWhen").textContent=day(L.d);
+const rr=32,cc=2*Math.PI*rr,ecol=L.e>=80?"#34D399":L.e>=60?"#FACC15":"#FF4D5E";
+$("#last").innerHTML=`<svg class="ring" viewBox="0 0 78 78" aria-label="${tr("Ефективност","Efficiency")} ${L.e} %"><circle cx="39" cy="39" r="${rr}" fill="none" stroke="#232A35" stroke-width="7"/><circle cx="39" cy="39" r="${rr}" fill="none" stroke="${ecol}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(cc*L.e/100).toFixed(1)} ${cc.toFixed(1)}" transform="rotate(-90 39 39)"/><text x="39" y="44" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="700" font-size="16" fill="#EEF1F6">${L.e}</text></svg>
+  <div><div class="t">${L.t}</div><div class="s">${tr("ефективност ","efficiency ")}${L.e} %${L.e>=80?tr(" — много добра"," — very good"):L.e>=60?tr(" — добра"," — good"):""}</div>
+  <div class="kv"><div><b>${Math.floor(L.a/60)}:${String(L.a%60).padStart(2,"0")}</b><small>${tr("активно","active")}</small></div><div><b>${fmt(L.k)}</b><small>kcal</small></div>${L.h?`<div><b>${L.h}</b><small>${tr("среден пулс","avg heart rate")}</small></div>`:""}</div></div>`;
+
+$("#updated").textContent=(SAMPLE?tr("Примерни данни · ","Sample data · "):"")+tr("Обновено: ","Updated: ")+day(D.gen)+" "+new Date(D.gen).getFullYear()+tr(". Картонът се обновява след всяка тренировка на същия линк.",". The card updates after every training at the same link.");
+
+// ---------- share
+const toast=t=>{const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>e.hidden=true,2200);};
+if(!/^https?:/.test(location.href))$("#shareBtn").hidden=true;
+$("#shareBtn").onclick=()=>{const u=location.href.split("#")[0];
+  const ok=()=>toast(tr("Линкът е копиран","Link copied"));
+  try{navigator.clipboard.writeText(u).then(ok,()=>toast(u));}catch(e){toast(u);}};
+
+function sample(){const now=Date.now(),dd=864e5;const eff=[],mas=[],rec=[];
+  for(let i=0;i<22;i++){eff.push([now-(80-i*3.7)*dd,Math.round(68+i*.7+(i%4===2?-4:0))]);mas.push(Math.round(54+i*1.35));rec.push(i%3?null:Math.round(14+i*.45));}
+  return{v:1,lang:(document.documentElement.lang==="en"||/[?&]en\b/.test(location.search))?"en":"bg",name:"Мария",goal:"tone",studio:"",gen:now,since:now-80*dd,n:22,sec:22*1452,act:22*1400,kcal:3588,contr:4180,
+    weeks:[2,2,1,2,2,1,2,2,2,2,2,2],streak:12,eff,ma:mas,rec,
+    mus:[.85,.86,1,.73,.57,.62,.84,.55,.95,.94],musMin:[312,318,356,270,214,236,305,208,341,338],
+    last:{d:now-3*dd,t:"Програма „Силова база“",e:83,k:164,a:1404,h:115}};}
+})();
+</script>

@@ -28,8 +28,14 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
     .registers 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 420
+    .prologue
+    .line 445
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$8;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     iput-boolean p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$8;->val$ok:Z
@@ -46,7 +52,8 @@
 .method public run()V
     .registers 4
 
-    .line 423
+    .prologue
+    .line 448
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$8;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$8;->val$ok:Z
@@ -55,6 +62,6 @@
 
     invoke-interface {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;->done(ZLjava/lang/String;)V
 
-    .line 424
+    .line 449
     return-void
 .end method

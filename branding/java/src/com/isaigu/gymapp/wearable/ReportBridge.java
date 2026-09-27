@@ -35,6 +35,14 @@ final class ReportBridge {
     @JavascriptInterface
     public void shareFile(String name, String mime, String base64, String subject, String text) {
         try {
+            shareBytes(name, mime, Base64.decode(base64, Base64.DEFAULT), subject, text);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "share failed: " + t);
+        }
+    }
+
+    private void shareBytes(String name, String mime, byte[] bytes, String subject, String text) {
+        try {
             File dir = new File(a.getCacheDir(), "xems_share");
             if (!dir.isDirectory()) {
                 dir.mkdirs();
@@ -51,7 +59,7 @@ final class ReportBridge {
             File f = new File(dir, safe);
             java.io.FileOutputStream out = new java.io.FileOutputStream(f);
             try {
-                out.write(Base64.decode(base64, Base64.DEFAULT));
+                out.write(bytes);
             } finally {
                 out.close();
             }
@@ -82,7 +90,107 @@ final class ReportBridge {
         a.runOnUiThread(new Start(a, android.content.Intent.createChooser(send, WearableUi.tr("Сподели", "Share"))));
     }
 
-    /** The whole report through the system print dialog ("Save as PDF" or a printer). */
+    /**
+     * The client's card (assets/report/client-card.html with the page's totals): a link on the
+     * license server when there is one, else the page itself as an HTML file.
+     */
+    @JavascriptInterface
+    public void shareCard(String json) {
+        new Thread(new CardTask(this, json), "xems-card").start();
+    }
+
+    static final class CardTask implements Runnable {
+        final ReportBridge b;
+        final String json;
+
+        CardTask(ReportBridge b, String json) {
+            this.b = b;
+            this.json = json;
+        }
+
+        @Override
+        public void run() {
+            b.cardNow(json);
+        }
+    }
+
+    void cardNow(String json) {
+        String first = "";
+        try {
+            first = new JSONObject(json).optString("name", "");
+        } catch (Throwable ignored) {
+        }
+        String subject = WearableUi.tr("Твоят XEMS картон", "Your XEMS card");
+        String hello = first.length() > 0
+                ? WearableUi.tr("Здравей, " + first + "! ", "Hi " + first + "! ") : "";
+        try {
+            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json);
+            shareText(subject, hello + WearableUi.tr("Ето твоя XEMS картон — напредък, мускули и значки: ",
+                    "Here is your XEMS card — progress, muscles and badges: ") + url);
+            WearableBleDiagLog.log("report", "card link " + url);
+            done("link");
+            return;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "card link: " + t + " — sending the file");
+        }
+        try {
+            String tpl = asset("report/client-card.html");
+            boolean en = "en".equals(lang());
+            String html = "<!doctype html><html lang=\"" + (en ? "en" : "bg") + "\"><head><meta charset=\"utf-8\">"
+                    + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">"
+                    + "</head><body>" + tpl.replace("__XEMS_CARD_DATA__", json.replace("<", "\\u003c"))
+                    + "</body></html>";
+            String safe = (first.length() > 0 ? first : "client").replaceAll("[^0-9A-Za-z\\u0400-\\u04FF_-]+", "_");
+            shareBytes("XEMS_" + safe + ".html", "text/html", html.getBytes("UTF-8"), subject,
+                    hello + WearableUi.tr("Ето твоя XEMS картон — отвори файла в браузъра.",
+                            "Here is your XEMS card — open the file in a browser."));
+            done("file");
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("report", "card file: " + t);
+            done("fail");
+        }
+    }
+
+    private String asset(String path) throws Exception {
+        java.io.InputStream in = a.getAssets().open(path);
+        try {
+            java.io.ByteArrayOutputStream o = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                o.write(buf, 0, n);
+            }
+            return new String(o.toByteArray(), "UTF-8");
+        } finally {
+            in.close();
+        }
+    }
+
+    /** Tell the page how the card went ("link", "file", "fail"). */
+    private void done(String how) {
+        a.runOnUiThread(new Js(web, "window.xemsCardDone&&window.xemsCardDone('" + how + "')"));
+    }
+
+    static final class Js implements Runnable {
+        final android.webkit.WebView w;
+        final String script;
+
+        Js(android.webkit.WebView w, String script) {
+            this.w = w;
+            this.script = script;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (w != null) {
+                    w.evaluateJavascript(script, null);
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
     /** Turn the report upright / back: returns "portrait" or "landscape" (what it turns to). */
     @JavascriptInterface
     public String rotate() {
@@ -113,6 +221,7 @@ final class ReportBridge {
         }
     }
 
+    /** The whole report through the system print dialog ("Save as PDF" or a printer). */
     @JavascriptInterface
     public void printPdf(String title) {
         a.runOnUiThread(new Print(a, web, title));

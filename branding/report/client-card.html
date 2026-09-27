@@ -98,21 +98,43 @@ const colOf=i=>rgb(HEAT[Math.min(4,Math.floor(clamp((lv(i)-.3)/.7,0,1)*5))]);
 const BODY=rgb("#1F2430"),NEU=rgb("#323947");
 const masks={},cache={};let sel=-1;
 function mask(key,cb){if(masks[key])return cb(masks[key]);const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=im.width;c.height=im.height;const x=c.getContext("2d");x.drawImage(im,0,0);masks[key]={w:im.width,h:im.height,d:x.getImageData(0,0,im.width,im.height).data};cb(masks[key]);};im.src=document.getElementById("fig-"+key).textContent.trim();}
+// Lit figure: the mask's green channel is a relief (height) map — normals from it give each muscle
+// light from the upper left, a soft shadow and a gloss highlight; red = zone, blue = coverage.
+function shade(M,cols,sel){
+  const w=M.w,h=M.h,D2=M.d,dim=sel>=0;
+  const full=document.createElement("canvas");full.width=w;full.height=h;const fx=full.getContext("2d");const img=fx.createImageData(w,h),o=img.data;
+  const glow=document.createElement("canvas");glow.width=w;glow.height=h;const gx=glow.getContext("2d");const gimg=gx.createImageData(w,h),g=gimg.data;
+  const Lx=-.45,Ly=-.62,Lz=.64,Hx=Lx,Hy=Ly,Hz=Lz+1,hn=Math.hypot(Hx,Hy,Hz);
+  // smoothed relief (box blur ×3 ≈ gaussian): round muscles instead of the map's creases
+  let Hm=M.hm;if(!Hm){Hm=new Float32Array(w*h);for(let i=0,q=0;i<w*h;i++,q+=4)Hm[i]=D2[q+2]?D2[q+1]:0;
+  const tmp=new Float32Array(w*h),R=3,box=(src,dst,horiz)=>{const n=2*R+1;if(horiz){for(let y=0;y<h;y++){let acc=0;const o0=y*w;for(let x=-R;x<=R;x++)acc+=src[o0+Math.min(w-1,Math.max(0,x))];for(let x=0;x<w;x++){dst[o0+x]=acc/n;acc+=src[o0+Math.min(w-1,x+R+1)]-src[o0+Math.max(0,x-R)];}}}
+    else{for(let x=0;x<w;x++){let acc=0;for(let y=-R;y<=R;y++)acc+=src[Math.min(h-1,Math.max(0,y))*w+x];for(let y=0;y<h;y++){dst[y*w+x]=acc/n;acc+=src[Math.min(h-1,y+R+1)*w+x]-src[Math.max(0,y-R)*w+x];}}}};
+  for(let k=0;k<3;k++){box(Hm,tmp,true);box(tmp,Hm,false);}M.hm=Hm;}
+  const at=(x,y)=>Hm[(y<0?0:y>=h?h-1:y)*w+(x<0?0:x>=w?w-1:x)];
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const p=(y*w+x)*4,al=D2[p+2];if(!al)continue;
+    const k=D2[p],sh=D2[p+1]/255;
+    const dx=(at(x+2,y)-at(x-2,y))/255,dy=(at(x,y+2)-at(x,y-2))/255;
+    let nx=-dx*4.2,ny=-dy*4.2,nz=1;const nl=Math.hypot(nx,ny,nz);nx/=nl;ny/=nl;nz/=nl;
+    const dif=Math.max(0,nx*Lx+ny*Ly+nz*Lz),spc=Math.pow(Math.max(0,(nx*Hx+ny*Hy+nz*Hz)/hn),22),ao=.55+.45*Math.min(1,sh*1.6);
+    let c,amb,sp;
+    if(k>=1&&k<=10){const ch=k-1;c=cols[ch];amb=.30;sp=.55;
+      if(dim&&ch!==sel){c=[c[0]*.22+NEU[0]*.78,c[1]*.22+NEU[1]*.78,c[2]*.22+NEU[2]*.78];sp=.12;}
+      else{const hot=clamp((lv(ch)-.8)/.2,0,1);if((hot>0&&!dim)||(dim&&ch===sel)){g[p]=c[0];g[p+1]=c[1];g[p+2]=c[2];g[p+3]=dim?120:Math.round(170*hot);}}}
+    else{c=k===11?NEU:BODY;amb=.55;sp=.22;}
+    const f=(amb+(1.05-amb)*dif)*ao,s2=spc*sp*255;
+    const r=c[0]*f*1.25+s2,gg=c[1]*f*1.25+s2,b=c[2]*f*1.25+s2;
+    o[p]=r>255?255:r;o[p+1]=gg>255?255:gg;o[p+2]=b>255?255:b;o[p+3]=al;}
+  fx.putImageData(img,0,0);gx.putImageData(gimg,0,0);return{full,glow};}
+// Halve the picture step by step down to the screen size: smooth edges on every WebView, no pixel stairs.
+function stepDown(src,W,H){let c=src;while(c.width/2>=W*1.05){const n=document.createElement("canvas");n.width=Math.round(c.width/2);n.height=Math.round(c.height/2);const x=n.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(c,0,0,n.width,n.height);c=n;}
+  const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(c,0,0,W,H);return o;}
 function paint(canvas,key){mask(key,M=>{
-  const dpr=Math.min(2,devicePixelRatio||1),W=Math.round((canvas.clientWidth||180)*dpr),H=Math.round(W*M.h/M.w);const ck=key+"|"+sel+"|"+W;
+  const dpr=Math.min(3,devicePixelRatio||1),W=Math.round((canvas.clientWidth||180)*dpr),H=Math.round(W*M.h/M.w);const ck=key+"|"+sel+"|"+W;
   if(canvas._ck===ck)return;
-  if(!cache[ck]){const full=document.createElement("canvas");full.width=M.w;full.height=M.h;const fx=full.getContext("2d");const img=fx.createImageData(M.w,M.h),o=img.data;
-    const glow=document.createElement("canvas");glow.width=M.w;glow.height=M.h;const gx=glow.getContext("2d");const gimg=gx.createImageData(M.w,M.h),g=gimg.data;
-    const cols=CH.map((c,i)=>colOf(i)),dim=sel>=0,D2=M.d;
-    for(let p=0;p<D2.length;p+=4){const al=D2[p+2];if(!al)continue;const k=D2[p],sh=D2[p+1]/255;let r,gg,b;
-      if(k>=1&&k<=10){const ch=k-1,c=cols[ch],L=.52+.62*Math.pow(sh,.8),sp=sh>.78?(sh-.78)/.22*46:0;
-        if(dim&&ch!==sel){const m=.8;r=(c[0]*(1-m)+NEU[0]*m)*(.8+.4*sh);gg=(c[1]*(1-m)+NEU[1]*m)*(.8+.4*sh);b=(c[2]*(1-m)+NEU[2]*m)*(.8+.4*sh);}
-        else{r=c[0]*L+sp;gg=c[1]*L+sp;b=c[2]*L+sp;const hot=clamp((lv(ch)-.8)/.2,0,1);if((hot>0&&!dim)||(dim&&ch===sel)){g[p]=c[0];g[p+1]=c[1];g[p+2]=c[2];g[p+3]=dim?120:Math.round(170*hot);}}}
-      else{const c=k===11?NEU:BODY,L=.78+.5*sh;r=c[0]*L;gg=c[1]*L;b=c[2]*L;}
-      o[p]=r>255?255:r;o[p+1]=gg>255?255:gg;o[p+2]=b>255?255:b;o[p+3]=al;}
-    fx.putImageData(img,0,0);gx.putImageData(gimg,0,0);
-    const out=document.createElement("canvas");out.width=W;out.height=H;const x=out.getContext("2d");x.imageSmoothingQuality="high";
-    x.save();x.filter="blur("+Math.round(W/20)+"px)";x.globalAlpha=.9;x.drawImage(glow,0,0,W,H);x.restore();x.drawImage(full,0,0,W,H);
+  if(!cache[ck]){const cols=CH.map((c,i)=>colOf(i));
+    const {full,glow}=shade(M,cols,sel);
+    const out=document.createElement("canvas");out.width=W;out.height=H;const x=out.getContext("2d");
+    x.save();x.filter="blur("+Math.round(W/20)+"px)";x.globalAlpha=.9;x.drawImage(glow,0,0,W,H);x.restore();x.drawImage(stepDown(full,W,H),0,0);
     cache[ck]=out;}
   const c=cache[ck];if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
   const x=canvas.getContext("2d");x.clearRect(0,0,W,H);x.drawImage(c,0,0);canvas._ck=ck;canvas._m=M;});}

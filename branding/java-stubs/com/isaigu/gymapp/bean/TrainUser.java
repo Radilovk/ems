@@ -10,6 +10,7 @@ public class TrainUser implements java.io.Serializable {
     public String email;
     public String phone;
     public String remark;
+    public String trainName;
     public String iconUrl;
     public Date createTime;
     public Date birtyday;

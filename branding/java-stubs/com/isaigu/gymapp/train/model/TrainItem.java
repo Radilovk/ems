@@ -26,6 +26,8 @@ public class TrainItem {
     public void addAllPartValue(int value, boolean ignoreControl) {}
 
     public void onParamsChange() {}
+    /** Sets data.trainProgram, applies the active-pause setting and resets the slot (stops it). */
+    public void setTrainProgram(TrainProgram program) {}
 
     /** Added by apply-music-training-sync.py: BLE write in flight or commands queued. */
     public boolean isSenderBusy() {

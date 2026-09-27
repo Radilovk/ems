@@ -62,6 +62,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Band 10 app & link | `band-app/CLAUDE.md`, `docs/xiaomi-band10.md` |
 | Smart Session (AI) | `docs/xems-smart-session-spec.md`, `docs/xems-ai-session-implementation.md` |
 | Automatic mode (ready programs) | `docs/xems-auto-mode-spec.md` |
+| "План" tab, calendar, next client | `docs/xems-plan.md` |
 | Pulse / strength control | `docs/xems-pulse-control.md`, `docs/xems-part-strength.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |
 

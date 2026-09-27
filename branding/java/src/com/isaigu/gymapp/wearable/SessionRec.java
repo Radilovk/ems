@@ -40,6 +40,9 @@ final class SessionRec {
     int curType = -1;
     /** Bit per useType that ran. */
     int modes;
+    /** The first work mode (useType 0–2) and its planned seconds: the next training's settings. */
+    int mainType = -1;
+    int mainPlanS;
     /** A work mode ended; waiting for the next mode (massage closes the training). */
     boolean between;
     int betweenS;
@@ -280,6 +283,12 @@ final class SessionRec {
             pk.put(chPeak[i]);
         }
         o.put("chPeak", pk);
+        org.json.JSONArray mus = new org.json.JSONArray();
+        int[] lv = muscleLevels();
+        for (int i = 0; i < CH; i++) {
+            mus.put(lv[i]);
+        }
+        o.put("mus", mus);
         JSONObject band = new JSONObject();
         band.put("owner", bandOwner);
         band.put("sent", bandSent);

@@ -117,6 +117,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-avatar-card.py"
   python3 "${ROOT}/scripts/apply-band-app.py"
   python3 "${ROOT}/scripts/apply-session-report.py"
+  python3 "${ROOT}/scripts/apply-plan-tab.py"
   python3 "${ROOT}/scripts/apply-train-swipe-delete-fix.py"
   python3 "${ROOT}/scripts/remove-segment-program-gear.py"
   python3 "${ROOT}/scripts/apply-diag-logging.py"

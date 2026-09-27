@@ -179,53 +179,61 @@ function mask(key,cb){if(masks[key])return cb(masks[key]);const im=new Image();i
 function relief(M){const w=M.w,h=M.h,d=M.d,H=new Float32Array(w*h),T=new Float32Array(w*h),r=4,n=9;for(let i=0,q=0;i<w*h;i++,q+=4)H[i]=d[q+2]?d[q+1]/255:0;
   for(let k=0;k<3;k++){for(let y=0;y<h;y++){let a=0;const o=y*w;for(let x=-r;x<=r;x++)a+=H[o+clamp(x,0,w-1)];for(let x=0;x<w;x++){T[o+x]=a/n;a+=H[o+Math.min(w-1,x+r+1)]-H[o+Math.max(0,x-r)];}}
     for(let x=0;x<w;x++){let a=0;for(let y=-r;y<=r;y++)a+=T[clamp(y,0,h-1)*w+x];for(let y=0;y<h;y++){H[y*w+x]=a/n;a+=T[Math.min(h-1,y+r+1)*w+x]-T[Math.max(0,y-r)*w+x];}}}return H;}
-// The figure in two layers. Body: every part of the anatomy readable — skin and the muscles that are not
-// in the suit in cool slate tones, lit from the upper left by the relief map, thin dark grooves between
-// all muscles and a crisp light silhouette line. Muscles in the suit: their colour, lit, with a bright
-// hairline contour; this layer also feeds the glow.
-function layers(M,selCh){const w=M.w,h=M.h,d=M.d,hs=M.hs;
+// Clean shapes and lines from the pixel mask. Each part (skin, every muscle id, the silhouette) is
+// smoothed as its own field; the smoothed fields decide the shapes (no pixel stairs), and their 0.5
+// iso-lines, traced by marching squares, are drawn as vector strokes at screen resolution — so every
+// line has one even width and a smooth course.
+function blurF(F,w,h,r,passes){const T=new Float32Array(w*h),n=2*r+1;
+  for(let k=0;k<passes;k++){for(let y=0;y<h;y++){let a=0;const o=y*w;for(let x=-r;x<=r;x++)a+=F[o+clamp(x,0,w-1)];for(let x=0;x<w;x++){T[o+x]=a/n;a+=F[o+Math.min(w-1,x+r+1)]-F[o+Math.max(0,x-r)];}}
+    for(let x=0;x<w;x++){let a=0;for(let y=-r;y<=r;y++)a+=T[clamp(y,0,h-1)*w+x];for(let y=0;y<h;y++){F[y*w+x]=a/n;a+=T[Math.min(h-1,y+r+1)*w+x]-T[Math.max(0,y-r)*w+x];}}}return F;}
+function march(F,w,h,iso,s){const out=[];const E=(ax,ay,va,bx,by,vb)=>{const t=(iso-va)/((vb-va)||1e-6);return[ax+(bx-ax)*t,ay+(by-ay)*t];};
+  for(let y=0;y+s<h;y+=s)for(let x=0;x+s<w;x+=s){const a=F[y*w+x],b=F[y*w+x+s],c=F[(y+s)*w+x+s],d=F[(y+s)*w+x];
+    const i=(a>iso)|(b>iso)<<1|(c>iso)<<2|(d>iso)<<3;if(i===0||i===15)continue;
+    const T=()=>E(x,y,a,x+s,y,b),R=()=>E(x+s,y,b,x+s,y+s,c),B=()=>E(x,y+s,d,x+s,y+s,c),L=()=>E(x,y,a,x,y+s,d);
+    const seg=(p,q)=>{out.push(p[0],p[1],q[0],q[1]);};
+    switch(i){case 1:case 14:seg(L(),T());break;case 2:case 13:seg(T(),R());break;case 3:case 12:seg(L(),R());break;case 4:case 11:seg(R(),B());break;
+      case 6:case 9:seg(T(),B());break;case 7:case 8:seg(L(),B());break;case 5:seg(L(),T());seg(R(),B());break;case 10:seg(T(),R());seg(L(),B());break;}}
+  return new Float32Array(out);}
+function prep(M){const w=M.w,h=M.h,d=M.d,N=w*h;const ids=new Set();for(let i=0;i<N;i++)if(d[i*4+2])ids.add(d[i*4]);
+  const A=new Float32Array(N);for(let i=0;i<N;i++)A[i]=d[i*4+2]?1:0;blurF(A,w,h,3,2);
+  const best=new Float32Array(N),lab=new Int16Array(N).fill(-1),cont={};
+  for(const id of ids){const F=new Float32Array(N);for(let i=0;i<N;i++)F[i]=(d[i*4+2]&&d[i*4]===id)?1:0;blurF(F,w,h,3,2);
+    for(let i=0;i<N;i++)if(F[i]>best[i]){best[i]=F[i];lab[i]=id;}
+    if(id!==0)cont[id]=march(F,w,h,.5,2);}
+  for(let i=0;i<N;i++)if(A[i]<.5)lab[i]=-1;
+  M.A=A;M.lab=lab;M.cont=cont;M.sil=march(A,w,h,.5,2);}
+function layers(M,selCh){const w=M.w,h=M.h,hs=M.hs,A=M.A,lab=M.lab;
   const mk=()=>{const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");return[c,x,x.createImageData(w,h)];};
   const[bc,bx,bi]=mk(),[mc,mx,mi]=mk();const b=bi.data,m=mi.data;const cols=CH.map((c,i)=>heat(lv(i)));
-  const K=(x,y)=>(x<0||y<0||x>=w||y>=h)?-1:(d[(y*w+x)*4+2]?d[(y*w+x)*4]:-1);
-  const Hs=(x,y)=>hs[(y<0?0:y>=h?h-1:y)*w+(x<0?0:x>=w?w-1:x)];
-  const Lx=-.5,Ly=-.62,Lz=.6,hx=Lx,hy=Ly,hz=Lz+1,hl=Math.hypot(hx,hy,hz);
-  const SKIN=[62,72,94],NEU=[84,96,122],UNDER=[50,58,76];
-  for(let y=0;y<h;y++){const vy=y/h;for(let x=0;x<w;x++){const p=(y*w+x)*4,al=d[p+2];if(!al)continue;const k=d[p],rel=hs[y*w+x];
-    const zone=k>=1&&k<=10?k-1:-1;
-    // light from the relief
-    let nx=-(Hs(x+2,y)-Hs(x-2,y))*4,ny=-(Hs(x,y+2)-Hs(x,y-2))*4,nz=1;const nl=Math.hypot(nx,ny,nz);nx/=nl;ny/=nl;nz/=nl;
-    const dif=Math.max(0,nx*Lx+ny*Ly+nz*Lz),spc=Math.pow(Math.max(0,(nx*hx+ny*hy+nz*hz)/hl),24),ao=.6+.4*Math.min(1,rel*1.8);
-    // outlines: silhouette (next to empty) and grooves (next to another part)
-    let sil=0,grv=false;
-    for(let t=1;t<=2;t++){const q=[K(x-t,y),K(x+t,y),K(x,y-t),K(x,y+t)];for(let j=0;j<4;j++){if(q[j]===-1)sil=Math.max(sil,t===1?1:.5);else if(q[j]!==k&&t===1)grv=true;}}
-    // body layer
-    const on=zone>=0&&(selCh<0||zone===selCh);
-    let base=zone>=0?UNDER:(k===11?NEU:SKIN);
-    if(zone>=0&&!on){const c=cols[zone];base=[NEU[0]*.8+c[0]*.2,NEU[1]*.8+c[1]*.2,NEU[2]*.8+c[2]*.2];}
-    const f=(.86+.2*dif)*(.9+.1*Math.min(1,rel*1.8))*(1.04-.1*vy),s2=spc*6;
-    let r=base[0]*f+s2,g=base[1]*f+s2,bl=base[2]*f+s2;
-    if(grv&&!on){r*=.52;g*=.52;bl*=.56;}
-    if(sil){const e=.6*sil;r=r*(1-e)+196*e;g=g*(1-e)+210*e;bl=bl*(1-e)+236*e;}
-    b[p]=Math.min(255,r);b[p+1]=Math.min(255,g);b[p+2]=Math.min(255,bl);b[p+3]=al;
-    // muscle layer
-    if(on){const c=cols[zone],L=(.5+.62*dif)*(.75+.35*rel);let mr=c[0]*L+spc*70,mg=c[1]*L+spc*70,mb=c[2]*L+spc*70;
-      if(grv||sil){mr=mr*.5+(c[0]*.6+100)*.5;mg=mg*.5+(c[1]*.6+100)*.5;mb=mb*.5+(c[2]*.6+100)*.5;}
-      m[p]=Math.min(255,mr);m[p+1]=Math.min(255,mg);m[p+2]=Math.min(255,mb);m[p+3]=al;}}}
+  const SKIN=[62,72,94],NEU=[84,96,122];
+  for(let y=0;y<h;y++){const vy=y/h;for(let x=0;x<w;x++){const i=y*w+x,p=i*4,a=A[i];if(a<.3)continue;
+    const al=Math.round(255*clamp((a-.3)/.4,0,1)),k=lab[i];const zone=k>=1&&k<=10?k-1:-1,on=zone>=0&&(selCh<0||zone===selCh);
+    let base=k===0||k<0?SKIN:NEU;if(zone>=0&&!on){const c=cols[zone];base=[NEU[0]*.8+c[0]*.2,NEU[1]*.8+c[1]*.2,NEU[2]*.8+c[2]*.2];}
+    const f=1.04-.1*vy;b[p]=base[0]*f;b[p+1]=base[1]*f;b[p+2]=base[2]*f;b[p+3]=al;
+    if(on){const c=cols[zone],rel=hs[i],L=.8+.35*rel;m[p]=Math.min(255,c[0]*L);m[p+1]=Math.min(255,c[1]*L);m[p+2]=Math.min(255,c[2]*L);m[p+3]=al;}}}
   bx.putImageData(bi,0,0);mx.putImageData(mi,0,0);return[bc,mc];}
+function stroke(x,seg,sc,width,color){x.beginPath();for(let i=0;i<seg.length;i+=4){x.moveTo(seg[i]*sc,seg[i+1]*sc);x.lineTo(seg[i+2]*sc,seg[i+3]*sc);}x.lineWidth=width;x.strokeStyle=color;x.lineCap="round";x.stroke();}
 function stepDown(src,W,H){let c=src;while(c.width/2>=W*1.05){const n=document.createElement("canvas");n.width=Math.round(c.width/2);n.height=Math.round(c.height/2);const x=n.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,n.width,n.height);c=n;}
   const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,W,H);return o;}
 function paint(canvas,key){mask(key,M=>{const dpr=Math.min(3,devicePixelRatio||1),W=Math.round((canvas.parentNode.clientWidth||280)*dpr),H=Math.round(W*M.h/M.w),ck=key+"|"+sel+"|"+W;
   if(canvas._ck===ck)return;
-  if(!cache[ck]){const[body,mus]=layers(M,sel);const B=stepDown(body,W,H),Mu=stepDown(mus,W,H);
+  if(!cache[ck]){if(!M.lab)prep(M);const[body,mus]=layers(M,sel);const B=stepDown(body,W,H),Mu=stepDown(mus,W,H),sc=W/M.w,u=W/300;
     const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");
     x.drawImage(B,0,0);
+    // grooves between all muscles, even width
+    for(const id in M.cont){const z=+id-1,on=z>=0&&z<10&&(sel<0||z===sel);if(!on)stroke(x,M.cont[id],sc,1.1*u,"rgba(14,18,28,.62)");}
     x.save();x.globalCompositeOperation="lighter";x.filter=`blur(${Math.round(W/18)}px)`;x.globalAlpha=.3;x.drawImage(Mu,0,0);x.filter=`blur(${Math.round(W/70)}px)`;x.globalAlpha=.75;x.drawImage(Mu,0,0);x.restore();
-    x.drawImage(Mu,0,0);cache[ck]=o;}
+    x.drawImage(Mu,0,0);
+    // the muscles in the suit: a bright hairline in their own colour
+    for(const id in M.cont){const z=+id-1;if(z>=0&&z<10&&(sel<0||z===sel)){const c=heat(lv(z));stroke(x,M.cont[id],sc,1.2*u,`rgba(${Math.min(255,c[0]*.55+120)},${Math.min(255,c[1]*.55+120)},${Math.min(255,c[2]*.55+120)},.9)`);}}
+    // silhouette
+    stroke(x,M.sil,sc,1.3*u,"rgba(200,214,240,.72)");
+    cache[ck]=o;}
   const c=cache[ck];if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}const x=canvas.getContext("2d");x.clearRect(0,0,W,H);x.drawImage(c,0,0);canvas._ck=ck;canvas._m=M;});}
 let raf=0;const draw=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;paint($("#cF"),sexK+"_front");paint($("#cB"),sexK+"_back");label();});};
 const top=CH.map((c,i)=>i).sort((a,b)=>lv(b)-lv(a))[0];
 function label(){const i=sel>=0?sel:top;$("#pick").innerHTML=`<i style="background:${css(heat(lv(i)))};box-shadow:0 0 12px ${css(heat(lv(i)))}"></i><b>${CH[i]}</b><span class="num">${Math.round(lv(i)*100)}%</span>`;}
-function at(canvas,e){const M=canvas._m;if(!M)return -1;const r=canvas.getBoundingClientRect();const X=Math.floor((e.clientX-r.left)/r.width*M.w),Y=Math.floor((e.clientY-r.top)/r.height*M.h);if(X<0||Y<0||X>=M.w||Y>=M.h)return -1;const k=M.d[(Y*M.w+X)*4];return k>=1&&k<=10?k-1:-1;}
+function at(canvas,e){const M=canvas._m;if(!M)return -1;const r=canvas.getBoundingClientRect();const X=Math.floor((e.clientX-r.left)/r.width*M.w),Y=Math.floor((e.clientY-r.top)/r.height*M.h);if(X<0||Y<0||X>=M.w||Y>=M.h)return -1;const k=M.lab?M.lab[Y*M.w+X]:M.d[(Y*M.w+X)*4];return k>=1&&k<=10?k-1:-1;}
 function setSide(s){side=s;$("#cF").classList.toggle("off",s!=="front");$("#cB").classList.toggle("off",s!=="back");$("#sF").setAttribute("aria-pressed",String(s==="front"));$("#sB").setAttribute("aria-pressed",String(s==="back"));}
 $("#sF").onclick=()=>setSide("front");$("#sB").onclick=()=>setSide("back");
 const stage=$("#stage");let sx=null,sy=0;

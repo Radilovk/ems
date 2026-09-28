@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 202
+    .line 219
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 4
 
     .prologue
-    .line 206
+    .line 223
     :try_start_0
     const-string v0, "com.isaigu.gymapp.widget.XemsNav"
 
@@ -62,11 +62,11 @@
     :try_end_16
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_16} :catch_17
 
-    .line 209
+    .line 226
     :goto_16
     return-void
 
-    .line 207
+    .line 224
     :catch_17
     move-exception v0
 

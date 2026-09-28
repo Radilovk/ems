@@ -208,7 +208,25 @@ async function handleAuto(request, env) {
     await audit(env, 'auto_enroll', lic.id, deviceId, body.device_model);
   }
   const token = await mintToken(env, lic, deviceId);
-  return json({ ok: true, token, phase, studio: await ensureStudioCode(env, lic) });
+  return json({ ok: true, token, phase, studio: await ensureStudioCode(env, lic), app_latest: await latestFor(env, body.app_code) });
+}
+
+/**
+ * The newest stable XEMS this tablet may install (0 = none newer). Sent with the licence answer, so the tablet
+ * does not ask /v1/app/update on its own — only when there is something to download.
+ */
+async function latestFor(env, appCode) {
+  const code = parseInt(appCode || 0, 10) || 0;
+  try {
+    const rel = await env.DB.prepare(
+      `SELECT version_code FROM releases
+       WHERE channel = 'stable' AND version_code > ? AND (min_code IS NULL OR min_code <= ?)
+       ORDER BY version_code DESC LIMIT 1`,
+    ).bind(code, code).first();
+    return rel ? rel.version_code : 0;
+  } catch {
+    return -1;                                  // unknown: the tablet asks the usual way
+  }
 }
 
 async function handleRefresh(request, env) {
@@ -239,7 +257,7 @@ async function handleRefresh(request, env) {
   await touchActivation(env, act, body);
   const newToken = await mintToken(env, lic, deviceId);
   await audit(env, 'refresh', lic.id, deviceId, null);
-  return json({ ok: true, token: newToken, studio: await ensureStudioCode(env, lic) });
+  return json({ ok: true, token: newToken, studio: await ensureStudioCode(env, lic), app_latest: await latestFor(env, body.app_code) });
 }
 
 // ─── Client card (a phone page the studio sends to its client) ───────────────

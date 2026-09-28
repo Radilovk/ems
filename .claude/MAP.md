@@ -258,7 +258,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsIcon.java` (178L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (426L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
-- `XemsLicenseClient.java` (541L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
+- `XemsLicenseClient.java` (565L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
 - `XemsLicenseSection.java` (330L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (288L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
@@ -314,7 +314,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/index.js` (887L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (905L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (25L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).

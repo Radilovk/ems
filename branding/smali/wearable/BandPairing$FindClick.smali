@@ -27,13 +27,13 @@
     .registers 2
 
     .prologue
-    .line 499
+    .line 510
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 500
+    .line 511
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$FindClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 501
+    .line 512
     return-void
 .end method
 
@@ -43,13 +43,13 @@
     .registers 3
 
     .prologue
-    .line 505
+    .line 516
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$FindClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->find()V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$100(Lcom/isaigu/gymapp/wearable/BandPairing;)V
 
-    .line 506
+    .line 517
     return-void
 .end method
 
@@ -57,12 +57,12 @@
     .registers 2
 
     .prologue
-    .line 510
+    .line 521
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$FindClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->find()V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$100(Lcom/isaigu/gymapp/wearable/BandPairing;)V
 
-    .line 511
+    .line 522
     return-void
 .end method

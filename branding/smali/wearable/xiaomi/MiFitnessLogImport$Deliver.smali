@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 615
+    .line 661
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 616
+    .line 662
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->cb:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
-    .line 617
+    .line 663
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
-    .line 618
+    .line 664
     return-void
 .end method
 
@@ -47,26 +47,35 @@
     .registers 4
 
     .prologue
-    .line 622
+    .line 668
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->cb:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
-    if-nez v0, :cond_e
+    if-eqz v0, :cond_10
 
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->hasAny()Z
+
+    move-result v0
+
+    if-nez v0, :cond_16
+
+    :cond_10
     const-string v0, "no key"
 
-    :goto_a
+    :goto_12
     invoke-interface {v1, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;->onFound(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;Ljava/lang/String;)V
 
-    .line 623
+    .line 669
     return-void
 
-    .line 622
-    :cond_e
+    .line 668
+    :cond_16
     const/4 v0, 0x0
 
-    goto :goto_a
+    goto :goto_12
 .end method

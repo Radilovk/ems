@@ -3,7 +3,8 @@
     <div class="screen">
       <text class="caps" style="color: {{capsColor}}">{{caps}}</text>
       <div class="mid">
-        <stack class="ring-box">
+        <stack class="ring-box {{resetDown ? 'down' : ''}}"
+               ontouchstart="pressReset" ontouchend="releaseReset" ontouchcancel="releaseReset" onclick="reset">
           <image class="halo" if="{{run}}" src="/common/art/glow-timer.png"></image>
           <progress class="ring" type="arc" percent="{{pct}}" style="color: {{ringColor}}"></progress>
           <div class="center">
@@ -16,10 +17,6 @@
           <image class="play-img" src="{{run ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
         </div>
         <text class="sub">{{status}}</text>
-        <div class="reset {{resetDown ? 'down' : ''}} {{armed ? '' : 'off'}}"
-             ontouchstart="pressReset" ontouchend="releaseReset" ontouchcancel="releaseReset" onclick="reset">
-          <text class="reset-t">НУЛИРАЙ</text>
-        </div>
       </div>
     </div>
   </stack>
@@ -99,7 +96,7 @@ export default {
     } else if (tm.pau) {
       this.caps = 'ПАУЗА'
       this.capsColor = AMBER
-      this.status = 'таймерът е спрян'
+      this.status = 'докосни кръга = нулиране'
     } else if (mods(s).tr && mods(s).tr.run) {
       this.caps = 'ЧАКА'
       this.capsColor = AMBER
@@ -127,8 +124,11 @@ export default {
     }
   },
 
+  // a tap on the dial = back to the start of the interval (replaces the old НУЛИРАЙ button)
   pressReset() {
-    this.resetDown = true
+    if (this.armed) {
+      this.resetDown = true
+    }
   },
 
   releaseReset() {
@@ -342,6 +342,8 @@ export default {
 .ring-box {
   width: 180px;
   height: 180px;
+  transition-property: transform;
+  transition-duration: 120ms;
 }
 .ring {
   width: 180px;
@@ -391,21 +393,5 @@ export default {
   margin-top: 12px;
   width: 184px;
   font-size: 22px;
-}
-.reset {
-  margin-top: 14px;
-  width: 140px;
-  height: 44px;
-  border-radius: 22px;
-  border-width: 2px;
-  border-color: #3A3F55;
-  background-color: #151824;
-  justify-content: center;
-  align-items: center;
-}
-.reset-t {
-  font-size: 20px;
-  font-weight: bold;
-  color: #FF8A1F;
 }
 </style>

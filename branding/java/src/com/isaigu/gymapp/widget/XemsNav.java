@@ -213,11 +213,23 @@ public final class XemsNav {
         tile.addView(texts, tp);
 
         // "i": what the module is, what it gives, how to work with it (XemsModuleInfo)
-        TextView info = XemsUi.iconButton(c, "i", XemsUi.SURFACE, XemsUi.MUTED, 26);
+        // A real target (42 dp, was 26): a round badge in the module's colour, inside the tile.
+        int infoDp = 42;
+        TextView info = XemsUi.text(c, "i", 21, tint, true);
+        info.setTypeface(Typeface.create(Typeface.SERIF, Typeface.BOLD));
+        info.setGravity(Gravity.CENTER);
+        info.setIncludeFontPadding(false);
+        GradientDrawable ig = new GradientDrawable();
+        ig.setShape(GradientDrawable.OVAL);
+        ig.setColor(XemsUi.alpha(tint, 0x24));
+        ig.setStroke(XemsUi.dp(c, 1.5f), XemsUi.alpha(tint, 0x99));
+        info.setBackgroundDrawable(XemsUi.ripple(ig, tint, XemsUi.dp(c, infoDp)));
+        info.setClickable(true);
+        XemsUi.pressable(info);
         info.setOnClickListener(new InfoClick(module));
         info.setContentDescription(tr("Информация", "Info"));
-        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(XemsUi.dp(c, 26), XemsUi.dp(c, 26));
-        ip.leftMargin = XemsUi.dp(c, 6);
+        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(XemsUi.dp(c, infoDp), XemsUi.dp(c, infoDp));
+        ip.leftMargin = XemsUi.dp(c, 8);
         tile.addView(info, ip);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,

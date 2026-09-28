@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 661
+    .line 672
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 662
+    .line 673
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$MacFound;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 663
+    .line 674
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/BandPairing$MacFound;->key:Ljava/lang/String;
 
-    .line 664
+    .line 675
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/BandPairing$MacFound;->name:Ljava/lang/String;
 
-    .line 665
+    .line 676
     return-void
 .end method
 
@@ -61,7 +61,7 @@
     .end annotation
 
     .prologue
-    .line 669
+    .line 680
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$MacFound;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$MacFound;->key:Ljava/lang/String;
@@ -71,6 +71,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->macResult(Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v0, p1, v1, v2}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1200(Lcom/isaigu/gymapp/wearable/BandPairing;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 670
+    .line 681
     return-void
 .end method

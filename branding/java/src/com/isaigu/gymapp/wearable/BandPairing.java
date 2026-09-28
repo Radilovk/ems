@@ -193,7 +193,8 @@ final class BandPairing {
         findBtn.setEnabled(false);
         choices.removeAllViews();
         pickLink.setVisibility(View.GONE);
-        setStatus(WearableUi.tr("Търся най-новия лог на Mi Fitness…", "Looking for the newest Mi Fitness log…"), false);
+        setStatus(WearableUi.tr("Чета най-новия архив на Mi Fitness… (голям архив — до минута)",
+                "Reading the newest Mi Fitness archive… (a big one takes up to a minute)"), false);
         new Thread(new ScanTask(this), "xems-band-scan").start();
     }
 
@@ -213,7 +214,7 @@ final class BandPairing {
             MiFitnessLogImport.grantFolder(a, new PickedFile(this));
             return;
         }
-        failed(null);
+        failed(null, f);
     }
 
     private void pickFile() {
@@ -240,7 +241,7 @@ final class BandPairing {
             }
         }
         if (bands.isEmpty()) {
-            failed(null);
+            failed(null, f);
             return;
         }
         showBands(bands);
@@ -388,7 +389,17 @@ final class BandPairing {
         finish();
     }
 
-    private void failed(String problem) {
+    /** What the search saw, so a failure says where it stopped. */
+    private static String diag(MiFitnessLogImport.Found f) {
+        if (f == null) {
+            return "";
+        }
+        String s = WearableUi.tr("\n(Логове: видени " + f.listed + ", прочетени " + f.files + ", архиви " + f.zips,
+                "\n(Logs: seen " + f.listed + ", read " + f.files + ", archives " + f.zips);
+        return s + (f.error.length() > 0 ? "; " + f.error : "") + ")";
+    }
+
+    private void failed(String problem, MiFitnessLogImport.Found f) {
         busy = false;
         findBtn.setEnabled(true);
         pickLink.setVisibility(View.VISIBLE);
@@ -402,7 +413,7 @@ final class BandPairing {
         showManual(WearableUi.tr("В логовете няма ключ. В Mi Fitness (с гривната сдвоена там) направи нов лог "
                         + "и натисни „Търси пак“ — или въведи ръчно.",
                 "No key in the logs. In Mi Fitness (with the band paired there) make a new log and press "
-                        + "“Search again” — or enter it by hand."));
+                        + "“Search again” — or enter it by hand.") + diag(f));
     }
 
     private void showManual(String why) {
@@ -685,7 +696,7 @@ final class BandPairing {
             if (f != null && f.hasAny()) {
                 p.found(f);
             } else {
-                p.failed(problem);
+                p.failed(problem, f);
             }
         }
     }

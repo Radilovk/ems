@@ -27,11 +27,15 @@
     .end annotation
 .end field
 
+.field public error:Ljava/lang/String;
+
 .field public files:I
 
 .field public fromToken:Z
 
 .field public key:Ljava/lang/String;
+
+.field public listed:I
 
 .field public mac:Ljava/lang/String;
 
@@ -47,30 +51,35 @@
     .registers 2
 
     .prologue
-    .line 82
-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-
     .line 83
-    const-string v0, ""
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 84
     const-string v0, ""
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
 
-    .line 87
+    .line 85
     const-string v0, ""
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->macHint:Ljava/lang/String;
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
     .line 88
     const-string v0, ""
 
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->macHint:Ljava/lang/String;
+
+    .line 89
+    const-string v0, ""
+
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->name:Ljava/lang/String;
 
-    .line 94
+    .line 97
+    const-string v0, ""
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->error:Ljava/lang/String;
+
+    .line 99
     new-instance v0, Ljava/util/LinkedHashMap;
 
     invoke-direct {v0}, Ljava/util/LinkedHashMap;-><init>()V
@@ -86,7 +95,7 @@
     .registers 2
 
     .prologue
-    .line 97
+    .line 102
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I

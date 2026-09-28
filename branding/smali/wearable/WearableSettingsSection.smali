@@ -455,7 +455,7 @@
 
     move-result v0
 
-    const/16 v5, 0x44
+    const/16 v5, 0x45
 
     if-lt v0, v5, :cond_1cc
 

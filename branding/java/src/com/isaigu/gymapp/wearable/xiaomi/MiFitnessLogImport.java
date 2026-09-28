@@ -32,7 +32,8 @@ public final class MiFitnessLogImport {
 
     private static final String TAG = "xems_mifit_log_pick";
     private static final int REQ = 0x5A9;
-    private static final long MAX_FILE = 64L * 1024 * 1024;
+    /** Mi Fitness archives are often 100+ MB; they are streamed, so only absurd sizes are skipped. */
+    private static final long MAX_FILE = 2048L * 1024 * 1024;
 
     private static final Pattern KEY_PRIMARY = Pattern.compile(
             "(?i)\"?(?:encryptKey|encrypt_key|authKey|auth_key)\"?\\s*[:=]\\s*\"?([0-9a-f]{32})(?![0-9a-f])");
@@ -90,6 +91,10 @@ public final class MiFitnessLogImport {
         public int files;
         /** How many .zip archives were opened. */
         public int zips;
+        /** Log files seen in the folders (before opening). */
+        public int listed;
+        /** The first file that could not be opened, and why ("" = none). */
+        public String error = "";
         /** Bands from the device-list JSON (newest last). Empty for older log formats. */
         public final java.util.LinkedHashMap<String, Dev> devices = new java.util.LinkedHashMap<String, Dev>();
 
@@ -205,7 +210,7 @@ public final class MiFitnessLogImport {
             collect(roots.get(i), fs, 0);
             for (int k = 0; k < fs.size(); k++) {
                 File f = fs.get(k);
-                if (f.length() <= MAX_FILE && f.canRead()) {
+                if (f.length() <= MAX_FILE) {
                     files.add(new Entry(f, null, f.lastModified(), f.getAbsolutePath()));
                 }
             }
@@ -227,18 +232,53 @@ public final class MiFitnessLogImport {
                 pick.add(arr[i]);
             }
         }
-        for (int i = pick.size() - 1; i >= 0; i--) {
+        best.listed = pick.size();
+        // Newest first; the first archive that names the bands (key + MAC) is the answer. Older ones only
+        // fill in when the newest has just a key.
+        for (int i = 0; i < pick.size(); i++) {
             Entry e = pick.get(i);
+            Found one = new Found();
             try {
                 InputStream in = e.file != null ? new FileInputStream(e.file)
                         : c.getContentResolver().openInputStream(e.uri);
                 try {
-                    scanAny(in, best);
+                    scanAny(in, one);
                     best.files++;
+                    best.zips += one.zips;
                 } finally {
                     in.close();
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable t) {
+                if (best.error.length() == 0) {
+                    best.error = e.name + ": " + t.getClass().getSimpleName()
+                            + (t.getMessage() != null ? " " + t.getMessage() : "");
+                }
+                continue;
+            }
+            if (!one.devices.isEmpty()) {
+                for (Dev d : one.devices.values()) {
+                    if (!best.devices.containsKey(d.mac)) {
+                        best.devices.put(d.mac, d);
+                    }
+                }
+                if (best.key.length() == 0) {
+                    best.key = one.key;
+                }
+                break;
+            }
+            if (best.key.length() == 0 && one.key.length() > 0) {
+                best.key = one.key;
+                best.fromToken = one.fromToken;
+            }
+            if (best.mac.length() == 0 && one.mac.length() > 0) {
+                best.mac = one.mac;
+            }
+            if (best.macHint.length() == 0) {
+                best.macHint = one.macHint;
+                best.name = one.name.length() > 0 ? one.name : best.name;
+            }
+            if (best.key.length() > 0 && best.mac.length() > 0) {
+                break;
             }
         }
         return best;
@@ -365,7 +405,7 @@ public final class MiFitnessLogImport {
         BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"), 1 << 16);
         String line;
         while ((line = r.readLine()) != null) {
-            if (line.length() < 32) {
+            if (line.length() < 32 || !relevant(line)) {
                 continue;
             }
             if (line.indexOf("\\\"") >= 0) {
@@ -410,6 +450,12 @@ public final class MiFitnessLogImport {
                 }
             }
         }
+    }
+
+    /** Cheap pre-filter: 100+ MB archives are mostly lines without a key, MAC or band name. */
+    private static boolean relevant(String l) {
+        return l.indexOf("ey") >= 0 || l.indexOf("EY") >= 0 || l.indexOf("oken") >= 0 || l.indexOf("mac") >= 0
+                || l.indexOf("Mac") >= 0 || l.indexOf("MAC") >= 0 || l.indexOf("ddress") >= 0 || l.indexOf("Band") >= 0;
     }
 
     /** "D0:62:**:**:3F:A2" → "3FA2" (the unmasked bytes at the end); "" when nothing is masked. */
@@ -575,7 +621,7 @@ public final class MiFitnessLogImport {
         @Override
         public void run() {
             Found f = scanLocal(a);
-            a.runOnUiThread(new Deliver(cb, f.hasAny() ? f : null));
+            a.runOnUiThread(new Deliver(cb, f));
         }
     }
 
@@ -604,7 +650,7 @@ public final class MiFitnessLogImport {
                 } catch (Throwable ignored) {
                 }
             }
-            a.runOnUiThread(new Deliver(cb, f.hasAny() ? f : null));
+            a.runOnUiThread(new Deliver(cb, f));
         }
     }
 
@@ -619,7 +665,7 @@ public final class MiFitnessLogImport {
 
         @Override
         public void run() {
-            cb.onFound(f, f == null ? "no key" : null);
+            cb.onFound(f, f == null || !f.hasAny() ? "no key" : null);
         }
     }
 }

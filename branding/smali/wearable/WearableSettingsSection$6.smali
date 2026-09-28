@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 528
+    .line 543
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$bands:Ljava/util/List;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$clipKey:Ljava/lang/String;
@@ -49,7 +49,7 @@
     .registers 6
 
     .prologue
-    .line 531
+    .line 546
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$6;->val$bands:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->size()I
@@ -58,7 +58,7 @@
 
     if-ge p2, v0, :cond_39
 
-    .line 532
+    .line 547
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
@@ -66,7 +66,7 @@
 
     if-eqz v0, :cond_20
 
-    .line 533
+    .line 548
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
@@ -86,7 +86,7 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 535
+    .line 550
     :cond_20
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700()Landroid/widget/EditText;
@@ -95,7 +95,7 @@
 
     if-eqz v0, :cond_38
 
-    .line 536
+    .line 551
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700()Landroid/widget/EditText;
 
@@ -115,12 +115,12 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 541
+    .line 556
     :cond_38
     :goto_38
     return-void
 
-    .line 538
+    .line 553
     :cond_39
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700()Landroid/widget/EditText;
@@ -129,7 +129,7 @@
 
     if-eqz v0, :cond_38
 
-    .line 539
+    .line 554
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700()Landroid/widget/EditText;
 

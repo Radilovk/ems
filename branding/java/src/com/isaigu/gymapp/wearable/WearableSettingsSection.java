@@ -165,6 +165,21 @@ public final class WearableSettingsSection {
         fsp.topMargin = WearableUi.dp(a, 10);
         card.addView(fromSaved, fsp);
 
+        // Automatic: log in to the Xiaomi (Mi Fitness) account and pull the paired band's MAC + key
+        TextView fromXiaomi = WearableUi.button(a, WearableUi.tr("Вход с Xiaomi акаунт", "Log in with Xiaomi account"),
+                0xFFEA6A2B, 0xFFFFFFFF);
+        fromXiaomi.setOnClickListener(new XiaomiLoginClick(a, root));
+        LinearLayout.LayoutParams xsp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 48));
+        xsp.topMargin = WearableUi.dp(a, 8);
+        card.addView(fromXiaomi, xsp);
+        TextView xHint = WearableUi.text(a, WearableUi.tr(
+                "Гривната е вече сдвоена в Mi Fitness — взима MAC и ключа от акаунта автоматично.",
+                "The band is already paired in Mi Fitness — takes the MAC and key from the account automatically."),
+                12f, mutedCol, false);
+        xHint.setPadding(0, WearableUi.dp(a, 6), 0, 0);
+        card.addView(xHint);
+
         // Radio: Band 8 and older use BLE; Band 8 Pro / 9 / 10 use Bluetooth Classic (SPP).
         // Picked from the paired band's name; the manual choice appears only when the name is
         // not recognised (or the trainer already forced one).
@@ -841,6 +856,186 @@ public final class WearableSettingsSection {
             statusView = null;
             macView = null;
             keyView = null;
+        }
+    }
+
+    // ================================================================ Xiaomi account login
+    static final class XiaomiLoginClick implements View.OnClickListener {
+        private final Activity a;
+        private final View root;
+
+        XiaomiLoginClick(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void onClick(View v) {
+            showXiaomiLogin(a, root);
+        }
+    }
+
+    /** Ask for the Xiaomi account, then fetch the band's MAC + key in the background. */
+    static void showXiaomiLogin(final Activity a, final View root) {
+        int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
+        LinearLayout box = new LinearLayout(a);
+        box.setOrientation(LinearLayout.VERTICAL);
+        int pad = WearableUi.dp(a, 20);
+        box.setPadding(pad, WearableUi.dp(a, 8), pad, 0);
+
+        final EditText email = field(a, textCol);
+        email.setHint(WearableUi.tr("Имейл или телефон", "Email or phone"));
+        email.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 46));
+        box.addView(email, lp);
+
+        final EditText pass = field(a, textCol);
+        pass.setHint(WearableUi.tr("Парола", "Password"));
+        pass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 46));
+        lp2.topMargin = WearableUi.dp(a, 10);
+        box.addView(pass, lp2);
+
+        TextView note = WearableUi.text(a, WearableUi.tr(
+                "Данните за вход не се пазят — ползват се само сега, за да се вземе ключът от Xiaomi.",
+                "The login is not stored — used only now, to fetch the key from Xiaomi."),
+                12f, WearableUi.color(a, "text_secondary", 0xFF9AA0A6), false);
+        note.setPadding(0, WearableUi.dp(a, 12), 0, 0);
+        box.addView(note);
+
+        new android.app.AlertDialog.Builder(a)
+                .setTitle(WearableUi.tr("Вход с Xiaomi акаунт", "Log in with Xiaomi account"))
+                .setView(box)
+                .setPositiveButton(WearableUi.tr("Вземи ключа", "Fetch key"),
+                        new XiaomiLoginConfirm(a, root, email, pass))
+                .setNegativeButton(WearableUi.tr("Отказ", "Cancel"), null)
+                .show();
+    }
+
+    static final class XiaomiLoginConfirm implements android.content.DialogInterface.OnClickListener {
+        private final Activity a;
+        private final View root;
+        private final EditText email;
+        private final EditText pass;
+
+        XiaomiLoginConfirm(Activity a, View root, EditText email, EditText pass) {
+            this.a = a;
+            this.root = root;
+            this.email = email;
+            this.pass = pass;
+        }
+
+        @Override
+        public void onClick(android.content.DialogInterface d, int which) {
+            String e = email.getText().toString().trim();
+            String p = pass.getText().toString();
+            if (e.length() == 0 || p.length() == 0) {
+                toast(a, WearableUi.tr("Въведи имейл и парола.", "Enter email and password."));
+                return;
+            }
+            toast(a, WearableUi.tr("Свързване с Xiaomi…", "Contacting Xiaomi…"));
+            new Thread(new XiaomiLoginTask(a, root, e, p), "xems-xiaomi-login").start();
+        }
+    }
+
+    static final class XiaomiLoginTask implements Runnable {
+        private final Activity a;
+        private final View root;
+        private final String email;
+        private final String pass;
+
+        XiaomiLoginTask(Activity a, View root, String email, String pass) {
+            this.a = a;
+            this.root = root;
+            this.email = email;
+            this.pass = pass;
+        }
+
+        @Override
+        public void run() {
+            String error;
+            java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
+            try {
+                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchBands(email, pass);
+                error = null;
+            } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
+                error = ce.getMessage();
+            } catch (Throwable t) {
+                error = WearableUi.tr("Нещо се обърка при входа.", "Something went wrong during login.");
+            }
+            handler.post(new XiaomiApply(a, root, bands, error));
+        }
+    }
+
+    /** Back on the UI thread: fill MAC + key (or pick, if several) and save. */
+    static final class XiaomiApply implements Runnable {
+        private final Activity a;
+        private final View root;
+        private final java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands;
+        private final String error;
+
+        XiaomiApply(Activity a, View root,
+                    java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands, String error) {
+            this.a = a;
+            this.root = root;
+            this.bands = bands;
+            this.error = error;
+        }
+
+        @Override
+        public void run() {
+            if (error != null || bands == null || bands.isEmpty()) {
+                toast(a, error != null ? error
+                        : WearableUi.tr("Не намерих гривна в акаунта.", "No band found in the account."));
+                return;
+            }
+            if (bands.size() == 1) {
+                apply(bands.get(0));
+                return;
+            }
+            final String[] labels = new String[bands.size()];
+            for (int i = 0; i < bands.size(); i++) {
+                com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band b = bands.get(i);
+                labels[i] = (b.name.length() > 0 ? b.name : WearableUi.tr("Гривна", "Band")) + "\n" + b.mac;
+            }
+            new android.app.AlertDialog.Builder(a)
+                    .setTitle(WearableUi.tr("Коя гривна?", "Which band?"))
+                    .setItems(labels, new XiaomiPick(bands))
+                    .setNegativeButton(WearableUi.tr("Отказ", "Cancel"), null)
+                    .show();
+        }
+
+        void apply(com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band b) {
+            WearableConfig.setBandMac(a, b.mac);
+            WearableConfig.setAuthKey(a, b.key);
+            WearableConfig.rememberBand(a, b.mac, b.key, b.name);
+            if (macView != null) {
+                macView.setText(b.mac);
+            }
+            if (keyView != null) {
+                keyView.setText(b.key);
+                setKeyHidden(true);
+            }
+            colorFields();
+            toast(a, WearableUi.tr("Готово — гривната е закачена ✓", "Done — the band is linked ✓"));
+            handler.post(new Rebuild(a, root));
+        }
+
+        final class XiaomiPick implements android.content.DialogInterface.OnClickListener {
+            private final java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> list;
+
+            XiaomiPick(java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> list) {
+                this.list = list;
+            }
+
+            @Override
+            public void onClick(android.content.DialogInterface d, int which) {
+                if (which >= 0 && which < list.size()) {
+                    apply(list.get(which));
+                }
+            }
         }
     }
 }

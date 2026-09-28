@@ -74,6 +74,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-wearable-permissions.py` (48L, build:L108[BETA_MUSIC]) — Request BLUETOOTH_CONNECT + BLUETOOTH_SCAN at MainActivity startup (Huawei needs both).
 - `scripts/apply-wearable-settings-connect.py` (388L, build:L141[BETA_MUSIC]) — Patch wearable smali for settings band connection test (full reconnect + status UX).
 - `scripts/apply-xems-nav.py` (90L, build:L114[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
+- `scripts/band-key/xiaomi-key.py` (164L) — Fetch a Xiaomi band's BLE MAC + auth key from the Xiaomi (Mi Fitness) cloud.
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
 - `scripts/ble-sim/run-dual.sh` (25L) — Two bands (Settings → Band → second band): the same simulated Band 9/10 as the client's band (ROLE=hr) and as
 - `scripts/ble-sim/run-hr-policy.sh` (33L, build:L140[BETA_MUSIC]) — Offline HR demand policy test (settings/dial/AI vs idle link). No device, no Android SDK.
@@ -86,7 +87,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-channel-scale-java.sh` (57L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L100[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (205L, build:L90[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (175L, build:L105[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (177L, build:L105[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (63L, build:L67[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (81L, build:L112[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -215,7 +216,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableConfig.java` (339L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
 - `WearableHrPanel.java` (324L, compile:music-sync*,wearable) — The "i" of the HR dial: what matters during a session, drawn — the HR now with its zone, the HR chart (5 / 15 min / all…
 - `WearableLivePanel.java` (340L, compile:music-sync*,wearable) — "Band data" panel: every live field from 8/47, event rate, share the raw recording.
-- `WearableSettingsSection.java` (847L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
+- `WearableSettingsSection.java` (1042L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
 - `WearableSyncHelper.java` (1349L, compile:music-sync*,wearable) — Wearable sync UI: config modal + floating HR dial (same pattern as interval timer).
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
@@ -247,6 +248,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XiaomiBandStatus.java` (157L, compile:music-sync*,wearable) — What the band says about itself besides heart rate: battery, charging, worn / not worn, asleep, firmware and model.
 - `XiaomiBandWorkout.java` (79L, compile:music-sync*,wearable) — A workout the band records itself (HR, calories, time), started from the phone — the band keeps it in its own history a…
 - `XiaomiBandWriteQueue.java` (237L, compile:music-sync*,wearable) — Serialized GATT writes with band-ACK gating for encrypted commands.
+- `XiaomiCloudAccount.java` (399L, compile:music-sync*,wearable) — Logs into a Xiaomi (Mi Fitness) account and reads back the paired band's BLE MAC + auth key, so the tablet can talk to …
+- `XiaomiCloudCrypto.java` (250L, compile:music-sync*,wearable) — Xiaomi Mi Fitness cloud crypto — RC4-drop[1024] + SHA1 signature (i42.c "encrypted" mode).
 
 **widget/** (`branding/java/src/com/isaigu/gymapp/widget/`)
 - `AvatarClusterLayout.java` (163L, compile:avatar-cluster,music-sync*) — Proportional avatar cluster lock.
@@ -315,7 +318,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/index.js` (905L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (906L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (25L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
@@ -543,13 +546,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
   - L28 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
 
-`docs/xems-client-sync.md` (72L)
+`docs/xems-client-sync.md` (73L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
   - L5 ## Кой е собственик на кои данни
   - L14 ## Сливане на профил на таблета (`widget/XemsClientSync`)
-  - L26 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
-  - L55 ## Разходи (Cloudflare Workers + D1)
-  - L69 ## Кодът на студиото
+  - L27 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
+  - L56 ## Разходи (Cloudflare Workers + D1)
+  - L70 ## Кодът на студиото
 
 `docs/xems-license-api.md` (179L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
@@ -773,6 +776,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L282 ## 9a. Интерфейс (от v1.1.55-ble)
   - L300 ## 10. Сглобяване
   - L318 ## 11. Референции
+
+`scripts/band-key/README.md` (49L)
+  - L1 # Band auth key — from the Xiaomi account
+  - L11 ## Run
+  - L33 ## Notes
+  - L42 ## In-app version (planned)
 
 `server/CLAUDE.md` (11L)
   - L1 # server — XEMS license server (Cloudflare Worker + D1)

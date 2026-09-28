@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1230
+    .prologue
+    .line 1249
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,38 +31,42 @@
 
 # virtual methods
 .method public afterTextChanged(Landroid/text/Editable;)V
-    .registers 2
+    .registers 3
 
-    .line 1239
-    if-eqz p1, :cond_7
+    .prologue
+    .line 1258
+    if-eqz p1, :cond_a
 
-    invoke-virtual {p1}, Ljava/lang/Object;->toString()Ljava/lang/String;
+    invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
-    move-result-object p1
+    move-result-object v0
 
-    goto :goto_9
-
-    :cond_7
-    const-string p1, ""
-
-    :goto_9
+    :goto_6
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->colorAuthKey(Ljava/lang/String;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1700(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1600(Ljava/lang/String;)V
 
-    .line 1240
+    .line 1259
     return-void
+
+    .line 1258
+    :cond_a
+    const-string v0, ""
+
+    goto :goto_6
 .end method
 
 .method public beforeTextChanged(Ljava/lang/CharSequence;III)V
     .registers 5
 
-    .line 1232
+    .prologue
+    .line 1251
     return-void
 .end method
 
 .method public onTextChanged(Ljava/lang/CharSequence;III)V
     .registers 5
 
-    .line 1235
+    .prologue
+    .line 1254
     return-void
 .end method

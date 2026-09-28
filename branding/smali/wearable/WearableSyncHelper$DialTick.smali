@@ -21,7 +21,8 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 804
+    .prologue
+    .line 821
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,7 +31,8 @@
 .method synthetic constructor <init>(Lcom/isaigu/gymapp/wearable/WearableSyncHelper$1;)V
     .registers 2
 
-    .line 804
+    .prologue
+    .line 821
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$DialTick;-><init>()V
 
     return-void
@@ -39,16 +41,17 @@
 
 # virtual methods
 .method public run()V
-    .registers 4
+    .registers 5
 
-    .line 808
+    .prologue
+    .line 825
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->hrValueView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$700()Landroid/widget/TextView;
 
     move-result-object v0
 
-    if-eqz v0, :cond_1a
+    if-eqz v0, :cond_c
 
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100()Landroid/support/v7/app/AlertDialog;
@@ -57,43 +60,38 @@
 
     if-nez v0, :cond_d
 
-    goto :goto_1a
+    .line 833
+    :cond_c
+    :goto_c
+    return-void
 
-    .line 811
+    .line 828
     :cond_d
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshOverlayDisplay()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
 
-    .line 812
+    .line 829
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$900()Landroid/os/Handler;
 
     move-result-object v0
 
-    const-wide/16 v1, 0x3e8
+    const-wide/16 v2, 0x3e8
 
-    invoke-virtual {v0, p0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
     :try_end_19
-    .catchall {:try_start_0 .. :try_end_19} :catchall_1b
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_19} :catch_1a
 
-    .line 815
-    goto :goto_21
+    goto :goto_c
 
-    .line 809
-    :cond_1a
-    :goto_1a
-    return-void
-
-    .line 813
-    :catchall_1b
+    .line 830
+    :catch_1a
     move-exception v0
 
-    .line 814
+    .line 831
     const-string v1, "WearableSyncHelper.DialTick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 816
-    :goto_21
-    return-void
+    goto :goto_c
 .end method

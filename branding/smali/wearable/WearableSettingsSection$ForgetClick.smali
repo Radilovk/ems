@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 363
+    .line 456
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 364
+    .line 457
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetClick;->a:Landroid/app/Activity;
 
-    .line 365
+    .line 458
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetClick;->root:Landroid/view/View;
 
-    .line 366
+    .line 459
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetClick;->mac:Ljava/lang/String;
 
-    .line 367
+    .line 460
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetClick;->name:Ljava/lang/String;
 
-    .line 368
+    .line 461
     return-void
 .end method
 
@@ -57,7 +57,7 @@
     .registers 8
 
     .prologue
-    .line 372
+    .line 465
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetClick;->a:Landroid/app/Activity;
@@ -68,7 +68,7 @@
 
     const-string v2, "Forget this band?"
 
-    .line 373
+    .line 466
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -103,7 +103,7 @@
 
     move-result-object v1
 
-    .line 374
+    .line 467
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -112,7 +112,7 @@
 
     const-string v2, "Forget"
 
-    .line 375
+    .line 468
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -135,7 +135,7 @@
 
     const-string v2, "Cancel"
 
-    .line 376
+    .line 469
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -146,9 +146,9 @@
 
     move-result-object v0
 
-    .line 377
+    .line 470
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 378
+    .line 471
     return-void
 .end method

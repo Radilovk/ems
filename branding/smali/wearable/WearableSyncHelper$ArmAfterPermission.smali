@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1181
+    .prologue
+    .line 1200
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +33,8 @@
 .method public run()V
     .registers 2
 
-    .line 1184
+    .prologue
+    .line 1203
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
@@ -43,6 +45,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->finishArm(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1200(Landroid/app/Activity;)V
 
-    .line 1185
+    .line 1204
     return-void
 .end method

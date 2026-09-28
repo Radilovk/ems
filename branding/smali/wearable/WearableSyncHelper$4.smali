@@ -26,7 +26,13 @@
 # direct methods
 .method constructor <init>(Landroid/app/Activity;Ljava/lang/String;)V
     .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
+    .prologue
     .line 322
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
 
@@ -42,6 +48,7 @@
 .method public run()V
     .registers 3
 
+    .prologue
     .line 325
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$4;->val$activity:Landroid/app/Activity;
 

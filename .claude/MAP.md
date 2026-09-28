@@ -217,8 +217,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableConfig.java` (440L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
 - `WearableHrPanel.java` (324L, compile:music-sync*,wearable) — The "i" of the HR dial: what matters during a session, drawn — the HR now with its zone, the HR chart (5 / 15 min / all…
 - `WearableLivePanel.java` (340L, compile:music-sync*,wearable) — "Band data" panel: every live field from 8/47, event rate, share the raw recording.
-- `WearableSettingsSection.java` (663L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
-- `WearableSyncHelper.java` (1349L, compile:music-sync*,wearable) — Wearable sync UI: config modal + floating HR dial (same pattern as interval timer).
+- `WearableSettingsSection.java` (756L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
+- `WearableSyncHelper.java` (1368L, compile:music-sync*,wearable) — Wearable sync UI: config modal + floating HR dial (same pattern as interval timer).
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)

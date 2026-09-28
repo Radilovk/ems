@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1219
+    .prologue
+    .line 1238
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,25 +31,26 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
-    .line 1222
+    .prologue
+    .line 1241
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$000(Landroid/view/View;)Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v0
 
-    .line 1223
-    if-eqz p1, :cond_9
+    .line 1242
+    if-eqz v0, :cond_9
 
-    .line 1224
+    .line 1243
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->saveConfigFromUi(Landroid/app/Activity;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1300(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1300(Landroid/app/Activity;)V
 
-    .line 1226
+    .line 1245
     :cond_9
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->show(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableLivePanel;->show(Landroid/app/Activity;)V
 
-    .line 1227
+    .line 1246
     return-void
 .end method

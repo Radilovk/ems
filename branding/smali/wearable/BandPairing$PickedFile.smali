@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 676
+    .line 687
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 677
+    .line 688
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 678
+    .line 689
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 682
+    .line 693
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # getter for: Lcom/isaigu/gymapp/wearable/BandPairing;->closed:Z
@@ -52,11 +52,11 @@
 
     if-eqz v0, :cond_9
 
-    .line 690
+    .line 701
     :goto_8
     return-void
 
-    .line 685
+    .line 696
     :cond_9
     if-eqz p1, :cond_17
 
@@ -66,7 +66,7 @@
 
     if-eqz v0, :cond_17
 
-    .line 686
+    .line 697
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->found(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
@@ -74,12 +74,12 @@
 
     goto :goto_8
 
-    .line 688
+    .line 699
     :cond_17
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->failed(Ljava/lang/String;)V
-    invoke-static {v0, p2}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1500(Lcom/isaigu/gymapp/wearable/BandPairing;Ljava/lang/String;)V
+    # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->failed(Ljava/lang/String;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+    invoke-static {v0, p2, p1}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1500(Lcom/isaigu/gymapp/wearable/BandPairing;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
     goto :goto_8
 .end method

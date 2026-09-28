@@ -44,7 +44,7 @@
 
 .field private static final MAC_MASKED:Ljava/util/regex/Pattern;
 
-.field private static final MAX_FILE:J = 0x4000000L
+.field private static final MAX_FILE:J = 0x80000000L
 
 .field private static final MAX_FILES:I = 0xc
 
@@ -66,7 +66,7 @@
     .registers 3
 
     .prologue
-    .line 37
+    .line 38
     const-string v0, "(?i)\"?(?:encryptKey|encrypt_key|authKey|auth_key)\"?\\s*[:=]\\s*\"?([0-9a-f]{32})(?![0-9a-f])"
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -75,7 +75,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->KEY_PRIMARY:Ljava/util/regex/Pattern;
 
-    .line 39
+    .line 40
     const-string v0, "(?i)\"token\"\\s*[:=]\\s*\"([0-9a-f]{32})\""
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -84,7 +84,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->KEY_TOKEN:Ljava/util/regex/Pattern;
 
-    .line 41
+    .line 42
     const-string v0, "(?i)(?<![0-9a-f:])((?:[0-9a-f]{2}:){5}[0-9a-f]{2})(?![0-9a-f:])"
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -93,7 +93,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->MAC_COLON:Ljava/util/regex/Pattern;
 
-    .line 43
+    .line 44
     const-string v0, "(?i)\"?(?:mac|bleMac|btMac|ble_mac|bt_mac|deviceMac|macAddress|bleAddress|btAddress)\"?\\s*[:=]\\s*\"?((?:[0-9a-f]{2}[:-]?){5}[0-9a-f]{2})(?![0-9a-f])"
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -102,7 +102,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->MAC_KEYED:Ljava/util/regex/Pattern;
 
-    .line 47
+    .line 48
     const-string v0, "(?i)(?:mac|address)\"?\\s*[:=]\\s*\"?((?:[0-9a-f*x]{2}[:-]){5}[0-9a-f*x]{2})"
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -111,7 +111,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->MAC_MASKED:Ljava/util/regex/Pattern;
 
-    .line 49
+    .line 50
     const-string v0, "((?:Xiaomi Smart |Mi Smart |Redmi Smart )?Band \\d+(?: Pro| Active| NFC)?) ([0-9A-F]{4})\\b"
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -120,7 +120,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->BAND_NAME:Ljava/util/regex/Pattern;
 
-    .line 58
+    .line 59
     const/4 v0, 0x6
 
     new-array v0, v0, [Ljava/lang/String;
@@ -163,7 +163,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->DIRS:[Ljava/lang/String;
 
-    .line 101
+    .line 106
     const-string v0, "\"detail\"\\s*:\\s*\\{([^{}]*)\\}"
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -172,7 +172,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->DETAIL:Ljava/util/regex/Pattern;
 
-    .line 102
+    .line 107
     const-string v0, "(?i)\"encrypt_key\"\\s*:\\s*\"([0-9a-f]{32})\""
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -181,7 +181,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->D_KEY:Ljava/util/regex/Pattern;
 
-    .line 103
+    .line 108
     const-string v0, "(?i)\"token\"\\s*:\\s*\"([0-9a-f]{32})\""
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -190,7 +190,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->D_TOKEN:Ljava/util/regex/Pattern;
 
-    .line 104
+    .line 109
     const-string v0, "(?i)\"mac\"\\s*:\\s*\"((?:[0-9a-f]{2}:){5}[0-9a-f]{2})\""
 
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
@@ -206,7 +206,7 @@
     .registers 1
 
     .prologue
-    .line 67
+    .line 68
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -256,10 +256,10 @@
     .end annotation
 
     .prologue
-    .line 316
+    .line 356
     const/4 v0, 0x0
 
-    .line 318
+    .line 358
     :try_start_1
     invoke-virtual {p0}, Ljava/io/File;->listFiles()[Ljava/io/File;
     :try_end_4
@@ -269,7 +269,7 @@
 
     move-object v1, v0
 
-    .line 321
+    .line 361
     :goto_6
     if-eqz v1, :cond_b
 
@@ -277,11 +277,11 @@
 
     if-le p2, v0, :cond_f
 
-    .line 331
+    .line 371
     :cond_b
     return-void
 
-    .line 319
+    .line 359
     :catch_c
     move-exception v1
 
@@ -289,7 +289,7 @@
 
     goto :goto_6
 
-    .line 324
+    .line 364
     :cond_f
     const/4 v0, 0x0
 
@@ -298,7 +298,7 @@
 
     if-ge v0, v2, :cond_b
 
-    .line 325
+    .line 365
     aget-object v2, v1, v0
 
     invoke-virtual {v2}, Ljava/io/File;->isDirectory()Z
@@ -307,21 +307,21 @@
 
     if-eqz v2, :cond_25
 
-    .line 326
+    .line 366
     aget-object v2, v1, v0
 
     add-int/lit8 v3, p2, 0x1
 
     invoke-static {v2, p1, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->collect(Ljava/io/File;Ljava/util/List;I)V
 
-    .line 324
+    .line 364
     :cond_22
     :goto_22
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_10
 
-    .line 327
+    .line 367
     :cond_25
     aget-object v2, v1, v0
 
@@ -335,7 +335,7 @@
 
     if-eqz v2, :cond_22
 
-    .line 328
+    .line 368
     aget-object v2, v1, v0
 
     invoke-interface {p1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
@@ -347,19 +347,19 @@
     .registers 5
 
     .prologue
-    .line 432
+    .line 478
     sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->toUpperCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 433
+    .line 479
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 434
+    .line 480
     const/4 v0, 0x0
 
     :goto_c
@@ -367,26 +367,26 @@
 
     if-ge v0, v3, :cond_1f
 
-    .line 435
+    .line 481
     if-lez v0, :cond_17
 
-    .line 436
+    .line 482
     const/16 v3, 0x3a
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 438
+    .line 484
     :cond_17
     add-int/lit8 v3, v0, 0x2
 
     invoke-virtual {v2, v1, v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/CharSequence;II)Ljava/lang/StringBuilder;
 
-    .line 434
+    .line 480
     add-int/lit8 v0, v0, 0x2
 
     goto :goto_c
 
-    .line 440
+    .line 486
     :cond_1f
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -399,12 +399,12 @@
     .registers 3
 
     .prologue
-    .line 458
+    .line 504
     const/4 v0, 0x1
 
     invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->start(Landroid/app/Activity;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;Z)V
 
-    .line 459
+    .line 505
     return-void
 .end method
 
@@ -434,12 +434,12 @@
 
     const/4 v10, 0x2
 
-    .line 268
+    .line 308
     invoke-static {p1, p2}, Landroid/provider/DocumentsContract;->buildChildDocumentsUriUsingTree(Landroid/net/Uri;Ljava/lang/String;)Landroid/net/Uri;
 
     move-result-object v1
 
-    .line 269
+    .line 309
     invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object v0
@@ -478,14 +478,14 @@
 
     move-result-object v7
 
-    .line 273
+    .line 313
     if-nez v7, :cond_2e
 
-    .line 294
+    .line 334
     :goto_2d
     return-void
 
-    .line 277
+    .line 317
     :cond_2e
     :goto_2e
     :try_start_2e
@@ -493,23 +493,23 @@
 
     move-result v0
 
-    if-eqz v0, :cond_9b
+    if-eqz v0, :cond_9d
 
-    .line 278
+    .line 318
     const/4 v0, 0x0
 
     invoke-interface {v7, v0}, Landroid/database/Cursor;->getString(I)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 279
+    .line 319
     const/4 v0, 0x1
 
     invoke-interface {v7, v0}, Landroid/database/Cursor;->getString(I)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 280
+    .line 320
     const/4 v0, 0x2
 
     invoke-interface {v7, v0}, Landroid/database/Cursor;->isNull(I)Z
@@ -520,7 +520,7 @@
 
     const-wide/16 v4, 0x0
 
-    .line 281
+    .line 321
     :goto_47
     const/4 v0, 0x3
 
@@ -536,7 +536,7 @@
 
     move-result-object v6
 
-    .line 282
+    .line 322
     :goto_53
     const/4 v0, 0x4
 
@@ -548,7 +548,7 @@
 
     const-wide/16 v0, 0x0
 
-    .line 283
+    .line 323
     :goto_5c
     const-string v8, "vnd.android.document/directory"
 
@@ -558,10 +558,10 @@
 
     if-eqz v2, :cond_80
 
-    .line 284
+    .line 324
     if-ge p4, v10, :cond_2e
 
-    .line 285
+    .line 325
     add-int/lit8 v0, p4, 0x1
 
     invoke-static {p0, p1, v3, p3, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->listTree(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;Ljava/util/List;I)V
@@ -570,16 +570,16 @@
 
     goto :goto_2e
 
-    .line 292
+    .line 332
     :catchall_6c
     move-exception v0
 
     invoke-interface {v7}, Landroid/database/Cursor;->close()V
 
-    .line 293
+    .line 333
     throw v0
 
-    .line 280
+    .line 320
     :cond_71
     const/4 v0, 0x2
 
@@ -590,13 +590,13 @@
 
     goto :goto_47
 
-    .line 281
+    .line 321
     :cond_77
     const-string v6, ""
 
     goto :goto_53
 
-    .line 282
+    .line 322
     :cond_7a
     const/4 v0, 0x4
 
@@ -606,7 +606,7 @@
 
     goto :goto_5c
 
-    .line 287
+    .line 327
     :cond_80
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->wanted(Ljava/lang/String;)Z
 
@@ -614,13 +614,13 @@
 
     if-eqz v2, :cond_2e
 
-    const-wide/32 v8, 0x4000000
+    const-wide v8, 0x80000000L
 
     cmp-long v0, v0, v8
 
     if-gtz v0, :cond_2e
 
-    .line 288
+    .line 328
     new-instance v1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
 
     const/4 v2, 0x0
@@ -632,13 +632,13 @@
     invoke-direct/range {v1 .. v6}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;-><init>(Ljava/io/File;Landroid/net/Uri;JLjava/lang/String;)V
 
     invoke-interface {p3, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-    :try_end_9a
-    .catchall {:try_start_72 .. :try_end_9a} :catchall_6c
+    :try_end_9c
+    .catchall {:try_start_72 .. :try_end_9c} :catchall_6c
 
     goto :goto_2e
 
-    .line 292
-    :cond_9b
+    .line 332
+    :cond_9d
     invoke-interface {v7}, Landroid/database/Cursor;->close()V
 
     goto :goto_2d
@@ -648,7 +648,7 @@
     .registers 6
 
     .prologue
-    .line 417
+    .line 463
     sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->toUpperCase(Ljava/util/Locale;)Ljava/lang/String;
@@ -661,7 +661,7 @@
 
     move-result-object v1
 
-    .line 418
+    .line 464
     const/16 v0, 0x2a
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(I)I
@@ -684,20 +684,20 @@
 
     if-gez v0, :cond_25
 
-    .line 419
+    .line 465
     const-string v0, ""
 
-    .line 428
+    .line 474
     :goto_24
     return-object v0
 
-    .line 421
+    .line 467
     :cond_25
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 422
+    .line 468
     array-length v0, v1
 
     add-int/lit8 v0, v0, -0x1
@@ -705,7 +705,7 @@
     :goto_2d
     if-ltz v0, :cond_39
 
-    .line 423
+    .line 469
     aget-object v3, v1, v0
 
     const-string v4, "[0-9A-F]{2}"
@@ -716,7 +716,7 @@
 
     if-nez v3, :cond_3e
 
-    .line 428
+    .line 474
     :cond_39
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -724,7 +724,7 @@
 
     goto :goto_24
 
-    .line 426
+    .line 472
     :cond_3e
     const/4 v3, 0x0
 
@@ -732,7 +732,7 @@
 
     invoke-virtual {v2, v3, v4}, Ljava/lang/StringBuilder;->insert(ILjava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 422
+    .line 468
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_2d
@@ -746,14 +746,14 @@
 
     const/4 v8, 0x1
 
-    .line 145
+    .line 150
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->D_KEY:Ljava/util/regex/Pattern;
 
     invoke-virtual {v0, p0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v4
 
-    .line 146
+    .line 151
     :cond_9
     :goto_9
     invoke-virtual {v4}, Ljava/util/regex/Matcher;->find()Z
@@ -762,10 +762,10 @@
 
     if-eqz v0, :cond_85
 
-    .line 147
+    .line 152
     const-string v2, ""
 
-    .line 149
+    .line 154
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->D_MAC:Ljava/util/regex/Pattern;
 
     invoke-virtual {v0, p0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
@@ -774,7 +774,7 @@
 
     move v1, v3
 
-    .line 150
+    .line 155
     :goto_18
     invoke-virtual {v5}, Ljava/util/regex/Matcher;->find()Z
 
@@ -782,7 +782,7 @@
 
     if-eqz v0, :cond_3a
 
-    .line 151
+    .line 156
     invoke-virtual {v5}, Ljava/util/regex/Matcher;->start()I
 
     move-result v0
@@ -797,10 +797,10 @@
 
     move-result v0
 
-    .line 152
+    .line 157
     if-ge v0, v1, :cond_86
 
-    .line 154
+    .line 159
     invoke-virtual {v5, v8}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v1
@@ -816,10 +816,10 @@
     :goto_38
     move v1, v0
 
-    .line 156
+    .line 161
     goto :goto_18
 
-    .line 157
+    .line 162
     :cond_3a
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
@@ -827,10 +827,10 @@
 
     if-eqz v0, :cond_9
 
-    .line 160
+    .line 165
     const-string v0, ""
 
-    .line 161
+    .line 166
     const-string v1, "\"name\":\""
 
     invoke-virtual {v4}, Ljava/util/regex/Matcher;->start()I
@@ -841,7 +841,7 @@
 
     move-result v1
 
-    .line 162
+    .line 167
     if-ltz v1, :cond_6b
 
     invoke-virtual {v4}, Ljava/util/regex/Matcher;->start()I
@@ -852,7 +852,7 @@
 
     if-ge v5, v3, :cond_6b
 
-    .line 163
+    .line 168
     const/16 v5, 0x22
 
     add-int/lit8 v6, v1, 0x8
@@ -861,12 +861,12 @@
 
     move-result v5
 
-    .line 164
+    .line 169
     add-int/lit8 v6, v1, 0x8
 
     if-le v5, v6, :cond_6b
 
-    .line 165
+    .line 170
     add-int/lit8 v0, v1, 0x8
 
     invoke-virtual {p0, v0, v5}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -877,13 +877,13 @@
 
     move-result-object v0
 
-    .line 168
+    .line 173
     :cond_6b
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
 
     invoke-virtual {v1, v2}, Ljava/util/LinkedHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 169
+    .line 174
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
 
     new-instance v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;
@@ -904,7 +904,7 @@
 
     goto :goto_9
 
-    .line 171
+    .line 176
     :cond_85
     return-void
 
@@ -918,13 +918,97 @@
     .registers 3
 
     .prologue
-    .line 450
+    .line 496
     const/4 v0, 0x0
 
     invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->start(Landroid/app/Activity;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;Z)V
 
-    .line 451
+    .line 497
     return-void
+.end method
+
+.method private static relevant(Ljava/lang/String;)Z
+    .registers 2
+
+    .prologue
+    .line 457
+    const-string v0, "ey"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :cond_40
+
+    const-string v0, "EY"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :cond_40
+
+    const-string v0, "oken"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :cond_40
+
+    const-string v0, "mac"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :cond_40
+
+    const-string v0, "Mac"
+
+    .line 458
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :cond_40
+
+    const-string v0, "MAC"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :cond_40
+
+    const-string v0, "ddress"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :cond_40
+
+    const-string v0, "Band"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-ltz v0, :cond_42
+
+    :cond_40
+    const/4 v0, 0x1
+
+    .line 457
+    :goto_41
+    return v0
+
+    .line 458
+    :cond_42
+    const/4 v0, 0x0
+
+    goto :goto_41
 .end method
 
 .method public static scan(Ljava/io/InputStream;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
@@ -940,7 +1024,7 @@
 
     const/4 v6, 0x1
 
-    .line 365
+    .line 405
     new-instance v1, Ljava/io/BufferedReader;
 
     new-instance v0, Ljava/io/InputStreamReader;
@@ -953,15 +1037,15 @@
 
     invoke-direct {v1, v0, v2}, Ljava/io/BufferedReader;-><init>(Ljava/io/Reader;I)V
 
-    .line 367
+    .line 407
     :cond_10
     invoke-virtual {v1}, Ljava/io/BufferedReader;->readLine()Ljava/lang/String;
 
     move-result-object v0
 
-    if-eqz v0, :cond_117
+    if-eqz v0, :cond_11d
 
-    .line 368
+    .line 408
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -970,16 +1054,22 @@
 
     if-lt v2, v3, :cond_10
 
-    .line 371
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->relevant(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_10
+
+    .line 411
     const-string v2, "\\\""
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
 
     move-result v2
 
-    if-ltz v2, :cond_2e
+    if-ltz v2, :cond_34
 
-    .line 372
+    .line 412
     const-string v2, "\\\""
 
     const-string v3, "\""
@@ -988,33 +1078,33 @@
 
     move-result-object v0
 
-    .line 374
-    :cond_2e
+    .line 414
+    :cond_34
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scanDevices(Ljava/lang/String;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
-    .line 375
+    .line 415
     sget-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->BAND_NAME:Ljava/util/regex/Pattern;
 
     invoke-virtual {v2, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v2
 
-    .line 376
-    :goto_37
+    .line 416
+    :goto_3d
     invoke-virtual {v2}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
 
-    if-eqz v3, :cond_51
+    if-eqz v3, :cond_57
 
-    .line 377
+    .line 417
     invoke-virtual {v2, v7}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v3
 
     iput-object v3, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->name:Ljava/lang/String;
 
-    .line 378
+    .line 418
     const/4 v3, 0x2
 
     invoke-virtual {v2, v3}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
@@ -1029,25 +1119,25 @@
 
     iput-object v3, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->macHint:Ljava/lang/String;
 
-    goto :goto_37
+    goto :goto_3d
 
-    .line 380
-    :cond_51
+    .line 420
+    :cond_57
     sget-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->KEY_PRIMARY:Ljava/util/regex/Pattern;
 
     invoke-virtual {v2, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v2
 
-    .line 381
-    :goto_57
+    .line 421
+    :goto_5d
     invoke-virtual {v2}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
 
-    if-eqz v3, :cond_6c
+    if-eqz v3, :cond_72
 
-    .line 382
+    .line 422
     invoke-virtual {v2, v6}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v3
@@ -1060,42 +1150,42 @@
 
     iput-object v3, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
 
-    .line 383
+    .line 423
     iput-boolean v7, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->fromToken:Z
 
-    goto :goto_57
+    goto :goto_5d
 
-    .line 385
-    :cond_6c
+    .line 425
+    :cond_72
     iget-object v2, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v2
 
-    if-eqz v2, :cond_78
+    if-eqz v2, :cond_7e
 
     iget-boolean v2, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->fromToken:Z
 
-    if-eqz v2, :cond_93
+    if-eqz v2, :cond_99
 
-    .line 386
-    :cond_78
+    .line 426
+    :cond_7e
     sget-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->KEY_TOKEN:Ljava/util/regex/Pattern;
 
     invoke-virtual {v2, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v2
 
-    .line 387
-    :goto_7e
+    .line 427
+    :goto_84
     invoke-virtual {v2}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
 
-    if-eqz v3, :cond_93
+    if-eqz v3, :cond_99
 
-    .line 388
+    .line 428
     invoke-virtual {v2, v6}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v3
@@ -1108,29 +1198,29 @@
 
     iput-object v3, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
 
-    .line 389
+    .line 429
     iput-boolean v6, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->fromToken:Z
 
-    goto :goto_7e
+    goto :goto_84
 
-    .line 392
-    :cond_93
+    .line 432
+    :cond_99
     sget-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->MAC_KEYED:Ljava/util/regex/Pattern;
 
     invoke-virtual {v2, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v2
 
-    .line 393
-    :cond_99
-    :goto_99
+    .line 433
+    :cond_9f
+    :goto_9f
     invoke-virtual {v2}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
 
-    if-eqz v3, :cond_d2
+    if-eqz v3, :cond_d8
 
-    .line 394
+    .line 434
     invoke-virtual {v2, v6}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v3
@@ -1151,14 +1241,14 @@
 
     move-result-object v3
 
-    .line 395
+    .line 435
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v4
 
     const/16 v5, 0xc
 
-    if-ne v4, v5, :cond_99
+    if-ne v4, v5, :cond_9f
 
     const-string v4, "000000000000"
 
@@ -1166,7 +1256,7 @@
 
     move-result v4
 
-    if-nez v4, :cond_99
+    if-nez v4, :cond_9f
 
     const-string v4, "020000000000"
 
@@ -1174,35 +1264,35 @@
 
     move-result v4
 
-    if-nez v4, :cond_99
+    if-nez v4, :cond_9f
 
-    .line 396
+    .line 436
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->colon(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     iput-object v3, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
-    goto :goto_99
+    goto :goto_9f
 
-    .line 399
-    :cond_d2
+    .line 439
+    :cond_d8
     sget-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->MAC_MASKED:Ljava/util/regex/Pattern;
 
     invoke-virtual {v2, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v2
 
-    .line 400
-    :cond_d8
-    :goto_d8
+    .line 440
+    :cond_de
+    :goto_de
     invoke-virtual {v2}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
 
-    if-eqz v3, :cond_f0
+    if-eqz v3, :cond_f6
 
-    .line 401
+    .line 441
     invoke-virtual {v2, v6}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v3
@@ -1211,22 +1301,22 @@
 
     move-result-object v3
 
-    .line 402
+    .line 442
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v4
 
     const/4 v5, 0x4
 
-    if-lt v4, v5, :cond_d8
+    if-lt v4, v5, :cond_de
 
-    .line 403
+    .line 443
     iput-object v3, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->macHint:Ljava/lang/String;
 
-    goto :goto_d8
+    goto :goto_de
 
-    .line 406
-    :cond_f0
+    .line 446
+    :cond_f6
     sget-object v2, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
@@ -1241,22 +1331,22 @@
 
     if-ltz v2, :cond_10
 
-    .line 407
+    .line 447
     sget-object v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->MAC_COLON:Ljava/util/regex/Pattern;
 
     invoke-virtual {v2, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v0
 
-    .line 408
-    :goto_104
+    .line 448
+    :goto_10a
     invoke-virtual {v0}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v2
 
     if-eqz v2, :cond_10
 
-    .line 409
+    .line 449
     invoke-virtual {v0, v6}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v2
@@ -1269,10 +1359,10 @@
 
     iput-object v2, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
-    goto :goto_104
+    goto :goto_10a
 
-    .line 413
-    :cond_117
+    .line 453
+    :cond_11d
     return-void
 .end method
 
@@ -1285,32 +1375,32 @@
     .end annotation
 
     .prologue
-    .line 344
+    .line 384
     new-instance v0, Ljava/io/BufferedInputStream;
 
     const/high16 v1, 0x10000
 
     invoke-direct {v0, p0, v1}, Ljava/io/BufferedInputStream;-><init>(Ljava/io/InputStream;I)V
 
-    .line 345
+    .line 385
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Ljava/io/BufferedInputStream;->mark(I)V
 
-    .line 346
+    .line 386
     invoke-virtual {v0}, Ljava/io/BufferedInputStream;->read()I
 
     move-result v1
 
-    .line 347
+    .line 387
     invoke-virtual {v0}, Ljava/io/BufferedInputStream;->read()I
 
     move-result v2
 
-    .line 348
+    .line 388
     invoke-virtual {v0}, Ljava/io/BufferedInputStream;->reset()V
 
-    .line 349
+    .line 389
     const/16 v3, 0x50
 
     if-ne v1, v3, :cond_3a
@@ -1319,19 +1409,19 @@
 
     if-ne v2, v1, :cond_3a
 
-    .line 350
+    .line 390
     iget v1, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->zips:I
 
     add-int/lit8 v1, v1, 0x1
 
     iput v1, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->zips:I
 
-    .line 351
+    .line 391
     new-instance v1, Ljava/util/zip/ZipInputStream;
 
     invoke-direct {v1, v0}, Ljava/util/zip/ZipInputStream;-><init>(Ljava/io/InputStream;)V
 
-    .line 353
+    .line 393
     :cond_2a
     :goto_2a
     invoke-virtual {v1}, Ljava/util/zip/ZipInputStream;->getNextEntry()Ljava/util/zip/ZipEntry;
@@ -1340,23 +1430,23 @@
 
     if-eqz v0, :cond_3d
 
-    .line 354
+    .line 394
     invoke-virtual {v0}, Ljava/util/zip/ZipEntry;->isDirectory()Z
 
     move-result v0
 
     if-nez v0, :cond_2a
 
-    .line 355
+    .line 395
     invoke-static {v1, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scan(Ljava/io/InputStream;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
     goto :goto_2a
 
-    .line 359
+    .line 399
     :cond_3a
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scan(Ljava/io/InputStream;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
-    .line 361
+    .line 401
     :cond_3d
     return-void
 .end method
@@ -1367,7 +1457,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 107
+    .line 112
     const-string v0, "\"detail\""
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -1376,12 +1466,12 @@
 
     if-gez v0, :cond_a
 
-    .line 141
+    .line 146
     :cond_9
     :goto_9
     return-void
 
-    .line 110
+    .line 115
     :cond_a
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->DETAIL:Ljava/util/regex/Pattern;
 
@@ -1389,10 +1479,10 @@
 
     move-result-object v4
 
-    .line 111
+    .line 116
     const/4 v0, 0x0
 
-    .line 112
+    .line 117
     :goto_11
     invoke-virtual {v4}, Ljava/util/regex/Matcher;->find()Z
 
@@ -1400,19 +1490,19 @@
 
     if-eqz v2, :cond_af
 
-    .line 114
+    .line 119
     invoke-virtual {v4, v1}, Ljava/util/regex/Matcher;->group(I)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 115
+    .line 120
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->D_KEY:Ljava/util/regex/Pattern;
 
     invoke-virtual {v0, v2}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v0
 
-    .line 116
+    .line 121
     invoke-virtual {v0}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
@@ -1423,7 +1513,7 @@
 
     move-result-object v0
 
-    .line 117
+    .line 122
     :goto_2b
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -1431,14 +1521,14 @@
 
     if-nez v3, :cond_41
 
-    .line 118
+    .line 123
     sget-object v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->D_TOKEN:Ljava/util/regex/Pattern;
 
     invoke-virtual {v0, v2}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v0
 
-    .line 119
+    .line 124
     invoke-virtual {v0}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
@@ -1449,7 +1539,7 @@
 
     move-result-object v0
 
-    .line 121
+    .line 126
     :cond_41
     :goto_41
     sget-object v3, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->D_MAC:Ljava/util/regex/Pattern;
@@ -1458,7 +1548,7 @@
 
     move-result-object v2
 
-    .line 122
+    .line 127
     invoke-virtual {v2}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v3
@@ -1475,7 +1565,7 @@
 
     move-result-object v2
 
-    .line 123
+    .line 128
     :goto_57
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -1491,32 +1581,32 @@
 
     move v0, v1
 
-    .line 124
+    .line 129
     goto :goto_11
 
-    .line 116
+    .line 121
     :cond_65
     const-string v0, ""
 
     goto :goto_2b
 
-    .line 119
+    .line 124
     :cond_68
     const-string v0, ""
 
     goto :goto_41
 
-    .line 122
+    .line 127
     :cond_6b
     const-string v2, ""
 
     goto :goto_57
 
-    .line 126
+    .line 131
     :cond_6e
     const-string v3, ""
 
-    .line 127
+    .line 132
     const-string v5, "\"name\":\""
 
     invoke-virtual {v4}, Ljava/util/regex/Matcher;->start()I
@@ -1527,7 +1617,7 @@
 
     move-result v5
 
-    .line 128
+    .line 133
     if-ltz v5, :cond_97
 
     invoke-virtual {v4}, Ljava/util/regex/Matcher;->start()I
@@ -1540,20 +1630,20 @@
 
     if-ge v6, v7, :cond_97
 
-    .line 129
+    .line 134
     add-int/lit8 v5, v5, 0x8
 
-    .line 130
+    .line 135
     const/16 v6, 0x22
 
     invoke-virtual {p0, v6, v5}, Ljava/lang/String;->indexOf(II)I
 
     move-result v6
 
-    .line 131
+    .line 136
     if-le v6, v5, :cond_97
 
-    .line 132
+    .line 137
     invoke-virtual {p0, v5, v6}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v3
@@ -1562,13 +1652,13 @@
 
     move-result-object v3
 
-    .line 135
+    .line 140
     :cond_97
     iget-object v5, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
 
     invoke-virtual {v5, v2}, Ljava/util/LinkedHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 136
+    .line 141
     iget-object v5, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
 
     new-instance v6, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;
@@ -1585,14 +1675,14 @@
 
     move v0, v1
 
-    .line 137
+    .line 142
     goto/16 :goto_11
 
-    .line 138
+    .line 143
     :cond_af
     if-nez v0, :cond_9
 
-    .line 139
+    .line 144
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->pairByDistance(Ljava/lang/String;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
     goto/16 :goto_9
@@ -1607,22 +1697,22 @@
     .registers 19
 
     .prologue
-    .line 182
+    .line 187
     new-instance v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
     invoke-direct {v10}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;-><init>()V
 
-    .line 183
+    .line 188
     new-instance v11, Ljava/util/ArrayList;
 
     invoke-direct {v11}, Ljava/util/ArrayList;-><init>()V
 
-    .line 184
+    .line 189
     new-instance v12, Ljava/util/ArrayList;
 
     invoke-direct {v12}, Ljava/util/ArrayList;-><init>()V
 
-    .line 186
+    .line 191
     :try_start_f
     new-instance v2, Ljava/io/File;
 
@@ -1638,9 +1728,9 @@
 
     invoke-interface {v12, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
     :try_end_1f
-    .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_1f} :catch_14e
+    .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_1f} :catch_23d
 
-    .line 190
+    .line 195
     :goto_1f
     const/4 v2, 0x0
 
@@ -1651,7 +1741,7 @@
 
     if-ge v2, v3, :cond_34
 
-    .line 191
+    .line 196
     new-instance v3, Ljava/io/File;
 
     sget-object v4, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->DIRS:[Ljava/lang/String;
@@ -1662,18 +1752,18 @@
 
     invoke-interface {v12, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 190
+    .line 195
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_20
 
-    .line 193
+    .line 198
     :cond_34
     new-instance v13, Ljava/util/HashSet;
 
     invoke-direct {v13}, Ljava/util/HashSet;-><init>()V
 
-    .line 194
+    .line 199
     const/4 v2, 0x0
 
     move v9, v2
@@ -1683,14 +1773,14 @@
 
     move-result v2
 
-    if-ge v9, v2, :cond_a2
+    if-ge v9, v2, :cond_9e
 
-    .line 195
+    .line 200
     new-instance v14, Ljava/util/ArrayList;
 
     invoke-direct {v14}, Ljava/util/ArrayList;-><init>()V
 
-    .line 198
+    .line 203
     :try_start_46
     invoke-interface {v12, v9}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
@@ -1704,7 +1794,7 @@
 
     move-result-object v2
 
-    .line 202
+    .line 207
     :goto_50
     invoke-virtual {v13, v2}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
@@ -1712,7 +1802,7 @@
 
     if-nez v2, :cond_66
 
-    .line 194
+    .line 199
     :cond_56
     add-int/lit8 v2, v9, 0x1
 
@@ -1720,11 +1810,11 @@
 
     goto :goto_3b
 
-    .line 199
+    .line 204
     :catch_5a
     move-exception v2
 
-    .line 200
+    .line 205
     invoke-interface {v12, v9}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v2
@@ -1737,7 +1827,7 @@
 
     goto :goto_50
 
-    .line 205
+    .line 210
     :cond_66
     invoke-interface {v12, v9}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
@@ -1749,7 +1839,7 @@
 
     invoke-static {v2, v14, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->collect(Ljava/io/File;Ljava/util/List;I)V
 
-    .line 206
+    .line 211
     const/4 v2, 0x0
 
     :goto_71
@@ -1759,31 +1849,25 @@
 
     if-ge v2, v3, :cond_56
 
-    .line 207
+    .line 212
     invoke-interface {v14, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Ljava/io/File;
 
-    .line 208
+    .line 213
     invoke-virtual {v4}, Ljava/io/File;->length()J
 
     move-result-wide v6
 
-    const-wide/32 v16, 0x4000000
+    const-wide v16, 0x80000000L
 
     cmp-long v3, v6, v16
 
-    if-gtz v3, :cond_9f
+    if-gtz v3, :cond_9b
 
-    invoke-virtual {v4}, Ljava/io/File;->canRead()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_9f
-
-    .line 209
+    .line 214
     new-instance v3, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
 
     const/4 v5, 0x0
@@ -1800,23 +1884,23 @@
 
     invoke-interface {v11, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 206
-    :cond_9f
+    .line 211
+    :cond_9b
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_71
 
-    .line 213
-    :cond_a2
+    .line 218
+    :cond_9e
     invoke-static/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->tree(Landroid/content/Context;)Landroid/net/Uri;
 
     move-result-object v2
 
-    .line 214
-    if-eqz v2, :cond_b2
+    .line 219
+    if-eqz v2, :cond_ae
 
-    .line 216
-    :try_start_a8
+    .line 221
+    :try_start_a4
     invoke-static {v2}, Landroid/provider/DocumentsContract;->getTreeDocumentId(Landroid/net/Uri;)Ljava/lang/String;
 
     move-result-object v3
@@ -1826,12 +1910,12 @@
     move-object/from16 v0, p0
 
     invoke-static {v0, v2, v3, v11, v4}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->listTree(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;Ljava/util/List;I)V
-    :try_end_b2
-    .catch Ljava/lang/Throwable; {:try_start_a8 .. :try_end_b2} :catch_107
+    :try_end_ae
+    .catch Ljava/lang/Throwable; {:try_start_a4 .. :try_end_ae} :catch_103
 
-    .line 221
-    :cond_b2
-    :goto_b2
+    .line 226
+    :cond_ae
+    :goto_ae
     const/4 v2, 0x0
 
     new-array v2, v2, [Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
@@ -1842,7 +1926,7 @@
 
     check-cast v2, [Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
 
-    .line 222
+    .line 227
     new-instance v3, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$NewestFirst;
 
     const/4 v4, 0x0
@@ -1851,192 +1935,472 @@
 
     invoke-static {v2, v3}, Ljava/util/Arrays;->sort([Ljava/lang/Object;Ljava/util/Comparator;)V
 
-    .line 223
+    .line 228
     new-instance v4, Ljava/util/HashSet;
 
     invoke-direct {v4}, Ljava/util/HashSet;-><init>()V
 
-    .line 224
-    new-instance v5, Ljava/util/ArrayList;
+    .line 229
+    new-instance v6, Ljava/util/ArrayList;
 
-    invoke-direct {v5}, Ljava/util/ArrayList;-><init>()V
+    invoke-direct {v6}, Ljava/util/ArrayList;-><init>()V
 
-    .line 225
+    .line 230
     const/4 v3, 0x0
 
-    :goto_cf
-    array-length v6, v2
+    :goto_cb
+    array-length v5, v2
 
-    if-ge v3, v6, :cond_110
+    if-ge v3, v5, :cond_10c
 
-    invoke-interface {v5}, Ljava/util/List;->size()I
+    invoke-interface {v6}, Ljava/util/List;->size()I
 
-    move-result v6
+    move-result v5
 
     const/16 v7, 0xc
 
-    if-ge v6, v7, :cond_110
+    if-ge v5, v7, :cond_10c
 
-    .line 226
-    new-instance v6, Ljava/lang/StringBuilder;
+    .line 231
+    new-instance v5, Ljava/lang/StringBuilder;
 
-    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
 
     aget-object v7, v2, v3
 
     iget-object v7, v7, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->name:Ljava/lang/String;
 
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v6
+    move-result-object v5
 
     const-string v7, "|"
 
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v6
+    move-result-object v5
 
     aget-object v7, v2, v3
 
     iget-wide v8, v7, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->time:J
 
-    invoke-virtual {v6, v8, v9}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+    invoke-virtual {v5, v8, v9}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
-    move-result-object v6
+    move-result-object v5
 
-    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v6
+    move-result-object v5
 
-    invoke-virtual {v4, v6}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    invoke-virtual {v4, v5}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
-    move-result v6
+    move-result v5
 
-    if-eqz v6, :cond_104
+    if-eqz v5, :cond_100
 
-    .line 227
-    aget-object v6, v2, v3
+    .line 232
+    aget-object v5, v2, v3
 
-    invoke-interface {v5, v6}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    invoke-interface {v6, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 225
-    :cond_104
+    .line 230
+    :cond_100
     add-int/lit8 v3, v3, 0x1
 
-    goto :goto_cf
+    goto :goto_cb
 
-    .line 217
-    :catch_107
+    .line 222
+    :catch_103
     move-exception v2
 
-    .line 218
+    .line 223
     const-string v3, "xems"
 
     const-string v4, "MiFitnessLogImport.tree"
 
     invoke-static {v3, v4, v2}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    goto :goto_b2
+    goto :goto_ae
 
-    .line 230
-    :cond_110
-    invoke-interface {v5}, Ljava/util/List;->size()I
+    .line 235
+    :cond_10c
+    invoke-interface {v6}, Ljava/util/List;->size()I
 
     move-result v2
 
-    add-int/lit8 v2, v2, -0x1
+    iput v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->listed:I
 
-    move v4, v2
+    .line 238
+    const/4 v2, 0x0
 
-    :goto_117
-    if-ltz v4, :cond_14d
+    move v3, v2
 
-    .line 231
-    invoke-interface {v5, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    :goto_114
+    invoke-interface {v6}, Ljava/util/List;->size()I
+
+    move-result v2
+
+    if-ge v3, v2, :cond_1e4
+
+    .line 239
+    invoke-interface {v6, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
 
-    .line 233
-    :try_start_11f
-    iget-object v3, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->file:Ljava/io/File;
+    .line 240
+    new-instance v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
-    if-eqz v3, :cond_13b
+    invoke-direct {v5}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;-><init>()V
 
-    new-instance v3, Ljava/io/FileInputStream;
+    .line 242
+    :try_start_125
+    iget-object v4, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->file:Ljava/io/File;
 
-    iget-object v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->file:Ljava/io/File;
+    if-eqz v4, :cond_173
 
-    invoke-direct {v3, v2}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
-    :try_end_12a
-    .catch Ljava/lang/Throwable; {:try_start_11f .. :try_end_12a} :catch_14b
+    new-instance v4, Ljava/io/FileInputStream;
 
-    move-object v2, v3
+    iget-object v7, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->file:Ljava/io/File;
 
-    .line 236
-    :goto_12b
-    :try_start_12b
-    invoke-static {v2, v10}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scanAny(Ljava/io/InputStream;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+    invoke-direct {v4, v7}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
+    :try_end_130
+    .catch Ljava/lang/Throwable; {:try_start_125 .. :try_end_130} :catch_183
 
-    .line 237
-    iget v3, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->files:I
+    .line 245
+    :goto_130
+    :try_start_130
+    invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scanAny(Ljava/io/InputStream;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
-    add-int/lit8 v3, v3, 0x1
+    .line 246
+    iget v7, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->files:I
 
-    iput v3, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->files:I
-    :try_end_134
-    .catchall {:try_start_12b .. :try_end_134} :catchall_146
+    add-int/lit8 v7, v7, 0x1
 
-    .line 239
-    :try_start_134
-    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
+    iput v7, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->files:I
 
-    .line 230
-    :goto_137
-    add-int/lit8 v2, v4, -0x1
+    .line 247
+    iget v7, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->zips:I
 
-    move v4, v2
+    iget v8, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->zips:I
 
-    goto :goto_117
+    add-int/2addr v7, v8
 
-    .line 234
-    :cond_13b
-    invoke-virtual/range {p0 .. p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+    iput v7, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->zips:I
+    :try_end_140
+    .catchall {:try_start_130 .. :try_end_140} :catchall_17e
 
-    move-result-object v3
+    .line 249
+    :try_start_140
+    invoke-virtual {v4}, Ljava/io/InputStream;->close()V
+    :try_end_143
+    .catch Ljava/lang/Throwable; {:try_start_140 .. :try_end_143} :catch_183
 
-    iget-object v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->uri:Landroid/net/Uri;
+    .line 258
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
 
-    invoke-virtual {v3, v2}, Landroid/content/ContentResolver;->openInputStream(Landroid/net/Uri;)Ljava/io/InputStream;
+    invoke-virtual {v2}, Ljava/util/LinkedHashMap;->isEmpty()Z
+
+    move-result v2
+
+    if-nez v2, :cond_1e5
+
+    .line 259
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
+
+    invoke-virtual {v2}, Ljava/util/LinkedHashMap;->values()Ljava/util/Collection;
 
     move-result-object v2
 
-    goto :goto_12b
+    invoke-interface {v2}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
 
-    .line 239
-    :catchall_146
-    move-exception v3
+    move-result-object v3
 
-    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
+    :cond_155
+    :goto_155
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
 
-    .line 240
-    throw v3
-    :try_end_14b
-    .catch Ljava/lang/Throwable; {:try_start_134 .. :try_end_14b} :catch_14b
+    move-result v2
 
-    .line 241
-    :catch_14b
-    move-exception v2
+    if-eqz v2, :cond_1d8
 
-    goto :goto_137
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
-    .line 244
-    :cond_14d
+    move-result-object v2
+
+    check-cast v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;
+
+    .line 260
+    iget-object v4, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
+
+    iget-object v6, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->mac:Ljava/lang/String;
+
+    invoke-virtual {v4, v6}, Ljava/util/LinkedHashMap;->containsKey(Ljava/lang/Object;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_155
+
+    .line 261
+    iget-object v4, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
+
+    iget-object v6, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->mac:Ljava/lang/String;
+
+    invoke-virtual {v4, v6, v2}, Ljava/util/LinkedHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    goto :goto_155
+
+    .line 243
+    :cond_173
+    :try_start_173
+    invoke-virtual/range {p0 .. p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+
+    move-result-object v4
+
+    iget-object v7, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->uri:Landroid/net/Uri;
+
+    invoke-virtual {v4, v7}, Landroid/content/ContentResolver;->openInputStream(Landroid/net/Uri;)Ljava/io/InputStream;
+
+    move-result-object v4
+
+    goto :goto_130
+
+    .line 249
+    :catchall_17e
+    move-exception v5
+
+    invoke-virtual {v4}, Ljava/io/InputStream;->close()V
+
+    .line 250
+    throw v5
+    :try_end_183
+    .catch Ljava/lang/Throwable; {:try_start_173 .. :try_end_183} :catch_183
+
+    .line 251
+    :catch_183
+    move-exception v4
+
+    .line 252
+    iget-object v5, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->error:Ljava/lang/String;
+
+    invoke-virtual {v5}, Ljava/lang/String;->length()I
+
+    move-result v5
+
+    if-nez v5, :cond_1d0
+
+    .line 253
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->name:Ljava/lang/String;
+
+    invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v5, ": "
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v4}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/Class;->getSimpleName()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    .line 254
+    invoke-virtual {v4}, Ljava/lang/Throwable;->getMessage()Ljava/lang/String;
+
+    move-result-object v2
+
+    if-eqz v2, :cond_1d5
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v7, " "
+
+    invoke-virtual {v2, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v4}, Ljava/lang/Throwable;->getMessage()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    :goto_1c6
+    invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    iput-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->error:Ljava/lang/String;
+
+    .line 238
+    :cond_1d0
+    add-int/lit8 v2, v3, 0x1
+
+    move v3, v2
+
+    goto/16 :goto_114
+
+    .line 254
+    :cond_1d5
+    const-string v2, ""
+
+    goto :goto_1c6
+
+    .line 264
+    :cond_1d8
+    iget-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-nez v2, :cond_1e4
+
+    .line 265
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    iput-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    .line 284
+    :cond_1e4
+    :goto_1e4
     return-object v10
 
-    .line 188
-    :catch_14e
+    .line 269
+    :cond_1e5
+    iget-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-nez v2, :cond_1fd
+
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_1fd
+
+    .line 270
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    iput-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    .line 271
+    iget-boolean v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->fromToken:Z
+
+    iput-boolean v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->fromToken:Z
+
+    .line 273
+    :cond_1fd
+    iget-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-nez v2, :cond_211
+
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_211
+
+    .line 274
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
+
+    iput-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
+
+    .line 276
+    :cond_211
+    iget-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->macHint:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-nez v2, :cond_229
+
+    .line 277
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->macHint:Ljava/lang/String;
+
+    iput-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->macHint:Ljava/lang/String;
+
+    .line 278
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->name:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_23a
+
+    iget-object v2, v5, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->name:Ljava/lang/String;
+
+    :goto_227
+    iput-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->name:Ljava/lang/String;
+
+    .line 280
+    :cond_229
+    iget-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_1d0
+
+    iget-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_1d0
+
+    goto :goto_1e4
+
+    .line 278
+    :cond_23a
+    iget-object v2, v10, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->name:Ljava/lang/String;
+
+    goto :goto_227
+
+    .line 193
+    :catch_23d
     move-exception v2
 
     goto/16 :goto_1f
@@ -2046,26 +2410,26 @@
     .registers 7
 
     .prologue
-    .line 463
+    .line 509
     :try_start_0
     sput-object p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->pending:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
-    .line 464
+    .line 510
     invoke-virtual {p0}, Landroid/app/Activity;->getFragmentManager()Landroid/app/FragmentManager;
 
     move-result-object v0
 
-    .line 465
+    .line 511
     const-string v1, "xems_mifit_log_pick"
 
     invoke-virtual {v0, v1}, Landroid/app/FragmentManager;->findFragmentByTag(Ljava/lang/String;)Landroid/app/Fragment;
 
     move-result-object v1
 
-    .line 466
+    .line 512
     if-eqz v1, :cond_1c
 
-    .line 467
+    .line 513
     invoke-virtual {v0}, Landroid/app/FragmentManager;->beginTransaction()Landroid/app/FragmentTransaction;
 
     move-result-object v2
@@ -2076,14 +2440,14 @@
 
     invoke-virtual {v1}, Landroid/app/FragmentTransaction;->commitAllowingStateLoss()I
 
-    .line 468
+    .line 514
     invoke-virtual {v0}, Landroid/app/FragmentManager;->executePendingTransactions()Z
 
-    .line 470
+    .line 516
     :cond_1c
     sput-boolean p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->pendingFolder:Z
 
-    .line 471
+    .line 517
     invoke-virtual {v0}, Landroid/app/FragmentManager;->beginTransaction()Landroid/app/FragmentTransaction;
 
     move-result-object v1
@@ -2100,20 +2464,20 @@
 
     invoke-virtual {v1}, Landroid/app/FragmentTransaction;->commitAllowingStateLoss()I
 
-    .line 472
+    .line 518
     invoke-virtual {v0}, Landroid/app/FragmentManager;->executePendingTransactions()Z
     :try_end_33
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_33} :catch_34
 
-    .line 476
+    .line 522
     :goto_33
     return-void
 
-    .line 473
+    .line 519
     :catch_34
     move-exception v0
 
-    .line 474
+    .line 520
     const-string v1, "xems"
 
     const-string v2, "MiFitnessLogImport.pick"
@@ -2131,7 +2495,7 @@
 
     const/4 v0, 0x0
 
-    .line 299
+    .line 339
     :try_start_2
     const-string v2, "xems_mifit_log"
 
@@ -2149,7 +2513,7 @@
 
     move-result-object v2
 
-    .line 300
+    .line 340
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v3
@@ -2158,17 +2522,17 @@
 
     move-object v0, v1
 
-    .line 312
+    .line 352
     :goto_18
     return-object v0
 
-    .line 303
+    .line 343
     :cond_19
     invoke-static {v2}, Landroid/net/Uri;->parse(Ljava/lang/String;)Landroid/net/Uri;
 
     move-result-object v2
 
-    .line 304
+    .line 344
     invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object v3
@@ -2179,7 +2543,7 @@
 
     move v3, v0
 
-    .line 305
+    .line 345
     :goto_26
     invoke-interface {v4}, Ljava/util/List;->size()I
 
@@ -2187,7 +2551,7 @@
 
     if-ge v3, v0, :cond_4f
 
-    .line 306
+    .line 346
     invoke-interface {v4, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -2220,10 +2584,10 @@
 
     move-object v0, v2
 
-    .line 307
+    .line 347
     goto :goto_18
 
-    .line 305
+    .line 345
     :cond_4a
     add-int/lit8 v0, v3, 0x1
 
@@ -2231,14 +2595,14 @@
 
     goto :goto_26
 
-    .line 310
+    .line 350
     :catch_4e
     move-exception v0
 
     :cond_4f
     move-object v0, v1
 
-    .line 312
+    .line 352
     goto :goto_18
 .end method
 
@@ -2246,14 +2610,14 @@
     .registers 3
 
     .prologue
-    .line 263
+    .line 303
     sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 264
+    .line 304
     const-string v1, ".log"
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z

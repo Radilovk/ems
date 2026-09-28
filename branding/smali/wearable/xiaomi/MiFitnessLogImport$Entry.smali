@@ -29,26 +29,26 @@
     .registers 7
 
     .prologue
-    .line 253
+    .line 293
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 254
+    .line 294
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->file:Ljava/io/File;
 
-    .line 255
+    .line 295
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->uri:Landroid/net/Uri;
 
-    .line 256
+    .line 296
     iput-wide p3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->time:J
 
-    .line 257
+    .line 297
     const/16 v0, 0x2f
 
     invoke-virtual {p5, v0}, Ljava/lang/String;->lastIndexOf(I)I
 
     move-result v0
 
-    .line 258
+    .line 298
     if-ltz v0, :cond_17
 
     add-int/lit8 v0, v0, 0x1
@@ -60,6 +60,6 @@
     :cond_17
     iput-object p5, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->name:Ljava/lang/String;
 
-    .line 259
+    .line 299
     return-void
 .end method

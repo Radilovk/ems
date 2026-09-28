@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 530
+    .line 541
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 531
+    .line 542
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickMacClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 532
+    .line 543
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 536
+    .line 547
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickMacClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # getter for: Lcom/isaigu/gymapp/wearable/BandPairing;->a:Landroid/app/Activity;
@@ -59,6 +59,6 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->show(Landroid/app/Activity;Landroid/widget/EditText;)V
 
-    .line 537
+    .line 548
     return-void
 .end method

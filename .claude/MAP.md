@@ -190,7 +190,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandAppInstall.java` (303L, compile:music-sync*,wearable) — The XEMS app on the band (Band 9 / 10) installs and updates itself: once the band is connected over the classic link an…
 - `BandLaunch.java` (107L, compile:music-sync*,wearable) — Open the XEMS app on the band from XEMS: the Settings button (and {@link BandRemote} at the start of a workout).
 - `BandMacFinder.java` (191L, compile:music-sync*,wearable) — Finds the band's MAC when the Mi Fitness log gave only the key: the tablet's paired and connected Xiaomi bands first, t…
-- `BandPairing.java` (693L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
+- `BandPairing.java` (704L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
 - `BandRemote.java` (1078L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (91L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
@@ -225,7 +225,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
-- `MiFitnessLogImport.java` (626L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
+- `MiFitnessLogImport.java` (672L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
 - `XiaomiBand.java` (183L, compile:music-sync*,wearable) — Picks the link for the configured band.
 - `XiaomiBandAckTimeoutTask.java` (16L, compile:music-sync*,wearable) — Band never ACKed a command (separate file for d8 compatibility).
 - `XiaomiBandAppLink.java` (258L, compile:music-sync*,wearable) — Messages between the XEMS app on the band (quick app, system.interconnect) and XEMS here.
@@ -277,7 +277,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalStore.java` (1141L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (962L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (764L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (776L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (36L, compile:music-sync*,xems-local) — Client-list search matching.
 - `XemsUi.java` (659L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -294,7 +294,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/src/pages/music/index.ux` (451L) — band screen: music remote — play/pause, prev/next, impulse ceiling
 - `band-app/src/pages/pulse/index.ux` (430L) — band screen: heart rate, auto control on/off, last 3 minutes chart
 - `band-app/src/pages/summary/index.ux` (485L) — band screen: session summary after training
-- `band-app/src/pages/timer/index.ux` (412L) — band screen: interval timer remote
+- `band-app/src/pages/timer/index.ux` (398L) — band screen: interval timer remote
 - `band-app/src/pages/train/index.ux` (1213L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
 - `band-app/test/app-screen.test.mjs` (29L) — Verifies screen wake policy: no setKeepScreenOn during training.
 - `band-app/test/auto-route.test.mjs` (41L) — 

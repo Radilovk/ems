@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 575
+    .line 586
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 576
+    .line 587
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanDone;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 577
+    .line 588
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanDone;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
-    .line 578
+    .line 589
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 582
+    .line 593
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanDone;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanDone;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
@@ -55,6 +55,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->scanFinished(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$700(Lcom/isaigu/gymapp/wearable/BandPairing;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
-    .line 583
+    .line 594
     return-void
 .end method

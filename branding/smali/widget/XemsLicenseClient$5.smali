@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 233
+    .line 299
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -49,7 +49,7 @@
     .registers 6
 
     .prologue
-    .line 236
+    .line 302
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
     const-string v1, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u2026"
@@ -62,7 +62,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 237
+    .line 303
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
 
     invoke-virtual {v0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
@@ -77,6 +77,6 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 
-    .line 246
+    .line 312
     return-void
 .end method

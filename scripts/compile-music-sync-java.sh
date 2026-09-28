@@ -83,7 +83,8 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/widget/MusicImpulseMeterView*.class' \
      -o -path '*/widget/XemsUi*.class' -o -path '*/widget/XemsGuard*.class' \
      -o -path '*/widget/XemsNav*.class' -o -path '*/widget/XemsLang*.class' \
-     -o -path '*/widget/XemsIcon*.class' -o -path '*/widget/XemsPanel*.class' -o -path '*/widget/XemsFullscreen*.class' \) -print | sort)
+     -o -path '*/widget/XemsIcon*.class' -o -path '*/widget/XemsPanel*.class' -o -path '*/widget/XemsFullscreen*.class' \
+     -o -path '*/widget/XemsModuleInfo*.class' -o -path '*/widget/XemsLicenseSection*.class' \) -print | sort)
 if (
   cd "${CLASSES_DIR}"
   "${D8}" \
@@ -139,6 +140,8 @@ WIDGET_PREFIXES = (
     "XemsIcon",
     "XemsPanel",
     "XemsFullscreen",
+    "XemsModuleInfo",
+    "XemsLicenseSection",
 )
 
 

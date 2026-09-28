@@ -50,6 +50,9 @@ export default {
       if (path === '/v1/license/refresh' && request.method === 'POST') {
         return handleRefresh(request, env);
       }
+      if (path === '/v1/license/auto' && request.method === 'POST') {
+        return handleAuto(request, env);
+      }
       if (path === '/v1/app/update' && request.method === 'GET') {
         return handleUpdate(url, env);
       }
@@ -149,6 +152,63 @@ async function handleActivate(request, env) {
   const token = await mintToken(env, lic, deviceId);
   await audit(env, 'activate', lic.id, deviceId, body.device_model);
   return json({ ok: true, token });
+}
+
+/**
+ * A tablet without a license asks by its own id (stable across a reinstall):
+ * - it already has an active activation → that license again (reinstall keeps everything);
+ * - it was removed in the admin panel → stays locked;
+ * - new → joins OWNER_LICENSE (the owner's tablets are full until the owner locks one); no owner → unknown.
+ */
+async function handleAuto(request, env) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!(await rateLimit(env, `activate:ip:${ip}`, LIMITS.activatePerMinutePerIp, 60))) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many attempts' }, 429);
+  }
+  const body = await readJsonBody(request);
+  if (!body) return err('invalid_request', 'Invalid JSON body');
+  const deviceId = normDevice(body.device_id);
+  if (!deviceId || deviceId.length !== 16) return err('invalid_request', 'Missing or invalid device_id');
+  if (!(await rateLimit(env, `activate:dev:${deviceId}`, LIMITS.activatePerDayPerDevice, 86400))) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many attempts for this device' }, 429);
+  }
+
+  const act = await env.DB.prepare(
+    "SELECT * FROM activations WHERE device_id = ? ORDER BY (status = 'active') DESC, last_seen DESC LIMIT 1",
+  ).bind(deviceId).first();
+  if (act && act.status !== 'active') return err('revoked', 'Device locked');
+
+  let lic;
+  if (act) {
+    lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(act.license_id).first();
+  } else {
+    if (!env.OWNER_LICENSE) return err('unknown', 'No license for this device');
+    lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(env.OWNER_LICENSE).first();
+  }
+  if (!lic) return err('unknown', 'No license for this device');
+  if (lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License disabled');
+  if (lic.expires_at && lic.expires_at < now()) return err('expired', 'License expired');
+
+  // a reinstall starts in the setup on the tablet: the saved state (setup finished or not, the paired suits) wins
+  const phase = act && !act.setup ? 'locked' : 'setup';
+  if (act) {
+    await touchActivation(env, act, { ...body, setup: undefined, ems_local: undefined });
+    await audit(env, 'auto_restore', lic.id, deviceId, body.device_model);
+  } else {
+    // the owner's own tablets: no device limit
+    const ts = now();
+    await env.DB.prepare(
+      `INSERT INTO activations (license_id, device_id, device_model, android, app_version, app_code, lang, first_seen, last_seen, status, ems_local, setup)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+    ).bind(
+      lic.id, deviceId, body.device_model || '', body.android || 0,
+      body.app_version || '', body.app_code || 0, body.lang || 'bg', ts, ts,
+      JSON.stringify(normMacList(body.ems_local)), body.setup ? 1 : 0,
+    ).run();
+    await audit(env, 'auto_enroll', lic.id, deviceId, body.device_model);
+  }
+  const token = await mintToken(env, lic, deviceId);
+  return json({ ok: true, token, phase, studio: await ensureStudioCode(env, lic) });
 }
 
 async function handleRefresh(request, env) {

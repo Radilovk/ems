@@ -56,6 +56,10 @@ public final class XemsLicenseClient {
     static final int TIMEOUT_MS = 10000;
     private static final Handler main = new Handler(Looper.getMainLooper());
     private static volatile boolean refreshing;
+    private static volatile boolean autoRunning;
+    static final String K_AUTO_NEXT = "auto_next";
+    static final long AUTO_RETRY_MS = 10L * 60L * 1000L;      // offline: ask again soon
+    static final long AUTO_NO_MS = 6L * 60L * 60L * 1000L;     // the server said no: ask again later
     private static volatile Update lastUpdate;
 
     private XemsLicenseClient() {}
@@ -124,11 +128,7 @@ public final class XemsLicenseClient {
                     Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/license/refresh", body));
                     if (Boolean.TRUE.equals(r.get("ok")) && r.get("token") != null) {
                         XemsLicense.applyToken(null, String.valueOf(r.get("token")));
-                        Object studio = r.get("studio");
-                        if (studio != null && String.valueOf(studio).matches("[2-9a-km-z]{8}")) {
-                            c.getApplicationContext().getSharedPreferences("xems_client_sync", Context.MODE_PRIVATE)
-                                    .edit().putString("studio", String.valueOf(studio)).apply();
-                        }
+                        saveStudio(c, r.get("studio"));
                     } else if ("revoked".equals(r.get("error")) || "unknown".equals(r.get("error"))) {
                         XemsLicense.revoke();
                     } else {
@@ -141,6 +141,72 @@ public final class XemsLicenseClient {
                 }
             }
         }, "xems-license-refresh").start();
+    }
+
+    /** The studio code (random 8 chars, or a readable one the admin set, e.g. "xbody"). */
+    static void saveStudio(Context c, Object studio) {
+        if (studio != null && String.valueOf(studio).matches("[a-z0-9][a-z0-9-]{3,23}")) {
+            c.getApplicationContext().getSharedPreferences("xems_client_sync", Context.MODE_PRIVATE)
+                    .edit().putString("studio", String.valueOf(studio)).apply();
+        }
+    }
+
+    /**
+     * No license on this tablet (a new install or a reinstall): ask the server by the tablet's own id.
+     * An active tablet gets its license back (and its studio), a new one joins the owner's license,
+     * a tablet the admin removed stays locked. Nothing to type.
+     */
+    static void autoIfNone(Context c) {
+        if (c == null || autoRunning || !serverConfigured() || XemsLicense.source().length() > 0) {
+            return;
+        }
+        if (System.currentTimeMillis() < XemsLicense.prefs().getLong(K_AUTO_NEXT, 0)) {
+            return;
+        }
+        autoRunning = true;
+        new Thread(new AutoRun(c.getApplicationContext()), "xems-license-auto").start();
+    }
+
+    static final class AutoRun implements Runnable {
+        private final Context c;
+
+        AutoRun(Context c) {
+            this.c = c;
+        }
+
+        @Override
+        public void run() {
+            long wait = AUTO_NO_MS;
+            try {
+                Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/license/auto", "{" + common(c) + "}"));
+                if (Boolean.TRUE.equals(r.get("ok")) && r.get("token") != null
+                        && XemsLicense.source().length() == 0
+                        && XemsLicense.applyToken(null, String.valueOf(r.get("token"))) == null) {
+                    saveStudio(c, r.get("studio"));
+                    if ("locked".equals(r.get("phase"))) {
+                        XemsLicense.finishSetup();   // a reinstall of a tablet that was already handed over
+                    }
+                    wait = 0;
+                    main.post(new LicenseChanged());
+                }
+            } catch (Throwable t) {
+                wait = AUTO_RETRY_MS;
+            } finally {
+                XemsLicense.prefs().edit().putLong(K_AUTO_NEXT, wait > 0 ? System.currentTimeMillis() + wait : 0).apply();
+                autoRunning = false;
+            }
+        }
+    }
+
+    /** The module tiles redraw (XemsNav is compiled after this class: by name). */
+    static final class LicenseChanged implements Runnable {
+        @Override
+        public void run() {
+            try {
+                Class.forName("com.isaigu.gymapp.widget.XemsNav").getMethod("onLicenseChanged").invoke(null);
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     // ================================================================ updates

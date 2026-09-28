@@ -162,8 +162,8 @@ public final class WearableConfig {
     public static final int ROLE_PULSE = 2;
 
     public static int getBandRole(Context context) {
-        if (context == null) {
-            return ROLE_BOTH;
+        if (context == null || hasControlBand(context)) {
+            return ROLE_BOTH;                         // two bands: one for each, both parts are on
         }
         int v = prefs(context).getInt("band_role", ROLE_BOTH);
         return v >= ROLE_BOTH && v <= ROLE_PULSE ? v : ROLE_BOTH;
@@ -252,6 +252,38 @@ public final class WearableConfig {
     }
 
     /** True when auth key (32 hex) and MAC are set for direct BLE. */
+    // ---------------------------------------------------------------- second band (control only)
+
+    /** The trainer's band: remote and the XEMS app; the first band then gives only the client's heart rate. */
+    public static String getControlMac(Context context) {
+        return context == null ? "" : prefs(context).getString("ctl_mac", "");
+    }
+
+    public static String getControlKey(Context context) {
+        return context == null ? "" : prefs(context).getString("ctl_key", "");
+    }
+
+    public static void setControlBand(Context context, String mac, String key) {
+        prefs(context).edit()
+                .putString("ctl_mac", mac == null ? "" : mac.trim().toUpperCase(java.util.Locale.US))
+                .putString("ctl_key", key == null ? "" : key.trim())
+                .apply();
+    }
+
+    /** A second band is set (MAC + 32-hex key) and it is not the first band itself. */
+    public static boolean hasControlBand(Context context) {
+        if (context == null) {
+            return false;
+        }
+        String mac = getControlMac(context).replace(":", "").replace("-", "").trim();
+        String key = getControlKey(context).replace(" ", "").replace(":", "").replace("-", "");
+        if (key.startsWith("0x") || key.startsWith("0X")) {
+            key = key.substring(2);
+        }
+        String first = getBandMac(context) != null ? getBandMac(context).replace(":", "").replace("-", "").trim() : "";
+        return mac.length() >= 12 && key.length() == 32 && !mac.equalsIgnoreCase(first);
+    }
+
     public static boolean isConfigured(Context context) {
         if (context == null) {
             return false;

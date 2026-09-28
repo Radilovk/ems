@@ -29,7 +29,16 @@ final class WearableBandPicker {
 
     private WearableBandPicker() {}
 
+    /** The second band (control) field: the pick fills only that field, the first band stays. */
+    private static boolean forControl;
+
+    static void showForControl(Activity activity, EditText macField) {
+        show(activity, macField);
+        forControl = true;
+    }
+
     static void show(Activity activity, EditText macField) {
+        forControl = false;
         if (activity == null || activity.isFinishing()) {
             return;
         }
@@ -186,7 +195,7 @@ final class WearableBandPicker {
             if (target != null && mac.length() > 0) {
                 target.setText(mac);
                 Activity activity = WearableUi.asActivity(v.getContext());
-                if (activity != null) {
+                if (activity != null && !forControl) {
                     WearableConfig.setBandMac(activity, mac);
                 }
             }

@@ -50,7 +50,7 @@ public final class XiaomiBandInstaller {
 
     /** Start; the band must be connected over Bluetooth Classic (Band 9 / 10). */
     public static boolean install(byte[] rpk, String packageName, int versionCode, Listener l) {
-        XiaomiBandLink link = XiaomiBand.link();
+        XiaomiBandLink link = XiaomiBand.control();
         if (!(link instanceof XiaomiBandSppClient) || !link.isConnected()) {
             if (l != null) {
                 l.onDone(false, "not_connected");

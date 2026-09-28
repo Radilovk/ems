@@ -114,6 +114,10 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
     private long lastStatusPollMs;
     private static final long STATUS_POLL_MS = 30000L;
 
+    /** 0 one band does all; ROLE_HR the client's band; ROLE_CONTROL the trainer's (remote). */
+    private volatile int role;
+    private static XiaomiBandBleClient control;
+
     private XiaomiBandBleClient() {}
 
     public static synchronized XiaomiBandBleClient getInstance() {
@@ -121,6 +125,20 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
             instance = new XiaomiBandBleClient();
         }
         return instance;
+    }
+
+    /** The second link (control band), when that band talks BLE. */
+    public static synchronized XiaomiBandBleClient getControl() {
+        if (control == null) {
+            control = new XiaomiBandBleClient();
+            control.role = XiaomiBand.ROLE_CONTROL;
+        }
+        return control;
+    }
+
+    @Override
+    public void setRole(int role) {
+        this.role = role;
     }
 
     public static String getBuildTag() {
@@ -246,7 +264,9 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
         lastF5 = -1;
         lastRawHr = -1;
         lastStatusPollMs = 0L;
-        XiaomiBandStatus.reset();
+        if (role != XiaomiBand.ROLE_CONTROL) {
+            XiaomiBandStatus.reset();
+        }
         com.isaigu.gymapp.wearable.WearableBlePermissions.logPermissionState(context);
         appContext = context.getApplicationContext();
         targetMac = mac != null ? mac.trim() : "";
@@ -805,11 +825,11 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
             handleAuth(cmd, subtype);
             return;
         }
-        if (XiaomiBandRemote.onCommand(type, subtype, cmd)) {
+        if (role != XiaomiBand.ROLE_HR && XiaomiBandRemote.onCommand(type, subtype, cmd)) {
             log("remote", "music sub=" + subtype);
             return;
         }
-        if (type == SYSTEM_CMD_TYPE && XiaomiBandStatus.onSystemCommand(subtype, cmd)) {
+        if (role != XiaomiBand.ROLE_CONTROL && type == SYSTEM_CMD_TYPE && XiaomiBandStatus.onSystemCommand(subtype, cmd)) {
             log("status", "bat=" + XiaomiBandStatus.getBatteryPercent()
                     + " worn=" + XiaomiBandStatus.isKnownWorn()
                     + " off=" + XiaomiBandStatus.isKnownNotWorn());
@@ -817,7 +837,9 @@ public final class XiaomiBandBleClient implements XiaomiBandLink {
         }
         if (type == HEALTH_CMD_TYPE) {
             if (subtype == HEALTH_CMD_REALTIME_EVENT) {
-                handleRealtimeStats(cmd);
+                if (role != XiaomiBand.ROLE_CONTROL) {
+                    handleRealtimeStats(cmd);
+                }
             } else {
                 log("health", "sub=" + subtype);
             }

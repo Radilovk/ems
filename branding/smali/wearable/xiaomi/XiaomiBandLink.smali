@@ -64,6 +64,9 @@
 .method public abstract setListener(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient$Listener;)V
 .end method
 
+.method public abstract setRole(I)V
+.end method
+
 .method public abstract startRealtime()V
 .end method
 

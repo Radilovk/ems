@@ -82,9 +82,10 @@ public final class WearableSettingsSection {
         hint.setPadding(0, WearableUi.dp(a, 4), 0, WearableUi.dp(a, 12));
         card.addView(hint);
 
-        // What the band is for: remote only, heart rate only, or both
+        // What the band is for: remote only, heart rate only, or both (one band); two bands: one each
         int role = WearableConfig.getBandRole(a);
-        if (bandApp) {
+        boolean dual = bandApp && WearableConfig.hasControlBand(a);
+        if (bandApp && !dual) {
             TextView roleLabel = WearableUi.text(a, WearableUi.tr("Гривната служи за", "The band is for"), 14f, textCol, true);
             card.addView(roleLabel);
             LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
@@ -104,6 +105,9 @@ public final class WearableSettingsSection {
                             "Heart rate for ♥ and AI, and training control from the wrist."), 12.5f, mutedCol, false);
             roleHint.setPadding(0, WearableUi.dp(a, 6), 0, WearableUi.dp(a, 14));
             card.addView(roleHint);
+        }
+        if (bandApp) {
+            addControlBand(a, card, root, dual, textCol, mutedCol);
         }
 
         // MAC + picker
@@ -261,6 +265,177 @@ public final class WearableSettingsSection {
         parent.addView(card, lp);
         card.addOnAttachStateChangeListener(new DetachListener());
         scheduleStatus(a);
+    }
+
+    // ================================================================ second band (control only)
+
+    private static EditText ctlMacView;
+    private static EditText ctlKeyView;
+
+    /** The trainer's band: remote + XEMS app; the band above then stays on the client for the heart rate. */
+    private static void addControlBand(final Activity a, LinearLayout card, final View root, boolean dual,
+            int textCol, int mutedCol) {
+        LinearLayout box = new LinearLayout(a);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setBackgroundDrawable(WearableUi.rounded(WearableUi.color(a, "bg_screen", 0xFF2A2A2A), WearableUi.dp(a, 12)));
+        int p = WearableUi.dp(a, 12);
+        box.setPadding(p, p, p, p);
+        box.addView(WearableUi.text(a, WearableUi.tr("Втора гривна · само управление", "Second band · control only"),
+                15f, textCol, true));
+        TextView hint = WearableUi.text(a, dual
+                ? WearableUi.tr("Две гривни: първата (горе) е на клиента — само пулс; тази е на треньора — старт, пауза, сила и приложението XEMS.",
+                        "Two bands: the first (above) is on the client — heart rate only; this one is the trainer's — start, pause, strength and the XEMS app.")
+                : WearableUi.tr("По желание: гривна за треньора, която само управлява. Тогава първата остава на клиента само за пулса.",
+                        "Optional: a band for the trainer that only controls. The first one then stays on the client for the heart rate."),
+                12.5f, mutedCol, false);
+        hint.setPadding(0, WearableUi.dp(a, 4), 0, WearableUi.dp(a, 8));
+        box.addView(hint);
+
+        LinearLayout macRow = row(a);
+        macRow.addView(label(a, "MAC", mutedCol));
+        ctlMacView = field(a, textCol);
+        ctlMacView.setHint("AA:BB:CC:DD:EE:FF");
+        ctlMacView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        ctlMacView.setText(WearableConfig.getControlMac(a));
+        macRow.addView(ctlMacView, new LinearLayout.LayoutParams(0, WearableUi.dp(a, 44), 1f));
+        TextView pick = WearableUi.button(a, WearableUi.tr("Избери", "Choose"), 0xFF1565C0, 0xFFFFFFFF);
+        pick.setOnClickListener(new ControlPick(a));
+        macRow.addView(pick, sideButton(a));
+        box.addView(macRow);
+
+        LinearLayout keyRow = row(a);
+        keyRow.setPadding(0, WearableUi.dp(a, 8), 0, 0);
+        keyRow.addView(label(a, WearableUi.tr("Ключ", "Key"), mutedCol));
+        ctlKeyView = field(a, textCol);
+        ctlKeyView.setHint(WearableUi.tr("32 символа 0-9 / a-f", "32 chars 0-9 / a-f"));
+        ctlKeyView.setTypeface(Typeface.MONOSPACE);
+        ctlKeyView.setText(WearableConfig.getControlKey(a));
+        keyRow.addView(ctlKeyView, new LinearLayout.LayoutParams(0, WearableUi.dp(a, 44), 1f));
+        if (dual) {
+            TextView off = WearableUi.button(a, WearableUi.tr("Махни", "Remove"),
+                    WearableUi.color(a, "bg_elevated", 0xFF1F232C), textCol);
+            off.setOnClickListener(new ControlRemove(a, root));
+            keyRow.addView(off, sideButton(a));
+        }
+        box.addView(keyRow);
+        if (dual) {
+            TextView st = WearableUi.text(a, NotifyWearableBridge.isControlConnected()
+                    ? WearableUi.tr("✓ Свързана", "✓ Connected")
+                    : WearableUi.tr("Свързва се заедно с първата гривна", "Connects together with the first band"),
+                    12.5f, NotifyWearableBridge.isControlConnected() ? 0xFF81C784 : mutedCol, true);
+            st.setPadding(0, WearableUi.dp(a, 8), 0, 0);
+            box.addView(st);
+        }
+        ControlSaver saver = new ControlSaver(a, root);
+        ctlMacView.addTextChangedListener(saver);
+        ctlKeyView.addTextChangedListener(saver);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = WearableUi.dp(a, 4);
+        lp.bottomMargin = WearableUi.dp(a, 12);
+        card.addView(box, lp);
+    }
+
+    static final class ControlPick implements View.OnClickListener {
+        private final Activity a;
+
+        ControlPick(Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (ctlMacView != null) {
+                WearableBandPicker.showForControl(a, ctlMacView);
+            }
+        }
+    }
+
+    static final class ControlRemove implements View.OnClickListener {
+        private final Activity a;
+        private final View root;
+
+        ControlRemove(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void onClick(View v) {
+            WearableConfig.setControlBand(a, "", "");
+            NotifyWearableBridge.onControlBandChanged(a);
+            build(a, root);
+        }
+    }
+
+    /** MAC + key typed or picked: a complete, different band becomes the control band (at once). */
+    static final class ControlSaver implements TextWatcher {
+        private final Activity a;
+        private final View root;
+
+        ControlSaver(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            try {
+                String mac = ctlMacView != null ? ctlMacView.getText().toString().trim() : "";
+                String key = ctlKeyView != null ? ctlKeyView.getText().toString().trim() : "";
+                if (isValidMac(mac) && key.length() == 0) {
+                    String known = WearableConfig.savedKeyFor(a, NotifyWearableBridge.normalizeMac(mac));
+                    if (known != null && known.length() > 0 && ctlKeyView != null) {
+                        ctlKeyView.setText(known);           // this watcher runs again with the key
+                        return;
+                    }
+                }
+                boolean was = WearableConfig.hasControlBand(a);
+                if (isValidMac(mac) && isValidKey(key)) {
+                    String norm = NotifyWearableBridge.normalizeMac(mac);
+                    if (norm.equalsIgnoreCase(WearableConfig.getControlMac(a)) && key.equals(WearableConfig.getControlKey(a))) {
+                        return;
+                    }
+                    WearableConfig.setControlBand(a, norm, key);
+                    WearableConfig.rememberBand(a, norm, key, com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, norm));
+                } else if (mac.length() == 0 && key.length() == 0 && was) {
+                    WearableConfig.setControlBand(a, "", "");
+                } else {
+                    return;
+                }
+                NotifyWearableBridge.onControlBandChanged(a);
+                if (was != WearableConfig.hasControlBand(a)) {
+                    root.post(new Rebuild(a, root));   // the role choice shows / hides
+                }
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.control", t);
+            }
+        }
+    }
+
+    static final class Rebuild implements Runnable {
+        private final Activity a;
+        private final View root;
+
+        Rebuild(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void run() {
+            try {
+                build(a, root);
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     private static LinearLayout row(Activity a) {

@@ -161,7 +161,7 @@ public final class XiaomiBandAppLink {
 
     /** Tell the band the phone side of our app is connected (opens the app's interconnect). */
     private static void announce() {
-        XiaomiBandLink link = XiaomiBand.link();
+        XiaomiBandLink link = XiaomiBand.control();
         if (link == null || !link.isConnected() || fingerprint == null) {
             return;
         }
@@ -192,7 +192,7 @@ public final class XiaomiBandAppLink {
      */
     public static boolean launch(String uri) {
         String u = uri != null ? uri : "";
-        XiaomiBandLink link = XiaomiBand.link();
+        XiaomiBandLink link = XiaomiBand.control();
         if (fingerprint == null || link == null || !link.isConnected()) {
             pendingLaunch = u;
             pendingUntil = System.currentTimeMillis() + LAUNCH_WAIT_MS;
@@ -227,7 +227,7 @@ public final class XiaomiBandAppLink {
 
     /** Send JSON to the band app (no-op until its fingerprint is known). */
     public static boolean send(String json) {
-        XiaomiBandLink link = XiaomiBand.link();
+        XiaomiBandLink link = XiaomiBand.control();
         if (fingerprint == null || json == null || link == null || !link.isConnected()) {
             return false;
         }

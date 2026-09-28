@@ -25,13 +25,14 @@
 .method constructor <init>(Ljava/lang/String;)V
     .registers 2
 
-    .line 180
+    .prologue
+    .line 189
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 181
+    .line 190
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableBandPicker$PickListener;->mac:Ljava/lang/String;
 
-    .line 182
+    .line 191
     return-void
 .end method
 
@@ -40,13 +41,14 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 186
+    .prologue
+    .line 195
     # getter for: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->target:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$100()Landroid/widget/EditText;
 
     move-result-object v0
 
-    if-eqz v0, :cond_26
+    if-eqz v0, :cond_2c
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableBandPicker$PickListener;->mac:Ljava/lang/String;
 
@@ -54,9 +56,9 @@
 
     move-result v0
 
-    if-lez v0, :cond_26
+    if-lez v0, :cond_2c
 
-    .line 187
+    .line 196
     # getter for: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->target:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$100()Landroid/widget/EditText;
 
@@ -66,34 +68,41 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 188
+    .line 197
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    move-result-object p1
+    move-result-object v0
 
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableUi;->asActivity(Landroid/content/Context;)Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v0
 
-    .line 189
-    if-eqz p1, :cond_26
+    .line 198
+    if-eqz v0, :cond_2c
 
-    .line 190
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableBandPicker$PickListener;->mac:Ljava/lang/String;
+    # getter for: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->forControl:Z
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$200()Z
 
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
+    move-result v1
 
-    .line 193
-    :cond_26
-    const/4 p1, 0x0
+    if-nez v1, :cond_2c
+
+    .line 199
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableBandPicker$PickListener;->mac:Ljava/lang/String;
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
+
+    .line 202
+    :cond_2c
+    const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->target:Landroid/widget/EditText;
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$102(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$102(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 194
+    .line 203
     # invokes: Lcom/isaigu/gymapp/wearable/WearableBandPicker;->close()V
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$200()V
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->access$300()V
 
-    .line 195
+    .line 204
     return-void
 .end method

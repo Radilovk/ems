@@ -130,7 +130,7 @@ public final class BandAppInstall {
     }
 
     private static boolean classicLinkUp() {
-        XiaomiBandLink link = XiaomiBand.link();
+        XiaomiBandLink link = XiaomiBand.control();
         return link instanceof XiaomiBandSppClient && link.isConnected();
     }
 

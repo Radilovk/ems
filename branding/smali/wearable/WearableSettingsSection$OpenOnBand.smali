@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 522
+    .line 697
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 523
+    .line 698
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$OpenOnBand;->activity:Landroid/app/Activity;
 
-    .line 524
+    .line 699
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 528
+    .line 703
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$OpenOnBand;->activity:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandLaunch;->request(Landroid/app/Activity;)V
 
-    .line 529
+    .line 704
     return-void
 .end method

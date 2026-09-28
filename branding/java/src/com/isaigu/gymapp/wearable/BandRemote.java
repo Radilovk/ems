@@ -477,7 +477,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
     // ================================================================ XEMS → band
 
     static void push(boolean force) {
-        XiaomiBandLink link = XiaomiBand.link();
+        XiaomiBandLink link = XiaomiBand.control();
         long now = System.currentTimeMillis();
         if (link == null || !link.isConnected()) {
             // Evidence for "the band crashed at the start": when the link went, relative to the start.

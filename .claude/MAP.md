@@ -116,7 +116,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-active-pause-routing.py` (284L, build:L150) — Verify master slider and +/- routing stay aligned for active pause.
 - `scripts/verify-apk-hrfix.py` (136L) — Verify v1.1.55-ble HR fix markers in built APK / smali.
 - `scripts/verify-apk-shipped.py` (167L) — Fail when APK-shipping source changed but xems27.apk was not rebuilt and committed.
-- `scripts/verify-arms-channel-scale.py` (58L, build:L152) — Verify arms channel strength scale hook is present in decompiled smali.
+- `scripts/verify-arms-channel-scale.py` (60L, build:L152) — Verify arms channel strength scale hook is present in decompiled smali.
 - `scripts/verify-beta-safety.py` (73L, build:L127[BETA_MUSIC]) — Fail the build if BETA music hooks touch login-critical classes.
 - `scripts/verify-interval-timer-smali.py` (59L, build:L140[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
 - `scripts/verify-login-path.py` (89L) — Fail the build if login -> MainFragment -> NewTrainFragment path looks broken.
@@ -127,7 +127,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 ## Java sources → smali (compile:X = scripts/compile-X-java.sh; X* = catch-all find)
 
 **ai/** (`branding/java/src/com/isaigu/gymapp/ai/`)
-- `AiEnergy.java` (320L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
+- `AiEnergy.java` (329L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
 - `AiEngine.java` (1309L, compile:music-sync*,wearable) — XEMS Smart Session runtime (spec §5–§10).
 - `AiHrFilter.java` (129L, compile:music-sync*,wearable) — §7 — realtime HR validation, EMA smoothing, stimulation-artifact rejection, c_valid.
 - `AiModel.java` (199L, compile:music-sync*,wearable) — XEMS Smart Session data model (docs/xems-smart-session-spec.md §1, §3, §4).
@@ -173,7 +173,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SoftRamp.java` (215L, compile:music-sync*) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so at the …
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
-- `ChannelStrengthScale.java` (61L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
+- `ChannelStrengthScale.java` (99L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
 - `MasterStrengthControl.java` (346L, compile:music-sync*) — External control channel for master impulse strength (MA / circle slider).
 - `MusicAutoTune.java` (348L, compile:music-sync*) — Picks music-sync settings from a track's own envelope so the impulse follows how the body reads it: separate hits versu…
 - `MusicDiagLog.java` (151L, compile:music-sync*) — Persistent diagnostic log for music player and uncaught crashes.
@@ -599,7 +599,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L49 ## Изглед (приоритет на вниманието)
   - L57 ## Статус в таба
 
-`docs/xems-pulse-control.md` (143L)
+`docs/xems-pulse-control.md` (161L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59)
   - L8 ## Граници
   - L18 ## Решение (всяка секунда)
@@ -614,6 +614,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L111 ## Кръгът на ♥
   - L116 ## Лог
   - L120 ## Циферблат: „i“ и ↻ (v1.1.70)
+  - L144 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
 
 `docs/xems-server-spec.md` (292L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

@@ -64,6 +64,15 @@ public final class AiEnergy {
         }
     }
 
+    /** Balance correction a non-arms channel gets at this pulse width (ChannelStrengthScale.balance). */
+    public static double channelSent(int ch, int pwUs) {
+        try {
+            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.balance(ch, pwUs);
+        } catch (Throwable t) {
+            return 1.0;
+        }
+    }
+
     /** What is delivered now (or averaged over the cycle). */
     public static final class Stim {
         /** Per-channel % (PartStrenthBean.buwei), may be null → all channels at 100 %. */
@@ -230,7 +239,7 @@ public final class AiEnergy {
                 continue;
             }
             double chPct = s.channels != null ? (ch < s.channels.length ? s.channels[ch] : 0) : 100;
-            double sent = (chPct / 100.0) * (ch == ARMS ? armsSent(s.pwUs) : 1.0);
+            double sent = (chPct / 100.0) * (ch == ARMS ? armsSent(s.pwUs) : channelSent(ch, s.pwUs));
             double tol = s.toleratedCharge != null && ch < s.toleratedCharge.length ? s.toleratedCharge[ch] : 0;
             double part = 0;
             if (s.onShare > 0 && s.hz > 0) {

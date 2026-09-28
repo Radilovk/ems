@@ -8,4 +8,8 @@ public final class ChannelStrengthScale {
         float d = 5f + (pwUs - 150) * 5f / 250f;
         return 1f / (d < 1f ? 1f : d);
     }
+
+    public static float balance(int ch, int pwUs) {
+        return 1f;
+    }
 }

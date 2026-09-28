@@ -41,6 +41,8 @@ def main() -> int:
         cs = CHANNEL_SCALE.read_text(encoding="utf-8")
         if "scaleOutput(IF)F" not in cs:
             errors.append("ChannelStrengthScale.smali missing scaleOutput method")
+        if "balance(II)F" not in cs:
+            errors.append("ChannelStrengthScale.smali missing pulse-width channel balance")
         if "armsDivider(I)F" not in cs or "setPulseWidth(I)V" not in cs:
             errors.append("ChannelStrengthScale.smali missing pulse-width arms divider")
 

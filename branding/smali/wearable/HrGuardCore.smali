@@ -913,7 +913,7 @@
 
     array-length v2, v2
 
-    if-ge v0, v2, :cond_ab
+    if-ge v0, v2, :cond_af
 
     .line 420
     iget-object v2, p1, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->channels:[I
@@ -955,7 +955,7 @@
     .line 422
     iget-boolean v2, p1, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->activePause:Z
 
-    if-eqz v2, :cond_a9
+    if-eqz v2, :cond_ad
 
     iget v2, p1, Lcom/isaigu/gymapp/wearable/HrGuardCore$Stim;->pauseStrength:I
 
@@ -1017,18 +1017,22 @@
 
     .line 421
     :cond_a6
-    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+    iget v2, v4, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->pwUs:I
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiEnergy;->channelSent(II)D
+
+    move-result-wide v2
 
     goto :goto_76
 
-    :cond_a9
+    :cond_ad
     move v2, v1
 
     .line 422
     goto :goto_7f
 
     .line 425
-    :cond_ab
+    :cond_af
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/HrGuardCore;->peakCharge:[D
 
     invoke-virtual {v0}, [D->clone()Ljava/lang/Object;

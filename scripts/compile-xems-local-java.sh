@@ -16,6 +16,7 @@ BAKSMALI="${ROOT}/tools/baksmali.jar"
 WIDGET_SRC="${JAVA_SRC}/com/isaigu/gymapp/widget"
 SOURCES=(
   "${WIDGET_SRC}/XemsLang.java"
+  "${WIDGET_SRC}/XemsSearch.java"
   "${WIDGET_SRC}/XemsLocalStore.java"
   "${WIDGET_SRC}/XemsLocalApi.java"
   "${WIDGET_SRC}/XemsLocalSection.java"
@@ -55,6 +56,7 @@ mkdir -p "${OUT_DIR}/dex"
 (
   cd "${CLASSES_DIR}"
   "${D8}" --min-api 21 --lib "${ANDROID_JAR}" --classpath "${CLASSES_DIR}" --output "${OUT_DIR}/dex" \
+    com/isaigu/gymapp/widget/XemsSearch*.class \
     com/isaigu/gymapp/widget/XemsLocalStore*.class \
     com/isaigu/gymapp/widget/XemsLocalApi*.class \
     com/isaigu/gymapp/widget/XemsLocalSection*.class \
@@ -69,7 +71,7 @@ echo "Baksmaling..."
 rm -rf "${SMALI_OUT}"
 java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 
-for f in XemsLocalStore XemsLocalApi XemsLocalSection XemsLocalGate XemsLocalUserForm XemsLocalAvatar XemsClientSync; do
+for f in XemsSearch XemsLocalStore XemsLocalApi XemsLocalSection XemsLocalGate XemsLocalUserForm XemsLocalAvatar XemsClientSync; do
   src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
   [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
   for inner in "${SMALI_OUT}/com/isaigu/gymapp/widget/${f}"\$*.smali; do

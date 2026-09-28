@@ -77,7 +77,7 @@
 
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 95
+    .line 107
     add-int/lit16 v1, p0, -0x96
 
     int-to-float v1, v1
@@ -90,7 +90,7 @@
 
     add-float/2addr v1, v3
 
-    .line 96
+    .line 108
     cmpg-float v2, v1, v0
 
     if-gez v2, :cond_11
@@ -108,7 +108,7 @@
     .registers 1
 
     .prologue
-    .line 78
+    .line 90
     sget v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->currentPulseWidth:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsFactor(I)F
@@ -124,7 +124,7 @@
     .prologue
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 84
+    .line 96
     :try_start_2
     const-string v1, "arms_full"
 
@@ -136,15 +136,15 @@
 
     if-eqz v1, :cond_c
 
-    .line 90
+    .line 102
     :goto_a
     return v0
 
-    .line 88
+    .line 100
     :catch_b
     move-exception v1
 
-    .line 90
+    .line 102
     :cond_c
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsDivider(I)F
 
@@ -250,7 +250,7 @@
     .prologue
     const/high16 v2, 0x3f800000    # 1.0f
 
-    .line 73
+    .line 85
     int-to-float v0, p1
 
     div-float v0, p0, v0
@@ -311,4 +311,62 @@
 
     .line 45
     return-void
+.end method
+
+.method public static shown(III)F
+    .registers 5
+
+    .prologue
+    .line 73
+    int-to-float v0, p1
+
+    invoke-static {p0, p2}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
+
+    move-result v1
+
+    mul-float/2addr v0, v1
+
+    return v0
+.end method
+
+.method public static stored(IFI)I
+    .registers 6
+
+    .prologue
+    const/16 v0, 0x64
+
+    .line 78
+    invoke-static {p0, p2}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
+
+    move-result v1
+
+    .line 79
+    const/4 v2, 0x0
+
+    cmpl-float v2, v1, v2
+
+    if-lez v2, :cond_c
+
+    div-float/2addr p1, v1
+
+    :cond_c
+    invoke-static {p1}, Ljava/lang/Math;->round(F)I
+
+    move-result v1
+
+    .line 80
+    if-gez v1, :cond_14
+
+    const/4 v0, 0x0
+
+    :cond_13
+    :goto_13
+    return v0
+
+    :cond_14
+    if-gt v1, v0, :cond_13
+
+    move v0, v1
+
+    goto :goto_13
 .end method

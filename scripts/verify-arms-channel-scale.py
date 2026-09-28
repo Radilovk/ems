@@ -46,6 +46,13 @@ def main() -> int:
         if "armsDivider(I)F" not in cs or "setPulseWidth(I)V" not in cs:
             errors.append("ChannelStrengthScale.smali missing pulse-width arms divider")
 
+    vh = COMMAND_UTIL.parent.parent / "TrainViewHolder.smali"
+    bl = COMMAND_UTIL.parent.parent / "TrainViewHolder$5.smali"
+    if vh.is_file() and vh.read_text(encoding="utf-8").count("ChannelStrengthScale;->shown(III)F") != 2:
+        errors.append("TrainViewHolder.updateUI: channel slider/text not showing the balance")
+    if bl.is_file() and "ChannelStrengthScale;->stored(IFI)I" not in bl.read_text(encoding="utf-8"):
+        errors.append("TrainViewHolder$5: drag not mapped back through the balance")
+
     if errors:
         for err in errors:
             print(f"FAIL: {err}", file=sys.stderr)

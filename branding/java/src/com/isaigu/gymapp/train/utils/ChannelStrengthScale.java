@@ -68,6 +68,18 @@ public final class ChannelStrengthScale {
         return max > 0f ? gain(CHRONAXIE[channelIndex], pwUs) / max : 1f;
     }
 
+    /** What the channel slider shows: the trainer's value with the balance for this width already applied. */
+    public static float shown(int channelIndex, int value, int pwUs) {
+        return value * balance(channelIndex, pwUs);
+    }
+
+    /** The slider was moved to {@code shown} at this width: the value to keep (at the reference width), 0..100. */
+    public static int stored(int channelIndex, float shown, int pwUs) {
+        float b = balance(channelIndex, pwUs);
+        int v = Math.round(b > 0f ? shown / b : shown);
+        return v < 0 ? 0 : (v > 100 ? 100 : v);
+    }
+
     /** How much more current the zone needs at pwUs than at the reference width (strength–duration). */
     private static float gain(float chronaxie, int pwUs) {
         return (1f + chronaxie / pwUs) / (1f + chronaxie / BAL_REF_PW);

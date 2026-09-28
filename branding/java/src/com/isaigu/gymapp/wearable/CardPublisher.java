@@ -26,7 +26,7 @@ final class CardPublisher {
             return;
         }
         H.postDelayed(new Run(user), 800L);          // after the report screen (if any) is up
-        SessionUploader.schedule(user);              // the full record to the server (R2), a little later
+        SessionUploader.schedule(user);              // the analysis data to the server (D1), right after
     }
 
     static final class Run implements Runnable {

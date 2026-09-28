@@ -8,7 +8,7 @@ import {
 import { adminHtml } from './admin.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
-  sessionId, validSummary, putSession, readIndex, getSession, SESSION_MAX_BYTES,
+  sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
 } from './history.js';
 import {
   cardId, isCardId, normClientKey, validCardData, renderCard, cardGonePage, lookupHash, lookupMatches,
@@ -24,7 +24,7 @@ import {
 import {
   now, normKey, normDevice, normMacList, parseMacList,
   parseTokenBody, parseTokenLic, isHttpsUrl,
-  generateLicenseKey, generateLicenseId,
+  generateLicenseKey, generateLicenseId, activationStale,
 } from './utils.js';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
@@ -77,7 +77,7 @@ export default {
       }
       if (path.startsWith('/v1/history/')) {
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
-        if (request.method === 'GET') return handleHistory(request, env, path.slice('/v1/history/'.length));
+        if (request.method === 'GET') return handleHistory(request, env, ctx, path.slice('/v1/history/'.length));
       }
       if (path.startsWith('/r/') && request.method === 'GET') {
         return serveReport(path.slice(3));
@@ -256,7 +256,7 @@ async function handleRefresh(request, env) {
   // Token must belong to this device — prevents replay with stolen token payload.
   if (normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Token device mismatch');
 
-  if (!(await rateLimit(env, `refresh:dev:${deviceId}`, LIMITS.refreshPerMinutePerDevice, 60))) {
+  if (!allowHit(`refresh:dev:${deviceId}`, LIMITS.refreshPerMinutePerDevice, 60, now())) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many refresh attempts' }, 429);
   }
 
@@ -269,9 +269,8 @@ async function handleRefresh(request, env) {
   ).bind(licId, deviceId).first();
   if (!act || act.status !== 'active') return err('revoked', 'Device removed');
 
-  await touchActivation(env, act, body);
+  if (activationStale(act, body, now())) await touchActivation(env, act, body);
   const newToken = await mintToken(env, lic, deviceId);
-  await audit(env, 'refresh', lic.id, deviceId, null);
   return json({ ok: true, token: newToken, studio: await ensureStudioCode(env, lic), app_latest: await latestFor(env, body.app_code) });
 }
 
@@ -385,7 +384,6 @@ async function serveCard(request, env, ctx, id) {
 
 /** POST {token, device_id, client_key, id, sum, data} → {ok, count}. One training's record from the tablet. */
 async function handleSessionPut(request, env) {
-  if (!env.LOGS) return err('unavailable', 'Storage not configured');
   const body = await readJsonBody(request, SESSION_MAX_BYTES);
   if (!body) return err('unknown', 'Invalid JSON body');
   const deviceId = normDevice(body.device_id);
@@ -399,7 +397,8 @@ async function handleSessionPut(request, env) {
   if (!id) return err('bad_request', 'id');
   const bad = validSummary(body.sum, id);
   if (bad) return err('bad_request', 'sum: ' + bad);
-  if (!body.data || typeof body.data !== 'object' || Array.isArray(body.data)) return err('bad_request', 'data');
+  const badRec = validRec(body.z);
+  if (badRec) return err('bad_request', 'z: ' + badRec);
 
   if (!allowHit(`session:dev:${deviceId}`, LIMITS.sessionPerMinutePerDevice, 60, now())) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many records' }, 429);
@@ -412,52 +411,66 @@ async function handleSessionPut(request, env) {
   ).bind(licId, deviceId).first();
   if (!act || act.status !== 'active') return err('revoked', 'Device removed');
 
-  const count = await putSession(env.LOGS, licId, clientKey, id, body.sum, body.data);
-  return json({ ok: true, count });
+  await putSession(env.DB, licId, clientKey, id, body.sum, body.z, now());
+  // the client's history in this colo shows the new training at once (other colos within HISTORY_CACHE_SEC)
+  const card = await env.DB.prepare('SELECT id FROM client_cards WHERE license_id = ? AND client_key = ?')
+    .bind(licId, clientKey).first();
+  if (card) {
+    const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
+    try { await caches.default.delete(new Request(`${base}/v1/history/${card.id}`)); } catch { /* no cache API */ }
+  }
+  return json({ ok: true });
 }
 
+const HISTORY_CACHE_SEC = 300;
+
 /**
- * The client's own records, by the id of their card: /v1/history/<cardId> → the list (newest last),
- * /v1/history/<cardId>/<trainingId> → one full record. Public like the card link itself.
+ * The client's analysis data, by the id of their card: GET /v1/history/<cardId> → one JSON with the summaries
+ * and the newest full records. Kept 5 min in the edge cache (a repeat view costs no D1 read); a new training
+ * drops the copy in the tablet's colo.
  */
-async function handleHistory(request, env, rest) {
+async function handleHistory(request, env, ctx, cid) {
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   if (!allowHit(`history:ip:${ip}`, LIMITS.historyPerMinutePerIp, 60, now())) {
     return cors(json({ ok: false, error: 'rate_limit' }, 429));
   }
-  if (!env.LOGS) return cors(json({ ok: false, error: 'unavailable' }, 503));
-  const [cid, sid, extra] = rest.split('/');
-  if (!isCardId(cid) || extra !== undefined) return cors(json({ ok: false, error: 'not_found' }, 404));
+  if (!isCardId(cid)) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const headers = { ...JSON_HEADERS, 'Cache-Control': 'private, max-age=60', 'X-Robots-Tag': 'noindex, nofollow' };
+  const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
+  const key = new Request(`${base}/v1/history/${cid}`);
+  let cache = null;
+  try {
+    cache = caches.default;
+    const hit = await cache.match(key);
+    if (hit) return cors(new Response(hit.body, { headers }));
+  } catch { cache = null; }
   const card = await env.DB.prepare(
     'SELECT license_id, client_key, expires_at, data FROM client_cards WHERE id = ?',
   ).bind(cid).first();
   if (!card || card.expires_at < now()) return cors(json({ ok: false, error: 'not_found' }, 404));
-  const headers = { 'Cache-Control': 'private, max-age=30', 'X-Robots-Tag': 'noindex, nofollow' };
-  if (sid === undefined || sid === '') {
-    const sessions = await readIndex(env.LOGS, card.license_id, card.client_key);
-    let name = '';
-    try { name = String(JSON.parse(card.data).name || '').slice(0, 60); } catch { /* no name */ }
-    return cors(new Response(JSON.stringify({ ok: true, client: { name }, sessions }), {
-      headers: { ...JSON_HEADERS, ...headers },
-    }));
+  let name = '';
+  try { name = String(JSON.parse(card.data).name || '').slice(0, 60); } catch { /* no name */ }
+  const body = await historyJson(env.DB, card.license_id, card.client_key, name);
+  if (cache && ctx) {
+    ctx.waitUntil(cache.put(key, new Response(body, {
+      headers: { ...JSON_HEADERS, 'Cache-Control': `public, max-age=${HISTORY_CACHE_SEC}` },
+    })));
   }
-  const id = sessionId(sid);
-  if (!id) return cors(json({ ok: false, error: 'not_found' }, 404));
-  const obj = await getSession(env.LOGS, card.license_id, card.client_key, id);
-  if (!obj) return cors(json({ ok: false, error: 'not_found' }, 404));
-  return cors(new Response(obj.body, { headers: { ...JSON_HEADERS, ...headers } }));
+  return cors(new Response(body, { headers }));
 }
 
 /** The training analysis page (same for every client; the records are fetched by the page itself). */
+let reportHtml = null;
 function serveReport(id) {
   const headers = {
     'Content-Type': 'text/html; charset=utf-8',
-    'Cache-Control': 'public, max-age=3600',
+    'Cache-Control': 'public, max-age=86400',
     'X-Robots-Tag': 'noindex, nofollow',
     'Referrer-Policy': 'no-referrer',
   };
   if (!isCardId(id)) return new Response(cardGonePage(), { status: 404, headers });
-  return new Response(renderReport(reportTemplate, id), { headers });
+  if (!reportHtml) reportHtml = renderReport(reportTemplate);
+  return new Response(reportHtml, { headers });
 }
 
 // ─── Client profiles: booking PWA → the studio's tablets ─────────────────────
@@ -916,7 +929,7 @@ async function rateLimit(env, key, max, windowSec) {
     await env.DB.prepare(
       'INSERT OR REPLACE INTO rate_limits (key, count, window_start) VALUES (?, 1, ?)',
     ).bind(key, ts).run();
-    pruneRateLimits(env, ts);
+    if (Math.random() < 0.05) pruneRateLimits(env, ts);   // an old-row sweep now and then, not on every window
     return true;
   }
   if (row.count >= max) return false;

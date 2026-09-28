@@ -446,8 +446,9 @@ public final class XemsLicenseClient {
     }
 
     /**
-     * One full training record to the server (POST /v1/session, kept in R2). {@code sumJson} is the
-     * training's summary, {@code dataJson} the per-second record. Call it off the main thread.
+     * One training for the client's analysis (POST /v1/session, kept in D1): {@code sumJson} is its summary,
+     * {@code dataJson} the per-second record — sent gzip-compressed (base64), opened only in the client's
+     * browser. Call it off the main thread.
      */
     public static void postSession(Context c, String clientKey, long id, String sumJson, String dataJson)
             throws Exception {
@@ -458,9 +459,14 @@ public final class XemsLicenseClient {
         if (sumJson == null || !sumJson.trim().startsWith("{") || dataJson == null || !dataJson.trim().startsWith("{")) {
             throw new IllegalArgumentException("session data");
         }
+        java.io.ByteArrayOutputStream raw = new java.io.ByteArrayOutputStream(dataJson.length() / 6 + 64);
+        java.util.zip.GZIPOutputStream gz = new java.util.zip.GZIPOutputStream(raw);
+        gz.write(dataJson.getBytes("UTF-8"));
+        gz.close();
+        String z = android.util.Base64.encodeToString(raw.toByteArray(), android.util.Base64.NO_WRAP);
         String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token)
                 + ",\"client_key\":" + XemsLicenseToken.quote(clientKey)
-                + ",\"id\":" + id + ",\"sum\":" + sumJson + ",\"data\":" + dataJson + "}";
+                + ",\"id\":" + id + ",\"sum\":" + sumJson + ",\"z\":\"" + z + "\"}";
         Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/session", body));
         if (!Boolean.TRUE.equals(r.get("ok"))) {
             throw new Exception("session: " + r.get("error"));

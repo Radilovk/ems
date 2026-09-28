@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Sends the client's full training records (the per-second series kept in files/xems_sessions) to the
- * license server, which keeps them in R2; the client reads them in the booking app ("Моят профил").
+ * Sends what the client's training analysis needs (the summary + the per-second record from files/xems_sessions,
+ * gzip-compressed) to the license server (D1); the client opens the analysis from the booking app ("Моят прогрес").
  * Runs right after a training is saved (the record must be there before the client opens the analysis) and
  * also catches up on older trainings, a few at a time. Only for a client who can find their card
  * (e-mail / phone) — for anyone else nobody could open the records.

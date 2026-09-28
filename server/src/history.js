@@ -1,18 +1,19 @@
-// Full training records (per-second series) kept in R2, one folder per client. The client reads them
-// through the id of their card (an unguessable link id), so nobody needs a token on the phone.
+// The data behind the client's training analysis, in D1 (no separate storage). The tablet sends each training's
+// summary and its per-second record gzip-compressed (base64); the server never unpacks it — the analysis page
+// in the client's browser does. Full records are kept for the newest REC_KEEP trainings of a client, summaries
+// for up to SUM_KEEP. The client reads everything with one request, by the id of their card.
 
-export const SESSION_MAX_BYTES = 1024 * 1024;
+export const SESSION_MAX_BYTES = 512 * 1024;
 export const SUMMARY_MAX_BYTES = 8 * 1024;
-export const INDEX_MAX = 600;
+export const REC_MAX_CHARS = 400 * 1024;   // base64 of the gzip; a real training is ~10–40 KB
+export const REC_KEEP = 12;                 // full records per client (the analysis page shows the last REC_SEND)
+export const REC_SEND = 8;
+export const SUM_KEEP = 600;
 
 /** A training id is its start time in ms: digits only, else null. */
 export function sessionId(v) {
   const s = String(v ?? '').trim();
   return /^[1-9][0-9]{9,14}$/.test(s) ? s : null;
-}
-
-export function folder(licId, clientKey) {
-  return `s/${licId}/${clientKey}/`;
 }
 
 /** What identifies the client is the card, not the name: name and tablet-side user id are dropped. */
@@ -31,37 +32,43 @@ export function validSummary(s, id) {
   return null;
 }
 
-/** The index: oldest first, the same id replaced, the oldest dropped past INDEX_MAX. */
-export function mergeIndex(list, sum, max = INDEX_MAX) {
-  const out = (Array.isArray(list) ? list : []).filter((o) => o && String(o.id) !== String(sum.id));
-  out.push(sum);
-  out.sort((a, b) => Number(a.id) - Number(b.id));
-  return out.length > max ? out.slice(out.length - max) : out;
+/** gzip + base64 from the tablet: checked only for shape and size (it is opened in the client's browser). */
+export function validRec(z) {
+  if (typeof z !== 'string' || z.length < 20 || z.length > REC_MAX_CHARS) return 'size';
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(z)) return 'base64';
+  if (!z.startsWith('H4sI')) return 'gzip';          // the gzip magic 1f 8b 08, base64-encoded
+  return null;
 }
 
-export async function readIndex(bucket, licId, clientKey) {
-  const obj = await bucket.get(folder(licId, clientKey) + 'index.json');
-  if (!obj) return [];
-  try {
-    const v = JSON.parse(await obj.text());
-    return Array.isArray(v) ? v : [];
-  } catch {
-    return [];
+/** Store one training and trim the client's older data (one batch). */
+export async function putSession(db, licId, clientKey, id, sum, z, ts) {
+  const keep = `SELECT id FROM session_records WHERE license_id = ?1 AND client_key = ?2 ORDER BY id DESC LIMIT `;
+  await db.batch([
+    db.prepare(
+      'INSERT OR REPLACE INTO session_records (license_id, client_key, id, sum, rec, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)',
+    ).bind(licId, clientKey, Number(id), JSON.stringify(publicSummary(sum)), z, ts),
+    db.prepare(
+      `UPDATE session_records SET rec = NULL WHERE license_id = ?1 AND client_key = ?2 AND rec IS NOT NULL
+       AND id NOT IN (${keep}${REC_KEEP})`,
+    ).bind(licId, clientKey),
+    db.prepare(
+      `DELETE FROM session_records WHERE license_id = ?1 AND client_key = ?2 AND id NOT IN (${keep}${SUM_KEEP})`,
+    ).bind(licId, clientKey),
+  ]);
+}
+
+/**
+ * Everything the analysis page needs, as one JSON string built without parsing the stored parts:
+ * {ok, client:{name}, sessions:[summary…] oldest first, recs:{id: gzip-base64} for the newest REC_SEND}.
+ */
+export async function historyJson(db, licId, clientKey, name) {
+  const { results } = await db.prepare(
+    `SELECT id, sum, rec FROM session_records WHERE license_id = ? AND client_key = ? ORDER BY id DESC LIMIT ${SUM_KEEP}`,
+  ).bind(licId, clientKey).all();
+  const rows = (results || []).slice().reverse();
+  const recs = [];
+  for (let i = rows.length - 1; i >= 0 && recs.length < REC_SEND; i--) {
+    if (rows[i].rec) recs.push(`"${rows[i].id}":"${rows[i].rec}"`);
   }
-}
-
-export async function putSession(bucket, licId, clientKey, id, sum, data) {
-  const dir = folder(licId, clientKey);
-  const clean = { ...data };
-  delete clean.name;
-  delete clean.userId;
-  const opts = { httpMetadata: { contentType: 'application/json; charset=utf-8' } };
-  await bucket.put(`${dir}${id}.json`, JSON.stringify(clean), opts);
-  const index = mergeIndex(await readIndex(bucket, licId, clientKey), publicSummary(sum));
-  await bucket.put(`${dir}index.json`, JSON.stringify(index), opts);
-  return index.length;
-}
-
-export async function getSession(bucket, licId, clientKey, id) {
-  return bucket.get(`${folder(licId, clientKey)}${id}.json`);
+  return `{"ok":true,"client":${JSON.stringify({ name: name || '' })},"sessions":[${rows.map((r) => r.sum).join(',')}],"recs":{${recs.join(',')}}}`;
 }

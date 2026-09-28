@@ -36,7 +36,7 @@
     .registers 13
 
     .prologue
-    .line 1154
+    .line 1247
     const/4 v6, 0x0
 
     move-object v0, p0
@@ -53,7 +53,7 @@
 
     invoke-direct/range {v0 .. v6}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;-><init>(Landroid/app/Activity;Landroid/view/View;[Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V
 
-    .line 1155
+    .line 1248
     return-void
 .end method
 
@@ -61,28 +61,28 @@
     .registers 7
 
     .prologue
-    .line 1157
+    .line 1250
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1158
+    .line 1251
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->a:Landroid/app/Activity;
 
-    .line 1159
+    .line 1252
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->root:Landroid/view/View;
 
-    .line 1160
+    .line 1253
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->sess:[Ljava/lang/String;
 
-    .line 1161
+    .line 1254
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->cookies:Ljava/lang/String;
 
-    .line 1162
+    .line 1255
     iput-object p5, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->ua:Ljava/lang/String;
 
-    .line 1163
+    .line 1256
     iput-boolean p6, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->refresh:Z
 
-    .line 1164
+    .line 1257
     return-void
 .end method
 
@@ -94,14 +94,14 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 1169
-    .line 1171
+    .line 1262
+    .line 1264
     :try_start_1
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->refresh:Z
 
     if-eqz v0, :cond_37
 
-    .line 1172
+    .line 1265
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->cookies:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->ua:Ljava/lang/String;
@@ -113,14 +113,14 @@
 
     move-result-object v0
 
-    .line 1177
+    .line 1270
     :goto_d
     :try_start_d
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->cookies:Ljava/lang/String;
 
     if-eqz v1, :cond_18
 
-    .line 1178
+    .line 1271
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->a:Landroid/app/Activity;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->cookies:Ljava/lang/String;
@@ -133,7 +133,7 @@
     :cond_18
     move-object v1, v6
 
-    .line 1186
+    .line 1279
     :goto_19
     iget-boolean v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->refresh:Z
 
@@ -141,14 +141,14 @@
 
     if-eqz v1, :cond_66
 
-    .line 1187
+    .line 1280
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->a:Landroid/app/Activity;
 
     const-string v1, ""
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setXiaomiSession(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 1188
+    .line 1281
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
 
@@ -164,11 +164,11 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1192
+    .line 1285
     :goto_36
     return-void
 
-    .line 1174
+    .line 1267
     :cond_37
     :try_start_37
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;->sess:[Ljava/lang/String;
@@ -208,13 +208,13 @@
 
     goto :goto_d
 
-    .line 1181
+    .line 1274
     :catch_54
     move-exception v1
 
     move-object v0, v6
 
-    .line 1182
+    .line 1275
     :goto_56
     invoke-virtual {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;->getMessage()Ljava/lang/String;
 
@@ -222,13 +222,13 @@
 
     goto :goto_19
 
-    .line 1183
+    .line 1276
     :catch_5b
     move-exception v0
 
     move-object v0, v6
 
-    .line 1184
+    .line 1277
     :goto_5d
     const-string v1, "\u041d\u0435\u0449\u043e \u0441\u0435 \u043e\u0431\u044a\u0440\u043a\u0430 \u043f\u0440\u0438 \u0432\u0445\u043e\u0434\u0430."
 
@@ -240,7 +240,7 @@
 
     goto :goto_19
 
-    .line 1191
+    .line 1284
     :cond_66
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
@@ -259,13 +259,13 @@
 
     goto :goto_36
 
-    .line 1183
+    .line 1276
     :catch_77
     move-exception v1
 
     goto :goto_5d
 
-    .line 1181
+    .line 1274
     :catch_79
     move-exception v1
 

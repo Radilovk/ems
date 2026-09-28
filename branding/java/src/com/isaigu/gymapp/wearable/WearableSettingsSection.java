@@ -894,6 +894,44 @@ public final class WearableSettingsSection {
         }
     }
 
+    static final String HOOK_JS = "(function(){if(window.__xh)return;window.__xh=1;"
+            + "function rep(t){try{if(t&&String(t).indexOf('ssecurity')>=0)XemsX.report(String(t));}catch(e){}}"
+            + "var o=XMLHttpRequest.prototype.send;"
+            + "XMLHttpRequest.prototype.send=function(){var x=this;"
+            + "x.addEventListener('load',function(){try{rep(x.responseText);}catch(e){}});"
+            + "return o.apply(this,arguments);};"
+            + "if(window.fetch){var f=window.fetch;window.fetch=function(){"
+            + "return f.apply(this,arguments).then(function(r){try{r.clone().text().then(rep);}catch(e){}return r;});};}"
+            + "})()";
+
+    static final class XiaomiJsBridge {
+        private final XiaomiWebLogin host;
+
+        XiaomiJsBridge(XiaomiWebLogin host) {
+            this.host = host;
+        }
+
+        @android.webkit.JavascriptInterface
+        public void report(String text) {
+            handler.post(new XiaomiCaptured(host, text));
+        }
+    }
+
+    static final class XiaomiCaptured implements Runnable {
+        private final XiaomiWebLogin host;
+        private final String text;
+
+        XiaomiCaptured(XiaomiWebLogin host, String text) {
+            this.host = host;
+            this.text = text;
+        }
+
+        @Override
+        public void run() {
+            host.captured(text);
+        }
+    }
+
     static final String XIAOMI_PROBE_URL =
             "https://account.xiaomi.com/pass/serviceLogin?_json=true&sid=miothealth&_locale=en_US";
 
@@ -921,6 +959,10 @@ public final class WearableSettingsSection {
         private android.webkit.WebView web;
         private boolean done;
         private boolean probing;
+        private String capSs = "";
+        private String capNonce = "";
+        private String capUser = "";
+        private String capLoc = "";
         private boolean gaveUp;
         private int probes;
 
@@ -961,6 +1003,7 @@ public final class WearableSettingsSection {
                 cm.setAcceptThirdPartyCookies(web, true);
             } catch (Throwable ignored) {
             }
+            web.addJavascriptInterface(new XiaomiJsBridge(this), "XemsX");
             web.setWebViewClient(new XiaomiWebClient(this));
             box.addView(web, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
@@ -1000,6 +1043,26 @@ public final class WearableSettingsSection {
             }
         }
 
+        /** Text of a Xiaomi login response that mentions ssecurity (caught by the page hook). */
+        void captured(String text) {
+            if (done || text == null) {
+                return;
+            }
+            String[] sess = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.parseSession(text);
+            if (sess[0].length() > 0) {
+                capSs = sess[0];
+                if (sess[1].length() > 0) {
+                    capNonce = sess[1];
+                }
+                if (sess[2].length() > 0) {
+                    capUser = sess[2];
+                }
+                if (sess[3].length() > 0) {
+                    capLoc = sess[3];
+                }
+            }
+        }
+
         boolean isProbe(String url) {
             return url != null && url.indexOf("_json=true") >= 0;
         }
@@ -1028,6 +1091,18 @@ public final class WearableSettingsSection {
             } catch (Throwable ignored) {
             }
             String[] sess = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.parseSession(text);
+            if (sess[0].length() == 0 && capSs.length() > 0) {
+                sess[0] = capSs;
+                if (sess[1].length() == 0) {
+                    sess[1] = capNonce;
+                }
+                if (sess[2].length() == 0) {
+                    sess[2] = capUser;
+                }
+            }
+            if (sess[3].length() == 0 && capLoc.length() > 0) {
+                sess[3] = capLoc;
+            }
             if (sess[3].length() > 0) {
                 done = true;
                 String ua = null;
@@ -1094,7 +1169,25 @@ public final class WearableSettingsSection {
         }
 
         @Override
+        public void onPageStarted(android.webkit.WebView view, String url, android.graphics.Bitmap icon) {
+            injectHook(view);
+        }
+
+        static void injectHook(android.webkit.WebView view) {
+            try {
+                view.evaluateJavascript(HOOK_JS, null);
+            } catch (Throwable ignored) {
+            }
+        }
+
+        @Override
         public void onPageFinished(android.webkit.WebView view, String url) {
+            injectHook(view);
+            try {
+                view.evaluateJavascript("(function(){var t=document.body?document.body.innerText:'';"
+                        + "if(t.indexOf('ssecurity')>=0)XemsX.report(t);})()", null);
+            } catch (Throwable ignored) {
+            }
             if (host.isProbe(url)) {
                 host.readProbe();
             } else {

@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 551
+    .line 570
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 552
+    .line 571
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$TreeTask;->a:Landroid/app/Activity;
 
-    .line 553
+    .line 572
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$TreeTask;->cb:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
-    .line 554
+    .line 573
     return-void
 .end method
 
@@ -47,14 +47,14 @@
     .registers 6
 
     .prologue
-    .line 558
+    .line 577
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$TreeTask;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scanLocal(Landroid/content/Context;)Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
     move-result-object v0
 
-    .line 559
+    .line 578
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$TreeTask;->a:Landroid/app/Activity;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;
@@ -72,10 +72,10 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 560
+    .line 579
     return-void
 
-    .line 559
+    .line 578
     :cond_19
     const/4 v0, 0x0
 

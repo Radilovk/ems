@@ -32,7 +32,7 @@
     .registers 1
 
     .prologue
-    .line 314
+    .line 333
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 314
+    .line 333
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$NewestFirst;-><init>()V
 
     return-void
@@ -54,13 +54,13 @@
     .registers 8
 
     .prologue
-    .line 317
+    .line 336
     iget-wide v0, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->time:J
 
-    .line 318
+    .line 337
     iget-wide v2, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->time:J
 
-    .line 319
+    .line 338
     cmp-long v4, v0, v2
 
     if-gez v4, :cond_a
@@ -89,7 +89,7 @@
     .registers 4
 
     .prologue
-    .line 314
+    .line 333
     check-cast p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
 
     check-cast p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;

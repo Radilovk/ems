@@ -45,7 +45,7 @@ if [[ ! -d "${LICENSE_CLASSES}" ]]; then
 fi
 javac \
   --release 8 \
-  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}" \
+  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}:${ROOT}/build/channel-scale-java/classes" \
   -d "${CLASSES_DIR}" \
   "${STUB_FILES[@]}" \
   "${SOURCES[@]}"

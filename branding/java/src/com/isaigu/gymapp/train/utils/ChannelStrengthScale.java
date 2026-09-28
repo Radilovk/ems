@@ -3,8 +3,8 @@ package com.isaigu.gymapp.train.utils;
 /**
  * Encode-time correction for per-channel impulse strength sent over BLE.
  * UI and stored program values stay unchanged; only the PDU byte is scaled.
- * Arms: divided by a factor that follows the pulse width (a wider pulse carries more charge):
- * 150 µs → ÷5, 400 µs → ÷10, linear in between and beyond (never below ÷1).
+ * Arms: divided by a factor that follows the pulse width (a wider pulse carries more charge): the divider D set
+ * in Settings (default 10) applies at 400 µs, D/2 at 150 µs, linear in between and beyond (never below ÷1).
  * Other channels: a balance correction that keeps the felt proportions set at 350–400 µs when the pulse
  * narrows (e.g. training → massage at 150 µs). Strength–duration curve per zone:
  * threshold ∝ 1 + c/PW, c = the zone's effective chronaxie = 100 + 500·(type I fibre share) + 300·(tissue depth);
@@ -102,9 +102,20 @@ public final class ChannelStrengthScale {
         return 1f / armsDivider(pwUs);
     }
 
-    /** 150 µs → 5, 400 µs → 10, linear; at least 1. */
+    /** D at 400 µs, D/2 at 150 µs, linear; at least 1 (D = Settings → Arms, default 10). */
     public static float armsDivider(int pwUs) {
-        float d = ARMS_DIV_LOW + (pwUs - ARMS_PW_LOW) * (ARMS_DIV_HIGH - ARMS_DIV_LOW) / (ARMS_PW_HIGH - ARMS_PW_LOW);
+        float top = ARMS_DIV_HIGH;
+        try {
+            top = com.isaigu.gymapp.widget.XemsLicense.armsDivider();
+        } catch (Throwable ignored) {
+        }
+        return armsDivider(pwUs, top);
+    }
+
+    /** The same for a given divider at 400 µs. */
+    public static float armsDivider(int pwUs, float top) {
+        float low = top * ARMS_DIV_LOW / ARMS_DIV_HIGH;
+        float d = low + (pwUs - ARMS_PW_LOW) * (top - low) / (ARMS_PW_HIGH - ARMS_PW_LOW);
         return d < 1f ? 1f : d;
     }
 }

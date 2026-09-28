@@ -181,9 +181,28 @@ public final class MiFitnessLogImport {
     public static Found scanLocal(Context c) {
         Found best = new Found();
         List<Entry> files = new ArrayList<Entry>();
+        List<File> roots = new ArrayList<File>();
+        try {
+            roots.add(new File(android.os.Environment.getExternalStoragePublicDirectory(
+                    android.os.Environment.DIRECTORY_DOWNLOADS), "wearablelog"));
+        } catch (Throwable ignored) {
+        }
         for (int i = 0; i < DIRS.length; i++) {
+            roots.add(new File(DIRS[i]));
+        }
+        java.util.HashSet<String> seenDirs = new java.util.HashSet<String>();
+        for (int i = 0; i < roots.size(); i++) {
             List<File> fs = new ArrayList<File>();
-            collect(new File(DIRS[i]), fs, 0);
+            String canon;
+            try {
+                canon = roots.get(i).getCanonicalPath();
+            } catch (Throwable t) {
+                canon = roots.get(i).getAbsolutePath();
+            }
+            if (!seenDirs.add(canon)) {
+                continue;
+            }
+            collect(roots.get(i), fs, 0);
             for (int k = 0; k < fs.size(); k++) {
                 File f = fs.get(k);
                 if (f.length() <= MAX_FILE && f.canRead()) {

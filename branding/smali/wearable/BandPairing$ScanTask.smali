@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 479
+    .line 556
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 480
+    .line 557
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanTask;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 481
+    .line 558
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 5
 
     .prologue
-    .line 485
+    .line 562
     const/4 v0, 0x0
 
-    .line 487
+    .line 564
     :try_start_1
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanTask;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
@@ -60,7 +60,7 @@
 
     move-result-object v0
 
-    .line 490
+    .line 567
     :goto_b
     # getter for: Lcom/isaigu/gymapp/wearable/BandPairing;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$600()Landroid/os/Handler;
@@ -75,10 +75,10 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 491
+    .line 568
     return-void
 
-    .line 488
+    .line 565
     :catch_1a
     move-exception v1
 

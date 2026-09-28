@@ -37,7 +37,7 @@ public final class XemsLicense {
     public static final String BAND = "band";
     public static final String[] ALL = {TIMER, MUSIC, PULSE, AUTO, AI, BAND};
 
-    /** Feature (not a module): the arms channel goes out 1:1 instead of ×0.05. */
+    /** Feature (not a module): the arms channel goes out 1:1 instead of reduced (÷ armsDivider(), scaled by pulse width). */
     public static final String FEAT_ARMS_FULL = "arms_full";
 
     /** Offline admin key: every module, and the tablet setup again (see {@link #isSetupMode()}). */
@@ -77,6 +77,9 @@ public final class XemsLicense {
     private static volatile boolean loaded;
     private static volatile boolean setup;
     private static volatile String arms = "";
+    /** Arms divider at 400 µs (the reduced mode); it scales with the pulse width, half of it at 150 µs. */
+    private static volatile float armsDiv = 10f;
+    static final String K_ARMS_DIV = "arms_div";
     private static volatile Set<String> ems = new HashSet<String>();
 
     private XemsLicense() {}
@@ -118,6 +121,17 @@ public final class XemsLicense {
     /** The arms choice of this tablet ("" = by the licence, "full", "reduced"). */
     public static String armsMode() {
         return arms;
+    }
+
+    /** Reduced arms: the divider at 400 µs (default 10); 150 µs gets half of it, linear in between. */
+    public static float armsDivider() {
+        return armsDiv;
+    }
+
+    public static void setArmsDivider(float d) {
+        float v = d < 1f ? 1f : (d > 100f ? 100f : d);
+        prefs().edit().putFloat(K_ARMS_DIV, v).apply();
+        armsDiv = v;
     }
 
     /** Admin setup: the arms at normal strength (1:1) or reduced; kept after the setup is finished. */
@@ -349,6 +363,7 @@ public final class XemsLicense {
         }
         setup = "setup".equals(phase);
         arms = p.getString(K_ARMS, "");
+        armsDiv = p.getFloat(K_ARMS_DIV, 10f);
         loaded = true;
     }
 

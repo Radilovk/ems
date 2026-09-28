@@ -138,8 +138,7 @@ public final class XemsLocalSection {
             TextView armsHint = text(a, "full".equals(arms)
                     ? tr("1:1 — каналът за ръцете с нормална сила, като другите.", "1:1 — the arms channel at normal strength, like the others.")
                     : "reduced".equals(arms)
-                    ? tr("Намален импулс — ръцете получават 1/20 от силата (по-меко, за чувствителни клиенти).",
-                            "Reduced impulse — the arms get 1/20 of the strength (softer, for sensitive clients).")
+                    ? armsReducedText(XemsLicense.armsDivider())
                     : tr("Не е избрано — след заключване решава ключът. Избери веднъж и остава за таблета.",
                             "Not chosen — after the lock the key decides. Choose once and it stays for this tablet."), 12, false);
             armsHint.setTextColor(0xFFB0B0B0);
@@ -157,6 +156,24 @@ public final class XemsLocalSection {
             fp.leftMargin = dp(a, 8);
             armsRow.addView(full, fp);
             card.addView(armsRow, matchWrap(a, 8));
+            if ("reduced".equals(arms)) {
+                // The divider at 400 µs, typed freely; 150 µs gets half of it, linear in between.
+                LinearLayout divRow = new LinearLayout(a);
+                divRow.setOrientation(LinearLayout.HORIZONTAL);
+                divRow.setGravity(Gravity.CENTER_VERTICAL);
+                divRow.addView(text(a, tr("Намаление при 400 µs:  ÷", "Reduction at 400 µs:  ÷"), 14, false));
+                android.widget.EditText div = new android.widget.EditText(a);
+                div.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
+                        | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                div.setSingleLine(true);
+                div.setTextColor(Color.WHITE);
+                div.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                div.setText(fmt(XemsLicense.armsDivider()));
+                div.setSelectAllOnFocus(true);
+                div.addTextChangedListener(new ArmsDivWatch(armsHint));
+                divRow.addView(div, new LinearLayout.LayoutParams(dp(a, 110), ViewGroup.LayoutParams.WRAP_CONTENT));
+                card.addView(divRow, matchWrap(a, 8));
+            }
 
             Button lock = button(a, tr("Край на настройката", "Finish setup"), 0xFFE53935);
             lock.setOnClickListener(new View.OnClickListener() {
@@ -171,6 +188,55 @@ public final class XemsLocalSection {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         cardLp.topMargin = dp(a, 16);
         parent.addView(card, cardLp);
+    }
+
+    /** "÷D at 400 µs … ÷D/2 at 150 µs" with the share of the strength the arms get at each width. */
+    static String armsReducedText(float top) {
+        int[] pws = {400, 350, 250, 150};
+        StringBuilder bg = new StringBuilder();
+        StringBuilder en = new StringBuilder();
+        for (int i = 0; i < pws.length; i++) {
+            float d = com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsDivider(pws[i], top);
+            String part = pws[i] + " µs ÷" + fmt(d) + " (" + fmt(100f / d) + " %)";
+            bg.append(i == 0 ? "" : " · ").append(part);
+            en.append(i == 0 ? "" : " · ").append(part);
+        }
+        return tr("Намален импулс — ръцете следват ширината на импулса: " + bg + ". Линейно между тях.",
+                "Reduced impulse — the arms follow the pulse width: " + en + ". Linear in between.");
+    }
+
+    static String fmt(float v) {
+        float r = Math.round(v * 10f) / 10f;
+        return r == (int) r ? String.valueOf((int) r) : String.valueOf(r).replace('.', ',');
+    }
+
+    /** Typing the divider: saved as it is typed (1–100), the line above recalculated. */
+    static final class ArmsDivWatch implements android.text.TextWatcher {
+        private final TextView hint;
+
+        ArmsDivWatch(TextView hint) {
+            this.hint = hint;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int st, int c, int af) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int st, int b, int c) {
+        }
+
+        @Override
+        public void afterTextChanged(android.text.Editable e) {
+            try {
+                float v = Float.parseFloat(e.toString().trim().replace(',', '.'));
+                if (v >= 1f && v <= 100f) {
+                    XemsLicense.setArmsDivider(v);
+                    hint.setText(armsReducedText(v));
+                }
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     static final class ArmsPick implements View.OnClickListener {

@@ -48,30 +48,30 @@
     .registers 2
 
     .prologue
-    .line 983
+    .line 988
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
 
     if-eqz v0, :cond_11
 
-    .line 984
+    .line 989
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
 
     invoke-virtual {v0}, Landroid/webkit/WebView;->stopLoading()V
 
-    .line 985
+    .line 990
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
 
     invoke-virtual {v0}, Landroid/webkit/WebView;->destroy()V
 
-    .line 986
+    .line 991
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
     :try_end_11
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_11} :catch_20
 
-    .line 991
+    .line 996
     :cond_11
     :goto_11
     :try_start_11
@@ -79,30 +79,30 @@
 
     if-eqz v0, :cond_1d
 
-    .line 992
+    .line 997
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 993
+    .line 998
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->dialog:Landroid/app/Dialog;
     :try_end_1d
     .catch Ljava/lang/Throwable; {:try_start_11 .. :try_end_1d} :catch_1e
 
-    .line 997
+    .line 1002
     :cond_1d
     :goto_1d
     return-void
 
-    .line 995
+    .line 1000
     :catch_1e
     move-exception v0
 
     goto :goto_1d
 
-    .line 988
+    .line 993
     :catch_20
     move-exception v0
 
@@ -115,113 +115,131 @@
     .registers 2
 
     .prologue
-    .line 974
+    .line 979
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
 
     if-eqz v0, :cond_5
 
-    .line 979
+    .line 984
     :goto_4
     return-void
 
-    .line 977
+    .line 982
     :cond_5
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
 
-    .line 978
+    .line 983
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->close()V
 
     goto :goto_4
 .end method
 
 .method check()V
-    .registers 6
+    .registers 7
 
     .prologue
+    const/4 v1, 0x0
+
     .line 955
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
 
-    if-eqz v0, :cond_5
+    if-eqz v0, :cond_6
 
-    .line 971
-    :goto_4
+    .line 976
+    :goto_5
     return-void
 
-    .line 958
-    :cond_5
-    const/4 v0, 0x0
-
     .line 960
+    :cond_6
     :try_start_6
     invoke-static {}, Landroid/webkit/CookieManager;->getInstance()Landroid/webkit/CookieManager;
 
-    move-result-object v1
+    move-result-object v0
 
     const-string v2, "https://account.xiaomi.com"
 
-    invoke-virtual {v1, v2}, Landroid/webkit/CookieManager;->getCookie(Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v0, v2}, Landroid/webkit/CookieManager;->getCookie(Ljava/lang/String;)Ljava/lang/String;
     :try_end_f
-    .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_f} :catch_50
+    .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_f} :catch_47
 
     move-result-object v0
 
     .line 963
     :goto_10
-    if-eqz v0, :cond_41
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->hasPassToken(Ljava/lang/String;)Z
 
-    const-string v1, "passToken"
+    move-result v2
 
-    invoke-virtual {v0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
-
-    move-result v1
-
-    if-ltz v1, :cond_41
-
-    .line 964
-    const/4 v1, 0x1
-
-    iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
-
-    .line 965
-    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->close()V
+    if-eqz v2, :cond_4a
 
     .line 966
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->a:Landroid/app/Activity;
+    :try_start_16
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
 
-    const-string v2, "\u0412\u0437\u0438\u043c\u0430\u043c \u043a\u043b\u044e\u0447\u0430 \u043e\u0442 Xiaomi\u2026"
-
-    const-string v3, "Fetching the key from Xiaomi\u2026"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v2}, Landroid/webkit/WebView;->getSettings()Landroid/webkit/WebSettings;
 
     move-result-object v2
 
+    invoke-virtual {v2}, Landroid/webkit/WebSettings;->getUserAgentString()Ljava/lang/String;
+    :try_end_1f
+    .catch Ljava/lang/Throwable; {:try_start_16 .. :try_end_1f} :catch_59
+
+    move-result-object v1
+
+    .line 969
+    :goto_20
+    const/4 v2, 0x1
+
+    iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
+
+    .line 970
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->close()V
+
+    .line 971
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->a:Landroid/app/Activity;
+
+    const-string v3, "\u0412\u0437\u0438\u043c\u0430\u043c \u043a\u043b\u044e\u0447\u0430 \u043e\u0442 Xiaomi\u2026"
+
+    const-string v4, "Fetching the key from Xiaomi\u2026"
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1600(Landroid/app/Activity;Ljava/lang/String;)V
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1600(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 967
-    new-instance v1, Ljava/lang/Thread;
+    .line 972
+    new-instance v2, Ljava/lang/Thread;
 
-    new-instance v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;
+    new-instance v3, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->a:Landroid/app/Activity;
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->a:Landroid/app/Activity;
 
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->root:Landroid/view/View;
+    iget-object v5, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->root:Landroid/view/View;
 
-    invoke-direct {v2, v3, v4, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;-><init>(Landroid/app/Activity;Landroid/view/View;Ljava/lang/String;)V
+    invoke-direct {v3, v4, v5, v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;-><init>(Landroid/app/Activity;Landroid/view/View;Ljava/lang/String;Ljava/lang/String;)V
 
     const-string v0, "xems-xiaomi-login"
 
-    invoke-direct {v1, v2, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
+    invoke-direct {v2, v3, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    invoke-virtual {v1}, Ljava/lang/Thread;->start()V
+    invoke-virtual {v2}, Ljava/lang/Thread;->start()V
 
-    goto :goto_4
+    goto :goto_5
 
-    .line 969
-    :cond_41
+    .line 961
+    :catch_47
+    move-exception v0
+
+    move-object v0, v1
+
+    goto :goto_10
+
+    .line 974
+    :cond_4a
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
 
@@ -235,13 +253,13 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    goto :goto_4
+    goto :goto_5
 
-    .line 961
-    :catch_50
-    move-exception v1
+    .line 967
+    :catch_59
+    move-exception v2
 
-    goto :goto_10
+    goto :goto_20
 .end method
 
 .method open()V

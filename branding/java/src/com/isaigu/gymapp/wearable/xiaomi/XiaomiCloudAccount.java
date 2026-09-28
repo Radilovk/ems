@@ -129,20 +129,48 @@ public final class XiaomiCloudAccount {
      * @param webCookies the Cookie header captured from account.xiaomi.com after the WebView login.
      */
     public static List<Band> fetchWithCookies(String webCookies) throws CloudError {
-        if (webCookies == null || webCookies.indexOf("passToken") < 0) {
+        return fetchWithCookies(webCookies, UA_WEB);
+    }
+
+    /** Same, but sends the WebView's own User-Agent so Xiaomi sees the same client that logged in. */
+    public static List<Band> fetchWithCookies(String webCookies, String userAgent) throws CloudError {
+        if (!hasPassToken(webCookies)) {
             throw new CloudError("Входът не завърши. Влез в Xiaomi акаунта докрай и опитай пак.");
         }
+        String ua = userAgent == null || userAgent.length() == 0 ? UA_WEB : userAgent;
         Map<String, String> q = new LinkedHashMap<String, String>();
         q.put("_json", "true");
         q.put("sid", "miothealth");
         q.put("_locale", "en_US");
-        Resp r = http("GET", SERVICE_LOGIN + "?" + query(q), null, UA_WEB, webCookies, false);
-        JSONObject j = parseXiaomiJson(r.body);
-        String ssecurity = j.optString("ssecurity", "");
-        String cUserId = j.optString("cUserId", "");
-        String location = j.optString("location", "");
+        String url = SERVICE_LOGIN + "?" + query(q);
+
+        JSONObject j = null;
+        String ssecurity = "";
+        String location = "";
+        // The session can need a moment to settle right after the WebView finishes the login.
+        for (int attempt = 0; attempt < 4; attempt++) {
+            Resp r = http("GET", url, null, ua, webCookies, false);
+            j = parseXiaomiJson(r.body);
+            ssecurity = j.optString("ssecurity", "");
+            location = j.optString("location", "");
+            if (ssecurity.length() > 0 && location.length() > 0) {
+                break;
+            }
+            try {
+                Thread.sleep(1500L);
+            } catch (InterruptedException ignored) {
+            }
+        }
+        String cUserId = j == null ? "" : j.optString("cUserId", "");
         if (ssecurity.length() == 0 || location.length() == 0) {
-            throw new CloudError("Xiaomi не потвърди сесията. Влез отново с Xiaomi акаунта.");
+            String why = j == null ? "" : j.optString("description", j.optString("desc", ""));
+            String code = j == null ? "" : j.optString("code", "");
+            boolean verify = j != null && (j.has("notificationUrl") || j.has("captchaUrl"));
+            throw new CloudError("Xiaomi не потвърди сесията"
+                    + (code.length() > 0 ? " (код " + code + ")" : "")
+                    + (why.length() > 0 ? ": " + why : "")
+                    + (verify ? ". Иска допълнително потвърждение — завърши го в прозореца за вход." : "")
+                    + ". Влез отново с Xiaomi акаунта.");
         }
         Map<String, String> jar = new LinkedHashMap<String, String>();
         followForCookies(location, jar, 6);
@@ -151,6 +179,22 @@ public final class XiaomiCloudAccount {
             throw new CloudError("Xiaomi входът не даде serviceToken.");
         }
         return sourceList(ssecurity, cUserId, serviceToken);
+    }
+
+    /** True only for a non-empty, non-expired passToken (an empty one is set on the login page itself). */
+    public static boolean hasPassToken(String cookies) {
+        if (cookies == null) {
+            return false;
+        }
+        String[] parts = cookies.split(";");
+        for (int i = 0; i < parts.length; i++) {
+            String p = parts[i].trim();
+            if (p.startsWith("passToken=")) {
+                String v = p.substring("passToken=".length()).trim();
+                return v.length() > 8 && !v.equals("EXPIRED");
+            }
+        }
+        return false;
     }
 
     /** get_source_list (status=1 → bound wearables with auth_key) → the bands. */

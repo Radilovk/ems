@@ -19,12 +19,12 @@ import java.util.Set;
 /**
  * Sends the client's full training records (the per-second series kept in files/xems_sessions) to the
  * license server, which keeps them in R2; the client reads them in the booking app ("Моят профил").
- * Runs shortly after a training is saved (the report page has put its scores in the summary by then) and
+ * Runs right after a training is saved (the record must be there before the client opens the analysis) and
  * also catches up on older trainings, a few at a time. Only for a client who can find their card
  * (e-mail / phone) — for anyone else nobody could open the records.
  */
 final class SessionUploader {
-    static final long DELAY_MS = 30000L;
+    static final long DELAY_MS = 2000L;
     static final long MORE_MS = 20000L;
     static final int BATCH = 6;
     private static final Handler H = new Handler(Looper.getMainLooper());

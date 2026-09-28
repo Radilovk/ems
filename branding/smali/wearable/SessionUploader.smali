@@ -16,7 +16,7 @@
 # static fields
 .field static final BATCH:I = 0x6
 
-.field static final DELAY_MS:J = 0x7530L
+.field static final DELAY_MS:J = 0x7d0L
 
 .field private static final H:Landroid/os/Handler;
 
@@ -121,7 +121,7 @@
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/wearable/SessionUploader$Start;-><init>(Lcom/isaigu/gymapp/bean/TrainUser;)V
 
-    const-wide/16 v2, 0x7530
+    const-wide/16 v2, 0x7d0
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 

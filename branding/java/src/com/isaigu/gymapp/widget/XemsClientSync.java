@@ -335,20 +335,10 @@ public final class XemsClientSync {
         String f = fit.length() > 0 ? fit : "mid";
         form.edit().putString("u" + u.id, g + "|" + f + "|" + cs).putString("note" + u.id, note)
                 .putString("focus" + u.id, oldFocus).putString("cond" + u.id, oldCond).apply();
-        u.remark = XemsLocalUserForm.summaryOf(g, f, contra)
-                + (oldFocus.length() > 0 ? " · " + XemsLang.tr("Фокус: ", "Focus: ") + names(oldFocus, FOCUS_NAMES) : "")
-                + (oldCond.length() > 0 ? " · " + XemsLang.tr("Да се съобрази: ", "Mind: ") + names(oldCond, COND_NAMES) : "")
-                + (note.length() > 0 ? " · " + XemsLang.tr("От клиента: ", "From the client: ") + note : "");
+        u.remark = XemsLocalUserForm.summaryOf(g, f, contra) + XemsLocalUserForm.extras(oldFocus, oldCond, note);
         XemsLocalStore.saveUserQuiet(u, true);
         return created ? 1 : 2;
     }
-
-    static final String[][] FOCUS_NAMES = {{"abs", "корем", "abs"}, {"glutes", "седалище", "glutes"},
-            {"legs", "бедра", "legs"}, {"arms", "ръце", "arms"}, {"back", "гръб", "back"}, {"chest", "гърди", "chest"}};
-    static final String[][] COND_NAMES = {{"back", "кръст", "lower back"}, {"neck", "врат / рамене", "neck / shoulders"},
-            {"knees", "колене", "knees"}, {"injury", "стара травма", "old injury"}, {"desk", "седяща работа", "desk job"},
-            {"stress", "стрес / сън", "stress / sleep"}, {"sensitive", "чувствителност към тока", "sensitive to current"},
-            {"postpartum", "раждане до 1 г.", "birth within a year"}};
 
     static String csv(JSONArray a) {
         StringBuilder b = new StringBuilder();
@@ -356,18 +346,6 @@ public final class XemsClientSync {
             String v = a.optString(i, "").replaceAll("[^a-z_]", "");
             if (v.length() > 0) {
                 b.append(b.length() > 0 ? "," : "").append(v);
-            }
-        }
-        return b.toString();
-    }
-
-    static String names(String csv, String[][] table) {
-        StringBuilder b = new StringBuilder();
-        for (String k : csv.split(",")) {
-            for (String[] row : table) {
-                if (row[0].equals(k)) {
-                    b.append(b.length() > 0 ? ", " : "").append(XemsLang.isBg() ? row[1] : row[2]);
-                }
             }
         }
         return b.toString();

@@ -201,7 +201,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `Schedule.java` (516L, compile:music-sync*,wearable) — The studio's appointments from the tablet's own calendar (Acuity → Google Calendar sync, or any calendar the tablet sho…
 - `SessionInts.java` (36L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
 - `SessionRec.java` (300L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
-- `SessionRecorder.java` (387L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
+- `SessionRecorder.java` (392L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
 - `WearableBandPicker.java` (206L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
@@ -247,7 +247,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicImpulseMeterView.java` (237L, compile:music-sync*) — Two live bars for the music player: music level (after rhythm mix) and the impulse strength actually sent to the suit, …
 - `MusicVisualizerView.java` (217L, compile:music-sync*) — Radial music visualizer: rays from the play-button ring toward the seek ring (never past it).
 - `TimerRingView.java` (348L, compile:interval-timer,music-sync*) — XEMS dial ring (interval timer, HR dial): a 60-segment LED ring on a soft face.
-- `XemsClientSync.java` (421L, compile:music-sync,xems-local) — The clients' own profiles (filled in the studio's booking PWA) → the tablet's client list.
+- `XemsClientSync.java` (399L, compile:music-sync,xems-local) — The clients' own profiles (filled in the studio's booking PWA) → the tablet's client list.
 - `XemsFullscreen.java` (102L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
 - `XemsIcon.java` (178L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
@@ -261,7 +261,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalGate.java` (248L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (249L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1031L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
-- `XemsLocalUserForm.java` (774L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
+- `XemsLocalUserForm.java` (929L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsNav.java` (705L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsUi.java` (659L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -535,12 +535,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
   - L28 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
 
-`docs/xems-client-sync.md` (38L)
+`docs/xems-client-sync.md` (42L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.190-ai)
   - L3 ## Кой е собственик на кои данни
   - L12 ## Сливане на профил на таблета (`widget/XemsClientSync`)
-  - L21 ## Разходи (Cloudflare Workers + D1)
-  - L35 ## Кодът на студиото
+  - L25 ## Разходи (Cloudflare Workers + D1)
+  - L39 ## Кодът на студиото
 
 `docs/xems-license-api.md` (179L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

@@ -139,6 +139,11 @@ public final class SessionRecorder {
                             r.betweenS = 0;
                             r.idle = 0;
                             BandWorkout.onState(r, false);
+                            // The band's summary is out now (■); the rec closes only after the massage
+                            // or 30 min — too late for it, so the muscle map goes with this mode.
+                            if (r.bandOwner || r.leader) {
+                                BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
+                            }
                             WearableBleDiagLog.log("report", "slot " + i + " mode " + r.curType + " done, waiting");
                         }
                         continue;

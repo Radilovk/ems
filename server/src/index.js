@@ -8,6 +8,9 @@ import {
 import { adminHtml } from './admin.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
+  sessionId, validSummary, putSession, readIndex, getSession, SESSION_MAX_BYTES,
+} from './history.js';
+import {
   cardId, isCardId, normClientKey, validCardData, renderCard, cardGonePage, lookupHash, lookupMatches,
   CARD_MAX_BYTES, CARD_TTL_SEC,
 } from './card.js';
@@ -26,7 +29,7 @@ const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
 // /v1/card/find is called from the client's browser (the booking PWA on another origin)
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Max-Age': '86400',
 };
@@ -66,6 +69,13 @@ export default {
       if (path === '/v1/card/find') {
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
         if (request.method === 'POST') return handleCardFind(request, env);
+      }
+      if (path === '/v1/session' && request.method === 'POST') {
+        return handleSessionPut(request, env);
+      }
+      if (path.startsWith('/v1/history/')) {
+        if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+        if (request.method === 'GET') return handleHistory(request, env, path.slice('/v1/history/'.length));
       }
       if (path.startsWith('/c/') && request.method === 'GET') {
         return serveCard(request, env, ctx, path.slice(3));
@@ -364,6 +374,71 @@ async function serveCard(request, env, ctx, id) {
     })));
   }
   return new Response(html, { headers });
+}
+
+// ─── Full training records (R2) ──────────────────────────────────────────────
+
+/** POST {token, device_id, client_key, id, sum, data} → {ok, count}. One training's record from the tablet. */
+async function handleSessionPut(request, env) {
+  if (!env.LOGS) return err('unavailable', 'Storage not configured');
+  const body = await readJsonBody(request, SESSION_MAX_BYTES);
+  if (!body) return err('unknown', 'Invalid JSON body');
+  const deviceId = normDevice(body.device_id);
+  const tokenBody = parseTokenBody(body.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  const clientKey = normClientKey(body.client_key);
+  if (!clientKey) return err('bad_request', 'client_key');
+  const id = sessionId(body.id);
+  if (!id) return err('bad_request', 'id');
+  const bad = validSummary(body.sum, id);
+  if (bad) return err('bad_request', 'sum: ' + bad);
+  if (!body.data || typeof body.data !== 'object' || Array.isArray(body.data)) return err('bad_request', 'data');
+
+  if (!allowHit(`session:dev:${deviceId}`, LIMITS.sessionPerMinutePerDevice, 60, now())) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many records' }, 429);
+  }
+  const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
+  if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
+  if (lic.expires_at && lic.expires_at < now()) return err('expired', 'License expired');
+  const act = await env.DB.prepare(
+    'SELECT status FROM activations WHERE license_id = ? AND device_id = ?',
+  ).bind(licId, deviceId).first();
+  if (!act || act.status !== 'active') return err('revoked', 'Device removed');
+
+  const count = await putSession(env.LOGS, licId, clientKey, id, body.sum, body.data);
+  return json({ ok: true, count });
+}
+
+/**
+ * The client's own records, by the id of their card: /v1/history/<cardId> → the list (newest last),
+ * /v1/history/<cardId>/<trainingId> → one full record. Public like the card link itself.
+ */
+async function handleHistory(request, env, rest) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!allowHit(`history:ip:${ip}`, LIMITS.historyPerMinutePerIp, 60, now())) {
+    return cors(json({ ok: false, error: 'rate_limit' }, 429));
+  }
+  if (!env.LOGS) return cors(json({ ok: false, error: 'unavailable' }, 503));
+  const [cid, sid, extra] = rest.split('/');
+  if (!isCardId(cid) || extra !== undefined) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const card = await env.DB.prepare(
+    'SELECT license_id, client_key, expires_at FROM client_cards WHERE id = ?',
+  ).bind(cid).first();
+  if (!card || card.expires_at < now()) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const headers = { 'Cache-Control': 'private, max-age=30', 'X-Robots-Tag': 'noindex, nofollow' };
+  if (sid === undefined || sid === '') {
+    const sessions = await readIndex(env.LOGS, card.license_id, card.client_key);
+    return cors(new Response(JSON.stringify({ ok: true, sessions }), {
+      headers: { ...JSON_HEADERS, ...headers },
+    }));
+  }
+  const id = sessionId(sid);
+  if (!id) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const obj = await getSession(env.LOGS, card.license_id, card.client_key, id);
+  if (!obj) return cors(json({ ok: false, error: 'not_found' }, 404));
+  return cors(new Response(obj.body, { headers: { ...JSON_HEADERS, ...headers } }));
 }
 
 // ─── Client profiles: booking PWA → the studio's tablets ─────────────────────

@@ -19,6 +19,11 @@ binding = "DB"
 database_name = "xems-license"
 database_id = "d5eb1f2e-57d8-49df-8d51-5e570f54bf6c"
 
+# Full training records (create once: npx wrangler r2 bucket create xems-session-logs)
+[[r2_buckets]]
+binding = "LOGS"
+bucket_name = "xems-session-logs"
+
 [[routes]]
 pattern = "license.biocode-bg.com/*"
 zone_name = "biocode-bg.com"

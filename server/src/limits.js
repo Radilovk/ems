@@ -10,6 +10,8 @@ export const LIMITS = {
   cardFindPerMinutePerIp: 20,
   profilePerMinutePerIp: 10,
   inboxPerMinutePerDevice: 6,
+  sessionPerMinutePerDevice: 20,
+  historyPerMinutePerIp: 60,
   rateLimitRetentionSec: 7 * 86400,
 };
 

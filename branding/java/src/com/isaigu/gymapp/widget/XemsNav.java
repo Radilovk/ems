@@ -205,6 +205,14 @@ public final class XemsNav {
         tp.leftMargin = XemsUi.dp(c, 10);
         tile.addView(texts, tp);
 
+        // "i": what the module is, what it gives, how to work with it (XemsModuleInfo)
+        TextView info = XemsUi.iconButton(c, "i", XemsUi.SURFACE, XemsUi.MUTED, 26);
+        info.setOnClickListener(new InfoClick(module));
+        info.setContentDescription(tr("Информация", "Info"));
+        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(XemsUi.dp(c, 26), XemsUi.dp(c, 26));
+        ip.leftMargin = XemsUi.dp(c, 6);
+        tile.addView(info, ip);
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         int m = XemsUi.dp(c, 5);
@@ -355,8 +363,8 @@ public final class XemsNav {
         }
         XemsUi.haptic(from);
         if (!XemsLicense.has(licenseId(module))) {
-            android.widget.Toast.makeText(mainRoot.getContext(), tr("Нямате достъп до този модул",
-                    "You have no access to this module"), android.widget.Toast.LENGTH_SHORT).show();
+            // locked: what it is and what it gives, with "Абонирай се"
+            showInfo(module);
             return;
         }
         if (currentPage != ID_TAB_FIRST) {
@@ -366,6 +374,16 @@ public final class XemsNav {
             return;
         }
         clickModule(module);
+    }
+
+    /** The module's info sheet; when unlocked, its "Отвори" opens the module. */
+    static void showInfo(int module) {
+        if (mainRoot == null) {
+            return;
+        }
+        android.app.Activity a = AiSession.activityOf(mainRoot);
+        String id = licenseId(module);
+        XemsModuleInfo.show(a, id, XemsLicense.has(id) ? new OpenFromInfo(module) : null);
     }
 
     /** The training page is on screen (the automatic mode's hint card shows only there). */
@@ -652,6 +670,40 @@ public final class XemsNav {
                 openModule(v, module);
             } catch (Throwable t) {
                 XemsGuard.report("XemsNav.module", t);
+            }
+        }
+    }
+
+    static final class InfoClick implements View.OnClickListener {
+        private final int module;
+
+        InfoClick(int module) {
+            this.module = module;
+        }
+
+        @Override
+        public void onClick(View v) {
+            try {
+                XemsUi.haptic(v);
+                showInfo(module);
+            } catch (Throwable t) {
+                XemsGuard.report("XemsNav.info", t);
+            }
+        }
+    }
+
+    static final class OpenFromInfo implements Runnable {
+        private final int module;
+
+        OpenFromInfo(int module) {
+            this.module = module;
+        }
+
+        @Override
+        public void run() {
+            Tile t = tiles[module];
+            if (t != null) {
+                openModule(t.root, module);
             }
         }
     }

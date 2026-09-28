@@ -65,6 +65,9 @@ public final class XemsLicenseSection {
         for (String id : ids) {
             boolean on = XemsLicense.has(id);
             TextView chip = XemsUi.chip(a, (on ? "✓ " : "🔒 ") + moduleName(id), on, on ? XemsUi.GO : XemsUi.HINT);
+            chip.setText(chip.getText() + "  ⓘ");
+            chip.setOnClickListener(new XemsModuleInfo.ChipClick(id));
+            XemsUi.pressable(chip);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.rightMargin = XemsUi.dp(a, 6);
@@ -74,10 +77,13 @@ public final class XemsLicenseSection {
             TextView chip = XemsUi.chip(a, tr("✓ Ръце 1:1", "✓ Arms 1:1"), true, XemsUi.AMBER);
             chips.addView(chip);
         }
+        TextView chipsHint = XemsUi.text(a, tr("Докосни модул — какво дава и как се работи с него.",
+                "Tap a module — what it gives and how to use it."), 12, XemsUi.HINT, false);
+        card.addView(chipsHint, XemsUi.matchWrap(a, 12));
         android.widget.HorizontalScrollView scroll = new android.widget.HorizontalScrollView(a);
         scroll.setHorizontalScrollBarEnabled(false);
         scroll.addView(chips);
-        card.addView(scroll, XemsUi.matchWrap(a, 12));
+        card.addView(scroll, XemsUi.matchWrap(a, 8));
 
         // key + activate
         TextView keyLabel = XemsUi.label(a, tr("Потребителски ключ", "User key"));

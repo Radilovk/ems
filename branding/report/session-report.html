@@ -516,9 +516,9 @@ function simulate(seed,scale){
   return {s:out,pauses,T,recDrop:Math.round(end-after),PH:DEMO_PH,hasHr:true,rest,max,ap:true,music:false,hrShare:1};
 }
 function demoSessions(){
-  DEMO=true;CLIENT={name:tr("Мария Иванова","Maria Ivanova"),sex:"F",age:38,weight:64,height:166,fitness:"low",goal:"tone",owner:true,restHr:62,avatar:""};
+  DEMO=true;CLIENT={name:"Demo",sex:"F",age:38,weight:64,height:166,fitness:"low",goal:"tone",owner:true,restHr:62,avatar:""};
   const base=new Date();base.setHours(0,0,0,0);const offs=[83,80,76,73,69,62,59,55,52,45,41,38,34,31,27,24,20,17,13,10,6,3];
-  const TYPES=["Smart Session",tr("Програма „Силова база“","Program “Strength base”"),"Smart Session",tr("Програма „Тонус 20“","Program “Tone 20”")];const doses=[];
+  const TYPES=["Test","Smart Session","Test","Test"];const doses=[];
   sessions=offs.map((o,i)=>{const d=new Date(base);d.setDate(d.getDate()-o);const h=[18,7,19,12][i%4];d.setHours(h,[30,15,5,40][i%4]);
     const sim=simulate(1000+i*17,.78+.22*(i/(offs.length-1))+(i%5===2?-.08:0));const a=analyse(sim,doses.slice(-3),GOALS.tone,64,{sex:"F",age:38,weight:64,height:166,fitness:"low"},i);doses.push(a.dose);
     return{i,id:d.getTime(),date:d,type:TYPES[i%4],sim,a,goal:"tone",meta:{band:{owner:true,sent:true,sport:3}}};});

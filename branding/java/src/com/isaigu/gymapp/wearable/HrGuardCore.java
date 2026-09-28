@@ -418,7 +418,7 @@ public final class HrGuardCore {
         }
         for (int i = 0; i < peakCharge.length; i++) {
             double ch = s.channels != null ? (i < s.channels.length ? s.channels[i] : 0) : 100;
-            double q = ch / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.ARMS_SENT : 1.0)
+            double q = ch / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.armsSent(e.pwUs) : 1.0)
                     * Math.max(s.strength, s.activePause ? s.pauseStrength : 0) / 100.0 * e.pwUs / 350.0;
             peakCharge[i] = Math.max(peakCharge[i], q);
         }

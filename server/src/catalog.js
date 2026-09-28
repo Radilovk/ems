@@ -12,7 +12,7 @@ export const MODULES = [
 ];
 
 export const FEATURES = [
-  { id: 'arms_full', name: 'Ръце 1:1', desc: 'Каналът за ръцете с нормална сила (не ×0.05)', subscription: true },
+  { id: 'arms_full', name: 'Ръце 1:1', desc: 'Каналът за ръцете с нормална сила (без намалението ÷5…÷10 по ширината на импулса)', subscription: true },
 ];
 
 export function catalogSummary() {

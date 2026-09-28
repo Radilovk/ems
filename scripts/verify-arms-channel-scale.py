@@ -34,13 +34,15 @@ def main() -> int:
         text = COMMAND_UTIL.read_text(encoding="utf-8")
         if "ChannelStrengthScale;->scaleOutput(IF)F" not in text:
             errors.append("CommandUtil.getPartPduValue missing ChannelStrengthScale hook")
+        if "ChannelStrengthScale;->setPulseWidth(I)V" not in text:
+            errors.append("CommandUtil.getPartsParamsPduWithStrength missing setPulseWidth hook")
 
     if CHANNEL_SCALE.is_file():
         cs = CHANNEL_SCALE.read_text(encoding="utf-8")
         if "scaleOutput(IF)F" not in cs:
             errors.append("ChannelStrengthScale.smali missing scaleOutput method")
-        if "0x3d4ccccd" not in cs:
-            errors.append("ChannelStrengthScale.smali missing 0.05f scale constant")
+        if "armsDivider(I)F" not in cs or "setPulseWidth(I)V" not in cs:
+            errors.append("ChannelStrengthScale.smali missing pulse-width arms divider")
 
     if errors:
         for err in errors:

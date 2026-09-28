@@ -4515,7 +4515,7 @@
 
     cmp-long v0, v0, v2
 
-    if-gez v0, :cond_9f
+    if-gez v0, :cond_a0
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -4535,7 +4535,7 @@
     const/4 v6, 0x0
 
     .line 608
-    if-eqz v0, :cond_a2
+    if-eqz v0, :cond_a3
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -4543,7 +4543,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_a2
+    if-eqz v1, :cond_a3
 
     iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiEngine$CycleCmd;->frac:D
 
@@ -4551,7 +4551,7 @@
 
     cmpl-double v1, v2, v8
 
-    if-lez v1, :cond_a2
+    if-lez v1, :cond_a3
 
     .line 609
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->channelStim()Lcom/isaigu/gymapp/ai/AiEnergy$Stim;
@@ -4587,7 +4587,7 @@
     .line 624
     :cond_67
     :goto_67
-    if-eqz v6, :cond_e6
+    if-eqz v6, :cond_e7
 
     .line 626
     sget-object v0, Lcom/isaigu/gymapp/ai/AiEnergy;->CH_MASS:[D
@@ -4606,18 +4606,18 @@
 
     array-length v1, v1
 
-    if-ge v0, v1, :cond_e6
+    if-ge v0, v1, :cond_e7
 
     .line 628
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->channels:[I
 
-    if-eqz v1, :cond_e0
+    if-eqz v1, :cond_e1
 
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->channels:[I
 
     array-length v1, v1
 
-    if-ge v0, v1, :cond_e0
+    if-ge v0, v1, :cond_e1
 
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->channels:[I
 
@@ -4635,11 +4635,15 @@
 
     const/4 v2, 0x4
 
-    if-ne v0, v2, :cond_e3
+    if-ne v0, v2, :cond_e4
 
-    const-wide v2, 0x3fa999999999999aL    # 0.05
+    const/16 v2, 0x15e
 
-    :goto_92
+    invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiEnergy;->armsSent(I)D
+
+    move-result-wide v2
+
+    :goto_93
     mul-double/2addr v2, v8
 
     sget v7, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
@@ -4660,13 +4664,13 @@
     goto :goto_71
 
     .line 605
-    :cond_9f
+    :cond_a0
     const-wide/high16 v4, -0x4010000000000000L    # -1.0
 
     goto :goto_36
 
     .line 614
-    :cond_a2
+    :cond_a3
     if-eqz v0, :cond_67
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
@@ -4744,19 +4748,19 @@
     goto :goto_67
 
     .line 628
-    :cond_e0
+    :cond_e1
     const-wide/high16 v2, 0x4059000000000000L    # 100.0
 
     goto :goto_84
 
     .line 629
-    :cond_e3
+    :cond_e4
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
-    goto :goto_92
+    goto :goto_93
 
     .line 633
-    :cond_e6
+    :cond_e7
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     move-wide v2, p0

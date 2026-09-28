@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply encode-time 20× arms channel strength reduction (buwei5 / index 4)."""
+"""Apply encode-time arms channel strength reduction (÷5 at 150 µs … ÷10 at 400 µs pulse width) (buwei5 / index 4)."""
 
 from __future__ import annotations
 
@@ -14,6 +14,22 @@ UTILS_DIR = DECOMPILED / "smali_classes2/com/isaigu/gymapp/train/utils"
 COMMAND_UTIL = UTILS_DIR / "CommandUtil.smali"
 
 HOOK_MARKER = "ChannelStrengthScale;->scaleOutput(IF)F"
+PW_MARKER = "ChannelStrengthScale;->setPulseWidth(I)V"
+
+# The arms divider follows the program's pulse width: hand it over before the parts PDU is built.
+PW_ANCHOR = """    .param p2, "strenth"    # I
+
+    .line 17
+    iget-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;"""
+
+PW_PATCHED = """    .param p2, "strenth"    # I
+
+    iget v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->setPulseWidth(I)V
+
+    .line 17
+    iget-object v0, p0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;"""
 
 ORIGINAL_TAIL = """    mul-float v0, v0, v1
 
@@ -48,6 +64,11 @@ def install_smali() -> None:
 
 
 def patch_command_util(text: str) -> str:
+    if PW_MARKER not in text:
+        if PW_ANCHOR not in text:
+            raise RuntimeError("CommandUtil.getPartsParamsPduWithStrength head not found — base APK changed?")
+        text = text.replace(PW_ANCHOR, PW_PATCHED, 1)
+        print("CommandUtil.getPartsParamsPduWithStrength: pulse width → ChannelStrengthScale")
     if HOOK_MARKER in text:
         print("CommandUtil.getPartPduValue: arms scale hook already applied")
         return text

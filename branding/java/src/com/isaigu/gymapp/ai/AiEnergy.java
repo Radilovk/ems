@@ -22,7 +22,7 @@ package com.isaigu.gymapp.ai;
  *       levels off above fusion), R_max = 250 ml O2/min per kg of fully activated muscle (peak knee-
  *       extensor uptake ~300–350, Andersen &amp; Saltin 1985; lower for occluding isometric work).
  *       Active pause adds its own part (pause strength and frequency). Disabled channels count 0;
- *       the arms channel is sent at 5 % (ChannelStrengthScale) and counted so.</li>
+ *       the arms channel is sent reduced by pulse width (ChannelStrengthScale: ÷5 at 150 µs … ÷10 at 400 µs) and counted so.</li>
  *   <li><b>Why max, not sum:</b> once the heart rate reflects the load, the evoked work is already in
  *       it; before that (HR lags 20–40 s) or in passive programs (HR hardly moves) the channel model
  *       carries it. Nothing is counted twice.</li>
@@ -53,12 +53,12 @@ public final class AiEnergy {
     public static final double[] CH_MASS = {1.0, 1.6, 4.8, 2.2, 2.0, 0.9, 2.2, 1.0, 2.6, 2.4};
     public static final double[] CH_DEPTH = {0.5, 0.5, 0.35, 0.45, 0.5, 0.5, 0.45, 0.4, 0.35, 0.4};
     public static final int ARMS = 4;
-    public static final double ARMS_SENT = 0.05;
+    public static final double ARMS_SENT = 0.1;
 
-    /** What the arms channel really gets (0.05, or 1 with the "arms_full" licence feature). */
-    static double armsSent() {
+    /** What the arms channel really gets at this pulse width (÷5 at 150 µs … ÷10 at 400 µs, or 1 with "arms_full"). */
+    public static double armsSent(int pwUs) {
         try {
-            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsFactor();
+            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsFactor(pwUs);
         } catch (Throwable t) {
             return ARMS_SENT;
         }
@@ -230,7 +230,7 @@ public final class AiEnergy {
                 continue;
             }
             double chPct = s.channels != null ? (ch < s.channels.length ? s.channels[ch] : 0) : 100;
-            double sent = (chPct / 100.0) * (ch == ARMS ? armsSent() : 1.0);
+            double sent = (chPct / 100.0) * (ch == ARMS ? armsSent(s.pwUs) : 1.0);
             double tol = s.toleratedCharge != null && ch < s.toleratedCharge.length ? s.toleratedCharge[ch] : 0;
             double part = 0;
             if (s.onShare > 0 && s.hz > 0) {

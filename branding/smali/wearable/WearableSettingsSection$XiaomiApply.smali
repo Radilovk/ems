@@ -60,22 +60,22 @@
     .end annotation
 
     .prologue
-    .line 1313
+    .line 1512
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1314
+    .line 1513
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->a:Landroid/app/Activity;
 
-    .line 1315
+    .line 1514
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->root:Landroid/view/View;
 
-    .line 1316
+    .line 1515
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->bands:Ljava/util/List;
 
-    .line 1317
+    .line 1516
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->error:Ljava/lang/String;
 
-    .line 1318
+    .line 1517
     return-void
 .end method
 
@@ -85,21 +85,21 @@
     .registers 6
 
     .prologue
-    .line 1344
+    .line 1543
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->a:Landroid/app/Activity;
 
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;->mac:Ljava/lang/String;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 1345
+    .line 1544
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->a:Landroid/app/Activity;
 
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;->key:Ljava/lang/String;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 1346
+    .line 1545
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->a:Landroid/app/Activity;
 
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;->mac:Ljava/lang/String;
@@ -110,7 +110,7 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/wearable/WearableConfig;->rememberBand(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1347
+    .line 1546
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
@@ -118,7 +118,7 @@
 
     if-eqz v0, :cond_28
 
-    .line 1348
+    .line 1547
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000()Landroid/widget/EditText;
 
@@ -128,7 +128,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1350
+    .line 1549
     :cond_28
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700()Landroid/widget/EditText;
@@ -137,7 +137,7 @@
 
     if-eqz v0, :cond_3b
 
-    .line 1351
+    .line 1550
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$700()Landroid/widget/EditText;
 
@@ -147,18 +147,18 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1352
+    .line 1551
     const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->setKeyHidden(Z)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$200(Z)V
 
-    .line 1354
+    .line 1553
     :cond_3b
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->colorFields()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1400()V
 
-    .line 1355
+    .line 1554
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->a:Landroid/app/Activity;
 
     const-string v1, "\u0413\u043e\u0442\u043e\u0432\u043e \u2014 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u0435 \u0437\u0430\u043a\u0430\u0447\u0435\u043d\u0430 \u2713"
@@ -172,7 +172,7 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1600(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 1356
+    .line 1555
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
 
@@ -188,7 +188,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1357
+    .line 1556
     return-void
 .end method
 
@@ -198,7 +198,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 1322
+    .line 1521
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->error:Ljava/lang/String;
 
     if-nez v1, :cond_11
@@ -215,7 +215,7 @@
 
     if-eqz v1, :cond_26
 
-    .line 1323
+    .line 1522
     :cond_11
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->a:Landroid/app/Activity;
 
@@ -229,11 +229,11 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1600(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 1341
+    .line 1540
     :goto_1c
     return-void
 
-    .line 1324
+    .line 1523
     :cond_1d
     const-string v0, "\u041d\u0435 \u043d\u0430\u043c\u0435\u0440\u0438\u0445 \u0433\u0440\u0438\u0432\u043d\u0430 \u0432 \u0430\u043a\u0430\u0443\u043d\u0442\u0430."
 
@@ -245,7 +245,7 @@
 
     goto :goto_19
 
-    .line 1327
+    .line 1526
     :cond_26
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->bands:Ljava/util/List;
 
@@ -257,7 +257,7 @@
 
     if-ne v1, v2, :cond_3b
 
-    .line 1328
+    .line 1527
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->bands:Ljava/util/List;
 
     invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -270,7 +270,7 @@
 
     goto :goto_1c
 
-    .line 1331
+    .line 1530
     :cond_3b
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->bands:Ljava/util/List;
 
@@ -282,7 +282,7 @@
 
     move v1, v0
 
-    .line 1332
+    .line 1531
     :goto_44
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->bands:Ljava/util/List;
 
@@ -292,7 +292,7 @@
 
     if-ge v1, v0, :cond_86
 
-    .line 1333
+    .line 1532
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->bands:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -301,7 +301,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;
 
-    .line 1334
+    .line 1533
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -339,14 +339,14 @@
 
     aput-object v0, v3, v1
 
-    .line 1332
+    .line 1531
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_44
 
-    .line 1334
+    .line 1533
     :cond_7d
     const-string v2, "\u0413\u0440\u0438\u0432\u043d\u0430"
 
@@ -358,7 +358,7 @@
 
     goto :goto_63
 
-    .line 1336
+    .line 1535
     :cond_86
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -370,7 +370,7 @@
 
     const-string v2, "Which band?"
 
-    .line 1337
+    .line 1536
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -385,7 +385,7 @@
 
     invoke-direct {v1, p0, v2}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply$XiaomiPick;-><init>(Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;Ljava/util/List;)V
 
-    .line 1338
+    .line 1537
     invoke-virtual {v0, v3, v1}, Landroid/app/AlertDialog$Builder;->setItems([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -394,7 +394,7 @@
 
     const-string v2, "Cancel"
 
-    .line 1339
+    .line 1538
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -405,7 +405,7 @@
 
     move-result-object v0
 
-    .line 1340
+    .line 1539
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto/16 :goto_1c

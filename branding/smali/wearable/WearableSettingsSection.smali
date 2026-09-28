@@ -17,10 +17,16 @@
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlPick;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlSaver;,
-        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiReopen;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrDone;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrShow;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrTask;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrCancel;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebDismiss;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebCancel;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebPoll;,
@@ -2786,17 +2792,17 @@
     return-object v0
 .end method
 
-.method static openXiaomiWebLogin(Landroid/app/Activity;Landroid/view/View;)V
+.method static openXiaomiQr(Landroid/app/Activity;Landroid/view/View;)V
     .registers 4
 
     .prologue
     .line 891
     :try_start_0
-    new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
+    new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;
 
-    invoke-direct {v0, p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;-><init>(Landroid/app/Activity;Landroid/view/View;)V
+    invoke-direct {v0, p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;-><init>(Landroid/app/Activity;Landroid/view/View;)V
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->open()V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->open()V
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_8} :catch_9
 
@@ -2809,6 +2815,42 @@
     move-exception v0
 
     .line 893
+    const-string v0, "\u041d\u0435 \u043c\u043e\u0433\u0430 \u0434\u0430 \u043e\u0442\u0432\u043e\u0440\u044f QR \u0432\u0445\u043e\u0434\u0430."
+
+    const-string v1, "Cannot open the QR login."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
+
+    goto :goto_8
+.end method
+
+.method static openXiaomiWebLogin(Landroid/app/Activity;Landroid/view/View;)V
+    .registers 4
+
+    .prologue
+    .line 899
+    :try_start_0
+    new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
+
+    invoke-direct {v0, p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;-><init>(Landroid/app/Activity;Landroid/view/View;)V
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->open()V
+    :try_end_8
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_8} :catch_9
+
+    .line 903
+    :goto_8
+    return-void
+
+    .line 900
+    :catch_9
+    move-exception v0
+
+    .line 901
     const-string v0, "\u041d\u0435 \u043c\u043e\u0433\u0430 \u0434\u0430 \u043e\u0442\u0432\u043e\u0440\u044f \u0432\u0445\u043e\u0434\u0430 \u0437\u0430 Xiaomi."
 
     const-string v1, "Cannot open the Xiaomi login."
@@ -3584,64 +3626,54 @@
 .end method
 
 .method static showXiaomiLogin(Landroid/app/Activity;Landroid/view/View;)V
-    .registers 10
+    .registers 5
 
     .prologue
-    const/4 v3, 0x0
-
     .line 880
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->xiaomiSession(Landroid/content/Context;)Ljava/lang/String;
 
-    move-result-object v4
-
-    .line 881
-    invoke-virtual {v4}, Ljava/lang/String;->length()I
-
-    move-result v0
-
-    if-lez v0, :cond_2a
-
-    .line 882
-    const-string v0, "\u041e\u0431\u043d\u043e\u0432\u044f\u0432\u0430\u043c \u043a\u043b\u044e\u0447\u0430 \u043e\u0442 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0438\u044f Xiaomi \u0432\u0445\u043e\u0434\u2026"
-
-    const-string v1, "Refreshing the key from the saved Xiaomi login\u2026"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
     move-result-object v0
 
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
+    .line 881
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-lez v1, :cond_25
+
+    .line 882
+    const-string v1, "\u041e\u0431\u043d\u043e\u0432\u044f\u0432\u0430\u043c \u043a\u043b\u044e\u0447\u0430 \u043e\u0442 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0438\u044f Xiaomi \u0432\u0445\u043e\u0434\u2026"
+
+    const-string v2, "Refreshing the key from the saved Xiaomi login\u2026"
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
 
     .line 883
-    new-instance v7, Ljava/lang/Thread;
+    new-instance v1, Ljava/lang/Thread;
 
-    new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;
+    new-instance v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;
 
-    const/4 v6, 0x1
+    invoke-direct {v2, p0, p1, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;-><init>(Landroid/app/Activity;Landroid/view/View;Ljava/lang/String;)V
 
-    move-object v1, p0
+    const-string v0, "xems-xiaomi-refresh"
 
-    move-object v2, p1
+    invoke-direct {v1, v2, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    move-object v5, v3
-
-    invoke-direct/range {v0 .. v6}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginTask;-><init>(Landroid/app/Activity;Landroid/view/View;[Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V
-
-    const-string v1, "xems-xiaomi-refresh"
-
-    invoke-direct {v7, v0, v1}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
-
-    invoke-virtual {v7}, Ljava/lang/Thread;->start()V
+    invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
     .line 887
-    :goto_29
+    :goto_24
     return-void
 
     .line 886
-    :cond_2a
-    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->openXiaomiWebLogin(Landroid/app/Activity;Landroid/view/View;)V
+    :cond_25
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->openXiaomiQr(Landroid/app/Activity;Landroid/view/View;)V
 
-    goto :goto_29
+    goto :goto_24
 .end method
 
 .method private static sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;

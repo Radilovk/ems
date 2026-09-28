@@ -31,7 +31,7 @@ public final class MiFitnessLogImport {
     private static final long MAX_FILE = 64L * 1024 * 1024;
 
     private static final Pattern KEY_PRIMARY = Pattern.compile(
-            "(?i)\"?(?:encryptKey|authKey|auth_key)\"?\\s*[:=]\\s*\"?([0-9a-f]{32})(?![0-9a-f])");
+            "(?i)\"?(?:encryptKey|encrypt_key|authKey|auth_key)\"?\\s*[:=]\\s*\"?([0-9a-f]{32})(?![0-9a-f])");
     private static final Pattern KEY_TOKEN = Pattern.compile(
             "(?i)\"token\"\\s*[:=]\\s*\"([0-9a-f]{32})\"");
     private static final Pattern MAC_COLON = Pattern.compile(
@@ -50,10 +50,66 @@ public final class MiFitnessLogImport {
 
     private MiFitnessLogImport() {}
 
+    /** One band bound to the account, as listed in Mi Fitness' device response. */
+    public static final class Dev {
+        public final String name;
+        public final String mac;
+        public final String key;
+
+        Dev(String name, String mac, String key) {
+            this.name = name;
+            this.mac = mac;
+            this.key = key;
+        }
+    }
+
     public static final class Found {
         public String key = "";
         public String mac = "";
         public boolean fromToken;
+        /** Bands from the device-list JSON (newest last). Empty for older log formats. */
+        public final java.util.LinkedHashMap<String, Dev> devices = new java.util.LinkedHashMap<String, Dev>();
+
+        public boolean hasAny() {
+            return key.length() > 0 || !devices.isEmpty();
+        }
+    }
+
+    private static final Pattern DETAIL = Pattern.compile("\"detail\"\\s*:\\s*\\{([^{}]*)\\}");
+    private static final Pattern D_KEY = Pattern.compile("(?i)\"encrypt_key\"\\s*:\\s*\"([0-9a-f]{32})\"");
+    private static final Pattern D_TOKEN = Pattern.compile("(?i)\"token\"\\s*:\\s*\"([0-9a-f]{32})\"");
+    private static final Pattern D_MAC = Pattern.compile("(?i)\"mac\"\\s*:\\s*\"((?:[0-9a-f]{2}:){5}[0-9a-f]{2})\"");
+
+    private static void scanDevices(String line, Found into) {
+        if (line.indexOf("\"detail\"") < 0) {
+            return;
+        }
+        Matcher m = DETAIL.matcher(line);
+        while (m.find()) {
+            String body = m.group(1);
+            Matcher mk = D_KEY.matcher(body);
+            String key = mk.find() ? mk.group(1) : "";
+            if (key.length() == 0) {
+                Matcher tk = D_TOKEN.matcher(body);
+                key = tk.find() ? tk.group(1) : "";
+            }
+            Matcher mm = D_MAC.matcher(body);
+            String mac = mm.find() ? mm.group(1).toUpperCase(java.util.Locale.ROOT) : "";
+            if (key.length() == 0 || mac.length() == 0) {
+                continue;
+            }
+            String name = "";
+            int at = line.lastIndexOf("\"name\":\"", m.start());
+            if (at >= 0 && m.start() - at < 800) {
+                int from = at + 8;
+                int to = line.indexOf('"', from);
+                if (to > from) {
+                    name = line.substring(from, to).trim();
+                }
+            }
+            into.devices.remove(mac);
+            into.devices.put(mac, new Dev(name, mac, key.toLowerCase(java.util.Locale.ROOT)));
+        }
     }
 
     public interface Done {
@@ -77,17 +133,14 @@ public final class MiFitnessLogImport {
                 }
                 InputStream in = new FileInputStream(arr[i]);
                 try {
-                    scan(in, best);
+                    scanAny(in, best);
                 } finally {
                     in.close();
                 }
             } catch (Throwable ignored) {
             }
-            if (best.key.length() > 0 && !best.fromToken) {
-                break;
-            }
         }
-        return best.key.length() > 0 ? best : null;
+        return best.hasAny() ? best : null;
     }
 
     private static void collect(File dir, List<File> out, int depth) {
@@ -104,7 +157,7 @@ public final class MiFitnessLogImport {
                 collect(list[i], out, depth + 1);
             } else {
                 String n = list[i].getName().toLowerCase(java.util.Locale.ROOT);
-                if (n.endsWith(".log") || n.endsWith(".txt") || n.indexOf("log") >= 0) {
+                if (n.endsWith(".log") || n.endsWith(".txt") || n.endsWith(".zip") || n.indexOf("log") >= 0) {
                     out.add(list[i]);
                 }
             }
@@ -120,6 +173,26 @@ public final class MiFitnessLogImport {
         }
     }
 
+    /** Like {@link #scan}, but also opens a .zip (Mi Fitness exports its logs as an archive). */
+    public static void scanAny(InputStream raw, Found into) throws Exception {
+        java.io.BufferedInputStream in = new java.io.BufferedInputStream(raw, 1 << 16);
+        in.mark(8);
+        int b0 = in.read();
+        int b1 = in.read();
+        in.reset();
+        if (b0 == 0x50 && b1 == 0x4B) {
+            java.util.zip.ZipInputStream zin = new java.util.zip.ZipInputStream(in);
+            java.util.zip.ZipEntry e;
+            while ((e = zin.getNextEntry()) != null) {
+                if (!e.isDirectory()) {
+                    scan(zin, into);
+                }
+            }
+        } else {
+            scan(in, into);
+        }
+    }
+
     /** Scan a stream line by line; a later match replaces an earlier one, a primary key beats a bare token. */
     public static void scan(InputStream in, Found into) throws Exception {
         BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"), 1 << 16);
@@ -128,6 +201,7 @@ public final class MiFitnessLogImport {
             if (line.length() < 32) {
                 continue;
             }
+            scanDevices(line, into);
             Matcher m = KEY_PRIMARY.matcher(line);
             while (m.find()) {
                 into.key = m.group(1).toLowerCase(java.util.Locale.ROOT);
@@ -249,14 +323,14 @@ public final class MiFitnessLogImport {
                 try {
                     InputStream in = a.getContentResolver().openInputStream(uris.get(i));
                     try {
-                        scan(in, f);
+                        scanAny(in, f);
                     } finally {
                         in.close();
                     }
                 } catch (Throwable ignored) {
                 }
             }
-            a.runOnUiThread(new Deliver(cb, f.key.length() > 0 ? f : null));
+            a.runOnUiThread(new Deliver(cb, f.hasAny() ? f : null));
         }
     }
 

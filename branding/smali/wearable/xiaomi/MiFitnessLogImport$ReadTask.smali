@@ -51,19 +51,19 @@
     .end annotation
 
     .prologue
-    .line 239
+    .line 313
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 240
+    .line 314
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$ReadTask;->a:Landroid/app/Activity;
 
-    .line 241
+    .line 315
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$ReadTask;->uris:Ljava/util/List;
 
-    .line 242
+    .line 316
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$ReadTask;->cb:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
-    .line 243
+    .line 317
     return-void
 .end method
 
@@ -73,12 +73,12 @@
     .registers 6
 
     .prologue
-    .line 247
+    .line 321
     new-instance v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;-><init>()V
 
-    .line 248
+    .line 322
     const/4 v0, 0x0
 
     move v1, v0
@@ -92,7 +92,7 @@
 
     if-ge v1, v0, :cond_32
 
-    .line 250
+    .line 324
     :try_start_f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$ReadTask;->a:Landroid/app/Activity;
 
@@ -114,17 +114,17 @@
 
     move-result-object v0
 
-    .line 252
+    .line 326
     :try_start_21
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scan(Ljava/io/InputStream;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scanAny(Ljava/io/InputStream;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
     :try_end_24
     .catchall {:try_start_21 .. :try_end_24} :catchall_2b
 
-    .line 254
+    .line 328
     :try_start_24
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 248
+    .line 322
     :goto_27
     add-int/lit8 v0, v1, 0x1
 
@@ -132,24 +132,24 @@
 
     goto :goto_7
 
-    .line 254
+    .line 328
     :catchall_2b
     move-exception v3
 
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 255
+    .line 329
     throw v3
     :try_end_30
     .catch Ljava/lang/Throwable; {:try_start_24 .. :try_end_30} :catch_30
 
-    .line 256
+    .line 330
     :catch_30
     move-exception v0
 
     goto :goto_27
 
-    .line 259
+    .line 333
     :cond_32
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$ReadTask;->a:Landroid/app/Activity;
 
@@ -157,27 +157,25 @@
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$ReadTask;->cb:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
-    iget-object v0, v2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
-
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->hasAny()Z
 
     move-result v0
 
-    if-lez v0, :cond_48
+    if-eqz v0, :cond_46
 
     move-object v0, v2
 
-    :goto_41
+    :goto_3f
     invoke-direct {v3, v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;-><init>(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
     invoke-virtual {v1, v3}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 260
+    .line 334
     return-void
 
-    .line 259
-    :cond_48
+    .line 333
+    :cond_46
     const/4 v0, 0x0
 
-    goto :goto_41
+    goto :goto_3f
 .end method

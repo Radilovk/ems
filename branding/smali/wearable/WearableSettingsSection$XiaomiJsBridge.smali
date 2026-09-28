@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 1027
+    .line 1080
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1028
+    .line 1081
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiJsBridge;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
-    .line 1029
+    .line 1082
     return-void
 .end method
 
@@ -41,7 +41,7 @@
     .end annotation
 
     .prologue
-    .line 1033
+    .line 1086
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
 
@@ -55,6 +55,6 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1034
+    .line 1087
     return-void
 .end method

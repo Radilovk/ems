@@ -33,16 +33,16 @@
     .registers 3
 
     .prologue
-    .line 1443
+    .line 1496
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1444
+    .line 1497
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
-    .line 1445
+    .line 1498
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->root:Landroid/view/View;
 
-    .line 1446
+    .line 1499
     return-void
 .end method
 
@@ -52,35 +52,35 @@
     .registers 2
 
     .prologue
-    .line 1491
+    .line 1544
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->closed:Z
 
-    .line 1493
+    .line 1546
     :try_start_3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->dialog:Landroid/app/Dialog;
 
     if-eqz v0, :cond_f
 
-    .line 1494
+    .line 1547
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 1495
+    .line 1548
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->dialog:Landroid/app/Dialog;
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_f} :catch_10
 
-    .line 1499
+    .line 1552
     :cond_f
     :goto_f
     return-void
 
-    .line 1497
+    .line 1550
     :catch_10
     move-exception v0
 
@@ -101,7 +101,7 @@
 
     const/4 v6, 0x0
 
-    .line 1449
+    .line 1502
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const-string v1, "text_primary"
@@ -112,7 +112,7 @@
 
     move-result v0
 
-    .line 1450
+    .line 1503
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const-string v2, "text_secondary"
@@ -123,7 +123,7 @@
 
     move-result v1
 
-    .line 1451
+    .line 1504
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const-string v3, "bg_screen"
@@ -134,23 +134,23 @@
 
     move-result v2
 
-    .line 1452
+    .line 1505
     new-instance v3, Landroid/widget/LinearLayout;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     invoke-direct {v3, v4}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 1453
+    .line 1506
     invoke-virtual {v3, v7}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 1454
+    .line 1507
     invoke-virtual {v3, v7}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 1455
+    .line 1508
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->setBackgroundColor(I)V
 
-    .line 1456
+    .line 1509
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const/high16 v4, 0x41800000    # 16.0f
@@ -159,10 +159,10 @@
 
     move-result v2
 
-    .line 1457
+    .line 1510
     invoke-virtual {v3, v2, v2, v2, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 1459
+    .line 1512
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const-string v4, "\u0412\u0445\u043e\u0434 \u0441 Xiaomi \u2014 \u0441\u043a\u0430\u043d\u0438\u0440\u0430\u0439 QR \u043a\u043e\u0434\u0430"
@@ -179,10 +179,10 @@
 
     move-result-object v2
 
-    .line 1461
+    .line 1514
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1462
+    .line 1515
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const-string v4, "\u041d\u0430 \u0442\u0435\u043b\u0435\u0444\u043e\u043d\u0430 \u043e\u0442\u0432\u043e\u0440\u0438 Xiaomi Home (Mi Home) \u0438\u043b\u0438 Mi Fitness, \u0438\u0437\u0431\u0435\u0440\u0438 \u0441\u043a\u0430\u043d\u0438\u0440\u0430\u043d\u0435 (+ / \u0441\u043a\u0435\u043d\u0435\u0440), \u043d\u0430\u0441\u043e\u0447\u0438 \u043a\u044a\u043c \u043a\u043e\u0434\u0430 \u0438 \u043f\u043e\u0442\u0432\u044a\u0440\u0434\u0438 \u0432\u0445\u043e\u0434\u0430."
@@ -199,7 +199,7 @@
 
     move-result-object v1
 
-    .line 1467
+    .line 1520
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     invoke-static {v2, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -214,10 +214,10 @@
 
     invoke-virtual {v1, v6, v2, v6, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1468
+    .line 1521
     invoke-virtual {v3, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1470
+    .line 1523
     new-instance v1, Landroid/widget/ImageView;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
@@ -226,14 +226,14 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->image:Landroid/widget/ImageView;
 
-    .line 1471
+    .line 1524
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->image:Landroid/widget/ImageView;
 
     const/4 v2, -0x1
 
     invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setBackgroundColor(I)V
 
-    .line 1472
+    .line 1525
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->image:Landroid/widget/ImageView;
 
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
@@ -254,7 +254,7 @@
 
     invoke-virtual {v3, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1474
+    .line 1527
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const-string v2, "\u0417\u0430\u0440\u0435\u0436\u0434\u0430\u043c \u043a\u043e\u0434\u0430\u2026"
@@ -273,7 +273,7 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->status:Landroid/widget/TextView;
 
-    .line 1475
+    .line 1528
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->status:Landroid/widget/TextView;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
@@ -290,12 +290,12 @@
 
     invoke-virtual {v1, v6, v2, v6, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1476
+    .line 1529
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->status:Landroid/widget/TextView;
 
     invoke-virtual {v3, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1478
+    .line 1531
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
 
     const-string v2, "\u041e\u0442\u043a\u0430\u0437"
@@ -312,24 +312,24 @@
 
     const v6, -0xd5d5d6
 
-    .line 1479
+    .line 1532
     invoke-static {v4, v5, v6}, Lcom/isaigu/gymapp/wearable/WearableUi;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v4
 
-    .line 1478
+    .line 1531
     invoke-static {v1, v2, v4, v0}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 1480
+    .line 1533
     new-instance v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrCancel;
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrCancel;-><init>(Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;)V
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1481
+    .line 1534
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
@@ -352,7 +352,7 @@
 
     invoke-virtual {v3, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1483
+    .line 1536
     new-instance v0, Landroid/app/Dialog;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->a:Landroid/app/Activity;
@@ -363,12 +363,12 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->dialog:Landroid/app/Dialog;
 
-    .line 1484
+    .line 1537
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0, v3}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 1485
+    .line 1538
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->dialog:Landroid/app/Dialog;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrCancel;
@@ -377,12 +377,12 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setOnCancelListener(Landroid/content/DialogInterface$OnCancelListener;)V
 
-    .line 1486
+    .line 1539
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 1487
+    .line 1540
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrTask;
@@ -395,6 +395,6 @@
 
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
-    .line 1488
+    .line 1541
     return-void
 .end method

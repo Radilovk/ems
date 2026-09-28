@@ -32,7 +32,7 @@
     .registers 1
 
     .prologue
-    .line 114
+    .line 167
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 114
+    .line 167
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$NewestFirst;-><init>()V
 
     return-void
@@ -54,17 +54,17 @@
     .registers 8
 
     .prologue
-    .line 117
+    .line 170
     invoke-virtual {p1}, Ljava/io/File;->lastModified()J
 
     move-result-wide v0
 
-    .line 118
+    .line 171
     invoke-virtual {p2}, Ljava/io/File;->lastModified()J
 
     move-result-wide v2
 
-    .line 119
+    .line 172
     cmp-long v4, v0, v2
 
     if-gez v4, :cond_e
@@ -93,7 +93,7 @@
     .registers 4
 
     .prologue
-    .line 114
+    .line 167
     check-cast p1, Ljava/io/File;
 
     check-cast p2, Ljava/io/File;

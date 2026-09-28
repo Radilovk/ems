@@ -912,7 +912,7 @@ public final class WearableSettingsSection {
         @Override
         public void run() {
             if (found != null) {
-                applyLog(a, root, found);
+                chooseLog(a, root, found);
                 return;
             }
             toast(a, WearableUi.tr("Автоматично не мога да го прочета — избери файла от лога (Download/wearablelog).",
@@ -937,8 +937,61 @@ public final class WearableSettingsSection {
                         "No key in the chosen files. Make sure it is the Mi Fitness log (after pairing)."));
                 return;
             }
-            applyLog(a, root, f);
+            chooseLog(a, root, f);
         }
+    }
+
+    /** The log lists the account's bands: one → use it, several → ask which. */
+    static void chooseLog(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f) {
+        if (f.devices.isEmpty()) {
+            applyLog(a, root, f);
+            return;
+        }
+        java.util.List<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev> list =
+                new java.util.ArrayList<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev>(f.devices.values());
+        java.util.Collections.reverse(list);
+        if (list.size() == 1) {
+            applyDev(a, root, list.get(0));
+            return;
+        }
+        String[] labels = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev d = list.get(i);
+            labels[i] = (d.name.length() > 0 ? d.name : WearableUi.tr("Гривна", "Band")) + "\n" + d.mac;
+        }
+        new android.app.AlertDialog.Builder(a)
+                .setTitle(WearableUi.tr("Коя гривна?", "Which band?"))
+                .setItems(labels, new LogDevPick(a, root, list))
+                .setNegativeButton(WearableUi.tr("Отказ", "Cancel"), null)
+                .show();
+    }
+
+    static final class LogDevPick implements android.content.DialogInterface.OnClickListener {
+        private final Activity a;
+        private final View root;
+        private final java.util.List<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev> list;
+
+        LogDevPick(Activity a, View root, java.util.List<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev> list) {
+            this.a = a;
+            this.root = root;
+            this.list = list;
+        }
+
+        @Override
+        public void onClick(android.content.DialogInterface d, int which) {
+            if (which >= 0 && which < list.size()) {
+                applyDev(a, root, list.get(which));
+            }
+        }
+    }
+
+    static void applyDev(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev d) {
+        com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found one =
+                new com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found();
+        one.key = d.key;
+        one.mac = d.mac;
+        applyLog(a, root, one);
+        WearableConfig.rememberBand(a, d.mac, d.key, d.name);
     }
 
     static void applyLog(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f) {

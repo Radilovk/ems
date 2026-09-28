@@ -64,7 +64,7 @@
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$LogScanDone;->found:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->applyLog(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->chooseLog(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
     .line 921
     :goto_d

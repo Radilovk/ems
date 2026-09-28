@@ -17,6 +17,7 @@
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlPick;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlSaver;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$LogDevPick;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Rebuild;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;,
@@ -751,16 +752,51 @@
     goto :goto_140
 .end method
 
+.method static applyDev(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;)V
+    .registers 6
+
+    .prologue
+    .line 989
+    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;-><init>()V
+
+    .line 991
+    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->key:Ljava/lang/String;
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
+
+    .line 992
+    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->mac:Ljava/lang/String;
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
+
+    .line 993
+    invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->applyLog(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+
+    .line 994
+    iget-object v0, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->mac:Ljava/lang/String;
+
+    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->key:Ljava/lang/String;
+
+    iget-object v2, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->name:Ljava/lang/String;
+
+    invoke-static {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/WearableConfig;->rememberBand(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 995
+    return-void
+.end method
+
 .method static applyLog(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
     .registers 6
 
     .prologue
-    .line 945
+    .line 998
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 946
+    .line 999
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -769,12 +805,12 @@
 
     if-lez v0, :cond_1b
 
-    .line 947
+    .line 1000
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 948
+    .line 1001
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
     iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
@@ -783,7 +819,7 @@
 
     invoke-static {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/WearableConfig;->rememberBand(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 950
+    .line 1003
     :cond_1b
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
 
@@ -797,36 +833,36 @@
 
     if-lez v0, :cond_2e
 
-    .line 951
+    .line 1004
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
 
     iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 953
+    .line 1006
     :cond_2e
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_3d
 
-    .line 954
+    .line 1007
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->key:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 955
+    .line 1008
     const/4 v0, 0x1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->setKeyHidden(Z)V
 
-    .line 957
+    .line 1010
     :cond_3d
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->colorFields()V
 
-    .line 958
+    .line 1011
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->mac:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -835,7 +871,7 @@
 
     if-lez v0, :cond_6d
 
-    .line 959
+    .line 1012
     const-string v0, "\u0413\u043e\u0442\u043e\u0432\u043e \u2014 \u043a\u043b\u044e\u0447\u044a\u0442 \u0438 MAC \u0441\u0430 \u043f\u043e\u043f\u044a\u043b\u043d\u0435\u043d\u0438 \u2713"
 
     const-string v1, "Done \u2014 key and MAC filled \u2713"
@@ -846,13 +882,13 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 964
+    .line 1017
     :goto_53
     iget-boolean v0, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->fromToken:Z
 
     if-eqz v0, :cond_62
 
-    .line 965
+    .line 1018
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u043e\u0442 \u043f\u043e\u043b\u0435 \u201etoken\u201c \u2014 \u0430\u043a\u043e \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u0441\u0435 \u0441\u0432\u044a\u0440\u0436\u0435, \u043f\u0440\u043e\u0432\u0435\u0440\u0438 \u0433\u043e."
 
     const-string v1, "Key comes from a \u201ctoken\u201d field \u2014 if the band does not connect, double-check it."
@@ -863,7 +899,7 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 968
+    .line 1021
     :cond_62
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
 
@@ -873,10 +909,10 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 969
+    .line 1022
     return-void
 
-    .line 961
+    .line 1014
     :cond_6d
     const-string v0, "\u041a\u043b\u044e\u0447\u044a\u0442 \u0435 \u043f\u043e\u043f\u044a\u043b\u043d\u0435\u043d \u2713. MAC \u043d\u0435 \u043d\u0430\u043c\u0435\u0440\u0438\u0445 \u0432 \u043b\u043e\u0433\u0430 \u2014 \u0432\u044a\u0432\u0435\u0434\u0438 \u0433\u043e (\u0438\u043b\u0438 \u043f\u043e\u043b\u0437\u0432\u0430\u0439 \u201e\u041e\u0442 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0438\u0442\u0435\u201c)."
 
@@ -2471,6 +2507,195 @@
     goto/16 :goto_3a7
 .end method
 
+.method static chooseLog(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+    .registers 10
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 946
+    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
+
+    invoke-virtual {v1}, Ljava/util/LinkedHashMap;->isEmpty()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_d
+
+    .line 947
+    invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->applyLog(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+
+    .line 967
+    :goto_c
+    return-void
+
+    .line 950
+    :cond_d
+    new-instance v3, Ljava/util/ArrayList;
+
+    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;->devices:Ljava/util/LinkedHashMap;
+
+    .line 951
+    invoke-virtual {v1}, Ljava/util/LinkedHashMap;->values()Ljava/util/Collection;
+
+    move-result-object v1
+
+    invoke-direct {v3, v1}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
+
+    .line 952
+    invoke-static {v3}, Ljava/util/Collections;->reverse(Ljava/util/List;)V
+
+    .line 953
+    invoke-interface {v3}, Ljava/util/List;->size()I
+
+    move-result v1
+
+    const/4 v2, 0x1
+
+    if-ne v1, v2, :cond_2c
+
+    .line 954
+    invoke-interface {v3, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;
+
+    invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->applyDev(Landroid/app/Activity;Landroid/view/View;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;)V
+
+    goto :goto_c
+
+    .line 957
+    :cond_2c
+    invoke-interface {v3}, Ljava/util/List;->size()I
+
+    move-result v1
+
+    new-array v4, v1, [Ljava/lang/String;
+
+    move v1, v0
+
+    .line 958
+    :goto_33
+    invoke-interface {v3}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_71
+
+    .line 959
+    invoke-interface {v3, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;
+
+    .line 960
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->name:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_68
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->name:Ljava/lang/String;
+
+    :goto_4e
+    invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v5, "\n"
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Dev;->mac:Ljava/lang/String;
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    aput-object v0, v4, v1
+
+    .line 958
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_33
+
+    .line 960
+    :cond_68
+    const-string v2, "\u0413\u0440\u0438\u0432\u043d\u0430"
+
+    const-string v6, "Band"
+
+    invoke-static {v2, v6}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    goto :goto_4e
+
+    .line 962
+    :cond_71
+    new-instance v0, Landroid/app/AlertDialog$Builder;
+
+    invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "\u041a\u043e\u044f \u0433\u0440\u0438\u0432\u043d\u0430?"
+
+    const-string v2, "Which band?"
+
+    .line 963
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
+
+    move-result-object v0
+
+    new-instance v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$LogDevPick;
+
+    invoke-direct {v1, p0, p1, v3}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$LogDevPick;-><init>(Landroid/app/Activity;Landroid/view/View;Ljava/util/List;)V
+
+    .line 964
+    invoke-virtual {v0, v4, v1}, Landroid/app/AlertDialog$Builder;->setItems([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+
+    move-result-object v0
+
+    const-string v1, "\u041e\u0442\u043a\u0430\u0437"
+
+    const-string v2, "Cancel"
+
+    .line 965
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+
+    move-result-object v0
+
+    .line 966
+    invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
+
+    goto/16 :goto_c
+.end method
+
 .method private static colorFields()V
     .registers 6
 
@@ -2940,7 +3165,7 @@
     .registers 4
 
     .prologue
-    .line 1000
+    .line 1053
     :try_start_0
     new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;
 
@@ -2950,15 +3175,15 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_8} :catch_9
 
-    .line 1004
+    .line 1057
     :goto_8
     return-void
 
-    .line 1001
+    .line 1054
     :catch_9
     move-exception v0
 
-    .line 1002
+    .line 1055
     const-string v0, "\u041d\u0435 \u043c\u043e\u0433\u0430 \u0434\u0430 \u043e\u0442\u0432\u043e\u0440\u044f QR \u0432\u0445\u043e\u0434\u0430."
 
     const-string v1, "Cannot open the QR login."
@@ -2976,7 +3201,7 @@
     .registers 4
 
     .prologue
-    .line 1008
+    .line 1061
     :try_start_0
     new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
@@ -2986,15 +3211,15 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_8} :catch_9
 
-    .line 1012
+    .line 1065
     :goto_8
     return-void
 
-    .line 1009
+    .line 1062
     :catch_9
     move-exception v0
 
-    .line 1010
+    .line 1063
     const-string v0, "\u041d\u0435 \u043c\u043e\u0433\u0430 \u0434\u0430 \u043e\u0442\u0432\u043e\u0440\u044f \u0432\u0445\u043e\u0434\u0430 \u0437\u0430 Xiaomi."
 
     const-string v1, "Cannot open the Xiaomi login."
@@ -3773,19 +3998,19 @@
     .registers 5
 
     .prologue
-    .line 989
+    .line 1042
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->xiaomiSession(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 990
+    .line 1043
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
 
     if-lez v1, :cond_25
 
-    .line 991
+    .line 1044
     const-string v1, "\u041e\u0431\u043d\u043e\u0432\u044f\u0432\u0430\u043c \u043a\u043b\u044e\u0447\u0430 \u043e\u0442 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0438\u044f Xiaomi \u0432\u0445\u043e\u0434\u2026"
 
     const-string v2, "Refreshing the key from the saved Xiaomi login\u2026"
@@ -3796,7 +4021,7 @@
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 992
+    .line 1045
     new-instance v1, Ljava/lang/Thread;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;
@@ -3809,11 +4034,11 @@
 
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
-    .line 996
+    .line 1049
     :goto_24
     return-void
 
-    .line 995
+    .line 1048
     :cond_25
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->openXiaomiQr(Landroid/app/Activity;Landroid/view/View;)V
 

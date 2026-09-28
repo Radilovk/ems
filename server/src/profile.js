@@ -29,8 +29,9 @@ export function studioCode() {
   return s;
 }
 
+/** Made codes are 8 random chars; the admin may also set a readable one (e.g. "xbody"). */
 export function isStudioCode(s) {
-  return typeof s === 'string' && /^[2-9a-km-z]{8}$/.test(s);
+  return typeof s === 'string' && /^[a-z0-9][a-z0-9-]{3,23}$/.test(s);
 }
 
 const pick = (v, allowed) => (Array.isArray(v) ? [...new Set(v.filter((x) => allowed.includes(x)))] : []);

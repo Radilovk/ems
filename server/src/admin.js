@@ -171,7 +171,7 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
       <b>Спри</b> — заключва модулите (до 24 ч на таблета).
     </p>
     <table id="lic_table"><thead><tr>
-      <th>ID</th><th>Клиент</th><th>План</th><th>Ключ (посл. 4)</th><th>Таблети</th><th>Костюми</th><th>Статус</th><th>Действия</th>
+      <th>ID</th><th>Клиент</th><th>План</th><th>Ключ (посл. 4)</th><th title="Вписва се в xbody.html (XEMS_STUDIO), за да се регистрират клиентите">Код на студиото</th><th>Таблети</th><th>Костюми</th><th>Статус</th><th>Действия</th>
     </tr></thead><tbody></tbody></table>
   </div>
 </section>
@@ -385,11 +385,11 @@ async function load(){
 
   const l=await api('licenses');
   window._licenses=l.licenses||[];
-  const licRows=window._licenses.map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td title="'+x.plan+'">'+planLabel(x.plan)+'</td><td>…'+x.key_hint+'</td><td>'+x.max_devices+'</td><td>'+emsCount(x.ems)+' <button class="secondary" onclick="openManage(\\''+x.id+'\\')">Управление</button></td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td class="actions">'+
+  const licRows=window._licenses.map(x=>'<tr><td><code>'+x.id+'</code></td><td>'+(x.customer||'—')+'</td><td title="'+x.plan+'">'+planLabel(x.plan)+'</td><td>…'+x.key_hint+'</td><td>'+(x.studio_code?'<code>'+x.studio_code+'</code> ':'— ')+'<button class="secondary" onclick="setStudio(\\''+x.id+'\\',\\''+(x.studio_code||'')+'\\')">Смени</button></td><td>'+x.max_devices+'</td><td>'+emsCount(x.ems)+' <button class="secondary" onclick="openManage(\\''+x.id+'\\')">Управление</button></td><td><span class="tag '+x.status+'">'+x.status+'</span></td><td class="actions">'+
     '<button class="secondary" onclick="showLic(\\''+x.id+'\\')">Детайли</button>'+
     (x.status==='active'?'<button class="danger" onclick="disable(\\''+x.id+'\\',\\''+(x.customer||x.id).replace(/'/g,"")+'\\')">Спри</button>':'<button class="secondary" onclick="enable(\\''+x.id+'\\')">Пусни отново</button>')+
     '</td></tr>').join('');
-  document.querySelector('#lic_table tbody').innerHTML=licRows||'<tr><td colspan="8" class="empty">Няма ключове — създай първия от формата по-горе.</td></tr>';
+  document.querySelector('#lic_table tbody').innerHTML=licRows||'<tr><td colspan="9" class="empty">Няма ключове — създай първия от формата по-горе.</td></tr>';
 
   const r=await api('releases');
   document.querySelector('#rel_table tbody').innerHTML=(r.releases||[]).map(x=>
@@ -592,6 +592,12 @@ async function disable(id,name){
   if(!confirm('Спри ключа за „'+name+'“?\\n\\nТаблетите ще заключат модулите при следващото опресняване (до 24 ч).')) return;
   await api('licenses/'+id,{method:'PATCH',body:JSON.stringify({status:'disabled'})});load();
 }
+async function setStudio(id,cur){
+  const v=prompt('Код на студиото (вписва се в xbody.html — XEMS_STUDIO). 4–24 малки латински букви, цифри или тире:',cur);
+  if(v===null||v.trim()===cur)return;
+  try{await api('licenses/'+id,{method:'PATCH',body:JSON.stringify({studio_code:v.trim()})});load();}catch(e){alert(e.message);}
+}
+
 async function enable(id){
   await api('licenses/'+id,{method:'PATCH',body:JSON.stringify({status:'active'})});load();
 }

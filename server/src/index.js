@@ -428,6 +428,10 @@ async function adminApi(request, env, path) {
 
   if (route === 'licenses' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM licenses ORDER BY created_at DESC LIMIT 200').all();
+    // the studio code (for the booking page) is made here too, so the admin sees it before any tablet refreshes
+    for (const lic of rows.results) {
+      if (!lic.studio_code) lic.studio_code = await ensureStudioCode(env, lic);
+    }
     return json({ ok: true, licenses: rows.results });
   }
 
@@ -469,6 +473,13 @@ async function adminApi(request, env, path) {
     if (b.mods) { sets.push('mods = ?'); vals.push(JSON.stringify(b.mods)); }
     if (b.feat) { sets.push('feat = ?'); vals.push(JSON.stringify(b.feat)); }
     if (b.ems !== undefined) { sets.push('ems = ?'); vals.push(JSON.stringify(normMacList(b.ems))); }
+    if (b.studio_code !== undefined) {
+      const code = String(b.studio_code || '').trim().toLowerCase();
+      if (!isStudioCode(code)) return json({ ok: false, message: 'Кодът: 4–24 малки латински букви, цифри или тире' }, 400);
+      const taken = await env.DB.prepare('SELECT id FROM licenses WHERE studio_code = ? AND id != ?').bind(code, id).first();
+      if (taken) return json({ ok: false, message: 'Този код вече е на друг ключ' }, 409);
+      sets.push('studio_code = ?'); vals.push(code);
+    }
     if (b.expires_days !== undefined) {
       sets.push('expires_at = ?');
       vals.push(b.expires_days ? now() + b.expires_days * 86400 : null);

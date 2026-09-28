@@ -207,40 +207,40 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastAck:Ljava/lang/String;
 
-    .line 246
+    .line 256
     new-instance v0, Lcom/isaigu/gymapp/wearable/BandRemote$PushSoon;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/BandRemote$PushSoon;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->pushSoon:Ljava/lang/Runnable;
 
-    .line 247
+    .line 257
     new-instance v0, Lcom/isaigu/gymapp/wearable/BandRemote$Push;
 
     invoke-direct {v0, v3}, Lcom/isaigu/gymapp/wearable/BandRemote$Push;-><init>(Z)V
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->pushLater:Ljava/lang/Runnable;
 
-    .line 299
+    .line 309
     sput v2, Lcom/isaigu/gymapp/wearable/BandRemote;->lastChannel:I
 
-    .line 300
+    .line 310
     sput v4, Lcom/isaigu/gymapp/wearable/BandRemote;->lastStep:I
 
-    .line 301
+    .line 311
     sput v3, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSet:I
 
-    .line 593
+    .line 603
     const-string v0, "F"
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSex:Ljava/lang/String;
 
-    .line 686
+    .line 696
     const-string v0, ""
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMode:Ljava/lang/String;
 
-    .line 695
+    .line 705
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -251,7 +251,7 @@
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/BandRemote;->BOOT:J
 
-    .line 696
+    .line 706
     const-string v0, ""
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSig:Ljava/lang/String;
@@ -325,7 +325,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 332
+    .line 342
     :try_start_1
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
@@ -335,7 +335,7 @@
 
     move-result-object v3
 
-    .line 333
+    .line 343
     if-eqz v3, :cond_15
 
     iget-object v0, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
@@ -351,23 +351,23 @@
     :cond_15
     move-object v0, v1
 
-    .line 343
+    .line 353
     :cond_16
     :goto_16
     return-object v0
 
-    .line 336
+    .line 346
     :cond_17
     iget-object v0, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v4, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    .line 337
+    .line 347
     array-length v0, v4
 
     new-array v0, v0, [I
 
-    .line 338
+    .line 348
     const/4 v2, 0x0
 
     :goto_1f
@@ -375,7 +375,7 @@
 
     if-ge v2, v5, :cond_16
 
-    .line 339
+    .line 349
     aget v5, v4, v2
 
     int-to-float v5, v5
@@ -396,18 +396,18 @@
     :try_end_2f
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_2f} :catch_32
 
-    .line 338
+    .line 348
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_1f
 
-    .line 342
+    .line 352
     :catch_32
     move-exception v0
 
     move-object v0, v1
 
-    .line 343
+    .line 353
     goto :goto_16
 .end method
 
@@ -415,19 +415,19 @@
     .registers 5
 
     .prologue
-    .line 373
+    .line 383
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 374
+    .line 384
     if-eqz v0, :cond_12
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelRealStrength(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
 
     move-result-object v0
 
-    .line 375
+    .line 385
     :goto_a
     if-eqz v0, :cond_11
 
@@ -437,18 +437,18 @@
 
     if-lt p0, v1, :cond_14
 
-    .line 384
+    .line 394
     :cond_11
     :goto_11
     return-void
 
-    .line 374
+    .line 384
     :cond_12
     const/4 v0, 0x0
 
     goto :goto_a
 
-    .line 378
+    .line 388
     :cond_14
     const/4 v1, 0x0
 
@@ -462,15 +462,15 @@
 
     move-result v1
 
-    .line 379
+    .line 389
     aget v0, v0, p0
 
     sub-int v0, v1, v0
 
-    .line 380
+    .line 390
     if-eqz v0, :cond_11
 
-    .line 383
+    .line 393
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelStep(II)V
 
     goto :goto_11
@@ -482,19 +482,19 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 351
+    .line 361
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v5
 
-    .line 352
+    .line 362
     if-eqz v5, :cond_14
 
     iget-object v0, v5, Lcom/isaigu/gymapp/train/model/TrainItem;->partsControl:[Z
 
     move-object v4, v0
 
-    .line 353
+    .line 363
     :goto_a
     if-eqz v4, :cond_13
 
@@ -506,12 +506,12 @@
 
     if-nez p1, :cond_17
 
-    .line 369
+    .line 379
     :cond_13
     :goto_13
     return-void
 
-    .line 352
+    .line 362
     :cond_14
     const/4 v0, 0x0
 
@@ -519,7 +519,7 @@
 
     goto :goto_a
 
-    .line 356
+    .line 366
     :cond_17
     invoke-virtual {v4}, [Z->clone()Ljava/lang/Object;
 
@@ -529,14 +529,14 @@
 
     move v3, v2
 
-    .line 359
+    .line 369
     :goto_1e
     :try_start_1e
     array-length v1, v4
 
     if-ge v3, v1, :cond_2c
 
-    .line 360
+    .line 370
     if-ne v3, p0, :cond_2a
 
     const/4 v1, 0x1
@@ -544,7 +544,7 @@
     :goto_24
     aput-boolean v1, v4, v3
 
-    .line 359
+    .line 369
     add-int/lit8 v1, v3, 0x1
 
     move v3, v1
@@ -554,10 +554,10 @@
     :cond_2a
     move v1, v2
 
-    .line 360
+    .line 370
     goto :goto_24
 
-    .line 362
+    .line 372
     :cond_2c
     invoke-static {v5, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->addSelected(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
     :try_end_2f
@@ -565,17 +565,17 @@
 
     move-result v1
 
-    .line 364
+    .line 374
     array-length v3, v0
 
     invoke-static {v0, v2, v4, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 366
+    .line 376
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelRealStrength(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
 
     move-result-object v2
 
-    .line 367
+    .line 377
     const-string v3, "applink"
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -605,7 +605,7 @@
 
     move-result-object v4
 
-    .line 368
+    .line 378
     if-eqz v1, :cond_86
 
     if-eqz v2, :cond_86
@@ -643,12 +643,12 @@
 
     move-result-object v0
 
-    .line 367
+    .line 377
     invoke-static {v3, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
     goto :goto_13
 
-    .line 364
+    .line 374
     :catchall_7d
     move-exception v1
 
@@ -656,16 +656,16 @@
 
     invoke-static {v0, v2, v4, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 365
+    .line 375
     throw v1
 
-    .line 367
+    .line 377
     :cond_83
     const-string v0, " "
 
     goto :goto_4d
 
-    .line 368
+    .line 378
     :cond_86
     const-string v0, " (not applied)"
 
@@ -676,17 +676,17 @@
     .registers 5
 
     .prologue
-    .line 858
+    .line 868
     new-instance v2, Lorg/json/JSONArray;
 
     invoke-direct {v2}, Lorg/json/JSONArray;-><init>()V
 
-    .line 859
+    .line 869
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v1
 
-    .line 860
+    .line 870
     if-eqz v1, :cond_14
 
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelRealStrength(Lcom/isaigu/gymapp/train/model/TrainItem;)[I
@@ -695,17 +695,17 @@
 
     move-object v3, v0
 
-    .line 861
+    .line 871
     :goto_10
     if-nez v3, :cond_17
 
     move-object v0, v2
 
-    .line 868
+    .line 878
     :goto_13
     return-object v0
 
-    .line 860
+    .line 870
     :cond_14
     const/4 v0, 0x0
 
@@ -713,11 +713,11 @@
 
     goto :goto_10
 
-    .line 864
+    .line 874
     :cond_17
     iget-object v4, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
 
-    .line 865
+    .line 875
     const/4 v0, 0x0
 
     :goto_1a
@@ -725,7 +725,7 @@
 
     if-ge v0, v1, :cond_30
 
-    .line 866
+    .line 876
     if-eqz v4, :cond_2d
 
     array-length v1, v4
@@ -741,12 +741,12 @@
     :goto_27
     invoke-virtual {v2, v1}, Lorg/json/JSONArray;->put(I)Lorg/json/JSONArray;
 
-    .line 865
+    .line 875
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1a
 
-    .line 866
+    .line 876
     :cond_2d
     aget v1, v3, v0
 
@@ -755,7 +755,7 @@
     :cond_30
     move-object v0, v2
 
-    .line 868
+    .line 878
     goto :goto_13
 .end method
 
@@ -900,7 +900,7 @@
 
     invoke-virtual {v0, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 204
+    .line 208
     :goto_77
     return-void
 
@@ -1005,7 +1005,7 @@
 
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->onAppHello(ILjava/lang/String;)V
     :try_end_c5
-    .catch Ljava/lang/NumberFormatException; {:try_start_b8 .. :try_end_c5} :catch_1c8
+    .catch Ljava/lang/NumberFormatException; {:try_start_b8 .. :try_end_c5} :catch_1db
 
     .line 164
     :goto_c5
@@ -1013,17 +1013,17 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSig:Ljava/lang/String;
 
-    .line 198
+    .line 202
     :cond_c9
     :goto_c9
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/BandRemote;->pushQueued:Z
 
     if-nez v0, :cond_d8
 
-    .line 199
+    .line 203
     sput-boolean v1, Lcom/isaigu/gymapp/wearable/BandRemote;->pushQueued:Z
 
-    .line 200
+    .line 204
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandRemote;->pushSoon:Ljava/lang/Runnable;
@@ -1032,7 +1032,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 202
+    .line 206
     :cond_d8
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
 
@@ -1040,7 +1040,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 203
+    .line 207
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandRemote;->pushLater:Ljava/lang/Runnable;
@@ -1092,67 +1092,88 @@
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 168
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
+
+    move-result-object v3
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/wearable/WearableConfig;->usesRemote(Landroid/content/Context;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_122
+
+    .line 169
+    const-string v0, "applink"
+
+    const-string v1, "ignored: the band is set to heart rate only"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto/16 :goto_77
+
+    .line 172
+    :cond_122
     const-string v3, "toggle"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_11b
+    if-eqz v3, :cond_12e
 
-    .line 169
+    .line 173
     invoke-static {v2, v6}, Lcom/isaigu/gymapp/wearable/BandRemote;->handleKey(II)V
 
     goto :goto_c9
 
-    .line 170
-    :cond_11b
+    .line 174
+    :cond_12e
     const-string v3, "plus"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_128
+    if-eqz v3, :cond_13b
 
-    .line 171
+    .line 175
     const/4 v0, 0x4
 
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/BandRemote;->handleKey(II)V
 
     goto :goto_c9
 
-    .line 172
-    :cond_128
+    .line 176
+    :cond_13b
     const-string v3, "minus"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_134
+    if-eqz v3, :cond_147
 
-    .line 173
+    .line 177
     invoke-static {v8, v6}, Lcom/isaigu/gymapp/wearable/BandRemote;->handleKey(II)V
 
     goto :goto_c9
 
-    .line 174
-    :cond_134
+    .line 178
+    :cond_147
     const-string v3, "double"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_15c
+    if-eqz v3, :cond_16f
 
-    .line 175
+    .line 179
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getEngine()Lcom/isaigu/gymapp/ai/AiEngine;
 
     move-result-object v0
 
-    .line 176
+    .line 180
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v3
@@ -1169,59 +1190,59 @@
 
     if-eqz v3, :cond_c9
 
-    .line 177
+    .line 181
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
 
     move-result v0
 
-    if-nez v0, :cond_157
+    if-nez v0, :cond_16a
 
     move v2, v1
 
-    :cond_157
+    :cond_16a
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
 
     goto/16 :goto_c9
 
-    .line 179
-    :cond_15c
+    .line 183
+    :cond_16f
     const-string v3, "stop"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_176
+    if-eqz v3, :cond_189
 
-    .line 180
+    .line 184
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v0
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    if-ne v0, v2, :cond_171
+    if-ne v0, v2, :cond_184
 
-    .line 181
+    .line 185
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stop()V
 
     goto/16 :goto_c9
 
-    .line 183
-    :cond_171
+    .line 187
+    :cond_184
     invoke-static {v8}, Lcom/isaigu/gymapp/widget/XemsPanel;->press(I)Z
 
     goto/16 :goto_c9
 
-    .line 186
-    :cond_176
+    .line 190
+    :cond_189
     const-string v3, "ch_plus"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-nez v3, :cond_186
+    if-nez v3, :cond_199
 
     const-string v3, "ch_minus"
 
@@ -1229,10 +1250,10 @@
 
     move-result v3
 
-    if-eqz v3, :cond_1a5
+    if-eqz v3, :cond_1b8
 
-    .line 187
-    :cond_186
+    .line 191
+    :cond_199
     const-string v2, "c"
 
     invoke-static {p0, v2, v7}, Lcom/isaigu/gymapp/wearable/BandRemote;->intField(Ljava/lang/String;Ljava/lang/String;I)I
@@ -1241,7 +1262,7 @@
 
     sput v2, Lcom/isaigu/gymapp/wearable/BandRemote;->lastChannel:I
 
-    .line 188
+    .line 192
     const/16 v2, 0xa
 
     const-string v3, "d"
@@ -1260,24 +1281,24 @@
 
     sput v2, Lcom/isaigu/gymapp/wearable/BandRemote;->lastStep:I
 
-    .line 193
-    :cond_1a0
-    :goto_1a0
+    .line 197
+    :cond_1b3
+    :goto_1b3
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->moduleCommand(Ljava/lang/String;)V
 
     goto/16 :goto_c9
 
-    .line 189
-    :cond_1a5
+    .line 193
+    :cond_1b8
     const-string v3, "ch_set"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_1a0
+    if-eqz v3, :cond_1b3
 
-    .line 190
+    .line 194
     const-string v3, "c"
 
     invoke-static {p0, v3, v7}, Lcom/isaigu/gymapp/wearable/BandRemote;->intField(Ljava/lang/String;Ljava/lang/String;I)I
@@ -1286,7 +1307,7 @@
 
     sput v3, Lcom/isaigu/gymapp/wearable/BandRemote;->lastChannel:I
 
-    .line 191
+    .line 195
     const/16 v3, 0x64
 
     const-string v4, "v"
@@ -1305,10 +1326,10 @@
 
     sput v2, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSet:I
 
-    goto :goto_1a0
+    goto :goto_1b3
 
     .line 162
-    :catch_1c8
+    :catch_1db
     move-exception v0
 
     goto/16 :goto_c5
@@ -1326,7 +1347,7 @@
 
     const/4 v1, 0x1
 
-    .line 399
+    .line 409
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v3
@@ -1337,12 +1358,12 @@
 
     if-nez v3, :cond_10
 
-    .line 443
+    .line 453
     :cond_f
     :goto_f
     return-void
 
-    .line 403
+    .line 413
     :cond_10
     if-eqz p0, :cond_14
 
@@ -1351,7 +1372,7 @@
     :cond_14
     move v0, v2
 
-    .line 417
+    .line 427
     :cond_15
     :goto_15
     const-string v3, "remote"
@@ -1396,12 +1417,12 @@
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 418
+    .line 428
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getEngine()Lcom/isaigu/gymapp/ai/AiEngine;
 
     move-result-object v4
 
-    .line 419
+    .line 429
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v3
@@ -1414,14 +1435,14 @@
 
     move v3, v1
 
-    .line 420
+    .line 430
     :goto_50
     if-eqz v3, :cond_97
 
-    .line 421
+    .line 431
     if-nez v0, :cond_8d
 
-    .line 422
+    .line 432
     invoke-virtual {v4}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v0
@@ -1436,10 +1457,10 @@
 
     if-eqz v0, :cond_89
 
-    .line 423
+    .line 433
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->continueBlock()V
 
-    .line 442
+    .line 452
     :cond_65
     :goto_65
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
@@ -1454,7 +1475,7 @@
 
     goto :goto_f
 
-    .line 405
+    .line 415
     :cond_72
     const/4 v3, 0x4
 
@@ -1462,33 +1483,33 @@
 
     move v0, v1
 
-    .line 406
+    .line 416
     goto :goto_15
 
-    .line 407
+    .line 417
     :cond_77
     const/4 v3, 0x3
 
     if-eq p0, v3, :cond_15
 
-    .line 409
+    .line 419
     const/4 v3, 0x5
 
     if-ne p0, v3, :cond_f
 
-    .line 410
+    .line 420
     if-le p1, v4, :cond_83
 
     move v0, v1
 
-    .line 411
+    .line 421
     :cond_80
     :goto_80
     if-nez v0, :cond_15
 
     goto :goto_f
 
-    .line 410
+    .line 420
     :cond_83
     if-lt p1, v4, :cond_80
 
@@ -1499,31 +1520,31 @@
     :cond_87
     move v3, v2
 
-    .line 419
+    .line 429
     goto :goto_50
 
-    .line 425
+    .line 435
     :cond_89
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 
     goto :goto_65
 
-    .line 427
+    .line 437
     :cond_8d
     if-lez v0, :cond_93
 
-    .line 428
+    .line 438
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->increase()V
 
     goto :goto_65
 
-    .line 430
+    .line 440
     :cond_93
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->reduce()V
 
     goto :goto_65
 
-    .line 432
+    .line 442
     :cond_97
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
@@ -1539,7 +1560,7 @@
 
     if-nez v3, :cond_b1
 
-    .line 433
+    .line 443
     :cond_a5
     if-nez v0, :cond_ab
 
@@ -1548,7 +1569,7 @@
 
     goto :goto_65
 
-    .line 434
+    .line 444
     :cond_ab
     if-lez v0, :cond_af
 
@@ -1561,7 +1582,7 @@
 
     goto :goto_a7
 
-    .line 435
+    .line 445
     :cond_b1
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->musicOnly()Z
 
@@ -1569,15 +1590,15 @@
 
     if-eqz v2, :cond_65
 
-    .line 436
+    .line 446
     if-nez v0, :cond_bd
 
-    .line 437
+    .line 447
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->togglePlayPause()V
 
     goto :goto_65
 
-    .line 439
+    .line 449
     :cond_bd
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->skipTrack(I)V
 
@@ -1588,7 +1609,7 @@
     .registers 4
 
     .prologue
-    .line 305
+    .line 315
     :try_start_0
     new-instance v0, Lorg/json/JSONObject;
 
@@ -1600,11 +1621,11 @@
 
     move-result p2
 
-    .line 307
+    .line 317
     :goto_9
     return p2
 
-    .line 306
+    .line 316
     :catch_a
     move-exception v0
 
@@ -1617,14 +1638,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 388
+    .line 398
     if-nez p0, :cond_4
 
-    .line 394
+    .line 404
     :goto_3
     return-object v0
 
-    .line 392
+    .line 402
     :cond_4
     :try_start_4
     new-instance v1, Lorg/json/JSONObject;
@@ -1641,7 +1662,7 @@
 
     goto :goto_3
 
-    .line 393
+    .line 403
     :catch_f
     move-exception v1
 
@@ -1654,35 +1675,35 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 313
+    .line 323
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
 
     move-result-object v0
 
-    .line 314
+    .line 324
     if-eqz v0, :cond_f
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->getItemList()Ljava/util/List;
 
     move-result-object v0
 
-    .line 315
+    .line 325
     :goto_b
     if-nez v0, :cond_11
 
     move-object v0, v1
 
-    .line 323
+    .line 333
     :goto_e
     return-object v0
 
     :cond_f
     move-object v0, v1
 
-    .line 314
+    .line 324
     goto :goto_b
 
-    .line 318
+    .line 328
     :cond_11
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -1701,7 +1722,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 319
+    .line 329
     if-eqz v0, :cond_15
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -1719,7 +1740,7 @@
     :cond_2e
     move-object v0, v1
 
-    .line 323
+    .line 333
     goto :goto_e
 .end method
 
@@ -1727,15 +1748,15 @@
     .registers 5
 
     .prologue
-    .line 267
+    .line 277
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 268
+    .line 278
     if-nez v0, :cond_f
 
-    .line 269
+    .line 279
     if-lez p0, :cond_d
 
     const/4 v0, 0x1
@@ -1743,18 +1764,18 @@
     :goto_9
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsPanel;->press(I)Z
 
-    .line 286
+    .line 296
     :cond_c
     :goto_c
     return-void
 
-    .line 269
+    .line 279
     :cond_d
     const/4 v0, 0x2
 
     goto :goto_9
 
-    .line 273
+    .line 283
     :cond_f
     :try_start_f
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/train/utils/MusicSyncBridge;->onMaStrengthDelta(Lcom/isaigu/gymapp/train/model/TrainItem;I)Z
@@ -1763,7 +1784,7 @@
 
     if-nez v1, :cond_c
 
-    .line 276
+    .line 286
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
@@ -1772,17 +1793,17 @@
 
     move-result-object v1
 
-    .line 277
+    .line 287
     if-eqz v1, :cond_5c
 
     iget-boolean v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     if-eqz v2, :cond_5c
 
-    .line 278
+    .line 288
     invoke-virtual {v0, p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->addMainAndPauseStrenth(I)V
 
-    .line 282
+    .line 292
     :goto_26
     const-string v2, "applink"
 
@@ -1834,25 +1855,25 @@
 
     goto :goto_c
 
-    .line 283
+    .line 293
     :catch_55
     move-exception v0
 
-    .line 284
+    .line 294
     const-string v1, "BandRemote.mainStep"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_c
 
-    .line 280
+    .line 290
     :cond_5c
     :try_start_5c
     invoke-virtual {v0, p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->addStrenth(I)V
 
     goto :goto_26
 
-    .line 282
+    .line 292
     :cond_60
     const-string v0, ""
     :try_end_62
@@ -1872,13 +1893,13 @@
     .prologue
     const/4 v0, -0x1
 
-    .line 291
+    .line 301
     :try_start_1
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->leaderItem()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v1
 
-    .line 292
+    .line 302
     if-eqz v1, :cond_14
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -1889,7 +1910,7 @@
 
     move-result-object v1
 
-    .line 293
+    .line 303
     :goto_f
     if-eqz v1, :cond_13
 
@@ -1897,18 +1918,18 @@
     :try_end_13
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_13} :catch_16
 
-    .line 295
+    .line 305
     :cond_13
     :goto_13
     return v0
 
-    .line 292
+    .line 302
     :cond_14
     const/4 v1, 0x0
 
     goto :goto_f
 
-    .line 294
+    .line 304
     :catch_16
     move-exception v1
 
@@ -1921,7 +1942,7 @@
     .prologue
     const-wide/16 v8, 0x3c
 
-    .line 951
+    .line 961
     const-wide/16 v0, 0x0
 
     invoke-static {p0, p1}, Ljava/lang/Math;->round(D)J
@@ -1932,7 +1953,7 @@
 
     move-result-wide v0
 
-    .line 952
+    .line 962
     sget-object v2, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v3, "%d:%02d"
@@ -1978,21 +1999,21 @@
 
     const/4 v0, 0x1
 
-    .line 208
+    .line 212
     if-nez p0, :cond_6
 
-    .line 243
+    .line 253
     :cond_5
     :goto_5
     return-void
 
-    .line 211
+    .line 215
     :cond_6
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
-    .line 212
+    .line 216
     const-string v3, "train_toggle"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2001,12 +2022,12 @@
 
     if-eqz v3, :cond_16
 
-    .line 213
+    .line 217
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsPanel;->press(I)Z
 
     goto :goto_5
 
-    .line 214
+    .line 218
     :cond_16
     const-string v3, "train_plus"
 
@@ -2016,12 +2037,12 @@
 
     if-eqz v3, :cond_22
 
-    .line 215
+    .line 219
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->mainStep(I)V
 
     goto :goto_5
 
-    .line 216
+    .line 220
     :cond_22
     const-string v3, "train_minus"
 
@@ -2031,12 +2052,12 @@
 
     if-eqz v3, :cond_2e
 
-    .line 217
+    .line 221
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/BandRemote;->mainStep(I)V
 
     goto :goto_5
 
-    .line 218
+    .line 222
     :cond_2e
     const-string v3, "train_stop"
 
@@ -2046,14 +2067,14 @@
 
     if-eqz v3, :cond_3b
 
-    .line 219
+    .line 223
     const/4 v0, 0x3
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsPanel;->press(I)Z
 
     goto :goto_5
 
-    .line 220
+    .line 224
     :cond_3b
     const-string v3, "tm_toggle"
 
@@ -2063,110 +2084,143 @@
 
     if-eqz v3, :cond_47
 
-    .line 221
+    .line 225
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bandTogglePause()V
 
     goto :goto_5
 
-    .line 222
+    .line 226
     :cond_47
+    const-string v3, "tm_pause"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_56
+
+    .line 228
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bandClearUserPause()V
+
+    .line 229
+    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsPanel;->press(I)Z
+
+    goto :goto_5
+
+    .line 230
+    :cond_56
+    const-string v3, "tm_reset"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_62
+
+    .line 231
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->bandReset()V
+
+    goto :goto_5
+
+    .line 232
+    :cond_62
     const-string v3, "mu_toggle"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_53
+    if-eqz v3, :cond_6e
 
-    .line 223
+    .line 233
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->togglePlayPause()V
 
     goto :goto_5
 
-    .line 224
-    :cond_53
+    .line 234
+    :cond_6e
     const-string v3, "mu_next"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_5f
+    if-eqz v3, :cond_7a
 
-    .line 225
+    .line 235
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->skipTrack(I)V
 
     goto :goto_5
 
-    .line 226
-    :cond_5f
+    .line 236
+    :cond_7a
     const-string v3, "mu_prev"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_6b
+    if-eqz v3, :cond_86
 
-    .line 227
+    .line 237
     invoke-static {v4}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->skipTrack(I)V
 
     goto :goto_5
 
-    .line 228
-    :cond_6b
+    .line 238
+    :cond_86
     const-string v3, "mu_up"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_77
+    if-eqz v3, :cond_93
 
-    .line 229
+    .line 239
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/MusicSync;->adjustCeiling(I)Z
 
-    goto :goto_5
+    goto/16 :goto_5
 
-    .line 230
-    :cond_77
+    .line 240
+    :cond_93
     const-string v3, "mu_down"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_83
+    if-eqz v3, :cond_a0
 
-    .line 231
+    .line 241
     invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/MusicSync;->adjustCeiling(I)Z
 
-    goto :goto_5
+    goto/16 :goto_5
 
-    .line 232
-    :cond_83
+    .line 242
+    :cond_a0
     const-string v3, "pause_all"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_90
+    if-eqz v3, :cond_ad
 
-    .line 233
+    .line 243
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->pauseAll()V
 
     goto/16 :goto_5
 
-    .line 234
-    :cond_90
+    .line 244
+    :cond_ad
     const-string v3, "ch_plus"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-nez v3, :cond_a0
+    if-nez v3, :cond_bd
 
     const-string v3, "ch_minus"
 
@@ -2174,10 +2228,10 @@
 
     move-result v3
 
-    if-eqz v3, :cond_b5
+    if-eqz v3, :cond_d2
 
-    .line 235
-    :cond_a0
+    .line 245
+    :cond_bd
     sget v1, Lcom/isaigu/gymapp/wearable/BandRemote;->lastChannel:I
 
     const-string v0, "ch_plus"
@@ -2186,33 +2240,33 @@
 
     move-result v0
 
-    if-eqz v0, :cond_b1
+    if-eqz v0, :cond_ce
 
     sget v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastStep:I
 
-    :goto_ac
+    :goto_c9
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->channelStep(II)V
 
     goto/16 :goto_5
 
-    :cond_b1
+    :cond_ce
     sget v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastStep:I
 
     neg-int v0, v0
 
-    goto :goto_ac
+    goto :goto_c9
 
-    .line 236
-    :cond_b5
+    .line 246
+    :cond_d2
     const-string v3, "ch_set"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
-    if-eqz v3, :cond_c6
+    if-eqz v3, :cond_e3
 
-    .line 237
+    .line 247
     sget v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastChannel:I
 
     sget v1, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSet:I
@@ -2221,8 +2275,8 @@
 
     goto/16 :goto_5
 
-    .line 238
-    :cond_c6
+    .line 248
+    :cond_e3
     const-string v3, "hg_toggle"
 
     invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2233,18 +2287,18 @@
 
     if-eqz v2, :cond_5
 
-    .line 239
+    .line 249
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isAutoReduceEnabled(Landroid/content/Context;)Z
 
     move-result v3
 
-    if-nez v3, :cond_f7
+    if-nez v3, :cond_114
 
-    .line 240
-    :goto_d6
+    .line 250
+    :goto_f3
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAutoReduceEnabled(Landroid/content/Context;Z)V
 
-    .line 241
+    .line 251
     const-string v1, "applink"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2257,11 +2311,11 @@
 
     move-result-object v2
 
-    if-eqz v0, :cond_f9
+    if-eqz v0, :cond_116
 
     const-string v0, "on"
 
-    :goto_ea
+    :goto_107
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -2274,17 +2328,17 @@
 
     goto/16 :goto_5
 
-    :cond_f7
+    :cond_114
     move v0, v1
 
-    .line 239
-    goto :goto_d6
+    .line 249
+    goto :goto_f3
 
-    .line 241
-    :cond_f9
+    .line 251
+    :cond_116
     const-string v0, "off"
 
-    goto :goto_ea
+    goto :goto_107
 .end method
 
 .method private static moduleSig(Lorg/json/JSONObject;)Ljava/lang/String;
@@ -2293,43 +2347,43 @@
     .prologue
     const/16 v6, 0x7c
 
-    .line 873
+    .line 883
     const-string v0, "tm"
 
     invoke-virtual {p0, v0}, Lorg/json/JSONObject;->optJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
 
     move-result-object v0
 
-    .line 874
+    .line 884
     const-string v1, "mu"
 
     invoke-virtual {p0, v1}, Lorg/json/JSONObject;->optJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
 
     move-result-object v1
 
-    .line 875
+    .line 885
     const-string v2, "hg"
 
     invoke-virtual {p0, v2}, Lorg/json/JSONObject;->optJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
 
     move-result-object v2
 
-    .line 876
+    .line 886
     const-string v3, "tr"
 
     invoke-virtual {p0, v3}, Lorg/json/JSONObject;->optJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 877
+    .line 887
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 878
+    .line 888
     if-eqz v3, :cond_2a
 
-    .line 879
+    .line 889
     const-string v5, "run"
 
     invoke-virtual {v3, v5}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;)Z
@@ -2338,11 +2392,11 @@
 
     invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
 
-    .line 881
+    .line 891
     :cond_2a
     if-eqz v0, :cond_61
 
-    .line 882
+    .line 892
     invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     move-result-object v3
@@ -2379,7 +2433,7 @@
 
     const-string v5, "loop"
 
-    .line 883
+    .line 893
     invoke-virtual {v0, v5}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;)I
 
     move-result v5
@@ -2396,11 +2450,11 @@
 
     invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 885
+    .line 895
     :cond_61
     if-eqz v1, :cond_98
 
-    .line 886
+    .line 896
     invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -2437,7 +2491,7 @@
 
     const-string v3, "title"
 
-    .line 887
+    .line 897
     invoke-virtual {v1, v3}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -2454,11 +2508,11 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 889
+    .line 899
     :cond_98
     if-eqz v2, :cond_c5
 
-    .line 890
+    .line 900
     invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -2495,14 +2549,14 @@
 
     const-string v1, "up"
 
-    .line 891
+    .line 901
     invoke-virtual {v2, v1}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;)I
 
     move-result v1
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 893
+    .line 903
     :cond_c5
     invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2524,22 +2578,22 @@
 
     const/4 v2, 0x0
 
-    .line 898
+    .line 908
     new-instance v3, Lorg/json/JSONObject;
 
     invoke-direct {v3}, Lorg/json/JSONObject;-><init>()V
 
-    .line 899
+    .line 909
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v4
 
-    .line 901
+    .line 911
     new-instance v0, Lorg/json/JSONObject;
 
     invoke-direct {v0}, Lorg/json/JSONObject;-><init>()V
 
-    .line 902
+    .line 912
     const-string v5, "run"
 
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
@@ -2548,12 +2602,12 @@
 
     invoke-virtual {v0, v5, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 903
+    .line 913
     const-string v5, "tr"
 
     invoke-virtual {v3, v5, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 906
+    .line 916
     :try_start_1e
     const-string v0, "tm"
 
@@ -2565,23 +2619,23 @@
     :try_end_27
     .catch Ljava/lang/Throwable; {:try_start_1e .. :try_end_27} :catch_f8
 
-    .line 911
+    .line 921
     :goto_27
     new-instance v5, Lorg/json/JSONObject;
 
     invoke-direct {v5}, Lorg/json/JSONObject;-><init>()V
 
-    .line 912
+    .line 922
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
     move-result v6
 
-    .line 913
+    .line 923
     const-string v0, "on"
 
     invoke-virtual {v5, v0, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 914
+    .line 924
     const-string v7, "pm"
 
     if-eqz v6, :cond_105
@@ -2597,7 +2651,7 @@
     :goto_40
     invoke-virtual {v5, v7, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 915
+    .line 925
     const-string v7, "play"
 
     if-eqz v6, :cond_108
@@ -2619,12 +2673,12 @@
     :goto_54
     invoke-virtual {v5, v7, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 916
+    .line 926
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentTitle()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 917
+    .line 927
     const-string v7, "title"
 
     if-eqz v0, :cond_10b
@@ -2632,7 +2686,7 @@
     :goto_5f
     invoke-virtual {v5, v7, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 918
+    .line 928
     const-string v0, "pos"
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackPositionMs()I
@@ -2643,7 +2697,7 @@
 
     invoke-virtual {v5, v0, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 919
+    .line 929
     const-string v0, "dur"
 
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
@@ -2654,7 +2708,7 @@
 
     invoke-virtual {v5, v0, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 920
+    .line 930
     const-string v7, "lvl"
 
     if-eqz v6, :cond_10f
@@ -2666,7 +2720,7 @@
     :goto_80
     invoke-virtual {v5, v7, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 921
+    .line 931
     const-string v7, "ceil"
 
     if-eqz v6, :cond_112
@@ -2678,22 +2732,22 @@
     :goto_8b
     invoke-virtual {v5, v7, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 922
+    .line 932
     const-string v0, "mu"
 
     invoke-virtual {v3, v0, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 924
+    .line 934
     new-instance v5, Lorg/json/JSONObject;
 
     invoke-direct {v5}, Lorg/json/JSONObject;-><init>()V
 
-    .line 925
+    .line 935
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->core()Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
     move-result-object v6
 
-    .line 926
+    .line 936
     const-string v7, "en"
 
     if-eqz v4, :cond_115
@@ -2709,12 +2763,12 @@
     :goto_a7
     invoke-virtual {v5, v7, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 927
+    .line 937
     const-string v0, "up"
 
     invoke-virtual {v5, v0, p0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 928
+    .line 938
     const-string v0, "ai"
 
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -2728,10 +2782,10 @@
     :goto_b9
     invoke-virtual {v5, v0, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 929
+    .line 939
     if-eqz v6, :cond_f2
 
-    .line 930
+    .line 940
     const-string v0, "sf"
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getStrengthFactor()D
@@ -2750,7 +2804,7 @@
 
     invoke-virtual {v5, v0, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 931
+    .line 941
     const-string v0, "hold"
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->isHold()Z
@@ -2759,12 +2813,12 @@
 
     invoke-virtual {v5, v0, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 932
+    .line 942
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getForecast()D
 
     move-result-wide v0
 
-    .line 933
+    .line 943
     const-string v4, "fc"
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
@@ -2776,12 +2830,12 @@
     :goto_e4
     invoke-virtual {v5, v4, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 934
+    .line 944
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/HrGuardCore;->getLastAction()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 935
+    .line 945
     const-string v1, "act"
 
     if-eqz v0, :cond_11f
@@ -2789,20 +2843,20 @@
     :goto_ef
     invoke-virtual {v5, v1, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 937
+    .line 947
     :cond_f2
     const-string v0, "hg"
 
     invoke-virtual {v3, v0, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 938
+    .line 948
     return-object v3
 
-    .line 907
+    .line 917
     :catch_f8
     move-exception v0
 
-    .line 908
+    .line 918
     const-string v0, "tm"
 
     new-instance v5, Lorg/json/JSONObject;
@@ -2816,16 +2870,16 @@
     :cond_105
     move v0, v2
 
-    .line 914
+    .line 924
     goto/16 :goto_40
 
     :cond_108
     move v0, v2
 
-    .line 915
+    .line 925
     goto/16 :goto_54
 
-    .line 917
+    .line 927
     :cond_10b
     const-string v0, ""
 
@@ -2834,28 +2888,28 @@
     :cond_10f
     move v0, v2
 
-    .line 920
+    .line 930
     goto/16 :goto_80
 
     :cond_112
     move v0, v2
 
-    .line 921
+    .line 931
     goto/16 :goto_8b
 
     :cond_115
     move v0, v2
 
-    .line 926
+    .line 936
     goto :goto_a7
 
     :cond_117
     move v1, v2
 
-    .line 928
+    .line 938
     goto :goto_b9
 
-    .line 933
+    .line 943
     :cond_119
     invoke-static {v0, v1}, Ljava/lang/Math;->round(D)J
 
@@ -2865,7 +2919,7 @@
 
     goto :goto_e4
 
-    .line 935
+    .line 945
     :cond_11f
     const-string v0, ""
 
@@ -2876,7 +2930,7 @@
     .registers 1
 
     .prologue
-    .line 446
+    .line 456
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
     move-result v0
@@ -2912,13 +2966,13 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 580
+    .line 590
     :try_start_2
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 581
+    .line 591
     sget-wide v4, Lcom/isaigu/gymapp/wearable/BandRemote;->trainAccumMs:J
 
     sget-boolean v6, Lcom/isaigu/gymapp/wearable/BandRemote;->trainWasRunning:Z
@@ -2932,17 +2986,17 @@
     :cond_10
     add-long/2addr v0, v4
 
-    .line 582
+    .line 592
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/isaigu/gymapp/wearable/BandRemote;->trainAccumMs:J
 
-    .line 583
+    .line 593
     const/4 v2, 0x0
 
     sput-boolean v2, Lcom/isaigu/gymapp/wearable/BandRemote;->trainWasRunning:Z
 
-    .line 584
+    .line 594
     sget-boolean v2, Lcom/isaigu/gymapp/wearable/BandRemote;->aiWasRunning:Z
 
     if-nez v2, :cond_32
@@ -2961,7 +3015,7 @@
 
     if-ltz v2, :cond_32
 
-    .line 585
+    .line 595
     const-string v2, "manual"
 
     const-wide/16 v4, 0x3e8
@@ -2972,16 +3026,16 @@
     :try_end_32
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_32} :catch_33
 
-    .line 590
+    .line 600
     :cond_32
     :goto_32
     return-void
 
-    .line 587
+    .line 597
     :catch_33
     move-exception v0
 
-    .line 588
+    .line 598
     const-string v1, "BandRemote.stop"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -2997,13 +3051,13 @@
 
     const/4 v2, 0x0
 
-    .line 603
+    .line 613
     :try_start_2
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
 
-    .line 604
+    .line 614
     if-nez p2, :cond_18
 
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMusOwner:Z
@@ -3020,18 +3074,18 @@
 
     if-gez v0, :cond_18
 
-    .line 628
+    .line 638
     :cond_17
     :goto_17
     return-void
 
-    .line 608
+    .line 618
     :cond_18
     new-instance v5, Lorg/json/JSONArray;
 
     invoke-direct {v5}, Lorg/json/JSONArray;-><init>()V
 
-    .line 609
+    .line 619
     array-length v8, p0
 
     move v3, v2
@@ -3043,10 +3097,10 @@
 
     aget v0, p0, v3
 
-    .line 610
+    .line 620
     invoke-virtual {v5, v0}, Lorg/json/JSONArray;->put(I)Lorg/json/JSONArray;
 
-    .line 611
+    .line 621
     if-lez v0, :cond_2f
 
     move v0, v1
@@ -3054,7 +3108,7 @@
     :goto_2a
     or-int/2addr v4, v0
 
-    .line 609
+    .line 619
     add-int/lit8 v0, v3, 0x1
 
     move v3, v0
@@ -3064,26 +3118,26 @@
     :cond_2f
     move v0, v2
 
-    .line 611
+    .line 621
     goto :goto_2a
 
-    .line 613
+    .line 623
     :cond_31
     if-eqz v4, :cond_17
 
-    .line 616
+    .line 626
     sput-object v5, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMus:Lorg/json/JSONArray;
 
-    .line 617
+    .line 627
     sput-object p1, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSex:Ljava/lang/String;
 
-    .line 618
+    .line 628
     sput-wide v6, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMusMs:J
 
-    .line 619
+    .line 629
     sput-boolean p2, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMusOwner:Z
 
-    .line 620
+    .line 630
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->summary:Lorg/json/JSONObject;
 
     if-eqz v0, :cond_17
@@ -3094,21 +3148,21 @@
 
     if-gez v0, :cond_17
 
-    .line 621
+    .line 631
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->summary:Lorg/json/JSONObject;
 
     const-string v1, "mus"
 
     invoke-virtual {v0, v1, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 622
+    .line 632
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->summary:Lorg/json/JSONObject;
 
     const-string v1, "sex"
 
     invoke-virtual {v0, v1, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 623
+    .line 633
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/BandRemote$Push;
@@ -3125,11 +3179,11 @@
 
     goto :goto_17
 
-    .line 625
+    .line 635
     :catch_61
     move-exception v0
 
-    .line 626
+    .line 636
     const-string v1, "applink"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3163,25 +3217,25 @@
 
     const/4 v0, 0x1
 
-    .line 633
+    .line 643
     :try_start_3
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
-    .line 634
+    .line 644
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 635
+    .line 645
     if-eqz v1, :cond_7d
 
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getHrThreshold(Landroid/content/Context;)I
 
     move-result v1
 
-    .line 636
+    .line 646
     :goto_11
     const-wide/16 v2, 0x3c
 
@@ -3199,7 +3253,7 @@
 
     move-result-object v6
 
-    .line 637
+    .line 647
     const-string v2, "ai"
 
     invoke-virtual {v2, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -3212,13 +3266,13 @@
 
     move-result-wide v2
 
-    .line 639
+    .line 649
     :goto_2b
     new-instance v7, Lorg/json/JSONObject;
 
     invoke-direct {v7}, Lorg/json/JSONObject;-><init>()V
 
-    .line 640
+    .line 650
     const-string v8, "n"
 
     sget v9, Lcom/isaigu/gymapp/wearable/BandRemote;->endSeq:I
@@ -3229,17 +3283,17 @@
 
     invoke-virtual {v7, v8, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 641
+    .line 651
     const-string v8, "kind"
 
     invoke-virtual {v7, v8, p0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 642
+    .line 652
     const-string v8, "dur"
 
     invoke-virtual {v7, v8, p1, p2}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 643
+    .line 653
     const-string v8, "kcal"
 
     const-wide/16 v10, 0x0
@@ -3254,7 +3308,7 @@
 
     invoke-virtual {v7, v8, v2, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 644
+    .line 654
     const-string v2, "avg"
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->avg()I
@@ -3263,7 +3317,7 @@
 
     invoke-virtual {v7, v2, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 645
+    .line 655
     const-string v2, "max"
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->max()I
@@ -3272,23 +3326,23 @@
 
     invoke-virtual {v7, v2, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 646
+    .line 656
     invoke-virtual {v6, v1}, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->zoneMs(I)[J
 
     move-result-object v1
 
-    .line 647
+    .line 657
     new-instance v2, Lorg/json/JSONArray;
 
     invoke-direct {v2}, Lorg/json/JSONArray;-><init>()V
 
-    .line 648
+    .line 658
     :goto_6f
     const/4 v3, 0x5
 
     if-gt v0, v3, :cond_92
 
-    .line 649
+    .line 659
     aget-wide v8, v1, v0
 
     const-wide/16 v10, 0x3e8
@@ -3297,18 +3351,18 @@
 
     invoke-virtual {v2, v8, v9}, Lorg/json/JSONArray;->put(J)Lorg/json/JSONArray;
 
-    .line 648
+    .line 658
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6f
 
-    .line 635
+    .line 645
     :cond_7d
     const/16 v1, 0xaa
 
     goto :goto_11
 
-    .line 638
+    .line 648
     :cond_80
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->core()Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
@@ -3331,13 +3385,13 @@
 
     goto :goto_2b
 
-    .line 651
+    .line 661
     :cond_92
     const-string v0, "zt"
 
     invoke-virtual {v7, v0, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 652
+    .line 662
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMus:Lorg/json/JSONArray;
 
     if-eqz v0, :cond_b4
@@ -3352,32 +3406,32 @@
 
     if-gez v0, :cond_b4
 
-    .line 653
+    .line 663
     const-string v0, "mus"
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMus:Lorg/json/JSONArray;
 
     invoke-virtual {v7, v0, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 654
+    .line 664
     const-string v0, "sex"
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSex:Ljava/lang/String;
 
     invoke-virtual {v7, v0, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 656
+    .line 666
     :cond_b4
     sput-object v7, Lcom/isaigu/gymapp/wearable/BandRemote;->summary:Lorg/json/JSONObject;
 
-    .line 657
+    .line 667
     const-wide/32 v0, 0x15f90
 
     add-long/2addr v0, v4
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/BandRemote;->summaryUntilMs:J
 
-    .line 658
+    .line 668
     const-string v0, "applink"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -3416,7 +3470,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 659
+    .line 669
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/BandRemote$Push;
@@ -3431,15 +3485,15 @@
     :try_end_f1
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_f1} :catch_f2
 
-    .line 663
+    .line 673
     :goto_f1
     return-void
 
-    .line 660
+    .line 670
     :catch_f2
     move-exception v0
 
-    .line 661
+    .line 671
     const-string v1, "applink"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3469,12 +3523,12 @@
     .registers 3
 
     .prologue
-    .line 667
+    .line 677
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getEngine()Lcom/isaigu/gymapp/ai/AiEngine;
 
     move-result-object v0
 
-    .line 668
+    .line 678
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v1
@@ -3485,7 +3539,7 @@
 
     if-eqz v0, :cond_35
 
-    .line 669
+    .line 679
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v0
@@ -3494,10 +3548,10 @@
 
     if-ne v0, v1, :cond_19
 
-    .line 670
+    .line 680
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 
-    .line 675
+    .line 685
     :cond_19
     :goto_19
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
@@ -3518,21 +3572,21 @@
 
     if-nez v0, :cond_34
 
-    .line 676
+    .line 686
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
     move-result v0
 
     if-nez v0, :cond_34
 
-    .line 677
+    .line 687
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->togglePlayPause()V
 
-    .line 679
+    .line 689
     :cond_34
     return-void
 
-    .line 672
+    .line 682
     :cond_35
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
@@ -3540,7 +3594,7 @@
 
     if-eqz v0, :cond_19
 
-    .line 673
+    .line 683
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsPanel;->press(I)Z
@@ -3552,7 +3606,7 @@
     .registers 3
 
     .prologue
-    .line 942
+    .line 952
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote$1;->$SwitchMap$com$isaigu$gymapp$ai$AiModel$PhaseId:[I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiModel$PhaseId;->ordinal()I
@@ -3563,7 +3617,7 @@
 
     packed-switch v0, :pswitch_data_30
 
-    .line 946
+    .line 956
     const-string v0, "\u0420\u0430\u0437\u043f\u0443\u0441\u043a\u0430\u043d\u0435"
 
     const-string v1, "Cool-down"
@@ -3575,7 +3629,7 @@
     :goto_13
     return-object v0
 
-    .line 943
+    .line 953
     :pswitch_14
     const-string v0, "\u0417\u0430\u0433\u0440\u044f\u0432\u043a\u0430"
 
@@ -3587,7 +3641,7 @@
 
     goto :goto_13
 
-    .line 944
+    .line 954
     :pswitch_1d
     const-string v0, "\u041e\u0441\u043d\u043e\u0432\u043d\u0430"
 
@@ -3599,7 +3653,7 @@
 
     goto :goto_13
 
-    .line 945
+    .line 955
     :pswitch_26
     const-string v0, "\u041c\u0435\u0442\u0430\u0431\u043e\u043b\u0438\u0442\u043d\u0430"
 
@@ -3611,7 +3665,7 @@
 
     goto :goto_13
 
-    .line 942
+    .line 952
     nop
 
     :pswitch_data_30
@@ -3626,17 +3680,17 @@
     .registers 27
 
     .prologue
-    .line 452
+    .line 462
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->link()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;
 
     move-result-object v12
 
-    .line 453
+    .line 463
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v20
 
-    .line 454
+    .line 464
     if-eqz v12, :cond_10
 
     invoke-interface {v12}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;->isConnected()Z
@@ -3645,7 +3699,7 @@
 
     if-nez v2, :cond_41
 
-    .line 456
+    .line 466
     :cond_10
     sget-boolean v2, Lcom/isaigu/gymapp/wearable/BandRemote;->trainWasRunning:Z
 
@@ -3655,12 +3709,12 @@
 
     if-nez v2, :cond_40
 
-    .line 457
+    .line 467
     const/4 v2, 0x1
 
     sput-boolean v2, Lcom/isaigu/gymapp/wearable/BandRemote;->dropLogged:Z
 
-    .line 458
+    .line 468
     const-string v2, "remote"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -3697,18 +3751,18 @@
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 569
+    .line 579
     :cond_40
     :goto_40
     return-void
 
-    .line 463
+    .line 473
     :cond_41
     const/4 v2, 0x0
 
     sput-boolean v2, Lcom/isaigu/gymapp/wearable/BandRemote;->dropLogged:Z
 
-    .line 464
+    .line 474
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v2
@@ -3719,12 +3773,12 @@
 
     if-eqz v2, :cond_40
 
-    .line 467
+    .line 477
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
     move-result v10
 
-    .line 468
+    .line 478
     if-eqz v10, :cond_201
 
     sget-boolean v2, Lcom/isaigu/gymapp/wearable/BandRemote;->trainWasRunning:Z
@@ -3733,32 +3787,32 @@
 
     const/4 v2, 0x1
 
-    .line 469
+    .line 479
     :goto_59
     if-eqz v2, :cond_204
 
-    .line 470
+    .line 480
     sput-wide v20, Lcom/isaigu/gymapp/wearable/BandRemote;->trainStartMs:J
 
-    .line 471
+    .line 481
     const/16 p0, 0x1
 
-    .line 472
+    .line 482
     const-string v2, "remote"
 
     const-string v3, "workout started"
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 473
+    .line 483
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->scheduleAutoOpen()V
 
-    .line 477
+    .line 487
     :cond_69
     :goto_69
     sput-boolean v10, Lcom/isaigu/gymapp/wearable/BandRemote;->trainWasRunning:Z
 
-    .line 478
+    .line 488
     sget-wide v4, Lcom/isaigu/gymapp/wearable/BandRemote;->trainAccumMs:J
 
     if-eqz v10, :cond_215
@@ -3770,7 +3824,7 @@
     :goto_73
     add-long v15, v4, v2
 
-    .line 479
+    .line 489
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v2
@@ -3787,7 +3841,7 @@
 
     const/4 v2, 0x1
 
-    .line 480
+    .line 490
     :goto_84
     if-eqz v2, :cond_8f
 
@@ -3795,17 +3849,17 @@
 
     if-nez v3, :cond_8f
 
-    .line 481
+    .line 491
     const/16 p0, 0x1
 
-    .line 482
+    .line 492
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->scheduleAutoOpen()V
 
-    .line 484
+    .line 494
     :cond_8f
     if-eqz v2, :cond_21c
 
-    .line 485
+    .line 495
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getEngine()Lcom/isaigu/gymapp/ai/AiEngine;
 
     move-result-object v3
@@ -3820,24 +3874,24 @@
 
     sput-wide v4, Lcom/isaigu/gymapp/wearable/BandRemote;->aiElapsedS:J
 
-    .line 489
+    .line 499
     :cond_9f
     :goto_9f
     sput-boolean v2, Lcom/isaigu/gymapp/wearable/BandRemote;->aiWasRunning:Z
 
-    .line 491
+    .line 501
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getLastHeartRate()I
 
     move-result v13
 
-    .line 492
+    .line 502
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
     if-eqz v2, :cond_229
 
-    .line 493
+    .line 503
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v2
@@ -3846,7 +3900,7 @@
 
     move-result v14
 
-    .line 494
+    .line 504
     :goto_b3
     if-lez v13, :cond_22d
 
@@ -3878,19 +3932,19 @@
 
     move-object v4, v2
 
-    .line 501
+    .line 511
     :goto_d1
     const/4 v7, 0x0
 
-    .line 502
+    .line 512
     const/4 v8, 0x0
 
-    .line 505
+    .line 515
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getEngine()Lcom/isaigu/gymapp/ai/AiEngine;
 
     move-result-object v9
 
-    .line 506
+    .line 516
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v2
@@ -3901,22 +3955,22 @@
 
     if-eqz v9, :cond_29c
 
-    .line 507
+    .line 517
     invoke-virtual {v9}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v11
 
-    .line 508
+    .line 518
     invoke-virtual {v9}, Lcom/isaigu/gymapp/ai/AiEngine;->phase()Lcom/isaigu/gymapp/ai/AiModel$Phase;
 
     move-result-object v3
 
-    .line 509
+    .line 519
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getKcal()D
 
     move-result-wide v6
 
-    .line 510
+    .line 520
     sget-object v2, Lcom/isaigu/gymapp/ai/AiEngine$State;->REST:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     if-ne v11, v2, :cond_238
@@ -3931,11 +3985,11 @@
 
     move v5, v2
 
-    .line 512
+    .line 522
     :goto_f9
     if-eqz v5, :cond_23c
 
-    .line 513
+    .line 523
     const-string v2, "\u041f\u043e\u0447\u0438\u0432\u043a\u0430\u0442\u0430 \u0441\u0442\u0438\u0433\u0430 \u00b7 \u25b6 \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0438"
 
     const-string v3, "Rest done \u00b7 \u25b6 continue"
@@ -3946,7 +4000,7 @@
 
     move-object v6, v2
 
-    .line 518
+    .line 528
     :goto_104
     sget-object v2, Lcom/isaigu/gymapp/ai/AiEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
@@ -3954,7 +4008,7 @@
 
     const/4 v10, 0x1
 
-    .line 519
+    .line 529
     :goto_109
     if-nez v10, :cond_298
 
@@ -3962,7 +4016,7 @@
 
     move v3, v2
 
-    .line 520
+    .line 530
     :goto_10d
     invoke-virtual {v9}, Lcom/isaigu/gymapp/ai/AiEngine;->getElapsedPlanS()D
 
@@ -3972,14 +4026,14 @@
 
     double-to-int v7, v0
 
-    .line 521
+    .line 531
     invoke-virtual {v9}, Lcom/isaigu/gymapp/ai/AiEngine;->getPlan()Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
     move-result-object v2
 
     iget v8, v2, Lcom/isaigu/gymapp/ai/AiModel$Plan;->totalS:I
 
-    .line 522
+    .line 532
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -4028,7 +4082,7 @@
 
     move-object v5, v4
 
-    .line 548
+    .line 558
     :goto_149
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -4052,7 +4106,7 @@
 
     move-result-object v17
 
-    .line 549
+    .line 559
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -4090,7 +4144,7 @@
 
     move-result-object v18
 
-    .line 550
+    .line 560
     sget-object v4, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSent:Ljava/lang/String;
 
     move-object/from16 v0, v17
@@ -4105,7 +4159,7 @@
 
     move v9, v4
 
-    .line 552
+    .line 562
     :goto_191
     sget-boolean v4, Lcom/isaigu/gymapp/wearable/BandRemote;->bandAppVisible:Z
 
@@ -4121,7 +4175,7 @@
 
     move v10, v4
 
-    .line 553
+    .line 563
     :goto_19d
     if-nez v10, :cond_3ad
 
@@ -4149,7 +4203,7 @@
 
     move v11, v4
 
-    .line 554
+    .line 564
     :goto_1b5
     if-nez v10, :cond_3b1
 
@@ -4165,7 +4219,7 @@
 
     const/4 v4, 0x1
 
-    .line 557
+    .line 567
     :goto_1c2
     sget-boolean v10, Lcom/isaigu/gymapp/wearable/BandRemote;->visSeen:Z
 
@@ -4175,7 +4229,7 @@
 
     if-eqz v10, :cond_3b4
 
-    .line 558
+    .line 568
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAppLink;->isLinked()Z
 
     move-result v10
@@ -4184,7 +4238,7 @@
 
     const/4 v10, 0x1
 
-    .line 559
+    .line 569
     :goto_1d1
     sget-boolean v19, Lcom/isaigu/gymapp/wearable/BandRemote;->musicAsked:Z
 
@@ -4198,22 +4252,22 @@
 
     if-eqz v4, :cond_1ef
 
-    .line 560
+    .line 570
     :cond_1dd
     const/4 v4, 0x0
 
     sput-boolean v4, Lcom/isaigu/gymapp/wearable/BandRemote;->musicAsked:Z
 
-    .line 561
+    .line 571
     sput-object v17, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSent:Ljava/lang/String;
 
-    .line 562
+    .line 572
     sput-object v18, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSentLive:Ljava/lang/String;
 
-    .line 563
+    .line 573
     sput-wide v20, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSentMs:J
 
-    .line 564
+    .line 574
     const/16 v4, 0x32
 
     invoke-static/range {v2 .. v8}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandRemote;->musicInfo(ZZILjava/lang/String;Ljava/lang/String;II)[B
@@ -4222,7 +4276,7 @@
 
     invoke-interface {v12, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandLink;->sendCommand([B)V
 
-    .line 568
+    .line 578
     :cond_1ef
     if-nez p0, :cond_1f3
 
@@ -4246,13 +4300,13 @@
 
     goto/16 :goto_40
 
-    .line 468
+    .line 478
     :cond_201
     const/4 v2, 0x0
 
     goto/16 :goto_59
 
-    .line 474
+    .line 484
     :cond_204
     if-nez v10, :cond_69
 
@@ -4260,7 +4314,7 @@
 
     if-eqz v2, :cond_69
 
-    .line 475
+    .line 485
     sget-wide v2, Lcom/isaigu/gymapp/wearable/BandRemote;->trainAccumMs:J
 
     sget-wide v4, Lcom/isaigu/gymapp/wearable/BandRemote;->trainStartMs:J
@@ -4273,25 +4327,25 @@
 
     goto/16 :goto_69
 
-    .line 478
+    .line 488
     :cond_215
     const-wide/16 v2, 0x0
 
     goto/16 :goto_73
 
-    .line 479
+    .line 489
     :cond_219
     const/4 v2, 0x0
 
     goto/16 :goto_84
 
-    .line 486
+    .line 496
     :cond_21c
     sget-boolean v3, Lcom/isaigu/gymapp/wearable/BandRemote;->aiWasRunning:Z
 
     if-eqz v3, :cond_9f
 
-    .line 487
+    .line 497
     const-string v3, "ai"
 
     sget-wide v4, Lcom/isaigu/gymapp/wearable/BandRemote;->aiElapsedS:J
@@ -4300,13 +4354,13 @@
 
     goto/16 :goto_9f
 
-    .line 493
+    .line 503
     :cond_229
     const/16 v14, 0xaa
 
     goto/16 :goto_b3
 
-    .line 495
+    .line 505
     :cond_22d
     const-string v2, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430"
 
@@ -4320,7 +4374,7 @@
 
     goto/16 :goto_d1
 
-    .line 510
+    .line 520
     :cond_238
     const/4 v2, 0x0
 
@@ -4328,7 +4382,7 @@
 
     goto/16 :goto_f9
 
-    .line 515
+    .line 525
     :cond_23c
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -4370,7 +4424,7 @@
 
     move-result-object v3
 
-    .line 516
+    .line 526
     const-wide/16 v18, 0x0
 
     cmpl-double v2, v6, v18
@@ -4423,13 +4477,13 @@
 
     goto :goto_287
 
-    .line 518
+    .line 528
     :cond_295
     const/4 v10, 0x0
 
     goto/16 :goto_109
 
-    .line 519
+    .line 529
     :cond_298
     const/4 v2, 0x0
 
@@ -4437,7 +4491,7 @@
 
     goto/16 :goto_10d
 
-    .line 523
+    .line 533
     :cond_29c
     if-nez v10, :cond_2aa
 
@@ -4453,7 +4507,7 @@
 
     if-nez v2, :cond_319
 
-    .line 524
+    .line 534
     :cond_2aa
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->core()Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
@@ -4469,7 +4523,7 @@
 
     move-result-wide v2
 
-    .line 526
+    .line 536
     :goto_2b8
     new-instance v5, Ljava/lang/StringBuilder;
 
@@ -4503,7 +4557,7 @@
 
     move-result-object v5
 
-    .line 527
+    .line 537
     const-wide/16 v18, 0x0
 
     cmpl-double v6, v2, v18
@@ -4547,14 +4601,14 @@
 
     move-result-object v6
 
-    .line 529
+    .line 539
     if-nez v10, :cond_316
 
     const/4 v2, 0x1
 
     move v3, v2
 
-    .line 530
+    .line 540
     :goto_30a
     const-string v9, "tr"
 
@@ -4562,22 +4616,22 @@
 
     move-object v5, v4
 
-    .line 531
+    .line 541
     goto/16 :goto_149
 
-    .line 524
+    .line 534
     :cond_310
     const-wide/16 v2, 0x0
 
     goto :goto_2b8
 
-    .line 527
+    .line 537
     :cond_313
     const-string v2, ""
 
     goto :goto_2fe
 
-    .line 529
+    .line 539
     :cond_316
     const/4 v2, 0x0
 
@@ -4585,7 +4639,7 @@
 
     goto :goto_30a
 
-    .line 531
+    .line 541
     :cond_319
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->musicOnly()Z
 
@@ -4593,12 +4647,12 @@
 
     if-eqz v2, :cond_393
 
-    .line 532
+    .line 542
     invoke-static {}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->currentTitle()Ljava/lang/String;
 
     move-result-object v5
 
-    .line 533
+    .line 543
     if-eqz v5, :cond_37b
 
     invoke-virtual {v5}, Ljava/lang/String;->length()I
@@ -4607,7 +4661,7 @@
 
     if-lez v2, :cond_37b
 
-    .line 534
+    .line 544
     :goto_32b
     if-lez v13, :cond_384
 
@@ -4643,7 +4697,7 @@
 
     move-object v4, v2
 
-    .line 536
+    .line 546
     :goto_34d
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isPlaybackPaused()Z
 
@@ -4653,7 +4707,7 @@
 
     const/4 v10, 0x1
 
-    .line 537
+    .line 547
     :goto_354
     if-nez v10, :cond_390
 
@@ -4661,7 +4715,7 @@
 
     move v3, v2
 
-    .line 538
+    .line 548
     :goto_358
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackPositionMs()I
 
@@ -4669,14 +4723,14 @@
 
     div-int/lit16 v7, v2, 0x3e8
 
-    .line 539
+    .line 549
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->getPlaybackDurationMs()I
 
     move-result v2
 
     div-int/lit16 v8, v2, 0x3e8
 
-    .line 540
+    .line 550
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -4699,10 +4753,10 @@
 
     move-object v6, v4
 
-    .line 541
+    .line 551
     goto/16 :goto_149
 
-    .line 533
+    .line 543
     :cond_37b
     const-string v2, "\u041c\u0443\u0437\u0438\u043a\u0430"
 
@@ -4714,7 +4768,7 @@
 
     goto :goto_32b
 
-    .line 535
+    .line 545
     :cond_384
     const-string v2, "\u041c\u0443\u0437\u0438\u043a\u0430"
 
@@ -4728,13 +4782,13 @@
 
     goto :goto_34d
 
-    .line 536
+    .line 546
     :cond_38e
     const/4 v10, 0x0
 
     goto :goto_354
 
-    .line 537
+    .line 547
     :cond_390
     const/4 v2, 0x0
 
@@ -4742,7 +4796,7 @@
 
     goto :goto_358
 
-    .line 543
+    .line 553
     :cond_393
     const-string v2, "\u041c\u0443\u0437\u0438\u043a\u0430 \u00b7 \u25b6 \u0441\u0442\u0430\u0440\u0442"
 
@@ -4752,26 +4806,26 @@
 
     move-result-object v6
 
-    .line 544
+    .line 554
     const/4 v2, 0x0
 
-    .line 545
+    .line 555
     const/4 v3, 0x1
 
-    .line 546
+    .line 556
     const-string v9, "idle"
 
     move-object v5, v4
 
     goto/16 :goto_149
 
-    .line 549
+    .line 559
     :cond_3a2
     const/4 v4, 0x0
 
     goto/16 :goto_17d
 
-    .line 550
+    .line 560
     :cond_3a5
     const/4 v4, 0x0
 
@@ -4779,7 +4833,7 @@
 
     goto/16 :goto_191
 
-    .line 552
+    .line 562
     :cond_3a9
     const/4 v4, 0x0
 
@@ -4787,7 +4841,7 @@
 
     goto/16 :goto_19d
 
-    .line 553
+    .line 563
     :cond_3ad
     const/4 v4, 0x0
 
@@ -4795,19 +4849,19 @@
 
     goto/16 :goto_1b5
 
-    .line 554
+    .line 564
     :cond_3b1
     const/4 v4, 0x0
 
     goto/16 :goto_1c2
 
-    .line 558
+    .line 568
     :cond_3b4
     const/4 v10, 0x0
 
     goto/16 :goto_1d1
 
-    .line 568
+    .line 578
     :cond_3b7
     const/16 v19, 0x0
 
@@ -4818,7 +4872,7 @@
     .registers 4
 
     .prologue
-    .line 958
+    .line 968
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -4829,11 +4883,11 @@
 
     if-nez v0, :cond_b
 
-    .line 963
+    .line 973
     :goto_a
     return-void
 
-    .line 961
+    .line 971
     :cond_b
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
 
@@ -4841,7 +4895,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 962
+    .line 972
     sget-object v0, Lcom/isaigu/gymapp/wearable/BandRemote;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/BandRemote;->autoOpen:Ljava/lang/Runnable;
@@ -4857,25 +4911,25 @@
     .registers 34
 
     .prologue
-    .line 700
+    .line 710
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAppLink;->isLinked()Z
 
     move-result v4
 
     if-nez v4, :cond_7
 
-    .line 843
+    .line 853
     :cond_6
     :goto_6
     return-void
 
-    .line 703
+    .line 713
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getEngine()Lcom/isaigu/gymapp/ai/AiEngine;
 
     move-result-object v11
 
-    .line 704
+    .line 714
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v4
@@ -4890,7 +4944,7 @@
 
     move v7, v4
 
-    .line 705
+    .line 715
     :goto_17
     if-eqz v7, :cond_1a5
 
@@ -4898,7 +4952,7 @@
 
     move-object v10, v4
 
-    .line 706
+    .line 716
     :goto_1c
     if-eqz v7, :cond_1c4
 
@@ -4908,7 +4962,7 @@
 
     move-wide v8, v4
 
-    .line 707
+    .line 717
     :goto_23
     if-eqz v7, :cond_1da
 
@@ -4928,59 +4982,59 @@
 
     const/4 v4, 0x1
 
-    .line 708
+    .line 718
     :goto_34
     const-string v5, ""
 
-    .line 709
+    .line 719
     if-eqz v4, :cond_1dd
 
     sget-boolean v6, Lcom/isaigu/gymapp/wearable/BandRemote;->lastRestReady:Z
 
     if-nez v6, :cond_1dd
 
-    .line 710
+    .line 720
     const-string v5, "long"
 
-    .line 714
+    .line 724
     :cond_3e
     :goto_3e
     sput-object v10, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMode:Ljava/lang/String;
 
-    .line 715
+    .line 725
     sput-boolean v4, Lcom/isaigu/gymapp/wearable/BandRemote;->lastRestReady:Z
 
-    .line 716
+    .line 726
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v12
 
-    .line 718
+    .line 728
     :try_start_46
     new-instance v14, Lorg/json/JSONObject;
 
     invoke-direct {v14}, Lorg/json/JSONObject;-><init>()V
 
-    .line 719
+    .line 729
     const-string v6, "t"
 
     const-string v15, "state"
 
     invoke-virtual {v14, v6, v15}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 720
+    .line 730
     const-string v6, "v"
 
     const/4 v15, 0x2
 
     invoke-virtual {v14, v6, v15}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 721
+    .line 731
     const-string v6, "mode"
 
     invoke-virtual {v14, v6, v10}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 722
+    .line 732
     const-string v6, "hr"
 
     const/4 v15, 0x0
@@ -4993,7 +5047,7 @@
 
     invoke-virtual {v14, v6, v15}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 723
+    .line 733
     const-string v15, "z"
 
     if-lez p3, :cond_1f1
@@ -5005,14 +5059,14 @@
     :goto_71
     invoke-virtual {v14, v15, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 724
+    .line 734
     const-string v6, "lim"
 
     move/from16 v0, p4
 
     invoke-virtual {v14, v6, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 725
+    .line 735
     const-string v6, "title"
 
     if-nez v7, :cond_85
@@ -5031,7 +5085,7 @@
 
     invoke-virtual {v14, v6, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 726
+    .line 736
     const-string v6, "sub"
 
     if-nez v7, :cond_96
@@ -5050,7 +5104,7 @@
 
     invoke-virtual {v14, v6, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 727
+    .line 737
     const-string v6, "kcal"
 
     const-wide/16 v16, 0x0
@@ -5067,19 +5121,19 @@
 
     invoke-virtual {v14, v6, v8, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 728
+    .line 738
     const-string v6, "run"
 
     move/from16 v0, p2
 
     invoke-virtual {v14, v6, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 729
+    .line 739
     new-instance v8, Lorg/json/JSONObject;
 
     invoke-direct {v8}, Lorg/json/JSONObject;-><init>()V
 
-    .line 730
+    .line 740
     const-string v9, "plus"
 
     if-eqz v7, :cond_1f4
@@ -5091,7 +5145,7 @@
     :goto_c2
     invoke-virtual {v8, v9, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 731
+    .line 741
     const-string v9, "minus"
 
     if-eqz v7, :cond_206
@@ -5103,7 +5157,7 @@
     :goto_cd
     invoke-virtual {v8, v9, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 732
+    .line 742
     const-string v9, "dbl"
 
     if-eqz v7, :cond_218
@@ -5119,12 +5173,12 @@
     :goto_db
     invoke-virtual {v8, v9, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 733
+    .line 743
     const-string v6, "can"
 
     invoke-virtual {v14, v6, v8}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 734
+    .line 744
     const-string v8, "dbl"
 
     if-eqz v7, :cond_21b
@@ -5140,20 +5194,20 @@
     :goto_ee
     invoke-virtual {v14, v8, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 735
+    .line 745
     const-string v6, "vib"
 
     invoke-virtual {v14, v6, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 738
+    .line 748
     if-eqz v7, :cond_2b6
 
-    .line 739
+    .line 749
     invoke-virtual {v11}, Lcom/isaigu/gymapp/ai/AiEngine;->getState()Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     move-result-object v5
 
-    .line 740
+    .line 750
     const-string v6, "st"
 
     if-eqz v4, :cond_21e
@@ -5163,12 +5217,12 @@
     :goto_102
     invoke-virtual {v14, v6, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 742
+    .line 752
     invoke-virtual {v11}, Lcom/isaigu/gymapp/ai/AiEngine;->phase()Lcom/isaigu/gymapp/ai/AiModel$Phase;
 
     move-result-object v4
 
-    .line 743
+    .line 753
     const-string v6, "ph"
 
     iget-object v7, v4, Lcom/isaigu/gymapp/ai/AiModel$Phase;->id:Lcom/isaigu/gymapp/ai/AiModel$PhaseId;
@@ -5179,7 +5233,7 @@
 
     invoke-virtual {v14, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 744
+    .line 754
     const-string v6, "pi"
 
     invoke-virtual {v11}, Lcom/isaigu/gymapp/ai/AiEngine;->getPhaseIndex()I
@@ -5188,14 +5242,14 @@
 
     invoke-virtual {v14, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 745
+    .line 755
     const-string v6, "pd"
 
     iget v7, v4, Lcom/isaigu/gymapp/ai/AiModel$Phase;->durationS:I
 
     invoke-virtual {v14, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 746
+    .line 756
     const-string v6, "pl"
 
     const-wide/16 v8, 0x0
@@ -5224,12 +5278,12 @@
 
     invoke-virtual {v14, v6, v8, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 747
+    .line 757
     sget-object v4, Lcom/isaigu/gymapp/ai/AiEngine$State;->REST:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
     if-ne v5, v4, :cond_157
 
-    .line 748
+    .line 758
     const-string v4, "rl"
 
     const-wide/16 v6, 0x0
@@ -5248,18 +5302,18 @@
 
     invoke-virtual {v14, v4, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 750
+    .line 760
     :cond_157
     new-instance v5, Lorg/json/JSONArray;
 
     invoke-direct {v5}, Lorg/json/JSONArray;-><init>()V
 
-    .line 751
+    .line 761
     new-instance v6, Lorg/json/JSONArray;
 
     invoke-direct {v6}, Lorg/json/JSONArray;-><init>()V
 
-    .line 752
+    .line 762
     invoke-virtual {v11}, Lcom/isaigu/gymapp/ai/AiEngine;->getPlan()Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
     move-result-object v4
@@ -5283,12 +5337,12 @@
 
     check-cast v4, Lcom/isaigu/gymapp/ai/AiModel$Phase;
 
-    .line 753
+    .line 763
     iget v8, v4, Lcom/isaigu/gymapp/ai/AiModel$Phase;->durationS:I
 
     invoke-virtual {v5, v8}, Lorg/json/JSONArray;->put(I)Lorg/json/JSONArray;
 
-    .line 754
+    .line 764
     iget-object v4, v4, Lcom/isaigu/gymapp/ai/AiModel$Phase;->id:Lcom/isaigu/gymapp/ai/AiModel$PhaseId;
 
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/BandRemote;->phaseName(Lcom/isaigu/gymapp/ai/AiModel$PhaseId;)Ljava/lang/String;
@@ -5301,11 +5355,11 @@
 
     goto :goto_16b
 
-    .line 840
+    .line 850
     :catch_186
     move-exception v4
 
-    .line 841
+    .line 851
     const-string v5, "applink"
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -5330,7 +5384,7 @@
 
     goto/16 :goto_6
 
-    .line 704
+    .line 714
     :cond_1a1
     const/4 v4, 0x0
 
@@ -5338,7 +5392,7 @@
 
     goto/16 :goto_17
 
-    .line 705
+    .line 715
     :cond_1a5
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
@@ -5377,7 +5431,7 @@
 
     goto/16 :goto_1c
 
-    .line 706
+    .line 716
     :cond_1c4
     invoke-static {}, Lcom/isaigu/gymapp/wearable/HrGuard;->core()Lcom/isaigu/gymapp/wearable/HrGuardCore;
 
@@ -5404,13 +5458,13 @@
 
     goto/16 :goto_23
 
-    .line 707
+    .line 717
     :cond_1da
     const/4 v4, 0x0
 
     goto/16 :goto_34
 
-    .line 711
+    .line 721
     :cond_1dd
     sget-object v6, Lcom/isaigu/gymapp/wearable/BandRemote;->lastMode:Ljava/lang/String;
 
@@ -5428,18 +5482,18 @@
 
     if-lez v6, :cond_3e
 
-    .line 712
+    .line 722
     const-string v5, "short"
 
     goto/16 :goto_3e
 
-    .line 723
+    .line 733
     :cond_1f1
     const/4 v6, 0x0
 
     goto/16 :goto_71
 
-    .line 730
+    .line 740
     :cond_1f4
     :try_start_1f4
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
@@ -5464,7 +5518,7 @@
 
     goto/16 :goto_c2
 
-    .line 731
+    .line 741
     :cond_206
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
@@ -5488,19 +5542,19 @@
 
     goto/16 :goto_cd
 
-    .line 732
+    .line 742
     :cond_218
     const/4 v6, 0x0
 
     goto/16 :goto_db
 
-    .line 734
+    .line 744
     :cond_21b
     const/4 v6, 0x0
 
     goto/16 :goto_ee
 
-    .line 740
+    .line 750
     :cond_21e
     sget-object v4, Lcom/isaigu/gymapp/ai/AiEngine$State;->REST:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
@@ -5510,7 +5564,7 @@
 
     goto/16 :goto_102
 
-    .line 741
+    .line 751
     :cond_226
     sget-object v4, Lcom/isaigu/gymapp/ai/AiEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
@@ -5525,18 +5579,18 @@
 
     goto/16 :goto_102
 
-    .line 756
+    .line 766
     :cond_232
     const-string v4, "pds"
 
     invoke-virtual {v14, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 757
+    .line 767
     const-string v4, "pns"
 
     invoke-virtual {v14, v4, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 758
+    .line 768
     const-string v4, "u"
 
     invoke-virtual {v11}, Lcom/isaigu/gymapp/ai/AiEngine;->getUUser()D
@@ -5555,7 +5609,7 @@
 
     invoke-virtual {v14, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 759
+    .line 769
     invoke-virtual {v11}, Lcom/isaigu/gymapp/ai/AiEngine;->getElapsedPlanS()D
 
     move-result-wide v4
@@ -5564,7 +5618,7 @@
 
     move-result-wide v4
 
-    .line 760
+    .line 770
     const-string v6, "tot"
 
     invoke-virtual {v11}, Lcom/isaigu/gymapp/ai/AiEngine;->getPlan()Lcom/isaigu/gymapp/ai/AiModel$Plan;
@@ -5577,25 +5631,25 @@
 
     move-wide v8, v4
 
-    .line 770
+    .line 780
     :goto_261
     const-string v4, "el"
 
     invoke-virtual {v14, v4, v8, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 773
+    .line 783
     const-wide/32 v4, 0x2bf20
 
     invoke-static {v12, v13, v4, v5}, Lcom/isaigu/gymapp/wearable/HrHistory;->since(JJ)Lcom/isaigu/gymapp/wearable/HrHistory$Series;
 
     move-result-object v11
 
-    .line 774
+    .line 784
     new-instance v15, Lorg/json/JSONArray;
 
     invoke-direct {v15}, Lorg/json/JSONArray;-><init>()V
 
-    .line 775
+    .line 785
     const/4 v4, 0x0
 
     move v7, v4
@@ -5605,7 +5659,7 @@
 
     if-ge v7, v4, :cond_30a
 
-    .line 776
+    .line 786
     const-wide/32 v4, 0x2bf20
 
     sub-long v4, v12, v4
@@ -5620,18 +5674,18 @@
 
     add-long v16, v16, v4
 
-    .line 777
+    .line 787
     const-wide/16 v4, 0x1770
 
     add-long v18, v16, v4
 
-    .line 778
+    .line 788
     const/4 v5, 0x0
 
-    .line 779
+    .line 789
     const/4 v4, 0x0
 
-    .line 780
+    .line 790
     const/4 v6, 0x0
 
     :goto_28d
@@ -5643,7 +5697,7 @@
 
     if-ge v6, v0, :cond_2fc
 
-    .line 781
+    .line 791
     iget-object v0, v11, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->t:[J
 
     move-object/from16 v20, v0
@@ -5664,7 +5718,7 @@
 
     if-gez v20, :cond_2b3
 
-    .line 782
+    .line 792
     iget-object v0, v11, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->hr:[I
 
     move-object/from16 v20, v0
@@ -5673,16 +5727,16 @@
 
     add-int v5, v5, v20
 
-    .line 783
+    .line 793
     add-int/lit8 v4, v4, 0x1
 
-    .line 780
+    .line 790
     :cond_2b3
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_28d
 
-    .line 761
+    .line 771
     :cond_2b6
     const-string v4, "music"
 
@@ -5692,7 +5746,7 @@
 
     if-eqz v4, :cond_2de
 
-    .line 762
+    .line 772
     const-string v5, "st"
 
     if-eqz p2, :cond_2db
@@ -5702,21 +5756,21 @@
     :goto_2c4
     invoke-virtual {v14, v5, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 763
+    .line 773
     const-string v4, "pos"
 
     move/from16 v0, p7
 
     invoke-virtual {v14, v4, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 764
+    .line 774
     const-string v4, "dur"
 
     move/from16 v0, p8
 
     invoke-virtual {v14, v4, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 765
+    .line 775
     const-wide/16 v4, 0x3e8
 
     div-long v4, p5, v4
@@ -5725,13 +5779,13 @@
 
     goto :goto_261
 
-    .line 762
+    .line 772
     :cond_2db
     const-string v4, "pause"
 
     goto :goto_2c4
 
-    .line 767
+    .line 777
     :cond_2de
     const-string v5, "st"
 
@@ -5742,7 +5796,7 @@
     :goto_2e4
     invoke-virtual {v14, v5, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 768
+    .line 778
     const-wide/16 v4, 0x3e8
 
     div-long v4, p5, v4
@@ -5751,7 +5805,7 @@
 
     goto/16 :goto_261
 
-    .line 767
+    .line 777
     :cond_2ee
     const-string v4, "idle"
 
@@ -5770,7 +5824,7 @@
 
     goto :goto_2e4
 
-    .line 786
+    .line 796
     :cond_2fc
     if-lez v4, :cond_308
 
@@ -5779,26 +5833,26 @@
     :goto_300
     invoke-virtual {v15, v4}, Lorg/json/JSONArray;->put(I)Lorg/json/JSONArray;
 
-    .line 775
+    .line 785
     add-int/lit8 v4, v7, 0x1
 
     move v7, v4
 
     goto/16 :goto_274
 
-    .line 786
+    .line 796
     :cond_308
     const/4 v4, 0x0
 
     goto :goto_300
 
-    .line 788
+    .line 798
     :cond_30a
     const-string v4, "hh"
 
     invoke-virtual {v14, v4, v15}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 789
+    .line 799
     const-wide/16 v4, 0x0
 
     cmp-long v4, v8, v4
@@ -5818,7 +5872,7 @@
 
     move-result-object v4
 
-    .line 790
+    .line 800
     const-string v5, "avg"
 
     invoke-virtual {v4}, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->avg()I
@@ -5827,7 +5881,7 @@
 
     invoke-virtual {v14, v5, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 791
+    .line 801
     const-string v5, "max"
 
     invoke-virtual {v4}, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->max()I
@@ -5836,19 +5890,19 @@
 
     invoke-virtual {v14, v5, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 792
+    .line 802
     move/from16 v0, p4
 
     invoke-virtual {v4, v0}, Lcom/isaigu/gymapp/wearable/HrHistory$Series;->zoneMs(I)[J
 
     move-result-object v5
 
-    .line 793
+    .line 803
     new-instance v6, Lorg/json/JSONArray;
 
     invoke-direct {v6}, Lorg/json/JSONArray;-><init>()V
 
-    .line 794
+    .line 804
     const/4 v4, 0x1
 
     :goto_33d
@@ -5856,7 +5910,7 @@
 
     if-gt v4, v7, :cond_350
 
-    .line 795
+    .line 805
     aget-wide v8, v5, v4
 
     const-wide/16 v16, 0x3e8
@@ -5865,34 +5919,34 @@
 
     invoke-virtual {v6, v8, v9}, Lorg/json/JSONArray;->put(J)Lorg/json/JSONArray;
 
-    .line 794
+    .line 804
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_33d
 
-    .line 789
+    .line 799
     :cond_34c
     const-wide/32 v4, 0x2bf20
 
     goto :goto_31b
 
-    .line 797
+    .line 807
     :cond_350
     const-string v4, "zt"
 
     invoke-virtual {v14, v4, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 798
+    .line 808
     invoke-static/range {p4 .. p4}, Lcom/isaigu/gymapp/wearable/BandRemote;->modules(I)Lorg/json/JSONObject;
 
     move-result-object v5
 
-    .line 799
+    .line 809
     const-string v4, "mods"
 
     invoke-virtual {v14, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 800
+    .line 810
     sget-object v4, Lcom/isaigu/gymapp/wearable/BandRemote;->summary:Lorg/json/JSONObject;
 
     if-eqz v4, :cond_36f
@@ -5903,14 +5957,14 @@
 
     if-gez v4, :cond_36f
 
-    .line 801
+    .line 811
     const-string v4, "sum"
 
     sget-object v6, Lcom/isaigu/gymapp/wearable/BandRemote;->summary:Lorg/json/JSONObject;
 
     invoke-virtual {v14, v4, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 803
+    .line 813
     :cond_36f
     const-string v6, "lang"
 
@@ -5925,12 +5979,12 @@
     :goto_379
     invoke-virtual {v14, v6, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 804
+    .line 814
     new-instance v6, Lorg/json/JSONArray;
 
     invoke-direct {v6}, Lorg/json/JSONArray;-><init>()V
 
-    .line 805
+    .line 815
     sget-object v7, Lcom/isaigu/gymapp/widget/XemsLicense;->ALL:[Ljava/lang/String;
 
     array-length v8, v7
@@ -5942,62 +5996,62 @@
 
     aget-object v9, v7, v4
 
-    .line 806
+    .line 816
     invoke-static {v9}, Lcom/isaigu/gymapp/widget/XemsLicense;->has(Ljava/lang/String;)Z
 
     move-result v11
 
     if-eqz v11, :cond_392
 
-    .line 807
+    .line 817
     invoke-virtual {v6, v9}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 805
+    .line 815
     :cond_392
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_385
 
-    .line 803
+    .line 813
     :cond_395
     const-string v4, "en"
 
     goto :goto_379
 
-    .line 810
+    .line 820
     :cond_398
     const-string v4, "lic"
 
     invoke-virtual {v14, v4, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 811
+    .line 821
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->channels()Lorg/json/JSONArray;
 
     move-result-object v7
 
-    .line 812
+    .line 822
     const-string v4, "ch"
 
     invoke-virtual {v14, v4, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 813
+    .line 823
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandRemote;->mainStrength()I
 
     move-result v8
 
-    .line 814
+    .line 824
     const-string v4, "ms"
 
     invoke-virtual {v14, v4, v8}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 815
+    .line 825
     const-string v4, "ack"
 
     sget-object v9, Lcom/isaigu/gymapp/wearable/BandRemote;->lastAck:Ljava/lang/String;
 
     invoke-virtual {v14, v4, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 818
+    .line 828
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -6058,7 +6112,7 @@
 
     const-string v9, "can"
 
-    .line 819
+    .line 829
     invoke-virtual {v14, v9}, Lorg/json/JSONObject;->opt(Ljava/lang/String;)Ljava/lang/Object;
 
     move-result-object v9
@@ -6101,7 +6155,7 @@
 
     const-string v6, "lang"
 
-    .line 820
+    .line 830
     invoke-virtual {v14, v6}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
@@ -6155,7 +6209,7 @@
 
     move-result-object v4
 
-    .line 822
+    .line 832
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -6232,12 +6286,12 @@
 
     move-result-object v5
 
-    .line 823
+    .line 833
     sget-boolean v6, Lcom/isaigu/gymapp/wearable/BandRemote;->bandAppVisible:Z
 
     if-nez v6, :cond_4bb
 
-    .line 824
+    .line 834
     sget-object v6, Lcom/isaigu/gymapp/wearable/BandRemote;->lastCore:Ljava/lang/String;
 
     invoke-virtual {v4, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -6246,7 +6300,7 @@
 
     if-eqz v6, :cond_4cf
 
-    .line 825
+    .line 835
     const-string v4, "z"
 
     invoke-virtual {v14, v4}, Lorg/json/JSONObject;->optInt(Ljava/lang/String;)I
@@ -6261,13 +6315,13 @@
 
     goto/16 :goto_6
 
-    .line 820
+    .line 830
     :cond_4b9
     const/4 v4, 0x0
 
     goto :goto_449
 
-    .line 829
+    .line 839
     :cond_4bb
     if-nez p9, :cond_4cf
 
@@ -6289,17 +6343,17 @@
 
     if-ltz v6, :cond_6
 
-    .line 832
+    .line 842
     :cond_4cf
     sput-object v5, Lcom/isaigu/gymapp/wearable/BandRemote;->lastSig:Ljava/lang/String;
 
-    .line 833
+    .line 843
     sput-object v4, Lcom/isaigu/gymapp/wearable/BandRemote;->lastCore:Ljava/lang/String;
 
-    .line 834
+    .line 844
     sput-wide p10, Lcom/isaigu/gymapp/wearable/BandRemote;->lastAppMs:J
 
-    .line 835
+    .line 845
     const/4 v4, 0x0
 
     move/from16 v0, p3
@@ -6310,10 +6364,10 @@
 
     sput v4, Lcom/isaigu/gymapp/wearable/BandRemote;->lastHrSent:I
 
-    .line 836
+    .line 846
     sput-wide p10, Lcom/isaigu/gymapp/wearable/BandRemote;->lastHrSentMs:J
 
-    .line 837
+    .line 847
     const-string v4, "seq"
 
     sget v5, Lcom/isaigu/gymapp/wearable/BandRemote;->seq:I
@@ -6324,14 +6378,14 @@
 
     invoke-virtual {v14, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 838
+    .line 848
     const-string v4, "boot"
 
     sget-wide v6, Lcom/isaigu/gymapp/wearable/BandRemote;->BOOT:J
 
     invoke-virtual {v14, v4, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 839
+    .line 849
     invoke-virtual {v14}, Lorg/json/JSONObject;->toString()Ljava/lang/String;
 
     move-result-object v4
@@ -6347,14 +6401,14 @@
     .registers 10
 
     .prologue
-    .line 847
+    .line 857
     const/4 v0, 0x0
 
     invoke-static {v0, p0}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
-    .line 848
+    .line 858
     sget v1, Lcom/isaigu/gymapp/wearable/BandRemote;->lastHrSent:I
 
     if-ne v0, v1, :cond_14
@@ -6369,18 +6423,18 @@
 
     if-gez v1, :cond_14
 
-    .line 854
+    .line 864
     :goto_13
     return-void
 
-    .line 851
+    .line 861
     :cond_14
     sput v0, Lcom/isaigu/gymapp/wearable/BandRemote;->lastHrSent:I
 
-    .line 852
+    .line 862
     sput-wide p2, Lcom/isaigu/gymapp/wearable/BandRemote;->lastHrSentMs:J
 
-    .line 853
+    .line 863
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V

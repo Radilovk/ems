@@ -154,7 +154,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BlockProgramEditor.java` (234L, compile:interval-timer,music-sync*) — Block list editor (opened from the interval timer): one card per block with steppers for cycles, strength, frequency an…
 - `BlockProgramRunner.java` (297L, compile:interval-timer,music-sync*) — Global block program runner (interval timer extension).
 - `BlockProgramStorage.java` (75L, compile:interval-timer,music-sync*) — Persists global block program in interval_timer SharedPreferences.
-- `IntervalTimerHelper.java` (2139L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
+- `IntervalTimerHelper.java` (2173L, compile:interval-timer,music-sync*) — Master-panel interval timer: floating dial (AlertDialog overlay, never addView on decor) and a settings sheet built wit…
 - `ModalInfoHelper.java` (107L, compile:music-sync*) — Themed info modal shared by music player and interval timer.
 - `MusicDial.java` (331L, compile:music-sync*) — Compact music player — the same floating dial as the interval timer and the HR dial: 192 dp ring (track progress; drag …
 - `MusicPlayerHelper.java` (2459L, compile:music-sync*) — 
@@ -184,7 +184,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 **wearable/** (`branding/java/src/com/isaigu/gymapp/wearable/`)
 - `BandAppInstall.java` (303L, compile:music-sync*,wearable) — The XEMS app on the band (Band 9 / 10) installs and updates itself: once the band is connected over the classic link an…
 - `BandLaunch.java` (107L, compile:music-sync*,wearable) — Open the XEMS app on the band from XEMS: the Settings button (and {@link BandRemote} at the start of a workout).
-- `BandRemote.java` (1050L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
+- `BandRemote.java` (1060L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
@@ -196,7 +196,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `NextClient.java` (644L, compile:music-sync*,wearable) — The next client from the calendar: shortly before the appointment, when nothing runs on the tablet, asks the trainer an…
 - `NextPlan.java` (725L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
-- `NotifyWearableBridge.java` (636L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
+- `NotifyWearableBridge.java` (652L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
 - `ReportBridge.java` (508L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (86L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
@@ -208,10 +208,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableBandPicker.java` (206L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
 - `WearableBlePermissions.java` (180L, compile:music-sync*,wearable) — Runtime BLUETOOTH_CONNECT + BLUETOOTH_SCAN (Android 12+) — required for GATT connect/discover.
-- `WearableConfig.java` (278L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
+- `WearableConfig.java` (305L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
 - `WearableHrPanel.java` (324L, compile:music-sync*,wearable) — The "i" of the HR dial: what matters during a session, drawn — the HR now with its zone, the HR chart (5 / 15 min / all…
 - `WearableLivePanel.java` (340L, compile:music-sync*,wearable) — "Band data" panel: every live field from 8/47, event rate, share the raw recording.
-- `WearableSettingsSection.java` (627L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
+- `WearableSettingsSection.java` (672L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
 - `WearableSyncHelper.java` (1349L, compile:music-sync*,wearable) — Wearable sync UI: config modal + floating HR dial (same pattern as interval timer).
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
@@ -259,7 +259,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLicenseSection.java` (330L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (288L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
-- `XemsLocalAvatar.java` (579L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
+- `XemsLocalAvatar.java` (649L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (248L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (249L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1109L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
@@ -281,7 +281,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `band-app/src/pages/music/index.ux` (451L) — band screen: music remote — play/pause, prev/next, impulse ceiling
 - `band-app/src/pages/pulse/index.ux` (430L) — band screen: heart rate, auto control on/off, last 3 minutes chart
 - `band-app/src/pages/summary/index.ux` (485L) — band screen: session summary after training
-- `band-app/src/pages/timer/index.ux` (370L) — band screen: interval timer remote
+- `band-app/src/pages/timer/index.ux` (412L) — band screen: interval timer remote
 - `band-app/src/pages/train/index.ux` (1213L) — Start: scroll list + hold-to-slide overlay for per-channel strength.
 - `band-app/test/app-screen.test.mjs` (29L) — Verifies screen wake policy: no setKeepScreenOn during training.
 - `band-app/test/auto-route.test.mjs` (41L) — 

@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 900
+    .prologue
+    .line 934
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,18 +31,19 @@
 
 # virtual methods
 .method public onDismiss(Landroid/content/DialogInterface;)V
-    .registers 2
+    .registers 3
 
-    .line 903
-    const/4 p1, 0x0
+    .prologue
+    .line 937
+    const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->subSheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1502(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1702(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 904
+    .line 938
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$700()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()V
 
-    .line 905
+    .line 939
     return-void
 .end method

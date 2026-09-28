@@ -28,8 +28,14 @@
 # direct methods
 .method constructor <init>(Landroid/widget/EditText;Lcom/isaigu/gymapp/widget/XemsUi$Shell;Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;)V
     .registers 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 1257
+    .prologue
+    .line 1291
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$input:Landroid/widget/EditText;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
@@ -44,73 +50,75 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 5
 
-    .line 1260
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$input:Landroid/widget/EditText;
+    .prologue
+    .line 1294
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$input:Landroid/widget/EditText;
 
-    invoke-virtual {p1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
-
-    move-result-object p1
-
-    if-eqz p1, :cond_17
-
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$input:Landroid/widget/EditText;
-
-    invoke-virtual {p1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
-
-    move-result-object p1
-
-    invoke-virtual {p1}, Ljava/lang/Object;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object p1
-
-    goto :goto_19
-
-    :cond_17
-    const-string p1, ""
-
-    .line 1261
-    :goto_19
-    invoke-virtual {p1}, Ljava/lang/String;->length()I
-
-    move-result v0
-
-    if-nez v0, :cond_2d
-
-    .line 1262
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$input:Landroid/widget/EditText;
-
-    const-string v0, "\u0412\u044a\u0432\u0435\u0434\u0438 \u0438\u043c\u0435"
-
-    const-string v1, "Enter a name"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
-    invoke-virtual {p1, v0}, Landroid/widget/EditText;->setError(Ljava/lang/CharSequence;)V
+    if-eqz v0, :cond_2a
 
-    .line 1263
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$input:Landroid/widget/EditText;
+
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 1295
+    :goto_16
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-nez v1, :cond_2d
+
+    .line 1296
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$input:Landroid/widget/EditText;
+
+    const-string v1, "\u0412\u044a\u0432\u0435\u0434\u0438 \u0438\u043c\u0435"
+
+    const-string v2, "Enter a name"
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/widget/EditText;->setError(Ljava/lang/CharSequence;)V
+
+    .line 1301
+    :goto_29
     return-void
 
-    .line 1265
+    .line 1294
+    :cond_2a
+    const-string v0, ""
+
+    goto :goto_16
+
+    .line 1299
     :cond_2d
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
+    iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
-    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+    invoke-virtual {v1}, Landroid/app/Dialog;->dismiss()V
 
-    .line 1266
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$cb:Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;
+    .line 1300
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$25;->val$cb:Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;
 
-    invoke-interface {v0, p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;->onName(Ljava/lang/String;)V
+    invoke-interface {v1, v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$NameCallback;->onName(Ljava/lang/String;)V
 
-    .line 1267
-    return-void
+    goto :goto_29
 .end method

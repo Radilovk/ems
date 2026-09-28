@@ -6,6 +6,7 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RolePick;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RemoteToggle;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$AutoOpenToggle;,
@@ -52,7 +53,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
 
-    .line 415
+    .line 439
     new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$8;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$8;-><init>()V
@@ -277,27 +278,27 @@
     .registers 6
 
     .prologue
-    .line 477
+    .line 501
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 478
+    .line 502
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->bondedName(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 479
+    .line 503
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->modelLabel(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 480
+    .line 504
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 481
+    .line 505
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v3
@@ -307,22 +308,22 @@
     :goto_17
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 483
+    .line 507
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isLinkUp()Z
 
     move-result v0
 
     if-eqz v0, :cond_58
 
-    .line 484
+    .line 508
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandStatus;->getBatteryPercent()I
 
     move-result v0
 
-    .line 485
+    .line 509
     if-ltz v0, :cond_41
 
-    .line 486
+    .line 510
     const-string v1, " \u00b7 "
 
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -349,7 +350,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 488
+    .line 512
     :cond_41
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandStatus;->isKnownNotWorn()Z
 
@@ -357,7 +358,7 @@
 
     if-eqz v0, :cond_58
 
-    .line 489
+    .line 513
     const-string v0, " \u00b7 "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -374,7 +375,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 492
+    .line 516
     :cond_58
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -382,7 +383,7 @@
 
     return-object v0
 
-    .line 481
+    .line 505
     :cond_5d
     if-eqz v1, :cond_61
 
@@ -390,7 +391,7 @@
 
     goto :goto_17
 
-    .line 482
+    .line 506
     :cond_61
     const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u0435 \u0441\u0434\u0432\u043e\u0435\u043d\u0430 \u0441 \u0442\u0435\u043b\u0435\u0444\u043e\u043d\u0430"
 
@@ -404,7 +405,7 @@
 .end method
 
 .method private static build(Landroid/app/Activity;Landroid/view/View;)V
-    .registers 13
+    .registers 14
 
     .prologue
     .line 48
@@ -414,7 +415,7 @@
 
     if-nez v0, :cond_7
 
-    .line 240
+    .line 264
     :cond_6
     :goto_6
     return-void
@@ -600,325 +601,135 @@
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 86
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandRole(Landroid/content/Context;)I
 
-    move-result-object v0
+    move-result v6
 
     .line 87
-    const-string v6, "MAC"
-
-    invoke-static {p0, v6, v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->label(Landroid/app/Activity;Ljava/lang/String;I)Landroid/widget/TextView;
-
-    move-result-object v6
-
-    invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    if-eqz v2, :cond_125
 
     .line 88
-    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->field(Landroid/app/Activity;I)Landroid/widget/EditText;
+    const-string v0, "\u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u0441\u043b\u0443\u0436\u0438 \u0437\u0430"
 
-    move-result-object v6
-
-    sput-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
-
-    .line 89
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
-
-    const-string v7, "AA:BB:CC:DD:EE:FF"
-
-    invoke-virtual {v6, v7}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
-
-    .line 90
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
-
-    const v7, 0x81001
-
-    invoke-virtual {v6, v7}, Landroid/widget/EditText;->setInputType(I)V
-
-    .line 92
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
-
-    move-result-object v7
-
-    invoke-virtual {v6, v7}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
-
-    .line 93
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
-
-    new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/4 v8, 0x0
-
-    const/high16 v9, 0x42300000    # 44.0f
-
-    invoke-static {p0, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
-
-    move-result v9
-
-    const/high16 v10, 0x3f800000    # 1.0f
-
-    invoke-direct {v7, v8, v9, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    invoke-virtual {v0, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 94
-    const-string v6, "\u0418\u0437\u0431\u0435\u0440\u0438"
-
-    const-string v7, "Choose"
-
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v6
-
-    const v7, -0xea9a40
-
-    const/4 v8, -0x1
-
-    invoke-static {p0, v6, v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
-
-    move-result-object v6
-
-    .line 95
-    new-instance v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$1;
-
-    invoke-direct {v7, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$1;-><init>(Landroid/app/Activity;)V
-
-    invoke-virtual {v6, v7}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 101
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v7
-
-    invoke-virtual {v0, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 102
-    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 105
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
-
-    move-result-object v0
-
-    .line 106
-    const/4 v6, 0x0
-
-    const/high16 v7, 0x41200000    # 10.0f
-
-    invoke-static {p0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
-
-    move-result v7
-
-    const/4 v8, 0x0
-
-    const/4 v9, 0x0
-
-    invoke-virtual {v0, v6, v7, v8, v9}, Landroid/widget/LinearLayout;->setPadding(IIII)V
-
-    .line 107
-    const-string v6, "\u041a\u043b\u044e\u0447"
-
-    const-string v7, "Key"
-
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v6
-
-    invoke-static {p0, v6, v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->label(Landroid/app/Activity;Ljava/lang/String;I)Landroid/widget/TextView;
-
-    move-result-object v6
-
-    invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 108
-    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->field(Landroid/app/Activity;I)Landroid/widget/EditText;
-
-    move-result-object v6
-
-    sput-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-
-    .line 109
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-
-    const-string v7, "32 \u0441\u0438\u043c\u0432\u043e\u043b\u0430 0-9 / a-f"
-
-    const-string v8, "32 chars 0-9 / a-f"
-
-    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v7
-
-    invoke-virtual {v6, v7}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
-
-    .line 110
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-
-    sget-object v7, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
-
-    invoke-virtual {v6, v7}, Landroid/widget/EditText;->setTypeface(Landroid/graphics/Typeface;)V
-
-    .line 111
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getAuthKey(Landroid/content/Context;)Ljava/lang/String;
-
-    move-result-object v7
-
-    invoke-virtual {v6, v7}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
-
-    .line 112
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isConfigured(Landroid/content/Context;)Z
-
-    move-result v6
-
-    invoke-static {v6}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->setKeyHidden(Z)V
-
-    .line 113
-    sget-object v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-
-    new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/4 v8, 0x0
-
-    const/high16 v9, 0x42300000    # 44.0f
-
-    invoke-static {p0, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
-
-    move-result v9
-
-    const/high16 v10, 0x3f800000    # 1.0f
-
-    invoke-direct {v7, v8, v9, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    invoke-virtual {v0, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 114
-    const-string v6, "\u041f\u043e\u043a\u0430\u0436\u0438"
-
-    const-string v7, "Show"
-
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v6
-
-    const-string v7, "bg_screen"
-
-    const v8, -0xd5d5d6
-
-    .line 115
-    invoke-static {p0, v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->color(Landroid/content/Context;Ljava/lang/String;I)I
-
-    move-result v7
-
-    .line 114
-    invoke-static {p0, v6, v7, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
-
-    move-result-object v6
-
-    .line 116
-    new-instance v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;
-
-    invoke-direct {v7, v6}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;-><init>(Landroid/widget/TextView;)V
-
-    invoke-virtual {v6, v7}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 124
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v7
-
-    invoke-virtual {v0, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 125
-    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 127
-    const-string v0, "\u041e\u0442 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0438\u0442\u0435 / \u043f\u043e\u0441\u0442\u0430\u0432\u0438"
-
-    const-string v6, "From saved / paste"
-
-    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    const-string v6, "bg_screen"
-
-    const v7, -0xd5d5d6
-
-    .line 128
-    invoke-static {p0, v6, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->color(Landroid/content/Context;Ljava/lang/String;I)I
-
-    move-result v6
-
-    .line 127
-    invoke-static {p0, v0, v6, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
-
-    move-result-object v0
-
-    .line 129
-    new-instance v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;
-
-    invoke-direct {v6, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;-><init>(Landroid/app/Activity;)V
-
-    invoke-virtual {v0, v6}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 135
-    new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/4 v7, -0x1
-
-    const/high16 v8, 0x42400000    # 48.0f
-
-    .line 136
-    invoke-static {p0, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
-
-    move-result v8
-
-    invoke-direct {v6, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
-
-    .line 137
-    const/high16 v7, 0x41200000    # 10.0f
-
-    invoke-static {p0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
-
-    move-result v7
-
-    iput v7, v6, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
-
-    .line 138
-    invoke-virtual {v5, v0, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 144
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 143
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->bondedName(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v6
-
-    .line 146
-    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
-
-    .line 147
-    const-string v0, "\u041c\u043e\u0434\u0435\u043b \u0433\u0440\u0438\u0432\u043d\u0430"
-
-    const-string v7, "Band model"
+    const-string v7, "The band is for"
 
     invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-static {p0, v0, v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->label(Landroid/app/Activity;Ljava/lang/String;I)Landroid/widget/TextView;
+    const/high16 v7, 0x41600000    # 14.0f
+
+    const/4 v8, 0x1
+
+    invoke-static {p0, v0, v7, v3, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 148
+    .line 89
+    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 90
+    new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v7, -0x1
+
+    const/4 v8, -0x2
+
+    invoke-direct {v0, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    .line 92
+    const/high16 v7, 0x41000000    # 8.0f
+
+    invoke-static {p0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v7
+
+    iput v7, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
+
+    .line 93
+    const/4 v7, 0x3
+
+    new-array v7, v7, [Ljava/lang/String;
+
+    const/4 v8, 0x0
+
+    const-string v9, "\u041f\u0443\u043b\u0441 \u0438 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435"
+
+    const-string v10, "Heart rate + control"
+
+    .line 94
+    invoke-static {v9, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v9
+
+    aput-object v9, v7, v8
+
+    const/4 v8, 0x1
+
+    const-string v9, "\u0421\u0430\u043c\u043e \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435"
+
+    const-string v10, "Control only"
+
+    .line 95
+    invoke-static {v9, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v9
+
+    aput-object v9, v7, v8
+
+    const/4 v8, 0x2
+
+    const-string v9, "\u0421\u0430\u043c\u043e \u043f\u0443\u043b\u0441"
+
+    const-string v10, "Heart rate only"
+
+    .line 96
+    invoke-static {v9, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v9
+
+    aput-object v9, v7, v8
+
+    new-instance v8, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RolePick;
+
+    invoke-direct {v8, p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RolePick;-><init>(Landroid/app/Activity;Landroid/view/View;)V
+
+    .line 93
+    invoke-static {p0, v7, v6, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->segmented(Landroid/content/Context;[Ljava/lang/String;ILcom/isaigu/gymapp/widget/XemsUi$OnIndex;)Landroid/widget/LinearLayout;
+
+    move-result-object v7
+
+    invoke-virtual {v5, v7, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 97
+    const/4 v0, 0x1
+
+    if-ne v6, v0, :cond_43d
+
+    .line 98
+    const-string v0, "\u0421\u0442\u0430\u0440\u0442, \u043f\u0430\u0443\u0437\u0430 \u0438 \u0441\u0438\u043b\u0430 \u043e\u0442 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430. \u041f\u0443\u043b\u0441\u044a\u0442 \u045d \u043d\u0435 \u0441\u0435 \u043f\u043e\u043b\u0437\u0432\u0430 \u2014 \u2665 \u043f\u0443\u043b\u0441 \u0438 AI \u043e\u0441\u0442\u0430\u0432\u0430\u0442 \u0431\u0435\u0437 \u043d\u0435\u0433\u043e."
+
+    const-string v7, "Start, pause and strength from the band. Its heart rate is not used \u2014 \u2665 and AI go without it."
+
+    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 103
+    :goto_10a
+    const/high16 v7, 0x41480000    # 12.5f
+
+    const/4 v8, 0x0
+
+    .line 97
+    invoke-static {p0, v0, v7, v4, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    .line 105
     const/4 v7, 0x0
 
-    const/high16 v8, 0x41600000    # 14.0f
+    const/high16 v8, 0x40c00000    # 6.0f
 
     invoke-static {p0, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
@@ -926,7 +737,7 @@
 
     const/4 v9, 0x0
 
-    const/high16 v10, 0x40c00000    # 6.0f
+    const/high16 v10, 0x41600000    # 14.0f
 
     invoke-static {p0, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
@@ -934,75 +745,116 @@
 
     invoke-virtual {v0, v7, v8, v9, v10}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 149
+    .line 106
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 150
-    const/4 v0, 0x3
-
-    new-array v0, v0, [Ljava/lang/String;
-
-    const/4 v7, 0x0
-
-    const-string v8, "\u0410\u0432\u0442\u043e"
-
-    const-string v9, "Auto"
-
-    .line 151
-    invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v8
-
-    aput-object v8, v0, v7
-
-    const/4 v7, 0x1
-
-    const-string v8, "Band 8 \u0438 \u043f\u043e-\u0441\u0442\u0430\u0440\u0438"
-
-    const-string v9, "Band 8 and older"
-
-    .line 152
-    invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v8
-
-    aput-object v8, v0, v7
-
-    const/4 v7, 0x2
-
-    const-string v8, "Band 9 / 10"
-
-    aput-object v8, v0, v7
-
-    .line 153
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandTransport(Landroid/content/Context;)I
-
-    move-result v7
-
-    new-instance v8, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;
-
-    invoke-direct {v8, p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;-><init>(Landroid/app/Activity;Landroid/view/View;)V
-
-    .line 150
-    invoke-static {p0, v0, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->segmented(Landroid/content/Context;[Ljava/lang/String;ILcom/isaigu/gymapp/widget/XemsUi$OnIndex;)Landroid/widget/LinearLayout;
+    .line 110
+    :cond_125
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
+    .line 111
+    const-string v7, "MAC"
+
+    invoke-static {p0, v7, v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->label(Landroid/app/Activity;Ljava/lang/String;I)Landroid/widget/TextView;
+
+    move-result-object v7
+
+    invoke-virtual {v0, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 112
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->field(Landroid/app/Activity;I)Landroid/widget/EditText;
+
+    move-result-object v7
+
+    sput-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
+
+    .line 113
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
+
+    const-string v8, "AA:BB:CC:DD:EE:FF"
+
+    invoke-virtual {v7, v8}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
+
+    .line 114
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
+
+    const v8, 0x81001
+
+    invoke-virtual {v7, v8}, Landroid/widget/EditText;->setInputType(I)V
+
+    .line 116
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v7, v8}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+
+    .line 117
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
+
+    new-instance v8, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v9, 0x0
+
+    const/high16 v10, 0x42300000    # 44.0f
+
+    invoke-static {p0, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v10
+
+    const/high16 v11, 0x3f800000    # 1.0f
+
+    invoke-direct {v8, v9, v10, v11}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v0, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 118
+    const-string v7, "\u0418\u0437\u0431\u0435\u0440\u0438"
+
+    const-string v8, "Choose"
+
+    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    const v8, -0xea9a40
+
+    const/4 v9, -0x1
+
+    invoke-static {p0, v7, v8, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
+
+    move-result-object v7
+
+    .line 119
+    new-instance v8, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$1;
+
+    invoke-direct {v8, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$1;-><init>(Landroid/app/Activity;)V
+
+    invoke-virtual {v7, v8}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 125
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v8
+
+    invoke-virtual {v0, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 126
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 155
-    if-nez v2, :cond_3bd
+    .line 129
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
 
-    const/4 v0, 0x0
+    move-result-object v0
 
-    .line 160
-    :goto_21b
-    if-eqz v0, :cond_258
-
-    .line 161
+    .line 130
     const/4 v7, 0x0
 
-    const/high16 v8, 0x41400000    # 12.0f
+    const/high16 v8, 0x41200000    # 10.0f
 
     invoke-static {p0, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
@@ -1014,29 +866,332 @@
 
     invoke-virtual {v0, v7, v8, v9, v10}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 162
-    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    .line 131
+    const-string v7, "\u041a\u043b\u044e\u0447"
 
-    .line 163
-    const-string v0, "\u041e\u0442\u0432\u0430\u0440\u044f\u0439 XEMS \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+    const-string v8, "Key"
 
-    const-string v7, "Open XEMS on the band"
-
-    .line 164
-    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    const-string v7, "\u041f\u0440\u0438 \u0441\u0442\u0430\u0440\u0442 \u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0438\u043b\u0438 AI \u0441\u0435\u0441\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u0441\u0435 \u043f\u043e\u043a\u0430\u0437\u0432\u0430 \u0441\u0430\u043c\u043e (Band 9 / 10)."
-
-    const-string v8, "When a workout or AI session starts the app comes up by itself (Band 9 / 10)."
-
-    .line 165
     invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v7
 
+    invoke-static {p0, v7, v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->label(Landroid/app/Activity;Ljava/lang/String;I)Landroid/widget/TextView;
+
+    move-result-object v7
+
+    invoke-virtual {v0, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 132
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->field(Landroid/app/Activity;I)Landroid/widget/EditText;
+
+    move-result-object v7
+
+    sput-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
+
+    .line 133
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
+
+    const-string v8, "32 \u0441\u0438\u043c\u0432\u043e\u043b\u0430 0-9 / a-f"
+
+    const-string v9, "32 chars 0-9 / a-f"
+
+    invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v7, v8}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
+
+    .line 134
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
+
+    sget-object v8, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
+
+    invoke-virtual {v7, v8}, Landroid/widget/EditText;->setTypeface(Landroid/graphics/Typeface;)V
+
+    .line 135
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getAuthKey(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v7, v8}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+
+    .line 136
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isConfigured(Landroid/content/Context;)Z
+
+    move-result v7
+
+    invoke-static {v7}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->setKeyHidden(Z)V
+
+    .line 137
+    sget-object v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
+
+    new-instance v8, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v9, 0x0
+
+    const/high16 v10, 0x42300000    # 44.0f
+
+    invoke-static {p0, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v10
+
+    const/high16 v11, 0x3f800000    # 1.0f
+
+    invoke-direct {v8, v9, v10, v11}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v0, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 138
+    const-string v7, "\u041f\u043e\u043a\u0430\u0436\u0438"
+
+    const-string v8, "Show"
+
+    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    const-string v8, "bg_screen"
+
+    const v9, -0xd5d5d6
+
+    .line 139
+    invoke-static {p0, v8, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->color(Landroid/content/Context;Ljava/lang/String;I)I
+
+    move-result v8
+
+    .line 138
+    invoke-static {p0, v7, v8, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
+
+    move-result-object v7
+
+    .line 140
+    new-instance v8, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;
+
+    invoke-direct {v8, v7}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;-><init>(Landroid/widget/TextView;)V
+
+    invoke-virtual {v7, v8}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 148
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v8
+
+    invoke-virtual {v0, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 149
+    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 151
+    const-string v0, "\u041e\u0442 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0438\u0442\u0435 / \u043f\u043e\u0441\u0442\u0430\u0432\u0438"
+
+    const-string v7, "From saved / paste"
+
+    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v7, "bg_screen"
+
+    const v8, -0xd5d5d6
+
+    .line 152
+    invoke-static {p0, v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->color(Landroid/content/Context;Ljava/lang/String;I)I
+
+    move-result v7
+
+    .line 151
+    invoke-static {p0, v0, v7, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    .line 153
+    new-instance v7, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;
+
+    invoke-direct {v7, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;-><init>(Landroid/app/Activity;)V
+
+    invoke-virtual {v0, v7}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 159
+    new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v8, -0x1
+
+    const/high16 v9, 0x42400000    # 48.0f
+
+    .line 160
+    invoke-static {p0, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v9
+
+    invoke-direct {v7, v8, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    .line 161
+    const/high16 v8, 0x41200000    # 10.0f
+
+    invoke-static {p0, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v8
+
+    iput v8, v7, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
+
+    .line 162
+    invoke-virtual {v5, v0, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 168
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v0
+
     .line 167
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->bondedName(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    .line 170
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
+
+    .line 171
+    const-string v0, "\u041c\u043e\u0434\u0435\u043b \u0433\u0440\u0438\u0432\u043d\u0430"
+
+    const-string v8, "Band model"
+
+    invoke-static {v0, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {p0, v0, v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->label(Landroid/app/Activity;Ljava/lang/String;I)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    .line 172
+    const/4 v8, 0x0
+
+    const/high16 v9, 0x41600000    # 14.0f
+
+    invoke-static {p0, v9}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v9
+
+    const/4 v10, 0x0
+
+    const/high16 v11, 0x40c00000    # 6.0f
+
+    invoke-static {p0, v11}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v11
+
+    invoke-virtual {v0, v8, v9, v10, v11}, Landroid/widget/TextView;->setPadding(IIII)V
+
+    .line 173
+    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 174
+    const/4 v0, 0x3
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const/4 v8, 0x0
+
+    const-string v9, "\u0410\u0432\u0442\u043e"
+
+    const-string v10, "Auto"
+
+    .line 175
+    invoke-static {v9, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v9
+
+    aput-object v9, v0, v8
+
+    const/4 v8, 0x1
+
+    const-string v9, "Band 8 \u0438 \u043f\u043e-\u0441\u0442\u0430\u0440\u0438"
+
+    const-string v10, "Band 8 and older"
+
+    .line 176
+    invoke-static {v9, v10}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v9
+
+    aput-object v9, v0, v8
+
+    const/4 v8, 0x2
+
+    const-string v9, "Band 9 / 10"
+
+    aput-object v9, v0, v8
+
+    .line 177
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandTransport(Landroid/content/Context;)I
+
+    move-result v8
+
+    new-instance v9, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;
+
+    invoke-direct {v9, p0, p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$TransportPick;-><init>(Landroid/app/Activity;Landroid/view/View;)V
+
+    .line 174
+    invoke-static {p0, v0, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->segmented(Landroid/content/Context;[Ljava/lang/String;ILcom/isaigu/gymapp/widget/XemsUi$OnIndex;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 179
+    if-eqz v2, :cond_29a
+
+    const/4 v0, 0x2
+
+    if-ne v6, v0, :cond_454
+
+    :cond_29a
+    const/4 v0, 0x0
+
+    .line 184
+    :goto_29b
+    if-eqz v0, :cond_2d8
+
+    .line 185
+    const/4 v6, 0x0
+
+    const/high16 v8, 0x41400000    # 12.0f
+
+    invoke-static {p0, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
+
+    move-result v8
+
+    const/4 v9, 0x0
+
+    const/4 v10, 0x0
+
+    invoke-virtual {v0, v6, v8, v9, v10}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+
+    .line 186
+    invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 187
+    const-string v0, "\u041e\u0442\u0432\u0430\u0440\u044f\u0439 XEMS \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+
+    const-string v6, "Open XEMS on the band"
+
+    .line 188
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v6, "\u041f\u0440\u0438 \u0441\u0442\u0430\u0440\u0442 \u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0438\u043b\u0438 AI \u0441\u0435\u0441\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u0441\u0435 \u043f\u043e\u043a\u0430\u0437\u0432\u0430 \u0441\u0430\u043c\u043e (Band 9 / 10)."
+
+    const-string v8, "When a workout or AI session starts the app comes up by itself (Band 9 / 10)."
+
+    .line 189
+    invoke-static {v6, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    .line 191
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isBandAutoOpen(Landroid/content/Context;)Z
 
     move-result v8
@@ -1045,13 +1200,13 @@
 
     invoke-direct {v9, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$AutoOpenToggle;-><init>(Landroid/app/Activity;)V
 
-    .line 163
-    invoke-static {p0, v0, v7, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
+    .line 187
+    invoke-static {p0, v0, v6, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 168
-    const/4 v7, 0x0
+    .line 192
+    const/4 v6, 0x0
 
     const/high16 v8, 0x41400000    # 12.0f
 
@@ -1063,50 +1218,50 @@
 
     const/4 v10, 0x0
 
-    invoke-virtual {v0, v7, v8, v9, v10}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    invoke-virtual {v0, v6, v8, v9, v10}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 169
+    .line 193
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 172
-    :cond_258
+    .line 196
+    :cond_2d8
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandTransport(Landroid/content/Context;)I
 
     move-result v0
 
-    const/4 v7, 0x2
+    const/4 v6, 0x2
 
-    if-eq v0, v7, :cond_26b
+    if-eq v0, v6, :cond_2eb
 
-    .line 173
+    .line 197
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandTransport(Landroid/content/Context;)I
 
     move-result v0
 
-    if-nez v0, :cond_3dc
+    if-nez v0, :cond_473
 
-    .line 174
-    invoke-static {v6}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->usesClassic(Ljava/lang/String;)Z
+    .line 198
+    invoke-static {v7}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->usesClassic(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_3dc
+    if-eqz v0, :cond_473
 
-    :cond_26b
+    :cond_2eb
     const/4 v0, 0x1
 
-    .line 175
-    :goto_26c
-    if-eqz v0, :cond_323
+    .line 199
+    :goto_2ec
+    if-eqz v0, :cond_3a3
 
-    if-eqz v2, :cond_323
+    if-eqz v2, :cond_3a3
 
-    .line 176
+    .line 200
     const-string v0, "XEMS \u0441\u0435 \u043e\u0442\u0432\u0430\u0440\u044f \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u0441\u0430\u043c \u043f\u0440\u0438 \u0441\u0442\u0430\u0440\u0442 \u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 (\u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u043f\u043e-\u0433\u043e\u0440\u0435). \u0420\u044a\u0447\u043d\u043e: \u0431\u0443\u0442\u043e\u043d\u044a\u0442 \u043f\u043e-\u0434\u043e\u043b\u0443, \u0438\u043b\u0438 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u2014 \u0432\u0434\u0438\u0433\u043d\u0438 \u043a\u0438\u0442\u043a\u0430\u0442\u0430, \u043f\u043b\u044a\u0437\u043d\u0438 \u043d\u0430\u0433\u043e\u0440\u0435, \u043f\u0440\u0435\u0432\u044a\u0440\u0442\u0438 \u0434\u043e XEMS."
 
     const-string v2, "XEMS opens on the band by itself when a workout starts (setting above). By hand: the button below, or on the band \u2014 raise the wrist, swipe up, scroll to XEMS."
 
-    .line 177
+    .line 201
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
@@ -1115,12 +1270,12 @@
 
     const/4 v6, 0x0
 
-    .line 176
+    .line 200
     invoke-static {p0, v0, v2, v4, v6}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 180
+    .line 204
     const/4 v2, 0x0
 
     const/high16 v6, 0x41400000    # 12.0f
@@ -1135,15 +1290,15 @@
 
     invoke-virtual {v0, v2, v6, v7, v8}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 181
+    .line 205
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 182
+    .line 206
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
 
     move-result-object v2
 
-    .line 183
+    .line 207
     const/4 v0, 0x0
 
     const/high16 v6, 0x41400000    # 12.0f
@@ -1158,7 +1313,7 @@
 
     invoke-virtual {v2, v0, v6, v7, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 184
+    .line 208
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->statusText(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
@@ -1171,10 +1326,10 @@
 
     move-result-object v6
 
-    .line 185
+    .line 209
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->bind(Landroid/widget/TextView;)V
 
-    .line 186
+    .line 210
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v7, 0x0
@@ -1187,16 +1342,16 @@
 
     invoke-virtual {v2, v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 188
+    .line 212
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandAppVersion(Landroid/content/Context;)I
 
     move-result v0
 
-    const/16 v7, 0x43
+    const/16 v7, 0x44
 
-    if-lt v0, v7, :cond_3df
+    if-lt v0, v7, :cond_476
 
-    .line 189
+    .line 213
     const-string v0, "\u041f\u0440\u0435\u0438\u043d\u0441\u0442\u0430\u043b\u0438\u0440\u0430\u0439"
 
     const-string v7, "Reinstall"
@@ -1205,44 +1360,44 @@
 
     move-result-object v0
 
-    :goto_2c8
+    :goto_348
     const-string v7, "bg_screen"
 
     const v8, -0xd5d5d6
 
-    .line 190
+    .line 214
     invoke-static {p0, v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->color(Landroid/content/Context;Ljava/lang/String;I)I
 
     move-result v7
 
-    .line 188
+    .line 212
     invoke-static {p0, v0, v7, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->button(Landroid/content/Context;Ljava/lang/String;II)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 191
+    .line 215
     new-instance v3, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;
 
     invoke-direct {v3, p0, v6}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;-><init>(Landroid/app/Activity;Landroid/widget/TextView;)V
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 197
+    .line 221
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 198
+    .line 222
     invoke-virtual {v5, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 200
+    .line 224
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 201
+    .line 225
     const/4 v2, 0x0
 
     const/high16 v3, 0x41200000    # 10.0f
@@ -1257,7 +1412,7 @@
 
     invoke-virtual {v0, v2, v3, v6, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 202
+    .line 226
     const-string v2, "\u041e\u0442\u0432\u043e\u0440\u0438 \u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
 
     const-string v3, "Open on the band"
@@ -1274,14 +1429,14 @@
 
     move-result-object v2
 
-    .line 204
+    .line 228
     new-instance v3, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$OpenOnBand;
 
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$OpenOnBand;-><init>(Landroid/app/Activity;)V
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 205
+    .line 229
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v6, 0x0
@@ -1298,11 +1453,11 @@
 
     invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 206
+    .line 230
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 208
-    :cond_323
+    .line 232
+    :cond_3a3
     const-string v0, ""
 
     const/high16 v2, 0x41500000    # 13.0f
@@ -1315,7 +1470,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->bandInfoView:Landroid/widget/TextView;
 
-    .line 209
+    .line 233
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->bandInfoView:Landroid/widget/TextView;
 
     const/4 v2, 0x0
@@ -1332,17 +1487,17 @@
 
     invoke-virtual {v0, v2, v3, v6, v7}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 210
+    .line 234
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->bandInfoView:Landroid/widget/TextView;
 
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 213
+    .line 237
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->row(Landroid/app/Activity;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 214
+    .line 238
     const/4 v2, 0x0
 
     const/high16 v3, 0x41600000    # 14.0f
@@ -1357,7 +1512,7 @@
 
     invoke-virtual {v0, v2, v3, v6, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 215
+    .line 239
     const-string v2, ""
 
     const/high16 v3, 0x41600000    # 14.0f
@@ -1370,7 +1525,7 @@
 
     sput-object v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
-    .line 216
+    .line 240
     sget-object v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -1385,7 +1540,7 @@
 
     invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 218
+    .line 242
     const-string v2, "\u041f\u0440\u043e\u0432\u0435\u0440\u0438 \u0432\u0440\u044a\u0437\u043a\u0430\u0442\u0430"
 
     const-string v3, "Test connection"
@@ -1402,42 +1557,42 @@
 
     move-result-object v2
 
-    .line 220
+    .line 244
     new-instance v3, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$5;
 
     invoke-direct {v3, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$5;-><init>(Landroid/app/Activity;)V
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 226
+    .line 250
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->sideButton(Landroid/app/Activity;)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
     invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 227
+    .line 251
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 229
+    .line 253
     new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Saver;-><init>(Landroid/app/Activity;)V
 
-    .line 230
+    .line 254
     sget-object v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
 
     invoke-virtual {v2, v0}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
 
-    .line 231
+    .line 255
     sget-object v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     invoke-virtual {v2, v0}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
 
-    .line 232
+    .line 256
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->colorFields()V
 
-    .line 234
+    .line 258
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, -0x1
@@ -1446,7 +1601,7 @@
 
     invoke-direct {v0, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 236
+    .line 260
     const/high16 v2, 0x41e00000    # 28.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -1455,42 +1610,71 @@
 
     iput v2, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 237
+    .line 261
     invoke-virtual {v1, v5, v0}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 238
+    .line 262
     new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$DetachListener;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$DetachListener;-><init>()V
 
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addOnAttachStateChangeListener(Landroid/view/View$OnAttachStateChangeListener;)V
 
-    .line 239
+    .line 263
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->scheduleStatus(Landroid/app/Activity;)V
 
     goto/16 :goto_6
 
-    .line 155
-    :cond_3bd
-    const-string v0, "\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u043e\u0442 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+    .line 100
+    :cond_43d
+    const/4 v0, 0x2
 
-    const-string v7, "Control from the band"
+    if-ne v6, v0, :cond_44a
 
-    .line 156
+    .line 101
+    const-string v0, "\u0421\u0430\u043c\u043e \u043f\u0443\u043b\u0441 \u0437\u0430 \u2665 \u043f\u0443\u043b\u0441, AI \u0438 \u043a\u0430\u043b\u043e\u0440\u0438\u0438\u0442\u0435. \u0413\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u043d\u0435 \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0432\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430 \u0438 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u043d\u0430 \u043d\u0435\u044f \u043d\u0435 \u0441\u0435 \u043e\u0442\u0432\u0430\u0440\u044f \u0441\u0430\u043c\u043e."
+
+    const-string v7, "Heart rate only for \u2665, AI and calories. The band does not control the training and its app does not open by itself."
+
     invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    const-string v7, "\u041f\u043b\u044a\u0437\u043d\u0438 \u0434\u043e \u041c\u0443\u0437\u0438\u043a\u0430: \u043f\u0443\u043b\u0441 \u0438 \u0431\u043b\u043e\u043a; \u25b6 \u0441\u0442\u0430\u0440\u0442/\u043f\u0430\u0443\u0437\u0430, \u23ed \u23ee \u0441\u0438\u043b\u0430 \u00b1."
+    goto/16 :goto_10a
+
+    .line 103
+    :cond_44a
+    const-string v0, "\u041f\u0443\u043b\u0441 \u0437\u0430 \u2665 \u043f\u0443\u043b\u0441 \u0438 AI, \u0438 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430 \u043e\u0442 \u0440\u044a\u043a\u0430\u0442\u0430."
+
+    const-string v7, "Heart rate for \u2665 and AI, and training control from the wrist."
+
+    invoke-static {v0, v7}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_10a
+
+    .line 179
+    :cond_454
+    const-string v0, "\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u043e\u0442 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430"
+
+    const-string v6, "Control from the band"
+
+    .line 180
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v6, "\u041f\u043b\u044a\u0437\u043d\u0438 \u0434\u043e \u041c\u0443\u0437\u0438\u043a\u0430: \u043f\u0443\u043b\u0441 \u0438 \u0431\u043b\u043e\u043a; \u25b6 \u0441\u0442\u0430\u0440\u0442/\u043f\u0430\u0443\u0437\u0430, \u23ed \u23ee \u0441\u0438\u043b\u0430 \u00b1."
 
     const-string v8, "Swipe to Music: HR and block; \u25b6 start/pause, \u23ed \u23ee strength \u00b1."
 
-    .line 157
-    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .line 181
+    invoke-static {v6, v8}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v7
+    move-result-object v6
 
-    .line 159
+    .line 183
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isBandRemoteEnabled(Landroid/content/Context;)Z
 
     move-result v8
@@ -1499,21 +1683,21 @@
 
     invoke-direct {v9, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$RemoteToggle;-><init>(Landroid/app/Activity;)V
 
-    .line 155
-    invoke-static {p0, v0, v7, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
+    .line 179
+    invoke-static {p0, v0, v6, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    goto/16 :goto_21b
+    goto/16 :goto_29b
 
-    .line 174
-    :cond_3dc
+    .line 198
+    :cond_473
     const/4 v0, 0x0
 
-    goto/16 :goto_26c
+    goto/16 :goto_2ec
 
-    .line 189
-    :cond_3df
+    .line 213
+    :cond_476
     const-string v0, "\u0418\u043d\u0441\u0442\u0430\u043b\u0438\u0440\u0430\u0439"
 
     const-string v7, "Install"
@@ -1522,7 +1706,7 @@
 
     move-result-object v0
 
-    goto/16 :goto_2c8
+    goto/16 :goto_348
 .end method
 
 .method private static colorFields()V
@@ -1535,12 +1719,12 @@
 
     const v2, -0x994496
 
-    .line 362
+    .line 386
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_23
 
-    .line 363
+    .line 387
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -1551,7 +1735,7 @@
 
     move-result-object v0
 
-    .line 364
+    .line 388
     sget-object v4, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1565,13 +1749,13 @@
     :goto_20
     invoke-virtual {v4, v0}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 367
+    .line 391
     :cond_23
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_3c
 
-    .line 368
+    .line 392
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -1582,7 +1766,7 @@
 
     move-result-object v0
 
-    .line 369
+    .line 393
     sget-object v4, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1594,11 +1778,11 @@
     :goto_39
     invoke-virtual {v4, v1}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 372
+    .line 396
     :cond_3c
     return-void
 
-    .line 365
+    .line 389
     :cond_3d
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidMac(Ljava/lang/String;)Z
 
@@ -1615,7 +1799,7 @@
 
     goto :goto_20
 
-    .line 370
+    .line 394
     :cond_47
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidKey(Ljava/lang/String;)Z
 
@@ -1637,17 +1821,17 @@
     .registers 3
 
     .prologue
-    .line 555
+    .line 600
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
 
-    .line 556
+    .line 601
     const-string v0, "settings"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->release(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 557
+    .line 602
     return-void
 .end method
 
@@ -1659,27 +1843,27 @@
 
     const/high16 v3, 0x41400000    # 12.0f
 
-    .line 257
+    .line 281
     new-instance v0, Landroid/widget/EditText;
 
     invoke-direct {v0, p0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 258
+    .line 282
     const/4 v1, 0x2
 
     const/high16 v2, 0x41700000    # 15.0f
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/EditText;->setTextSize(IF)V
 
-    .line 259
+    .line 283
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 260
+    .line 284
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 261
+    .line 285
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
@@ -1690,7 +1874,7 @@
 
     invoke-virtual {v0, v1, v4, v2, v4}, Landroid/widget/EditText;->setPadding(IIII)V
 
-    .line 262
+    .line 286
     const-string v1, "bg_screen"
 
     const v2, -0xededee
@@ -1701,21 +1885,21 @@
 
     const/high16 v2, 0x41200000    # 10.0f
 
-    .line 263
+    .line 287
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
     int-to-float v2, v2
 
-    .line 262
+    .line 286
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->rounded(IF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 264
+    .line 288
     return-object v0
 .end method
 
@@ -1723,7 +1907,7 @@
     .registers 4
 
     .prologue
-    .line 375
+    .line 399
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_3b
@@ -1742,7 +1926,7 @@
 
     move-result-object v0
 
-    .line 376
+    .line 400
     :goto_12
     sget-object v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
@@ -1762,7 +1946,7 @@
 
     move-result-object v1
 
-    .line 377
+    .line 401
     :goto_24
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidMac(Ljava/lang/String;)Z
 
@@ -1770,14 +1954,14 @@
 
     if-eqz v2, :cond_31
 
-    .line 378
+    .line 402
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->normalizeMac(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 380
+    .line 404
     :cond_31
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isValidKey(Ljava/lang/String;)Z
 
@@ -1785,14 +1969,14 @@
 
     if-eqz v0, :cond_3a
 
-    .line 381
+    .line 405
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setAuthKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 383
+    .line 407
     :cond_3a
     return-void
 
-    .line 375
+    .line 399
     :cond_3b
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
 
@@ -1800,7 +1984,7 @@
 
     goto :goto_12
 
-    .line 376
+    .line 400
     :cond_40
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getAuthKey(Landroid/content/Context;)Ljava/lang/String;
 
@@ -1813,7 +1997,7 @@
     .registers 1
 
     .prologue
-    .line 275
+    .line 299
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     if-eqz v0, :cond_10
@@ -1843,7 +2027,7 @@
     .registers 4
 
     .prologue
-    .line 349
+    .line 373
     if-eqz p0, :cond_36
 
     const-string v0, " "
@@ -1870,7 +2054,7 @@
 
     move-result-object v0
 
-    .line 350
+    .line 374
     :goto_1a
     const-string v1, "0x"
 
@@ -1888,7 +2072,7 @@
 
     if-eqz v1, :cond_2f
 
-    .line 351
+    .line 375
     :cond_2a
     const/4 v1, 0x2
 
@@ -1896,7 +2080,7 @@
 
     move-result-object v0
 
-    .line 353
+    .line 377
     :cond_2f
     const-string v1, "[0-9a-fA-F]{32}"
 
@@ -1906,7 +2090,7 @@
 
     return v0
 
-    .line 349
+    .line 373
     :cond_36
     const-string v0, ""
 
@@ -1917,7 +2101,7 @@
     .registers 4
 
     .prologue
-    .line 357
+    .line 381
     if-eqz p0, :cond_21
 
     const-string v0, ":"
@@ -1944,7 +2128,7 @@
 
     move-result-object v0
 
-    .line 358
+    .line 382
     :goto_1a
     const-string v1, "[0-9a-fA-F]{12}"
 
@@ -1954,7 +2138,7 @@
 
     return v0
 
-    .line 357
+    .line 381
     :cond_21
     const-string v0, ""
 
@@ -1967,17 +2151,17 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 250
+    .line 274
     const/high16 v0, 0x41400000    # 12.0f
 
     invoke-static {p0, p1, v0, p2, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 251
+    .line 275
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setAllCaps(Z)V
 
-    .line 252
+    .line 276
     const/high16 v1, 0x42800000    # 64.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -1986,7 +2170,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setMinWidth(I)V
 
-    .line 253
+    .line 277
     return-object v0
 .end method
 
@@ -1998,30 +2182,30 @@
 
     const v2, -0x994496
 
-    .line 435
+    .line 459
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_c
 
     if-nez p0, :cond_d
 
-    .line 473
+    .line 497
     :cond_c
     :goto_c
     return-void
 
-    .line 440
+    .line 464
     :cond_d
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getBleState()Ljava/lang/String;
 
     move-result-object v3
 
-    .line 441
+    .line 465
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->getLastHeartRate()I
 
     move-result v4
 
-    .line 442
+    .line 466
     sget-wide v6, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -2034,7 +2218,7 @@
 
     const-string v0, "settings"
 
-    .line 443
+    .line 467
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isOwnedBy(Ljava/lang/String;)Z
 
     move-result v0
@@ -2044,13 +2228,13 @@
     :cond_27
     const/4 v0, 0x1
 
-    .line 444
+    .line 468
     :goto_28
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->isListeningActive()Z
 
     move-result v5
 
-    .line 445
+    .line 469
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isConfigured(Landroid/content/Context;)Z
 
     move-result v6
@@ -2067,7 +2251,7 @@
 
     if-nez v6, :cond_63
 
-    .line 446
+    .line 470
     :cond_3c
     const-string v0, "\u041d\u0435 \u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d\u0430"
 
@@ -2077,30 +2261,30 @@
 
     move-result-object v2
 
-    .line 447
+    .line 471
     const v0, -0x555556
 
     move v1, v0
 
     move-object v3, v2
 
-    .line 468
+    .line 492
     :goto_49
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 469
+    .line 493
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 470
+    .line 494
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->bandInfoView:Landroid/widget/TextView;
 
     if-eqz v0, :cond_c
 
-    .line 471
+    .line 495
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->bandInfoView:Landroid/widget/TextView;
 
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->bandInfo(Landroid/app/Activity;)Ljava/lang/String;
@@ -2111,19 +2295,19 @@
 
     goto :goto_c
 
-    .line 443
+    .line 467
     :cond_61
     const/4 v0, 0x0
 
     goto :goto_28
 
-    .line 448
+    .line 472
     :cond_63
     if-nez v5, :cond_67
 
     if-eqz v0, :cond_9d
 
-    .line 449
+    .line 473
     :cond_67
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->isErrorState(Ljava/lang/String;)Z
 
@@ -2131,17 +2315,17 @@
 
     if-eqz v0, :cond_73
 
-    .line 450
+    .line 474
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->stateText(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     move-object v3, v0
 
-    .line 451
+    .line 475
     goto :goto_49
 
-    .line 452
+    .line 476
     :cond_73
     if-lez v4, :cond_84
 
@@ -2153,7 +2337,7 @@
 
     if-eqz v0, :cond_84
 
-    .line 453
+    .line 477
     invoke-static {v4}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v0
@@ -2162,10 +2346,10 @@
 
     move-object v3, v0
 
-    .line 454
+    .line 478
     goto :goto_49
 
-    .line 456
+    .line 480
     :cond_84
     if-eqz v3, :cond_94
 
@@ -2175,12 +2359,12 @@
 
     if-lez v0, :cond_94
 
-    .line 457
+    .line 481
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->stateText(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 459
+    .line 483
     :goto_90
     const/16 v1, -0x339a
 
@@ -2188,7 +2372,7 @@
 
     goto :goto_49
 
-    .line 458
+    .line 482
     :cond_94
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043d\u0435\u2026"
 
@@ -2200,7 +2384,7 @@
 
     goto :goto_90
 
-    .line 461
+    .line 485
     :cond_9d
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->isErrorState(Ljava/lang/String;)Z
 
@@ -2208,17 +2392,17 @@
 
     if-eqz v0, :cond_a9
 
-    .line 462
+    .line 486
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/WearableUi;->stateText(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     move-object v3, v0
 
-    .line 463
+    .line 487
     goto :goto_49
 
-    .line 465
+    .line 489
     :cond_a9
     const-string v0, "\u0417\u0430\u043f\u0430\u0437\u0435\u043d\u043e \u2713 \u00b7 \u043d\u0435 \u0435 \u0441\u0432\u044a\u0440\u0437\u0430\u043d\u0430"
 
@@ -2232,7 +2416,7 @@
 
     move-object v3, v0
 
-    .line 466
+    .line 490
     goto :goto_49
 .end method
 
@@ -2240,22 +2424,22 @@
     .registers 3
 
     .prologue
-    .line 243
+    .line 267
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 244
+    .line 268
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 245
+    .line 269
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 246
+    .line 270
     return-object v0
 .end method
 
@@ -2263,21 +2447,21 @@
     .registers 3
 
     .prologue
-    .line 411
+    .line 435
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->STATUS:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 412
+    .line 436
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->STATUS:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 413
+    .line 437
     return-void
 .end method
 
@@ -2285,17 +2469,17 @@
     .registers 5
 
     .prologue
-    .line 279
+    .line 303
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     if-nez v0, :cond_5
 
-    .line 290
+    .line 314
     :cond_4
     :goto_4
     return-void
 
-    .line 282
+    .line 306
     :cond_5
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
@@ -2303,31 +2487,31 @@
 
     move-result v1
 
-    .line 283
+    .line 307
     sget-object v2, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     const v3, 0x80001
 
-    .line 284
+    .line 308
     if-eqz p0, :cond_2f
 
     const/16 v0, 0x80
 
-    .line 285
+    .line 309
     :goto_14
     or-int/2addr v0, v3
 
-    .line 283
+    .line 307
     invoke-virtual {v2, v0}, Landroid/widget/EditText;->setInputType(I)V
 
-    .line 286
+    .line 310
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     sget-object v2, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v2}, Landroid/widget/EditText;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 287
+    .line 311
     if-ltz v1, :cond_4
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
@@ -2338,14 +2522,14 @@
 
     if-gt v1, v0, :cond_4
 
-    .line 288
+    .line 312
     sget-object v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSelection(I)V
 
     goto :goto_4
 
-    .line 285
+    .line 309
     :cond_2f
     const/16 v0, 0x90
 
@@ -2362,44 +2546,44 @@
 
     const/4 v8, 0x0
 
-    .line 295
+    .line 319
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getBandMac(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 296
+    .line 320
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getAuthKey(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 297
+    .line 321
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBand;->bondedName(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 296
+    .line 320
     invoke-static {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/WearableConfig;->rememberBand(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 298
+    .line 322
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->savedBands(Landroid/content/Context;)Ljava/util/List;
 
     move-result-object v3
 
-    .line 299
+    .line 323
     const-string v1, ""
 
-    .line 301
+    .line 325
     :try_start_18
     const-string v0, "clipboard"
 
-    .line 302
+    .line 326
     invoke-virtual {p0, v0}, Landroid/app/Activity;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Landroid/content/ClipboardManager;
 
-    .line 303
+    .line 327
     if-eqz v0, :cond_14a
 
     invoke-virtual {v0}, Landroid/content/ClipboardManager;->hasPrimaryClip()Z
@@ -2418,7 +2602,7 @@
 
     if-lez v2, :cond_14a
 
-    .line 304
+    .line 328
     invoke-virtual {v0}, Landroid/content/ClipboardManager;->getPrimaryClip()Landroid/content/ClipData;
 
     move-result-object v0
@@ -2433,7 +2617,7 @@
 
     move-result-object v0
 
-    .line 305
+    .line 329
     if-eqz v0, :cond_c0
 
     invoke-interface {v0}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
@@ -2450,7 +2634,7 @@
 
     move-result-object v0
 
-    .line 309
+    .line 333
     :goto_4d
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -2468,13 +2652,13 @@
 
     move-object v1, v0
 
-    .line 310
+    .line 334
     :goto_5c
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 311
+    .line 335
     invoke-interface {v3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v5
@@ -2492,7 +2676,7 @@
 
     check-cast v0, [Ljava/lang/String;
 
-    .line 312
+    .line 336
     aget-object v2, v0, v10
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
@@ -2503,7 +2687,7 @@
 
     aget-object v2, v0, v10
 
-    .line 313
+    .line 337
     :goto_7b
     new-instance v6, Ljava/lang/StringBuilder;
 
@@ -2547,7 +2731,7 @@
 
     aget-object v0, v0, v9
 
-    .line 314
+    .line 338
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -2570,12 +2754,12 @@
 
     move-result-object v0
 
-    .line 313
+    .line 337
     invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_65
 
-    .line 305
+    .line 329
     :cond_c0
     :try_start_c0
     const-string v0, ""
@@ -2584,7 +2768,7 @@
 
     goto :goto_4d
 
-    .line 307
+    .line 331
     :catch_c3
     move-exception v0
 
@@ -2592,7 +2776,7 @@
 
     goto :goto_4d
 
-    .line 309
+    .line 333
     :cond_c6
     const-string v0, ""
 
@@ -2600,7 +2784,7 @@
 
     goto :goto_5c
 
-    .line 312
+    .line 336
     :cond_ca
     const-string v2, "\u0413\u0440\u0438\u0432\u043d\u0430"
 
@@ -2612,7 +2796,7 @@
 
     goto :goto_7b
 
-    .line 316
+    .line 340
     :cond_d3
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
@@ -2620,7 +2804,7 @@
 
     if-lez v0, :cond_101
 
-    .line 317
+    .line 341
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2639,7 +2823,7 @@
 
     const/16 v2, 0x1c
 
-    .line 318
+    .line 342
     invoke-virtual {v1, v2}, Ljava/lang/String;->substring(I)Ljava/lang/String;
 
     move-result-object v2
@@ -2658,10 +2842,10 @@
 
     move-result-object v0
 
-    .line 317
+    .line 341
     invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 320
+    .line 344
     :cond_101
     invoke-interface {v4}, Ljava/util/List;->isEmpty()Z
 
@@ -2669,7 +2853,7 @@
 
     if-eqz v0, :cond_117
 
-    .line 321
+    .line 345
     const-string v0, "\u041d\u044f\u043c\u0430 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0438 \u0433\u0440\u0438\u0432\u043d\u0438. \u0412\u044a\u0432\u0435\u0434\u0438 MAC \u0438 \u043a\u043b\u044e\u0447 \u0432\u0435\u0434\u043d\u044a\u0436 \u2014 \u043f\u043e\u0441\u043b\u0435 \u0449\u0435 \u0441\u0430 \u0442\u0443\u043a."
 
     const-string v1, "No saved bands yet. Enter MAC and key once \u2014 then they are here."
@@ -2682,14 +2866,14 @@
 
     move-result-object v0
 
-    .line 324
+    .line 348
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 346
+    .line 370
     :goto_116
     return-void
 
-    .line 327
+    .line 351
     :cond_117
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -2699,7 +2883,7 @@
 
     const-string v5, "Band from saved"
 
-    .line 328
+    .line 352
     invoke-static {v2, v5}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2710,7 +2894,7 @@
 
     new-array v0, v8, [Ljava/lang/String;
 
-    .line 329
+    .line 353
     invoke-interface {v4, v0}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
 
     move-result-object v0
@@ -2729,7 +2913,7 @@
 
     const-string v2, "Close"
 
-    .line 344
+    .line 368
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -2740,7 +2924,7 @@
 
     move-result-object v0
 
-    .line 345
+    .line 369
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_116
@@ -2755,21 +2939,21 @@
     .registers 4
 
     .prologue
-    .line 268
+    .line 292
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x2
 
     const/high16 v2, 0x42300000    # 44.0f
 
-    .line 269
+    .line 293
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
     invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 270
+    .line 294
     const/high16 v1, 0x41200000    # 10.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->dp(Landroid/content/Context;F)I
@@ -2778,7 +2962,7 @@
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 271
+    .line 295
     return-object v0
 .end method
 
@@ -2786,10 +2970,10 @@
     .registers 3
 
     .prologue
-    .line 386
+    .line 410
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->flushConfigFromUi(Landroid/app/Activity;)V
 
-    .line 387
+    .line 411
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->isConfigured(Landroid/content/Context;)Z
 
     move-result v0
@@ -2806,7 +2990,7 @@
 
     if-nez v0, :cond_1f
 
-    .line 388
+    .line 412
     :cond_13
     const-string v0, "\u0412\u044a\u0432\u0435\u0434\u0438 \u0432\u0430\u043b\u0438\u0434\u0435\u043d MAC \u0438 \u043a\u043b\u044e\u0447 (32 \u0441\u0438\u043c\u0432\u043e\u043b\u0430)"
 
@@ -2818,11 +3002,11 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 401
+    .line 425
     :goto_1e
     return-void
 
-    .line 391
+    .line 415
     :cond_1f
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;->hasAllBlePermissions(Landroid/content/Context;)Z
 
@@ -2830,7 +3014,7 @@
 
     if-nez v0, :cond_2e
 
-    .line 392
+    .line 416
     new-instance v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$7;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$7;-><init>(Landroid/app/Activity;)V
@@ -2839,7 +3023,7 @@
 
     goto :goto_1e
 
-    .line 400
+    .line 424
     :cond_2e
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->startTestAfterPermission(Landroid/app/Activity;)V
 
@@ -2850,7 +3034,7 @@
     .registers 5
 
     .prologue
-    .line 404
+    .line 428
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -2861,10 +3045,10 @@
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
 
-    .line 405
+    .line 429
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->settingsFullReconnect(Landroid/app/Activity;)V
 
-    .line 406
+    .line 430
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043d\u0435 \u0441 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430\u2026"
 
     const-string v1, "Connecting to the band\u2026"
@@ -2875,10 +3059,10 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 407
+    .line 431
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->scheduleStatus(Landroid/app/Activity;)V
 
-    .line 408
+    .line 432
     return-void
 .end method
 
@@ -2886,7 +3070,7 @@
     .registers 3
 
     .prologue
-    .line 561
+    .line 606
     const/4 v0, 0x0
 
     :try_start_1
@@ -2898,11 +3082,11 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_8} :catch_9
 
-    .line 564
+    .line 609
     :goto_8
     return-void
 
-    .line 562
+    .line 607
     :catch_9
     move-exception v0
 

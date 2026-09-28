@@ -18,6 +18,7 @@
 .method public constructor <init>()V
     .registers 1
 
+    .prologue
     .line 58
     invoke-direct {p0}, Landroid/app/Fragment;-><init>()V
 
@@ -29,6 +30,7 @@
 .method done()V
     .registers 2
 
+    .prologue
     .line 95
     :try_start_0
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->getFragmentManager()Landroid/app/FragmentManager;
@@ -45,23 +47,23 @@
 
     invoke-virtual {v0}, Landroid/app/FragmentTransaction;->commitAllowingStateLoss()I
     :try_end_f
-    .catchall {:try_start_0 .. :try_end_f} :catchall_10
-
-    .line 97
-    goto :goto_11
-
-    .line 96
-    :catchall_10
-    move-exception v0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_f} :catch_10
 
     .line 98
-    :goto_11
+    :goto_f
     return-void
+
+    .line 96
+    :catch_10
+    move-exception v0
+
+    goto :goto_f
 .end method
 
 .method public onActivityResult(IILandroid/content/Intent;)V
-    .registers 6
+    .registers 7
 
+    .prologue
     .line 77
     invoke-super {p0, p1, p2, p3}, Landroid/app/Fragment;->onActivityResult(IILandroid/content/Intent;)V
 
@@ -80,131 +82,125 @@
     .line 81
     const/16 v1, 0x5a7
 
-    if-ne p1, v1, :cond_37
+    if-ne p1, v1, :cond_2d
 
-    const/4 p1, -0x1
+    const/4 v1, -0x1
 
-    if-ne p2, p1, :cond_37
+    if-ne p2, v1, :cond_2d
 
-    if-eqz p3, :cond_37
+    if-eqz p3, :cond_2d
 
     :try_start_14
     invoke-virtual {p3}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
-    move-result-object p1
+    move-result-object v1
 
-    if-eqz p1, :cond_37
+    if-eqz v1, :cond_2d
 
-    if-eqz v0, :cond_37
+    if-eqz v0, :cond_2d
 
     .line 82
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->getActivity()Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v1
 
     invoke-virtual {p3}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
-    move-result-object p2
+    move-result-object v2
 
-    invoke-static {p1, p2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->load(Landroid/content/Context;Landroid/net/Uri;)Landroid/graphics/Bitmap;
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->load(Landroid/content/Context;Landroid/net/Uri;)Landroid/graphics/Bitmap;
 
-    move-result-object p1
+    move-result-object v1
 
     .line 83
-    if-eqz p1, :cond_37
+    if-eqz v1, :cond_2d
 
     .line 84
-    invoke-interface {v0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;->onPicked(Landroid/graphics/Bitmap;)V
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;->onPicked(Landroid/graphics/Bitmap;)V
     :try_end_2d
-    .catchall {:try_start_14 .. :try_end_2d} :catchall_2e
-
-    goto :goto_37
-
-    .line 87
-    :catchall_2e
-    move-exception p1
-
-    .line 88
-    const-string p2, "xems"
-
-    const-string p3, "XemsLocalAvatar.result"
-
-    invoke-static {p2, p3, p1}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-
-    goto :goto_38
-
-    .line 89
-    :cond_37
-    :goto_37
-    nop
+    .catch Ljava/lang/Throwable; {:try_start_14 .. :try_end_2d} :catch_31
 
     .line 90
-    :goto_38
+    :cond_2d
+    :goto_2d
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->done()V
 
     .line 91
     return-void
+
+    .line 87
+    :catch_31
+    move-exception v0
+
+    .line 88
+    const-string v1, "xems"
+
+    const-string v2, "XemsLocalAvatar.result"
+
+    invoke-static {v1, v2, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    goto :goto_2d
 .end method
 
 .method public onCreate(Landroid/os/Bundle;)V
-    .registers 4
+    .registers 5
 
+    .prologue
     .line 61
     invoke-super {p0, p1}, Landroid/app/Fragment;->onCreate(Landroid/os/Bundle;)V
 
     .line 62
-    if-nez p1, :cond_2c
+    if-nez p1, :cond_20
 
     .line 64
     :try_start_5
-    new-instance p1, Landroid/content/Intent;
+    new-instance v0, Landroid/content/Intent;
 
-    const-string v0, "android.intent.action.GET_CONTENT"
+    const-string v1, "android.intent.action.GET_CONTENT"
 
-    invoke-direct {p1, v0}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
+    invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
     .line 65
-    const-string v0, "image/*"
+    const-string v1, "image/*"
 
-    invoke-virtual {p1, v0}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
     .line 66
-    const-string v0, "android.intent.category.OPENABLE"
+    const-string v1, "android.intent.category.OPENABLE"
 
-    invoke-virtual {p1, v0}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
     .line 67
-    const/4 v0, 0x0
+    const/4 v1, 0x0
 
-    invoke-static {p1, v0}, Landroid/content/Intent;->createChooser(Landroid/content/Intent;Ljava/lang/CharSequence;)Landroid/content/Intent;
+    invoke-static {v0, v1}, Landroid/content/Intent;->createChooser(Landroid/content/Intent;Ljava/lang/CharSequence;)Landroid/content/Intent;
 
-    move-result-object p1
+    move-result-object v0
 
-    const/16 v0, 0x5a7
+    const/16 v1, 0x5a7
 
-    invoke-virtual {p0, p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->startActivityForResult(Landroid/content/Intent;I)V
+    invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->startActivityForResult(Landroid/content/Intent;I)V
     :try_end_20
-    .catchall {:try_start_5 .. :try_end_20} :catchall_21
+    .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_20} :catch_21
 
-    .line 71
-    goto :goto_2c
+    .line 73
+    :cond_20
+    :goto_20
+    return-void
 
     .line 68
-    :catchall_21
-    move-exception p1
+    :catch_21
+    move-exception v0
 
     .line 69
-    const-string v0, "xems"
+    const-string v1, "xems"
 
-    const-string v1, "XemsLocalAvatar.start"
+    const-string v2, "XemsLocalAvatar.start"
 
-    invoke-static {v0, v1, p1}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    invoke-static {v1, v2, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
     .line 70
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Host;->done()V
 
-    .line 73
-    :cond_2c
-    :goto_2c
-    return-void
+    goto :goto_20
 .end method

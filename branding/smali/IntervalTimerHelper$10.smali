@@ -24,8 +24,14 @@
 # direct methods
 .method constructor <init>(Landroid/app/Activity;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 836
+    .prologue
+    .line 870
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$10;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,16 +42,17 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
-    .line 839
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$10;->val$a:Landroid/app/Activity;
+    .prologue
+    .line 873
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$10;->val$a:Landroid/app/Activity;
 
-    const/4 v0, 0x1
+    const/4 v1, 0x1
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->openSub(Landroid/app/Activity;I)V
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1400(Landroid/app/Activity;I)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1600(Landroid/app/Activity;I)V
 
-    .line 840
+    .line 874
     return-void
 .end method

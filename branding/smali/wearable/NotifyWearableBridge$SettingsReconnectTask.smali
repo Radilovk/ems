@@ -25,6 +25,7 @@
 .method constructor <init>()V
     .registers 1
 
+    .prologue
     .line 242
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,6 +37,7 @@
 .method public run()V
     .registers 3
 
+    .prologue
     .line 248
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$SettingsReconnectTask;->activity:Landroid/app/Activity;
@@ -43,13 +45,19 @@
     # invokes: Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->connect(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->access$400(Landroid/app/Activity;)V
     :try_end_5
-    .catchall {:try_start_0 .. :try_end_5} :catchall_6
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_9
 
-    .line 251
-    goto :goto_c
+    .line 252
+    :goto_5
+    const/4 v0, 0x0
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$SettingsReconnectTask;->activity:Landroid/app/Activity;
+
+    .line 253
+    return-void
 
     .line 249
-    :catchall_6
+    :catch_9
     move-exception v0
 
     .line 250
@@ -57,12 +65,5 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 252
-    :goto_c
-    const/4 v0, 0x0
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge$SettingsReconnectTask;->activity:Landroid/app/Activity;
-
-    .line 253
-    return-void
+    goto :goto_5
 .end method

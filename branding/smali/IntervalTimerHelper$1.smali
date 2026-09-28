@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 687
+    .prologue
+    .line 721
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,22 +31,23 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 4
+    .registers 5
 
-    .line 690
-    const/4 p1, 0x0
+    .prologue
+    .line 724
+    const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100(Landroid/app/Activity;)Landroid/app/Activity;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$300(Landroid/app/Activity;)Landroid/app/Activity;
 
-    move-result-object p1
+    move-result-object v0
 
-    const v0, 0x7f0d0175
+    const v1, 0x7f0d0175
 
-    const v1, 0x7f0d0176
+    const v2, 0x7f0d0176
 
-    invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
 
-    .line 691
+    .line 725
     return-void
 .end method

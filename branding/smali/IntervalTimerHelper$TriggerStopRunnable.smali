@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 2065
+    .prologue
+    .line 2099
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,37 +33,38 @@
 .method public run()V
     .registers 2
 
-    .line 2068
+    .prologue
+    .line 2102
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->allStopButton:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4500()Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4600()Landroid/view/View;
 
     move-result-object v0
 
     if-eqz v0, :cond_f
 
-    .line 2070
+    .line 2104
     :try_start_6
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->allStopButton:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4500()Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4600()Landroid/view/View;
 
     move-result-object v0
 
     invoke-virtual {v0}, Landroid/view/View;->performClick()Z
     :try_end_d
-    .catchall {:try_start_6 .. :try_end_d} :catchall_e
+    .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_d} :catch_e
 
-    .line 2071
+    .line 2110
+    :goto_d
     return-void
 
-    .line 2072
-    :catchall_e
+    .line 2106
+    :catch_e
     move-exception v0
 
-    .line 2075
+    .line 2109
     :cond_f
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resetAll()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4600()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$4700()V
 
-    .line 2076
-    return-void
+    goto :goto_d
 .end method

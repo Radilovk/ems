@@ -388,7 +388,7 @@ public final class NotifyWearableBridge {
      * the BLE link stays up.
      */
     static void applyHr(Context context) {
-        boolean want = HrDemandPolicy.wantsHeartRate(context, owners, isSessionActive(),
+        boolean want = WearableConfig.usesPulse(context) && HrDemandPolicy.wantsHeartRate(context, owners, isSessionActive(),
                 XiaomiBandAppLink.getLastMessageMs(), System.currentTimeMillis());
         if (hrOn != null && hrOn.booleanValue() == want) {
             return;
@@ -443,6 +443,10 @@ public final class NotifyWearableBridge {
         if (!listeningActive || hr < 40 || hr > 220) {
             return;
         }
+        // Settings → Band → "only remote": the band's heart rate is not used.
+        if (!WearableConfig.usesPulse(WearableSyncHelper.getContext())) {
+            return;
+        }
         // Off the wrist the optical sensor reads noise: never feed it to AI / pulse control.
         if (com.isaigu.gymapp.wearable.xiaomi.XiaomiBandStatus.isKnownNotWorn()) {
             WearableBleDiagLog.log("hr", "ignored " + hr + " — band not worn");
@@ -462,6 +466,18 @@ public final class NotifyWearableBridge {
             HrGuard.onHeartRate(hr);
         } catch (Throwable t) {
             WearableBleDiagLog.log("hr_guard", "onHeartRate: " + t);
+        }
+    }
+
+    /** Settings → Band → role changed: heart rate on / off right away (the link stays). */
+    static void onRoleChanged(Context context) {
+        if (!WearableConfig.usesPulse(context)) {
+            lastHr = -1;
+            WearableSyncHelper.updateHeartRate(-1, bandConnected);
+        }
+        if (listeningActive && bandConnected) {
+            hrOn = null;
+            applyHr(context);
         }
     }
 

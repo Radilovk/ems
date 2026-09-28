@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1325
+    .prologue
+    .line 1359
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,10 +33,11 @@
 .method public onClick(Landroid/view/View;)V
     .registers 2
 
-    .line 1328
+    .prologue
+    .line 1362
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2800()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3000()V
 
-    .line 1329
+    .line 1363
     return-void
 .end method

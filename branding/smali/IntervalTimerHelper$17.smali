@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 1060
+    .prologue
+    .line 1094
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,22 +31,23 @@
 
 # virtual methods
 .method public onToggle(Z)V
-    .registers 2
+    .registers 3
 
-    .line 1063
+    .prologue
+    .line 1097
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramRepeat:Z
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1902(Z)Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2102(Z)Z
 
-    .line 1064
-    const-string p1, ""
+    .line 1098
+    const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 1065
+    .line 1099
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$700()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()V
 
-    .line 1066
+    .line 1100
     return-void
 .end method

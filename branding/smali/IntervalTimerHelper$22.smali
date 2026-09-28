@@ -26,8 +26,14 @@
 # direct methods
 .method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
     .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 1184
+    .prologue
+    .line 1218
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$a:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
@@ -40,18 +46,19 @@
 
 # virtual methods
 .method public onLongClick(Landroid/view/View;)Z
-    .registers 3
+    .registers 4
 
-    .line 1187
-    iget-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$a:Landroid/app/Activity;
+    .prologue
+    .line 1221
+    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$a:Landroid/app/Activity;
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
+    iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$22;->val$p:Lcom/isaigu/gymapp/dialog/TimerPreset;
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->presetMenu(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
-    invoke-static {p1, v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2400(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2600(Landroid/app/Activity;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    .line 1188
-    const/4 p1, 0x1
+    .line 1222
+    const/4 v0, 0x1
 
-    return p1
+    return v0
 .end method

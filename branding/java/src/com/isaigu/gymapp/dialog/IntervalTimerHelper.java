@@ -226,6 +226,40 @@ public final class IntervalTimerHelper {
         handler.post(new BandTogglePause());
     }
 
+    /** Band app ▶ / ❚❚: the timer follows the training again (a pause of the timer alone ends). */
+    public static void bandClearUserPause() {
+        handler.post(new BandClearUserPause());
+    }
+
+    /** Band app "reset": the timer only — back to the start of the interval / block. */
+    public static void bandReset() {
+        handler.post(new BandReset());
+    }
+
+    static final class BandClearUserPause implements Runnable {
+        @Override
+        public void run() {
+            try {
+                if (timerPausedByUser) {
+                    toggleTimerPause();
+                }
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimer.bandResume", t);
+            }
+        }
+    }
+
+    static final class BandReset implements Runnable {
+        @Override
+        public void run() {
+            try {
+                resetCurrentInterval();
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("IntervalTimer.bandReset", t);
+            }
+        }
+    }
+
     static final class BandTogglePause implements Runnable {
         @Override
         public void run() {

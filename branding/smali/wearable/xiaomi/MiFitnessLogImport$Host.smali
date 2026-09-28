@@ -31,7 +31,7 @@
     .registers 2
 
     .prologue
-    .line 302
+    .line 305
     :try_start_0
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Host;->getFragmentManager()Landroid/app/FragmentManager;
 
@@ -49,11 +49,11 @@
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_f} :catch_10
 
-    .line 305
+    .line 308
     :goto_f
     return-void
 
-    .line 303
+    .line 306
     :catch_10
     move-exception v0
 
@@ -64,6 +64,12 @@
     .registers 9
 
     .prologue
+    const/4 v4, 0x0
+
+    const/16 v3, 0x5a9
+
+    const/4 v2, -0x1
+
     .line 282
     invoke-super {p0, p1, p2, p3}, Landroid/app/Fragment;->onActivityResult(IILandroid/content/Intent;)V
 
@@ -74,48 +80,58 @@
     move-result-object v1
 
     .line 284
-    const/4 v0, 0x0
-
     # setter for: Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->pending:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->access$102(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;)Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
+    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->access$102(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;)Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
     .line 285
-    const/16 v0, 0x5a9
+    if-eqz v1, :cond_1b
 
-    if-ne p1, v0, :cond_56
+    if-ne p1, v3, :cond_16
 
-    const/4 v0, -0x1
+    if-ne p2, v2, :cond_16
 
-    if-ne p2, v0, :cond_56
-
-    if-eqz p3, :cond_56
-
-    if-eqz v1, :cond_56
+    if-nez p3, :cond_1b
 
     .line 286
+    :cond_16
+    const-string v0, "cancelled"
+
+    invoke-interface {v1, v4, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;->onFound(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;Ljava/lang/String;)V
+
+    .line 288
+    :cond_1b
+    if-ne p1, v3, :cond_63
+
+    if-ne p2, v2, :cond_63
+
+    if-eqz p3, :cond_63
+
+    if-eqz v1, :cond_63
+
+    .line 289
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 287
+    .line 290
     invoke-virtual {p3}, Landroid/content/Intent;->getClipData()Landroid/content/ClipData;
 
     move-result-object v3
 
-    .line 288
-    if-eqz v3, :cond_36
+    .line 291
+    if-eqz v3, :cond_43
 
-    .line 289
+    .line 292
     const/4 v0, 0x0
 
-    :goto_22
+    :goto_2f
     invoke-virtual {v3}, Landroid/content/ClipData;->getItemCount()I
 
     move-result v4
 
-    if-ge v0, v4, :cond_43
+    if-ge v0, v4, :cond_50
 
-    .line 290
+    .line 293
     invoke-virtual {v3, v0}, Landroid/content/ClipData;->getItemAt(I)Landroid/content/ClipData$Item;
 
     move-result-object v4
@@ -126,28 +142,28 @@
 
     invoke-interface {v2, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 289
+    .line 292
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_22
+    goto :goto_2f
 
-    .line 292
-    :cond_36
+    .line 295
+    :cond_43
     invoke-virtual {p3}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
     move-result-object v0
 
-    if-eqz v0, :cond_43
+    if-eqz v0, :cond_50
 
-    .line 293
+    .line 296
     invoke-virtual {p3}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
     move-result-object v0
 
     invoke-interface {v2, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 295
-    :cond_43
+    .line 298
+    :cond_50
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v3, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$ReadTask;
@@ -164,11 +180,11 @@
 
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
-    .line 297
-    :cond_56
+    .line 300
+    :cond_63
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Host;->done()V
 
-    .line 298
+    .line 301
     return-void
 .end method
 

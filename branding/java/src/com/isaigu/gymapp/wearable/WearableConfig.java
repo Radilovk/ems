@@ -238,15 +238,6 @@ public final class WearableConfig {
         prefs(context).edit().putInt("band_transport", Math.max(0, Math.min(2, mode))).apply();
     }
 
-    /** Pre-fill the lab band MAC/key when nothing is configured yet. */
-    public static void applyDefaultsIfEmpty(Context context) {
-        if (context == null || isConfigured(context)) {
-            return;
-        }
-        setBandMac(context, "04:34:C3:8C:6C:82");
-        setAuthKey(context, "3705b72bf5526ec74fdebc4b635e851f");
-    }
-
     public static boolean isDirectBleMode(Context context) {
         return isConfigured(context);
     }
@@ -336,14 +327,113 @@ public final class WearableConfig {
         prefs(context).edit().putInt(KEY_STRENGTH_STEP, step).apply();
     }
 
-    /** Xiaomi account session cookies (passToken...) kept so the band key can be re-fetched without a new login. */
-    public static String xiaomiSession(Context context) {
-        return context == null ? "" : prefs(context).getString("xiaomi_session", "");
+    // ================================================================ per-band roles
+
+    /** Role value for a band that is not used at all. */
+    public static final int ROLE_OFF = -1;
+
+    private static String macId(String mac) {
+        return mac == null ? "" : mac.replace(":", "").replace("-", "").replace(" ", "").trim().toUpperCase(java.util.Locale.US);
     }
 
-    public static void setXiaomiSession(Context context, String cookies) {
-        if (context != null) {
-            prefs(context).edit().putString("xiaomi_session", cookies == null ? "" : cookies).apply();
+    private static String macFmt(String mac) {
+        String c = macId(mac);
+        if (c.length() != 12) {
+            return mac == null ? "" : mac.trim().toUpperCase(java.util.Locale.US);
+        }
+        StringBuilder b = new StringBuilder(17);
+        for (int i = 0; i < 12; i += 2) {
+            if (i > 0) {
+                b.append(':');
+            }
+            b.append(c, i, i + 2);
+        }
+        return b.toString();
+    }
+
+    /** What this band does now: {@link #ROLE_OFF}, {@link #ROLE_PULSE}, {@link #ROLE_REMOTE} or {@link #ROLE_BOTH}. */
+    public static int roleOfBand(Context context, String mac) {
+        if (context == null || macId(mac).length() != 12) {
+            return ROLE_OFF;
+        }
+        String id = macId(mac);
+        if (isConfigured(context) && id.equals(macId(getBandMac(context)))) {
+            return hasControlBand(context) ? ROLE_PULSE : getBandRole(context);
+        }
+        if (hasControlBand(context) && id.equals(macId(getControlMac(context)))) {
+            return ROLE_REMOTE;
+        }
+        return ROLE_OFF;
+    }
+
+    /**
+     * Give a band a role. One band can do anything; with two, one is the client's heart-rate band and the
+     * other the trainer's control band, so a conflicting band is switched off.
+     */
+    public static void assignBandRole(Context context, String mac, String key, int role) {
+        if (context == null) {
+            return;
+        }
+        java.util.List<String[]> list = new java.util.ArrayList<String[]>();
+        if (isConfigured(context)) {
+            list.add(new String[] {getBandMac(context), getAuthKey(context),
+                    String.valueOf(hasControlBand(context) ? ROLE_PULSE : getBandRole(context))});
+        }
+        if (hasControlBand(context)) {
+            list.add(new String[] {getControlMac(context), getControlKey(context), String.valueOf(ROLE_REMOTE)});
+        }
+        String id = macId(mac);
+        for (int i = list.size() - 1; i >= 0; i--) {
+            if (macId(list.get(i)[0]).equals(id)) {
+                list.remove(i);
+            }
+        }
+        if (role != ROLE_OFF) {
+            for (int i = list.size() - 1; i >= 0; i--) {
+                int r = Integer.parseInt(list.get(i)[2]);
+                if (role == ROLE_BOTH || r == ROLE_BOTH || r == role) {
+                    list.remove(i);
+                }
+            }
+            list.add(new String[] {macFmt(mac), key == null ? "" : key.trim(), String.valueOf(role)});
+        }
+        if (list.isEmpty()) {
+            setBandMac(context, "");
+            setAuthKey(context, "");
+            setControlBand(context, "", "");
+        } else if (list.size() == 1) {
+            String[] e = list.get(0);
+            setBandMac(context, e[0]);
+            setAuthKey(context, e[1]);
+            setBandRole(context, Integer.parseInt(e[2]));
+            setControlBand(context, "", "");
+        } else {
+            String[] pulse = Integer.parseInt(list.get(0)[2]) == ROLE_PULSE ? list.get(0) : list.get(1);
+            String[] ctl = pulse == list.get(0) ? list.get(1) : list.get(0);
+            setBandMac(context, pulse[0]);
+            setAuthKey(context, pulse[1]);
+            setBandRole(context, ROLE_PULSE);
+            setControlBand(context, ctl[0], ctl[1]);
+        }
+    }
+
+    /** Drop a band from the saved list (and switch it off first). */
+    public static void forgetBand(Context context, String mac) {
+        if (context == null) {
+            return;
+        }
+        assignBandRole(context, mac, "", ROLE_OFF);
+        try {
+            org.json.JSONArray old = savedBandsJson(context);
+            org.json.JSONArray out = new org.json.JSONArray();
+            for (int i = 0; i < old.length(); i++) {
+                org.json.JSONObject o = old.getJSONObject(i);
+                if (!macId(o.optString("mac")).equals(macId(mac))) {
+                    out.put(o);
+                }
+            }
+            prefs(context).edit().putString(KEY_SAVED_BANDS, out.toString()).apply();
+        } catch (Throwable ignored) {
         }
     }
 }

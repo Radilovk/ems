@@ -28,8 +28,6 @@ public final class WearableSettingsSection {
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static TextView bandInfoView;
     private static TextView statusView;
-    private static EditText macView;
-    private static EditText keyView;
     private static long testUntilMs;
 
     private WearableSettingsSection() {}
@@ -60,7 +58,6 @@ public final class WearableSettingsSection {
         if (!com.isaigu.gymapp.widget.XemsLicense.needsBand()) {
             return;
         }
-        WearableConfig.applyDefaultsIfEmpty(a);
         boolean bandApp = com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND);
         int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
         int mutedCol = WearableUi.color(a, "text_secondary", 0xFF9AA0A6);
@@ -73,131 +70,165 @@ public final class WearableSettingsSection {
         int pad = WearableUi.dp(a, 18);
         card.setPadding(pad, pad, pad, pad);
 
-        TextView title = WearableUi.text(a, WearableUi.tr("Гривна · Xiaomi Smart Band", "Band · Xiaomi Smart Band"),
-                22f, textCol, true);
-        card.addView(title);
+        card.addView(WearableUi.text(a, WearableUi.tr("Гривни · Xiaomi Smart Band", "Bands · Xiaomi Smart Band"),
+                22f, textCol, true));
         TextView hint = WearableUi.text(a, WearableUi.tr(
-                "Въвежда се веднъж. Ползва се от ♥ пулс, AI сесията и данните от гривната.",
-                "Entered once. Used by the ♥ HR dial, the AI session and band data."), 13f, mutedCol, false);
+                "Сдвои гривната веднъж, после избери за какво я ползваш.",
+                "Pair the band once, then choose what it is used for."), 13f, mutedCol, false);
         hint.setPadding(0, WearableUi.dp(a, 4), 0, WearableUi.dp(a, 12));
         card.addView(hint);
 
-        // What the band is for: remote only, heart rate only, or both (one band); two bands: one each
-        int role = WearableConfig.getBandRole(a);
-        boolean dual = bandApp && WearableConfig.hasControlBand(a);
-        if (bandApp && !dual) {
-            TextView roleLabel = WearableUi.text(a, WearableUi.tr("Гривната служи за", "The band is for"), 14f, textCol, true);
-            card.addView(roleLabel);
-            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
+        // ---- paired bands, each with its own job
+        java.util.List<String[]> bands = knownBands(a);
+        int active = 0;
+        if (bands.isEmpty()) {
+            TextView none = WearableUi.text(a, WearableUi.tr("Още няма сдвоена гривна.", "No band paired yet."),
+                    15f, textCol, false);
+            none.setPadding(0, WearableUi.dp(a, 4), 0, WearableUi.dp(a, 8));
+            card.addView(none);
+        }
+        for (int i = 0; i < bands.size(); i++) {
+            String[] b = bands.get(i);
+            if (WearableConfig.roleOfBand(a, b[0]) != WearableConfig.ROLE_OFF) {
+                active++;
+            }
+            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            sp.topMargin = WearableUi.dp(a, 8);
-            card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, new String[] {
-                    WearableUi.tr("Пулс и управление", "Heart rate + control"),
-                    WearableUi.tr("Само управление", "Control only"),
-                    WearableUi.tr("Само пулс", "Heart rate only")}, role, new RolePick(a, root)), sp);
-            TextView roleHint = WearableUi.text(a, role == WearableConfig.ROLE_REMOTE
-                    ? WearableUi.tr("Старт, пауза и сила от гривната. Пулсът ѝ не се ползва — ♥ пулс и AI остават без него.",
-                            "Start, pause and strength from the band. Its heart rate is not used — ♥ and AI go without it.")
-                    : role == WearableConfig.ROLE_PULSE
-                    ? WearableUi.tr("Само пулс за ♥ пулс, AI и калориите. Гривната не управлява тренировката и приложението на нея не се отваря само.",
-                            "Heart rate only for ♥, AI and calories. The band does not control the training and its app does not open by itself.")
-                    : WearableUi.tr("Пулс за ♥ пулс и AI, и управление на тренировката от ръката.",
-                            "Heart rate for ♥ and AI, and training control from the wrist."), 12.5f, mutedCol, false);
-            roleHint.setPadding(0, WearableUi.dp(a, 6), 0, WearableUi.dp(a, 14));
-            card.addView(roleHint);
+            rp.bottomMargin = WearableUi.dp(a, 10);
+            card.addView(bandRow(a, root, b, bandApp, textCol, mutedCol), rp);
         }
-        if (bandApp) {
-            addControlBand(a, card, root, dual, textCol, mutedCol);
+        if (bands.size() > 1 && bandApp) {
+            TextView two = WearableUi.text(a, WearableUi.tr(
+                    "С две гривни: едната е Пулс (на клиента), другата Управление (на треньора).",
+                    "With two bands: one is Pulse (on the client), the other Control (the trainer's)."),
+                    12f, mutedCol, false);
+            two.setPadding(0, 0, 0, WearableUi.dp(a, 8));
+            card.addView(two);
+        }
+        TextView pair = WearableUi.button(a, bands.isEmpty()
+                ? WearableUi.tr("Сдвои гривна", "Pair a band")
+                : WearableUi.tr("＋ Сдвои друга гривна", "＋ Pair another band"), 0xFFEA6A2B, 0xFFFFFFFF);
+        pair.setOnClickListener(new PairClick(a, root));
+        card.addView(pair, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 50)));
+
+        if (active > 0) {
+            addConnectionPart(a, card, root, bandApp, textCol, mutedCol);
+        } else {
+            bandInfoView = null;
+            statusView = null;
         }
 
-        // MAC + picker
-        LinearLayout macRow = row(a);
-        macRow.addView(label(a, "MAC", mutedCol));
-        macView = field(a, textCol);
-        macView.setHint("AA:BB:CC:DD:EE:FF");
-        macView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-                | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-        macView.setText(WearableConfig.getBandMac(a));
-        macRow.addView(macView, new LinearLayout.LayoutParams(0, WearableUi.dp(a, 44), 1f));
-        TextView pick = WearableUi.button(a, WearableUi.tr("Избери", "Choose"), 0xFF1565C0, 0xFFFFFFFF);
-        pick.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WearableBandPicker.show(a, macView);
-            }
-        });
-        macRow.addView(pick, sideButton(a));
-        card.addView(macRow);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = WearableUi.dp(a, 28);
+        parent.addView(card, lp);
+        card.addOnAttachStateChangeListener(new DetachListener());
+        if (active > 0) {
+            scheduleStatus(a);
+        }
+    }
 
-        // Auth key (hidden once saved) + show/hide
-        LinearLayout keyRow = row(a);
-        keyRow.setPadding(0, WearableUi.dp(a, 10), 0, 0);
-        keyRow.addView(label(a, WearableUi.tr("Ключ", "Key"), mutedCol));
-        keyView = field(a, textCol);
-        keyView.setHint(WearableUi.tr("32 символа 0-9 / a-f", "32 chars 0-9 / a-f"));
-        keyView.setTypeface(Typeface.MONOSPACE);
-        keyView.setText(WearableConfig.getAuthKey(a));
-        setKeyHidden(WearableConfig.isConfigured(a));
-        keyRow.addView(keyView, new LinearLayout.LayoutParams(0, WearableUi.dp(a, 44), 1f));
-        final TextView eye = WearableUi.button(a, WearableUi.tr("Покажи", "Show"),
-                WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
-        eye.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean hidden = isKeyHidden();
-                setKeyHidden(!hidden);
-                eye.setText(hidden ? WearableUi.tr("Скрий", "Hide") : WearableUi.tr("Покажи", "Show"));
-            }
-        });
-        keyRow.addView(eye, sideButton(a));
-        card.addView(keyRow);
-        // From what this tablet already knows: saved bands (MAC + key) and the clipboard
-        TextView fromSaved = WearableUi.button(a, WearableUi.tr("От запазените / постави", "From saved / paste"),
-                WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
-        fromSaved.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showSaved(a);
-            }
-        });
-        LinearLayout.LayoutParams fsp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 48));
-        fsp.topMargin = WearableUi.dp(a, 10);
-        card.addView(fromSaved, fsp);
+    /** Saved bands, plus any active band that was set before saving existed. Newest first. */
+    private static java.util.List<String[]> knownBands(Activity a) {
+        if (WearableConfig.isConfigured(a)) {
+            ensureSaved(a, WearableConfig.getBandMac(a), WearableConfig.getAuthKey(a));
+        }
+        if (WearableConfig.hasControlBand(a)) {
+            ensureSaved(a, WearableConfig.getControlMac(a), WearableConfig.getControlKey(a));
+        }
+        return WearableConfig.savedBands(a);
+    }
 
-        // Automatic: read the band key + MAC from the log Mi Fitness writes (no Xiaomi login)
-        TextView fromLog = WearableUi.button(a, WearableUi.tr("Взимам ключа от лога на Mi Fitness",
-                "Get the key from the Mi Fitness log"), 0xFFEA6A2B, 0xFFFFFFFF);
-        fromLog.setOnClickListener(new LogImportClick(a, root));
-        LinearLayout.LayoutParams xsp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 48));
-        xsp.topMargin = WearableUi.dp(a, 8);
-        card.addView(fromLog, xsp);
-        TextView xHint = WearableUi.text(a, WearableUi.tr(
-                "В Mi Fitness: Профил → За приложението → докосвай логото много пъти (записва лог в Download/wearablelog). "
-                        + "После натисни бутона — намира ключа и MAC сам, или те пита за файла. Ключът може да се въведе и ръчно.",
-                "In Mi Fitness: Profile → About → tap the logo many times (writes a log to Download/wearablelog). "
-                        + "Then press the button — it finds the key and MAC itself, or asks for the file. You can also type the key by hand."),
-                12f, mutedCol, false);
-        xHint.setPadding(0, WearableUi.dp(a, 6), 0, 0);
-        card.addView(xHint);
+    private static void ensureSaved(Activity a, String mac, String key) {
+        String clean = key == null ? "" : key.replace(" ", "").replace(":", "").replace("-", "");
+        if (clean.startsWith("0x") || clean.startsWith("0X")) {
+            clean = clean.substring(2);
+        }
+        if (WearableConfig.savedKeyFor(a, NotifyWearableBridge.normalizeMac(mac)).length() != 32) {
+            WearableConfig.rememberBand(a, NotifyWearableBridge.normalizeMac(mac), clean.toLowerCase(java.util.Locale.US),
+                    com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, mac));
+        }
+    }
 
-        // Radio: Band 8 and older use BLE; Band 8 Pro / 9 / 10 use Bluetooth Classic (SPP).
-        // Picked from the paired band's name; the manual choice appears only when the name is
-        // not recognised (or the trainer already forced one).
-        String bandName = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a,
-                WearableConfig.getBandMac(a));
-        // Always visible: auto-detection fails when the band name is missing from Bluetooth.
-        com.isaigu.gymapp.widget.XemsUi.init(a);
-        TextView linkLabel = label(a, WearableUi.tr("Модел гривна", "Band model"), mutedCol);
-        linkLabel.setPadding(0, WearableUi.dp(a, 14), 0, WearableUi.dp(a, 6));
+    private static View bandRow(final Activity a, View root, String[] b, boolean bandApp, int textCol, int mutedCol) {
+        String mac = b[0];
+        String name = b[2] != null ? b[2].trim() : "";
+        if (name.length() == 0) {
+            String bonded = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, mac);
+            name = bonded != null ? bonded.trim() : "";
+        }
+        if (name.length() == 0) {
+            name = WearableUi.tr("Гривна", "Band");
+        }
+        int role = WearableConfig.roleOfBand(a, mac);
+
+        LinearLayout box = new LinearLayout(a);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setBackgroundDrawable(WearableUi.rounded(WearableUi.color(a, "bg_screen", 0xFF121212), WearableUi.dp(a, 12)));
+        int p = WearableUi.dp(a, 12);
+        box.setPadding(p, p, p, p);
+
+        LinearLayout head = row(a);
+        LinearLayout titles = new LinearLayout(a);
+        titles.setOrientation(LinearLayout.VERTICAL);
+        titles.addView(WearableUi.text(a, name, 16f, textCol, true));
+        titles.addView(WearableUi.text(a, mac, 12f, mutedCol, false));
+        head.addView(titles, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView forget = WearableUi.button(a, WearableUi.tr("Забрави", "Forget"),
+                WearableUi.color(a, "bg_elevated", 0xFF1F232C), mutedCol);
+        forget.setOnClickListener(new ForgetClick(a, root, mac, name));
+        head.addView(forget, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, WearableUi.dp(a, 36)));
+        box.addView(head);
+
+        String[] labels = bandApp
+                ? new String[] {WearableUi.tr("Изкл.", "Off"), WearableUi.tr("Пулс", "Pulse"),
+                        WearableUi.tr("Управление", "Control"), WearableUi.tr("Пулс + упр.", "Pulse + control")}
+                : new String[] {WearableUi.tr("Изкл.", "Off"), WearableUi.tr("Пулс", "Pulse")};
+        int index;
+        if (role == WearableConfig.ROLE_OFF) {
+            index = 0;
+        } else if (!bandApp) {
+            index = 1;
+        } else {
+            index = role == WearableConfig.ROLE_PULSE ? 1 : role == WearableConfig.ROLE_REMOTE ? 2 : 3;
+        }
+        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        sp.topMargin = WearableUi.dp(a, 10);
+        box.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, labels, index,
+                new BandRolePick(a, root, mac, b[1], bandApp)), sp);
+
+        String what = role == WearableConfig.ROLE_OFF
+                ? WearableUi.tr("Не се ползва.", "Not used.")
+                : role == WearableConfig.ROLE_PULSE
+                ? WearableUi.tr("Пулс за ♥, AI сесията и калориите. Не управлява тренировката.",
+                        "Heart rate for ♥, the AI session and calories. Does not control the training.")
+                : role == WearableConfig.ROLE_REMOTE
+                ? WearableUi.tr("Старт, пауза и сила от гривната. Пулсът ѝ не се ползва.",
+                        "Start, pause and strength from the band. Its heart rate is not used.")
+                : WearableUi.tr("Пулс за ♥ и AI, и управление на тренировката от ръката.",
+                        "Heart rate for ♥ and AI, and training control from the wrist.");
+        TextView t = WearableUi.text(a, what, 12.5f, mutedCol, false);
+        t.setPadding(0, WearableUi.dp(a, 6), 0, 0);
+        box.addView(t);
+        return box;
+    }
+
+    /** Link model, remote options, the band app, live status and the connection test (for active bands). */
+    private static void addConnectionPart(final Activity a, LinearLayout card, View root, boolean bandApp,
+            int textCol, int mutedCol) {
+        TextView linkLabel = WearableUi.text(a, WearableUi.tr("Модел гривна", "Band model"), 14f, textCol, true);
+        linkLabel.setPadding(0, WearableUi.dp(a, 16), 0, WearableUi.dp(a, 6));
         card.addView(linkLabel);
+        String bandName = com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, WearableConfig.getBandMac(a));
+        com.isaigu.gymapp.widget.XemsUi.init(a);
         card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, new String[] {
                 WearableUi.tr("Авто", "Auto"),
                 WearableUi.tr("Band 8 и по-стари", "Band 8 and older"),
                 "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
         // The band's music screen as the training remote (no app to install on the band).
-        LinearLayout remote = !bandApp || role == WearableConfig.ROLE_PULSE ? null : com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
+        LinearLayout remote = !bandApp || !WearableConfig.usesRemote(a) ? null : com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
                 WearableUi.tr("Управление от гривната", "Control from the band"),
                 WearableUi.tr("Плъзни до Музика: пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±.",
                         "Swipe to Music: HR and block; ▶ start/pause, ⏭ ⏮ strength ±."),
@@ -241,7 +272,6 @@ public final class WearableSettingsSection {
             });
             appRow.addView(install, sideButton(a));
             card.addView(appRow);
-            // Open it from the phone: now, or through a home-screen icon.
             LinearLayout launchRow = row(a);
             launchRow.setPadding(0, WearableUi.dp(a, 10), 0, 0);
             TextView open = WearableUi.button(a, WearableUi.tr("Отвори на гривната", "Open on the band"),
@@ -251,10 +281,9 @@ public final class WearableSettingsSection {
             card.addView(launchRow);
         }
         bandInfoView = WearableUi.text(a, "", 13f, mutedCol, false);
-        bandInfoView.setPadding(0, WearableUi.dp(a, 6), 0, 0);
+        bandInfoView.setPadding(0, WearableUi.dp(a, 10), 0, 0);
         card.addView(bandInfoView);
 
-        // Status + test
         LinearLayout bottom = row(a);
         bottom.setPadding(0, WearableUi.dp(a, 14), 0, 0);
         statusView = WearableUi.text(a, "", 14f, mutedCol, true);
@@ -270,169 +299,105 @@ public final class WearableSettingsSection {
         });
         bottom.addView(test, sideButton(a));
         card.addView(bottom);
-
-        TextWatcher saver = new Saver(a);
-        macView.addTextChangedListener(saver);
-        keyView.addTextChangedListener(saver);
-        colorFields();
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = WearableUi.dp(a, 28);
-        parent.addView(card, lp);
-        card.addOnAttachStateChangeListener(new DetachListener());
-        scheduleStatus(a);
     }
 
-    // ================================================================ second band (control only)
-
-    private static EditText ctlMacView;
-    private static EditText ctlKeyView;
-
-    /** The trainer's band: remote + XEMS app; the band above then stays on the client for the heart rate. */
-    private static void addControlBand(final Activity a, LinearLayout card, final View root, boolean dual,
-            int textCol, int mutedCol) {
-        LinearLayout box = new LinearLayout(a);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setBackgroundDrawable(WearableUi.rounded(WearableUi.color(a, "bg_screen", 0xFF2A2A2A), WearableUi.dp(a, 12)));
-        int p = WearableUi.dp(a, 12);
-        box.setPadding(p, p, p, p);
-        box.addView(WearableUi.text(a, WearableUi.tr("Втора гривна · само управление", "Second band · control only"),
-                15f, textCol, true));
-        TextView hint = WearableUi.text(a, dual
-                ? WearableUi.tr("Две гривни: първата (горе) е на клиента — само пулс; тази е на треньора — старт, пауза, сила и приложението XEMS.",
-                        "Two bands: the first (above) is on the client — heart rate only; this one is the trainer's — start, pause, strength and the XEMS app.")
-                : WearableUi.tr("По желание: гривна за треньора, която само управлява. Тогава първата остава на клиента само за пулса.",
-                        "Optional: a band for the trainer that only controls. The first one then stays on the client for the heart rate."),
-                12.5f, mutedCol, false);
-        hint.setPadding(0, WearableUi.dp(a, 4), 0, WearableUi.dp(a, 8));
-        box.addView(hint);
-
-        LinearLayout macRow = row(a);
-        macRow.addView(label(a, "MAC", mutedCol));
-        ctlMacView = field(a, textCol);
-        ctlMacView.setHint("AA:BB:CC:DD:EE:FF");
-        ctlMacView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-                | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-        ctlMacView.setText(WearableConfig.getControlMac(a));
-        macRow.addView(ctlMacView, new LinearLayout.LayoutParams(0, WearableUi.dp(a, 44), 1f));
-        TextView pick = WearableUi.button(a, WearableUi.tr("Избери", "Choose"), 0xFF1565C0, 0xFFFFFFFF);
-        pick.setOnClickListener(new ControlPick(a));
-        macRow.addView(pick, sideButton(a));
-        box.addView(macRow);
-
-        LinearLayout keyRow = row(a);
-        keyRow.setPadding(0, WearableUi.dp(a, 8), 0, 0);
-        keyRow.addView(label(a, WearableUi.tr("Ключ", "Key"), mutedCol));
-        ctlKeyView = field(a, textCol);
-        ctlKeyView.setHint(WearableUi.tr("32 символа 0-9 / a-f", "32 chars 0-9 / a-f"));
-        ctlKeyView.setTypeface(Typeface.MONOSPACE);
-        ctlKeyView.setText(WearableConfig.getControlKey(a));
-        keyRow.addView(ctlKeyView, new LinearLayout.LayoutParams(0, WearableUi.dp(a, 44), 1f));
-        if (dual) {
-            TextView off = WearableUi.button(a, WearableUi.tr("Махни", "Remove"),
-                    WearableUi.color(a, "bg_elevated", 0xFF1F232C), textCol);
-            off.setOnClickListener(new ControlRemove(a, root));
-            keyRow.addView(off, sideButton(a));
-        }
-        box.addView(keyRow);
-        if (dual) {
-            TextView st = WearableUi.text(a, NotifyWearableBridge.isControlConnected()
-                    ? WearableUi.tr("✓ Свързана", "✓ Connected")
-                    : WearableUi.tr("Свързва се заедно с първата гривна", "Connects together with the first band"),
-                    12.5f, NotifyWearableBridge.isControlConnected() ? 0xFF81C784 : mutedCol, true);
-            st.setPadding(0, WearableUi.dp(a, 8), 0, 0);
-            box.addView(st);
-        }
-        ControlSaver saver = new ControlSaver(a, root);
-        ctlMacView.addTextChangedListener(saver);
-        ctlKeyView.addTextChangedListener(saver);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = WearableUi.dp(a, 4);
-        lp.bottomMargin = WearableUi.dp(a, 12);
-        card.addView(box, lp);
-    }
-
-    static final class ControlPick implements View.OnClickListener {
+    static final class PairClick implements View.OnClickListener {
         private final Activity a;
+        private final View root;
 
-        ControlPick(Activity a) {
+        PairClick(Activity a, View root) {
             this.a = a;
+            this.root = root;
         }
 
         @Override
         public void onClick(View v) {
-            if (ctlMacView != null) {
-                WearableBandPicker.showForControl(a, ctlMacView);
+            BandPairing.show(a, new Rebuild(a, root));
+        }
+    }
+
+    /** What one band is for: Off / Pulse / Control / both. Conflicts (two pulse bands...) are resolved in the config. */
+    static final class BandRolePick implements com.isaigu.gymapp.widget.XemsUi.OnIndex {
+        private final Activity a;
+        private final View root;
+        private final String mac;
+        private final String key;
+        private final boolean bandApp;
+
+        BandRolePick(Activity a, View root, String mac, String key, boolean bandApp) {
+            this.a = a;
+            this.root = root;
+            this.mac = mac;
+            this.key = key;
+            this.bandApp = bandApp;
+        }
+
+        @Override
+        public void onIndex(int index) {
+            try {
+                int role;
+                if (index == 0) {
+                    role = WearableConfig.ROLE_OFF;
+                } else if (!bandApp) {
+                    role = WearableConfig.ROLE_BOTH;
+                } else {
+                    role = index == 1 ? WearableConfig.ROLE_PULSE
+                            : index == 2 ? WearableConfig.ROLE_REMOTE : WearableConfig.ROLE_BOTH;
+                }
+                WearableConfig.assignBandRole(a, mac, key, role);
+                NotifyWearableBridge.onControlBandChanged(a);
+                NotifyWearableBridge.onRoleChanged(a);
+                build(a, root);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.role", t);
             }
         }
     }
 
-    static final class ControlRemove implements View.OnClickListener {
+    static final class ForgetClick implements View.OnClickListener {
         private final Activity a;
         private final View root;
+        private final String mac;
+        private final String name;
 
-        ControlRemove(Activity a, View root) {
+        ForgetClick(Activity a, View root, String mac, String name) {
             this.a = a;
             this.root = root;
+            this.mac = mac;
+            this.name = name;
         }
 
         @Override
         public void onClick(View v) {
-            WearableConfig.setControlBand(a, "", "");
-            NotifyWearableBridge.onControlBandChanged(a);
-            build(a, root);
+            new android.app.AlertDialog.Builder(a)
+                    .setTitle(WearableUi.tr("Да забравя ли гривната?", "Forget this band?"))
+                    .setMessage(name + "\n" + mac)
+                    .setPositiveButton(WearableUi.tr("Забрави", "Forget"), new ForgetConfirm(a, root, mac))
+                    .setNegativeButton(WearableUi.tr("Отказ", "Cancel"), null)
+                    .show();
         }
     }
 
-    /** MAC + key typed or picked: a complete, different band becomes the control band (at once). */
-    static final class ControlSaver implements TextWatcher {
+    static final class ForgetConfirm implements android.content.DialogInterface.OnClickListener {
         private final Activity a;
         private final View root;
+        private final String mac;
 
-        ControlSaver(Activity a, View root) {
+        ForgetConfirm(Activity a, View root, String mac) {
             this.a = a;
             this.root = root;
+            this.mac = mac;
         }
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-        @Override
-        public void afterTextChanged(Editable s) {
+        public void onClick(android.content.DialogInterface d, int which) {
             try {
-                String mac = ctlMacView != null ? ctlMacView.getText().toString().trim() : "";
-                String key = ctlKeyView != null ? ctlKeyView.getText().toString().trim() : "";
-                if (isValidMac(mac) && key.length() == 0) {
-                    String known = WearableConfig.savedKeyFor(a, NotifyWearableBridge.normalizeMac(mac));
-                    if (known != null && known.length() > 0 && ctlKeyView != null) {
-                        ctlKeyView.setText(known);           // this watcher runs again with the key
-                        return;
-                    }
-                }
-                boolean was = WearableConfig.hasControlBand(a);
-                if (isValidMac(mac) && isValidKey(key)) {
-                    String norm = NotifyWearableBridge.normalizeMac(mac);
-                    if (norm.equalsIgnoreCase(WearableConfig.getControlMac(a)) && key.equals(WearableConfig.getControlKey(a))) {
-                        return;
-                    }
-                    WearableConfig.setControlBand(a, norm, key);
-                    WearableConfig.rememberBand(a, norm, key, com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, norm));
-                } else if (mac.length() == 0 && key.length() == 0 && was) {
-                    WearableConfig.setControlBand(a, "", "");
-                } else {
-                    return;
-                }
+                WearableConfig.forgetBand(a, mac);
                 NotifyWearableBridge.onControlBandChanged(a);
-                if (was != WearableConfig.hasControlBand(a)) {
-                    root.post(new Rebuild(a, root));   // the role choice shows / hides
-                }
+                NotifyWearableBridge.onRoleChanged(a);
+                build(a, root);
             } catch (Throwable t) {
-                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.control", t);
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.forget", t);
             }
         }
     }
@@ -487,80 +452,6 @@ public final class WearableSettingsSection {
         return lp;
     }
 
-    private static boolean isKeyHidden() {
-        return keyView != null && (keyView.getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) != 0;
-    }
-
-    private static void setKeyHidden(boolean hidden) {
-        if (keyView == null) {
-            return;
-        }
-        int sel = keyView.getSelectionEnd();
-        keyView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-                | (hidden ? InputType.TYPE_TEXT_VARIATION_PASSWORD
-                : InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD));
-        keyView.setTypeface(Typeface.MONOSPACE);
-        if (sel >= 0 && sel <= keyView.length()) {
-            keyView.setSelection(sel);
-        }
-    }
-
-    /** Saved bands (fills MAC + key) and, when the clipboard holds a key, "paste key". */
-    static void showSaved(final Activity a) {
-        // the band set up before saving existed goes in the list too
-        String curMac = WearableConfig.getBandMac(a);
-        WearableConfig.rememberBand(a, curMac, WearableConfig.getAuthKey(a),
-                com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, curMac));
-        final java.util.List<String[]> bands = WearableConfig.savedBands(a);
-        String clip = "";
-        try {
-            android.content.ClipboardManager cm = (android.content.ClipboardManager)
-                    a.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-            if (cm != null && cm.hasPrimaryClip() && cm.getPrimaryClip().getItemCount() > 0) {
-                CharSequence t = cm.getPrimaryClip().getItemAt(0).coerceToText(a);
-                clip = t != null ? t.toString().replaceAll("[^0-9a-fA-F]", "") : "";
-            }
-        } catch (Throwable ignored) {
-        }
-        final String clipKey = clip.length() == 32 ? clip.toLowerCase(java.util.Locale.US) : "";
-        final java.util.List<String> labels = new java.util.ArrayList<String>();
-        for (String[] b : bands) {
-            String name = b[2].length() > 0 ? b[2] : WearableUi.tr("Гривна", "Band");
-            labels.add(name + "\n" + b[0] + " · " + WearableUi.tr("ключ …", "key …")
-                    + b[1].substring(Math.max(0, b[1].length() - 4)));
-        }
-        if (clipKey.length() > 0) {
-            labels.add(WearableUi.tr("Постави ключа от клипборда (…", "Paste the key from the clipboard (…")
-                    + clipKey.substring(28) + ")");
-        }
-        if (labels.isEmpty()) {
-            android.widget.Toast.makeText(a, WearableUi.tr(
-                    "Няма запазени гривни. Въведи MAC и ключ веднъж — после ще са тук.",
-                    "No saved bands yet. Enter MAC and key once — then they are here."),
-                    android.widget.Toast.LENGTH_LONG).show();
-            return;
-        }
-        new android.app.AlertDialog.Builder(a)
-                .setTitle(WearableUi.tr("Гривна от запазените", "Band from saved"))
-                .setItems(labels.toArray(new String[0]), new android.content.DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(android.content.DialogInterface d, int which) {
-                        if (which < bands.size()) {
-                            if (macView != null) {
-                                macView.setText(bands.get(which)[0]);
-                            }
-                            if (keyView != null) {
-                                keyView.setText(bands.get(which)[1]);
-                            }
-                        } else if (keyView != null) {
-                            keyView.setText(clipKey);
-                        }
-                    }
-                })
-                .setNegativeButton(WearableUi.tr("Затвори", "Close"), null)
-                .show();
-    }
-
     static boolean isValidKey(String key) {
         String clean = key != null ? key.replace(" ", "").replace(":", "").replace("-", "") : "";
         if (clean.startsWith("0x") || clean.startsWith("0X")) {
@@ -574,32 +465,7 @@ public final class WearableSettingsSection {
         return c.matches("[0-9a-fA-F]{12}");
     }
 
-    private static void colorFields() {
-        if (macView != null) {
-            String m = macView.getText().toString();
-            macView.setTextColor(m.length() == 0 ? WearableUi.COLOR_MUTED
-                    : isValidMac(m) ? WearableUi.COLOR_OK : WearableUi.COLOR_ERROR);
-        }
-        if (keyView != null) {
-            String k = keyView.getText().toString();
-            keyView.setTextColor(k.length() == 0 ? WearableUi.COLOR_MUTED
-                    : isValidKey(k) ? WearableUi.COLOR_OK : WearableUi.COLOR_ERROR);
-        }
-    }
-
-    private static void flushConfigFromUi(Activity a) {
-        String mac = macView != null ? macView.getText().toString().trim() : WearableConfig.getBandMac(a);
-        String key = keyView != null ? keyView.getText().toString().trim() : WearableConfig.getAuthKey(a);
-        if (isValidMac(mac)) {
-            WearableConfig.setBandMac(a, NotifyWearableBridge.normalizeMac(mac));
-        }
-        if (isValidKey(key)) {
-            WearableConfig.setAuthKey(a, key);
-        }
-    }
-
     private static void startTest(Activity a) {
-        flushConfigFromUi(a);
         if (!WearableConfig.isConfigured(a) || !isValidMac(WearableConfig.getBandMac(a))) {
             toast(a, WearableUi.tr("Въведи валиден MAC и ключ (32 символа)", "Enter a valid MAC and key (32 chars)"));
             return;
@@ -747,27 +613,6 @@ public final class WearableSettingsSection {
         }
     }
 
-    static final class RolePick implements com.isaigu.gymapp.widget.XemsUi.OnIndex {
-        private final Activity a;
-        private final View root;
-
-        RolePick(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        @Override
-        public void onIndex(int index) {
-            try {
-                WearableConfig.setBandRole(a, index);
-                NotifyWearableBridge.onRoleChanged(a);
-                build(a, root);
-            } catch (Throwable t) {
-                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.role", t);
-            }
-        }
-    }
-
     static final class TransportPick implements com.isaigu.gymapp.widget.XemsUi.OnIndex {
         private final Activity a;
         private final View root;
@@ -800,51 +645,6 @@ public final class WearableSettingsSection {
         }
     }
 
-    /** Saves each valid value as soon as it is typed or picked. */
-    static final class Saver implements TextWatcher {
-        private final Activity activity;
-
-        Saver(Activity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            colorFields();
-            String mac = macView != null ? macView.getText().toString().trim() : "";
-            String key = keyView != null ? keyView.getText().toString().trim() : "";
-            if (isValidMac(mac)) {
-                WearableConfig.setBandMac(activity, NotifyWearableBridge.normalizeMac(mac));
-            } else if (mac.length() == 0) {
-                WearableConfig.setBandMac(activity, "");
-            }
-            if (isValidKey(key) || key.length() == 0) {
-                WearableConfig.setAuthKey(activity, key);
-            }
-            if (isValidMac(mac)) {
-                String norm = NotifyWearableBridge.normalizeMac(mac);
-                if (isValidKey(key)) {
-                    // a complete pair: remember it for next time (another band, reinstall)
-                    WearableConfig.rememberBand(activity, norm, key,
-                            com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(activity, norm));
-                } else if (key.length() == 0 && keyView != null) {
-                    // a known band was picked: its key comes with it
-                    String saved = WearableConfig.savedKeyFor(activity, norm);
-                    if (saved.length() == 32) {
-                        keyView.setText(saved);
-                    }
-                }
-            }
-            refreshStatus(activity);
-        }
-    }
-
     static final class DetachListener implements View.OnAttachStateChangeListener {
         @Override
         public void onViewAttachedToWindow(View v) {}
@@ -856,880 +656,7 @@ public final class WearableSettingsSection {
                 endTest(WearableUi.asActivity(v.getContext()));
             }
             statusView = null;
-            macView = null;
-            keyView = null;
-        }
-    }
-
-    // ================================================================ Mi Fitness log import
-    static final class LogImportClick implements View.OnClickListener {
-        private final Activity a;
-        private final View root;
-
-        LogImportClick(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        @Override
-        public void onClick(View v) {
-            toast(a, WearableUi.tr("Търся лога на Mi Fitness…", "Looking for the Mi Fitness log…"));
-            new Thread(new LogScanTask(a, root), "xems-mifit-scan").start();
-        }
-    }
-
-    static final class LogScanTask implements Runnable {
-        private final Activity a;
-        private final View root;
-
-        LogScanTask(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        @Override
-        public void run() {
-            com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f = null;
-            try {
-                f = com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.scanLocal();
-            } catch (Throwable ignored) {
-            }
-            handler.post(new LogScanDone(a, root, f));
-        }
-    }
-
-    static final class LogScanDone implements Runnable {
-        private final Activity a;
-        private final View root;
-        private final com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found found;
-
-        LogScanDone(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found found) {
-            this.a = a;
-            this.root = root;
-            this.found = found;
-        }
-
-        @Override
-        public void run() {
-            if (found != null) {
-                chooseLog(a, root, found);
-                return;
-            }
-            toast(a, WearableUi.tr("Автоматично не мога да го прочета — избери файла от лога (Download/wearablelog).",
-                    "Cannot read it automatically — pick the log file (Download/wearablelog)."));
-            com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.pick(a, new LogPicked(a, root));
-        }
-    }
-
-    static final class LogPicked implements com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Done {
-        private final Activity a;
-        private final View root;
-
-        LogPicked(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        @Override
-        public void onFound(com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f, String problem) {
-            if (f == null) {
-                toast(a, WearableUi.tr("В избраните файлове няма ключ. Провери, че е логът от Mi Fitness (след сдвояване).",
-                        "No key in the chosen files. Make sure it is the Mi Fitness log (after pairing)."));
-                return;
-            }
-            chooseLog(a, root, f);
-        }
-    }
-
-    /** The log lists the account's bands: one → use it, several → ask which. */
-    static void chooseLog(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f) {
-        if (f.devices.isEmpty()) {
-            applyLog(a, root, f);
-            return;
-        }
-        java.util.List<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev> list =
-                new java.util.ArrayList<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev>(f.devices.values());
-        java.util.Collections.reverse(list);
-        if (list.size() == 1) {
-            applyDev(a, root, list.get(0));
-            return;
-        }
-        String[] labels = new String[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev d = list.get(i);
-            labels[i] = (d.name.length() > 0 ? d.name : WearableUi.tr("Гривна", "Band")) + "\n" + d.mac;
-        }
-        new android.app.AlertDialog.Builder(a)
-                .setTitle(WearableUi.tr("Коя гривна?", "Which band?"))
-                .setItems(labels, new LogDevPick(a, root, list))
-                .setNegativeButton(WearableUi.tr("Отказ", "Cancel"), null)
-                .show();
-    }
-
-    static final class LogDevPick implements android.content.DialogInterface.OnClickListener {
-        private final Activity a;
-        private final View root;
-        private final java.util.List<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev> list;
-
-        LogDevPick(Activity a, View root, java.util.List<com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev> list) {
-            this.a = a;
-            this.root = root;
-            this.list = list;
-        }
-
-        @Override
-        public void onClick(android.content.DialogInterface d, int which) {
-            if (which >= 0 && which < list.size()) {
-                applyDev(a, root, list.get(which));
-            }
-        }
-    }
-
-    static void applyDev(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Dev d) {
-        com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found one =
-                new com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found();
-        one.key = d.key;
-        one.mac = d.mac;
-        applyLog(a, root, one);
-        WearableConfig.rememberBand(a, d.mac, d.key, d.name);
-    }
-
-    static void applyLog(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f) {
-        WearableConfig.setAuthKey(a, f.key);
-        if (f.mac.length() > 0) {
-            WearableConfig.setBandMac(a, f.mac);
-            WearableConfig.rememberBand(a, f.mac, f.key, "");
-        }
-        if (macView != null && f.mac.length() > 0) {
-            macView.setText(f.mac);
-        }
-        if (keyView != null) {
-            keyView.setText(f.key);
-            setKeyHidden(true);
-        }
-        colorFields();
-        if (f.mac.length() > 0) {
-            toast(a, WearableUi.tr("Готово — ключът и MAC са попълнени ✓", "Done — key and MAC filled ✓"));
-        } else {
-            toast(a, WearableUi.tr("Ключът е попълнен ✓. MAC не намерих в лога — въведи го (или ползвай „От запазените“).",
-                    "Key filled ✓. No MAC found in the log — enter it (or use “From saved”)."));
-        }
-        if (f.fromToken) {
-            toast(a, WearableUi.tr("Ключът е от поле „token“ — ако гривната не се свърже, провери го.",
-                    "Key comes from a “token” field — if the band does not connect, double-check it."));
-        }
-        handler.post(new Rebuild(a, root));
-    }
-
-    // ================================================================ Xiaomi account login
-    static final class XiaomiLoginClick implements View.OnClickListener {
-        private final Activity a;
-        private final View root;
-
-        XiaomiLoginClick(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        @Override
-        public void onClick(View v) {
-            showXiaomiLogin(a, root);
-        }
-    }
-
-    /** Open Xiaomi's own login page in a WebView (it handles the e-mail code / 2FA), then finish with cookies. */
-    static void showXiaomiLogin(final Activity a, final View root) {
-        String saved = WearableConfig.xiaomiSession(a);
-        if (saved.length() > 0) {
-            toast(a, WearableUi.tr("Обновявам ключа от запазения Xiaomi вход…", "Refreshing the key from the saved Xiaomi login…"));
-            new Thread(new XiaomiRefreshTask(a, root, saved), "xems-xiaomi-refresh").start();
-            return;
-        }
-        openXiaomiQr(a, root);
-    }
-
-    static void openXiaomiQr(final Activity a, final View root) {
-        try {
-            new XiaomiQrLogin(a, root).open();
-        } catch (Throwable t) {
-            toast(a, WearableUi.tr("Не мога да отворя QR входа.", "Cannot open the QR login."));
-        }
-    }
-
-    static void openXiaomiWebLogin(final Activity a, final View root) {
-        try {
-            new XiaomiWebLogin(a, root).open();
-        } catch (Throwable t) {
-            toast(a, WearableUi.tr("Не мога да отворя входа за Xiaomi.", "Cannot open the Xiaomi login."));
-        }
-    }
-
-    static final String HOOK_JS = "(function(){if(window.__xh)return;window.__xh=1;"
-            + "function rep(t){try{if(t&&String(t).indexOf('ssecurity')>=0)XemsX.report(String(t));}catch(e){}}"
-            + "var o=XMLHttpRequest.prototype.send;"
-            + "XMLHttpRequest.prototype.send=function(){var x=this;"
-            + "x.addEventListener('load',function(){try{rep(x.responseText);}catch(e){}});"
-            + "return o.apply(this,arguments);};"
-            + "if(window.fetch){var f=window.fetch;window.fetch=function(){"
-            + "return f.apply(this,arguments).then(function(r){try{r.clone().text().then(rep);}catch(e){}return r;});};}"
-            + "})()";
-
-    static final class XiaomiJsBridge {
-        private final XiaomiWebLogin host;
-
-        XiaomiJsBridge(XiaomiWebLogin host) {
-            this.host = host;
-        }
-
-        @android.webkit.JavascriptInterface
-        public void report(String text) {
-            handler.post(new XiaomiCaptured(host, text));
-        }
-    }
-
-    static final class XiaomiCaptured implements Runnable {
-        private final XiaomiWebLogin host;
-        private final String text;
-
-        XiaomiCaptured(XiaomiWebLogin host, String text) {
-            this.host = host;
-            this.text = text;
-        }
-
-        @Override
-        public void run() {
-            host.captured(text);
-        }
-    }
-
-    static final String XIAOMI_PROBE_URL =
-            "https://account.xiaomi.com/pass/serviceLogin?_json=true&sid=miothealth&_locale=en_US";
-
-    static final class XiaomiProbeResult implements android.webkit.ValueCallback<String> {
-        private final XiaomiWebLogin host;
-
-        XiaomiProbeResult(XiaomiWebLogin host) {
-            this.host = host;
-        }
-
-        @Override
-        public void onReceiveValue(String value) {
-            host.probeResult(value);
-        }
-    }
-
-    static final String XIAOMI_LOGIN_URL =
-            "https://account.xiaomi.com/pass/serviceLogin?sid=miothealth&_locale=en_US";
-
-    /** WebView login: the trainer logs into Xiaomi (incl. e-mail code); we watch for the passToken cookie. */
-    static final class XiaomiWebLogin {
-        private final Activity a;
-        private final View root;
-        private android.app.Dialog dialog;
-        private android.webkit.WebView web;
-        private boolean done;
-        private boolean probing;
-        private String capSs = "";
-        private String capNonce = "";
-        private String capUser = "";
-        private String capLoc = "";
-        private boolean gaveUp;
-        private int probes;
-
-        XiaomiWebLogin(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        void open() {
-            int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
-            int bg = WearableUi.color(a, "bg_screen", 0xFF121212);
-            LinearLayout box = new LinearLayout(a);
-            box.setOrientation(LinearLayout.VERTICAL);
-            box.setBackgroundColor(bg);
-
-            LinearLayout head = new LinearLayout(a);
-            head.setOrientation(LinearLayout.HORIZONTAL);
-            head.setGravity(Gravity.CENTER_VERTICAL);
-            int pad = WearableUi.dp(a, 12);
-            head.setPadding(pad, pad, pad, pad);
-            TextView title = WearableUi.text(a, WearableUi.tr("Вход с Xiaomi акаунт", "Log in with Xiaomi account"),
-                    16f, textCol, true);
-            head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            TextView cancel = WearableUi.button(a, WearableUi.tr("Отказ", "Cancel"),
-                    WearableUi.color(a, "bg_elevated", 0xFF2A2A2A), textCol);
-            cancel.setOnClickListener(new XiaomiWebCancel(this));
-            head.addView(cancel);
-            box.addView(head, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-
-            web = new android.webkit.WebView(a);
-            android.webkit.WebSettings s = web.getSettings();
-            s.setJavaScriptEnabled(true);
-            s.setDomStorageEnabled(true);
-            android.webkit.CookieManager cm = android.webkit.CookieManager.getInstance();
-            cm.setAcceptCookie(true);
-            try {
-                cm.setAcceptThirdPartyCookies(web, true);
-            } catch (Throwable ignored) {
-            }
-            web.addJavascriptInterface(new XiaomiJsBridge(this), "XemsX");
-            web.setWebViewClient(new XiaomiWebClient(this));
-            box.addView(web, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-
-            dialog = new android.app.Dialog(a, android.R.style.Theme_Black_NoTitleBar);
-            dialog.setContentView(box);
-            dialog.setOnCancelListener(new XiaomiWebDismiss(this));
-            dialog.show();
-            try {
-                if (dialog.getWindow() != null) {
-                    dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT);
-                }
-            } catch (Throwable ignored) {
-            }
-            web.loadUrl(XIAOMI_LOGIN_URL);
-            handler.postDelayed(new XiaomiWebPoll(this), 1000L);
-        }
-
-        /** True once the account.xiaomi.com cookies carry a passToken (login finished, 2FA passed). */
-        void check() {
-            if (done) {
-                return;
-            }
-            String cookies = null;
-            try {
-                cookies = android.webkit.CookieManager.getInstance().getCookie("https://account.xiaomi.com");
-            } catch (Throwable ignored) {
-            }
-            if (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.hasPassToken(cookies)) {
-                if (!probing && !gaveUp && web != null) {
-                    probing = true;
-                    web.loadUrl(XIAOMI_PROBE_URL);
-                }
-            }
-            if (!gaveUp) {
-                handler.postDelayed(new XiaomiWebPoll(this), 800L);
-            }
-        }
-
-        /** Text of a Xiaomi login response that mentions ssecurity (caught by the page hook). */
-        void captured(String text) {
-            if (done || text == null) {
-                return;
-            }
-            String[] sess = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.parseSession(text);
-            if (sess[0].length() > 0) {
-                capSs = sess[0];
-                if (sess[1].length() > 0) {
-                    capNonce = sess[1];
-                }
-                if (sess[2].length() > 0) {
-                    capUser = sess[2];
-                }
-                if (sess[3].length() > 0) {
-                    capLoc = sess[3];
-                }
-            }
-        }
-
-        boolean isProbe(String url) {
-            return url != null && url.indexOf("_json=true") >= 0;
-        }
-
-        /** The probe page (serviceLogin as JSON, loaded in the same WebView) has finished: read its text. */
-        void readProbe() {
-            if (done || web == null) {
-                return;
-            }
-            try {
-                web.evaluateJavascript("(function(){return document.body?document.body.innerText:'';})()",
-                        new XiaomiProbeResult(this));
-            } catch (Throwable t) {
-                probing = false;
-            }
-        }
-
-        void probeResult(String raw) {
-            if (done) {
-                return;
-            }
-            String text = "";
-            try {
-                Object v = new org.json.JSONTokener(raw == null ? "" : raw).nextValue();
-                text = v == null ? "" : String.valueOf(v);
-            } catch (Throwable ignored) {
-            }
-            String[] sess = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.parseSession(text);
-            if (sess[0].length() == 0 && capSs.length() > 0) {
-                sess[0] = capSs;
-                if (sess[1].length() == 0) {
-                    sess[1] = capNonce;
-                }
-                if (sess[2].length() == 0) {
-                    sess[2] = capUser;
-                }
-            }
-            if (sess[3].length() == 0 && capLoc.length() > 0) {
-                sess[3] = capLoc;
-            }
-            if (sess[3].length() > 0) {
-                done = true;
-                String ua = null;
-                String ck = null;
-                try {
-                    ua = web.getSettings().getUserAgentString();
-                    ck = android.webkit.CookieManager.getInstance().getCookie("https://account.xiaomi.com");
-                } catch (Throwable ignored) {
-                }
-                close();
-                toast(a, WearableUi.tr("Взимам ключа от Xiaomi…", "Fetching the key from Xiaomi…"));
-                new Thread(new XiaomiLoginTask(a, root, sess, ck, ua), "xems-xiaomi-login").start();
-                return;
-            }
-            probes++;
-            if (probes < 3) {
-                probing = false;
-                return;
-            }
-            gaveUp = true;
-            if (sess[4].length() > 0 && web != null) {
-                toast(a, WearableUi.tr("Xiaomi иска потвърждение. Завърши го тук и натисни отново „Вход с Xiaomi акаунт“.",
-                        "Xiaomi wants a verification. Finish it here, then tap the Xiaomi login again."));
-                web.loadUrl(sess[4]);
-            } else {
-                toast(a, WearableUi.tr("Xiaomi не върна сесия" + (sess[5].length() > 0 ? " (" + sess[5] + ")" : "")
-                        + ". Опитай пак.", "Xiaomi returned no session. Try again."));
-                close();
-            }
-        }
-
-        void cancelled() {
-            if (done) {
-                return;
-            }
-            done = true;
-            close();
-        }
-
-        private void close() {
-            try {
-                if (web != null) {
-                    web.stopLoading();
-                    web.destroy();
-                    web = null;
-                }
-            } catch (Throwable ignored) {
-            }
-            try {
-                if (dialog != null) {
-                    dialog.dismiss();
-                    dialog = null;
-                }
-            } catch (Throwable ignored) {
-            }
-        }
-    }
-
-    static final class XiaomiWebClient extends android.webkit.WebViewClient {
-        private final XiaomiWebLogin host;
-
-        XiaomiWebClient(XiaomiWebLogin host) {
-            this.host = host;
-        }
-
-        @Override
-        public void onPageStarted(android.webkit.WebView view, String url, android.graphics.Bitmap icon) {
-            injectHook(view);
-        }
-
-        static void injectHook(android.webkit.WebView view) {
-            try {
-                view.evaluateJavascript(HOOK_JS, null);
-            } catch (Throwable ignored) {
-            }
-        }
-
-        @Override
-        public void onPageFinished(android.webkit.WebView view, String url) {
-            injectHook(view);
-            try {
-                view.evaluateJavascript("(function(){var t=document.body?document.body.innerText:'';"
-                        + "if(t.indexOf('ssecurity')>=0)XemsX.report(t);})()", null);
-            } catch (Throwable ignored) {
-            }
-            if (host.isProbe(url)) {
-                host.readProbe();
-            } else {
-                host.check();
-            }
-        }
-    }
-
-    static final class XiaomiWebPoll implements Runnable {
-        private final XiaomiWebLogin host;
-
-        XiaomiWebPoll(XiaomiWebLogin host) {
-            this.host = host;
-        }
-
-        @Override
-        public void run() {
-            host.check();
-        }
-    }
-
-    static final class XiaomiWebCancel implements View.OnClickListener {
-        private final XiaomiWebLogin host;
-
-        XiaomiWebCancel(XiaomiWebLogin host) {
-            this.host = host;
-        }
-
-        @Override
-        public void onClick(View v) {
-            host.cancelled();
-        }
-    }
-
-    static final class XiaomiWebDismiss implements android.content.DialogInterface.OnCancelListener {
-        private final XiaomiWebLogin host;
-
-        XiaomiWebDismiss(XiaomiWebLogin host) {
-            this.host = host;
-        }
-
-        @Override
-        public void onCancel(android.content.DialogInterface d) {
-            host.cancelled();
-        }
-    }
-
-    static final class XiaomiLoginTask implements Runnable {
-        private final Activity a;
-        private final View root;
-        private final String[] sess;
-        private final String cookies;
-        private final String ua;
-        private final boolean refresh;
-
-        XiaomiLoginTask(Activity a, View root, String[] sess, String cookies, String ua) {
-            this(a, root, sess, cookies, ua, false);
-        }
-
-        XiaomiLoginTask(Activity a, View root, String[] sess, String cookies, String ua, boolean refresh) {
-            this.a = a;
-            this.root = root;
-            this.sess = sess;
-            this.cookies = cookies;
-            this.ua = ua;
-            this.refresh = refresh;
-        }
-
-        @Override
-        public void run() {
-            String error;
-            java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
-            try {
-                if (refresh) {
-                    bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithCookies(cookies, ua);
-                } else {
-                    bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithSession(
-                            sess[0], sess[1], sess[2], sess[3], cookies, ua);
-                }
-                if (cookies != null) {
-                    WearableConfig.setXiaomiSession(a, cookies);
-                }
-                error = null;
-            } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
-                error = ce.getMessage();
-            } catch (Throwable t) {
-                error = WearableUi.tr("Нещо се обърка при входа.", "Something went wrong during login.");
-            }
-            if (refresh && error != null) {
-                WearableConfig.setXiaomiSession(a, "");
-                handler.post(new XiaomiReopen(a, root));
-                return;
-            }
-            handler.post(new XiaomiApply(a, root, bands, error));
-        }
-    }
-
-    /** Refresh the bands from the saved Xiaomi session; if it is gone, fall back to the QR login. */
-    static final class XiaomiRefreshTask implements Runnable {
-        private final Activity a;
-        private final View root;
-        private final String saved;
-
-        XiaomiRefreshTask(Activity a, View root, String saved) {
-            this.a = a;
-            this.root = root;
-            this.saved = saved;
-        }
-
-        @Override
-        public void run() {
-            java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
-            try {
-                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.refresh(saved);
-            } catch (Throwable t) {
-                bands = null;
-            }
-            if (bands == null || bands.isEmpty()) {
-                WearableConfig.setXiaomiSession(a, "");
-                handler.post(new XiaomiReopen(a, root));
-                return;
-            }
-            handler.post(new XiaomiApply(a, root, bands, null));
-        }
-    }
-
-    /** QR login: shows Xiaomi's QR code; the trainer scans + confirms it in the Xiaomi app on the phone. */
-    static final class XiaomiQrLogin {
-        final Activity a;
-        final View root;
-        android.app.Dialog dialog;
-        android.widget.ImageView image;
-        TextView status;
-        boolean closed;
-
-        XiaomiQrLogin(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        void open() {
-            int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
-            int mutedCol = WearableUi.color(a, "text_secondary", 0xFFAAAAAA);
-            int bg = WearableUi.color(a, "bg_screen", 0xFF121212);
-            LinearLayout box = new LinearLayout(a);
-            box.setOrientation(LinearLayout.VERTICAL);
-            box.setGravity(Gravity.CENTER_HORIZONTAL);
-            box.setBackgroundColor(bg);
-            int pad = WearableUi.dp(a, 16);
-            box.setPadding(pad, pad, pad, pad);
-
-            TextView title = WearableUi.text(a, WearableUi.tr("Вход с Xiaomi — сканирай QR кода",
-                    "Xiaomi login — scan the QR code"), 18f, textCol, true);
-            box.addView(title);
-            TextView how = WearableUi.text(a, WearableUi.tr(
-                    "На телефона отвори Xiaomi Home (Mi Home) или Mi Fitness, избери сканиране (+ / скенер), "
-                            + "насочи към кода и потвърди входа.",
-                    "On the phone open Xiaomi Home (Mi Home) or Mi Fitness, tap scan, point at the code and confirm."),
-                    13f, mutedCol, false);
-            how.setPadding(0, WearableUi.dp(a, 8), 0, WearableUi.dp(a, 8));
-            box.addView(how);
-
-            image = new android.widget.ImageView(a);
-            image.setBackgroundColor(0xFFFFFFFF);
-            box.addView(image, new LinearLayout.LayoutParams(WearableUi.dp(a, 300), WearableUi.dp(a, 300)));
-
-            status = WearableUi.text(a, WearableUi.tr("Зареждам кода…", "Loading the code…"), 14f, textCol, false);
-            status.setPadding(0, WearableUi.dp(a, 12), 0, WearableUi.dp(a, 12));
-            box.addView(status);
-
-            TextView cancel = WearableUi.button(a, WearableUi.tr("Отказ", "Cancel"),
-                    WearableUi.color(a, "bg_elevated", 0xFF2A2A2A), textCol);
-            cancel.setOnClickListener(new XiaomiQrCancel(this));
-            box.addView(cancel, new LinearLayout.LayoutParams(WearableUi.dp(a, 200), WearableUi.dp(a, 48)));
-
-            dialog = new android.app.Dialog(a, android.R.style.Theme_Black_NoTitleBar);
-            dialog.setContentView(box);
-            dialog.setOnCancelListener(new XiaomiQrCancel(this));
-            dialog.show();
-            new Thread(new XiaomiQrTask(this), "xems-xiaomi-qr").start();
-        }
-
-        void close() {
-            closed = true;
-            try {
-                if (dialog != null) {
-                    dialog.dismiss();
-                    dialog = null;
-                }
-            } catch (Throwable ignored) {
-            }
-        }
-    }
-
-    static final class XiaomiQrCancel implements View.OnClickListener, android.content.DialogInterface.OnCancelListener {
-        private final XiaomiQrLogin host;
-
-        XiaomiQrCancel(XiaomiQrLogin host) {
-            this.host = host;
-        }
-
-        @Override
-        public void onClick(View v) {
-            host.close();
-        }
-
-        @Override
-        public void onCancel(android.content.DialogInterface d) {
-            host.close();
-        }
-    }
-
-    static final class XiaomiQrTask implements Runnable {
-        private final XiaomiQrLogin host;
-
-        XiaomiQrTask(XiaomiQrLogin host) {
-            this.host = host;
-        }
-
-        @Override
-        public void run() {
-            com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Result res = null;
-            String error = null;
-            try {
-                com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Qr q =
-                        com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.startQr();
-                byte[] png = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchQrImage(q);
-                handler.post(new XiaomiQrShow(host, png));
-                res = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.awaitQr(q);
-            } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
-                error = ce.getMessage();
-            } catch (Throwable t) {
-                error = WearableUi.tr("Нещо се обърка при QR входа.", "Something went wrong during the QR login.");
-            }
-            handler.post(new XiaomiQrDone(host, res, error));
-        }
-    }
-
-    static final class XiaomiQrShow implements Runnable {
-        private final XiaomiQrLogin host;
-        private final byte[] png;
-
-        XiaomiQrShow(XiaomiQrLogin host, byte[] png) {
-            this.host = host;
-            this.png = png;
-        }
-
-        @Override
-        public void run() {
-            if (host.closed) {
-                return;
-            }
-            try {
-                host.image.setImageBitmap(android.graphics.BitmapFactory.decodeByteArray(png, 0, png.length));
-                host.status.setText(WearableUi.tr("Чакам да сканираш и потвърдиш на телефона…",
-                        "Waiting for you to scan and confirm on the phone…"));
-            } catch (Throwable ignored) {
-            }
-        }
-    }
-
-    static final class XiaomiQrDone implements Runnable {
-        private final XiaomiQrLogin host;
-        private final com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Result res;
-        private final String error;
-
-        XiaomiQrDone(XiaomiQrLogin host, com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Result res, String error) {
-            this.host = host;
-            this.res = res;
-            this.error = error;
-        }
-
-        @Override
-        public void run() {
-            if (host.closed) {
-                return;
-            }
-            host.close();
-            if (res != null && error == null) {
-                WearableConfig.setXiaomiSession(host.a, res.session);
-                new XiaomiApply(host.a, host.root, res.bands, null).run();
-            } else {
-                toast(host.a, error != null ? error
-                        : WearableUi.tr("Входът не мина.", "Login failed."));
-            }
-        }
-    }
-
-    /** Saved Xiaomi session no longer works: forget it and open the normal login. */
-    static final class XiaomiReopen implements Runnable {
-        private final Activity a;
-        private final View root;
-
-        XiaomiReopen(Activity a, View root) {
-            this.a = a;
-            this.root = root;
-        }
-
-        @Override
-        public void run() {
-            toast(a, WearableUi.tr("Xiaomi сесията е изтекла — влез отново.", "The Xiaomi session expired — log in again."));
-            openXiaomiQr(a, root);
-        }
-    }
-
-    /** Back on the UI thread: fill MAC + key (or pick, if several) and save. */
-    static final class XiaomiApply implements Runnable {
-        private final Activity a;
-        private final View root;
-        private final java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands;
-        private final String error;
-
-        XiaomiApply(Activity a, View root,
-                    java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands, String error) {
-            this.a = a;
-            this.root = root;
-            this.bands = bands;
-            this.error = error;
-        }
-
-        @Override
-        public void run() {
-            if (error != null || bands == null || bands.isEmpty()) {
-                toast(a, error != null ? error
-                        : WearableUi.tr("Не намерих гривна в акаунта.", "No band found in the account."));
-                return;
-            }
-            if (bands.size() == 1) {
-                apply(bands.get(0));
-                return;
-            }
-            final String[] labels = new String[bands.size()];
-            for (int i = 0; i < bands.size(); i++) {
-                com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band b = bands.get(i);
-                labels[i] = (b.name.length() > 0 ? b.name : WearableUi.tr("Гривна", "Band")) + "\n" + b.mac;
-            }
-            new android.app.AlertDialog.Builder(a)
-                    .setTitle(WearableUi.tr("Коя гривна?", "Which band?"))
-                    .setItems(labels, new XiaomiPick(bands))
-                    .setNegativeButton(WearableUi.tr("Отказ", "Cancel"), null)
-                    .show();
-        }
-
-        void apply(com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band b) {
-            WearableConfig.setBandMac(a, b.mac);
-            WearableConfig.setAuthKey(a, b.key);
-            WearableConfig.rememberBand(a, b.mac, b.key, b.name);
-            if (macView != null) {
-                macView.setText(b.mac);
-            }
-            if (keyView != null) {
-                keyView.setText(b.key);
-                setKeyHidden(true);
-            }
-            colorFields();
-            toast(a, WearableUi.tr("Готово — гривната е закачена ✓", "Done — the band is linked ✓"));
-            handler.post(new Rebuild(a, root));
-        }
-
-        final class XiaomiPick implements android.content.DialogInterface.OnClickListener {
-            private final java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> list;
-
-            XiaomiPick(java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> list) {
-                this.list = list;
-            }
-
-            @Override
-            public void onClick(android.content.DialogInterface d, int which) {
-                if (which >= 0 && which < list.size()) {
-                    apply(list.get(which));
-                }
-            }
+            bandInfoView = null;
         }
     }
 }

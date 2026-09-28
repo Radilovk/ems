@@ -282,6 +282,9 @@ public final class MiFitnessLogImport {
             super.onActivityResult(req, res, data);
             Done cb = pending;
             pending = null;
+            if (cb != null && !(req == REQ && res == Activity.RESULT_OK && data != null)) {
+                cb.onFound(null, "cancelled");
+            }
             if (req == REQ && res == Activity.RESULT_OK && data != null && cb != null) {
                 List<Uri> uris = new ArrayList<Uri>();
                 ClipData clip = data.getClipData();

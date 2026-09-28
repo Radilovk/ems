@@ -11,6 +11,8 @@ fallthrough = true
 
 [vars]
 PUBLIC_URL = "https://license.biocode-bg.com"
+# New tablets (no key) join this license with its modules until the admin locks them (Таблети → премахни).
+OWNER_LICENSE = "L-2026-792848"
 
 [[d1_databases]]
 binding = "DB"

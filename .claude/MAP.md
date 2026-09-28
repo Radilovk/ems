@@ -72,7 +72,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-wearable-bridge.py` (486L, build:L106[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
 - `scripts/apply-wearable-permissions.py` (48L, build:L107[BETA_MUSIC]) — Request BLUETOOTH_CONNECT + BLUETOOTH_SCAN at MainActivity startup (Huawei needs both).
 - `scripts/apply-wearable-settings-connect.py` (388L, build:L140[BETA_MUSIC]) — Patch wearable smali for settings band connection test (full reconnect + status UX).
-- `scripts/apply-xems-nav.py` (89L, build:L113[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
+- `scripts/apply-xems-nav.py` (90L, build:L113[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
 - `scripts/ble-sim/run-hr-policy.sh` (33L, build:L139[BETA_MUSIC]) — Offline HR demand policy test (settings/dial/AI vs idle link). No device, no Android SDK.
 - `scripts/ble-sim/run-spp.sh` (17L) — Offline protocol test: real XiaomiBandSppClient (JVM, stubbed android.*) vs spp_band.py (Band 9/10 over SPP).
@@ -254,8 +254,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
 - `XemsIcon.java` (178L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
-- `XemsLicense.java` (401L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
-- `XemsLicenseClient.java` (475L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
+- `XemsLicense.java` (402L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
+- `XemsLicenseClient.java` (541L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
 - `XemsLicenseSection.java` (330L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (288L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
@@ -311,7 +311,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/index.js` (827L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (887L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (25L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).

@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 85
+    .line 89
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$c:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$k:Ljava/lang/String;
@@ -55,7 +55,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 89
+    .line 93
     :try_start_1
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -103,7 +103,7 @@
 
     move-result-object v0
 
-    .line 90
+    .line 94
     const-string v1, "POST"
 
     const-string v3, "/v1/license/activate"
@@ -116,7 +116,7 @@
 
     move-result-object v0
 
-    .line 91
+    .line 95
     sget-object v1, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
 
     const-string v3, "ok"
@@ -139,7 +139,7 @@
 
     if-eqz v1, :cond_71
 
-    .line 92
+    .line 96
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$k:Ljava/lang/String;
 
     const-string v3, "token"
@@ -156,7 +156,7 @@
 
     move-result-object v0
 
-    .line 93
+    .line 97
     iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     if-nez v0, :cond_6f
@@ -172,17 +172,17 @@
     # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
     invoke-static {v3, v1, v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 
-    .line 100
+    .line 104
     :goto_6e
     return-void
 
     :cond_6f
     move v1, v2
 
-    .line 93
+    .line 97
     goto :goto_67
 
-    .line 95
+    .line 99
     :cond_71
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
@@ -205,11 +205,11 @@
 
     goto :goto_6e
 
-    .line 97
+    .line 101
     :catch_82
     move-exception v0
 
-    .line 98
+    .line 102
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$1;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const-string v1, "offline"

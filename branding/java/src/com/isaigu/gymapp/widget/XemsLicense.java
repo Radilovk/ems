@@ -91,6 +91,7 @@ public final class XemsLicense {
         if (!loaded) {
             reload();
             XemsLicenseClient.refreshIfDue(app);
+            XemsLicenseClient.autoIfNone(app);
         }
     }
 

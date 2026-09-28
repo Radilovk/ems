@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 422
+    .line 561
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 423
+    .line 562
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 424
+    .line 563
     return-void
 .end method
 
@@ -42,21 +42,21 @@
     .registers 4
 
     .prologue
-    .line 428
+    .line 567
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # getter for: Lcom/isaigu/gymapp/wearable/BandPairing;->closed:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$800(Lcom/isaigu/gymapp/wearable/BandPairing;)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1100(Lcom/isaigu/gymapp/wearable/BandPairing;)Z
 
     move-result v0
 
     if-eqz v0, :cond_9
 
-    .line 436
+    .line 575
     :goto_8
     return-void
 
-    .line 431
+    .line 570
     :cond_9
     if-eqz p1, :cond_17
 
@@ -66,20 +66,20 @@
 
     if-eqz v0, :cond_17
 
-    .line 432
+    .line 571
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->found(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$900(Lcom/isaigu/gymapp/wearable/BandPairing;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
+    invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1200(Lcom/isaigu/gymapp/wearable/BandPairing;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;)V
 
     goto :goto_8
 
-    .line 434
+    .line 573
     :cond_17
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$PickedFile;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->failed()V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1000(Lcom/isaigu/gymapp/wearable/BandPairing;)V
+    # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->failed(Ljava/lang/String;)V
+    invoke-static {v0, p2}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1300(Lcom/isaigu/gymapp/wearable/BandPairing;Ljava/lang/String;)V
 
     goto :goto_8
 .end method

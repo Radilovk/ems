@@ -34,13 +34,24 @@ def main() -> int:
         text = COMMAND_UTIL.read_text(encoding="utf-8")
         if "ChannelStrengthScale;->scaleOutput(IF)F" not in text:
             errors.append("CommandUtil.getPartPduValue missing ChannelStrengthScale hook")
+        if "ChannelStrengthScale;->setPulseWidth(I)V" not in text:
+            errors.append("CommandUtil.getPartsParamsPduWithStrength missing setPulseWidth hook")
 
     if CHANNEL_SCALE.is_file():
         cs = CHANNEL_SCALE.read_text(encoding="utf-8")
         if "scaleOutput(IF)F" not in cs:
             errors.append("ChannelStrengthScale.smali missing scaleOutput method")
-        if "0x3d4ccccd" not in cs:
-            errors.append("ChannelStrengthScale.smali missing 0.05f scale constant")
+        if "balance(II)F" not in cs:
+            errors.append("ChannelStrengthScale.smali missing pulse-width channel balance")
+        if "armsDivider(I)F" not in cs or "setPulseWidth(I)V" not in cs:
+            errors.append("ChannelStrengthScale.smali missing pulse-width arms divider")
+
+    vh = COMMAND_UTIL.parent.parent / "TrainViewHolder.smali"
+    bl = COMMAND_UTIL.parent.parent / "TrainViewHolder$5.smali"
+    if vh.is_file() and vh.read_text(encoding="utf-8").count("ChannelStrengthScale;->shown(III)F") != 2:
+        errors.append("TrainViewHolder.updateUI: channel slider/text not showing the balance")
+    if bl.is_file() and "ChannelStrengthScale;->stored(IFI)I" not in bl.read_text(encoding="utf-8"):
+        errors.append("TrainViewHolder$5: drag not mapped back through the balance")
 
     if errors:
         for err in errors:

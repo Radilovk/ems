@@ -18,7 +18,8 @@ import android.util.TypedValue;
 import com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport;
 
 /**
- * The one place a band is paired: read the key + MAC from the Mi Fitness log; only if that finds nothing,
+ * The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC →
+ * the band is found over Bluetooth, {@link BandMacFinder}); only if that finds nothing,
  * offer typing the MAC and key by hand. Found bands go to the saved list; the settings screen then says
  * what each one is for. No lambdas / anonymous classes.
  */
@@ -30,6 +31,8 @@ final class BandPairing {
     private final Runnable onDone;
     private Dialog dialog;
     private TextView status;
+    private LinearLayout choices;
+    private TextView pickLink;
     private TextView findBtn;
     private LinearLayout manual;
     private TextView manualLink;
@@ -74,9 +77,11 @@ final class BandPairing {
 
         TextView steps = WearableUi.text(a, WearableUi.tr(
                 "1. В Mi Fitness (гривната трябва да е сдвоена там): Профил → За приложението → докосвай логото много пъти. "
-                        + "Записва се архив в Download/wearablelog.\n2. Натисни бутона — приложението намира гривните и ключовете им само.",
+                        + "Записва се архив в Download/wearablelog.\n2. Натисни бутона — приложението само взима най-новия архив, "
+                        + "ключа и MAC-а. Първия път Android пита веднъж за достъп до папката.",
                 "1. In Mi Fitness (the band must be paired there): Profile → About → tap the logo many times. "
-                        + "An archive is saved to Download/wearablelog.\n2. Press the button — the app finds the bands and their keys by itself."),
+                        + "An archive is saved to Download/wearablelog.\n2. Press the button — the app takes the newest archive, "
+                        + "the key and the MAC by itself. The first time Android asks once for access to the folder."),
                 14f, mutedCol, false);
         steps.setPadding(0, WearableUi.dp(a, 12), 0, WearableUi.dp(a, 16));
         box.addView(steps);
@@ -89,6 +94,19 @@ final class BandPairing {
         status = WearableUi.text(a, "", 14f, mutedCol, false);
         status.setPadding(0, WearableUi.dp(a, 12), 0, 0);
         box.addView(status);
+
+        choices = new LinearLayout(a);
+        choices.setOrientation(LinearLayout.VERTICAL);
+        box.addView(choices);
+
+        pickLink = WearableUi.button(a, WearableUi.tr("Избери файла ръчно", "Pick the file by hand"),
+                WearableUi.color(a, "bg_elevated", 0xFF2A2A2A), textCol);
+        pickLink.setVisibility(View.GONE);
+        pickLink.setOnClickListener(new PickFileClick(this));
+        LinearLayout.LayoutParams fl = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 48));
+        fl.topMargin = WearableUi.dp(a, 12);
+        box.addView(pickLink, fl);
 
         manualLink = WearableUi.button(a, WearableUi.tr("Не успява? Въведи ръчно", "Not working? Enter by hand"),
                 WearableUi.color(a, "bg_elevated", 0xFF2A2A2A), textCol);
@@ -172,7 +190,9 @@ final class BandPairing {
         }
         busy = true;
         findBtn.setEnabled(false);
-        setStatus(WearableUi.tr("Търся лога на Mi Fitness…", "Looking for the Mi Fitness log…"), false);
+        choices.removeAllViews();
+        pickLink.setVisibility(View.GONE);
+        setStatus(WearableUi.tr("Търся най-новия лог на Mi Fitness…", "Looking for the newest Mi Fitness log…"), false);
         new Thread(new ScanTask(this), "xems-band-scan").start();
     }
 
@@ -184,8 +204,23 @@ final class BandPairing {
             found(f);
             return;
         }
-        setStatus(WearableUi.tr("Автоматично не мога да го прочета. Избери файла от Download/wearablelog.",
-                "Cannot read it automatically. Pick the file from Download/wearablelog."), false);
+        if ((f == null || f.zips == 0) && MiFitnessLogImport.tree(a) == null) {
+            // Android hides other apps' files in Download: one grant of that folder, then it is automatic.
+            setStatus(WearableUi.tr("Еднократно разрешение: в прозореца натисни „Използвай тази папка“ → „Разреши“. "
+                            + "Оттук нататък логът се чете сам.",
+                    "One-time permission: tap “Use this folder” → “Allow”. From then on the log is read by itself."), false);
+            MiFitnessLogImport.grantFolder(a, new PickedFile(this));
+            return;
+        }
+        failed(null);
+    }
+
+    private void pickFile() {
+        if (busy) {
+            return;
+        }
+        busy = true;
+        findBtn.setEnabled(false);
         MiFitnessLogImport.pick(a, new PickedFile(this));
     }
 
@@ -209,22 +244,16 @@ final class BandPairing {
                 firstMac = f.mac;
                 firstKey = f.key;
             } else {
-                busy = false;
-                findBtn.setEnabled(true);
-                showManual(WearableUi.tr("Намерих ключ, но не и MAC. Допълни MAC-а.",
-                        "Found a key but no MAC. Add the MAC."));
-                keyField.setText(f.key);
+                findMac(f.key, f.macHint, f.name);
                 return;
             }
         }
         if (n == 0) {
-            failed();
+            failed(null);
             return;
         }
-        if (n == 1 && !WearableConfig.isConfigured(a)) {
-            int role = com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND)
-                    ? WearableConfig.ROLE_BOTH : WearableConfig.ROLE_PULSE;
-            WearableConfig.assignBandRole(a, firstMac, firstKey, role);
+        if (n == 1) {
+            assignFirst(firstMac, firstKey);
         }
         toast(n == 1
                 ? WearableUi.tr("Гривната е добавена ✓", "Band added ✓")
@@ -233,11 +262,79 @@ final class BandPairing {
         finish();
     }
 
-    private void failed() {
+    private void assignFirst(String mac, String key) {
+        if (!WearableConfig.isConfigured(a)) {
+            int role = com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND)
+                    ? WearableConfig.ROLE_BOTH : WearableConfig.ROLE_PULSE;
+            WearableConfig.assignBandRole(a, mac, key, role);
+        }
+    }
+
+    // ---------------------------------------------------------------- key without MAC: find the band by Bluetooth
+
+    private void findMac(String key, String hint, String name) {
+        setStatus(WearableUi.tr("Ключът е намерен ✓ Търся гривната по Bluetooth — дръж я до таблета…",
+                "Key found ✓ Looking for the band over Bluetooth — keep it near the tablet…"), false);
+        BandMacFinder.find(a, hint, new MacFound(this, key, name));
+    }
+
+    private void macResult(java.util.List<String[]> bands, String key, String name) {
+        if (closed) {
+            return;
+        }
+        if (bands.size() == 1) {
+            String[] b = bands.get(0);
+            saveBand(b[0], key, b[1].length() > 0 ? b[1] : name);
+            return;
+        }
         busy = false;
         findBtn.setEnabled(true);
-        showManual(WearableUi.tr("В избраните файлове няма ключ. Провери, че е логът на Mi Fitness след сдвояване, или въведи ръчно.",
-                "No key in the chosen files. Make sure it is the Mi Fitness log after pairing, or enter it by hand."));
+        if (bands.isEmpty()) {
+            showManual(WearableUi.tr("Ключът е намерен ✓, но гривната не се вижда по Bluetooth. Включи Bluetooth, дръж гривната "
+                            + "до таблета и натисни „Намери гривните“ пак — или въведи MAC-а.",
+                    "Key found ✓, but the band is not visible over Bluetooth. Turn Bluetooth on, keep the band near the "
+                            + "tablet and press “Find the bands” again — or type the MAC."));
+            keyField.setText(key);
+            return;
+        }
+        setStatus(WearableUi.tr("Ключът е намерен ✓ Коя е твоята гривна?", "Key found ✓ Which one is your band?"), false);
+        choices.removeAllViews();
+        int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
+        for (int i = 0; i < bands.size(); i++) {
+            String[] b = bands.get(i);
+            TextView row = WearableUi.button(a, (b[1].length() > 0 ? b[1] + "\n" : "") + b[0],
+                    WearableUi.color(a, "bg_elevated", 0xFF2A2A2A), textCol);
+            row.setOnClickListener(new ChoiceClick(this, b[0], key, b[1]));
+            LinearLayout.LayoutParams rl = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 64));
+            rl.topMargin = WearableUi.dp(a, 10);
+            choices.addView(row, rl);
+        }
+    }
+
+    private void saveBand(String mac, String key, String name) {
+        String norm = NotifyWearableBridge.normalizeMac(mac);
+        WearableConfig.rememberBand(a, norm, key, name);
+        assignFirst(norm, key);
+        toast(WearableUi.tr("Гривната е добавена ✓", "Band added ✓"));
+        finish();
+    }
+
+    private void failed(String problem) {
+        busy = false;
+        findBtn.setEnabled(true);
+        pickLink.setVisibility(View.VISIBLE);
+        if ("cancelled".equals(problem)) {
+            setStatus(WearableUi.tr("Без достъп до папката логът не може да се прочете сам. Натисни „Намери гривните“ "
+                            + "и избери „Използвай тази папка“.",
+                    "Without access to the folder the log cannot be read by itself. Press “Find the bands” "
+                            + "and choose “Use this folder”."), true);
+            return;
+        }
+        showManual(WearableUi.tr("В логовете няма ключ. В Mi Fitness (с гривната сдвоена там) направи нов лог "
+                        + "и натисни „Намери гривните“ пак — или въведи ръчно.",
+                "No key in the logs. In Mi Fitness (with the band paired there) make a new log and press "
+                        + "“Find the bands” again — or enter it by hand."));
     }
 
     private void showManual(String why) {
@@ -268,14 +365,7 @@ final class BandPairing {
             clean = clean.substring(2);
         }
         clean = clean.toLowerCase(java.util.Locale.US);
-        WearableConfig.rememberBand(a, norm, clean, com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, norm));
-        if (!WearableConfig.isConfigured(a)) {
-            int role = com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND)
-                    ? WearableConfig.ROLE_BOTH : WearableConfig.ROLE_PULSE;
-            WearableConfig.assignBandRole(a, norm, clean, role);
-        }
-        toast(WearableUi.tr("Гривната е добавена ✓", "Band added ✓"));
-        finish();
+        saveBand(norm, clean, com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.bondedName(a, norm));
     }
 
     private void finish() {
@@ -394,7 +484,7 @@ final class BandPairing {
         public void run() {
             MiFitnessLogImport.Found f = null;
             try {
-                f = MiFitnessLogImport.scanLocal();
+                f = MiFitnessLogImport.scanLocal(p.a);
             } catch (Throwable ignored) {
             }
             handler.post(new ScanDone(p, f));
@@ -416,6 +506,55 @@ final class BandPairing {
         }
     }
 
+    private static final class PickFileClick implements View.OnClickListener {
+        private final BandPairing p;
+
+        PickFileClick(BandPairing p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.pickFile();
+        }
+    }
+
+    private static final class ChoiceClick implements View.OnClickListener {
+        private final BandPairing p;
+        private final String mac;
+        private final String key;
+        private final String name;
+
+        ChoiceClick(BandPairing p, String mac, String key, String name) {
+            this.p = p;
+            this.mac = mac;
+            this.key = key;
+            this.name = name;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.saveBand(mac, key, name);
+        }
+    }
+
+    private static final class MacFound implements BandMacFinder.Result {
+        private final BandPairing p;
+        private final String key;
+        private final String name;
+
+        MacFound(BandPairing p, String key, String name) {
+            this.p = p;
+            this.key = key;
+            this.name = name;
+        }
+
+        @Override
+        public void onBands(java.util.List<String[]> bands) {
+            p.macResult(bands, key, name);
+        }
+    }
+
     private static final class PickedFile implements MiFitnessLogImport.Done {
         private final BandPairing p;
 
@@ -431,7 +570,7 @@ final class BandPairing {
             if (f != null && f.hasAny()) {
                 p.found(f);
             } else {
-                p.failed();
+                p.failed(problem);
             }
         }
     }

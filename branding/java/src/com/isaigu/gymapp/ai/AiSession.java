@@ -626,7 +626,7 @@ public final class AiSession {
             es.toleratedCharge = new double[AiEnergy.CH_MASS.length];
             for (int i = 0; i < es.toleratedCharge.length; i++) {
                 double chPct = es.channels != null && i < es.channels.length ? es.channels[i] : 100;
-                es.toleratedCharge[i] = chPct / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.ARMS_SENT : 1.0)
+                es.toleratedCharge[i] = chPct / 100.0 * (i == AiEnergy.ARMS ? AiEnergy.armsSent(350) : 1.0)
                         * calibPercent / 100.0;
             }
         }

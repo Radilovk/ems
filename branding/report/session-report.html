@@ -1093,7 +1093,7 @@ function boot(first){
     start(first?BR.focus():null);
   }else{demoSessions();start(null);}
 }
-boot(true);
+if(BR&&BR.ready&&BR.ready.then){BR.ready.then(function(){boot(true);},function(){boot(true);});}else boot(true);   /* the client's copy loads its records first */
 })();
 </script>
 

@@ -15,6 +15,8 @@ import {
   CARD_MAX_BYTES, CARD_TTL_SEC,
 } from './card.js';
 import cardTemplate from '../../branding/report/client-card.html';
+import reportTemplate from '../../branding/report/session-report.html';
+import { renderReport } from './report.js';
 import {
   studioCode, isStudioCode, cleanProfile, allowHit,
   PROFILE_MAX_BYTES, INBOX_KEEP_SEC, INBOX_MAX_PER_STUDIO, INBOX_BATCH, INBOX_TOKEN_MAX_AGE_SEC,
@@ -76,6 +78,9 @@ export default {
       if (path.startsWith('/v1/history/')) {
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
         if (request.method === 'GET') return handleHistory(request, env, path.slice('/v1/history/'.length));
+      }
+      if (path.startsWith('/r/') && request.method === 'GET') {
+        return serveReport(path.slice(3));
       }
       if (path.startsWith('/c/') && request.method === 'GET') {
         return serveCard(request, env, ctx, path.slice(3));
@@ -424,13 +429,15 @@ async function handleHistory(request, env, rest) {
   const [cid, sid, extra] = rest.split('/');
   if (!isCardId(cid) || extra !== undefined) return cors(json({ ok: false, error: 'not_found' }, 404));
   const card = await env.DB.prepare(
-    'SELECT license_id, client_key, expires_at FROM client_cards WHERE id = ?',
+    'SELECT license_id, client_key, expires_at, data FROM client_cards WHERE id = ?',
   ).bind(cid).first();
   if (!card || card.expires_at < now()) return cors(json({ ok: false, error: 'not_found' }, 404));
   const headers = { 'Cache-Control': 'private, max-age=30', 'X-Robots-Tag': 'noindex, nofollow' };
   if (sid === undefined || sid === '') {
     const sessions = await readIndex(env.LOGS, card.license_id, card.client_key);
-    return cors(new Response(JSON.stringify({ ok: true, sessions }), {
+    let name = '';
+    try { name = String(JSON.parse(card.data).name || '').slice(0, 60); } catch { /* no name */ }
+    return cors(new Response(JSON.stringify({ ok: true, client: { name }, sessions }), {
       headers: { ...JSON_HEADERS, ...headers },
     }));
   }
@@ -439,6 +446,18 @@ async function handleHistory(request, env, rest) {
   const obj = await getSession(env.LOGS, card.license_id, card.client_key, id);
   if (!obj) return cors(json({ ok: false, error: 'not_found' }, 404));
   return cors(new Response(obj.body, { headers: { ...JSON_HEADERS, ...headers } }));
+}
+
+/** The training analysis page (same for every client; the records are fetched by the page itself). */
+function serveReport(id) {
+  const headers = {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'public, max-age=3600',
+    'X-Robots-Tag': 'noindex, nofollow',
+    'Referrer-Policy': 'no-referrer',
+  };
+  if (!isCardId(id)) return new Response(cardGonePage(), { status: 404, headers });
+  return new Response(renderReport(reportTemplate, id), { headers });
 }
 
 // ─── Client profiles: booking PWA → the studio's tablets ─────────────────────

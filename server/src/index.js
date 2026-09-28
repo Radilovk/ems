@@ -325,14 +325,15 @@ async function handleCardFind(request, env) {
   const pk = lookupHash(body?.pk);
   if (!ek && !pk) return cors(err('bad_request', 'ek / pk'));
   const { results } = await env.DB.prepare(
-    `SELECT id, email_hash, phone_hash FROM client_cards
+    `SELECT id, email_hash, phone_hash, updated_at FROM client_cards
      WHERE expires_at > ? AND (email_hash = ? OR phone_hash = ?)
      ORDER BY updated_at DESC LIMIT 20`,
   ).bind(now(), ek || '-', pk || '-').all();
   const hit = (results || []).find((r) => lookupMatches(r, ek, pk));
   if (!hit) return cors(json({ ok: false, error: 'not_found' }, 404));
   const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
-  return cors(json({ ok: true, url: `${base}/c/${hit.id}` }));
+  // at: the card's last update — the PWA shows a report it has not opened yet as news
+  return cors(json({ ok: true, url: `${base}/c/${hit.id}`, at: hit.updated_at }));
 }
 
 /**

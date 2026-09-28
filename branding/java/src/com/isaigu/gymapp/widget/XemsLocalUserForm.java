@@ -351,9 +351,8 @@ public final class XemsLocalUserForm {
             renderFitness();
 
             LinearLayout cc = card(col, tr("Състояние", "Condition"));
-            cc.addView(text(tr("Не спира тренировката — нагласява подхода: разпределение и сила по зони.",
-                    "Does not stop training — it shapes the approach: how the load is spread over the zones."),
-                    13, MUTED, false), match(dp(4)));
+            cc.addView(text(tr("Не спира тренировката — нагласява подхода.",
+                    "Does not stop training — it shapes the approach."), 13, MUTED, false), match(dp(4)));
             condBox = new LinearLayout(a);
             condBox.setOrientation(LinearLayout.VERTICAL);
             cc.addView(condBox, match(0));
@@ -393,8 +392,7 @@ public final class XemsLocalUserForm {
             renderMedical();
 
             LinearLayout cm = card(col, tr("Гривна и Mi Fitness", "Band and Mi Fitness"));
-            TextView mh = text(tr("Собственикът на гривната получава всяка тренировка и като тренировка в гривната: пулс, калории и време влизат в Mi Fitness. Авто: пасивни процедури → йога, кардио → аеробна, силови → тежести.",
-                    "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness. Auto: passive procedures → yoga, cardio → aerobics, strength → weights."), 13, MUTED, false);
+            TextView mh = text(tr("Тренировките влизат и в Mi Fitness.", "Trainings also go to Mi Fitness."), 13, MUTED, false);
             cm.addView(mh, match(dp(4)));
             ownRow[0] = chips(cm);
             sportRow[0] = chips(cm);

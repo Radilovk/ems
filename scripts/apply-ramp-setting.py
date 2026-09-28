@@ -3,7 +3,9 @@
 
 - Installs branding/smali/RampSetting*.smali → dialog/.
 - EditUserProgramDataDialog.initSetData(): RampSetting.attach(inputramp, outputramp, trainProgram)
-  before its return (shows the column hidden by remove-ramp.py, seconds instead of ms).
+  before its return (shows the column hidden by remove-ramp.py, seconds instead of ms), and again
+  at the start of onStart(): onCreateView runs initListener() after initSetData(), which put the
+  stock millisecond pickers back on the two fields.
 The ramp bytes reach the device through AiRamp (apply-ai-session.py).
 """
 
@@ -54,8 +56,19 @@ def main() -> int:
     if idx < 0:
         raise SystemExit("initSetData: return-void not found")
     body = body[:idx] + HOOK + body[idx:]
-    EDIT.write_text(text[:start] + body + text[end:], encoding="utf-8")
-    print("EditUserProgramDataDialog: ramp setting hook added")
+    text = text[:start] + body + text[end:]
+    # onStart runs after initListener(): our 0.5 s picker must be the last listener on the fields.
+    s2 = text.find(".method public onStart()V")
+    if s2 < 0:
+        raise SystemExit("EditUserProgramDataDialog.onStart not found")
+    sup = "    invoke-super {p0}, Lcom/isaigu/gymapp/BaseFullScreenDialogFragment;->onStart()V\n"
+    k = text.find(sup, s2)
+    if k < 0 or k > text.find(".end method", s2):
+        raise SystemExit("onStart: invoke-super not found")
+    k += len(sup)
+    text = text[:k] + "\n" + HOOK + text[k:]
+    EDIT.write_text(text, encoding="utf-8")
+    print("EditUserProgramDataDialog: ramp setting hooks added (initSetData, onStart)")
     return 0
 
 

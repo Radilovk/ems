@@ -71,7 +71,7 @@ button{font:inherit;color:inherit}
 .stage canvas+canvas{position:absolute;inset:0}
 .stage canvas.off{opacity:0;transform:scale(.96);pointer-events:none}
 .stage.boot canvas{opacity:0;transform:translateY(14px) scale(.97)}
-.pick{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--edge);min-height:44px}
+.pick{display:flex;flex-wrap:wrap;justify-content:center;row-gap:0;max-width:100%;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--edge);min-height:44px}
 .pick i{width:10px;height:10px;border-radius:50%}
 .pick b{font:600 15px var(--f-body);white-space:nowrap}
 .pick .num{font-size:17px;font-weight:700}
@@ -123,7 +123,24 @@ footer{text-align:center;color:var(--faint);font-size:11.5px;padding-top:6px}
 .imodal .ok{all:unset;cursor:pointer;display:block;box-sizing:border-box;width:100%;text-align:center;margin-top:6px;padding:12px;border-radius:999px;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;font:600 15px var(--f-body)}
 @keyframes imIn{from{opacity:0}}
 :root[data-theme="light"] .info{background:rgba(255,255,255,.8)}
-@media (prefers-reduced-motion:reduce){.aura i,.rise{animation:none}.ring,.stage canvas{transition:none}}
+/* motion */
+.trend .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s .35s cubic-bezier(.3,.7,.2,1) forwards}
+.trend .ar{opacity:0;animation:fadeIn 1s 1s ease-out forwards}
+.trend .dot{transform-box:fill-box;transform-origin:center;animation:popIn .5s 1.7s cubic-bezier(.2,1.6,.4,1) both}
+.trend .halo{transform-box:fill-box;transform-origin:center;animation:halo 2.4s 2.2s ease-out infinite}
+.pick i{animation:breathe 2.6s ease-in-out infinite}
+.pick.swap{animation:popIn .35s cubic-bezier(.2,1.4,.4,1)}
+.stage.swap canvas:not(.off){animation:swap .5s ease}
+.stat,.pick,.seg button,.ico{transition:transform .15s ease}
+.stat:active,.seg button:active,.ico:active{transform:scale(.96)}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fadeIn{to{opacity:1}}
+@keyframes popIn{from{transform:scale(.4);opacity:0}}
+@keyframes halo{0%{transform:scale(1);opacity:.55}100%{transform:scale(3.2);opacity:0}}
+@keyframes breathe{50%{transform:scale(1.35);filter:brightness(1.25)}}
+@keyframes swap{0%{opacity:.35;filter:saturate(.4)}100%{opacity:1;filter:none}}
+@media (prefers-reduced-motion:reduce){.aura i,.rise{animation:none}.ring,.stage canvas{transition:none}
+  .trend .ln{animation:none;stroke-dashoffset:0}.trend .ar,.trend .dot{animation:none;opacity:1}.trend .halo,.pick i{animation:none}}
 @media (max-width:360px){.rings{grid-template-columns:110px minmax(0,1fr)}.rings svg{width:110px;height:110px}}
 </style>
 
@@ -202,9 +219,14 @@ const f1=v=>v<10?v.toFixed(1).replace(".",EN?".":","):fmt(v),mmss=s=>Math.floor(
 function tiles(){let t;
   if(P==="last"){const L=D.last;t=[[mmss(L.a),tr("активно","active")],[fmt(L.k),"kcal"],[L.e+"%",tr("ефективност","efficiency")]];}
   else{const q=P==="p30"?D.p30:D;t=[[fmt(q.n),tr("тренировки","trainings")],[f1(q.sec/3600),tr("часа","hours")],[fmt(q.kcal),"kcal"]];}
-  [["#tN","#lN"],["#tH","#lH"],["#tK","#lK"]].forEach((id,i)=>{$(id[0]).textContent=t[i][0];$(id[1]).textContent=t[i][1];});
+  [["#tN","#lN"],["#tH","#lH"],["#tK","#lK"]].forEach((id,i)=>{roll($(id[0]),t[i][0]);$(id[1]).textContent=t[i][1];});
   const d=new Date(D.last.d);$("#persub").textContent=P==="last"?`${d.getDate()} ${MON[d.getMonth()]}${D.last.t?" · "+D.last.t:""}`:P==="p30"?tr(`${D.p30.n} тренировки за 30 дни`,`${D.p30.n} trainings in 30 days`):tr(`от ${new Date(D.since).getDate()} ${MON[new Date(D.since).getMonth()]} ${new Date(D.since).getFullYear()}`,`since ${new Date(D.since).getDate()} ${MON[new Date(D.since).getMonth()]} ${new Date(D.since).getFullYear()}`);}
-function setPeriod(p){P=p;document.querySelectorAll("#per button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));tiles();trend();draw();}
+// A number changes by counting to its new value (text like "4:05" or "82%" keeps its shape).
+function roll(el,txt){const m=/^([\d\s.,]*\d)(.*)$/.exec(txt);const from=parseFloat((el.textContent||"").replace(/\s/g,"").replace(",","."));
+  if(reduce||!m||/:/.test(txt)||isNaN(from)){el.textContent=txt;return;}
+  const toS=m[1],to=parseFloat(toS.replace(/\s/g,"").replace(",",".")),dec=(toS.split(/[.,]/)[1]||"").length,t0=performance.now(),ms=600;
+  const step=t=>{const k=clamp((t-t0)/ms,0,1),e=1-Math.pow(1-k,3),v=from+(to-from)*e;el.textContent=(k<1?(dec?v.toFixed(dec).replace(".",EN?".":","):fmt(v)):toS)+m[2];if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+function setPeriod(p){P=p;const st=$("#stage");st.classList.remove("swap");void st.offsetWidth;st.classList.add("swap");document.querySelectorAll("#per button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));tiles();trend();draw();}
 document.querySelectorAll("#per button").forEach(b=>{if(!V[b.dataset.p])b.hidden=true;b.onclick=()=>setPeriod(b.dataset.p);});
 if(EN){const L={last:"Last",p30:"30 days",all:"All"};document.querySelectorAll("#per button").forEach(b=>b.textContent=L[b.dataset.p]);}
 function countUp(el,to,dec){const f=v=>dec?v.toFixed(dec).replace(".",EN?".":","):fmt(v);el.textContent=f(to);if(reduce)return;const t0=performance.now()+250,ms=1300;
@@ -256,7 +278,8 @@ function paint(canvas,key){mask(key,M=>{const dpr=Math.min(3,devicePixelRatio||1
     x.drawImage(Mu,0,0);cache[ck]=o;}
   const c=cache[ck];if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}const x=canvas.getContext("2d");x.clearRect(0,0,W,H);x.drawImage(c,0,0);canvas._ck=ck;canvas._m=M;});}
 let raf=0;const draw=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;paint($("#cF"),sexK+"_front");paint($("#cB"),sexK+"_back");label();});};
-function label(){const i=sel>=0?sel:CH.map((c,k)=>k).sort((a,b)=>lv(b)-lv(a))[0];$("#pick").innerHTML=`<i style="background:${css(heat(lv(i)))};box-shadow:0 0 12px ${css(heat(lv(i)))}"></i><b>${CH[i]}</b><span class="num">${Math.round(lv(i)*100)}%</span><small style="color:var(--muted);font-size:12px">${tr("EMS натоварване","EMS load")}</small>`;}
+let lastPick="";
+function label(){const i=sel>=0?sel:CH.map((c,k)=>k).sort((a,b)=>lv(b)-lv(a))[0];const pk=$("#pick"),key=i+"|"+P;if(key!==lastPick&&lastPick&&!reduce){pk.classList.remove("swap");void pk.offsetWidth;pk.classList.add("swap");}lastPick=key;pk.innerHTML=`<i style="background:${css(heat(lv(i)))};box-shadow:0 0 12px ${css(heat(lv(i)))}"></i><b>${CH[i]}</b><span class="num">${Math.round(lv(i)*100)}%</span><small style="color:var(--muted);font-size:12px">${tr("EMS натоварване","EMS load")}</small>`;}
 function at(canvas,e){const M=canvas._m;if(!M)return -1;const r=canvas.getBoundingClientRect();const X=Math.floor((e.clientX-r.left)/r.width*M.w),Y=Math.floor((e.clientY-r.top)/r.height*M.h);if(X<0||Y<0||X>=M.w||Y>=M.h)return -1;return M.lab[Y*M.w+X];}
 function setSide(s){side=s;$("#cF").classList.toggle("off",s!=="front");$("#cB").classList.toggle("off",s!=="back");$("#sF").setAttribute("aria-pressed",String(s==="front"));$("#sB").setAttribute("aria-pressed",String(s==="back"));}
 $("#sF").onclick=()=>setSide("front");$("#sB").onclick=()=>setSide("back");
@@ -278,8 +301,8 @@ if(E.length>=2){$("#trend").hidden=false;const k=Math.max(1,Math.min(3,Math.floo
   $("#trend").innerHTML=`<div class="h"><small style="display:flex;align-items:center">${tr("Ефективност по тренировки","Efficiency by training")}<button class="info" type="button" data-i="eff" aria-label="${tr("Какво е това?","What is this?")}">i</button></small>${dv>0?`<span class="up">▲ ${dv}</span>`:""}</div>
    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="tl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7C5CFF"/><stop offset=".6" stop-color="#22D3EE"/><stop offset="1" stop-color="#A3E635"/></linearGradient>
    <linearGradient id="ta" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22D3EE" stop-opacity=".28"/><stop offset="1" stop-color="#22D3EE" stop-opacity="0"/></linearGradient><filter id="tg"><feGaussianBlur stdDeviation="3"/></filter></defs>
-   <path d="${d} L${W},${H} L0,${H}Z" fill="url(#ta)"/><path d="${d}" fill="none" stroke="url(#tl)" stroke-width="5" opacity=".5" filter="url(#tg)"/><path d="${d}" fill="none" stroke="url(#tl)" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-   <circle cx="${last[0]}" cy="${last[1]}" r="5" fill="#A3E635" style="filter:drop-shadow(0 0 6px #A3E635)"/></svg>`;}
+   <path class="ar" d="${d} L${W},${H} L0,${H}Z" fill="url(#ta)"/><path class="ln" pathLength="1" d="${d}" fill="none" stroke="url(#tl)" stroke-width="5" opacity=".5" filter="url(#tg)"/><path class="ln" pathLength="1" d="${d}" fill="none" stroke="url(#tl)" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+   <circle class="halo" cx="${last[0]}" cy="${last[1]}" r="5" fill="none" stroke="#A3E635" stroke-width="1.5"/><circle class="dot" cx="${last[0]}" cy="${last[1]}" r="5" fill="#A3E635" style="filter:drop-shadow(0 0 6px #A3E635)"/></svg>`;}
 else $("#trend").hidden=true;}
 trend();tiles();
 

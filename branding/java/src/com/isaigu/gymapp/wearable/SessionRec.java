@@ -61,6 +61,8 @@ final class SessionRec {
     final SessionInts ph = new SessionInts();
     /** 1 while the suit is in the impulse part of the ON/OFF cycle (TrainItem toggles data.inStart). */
     final SessionInts imp = new SessionInts();
+    /** 1 = a passive second (massage: phase 2 after a manual training, or a procedure on its own). */
+    final SessionInts pv = new SessionInts();
     final SessionInts[] ch = new SessionInts[CH];
     final SessionInts post = new SessionInts();
     final int[] chPeak = new int[CH];
@@ -135,7 +137,9 @@ final class SessionRec {
         } catch (Throwable ignored) {
         }
         boolean running = item.data.start;
+        boolean passive = item.getTrainProgram() != null && item.getTrainProgram().useType == SessionRecorder.TYPE_MASSAGE;
         lastRun = running;
+        pv.add(running && passive ? 1 : 0);
         run.add(running ? 1 : 0);
         imp.add(running && item.data.inStart ? 1 : 0);
         hr.add(bpm);
@@ -162,8 +166,8 @@ final class SessionRec {
                 if (real > chPeak[i]) {
                     chPeak[i] = real;
                 }
-                if (item.data.inStart) {
-                    chLoad[i] += real;
+                if (item.data.inStart && !passive) {
+                    chLoad[i] += real;                 // muscle work: the passive phase does not count
                 }
             }
         }
@@ -198,6 +202,15 @@ final class SessionRec {
         int n = 0;
         for (int i = 0; i < run.size(); i++) {
             n += run.get(i);
+        }
+        return n;
+    }
+
+    /** Seconds of the passive phase (massage). */
+    int passiveS() {
+        int n = 0;
+        for (int i = 0; i < pv.size(); i++) {
+            n += pv.get(i);
         }
         return n;
     }
@@ -245,6 +258,7 @@ final class SessionRec {
         col(b, "dis", dis);
         col(b, "ph", ph);
         col(b, "imp", imp);
+        col(b, "pv", pv);
         col(b, "post", post);
         b.append(",\"ch\":[");
         for (int i = 0; i < CH; i++) {
@@ -271,6 +285,7 @@ final class SessionRec {
         o.put("end", end);
         o.put("durS", run.size());
         o.put("activeS", activeS());
+        o.put("passiveS", passiveS());
         o.put("type", type());
         o.put("program", program != null ? program : "");
         o.put("music", music);

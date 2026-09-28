@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 249
+    .line 262
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,13 +34,13 @@
     .registers 3
 
     .prologue
-    .line 252
+    .line 265
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/BandRemote;->pushQueued:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandRemote;->access$002(Z)Z
 
-    .line 254
+    .line 267
     const/4 v0, 0x1
 
     :try_start_5
@@ -48,15 +48,15 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_8} :catch_9
 
-    .line 258
+    .line 271
     :goto_8
     return-void
 
-    .line 255
+    .line 268
     :catch_9
     move-exception v0
 
-    .line 256
+    .line 269
     const-string v1, "BandRemote.pushSoon"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

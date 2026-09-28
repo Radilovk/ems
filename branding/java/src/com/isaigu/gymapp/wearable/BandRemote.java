@@ -165,6 +165,10 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         } else if ("cmd".equals(t)) {
             String a = jsonField(json, "a");
             WearableBleDiagLog.log("applink", "cmd " + a);
+            if (!WearableConfig.usesRemote(WearableSyncHelper.getContext())) {
+                WearableBleDiagLog.log("applink", "ignored: the band is set to heart rate only");
+                return;
+            }
             if ("toggle".equals(a)) {
                 handleKey(XiaomiBandRemote.KEY_PLAY, VOL);
             } else if ("plus".equals(a)) {
@@ -218,7 +222,16 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
         } else if ("train_stop".equals(a)) {
             XemsPanel.press(XemsPanel.PRESS_STOP);
         } else if ("tm_toggle".equals(a)) {
-            com.isaigu.gymapp.dialog.IntervalTimerHelper.bandTogglePause();
+            com.isaigu.gymapp.dialog.IntervalTimerHelper.bandTogglePause();      // band app ≤ 5.9.x
+        } else if ("tm_pause".equals(a)) {
+            // the timer follows the training: impulses and timer stop and go on together
+            boolean alone = com.isaigu.gymapp.dialog.IntervalTimerHelper.isPausedAlone();
+            com.isaigu.gymapp.dialog.IntervalTimerHelper.bandClearUserPause();
+            if (!alone) {                           // only the timer was stopped (tablet): it just goes on
+                playPause();
+            }
+        } else if ("tm_reset".equals(a)) {
+            com.isaigu.gymapp.dialog.IntervalTimerHelper.bandReset();          // only the timer
         } else if ("mu_toggle".equals(a)) {
             MusicPlayerHelper.togglePlayPause();
         } else if ("mu_next".equals(a)) {
@@ -438,6 +451,21 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             } else {
                 MusicPlayerHelper.skipTrack(action);
             }
+        }
+        handler.postDelayed(new Push(true), 300);
+    }
+
+    /** ▶ / ❚❚ of the training from the band app: the AI session when it runs, else the training. */
+    static void playPause() {
+        AiEngine e = AiSession.getEngine();
+        if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null) {
+            if (e.getState() == AiEngine.State.REST && e.isRestReady()) {
+                AiSession.continueBlock();
+            } else {
+                AiSession.togglePause();
+            }
+        } else {
+            XemsPanel.press(XemsPanel.PRESS_START);
         }
         handler.postDelayed(new Push(true), 300);
     }

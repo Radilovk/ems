@@ -74,6 +74,7 @@ mapfile -t DEX_CLASSES < <(find "${CLASSES_DIR}/com/isaigu/gymapp" \
      -o -path '*/train/utils/SoundEnvelopeMapper.class' \
      -o -path '*/train/utils/MusicAutoTune*.class' \
      -o -path '*/train/utils/MusicDiagLog.class' \
+     -o -path '*/train/utils/ProgramLive.class' \
      -o -path '*/dialog/MusicPlayerHelper*.class' \
      -o -path '*/dialog/MusicDial*.class' \
      -o -path '*/dialog/MusicPlaylist*.class' \
@@ -119,6 +120,7 @@ MUSIC_EXACT = {
     "MusicUriSource.smali",
     "SoundEnvelopeMapper.smali",
     "MusicDiagLog.smali",
+    "ProgramLive.smali",
 }
 MUSIC_PREFIXES = (
     "MusicSync",

@@ -250,15 +250,9 @@ public final class XemsLocalAvatar {
             if (icon == null) {
                 return;
             }
-            icon.setOnClickListener(new android.view.View.OnClickListener() {
-                public void onClick(android.view.View v) {
-                    com.isaigu.gymapp.bean.TrainUserProgramDataWrapper w = item != null ? item.data : null;
-                    Activity act = activity(v.getContext());
-                    if (w != null && w.trainUser != null && act != null) {
-                        showCard(act, w.trainUser, w.trainProgram);
-                    }
-                }
-            });
+            icon.setOnClickListener(null);
+            icon.setClickable(false);
+            icon.setOnTouchListener(new CardTouch(item, null));
         } catch (Throwable t) {
             android.util.Log.w("xems", "XemsLocalAvatar.bindCard", t);
         }
@@ -270,17 +264,93 @@ public final class XemsLocalAvatar {
             if (icon == null) {
                 return;
             }
-            icon.setOnClickListener(new android.view.View.OnClickListener() {
-                public void onClick(android.view.View v) {
-                    Activity act = activity(v.getContext());
-                    if (w != null && w.trainUser != null && act != null) {
-                        showCard(act, w.trainUser, w.trainProgram);
-                    }
-                }
-            });
+            icon.setOnClickListener(null);
+            icon.setClickable(false);
+            icon.setOnTouchListener(new CardTouch(null, w));
         } catch (Throwable t) {
             android.util.Log.w("xems", "XemsLocalAvatar.bindCard", t);
         }
+    }
+
+    /**
+     * The photo is under the index buttons (ma, pauseMaValue: the main / second impulse strength) and fills
+     * the whole cluster. It takes a touch only on the photo itself (the ring's dead centre) and never on a
+     * button above it — otherwise the touch goes on to the view below (the index button), as before 1.1.103.
+     */
+    static final class CardTouch implements android.view.View.OnTouchListener {
+        private final com.isaigu.gymapp.train.model.TrainItem item;
+        private final com.isaigu.gymapp.bean.TrainUserProgramDataWrapper wrapper;
+        private boolean down;
+
+        CardTouch(com.isaigu.gymapp.train.model.TrainItem item, com.isaigu.gymapp.bean.TrainUserProgramDataWrapper wrapper) {
+            this.item = item;
+            this.wrapper = wrapper;
+        }
+
+        @Override
+        public boolean onTouch(android.view.View v, android.view.MotionEvent e) {
+            try {
+                int a = e.getActionMasked();
+                if (a == android.view.MotionEvent.ACTION_DOWN) {
+                    down = onPhoto(v, e.getX(), e.getY());
+                    return down;
+                }
+                if (!down) {
+                    return false;
+                }
+                if (a == android.view.MotionEvent.ACTION_UP) {
+                    down = false;
+                    if (onPhoto(v, e.getX(), e.getY())) {
+                        open(v);
+                    }
+                } else if (a == android.view.MotionEvent.ACTION_CANCEL) {
+                    down = false;
+                }
+                return true;
+            } catch (Throwable t) {
+                down = false;
+                return false;
+            }
+        }
+
+        private void open(android.view.View v) {
+            com.isaigu.gymapp.bean.TrainUserProgramDataWrapper w = wrapper != null ? wrapper : item != null ? item.data : null;
+            Activity act = activity(v.getContext());
+            if (w != null && w.trainUser != null && act != null) {
+                showCard(act, w.trainUser, w.trainProgram);
+            }
+        }
+    }
+
+    /** Inside the photo circle and not on a visible clickable sibling (the index buttons). */
+    static boolean onPhoto(android.view.View v, float x, float y) {
+        float d = v.getResources().getDisplayMetrics().density;
+        float side = Math.min(v.getWidth(), v.getHeight()) - 44 * d;   // the ring's padding
+        float r = side / 2f - 46 * d;                                     // ring 14 dp + pointer 18 dp + margin
+        if (r <= 0) {
+            return false;
+        }
+        float dx = x - v.getWidth() / 2f;
+        float dy = y - v.getHeight() / 2f;
+        if (dx * dx + dy * dy >= r * r) {
+            return false;
+        }
+        if (v.getParent() instanceof android.view.ViewGroup) {
+            android.view.ViewGroup g = (android.view.ViewGroup) v.getParent();
+            float px = v.getLeft() + x;
+            float py = v.getTop() + y;
+            for (int i = 0; i < g.getChildCount(); i++) {
+                android.view.View c = g.getChildAt(i);
+                if (c == v || c.getVisibility() != android.view.View.VISIBLE || !c.isClickable()
+                        || c instanceof com.isaigu.gymapp.widget.CircleSeekBar) {
+                    continue;
+                }
+                if (px >= c.getLeft() && px < c.getRight() && py >= c.getTop() && py < c.getBottom()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private static Activity activity(Context c) {

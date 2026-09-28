@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 537
+    .line 538
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 4
 
     .prologue
-    .line 540
+    .line 541
     # getter for: Lcom/isaigu/gymapp/wearable/NextClient;->pAppt:Lcom/isaigu/gymapp/wearable/Schedule$Appt;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$000()Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
@@ -42,7 +42,7 @@
 
     if-eqz v0, :cond_15
 
-    .line 541
+    .line 542
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -58,11 +58,11 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->markDone(Landroid/content/Context;Lcom/isaigu/gymapp/wearable/Schedule$Appt;)V
 
-    .line 543
+    .line 544
     :cond_15
     # invokes: Lcom/isaigu/gymapp/wearable/NextClient;->close()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$400()V
 
-    .line 544
+    .line 545
     return-void
 .end method

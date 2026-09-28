@@ -33,9 +33,11 @@ import java.util.Set;
  */
 public final class XemsClientSync {
     static final String PREFS = "xems_client_sync";
-    static final long POLL_MS = 20 * 60000L;
-    static final long POKE_MS = 2 * 60000L;
-    static final long TICK_MS = 60000L;
+    /** Two events close together pull once: the client list / Plan tab at most every 10 min… */
+    static final long POKE_MS = 10 * 60000L;
+    /** …right before the next client (the moment the profile matters) at most every minute. */
+    static final long SOON_MS = 60000L;
+    private static long gapMs = POKE_MS;
 
     private static final Handler H = new Handler(Looper.getMainLooper());
     private static Context app;
@@ -60,13 +62,32 @@ public final class XemsClientSync {
             return;
         }
         started = true;
-        H.postDelayed(new Tick(), 15000L);
+        // No timer: the profiles come on events only — the app starts (here), the client list or the Plan tab
+        // is opened (XemsNav / PlanScreen → poke), "Синхронизирай" (now).
+        poked = true;
+        H.postDelayed(new Tick0(), 15000L);
     }
 
-    /** The Plan tab was opened or "sync now" pressed: poll soon (at most every 2 min). */
+    /** The client list / Plan tab opened: pull the new profiles (every 10 min at most). */
     public static void poke() {
+        request(POKE_MS);
+    }
+
+    /** The next client is about to train: pull now unless done in the last minute. */
+    public static void soon() {
+        request(SOON_MS);
+    }
+
+    private static void request(long gap) {
+        gapMs = poked ? Math.min(gapMs, gap) : gap;
         poked = true;
         H.post(new Tick0());
+    }
+
+    /** "Синхронизирай": pull now. */
+    public static void now() {
+        lastPoll = 0;
+        request(0);
     }
 
     /** The studio code the PWA needs (from the license server), or "". */
@@ -92,17 +113,6 @@ public final class XemsClientSync {
         return when + " · " + n + XemsLang.tr(" профила общо", " profiles in total");
     }
 
-    static final class Tick implements Runnable {
-        @Override
-        public void run() {
-            try {
-                maybePoll(false);
-            } catch (Throwable ignored) {
-            }
-            H.postDelayed(this, TICK_MS);
-        }
-    }
-
     static final class Tick0 implements Runnable {
         @Override
         public void run() {
@@ -122,10 +132,7 @@ public final class XemsClientSync {
             return;
         }
         long t = System.currentTimeMillis();
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        boolean due = t - lastPoll >= POLL_MS && hour >= 6 && hour < 23;
-        boolean pokedDue = (now || poked) && t - lastPoll >= POKE_MS;
-        if (!due && !pokedDue) {
+        if (!(now || poked) || t - lastPoll < gapMs) {
             return;
         }
         poked = false;
@@ -161,6 +168,9 @@ public final class XemsClientSync {
                 android.util.Log.w("xems_sync", "pull: " + t);
             } finally {
                 busy = false;
+                if (poked) {
+                    H.postDelayed(new Tick0(), gapMs);     // an event came while this pull ran
+                }
             }
         }
     }

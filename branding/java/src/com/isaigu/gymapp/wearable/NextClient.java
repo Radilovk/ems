@@ -306,6 +306,7 @@ public final class NextClient {
     }
 
     private static void ask(Activity a, Schedule.Appt ap, int slot, TrainItem item, boolean manual) {
+        PlanScreen.sync("soon", null);              // event: what the client filled in the booking app comes now
         Context c = a.getApplicationContext();
         long now = System.currentTimeMillis();
         NextPlan.Rec rec = NextPlan.recommend(c, ap.user, ap.begin, nextOf(ap));

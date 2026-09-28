@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 729
+    .prologue
+    .line 768
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,30 +33,32 @@
 .method public onIndex(I)V
     .registers 3
 
-    .line 732
+    .prologue
     const/4 v0, 0x1
 
-    if-ne p1, v0, :cond_4
+    .line 771
+    if-ne p1, v0, :cond_f
 
-    goto :goto_5
-
-    :cond_4
-    const/4 v0, 0x0
-
-    :goto_5
+    :goto_3
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->blockProgramMode:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$502(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$702(Z)Z
 
-    .line 733
-    const-string p1, ""
+    .line 772
+    const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 734
+    .line 773
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->rebuildSheet()V
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$700()V
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$900()V
 
-    .line 735
+    .line 774
     return-void
+
+    .line 771
+    :cond_f
+    const/4 v0, 0x0
+
+    goto :goto_3
 .end method

@@ -82,6 +82,30 @@ public final class WearableSettingsSection {
         hint.setPadding(0, WearableUi.dp(a, 4), 0, WearableUi.dp(a, 12));
         card.addView(hint);
 
+        // What the band is for: remote only, heart rate only, or both
+        int role = WearableConfig.getBandRole(a);
+        if (bandApp) {
+            TextView roleLabel = WearableUi.text(a, WearableUi.tr("Гривната служи за", "The band is for"), 14f, textCol, true);
+            card.addView(roleLabel);
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            sp.topMargin = WearableUi.dp(a, 8);
+            card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, new String[] {
+                    WearableUi.tr("Пулс и управление", "Heart rate + control"),
+                    WearableUi.tr("Само управление", "Control only"),
+                    WearableUi.tr("Само пулс", "Heart rate only")}, role, new RolePick(a, root)), sp);
+            TextView roleHint = WearableUi.text(a, role == WearableConfig.ROLE_REMOTE
+                    ? WearableUi.tr("Старт, пауза и сила от гривната. Пулсът ѝ не се ползва — ♥ пулс и AI остават без него.",
+                            "Start, pause and strength from the band. Its heart rate is not used — ♥ and AI go without it.")
+                    : role == WearableConfig.ROLE_PULSE
+                    ? WearableUi.tr("Само пулс за ♥ пулс, AI и калориите. Гривната не управлява тренировката и приложението на нея не се отваря само.",
+                            "Heart rate only for ♥, AI and calories. The band does not control the training and its app does not open by itself.")
+                    : WearableUi.tr("Пулс за ♥ пулс и AI, и управление на тренировката от ръката.",
+                            "Heart rate for ♥ and AI, and training control from the wrist."), 12.5f, mutedCol, false);
+            roleHint.setPadding(0, WearableUi.dp(a, 6), 0, WearableUi.dp(a, 14));
+            card.addView(roleHint);
+        }
+
         // MAC + picker
         LinearLayout macRow = row(a);
         macRow.addView(label(a, "MAC", mutedCol));
@@ -152,7 +176,7 @@ public final class WearableSettingsSection {
                 WearableUi.tr("Band 8 и по-стари", "Band 8 and older"),
                 "Band 9 / 10"}, WearableConfig.getBandTransport(a), new TransportPick(a, root)));
         // The band's music screen as the training remote (no app to install on the band).
-        LinearLayout remote = !bandApp ? null : com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
+        LinearLayout remote = !bandApp || role == WearableConfig.ROLE_PULSE ? null : com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
                 WearableUi.tr("Управление от гривната", "Control from the band"),
                 WearableUi.tr("Плъзни до Музика: пулс и блок; ▶ старт/пауза, ⏭ ⏮ сила ±.",
                         "Swipe to Music: HR and block; ▶ start/pause, ⏭ ⏮ strength ±."),
@@ -528,6 +552,27 @@ public final class WearableSettingsSection {
         @Override
         public void onToggle(boolean on) {
             WearableConfig.setBandRemoteEnabled(a, on);
+        }
+    }
+
+    static final class RolePick implements com.isaigu.gymapp.widget.XemsUi.OnIndex {
+        private final Activity a;
+        private final View root;
+
+        RolePick(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void onIndex(int index) {
+            try {
+                WearableConfig.setBandRole(a, index);
+                NotifyWearableBridge.onRoleChanged(a);
+                build(a, root);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.role", t);
+            }
         }
     }
 

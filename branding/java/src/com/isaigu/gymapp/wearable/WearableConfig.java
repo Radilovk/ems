@@ -156,9 +156,38 @@ public final class WearableConfig {
         }
     }
 
+    /** What the band is for: {@link #ROLE_BOTH} (default), {@link #ROLE_REMOTE} only, {@link #ROLE_PULSE} only. */
+    public static final int ROLE_BOTH = 0;
+    public static final int ROLE_REMOTE = 1;
+    public static final int ROLE_PULSE = 2;
+
+    public static int getBandRole(Context context) {
+        if (context == null) {
+            return ROLE_BOTH;
+        }
+        int v = prefs(context).getInt("band_role", ROLE_BOTH);
+        return v >= ROLE_BOTH && v <= ROLE_PULSE ? v : ROLE_BOTH;
+    }
+
+    public static void setBandRole(Context context, int role) {
+        prefs(context).edit().putInt("band_role", Math.max(ROLE_BOTH, Math.min(ROLE_PULSE, role))).apply();
+    }
+
+    /** The band controls the training (remote, the XEMS app on the band). */
+    public static boolean usesRemote(Context context) {
+        return getBandRole(context) != ROLE_PULSE;
+    }
+
+    /** The band's heart rate feeds XEMS (pulse module, AI, calories). */
+    public static boolean usesPulse(Context context) {
+        // the choice is shown only with the band module: without it the heart rate is always used
+        return getBandRole(context) != ROLE_REMOTE
+                || !com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND);
+    }
+
     /** The band's music screen works as the training remote (title = live state, keys = control). */
     public static boolean isBandRemoteEnabled(Context context) {
-        return context == null || prefs(context).getBoolean("band_remote", true);
+        return context == null || (usesRemote(context) && prefs(context).getBoolean("band_remote", true));
     }
 
     public static void setBandRemoteEnabled(Context context, boolean on) {
@@ -167,7 +196,7 @@ public final class WearableConfig {
 
     /** Open the XEMS app on the band when a workout / AI session starts (default on). */
     public static boolean isBandAutoOpen(Context context) {
-        return context == null || prefs(context).getBoolean("band_auto_open", true);
+        return context == null || (usesRemote(context) && prefs(context).getBoolean("band_auto_open", true));
     }
 
     public static void setBandAutoOpen(Context context, boolean on) {

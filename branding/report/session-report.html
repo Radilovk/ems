@@ -530,11 +530,15 @@ function blocks(r,T){
   if(r.ph&&r.ph.some(v=>v>0)){
     let cur=-1;for(let t=0;t<T;t++){const v=r.ph[t]||(cur>=0?out[cur].v:1);if(cur<0||out[cur].v!==v){out.push({v,id:AI_PH[v-1]||(tr("Фаза ","Phase ")+v),a:t,b:t+1});cur++;}else out[cur].b=t+1;}
   }else{
-    let cur=-1;for(let t=0;t<T;t++){const k=r.hz[t]+"|"+r.pw[t]+"|"+r.on[t]+"|"+r.off[t];if(cur<0||out[cur].k!==k){out.push({k,a:t,b:t+1});cur++;}else out[cur].b=t+1;}
-    // short blocks (< 30 s) go into the one before
-    for(let i=out.length-1;i>0;i--){if(out[i].b-out[i].a<30){out[i-1].b=out[i].b;out.splice(i,1);}}
-    if(out.length>1&&out[0].b-out[0].a<30){out[1].a=0;out.shift();}
-    out.forEach((b,i)=>b.id=out.length===1?tr("Основна","Main"):tr("Блок ","Block ")+(i+1));
+    const pvAt=t=>r.pv&&r.pv[t]===1?1:0;
+    let cur=-1;for(let t=0;t<T;t++){const pv=pvAt(t);const k=pv?"pv":r.hz[t]+"|"+r.pw[t]+"|"+r.on[t]+"|"+r.off[t];if(cur<0||out[cur].k!==k){out.push({k,pv,a:t,b:t+1});cur++;}else out[cur].b=t+1;}
+    // short blocks (< 30 s) go into the one before (never across the passive phase)
+    for(let i=out.length-1;i>0;i--){if(out[i].b-out[i].a<30&&out[i].pv===out[i-1].pv){out[i-1].b=out[i].b;out.splice(i,1);}}
+    if(out.length>1&&out[0].b-out[0].a<30&&out[0].pv===out[1].pv){out[1].a=0;out.shift();}
+    // phase 2 after a manual training (massage) is passive
+    const work=out.filter(b=>!b.pv),hasPv=out.some(b=>b.pv);let wi=0;
+    out.forEach(b=>{b.id=b.pv?tr("Фаза 2 · пасивна","Phase 2 · passive")
+      :work.length===1?(hasPv?tr("Фаза 1 · тренировка","Phase 1 · training"):tr("Основна","Main")):tr("Блок ","Block ")+(++wi);});
   }
   out.forEach(b=>{const m=Math.floor((b.a+b.b)/2);b.hz=r.hz[m];b.us=r.pw[m];b.on=r.on[m];b.off=r.off[m];});
   return out;
@@ -545,17 +549,18 @@ function fromRec(r,tol){
   const hasHr=r.hr.some(v=>v>0);const PHs=blocks(r,T);
   const s=[];let last=0,hrN=0,act=0,apOn=false;
   for(let t=0;t<T;t++){
-    const paused=!r.run[t];const on=r.on[t],off=r.off[t],cyc=Math.max(1,on+off);
+    const paused=!r.run[t];const on=r.on[t],off=r.off[t],cyc=Math.max(1,on+off);const pas=!!(r.pv&&r.pv[t]===1);
     const imp=r.imp?r.imp[t]===1:(!paused&&(off===0||t%cyc<on));
     const chs=[];let sum=0;
     for(let i=0;i<10;i++){const dis=(r.dis[t]>>i)&1;const real=dis?0:r.ch[i][t]*r.st[t]/100;chs.push(real/100);sum+=W[i]*clamp(real/Math.max(tol[i],1),0,1);}
     let S=0;
     if(!paused){const g=off===0?.92:clamp(1.55*on/cyc,0,1);S=sum/WS*kf(r.hz[t]||1)*g;
-      if(r.ap[t]&&off>0){apOn=true;S+=(off/cyc)*(r.ps[t]/100)*(sum/WS)*kf(r.phz[t]||r.hz[t]||1)*.8;}S=clamp(S,0,1);act++;}
+      if(r.ap[t]&&off>0){apOn=true;S+=(off/cyc)*(r.ps[t]/100)*(sum/WS)*kf(r.phz[t]||r.hz[t]||1)*.8;}S=clamp(S,0,1);
+      if(pas)S*=.3;else act++;}   // phase 2 (massage) is passive: a light stimulus, not training time
     let hr=r.hr[t]||0;if(hr){last=hr;if(!paused)hrN++;}else if(hasHr)hr=last;
     const C=hasHr&&hr?clamp((hr-rest)/(max-rest),0,1):0;
     const b=PHs.find(x=>t>=x.a&&t<x.b)||PHs[PHs.length-1];
-    s.push({t,ph:b?b.id:"",paused,on:imp,S,C,I:hasHr?.55*S+.45*C:S,hr,hz:r.hz[t],us:r.pw[t],ma:r.st[t],chs});
+    s.push({t,ph:b?b.id:"",paused,pas,on:imp,S,C,I:hasHr?.55*S+.45*C:S,hr,hz:r.hz[t],us:r.pw[t],ma:r.st[t],chs});
   }
   const pauses=[];let p0=-1;for(let t=0;t<=T;t++){const pz=t<T&&!r.run[t];if(pz&&p0<0)p0=t;if(!pz&&p0>=0){pauses.push([p0,t]);p0=-1;}}
   let recDrop=null;if(hasHr&&r.post&&r.post.filter(v=>v>0).length>=30){const endHr=last;const post=r.post.filter(v=>v>0);recDrop=Math.round(endHr-post[Math.min(59,post.length-1)]);}
@@ -577,13 +582,13 @@ function persona(p,nBefore){
 function personalGoal(g,k){return{...g,s:[clamp(g.s[0]*k,.05,.9),clamp(g.s[1]*Math.min(1.12,k+.08),.15,.98)],c:[clamp(g.c[0]+(k-1)*.3,0,.8),clamp(g.c[1]+(k-1)*.3,.2,.95)],dose:g.dose*k,k};}
 function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const P0=persona(pers,nBefore);const goal=personalGoal(goal0,P0.k);const female=pers&&pers.sex==="F";
-  const s=sim.s;const act=s.filter(x=>!x.paused);const T=s.length;const n=Math.max(1,act.length);
+  const s=sim.s;const act=s.filter(x=>!x.paused&&!x.pas);const T=s.length;const n=Math.max(1,act.length);   // the passive phase is not training
   const inGoal=p=>{const ds=Math.max(0,goal.s[0]-p.S,p.S-goal.s[1]);const dc=sim.hasHr?Math.max(0,goal.c[0]-p.C,p.C-goal.c[1]):0;return clamp(1-Math.hypot(ds,dc)/.15,0,1);};
   let main=act.filter(p=>p.t>=T*.15&&p.t<=T*.9);if(main.length<30)main=act;
   const Tg=main.reduce((a,p)=>a+inGoal(p),0)/Math.max(1,main.length);
   const over=main.filter(p=>p.S>goal.s[1]+.05).length/Math.max(1,main.length),under=main.filter(p=>p.S<goal.s[0]-.05).length/Math.max(1,main.length);
   const dose=act.reduce((a,p)=>a+p.S,0)/60;const dr=dose/(goal.dose*Math.min(20,Math.max(1,act.length/60)));const D=dr<=1.4?clamp(dr,0,1):clamp(1-(dr-1.4)*.5,.5,1);
-  const pauseS=T-act.length;const Q=clamp(1-pauseS/(T*.25),0,1);
+  const pasS=s.filter(x=>x.pas).length;const pauseS=T-pasS-act.length;const Q=clamp(1-pauseS/(Math.max(1,T-pasS)*.25),0,1);   // phase 2 is not a pause
   const avgPrev=prevDoses.length?prevDoses.reduce((a,b)=>a+b,0)/prevDoses.length:dose;
   const P=avgPrev>0?clamp(.6+(dose-avgPrev)/avgPrev*2,0,1):.6;
   const eff=Math.round(100*(.40*Tg+.30*D+.15*Q+.15*P));
@@ -615,7 +620,9 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
 }
 function typeLabel(m){if(m.type==="ai")return "Smart Session";if(m.type==="auto")return tr("Авто · ","Auto · ")+(m.program||"");const md=m.modes|0,massage=(md&8)!==0,work=(md&7)!==0;
   if(massage&&!work)return tr("Процедура · масаж","Procedure · massage");
-  return (m.program?(tr("Програма „","Program “")+m.program+tr("“","”")):tr("Тренировка","Training"))+(massage?tr(" + масаж"," + massage"):"");}
+  const pm=Math.round((m.passiveS|0)/60);
+  return (m.program?(tr("Програма „","Program “")+m.program+tr("“","”")):tr("Тренировка","Training"))
+    +(massage?tr(" + масаж (фаза 2, пасивна"," + massage (phase 2, passive")+(pm>0?" · "+pm+tr(" мин"," min"):"")+")":"");}
 function loadReal(){
   CLIENT=JSON.parse(BR.client()||"{}");
   const L=(JSON.parse(BR.sessions()||"[]")||[]).sort((a,b)=>a.start-b.start);
@@ -623,7 +630,8 @@ function loadReal(){
   const doses=[];sessions=[];
   L.forEach(m=>{let r=null;try{r=JSON.parse(BR.session(String(m.id)));}catch(e){}
     if(!r||!r.run||r.run.length<10)return;
-    const goalKey=(r.person&&r.person.goal)||CLIENT.goal||"tone";const goal=GOALS[goalKey]||GOALS.tone;
+    const md=m.modes|0,passive=(md&8)!==0&&(md&7)===0;   // a massage alone: a passive procedure, not a training
+    const goalKey=passive?"massage":(r.person&&r.person.goal)||CLIENT.goal||"tone";const goal=GOALS[goalKey]||GOALS.tone;
     const sim=fromRec(r,tol);const pr=Object.assign({},CLIENT,r.person||{});const a=analyse(sim,doses.slice(-3),goal,pr.weight,pr,sessions.length);doses.push(a.dose);
     sessions.push({i:sessions.length,id:m.id,date:new Date(m.start),type:typeLabel(m),sim,a,goal:goalKey,meta:m});
     const sc=m.scores||{};if(sc.eff!==a.eff||sc.load!==a.load){try{BR.putScores(String(m.id),JSON.stringify({eff:a.eff,load:a.load,kcal:a.kcal,dose:Math.round(a.dose*100)/100}));}catch(e){}}});
@@ -1064,7 +1072,7 @@ $("#demoBtn").onclick=()=>{demoSessions();start(null);};
 let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(sessions.length){drawImap();drawBody();}},150);});
 new MutationObserver(()=>{if(sessions.length){renderStats();renderList(cur);draw();}}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 
-function refreshCard(){try{if(DEMO||!BR||!BR.cardUrl||!BR.cardUrl()||!sessions.length)return;const L=sessions[sessions.length-1];
+function refreshCard(){try{if(DEMO||!BR||!BR.cardUrl||!sessions.length)return;if(!BR.cardUrl()&&!(BR.auto&&BR.auto()))return;const L=sessions[sessions.length-1];
   BR.refreshCard(JSON.stringify(cardData()),sessions.length+":"+L.id);}catch(e){}}
 function start(focusId){
   renderClient();

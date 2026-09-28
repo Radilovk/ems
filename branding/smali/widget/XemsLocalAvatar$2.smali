@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->bindCard(Landroid/view/View;Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->showCard(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;Lcom/isaigu/gymapp/bean/TrainProgram;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,15 +18,29 @@
 
 
 # instance fields
-.field final synthetic val$w:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+.field final synthetic val$a:Landroid/app/Activity;
+
+.field final synthetic val$dlg:Landroid/app/Dialog;
+
+.field final synthetic val$u:Lcom/isaigu/gymapp/bean/TrainUser;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;)V
-    .registers 2
+.method constructor <init>(Landroid/app/Dialog;Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;)V
+    .registers 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 273
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$w:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+    .prologue
+    .line 505
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$dlg:Landroid/app/Dialog;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$a:Landroid/app/Activity;
+
+    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -38,39 +52,19 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 275
-    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
+    .prologue
+    .line 507
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$dlg:Landroid/app/Dialog;
 
-    move-result-object p1
+    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    # invokes: Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->activity(Landroid/content/Context;)Landroid/app/Activity;
-    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->access$100(Landroid/content/Context;)Landroid/app/Activity;
+    .line 508
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$a:Landroid/app/Activity;
 
-    move-result-object p1
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 276
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$w:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->show(Landroid/app/Activity;Ljava/lang/Object;)V
 
-    if-eqz v0, :cond_1d
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
-
-    if-eqz v0, :cond_1d
-
-    if-eqz p1, :cond_1d
-
-    .line 277
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$w:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$2;->val$w:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
-
-    invoke-static {p1, v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->showCard(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;Lcom/isaigu/gymapp/bean/TrainProgram;)V
-
-    .line 279
-    :cond_1d
+    .line 509
     return-void
 .end method

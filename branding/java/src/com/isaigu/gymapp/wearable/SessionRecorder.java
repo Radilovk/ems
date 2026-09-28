@@ -92,6 +92,11 @@ public final class SessionRecorder {
                     close(i, r, now, false);
                     r = null;
                 }
+                // After ■ Stop only a massage continues the same report (phase 2); another work mode is a new one.
+                if (r != null && r.between && hasUser && it.data.start && useType(it) != TYPE_MASSAGE) {
+                    close(i, r, now, false);
+                    r = null;
+                }
                 if (!hasUser) {
                     continue;
                 }
@@ -117,6 +122,15 @@ public final class SessionRecorder {
                     WearableBleDiagLog.log("report", "session start slot " + i + " user " + r.userId
                             + " plan " + r.planS + " s");
                 }
+                // ⚙ saved mid-training (ProgramLive): the planned time moved with the new length
+                int moved = com.isaigu.gymapp.train.utils.ProgramLive.takePlanDelta(it);
+                if (moved != 0) {
+                    r.segPlanS = Math.max(0, r.segPlanS + moved);
+                    r.planS = Math.max(0, r.planS + moved);
+                    if (r.mainType >= 0 && r.curType == r.mainType) {
+                        r.mainPlanS = Math.max(0, r.mainPlanS + moved);
+                    }
+                }
                 if (!running) {
                     if (r.between) {
                         // A work mode is done: wait for the next mode (not recorded).
@@ -130,21 +144,27 @@ public final class SessionRecorder {
                     r.idle = reset ? r.idle + 1 : 0;
                     r.pausedS = reset ? r.pausedS : r.pausedS + 1;
                     if (reset && r.idle >= END_CONFIRM_S) {
-                        if (r.assist) {
-                            close(i, r, now, true);
-                        } else if (r.curType == TYPE_MASSAGE || r.curType < 0) {
-                            close(i, r, now, true);        // massage (or a procedure) done: training over
+                        if (r.assist || r.curType == TYPE_MASSAGE || r.curType < 0) {
+                            close(i, r, now, true);        // phase 2 (massage) or a procedure done: over
                         } else {
-                            r.between = true;              // work mode done: the massage may follow
+                            // ■ Stop (or the time is up) = the end of the training, whether or not it reached
+                            // the planned time: the report now. A massage started for the same client within
+                            // 30 min joins this report as phase 2 (passive); then it is saved and shown again.
+                            r.between = true;
                             r.betweenS = 0;
                             r.idle = 0;
                             BandWorkout.onState(r, false);
-                            // The band's summary is out now (■); the rec closes only after the massage
-                            // or 30 min — too late for it, so the muscle map goes with this mode.
                             if (r.bandOwner || r.leader) {
                                 BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
                             }
-                            WearableBleDiagLog.log("report", "slot " + i + " mode " + r.curType + " done, waiting");
+                            r.end = now;
+                            if (r.activeS() >= MIN_ACTIVE_S) {
+                                save(r, false);
+                                show(r);
+                                CardPublisher.publish(r.user);
+                            }
+                            WearableBleDiagLog.log("report", "slot " + i + " mode " + r.curType
+                                    + " ended; a massage may follow as phase 2");
                         }
                         continue;
                     }
@@ -212,6 +232,7 @@ public final class SessionRecorder {
             if (r.postLeft <= 0 || leaderTaken) {
                 POST.remove(k);
                 save(r, !r.shown);
+                CardPublisher.publish(r.user);      // with the recovery heart rate
             }
         }
     }
@@ -279,8 +300,11 @@ public final class SessionRecorder {
         if (post) {
             r.postLeft = POST_S;
             POST.add(r);
-        } else if (!show) {
-            save(r, true);
+        } else {
+            if (!show) {
+                save(r, !r.shown);                  // already shown at ■ Stop: no second toast
+            }
+            CardPublisher.publish(r.user);          // the client's card (booking app) at once
         }
     }
 

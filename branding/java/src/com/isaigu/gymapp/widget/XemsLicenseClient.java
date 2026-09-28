@@ -129,6 +129,7 @@ public final class XemsLicenseClient {
                     if (Boolean.TRUE.equals(r.get("ok")) && r.get("token") != null) {
                         XemsLicense.applyToken(null, String.valueOf(r.get("token")));
                         saveStudio(c, r.get("studio"));
+                        saveLatest(r.get("app_latest"));
                     } else if ("revoked".equals(r.get("error")) || "unknown".equals(r.get("error"))) {
                         XemsLicense.revoke();
                     } else {
@@ -141,6 +142,21 @@ public final class XemsLicenseClient {
                 }
             }
         }, "xems-license-refresh").start();
+    }
+
+    static final String K_LATEST = "app_latest";
+    static final String K_LATEST_AT = "app_latest_at";
+
+    /** The licence answer says the newest XEMS for this tablet (0 none newer, −1 / missing unknown). */
+    static void saveLatest(Object v) {
+        if (v == null) {
+            return;
+        }
+        long n = XemsLicenseToken.num(v);
+        if (n < 0) {
+            return;
+        }
+        XemsLicense.prefs().edit().putInt(K_LATEST, (int) n).putLong(K_LATEST_AT, System.currentTimeMillis()).apply();
     }
 
     /** The studio code (random 8 chars, or a readable one the admin set, e.g. "xbody"). */
@@ -183,6 +199,7 @@ public final class XemsLicenseClient {
                         && XemsLicense.source().length() == 0
                         && XemsLicense.applyToken(null, String.valueOf(r.get("token"))) == null) {
                     saveStudio(c, r.get("studio"));
+                    saveLatest(r.get("app_latest"));
                     if ("locked".equals(r.get("phase"))) {
                         XemsLicense.finishSetup();   // a reinstall of a tablet that was already handed over
                     }
@@ -266,6 +283,13 @@ public final class XemsLicenseClient {
             long now = System.currentTimeMillis();
             long last = p.getLong(K_UPDATE_CHECKED, 0);
             if (last > 0 && last <= now && now - last < AUTO_CHECK_MS) {
+                return;
+            }
+            // The licence answer (≤ 1 / day) already says whether a newer XEMS exists: ask for the
+            // details only then — no request of its own when there is nothing new.
+            long knownAt = p.getLong(K_LATEST_AT, 0);
+            if (knownAt > 0 && knownAt <= now && now - knownAt < 2 * XemsLicense.REFRESH_MS
+                    && p.getInt(K_LATEST, 0) <= appCode(a)) {
                 return;
             }
             checkUpdate(a.getApplicationContext(), new UpdateDone() {

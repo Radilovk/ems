@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 173
+    .line 189
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 174
+    .line 190
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$AutoRun;->c:Landroid/content/Context;
 
-    .line 175
+    .line 191
     return-void
 .end method
 
@@ -46,10 +46,10 @@
 
     const-wide/16 v2, 0x0
 
-    .line 179
+    .line 195
     const-wide/32 v0, 0x1499700
 
-    .line 181
+    .line 197
     :try_start_6
     const-string v4, "POST"
 
@@ -93,7 +93,7 @@
 
     move-result-object v4
 
-    .line 182
+    .line 198
     sget-object v5, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
 
     const-string v6, "ok"
@@ -106,7 +106,7 @@
 
     move-result v5
 
-    if-eqz v5, :cond_8b
+    if-eqz v5, :cond_94
 
     const-string v5, "token"
 
@@ -114,9 +114,9 @@
 
     move-result-object v5
 
-    if-eqz v5, :cond_8b
+    if-eqz v5, :cond_94
 
-    .line 183
+    .line 199
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->source()Ljava/lang/String;
 
     move-result-object v5
@@ -125,13 +125,13 @@
 
     move-result v5
 
-    if-nez v5, :cond_8b
+    if-nez v5, :cond_94
 
     const/4 v5, 0x0
 
     const-string v6, "token"
 
-    .line 184
+    .line 200
     invoke-interface {v4, v6}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v6
@@ -144,9 +144,9 @@
 
     move-result-object v5
 
-    if-nez v5, :cond_8b
+    if-nez v5, :cond_94
 
-    .line 185
+    .line 201
     iget-object v5, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$AutoRun;->c:Landroid/content/Context;
 
     const-string v6, "studio"
@@ -157,7 +157,16 @@
 
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->saveStudio(Landroid/content/Context;Ljava/lang/Object;)V
 
-    .line 186
+    .line 202
+    const-string v5, "app_latest"
+
+    invoke-interface {v4, v5}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v5
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->saveLatest(Ljava/lang/Object;)V
+
+    .line 203
     const-string v5, "locked"
 
     const-string v6, "phase"
@@ -170,17 +179,17 @@
 
     move-result v4
 
-    if-eqz v4, :cond_7e
+    if-eqz v4, :cond_87
 
-    .line 187
+    .line 204
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->finishSetup()V
-    :try_end_7e
-    .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_7e} :catch_a9
-    .catchall {:try_start_6 .. :try_end_7e} :catchall_cb
+    :try_end_87
+    .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_87} :catch_b2
+    .catchall {:try_start_6 .. :try_end_87} :catchall_d4
 
-    .line 190
-    :cond_7e
-    :try_start_7e
+    .line 207
+    :cond_87
+    :try_start_87
     # getter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$200()Landroid/os/Handler;
 
@@ -191,14 +200,14 @@
     invoke-direct {v1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$LicenseChanged;-><init>()V
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-    :try_end_8a
-    .catch Ljava/lang/Throwable; {:try_start_7e .. :try_end_8a} :catch_a9
-    .catchall {:try_start_7e .. :try_end_8a} :catchall_eb
+    :try_end_93
+    .catch Ljava/lang/Throwable; {:try_start_87 .. :try_end_93} :catch_b2
+    .catchall {:try_start_87 .. :try_end_93} :catchall_f4
 
     move-wide v0, v2
 
-    .line 195
-    :cond_8b
+    .line 212
+    :cond_94
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v4
@@ -211,7 +220,7 @@
 
     cmp-long v6, v0, v2
 
-    if-lez v6, :cond_9e
+    if-lez v6, :cond_a7
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -219,29 +228,29 @@
 
     add-long/2addr v2, v0
 
-    :cond_9e
+    :cond_a7
     invoke-interface {v4, v5, v2, v3}, Landroid/content/SharedPreferences$Editor;->putLong(Ljava/lang/String;J)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 196
+    .line 213
     # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->autoRunning:Z
     invoke-static {v8}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$302(Z)Z
 
-    .line 198
-    :goto_a8
+    .line 215
+    :goto_b1
     return-void
 
-    .line 192
-    :catch_a9
+    .line 209
+    :catch_b2
     move-exception v0
 
-    .line 193
+    .line 210
     const-wide/32 v0, 0x927c0
 
-    .line 195
+    .line 212
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v4
@@ -254,7 +263,7 @@
 
     cmp-long v6, v0, v2
 
-    if-lez v6, :cond_c0
+    if-lez v6, :cond_c9
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -262,26 +271,26 @@
 
     add-long/2addr v2, v0
 
-    :cond_c0
+    :cond_c9
     invoke-interface {v4, v5, v2, v3}, Landroid/content/SharedPreferences$Editor;->putLong(Ljava/lang/String;J)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 196
+    .line 213
     # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->autoRunning:Z
     invoke-static {v8}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$302(Z)Z
 
-    goto :goto_a8
+    goto :goto_b1
 
-    .line 195
-    :catchall_cb
+    .line 212
+    :catchall_d4
     move-exception v4
 
     move-wide v6, v0
 
-    :goto_cd
+    :goto_d6
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -294,7 +303,7 @@
 
     cmp-long v5, v6, v2
 
-    if-lez v5, :cond_e0
+    if-lez v5, :cond_e9
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -302,27 +311,27 @@
 
     add-long/2addr v2, v6
 
-    :cond_e0
+    :cond_e9
     invoke-interface {v0, v1, v2, v3}, Landroid/content/SharedPreferences$Editor;->putLong(Ljava/lang/String;J)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 196
+    .line 213
     # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->autoRunning:Z
     invoke-static {v8}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$302(Z)Z
 
-    .line 197
+    .line 214
     throw v4
 
-    .line 195
-    :catchall_eb
+    .line 212
+    :catchall_f4
     move-exception v0
 
     move-object v4, v0
 
     move-wide v6, v2
 
-    goto :goto_cd
+    goto :goto_d6
 .end method

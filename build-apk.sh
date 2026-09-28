@@ -90,6 +90,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
     bash "${ROOT}/scripts/compile-music-sync-java.sh"
   fi
   python3 "${ROOT}/scripts/apply-beta-features.py"
+  python3 "${ROOT}/scripts/apply-live-settings.py"
   python3 "${ROOT}/scripts/apply-music-sync-pulse.py"
   python3 "${ROOT}/scripts/apply-music-sync-slider.py"
   python3 "${ROOT}/scripts/apply-music-sync-controls.py"

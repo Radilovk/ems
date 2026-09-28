@@ -68,12 +68,15 @@ public final class XemsLicense {
     static final String K_EMS = "ems";
     /** "setup" = admin setup of a new tablet (everything open), "locked" = the customer's profile. */
     static final String K_PHASE = "phase";
+    /** Arms channel on this tablet, set in the admin setup: "" (the licence decides), "full" (1:1), "reduced". */
+    static final String K_ARMS = "arms";
 
     private static Context app;
     private static volatile Set<String> unlocked = new HashSet<String>();
     private static volatile Set<String> features = new HashSet<String>();
     private static volatile boolean loaded;
     private static volatile boolean setup;
+    private static volatile String arms = "";
     private static volatile Set<String> ems = new HashSet<String>();
 
     private XemsLicense() {}
@@ -101,7 +104,27 @@ public final class XemsLicense {
 
     /** Feature switch (e.g. {@link #FEAT_ARMS_FULL}); off until the licence turns it on. */
     public static boolean hasFeature(String feature) {
+        if (FEAT_ARMS_FULL.equals(feature)) {
+            if ("full".equals(arms)) {
+                return true;
+            }
+            if ("reduced".equals(arms)) {
+                return false;
+            }
+        }
         return setup || features.contains(feature);
+    }
+
+    /** The arms choice of this tablet ("" = by the licence, "full", "reduced"). */
+    public static String armsMode() {
+        return arms;
+    }
+
+    /** Admin setup: the arms at normal strength (1:1) or reduced; kept after the setup is finished. */
+    public static void setArmsMode(String mode) {
+        String m = "full".equals(mode) || "reduced".equals(mode) ? mode : "";
+        prefs().edit().putString(K_ARMS, m).apply();
+        arms = m;
     }
 
     /**
@@ -325,6 +348,7 @@ public final class XemsLicense {
             p.edit().putString(K_PHASE, phase).apply();
         }
         setup = "setup".equals(phase);
+        arms = p.getString(K_ARMS, "");
         loaded = true;
     }
 

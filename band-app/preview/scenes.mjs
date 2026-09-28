@@ -43,6 +43,7 @@ export const SCENES = [
   { page: 'timer', name: 'off', state: idle },
   { page: 'timer', name: 'run', state: timer },
   { page: 'timer', name: 'wait', state: { ...timer, mods: mods({ tm: { arm: 1, left: 45, int: 45, loop: 1, loops: 8 } }) } },
+  { page: 'timer', name: 'paused', state: { ...timer, mods: mods({ tr: { run: 0 }, tm: { arm: 1, left: 30, int: 45, loop: 2, loops: 8 } }) } },
   { page: 'music', name: 'off', state: idle },
   { page: 'music', name: 'main', state: music },
   { page: 'music', name: 'skip', state: music, cur: 'skip' },

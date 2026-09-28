@@ -21,7 +21,8 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 693
+    .prologue
+    .line 732
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,35 +31,36 @@
 
 # virtual methods
 .method public onDismiss(Landroid/content/DialogInterface;)V
-    .registers 3
+    .registers 4
 
-    .line 696
+    .prologue
+    const/4 v1, 0x0
+
+    .line 735
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->pickingSignal:Z
-    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200()Z
+    invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$400()Z
 
-    move-result p1
+    move-result v0
 
-    if-eqz p1, :cond_7
+    if-eqz v0, :cond_8
 
-    .line 697
+    .line 740
+    :goto_7
     return-void
 
-    .line 699
-    :cond_7
-    const/4 p1, 0x0
-
+    .line 738
+    :cond_8
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100(Landroid/app/Activity;)Landroid/app/Activity;
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$300(Landroid/app/Activity;)Landroid/app/Activity;
 
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->saveSettings(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$300(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$500(Landroid/app/Activity;)V
 
-    .line 700
+    .line 739
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->sheet:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
-    invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$402(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$602(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 701
-    return-void
+    goto :goto_7
 .end method

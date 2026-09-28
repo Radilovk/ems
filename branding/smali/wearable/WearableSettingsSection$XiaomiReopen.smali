@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1200
+    .line 1293
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1201
+    .line 1294
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiReopen;->a:Landroid/app/Activity;
 
-    .line 1202
+    .line 1295
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiReopen;->root:Landroid/view/View;
 
-    .line 1203
+    .line 1296
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 4
 
     .prologue
-    .line 1207
+    .line 1300
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiReopen;->a:Landroid/app/Activity;
 
     const-string v1, "Xiaomi \u0441\u0435\u0441\u0438\u044f\u0442\u0430 \u0435 \u0438\u0437\u0442\u0435\u043a\u043b\u0430 \u2014 \u0432\u043b\u0435\u0437 \u043e\u0442\u043d\u043e\u0432\u043e."
@@ -61,13 +61,13 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->toast(Landroid/app/Activity;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1600(Landroid/app/Activity;Ljava/lang/String;)V
 
-    .line 1208
+    .line 1301
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiReopen;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiReopen;->root:Landroid/view/View;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->openXiaomiWebLogin(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 1209
+    .line 1302
     return-void
 .end method

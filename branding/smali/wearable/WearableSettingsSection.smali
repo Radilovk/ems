@@ -26,12 +26,16 @@
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebPoll;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiProbeResult;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiCaptured;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiJsBridge;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Rebuild;
     }
 .end annotation
 
 
 # static fields
+.field static final HOOK_JS:Ljava/lang/String; = "(function(){if(window.__xh)return;window.__xh=1;function rep(t){try{if(t&&String(t).indexOf(\'ssecurity\')>=0)XemsX.report(String(t));}catch(e){}}var o=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(){var x=this;x.addEventListener(\'load\',function(){try{rep(x.responseText);}catch(e){}});return o.apply(this,arguments);};if(window.fetch){var f=window.fetch;window.fetch=function(){return f.apply(this,arguments).then(function(r){try{r.clone().text().then(rep);}catch(e){}return r;});};}})()"
+
 .field private static final STATUS:Ljava/lang/Runnable;
 
 .field private static final TAG:Ljava/lang/String; = "xems_band_settings"

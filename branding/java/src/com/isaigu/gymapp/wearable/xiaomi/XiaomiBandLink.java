@@ -13,6 +13,9 @@ public interface XiaomiBandLink {
 
     void disconnect();
 
+    /** Two bands (Settings → Band → second band): {@link XiaomiBand#ROLE_HR} / {@link XiaomiBand#ROLE_CONTROL}; 0 = one band does all. */
+    void setRole(int role);
+
     void startRealtime();
     /** Stop the heart-rate stream but keep the link (band app, remote keys) up. */
     void stopRealtime();

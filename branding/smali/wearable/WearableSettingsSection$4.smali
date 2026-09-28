@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 215
+    .line 219
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;->val$a:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;->val$appStatus:Landroid/widget/TextView;
@@ -49,13 +49,13 @@
     .registers 4
 
     .prologue
-    .line 218
+    .line 222
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$4;->val$appStatus:Landroid/widget/TextView;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/BandAppInstall;->start(Landroid/app/Activity;Landroid/widget/TextView;)V
 
-    .line 219
+    .line 223
     return-void
 .end method

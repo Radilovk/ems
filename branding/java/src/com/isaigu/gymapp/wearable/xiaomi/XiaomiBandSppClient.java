@@ -100,6 +100,10 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     private int lastF5 = -1;
     private int lastRawHr = -1;
 
+    /** 0 one band does all; ROLE_HR the client's band (heart rate, worn); ROLE_CONTROL the trainer's (remote, app). */
+    private volatile int role;
+    private static XiaomiBandSppClient control;
+
     private XiaomiBandSppClient() {}
 
     public static synchronized XiaomiBandSppClient getInstance() {
@@ -107,6 +111,28 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
             instance = new XiaomiBandSppClient();
         }
         return instance;
+    }
+
+    /** The second link (control band), when that band talks Bluetooth Classic. */
+    public static synchronized XiaomiBandSppClient getControl() {
+        if (control == null) {
+            control = new XiaomiBandSppClient();
+            control.role = XiaomiBand.ROLE_CONTROL;
+        }
+        return control;
+    }
+
+    @Override
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    private boolean hrPart() {
+        return role != XiaomiBand.ROLE_CONTROL;
+    }
+
+    private boolean controlPart() {
+        return role != XiaomiBand.ROLE_HR;
     }
 
     public static String getBuildTag() {
@@ -327,8 +353,10 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
     }
 
     private void resetSession() {
-        XiaomiBandInstaller.onDisconnected();
-        XiaomiBandAppLink.reset();
+        if (controlPart()) {
+            XiaomiBandInstaller.onDisconnected();
+            XiaomiBandAppLink.reset();
+        }
         main.removeCallbacks(versionTimeout);
         main.removeCallbacks(authTimeout);
         main.removeCallbacks(watch);
@@ -357,7 +385,9 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         lastF3 = -1;
         lastF5 = -1;
         lastRawHr = -1;
-        XiaomiBandStatus.reset();
+        if (hrPart()) {
+            XiaomiBandStatus.reset();
+        }
     }
 
     private void closePort() {
@@ -603,15 +633,17 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         if (type == XiaomiBandMessages.T_AUTH) {
             onAuth(cmd, sub);
         } else if (type == XiaomiBandMessages.T_HEALTH && sub == XiaomiBandMessages.HEALTH_RT_EVENT) {
-            onRealtime(cmd);
-        } else if (XiaomiBandRemote.onCommand(type, sub, cmd)) {
+            if (hrPart()) {
+                onRealtime(cmd);
+            }
+        } else if (controlPart() && XiaomiBandRemote.onCommand(type, sub, cmd)) {
             log("remote", "music sub=" + sub);
-        } else if (XiaomiBandAppLink.onCommand(type, sub, cmd)) {
+        } else if (controlPart() && XiaomiBandAppLink.onCommand(type, sub, cmd)) {
             log("applink", "cmd " + type + "/" + sub);
-        } else if (XiaomiBandInstaller.onCommand(type, sub, cmd)) {
+        } else if (controlPart() && XiaomiBandInstaller.onCommand(type, sub, cmd)) {
             log("install", "cmd " + type + "/" + sub);
         } else if (type == XiaomiBandMessages.T_SYSTEM) {
-            if (XiaomiBandStatus.onSystemCommand(sub, cmd)) {
+            if (hrPart() && XiaomiBandStatus.onSystemCommand(sub, cmd)) {
                 log("status", "bat=" + XiaomiBandStatus.getBatteryPercent()
                         + " worn=" + XiaomiBandStatus.isKnownWorn()
                         + " off=" + XiaomiBandStatus.isKnownNotWorn()
@@ -680,8 +712,12 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
         send(XiaomiBandMessages.clock());
         send(XiaomiBandMessages.request(XiaomiBandMessages.T_SYSTEM, XiaomiBandMessages.SYS_DEVICE_INFO));
         send(XiaomiBandMessages.userInfo(appContext));
-        pollStatus();
-        XiaomiBandAppLink.onAuthenticated(this);
+        if (hrPart()) {
+            pollStatus();
+        }
+        if (controlPart()) {
+            XiaomiBandAppLink.onAuthenticated(this);
+        }
         if (realtimeWanted) {
             main.postDelayed(startRealtime, START_DELAY_MS);
         } else {
@@ -761,7 +797,7 @@ public final class XiaomiBandSppClient implements XiaomiBandLink {
      * off the wrist (no HR is expected) or while its app is used as the remote.
      */
     private boolean mayRebuildForHr(long now) {
-        if (XiaomiBandStatus.isKnownNotWorn()) {
+        if (!hrPart() || XiaomiBandStatus.isKnownNotWorn()) {
             return false;
         }
         long app = XiaomiBandAppLink.getLastMessageMs();

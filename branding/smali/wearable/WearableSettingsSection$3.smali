@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 153
+    .line 157
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,11 +45,11 @@
     .registers 3
 
     .prologue
-    .line 156
+    .line 160
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$3;->val$a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->showSaved(Landroid/app/Activity;)V
 
-    .line 157
+    .line 161
     return-void
 .end method

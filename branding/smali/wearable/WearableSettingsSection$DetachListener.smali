@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 656
+    .line 831
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 658
+    .line 833
     return-void
 .end method
 
@@ -44,22 +44,22 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 662
+    .line 837
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1000()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
 
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->STATUS:Ljava/lang/Runnable;
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Ljava/lang/Runnable;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1500()Ljava/lang/Runnable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 663
+    .line 838
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->testUntilMs:J
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$800()J
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1100()J
 
     move-result-wide v0
 
@@ -69,7 +69,7 @@
 
     if-lez v0, :cond_21
 
-    .line 664
+    .line 839
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -79,21 +79,21 @@
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->endTest(Landroid/app/Activity;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$900(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1200(Landroid/app/Activity;)V
 
-    .line 666
+    .line 841
     :cond_21
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->statusView:Landroid/widget/TextView;
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$602(Landroid/widget/TextView;)Landroid/widget/TextView;
+    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$902(Landroid/widget/TextView;)Landroid/widget/TextView;
 
-    .line 667
+    .line 842
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->macView:Landroid/widget/EditText;
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$002(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 668
+    .line 843
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->keyView:Landroid/widget/EditText;
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$402(Landroid/widget/EditText;)Landroid/widget/EditText;
+    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$702(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 669
+    .line 844
     return-void
 .end method

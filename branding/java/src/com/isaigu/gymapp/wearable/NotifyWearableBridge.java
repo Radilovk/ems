@@ -42,6 +42,50 @@ public final class NotifyWearableBridge {
     private static String bleState = "idle";
 
     private static final DirectBleListener bleListener = new DirectBleListener();
+    private static final ControlListener controlListener = new ControlListener();
+    private static boolean controlConnected;
+
+    /** The second band (trainer's): only the remote and the band app ride on it. */
+    private static final class ControlListener implements XiaomiBandBleClient.Listener {
+        @Override
+        public void onState(String state) {
+            WearableBleDiagLog.log("control", "state " + state);
+            WearableSyncHelper.updateDiagnostics();
+        }
+
+        @Override
+        public void onHeartRate(int hr) {
+            // the trainer's heart rate is never the client's
+        }
+
+        @Override
+        public void onConnected(boolean connected) {
+            controlConnected = connected;
+            WearableBleDiagLog.log("control", connected ? "connected" : "disconnected");
+            if (connected) {
+                startRemote();
+            }
+            WearableSyncHelper.updateDiagnostics();
+        }
+    }
+
+    public static boolean isControlConnected() {
+        return XiaomiBand.isDual() && controlConnected;
+    }
+
+    /** The band remote and the band app install check, on the link that carries them. */
+    private static void startRemote() {
+        try {
+            BandRemote.start();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("remote", "start: " + t);
+        }
+        try {
+            BandAppInstall.onBandConnected();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("install", "auto: " + t);
+        }
+    }
 
     private static final class DirectBleListener implements XiaomiBandBleClient.Listener {
         @Override
@@ -350,6 +394,7 @@ public final class NotifyWearableBridge {
         XiaomiBandLink client = XiaomiBand.select(context, mac, WearableConfig.getBandTransport(context));
         client.setListener(bleListener);
         client.connect(context, mac, WearableConfig.getAuthKey(context));
+        connectControl(context);
         hrOn = null;
         applyHr(context);
         main.removeCallbacks(hrPolicy);
@@ -426,10 +471,58 @@ public final class NotifyWearableBridge {
         disconnect(context);
     }
 
+    /** Two bands: the trainer's band connects with the client's and closes with it. */
+    private static void connectControl(Context context) {
+        try {
+            if (!WearableConfig.hasControlBand(context)) {
+                XiaomiBand.selectControl(context, null, XiaomiBand.AUTO);
+                controlConnected = false;
+                return;
+            }
+            String mac = normalizeMac(WearableConfig.getControlMac(context));
+            XiaomiBandLink ctl = XiaomiBand.selectControl(context, mac, XiaomiBand.AUTO);
+            if (ctl != null && !ctl.isConnected()) {
+                ctl.setListener(controlListener);
+                ctl.connect(context, mac, WearableConfig.getControlKey(context));
+                WearableBleDiagLog.log("control", "connect " + ctl.getTransportName());
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("control", "connect: " + t);
+        }
+    }
+
+    /** Settings: the second band was set or removed — (re)connect it now if the first band's link is up. */
+    public static void onControlBandChanged(Context context) {
+        try {
+            XiaomiBandLink old = XiaomiBand.isDual() ? XiaomiBand.control() : null;
+            if (old != null) {
+                old.disconnect();
+            }
+            controlConnected = false;
+            if (listeningActive) {
+                connectControl(context);
+                if (!XiaomiBand.isDual() && bandConnected) {
+                    startRemote();                    // back to one band: the remote rides on it again
+                }
+            } else if (!WearableConfig.hasControlBand(context)) {
+                XiaomiBand.selectControl(context, null, XiaomiBand.AUTO);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("control", "changed: " + t);
+        }
+    }
+
     private static void disconnect(Context context) {
         main.removeCallbacks(hrPolicy);
         hrOn = null;
         BandRemote.stop();
+        if (XiaomiBand.isDual()) {
+            try {
+                XiaomiBand.control().disconnect();
+            } catch (Throwable ignored) {
+            }
+            controlConnected = false;
+        }
         XiaomiBand.link().disconnect();
         bleState = "stopped";
         NotifyHaForegroundService.stop(context);
@@ -488,15 +581,8 @@ public final class NotifyWearableBridge {
         } catch (Throwable t) {
             WearableBleDiagLog.log("health", "applyHr on connect: " + t);
         }
-        try {
-            BandRemote.start();
-        } catch (Throwable t) {
-            WearableBleDiagLog.log("remote", "start: " + t);
-        }
-        try {
-            BandAppInstall.onBandConnected();
-        } catch (Throwable t) {
-            WearableBleDiagLog.log("install", "auto: " + t);
+        if (!XiaomiBand.isDual()) {
+            startRemote();                            // two bands: the trainer's band starts them
         }
         WearableSyncHelper.updateHeartRate(lastHr, true);
         WearableSyncHelper.updateDiagnostics();

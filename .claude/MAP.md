@@ -75,6 +75,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-wearable-settings-connect.py` (388L, build:L141[BETA_MUSIC]) — Patch wearable smali for settings band connection test (full reconnect + status UX).
 - `scripts/apply-xems-nav.py` (90L, build:L114[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
+- `scripts/ble-sim/run-dual.sh` (25L) — Two bands (Settings → Band → second band): the same simulated Band 9/10 as the client's band (ROLE=hr) and as
 - `scripts/ble-sim/run-hr-policy.sh` (33L, build:L140[BETA_MUSIC]) — Offline HR demand policy test (settings/dial/AI vs idle link). No device, no Android SDK.
 - `scripts/ble-sim/run-spp.sh` (17L) — Offline protocol test: real XiaomiBandSppClient (JVM, stubbed android.*) vs spp_band.py (Band 9/10 over SPP).
 - `scripts/ble-sim/run.sh` (15L) — Offline protocol test: real XiaomiBandBleClient (JVM, stubbed android.*) vs Python Band 8 simulator.
@@ -199,7 +200,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `NextClient.java` (645L, compile:music-sync*,wearable) — The next client from the calendar: shortly before the appointment, when nothing runs on the tablet, asks the trainer an…
 - `NextPlan.java` (739L, compile:music-sync*,wearable) — A client's settings for the next training: what was used last time (kept when a training ends) and a recommendation fro…
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
-- `NotifyWearableBridge.java` (652L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
+- `NotifyWearableBridge.java` (738L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
 - `ReportBridge.java` (516L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (86L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
@@ -208,29 +209,29 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SessionRec.java` (315L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
 - `SessionRecorder.java` (417L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
-- `WearableBandPicker.java` (206L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
+- `WearableBandPicker.java` (215L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
 - `WearableBlePermissions.java` (180L, compile:music-sync*,wearable) — Runtime BLUETOOTH_CONNECT + BLUETOOTH_SCAN (Android 12+) — required for GATT connect/discover.
-- `WearableConfig.java` (307L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
+- `WearableConfig.java` (339L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
 - `WearableHrPanel.java` (324L, compile:music-sync*,wearable) — The "i" of the HR dial: what matters during a session, drawn — the HR now with its zone, the HR chart (5 / 15 min / all…
 - `WearableLivePanel.java` (340L, compile:music-sync*,wearable) — "Band data" panel: every live field from 8/47, event rate, share the raw recording.
-- `WearableSettingsSection.java` (672L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
+- `WearableSettingsSection.java` (847L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
 - `WearableSyncHelper.java` (1349L, compile:music-sync*,wearable) — Wearable sync UI: config modal + floating HR dial (same pattern as interval timer).
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
-- `XiaomiBand.java` (129L, compile:music-sync*,wearable) — Picks the link for the configured band.
+- `XiaomiBand.java` (183L, compile:music-sync*,wearable) — Picks the link for the configured band.
 - `XiaomiBandAckTimeoutTask.java` (16L, compile:music-sync*,wearable) — Band never ACKed a command (separate file for d8 compatibility).
 - `XiaomiBandAppLink.java` (258L, compile:music-sync*,wearable) — Messages between the XEMS app on the band (quick app, system.interconnect) and XEMS here.
 - `XiaomiBandAuthStartRunnable.java` (17L, compile:music-sync*,wearable) — Deferred auth start after CCCD writes complete.
 - `XiaomiBandAuthTimeoutTask.java` (15L, compile:music-sync*,wearable) — 
-- `XiaomiBandBleClient.java` (1145L, compile:music-sync*,wearable) — Direct BLE client for Xiaomi Band 8 (encrypted V1 protocol on service 0xFE95).
+- `XiaomiBandBleClient.java` (1167L, compile:music-sync*,wearable) — Direct BLE client for Xiaomi Band 8 (encrypted V1 protocol on service 0xFE95).
 - `XiaomiBandCrypto.java` (182L, compile:music-sync*,wearable) — Crypto helpers for Xiaomi encrypted BLE V1 (ported from Gadgetbridge / miband-7-pro-monitor).
 - `XiaomiBandFraming.java` (110L, compile:music-sync*,wearable) — Xiaomi V1 BLE framing layer (service 0xFE95).
 - `XiaomiBandGattCallback.java` (154L, compile:music-sync*,wearable) — Top-level GATT callback (separate file for d8 compatibility).
 - `XiaomiBandInstaller.java` (209L, compile:music-sync*,wearable) — Installs a quick app (.rpk) on the band over the link XEMS already holds (Band 9 / 10, SPP).
 - `XiaomiBandKeepaliveTask.java` (16L, compile:music-sync*,wearable) — Periodic stall check — never resends START (that kills the measurement window).
-- `XiaomiBandLink.java` (56L, compile:music-sync*,wearable) — One live link to a Xiaomi band, whatever the radio: BLE (FE95, Band 8 and older) or Bluetooth Classic SPP (Band 8 Pro /…
+- `XiaomiBandLink.java` (59L, compile:music-sync*,wearable) — One live link to a Xiaomi band, whatever the radio: BLE (FE95, Band 8 and older) or Bluetooth Classic SPP (Band 8 Pro /…
 - `XiaomiBandMessages.java` (210L, compile:music-sync*,wearable) — Protobuf commands shared by the BLE and SPP links (Command{type=1, subtype=2, …}).
 - `XiaomiBandMtuFallbackTask.java` (16L, compile:music-sync*,wearable) — onMtuChanged never arrived — discover services anyway (separate file for d8).
 - `XiaomiBandPostAuthInit.java` (55L, compile:music-sync*,wearable) — Post-auth init: clock → device info → user profile → worn/battery → realtime HR.
@@ -239,7 +240,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XiaomiBandReconnectTask.java` (16L, compile:music-sync*,wearable) — Reconnect after unexpected GATT drop while realtime is armed.
 - `XiaomiBandRemote.java` (58L, compile:music-sync*,wearable) — The band's own screens talking back to XEMS: the music screen asks for the current "track" and sends its buttons.
 - `XiaomiBandRfcommPort.java` (183L, compile:music-sync*,wearable) — RFCOMM (Serial Port Profile) socket to the band.
-- `XiaomiBandSppClient.java` (928L, compile:music-sync*,wearable) — Xiaomi band over Bluetooth Classic (RFCOMM / SPP): Band 8 Pro, 9, 9 Pro, 10, 10 Pro.
+- `XiaomiBandSppClient.java` (964L, compile:music-sync*,wearable) — Xiaomi band over Bluetooth Classic (RFCOMM / SPP): Band 8 Pro, 9, 9 Pro, 10, 10 Pro.
 - `XiaomiBandSppFrames.java` (247L, compile:music-sync*,wearable) — Byte framing of the Xiaomi link over Bluetooth Classic (RFCOMM / SPP).
 - `XiaomiBandSppPort.java` (9L, compile:music-sync*,wearable) — Byte pipe to the band.
 - `XiaomiBandSppTask.java` (73L, compile:music-sync*,wearable) — Main-thread steps of the SPP link (named class: no lambdas / anonymous classes for dx).
@@ -739,7 +740,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L64 ## Sport codes (second capture, 2026-09-27 04:00–05:48)
   - L76 ## Third capture (06:10–06:16) and the mapping XEMS uses (1.1.159-ai)
 
-`docs/xiaomi-band10.md` (280L)
+`docs/xiaomi-band10.md` (299L)
   - L1 # Xiaomi Smart Band 9 / 10 — връзка през класически Bluetooth (v1.1.65)
   - L5 ## Защо е нужен втори път
   - L11 ## Избор на връзката
@@ -751,6 +752,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L110 ## Диагностика
   - L114 ## Управление от гривната (v1.1.71, `wearable/BandRemote`)
   - L144 ## Приложение XEMS на гривната (v1.1.72, `band-app/`)
+  - L281 ## Две гривни: пулс на клиента + управление за треньора (1.1.208-ai)
 
 `docs/xiaomi-band8-direct-ble.md` (325L)
   - L1 # Xiaomi Smart Band 8 — директна BLE връзка в XEMS (техническа документация)

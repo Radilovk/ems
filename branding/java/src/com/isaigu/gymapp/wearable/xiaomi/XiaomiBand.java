@@ -16,7 +16,13 @@ public final class XiaomiBand {
     public static final int BLE = 1;
     public static final int SPP = 2;
 
+    /** Roles when two bands are used: the client's (heart rate, worn) and the trainer's (remote, band app). */
+    public static final int ROLE_HR = 1;
+    public static final int ROLE_CONTROL = 2;
+
     private static XiaomiBandLink current;
+    /** The trainer's band (Settings → Band → second band); null = one band does all. */
+    private static XiaomiBandLink controlLink;
 
     private XiaomiBand() {}
 
@@ -34,6 +40,7 @@ public final class XiaomiBand {
         XiaomiBandLink next = spp ? (XiaomiBandLink) XiaomiBandSppClient.getInstance()
                 : XiaomiBandBleClient.getInstance();
         XiaomiBandLink prev = link();
+        next.setRole(controlLink != null ? ROLE_HR : 0);
         if (prev != next) {
             try {
                 if (!"idle".equals(prev.getLastState()) && !"disconnected".equals(prev.getLastState())) {
@@ -44,6 +51,53 @@ public final class XiaomiBand {
             prev.setListener(null);
         }
         current = next;
+        return next;
+    }
+
+    /**
+     * The link that carries the remote and the band app: the second band when one is set, else the same
+     * link as the heart rate.
+     */
+    public static XiaomiBandLink control() {
+        XiaomiBandLink c = controlLink;
+        return c != null ? c : link();
+    }
+
+    public static boolean isDual() {
+        return controlLink != null;
+    }
+
+    /**
+     * Two bands: the heart-rate band keeps {@link #link()}, this picks the control band's link (its own
+     * instance, BLE or Classic by the bonded name). {@code mac} null / empty = back to one band.
+     */
+    public static XiaomiBandLink selectControl(Context context, String mac, int mode) {
+        XiaomiBandLink prev = controlLink;
+        if (mac == null || mac.trim().length() == 0) {
+            if (prev != null) {
+                try {
+                    prev.disconnect();
+                } catch (Throwable ignored) {
+                }
+                prev.setListener(null);
+            }
+            controlLink = null;
+            link().setRole(0);
+            return null;
+        }
+        boolean spp = mode == SPP || (mode == AUTO && usesClassic(bondedName(context, mac)));
+        XiaomiBandLink next = spp ? (XiaomiBandLink) XiaomiBandSppClient.getControl()
+                : XiaomiBandBleClient.getControl();
+        if (prev != null && prev != next) {
+            try {
+                prev.disconnect();
+            } catch (Throwable ignored) {
+            }
+            prev.setListener(null);
+        }
+        next.setRole(ROLE_CONTROL);
+        link().setRole(ROLE_HR);
+        controlLink = next;
         return next;
     }
 

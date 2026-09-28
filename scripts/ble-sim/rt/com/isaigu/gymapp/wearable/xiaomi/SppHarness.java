@@ -37,8 +37,15 @@ public class SppHarness implements XiaomiBandSppPort {
     Process p = new ProcessBuilder("python3", a[0], a[1]).redirectError(ProcessBuilder.Redirect.INHERIT).start();
     in = new BufferedReader(new InputStreamReader(p.getInputStream())); out = new PrintWriter(p.getOutputStream());
     SppHarness port = new SppHarness();
+    // ROLE=hr / control: the two-band mode (the client's band / the trainer's band); unset = one band does all
+    String role = System.getenv("ROLE");
     XiaomiBand.select(new android.content.Context(), "D0:62:2C:26:49:60", XiaomiBand.SPP);
     XiaomiBandSppClient c = XiaomiBandSppClient.getInstance();
+    if ("control".equals(role)) {
+      c = (XiaomiBandSppClient) XiaomiBand.selectControl(new android.content.Context(), "D0:62:2C:26:49:61", XiaomiBand.SPP);
+    } else if ("hr".equals(role)) {
+      c.setRole(XiaomiBand.ROLE_HR);
+    }
     c.setTestPort(port);
     c.setListener(new Listen());
     XiaomiBandRemote.setListener(new Remote(c));

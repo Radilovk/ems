@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 506
+    .line 518
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 509
+    .line 521
     # getter for: Lcom/isaigu/gymapp/wearable/NextClient;->pAppt:Lcom/isaigu/gymapp/wearable/Schedule$Appt;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$000()Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
@@ -44,7 +44,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 510
+    .line 522
     # getter for: Lcom/isaigu/gymapp/wearable/NextClient;->SNOOZE:Ljava/util/Map;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/NextClient;->access$100()Ljava/util/Map;
 
@@ -73,19 +73,19 @@
 
     invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 512
+    .line 524
     :cond_22
     # setter for: Lcom/isaigu/gymapp/wearable/NextClient;->shown:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/NextClient;->access$202(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 513
+    .line 525
     # setter for: Lcom/isaigu/gymapp/wearable/NextClient;->pAppt:Lcom/isaigu/gymapp/wearable/Schedule$Appt;
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/NextClient;->access$002(Lcom/isaigu/gymapp/wearable/Schedule$Appt;)Lcom/isaigu/gymapp/wearable/Schedule$Appt;
 
-    .line 514
+    .line 526
     # setter for: Lcom/isaigu/gymapp/wearable/NextClient;->pRec:Lcom/isaigu/gymapp/wearable/NextPlan$Rec;
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/NextClient;->access$302(Lcom/isaigu/gymapp/wearable/NextPlan$Rec;)Lcom/isaigu/gymapp/wearable/NextPlan$Rec;
 
-    .line 515
+    .line 527
     return-void
 .end method

@@ -929,7 +929,8 @@ public final class AiEngine {
             c.rampUpMs = 1000;
             c.rampDownMs = 500;
         } else if (spec.isTetanic()) {
-            c.rampUpMs = 400;                                               // G2: 0.3–0.5 s
+            c.rampUpMs = 400                                                // G2: 0.3–0.5 s
+                    + (plan.personal != null ? plan.personal.rampUpMs : 0);     // softer for the client's state
             c.rampDownMs = 300;
         } else {
             c.rampUpMs = 0;

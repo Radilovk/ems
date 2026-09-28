@@ -3,12 +3,12 @@
 .source "XemsLocalUserForm.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contraChip(Ljava/lang/String;)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addToggle(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Ljava/util/Set;Z)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,16 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$chip:Landroid/widget/TextView;
+.field final synthetic val$isFocus:Z
 
 .field final synthetic val$key:Ljava/lang/String;
 
+.field final synthetic val$set:Ljava/util/Set;
+
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/String;Landroid/widget/TextView;)V
-    .registers 4
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/util/Set;Ljava/lang/String;Z)V
+    .registers 5
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -35,12 +37,14 @@
     .end annotation
 
     .prologue
-    .line 438
+    .line 533
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$key:Ljava/lang/String;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$set:Ljava/util/Set;
 
-    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$chip:Landroid/widget/TextView;
+    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$key:Ljava/lang/String;
+
+    iput-boolean p4, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$isFocus:Z
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,14 +53,12 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 6
+.method public run()V
+    .registers 3
 
     .prologue
-    .line 440
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
+    .line 535
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$set:Ljava/util/Set;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$key:Ljava/lang/String;
 
@@ -64,40 +66,35 @@
 
     move-result v0
 
-    if-nez v0, :cond_15
+    if-nez v0, :cond_11
 
-    .line 441
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
+    .line 536
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$set:Ljava/util/Set;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$key:Ljava/lang/String;
 
     invoke-interface {v0, v1}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 443
-    :cond_15
+    .line 538
+    :cond_11
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$isFocus:Z
+
+    if-eqz v0, :cond_1b
+
+    .line 539
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$chip:Landroid/widget/TextView;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderFocus()V
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iget-object v2, v2, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->val$key:Ljava/lang/String;
-
-    invoke-interface {v2, v3}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
-
-    move-result v2
-
-    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->styleContra(Landroid/widget/TextView;Z)V
-
-    .line 444
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->updateWarning()V
-
-    .line 445
+    .line 543
+    :goto_1a
     return-void
+
+    .line 541
+    :cond_1b
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$12;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderCond()V
+
+    goto :goto_1a
 .end method

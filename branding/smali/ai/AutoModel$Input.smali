@@ -17,11 +17,33 @@
 # instance fields
 .field public age:I
 
+.field public cond:Ljava/util/Set;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 .field public doublePulse:Z
 
 .field public extra:Lcom/isaigu/gymapp/ai/AutoModel$Extra;
 
 .field public fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
+
+.field public focus:Ljava/util/Set;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end field
 
 .field public goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -133,6 +155,20 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->extra:Lcom/isaigu/gymapp/ai/AutoModel$Extra;
 
+    .line 102
+    new-instance v0, Ljava/util/HashSet;
+
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->focus:Ljava/util/Set;
+
+    .line 103
+    new-instance v0, Ljava/util/HashSet;
+
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->cond:Ljava/util/Set;
+
     return-void
 .end method
 
@@ -142,19 +178,19 @@
     .registers 5
 
     .prologue
-    .line 103
+    .line 106
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
 
     if-gtz v0, :cond_7
 
-    .line 104
+    .line 107
     const-wide/16 v0, 0x0
 
-    .line 107
+    .line 110
     :goto_6
     return-wide v0
 
-    .line 106
+    .line 109
     :cond_7
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
 
@@ -164,7 +200,7 @@
 
     div-double/2addr v0, v2
 
-    .line 107
+    .line 110
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->weightKg:D
 
     mul-double/2addr v0, v0
@@ -178,7 +214,7 @@
     .registers 3
 
     .prologue
-    .line 111
+    .line 114
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Operator;->SELF:Lcom/isaigu/gymapp/ai/AiModel$Operator;

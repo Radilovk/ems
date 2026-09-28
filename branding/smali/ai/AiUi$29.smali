@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1472
+    .line 1481
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$29;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 4
 
     .prologue
-    .line 1475
+    .line 1484
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
@@ -55,6 +55,6 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->shareReport(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$1200(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
 
-    .line 1476
+    .line 1485
     return-void
 .end method

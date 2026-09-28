@@ -24,7 +24,8 @@
 .field public final flags:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/List<",
+            "Ljava/util/List",
+            "<",
             "Ljava/lang/String;",
             ">;"
         }
@@ -58,20 +59,21 @@
 .method public constructor <init>()V
     .registers 3
 
-    .line 85
+    .prologue
+    .line 88
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 92
+    .line 95
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->xLo:D
 
-    .line 99
+    .line 102
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->cMed:D
 
-    .line 102
+    .line 105
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -84,9 +86,10 @@
 
 # virtual methods
 .method public hrAt(D)I
-    .registers 7
+    .registers 8
 
-    .line 105
+    .prologue
+    .line 108
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
 
     int-to-double v0, v0
@@ -95,42 +98,45 @@
 
     int-to-double v2, v2
 
-    mul-double p1, p1, v2
+    mul-double/2addr v2, p1
 
-    add-double/2addr v0, p1
+    add-double/2addr v0, v2
 
     invoke-static {v0, v1}, Ljava/lang/Math;->round(D)J
 
-    move-result-wide p1
+    move-result-wide v0
 
-    long-to-int p2, p1
+    long-to-int v0, v0
 
-    return p2
+    return v0
 .end method
 
 .method public xOf(D)D
-    .registers 6
+    .registers 8
 
-    .line 109
+    .prologue
+    .line 112
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrr:I
 
-    if-lez v0, :cond_b
+    if-lez v0, :cond_e
 
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
-
-    int-to-double v1, v1
-
-    sub-double/2addr p1, v1
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
 
     int-to-double v0, v0
 
-    div-double/2addr p1, v0
+    sub-double v0, p1, v0
 
-    goto :goto_d
+    iget v2, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrr:I
 
-    :cond_b
-    const-wide/16 p1, 0x0
+    int-to-double v2, v2
+
+    div-double/2addr v0, v2
 
     :goto_d
-    return-wide p1
+    return-wide v0
+
+    :cond_e
+    const-wide/16 v0, 0x0
+
+    goto :goto_d
 .end method

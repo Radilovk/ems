@@ -345,6 +345,7 @@ public final class AiSession {
         epocClosed = false;
         long now = System.currentTimeMillis();
         engine.start(now);
+        personalZones();
         setWorkLengthAll(plan.totalS + 1800);
         stage = Stage.RUNNING;
         apply(engine.onCycle(now));
@@ -368,6 +369,7 @@ public final class AiSession {
         if (engine != null) {
             engine.stop(now);
         }
+        restoreZones();
         zeroOutput();
         stopDevice();
         if (stage == Stage.RUNNING) {
@@ -375,6 +377,66 @@ public final class AiSession {
         } else if (stage == Stage.CALIB) {
             calibStimOn = false;
         }
+    }
+
+    /** Each slot's zones as its trainer set them, before the client's profile shaped them. */
+    private static final java.util.Map<TrainItem, int[]> trainerZones = new java.util.HashMap<TrainItem, int[]>();
+
+    /**
+     * The AI drives one strength for everyone; the zones stay each client's. At the start every
+     * client's focus zones and state shape their own zones once (AiPersonal); stop puts them back.
+     */
+    private static void personalZones() {
+        trainerZones.clear();
+        try {
+            if (manager == null || manager.getItemList() == null) {
+                return;
+            }
+            List<TrainItem> list = manager.getItemList();
+            for (int i = 0; i < list.size(); i++) {
+                TrainItem item = list.get(i);
+                if (item == null || item.isEmpty() || item.getTrainProgram() == null) {
+                    continue;
+                }
+                ProgramDataBean b = item.getTrainProgram().matchProgram();
+                AiProfile p = AiProfile.of(item);
+                if (b == null || b.strenthBean == null || b.strenthBean.buwei == null || p == null) {
+                    continue;
+                }
+                AiPersonal.Effect e = p.personal();
+                if (e.isEmpty()) {
+                    continue;
+                }
+                int[] was = b.strenthBean.buwei.clone();
+                int[] z = e.apply(was);
+                trainerZones.put(item, was);
+                for (int k = 0; k < Math.min(z.length, b.strenthBean.buwei.length); k++) {
+                    b.strenthBean.buwei[k] = z[k];
+                }
+                WearableBleDiagLog.log("ai", "personal zones user " + p.userId + " " + java.util.Arrays.toString(z));
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "personalZones: " + t);
+        }
+    }
+
+    private static void restoreZones() {
+        try {
+            for (java.util.Map.Entry<TrainItem, int[]> en : trainerZones.entrySet()) {
+                TrainItem item = en.getKey();
+                ProgramDataBean b = item.getTrainProgram() != null ? item.getTrainProgram().matchProgram() : null;
+                if (b != null && b.strenthBean != null && b.strenthBean.buwei != null) {
+                    int[] was = en.getValue();
+                    for (int k = 0; k < Math.min(was.length, b.strenthBean.buwei.length); k++) {
+                        b.strenthBean.buwei[k] = was[k];
+                    }
+                    item.onParamsChange();
+                }
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "restoreZones: " + t);
+        }
+        trainerZones.clear();
     }
 
     /** Close the whole flow (after report or cancel before start). */

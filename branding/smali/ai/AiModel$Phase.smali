@@ -36,15 +36,16 @@
 .method public constructor <init>()V
     .registers 2
 
-    .line 154
+    .prologue
+    .line 157
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 159
+    .line 162
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$BlockMode;->CONTINUOUS:Lcom/isaigu/gymapp/ai/AiModel$BlockMode;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->blockMode:Lcom/isaigu/gymapp/ai/AiModel$BlockMode;
 
-    .line 163
+    .line 166
     const-string v0, "FULL"
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->exerciseClass:Ljava/lang/String;
@@ -55,29 +56,32 @@
 
 # virtual methods
 .method public phiAt(D)D
-    .registers 7
+    .registers 12
 
-    .line 166
-    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
-
-    invoke-static {v0, v1, p1, p2}, Ljava/lang/Math;->min(DD)D
-
-    move-result-wide p1
-
+    .prologue
+    .line 169
     const-wide/16 v0, 0x0
 
-    invoke-static {v0, v1, p1, p2}, Ljava/lang/Math;->max(DD)D
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
-    move-result-wide p1
+    invoke-static {v2, v3, p1, p2}, Ljava/lang/Math;->min(DD)D
 
-    .line 167
-    iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiStart:D
+    move-result-wide v2
 
-    iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiEnd:D
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->max(DD)D
 
-    sub-double/2addr v2, v0
+    move-result-wide v0
 
-    mul-double v2, v2, p1
+    .line 170
+    iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiStart:D
+
+    iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiEnd:D
+
+    iget-wide v6, p0, Lcom/isaigu/gymapp/ai/AiModel$Phase;->phiStart:D
+
+    sub-double/2addr v4, v6
+
+    mul-double/2addr v0, v4
 
     add-double/2addr v0, v2
 

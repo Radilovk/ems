@@ -58,6 +58,26 @@ public final class XemsLocalUserForm {
             "pregnancy", "implant", "cardiovascular", "circulation", "hernia", "cancer", "bleeding",
             "epilepsy", "neurological", "recent_surgery", "skin_lesion", "kidney", "tuberculosis",
     };
+    /** Same keys as the booking PWA / server profile.js FOCUS and COND. */
+    static final String[] FOCUS = {"abs", "glutes", "legs", "arms", "back", "chest"};
+    /**
+     * The client's state: not an obstacle, it shapes the approach (NextPlan.individual). Grouped for the
+     * form; COND is the flat, canonical order.
+     */
+    static final String[][] COND_GROUPS = {
+            {"menopause", "prediabetes", "pcos", "thyroid", "water", "postpartum"},
+            {"back", "neck", "knees", "joints", "injury", "diastasis", "osteo", "varicose"},
+            {"desk", "stress", "sleep", "senior", "sensitive"},
+    };
+    static final String[] COND = {"menopause", "prediabetes", "pcos", "thyroid", "water", "postpartum",
+            "back", "neck", "knees", "joints", "injury", "diastasis", "osteo", "varicose",
+            "desk", "stress", "sleep", "senior", "sensitive"};
+
+    static String condGroupName(int g) {
+        if (g == 0) return tr("Хормони и обмяна", "Hormones and metabolism");
+        if (g == 1) return tr("Тяло и стави", "Body and joints");
+        return tr("Начин на живот", "Lifestyle");
+    }
 
     private XemsLocalUserForm() {}
 
@@ -95,7 +115,18 @@ public final class XemsLocalUserForm {
         String goal = "tone";
         String fitness = "mid";
         final Set<String> contra = new HashSet<String>();
+        /** Zones the client wants worked more and what to take into account (same keys as the booking PWA). */
+        final Set<String> focus = new HashSet<String>();
+        final Set<String> cond = new HashSet<String>();
+        /** The client's own note from the booking PWA (read only here, kept in the remark). */
+        String note = "";
+        /** "Is there a medical reason?" — the contraindication list opens only on Yes. */
+        boolean medical;
         TextView warning;
+        LinearLayout contraBox;
+        final LinearLayout[] medRow = new LinearLayout[1];
+        final LinearLayout[] focusRows = new LinearLayout[2];
+        LinearLayout condBox;
         final LinearLayout[] sexRow = new LinearLayout[1];
         final LinearLayout[] goalRow = new LinearLayout[1];
         final LinearLayout[] fitRow = new LinearLayout[1];
@@ -139,6 +170,18 @@ public final class XemsLocalUserForm {
                     if (c.length() > 0) {
                         contra.add(c);
                     }
+                }
+            }
+            addCsv(focus, prefs(a).getString("focus" + u.id, ""));
+            addCsv(cond, prefs(a).getString("cond" + u.id, ""));
+            note = prefs(a).getString("note" + u.id, "");
+            medical = !contra.isEmpty();
+        }
+
+        static void addCsv(Set<String> into, String csv) {
+            for (String k : csv.split(",")) {
+                if (k.length() > 0) {
+                    into.add(k);
                 }
             }
         }
@@ -289,8 +332,16 @@ public final class XemsLocalUserForm {
             photoHint.setVisibility(View.GONE);
         }
 
+        /**
+         * Attention order: what the training needs (goal, form, focus, what to mind) up front; the medical
+         * list is one question and opens only on Yes; the band settings last.
+         */
         View rightColumn() {
             LinearLayout col = column();
+            if (note.length() > 0) {
+                LinearLayout cn = card(col, tr("От клиента", "From the client"));
+                cn.addView(text(note, 16, TEXT, false), match(dp(6)));
+            }
             LinearLayout c1 = card(col, tr("Цел", "Goal"));
             goalRow[0] = chips(c1);
             renderGoal();
@@ -299,22 +350,29 @@ public final class XemsLocalUserForm {
             fitRow[0] = chips(c2);
             renderFitness();
 
-            LinearLayout cm = card(col, tr("Гривна и Mi Fitness", "Band and Mi Fitness"));
-            TextView mh = text(tr("Собственикът на гривната получава всяка тренировка и като тренировка в гривната: пулс, калории и време влизат в Mi Fitness. Авто: пасивни процедури → йога, кардио → аеробна, силови → тежести.",
-                    "The band owner also gets every training as a band workout: heart rate, calories and time go to Mi Fitness. Auto: passive procedures → yoga, cardio → aerobics, strength → weights."), 13, MUTED, false);
-            cm.addView(mh, match(dp(4)));
-            ownRow[0] = chips(cm);
-            sportRow[0] = chips(cm);
-            sportRow2[0] = chips(cm);
-            renderOwner();
+            LinearLayout cc = card(col, tr("Състояние", "Condition"));
+            cc.addView(text(tr("Не спира тренировката — нагласява подхода.",
+                    "Does not stop training — it shapes the approach."), 13, MUTED, false), match(dp(4)));
+            condBox = new LinearLayout(a);
+            condBox.setOrientation(LinearLayout.VERTICAL);
+            cc.addView(condBox, match(0));
+            renderCond();
 
-            LinearLayout c3 = card(col, tr("Противопоказания", "Contraindications"));
-            TextView hint = text(tr("Отбележи, ако има. EMS не се препоръчва при нито едно от тях.",
-                    "Mark any that apply. EMS is not advised with any of them."), 13, MUTED, false);
-            c3.addView(hint, match(0));
+            LinearLayout cf = card(col, tr("Зони за акцент", "Focus zones"));
+            for (int i = 0; i < focusRows.length; i++) {
+                focusRows[i] = chips(cf);
+            }
+            renderFocus();
+
+            LinearLayout c3 = card(col, tr("Здраве", "Health"));
+            c3.addView(text(tr("Има ли медицинска причина EMS да не е подходящ?",
+                    "Is there a medical reason EMS may not suit?"), 16, TEXT, false), match(dp(6)));
+            medRow[0] = chips(c3);
             warning = text("", 14, DANGER, true);
             warning.setVisibility(View.GONE);
             c3.addView(warning, match(dp(8)));
+            contraBox = new LinearLayout(a);
+            contraBox.setOrientation(LinearLayout.VERTICAL);
             LinearLayout grid = new LinearLayout(a);
             grid.setOrientation(LinearLayout.VERTICAL);
             for (int i = 0; i < CONTRA.length; i += 2) {
@@ -329,8 +387,17 @@ public final class XemsLocalUserForm {
                 }
                 grid.addView(row, match(dp(8)));
             }
-            c3.addView(grid, match(dp(4)));
-            updateWarning();
+            contraBox.addView(grid, match(dp(4)));
+            c3.addView(contraBox, match(0));
+            renderMedical();
+
+            LinearLayout cm = card(col, tr("Гривна и Mi Fitness", "Band and Mi Fitness"));
+            TextView mh = text(tr("Тренировките влизат и в Mi Fitness.", "Trainings also go to Mi Fitness."), 13, MUTED, false);
+            cm.addView(mh, match(dp(4)));
+            ownRow[0] = chips(cm);
+            sportRow[0] = chips(cm);
+            sportRow2[0] = chips(cm);
+            renderOwner();
             return col;
         }
 
@@ -431,10 +498,82 @@ public final class XemsLocalUserForm {
             }
         }
 
+        void renderFocus() {
+            for (int r = 0; r < focusRows.length; r++) {
+                focusRows[r].removeAllViews();
+                for (int i = r * 3; i < Math.min(r * 3 + 3, FOCUS.length); i++) {
+                    addToggle(focusRows[r], FOCUS[i], focusName(FOCUS[i]), focus, true);
+                }
+            }
+        }
+
+        void renderCond() {
+            condBox.removeAllViews();
+            for (int g = 0; g < COND_GROUPS.length; g++) {
+                String[] keys = COND_GROUPS[g];
+                condBox.addView(text(condGroupName(g), 13, MUTED, true), match(dp(g == 0 ? 10 : 14)));
+                for (int r = 0; r < keys.length; r += 3) {
+                    LinearLayout row = chips(condBox);
+                    for (int i = r; i < r + 3; i++) {
+                        if (i < keys.length) {
+                            addToggle(row, keys[i], condName(keys[i]), cond, false);
+                        } else {                                 // keep the chips of a short row the same width
+                            View pad = new View(a);
+                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 1, 1f);
+                            lp.leftMargin = dp(8);
+                            row.addView(pad, lp);
+                        }
+                    }
+                }
+            }
+        }
+
+        /** Many-of chip: tap toggles the key in the set. */
+        void addToggle(LinearLayout row, final String key, String label, final Set<String> set, final boolean isFocus) {
+            addChoice(row, label, set.contains(key), new Runnable() {
+                public void run() {
+                    if (!set.remove(key)) {
+                        set.add(key);
+                    }
+                    if (isFocus) {
+                        renderFocus();
+                    } else {
+                        renderCond();
+                    }
+                }
+            });
+        }
+
+        void renderMedical() {
+            LinearLayout row = medRow[0];
+            row.removeAllViews();
+            addChoice(row, tr("Не", "No"), !medical, new Runnable() {
+                public void run() {
+                    medical = false;
+                    contra.clear();
+                    renderMedical();
+                }
+            });
+            addChoice(row, tr("Да", "Yes"), medical, new Runnable() {
+                public void run() {
+                    medical = true;
+                    renderMedical();
+                }
+            });
+            contraBox.setVisibility(medical ? View.VISIBLE : View.GONE);
+            for (int i = 0; i < contraChips.size(); i++) {
+                styleContra(contraChips.get(i), contra.contains(CONTRA[i]));
+            }
+            updateWarning();
+        }
+
+        final java.util.List<TextView> contraChips = new java.util.ArrayList<TextView>();
+
         View contraChip(final String key) {
             final TextView chip = text(contraName(key), 14, TEXT, false);
             chip.setPadding(dp(12), dp(10), dp(12), dp(10));
             styleContra(chip, contra.contains(key));
+            contraChips.add(chip);
             chip.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     if (!contra.remove(key)) {
@@ -508,25 +647,13 @@ public final class XemsLocalUserForm {
             }
             prefs(a).edit().putString("u" + u.id, goal + "|" + fitness + "|" + cs)
                     .putLong("edit" + u.id, System.currentTimeMillis())
-                    .putBoolean("own" + u.id, owner).putInt("misport" + u.id, miSport).apply();
+                    .putBoolean("own" + u.id, owner).putInt("misport" + u.id, miSport)
+                    .putString("focus" + u.id, csvOf(FOCUS, focus)).putString("cond" + u.id, csvOf(COND, cond)).apply();
             dialog.dismiss();
         }
 
         String summary() {
-            StringBuilder b = new StringBuilder();
-            b.append(tr("Цел: ", "Goal: ")).append(goalName(goal))
-                    .append(" · ").append(tr("Форма: ", "Fitness: ")).append(fitnessName(fitness));
-            if (!contra.isEmpty()) {
-                b.append(" · ").append(tr("Противопоказания: ", "Contraindications: "));
-                boolean first = true;
-                for (String c : CONTRA) {
-                    if (contra.contains(c)) {
-                        b.append(first ? "" : ", ").append(contraName(c));
-                        first = false;
-                    }
-                }
-            }
-            return b.toString();
+            return summaryOf(goal, fitness, contra) + extras(csvOf(FOCUS, focus), csvOf(COND, cond), note);
         }
 
         // ------------------------------------------------ widgets
@@ -715,6 +842,67 @@ public final class XemsLocalUserForm {
             }
         }
         return b.toString();
+    }
+
+    /** Focus, what to mind and the client's note, as they follow the summary in the remark. */
+    static String extras(String focusCsv, String condCsv, String note) {
+        return (focusCsv.length() > 0 ? " · " + tr("Фокус: ", "Focus: ") + names(focusCsv, true) : "")
+                + (condCsv.length() > 0 ? " · " + tr("Състояние: ", "Condition: ") + names(condCsv, false) : "")
+                + (note != null && note.length() > 0 ? " · " + tr("От клиента: ", "From the client: ") + note : "");
+    }
+
+    static String names(String csv, boolean isFocus) {
+        StringBuilder b = new StringBuilder();
+        for (String k : csv.split(",")) {
+            if (k.length() > 0) {
+                b.append(b.length() > 0 ? ", " : "").append(isFocus ? focusName(k) : condName(k));
+            }
+        }
+        return b.toString();
+    }
+
+    /** Keys of the set in the canonical order, comma separated. */
+    static String csvOf(String[] order, Set<String> set) {
+        StringBuilder b = new StringBuilder();
+        for (String k : order) {
+            if (set.contains(k)) {
+                b.append(b.length() > 0 ? "," : "").append(k);
+            }
+        }
+        return b.toString();
+    }
+
+    static String focusName(String k) {
+        if ("abs".equals(k)) return tr("Корем", "Abs");
+        if ("glutes".equals(k)) return tr("Седалище", "Glutes");
+        if ("legs".equals(k)) return tr("Бедра", "Legs");
+        if ("arms".equals(k)) return tr("Ръце", "Arms");
+        if ("back".equals(k)) return tr("Гръб", "Back");
+        if ("chest".equals(k)) return tr("Гърди", "Chest");
+        return k;
+    }
+
+    static String condName(String k) {
+        if ("menopause".equals(k)) return tr("Менопауза", "Menopause");
+        if ("prediabetes".equals(k)) return tr("Преддиабет / инсулинова рез.", "Prediabetes / insulin res.");
+        if ("pcos".equals(k)) return tr("ПКОС / хормонален дисбаланс", "PCOS / hormonal imbalance");
+        if ("thyroid".equals(k)) return tr("Щитовидна жлеза", "Thyroid");
+        if ("water".equals(k)) return tr("Задържане на течности", "Water retention");
+        if ("postpartum".equals(k)) return tr("След бременност (до 1 г.)", "After pregnancy (≤ 1 y)");
+        if ("back".equals(k)) return tr("Кръст", "Lower back");
+        if ("neck".equals(k)) return tr("Врат / рамене", "Neck / shoulders");
+        if ("knees".equals(k)) return tr("Колене", "Knees");
+        if ("joints".equals(k)) return tr("Стави / артроза", "Joints / arthrosis");
+        if ("injury".equals(k)) return tr("Стара травма", "Old injury");
+        if ("diastasis".equals(k)) return tr("Диастаза", "Diastasis recti");
+        if ("osteo".equals(k)) return tr("Остеопороза", "Osteoporosis");
+        if ("varicose".equals(k)) return tr("Разширени вени", "Varicose veins");
+        if ("desk".equals(k)) return tr("Седяща работа", "Desk job");
+        if ("stress".equals(k)) return tr("Напрежение и стрес", "Tension and stress");
+        if ("sleep".equals(k)) return tr("Лош сън / умора", "Poor sleep / fatigue");
+        if ("senior".equals(k)) return tr("60+ / слаба мускулатура", "60+ / low muscle mass");
+        if ("sensitive".equals(k)) return tr("Чувствителен към тока", "Sensitive to current");
+        return k;
     }
 
     static String goalName(String g) {

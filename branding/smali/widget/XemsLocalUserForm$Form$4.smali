@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 271
+    .line 314
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .registers 4
 
     .prologue
-    .line 273
+    .line 316
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->a:Landroid/app/Activity;
@@ -51,6 +51,6 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->pick(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLocalAvatar$Picked;)V
 
-    .line 279
+    .line 322
     return-void
 .end method

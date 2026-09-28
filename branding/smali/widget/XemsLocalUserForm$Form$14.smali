@@ -3,12 +3,12 @@
 .source "XemsLocalUserForm.java"
 
 # interfaces
-.implements Landroid/widget/NumberPicker$OnValueChangeListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->wheel(Ljava/lang/String;Ljava/lang/String;[III)Landroid/view/View;
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderMedical()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$value:[I
-
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;[I)V
-    .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
+    .registers 2
 
     .prologue
-    .line 597
+    .line 557
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->val$value:[I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,17 +36,22 @@
 
 
 # virtual methods
-.method public onValueChange(Landroid/widget/NumberPicker;II)V
-    .registers 6
+.method public run()V
+    .registers 3
 
     .prologue
-    .line 599
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->val$value:[I
+    .line 559
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    const/4 v1, 0x0
+    const/4 v1, 0x1
 
-    aput p3, v0, v1
+    iput-boolean v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->medical:Z
 
-    .line 600
+    .line 560
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderMedical()V
+
+    .line 561
     return-void
 .end method

@@ -241,27 +241,66 @@ public final class XemsLocalStore {
     /** Id of the sample client (local ids start at -100000, so it never meets one). */
     static final long SAMPLE_USER_ID = -1L;
 
-    /** A ready sample client is always on the list (put back if it was removed). */
+    /** The demo client and training (1.1.198; before: "Примерен клиент", "Тренировка 1"). */
+    static final String DEMO_NAME = "Demo";
+    static final String DEMO_PROGRAM = "Test";
+
+    /**
+     * A ready demo client is always on the list (put back if it was removed): a full profile, so the
+     * manual defaults, the AI and the automatic mode all have something to work with.
+     */
     private static void ensureSampleUser(List<TrainUser> users) {
+        TrainUser s = null;
         for (int i = 0; i < users.size(); i++) {
             TrainUser u = users.get(i);
             if (u != null && u.id == SAMPLE_USER_ID) {
-                return;
+                s = u;
+                break;
             }
         }
-        TrainUser s = new TrainUser();
-        s.id = SAMPLE_USER_ID;
-        s.name = tr("Примерен клиент", "Sample client");
-        s.nickName = s.name;
-        s.gender = com.isaigu.gymapp.bean.Gender.Male;
-        s.height = 175;
-        s.weight = 75f;
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.add(java.util.Calendar.YEAR, -35);
-        s.birtyday = cal.getTime();
-        s.createTime = new Date();
-        s.remark = tr("Цел: Тонус · Форма: Среден", "Goal: Tone · Fitness: Intermediate");
-        users.add(0, s);
+        if (s == null) {
+            s = new TrainUser();
+            s.id = SAMPLE_USER_ID;
+            s.gender = com.isaigu.gymapp.bean.Gender.Female;
+            s.height = 168;
+            s.weight = 64f;
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.add(java.util.Calendar.YEAR, -38);
+            s.birtyday = cal.getTime();
+            s.createTime = new Date();
+            users.add(0, s);
+        }
+        if (s.name == null || "Примерен клиент".equals(s.name) || "Sample client".equals(s.name)) {
+            s.name = DEMO_NAME;
+            s.nickName = DEMO_NAME;
+        }
+        if (s.trainName == null || s.trainName.length() == 0
+                || "Тренировка 1".equals(s.trainName) || "Workout 1".equals(s.trainName)) {
+            s.trainName = DEMO_PROGRAM;
+        }
+        demoProfile(s);
+    }
+
+    /** Goal, fitness, focus zones and state of the demo client — only where nothing is set yet. */
+    private static void demoProfile(TrainUser s) {
+        try {
+            Context c = getAppContext();
+            if (c == null) {
+                return;
+            }
+            SharedPreferences p = XemsLocalUserForm.prefs(c);
+            String id = String.valueOf(s.id);
+            if (p.getString("u" + id, "").length() > 0) {
+                return;                                    // edited by the trainer: theirs
+            }
+            p.edit().putString("u" + id, "tone|mid|").putString("focus" + id, "abs,glutes")
+                    .putString("cond" + id, "desk,stress").apply();
+            java.util.Set<String> none = new java.util.HashSet<String>();
+            s.remark = XemsLocalUserForm.summaryOf("tone", "mid", none)
+                    + XemsLocalUserForm.extras("abs,glutes", "desk,stress", "");
+        } catch (Throwable t) {
+            android.util.Log.e("xems_local", "demo profile", t);
+        }
     }
 
     public static void loadPrograms() {
@@ -274,6 +313,7 @@ public final class XemsLocalStore {
             repairSeededProgram(programs.get(i));
         }
         dm.trainData = programs;
+        renameSeededProgram(dm);
         seedDefaultProgramIfNeeded();
         ActivePauseStorage.mergeList(dm.trainData);
         savePrograms();
@@ -770,9 +810,47 @@ public final class XemsLocalStore {
         }
         TrainProgram p = TrainProgram.getTrainProgramTemplate1();
         p.id = Long.valueOf(nextProgramId());
-        p.name = tr("Тренировка 1", "Workout 1");
+        p.name = DEMO_PROGRAM;
         dm.trainData = new ArrayList<>();
         dm.trainData.add(p);
+    }
+
+    /**
+     * The program seeded before 1.1.198 ("Тренировка 1" / "Workout 1") becomes "Test"; the clients
+     * pointing at it by name follow. Nothing happens once a "Test" exists.
+     */
+    private static void renameSeededProgram(DataMgr dm) {
+        TrainProgram old = null;
+        for (int i = 0; i < dm.trainData.size(); i++) {
+            TrainProgram p = dm.trainData.get(i);
+            if (p == null) {
+                continue;
+            }
+            if (DEMO_PROGRAM.equals(p.name)) {
+                return;
+            }
+            if (old == null && ("Тренировка 1".equals(p.name) || "Workout 1".equals(p.name))) {
+                old = p;
+            }
+        }
+        if (old == null) {
+            return;
+        }
+        String was = old.name;
+        old.name = DEMO_PROGRAM;
+        boolean users = false;
+        if (dm.trainUsers != null) {
+            for (int i = 0; i < dm.trainUsers.size(); i++) {
+                TrainUser u = dm.trainUsers.get(i);
+                if (u != null && was.equals(u.trainName)) {
+                    u.trainName = DEMO_PROGRAM;
+                    users = true;
+                }
+            }
+        }
+        if (users) {
+            saveUsers();
+        }
     }
 
     /**

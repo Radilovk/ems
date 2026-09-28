@@ -27,10 +27,13 @@
 
 .field public pauseOn:Z
 
+.field public personal:Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
+
 .field public final phases:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "Ljava/util/List<",
+            "Ljava/util/List",
+            "<",
             "Lcom/isaigu/gymapp/ai/AiModel$Phase;",
             ">;"
         }
@@ -56,17 +59,18 @@
 .method public constructor <init>()V
     .registers 3
 
-    .line 171
+    .prologue
+    .line 174
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 172
+    .line 175
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phases:Ljava/util/List;
 
-    .line 177
+    .line 180
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phiMax:D

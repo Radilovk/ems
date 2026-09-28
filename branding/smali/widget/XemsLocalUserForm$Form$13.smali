@@ -3,12 +3,12 @@
 .source "XemsLocalUserForm.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->addChoice(Landroid/widget/LinearLayout;Ljava/lang/String;ZLjava/lang/Runnable;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderMedical()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-.field final synthetic val$pick:Ljava/lang/Runnable;
-
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;Ljava/lang/Runnable;)V
-    .registers 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;)V
+    .registers 2
 
     .prologue
-    .line 571
+    .line 550
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
-
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->val$pick:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,15 +36,29 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public run()V
     .registers 3
 
     .prologue
-    .line 573
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->val$pick:Ljava/lang/Runnable;
+    .line 552
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    const/4 v1, 0x0
 
-    .line 574
+    iput-boolean v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->medical:Z
+
+    .line 553
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
+
+    invoke-interface {v0}, Ljava/util/Set;->clear()V
+
+    .line 554
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderMedical()V
+
+    .line 555
     return-void
 .end method

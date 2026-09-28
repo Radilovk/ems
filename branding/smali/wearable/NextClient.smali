@@ -2024,13 +2024,13 @@
     .registers 1
 
     .prologue
-    .line 557
+    .line 569
     sget-object v0, Lcom/isaigu/gymapp/wearable/NextClient;->shown:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 559
+    .line 571
     if-eqz v0, :cond_9
 
-    .line 560
+    .line 572
     :try_start_4
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
@@ -2038,12 +2038,12 @@
     :try_end_9
     .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_9} :catch_a
 
-    .line 564
+    .line 576
     :cond_9
     :goto_9
     return-void
 
-    .line 562
+    .line 574
     :catch_a
     move-exception v0
 
@@ -2054,14 +2054,137 @@
     .registers 3
 
     .prologue
-    .line 458
-    const-string v0, "back"
+    .line 459
+    const-string v0, "menopause"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
     if-eqz v0, :cond_11
+
+    const-string v0, "\u043c\u0435\u043d\u043e\u043f\u0430\u0443\u0437\u0430"
+
+    const-string v1, "menopause"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 478
+    :cond_10
+    :goto_10
+    return-object p0
+
+    .line 460
+    :cond_11
+    const-string v0, "prediabetes"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_22
+
+    const-string v0, "\u043f\u0440\u0435\u0434\u0434\u0438\u0430\u0431\u0435\u0442"
+
+    const-string v1, "prediabetes"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 461
+    :cond_22
+    const-string v0, "pcos"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_33
+
+    const-string v0, "\u041f\u041a\u041e\u0421 / \u0445\u043e\u0440\u043c\u043e\u043d\u0438"
+
+    const-string v1, "PCOS / hormones"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 462
+    :cond_33
+    const-string v0, "thyroid"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_44
+
+    const-string v0, "\u0449\u0438\u0442\u043e\u0432\u0438\u0434\u043d\u0430 \u0436\u043b\u0435\u0437\u0430"
+
+    const-string v1, "thyroid"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 463
+    :cond_44
+    const-string v0, "water"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_55
+
+    const-string v0, "\u0437\u0430\u0434\u044a\u0440\u0436\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442\u0438"
+
+    const-string v1, "water retention"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 464
+    :cond_55
+    const-string v0, "postpartum"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_66
+
+    const-string v0, "\u0441\u043b\u0435\u0434 \u0431\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0441\u0442"
+
+    const-string v1, "after pregnancy"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 465
+    :cond_66
+    const-string v0, "back"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_77
 
     const-string v0, "\u043a\u0440\u044a\u0441\u0442"
 
@@ -2071,20 +2194,17 @@
 
     move-result-object p0
 
-    .line 466
-    :cond_10
-    :goto_10
-    return-object p0
+    goto :goto_10
 
-    .line 459
-    :cond_11
+    .line 466
+    :cond_77
     const-string v0, "neck"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_22
+    if-eqz v0, :cond_88
 
     const-string v0, "\u0432\u0440\u0430\u0442 / \u0440\u0430\u043c\u0435\u043d\u0435"
 
@@ -2096,15 +2216,15 @@
 
     goto :goto_10
 
-    .line 460
-    :cond_22
+    .line 467
+    :cond_88
     const-string v0, "knees"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_33
+    if-eqz v0, :cond_9a
 
     const-string v0, "\u043a\u043e\u043b\u0435\u043d\u0435"
 
@@ -2114,17 +2234,37 @@
 
     move-result-object p0
 
-    goto :goto_10
+    goto/16 :goto_10
 
-    .line 461
-    :cond_33
+    .line 468
+    :cond_9a
+    const-string v0, "joints"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_ac
+
+    const-string v0, "\u0441\u0442\u0430\u0432\u0438"
+
+    const-string v1, "joints"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_10
+
+    .line 469
+    :cond_ac
     const-string v0, "injury"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_44
+    if-eqz v0, :cond_be
 
     const-string v0, "\u0441\u0442\u0430\u0440\u0430 \u0442\u0440\u0430\u0432\u043c\u0430"
 
@@ -2134,17 +2274,77 @@
 
     move-result-object p0
 
-    goto :goto_10
+    goto/16 :goto_10
 
-    .line 462
-    :cond_44
+    .line 470
+    :cond_be
+    const-string v0, "diastasis"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_d0
+
+    const-string v0, "\u0434\u0438\u0430\u0441\u0442\u0430\u0437\u0430"
+
+    const-string v1, "diastasis"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_10
+
+    .line 471
+    :cond_d0
+    const-string v0, "osteo"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_e2
+
+    const-string v0, "\u043e\u0441\u0442\u0435\u043e\u043f\u043e\u0440\u043e\u0437\u0430"
+
+    const-string v1, "osteoporosis"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_10
+
+    .line 472
+    :cond_e2
+    const-string v0, "varicose"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_f4
+
+    const-string v0, "\u0440\u0430\u0437\u0448\u0438\u0440\u0435\u043d\u0438 \u0432\u0435\u043d\u0438"
+
+    const-string v1, "varicose veins"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_10
+
+    .line 473
+    :cond_f4
     const-string v0, "desk"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_55
+    if-eqz v0, :cond_106
 
     const-string v0, "\u0441\u0435\u0434\u044f\u0449\u0430 \u0440\u0430\u0431\u043e\u0442\u0430"
 
@@ -2154,51 +2354,71 @@
 
     move-result-object p0
 
-    goto :goto_10
+    goto/16 :goto_10
 
-    .line 463
-    :cond_55
+    .line 474
+    :cond_106
     const-string v0, "stress"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_66
+    if-eqz v0, :cond_118
 
-    const-string v0, "\u0441\u0442\u0440\u0435\u0441 / \u0441\u044a\u043d"
+    const-string v0, "\u0441\u0442\u0440\u0435\u0441"
 
-    const-string v1, "stress / sleep"
+    const-string v1, "stress"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    goto :goto_10
+    goto/16 :goto_10
 
-    .line 464
-    :cond_66
-    const-string v0, "sensitive"
+    .line 475
+    :cond_118
+    const-string v0, "sleep"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_77
+    if-eqz v0, :cond_12a
 
-    const-string v0, "\u0447\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u043d\u043e\u0441\u0442 \u043a\u044a\u043c \u0442\u043e\u043a\u0430"
+    const-string v0, "\u043b\u043e\u0448 \u0441\u044a\u043d / \u0443\u043c\u043e\u0440\u0430"
 
-    const-string v1, "sensitive to current"
+    const-string v1, "poor sleep / fatigue"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    goto :goto_10
+    goto/16 :goto_10
 
-    .line 465
-    :cond_77
-    const-string v0, "postpartum"
+    .line 476
+    :cond_12a
+    const-string v0, "senior"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_13c
+
+    const-string v0, "60+ / \u0441\u043b\u0430\u0431\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0438"
+
+    const-string v1, "60+ / low muscle"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto/16 :goto_10
+
+    .line 477
+    :cond_13c
+    const-string v0, "sensitive"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -2206,22 +2426,22 @@
 
     if-eqz v0, :cond_10
 
-    const-string v0, "\u0440\u0430\u0436\u0434\u0430\u043d\u0435 \u0434\u043e 1 \u0433."
+    const-string v0, "\u0447\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u0435\u043d \u043a\u044a\u043c \u0442\u043e\u043a\u0430"
 
-    const-string v1, "birth within a year"
+    const-string v1, "sensitive to current"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextClient;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    goto :goto_10
+    goto/16 :goto_10
 .end method
 
 .method static contraName(Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 470
+    .line 482
     const-string v0, "pregnancy"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2238,12 +2458,12 @@
 
     move-result-object p0
 
-    .line 483
+    .line 495
     :cond_10
     :goto_10
     return-object p0
 
-    .line 471
+    .line 483
     :cond_11
     const-string v0, "implant"
 
@@ -2263,7 +2483,7 @@
 
     goto :goto_10
 
-    .line 472
+    .line 484
     :cond_22
     const-string v0, "cardiovascular"
 
@@ -2283,7 +2503,7 @@
 
     goto :goto_10
 
-    .line 473
+    .line 485
     :cond_33
     const-string v0, "circulation"
 
@@ -2303,7 +2523,7 @@
 
     goto :goto_10
 
-    .line 474
+    .line 486
     :cond_44
     const-string v0, "hernia"
 
@@ -2323,7 +2543,7 @@
 
     goto :goto_10
 
-    .line 475
+    .line 487
     :cond_55
     const-string v0, "cancer"
 
@@ -2343,7 +2563,7 @@
 
     goto :goto_10
 
-    .line 476
+    .line 488
     :cond_66
     const-string v0, "bleeding"
 
@@ -2363,7 +2583,7 @@
 
     goto :goto_10
 
-    .line 477
+    .line 489
     :cond_77
     const-string v0, "epilepsy"
 
@@ -2383,7 +2603,7 @@
 
     goto :goto_10
 
-    .line 478
+    .line 490
     :cond_88
     const-string v0, "neurological"
 
@@ -2403,7 +2623,7 @@
 
     goto/16 :goto_10
 
-    .line 479
+    .line 491
     :cond_9a
     const-string v0, "recent_surgery"
 
@@ -2423,7 +2643,7 @@
 
     goto/16 :goto_10
 
-    .line 480
+    .line 492
     :cond_ac
     const-string v0, "skin_lesion"
 
@@ -2443,7 +2663,7 @@
 
     goto/16 :goto_10
 
-    .line 481
+    .line 493
     :cond_be
     const-string v0, "kidney"
 
@@ -2463,7 +2683,7 @@
 
     goto/16 :goto_10
 
-    .line 482
+    .line 494
     :cond_d0
     const-string v0, "tuberculosis"
 
@@ -3228,7 +3448,7 @@
 
     const/4 v6, 0x1
 
-    .line 570
+    .line 582
     :try_start_2
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
 
@@ -3236,7 +3456,7 @@
 
     if-eqz v0, :cond_3e
 
-    .line 571
+    .line 583
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->getItemManager()Lcom/isaigu/gymapp/train/TrainItemManager;
 
     move-result-object v0
@@ -3245,7 +3465,7 @@
 
     move-result-object v0
 
-    .line 572
+    .line 584
     :goto_10
     if-eqz v0, :cond_40
 
@@ -3265,7 +3485,7 @@
 
     move-object v3, v0
 
-    .line 573
+    .line 585
     :goto_21
     if-eqz v3, :cond_2d
 
@@ -3279,7 +3499,7 @@
 
     if-nez v0, :cond_42
 
-    .line 574
+    .line 586
     :cond_2d
     const-string v0, "\u041a\u043e\u0441\u0442\u044e\u043c\u044a\u0442 \u0432\u0435\u0447\u0435 \u043d\u0435 \u0435 \u0441\u0432\u044a\u0440\u0437\u0430\u043d."
 
@@ -3297,23 +3517,23 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 602
+    .line 614
     :goto_3d
     return-void
 
     :cond_3e
     move-object v0, v1
 
-    .line 571
+    .line 583
     goto :goto_10
 
     :cond_40
     move-object v3, v1
 
-    .line 572
+    .line 584
     goto :goto_21
 
-    .line 577
+    .line 589
     :cond_42
     iget-object v0, v3, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -3321,7 +3541,7 @@
 
     if-eqz v0, :cond_82
 
-    .line 578
+    .line 590
     const-string v0, "\u041a\u043e\u0441\u0442\u044e\u043c\u044a\u0442 \u0442\u0440\u0435\u043d\u0438\u0440\u0430 \u2014 \u043d\u0435 \u0441\u0435 \u0441\u043c\u0435\u043d\u044f."
 
     const-string v1, "The suit is training \u2014 not changed."
@@ -3342,11 +3562,11 @@
 
     goto :goto_3d
 
-    .line 598
+    .line 610
     :catch_59
     move-exception v0
 
-    .line 599
+    .line 611
     const-string v1, "next"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3369,7 +3589,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 600
+    .line 612
     const-string v0, "\u041a\u043b\u0438\u0435\u043d\u0442\u044a\u0442 \u043d\u0435 \u0441\u0435 \u0437\u0430\u0440\u0435\u0434\u0438."
 
     const-string v1, "Could not load the client."
@@ -3386,13 +3606,13 @@
 
     goto :goto_3d
 
-    .line 581
+    .line 593
     :cond_82
     if-nez p2, :cond_132
 
     move-object v2, v1
 
-    .line 582
+    .line 594
     :goto_85
     :try_start_85
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/Schedule$Appt;->user:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -3401,7 +3621,7 @@
 
     move-result-object v4
 
-    .line 583
+    .line 595
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/Schedule$Appt;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/utils/BeanUtils;->cloneObject(Ljava/lang/Object;)Ljava/lang/Object;
@@ -3410,27 +3630,27 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 584
+    .line 596
     if-nez v0, :cond_14b
 
-    .line 585
+    .line 597
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/Schedule$Appt;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
     move-object v1, v0
 
-    .line 587
+    .line 599
     :goto_98
     iget-object v0, v3, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 588
+    .line 600
     if-eqz v4, :cond_a1
 
-    .line 589
+    .line 601
     invoke-virtual {v3, v4}, Lcom/isaigu/gymapp/train/model/TrainItem;->setTrainProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
-    .line 591
+    .line 603
     :cond_a1
     sget-object v0, Lcom/isaigu/gymapp/wearable/NextClient;->LOADED:Ljava/util/Map;
 
@@ -3448,20 +3668,20 @@
 
     invoke-interface {v0, v3, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 592
+    .line 604
     sput p3, Lcom/isaigu/gymapp/wearable/NextClient;->lastSlot:I
 
-    .line 593
+    .line 605
     invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/NextClient;->markDone(Landroid/content/Context;Lcom/isaigu/gymapp/wearable/Schedule$Appt;)V
 
-    .line 594
+    .line 606
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/NextClient;->refreshRows(Landroid/app/Activity;)V
 
-    .line 595
+    .line 607
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -3515,7 +3735,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 596
+    .line 608
     const-string v3, "next"
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -3550,7 +3770,7 @@
 
     move-result-object v1
 
-    .line 597
+    .line 609
     if-eqz v2, :cond_145
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->line(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;)Ljava/lang/String;
@@ -3575,12 +3795,12 @@
 
     move-result-object v0
 
-    .line 596
+    .line 608
     invoke-static {v3, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
     goto/16 :goto_3d
 
-    .line 581
+    .line 593
     :cond_132
     if-eqz p4, :cond_13d
 
@@ -3601,13 +3821,13 @@
 
     goto/16 :goto_85
 
-    .line 595
+    .line 607
     :cond_142
     const-string v0, ""
 
     goto :goto_e4
 
-    .line 597
+    .line 609
     :cond_145
     const-string v0, "own program"
 
@@ -3849,12 +4069,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 614
+    .line 626
     instance-of v1, p0, Landroid/support/v7/widget/RecyclerView;
 
     if-eqz v1, :cond_2f
 
-    .line 616
+    .line 628
     :try_start_5
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -3878,10 +4098,10 @@
 
     move-result-object v0
 
-    .line 617
+    .line 629
     if-eqz v0, :cond_2e
 
-    .line 618
+    .line 630
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v1
@@ -3904,21 +4124,21 @@
     :try_end_2e
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_2e} :catch_45
 
-    .line 630
+    .line 642
     :cond_2e
     :goto_2e
     return-void
 
-    .line 624
+    .line 636
     :cond_2f
     instance-of v1, p0, Landroid/view/ViewGroup;
 
     if-eqz v1, :cond_2e
 
-    .line 625
+    .line 637
     check-cast p0, Landroid/view/ViewGroup;
 
-    .line 626
+    .line 638
     :goto_35
     invoke-virtual {p0}, Landroid/view/ViewGroup;->getChildCount()I
 
@@ -3926,19 +4146,19 @@
 
     if-ge v0, v1, :cond_2e
 
-    .line 627
+    .line 639
     invoke-virtual {p0, v0}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NextClient;->notifyLists(Landroid/view/View;)V
 
-    .line 626
+    .line 638
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_35
 
-    .line 620
+    .line 632
     :catch_45
     move-exception v0
 
@@ -4409,7 +4629,7 @@
     .registers 5
 
     .prologue
-    .line 607
+    .line 619
     :try_start_0
     invoke-virtual {p0}, Landroid/app/Activity;->getWindow()Landroid/view/Window;
 
@@ -4423,15 +4643,15 @@
     :try_end_b
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_b} :catch_c
 
-    .line 611
+    .line 623
     :goto_b
     return-void
 
-    .line 608
+    .line 620
     :catch_c
     move-exception v0
 
-    .line 609
+    .line 621
     const-string v1, "next"
 
     new-instance v2, Ljava/lang/StringBuilder;

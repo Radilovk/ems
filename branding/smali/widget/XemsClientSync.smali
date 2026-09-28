@@ -15,10 +15,6 @@
 
 
 # static fields
-.field static final COND_NAMES:[[Ljava/lang/String;
-
-.field static final FOCUS_NAMES:[[Ljava/lang/String;
-
 .field private static final H:Landroid/os/Handler;
 
 .field static final POKE_MS:J = 0x1d4c0L
@@ -42,19 +38,9 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 9
+    .registers 2
 
     .prologue
-    const/4 v8, 0x4
-
-    const/4 v7, 0x3
-
-    const/4 v6, 0x2
-
-    const/4 v5, 0x1
-
-    const/4 v4, 0x0
-
     .line 40
     new-instance v0, Landroid/os/Handler;
 
@@ -65,252 +51,6 @@
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
-
-    .line 346
-    const/4 v0, 0x6
-
-    new-array v0, v0, [[Ljava/lang/String;
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "abs"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u043a\u043e\u0440\u0435\u043c"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "abs"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v4
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "glutes"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "glutes"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v5
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "legs"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u0431\u0435\u0434\u0440\u0430"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "legs"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v6
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "arms"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u0440\u044a\u0446\u0435"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "arms"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v7
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "back"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u0433\u0440\u044a\u0431"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "back"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v8
-
-    const/4 v1, 0x5
-
-    new-array v2, v7, [Ljava/lang/String;
-
-    const-string v3, "chest"
-
-    aput-object v3, v2, v4
-
-    const-string v3, "\u0433\u044a\u0440\u0434\u0438"
-
-    aput-object v3, v2, v5
-
-    const-string v3, "chest"
-
-    aput-object v3, v2, v6
-
-    aput-object v2, v0, v1
-
-    sput-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->FOCUS_NAMES:[[Ljava/lang/String;
-
-    .line 348
-    const/16 v0, 0x8
-
-    new-array v0, v0, [[Ljava/lang/String;
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "back"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u043a\u0440\u044a\u0441\u0442"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "lower back"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v4
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "neck"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u0432\u0440\u0430\u0442 / \u0440\u0430\u043c\u0435\u043d\u0435"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "neck / shoulders"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v5
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "knees"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u043a\u043e\u043b\u0435\u043d\u0435"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "knees"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v6
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "injury"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u0441\u0442\u0430\u0440\u0430 \u0442\u0440\u0430\u0432\u043c\u0430"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "old injury"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v7
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v2, "desk"
-
-    aput-object v2, v1, v4
-
-    const-string v2, "\u0441\u0435\u0434\u044f\u0449\u0430 \u0440\u0430\u0431\u043e\u0442\u0430"
-
-    aput-object v2, v1, v5
-
-    const-string v2, "desk job"
-
-    aput-object v2, v1, v6
-
-    aput-object v1, v0, v8
-
-    const/4 v1, 0x5
-
-    new-array v2, v7, [Ljava/lang/String;
-
-    const-string v3, "stress"
-
-    aput-object v3, v2, v4
-
-    const-string v3, "\u0441\u0442\u0440\u0435\u0441 / \u0441\u044a\u043d"
-
-    aput-object v3, v2, v5
-
-    const-string v3, "stress / sleep"
-
-    aput-object v3, v2, v6
-
-    aput-object v2, v0, v1
-
-    const/4 v1, 0x6
-
-    new-array v2, v7, [Ljava/lang/String;
-
-    const-string v3, "sensitive"
-
-    aput-object v3, v2, v4
-
-    const-string v3, "\u0447\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u043d\u043e\u0441\u0442 \u043a\u044a\u043c \u0442\u043e\u043a\u0430"
-
-    aput-object v3, v2, v5
-
-    const-string v3, "sensitive to current"
-
-    aput-object v3, v2, v6
-
-    aput-object v2, v0, v1
-
-    const/4 v1, 0x7
-
-    new-array v2, v7, [Ljava/lang/String;
-
-    const-string v3, "postpartum"
-
-    aput-object v3, v2, v4
-
-    const-string v3, "\u0440\u0430\u0436\u0434\u0430\u043d\u0435 \u0434\u043e 1 \u0433."
-
-    aput-object v3, v2, v5
-
-    const-string v3, "birth within a year"
-
-    aput-object v3, v2, v6
-
-    aput-object v2, v0, v1
-
-    sput-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->COND_NAMES:[[Ljava/lang/String;
 
     return-void
 .end method
@@ -369,12 +109,12 @@
     .registers 6
 
     .prologue
-    .line 354
+    .line 344
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 355
+    .line 345
     const/4 v0, 0x0
 
     move v1, v0
@@ -388,7 +128,7 @@
 
     if-ge v1, v0, :cond_39
 
-    .line 356
+    .line 346
     const-string v0, ""
 
     invoke-virtual {p0, v1, v0}, Lorg/json/JSONArray;->optString(ILjava/lang/String;)Ljava/lang/String;
@@ -403,14 +143,14 @@
 
     move-result-object v3
 
-    .line 357
+    .line 347
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v0
 
     if-lez v0, :cond_32
 
-    .line 358
+    .line 348
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -426,7 +166,7 @@
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 355
+    .line 345
     :cond_32
     add-int/lit8 v0, v1, 0x1
 
@@ -434,13 +174,13 @@
 
     goto :goto_7
 
-    .line 358
+    .line 348
     :cond_36
     const-string v0, ""
 
     goto :goto_2b
 
-    .line 361
+    .line 351
     :cond_39
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -453,24 +193,24 @@
     .registers 5
 
     .prologue
-    .line 403
+    .line 381
     if-nez p0, :cond_5
 
-    .line 404
+    .line 382
     const-string v0, ""
 
-    .line 414
+    .line 392
     :cond_4
     :goto_4
     return-object v0
 
-    .line 406
+    .line 384
     :cond_5
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 407
+    .line 385
     const/4 v0, 0x0
 
     :goto_b
@@ -480,12 +220,12 @@
 
     if-ge v0, v2, :cond_23
 
-    .line 408
+    .line 386
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
 
-    .line 409
+    .line 387
     const/16 v3, 0x30
 
     if-lt v2, v3, :cond_20
@@ -494,22 +234,22 @@
 
     if-gt v2, v3, :cond_20
 
-    .line 410
+    .line 388
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 407
+    .line 385
     :cond_20
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_b
 
-    .line 413
+    .line 391
     :cond_23
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 414
+    .line 392
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -535,7 +275,7 @@
     .registers 2
 
     .prologue
-    .line 418
+    .line 396
     if-eqz p0, :cond_c
 
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -568,30 +308,30 @@
 
     const/4 v2, 0x0
 
-    .line 377
+    .line 355
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
     iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
-    .line 378
+    .line 356
     if-nez v0, :cond_c
 
     move-object v0, v3
 
-    .line 399
+    .line 377
     :cond_b
     :goto_b
     return-object v0
 
-    .line 381
+    .line 359
     :cond_c
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
 
-    .line 382
+    .line 360
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -600,7 +340,7 @@
 
     move v1, v2
 
-    .line 383
+    .line 361
     :goto_18
     invoke-interface {v4}, Ljava/util/List;->size()I
 
@@ -608,14 +348,14 @@
 
     if-ge v1, v0, :cond_3a
 
-    .line 384
+    .line 362
     invoke-interface {v4, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 385
+    .line 363
     if-eqz v0, :cond_36
 
     iget-object v5, v0, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
@@ -634,7 +374,7 @@
 
     if-nez v5, :cond_b
 
-    .line 383
+    .line 361
     :cond_36
     add-int/lit8 v0, v1, 0x1
 
@@ -642,13 +382,13 @@
 
     goto :goto_18
 
-    .line 390
+    .line 368
     :cond_3a
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsClientSync;->digits9(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 391
+    .line 369
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -657,7 +397,7 @@
 
     if-lt v0, v5, :cond_62
 
-    .line 392
+    .line 370
     :goto_45
     invoke-interface {v4}, Ljava/util/List;->size()I
 
@@ -665,14 +405,14 @@
 
     if-ge v2, v0, :cond_62
 
-    .line 393
+    .line 371
     invoke-interface {v4, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 394
+    .line 372
     if-eqz v0, :cond_5f
 
     iget-object v5, v0, Lcom/isaigu/gymapp/bean/TrainUser;->phone:Ljava/lang/String;
@@ -687,7 +427,7 @@
 
     if-nez v5, :cond_b
 
-    .line 392
+    .line 370
     :cond_5f
     add-int/lit8 v2, v2, 0x1
 
@@ -696,7 +436,7 @@
     :cond_62
     move-object v0, v3
 
-    .line 399
+    .line 377
     goto :goto_b
 .end method
 
@@ -855,7 +595,7 @@
     .line 220
     const/4 v2, 0x0
 
-    .line 343
+    .line 340
     :goto_3
     return v2
 
@@ -1033,7 +773,7 @@
 
     move-result v4
 
-    if-lez v4, :cond_470
+    if-lez v4, :cond_3e8
 
     iget-object v4, v3, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
 
@@ -1043,7 +783,7 @@
 
     if-nez v4, :cond_a2
 
-    if-eqz v11, :cond_470
+    if-eqz v11, :cond_3e8
 
     :cond_a2
     iget-object v4, v3, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
@@ -1052,7 +792,7 @@
 
     move-result v4
 
-    if-nez v4, :cond_470
+    if-nez v4, :cond_3e8
 
     .line 240
     iput-object v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
@@ -1286,7 +1026,7 @@
     move-result v5
 
     .line 278
-    if-lez v5, :cond_46d
+    if-lez v5, :cond_3e5
 
     iget v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
 
@@ -1296,7 +1036,7 @@
 
     if-lez v6, :cond_166
 
-    if-eqz v11, :cond_46d
+    if-eqz v11, :cond_3e5
 
     :cond_166
     iget v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
@@ -1305,7 +1045,7 @@
 
     move-result v6
 
-    if-eq v6, v5, :cond_46d
+    if-eq v6, v5, :cond_3e5
 
     .line 279
     int-to-float v4, v5
@@ -1853,7 +1593,7 @@
 
     move-result v7
 
-    if-lez v7, :cond_459
+    if-lez v7, :cond_3da
 
     .line 335
     :goto_324
@@ -1861,7 +1601,7 @@
 
     move-result v7
 
-    if-lez v7, :cond_45d
+    if-lez v7, :cond_3de
 
     .line 336
     :goto_32a
@@ -2011,143 +1751,13 @@
 
     invoke-virtual {v7, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v5
-
-    .line 339
-    invoke-virtual {v9}, Ljava/lang/String;->length()I
-
-    move-result v4
-
-    if-lez v4, :cond_461
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v7, " \u00b7 "
-
-    invoke-virtual {v4, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
     move-result-object v4
 
-    const-string v7, "\u0424\u043e\u043a\u0443\u0441: "
-
-    const-string v8, "Focus: "
-
-    invoke-static {v7, v8}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v7
-
-    invoke-virtual {v4, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    sget-object v7, Lcom/isaigu/gymapp/widget/XemsClientSync;->FOCUS_NAMES:[[Ljava/lang/String;
-
-    invoke-static {v9, v7}, Lcom/isaigu/gymapp/widget/XemsClientSync;->names(Ljava/lang/String;[[Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v7
-
-    invoke-virtual {v4, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v4
-
-    :goto_3ee
-    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-static {v9, v6, v10}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->extras(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 340
-    invoke-virtual {v6}, Ljava/lang/String;->length()I
-
-    move-result v4
-
-    if-lez v4, :cond_464
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v7, " \u00b7 "
-
-    invoke-virtual {v4, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    const-string v7, "\u0414\u0430 \u0441\u0435 \u0441\u044a\u043e\u0431\u0440\u0430\u0437\u0438: "
-
-    const-string v8, "Mind: "
-
-    invoke-static {v7, v8}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v7
-
-    invoke-virtual {v4, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    sget-object v7, Lcom/isaigu/gymapp/widget/XemsClientSync;->COND_NAMES:[[Ljava/lang/String;
-
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/widget/XemsClientSync;->names(Ljava/lang/String;[[Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v6
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v4
-
-    :goto_41d
-    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    .line 341
-    invoke-virtual {v10}, Ljava/lang/String;->length()I
-
-    move-result v4
-
-    if-lez v4, :cond_467
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, " \u00b7 "
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    const-string v6, "\u041e\u0442 \u043a\u043b\u0438\u0435\u043d\u0442\u0430: "
-
-    const-string v7, "From the client: "
-
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v6
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    invoke-virtual {v4, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v4
-
-    :goto_446
-    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
@@ -2157,174 +1767,45 @@
 
     iput-object v4, v3, Lcom/isaigu/gymapp/bean/TrainUser;->remark:Ljava/lang/String;
 
-    .line 342
+    .line 339
     const/4 v4, 0x1
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUserQuiet(Lcom/isaigu/gymapp/bean/TrainUser;Z)V
 
-    .line 343
-    if-eqz v2, :cond_46a
+    .line 340
+    if-eqz v2, :cond_3e2
 
     const/4 v2, 0x1
 
     goto/16 :goto_3
 
     .line 334
-    :cond_459
+    :cond_3da
     const-string v4, "tone"
 
     goto/16 :goto_324
 
     .line 335
-    :cond_45d
+    :cond_3de
     const-string v5, "mid"
 
     goto/16 :goto_32a
 
-    .line 339
-    :cond_461
-    const-string v4, ""
-
-    goto :goto_3ee
-
     .line 340
-    :cond_464
-    const-string v4, ""
-
-    goto :goto_41d
-
-    .line 341
-    :cond_467
-    const-string v4, ""
-
-    goto :goto_446
-
-    .line 343
-    :cond_46a
+    :cond_3e2
     const/4 v2, 0x2
 
     goto/16 :goto_3
 
-    :cond_46d
+    :cond_3e5
     move v7, v4
 
     goto/16 :goto_173
 
-    :cond_470
+    :cond_3e8
     move v4, v2
 
     goto/16 :goto_ad
-.end method
-
-.method static names(Ljava/lang/String;[[Ljava/lang/String;)Ljava/lang/String;
-    .registers 13
-
-    .prologue
-    const/4 v2, 0x0
-
-    .line 365
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    .line 366
-    const-string v0, ","
-
-    invoke-virtual {p0, v0}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
-
-    move-result-object v5
-
-    array-length v6, v5
-
-    move v3, v2
-
-    :goto_e
-    if-ge v3, v6, :cond_47
-
-    aget-object v7, v5, v3
-
-    .line 367
-    array-length v8, p1
-
-    move v1, v2
-
-    :goto_14
-    if-ge v1, v8, :cond_43
-
-    aget-object v9, p1, v1
-
-    .line 368
-    aget-object v0, v9, v2
-
-    invoke-virtual {v0, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_38
-
-    .line 369
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->length()I
-
-    move-result v0
-
-    if-lez v0, :cond_3c
-
-    const-string v0, ", "
-
-    :goto_28
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v10
-
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_3f
-
-    const/4 v0, 0x1
-
-    aget-object v0, v9, v0
-
-    :goto_35
-    invoke-virtual {v10, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 367
-    :cond_38
-    add-int/lit8 v0, v1, 0x1
-
-    move v1, v0
-
-    goto :goto_14
-
-    .line 369
-    :cond_3c
-    const-string v0, ""
-
-    goto :goto_28
-
-    :cond_3f
-    const/4 v0, 0x2
-
-    aget-object v0, v9, v0
-
-    goto :goto_35
-
-    .line 366
-    :cond_43
-    add-int/lit8 v0, v3, 0x1
-
-    move v3, v0
-
-    goto :goto_e
-
-    .line 373
-    :cond_47
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    return-object v0
 .end method
 
 .method public static poke()V

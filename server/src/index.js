@@ -428,6 +428,10 @@ async function adminApi(request, env, path) {
 
   if (route === 'licenses' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM licenses ORDER BY created_at DESC LIMIT 200').all();
+    // the studio code (for the booking page) is made here too, so the admin sees it before any tablet refreshes
+    for (const lic of rows.results) {
+      if (!lic.studio_code) lic.studio_code = await ensureStudioCode(env, lic);
+    }
     return json({ ok: true, licenses: rows.results });
   }
 

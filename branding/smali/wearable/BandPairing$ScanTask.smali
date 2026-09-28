@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 389
+    .line 479
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 390
+    .line 480
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanTask;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 391
+    .line 481
     return-void
 .end method
 
@@ -42,19 +42,26 @@
     .registers 5
 
     .prologue
-    .line 395
+    .line 485
     const/4 v0, 0x0
 
-    .line 397
+    .line 487
     :try_start_1
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scanLocal()Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
-    :try_end_4
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_4} :catch_14
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ScanTask;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
+
+    # getter for: Lcom/isaigu/gymapp/wearable/BandPairing;->a:Landroid/app/Activity;
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$300(Lcom/isaigu/gymapp/wearable/BandPairing;)Landroid/app/Activity;
+
+    move-result-object v1
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport;->scanLocal(Landroid/content/Context;)Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
+    :try_end_a
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_a} :catch_1a
 
     move-result-object v0
 
-    .line 400
-    :goto_5
+    .line 490
+    :goto_b
     # getter for: Lcom/isaigu/gymapp/wearable/BandPairing;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$600()Landroid/os/Handler;
 
@@ -68,12 +75,12 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 401
+    .line 491
     return-void
 
-    .line 398
-    :catch_14
+    .line 488
+    :catch_1a
     move-exception v1
 
-    goto :goto_5
+    goto :goto_b
 .end method

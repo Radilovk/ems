@@ -21,7 +21,7 @@
         "Ljava/lang/Object;",
         "Ljava/util/Comparator",
         "<",
-        "Ljava/io/File;",
+        "Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;",
         ">;"
     }
 .end annotation
@@ -32,7 +32,7 @@
     .registers 1
 
     .prologue
-    .line 167
+    .line 314
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 167
+    .line 314
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$NewestFirst;-><init>()V
 
     return-void
@@ -50,55 +50,51 @@
 
 
 # virtual methods
-.method public compare(Ljava/io/File;Ljava/io/File;)I
+.method public compare(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;)I
     .registers 8
 
     .prologue
-    .line 170
-    invoke-virtual {p1}, Ljava/io/File;->lastModified()J
+    .line 317
+    iget-wide v0, p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->time:J
 
-    move-result-wide v0
+    .line 318
+    iget-wide v2, p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;->time:J
 
-    .line 171
-    invoke-virtual {p2}, Ljava/io/File;->lastModified()J
-
-    move-result-wide v2
-
-    .line 172
+    .line 319
     cmp-long v4, v0, v2
 
-    if-gez v4, :cond_e
+    if-gez v4, :cond_a
 
     const/4 v0, 0x1
 
-    :goto_d
+    :goto_9
     return v0
 
-    :cond_e
+    :cond_a
     cmp-long v0, v0, v2
 
-    if-lez v0, :cond_14
+    if-lez v0, :cond_10
 
     const/4 v0, -0x1
 
-    goto :goto_d
+    goto :goto_9
 
-    :cond_14
+    :cond_10
     const/4 v0, 0x0
 
-    goto :goto_d
+    goto :goto_9
 .end method
 
 .method public bridge synthetic compare(Ljava/lang/Object;Ljava/lang/Object;)I
     .registers 4
 
     .prologue
-    .line 167
-    check-cast p1, Ljava/io/File;
+    .line 314
+    check-cast p1, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
 
-    check-cast p2, Ljava/io/File;
+    check-cast p2, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;
 
-    invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$NewestFirst;->compare(Ljava/io/File;Ljava/io/File;)I
+    invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$NewestFirst;->compare(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Entry;)I
 
     move-result v0
 

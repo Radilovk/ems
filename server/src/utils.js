@@ -80,3 +80,22 @@ export function generateLicenseId() {
   const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
   return `L-${new Date().getFullYear()}-${String(n).padStart(6, '0')}`;
 }
+
+export const ACTIVATION_SEEN_SEC = 6 * 3600;
+
+/**
+ * Should a licence refresh write the tablet's row? Only when something the admin panel shows changed, or the
+ * "last seen" is older than ACTIVATION_SEEN_SEC — a refresh otherwise costs no D1 write.
+ */
+export function activationStale(act, body, ts) {
+  if (!act) return true;
+  if (!act.last_seen || ts - act.last_seen >= ACTIVATION_SEEN_SEC) return true;
+  const b = body || {};
+  if (b.app_version && b.app_version !== act.app_version) return true;
+  if (b.app_code && Number(b.app_code) !== Number(act.app_code)) return true;
+  if (b.device_model && b.device_model !== act.device_model) return true;
+  if (b.lang && b.lang !== act.lang) return true;
+  if (b.setup !== undefined && (b.setup ? 1 : 0) !== (act.setup || 0)) return true;
+  if (Array.isArray(b.ems_local) && JSON.stringify(normMacList(b.ems_local)) !== (act.ems_local || '[]')) return true;
+  return false;
+}

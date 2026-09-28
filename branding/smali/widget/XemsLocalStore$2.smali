@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 460
+    .line 462
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$adapter:Ljava/lang/Object;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$mac:Ljava/lang/String;
@@ -49,7 +49,7 @@
     .registers 3
 
     .prologue
-    .line 463
+    .line 465
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$adapter:Ljava/lang/Object;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalStore$2;->val$mac:Ljava/lang/String;
@@ -57,6 +57,6 @@
     # invokes: Lcom/isaigu/gymapp/widget/XemsLocalStore;->removeFromAdapterList(Ljava/lang/Object;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->access$100(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 464
+    .line 466
     return-void
 .end method

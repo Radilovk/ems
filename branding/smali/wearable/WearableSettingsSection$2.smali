@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->build(Landroid/app/Activity;Landroid/view/View;)V
+    value = Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->addConnectionPart(Landroid/app/Activity;Landroid/widget/LinearLayout;Landroid/view/View;ZII)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,11 @@
 
 
 # instance fields
-.field final synthetic val$eye:Landroid/widget/TextView;
+.field final synthetic val$a:Landroid/app/Activity;
 
 
 # direct methods
-.method constructor <init>(Landroid/widget/TextView;)V
+.method constructor <init>(Landroid/app/Activity;)V
     .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -31,8 +31,8 @@
     .end annotation
 
     .prologue
-    .line 144
-    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;
+    .line 294
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -42,58 +42,15 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 5
+    .registers 3
 
     .prologue
-    .line 147
-    # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->isKeyHidden()Z
-    invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$100()Z
+    .line 297
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$a:Landroid/app/Activity;
 
-    move-result v1
+    # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->startTest(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$000(Landroid/app/Activity;)V
 
-    .line 148
-    if-nez v1, :cond_1a
-
-    const/4 v0, 0x1
-
-    :goto_7
-    # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->setKeyHidden(Z)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$200(Z)V
-
-    .line 149
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$2;->val$eye:Landroid/widget/TextView;
-
-    if-eqz v1, :cond_1c
-
-    const-string v0, "\u0421\u043a\u0440\u0438\u0439"
-
-    const-string v1, "Hide"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    :goto_16
-    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 150
+    .line 298
     return-void
-
-    .line 148
-    :cond_1a
-    const/4 v0, 0x0
-
-    goto :goto_7
-
-    .line 149
-    :cond_1c
-    const-string v0, "\u041f\u043e\u043a\u0430\u0436\u0438"
-
-    const-string v1, "Show"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    goto :goto_16
 .end method

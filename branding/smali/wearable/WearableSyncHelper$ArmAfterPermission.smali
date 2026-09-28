@@ -21,6 +21,7 @@
 .method constructor <init>()V
     .registers 1
 
+    .prologue
     .line 1181
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -32,6 +33,7 @@
 .method public run()V
     .registers 2
 
+    .prologue
     .line 1184
     const/4 v0, 0x0
 

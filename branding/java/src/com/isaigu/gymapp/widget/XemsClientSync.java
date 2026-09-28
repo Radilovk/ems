@@ -13,7 +13,6 @@ import com.isaigu.gymapp.mgr.DataMgr;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -154,7 +153,7 @@ public final class XemsClientSync {
                 long since = prefs(app).getLong("since", 0);
                 String body = "{\"token\":" + XemsLicenseToken.quote(token)
                         + ",\"device_id\":" + XemsLicenseToken.quote(XemsLicense.deviceId())
-                        + ",\"since\":" + since + "}";
+                        + ",\"since\":" + since + XemsDossier.pullField() + "}";
                 JSONObject r = new JSONObject(XemsLicenseClient.http("POST", "/v1/inbox", body));
                 if (!r.optBoolean("ok")) {
                     return;
@@ -164,6 +163,9 @@ public final class XemsClientSync {
                 if (items != null && items.length() > 0) {
                     H.post(new Merge(items, r.optBoolean("more")));
                 }
+                if (r.has("clients")) {
+                    H.post(new Dossiers(r));                  // the studio's clients changed on other tablets
+                }
             } catch (Throwable t) {
                 android.util.Log.w("xems_sync", "pull: " + t);
             } finally {
@@ -171,6 +173,26 @@ public final class XemsClientSync {
                 if (poked) {
                     H.postDelayed(new Tick0(), gapMs);     // an event came while this pull ran
                 }
+            }
+        }
+    }
+
+    static final class Dossiers implements Runnable {
+        final JSONObject r;
+
+        Dossiers(JSONObject r) {
+            this.r = r;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (XemsDossier.applyPulled(r)) {
+                    lastPoll = 0;
+                    poke();
+                }
+            } catch (Throwable t) {
+                android.util.Log.w("xems_sync", "dossiers: " + t);
             }
         }
     }
@@ -362,44 +384,11 @@ public final class XemsClientSync {
     }
 
     static TrainUser find(String email, String phone) {
-        List<TrainUser> users = DataMgr.getInstance().trainUsers;
-        if (users == null) {
-            return null;
-        }
-        List<TrainUser> list = new ArrayList<TrainUser>(users);
-        if (email.length() > 0) {
-            for (int i = 0; i < list.size(); i++) {
-                TrainUser u = list.get(i);
-                if (u != null && u.email != null && email.equalsIgnoreCase(u.email.trim())) {
-                    return u;
-                }
-            }
-        }
-        String d = digits9(phone);
-        if (d.length() >= 7) {
-            for (int i = 0; i < list.size(); i++) {
-                TrainUser u = list.get(i);
-                if (u != null && d.equals(digits9(u.phone))) {
-                    return u;
-                }
-            }
-        }
-        return null;
+        return XemsClientMatch.find(email, phone);
     }
 
     static String digits9(String s) {
-        if (s == null) {
-            return "";
-        }
-        StringBuilder b = new StringBuilder();
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-            if (ch >= '0' && ch <= '9') {
-                b.append(ch);
-            }
-        }
-        String d = b.toString();
-        return d.length() > 9 ? d.substring(d.length() - 9) : d;
+        return XemsClientMatch.digits9(s);
     }
 
     private static boolean empty(String s) {

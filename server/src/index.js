@@ -8,10 +8,14 @@ import {
 import { adminHtml } from './admin.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
-  cardId, isCardId, normClientKey, validCardData, renderCard, cardGonePage,
+  cardId, isCardId, normClientKey, validCardData, renderCard, cardGonePage, lookupHash, lookupMatches,
   CARD_MAX_BYTES, CARD_TTL_SEC,
 } from './card.js';
 import cardTemplate from '../../branding/report/client-card.html';
+import {
+  studioCode, isStudioCode, cleanProfile, allowHit,
+  PROFILE_MAX_BYTES, INBOX_KEEP_SEC, INBOX_MAX_PER_STUDIO, INBOX_BATCH, INBOX_TOKEN_MAX_AGE_SEC,
+} from './profile.js';
 import {
   now, normKey, normDevice, normMacList, parseMacList,
   parseTokenBody, parseTokenLic, isHttpsUrl,
@@ -19,6 +23,18 @@ import {
 } from './utils.js';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
+// /v1/card/find is called from the client's browser (the booking PWA on another origin)
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400',
+};
+
+function cors(res) {
+  for (const [k, v] of Object.entries(CORS_HEADERS)) res.headers.set(k, v);
+  return res;
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -44,8 +60,19 @@ export default {
       if (path === '/v1/card' && request.method === 'POST') {
         return handleCardPut(request, env);
       }
+      if (path === '/v1/card/find') {
+        if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+        if (request.method === 'POST') return handleCardFind(request, env);
+      }
       if (path.startsWith('/c/') && request.method === 'GET') {
-        return serveCard(env, path.slice(3));
+        return serveCard(request, env, ctx, path.slice(3));
+      }
+      if (path === '/v1/profile') {
+        if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+        if (request.method === 'POST') return handleProfile(request, env);
+      }
+      if (path === '/v1/inbox' && request.method === 'POST') {
+        return handleInbox(request, env);
       }
 
       if (path.startsWith('/releases/')) {
@@ -152,7 +179,7 @@ async function handleRefresh(request, env) {
   await touchActivation(env, act, body);
   const newToken = await mintToken(env, lic, deviceId);
   await audit(env, 'refresh', lic.id, deviceId, null);
-  return json({ ok: true, token: newToken });
+  return json({ ok: true, token: newToken, studio: await ensureStudioCode(env, lic) });
 }
 
 // ─── Client card (a phone page the studio sends to its client) ───────────────
@@ -172,7 +199,7 @@ async function handleCardPut(request, env) {
   const bad = validCardData(body.data);
   if (bad) return err('bad_request', 'data: ' + bad);
 
-  if (!(await rateLimit(env, `card:dev:${deviceId}`, LIMITS.cardPerMinutePerDevice, 60))) {
+  if (!allowHit(`card:dev:${deviceId}`, LIMITS.cardPerMinutePerDevice, 60, now())) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many cards' }, 429);
   }
   const lic = await env.DB.prepare('SELECT * FROM licenses WHERE id = ?').bind(licId).first();
@@ -185,36 +212,160 @@ async function handleCardPut(request, env) {
 
   const ts = now();
   const data = JSON.stringify(body.data);
+  // hashes of the client's e-mail / phone (from the tablet) so the client can find the card in the PWA
+  const ek = lookupHash(body.ek);
+  const pk = lookupHash(body.pk);
   const row = await env.DB.prepare(
     'SELECT id FROM client_cards WHERE license_id = ? AND client_key = ?',
   ).bind(licId, clientKey).first();
   let id = row?.id;
   if (id) {
-    await env.DB.prepare('UPDATE client_cards SET data = ?, updated_at = ?, expires_at = ? WHERE id = ?')
-      .bind(data, ts, ts + CARD_TTL_SEC, id).run();
+    await env.DB.prepare(
+      'UPDATE client_cards SET data = ?, updated_at = ?, expires_at = ?, email_hash = ?, phone_hash = ? WHERE id = ?',
+    ).bind(data, ts, ts + CARD_TTL_SEC, ek, pk, id).run();
   } else {
     id = cardId();
     await env.DB.prepare(
-      'INSERT INTO client_cards (id, license_id, client_key, data, created_at, updated_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    ).bind(id, licId, clientKey, data, ts, ts, ts + CARD_TTL_SEC).run();
+      'INSERT INTO client_cards (id, license_id, client_key, data, created_at, updated_at, expires_at, email_hash, phone_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    ).bind(id, licId, clientKey, data, ts, ts, ts + CARD_TTL_SEC, ek, pk).run();
   }
   const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
+  try {
+    await caches.default.delete(new Request(`${base}/c/${id}`));   // this colo shows the new data at once
+  } catch { /* no cache API (tests) */ }
   return json({ ok: true, url: `${base}/c/${id}` });
 }
 
-async function serveCard(env, id) {
+/** The booking PWA asks for the client's card: {ek, pk} → the newest matching card's link. */
+async function handleCardFind(request, env) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!allowHit(`cardfind:ip:${ip}`, LIMITS.cardFindPerMinutePerIp, 60, now())) {
+    return cors(json({ ok: false, error: 'rate_limit' }, 429));
+  }
+  const body = await readJsonBody(request);
+  const ek = lookupHash(body?.ek);
+  const pk = lookupHash(body?.pk);
+  if (!ek && !pk) return cors(err('bad_request', 'ek / pk'));
+  const { results } = await env.DB.prepare(
+    `SELECT id, email_hash, phone_hash FROM client_cards
+     WHERE expires_at > ? AND (email_hash = ? OR phone_hash = ?)
+     ORDER BY updated_at DESC LIMIT 20`,
+  ).bind(now(), ek || '-', pk || '-').all();
+  const hit = (results || []).find((r) => lookupMatches(r, ek, pk));
+  if (!hit) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const base = (env.PUBLIC_URL || new URL(request.url).origin).replace(/\/+$/, '');
+  return cors(json({ ok: true, url: `${base}/c/${hit.id}` }));
+}
+
+/**
+ * The card page. Kept 5 min in the edge cache (a repeat view costs no D1 read and no render); the tablet's
+ * update drops the copy in its colo, other colos show the new data within 5 min. No write per view.
+ */
+async function serveCard(request, env, ctx, id) {
   const headers = {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'private, max-age=60',
     'X-Robots-Tag': 'noindex, nofollow',
     'Referrer-Policy': 'no-referrer',
   };
-  const row = isCardId(id)
-    ? await env.DB.prepare('SELECT data, expires_at FROM client_cards WHERE id = ?').bind(id).first()
-    : null;
+  if (!isCardId(id)) return new Response(cardGonePage(), { status: 404, headers });
+  const key = new Request(new URL(request.url).origin + '/c/' + id);
+  let cache = null;
+  try {
+    cache = caches.default;
+    const hit = await cache.match(key);
+    if (hit) return new Response(hit.body, { headers });
+  } catch { cache = null; }
+  const row = await env.DB.prepare('SELECT data, expires_at FROM client_cards WHERE id = ?').bind(id).first();
   if (!row || row.expires_at < now()) return new Response(cardGonePage(), { status: 404, headers });
-  await env.DB.prepare('UPDATE client_cards SET views = views + 1 WHERE id = ?').bind(id).run();
-  return new Response(renderCard(cardTemplate, JSON.parse(row.data)), { headers });
+  const html = renderCard(cardTemplate, JSON.parse(row.data));
+  if (cache && ctx) {
+    ctx.waitUntil(cache.put(key, new Response(html, {
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+    })));
+  }
+  return new Response(html, { headers });
+}
+
+// ─── Client profiles: booking PWA → the studio's tablets ─────────────────────
+
+/** The license's public studio code (made on first use). */
+async function ensureStudioCode(env, lic) {
+  if (lic.studio_code) return lic.studio_code;
+  for (let i = 0; i < 5; i++) {
+    const code = studioCode();
+    try {
+      const r = await env.DB.prepare('UPDATE licenses SET studio_code = ? WHERE id = ? AND studio_code IS NULL')
+        .bind(code, lic.id).run();
+      if (r?.meta?.changes === 0) {
+        const again = await env.DB.prepare('SELECT studio_code FROM licenses WHERE id = ?').bind(lic.id).first();
+        return again?.studio_code || null;
+      }
+      return code;
+    } catch { /* taken: try another */ }
+  }
+  return null;
+}
+
+/**
+ * POST {studio, key, profile} from the PWA, only when the client saves the profile. `key` = the PWA's
+ * lookup hash (e-mail, else phone): the same person's newer profile replaces the pending one.
+ */
+async function handleProfile(request, env) {
+  const ts = now();
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!allowHit(`profile:ip:${ip}`, LIMITS.profilePerMinutePerIp, 60, ts)) {
+    return cors(json({ ok: false, error: 'rate_limit' }, 429));
+  }
+  const body = await readJsonBody(request, PROFILE_MAX_BYTES);
+  if (!body || !isStudioCode(body.studio)) return cors(err('bad_request', 'studio'));
+  const key = lookupHash(body.key);
+  if (!key) return cors(err('bad_request', 'key'));
+  const p = cleanProfile(body.profile, ts);
+  if (typeof p === 'string') return cors(err('bad_request', 'profile: ' + p));
+  const lic = await env.DB.prepare('SELECT id, status, expires_at FROM licenses WHERE studio_code = ?')
+    .bind(body.studio).first();
+  if (!lic || lic.status !== 'active' || (lic.expires_at && lic.expires_at < ts)) {
+    return cors(json({ ok: false, error: 'unknown_studio' }, 404));
+  }
+  const n = await env.DB.prepare('SELECT COUNT(*) AS n FROM client_inbox WHERE license_id = ? AND updated_at > ?')
+    .bind(lic.id, ts - INBOX_KEEP_SEC).first();
+  if ((n?.n || 0) >= INBOX_MAX_PER_STUDIO) return cors(json({ ok: false, error: 'full' }, 429));
+  await env.DB.batch([
+    env.DB.prepare(
+      `INSERT INTO client_inbox (license_id, pkey, data, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT (license_id, pkey) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,
+    ).bind(lic.id, key, JSON.stringify(p), ts),
+    env.DB.prepare('DELETE FROM client_inbox WHERE license_id = ? AND updated_at < ?').bind(lic.id, ts - INBOX_KEEP_SEC),
+  ]);
+  return cors(json({ ok: true }));
+}
+
+/**
+ * POST {token, device_id, since} from a tablet → the profiles newer than `since` (oldest first, ≤ 100).
+ * Checked by the token's signature and age only: one indexed D1 read per poll, nothing written.
+ */
+async function handleInbox(request, env) {
+  const ts = now();
+  const body = await readJsonBody(request);
+  const deviceId = normDevice(body?.device_id);
+  const tokenBody = parseTokenBody(body?.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  if (!(tokenBody.iat > ts - INBOX_TOKEN_MAX_AGE_SEC) || (tokenBody.exp && tokenBody.exp < ts)) {
+    return err('expired', 'Token too old');
+  }
+  if (!allowHit(`inbox:dev:${deviceId}`, LIMITS.inboxPerMinutePerDevice, 60, ts)) {
+    return json({ ok: false, error: 'rate_limit' }, 429);
+  }
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  const since = Number.isInteger(body.since) && body.since > 0 ? body.since : 0;
+  const { results } = await env.DB.prepare(
+    `SELECT pkey, data, updated_at FROM client_inbox
+     WHERE license_id = ? AND updated_at > ? ORDER BY updated_at ASC LIMIT ?`,
+  ).bind(licId, Math.max(since, ts - INBOX_KEEP_SEC), INBOX_BATCH).all();
+  const items = (results || []).map((r) => ({ k: r.pkey, t: r.updated_at, p: JSON.parse(r.data) }));
+  return json({ ok: true, items, more: items.length === INBOX_BATCH });
 }
 
 async function handleUpdate(url, env) {

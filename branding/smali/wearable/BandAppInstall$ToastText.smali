@@ -27,6 +27,7 @@
 .method constructor <init>(Landroid/content/Context;Ljava/lang/String;)V
     .registers 3
 
+    .prologue
     .line 289
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,6 +46,7 @@
 .method public run()V
     .registers 4
 
+    .prologue
     .line 297
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandAppInstall$ToastText;->c:Landroid/content/Context;
@@ -59,16 +61,15 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
     :try_end_c
-    .catchall {:try_start_0 .. :try_end_c} :catchall_d
-
-    .line 299
-    goto :goto_e
-
-    .line 298
-    :catchall_d
-    move-exception v0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
 
     .line 300
-    :goto_e
+    :goto_c
     return-void
+
+    .line 298
+    :catch_d
+    move-exception v0
+
+    goto :goto_c
 .end method

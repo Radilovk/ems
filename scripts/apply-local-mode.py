@@ -85,7 +85,7 @@ LICENSE_HOOK = (
 
 
 def install_smali() -> None:
-    files = sorted(SRC.glob("XemsLocal*.smali"))
+    files = sorted(SRC.glob("XemsLocal*.smali")) + sorted(SRC.glob("XemsClientSync*.smali"))
     if not files:
         raise SystemExit("Missing branding/smali/widget/XemsLocal*.smali — run compile-xems-local-java.sh")
     DEST.mkdir(parents=True, exist_ok=True)

@@ -160,6 +160,10 @@ public final class SessionRecorder {
                     if (type >= 0) {
                         r.curType = type;
                         r.modes |= 1 << type;
+                        if (r.mainType < 0 && type != TYPE_MASSAGE) {
+                            r.mainType = type;
+                            r.mainPlanS = r.segPlanS;
+                        }
                     }
                     if (assisted) {
                         r.assist = true;
@@ -193,6 +197,7 @@ public final class SessionRecorder {
         for (int k = 0; k < gone.size(); k++) {
             close(gone.get(k), OPEN.get(gone.get(k)), now, false);
         }
+        NextClient.tick(app, now, items, OPEN.size());
         // Recovery heart rate after the end.
         for (int k = POST.size() - 1; k >= 0; k--) {
             SessionRec r = POST.get(k);
@@ -244,10 +249,15 @@ public final class SessionRecorder {
         }
         r.end = now;
         BandWorkout.onEnd(r);
+        NextClient.onClosed(slot, r, now);
+        if (r.bandOwner || r.leader) {
+            BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
+        }
         if (r.activeS() < MIN_ACTIVE_S) {
             WearableBleDiagLog.log("report", "session dropped (" + r.activeS() + " s active) user " + r.userId);
             return;
         }
+        NextPlan.remember(app, r);
         WearableBleDiagLog.log("report", "session end user " + r.userId + " modes=" + r.modes
                 + " assist=" + r.assist + " show=" + show);
         boolean post = r.leader && freshHr(now) > 0;

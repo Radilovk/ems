@@ -19,6 +19,25 @@ export function isCardId(s) {
   return typeof s === 'string' && /^[2-9a-km-zA-HJ-NP-Z]{12}$/.test(s);
 }
 
+/** A lookup hash as the tablet and the PWA send it: 64 lower-case hex, else null. */
+export function lookupHash(v) {
+  const s = String(v ?? '').trim().toLowerCase();
+  return /^[0-9a-f]{64}$/.test(s) ? s : null;
+}
+
+/**
+ * Does a card belong to the person asking? Every hash the card carries must match what was sent,
+ * and the card must carry at least one (a card without any is found only by its link).
+ */
+export function lookupMatches(card, ek, pk) {
+  const e = card?.email_hash || null;
+  const p = card?.phone_hash || null;
+  if (!e && !p) return false;
+  if (e && e !== ek) return false;
+  if (p && p !== pk) return false;
+  return true;
+}
+
 export function normClientKey(v) {
   return String(v ?? '').trim().replace(/[^0-9A-Za-z_-]/g, '').slice(0, 64);
 }

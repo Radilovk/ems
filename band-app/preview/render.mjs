@@ -50,10 +50,11 @@ function pageObject(script, env) {
     '@system.router': 'ROUTER',
     '../../common/ui.js': 'UI',
     '../../common/train-touch.js': 'TT',
-    '../../common/auto-route.js': 'AR'
+    '../../common/auto-route.js': 'AR',
+    '../../common/body-map.js': 'BM'
   }).replace('export default', 'return')
-  return new Function('ROUTER', 'UI', 'TT', 'AR', 'setInterval', 'clearInterval', 'setTimeout', 'clearTimeout', body)(
-    ROUTER, env.UI, env.TT, env.AR, () => 0, () => {}, () => 0, () => {})
+  return new Function('ROUTER', 'UI', 'TT', 'AR', 'BM', 'setInterval', 'clearInterval', 'setTimeout', 'clearTimeout', body)(
+    ROUTER, env.UI, env.TT, env.AR, env.BM, () => 0, () => {}, () => 0, () => {})
 }
 
 function mockApp(state, extra = {}) {
@@ -249,7 +250,7 @@ async function main() {
   const out = resolve(process.argv[2] || join(HERE, 'out'))
   const filter = process.argv[3] || ''
   mkdirSync(out, { recursive: true })
-  const env = { UI: loadCommon('ui.js'), TT: loadCommon('train-touch.js'), AR: {} }
+  const env = { UI: loadCommon('ui.js'), TT: loadCommon('train-touch.js'), AR: {}, BM: loadCommon('body-map.js') }
   const { chromium } = require(process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright')
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2 })

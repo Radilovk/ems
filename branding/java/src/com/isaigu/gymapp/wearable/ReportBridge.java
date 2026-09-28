@@ -111,10 +111,48 @@ final class ReportBridge {
      */
     @JavascriptInterface
     public void refreshCard(String json, String key) {
-        if (cardUrl().length() == 0 || key == null || key.equals(cardPrefs().getString("key_" + user.id, ""))) {
+        if (cardUrl().length() == 0 || key == null) {
+            return;
+        }
+        // the lookup hashes are part of the key: a new e-mail / phone (or a card from before them) goes up once
+        key = key + "|" + Integer.toHexString(lookupFields(user).hashCode());
+        if (key.equals(cardPrefs().getString("key_" + user.id, ""))) {
             return;
         }
         new Thread(new CardTask(this, json, key), "xems-card-refresh").start();
+    }
+
+    /**
+     * SHA-256 of the client's e-mail and of the phone's last 9 digits ("xems-card:" first), so the client can
+     * find the card in the booking PWA with the same e-mail / phone. The values themselves are not sent.
+     */
+    static String lookupFields(TrainUser u) {
+        StringBuilder b = new StringBuilder();
+        String e = u != null && u.email != null ? u.email.trim().toLowerCase(java.util.Locale.ROOT) : "";
+        if (e.indexOf('@') > 0) {
+            b.append(",\"ek\":\"").append(sha256("xems-card:" + e)).append('"');
+        }
+        String d = u != null && u.phone != null ? Schedule.digits(u.phone) : "";
+        if (d.length() > 9) {
+            d = d.substring(d.length() - 9);
+        }
+        if (d.length() >= 7) {
+            b.append(",\"pk\":\"").append(sha256("xems-card:" + d)).append('"');
+        }
+        return b.toString();
+    }
+
+    static String sha256(String s) {
+        try {
+            byte[] h = java.security.MessageDigest.getInstance("SHA-256").digest(s.getBytes("UTF-8"));
+            StringBuilder b = new StringBuilder(64);
+            for (int i = 0; i < h.length; i++) {
+                b.append(Character.forDigit((h[i] >> 4) & 15, 16)).append(Character.forDigit(h[i] & 15, 16));
+            }
+            return b.toString();
+        } catch (Throwable t) {
+            return "";
+        }
     }
 
     private android.content.SharedPreferences cardPrefs() {
@@ -148,7 +186,8 @@ final class ReportBridge {
 
     void refreshNow(String json, String key) {
         try {
-            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json);
+            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json,
+                    lookupFields(user));
             cardPrefs().edit().putString("url_" + user.id, url).putString("key_" + user.id, key).apply();
             WearableBleDiagLog.log("report", "card refreshed " + url);
         } catch (Throwable t) {
@@ -166,7 +205,8 @@ final class ReportBridge {
         String hello = first.length() > 0
                 ? WearableUi.tr("Здравей, " + first + "! ", "Hi " + first + "! ") : "";
         try {
-            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json);
+            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json,
+                    lookupFields(user));
             cardPrefs().edit().putString("url_" + user.id, url).apply();
             shareText(subject, hello + WearableUi.tr("Ето твоя XEMS картон — напредъкът ти, обновява се след всяка тренировка: ",
                     "Here is your XEMS card — your progress, updated after every training: ") + url);

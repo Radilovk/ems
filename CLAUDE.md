@@ -52,6 +52,14 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
   = `BandAppInstall.VERSION`.
 - Commits: `type(scope): summary (band 5.9.N / 1.1.N-ai)` for source, then `Build 1.1.N-ai` for the APK.
 
+## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
+- **Attention priority:** the one thing the user needs now is biggest and first; secondary info smaller or folded;
+  rare/edge content (e.g. contraindication lists) behind one question, never a central block.
+- **Intuitive:** one-tap choices over typing and dropdowns; plain, warm, natural Bulgarian (no form-speak);
+  the next step is obvious; state is visible (sent ✓, changed, loading).
+- **Strong aesthetics + interactivity:** consistent kit (`XemsUi` / page tokens), press feedback, smooth
+  enter/transition, clear selected state, light and dark themes. Check with a screenshot before shipping.
+
 ## Deeper context (read only the section you need — headings/lines are in MAP)
 | Topic | File |
 |---|---|
@@ -62,6 +70,8 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Band 10 app & link | `band-app/CLAUDE.md`, `docs/xiaomi-band10.md` |
 | Smart Session (AI) | `docs/xems-smart-session-spec.md`, `docs/xems-ai-session-implementation.md` |
 | Automatic mode (ready programs) | `docs/xems-auto-mode-spec.md` |
+| "План" tab, calendar, next client | `docs/xems-plan.md` |
+| Client ↔ tablet ↔ server sync, CF costs | `docs/xems-client-sync.md` |
 | Pulse / strength control | `docs/xems-pulse-control.md`, `docs/xems-part-strength.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |
 

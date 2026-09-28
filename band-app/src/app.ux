@@ -23,7 +23,7 @@ import brightness from '@system.brightness'
 import router from '@system.router'
 
 /** = versionCode in manifest.json; XEMS skips reinstalling when this is current. */
-const APP_VERSION = 63
+const APP_VERSION = 67
 /** Language of this build (the English build is made from it by scripts/gen-lang.py). */
 const APP_LANG = 'bg'
 const RESEND_MS = 1200
@@ -266,6 +266,11 @@ export default {
   /** XEMS reports a finished session (kept for 90 s): open its summary once. */
   checkSummary(m) {
     const sum = m.sum
+    if (sum && sum.n === this.lastSum && sum.mus && this.summary && !this.summary.mus) {
+      this.summary = sum                           // the muscle map came a moment later: add it
+      this.notify()
+      return
+    }
     if (!sum || sum.n === this.lastSum) {
       return
     }

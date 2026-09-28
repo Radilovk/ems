@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Screen backgrounds for the band app (212 × 520): near-black with a soft glow of the module's
+"""Screen backgrounds for the band app (212 × 520): near-black with a neon glow of the module's
 colour at the top (with a second, shifted tone for depth) and a faint one at the bottom. Images, not CSS gradients: Vela draws PNGs
 reliably, gradients / layered glows poorly. 256-colour palette + dithering: smooth, still small."""
 from pathlib import Path
@@ -11,13 +11,13 @@ OUT = Path(__file__).resolve().parent.parent / "src" / "common" / "bg"
 W, H = 106, 260  # half size: 4× less memory; the band stretches it (background-size: cover)
 
 THEMES = {
-    "home": (255, 59, 92),     # XEMS red
-    "start": (48, 209, 88),    # green
-    "ai": (255, 190, 30),       # gold: pure yellow turns olive on black
-    "timer": (255, 159, 10),
-    "music": (191, 90, 242),
-    "pulse": (255, 69, 58),
-    "summary": (255, 190, 30),
+    "home": (255, 46, 136),     # XEMS red
+    "start": (0, 245, 155),    # green
+    "ai": (255, 214, 0),       # gold: pure yellow turns olive on black
+    "timer": (255, 138, 31),
+    "music": (180, 77, 255),
+    "pulse": (255, 46, 99),
+    "summary": (139, 92, 255),   # violet: matches the muscle colours
 }
 BASE_TOP = (9, 10, 14)
 BASE_BOTTOM = (4, 4, 6)
@@ -48,8 +48,8 @@ def make(color):
             vign = 1.0 - 0.35 * (abs(x - W / 2) / (W / 2)) ** 3       # darker side edges
             rgb = []
             for i in range(3):
-                c = base[i] + (color[i] - base[i]) * main_g * 0.60
-                c += (alt[i] - base[i]) * side_g * 0.40
+                c = base[i] + (color[i] - base[i]) * main_g * 0.85
+                c += (alt[i] - base[i]) * side_g * 0.60
                 c += (color[i] - base[i]) * low_g * 0.40
                 rgb.append(max(0, min(255, int(round(c * vign)))))
             px[x, y] = tuple(rgb)

@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 244
+    .line 249
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 6
 
     .prologue
-    .line 247
+    .line 252
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -66,6 +66,6 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 248
+    .line 253
     return-void
 .end method

@@ -43,7 +43,8 @@ mapfile -t JAVA_FILES < <(find "${JAVA_SRC}" -name '*.java' \
   ! -path '*/widget/XemsLicense.java' \
   ! -path '*/widget/XemsLicenseToken.java' \
   ! -path '*/widget/XemsLicenseClient.java' \
-  ! -path '*/widget/XemsLocal*.java' | sort)
+  ! -path '*/widget/XemsLocal*.java' \
+  ! -path '*/widget/XemsClientSync.java' | sort)
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 
 if [[ ! -d "${LICENSE_CLASSES}" ]]; then

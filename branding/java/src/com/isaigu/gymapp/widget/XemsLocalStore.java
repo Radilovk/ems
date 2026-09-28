@@ -96,6 +96,7 @@ public final class XemsLocalStore {
             loadUsers();
             loadPrograms();
             migrateOnce(ctx);
+            XemsClientSync.start(ctx);
             MessageDispatcher.dispatchEventMessage((short) 0x69);
             MessageDispatcher.dispatchEventMessage((short) 0x6a);
             if (fragment != null && isAdminSession()) {
@@ -581,6 +582,23 @@ public final class XemsLocalStore {
         saveUsers();
         MessageDispatcher.dispatchEventMessage((short) 0x69);
         activity.showTips(tr("Потребителят е запазен локално", "User saved locally"));
+    }
+
+    /** Save a user without a dialog (the clients' own profiles, XemsClientSync). */
+    static void saveUserQuiet(TrainUser user, boolean isUpdate) {
+        DataMgr dm = DataMgr.getInstance();
+        if (!isUpdate) {
+            user.id = nextUserId();
+            user.createTime = new Date();
+            if (dm.trainUsers == null) {
+                dm.trainUsers = new ArrayList<>();
+            }
+            dm.trainUsers.add(user);
+        } else {
+            dm.addOrUpdateTrainUser(user);
+        }
+        saveUsers();
+        MessageDispatcher.dispatchEventMessage((short) 0x69);
     }
 
     public static void finishUserDialog(EditUserPersonalDataDialog dialog) {

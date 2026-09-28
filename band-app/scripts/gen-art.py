@@ -20,12 +20,12 @@ ICONS = ROOT / "src" / "common" / "icons"
 OUT = ROOT / "src" / "common" / "art"
 SS = 4  # supersampling
 
-GREEN = (48, 209, 88)
-AMBER = (255, 159, 10)
-YELLOW = (255, 214, 10)
-PURPLE = (191, 90, 242)
-RED = (255, 69, 58)
-DARK = (58, 58, 62)
+GREEN = (0, 245, 155)
+AMBER = (255, 138, 31)
+YELLOW = (255, 234, 0)
+PURPLE = (180, 77, 255)
+RED = (255, 46, 99)
+DARK = (45, 49, 66)
 
 
 def mix(a, b, t):

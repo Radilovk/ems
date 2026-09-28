@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 200
+    .line 205
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
@@ -49,15 +49,15 @@
     .registers 7
 
     .prologue
-    .line 203
+    .line 208
     if-eqz p2, :cond_3
 
-    .line 214
+    .line 219
     :cond_2
     :goto_2
     return-void
 
-    .line 206
+    .line 211
     :cond_3
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
 
@@ -77,7 +77,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 207
+    .line 212
     if-eqz p1, :cond_2
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
@@ -88,7 +88,7 @@
 
     if-nez v0, :cond_2
 
-    .line 210
+    .line 215
     iget-boolean v0, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->mandatory:Z
 
     if-nez v0, :cond_31
@@ -107,7 +107,7 @@
 
     if-eq v0, v1, :cond_2
 
-    .line 213
+    .line 218
     :cond_31
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
 

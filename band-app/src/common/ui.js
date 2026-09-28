@@ -5,15 +5,15 @@ import router from '@system.router'
  * One design scale for the 212 × 520 screen: nothing smaller than 18 px, body 22 px,
  * key numbers 56–90 px.
  */
-export const ZONE = ['#3A3A3C', '#5AC8FA', '#30D158', '#FFD60A', '#FF9F0A', '#FF453A']
-export const ACCENT = '#FFD60A'          // AI: yellow
-export const RED = '#FF453A'             // pulse
-export const BRAND = '#FF3B5C'
-export const GREEN = '#30D158'
-export const AMBER = '#FF9F0A'
-export const BLUE = '#5AC8FA'
-export const PURPLE = '#BF5AF2'
-export const GRAY = '#8E8E93'
+export const ZONE = ['#2D3142', '#00E5FF', '#00F59B', '#FFEA00', '#FF8A1F', '#FF2E63']
+export const ACCENT = '#FFEA00'          // AI: yellow
+export const RED = '#FF2E63'             // pulse
+export const BRAND = '#FF2E88'
+export const GREEN = '#00F59B'
+export const AMBER = '#FF8A1F'
+export const BLUE = '#00E5FF'
+export const PURPLE = '#B44DFF'
+export const GRAY = '#8C93AB'
 
 export function mmss(s) {
   s = Math.max(0, Math.round(s || 0))

@@ -16,5 +16,7 @@ public class DataMgr {
 
     public static DataMgr getInstance() { return null; }
     public void addOrUpdateTrainUser(TrainUser user) {}
+    public TrainProgram getProgramData(String name) { return null; }
+    public TrainUser getTrainUser(long id) { return null; }
     public void addOrUpdateTrainProgram(TrainProgram program) {}
 }

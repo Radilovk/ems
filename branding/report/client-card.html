@@ -1,6 +1,11 @@
 <title>XEMS Картон</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#07080C">
+<script>/* Theme: ?theme=dark|light (the booking app passes its own), else the phone's, live. Dark is the default look. */
+(function(){var q=/[?&]theme=(dark|light)/.exec(location.search),mq=window.matchMedia?matchMedia("(prefers-color-scheme: light)"):null;
+function set(){var t=q?q[1]:(mq&&mq.matches?"light":"dark");document.documentElement.setAttribute("data-theme",t);
+var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",t==="light"?"#F4F5F9":"#07080C");}
+set();if(!q&&mq){if(mq.addEventListener)mq.addEventListener("change",set);else if(mq.addListener)mq.addListener(set);}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;500;700;800&family=Onest:wght@400;500;600&display=swap">
@@ -91,6 +96,16 @@ footer{text-align:center;color:var(--faint);font-size:11.5px;padding-top:6px}
 .toast{position:fixed;z-index:5;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:10px 18px;border-radius:999px;font:600 13px var(--f-body)}
 .rise{animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
 @keyframes rise{from{opacity:.001;transform:translateY(14px)}}
+/* light theme: same layout and colours, paper instead of night */
+:root[data-theme="light"]{color-scheme:light;--bg:#F4F5F9;--glass:rgba(255,255,255,.62);--glass2:rgba(255,255,255,.92);--edge:rgba(15,23,42,.08);
+  --text:#0F172A;--muted:rgba(15,23,42,.58);--faint:rgba(15,23,42,.38)}
+:root[data-theme="light"] .aura{opacity:.38}
+:root[data-theme="light"] .aura i{mix-blend-mode:multiply}
+:root[data-theme="light"] .glass{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 14px 36px rgba(15,23,42,.10)}
+:root[data-theme="light"] .hero h1{background:linear-gradient(180deg,#0F172A 30%,rgba(15,23,42,.62));-webkit-background-clip:text;background-clip:text}
+:root[data-theme="light"] .ring-bg{stroke:rgba(15,23,42,.08)}
+:root[data-theme="light"] .seg,:root[data-theme="light"] .pick{background:rgba(255,255,255,.75)}
+:root[data-theme="light"] .seg button[aria-pressed="true"]{background:rgba(15,23,42,.08)}
 @media (prefers-reduced-motion:reduce){.aura i,.rise{animation:none}.ring,.stage canvas{transition:none}}
 @media (max-width:360px){.rings{grid-template-columns:110px minmax(0,1fr)}.rings svg{width:110px;height:110px}}
 </style>
@@ -148,9 +163,11 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(EN){document.documentElement.lang="en";$("#sF").textContent="Front";$("#sB").textContent="Back";$("#lN").textContent="trainings";$("#lH").textContent="hours";$("#copy").setAttribute("aria-label","Copy link");}
 
 // colour scale: violet → cyan → lime → amber → hot pink, continuous
-const STOPS=[[0,[124,92,255]],[.3,[34,211,238]],[.55,[163,230,53]],[.78,[251,191,36]],[1,[255,61,110]]];
-function heat(v){v=clamp(v,0,1);for(let i=1;i<STOPS.length;i++)if(v<=STOPS[i][0]){const a=STOPS[i-1],b=STOPS[i],k=(v-a[0])/(b[0]-a[0]);return a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k));}return STOPS[4][1];}
+// One gamut per figure: warm magenta for a woman, cool cyan for a man — load moves along it.
+const STOPS=D.sex==="M"?[[0,[125,150,255]],[.5,[61,165,255]],[1,[0,229,255]]]:[[0,[196,120,255]],[.5,[226,64,251]],[1,[255,45,149]]];
+function heat(v){v=clamp((v-.45)/.55,0,1);for(let i=1;i<STOPS.length;i++)if(v<=STOPS[i][0]){const a=STOPS[i-1],b=STOPS[i],k=(v-a[0])/(b[0]-a[0]);return a[1].map((x,j)=>Math.round(x+(b[1][j]-x)*k));}return STOPS[STOPS.length-1][1];}
 const css=c=>`rgb(${c.join(",")})`;
+document.querySelector(".scale").style.background=`linear-gradient(90deg,${STOPS.map(s=>`rgba(${s[1].join(",")},${(.4+.6*s[0]).toFixed(2)}) ${s[0]*100}%`).join(",")})`;
 // Three views of the same client: all time, the last 30 days, the last training (older cards: all only).
 const V={all:{mus:D.mus,eff:D.eff}};
 if(D.p30&&D.p30.n)V.p30={mus:D.p30.mus,eff:D.p30.eff};
@@ -203,9 +220,11 @@ function mask(key,cb){if(masks[key])return cb(masks[key]);
     const M={w,h,lab,shade,cov,art};masks[key]=M;cb(M);});}
 function muscles(M,selCh){const w=M.w,h=M.h,c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d"),im=x.createImageData(w,h),o=im.data;
   const cols=CH.map((q,i)=>heat(lv(i)));
+  // less load → more of the body shows through (40 % colour at the low end, full at the top)
+  const ops=CH.map((q,i)=>.4+.6*clamp((lv(i)-.45)/.55,0,1));
   for(let i=0;i<w*h;i++){const z=M.lab[i];if(z<0||(selCh>=0&&z!==selCh))continue;const c=cols[z],l=M.shade[i],p=i*4;
     // the painted light in the client colour: dark → black, 0.5 → the colour, bright → white
-    for(let k=0;k<3;k++)o[p+k]=l<.5?c[k]*2*l:c[k]+(255-c[k])*(2*l-1);o[p+3]=M.cov[i];}
+    for(let k=0;k<3;k++)o[p+k]=l<.5?c[k]*2*l:c[k]+(255-c[k])*(2*l-1)*.55;o[p+3]=M.cov[i]*ops[z];}
   x.putImageData(im,0,0);return c;}
 function stepDown(src,W,H){let c=src;while(c.width/2>=W*1.05){const n=document.createElement("canvas");n.width=Math.round(c.width/2);n.height=Math.round(c.height/2);const x=n.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,n.width,n.height);c=n;}
   const o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,W,H);return o;}

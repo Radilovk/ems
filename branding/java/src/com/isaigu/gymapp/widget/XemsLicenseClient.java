@@ -124,6 +124,11 @@ public final class XemsLicenseClient {
                     Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/license/refresh", body));
                     if (Boolean.TRUE.equals(r.get("ok")) && r.get("token") != null) {
                         XemsLicense.applyToken(null, String.valueOf(r.get("token")));
+                        Object studio = r.get("studio");
+                        if (studio != null && String.valueOf(studio).matches("[2-9a-km-z]{8}")) {
+                            c.getApplicationContext().getSharedPreferences("xems_client_sync", Context.MODE_PRIVATE)
+                                    .edit().putString("studio", String.valueOf(studio)).apply();
+                        }
                     } else if ("revoked".equals(r.get("error")) || "unknown".equals(r.get("error"))) {
                         XemsLicense.revoke();
                     } else {
@@ -327,6 +332,11 @@ public final class XemsLicenseClient {
      * the same link; this call only refreshes its data. Call it off the main thread.
      */
     public static String postCard(Context c, String clientKey, String dataJson) throws Exception {
+        return postCard(c, clientKey, dataJson, "");
+    }
+
+    /** {@code extraFields}: more top-level JSON fields, each starting with a comma (e.g. the lookup hashes). */
+    public static String postCard(Context c, String clientKey, String dataJson, String extraFields) throws Exception {
         String token = XemsLicense.token();
         if (!serverConfigured() || token == null || token.length() == 0) {
             throw new IllegalStateException("no license server");
@@ -336,7 +346,7 @@ public final class XemsLicenseClient {
         }
         String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token)
                 + ",\"client_key\":" + XemsLicenseToken.quote(clientKey)
-                + ",\"data\":" + dataJson + "}";
+                + ",\"data\":" + dataJson + (extraFields != null ? extraFields : "") + "}";
         Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/card", body));
         Object url = r.get("url");
         if (Boolean.TRUE.equals(r.get("ok")) && url != null && String.valueOf(url).startsWith("https://")) {

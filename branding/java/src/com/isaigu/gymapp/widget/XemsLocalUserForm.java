@@ -507,6 +507,7 @@ public final class XemsLocalUserForm {
                 }
             }
             prefs(a).edit().putString("u" + u.id, goal + "|" + fitness + "|" + cs)
+                    .putLong("edit" + u.id, System.currentTimeMillis())
                     .putBoolean("own" + u.id, owner).putInt("misport" + u.id, miSport).apply();
             dialog.dismiss();
         }
@@ -700,6 +701,21 @@ public final class XemsLocalUserForm {
     }
 
     // ================================================================ labels
+
+    /** The client's remark as the form writes it (used by the sync of the clients' own profiles too). */
+    static String summaryOf(String goal, String fitness, java.util.Collection<String> contra) {
+        StringBuilder b = new StringBuilder();
+        b.append(tr("Цел: ", "Goal: ")).append(goalName(goal))
+                .append(" · ").append(tr("Форма: ", "Fitness: ")).append(fitnessName(fitness));
+        boolean first = true;
+        for (String c : CONTRA) {
+            if (contra.contains(c)) {
+                b.append(first ? " · " + tr("Противопоказания: ", "Contraindications: ") : ", ").append(contraName(c));
+                first = false;
+            }
+        }
+        return b.toString();
+    }
 
     static String goalName(String g) {
         if ("fat".equals(g)) return tr("Отслабване", "Fat loss");

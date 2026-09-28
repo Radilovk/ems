@@ -880,10 +880,18 @@ public final class WearableSettingsSection {
         String saved = WearableConfig.xiaomiSession(a);
         if (saved.length() > 0) {
             toast(a, WearableUi.tr("Обновявам ключа от запазения Xiaomi вход…", "Refreshing the key from the saved Xiaomi login…"));
-            new Thread(new XiaomiLoginTask(a, root, null, saved, null, true), "xems-xiaomi-refresh").start();
+            new Thread(new XiaomiRefreshTask(a, root, saved), "xems-xiaomi-refresh").start();
             return;
         }
-        openXiaomiWebLogin(a, root);
+        openXiaomiQr(a, root);
+    }
+
+    static void openXiaomiQr(final Activity a, final View root) {
+        try {
+            new XiaomiQrLogin(a, root).open();
+        } catch (Throwable t) {
+            toast(a, WearableUi.tr("Не мога да отворя QR входа.", "Cannot open the QR login."));
+        }
     }
 
     static void openXiaomiWebLogin(final Activity a, final View root) {
@@ -1285,6 +1293,197 @@ public final class WearableSettingsSection {
         }
     }
 
+    /** Refresh the bands from the saved Xiaomi session; if it is gone, fall back to the QR login. */
+    static final class XiaomiRefreshTask implements Runnable {
+        private final Activity a;
+        private final View root;
+        private final String saved;
+
+        XiaomiRefreshTask(Activity a, View root, String saved) {
+            this.a = a;
+            this.root = root;
+            this.saved = saved;
+        }
+
+        @Override
+        public void run() {
+            java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
+            try {
+                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.refresh(saved);
+            } catch (Throwable t) {
+                bands = null;
+            }
+            if (bands == null || bands.isEmpty()) {
+                WearableConfig.setXiaomiSession(a, "");
+                handler.post(new XiaomiReopen(a, root));
+                return;
+            }
+            handler.post(new XiaomiApply(a, root, bands, null));
+        }
+    }
+
+    /** QR login: shows Xiaomi's QR code; the trainer scans + confirms it in the Xiaomi app on the phone. */
+    static final class XiaomiQrLogin {
+        final Activity a;
+        final View root;
+        android.app.Dialog dialog;
+        android.widget.ImageView image;
+        TextView status;
+        boolean closed;
+
+        XiaomiQrLogin(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        void open() {
+            int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
+            int mutedCol = WearableUi.color(a, "text_secondary", 0xFFAAAAAA);
+            int bg = WearableUi.color(a, "bg_screen", 0xFF121212);
+            LinearLayout box = new LinearLayout(a);
+            box.setOrientation(LinearLayout.VERTICAL);
+            box.setGravity(Gravity.CENTER_HORIZONTAL);
+            box.setBackgroundColor(bg);
+            int pad = WearableUi.dp(a, 16);
+            box.setPadding(pad, pad, pad, pad);
+
+            TextView title = WearableUi.text(a, WearableUi.tr("Вход с Xiaomi — сканирай QR кода",
+                    "Xiaomi login — scan the QR code"), 18f, textCol, true);
+            box.addView(title);
+            TextView how = WearableUi.text(a, WearableUi.tr(
+                    "На телефона отвори Xiaomi Home (Mi Home) или Mi Fitness, избери сканиране (+ / скенер), "
+                            + "насочи към кода и потвърди входа.",
+                    "On the phone open Xiaomi Home (Mi Home) or Mi Fitness, tap scan, point at the code and confirm."),
+                    13f, mutedCol, false);
+            how.setPadding(0, WearableUi.dp(a, 8), 0, WearableUi.dp(a, 8));
+            box.addView(how);
+
+            image = new android.widget.ImageView(a);
+            image.setBackgroundColor(0xFFFFFFFF);
+            box.addView(image, new LinearLayout.LayoutParams(WearableUi.dp(a, 300), WearableUi.dp(a, 300)));
+
+            status = WearableUi.text(a, WearableUi.tr("Зареждам кода…", "Loading the code…"), 14f, textCol, false);
+            status.setPadding(0, WearableUi.dp(a, 12), 0, WearableUi.dp(a, 12));
+            box.addView(status);
+
+            TextView cancel = WearableUi.button(a, WearableUi.tr("Отказ", "Cancel"),
+                    WearableUi.color(a, "bg_elevated", 0xFF2A2A2A), textCol);
+            cancel.setOnClickListener(new XiaomiQrCancel(this));
+            box.addView(cancel, new LinearLayout.LayoutParams(WearableUi.dp(a, 200), WearableUi.dp(a, 48)));
+
+            dialog = new android.app.Dialog(a, android.R.style.Theme_Black_NoTitleBar);
+            dialog.setContentView(box);
+            dialog.setOnCancelListener(new XiaomiQrCancel(this));
+            dialog.show();
+            new Thread(new XiaomiQrTask(this), "xems-xiaomi-qr").start();
+        }
+
+        void close() {
+            closed = true;
+            try {
+                if (dialog != null) {
+                    dialog.dismiss();
+                    dialog = null;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    static final class XiaomiQrCancel implements View.OnClickListener, android.content.DialogInterface.OnCancelListener {
+        private final XiaomiQrLogin host;
+
+        XiaomiQrCancel(XiaomiQrLogin host) {
+            this.host = host;
+        }
+
+        @Override
+        public void onClick(View v) {
+            host.close();
+        }
+
+        @Override
+        public void onCancel(android.content.DialogInterface d) {
+            host.close();
+        }
+    }
+
+    static final class XiaomiQrTask implements Runnable {
+        private final XiaomiQrLogin host;
+
+        XiaomiQrTask(XiaomiQrLogin host) {
+            this.host = host;
+        }
+
+        @Override
+        public void run() {
+            com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Result res = null;
+            String error = null;
+            try {
+                com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Qr q =
+                        com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.startQr();
+                byte[] png = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchQrImage(q);
+                handler.post(new XiaomiQrShow(host, png));
+                res = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.awaitQr(q);
+            } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
+                error = ce.getMessage();
+            } catch (Throwable t) {
+                error = WearableUi.tr("Нещо се обърка при QR входа.", "Something went wrong during the QR login.");
+            }
+            handler.post(new XiaomiQrDone(host, res, error));
+        }
+    }
+
+    static final class XiaomiQrShow implements Runnable {
+        private final XiaomiQrLogin host;
+        private final byte[] png;
+
+        XiaomiQrShow(XiaomiQrLogin host, byte[] png) {
+            this.host = host;
+            this.png = png;
+        }
+
+        @Override
+        public void run() {
+            if (host.closed) {
+                return;
+            }
+            try {
+                host.image.setImageBitmap(android.graphics.BitmapFactory.decodeByteArray(png, 0, png.length));
+                host.status.setText(WearableUi.tr("Чакам да сканираш и потвърдиш на телефона…",
+                        "Waiting for you to scan and confirm on the phone…"));
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    static final class XiaomiQrDone implements Runnable {
+        private final XiaomiQrLogin host;
+        private final com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Result res;
+        private final String error;
+
+        XiaomiQrDone(XiaomiQrLogin host, com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Result res, String error) {
+            this.host = host;
+            this.res = res;
+            this.error = error;
+        }
+
+        @Override
+        public void run() {
+            if (host.closed) {
+                return;
+            }
+            host.close();
+            if (res != null && error == null) {
+                WearableConfig.setXiaomiSession(host.a, res.session);
+                new XiaomiApply(host.a, host.root, res.bands, null).run();
+            } else {
+                toast(host.a, error != null ? error
+                        : WearableUi.tr("Входът не мина.", "Login failed."));
+            }
+        }
+    }
+
     /** Saved Xiaomi session no longer works: forget it and open the normal login. */
     static final class XiaomiReopen implements Runnable {
         private final Activity a;
@@ -1298,7 +1497,7 @@ public final class WearableSettingsSection {
         @Override
         public void run() {
             toast(a, WearableUi.tr("Xiaomi сесията е изтекла — влез отново.", "The Xiaomi session expired — log in again."));
-            openXiaomiWebLogin(a, root);
+            openXiaomiQr(a, root);
         }
     }
 

@@ -232,6 +232,155 @@ public final class XiaomiCloudAccount {
         return b.toString();
     }
 
+    // ---------------------------------------------------------------- QR login
+    /** A pending QR login: show {@link #imageUrl}, then call {@link #awaitQr}. */
+    public static final class Qr {
+        public final String imageUrl;
+        final String lpUrl;
+        final String cookie;
+        final int timeoutSec;
+
+        Qr(String imageUrl, String lpUrl, String cookie, int timeoutSec) {
+            this.imageUrl = imageUrl;
+            this.lpUrl = lpUrl;
+            this.cookie = cookie;
+            this.timeoutSec = timeoutSec;
+        }
+    }
+
+    /** Result of a finished login: the bands plus a session string to refresh them later without a QR. */
+    public static final class Result {
+        public final List<Band> bands;
+        public final String session;
+
+        Result(List<Band> bands, String session) {
+            this.bands = bands;
+            this.session = session;
+        }
+    }
+
+    public static Qr startQr() throws CloudError {
+        String deviceId = "an_" + md5Lower(String.valueOf(System.nanoTime()) + "xems").substring(0, 16);
+        Map<String, String> jar = new LinkedHashMap<String, String>();
+        jar.put("deviceId", deviceId);
+        Map<String, String> q1 = new LinkedHashMap<String, String>();
+        q1.put("sid", "miothealth");
+        q1.put("_json", "true");
+        q1.put("_locale", "en_US");
+        Resp r1 = http("GET", SERVICE_LOGIN + "?" + query(q1), null, UA_WEB, jarToHeader(jar), false);
+        collectCookies(r1, jar);
+        JSONObject j1 = parseXiaomiJson(r1.body);
+        String qs = j1.optString("qs", "");
+        String callback = j1.optString("callback", "");
+        String sign = j1.optString("_sign", "");
+        if (qs.length() == 0 || sign.length() == 0) {
+            throw new CloudError("Xiaomi не даде данни за QR вход (стъпка 1).");
+        }
+        Map<String, String> q2 = new LinkedHashMap<String, String>();
+        q2.put("_qrsize", "360");
+        q2.put("qs", qs);
+        q2.put("bizDeviceType", "");
+        q2.put("callback", callback);
+        q2.put("_json", "true");
+        q2.put("theme", "");
+        q2.put("sid", "miothealth");
+        q2.put("needTheme", "false");
+        q2.put("showActiveX", "false");
+        q2.put("serviceParam", "");
+        q2.put("_local", "en_US");
+        q2.put("_sign", sign);
+        q2.put("_dc", String.valueOf(System.currentTimeMillis()));
+        Resp r2 = http("GET", "https://account.xiaomi.com/longPolling/loginUrl?" + query(q2), null, UA_WEB,
+                jarToHeader(jar), false);
+        collectCookies(r2, jar);
+        JSONObject j2 = parseXiaomiJson(r2.body);
+        String image = j2.optString("qr", "");
+        String lp = j2.optString("lp", "");
+        if (image.length() == 0 || lp.length() == 0) {
+            throw new CloudError("Xiaomi не даде QR код (стъпка 2). Полета: " + j2.names());
+        }
+        return new Qr(image, lp, jarToHeader(jar), j2.optInt("timeout", 120));
+    }
+
+    /** Download the QR picture (PNG) for display. */
+    public static byte[] fetchQrImage(Qr q) throws CloudError {
+        HttpURLConnection c = null;
+        try {
+            c = (HttpURLConnection) new URL(q.imageUrl).openConnection();
+            c.setConnectTimeout(20000);
+            c.setReadTimeout(20000);
+            c.setRequestProperty("User-Agent", UA_WEB);
+            c.setRequestProperty("Cookie", q.cookie);
+            InputStream is = c.getInputStream();
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            byte[] buf = new byte[4096];
+            int n;
+            while ((n = is.read(buf)) > 0) {
+                bo.write(buf, 0, n);
+            }
+            is.close();
+            return bo.toByteArray();
+        } catch (Throwable t) {
+            throw new CloudError("Не мога да покажа QR кода. Провери интернета.");
+        } finally {
+            if (c != null) {
+                c.disconnect();
+            }
+        }
+    }
+
+    /** Blocks until the QR is scanned and confirmed on the phone (or times out), then finishes the login. */
+    public static Result awaitQr(Qr q) throws CloudError {
+        Resp r = http("GET", q.lpUrl, null, UA_WEB, q.cookie, false, (q.timeoutSec + 20) * 1000);
+        JSONObject j = parseXiaomiJson(r.body);
+        if (j.optInt("code", -1) != 0) {
+            throw new CloudError("QR входът не мина: " + j.optString("desc", j.optString("description", "изтекъл код"))
+                    + ".");
+        }
+        String ss = j.optString("ssecurity", "");
+        String location = j.optString("location", "");
+        if (ss.length() == 0 || location.length() == 0) {
+            throw new CloudError("QR входът мина, но Xiaomi не върна ключ (полета: " + j.names() + ").");
+        }
+        return complete(ss, j.optString("nonce", ""), j.optString("cUserId", ""), location);
+    }
+
+    static Result complete(String ss, String nonce, String cUserId, String location) throws CloudError {
+        String loc = location;
+        if (nonce != null && nonce.length() > 0) {
+            String clientSign = XiaomiCloudCrypto.b64encode(
+                    XiaomiCloudCrypto.digest("SHA-1", XiaomiCloudCrypto.utf8("nonce=" + nonce + "&" + ss)));
+            loc = location + (location.indexOf('?') < 0 ? "?" : "&") + "clientSign=" + enc(clientSign);
+        }
+        Map<String, String> jar = new LinkedHashMap<String, String>();
+        followForCookies(loc, jar, 6);
+        String st = jar.get("serviceToken");
+        if (st == null || st.length() == 0) {
+            throw new CloudError("Xiaomi входът не даде serviceToken.");
+        }
+        List<Band> bands = sourceList(ss, cUserId, st);
+        JSONObject o = new JSONObject();
+        try {
+            o.put("ss", ss);
+            o.put("cu", cUserId);
+            o.put("st", st);
+        } catch (Throwable ignored) {
+        }
+        return new Result(bands, o.toString());
+    }
+
+    /** Re-read the bands from a saved session (no QR, no password). */
+    public static List<Band> refresh(String session) throws CloudError {
+        try {
+            JSONObject o = new JSONObject(session);
+            return sourceList(o.getString("ss"), o.getString("cu"), o.getString("st"));
+        } catch (CloudError e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new CloudError("Запазената Xiaomi сесия е изтекла.");
+        }
+    }
+
     /** True only for a non-empty, non-expired passToken (an empty one is set on the login page itself). */
     public static boolean hasPassToken(String cookies) {
         if (cookies == null) {
@@ -355,13 +504,18 @@ public final class XiaomiCloudAccount {
 
     private static Resp http(String method, String url, byte[] body, String ua, String cookie, boolean follow)
             throws CloudError {
+        return http(method, url, body, ua, cookie, follow, 20000);
+    }
+
+    private static Resp http(String method, String url, byte[] body, String ua, String cookie, boolean follow,
+                             int readTimeoutMs) throws CloudError {
         HttpURLConnection c = null;
         try {
             c = (HttpURLConnection) new URL(url).openConnection();
             c.setRequestMethod(method);
             c.setInstanceFollowRedirects(follow);
             c.setConnectTimeout(20000);
-            c.setReadTimeout(20000);
+            c.setReadTimeout(readTimeoutMs);
             c.setRequestProperty("User-Agent", ua);
             c.setRequestProperty("Accept", "*/*");
             if (cookie != null) {

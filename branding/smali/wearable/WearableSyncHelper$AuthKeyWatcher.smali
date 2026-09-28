@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1249
+    .line 1230
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 1258
+    .line 1239
     if-eqz p1, :cond_a
 
     invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
@@ -43,12 +43,12 @@
 
     :goto_6
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->colorAuthKey(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1600(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$1700(Ljava/lang/String;)V
 
-    .line 1259
+    .line 1240
     return-void
 
-    .line 1258
+    .line 1239
     :cond_a
     const-string v0, ""
 
@@ -59,7 +59,7 @@
     .registers 5
 
     .prologue
-    .line 1251
+    .line 1232
     return-void
 .end method
 
@@ -67,6 +67,6 @@
     .registers 5
 
     .prologue
-    .line 1254
+    .line 1235
     return-void
 .end method

@@ -112,9 +112,6 @@ public final class WearableSettingsSection {
         card.addView(pair, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 50)));
 
-        if (active > 0 && WearableConfig.usesPulse(a)) {
-            addPulsePart(a, card, textCol, mutedCol);
-        }
         if (active > 0) {
             addConnectionPart(a, card, root, bandApp, textCol, mutedCol);
         } else {
@@ -216,96 +213,6 @@ public final class WearableSettingsSection {
         t.setPadding(0, WearableUi.dp(a, 6), 0, 0);
         box.addView(t);
         return box;
-    }
-
-    /** Heart-rate settings (used to sit in the ♥ sheet): limit + automatic strength control. */
-    private static void addPulsePart(final Activity a, LinearLayout card, int textCol, int mutedCol) {
-        LinearLayout head = row(a);
-        head.setPadding(0, WearableUi.dp(a, 16), 0, WearableUi.dp(a, 4));
-        head.addView(WearableUi.text(a, WearableUi.tr("Пулс", "Heart rate"), 14f, textCol, true),
-                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView help = WearableUi.button(a, "?", WearableUi.color(a, "bg_screen", 0xFF2A2A2A), textCol);
-        help.setOnClickListener(new PulseHelpClick(a));
-        head.addView(help, new LinearLayout.LayoutParams(WearableUi.dp(a, 40), WearableUi.dp(a, 36)));
-        card.addView(head);
-
-        LinearLayout auto = com.isaigu.gymapp.widget.XemsUi.toggleRow(a,
-                WearableUi.tr("Авто-управление по пулс", "Auto control by heart rate"),
-                WearableUi.tr("При покачване към прага сваля първо силата, после импулса, после честотата.",
-                        "Near the limit it lowers strength first, then pulse width, then frequency."),
-                WearableConfig.isAutoReduceEnabled(a), new AutoReduceToggle(a));
-        card.addView(auto);
-
-        LinearLayout limit = row(a);
-        limit.setPadding(0, WearableUi.dp(a, 12), 0, 0);
-        TextView lbl = WearableUi.text(a, WearableUi.tr("Праг пулс", "HR limit"), 14f, textCol, false);
-        limit.addView(lbl, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        EditText f = field(a, textCol);
-        f.setInputType(InputType.TYPE_CLASS_NUMBER);
-        f.setGravity(Gravity.CENTER);
-        f.setFilters(new android.text.InputFilter[] {new android.text.InputFilter.LengthFilter(3)});
-        f.setText(String.valueOf(WearableConfig.getHrThreshold(a)));
-        f.setTextColor(WearableConfig.isHrThresholdManual(a) ? textCol : WearableUi.COLOR_OK);
-        f.addTextChangedListener(new LimitSaver(a));
-        limit.addView(f, new LinearLayout.LayoutParams(WearableUi.dp(a, 84), WearableUi.dp(a, 44)));
-        card.addView(limit);
-        TextView limitHint = WearableUi.text(a, WearableUi.tr(
-                "Зелено = предложен автоматично. Твоя стойност е с приоритет; 0 = пак автоматично.",
-                "Green = suggested automatically. Your value has priority; 0 = automatic again."),
-                12f, mutedCol, false);
-        limitHint.setPadding(0, WearableUi.dp(a, 4), 0, 0);
-        card.addView(limitHint);
-    }
-
-    static final class PulseHelpClick implements View.OnClickListener {
-        private final Activity a;
-
-        PulseHelpClick(Activity a) {
-            this.a = a;
-        }
-
-        @Override
-        public void onClick(View v) {
-            WearableSyncHelper.showHelp(a);
-        }
-    }
-
-    static final class AutoReduceToggle implements com.isaigu.gymapp.widget.XemsUi.OnToggle {
-        private final Activity a;
-
-        AutoReduceToggle(Activity a) {
-            this.a = a;
-        }
-
-        @Override
-        public void onToggle(boolean on) {
-            WearableConfig.setAutoReduceEnabled(a, on);
-        }
-    }
-
-    /** Saves the typed limit at once; empty / 0 / the suggested value = automatic. */
-    static final class LimitSaver implements TextWatcher {
-        private final Activity a;
-
-        LimitSaver(Activity a) {
-            this.a = a;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            int v = 0;
-            try {
-                v = Integer.parseInt(s.toString().trim());
-            } catch (Throwable ignored) {
-            }
-            WearableConfig.setHrThresholdFromField(a, v);
-        }
     }
 
     /** Link model, remote options, the band app, live status and the connection test (for active bands). */

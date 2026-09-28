@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 821
+    .line 804
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 821
+    .line 804
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$DialTick;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 5
 
     .prologue
-    .line 825
+    .line 808
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->hrValueView:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$700()Landroid/widget/TextView;
@@ -60,17 +60,17 @@
 
     if-nez v0, :cond_d
 
-    .line 833
+    .line 816
     :cond_c
     :goto_c
     return-void
 
-    .line 828
+    .line 811
     :cond_d
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshOverlayDisplay()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
 
-    .line 829
+    .line 812
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$900()Landroid/os/Handler;
 
@@ -84,11 +84,11 @@
 
     goto :goto_c
 
-    .line 830
+    .line 813
     :catch_1a
     move-exception v0
 
-    .line 831
+    .line 814
     const-string v1, "WearableSyncHelper.DialTick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

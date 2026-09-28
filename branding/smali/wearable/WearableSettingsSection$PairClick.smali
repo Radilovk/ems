@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 401
+    .line 308
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 402
+    .line 309
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$PairClick;->a:Landroid/app/Activity;
 
-    .line 403
+    .line 310
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$PairClick;->root:Landroid/view/View;
 
-    .line 404
+    .line 311
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 6
 
     .prologue
-    .line 408
+    .line 315
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$PairClick;->a:Landroid/app/Activity;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Rebuild;
@@ -60,6 +60,6 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/BandPairing;->show(Landroid/app/Activity;Ljava/lang/Runnable;)V
 
-    .line 409
+    .line 316
     return-void
 .end method

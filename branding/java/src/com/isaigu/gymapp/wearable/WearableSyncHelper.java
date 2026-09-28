@@ -379,11 +379,8 @@ public final class WearableSyncHelper {
         autoReduceSwitch = (Switch) content.findViewById(ID_AUTO_REDUCE);
         thresholdView = (EditText) content.findViewById(ID_THRESHOLD);
         stepView = (EditText) content.findViewById(ID_STEP);
-        // Every band / pulse setting lives in Settings → Band: the sheet keeps only status + activate.
+        // MAC and auth key live only in Settings → Band: hide their rows here.
         hideBandRows(activity, content);
-        autoReduceSwitch = null;
-        thresholdView = null;
-        stepView = null;
         bandMacView = null;
         authKeyView = null;
         bindButton(content.findViewById(ID_CONNECT), new ConnectListener());
@@ -465,38 +462,29 @@ public final class WearableSyncHelper {
         com.isaigu.gymapp.widget.XemsUi.pressable(b);
     }
 
-    /** All band and pulse settings live in Settings → Band: this sheet only shows the status and activates the dial. */
     private static void hideBandRows(Activity activity, View content) {
-        View anchor = content.findViewById(ID_ENABLED);
-        if (anchor == null || !(anchor.getParent() instanceof View)) {
+        View mac = content.findViewById(ID_BAND_MAC);
+        View key = content.findViewById(ID_AUTH_KEY);
+        android.view.ViewGroup box = null;
+        for (View f : new View[] {mac, key}) {
+            if (f != null && f.getParent() instanceof View) {
+                View rowView = (View) f.getParent();
+                rowView.setVisibility(View.GONE);
+                if (rowView.getParent() instanceof android.view.ViewGroup) {
+                    box = (android.view.ViewGroup) rowView.getParent();
+                }
+            }
+        }
+        if (box == null) {
             return;
         }
-        View rowView = (View) anchor.getParent();
-        if (!(rowView.getParent() instanceof android.view.ViewGroup)) {
-            return;
-        }
-        android.view.ViewGroup box = (android.view.ViewGroup) rowView.getParent();
-        box.setVisibility(View.GONE);
-        if (!(box.getParent() instanceof android.view.ViewGroup)) {
-            return;
-        }
-        android.view.ViewGroup column = (android.view.ViewGroup) box.getParent();
-        String text;
-        int color = WearableUi.COLOR_MUTED;
+        // Only say something when the band still needs setting up.
         if (!WearableConfig.isConfigured(activity)) {
-            text = WearableUi.tr("Настрой гривната: Настройки → Гривна", "Set up the band: Settings → Band");
-            color = WearableUi.COLOR_WAIT;
-        } else if (!WearableConfig.usesPulse(activity)) {
-            text = WearableUi.tr("Гривната е само за управление. Включи ѝ Пулс: Настройки → Гривна",
-                    "The band is control-only. Give it Pulse: Settings → Band");
-            color = WearableUi.COLOR_WAIT;
-        } else {
-            text = WearableUi.tr("Праг, авто-управление и гривните: Настройки → Гривна",
-                    "Limit, auto control and the bands: Settings → Band");
+            TextView line = WearableUi.text(activity, WearableUi.tr(
+                    "Настрой гривната: Настройки → Гривна", "Set up the band: Settings → Band"),
+                    13f, WearableUi.COLOR_WAIT, true);
+            box.addView(line, WearableUi.matchWrap(activity, 12));
         }
-        TextView line = WearableUi.text(activity, text, 13f, color, true);
-        line.setGravity(Gravity.CENTER);
-        column.addView(line, column.indexOfChild(box) + 1, WearableUi.matchWrap(activity, 12));
     }
 
     /** Band picker next to MAC, live auth-key check, "Band data" button — built in code. */
@@ -549,7 +537,7 @@ public final class WearableSyncHelper {
         }
     }
 
-    static void showHelp(Activity activity) {
+    private static void showHelp(Activity activity) {
         if (activity == null) {
             return;
         }
@@ -593,11 +581,6 @@ public final class WearableSyncHelper {
         String configError = validateDirectBleConfig(activity);
         if (configError != null) {
             toastMessage(activity, configError);
-            return;
-        }
-        if (!WearableConfig.usesPulse(activity)) {
-            toastMessage(activity, WearableUi.tr("Гривната е само за управление. Включи ѝ Пулс: Настройки → Гривна",
-                    "The band is control-only. Give it Pulse: Settings → Band"));
             return;
         }
         WearableConfig.setArmed(activity, true);
@@ -900,8 +883,6 @@ public final class WearableSyncHelper {
             color = WearableUi.COLOR_MUTED;
         } else if (!WearableConfig.isConfigured(activity)) {
             text = WearableUi.tr("Настрой гривната: Настройки → Гривна", "Set up the band: Settings → Band");
-        } else if (!WearableConfig.usesPulse(activity)) {
-            text = WearableUi.tr("Гривната е само за управление", "The band is control-only");
         } else if (!WearableBlePermissions.hasAllBlePermissions(activity)) {
             text = activity.getString(STR_STATUS_BT_PERM);
             color = WearableUi.COLOR_ERROR;

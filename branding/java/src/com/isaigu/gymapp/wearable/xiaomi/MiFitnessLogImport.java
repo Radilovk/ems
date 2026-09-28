@@ -133,7 +133,7 @@ public final class MiFitnessLogImport {
                 }
                 InputStream in = new FileInputStream(arr[i]);
                 try {
-                    scan(in, best);
+                    scanAny(in, best);
                 } finally {
                     in.close();
                 }
@@ -157,7 +157,7 @@ public final class MiFitnessLogImport {
                 collect(list[i], out, depth + 1);
             } else {
                 String n = list[i].getName().toLowerCase(java.util.Locale.ROOT);
-                if (n.endsWith(".log") || n.endsWith(".txt") || n.indexOf("log") >= 0) {
+                if (n.endsWith(".log") || n.endsWith(".txt") || n.endsWith(".zip") || n.indexOf("log") >= 0) {
                     out.add(list[i]);
                 }
             }
@@ -170,6 +170,26 @@ public final class MiFitnessLogImport {
             long x = a.lastModified();
             long y = b.lastModified();
             return x < y ? 1 : (x > y ? -1 : 0);
+        }
+    }
+
+    /** Like {@link #scan}, but also opens a .zip (Mi Fitness exports its logs as an archive). */
+    public static void scanAny(InputStream raw, Found into) throws Exception {
+        java.io.BufferedInputStream in = new java.io.BufferedInputStream(raw, 1 << 16);
+        in.mark(8);
+        int b0 = in.read();
+        int b1 = in.read();
+        in.reset();
+        if (b0 == 0x50 && b1 == 0x4B) {
+            java.util.zip.ZipInputStream zin = new java.util.zip.ZipInputStream(in);
+            java.util.zip.ZipEntry e;
+            while ((e = zin.getNextEntry()) != null) {
+                if (!e.isDirectory()) {
+                    scan(zin, into);
+                }
+            }
+        } else {
+            scan(in, into);
         }
     }
 
@@ -303,7 +323,7 @@ public final class MiFitnessLogImport {
                 try {
                     InputStream in = a.getContentResolver().openInputStream(uris.get(i));
                     try {
-                        scan(in, f);
+                        scanAny(in, f);
                     } finally {
                         in.close();
                     }

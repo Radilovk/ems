@@ -139,19 +139,27 @@ public final class NextPlan {
         }
     }
 
+    /** The last working second (phase 2, the passive massage, is not the training's settings). */
     private static int lastRun(SessionRec r) {
+        int any = -1;
         for (int i = r.run.size() - 1; i >= 0; i--) {
             if (r.run.get(i) == 1) {
-                return i;
+                if (i >= r.pv.size() || r.pv.get(i) == 0) {
+                    return i;
+                }
+                if (any < 0) {
+                    any = i;
+                }
             }
         }
-        return -1;
+        return any;
     }
 
     private static int runMedian(SessionRec r, SessionInts v) {
         List<Integer> xs = new ArrayList<Integer>();
         for (int i = 0; i < r.run.size() && i < v.size(); i++) {
-            if (r.run.get(i) == 1 && v.get(i) > 0) {
+            boolean passive = i < r.pv.size() && r.pv.get(i) == 1 && r.mainType >= 0;
+            if (r.run.get(i) == 1 && v.get(i) > 0 && !passive) {
                 xs.add(v.get(i));
             }
         }

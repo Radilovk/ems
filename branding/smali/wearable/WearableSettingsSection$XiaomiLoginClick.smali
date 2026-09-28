@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 976
+    .line 1029
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 977
+    .line 1030
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginClick;->a:Landroid/app/Activity;
 
-    .line 978
+    .line 1031
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginClick;->root:Landroid/view/View;
 
-    .line 979
+    .line 1032
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 4
 
     .prologue
-    .line 983
+    .line 1036
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginClick;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiLoginClick;->root:Landroid/view/View;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->showXiaomiLogin(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 984
+    .line 1037
     return-void
 .end method

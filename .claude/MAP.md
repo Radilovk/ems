@@ -217,12 +217,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableConfig.java` (350L, compile:music-sync*,wearable) — Persisted settings for direct BLE wearable sync.
 - `WearableHrPanel.java` (324L, compile:music-sync*,wearable) — The "i" of the HR dial: what matters during a session, drawn — the HR now with its zone, the HR chart (5 / 15 min / all…
 - `WearableLivePanel.java` (340L, compile:music-sync*,wearable) — "Band data" panel: every live field from 8/47, event rate, share the raw recording.
-- `WearableSettingsSection.java` (1683L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
+- `WearableSettingsSection.java` (1736L, compile:music-sync*,wearable) — Settings → Band: the only place where the band MAC and auth key are entered.
 - `WearableSyncHelper.java` (1349L, compile:music-sync*,wearable) — Wearable sync UI: config modal + floating HR dial (same pattern as interval timer).
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
-- `MiFitnessLogImport.java` (278L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
+- `MiFitnessLogImport.java` (332L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
 - `XiaomiBand.java` (183L, compile:music-sync*,wearable) — Picks the link for the configured band.
 - `XiaomiBandAckTimeoutTask.java` (16L, compile:music-sync*,wearable) — Band never ACKed a command (separate file for d8 compatibility).
 - `XiaomiBandAppLink.java` (258L, compile:music-sync*,wearable) — Messages between the XEMS app on the band (quick app, system.interconnect) and XEMS here.

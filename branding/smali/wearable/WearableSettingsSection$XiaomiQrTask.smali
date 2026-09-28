@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1523
+    .line 1576
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1524
+    .line 1577
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrTask;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;
 
-    .line 1525
+    .line 1578
     return-void
 .end method
 
@@ -44,19 +44,19 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1529
-    .line 1533
+    .line 1582
+    .line 1586
     :try_start_1
     invoke-static {}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->startQr()Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Qr;
 
     move-result-object v0
 
-    .line 1534
+    .line 1587
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->fetchQrImage(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Qr;)[B
 
     move-result-object v2
 
-    .line 1535
+    .line 1588
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
 
@@ -70,7 +70,7 @@
 
     invoke-virtual {v3, v4}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1536
+    .line 1589
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->awaitQr(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Qr;)Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Result;
     :try_end_1a
     .catch Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError; {:try_start_1 .. :try_end_1a} :catch_2b
@@ -80,7 +80,7 @@
 
     move-object v0, v1
 
-    .line 1542
+    .line 1595
     :goto_1c
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
@@ -95,28 +95,28 @@
 
     invoke-virtual {v1, v3}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1543
+    .line 1596
     return-void
 
-    .line 1537
+    .line 1590
     :catch_2b
     move-exception v0
 
-    .line 1538
+    .line 1591
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;->getMessage()Ljava/lang/String;
 
     move-result-object v0
 
     move-object v2, v1
 
-    .line 1541
+    .line 1594
     goto :goto_1c
 
-    .line 1539
+    .line 1592
     :catch_32
     move-exception v0
 
-    .line 1540
+    .line 1593
     const-string v0, "\u041d\u0435\u0449\u043e \u0441\u0435 \u043e\u0431\u044a\u0440\u043a\u0430 \u043f\u0440\u0438 QR \u0432\u0445\u043e\u0434\u0430."
 
     const-string v2, "Something went wrong during the QR login."

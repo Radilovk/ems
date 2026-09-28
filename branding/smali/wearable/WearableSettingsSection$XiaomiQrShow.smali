@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1550
+    .line 1603
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1551
+    .line 1604
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrShow;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;
 
-    .line 1552
+    .line 1605
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrShow;->png:[B
 
-    .line 1553
+    .line 1606
     return-void
 .end method
 
@@ -47,18 +47,18 @@
     .registers 5
 
     .prologue
-    .line 1557
+    .line 1610
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrShow;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->closed:Z
 
     if-eqz v0, :cond_7
 
-    .line 1566
+    .line 1619
     :goto_6
     return-void
 
-    .line 1561
+    .line 1614
     :cond_7
     :try_start_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrShow;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;
@@ -79,7 +79,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
 
-    .line 1562
+    .line 1615
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrShow;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiQrLogin;->status:Landroid/widget/TextView;
@@ -98,7 +98,7 @@
 
     goto :goto_6
 
-    .line 1564
+    .line 1617
     :catch_28
     move-exception v0
 

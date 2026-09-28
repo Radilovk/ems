@@ -142,43 +142,17 @@ public final class XiaomiCloudAccount {
         q.put("_json", "true");
         q.put("sid", "miothealth");
         q.put("_locale", "en_US");
-        String url = SERVICE_LOGIN + "?" + query(q);
-
-        JSONObject j = null;
-        String ssecurity = "";
-        String location = "";
-        // The session can need a moment to settle right after the WebView finishes the login.
-        for (int attempt = 0; attempt < 4; attempt++) {
-            Resp r = http("GET", url, null, ua, webCookies, false);
-            j = parseXiaomiJson(r.body);
-            ssecurity = j.optString("ssecurity", "");
-            location = j.optString("location", "");
-            if (ssecurity.length() > 0 && location.length() > 0) {
-                break;
-            }
-            try {
-                Thread.sleep(1500L);
-            } catch (InterruptedException ignored) {
-            }
+        Resp r = http("GET", SERVICE_LOGIN + "?" + query(q), null, ua, webCookies, false);
+        JSONObject j = parseXiaomiJson(r.body);
+        String location = j.optString("location", "");
+        if (location.length() == 0) {
+            throw new CloudError("Xiaomi сесията е изтекла — трябва нов вход.");
         }
-        String cUserId = j == null ? "" : j.optString("cUserId", "");
-        if (ssecurity.length() == 0 || location.length() == 0) {
-            String why = j == null ? "" : j.optString("description", j.optString("desc", ""));
-            String code = j == null ? "" : j.optString("code", "");
-            boolean verify = j != null && (j.has("notificationUrl") || j.has("captchaUrl"));
-            throw new CloudError("Xiaomi не потвърди сесията"
-                    + (code.length() > 0 ? " (код " + code + ")" : "")
-                    + (why.length() > 0 ? ": " + why : "")
-                    + (verify ? ". Иска допълнително потвърждение — завърши го в прозореца за вход." : "")
-                    + ". Влез отново с Xiaomi акаунта.");
+        String ss = pragmaSecurity(r);
+        if (ss.length() == 0) {
+            ss = j.optString("ssecurity", "");
         }
-        Map<String, String> jar = new LinkedHashMap<String, String>();
-        followForCookies(location, jar, 6);
-        String serviceToken = jar.get("serviceToken");
-        if (serviceToken == null || serviceToken.length() == 0) {
-            throw new CloudError("Xiaomi входът не даде serviceToken.");
-        }
-        return sourceList(ssecurity, cUserId, serviceToken);
+        return fetchWithSession(ss, j.optString("nonce", ""), j.optString("cUserId", ""), location, webCookies, ua);
     }
 
     /** Parses the JSON that serviceLogin returned inside the WebView: {ssecurity, nonce, cUserId, location, notificationUrl, description}. */
@@ -198,12 +172,25 @@ public final class XiaomiCloudAccount {
     }
 
     /** Finish from a session the WebView already confirmed: serviceToken via location, then the band list. */
-    public static List<Band> fetchWithSession(String ssecurity, String nonce, String cUserId, String location)
-            throws CloudError {
+    public static List<Band> fetchWithSession(String ssecurity, String nonce, String cUserId, String location,
+                                              String webCookies, String userAgent) throws CloudError {
+        String ua = userAgent == null || userAgent.length() == 0 ? UA_WEB : userAgent;
+        String seen = "";
+        String ss = ssecurity == null ? "" : ssecurity;
+        if (ss.length() == 0 && webCookies != null) {
+            // serviceLogin (with the WebView cookies) carries ssecurity in the extension-pragma header
+            Map<String, String> q = new LinkedHashMap<String, String>();
+            q.put("_json", "true");
+            q.put("sid", "miothealth");
+            q.put("_locale", "en_US");
+            Resp r = http("GET", SERVICE_LOGIN + "?" + query(q), null, ua, webCookies, false);
+            ss = pragmaSecurity(r);
+            seen = headerNames(r);
+        }
         String loc = location;
-        if (ssecurity != null && ssecurity.length() > 0 && nonce != null && nonce.length() > 0) {
+        if (ss.length() > 0 && nonce != null && nonce.length() > 0) {
             String clientSign = XiaomiCloudCrypto.b64encode(
-                    XiaomiCloudCrypto.digest("SHA-1", XiaomiCloudCrypto.utf8("nonce=" + nonce + "&" + ssecurity)));
+                    XiaomiCloudCrypto.digest("SHA-1", XiaomiCloudCrypto.utf8("nonce=" + nonce + "&" + ss)));
             loc = location + (location.indexOf('?') < 0 ? "?" : "&") + "clientSign=" + enc(clientSign);
         }
         Map<String, String> jar = new LinkedHashMap<String, String>();
@@ -212,11 +199,37 @@ public final class XiaomiCloudAccount {
         if (serviceToken == null || serviceToken.length() == 0) {
             throw new CloudError("Xiaomi входът не даде serviceToken.");
         }
-        String ss = ssecurity != null && ssecurity.length() > 0 ? ssecurity : jar.get("__ssecurity");
-        if (ss == null || ss.length() == 0) {
-            throw new CloudError("Xiaomi не даде ключ за подпис (ssecurity).");
+        if (ss.length() == 0) {
+            ss = jar.get("__ssecurity") == null ? "" : jar.get("__ssecurity");
+        }
+        if (ss.length() == 0) {
+            throw new CloudError("Xiaomi не даде ключ за достъп (security). Заглавия: " + seen);
         }
         return sourceList(ss, cUserId, serviceToken);
+    }
+
+    private static String pragmaSecurity(Resp r) {
+        String pragma = header(r, "extension-pragma");
+        if (pragma == null || pragma.length() == 0) {
+            return "";
+        }
+        try {
+            return new JSONObject(pragma).optString("ssecurity", "");
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    private static String headerNames(Resp r) {
+        StringBuilder b = new StringBuilder("HTTP " + r.status);
+        if (r.headers != null) {
+            for (String k : r.headers.keySet()) {
+                if (k != null) {
+                    b.append(' ').append(k);
+                }
+            }
+        }
+        return b.toString();
     }
 
     /** True only for a non-empty, non-expired passToken (an empty one is set on the login page itself). */

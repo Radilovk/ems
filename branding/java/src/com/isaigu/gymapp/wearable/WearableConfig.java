@@ -335,4 +335,15 @@ public final class WearableConfig {
         }
         prefs(context).edit().putInt(KEY_STRENGTH_STEP, step).apply();
     }
+
+    /** Xiaomi account session cookies (passToken...) kept so the band key can be re-fetched without a new login. */
+    public static String xiaomiSession(Context context) {
+        return context == null ? "" : prefs(context).getString("xiaomi_session", "");
+    }
+
+    public static void setXiaomiSession(Context context, String cookies) {
+        if (context != null) {
+            prefs(context).edit().putString("xiaomi_session", cookies == null ? "" : cookies).apply();
+        }
+    }
 }

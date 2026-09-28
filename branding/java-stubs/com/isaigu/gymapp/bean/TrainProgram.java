@@ -8,6 +8,7 @@ public class TrainProgram {
         this.name = name;
     }
     public Long id;
+    public Long userId;
     public String name;
     public int useType;
     public ProgramDataBean programDataBean;

@@ -117,6 +117,15 @@ public final class SessionRecorder {
                     WearableBleDiagLog.log("report", "session start slot " + i + " user " + r.userId
                             + " plan " + r.planS + " s");
                 }
+                // ⚙ saved mid-training (ProgramLive): the planned time moved with the new length
+                int moved = com.isaigu.gymapp.train.utils.ProgramLive.takePlanDelta(it);
+                if (moved != 0) {
+                    r.segPlanS = Math.max(0, r.segPlanS + moved);
+                    r.planS = Math.max(0, r.planS + moved);
+                    if (r.mainType >= 0 && r.curType == r.mainType) {
+                        r.mainPlanS = Math.max(0, r.mainPlanS + moved);
+                    }
+                }
                 if (!running) {
                     if (r.between) {
                         // A work mode is done: wait for the next mode (not recorded).
@@ -130,22 +139,9 @@ public final class SessionRecorder {
                     r.idle = reset ? r.idle + 1 : 0;
                     r.pausedS = reset ? r.pausedS : r.pausedS + 1;
                     if (reset && r.idle >= END_CONFIRM_S) {
-                        if (r.assist) {
-                            close(i, r, now, true);
-                        } else if (r.curType == TYPE_MASSAGE || r.curType < 0) {
-                            close(i, r, now, true);        // massage (or a procedure) done: training over
-                        } else {
-                            r.between = true;              // work mode done: the massage may follow
-                            r.betweenS = 0;
-                            r.idle = 0;
-                            BandWorkout.onState(r, false);
-                            // The band's summary is out now (■); the rec closes only after the massage
-                            // or 30 min — too late for it, so the muscle map goes with this mode.
-                            if (r.bandOwner || r.leader) {
-                                BandRemote.onMuscles(r.muscleLevels(), r.sex(), r.bandOwner);
-                            }
-                            WearableBleDiagLog.log("report", "slot " + i + " mode " + r.curType + " done, waiting");
-                        }
+                        // ■ Stop (or the time is up) = the end of this training, whether or not it reached
+                        // the planned time. A massage started after it is its own record: a passive procedure.
+                        close(i, r, now, true);
                         continue;
                     }
                     if (r.pausedS > MAX_PAUSE_S) {

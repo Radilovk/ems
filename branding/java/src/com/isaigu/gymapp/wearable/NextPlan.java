@@ -117,7 +117,13 @@ public final class NextPlan {
                 }
             }
             s.work = s.planS;
-            if (s.assisted && old != null) {
+            // A massage alone (passive procedure, e.g. after a manual training): the working settings stay.
+            boolean passive = r.mainType < 0 && (r.modes & (1 << SessionRecorder.TYPE_MASSAGE)) != 0;
+            if (passive && old != null) {
+                Snap keep = old.copy();
+                keep.t = s.t;
+                s = keep;
+            } else if (s.assisted && old != null) {
                 // The modes drive their own parameters: keep the manual ones, note the date and the name.
                 Snap keep = old.copy();
                 keep.t = s.t;

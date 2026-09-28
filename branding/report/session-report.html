@@ -623,7 +623,8 @@ function loadReal(){
   const doses=[];sessions=[];
   L.forEach(m=>{let r=null;try{r=JSON.parse(BR.session(String(m.id)));}catch(e){}
     if(!r||!r.run||r.run.length<10)return;
-    const goalKey=(r.person&&r.person.goal)||CLIENT.goal||"tone";const goal=GOALS[goalKey]||GOALS.tone;
+    const md=m.modes|0,passive=(md&8)!==0&&(md&7)===0;   // a massage alone: a passive procedure, not a training
+    const goalKey=passive?"massage":(r.person&&r.person.goal)||CLIENT.goal||"tone";const goal=GOALS[goalKey]||GOALS.tone;
     const sim=fromRec(r,tol);const pr=Object.assign({},CLIENT,r.person||{});const a=analyse(sim,doses.slice(-3),goal,pr.weight,pr,sessions.length);doses.push(a.dose);
     sessions.push({i:sessions.length,id:m.id,date:new Date(m.start),type:typeLabel(m),sim,a,goal:goalKey,meta:m});
     const sc=m.scores||{};if(sc.eff!==a.eff||sc.load!==a.load){try{BR.putScores(String(m.id),JSON.stringify({eff:a.eff,load:a.load,kcal:a.kcal,dose:Math.round(a.dose*100)/100}));}catch(e){}}});

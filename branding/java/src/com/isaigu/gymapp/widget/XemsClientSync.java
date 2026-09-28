@@ -33,8 +33,11 @@ import java.util.Set;
  */
 public final class XemsClientSync {
     static final String PREFS = "xems_client_sync";
-    /** Two events close together (a tab opened twice) pull once. */
-    static final long POKE_MS = 60000L;
+    /** Two events close together pull once: the client list / Plan tab at most every 10 min… */
+    static final long POKE_MS = 10 * 60000L;
+    /** …right before the next client (the moment the profile matters) at most every minute. */
+    static final long SOON_MS = 60000L;
+    private static long gapMs = POKE_MS;
 
     private static final Handler H = new Handler(Looper.getMainLooper());
     private static Context app;
@@ -65,8 +68,18 @@ public final class XemsClientSync {
         H.postDelayed(new Tick0(), 15000L);
     }
 
-    /** An event (client list / Plan tab opened): pull the new profiles (once a minute at most). */
+    /** The client list / Plan tab opened: pull the new profiles (every 10 min at most). */
     public static void poke() {
+        request(POKE_MS);
+    }
+
+    /** The next client is about to train: pull now unless done in the last minute. */
+    public static void soon() {
+        request(SOON_MS);
+    }
+
+    private static void request(long gap) {
+        gapMs = poked ? Math.min(gapMs, gap) : gap;
         poked = true;
         H.post(new Tick0());
     }
@@ -74,7 +87,7 @@ public final class XemsClientSync {
     /** "Синхронизирай": pull now. */
     public static void now() {
         lastPoll = 0;
-        poke();
+        request(0);
     }
 
     /** The studio code the PWA needs (from the license server), or "". */
@@ -119,7 +132,7 @@ public final class XemsClientSync {
             return;
         }
         long t = System.currentTimeMillis();
-        if (!(now || poked) || t - lastPoll < POKE_MS) {
+        if (!(now || poked) || t - lastPoll < gapMs) {
             return;
         }
         poked = false;
@@ -156,7 +169,7 @@ public final class XemsClientSync {
             } finally {
                 busy = false;
                 if (poked) {
-                    H.postDelayed(new Tick0(), POKE_MS);   // an event came while this pull ran
+                    H.postDelayed(new Tick0(), gapMs);     // an event came while this pull ran
                 }
             }
         }

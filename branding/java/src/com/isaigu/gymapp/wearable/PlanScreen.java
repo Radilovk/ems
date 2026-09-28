@@ -700,7 +700,7 @@ public final class PlanScreen {
         return card;
     }
 
-    /** widget/XemsClientSync (compiled after this package): "poke", "now" or "status". */
+    /** widget/XemsClientSync (compiled after this package): "poke", "soon", "now" or "status". */
     static Object sync(String m, Context c) {
         try {
             Class<?> k = Class.forName("com.isaigu.gymapp.widget.XemsClientSync");

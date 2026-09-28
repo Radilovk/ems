@@ -380,7 +380,7 @@
 
     .prologue
     .line 309
-    const-string v2, "poke"
+    const-string v2, "soon"
 
     const/4 v3, 0x0
 

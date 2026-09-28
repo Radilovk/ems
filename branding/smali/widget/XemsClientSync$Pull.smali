@@ -26,28 +26,26 @@
     .registers 2
 
     .prologue
-    .line 134
+    .line 147
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 135
+    .line 148
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsClientSync$Pull;->token:Ljava/lang/String;
 
-    .line 136
+    .line 149
     return-void
 .end method
 
 
 # virtual methods
 .method public run()V
-    .registers 11
+    .registers 8
 
     .prologue
-    const-wide/32 v8, 0xea60
-
     const/4 v6, 0x0
 
-    .line 141
-    :try_start_4
+    .line 154
+    :try_start_1
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$000()Landroid/content/Context;
 
@@ -65,7 +63,7 @@
 
     move-result-wide v0
 
-    .line 142
+    .line 155
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -92,7 +90,7 @@
 
     move-result-object v2
 
-    .line 143
+    .line 156
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->deviceId()Ljava/lang/String;
 
     move-result-object v3
@@ -125,7 +123,7 @@
 
     move-result-object v0
 
-    .line 145
+    .line 158
     new-instance v1, Lorg/json/JSONObject;
 
     const-string v2, "POST"
@@ -138,31 +136,31 @@
 
     invoke-direct {v1, v0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 146
+    .line 159
     const-string v0, "ok"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;)Z
-    :try_end_61
-    .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_61} :catch_c9
-    .catchall {:try_start_4 .. :try_end_61} :catchall_f8
+    :try_end_5e
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_5e} :catch_ce
+    .catchall {:try_start_1 .. :try_end_5e} :catchall_102
 
     move-result v0
 
-    if-nez v0, :cond_7a
+    if-nez v0, :cond_7b
 
-    .line 157
+    .line 170
     # setter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->busy:Z
     invoke-static {v6}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$202(Z)Z
 
-    .line 158
+    .line 171
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$300()Z
 
     move-result v0
 
-    if-eqz v0, :cond_79
+    if-eqz v0, :cond_7a
 
-    .line 159
+    .line 172
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$100()Landroid/os/Handler;
 
@@ -172,23 +170,28 @@
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/widget/XemsClientSync$Tick0;-><init>()V
 
-    invoke-virtual {v0, v1, v8, v9}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->gapMs:J
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$400()J
 
-    .line 162
-    :cond_79
-    :goto_79
+    move-result-wide v2
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 175
+    :cond_7a
+    :goto_7a
     return-void
 
-    .line 149
-    :cond_7a
-    :try_start_7a
+    .line 162
+    :cond_7b
+    :try_start_7b
     const-string v0, "items"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v0
 
-    .line 150
+    .line 163
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$000()Landroid/content/Context;
 
@@ -214,16 +217,16 @@
 
     invoke-interface {v2}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 151
-    if-eqz v0, :cond_b3
+    .line 164
+    if-eqz v0, :cond_b4
 
     invoke-virtual {v0}, Lorg/json/JSONArray;->length()I
 
     move-result v2
 
-    if-lez v2, :cond_b3
+    if-lez v2, :cond_b4
 
-    .line 152
+    .line 165
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$100()Landroid/os/Handler;
 
@@ -240,24 +243,24 @@
     invoke-direct {v3, v0, v1}, Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;-><init>(Lorg/json/JSONArray;Z)V
 
     invoke-virtual {v2, v3}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-    :try_end_b3
-    .catch Ljava/lang/Throwable; {:try_start_7a .. :try_end_b3} :catch_c9
-    .catchall {:try_start_7a .. :try_end_b3} :catchall_f8
+    :try_end_b4
+    .catch Ljava/lang/Throwable; {:try_start_7b .. :try_end_b4} :catch_ce
+    .catchall {:try_start_7b .. :try_end_b4} :catchall_102
 
-    .line 157
-    :cond_b3
+    .line 170
+    :cond_b4
     # setter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->busy:Z
     invoke-static {v6}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$202(Z)Z
 
-    .line 158
+    .line 171
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$300()Z
 
     move-result v0
 
-    if-eqz v0, :cond_79
+    if-eqz v0, :cond_7a
 
-    .line 159
+    .line 172
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$100()Landroid/os/Handler;
 
@@ -267,16 +270,21 @@
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/widget/XemsClientSync$Tick0;-><init>()V
 
-    invoke-virtual {v0, v1, v8, v9}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->gapMs:J
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$400()J
 
-    goto :goto_79
+    move-result-wide v2
 
-    .line 154
-    :catch_c9
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    goto :goto_7a
+
+    .line 167
+    :catch_ce
     move-exception v0
 
-    .line 155
-    :try_start_ca
+    .line 168
+    :try_start_cf
     const-string v1, "xems_sync"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -298,22 +306,22 @@
     move-result-object v0
 
     invoke-static {v1, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
-    :try_end_e2
-    .catchall {:try_start_ca .. :try_end_e2} :catchall_f8
+    :try_end_e7
+    .catchall {:try_start_cf .. :try_end_e7} :catchall_102
 
-    .line 157
+    .line 170
     # setter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->busy:Z
     invoke-static {v6}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$202(Z)Z
 
-    .line 158
+    .line 171
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$300()Z
 
     move-result v0
 
-    if-eqz v0, :cond_79
+    if-eqz v0, :cond_7a
 
-    .line 159
+    .line 172
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$100()Landroid/os/Handler;
 
@@ -323,26 +331,31 @@
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/widget/XemsClientSync$Tick0;-><init>()V
 
-    invoke-virtual {v0, v1, v8, v9}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->gapMs:J
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$400()J
 
-    goto :goto_79
+    move-result-wide v2
 
-    .line 157
-    :catchall_f8
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    goto/16 :goto_7a
+
+    .line 170
+    :catchall_102
     move-exception v0
 
     # setter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->busy:Z
     invoke-static {v6}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$202(Z)Z
 
-    .line 158
+    .line 171
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$300()Z
 
     move-result v1
 
-    if-eqz v1, :cond_10e
+    if-eqz v1, :cond_11c
 
-    .line 159
+    .line 172
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$100()Landroid/os/Handler;
 
@@ -352,9 +365,14 @@
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/widget/XemsClientSync$Tick0;-><init>()V
 
-    invoke-virtual {v1, v2, v8, v9}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->gapMs:J
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$400()J
 
-    .line 161
-    :cond_10e
+    move-result-wide v4
+
+    invoke-virtual {v1, v2, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 174
+    :cond_11c
     throw v0
 .end method

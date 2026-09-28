@@ -52,18 +52,18 @@
     .end annotation
 
     .prologue
-    .line 298
+    .line 332
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 299
+    .line 333
     iput p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->status:I
 
-    .line 300
+    .line 334
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->body:Ljava/lang/String;
 
-    .line 301
+    .line 335
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->headers:Ljava/util/Map;
 
-    .line 302
+    .line 336
     return-void
 .end method

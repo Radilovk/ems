@@ -24,6 +24,7 @@
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebCancel;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebPoll;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;,
+        Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiProbeResult;,
         Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Rebuild;
     }
 .end annotation
@@ -37,6 +38,8 @@
 .field private static final TEST_MS:J = 0xea60L
 
 .field static final XIAOMI_LOGIN_URL:Ljava/lang/String; = "https://account.xiaomi.com/pass/serviceLogin?sid=miothealth&_locale=en_US"
+
+.field static final XIAOMI_PROBE_URL:Ljava/lang/String; = "https://account.xiaomi.com/pass/serviceLogin?_json=true&sid=miothealth&_locale=en_US"
 
 .field private static bandInfoView:Landroid/widget/TextView;
 

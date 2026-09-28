@@ -142,43 +142,17 @@ public final class XiaomiCloudAccount {
         q.put("_json", "true");
         q.put("sid", "miothealth");
         q.put("_locale", "en_US");
-        String url = SERVICE_LOGIN + "?" + query(q);
-
-        JSONObject j = null;
-        String ssecurity = "";
-        String location = "";
-        // The session can need a moment to settle right after the WebView finishes the login.
-        for (int attempt = 0; attempt < 4; attempt++) {
-            Resp r = http("GET", url, null, ua, webCookies, false);
-            j = parseXiaomiJson(r.body);
-            ssecurity = j.optString("ssecurity", "");
-            location = j.optString("location", "");
-            if (ssecurity.length() > 0 && location.length() > 0) {
-                break;
-            }
-            try {
-                Thread.sleep(1500L);
-            } catch (InterruptedException ignored) {
-            }
+        Resp r = http("GET", SERVICE_LOGIN + "?" + query(q), null, ua, webCookies, false);
+        JSONObject j = parseXiaomiJson(r.body);
+        String location = j.optString("location", "");
+        if (location.length() == 0) {
+            throw new CloudError("Xiaomi сесията е изтекла — трябва нов вход.");
         }
-        String cUserId = j == null ? "" : j.optString("cUserId", "");
-        if (ssecurity.length() == 0 || location.length() == 0) {
-            String why = j == null ? "" : j.optString("description", j.optString("desc", ""));
-            String code = j == null ? "" : j.optString("code", "");
-            boolean verify = j != null && (j.has("notificationUrl") || j.has("captchaUrl"));
-            throw new CloudError("Xiaomi не потвърди сесията"
-                    + (code.length() > 0 ? " (код " + code + ")" : "")
-                    + (why.length() > 0 ? ": " + why : "")
-                    + (verify ? ". Иска допълнително потвърждение — завърши го в прозореца за вход." : "")
-                    + ". Влез отново с Xiaomi акаунта.");
+        String ss = pragmaSecurity(r);
+        if (ss.length() == 0) {
+            ss = j.optString("ssecurity", "");
         }
-        Map<String, String> jar = new LinkedHashMap<String, String>();
-        followForCookies(location, jar, 6);
-        String serviceToken = jar.get("serviceToken");
-        if (serviceToken == null || serviceToken.length() == 0) {
-            throw new CloudError("Xiaomi входът не даде serviceToken.");
-        }
-        return sourceList(ssecurity, cUserId, serviceToken);
+        return fetchWithSession(ss, j.optString("nonce", ""), j.optString("cUserId", ""), location, webCookies, ua);
     }
 
     /** Parses the JSON that serviceLogin returned inside the WebView: {ssecurity, nonce, cUserId, location, notificationUrl, description}. */

@@ -174,8 +174,8 @@ public final class WearableSettingsSection {
         xsp.topMargin = WearableUi.dp(a, 8);
         card.addView(fromXiaomi, xsp);
         TextView xHint = WearableUi.text(a, WearableUi.tr(
-                "Гривната е вече сдвоена в Mi Fitness — взима MAC и ключа от акаунта автоматично.",
-                "The band is already paired in Mi Fitness — takes the MAC and key from the account automatically."),
+                "Влизаш веднъж; после бутонът сам обновява MAC и ключа от акаунта, без нов вход.",
+                "Log in once; after that the button refreshes the MAC and key from the account by itself."),
                 12f, mutedCol, false);
         xHint.setPadding(0, WearableUi.dp(a, 6), 0, 0);
         card.addView(xHint);
@@ -877,6 +877,16 @@ public final class WearableSettingsSection {
 
     /** Open Xiaomi's own login page in a WebView (it handles the e-mail code / 2FA), then finish with cookies. */
     static void showXiaomiLogin(final Activity a, final View root) {
+        String saved = WearableConfig.xiaomiSession(a);
+        if (saved.length() > 0) {
+            toast(a, WearableUi.tr("Обновявам ключа от запазения Xiaomi вход…", "Refreshing the key from the saved Xiaomi login…"));
+            new Thread(new XiaomiLoginTask(a, root, null, saved, null, true), "xems-xiaomi-refresh").start();
+            return;
+        }
+        openXiaomiWebLogin(a, root);
+    }
+
+    static void openXiaomiWebLogin(final Activity a, final View root) {
         try {
             new XiaomiWebLogin(a, root).open();
         } catch (Throwable t) {
@@ -1138,13 +1148,19 @@ public final class WearableSettingsSection {
         private final String[] sess;
         private final String cookies;
         private final String ua;
+        private final boolean refresh;
 
         XiaomiLoginTask(Activity a, View root, String[] sess, String cookies, String ua) {
+            this(a, root, sess, cookies, ua, false);
+        }
+
+        XiaomiLoginTask(Activity a, View root, String[] sess, String cookies, String ua, boolean refresh) {
             this.a = a;
             this.root = root;
             this.sess = sess;
             this.cookies = cookies;
             this.ua = ua;
+            this.refresh = refresh;
         }
 
         @Override
@@ -1152,15 +1168,44 @@ public final class WearableSettingsSection {
             String error;
             java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
             try {
-                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithSession(
-                        sess[0], sess[1], sess[2], sess[3], cookies, ua);
+                if (refresh) {
+                    bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithCookies(cookies, ua);
+                } else {
+                    bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithSession(
+                            sess[0], sess[1], sess[2], sess[3], cookies, ua);
+                }
+                if (cookies != null) {
+                    WearableConfig.setXiaomiSession(a, cookies);
+                }
                 error = null;
             } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
                 error = ce.getMessage();
             } catch (Throwable t) {
                 error = WearableUi.tr("Нещо се обърка при входа.", "Something went wrong during login.");
             }
+            if (refresh && error != null) {
+                WearableConfig.setXiaomiSession(a, "");
+                handler.post(new XiaomiReopen(a, root));
+                return;
+            }
             handler.post(new XiaomiApply(a, root, bands, error));
+        }
+    }
+
+    /** Saved Xiaomi session no longer works: forget it and open the normal login. */
+    static final class XiaomiReopen implements Runnable {
+        private final Activity a;
+        private final View root;
+
+        XiaomiReopen(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void run() {
+            toast(a, WearableUi.tr("Xiaomi сесията е изтекла — влез отново.", "The Xiaomi session expired — log in again."));
+            openXiaomiWebLogin(a, root);
         }
     }
 

@@ -1865,6 +1865,40 @@
     goto :goto_5
 .end method
 
+.method public static setXiaomiSession(Landroid/content/Context;Ljava/lang/String;)V
+    .registers 4
+
+    .prologue
+    .line 345
+    if-eqz p0, :cond_17
+
+    .line 346
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "xiaomi_session"
+
+    if-nez p1, :cond_10
+
+    const-string p1, ""
+
+    :cond_10
+    invoke-interface {v0, v1, p1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 348
+    :cond_17
+    return-void
+.end method
+
 .method public static usesPulse(Landroid/content/Context;)Z
     .registers 3
 
@@ -1921,4 +1955,32 @@
     const/4 v0, 0x0
 
     goto :goto_8
+.end method
+
+.method public static xiaomiSession(Landroid/content/Context;)Ljava/lang/String;
+    .registers 4
+
+    .prologue
+    .line 341
+    if-nez p0, :cond_5
+
+    const-string v0, ""
+
+    :goto_4
+    return-object v0
+
+    :cond_5
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "xiaomi_session"
+
+    const-string v2, ""
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_4
 .end method

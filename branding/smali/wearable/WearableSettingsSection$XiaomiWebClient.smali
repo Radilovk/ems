@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 1082
+    .line 1092
     invoke-direct {p0}, Landroid/webkit/WebViewClient;-><init>()V
 
-    .line 1083
+    .line 1093
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
-    .line 1084
+    .line 1094
     return-void
 .end method
 
@@ -39,7 +39,7 @@
     .registers 4
 
     .prologue
-    .line 1088
+    .line 1098
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
     invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->isProbe(Ljava/lang/String;)Z
@@ -48,16 +48,16 @@
 
     if-eqz v0, :cond_e
 
-    .line 1089
+    .line 1099
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->readProbe()V
 
-    .line 1093
+    .line 1103
     :goto_d
     return-void
 
-    .line 1091
+    .line 1101
     :cond_e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 

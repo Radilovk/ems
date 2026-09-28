@@ -28,7 +28,8 @@ def install() -> None:
     files = sorted(SRC.glob("XemsNav*.smali")) + sorted(SRC.glob("XemsPanel*.smali")) + sorted(
         SRC.glob("XemsIcon*.smali")) + sorted(SRC.glob("XemsFullscreen*.smali")) + sorted(
         SRC.glob("XemsLicense*.smali")) + sorted(SRC.glob("XemsLocal*.smali")) + sorted(
-        SRC.glob("XemsModuleInfo*.smali"))
+        SRC.glob("XemsModuleInfo*.smali")) + sorted(SRC.glob("XemsDossier*.smali")) + sorted(
+        SRC.glob("XemsClientMatch*.smali")) + sorted(SRC.glob("XemsSearch*.smali"))
     if not files:
         raise SystemExit("Missing branding/smali/widget/XemsNav.smali — run compile-music-sync-java.sh")
     DEST.mkdir(parents=True, exist_ok=True)

@@ -152,6 +152,8 @@ python3 "${ROOT}/scripts/apply-arms-channel-scale.py"
 python3 "${ROOT}/scripts/verify-arms-channel-scale.py"
 # After the train control routing: + / − and the slider act on the selected muscle groups.
 python3 "${ROOT}/scripts/apply-part-strength.py"
+# Every app class that smali references must be installed (a missed one = NoClassDefFoundError at run time).
+python3 "${ROOT}/scripts/verify-no-missing-classes.py"
 
 java -jar "${TOOLS}/apktool.jar" b "${DECOMPILED}" -o "${ROOT}/build/unsigned.apk"
 java -jar "${TOOLS}/uber-apk-signer.jar" --apks "${ROOT}/build/unsigned.apk" -o "${ROOT}/build/signed" --allowResign

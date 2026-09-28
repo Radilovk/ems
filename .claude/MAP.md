@@ -74,7 +74,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-wearable-bridge.py` (486L, build:L108[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
 - `scripts/apply-wearable-permissions.py` (48L, build:L109[BETA_MUSIC]) — Request BLUETOOTH_CONNECT + BLUETOOTH_SCAN at MainActivity startup (Huawei needs both).
 - `scripts/apply-wearable-settings-connect.py` (388L, build:L142[BETA_MUSIC]) — Patch wearable smali for settings band connection test (full reconnect + status UX).
-- `scripts/apply-xems-nav.py` (90L, build:L115[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
+- `scripts/apply-xems-nav.py` (91L, build:L115[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
 - `scripts/ble-sim/run-dual.sh` (25L) — Two bands (Settings → Band → second band): the same simulated Band 9/10 as the client's band (ROLE=hr) and as
 - `scripts/ble-sim/run-hr-policy.sh` (33L, build:L141[BETA_MUSIC]) — Offline HR demand policy test (settings/dial/AI vs idle link). No device, no Android SDK.
@@ -121,6 +121,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-interval-timer-smali.py` (59L, build:L140[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
 - `scripts/verify-login-path.py` (89L) — Fail the build if login -> MainFragment -> NewTrainFragment path looks broken.
 - `scripts/verify-music-sync-smali.py` (183L, build:L126[BETA_MUSIC]) — Music player → MasterStrengthControl.setMasterStrength (no PDU hook).
+- `scripts/verify-no-missing-classes.py` (42L, build:L156) — Fail the build when app smali references a com.isaigu.gymapp class that no smali file defines.
 - `scripts/verify-wearable-smali.py` (107L, build:L143[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
 
@@ -189,7 +190,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandAppInstall.java` (303L, compile:music-sync*,wearable) — The XEMS app on the band (Band 9 / 10) installs and updates itself: once the band is connected over the classic link an…
 - `BandLaunch.java` (107L, compile:music-sync*,wearable) — Open the XEMS app on the band from XEMS: the Settings button (and {@link BandRemote} at the start of a workout).
 - `BandMacFinder.java` (191L, compile:music-sync*,wearable) — Finds the band's MAC when the Mi Fitness log gave only the key: the tablet's paired and connected Xiaomi bands first, t…
-- `BandPairing.java` (578L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
+- `BandPairing.java` (693L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
 - `BandRemote.java` (1078L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (91L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
@@ -224,7 +225,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
-- `MiFitnessLogImport.java` (607L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
+- `MiFitnessLogImport.java` (626L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
 - `XiaomiBand.java` (183L, compile:music-sync*,wearable) — Picks the link for the configured band.
 - `XiaomiBandAckTimeoutTask.java` (16L, compile:music-sync*,wearable) — Band never ACKed a command (separate file for d8 compatibility).
 - `XiaomiBandAppLink.java` (258L, compile:music-sync*,wearable) — Messages between the XEMS app on the band (quick app, system.interconnect) and XEMS here.

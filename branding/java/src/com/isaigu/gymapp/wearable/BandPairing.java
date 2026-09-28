@@ -77,16 +77,16 @@ final class BandPairing {
 
         TextView steps = WearableUi.text(a, WearableUi.tr(
                 "1. В Mi Fitness (гривната трябва да е сдвоена там): Профил → За приложението → докосвай логото много пъти. "
-                        + "Записва се архив в Download/wearablelog.\n2. Натисни бутона — приложението само взима най-новия архив, "
-                        + "ключа и MAC-а. Първия път Android пита веднъж за достъп до папката.",
+                        + "Записва се архив в Download/wearablelog.\n2. Тук търсенето тръгва само: най-новият архив, всички гривни, "
+                        + "ключовете и MAC-овете. Избираш коя за какво. Първия път Android пита веднъж за папката.",
                 "1. In Mi Fitness (the band must be paired there): Profile → About → tap the logo many times. "
-                        + "An archive is saved to Download/wearablelog.\n2. Press the button — the app takes the newest archive, "
-                        + "the key and the MAC by itself. The first time Android asks once for access to the folder."),
+                        + "An archive is saved to Download/wearablelog.\n2. The search starts by itself here: newest archive, every band, "
+                        + "keys and MACs. You choose what each is for. The first time Android asks once for the folder."),
                 14f, mutedCol, false);
         steps.setPadding(0, WearableUi.dp(a, 12), 0, WearableUi.dp(a, 16));
         box.addView(steps);
 
-        findBtn = WearableUi.button(a, WearableUi.tr("Намери гривните", "Find the bands"), 0xFFEA6A2B, 0xFFFFFFFF);
+        findBtn = WearableUi.button(a, WearableUi.tr("Търси пак", "Search again"), 0xFFEA6A2B, 0xFFFFFFFF);
         findBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
         findBtn.setOnClickListener(new FindClick(this));
         box.addView(findBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 56)));
@@ -128,6 +128,7 @@ final class BandPairing {
         dialog.setContentView(sv);
         dialog.setOnCancelListener(new CancelListener(this));
         dialog.show();
+        handler.post(new FindClick(this));                // one tap: the search starts as the screen opens
     }
 
     private LinearLayout buildManual(int textCol, int mutedCol) {
@@ -225,41 +226,105 @@ final class BandPairing {
     }
 
     private void found(MiFitnessLogImport.Found f) {
-        int n = 0;
-        String firstMac = "";
-        String firstKey = "";
-        String firstName = "";
+        java.util.List<String[]> bands = new java.util.ArrayList<String[]>();
         for (MiFitnessLogImport.Dev d : f.devices.values()) {
-            WearableConfig.rememberBand(a, d.mac, d.key, d.name);
-            n++;
-            firstMac = d.mac;
-            firstKey = d.key;
-            firstName = d.name;
+            bands.add(new String[] {d.mac, d.key, d.name});
         }
-        if (n == 0 && f.key.length() == 32) {
+        if (bands.isEmpty() && f.key.length() == 32) {
             // an older log format: a key, perhaps without a MAC
             if (f.mac.length() > 0) {
-                WearableConfig.rememberBand(a, f.mac, f.key, "");
-                n = 1;
-                firstMac = f.mac;
-                firstKey = f.key;
+                bands.add(new String[] {f.mac, f.key, f.name});
             } else {
                 findMac(f.key, f.macHint, f.name);
                 return;
             }
         }
-        if (n == 0) {
+        if (bands.isEmpty()) {
             failed(null);
             return;
         }
-        if (n == 1) {
-            assignFirst(firstMac, firstKey);
+        showBands(bands);
+    }
+
+    /** Every band found: saved, and each gets its role right here (Off / Pulse / Control / both). */
+    private void showBands(java.util.List<String[]> bands) {
+        busy = false;
+        findBtn.setEnabled(true);
+        manual.setVisibility(View.GONE);
+        pickLink.setVisibility(View.GONE);
+        shown = bands;
+        for (int i = bands.size() - 1; i >= 0; i--) {
+            String[] b = bands.get(i);
+            b[0] = NotifyWearableBridge.normalizeMac(b[0]);
+            WearableConfig.rememberBand(a, b[0], b[1], b[2]);
         }
-        toast(n == 1
-                ? WearableUi.tr("Гривната е добавена ✓", "Band added ✓")
-                : WearableUi.tr("Намерени гривни: " + n + ". Избери коя за какво.",
-                        "Bands found: " + n + ". Choose what each is for."));
-        finish();
+        if (bands.size() == 1) {
+            assignFirst(bands.get(0)[0], bands.get(0)[1]);
+        }
+        renderBands();
+    }
+
+    private java.util.List<String[]> shown;
+    private boolean savedOne;
+
+    private void renderBands() {
+        if (closed || shown == null) {
+            return;
+        }
+        int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
+        int mutedCol = WearableUi.color(a, "text_secondary", 0xFF9AA0A6);
+        boolean bandApp = com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND);
+        setStatus(shown.size() == 1
+                ? WearableUi.tr("Намерена гривна ✓ За какво да се ползва?", "Band found ✓ What is it for?")
+                : WearableUi.tr("Намерени гривни: " + shown.size() + " ✓ Избери за какво е всяка.",
+                        "Bands found: " + shown.size() + " ✓ Choose what each one is for."), false);
+        choices.removeAllViews();
+        for (int i = 0; i < shown.size(); i++) {
+            String[] b = shown.get(i);
+            LinearLayout card = new LinearLayout(a);
+            card.setOrientation(LinearLayout.VERTICAL);
+            int p = WearableUi.dp(a, 12);
+            card.setPadding(p, p, p, p);
+            card.setBackgroundDrawable(WearableUi.rounded(WearableUi.color(a, "bg_elevated", 0xFF1F232C), WearableUi.dp(a, 12)));
+            String name = b[2] != null && b[2].trim().length() > 0 ? b[2].trim() : WearableUi.tr("Гривна", "Band");
+            card.addView(WearableUi.text(a, name, 16f, textCol, true));
+            card.addView(WearableUi.text(a, b[0], 12f, mutedCol, false));
+            int role = WearableConfig.roleOfBand(a, b[0]);
+            String[] labels = bandApp
+                    ? new String[] {WearableUi.tr("Изкл.", "Off"), WearableUi.tr("Пулс", "Pulse"),
+                            WearableUi.tr("Управление", "Control"), WearableUi.tr("Пулс + упр.", "Pulse + control")}
+                    : new String[] {WearableUi.tr("Изкл.", "Off"), WearableUi.tr("Пулс", "Pulse")};
+            int index = role == WearableConfig.ROLE_OFF ? 0 : !bandApp ? 1
+                    : role == WearableConfig.ROLE_PULSE ? 1 : role == WearableConfig.ROLE_REMOTE ? 2 : 3;
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            sp.topMargin = WearableUi.dp(a, 10);
+            card.addView(com.isaigu.gymapp.widget.XemsUi.segmented(a, labels, index,
+                    new RolePick(this, b[0], b[1], bandApp)), sp);
+            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            cl.topMargin = WearableUi.dp(a, 10);
+            choices.addView(card, cl);
+        }
+        TextView done = WearableUi.button(a, WearableUi.tr("Готово", "Done"), 0xFF2E7D32, 0xFFFFFFFF);
+        done.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        done.setOnClickListener(new DoneClick(this));
+        LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 56));
+        dl.topMargin = WearableUi.dp(a, 16);
+        choices.addView(done, dl);
+    }
+
+    private void pickRole(String mac, String key, int index, boolean bandApp) {
+        int role = index == 0 ? WearableConfig.ROLE_OFF : !bandApp ? WearableConfig.ROLE_BOTH
+                : index == 1 ? WearableConfig.ROLE_PULSE : index == 2 ? WearableConfig.ROLE_REMOTE : WearableConfig.ROLE_BOTH;
+        WearableConfig.assignBandRole(a, mac, key, role);
+        try {
+            NotifyWearableBridge.onControlBandChanged(a);
+            NotifyWearableBridge.onRoleChanged(a);
+        } catch (Throwable ignored) {
+        }
+        renderBands();                                   // a band that clashes is switched off: show it
     }
 
     private void assignFirst(String mac, String key) {
@@ -284,16 +349,18 @@ final class BandPairing {
         }
         if (bands.size() == 1) {
             String[] b = bands.get(0);
-            saveBand(b[0], key, b[1].length() > 0 ? b[1] : name);
+            java.util.List<String[]> one = new java.util.ArrayList<String[]>();
+            one.add(new String[] {b[0], key, b[1].length() > 0 ? b[1] : name});
+            showBands(one);
             return;
         }
         busy = false;
         findBtn.setEnabled(true);
         if (bands.isEmpty()) {
             showManual(WearableUi.tr("Ключът е намерен ✓, но гривната не се вижда по Bluetooth. Включи Bluetooth, дръж гривната "
-                            + "до таблета и натисни „Намери гривните“ пак — или въведи MAC-а.",
+                            + "до таблета и натисни „Търси пак“ — или въведи MAC-а.",
                     "Key found ✓, but the band is not visible over Bluetooth. Turn Bluetooth on, keep the band near the "
-                            + "tablet and press “Find the bands” again — or type the MAC."));
+                            + "tablet and press “Search again” — or type the MAC."));
             keyField.setText(key);
             return;
         }
@@ -316,6 +383,7 @@ final class BandPairing {
         String norm = NotifyWearableBridge.normalizeMac(mac);
         WearableConfig.rememberBand(a, norm, key, name);
         assignFirst(norm, key);
+        savedOne = true;
         toast(WearableUi.tr("Гривната е добавена ✓", "Band added ✓"));
         finish();
     }
@@ -325,16 +393,16 @@ final class BandPairing {
         findBtn.setEnabled(true);
         pickLink.setVisibility(View.VISIBLE);
         if ("cancelled".equals(problem)) {
-            setStatus(WearableUi.tr("Без достъп до папката логът не може да се прочете сам. Натисни „Намери гривните“ "
+            setStatus(WearableUi.tr("Без достъп до папката логът не може да се прочете сам. Натисни „Търси пак“ "
                             + "и избери „Използвай тази папка“.",
-                    "Without access to the folder the log cannot be read by itself. Press “Find the bands” "
+                    "Without access to the folder the log cannot be read by itself. Press “Search again” "
                             + "and choose “Use this folder”."), true);
             return;
         }
         showManual(WearableUi.tr("В логовете няма ключ. В Mi Fitness (с гривната сдвоена там) направи нов лог "
-                        + "и натисни „Намери гривните“ пак — или въведи ръчно.",
+                        + "и натисни „Търси пак“ — или въведи ръчно.",
                 "No key in the logs. In Mi Fitness (with the band paired there) make a new log and press "
-                        + "“Find the bands” again — or enter it by hand."));
+                        + "“Search again” — or enter it by hand."));
     }
 
     private void showManual(String why) {
@@ -370,12 +438,16 @@ final class BandPairing {
 
     private void finish() {
         close();
-        if (onDone != null) {
-            onDone.run();
-        }
     }
 
+    /** Closing after bands were saved (Done, Close or Back) refreshes the settings list. */
     private void close() {
+        if (closed) {
+            return;
+        }
+        if (onDone != null && (shown != null || savedOne)) {
+            handler.post(onDone);
+        }
         closed = true;
         try {
             if (dialog != null) {
@@ -421,7 +493,7 @@ final class BandPairing {
         }
     }
 
-    private static final class FindClick implements View.OnClickListener {
+    private static final class FindClick implements View.OnClickListener, Runnable {
         private final BandPairing p;
 
         FindClick(BandPairing p) {
@@ -430,6 +502,11 @@ final class BandPairing {
 
         @Override
         public void onClick(View v) {
+            p.find();
+        }
+
+        @Override
+        public void run() {
             p.find();
         }
     }
@@ -506,6 +583,42 @@ final class BandPairing {
         }
     }
 
+    private static final class RolePick implements com.isaigu.gymapp.widget.XemsUi.OnIndex {
+        private final BandPairing p;
+        private final String mac;
+        private final String key;
+        private final boolean bandApp;
+
+        RolePick(BandPairing p, String mac, String key, boolean bandApp) {
+            this.p = p;
+            this.mac = mac;
+            this.key = key;
+            this.bandApp = bandApp;
+        }
+
+        @Override
+        public void onIndex(int index) {
+            try {
+                p.pickRole(mac, key, index, bandApp);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.widget.XemsGuard.report("BandPairing.role", t);
+            }
+        }
+    }
+
+    private static final class DoneClick implements View.OnClickListener {
+        private final BandPairing p;
+
+        DoneClick(BandPairing p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onClick(View v) {
+            p.finish();
+        }
+    }
+
     private static final class PickFileClick implements View.OnClickListener {
         private final BandPairing p;
 
@@ -534,7 +647,9 @@ final class BandPairing {
 
         @Override
         public void onClick(View v) {
-            p.saveBand(mac, key, name);
+            java.util.List<String[]> one = new java.util.ArrayList<String[]>();
+            one.add(new String[] {mac, key, name});
+            p.showBands(one);
         }
     }
 

@@ -225,8 +225,11 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             com.isaigu.gymapp.dialog.IntervalTimerHelper.bandTogglePause();      // band app ≤ 5.9.x
         } else if ("tm_pause".equals(a)) {
             // the timer follows the training: impulses and timer stop and go on together
+            boolean alone = com.isaigu.gymapp.dialog.IntervalTimerHelper.isPausedAlone();
             com.isaigu.gymapp.dialog.IntervalTimerHelper.bandClearUserPause();
-            XemsPanel.press(XemsPanel.PRESS_START);
+            if (!alone) {                           // only the timer was stopped (tablet): it just goes on
+                playPause();
+            }
         } else if ("tm_reset".equals(a)) {
             com.isaigu.gymapp.dialog.IntervalTimerHelper.bandReset();          // only the timer
         } else if ("mu_toggle".equals(a)) {
@@ -448,6 +451,21 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             } else {
                 MusicPlayerHelper.skipTrack(action);
             }
+        }
+        handler.postDelayed(new Push(true), 300);
+    }
+
+    /** ▶ / ❚❚ of the training from the band app: the AI session when it runs, else the training. */
+    static void playPause() {
+        AiEngine e = AiSession.getEngine();
+        if (AiSession.getStage() == AiSession.Stage.RUNNING && e != null) {
+            if (e.getState() == AiEngine.State.REST && e.isRestReady()) {
+                AiSession.continueBlock();
+            } else {
+                AiSession.togglePause();
+            }
+        } else {
+            XemsPanel.press(XemsPanel.PRESS_START);
         }
         handler.postDelayed(new Push(true), 300);
     }

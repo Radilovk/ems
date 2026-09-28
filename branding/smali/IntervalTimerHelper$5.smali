@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 801
+    .line 806
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
@@ -55,7 +55,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 804
+    .line 809
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$interval:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->intervalSec:I
@@ -72,7 +72,7 @@
 
     invoke-virtual {v0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 805
+    .line 810
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$loops:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
@@ -87,7 +87,7 @@
 
     invoke-virtual {v0, v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 806
+    .line 811
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$5;->val$summary:Landroid/widget/TextView;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
@@ -97,7 +97,7 @@
 
     if-lez v0, :cond_50
 
-    .line 807
+    .line 812
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -143,14 +143,14 @@
 
     move-result-object v0
 
-    .line 806
+    .line 811
     :goto_4c
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 810
+    .line 815
     return-void
 
-    .line 809
+    .line 814
     :cond_50
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -160,7 +160,7 @@
 
     const-string v3, "A signal every "
 
-    .line 808
+    .line 813
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -189,7 +189,7 @@
 
     const-string v3, ", no end"
 
-    .line 809
+    .line 814
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 721
+    .line 726
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 724
+    .line 729
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resolveActivity(Landroid/app/Activity;)Landroid/app/Activity;
@@ -48,6 +48,6 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/dialog/ModalInfoHelper;->show(Landroid/app/Activity;II)V
 
-    .line 725
+    .line 730
     return-void
 .end method

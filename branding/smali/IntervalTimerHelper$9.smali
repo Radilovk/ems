@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 838
+    .line 843
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$refresh:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 5
 
     .prologue
-    .line 841
+    .line 846
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1200()I
 
@@ -65,17 +65,17 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->maxLoops:I
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1202(I)I
 
-    .line 842
+    .line 847
     const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 843
+    .line 848
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$9;->val$refresh:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 844
+    .line 849
     return-void
 .end method

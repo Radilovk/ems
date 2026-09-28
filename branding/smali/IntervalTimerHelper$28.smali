@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1369
+    .line 1374
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,22 +34,22 @@
     .registers 3
 
     .prologue
-    .line 1372
+    .line 1377
     const/4 v0, 0x1
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2902(I)I
 
-    .line 1373
+    .line 1378
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->customSignalUri:Landroid/net/Uri;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3102(Landroid/net/Uri;)Landroid/net/Uri;
 
-    .line 1374
+    .line 1379
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSheets()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2400()V
 
-    .line 1375
+    .line 1380
     return-void
 .end method

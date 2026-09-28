@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 263
+    .line 268
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,22 +34,22 @@
     .registers 3
 
     .prologue
-    .line 267
+    .line 272
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toggleTimerPause()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$100()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 271
+    .line 276
     :goto_3
     return-void
 
-    .line 268
+    .line 273
     :catch_4
     move-exception v0
 
-    .line 269
+    .line 274
     const-string v1, "IntervalTimer.band"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

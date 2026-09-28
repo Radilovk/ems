@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 880
+    .line 885
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$11;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 4
 
     .prologue
-    .line 883
+    .line 888
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$11;->val$a:Landroid/app/Activity;
 
     const/4 v1, 0x2
@@ -53,6 +53,6 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->openSub(Landroid/app/Activity;I)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1600(Landroid/app/Activity;I)V
 
-    .line 884
+    .line 889
     return-void
 .end method

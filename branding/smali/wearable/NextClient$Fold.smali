@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 502
+    .line 503
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 503
+    .line 504
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/NextClient$Fold;->target:Landroid/view/View;
 
-    .line 504
+    .line 505
     return-void
 .end method
 
@@ -44,7 +44,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 508
+    .line 509
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NextClient$Fold;->target:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getVisibility()I
@@ -55,7 +55,7 @@
 
     const/4 v0, 0x1
 
-    .line 509
+    .line 510
     :goto_a
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/NextClient$Fold;->target:Landroid/view/View;
 
@@ -64,28 +64,28 @@
     :goto_e
     invoke-virtual {v2, v1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 510
+    .line 511
     if-eqz v0, :cond_18
 
-    .line 511
+    .line 512
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NextClient$Fold;->target:Landroid/view/View;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->enter(Landroid/view/View;)V
 
-    .line 513
+    .line 514
     :cond_18
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 514
+    .line 515
     return-void
 
     :cond_1c
     move v0, v1
 
-    .line 508
+    .line 509
     goto :goto_a
 
-    .line 509
+    .line 510
     :cond_1e
     const/16 v1, 0x8
 

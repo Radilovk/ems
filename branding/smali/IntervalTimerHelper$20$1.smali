@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 1191
+    .line 1196
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20$1;->this$0:Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .registers 5
 
     .prologue
-    .line 1194
+    .line 1199
     invoke-static {}, Lcom/isaigu/gymapp/dialog/TimerPresetStorage;->newId()Ljava/lang/String;
 
     move-result-object v0
@@ -49,20 +49,20 @@
 
     move-result-object v0
 
-    .line 1195
+    .line 1200
     iget-object v1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20$1;->this$0:Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$20;->val$a:Landroid/app/Activity;
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/dialog/TimerPresetStorage;->upsert(Landroid/content/Context;Lcom/isaigu/gymapp/dialog/TimerPreset;)V
 
-    .line 1196
+    .line 1201
     iget-object v0, v0, Lcom/isaigu/gymapp/dialog/TimerPreset;->id:Ljava/lang/String;
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 1197
+    .line 1202
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -90,10 +90,10 @@
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toastText(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2300(Ljava/lang/String;)V
 
-    .line 1198
+    .line 1203
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSheets()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2400()V
 
-    .line 1199
+    .line 1204
     return-void
 .end method

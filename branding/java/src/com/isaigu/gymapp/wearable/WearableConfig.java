@@ -180,7 +180,9 @@ public final class WearableConfig {
 
     /** The band's heart rate feeds XEMS (pulse module, AI, calories). */
     public static boolean usesPulse(Context context) {
-        return getBandRole(context) != ROLE_REMOTE;
+        // the choice is shown only with the band module: without it the heart rate is always used
+        return getBandRole(context) != ROLE_REMOTE
+                || !com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.BAND);
     }
 
     /** The band's music screen works as the training remote (title = live state, keys = control). */

@@ -226,6 +226,11 @@ public final class IntervalTimerHelper {
         handler.post(new BandTogglePause());
     }
 
+    /** The training runs but the timer was paused on its own (the tablet's timer button). */
+    public static boolean isPausedAlone() {
+        return armed && timerPausedByUser && trainingRunning;
+    }
+
     /** Band app ▶ / ❚❚: the timer follows the training again (a pause of the timer alone ends). */
     public static void bandClearUserPause() {
         handler.post(new BandClearUserPause());

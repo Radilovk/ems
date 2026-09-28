@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 2041
+    .line 2046
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 2044
+    .line 2049
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/MusicPlayerHelper;->resolveHostActivity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
@@ -42,10 +42,10 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->hostActivity:Landroid/app/Activity;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3302(Landroid/app/Activity;)Landroid/app/Activity;
 
-    .line 2045
+    .line 2050
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->toggleMasterPanel()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3500()V
 
-    .line 2046
+    .line 2051
     return-void
 .end method

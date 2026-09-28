@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1105
+    .line 1110
     iput-object p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$18;->val$time:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 6
 
     .prologue
-    .line 1108
+    .line 1113
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainSec:I
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2200()I
 
@@ -65,7 +65,7 @@
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainSec:I
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2202(I)I
 
-    .line 1109
+    .line 1114
     iget-object v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$18;->val$time:Lcom/isaigu/gymapp/widget/XemsUi$Stepper;
 
     # getter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->trainSec:I
@@ -84,6 +84,6 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsUi$Stepper;->set(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1110
+    .line 1115
     return-void
 .end method

@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 1326
+    .line 1331
     iput p1, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$26;->val$snd:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,29 +45,29 @@
     .registers 4
 
     .prologue
-    .line 1329
+    .line 1334
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1330
+    .line 1335
     iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$26;->val$snd:I
 
     const/4 v1, 0x7
 
     if-ne v0, v1, :cond_f
 
-    .line 1331
+    .line 1336
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->closeSub()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1800()V
 
-    .line 1332
+    .line 1337
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startRingtonePick(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2700(Landroid/view/View;)V
 
-    .line 1344
+    .line 1349
     :goto_e
     return-void
 
-    .line 1335
+    .line 1340
     :cond_f
     iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$26;->val$snd:I
 
@@ -75,34 +75,34 @@
 
     if-ne v0, v1, :cond_1c
 
-    .line 1336
+    .line 1341
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->closeSub()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$1800()V
 
-    .line 1337
+    .line 1342
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->startSignalPick(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2800(Landroid/view/View;)V
 
     goto :goto_e
 
-    .line 1340
+    .line 1345
     :cond_1c
     iget v0, p0, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper$26;->val$snd:I
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedSound:I
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2902(I)I
 
-    .line 1341
+    .line 1346
     const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->selectedPresetId:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$802(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 1342
+    .line 1347
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->playSignal()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$3000()V
 
-    .line 1343
+    .line 1348
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->refreshSheets()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$2400()V
 

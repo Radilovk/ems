@@ -155,6 +155,9 @@ public final class XemsClientSync {
                 android.util.Log.w("xems_sync", "pull: " + t);
             } finally {
                 busy = false;
+                if (poked) {
+                    H.postDelayed(new Tick0(), POKE_MS);   // an event came while this pull ran
+                }
             }
         }
     }

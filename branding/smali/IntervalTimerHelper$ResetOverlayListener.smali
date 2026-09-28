@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 2020
+    .line 2025
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 2
 
     .prologue
-    .line 2023
+    .line 2028
     # invokes: Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->resetCurrentInterval()V
     invoke-static {}, Lcom/isaigu/gymapp/dialog/IntervalTimerHelper;->access$200()V
 
-    .line 2024
+    .line 2029
     return-void
 .end method

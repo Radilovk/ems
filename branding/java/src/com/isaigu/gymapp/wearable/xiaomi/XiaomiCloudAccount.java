@@ -198,12 +198,25 @@ public final class XiaomiCloudAccount {
     }
 
     /** Finish from a session the WebView already confirmed: serviceToken via location, then the band list. */
-    public static List<Band> fetchWithSession(String ssecurity, String nonce, String cUserId, String location)
-            throws CloudError {
+    public static List<Band> fetchWithSession(String ssecurity, String nonce, String cUserId, String location,
+                                              String webCookies, String userAgent) throws CloudError {
+        String ua = userAgent == null || userAgent.length() == 0 ? UA_WEB : userAgent;
+        String seen = "";
+        String ss = ssecurity == null ? "" : ssecurity;
+        if (ss.length() == 0 && webCookies != null) {
+            // serviceLogin (with the WebView cookies) carries ssecurity in the extension-pragma header
+            Map<String, String> q = new LinkedHashMap<String, String>();
+            q.put("_json", "true");
+            q.put("sid", "miothealth");
+            q.put("_locale", "en_US");
+            Resp r = http("GET", SERVICE_LOGIN + "?" + query(q), null, ua, webCookies, false);
+            ss = pragmaSecurity(r);
+            seen = headerNames(r);
+        }
         String loc = location;
-        if (ssecurity != null && ssecurity.length() > 0 && nonce != null && nonce.length() > 0) {
+        if (ss.length() > 0 && nonce != null && nonce.length() > 0) {
             String clientSign = XiaomiCloudCrypto.b64encode(
-                    XiaomiCloudCrypto.digest("SHA-1", XiaomiCloudCrypto.utf8("nonce=" + nonce + "&" + ssecurity)));
+                    XiaomiCloudCrypto.digest("SHA-1", XiaomiCloudCrypto.utf8("nonce=" + nonce + "&" + ss)));
             loc = location + (location.indexOf('?') < 0 ? "?" : "&") + "clientSign=" + enc(clientSign);
         }
         Map<String, String> jar = new LinkedHashMap<String, String>();
@@ -212,11 +225,37 @@ public final class XiaomiCloudAccount {
         if (serviceToken == null || serviceToken.length() == 0) {
             throw new CloudError("Xiaomi входът не даде serviceToken.");
         }
-        String ss = ssecurity != null && ssecurity.length() > 0 ? ssecurity : jar.get("__ssecurity");
-        if (ss == null || ss.length() == 0) {
-            throw new CloudError("Xiaomi не даде ключ за подпис (ssecurity).");
+        if (ss.length() == 0) {
+            ss = jar.get("__ssecurity") == null ? "" : jar.get("__ssecurity");
+        }
+        if (ss.length() == 0) {
+            throw new CloudError("Xiaomi не даде ключ за достъп (security). Заглавия: " + seen);
         }
         return sourceList(ss, cUserId, serviceToken);
+    }
+
+    private static String pragmaSecurity(Resp r) {
+        String pragma = header(r, "extension-pragma");
+        if (pragma == null || pragma.length() == 0) {
+            return "";
+        }
+        try {
+            return new JSONObject(pragma).optString("ssecurity", "");
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    private static String headerNames(Resp r) {
+        StringBuilder b = new StringBuilder("HTTP " + r.status);
+        if (r.headers != null) {
+            for (String k : r.headers.keySet()) {
+                if (k != null) {
+                    b.append(' ').append(k);
+                }
+            }
+        }
+        return b.toString();
     }
 
     /** True only for a non-empty, non-expired passToken (an empty one is set on the login page itself). */

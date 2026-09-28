@@ -1021,13 +1021,15 @@ public final class WearableSettingsSection {
             if (sess[3].length() > 0) {
                 done = true;
                 String ua = null;
+                String ck = null;
                 try {
                     ua = web.getSettings().getUserAgentString();
+                    ck = android.webkit.CookieManager.getInstance().getCookie("https://account.xiaomi.com");
                 } catch (Throwable ignored) {
                 }
                 close();
                 toast(a, WearableUi.tr("Взимам ключа от Xiaomi…", "Fetching the key from Xiaomi…"));
-                new Thread(new XiaomiLoginTask(a, root, sess), "xems-xiaomi-login").start();
+                new Thread(new XiaomiLoginTask(a, root, sess, ck, ua), "xems-xiaomi-login").start();
                 return;
             }
             probes++;
@@ -1134,11 +1136,15 @@ public final class WearableSettingsSection {
         private final Activity a;
         private final View root;
         private final String[] sess;
+        private final String cookies;
+        private final String ua;
 
-        XiaomiLoginTask(Activity a, View root, String[] sess) {
+        XiaomiLoginTask(Activity a, View root, String[] sess, String cookies, String ua) {
             this.a = a;
             this.root = root;
             this.sess = sess;
+            this.cookies = cookies;
+            this.ua = ua;
         }
 
         @Override
@@ -1147,7 +1153,7 @@ public final class WearableSettingsSection {
             java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
             try {
                 bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithSession(
-                        sess[0], sess[1], sess[2], sess[3]);
+                        sess[0], sess[1], sess[2], sess[3], cookies, ua);
                 error = null;
             } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
                 error = ce.getMessage();

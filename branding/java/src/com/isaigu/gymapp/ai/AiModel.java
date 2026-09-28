@@ -67,6 +67,9 @@ public final class AiModel {
         /** Optional HR ceiling; for SELF it may only lower the derived cap. */
         public Integer hrCapOverride;
         public PauseMode pause = PauseMode.AUTO;
+        /** Focus zones and state from the client form (AiPersonal). */
+        public java.util.Set<String> focus = new java.util.HashSet<String>();
+        public java.util.Set<String> cond = new java.util.HashSet<String>();
 
         public boolean isTraining() {
             return mode == Mode.ACTIVE;
@@ -189,5 +192,7 @@ public final class AiModel {
         /** Q_plan with the double impulse on / off (the budget follows a live switch). */
         public double qPlanPauseOn;
         public double qPlanPauseOff;
+        /** What the client's focus zones and state changed (AiPersonal); never null after build. */
+        public AiPersonal.Effect personal;
     }
 }

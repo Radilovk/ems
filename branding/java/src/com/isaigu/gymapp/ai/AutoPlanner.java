@@ -100,6 +100,9 @@ public final class AutoPlanner {
         if (in.solo()) {
             phiMax = Math.min(phiMax, 0.9);
         }
+        // The client's focus zones and state (AiPersonal): ceiling, pauses, onset, zones.
+        AiPersonal.Effect pe = AiPersonal.of(in.focus, in.cond);
+        phiMax *= pe.phi;
         plan.phiMax = Math.max(0.4, Math.min(1.0, phiMax));
 
         // ---- envelope ceiling (how far above the calibration a person may go)
@@ -142,6 +145,8 @@ public final class AutoPlanner {
                         s.offS += 2;
                         s.rampUpMs += 200;
                     }
+                    s.offS += pe.offS;
+                    s.rampUpMs += pe.rampUpMs;
                 }
             }
             for (int i = 0; i < ph.steps.size(); i++) {
@@ -158,9 +163,13 @@ public final class AutoPlanner {
         }
 
         // ---- zones
+        int[] pz = pe.apply(p.zones);
         for (int i = 0; i < CHANNELS; i++) {
-            plan.zones[i] = p.zones[i];
-            plan.zoneMax[i] = 100;
+            plan.zones[i] = pz[i];
+            plan.zoneMax[i] = pe.zoneMax[i];
+        }
+        for (int i = 0; i < pe.notesBg.size(); i++) {
+            plan.note(pe.notesBg.get(i), pe.notesEn.get(i));
         }
         if (in.extra.breastfeeding) {
             plan.zones[CHEST] = 0;
@@ -171,7 +180,9 @@ public final class AutoPlanner {
             plan.zones[ABS] = Math.min(plan.zones[ABS], 40);
             plan.zoneMax[ABS] = 40;
             plan.zoneLocked[ABS] = in.sessions < 6;
-            plan.note("Диастаза: коремът до 40 %", "Diastasis: abs up to 40 %");
+            if (!in.cond.contains("diastasis")) {
+                plan.note("Диастаза: коремът до 40 %", "Diastasis: abs up to 40 %");
+            }
         }
         AutoLimits.balance(plan.zones);
 

@@ -17,7 +17,29 @@
 # instance fields
 .field public age:I
 
+.field public cond:Ljava/util/Set;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 .field public fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
+
+.field public focus:Ljava/util/Set;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end field
 
 .field public goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
@@ -42,6 +64,7 @@
 .method public constructor <init>()V
     .registers 3
 
+    .prologue
     .line 55
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -92,6 +115,20 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
+    .line 71
+    new-instance v0, Ljava/util/HashSet;
+
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->focus:Ljava/util/Set;
+
+    .line 72
+    new-instance v0, Ljava/util/HashSet;
+
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->cond:Ljava/util/Set;
+
     return-void
 .end method
 
@@ -100,7 +137,8 @@
 .method public isTraining()Z
     .registers 3
 
-    .line 72
+    .prologue
+    .line 75
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
@@ -109,11 +147,11 @@
 
     const/4 v0, 0x1
 
-    goto :goto_9
+    :goto_7
+    return v0
 
     :cond_8
     const/4 v0, 0x0
 
-    :goto_9
-    return v0
+    goto :goto_7
 .end method

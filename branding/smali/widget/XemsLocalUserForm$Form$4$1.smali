@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 299
+    .line 316
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4$1;->this$1:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,20 +40,20 @@
     .registers 3
 
     .prologue
-    .line 301
+    .line 318
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4$1;->this$1:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iput-object p1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->newPhoto:Landroid/graphics/Bitmap;
 
-    .line 302
+    .line 319
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4$1;->this$1:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$4;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->showPhoto(Landroid/graphics/Bitmap;)V
 
-    .line 303
+    .line 320
     return-void
 .end method

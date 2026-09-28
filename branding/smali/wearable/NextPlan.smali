@@ -13,9 +13,13 @@
 
 
 # static fields
+.field static final BIG:[I
+
 .field static final CH:I = 0xa
 
 .field static final DAY:J = 0x5265c00L
+
+.field static final LEGS_GLUTES:[I
 
 .field static final PREFS:Ljava/lang/String; = "xems_next_plan"
 
@@ -29,15 +33,15 @@
     .registers 8
 
     .prologue
-    const/4 v7, 0x4
+    const/4 v7, 0x2
 
-    const/4 v6, 0x3
+    const/4 v6, 0x1
 
-    const/4 v5, 0x2
+    const/4 v5, 0x0
 
-    const/4 v4, 0x1
+    const/4 v4, 0x4
 
-    const/4 v3, 0x0
+    const/4 v3, 0x3
 
     .line 223
     const/16 v0, 0xa
@@ -46,23 +50,23 @@
 
     const-string v1, "\u0433\u044a\u0440\u0434\u0438"
 
-    aput-object v1, v0, v3
+    aput-object v1, v0, v5
 
     const-string v1, "\u043a\u043e\u0440\u0435\u043c"
 
-    aput-object v1, v0, v4
+    aput-object v1, v0, v6
 
     const-string v1, "\u043f\u0440\u0435\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v7
 
     const-string v1, "\u043f\u0440\u0430\u0441\u0446\u0438"
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v3
 
     const-string v1, "\u0440\u044a\u0446\u0435"
 
-    aput-object v1, v0, v7
+    aput-object v1, v0, v4
 
     const/4 v1, 0x5
 
@@ -103,23 +107,23 @@
 
     const-string v1, "chest"
 
-    aput-object v1, v0, v3
+    aput-object v1, v0, v5
 
     const-string v1, "abs"
 
-    aput-object v1, v0, v4
+    aput-object v1, v0, v6
 
     const-string v1, "front thigh"
 
-    aput-object v1, v0, v5
+    aput-object v1, v0, v7
 
     const-string v1, "calves"
 
-    aput-object v1, v0, v6
+    aput-object v1, v0, v3
 
     const-string v1, "arms"
 
-    aput-object v1, v0, v7
+    aput-object v1, v0, v4
 
     const/4 v1, 0x5
 
@@ -153,7 +157,38 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/NextPlan;->ZONES_EN:[Ljava/lang/String;
 
+    .line 387
+    new-array v0, v4, [I
+
+    fill-array-data v0, :array_7e
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/NextPlan;->BIG:[I
+
+    .line 388
+    new-array v0, v3, [I
+
+    fill-array-data v0, :array_8a
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/NextPlan;->LEGS_GLUTES:[I
+
     return-void
+
+    .line 387
+    :array_7e
+    .array-data 4
+        0x2
+        0x9
+        0x8
+        0x6
+    .end array-data
+
+    .line 388
+    :array_8a
+    .array-data 4
+        0x2
+        0x9
+        0x8
+    .end array-data
 .end method
 
 .method private constructor <init>()V
@@ -170,34 +205,34 @@
     .registers 3
 
     .prologue
-    .line 608
+    .line 697
     packed-switch p1, :pswitch_data_10
 
-    .line 616
+    .line 705
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     :goto_5
     return-object v0
 
-    .line 610
+    .line 699
     :pswitch_6
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     goto :goto_5
 
-    .line 612
+    .line 701
     :pswitch_9
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     goto :goto_5
 
-    .line 614
+    .line 703
     :pswitch_c
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     goto :goto_5
 
-    .line 608
+    .line 697
     nop
 
     :pswitch_data_10
@@ -212,7 +247,7 @@
     .registers 3
 
     .prologue
-    .line 475
+    .line 564
     if-ge p0, p1, :cond_3
 
     :goto_2
@@ -231,6 +266,1040 @@
     goto :goto_2
 .end method
 
+.method static condition(Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/NextPlan$Snap;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;D)D
+    .registers 16
+
+    .prologue
+    .line 395
+    const-wide/high16 v4, 0x4022000000000000L    # 9.0
+
+    .line 396
+    const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
+
+    .line 397
+    const-string v0, "fat"
+
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_14
+
+    const-string v0, "cellulite"
+
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_351
+
+    :cond_14
+    const/4 v0, 0x1
+
+    .line 399
+    :goto_15
+    const-string v1, "prediabetes"
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_25
+
+    const-string v1, "pcos"
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_8e
+
+    .line 400
+    :cond_25
+    const-string v1, "prediabetes"
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_354
+
+    const/16 v1, 0xa
+
+    .line 401
+    :goto_2f
+    sget-object v2, Lcom/isaigu/gymapp/wearable/NextPlan;->LEGS_GLUTES:[I
+
+    invoke-static {p2, v2, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_8e
+
+    .line 402
+    iget-object v3, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "prediabetes"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_357
+
+    const-string v2, "\u041f\u0440\u0435\u0434\u0434\u0438\u0430\u0431\u0435\u0442"
+
+    :goto_48
+    invoke-virtual {v8, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v8, " \u2014 \u0431\u0435\u0434\u0440\u0430 \u0438 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435 +"
+
+    invoke-virtual {v2, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v8, " %: \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u0443\u0441\u0432\u043e\u044f\u0432\u0430\u0442 \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e \u0433\u043b\u044e\u043a\u043e\u0437\u0430. \u041d\u0435 \u043d\u0430 \u0433\u043b\u0430\u0434\u043d\u043e."
+
+    invoke-virtual {v2, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 404
+    const-string v2, "prediabetes"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_35b
+
+    const-string v2, "Prediabetes"
+
+    :goto_6f
+    invoke-virtual {v9, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v9, " \u2014 thighs and glutes +"
+
+    invoke-virtual {v2, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v2, "%: the big muscles take up the most glucose. Not on an empty stomach."
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 402
+    invoke-static {v8, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-interface {v3, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 408
+    :cond_8e
+    const-string v1, "menopause"
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_37e
+
+    .line 409
+    sget-object v1, Lcom/isaigu/gymapp/wearable/NextPlan;->BIG:[I
+
+    const/4 v2, 0x5
+
+    invoke-static {p2, v1, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_d6
+
+    .line 410
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "\u041c\u0435\u043d\u043e\u043f\u0430\u0443\u0437\u0430 \u2014 \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 +5 % (\u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0430 \u043c\u0430\u0441\u0430 \u0438 \u043a\u043e\u0441\u0442\u0438)"
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    .line 411
+    if-eqz v0, :cond_35f
+
+    const-string v1, ", \u0446\u0435\u043b\u0442\u0430 \u201e\u043e\u0442\u0441\u043b\u0430\u0431\u0432\u0430\u043d\u0435\u201c \u0438\u0434\u0432\u0430 \u043e\u0442 \u0442\u044f\u0445."
+
+    :goto_b0
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v8, "Menopause \u2014 big muscles +5% (muscle mass and bones)"
+
+    invoke-virtual {v3, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    .line 412
+    if-eqz v0, :cond_363
+
+    const-string v0, ", fat loss comes from them."
+
+    :goto_c7
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 410
+    invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-interface {v2, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 414
+    :cond_d6
+    const-wide v0, 0x3ff0cccccccccccdL    # 1.05
+
+    invoke-static {v4, v5, v0, v1}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v0
+
+    .line 416
+    :goto_df
+    const-string v2, "thyroid"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_fa
+
+    .line 417
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v0
+
+    .line 418
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u0429\u0438\u0442\u043e\u0432\u0438\u0434\u043d\u0430 \u0436\u043b\u0435\u0437\u0430 \u2014 \u0431\u0435\u0437 \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u0435 \u0434\u043d\u0435\u0441; \u0441\u043b\u0435\u0434\u0438 \u0443\u043c\u043e\u0440\u0430\u0442\u0430."
+
+    const-string v4, "Thyroid \u2014 no increase today; watch the fatigue."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 421
+    :cond_fa
+    const-string v2, "water"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_151
+
+    .line 422
+    const/4 v2, 0x1
+
+    new-array v2, v2, [I
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x3
+
+    aput v4, v2, v3
+
+    const/16 v3, -0xa
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    .line 423
+    iget-object v3, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "\u0417\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0435 \u043d\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442\u0438 \u2014 \u043f\u0440\u0430\u0441\u0446\u0438 \u221210 %"
+
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    .line 424
+    const-string v2, "drain"
+
+    invoke-virtual {v2, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_367
+
+    const-string v2, "."
+
+    :goto_125
+    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v5, "Water retention \u2014 calves \u221210%"
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    .line 425
+    const-string v2, "drain"
+
+    invoke-virtual {v2, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_36b
+
+    const-string v2, "."
+
+    :goto_142
+    invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 423
+    invoke-static {v4, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-interface {v3, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 427
+    :cond_151
+    const-string v2, "postpartum"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_175
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [I
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x1
+
+    aput v4, v2, v3
+
+    const/16 v3, -0xf
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_175
+
+    .line 428
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u0421\u043b\u0435\u0434 \u0431\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0441\u0442 \u2014 \u043a\u043e\u0440\u0435\u043c\u044a\u0442 \u221215 %, \u0442\u0430\u0437\u043e\u0432\u043e\u0442\u043e \u0434\u044a\u043d\u043e \u043f\u044a\u0440\u0432\u043e."
+
+    const-string v4, "After pregnancy \u2014 abs \u221215%, pelvic floor first."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 432
+    :cond_175
+    const-string v2, "diastasis"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1ab
+
+    iget-object v2, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    const/4 v3, 0x1
+
+    aget v2, v2, v3
+
+    const/16 v3, 0x14
+
+    if-le v2, v3, :cond_1ab
+
+    .line 433
+    iget-object v2, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    const/4 v3, 0x1
+
+    const/16 v4, 0x14
+
+    iget-object v5, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    const/4 v8, 0x1
+
+    aget v5, v5, v8
+
+    add-int/lit8 v5, v5, -0x19
+
+    const/16 v8, 0x28
+
+    invoke-static {v5, v8}, Ljava/lang/Math;->min(II)I
+
+    move-result v5
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->max(II)I
+
+    move-result v4
+
+    aput v4, v2, v3
+
+    .line 434
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u0414\u0438\u0430\u0441\u0442\u0430\u0437\u0430 \u2014 \u043a\u043e\u0440\u0435\u043c\u044a\u0442 \u0434\u043e 40 %, \u0431\u0435\u0437 \u043d\u0430\u043f\u044a\u0432\u0430\u043d\u0435."
+
+    const-string v4, "Diastasis \u2014 abs at most 40%, no straining."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 436
+    :cond_1ab
+    const-string v2, "back"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1cf
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [I
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x7
+
+    aput v4, v2, v3
+
+    const/16 v3, -0xf
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1cf
+
+    .line 437
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u041a\u0440\u044a\u0441\u0442 \u2014 \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u221215 %, \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435 \u0438 \u043a\u043e\u0440\u0435\u043c \u0433\u043e \u043f\u0430\u0437\u044f\u0442."
+
+    const-string v4, "Lower back \u2014 lower back \u221215%."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 439
+    :cond_1cf
+    const-string v2, "neck"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1f3
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [I
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x5
+
+    aput v4, v2, v3
+
+    const/16 v3, -0xf
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1f3
+
+    .line 440
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u0412\u0440\u0430\u0442 / \u0440\u0430\u043c\u0435\u043d\u0435 \u2014 \u0442\u0440\u0430\u043f\u0435\u0446\u044a\u0442 \u221215 %."
+
+    const-string v4, "Neck / shoulders \u2014 traps \u221215%."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 442
+    :cond_1f3
+    const-string v2, "knees"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_217
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [I
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x2
+
+    aput v4, v2, v3
+
+    const/16 v3, -0xa
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_217
+
+    .line 443
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u041a\u043e\u043b\u0435\u043d\u0435 \u2014 \u043f\u0440\u0435\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e \u221210 %."
+
+    const-string v4, "Knees \u2014 front thigh \u221210%."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 445
+    :cond_217
+    const-string v2, "desk"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_239
+
+    const/4 v2, 0x2
+
+    new-array v2, v2, [I
+
+    fill-array-data v2, :array_382
+
+    const/4 v3, 0x5
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_239
+
+    .line 446
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u0421\u0435\u0434\u044f\u0449\u0430 \u0440\u0430\u0431\u043e\u0442\u0430 \u2014 \u0433\u0440\u044a\u0431 \u0438 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435 +5 % (\u0441\u0442\u043e\u0439\u043a\u0430)."
+
+    const-string v4, "Desk job \u2014 back and glutes +5% (posture)."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 448
+    :cond_239
+    const-string v2, "varicose"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_25c
+
+    const/4 v2, 0x2
+
+    new-array v2, v2, [I
+
+    fill-array-data v2, :array_38a
+
+    const/16 v3, -0xa
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_25c
+
+    .line 449
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u0420\u0430\u0437\u0448\u0438\u0440\u0435\u043d\u0438 \u0432\u0435\u043d\u0438 \u2014 \u043f\u0440\u0430\u0441\u0446\u0438 \u0438 \u0437\u0430\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e \u221210 %."
+
+    const-string v4, "Varicose veins \u2014 calves and back thigh \u221210%."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 451
+    :cond_25c
+    const-string v2, "joints"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_26c
+
+    const-string v2, "osteo"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_2b9
+
+    .line 452
+    :cond_26c
+    const-wide v2, 0x3ff0cccccccccccdL    # 1.05
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v2
+
+    .line 453
+    iget-object v1, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v0, "osteo"
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_36f
+
+    const-string v0, "\u041e\u0441\u0442\u0435\u043e\u043f\u043e\u0440\u043e\u0437\u0430"
+
+    :goto_286
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v4, " \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u0440\u0430\u0441\u0442\u0435 \u043f\u043b\u0430\u0432\u043d\u043e (\u0434\u043e +5 %), \u0431\u0435\u0437 \u0441\u043a\u043e\u043a\u043e\u0432\u0435 \u0438 \u0434\u044a\u043b\u0431\u043e\u043a\u0438 \u043a\u043b\u044f\u043a\u0430\u043d\u0438\u044f."
+
+    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 454
+    const-string v0, "osteo"
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_373
+
+    const-string v0, "Osteoporosis"
+
+    :goto_2a3
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v5, " \u2014 strength rises slowly (\u2264 +5%), no jumps or deep squats."
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 453
+    invoke-static {v4, v0}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    move-wide v0, v2
+
+    .line 457
+    :cond_2b9
+    const-string v2, "senior"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_2e0
+
+    .line 458
+    sget-object v2, Lcom/isaigu/gymapp/wearable/NextPlan;->BIG:[I
+
+    const/4 v3, 0x5
+
+    invoke-static {p2, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_2d7
+
+    .line 459
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "60+ \u2014 \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 +5 %, \u0441\u0438\u043b\u0430\u0442\u0430 \u0440\u0430\u0441\u0442\u0435 \u043f\u043b\u0430\u0432\u043d\u043e."
+
+    const-string v4, "60+ \u2014 big muscles +5%, strength rises slowly."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 461
+    :cond_2d7
+    const-wide v2, 0x3ff0cccccccccccdL    # 1.05
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v0
+
+    .line 463
+    :cond_2e0
+    const-string v2, "stress"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_2fb
+
+    .line 464
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v0
+
+    .line 465
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u041d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435 \u0438 \u0441\u0442\u0440\u0435\u0441 \u2014 \u0431\u0435\u0437 \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u0435, \u0441\u043f\u043e\u043a\u043e\u0439\u043d\u043e \u0442\u0435\u043c\u043f\u043e; \u0442\u0440\u0430\u043f\u0435\u0446 \u0438 \u0433\u0440\u044a\u0431 \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u0442 \u0432 \u043a\u0440\u0430\u044f."
+
+    const-string v4, "Tension and stress \u2014 no increase, calm pace; relax traps and back at the end."
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 468
+    :cond_2fb
+    const-string v2, "sleep"
+
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_37b
+
+    .line 469
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+
+    invoke-static {v0, v1, v2, v3}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v4
+
+    .line 470
+    const-wide v0, 0x3feccccccccccccdL    # 0.9
+
+    invoke-static {v6, v7, v0, v1}, Ljava/lang/Math;->min(DD)D
+
+    move-result-wide v0
+
+    .line 471
+    iget-object v2, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v3, "\u041b\u043e\u0448 \u0441\u044a\u043d / \u0443\u043c\u043e\u0440\u0430 \u2014 \u0431\u0435\u0437 \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u0435 \u0438 \u043f\u043e-\u043a\u0440\u0430\u0442\u043a\u043e."
+
+    const-string v6, "Poor sleep / fatigue \u2014 no increase and shorter."
+
+    invoke-static {v3, v6}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    move-wide v2, v0
+
+    .line 473
+    :goto_320
+    const-string v0, "sensitive"
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_379
+
+    .line 474
+    const-wide v0, 0x3feccccccccccccdL    # 0.9
+
+    mul-double/2addr v0, p4
+
+    .line 475
+    iget-object v6, p3, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    const-string v7, "\u0427\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u0435\u043d \u043a\u044a\u043c \u0442\u043e\u043a\u0430 \u2014 \u221210 %, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e \u043a\u0430\u0447\u0432\u0430\u043d\u0435."
+
+    const-string v8, "Sensitive to current \u2014 \u221210%, raise slowly."
+
+    invoke-static {v7, v8}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-interface {v6, v7}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 477
+    :goto_33b
+    cmpl-double v6, v0, v4
+
+    if-lez v6, :cond_377
+
+    .line 480
+    :goto_33f
+    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
+
+    cmpg-double v0, v2, v0
+
+    if-gez v0, :cond_34d
+
+    .line 481
+    iget v0, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->work:I
+
+    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->shorter(ID)I
+
+    move-result v0
+
+    iput v0, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->work:I
+
+    .line 483
+    :cond_34d
+    invoke-static {p0, p3}, Lcom/isaigu/gymapp/wearable/NextPlan;->mindNotes(Ljava/lang/String;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;)V
+
+    .line 484
+    return-wide v4
+
+    .line 397
+    :cond_351
+    const/4 v0, 0x0
+
+    goto/16 :goto_15
+
+    .line 400
+    :cond_354
+    const/4 v1, 0x5
+
+    goto/16 :goto_2f
+
+    .line 402
+    :cond_357
+    const-string v2, "\u041f\u041a\u041e\u0421"
+
+    goto/16 :goto_48
+
+    .line 404
+    :cond_35b
+    const-string v2, "PCOS"
+
+    goto/16 :goto_6f
+
+    .line 411
+    :cond_35f
+    const-string v1, "."
+
+    goto/16 :goto_b0
+
+    .line 412
+    :cond_363
+    const-string v0, "."
+
+    goto/16 :goto_c7
+
+    .line 424
+    :cond_367
+    const-string v2, "; \u0432 \u043a\u0440\u0430\u044f 10 \u043c\u0438\u043d \u0434\u0440\u0435\u043d\u0430\u0436."
+
+    goto/16 :goto_125
+
+    .line 425
+    :cond_36b
+    const-string v2, "; 10 min drainage at the end."
+
+    goto/16 :goto_142
+
+    .line 453
+    :cond_36f
+    const-string v0, "\u0421\u0442\u0430\u0432\u0438"
+
+    goto/16 :goto_286
+
+    .line 454
+    :cond_373
+    const-string v0, "Joints"
+
+    goto/16 :goto_2a3
+
+    :cond_377
+    move-wide v4, v0
+
+    goto :goto_33f
+
+    :cond_379
+    move-wide v0, p4
+
+    goto :goto_33b
+
+    :cond_37b
+    move-wide v2, v6
+
+    move-wide v4, v0
+
+    goto :goto_320
+
+    :cond_37e
+    move-wide v0, v4
+
+    goto/16 :goto_df
+
+    .line 445
+    nop
+
+    :array_382
+    .array-data 4
+        0x6
+        0x8
+    .end array-data
+
+    .line 448
+    :array_38a
+    .array-data 4
+        0x3
+        0x9
+    .end array-data
+.end method
+
 .method static focusChannels(Ljava/lang/String;)[I
     .registers 4
 
@@ -239,7 +1308,7 @@
 
     const/4 v2, 0x0
 
-    .line 350
+    .line 351
     const-string v0, "abs"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -252,11 +1321,11 @@
 
     aput v1, v0, v2
 
-    .line 356
+    .line 357
     :goto_e
     return-object v0
 
-    .line 351
+    .line 352
     :cond_f
     const-string v0, "glutes"
 
@@ -274,7 +1343,7 @@
 
     goto :goto_e
 
-    .line 352
+    .line 353
     :cond_1e
     const-string v0, "legs"
 
@@ -292,7 +1361,7 @@
 
     goto :goto_e
 
-    .line 353
+    .line 354
     :cond_2d
     const-string v0, "arms"
 
@@ -310,7 +1379,7 @@
 
     goto :goto_e
 
-    .line 354
+    .line 355
     :cond_3b
     const-string v0, "back"
 
@@ -328,7 +1397,7 @@
 
     goto :goto_e
 
-    .line 355
+    .line 356
     :cond_49
     const-string v0, "chest"
 
@@ -344,13 +1413,13 @@
 
     goto :goto_e
 
-    .line 356
+    .line 357
     :cond_56
     new-array v0, v2, [I
 
     goto :goto_e
 
-    .line 352
+    .line 353
     nop
 
     :array_5a
@@ -364,7 +1433,7 @@
     .registers 3
 
     .prologue
-    .line 447
+    .line 536
     const-string v0, "abs"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -381,11 +1450,11 @@
 
     move-result-object v0
 
-    .line 452
+    .line 541
     :goto_10
     return-object v0
 
-    .line 448
+    .line 537
     :cond_11
     const-string v0, "glutes"
 
@@ -405,7 +1474,7 @@
 
     goto :goto_10
 
-    .line 449
+    .line 538
     :cond_22
     const-string v0, "legs"
 
@@ -425,7 +1494,7 @@
 
     goto :goto_10
 
-    .line 450
+    .line 539
     :cond_33
     const-string v0, "arms"
 
@@ -445,7 +1514,7 @@
 
     goto :goto_10
 
-    .line 451
+    .line 540
     :cond_44
     const-string v0, "back"
 
@@ -465,7 +1534,7 @@
 
     goto :goto_10
 
-    .line 452
+    .line 541
     :cond_55
     const-string v0, "\u0433\u044a\u0440\u0434\u0438"
 
@@ -670,7 +1739,7 @@
     .registers 5
 
     .prologue
-    .line 345
+    .line 346
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -741,12 +1810,12 @@
     .end annotation
 
     .prologue
-    .line 480
+    .line 569
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 481
+    .line 570
     if-eqz p0, :cond_d
 
     const-wide/16 v2, 0x0
@@ -755,12 +1824,12 @@
 
     if-gez v1, :cond_e
 
-    .line 494
+    .line 583
     :cond_d
     :goto_d
     return-object v0
 
-    .line 485
+    .line 574
     :cond_e
     :try_start_e
     new-instance v2, Lorg/json/JSONArray;
@@ -771,7 +1840,7 @@
 
     invoke-direct {v2, v1}, Lorg/json/JSONArray;-><init>(Ljava/lang/String;)V
 
-    .line 486
+    .line 575
     const/4 v1, 0x0
 
     :goto_18
@@ -781,12 +1850,12 @@
 
     if-ge v1, v3, :cond_d
 
-    .line 487
+    .line 576
     invoke-virtual {v2, v1}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 488
+    .line 577
     if-eqz v3, :cond_31
 
     const-string v4, "activeS"
@@ -799,18 +1868,18 @@
 
     if-lt v4, v5, :cond_31
 
-    .line 489
+    .line 578
     invoke-interface {v0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
     :try_end_31
     .catch Ljava/lang/Throwable; {:try_start_e .. :try_end_31} :catch_34
 
-    .line 486
+    .line 575
     :cond_31
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_18
 
-    .line 492
+    .line 581
     :catch_34
     move-exception v1
 
@@ -821,12 +1890,12 @@
     .registers 18
 
     .prologue
-    .line 365
+    .line 366
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 366
+    .line 367
     const/4 v0, 0x0
 
     aget-object v0, p0, v0
@@ -848,15 +1917,15 @@
 
     aget-object v6, v4, v2
 
-    .line 367
+    .line 368
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/NextPlan;->focusChannels(Ljava/lang/String;)[I
 
     move-result-object v7
 
-    .line 368
+    .line 369
     const/4 v0, 0x0
 
-    .line 369
+    .line 370
     array-length v8, v7
 
     const/4 v1, 0x0
@@ -866,7 +1935,7 @@
 
     aget v9, v7, v1
 
-    .line 370
+    .line 371
     iget-object v10, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
 
     aget v10, v10, v9
@@ -881,7 +1950,7 @@
 
     if-ge v10, v11, :cond_3f
 
-    .line 371
+    .line 372
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
 
     const/16 v10, 0x64
@@ -898,27 +1967,27 @@
 
     aput v10, v0, v9
 
-    .line 372
+    .line 373
     const/4 v0, 0x1
 
-    .line 369
+    .line 370
     :cond_3f
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1c
 
-    .line 375
+    .line 376
     :cond_42
     if-eqz v0, :cond_4b
 
-    .line 376
+    .line 377
     invoke-static {v6}, Lcom/isaigu/gymapp/wearable/NextPlan;->focusName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     invoke-interface {v3, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 366
+    .line 367
     :cond_4b
     add-int/lit8 v0, v2, 0x1
 
@@ -926,7 +1995,7 @@
 
     goto :goto_11
 
-    .line 379
+    .line 380
     :cond_4f
     invoke-interface {v3}, Ljava/util/List;->isEmpty()Z
 
@@ -934,7 +2003,7 @@
 
     if-nez v0, :cond_98
 
-    .line 380
+    .line 381
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -999,239 +2068,39 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 382
+    .line 383
     :cond_98
     const/4 v0, 0x1
 
     aget-object v0, p0, v0
 
-    .line 383
-    const-string v1, "back"
+    array-length v1, p0
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
+    const/4 v2, 0x2
 
-    move-result v1
+    if-le v1, v2, :cond_ab
 
-    if-eqz v1, :cond_cb
+    const/4 v1, 0x2
 
-    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+    aget-object v1, p0, v1
 
-    const/4 v2, 0x7
+    :goto_a2
+    move-object v2, p1
 
-    aget v1, v1, v2
+    move-object v3, p2
 
-    const/16 v2, 0x14
+    move-wide/from16 v4, p3
 
-    if-le v1, v2, :cond_cb
+    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/NextPlan;->condition(Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/NextPlan$Snap;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;D)D
 
-    .line 384
-    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+    move-result-wide v0
 
-    const/4 v2, 0x7
+    return-wide v0
 
-    const/16 v3, 0x14
+    :cond_ab
+    const-string v1, ""
 
-    iget-object v4, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
-
-    const/4 v5, 0x7
-
-    aget v4, v4, v5
-
-    add-int/lit8 v4, v4, -0xf
-
-    invoke-static {v3, v4}, Ljava/lang/Math;->max(II)I
-
-    move-result v3
-
-    aput v3, v1, v2
-
-    .line 385
-    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
-
-    const-string v2, "\u0411\u043e\u043b\u043a\u0438 \u0432 \u043a\u0440\u044a\u0441\u0442\u0430 \u2014 \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u221215 %."
-
-    const-string v3, "Lower back pain \u2014 lower back \u221215%."
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 387
-    :cond_cb
-    const-string v1, "neck"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_fb
-
-    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
-
-    const/4 v2, 0x5
-
-    aget v1, v1, v2
-
-    const/16 v2, 0x14
-
-    if-le v1, v2, :cond_fb
-
-    .line 388
-    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
-
-    const/4 v2, 0x5
-
-    const/16 v3, 0x14
-
-    iget-object v4, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
-
-    const/4 v5, 0x5
-
-    aget v4, v4, v5
-
-    add-int/lit8 v4, v4, -0xf
-
-    invoke-static {v3, v4}, Ljava/lang/Math;->max(II)I
-
-    move-result v3
-
-    aput v3, v1, v2
-
-    .line 389
-    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
-
-    const-string v2, "\u0412\u0440\u0430\u0442 / \u0440\u0430\u043c\u0435\u043d\u0435 \u2014 \u0442\u0440\u0430\u043f\u0435\u0446\u044a\u0442 \u221215 %."
-
-    const-string v3, "Neck / shoulders \u2014 traps \u221215%."
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 391
-    :cond_fb
-    const-string v1, "postpartum"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_12b
-
-    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
-
-    const/4 v2, 0x1
-
-    aget v1, v1, v2
-
-    const/16 v2, 0x14
-
-    if-le v1, v2, :cond_12b
-
-    .line 392
-    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
-
-    const/4 v2, 0x1
-
-    const/16 v3, 0x14
-
-    iget-object v4, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
-
-    const/4 v5, 0x1
-
-    aget v4, v4, v5
-
-    add-int/lit8 v4, v4, -0xf
-
-    invoke-static {v3, v4}, Ljava/lang/Math;->max(II)I
-
-    move-result v3
-
-    aput v3, v1, v2
-
-    .line 393
-    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
-
-    const-string v2, "\u0420\u0430\u0436\u0434\u0430\u043d\u0435 \u0434\u043e 1 \u0433\u043e\u0434\u0438\u043d\u0430 \u2014 \u043a\u043e\u0440\u0435\u043c\u044a\u0442 \u221215 %."
-
-    const-string v3, "Birth within a year \u2014 abs \u221215%."
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 395
-    :cond_12b
-    const-string v1, "sensitive"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_147
-
-    .line 396
-    const-wide v2, 0x3feccccccccccccdL    # 0.9
-
-    mul-double p3, p3, v2
-
-    .line 397
-    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
-
-    const-string v2, "\u0427\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u043d\u043e\u0441\u0442 \u043a\u044a\u043c \u0442\u043e\u043a\u0430 \u2014 \u221210 %, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e \u043a\u0430\u0447\u0432\u0430\u043d\u0435."
-
-    const-string v3, "Sensitive to current \u2014 \u221210%, raise slowly."
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 399
-    :cond_147
-    const-string v1, "stress"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_164
-
-    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
-
-    cmpl-double v1, p3, v2
-
-    if-lez v1, :cond_164
-
-    .line 400
-    const-wide/high16 p3, 0x3ff0000000000000L    # 1.0
-
-    .line 401
-    iget-object v1, p2, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
-
-    const-string v2, "\u0421\u0442\u0440\u0435\u0441 / \u043b\u043e\u0448 \u0441\u044a\u043d \u2014 \u0431\u0435\u0437 \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u0435 \u0434\u043d\u0435\u0441."
-
-    const-string v3, "Stress / poor sleep \u2014 no increase today."
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 403
-    :cond_164
-    invoke-static {v0, p2}, Lcom/isaigu/gymapp/wearable/NextPlan;->mindNotes(Ljava/lang/String;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;)V
-
-    .line 404
-    return-wide p3
+    goto :goto_a2
 .end method
 
 .method private static join(Ljava/util/List;)Ljava/lang/String;
@@ -1248,12 +2117,12 @@
     .end annotation
 
     .prologue
-    .line 464
+    .line 553
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 465
+    .line 554
     const/4 v0, 0x0
 
     move v1, v0
@@ -1265,15 +2134,15 @@
 
     if-ge v1, v0, :cond_21
 
-    .line 466
+    .line 555
     if-lez v1, :cond_14
 
-    .line 467
+    .line 556
     const-string v0, ", "
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 469
+    .line 558
     :cond_14
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
@@ -1283,14 +2152,14 @@
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 465
+    .line 554
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_7
 
-    .line 471
+    .line 560
     :cond_21
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1347,23 +2216,23 @@
     .registers 7
 
     .prologue
-    .line 622
+    .line 711
     if-nez p0, :cond_5
 
-    .line 623
+    .line 712
     const-string v0, ""
 
-    .line 633
+    .line 722
     :goto_4
     return-object v0
 
-    .line 625
+    .line 714
     :cond_5
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 626
+    .line 715
     const-string v1, "\u0441\u0438\u043b\u0430 "
 
     const-string v2, "strength "
@@ -1380,12 +2249,12 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 627
+    .line 716
     iget v1, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->hz:I
 
     if-lez v1, :cond_30
 
-    .line 628
+    .line 717
     const-string v1, " \u00b7 "
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1402,13 +2271,13 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 630
+    .line 719
     :cond_30
     iget v1, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->work:I
 
     if-lez v1, :cond_53
 
-    .line 631
+    .line 720
     const-string v1, " \u00b7 "
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1441,7 +2310,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 633
+    .line 722
     :cond_53
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1528,15 +2397,15 @@
     .end annotation
 
     .prologue
-    .line 499
+    .line 588
     const/16 v0, 0xa
 
     new-array v3, v0, [D
 
-    .line 500
+    .line 589
     const/4 v2, 0x0
 
-    .line 501
+    .line 590
     const/4 v0, 0x0
 
     move v1, v0
@@ -1548,21 +2417,21 @@
 
     if-ge v1, v0, :cond_80
 
-    .line 502
+    .line 591
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lorg/json/JSONObject;
 
-    .line 503
+    .line 592
     const-string v4, "start"
 
     invoke-virtual {v0, v4}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
 
     move-result-wide v4
 
-    .line 504
+    .line 593
     const-wide/16 v6, 0x0
 
     cmp-long v6, v4, v6
@@ -1581,7 +2450,7 @@
 
     if-lez v4, :cond_32
 
-    .line 501
+    .line 590
     :cond_2e
     :goto_2e
     add-int/lit8 v0, v1, 0x1
@@ -1590,7 +2459,7 @@
 
     goto :goto_7
 
-    .line 507
+    .line 596
     :cond_32
     const-string v4, "mus"
 
@@ -1598,10 +2467,10 @@
 
     move-result-object v4
 
-    .line 508
+    .line 597
     if-nez v4, :cond_87
 
-    .line 509
+    .line 598
     const-string v4, "chPeak"
 
     invoke-virtual {v0, v4}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
@@ -1610,14 +2479,14 @@
 
     move-object v6, v0
 
-    .line 511
+    .line 600
     :goto_41
     if-eqz v6, :cond_2e
 
-    .line 514
+    .line 603
     const-wide/16 v4, 0x0
 
-    .line 515
+    .line 604
     const/4 v0, 0x0
 
     :goto_46
@@ -1631,7 +2500,7 @@
 
     if-ge v0, v7, :cond_5d
 
-    .line 516
+    .line 605
     const-wide/16 v8, 0x0
 
     invoke-virtual {v6, v0, v8, v9}, Lorg/json/JSONArray;->optDouble(ID)D
@@ -1642,12 +2511,12 @@
 
     move-result-wide v4
 
-    .line 515
+    .line 604
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_46
 
-    .line 518
+    .line 607
     :cond_5d
     const-wide/16 v8, 0x0
 
@@ -1655,7 +2524,7 @@
 
     if-lez v0, :cond_2e
 
-    .line 521
+    .line 610
     const/4 v0, 0x0
 
     :goto_64
@@ -1669,7 +2538,7 @@
 
     if-ge v0, v7, :cond_7d
 
-    .line 522
+    .line 611
     aget-wide v8, v3, v0
 
     const-wide/16 v10, 0x0
@@ -1684,18 +2553,18 @@
 
     aput-wide v8, v3, v0
 
-    .line 521
+    .line 610
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_64
 
-    .line 524
+    .line 613
     :cond_7d
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_2e
 
-    .line 526
+    .line 615
     :cond_80
     const/4 v0, 0x2
 
@@ -1721,7 +2590,7 @@
     .registers 5
 
     .prologue
-    .line 435
+    .line 527
     const-string v0, "knees"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
@@ -1730,7 +2599,7 @@
 
     if-eqz v0, :cond_15
 
-    .line 436
+    .line 528
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
 
     const-string v1, "\u041a\u043e\u043b\u0435\u043d\u0435 \u2014 \u0432\u043d\u0438\u043c\u0430\u043d\u0438\u0435 \u043f\u0440\u0438 \u043a\u043b\u044f\u043a\u0430\u043d\u0438\u044f \u0438 \u043d\u0430\u043f\u0430\u0434\u0438."
@@ -1743,7 +2612,7 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 438
+    .line 530
     :cond_15
     const-string v0, "injury"
 
@@ -1753,7 +2622,7 @@
 
     if-eqz v0, :cond_2a
 
-    .line 439
+    .line 531
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
 
     const-string v1, "\u0421\u0442\u0430\u0440\u0430 \u0442\u0440\u0430\u0432\u043c\u0430 \u2014 \u043f\u043e\u043f\u0438\u0442\u0430\u0439 \u043a\u044a\u0434\u0435, \u043f\u0440\u0435\u0434\u0438 \u0441\u0442\u0430\u0440\u0442\u0430."
@@ -1766,99 +2635,70 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 441
+    .line 533
     :cond_2a
-    const-string v0, "desk"
-
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_3f
-
-    .line 442
-    iget-object v0, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
-
-    const-string v1, "\u0421\u0435\u0434\u044f\u0449\u0430 \u0440\u0430\u0431\u043e\u0442\u0430 \u2014 \u043f\u043e\u0432\u0435\u0447\u0435 \u0433\u0440\u044a\u0431 \u0438 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435, \u0441\u0442\u043e\u0439\u043a\u0430."
-
-    const-string v2, "Desk job \u2014 more back and glutes, posture."
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 444
-    :cond_3f
     return-void
 .end method
 
 .method static mindOnly([Ljava/lang/String;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;)V
-    .registers 12
+    .registers 9
 
     .prologue
-    const/4 v7, 0x3
+    const/4 v0, 0x0
 
-    const/4 v9, 0x2
+    .line 503
+    new-instance v2, Ljava/util/ArrayList;
 
-    const/4 v8, 0x1
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    const/4 v2, 0x0
-
-    .line 409
-    new-instance v1, Ljava/util/ArrayList;
-
-    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
-
-    .line 410
-    aget-object v0, p0, v2
+    .line 504
+    aget-object v1, p0, v0
 
     const-string v3, ","
 
-    invoke-virtual {v0, v3}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+    invoke-virtual {v1, v3}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v3
 
     array-length v4, v3
 
-    move v0, v2
+    move v1, v0
 
-    :goto_13
-    if-ge v0, v4, :cond_27
+    :goto_10
+    if-ge v1, v4, :cond_24
 
-    aget-object v5, v3, v0
+    aget-object v5, v3, v1
 
-    .line 411
+    .line 505
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
     move-result v6
 
-    if-lez v6, :cond_24
+    if-lez v6, :cond_21
 
-    .line 412
+    .line 506
     invoke-static {v5}, Lcom/isaigu/gymapp/wearable/NextPlan;->focusName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    invoke-interface {v1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    invoke-interface {v2, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 410
+    .line 504
+    :cond_21
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_10
+
+    .line 509
     :cond_24
-    add-int/lit8 v0, v0, 0x1
+    invoke-interface {v2}, Ljava/util/List;->isEmpty()Z
 
-    goto :goto_13
+    move-result v1
 
-    .line 415
-    :cond_27
-    invoke-interface {v1}, Ljava/util/List;->isEmpty()Z
+    if-nez v1, :cond_6d
 
-    move-result v0
-
-    if-nez v0, :cond_70
-
-    .line 416
-    iget-object v0, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+    .line 510
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
 
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -1870,7 +2710,7 @@
 
     move-result-object v3
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
 
     move-result-object v4
 
@@ -1898,225 +2738,11 @@
 
     move-result-object v4
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v4, "."
-
-    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v3, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 418
-    :cond_70
-    aget-object v3, p0, v8
-
-    .line 419
-    new-instance v4, Ljava/util/ArrayList;
-
-    invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
-
-    .line 420
-    const/4 v0, 0x5
-
-    new-array v5, v0, [[Ljava/lang/String;
-
-    new-array v0, v7, [Ljava/lang/String;
-
-    const-string v1, "back"
-
-    aput-object v1, v0, v2
-
-    const-string v1, "\u043a\u0440\u044a\u0441\u0442"
-
-    aput-object v1, v0, v8
-
-    const-string v1, "lower back"
-
-    aput-object v1, v0, v9
-
-    aput-object v0, v5, v2
-
-    new-array v0, v7, [Ljava/lang/String;
-
-    const-string v1, "neck"
-
-    aput-object v1, v0, v2
-
-    const-string v1, "\u0432\u0440\u0430\u0442 / \u0440\u0430\u043c\u0435\u043d\u0435"
-
-    aput-object v1, v0, v8
-
-    const-string v1, "neck / shoulders"
-
-    aput-object v1, v0, v9
-
-    aput-object v0, v5, v8
-
-    new-array v0, v7, [Ljava/lang/String;
-
-    const-string v1, "postpartum"
-
-    aput-object v1, v0, v2
-
-    const-string v1, "\u0440\u0430\u0436\u0434\u0430\u043d\u0435 \u0434\u043e 1 \u0433."
-
-    aput-object v1, v0, v8
-
-    const-string v1, "birth within a year"
-
-    aput-object v1, v0, v9
-
-    aput-object v0, v5, v9
-
-    new-array v0, v7, [Ljava/lang/String;
-
-    const-string v1, "sensitive"
-
-    aput-object v1, v0, v2
-
-    const-string v1, "\u0447\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u043d\u043e\u0441\u0442 \u043a\u044a\u043c \u0442\u043e\u043a\u0430"
-
-    aput-object v1, v0, v8
-
-    const-string v1, "sensitive to current"
-
-    aput-object v1, v0, v9
-
-    aput-object v0, v5, v7
-
-    const/4 v0, 0x4
-
-    new-array v1, v7, [Ljava/lang/String;
-
-    const-string v6, "stress"
-
-    aput-object v6, v1, v2
-
-    const-string v6, "\u0441\u0442\u0440\u0435\u0441 / \u0441\u044a\u043d"
-
-    aput-object v6, v1, v8
-
-    const-string v6, "stress / sleep"
-
-    aput-object v6, v1, v9
-
-    aput-object v1, v5, v0
-
-    .line 423
-    array-length v6, v5
-
-    move v1, v2
-
-    :goto_cd
-    if-ge v1, v6, :cond_eb
-
-    aget-object v0, v5, v1
-
-    .line 424
-    aget-object v7, v0, v2
-
-    invoke-static {v3, v7}, Lcom/isaigu/gymapp/wearable/NextPlan;->has(Ljava/lang/String;Ljava/lang/String;)Z
-
-    move-result v7
-
-    if-eqz v7, :cond_e4
-
-    .line 425
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
-
-    move-result v7
-
-    if-eqz v7, :cond_e8
-
-    aget-object v0, v0, v8
-
-    :goto_e1
-    invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 423
-    :cond_e4
-    add-int/lit8 v0, v1, 0x1
-
-    move v1, v0
-
-    goto :goto_cd
-
-    .line 425
-    :cond_e8
-    aget-object v0, v0, v9
-
-    goto :goto_e1
-
-    .line 428
-    :cond_eb
-    invoke-interface {v4}, Ljava/util/List;->isEmpty()Z
-
-    move-result v0
-
-    if-nez v0, :cond_134
-
-    .line 429
-    iget-object v0, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
-
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v2, "\u0414\u0430 \u0441\u0435 \u0441\u044a\u043e\u0431\u0440\u0430\u0437\u0438: "
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
 
     move-result-object v2
 
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, "."
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v5, "Mind: "
-
-    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
@@ -2130,38 +2756,160 @@
 
     move-result-object v2
 
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object v2
 
-    invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 431
-    :cond_134
-    invoke-static {v3, p1}, Lcom/isaigu/gymapp/wearable/NextPlan;->mindNotes(Ljava/lang/String;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;)V
+    .line 512
+    :cond_6d
+    const/4 v1, 0x1
 
-    .line 432
+    aget-object v1, p0, v1
+
+    .line 513
+    new-instance v2, Ljava/util/ArrayList;
+
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+
+    .line 514
+    const-string v3, ","
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v3
+
+    array-length v4, v3
+
+    :goto_7c
+    if-ge v0, v4, :cond_90
+
+    aget-object v5, v3, v0
+
+    .line 515
+    invoke-virtual {v5}, Ljava/lang/String;->length()I
+
+    move-result v6
+
+    if-lez v6, :cond_8d
+
+    .line 516
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/NextClient;->condName(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-interface {v2, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 514
+    :cond_8d
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_7c
+
+    .line 519
+    :cond_90
+    invoke-interface {v2}, Ljava/util/List;->isEmpty()Z
+
+    move-result v0
+
+    if-nez v0, :cond_d9
+
+    .line 520
+    iget-object v0, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Rec;->why:Ljava/util/List;
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "\u0421\u044a\u0441\u0442\u043e\u044f\u043d\u0438\u0435: "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u0441\u0435 \u043d\u0430\u0433\u043b\u0430\u0441\u044f\u0432\u0430 \u043d\u0430 \u043c\u044f\u0441\u0442\u043e, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e."
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v5, "Condition: "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    .line 521
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->join(Ljava/util/List;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v4, " \u2014 set the strength on the spot, gently."
+
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 520
+    invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/NextPlan;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 523
+    :cond_d9
+    invoke-static {v1, p1}, Lcom/isaigu/gymapp/wearable/NextPlan;->mindNotes(Ljava/lang/String;Lcom/isaigu/gymapp/wearable/NextPlan$Rec;)V
+
+    .line 524
     return-void
 .end method
 
 .method static own(Landroid/content/Context;Lcom/isaigu/gymapp/bean/TrainUser;)[Ljava/lang/String;
-    .registers 10
+    .registers 11
 
     .prologue
-    const/4 v2, 0x2
+    const/4 v4, 0x3
+
+    const/4 v8, 0x2
 
     const/4 v7, 0x1
 
     const/4 v6, 0x0
 
     .line 337
-    if-eqz p0, :cond_7
+    if-eqz p0, :cond_8
 
-    if-nez p1, :cond_12
+    if-nez p1, :cond_17
 
     .line 338
-    :cond_7
-    new-array v0, v2, [Ljava/lang/String;
+    :cond_8
+    new-array v0, v4, [Ljava/lang/String;
 
     const-string v1, ""
 
@@ -2171,12 +2919,16 @@
 
     aput-object v1, v0, v7
 
-    .line 341
-    :goto_11
+    const-string v1, ""
+
+    aput-object v1, v0, v8
+
+    .line 342
+    :goto_16
     return-object v0
 
     .line 340
-    :cond_12
+    :cond_17
     const-string v0, "xems_user_profiles"
 
     invoke-virtual {p0, v0, v6}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
@@ -2184,65 +2936,104 @@
     move-result-object v1
 
     .line 341
-    new-array v0, v2, [Ljava/lang/String;
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v2, "u"
 
-    const-string v3, "focus"
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+
+    iget-wide v2, p1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
+
+    invoke-virtual {v0, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v2, ""
+
+    invoke-interface {v1, v0, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v2, "\\|"
+
+    const/4 v3, -0x1
+
+    invoke-virtual {v0, v2, v3}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
 
     move-result-object v2
+
+    .line 342
+    new-array v0, v4, [Ljava/lang/String;
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "focus"
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
 
     iget-wide v4, p1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    invoke-virtual {v2, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
 
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v3
 
-    const-string v3, ""
+    const-string v4, ""
 
-    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-interface {v1, v3, v4}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v3
 
-    aput-object v2, v0, v6
+    aput-object v3, v0, v6
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    new-instance v3, Ljava/lang/StringBuilder;
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v3, "cond"
+    const-string v4, "cond"
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
 
     iget-wide v4, p1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    invoke-virtual {v2, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
 
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v3
 
-    const-string v3, ""
+    const-string v4, ""
 
-    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-interface {v1, v3, v4}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
     aput-object v1, v0, v7
 
-    goto :goto_11
+    aget-object v1, v2, v6
+
+    aput-object v1, v0, v8
+
+    goto :goto_16
 .end method
 
 .method static program(Lcom/isaigu/gymapp/bean/TrainUser;Lcom/isaigu/gymapp/wearable/NextPlan$Snap;Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -2257,14 +3048,14 @@
 
     const/4 v2, 0x0
 
-    .line 536
-    .line 538
+    .line 625
+    .line 627
     :try_start_6
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v4
 
-    .line 539
+    .line 628
     if-eqz v4, :cond_106
 
     if-eqz p0, :cond_106
@@ -2281,7 +3072,7 @@
 
     if-lez v0, :cond_106
 
-    .line 540
+    .line 629
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
 
     invoke-virtual {v4, v0}, Lcom/isaigu/gymapp/mgr/DataMgr;->getProgramData(Ljava/lang/String;)Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -2290,7 +3081,7 @@
 
     move-result-object v0
 
-    .line 542
+    .line 631
     :goto_20
     if-nez v0, :cond_38
 
@@ -2311,7 +3102,7 @@
 
     if-nez v5, :cond_38
 
-    .line 543
+    .line 632
     iget-object v5, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->program:Ljava/lang/String;
 
     invoke-virtual {v4, v5}, Lcom/isaigu/gymapp/mgr/DataMgr;->getProgramData(Ljava/lang/String;)Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -2320,30 +3111,30 @@
 
     move-result-object v0
 
-    .line 547
+    .line 636
     :cond_38
     :goto_38
     if-nez v0, :cond_40
 
     if-eqz p2, :cond_40
 
-    .line 548
+    .line 637
     invoke-virtual {p2}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    .line 550
+    .line 639
     :cond_40
     if-nez v0, :cond_44
 
     move-object v0, v1
 
-    .line 604
+    .line 693
     :cond_43
     :goto_43
     return-object v0
 
-    .line 553
+    .line 642
     :cond_44
     invoke-static {v0}, Lcom/isaigu/gymapp/utils/BeanUtils;->cloneObject(Ljava/lang/Object;)Ljava/lang/Object;
 
@@ -2351,12 +3142,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 554
+    .line 643
     if-eqz v0, :cond_43
 
     if-eqz p1, :cond_43
 
-    .line 557
+    .line 646
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->type:I
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/NextPlan;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
@@ -2365,26 +3156,26 @@
 
     if-eqz v1, :cond_5a
 
-    .line 558
+    .line 647
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->type:I
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
 
-    .line 560
+    .line 649
     :cond_5a
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v6
 
-    .line 561
+    .line 650
     if-eqz v6, :cond_43
 
-    .line 564
+    .line 653
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->st:I
 
     if-lez v1, :cond_6c
 
-    .line 565
+    .line 654
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->st:I
 
     invoke-static {v1, v2, v7}, Lcom/isaigu/gymapp/wearable/NextPlan;->clamp(III)I
@@ -2393,84 +3184,84 @@
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 567
+    .line 656
     :cond_6c
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->hz:I
 
     if-lez v1, :cond_74
 
-    .line 568
+    .line 657
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->hz:I
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    .line 570
+    .line 659
     :cond_74
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->pw:I
 
     if-lez v1, :cond_7c
 
-    .line 571
+    .line 660
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->pw:I
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    .line 573
+    .line 662
     :cond_7c
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->on:I
 
     if-lez v1, :cond_84
 
-    .line 574
+    .line 663
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->on:I
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    .line 576
+    .line 665
     :cond_84
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->off:I
 
     if-lez v1, :cond_8c
 
-    .line 577
+    .line 666
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->off:I
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
-    .line 579
+    .line 668
     :cond_8c
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->work:I
 
     if-lez v1, :cond_94
 
-    .line 580
+    .line 669
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->work:I
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
 
-    .line 582
+    .line 671
     :cond_94
     iget-boolean v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ap:Z
 
     iput-boolean v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 583
+    .line 672
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ps:I
 
     if-lez v1, :cond_a0
 
-    .line 584
+    .line 673
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ps:I
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    .line 586
+    .line 675
     :cond_a0
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->phz:I
 
     if-lez v1, :cond_a8
 
-    .line 587
+    .line 676
     iget v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->phz:I
 
     iput v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
@@ -2480,11 +3271,11 @@
 
     move v5, v2
 
-    .line 590
+    .line 679
     :goto_aa
     if-ge v4, v3, :cond_ba
 
-    .line 591
+    .line 680
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
 
     aget v1, v1, v4
@@ -2496,7 +3287,7 @@
     :goto_b3
     or-int/2addr v5, v1
 
-    .line 590
+    .line 679
     add-int/lit8 v1, v4, 0x1
 
     move v4, v1
@@ -2506,26 +3297,26 @@
     :cond_b8
     move v1, v2
 
-    .line 591
+    .line 680
     goto :goto_b3
 
-    .line 593
+    .line 682
     :cond_ba
     if-eqz v5, :cond_43
 
-    .line 594
+    .line 683
     iget-object v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     if-nez v1, :cond_c7
 
-    .line 595
+    .line 684
     new-instance v1, Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/bean/PartStrenthBean;-><init>()V
 
     iput-object v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    .line 597
+    .line 686
     :cond_c7
     iget-object v1, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
@@ -2543,7 +3334,7 @@
 
     move-result v1
 
-    .line 598
+    .line 687
     :goto_d6
     iget-object v4, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
@@ -2562,11 +3353,11 @@
     :goto_e4
     move v4, v2
 
-    .line 599
+    .line 688
     :goto_e5
     if-ge v4, v3, :cond_f9
 
-    .line 600
+    .line 689
     iget-object v5, p1, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
 
     aget v5, v5, v4
@@ -2577,7 +3368,7 @@
 
     aput v5, v1, v4
 
-    .line 599
+    .line 688
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_e5
@@ -2585,16 +3376,16 @@
     :cond_f4
     move v1, v3
 
-    .line 597
+    .line 686
     goto :goto_d6
 
-    .line 598
+    .line 687
     :cond_f6
     new-array v1, v1, [I
 
     goto :goto_e4
 
-    .line 602
+    .line 691
     :cond_f9
     iget-object v2, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
@@ -2602,7 +3393,7 @@
 
     goto/16 :goto_43
 
-    .line 545
+    .line 634
     :catch_ff
     move-exception v0
 
@@ -4204,14 +4995,14 @@
     .registers 8
 
     .prologue
-    .line 456
+    .line 545
     if-gtz p0, :cond_3
 
-    .line 460
+    .line 549
     :goto_2
     return p0
 
-    .line 459
+    .line 548
     :cond_3
     int-to-double v0, p0
 
@@ -4229,7 +5020,7 @@
 
     mul-int/lit8 v0, v0, 0x3c
 
-    .line 460
+    .line 549
     const/16 v1, 0x258
 
     invoke-static {p0, v1}, Ljava/lang/Math;->min(II)I
@@ -4407,4 +5198,115 @@
     move-result-object v0
 
     return-object v0
+.end method
+
+.method static zones(Lcom/isaigu/gymapp/wearable/NextPlan$Snap;[II)Z
+    .registers 10
+
+    .prologue
+    const/4 v2, 0x0
+
+    .line 489
+    .line 490
+    array-length v5, p1
+
+    move v4, v2
+
+    move v3, v2
+
+    :goto_4
+    if-ge v4, v5, :cond_45
+
+    aget v6, p1, v4
+
+    .line 491
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    aget v0, v0, v6
+
+    if-gtz v0, :cond_14
+
+    move v0, v3
+
+    .line 490
+    :goto_f
+    add-int/lit8 v1, v4, 0x1
+
+    move v4, v1
+
+    move v3, v0
+
+    goto :goto_4
+
+    .line 494
+    :cond_14
+    if-lez p2, :cond_2f
+
+    const/16 v0, 0x64
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    aget v1, v1, v6
+
+    add-int/2addr v1, p2
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    .line 495
+    :goto_21
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    aget v1, v1, v6
+
+    if-eq v0, v1, :cond_43
+
+    const/4 v1, 0x1
+
+    :goto_28
+    or-int/2addr v1, v3
+
+    .line 496
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    aput v0, v3, v6
+
+    move v0, v1
+
+    goto :goto_f
+
+    .line 494
+    :cond_2f
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    aget v0, v0, v6
+
+    const/16 v1, 0x14
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/NextPlan$Snap;->ch:[I
+
+    aget v1, v1, v6
+
+    add-int/2addr v1, p2
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    goto :goto_21
+
+    :cond_43
+    move v1, v2
+
+    .line 495
+    goto :goto_28
+
+    .line 498
+    :cond_45
+    return v3
 .end method

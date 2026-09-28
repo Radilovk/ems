@@ -332,13 +332,14 @@ public final class NextPlan {
 
     // ================================================================ the client's own profile
 
-    /** {focus csv, cond csv} the client gave in the booking app (widget/XemsClientSync keeps them). */
+    /** {focus csv, cond csv, goal} from the client form / the booking app (widget/XemsClientSync keeps them). */
     static String[] own(Context c, TrainUser u) {
         if (c == null || u == null) {
-            return new String[] {"", ""};
+            return new String[] {"", "", ""};
         }
         SharedPreferences p = c.getSharedPreferences("xems_user_profiles", Context.MODE_PRIVATE);
-        return new String[] {p.getString("focus" + u.id, ""), p.getString("cond" + u.id, "")};
+        String[] parts = p.getString("u" + u.id, "").split("\\|", -1);
+        return new String[] {p.getString("focus" + u.id, ""), p.getString("cond" + u.id, ""), parts[0]};
     }
 
     static boolean has(String csv, String k) {
@@ -379,29 +380,122 @@ public final class NextPlan {
         if (!fz.isEmpty()) {
             rec.why.add(tr("Клиентът иска акцент на: " + join(fz) + " — +5 %.", "The client wants more on: " + join(fz) + " — +5%."));
         }
-        String cond = own[1];
-        if (has(cond, "back") && n.ch[7] > 20) {
-            n.ch[7] = Math.max(20, n.ch[7] - 15);
-            rec.why.add(tr("Болки в кръста — кръстът −15 %.", "Lower back pain — lower back −15%."));
+        return condition(own[1], own.length > 2 ? own[2] : "", n, rec, k);
+    }
+
+    // Channels: chest 0, abs 1, front thigh 2, calves 3, arms 4, traps 5, back 6, lower back 7, glutes 8, back thigh 9.
+    static final int[] BIG = {2, 9, 8, 6};
+    static final int[] LEGS_GLUTES = {2, 9, 8};
+
+    /**
+     * The client's state — never a stop, it shapes the approach: which zones carry the load, how much the
+     * strength may rise today and how long the work part is. Each rule says what it did in the reasons.
+     */
+    static double condition(String cond, String goal, Snap n, Rec rec, double k) {
+        double cap = 9;                                    // the most the strength may rise today (× last)
+        double workF = 1.0;
+        boolean fat = "fat".equals(goal) || "cellulite".equals(goal);
+        // hormones and metabolism
+        if (has(cond, "prediabetes") || has(cond, "pcos")) {
+            int up = has(cond, "prediabetes") ? 10 : 5;
+            if (zones(n, LEGS_GLUTES, up)) {
+                rec.why.add(tr((has(cond, "prediabetes") ? "Преддиабет" : "ПКОС") + " — бедра и седалище +" + up
+                        + " %: големите мускули усвояват най-много глюкоза. Не на гладно.",
+                        (has(cond, "prediabetes") ? "Prediabetes" : "PCOS") + " — thighs and glutes +" + up
+                        + "%: the big muscles take up the most glucose. Not on an empty stomach."));
+            }
         }
-        if (has(cond, "neck") && n.ch[5] > 20) {
-            n.ch[5] = Math.max(20, n.ch[5] - 15);
+        if (has(cond, "menopause")) {
+            if (zones(n, BIG, 5)) {
+                rec.why.add(tr("Менопауза — големите мускули +5 % (мускулна маса и кости)"
+                        + (fat ? ", целта „отслабване“ идва от тях." : "."),
+                        "Menopause — big muscles +5% (muscle mass and bones)" + (fat ? ", fat loss comes from them." : ".")));
+            }
+            cap = Math.min(cap, 1.05);
+        }
+        if (has(cond, "thyroid")) {
+            cap = Math.min(cap, 1.0);
+            rec.why.add(tr("Щитовидна жлеза — без увеличение днес; следи умората.",
+                    "Thyroid — no increase today; watch the fatigue."));
+        }
+        if (has(cond, "water")) {
+            zones(n, new int[] {3}, -10);
+            rec.why.add(tr("Задържане на течности — прасци −10 %"
+                    + ("drain".equals(goal) ? "." : "; в края 10 мин дренаж."),
+                    "Water retention — calves −10%" + ("drain".equals(goal) ? "." : "; 10 min drainage at the end.")));
+        }
+        if (has(cond, "postpartum") && zones(n, new int[] {1}, -15)) {
+            rec.why.add(tr("След бременност — коремът −15 %, тазовото дъно първо.",
+                    "After pregnancy — abs −15%, pelvic floor first."));
+        }
+        // body and joints
+        if (has(cond, "diastasis") && n.ch[1] > 20) {
+            n.ch[1] = Math.max(20, Math.min(n.ch[1] - 25, 40));
+            rec.why.add(tr("Диастаза — коремът до 40 %, без напъване.", "Diastasis — abs at most 40%, no straining."));
+        }
+        if (has(cond, "back") && zones(n, new int[] {7}, -15)) {
+            rec.why.add(tr("Кръст — кръстът −15 %, седалище и корем го пазят.", "Lower back — lower back −15%."));
+        }
+        if (has(cond, "neck") && zones(n, new int[] {5}, -15)) {
             rec.why.add(tr("Врат / рамене — трапецът −15 %.", "Neck / shoulders — traps −15%."));
         }
-        if (has(cond, "postpartum") && n.ch[1] > 20) {
-            n.ch[1] = Math.max(20, n.ch[1] - 15);
-            rec.why.add(tr("Раждане до 1 година — коремът −15 %.", "Birth within a year — abs −15%."));
+        if (has(cond, "knees") && zones(n, new int[] {2}, -10)) {
+            rec.why.add(tr("Колене — предно бедро −10 %.", "Knees — front thigh −10%."));
+        }
+        if (has(cond, "desk") && zones(n, new int[] {6, 8}, 5)) {
+            rec.why.add(tr("Седяща работа — гръб и седалище +5 % (стойка).", "Desk job — back and glutes +5% (posture)."));
+        }
+        if (has(cond, "varicose") && zones(n, new int[] {3, 9}, -10)) {
+            rec.why.add(tr("Разширени вени — прасци и задно бедро −10 %.", "Varicose veins — calves and back thigh −10%."));
+        }
+        if (has(cond, "joints") || has(cond, "osteo")) {
+            cap = Math.min(cap, 1.05);
+            rec.why.add(tr((has(cond, "osteo") ? "Остеопороза" : "Стави") + " — силата расте плавно (до +5 %), без скокове и дълбоки клякания.",
+                    (has(cond, "osteo") ? "Osteoporosis" : "Joints") + " — strength rises slowly (≤ +5%), no jumps or deep squats."));
+        }
+        // lifestyle
+        if (has(cond, "senior")) {
+            if (zones(n, BIG, 5)) {
+                rec.why.add(tr("60+ — големите мускули +5 %, силата расте плавно.", "60+ — big muscles +5%, strength rises slowly."));
+            }
+            cap = Math.min(cap, 1.05);
+        }
+        if (has(cond, "stress")) {
+            cap = Math.min(cap, 1.0);
+            rec.why.add(tr("Напрежение и стрес — без увеличение, спокойно темпо; трапец и гръб се отпускат в края.",
+                    "Tension and stress — no increase, calm pace; relax traps and back at the end."));
+        }
+        if (has(cond, "sleep")) {
+            cap = Math.min(cap, 1.0);
+            workF = Math.min(workF, 0.9);
+            rec.why.add(tr("Лош сън / умора — без увеличение и по-кратко.", "Poor sleep / fatigue — no increase and shorter."));
         }
         if (has(cond, "sensitive")) {
             k *= 0.9;
-            rec.why.add(tr("Чувствителност към тока — −10 %, по-плавно качване.", "Sensitive to current — −10%, raise slowly."));
+            rec.why.add(tr("Чувствителен към тока — −10 %, по-плавно качване.", "Sensitive to current — −10%, raise slowly."));
         }
-        if (has(cond, "stress") && k > 1.0) {
-            k = 1.0;
-            rec.why.add(tr("Стрес / лош сън — без увеличение днес.", "Stress / poor sleep — no increase today."));
+        if (k > cap) {
+            k = cap;
+        }
+        if (workF < 1.0) {
+            n.work = shorter(n.work, workF);
         }
         mindNotes(cond, rec);
         return k;
+    }
+
+    /** Adds {@code pct} to each zone that is on (20..100); true when one changed. */
+    static boolean zones(Snap n, int[] chs, int pct) {
+        boolean any = false;
+        for (int ch : chs) {
+            if (n.ch[ch] <= 0) {
+                continue;                                  // a zone switched off stays off
+            }
+            int v = pct > 0 ? Math.min(100, n.ch[ch] + pct) : Math.max(Math.min(n.ch[ch], 20), n.ch[ch] + pct);
+            any |= v != n.ch[ch];
+            n.ch[ch] = v;
+        }
+        return any;
     }
 
     /** First training (no settings yet): only what to tell the trainer. */
@@ -417,16 +511,14 @@ public final class NextPlan {
         }
         String cond = own[1];
         List<String> m = new ArrayList<String>();
-        String[][] names = {{"back", "кръст", "lower back"}, {"neck", "врат / рамене", "neck / shoulders"},
-                {"postpartum", "раждане до 1 г.", "birth within a year"}, {"sensitive", "чувствителност към тока", "sensitive to current"},
-                {"stress", "стрес / сън", "stress / sleep"}};
-        for (String[] r : names) {
-            if (has(cond, r[0])) {
-                m.add(XemsLang.isBg() ? r[1] : r[2]);
+        for (String c : cond.split(",")) {
+            if (c.length() > 0) {
+                m.add(NextClient.condName(c));
             }
         }
         if (!m.isEmpty()) {
-            rec.why.add(tr("Да се съобрази: " + join(m) + ".", "Mind: " + join(m) + "."));
+            rec.why.add(tr("Състояние: " + join(m) + " — силата се нагласява на място, по-плавно.",
+                    "Condition: " + join(m) + " — set the strength on the spot, gently."));
         }
         mindNotes(cond, rec);
     }
@@ -437,9 +529,6 @@ public final class NextPlan {
         }
         if (has(cond, "injury")) {
             rec.why.add(tr("Стара травма — попитай къде, преди старта.", "Old injury — ask where before the start."));
-        }
-        if (has(cond, "desk")) {
-            rec.why.add(tr("Седяща работа — повече гръб и седалище, стойка.", "Desk job — more back and glutes, posture."));
         }
     }
 

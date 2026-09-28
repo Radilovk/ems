@@ -14,8 +14,10 @@ export const CONTRA = ['pregnancy', 'implant', 'cardiovascular', 'circulation', 
 
 /** Zones the client wants worked more (tablet: +5 % on those channels). */
 export const FOCUS = ['abs', 'glutes', 'legs', 'arms', 'back', 'chest'];
-/** Not obstacles — what to take into account (tablet: gentler zones / start, reasons for the trainer). */
-export const COND = ['back', 'neck', 'knees', 'injury', 'desk', 'stress', 'sensitive', 'postpartum'];
+/** The client's state — not obstacles, they shape the approach (tablet: NextPlan.condition). Same keys as XemsLocalUserForm.COND. */
+export const COND = ['menopause', 'prediabetes', 'pcos', 'thyroid', 'water', 'postpartum',
+  'back', 'neck', 'knees', 'joints', 'injury', 'diastasis', 'osteo', 'varicose',
+  'desk', 'stress', 'sleep', 'senior', 'sensitive'];
 
 const CODE_ALPHABET = '23456789abcdefghijkmnpqrstuvwxyz';
 

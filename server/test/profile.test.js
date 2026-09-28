@@ -22,9 +22,9 @@ describe('cleanProfile', () => {
     assert.equal(c.by, 1990);
   });
   it('keeps focus zones and conditions from the known lists', () => {
-    const c = cleanProfile(p({ focus: ['abs', 'x', 'abs'], cond: ['back', 'nope'] }), NOW);
+    const c = cleanProfile(p({ focus: ['abs', 'x', 'abs'], cond: ['back', 'nope', 'menopause'] }), NOW);
     assert.deepEqual(c.focus, ['abs']);
-    assert.deepEqual(c.cond, ['back']);
+    assert.deepEqual(c.cond, ['back', 'menopause']);
   });
   it('needs consent, a name and a contact', () => {
     assert.equal(cleanProfile(p({ consent: false }), NOW), 'consent');

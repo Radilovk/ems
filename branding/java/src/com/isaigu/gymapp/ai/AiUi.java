@@ -944,6 +944,15 @@ final class AiUi {
                 col.addView(banner(a, AiViews.WARN, AiText.flag(f)), matchWrap(a, 10));
             }
         }
+        // The client's focus zones and state: what the plan does for them.
+        if (plan.personal != null && !plan.personal.isEmpty()) {
+            List<String> pn = AiText.t("x", "y").equals("x") ? plan.personal.notesBg : plan.personal.notesEn;
+            StringBuilder b = new StringBuilder(AiText.t("За този клиент:", "For this client:"));
+            for (String n : pn) {
+                b.append("\n• ").append(n);
+            }
+            col.addView(banner(a, AiViews.OK, b.toString()), matchWrap(a, 10));
+        }
         body.addView(scroll(a, col));
         setupFooter(a, AiText.t("Калибриране на силата", "Calibrate strength"), true);
     }

@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 1007
+    .line 1016
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$19$1;->this$0:Lcom/isaigu/gymapp/ai/AiUi$19;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,13 +40,13 @@
     .registers 3
 
     .prologue
-    .line 1010
+    .line 1019
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->startCalibrationStim(Landroid/content/Context;)V
 
-    .line 1011
+    .line 1020
     return-void
 .end method

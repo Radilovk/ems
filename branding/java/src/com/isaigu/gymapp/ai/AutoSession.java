@@ -336,6 +336,11 @@ public final class AutoSession {
                 for (String k : AiScreening.CONTRAINDICATIONS) {
                     r.input.screening.contraindications.put(k, p.contraindications.contains(k));
                 }
+                r.input.focus = new java.util.HashSet<String>(p.focus);
+                r.input.cond = new java.util.HashSet<String>(p.cond);
+                if (p.cond.contains("diastasis")) {
+                    r.input.extra.diastasis = true;
+                }
                 if (rows.isEmpty()) {
                     input.goal = AutoCatalog.goalOf(p.goal);
                     input.kind = AutoCatalog.kindOf(p.goal);
@@ -383,6 +388,8 @@ public final class AutoSession {
         to.hoursSinceActive = from.hoursSinceActive;
         to.screening = from.screening;
         to.extra = from.extra;
+        to.focus = from.focus;
+        to.cond = from.cond;
     }
 
     /** Session options (program, intensity, …) from the wizard → every row. */

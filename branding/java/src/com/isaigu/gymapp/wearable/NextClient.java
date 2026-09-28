@@ -454,15 +454,27 @@ public final class NextClient {
         return box;
     }
 
+    /** Same keys and words as the client form (widget/XemsLocalUserForm.condName), in lower case. */
     static String condName(String k) {
+        if ("menopause".equals(k)) return tr("менопауза", "menopause");
+        if ("prediabetes".equals(k)) return tr("преддиабет", "prediabetes");
+        if ("pcos".equals(k)) return tr("ПКОС / хормони", "PCOS / hormones");
+        if ("thyroid".equals(k)) return tr("щитовидна жлеза", "thyroid");
+        if ("water".equals(k)) return tr("задържа течности", "water retention");
+        if ("postpartum".equals(k)) return tr("след бременност", "after pregnancy");
         if ("back".equals(k)) return tr("кръст", "lower back");
         if ("neck".equals(k)) return tr("врат / рамене", "neck / shoulders");
         if ("knees".equals(k)) return tr("колене", "knees");
+        if ("joints".equals(k)) return tr("стави", "joints");
         if ("injury".equals(k)) return tr("стара травма", "old injury");
+        if ("diastasis".equals(k)) return tr("диастаза", "diastasis");
+        if ("osteo".equals(k)) return tr("остеопороза", "osteoporosis");
+        if ("varicose".equals(k)) return tr("разширени вени", "varicose veins");
         if ("desk".equals(k)) return tr("седяща работа", "desk job");
-        if ("stress".equals(k)) return tr("стрес / сън", "stress / sleep");
-        if ("sensitive".equals(k)) return tr("чувствителност към тока", "sensitive to current");
-        if ("postpartum".equals(k)) return tr("раждане до 1 г.", "birth within a year");
+        if ("stress".equals(k)) return tr("стрес", "stress");
+        if ("sleep".equals(k)) return tr("лош сън / умора", "poor sleep / fatigue");
+        if ("senior".equals(k)) return tr("60+ / слаби мускули", "60+ / low muscle");
+        if ("sensitive".equals(k)) return tr("чувствителен към тока", "sensitive to current");
         return k;
     }
 

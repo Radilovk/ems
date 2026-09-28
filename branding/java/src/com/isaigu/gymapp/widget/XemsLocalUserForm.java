@@ -60,7 +60,24 @@ public final class XemsLocalUserForm {
     };
     /** Same keys as the booking PWA / server profile.js FOCUS and COND. */
     static final String[] FOCUS = {"abs", "glutes", "legs", "arms", "back", "chest"};
-    static final String[] COND = {"back", "neck", "knees", "injury", "desk", "stress", "sensitive", "postpartum"};
+    /**
+     * The client's state: not an obstacle, it shapes the approach (NextPlan.individual). Grouped for the
+     * form; COND is the flat, canonical order.
+     */
+    static final String[][] COND_GROUPS = {
+            {"menopause", "prediabetes", "pcos", "thyroid", "water", "postpartum"},
+            {"back", "neck", "knees", "joints", "injury", "diastasis", "osteo", "varicose"},
+            {"desk", "stress", "sleep", "senior", "sensitive"},
+    };
+    static final String[] COND = {"menopause", "prediabetes", "pcos", "thyroid", "water", "postpartum",
+            "back", "neck", "knees", "joints", "injury", "diastasis", "osteo", "varicose",
+            "desk", "stress", "sleep", "senior", "sensitive"};
+
+    static String condGroupName(int g) {
+        if (g == 0) return tr("Хормони и обмяна", "Hormones and metabolism");
+        if (g == 1) return tr("Тяло и стави", "Body and joints");
+        return tr("Начин на живот", "Lifestyle");
+    }
 
     private XemsLocalUserForm() {}
 
@@ -109,7 +126,7 @@ public final class XemsLocalUserForm {
         LinearLayout contraBox;
         final LinearLayout[] medRow = new LinearLayout[1];
         final LinearLayout[] focusRows = new LinearLayout[2];
-        final LinearLayout[] condRows = new LinearLayout[3];
+        LinearLayout condBox;
         final LinearLayout[] sexRow = new LinearLayout[1];
         final LinearLayout[] goalRow = new LinearLayout[1];
         final LinearLayout[] fitRow = new LinearLayout[1];
@@ -333,17 +350,20 @@ public final class XemsLocalUserForm {
             fitRow[0] = chips(c2);
             renderFitness();
 
+            LinearLayout cc = card(col, tr("Състояние", "Condition"));
+            cc.addView(text(tr("Не спира тренировката — нагласява подхода: разпределение и сила по зони.",
+                    "Does not stop training — it shapes the approach: how the load is spread over the zones."),
+                    13, MUTED, false), match(dp(4)));
+            condBox = new LinearLayout(a);
+            condBox.setOrientation(LinearLayout.VERTICAL);
+            cc.addView(condBox, match(0));
+            renderCond();
+
             LinearLayout cf = card(col, tr("Зони за акцент", "Focus zones"));
             for (int i = 0; i < focusRows.length; i++) {
                 focusRows[i] = chips(cf);
             }
             renderFocus();
-
-            LinearLayout cc = card(col, tr("Какво да имаме предвид", "What to keep in mind"));
-            for (int i = 0; i < condRows.length; i++) {
-                condRows[i] = chips(cc);
-            }
-            renderCond();
 
             LinearLayout c3 = card(col, tr("Здраве", "Health"));
             c3.addView(text(tr("Има ли медицинска причина EMS да не е подходящ?",
@@ -490,17 +510,21 @@ public final class XemsLocalUserForm {
         }
 
         void renderCond() {
-            for (int r = 0; r < condRows.length; r++) {
-                condRows[r].removeAllViews();
-                for (int i = r * 3; i < Math.min(r * 3 + 3, COND.length); i++) {
-                    addToggle(condRows[r], COND[i], condName(COND[i]), cond, false);
-                }
-                if (r == condRows.length - 1) {
-                    while (condRows[r].getChildCount() < 3) {     // keep the last row's chips the same width
-                        View pad = new View(a);
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 1, 1f);
-                        lp.leftMargin = dp(8);
-                        condRows[r].addView(pad, lp);
+            condBox.removeAllViews();
+            for (int g = 0; g < COND_GROUPS.length; g++) {
+                String[] keys = COND_GROUPS[g];
+                condBox.addView(text(condGroupName(g), 13, MUTED, true), match(dp(g == 0 ? 10 : 14)));
+                for (int r = 0; r < keys.length; r += 3) {
+                    LinearLayout row = chips(condBox);
+                    for (int i = r; i < r + 3; i++) {
+                        if (i < keys.length) {
+                            addToggle(row, keys[i], condName(keys[i]), cond, false);
+                        } else {                                 // keep the chips of a short row the same width
+                            View pad = new View(a);
+                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 1, 1f);
+                            lp.leftMargin = dp(8);
+                            row.addView(pad, lp);
+                        }
                     }
                 }
             }
@@ -825,7 +849,7 @@ public final class XemsLocalUserForm {
     /** Focus, what to mind and the client's note, as they follow the summary in the remark. */
     static String extras(String focusCsv, String condCsv, String note) {
         return (focusCsv.length() > 0 ? " · " + tr("Фокус: ", "Focus: ") + names(focusCsv, true) : "")
-                + (condCsv.length() > 0 ? " · " + tr("Да се съобрази: ", "Mind: ") + names(condCsv, false) : "")
+                + (condCsv.length() > 0 ? " · " + tr("Състояние: ", "Condition: ") + names(condCsv, false) : "")
                 + (note != null && note.length() > 0 ? " · " + tr("От клиента: ", "From the client: ") + note : "");
     }
 
@@ -861,14 +885,25 @@ public final class XemsLocalUserForm {
     }
 
     static String condName(String k) {
+        if ("menopause".equals(k)) return tr("Менопауза", "Menopause");
+        if ("prediabetes".equals(k)) return tr("Преддиабет / инсулинова рез.", "Prediabetes / insulin res.");
+        if ("pcos".equals(k)) return tr("ПКОС / хормонален дисбаланс", "PCOS / hormonal imbalance");
+        if ("thyroid".equals(k)) return tr("Щитовидна жлеза", "Thyroid");
+        if ("water".equals(k)) return tr("Задържане на течности", "Water retention");
+        if ("postpartum".equals(k)) return tr("След бременност (до 1 г.)", "After pregnancy (≤ 1 y)");
         if ("back".equals(k)) return tr("Кръст", "Lower back");
         if ("neck".equals(k)) return tr("Врат / рамене", "Neck / shoulders");
         if ("knees".equals(k)) return tr("Колене", "Knees");
+        if ("joints".equals(k)) return tr("Стави / артроза", "Joints / arthrosis");
         if ("injury".equals(k)) return tr("Стара травма", "Old injury");
+        if ("diastasis".equals(k)) return tr("Диастаза", "Diastasis recti");
+        if ("osteo".equals(k)) return tr("Остеопороза", "Osteoporosis");
+        if ("varicose".equals(k)) return tr("Разширени вени", "Varicose veins");
         if ("desk".equals(k)) return tr("Седяща работа", "Desk job");
-        if ("stress".equals(k)) return tr("Стрес / сън", "Stress / sleep");
+        if ("stress".equals(k)) return tr("Напрежение и стрес", "Tension and stress");
+        if ("sleep".equals(k)) return tr("Лош сън / умора", "Poor sleep / fatigue");
+        if ("senior".equals(k)) return tr("60+ / слаба мускулатура", "60+ / low muscle mass");
         if ("sensitive".equals(k)) return tr("Чувствителен към тока", "Sensitive to current");
-        if ("postpartum".equals(k)) return tr("Раждане до 1 г.", "Birth within a year");
         return k;
     }
 

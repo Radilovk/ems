@@ -209,6 +209,26 @@ public final class AiPlanner {
             ph.phiEnd = Math.min(ph.phiEnd, plan.phiMax);
         }
 
+        // The client's state: a lower ceiling, longer pauses in tetanic work (AiPersonal).
+        plan.personal = AiPersonal.of(in.focus, in.cond);
+        if (plan.personal.phi < 1.0) {
+            plan.phiMax *= plan.personal.phi;
+            for (Phase ph : plan.phases) {
+                ph.phiStart = Math.min(ph.phiStart, plan.phiMax);
+                ph.phiEnd = Math.min(ph.phiEnd, plan.phiMax);
+            }
+        }
+        if (plan.personal.offS > 0) {
+            for (Phase ph : plan.phases) {
+                if (ph.a.isTetanic() && ph.a.offS > 0) {
+                    ph.a.offS += plan.personal.offS;
+                }
+                if (ph.b != null && ph.b.isTetanic() && ph.b.offS > 0) {
+                    ph.b.offS += plan.personal.offS;
+                }
+            }
+        }
+
         applyPause(plan, in);
 
         double[] fp = fatigueParams(in.fitness);

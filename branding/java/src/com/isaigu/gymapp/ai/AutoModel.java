@@ -98,6 +98,9 @@ public final class AutoModel {
         public Integer totalSeconds;
         public AiModel.Screening screening = new AiModel.Screening();
         public Extra extra = new Extra();
+        /** Focus zones and state from the client form (AiPersonal). */
+        public java.util.Set<String> focus = new java.util.HashSet<String>();
+        public java.util.Set<String> cond = new java.util.HashSet<String>();
 
         public double bmi() {
             if (heightCm <= 0) {

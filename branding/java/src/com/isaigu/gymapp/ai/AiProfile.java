@@ -33,6 +33,9 @@ public final class AiProfile {
     public AiModel.Fitness fitness;
     public AiModel.Goal goal;
     public final Set<String> contraindications = new HashSet<String>();
+    /** Focus zones and state (client form / booking app): AiPersonal. */
+    public final Set<String> focus = new HashSet<String>();
+    public final Set<String> cond = new HashSet<String>();
 
     private AiProfile() {}
 
@@ -95,8 +98,23 @@ public final class AiProfile {
                     }
                 }
             }
+            addCsv(p.focus, prefs.getString("focus" + u.id, ""));
+            addCsv(p.cond, prefs.getString("cond" + u.id, ""));
         }
         return p;
+    }
+
+    static void addCsv(Set<String> into, String csv) {
+        for (String k : csv.split(",")) {
+            if (k.trim().length() > 0) {
+                into.add(k.trim());
+            }
+        }
+    }
+
+    /** Focus zones and state as they shape a session. */
+    public AiPersonal.Effect personal() {
+        return AiPersonal.of(focus, cond);
     }
 
     /** Pre-fills the AI answers with what the client record knows (the rest stays as it was). */
@@ -127,6 +145,8 @@ public final class AiProfile {
                 }
             }
         }
+        in.focus = new HashSet<String>(focus);
+        in.cond = new HashSet<String>(cond);
         if (in.screening != null) {
             for (String k : contraindications) {
                 if (in.screening.contraindications.containsKey(k)) {

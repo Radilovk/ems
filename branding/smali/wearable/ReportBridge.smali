@@ -19,6 +19,8 @@
 # instance fields
 .field private final a:Landroid/app/Activity;
 
+.field auto:Z
+
 .field private final dialog:Landroid/app/Dialog;
 
 .field private final focus:J
@@ -33,22 +35,22 @@
     .registers 6
 
     .prologue
-    .line 23
+    .line 25
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 24
+    .line 26
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
-    .line 25
+    .line 27
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->dialog:Landroid/app/Dialog;
 
-    .line 26
+    .line 28
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 27
+    .line 29
     iput-wide p4, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->focus:J
 
-    .line 28
+    .line 30
     return-void
 .end method
 
@@ -61,7 +63,7 @@
     .end annotation
 
     .prologue
-    .line 243
+    .line 251
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     invoke-virtual {v0}, Landroid/app/Activity;->getAssets()Landroid/content/res/AssetManager;
@@ -72,18 +74,18 @@
 
     move-result-object v1
 
-    .line 245
+    .line 253
     :try_start_a
     new-instance v0, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v0}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 246
+    .line 254
     const/16 v2, 0x2000
 
     new-array v2, v2, [B
 
-    .line 248
+    .line 256
     :goto_13
     invoke-virtual {v1, v2}, Ljava/io/InputStream;->read([B)I
 
@@ -91,7 +93,7 @@
 
     if-lez v3, :cond_23
 
-    .line 249
+    .line 257
     const/4 v4, 0x0
 
     invoke-virtual {v0, v2, v4, v3}, Ljava/io/ByteArrayOutputStream;->write([BII)V
@@ -100,16 +102,16 @@
 
     goto :goto_13
 
-    .line 253
+    .line 261
     :catchall_1e
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 254
+    .line 262
     throw v0
 
-    .line 251
+    .line 259
     :cond_23
     :try_start_23
     new-instance v2, Ljava/lang/String;
@@ -124,10 +126,10 @@
     :try_end_2e
     .catchall {:try_start_23 .. :try_end_2e} :catchall_1e
 
-    .line 253
+    .line 261
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 251
+    .line 259
     return-object v2
 .end method
 
@@ -135,7 +137,7 @@
     .registers 8
 
     .prologue
-    .line 481
+    .line 489
     if-eqz p1, :cond_a
 
     :try_start_2
@@ -147,15 +149,15 @@
 
     if-nez v0, :cond_d
 
-    .line 482
+    .line 490
     :cond_a
     const-string v0, ""
 
-    .line 504
+    .line 512
     :goto_c
     return-object v0
 
-    .line 484
+    .line 492
     :cond_d
     new-instance v0, Ljava/io/File;
 
@@ -171,7 +173,7 @@
 
     invoke-direct {v0, v1}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 485
+    .line 493
     invoke-virtual {v0}, Ljava/io/File;->isFile()Z
 
     move-result v1
@@ -188,13 +190,13 @@
 
     if-lez v1, :cond_30
 
-    .line 486
+    .line 494
     :cond_2d
     const-string v0, ""
 
     goto :goto_c
 
-    .line 488
+    .line 496
     :cond_30
     invoke-virtual {v0}, Ljava/io/File;->length()J
 
@@ -204,24 +206,24 @@
 
     new-array v1, v1, [B
 
-    .line 489
+    .line 497
     new-instance v2, Ljava/io/FileInputStream;
 
     invoke-direct {v2, v0}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
     :try_end_3c
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_3c} :catch_6b
 
-    .line 491
+    .line 499
     const/4 v0, 0x0
 
-    .line 492
+    .line 500
     :goto_3d
     :try_start_3d
     array-length v3, v1
 
     if-ge v0, v3, :cond_48
 
-    .line 493
+    .line 501
     array-length v3, v1
 
     sub-int/2addr v3, v0
@@ -232,15 +234,15 @@
 
     move-result v3
 
-    .line 494
+    .line 502
     if-gtz v3, :cond_64
 
-    .line 500
+    .line 508
     :cond_48
     :try_start_48
     invoke-virtual {v2}, Ljava/io/FileInputStream;->close()V
 
-    .line 502
+    .line 510
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -267,29 +269,29 @@
 
     goto :goto_c
 
-    .line 497
+    .line 505
     :cond_64
     add-int/2addr v0, v3
 
-    .line 498
+    .line 506
     goto :goto_3d
 
-    .line 500
+    .line 508
     :catchall_66
     move-exception v0
 
     invoke-virtual {v2}, Ljava/io/FileInputStream;->close()V
 
-    .line 501
+    .line 509
     throw v0
     :try_end_6b
     .catch Ljava/lang/Throwable; {:try_start_48 .. :try_end_6b} :catch_6b
 
-    .line 503
+    .line 511
     :catch_6b
     move-exception v0
 
-    .line 504
+    .line 512
     const-string v0, ""
 
     goto :goto_c
@@ -299,7 +301,7 @@
     .registers 4
 
     .prologue
-    .line 159
+    .line 167
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     const-string v1, "xems_client_cards"
@@ -317,7 +319,7 @@
     .registers 7
 
     .prologue
-    .line 259
+    .line 267
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/ReportBridge$Js;
@@ -352,7 +354,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 260
+    .line 268
     return-void
 .end method
 
@@ -362,13 +364,13 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 364
+    .line 372
     :try_start_1
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->BG:I
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_3} :catch_1a
 
-    .line 365
+    .line 373
     shr-int/lit8 v2, v1, 0x10
 
     and-int/lit16 v2, v2, 0xff
@@ -387,22 +389,22 @@
 
     add-int/2addr v1, v2
 
-    .line 366
+    .line 374
     const/16 v2, 0x500
 
     if-ge v1, v2, :cond_18
 
-    .line 368
+    .line 376
     :goto_17
     return v0
 
-    .line 366
+    .line 374
     :cond_18
     const/4 v0, 0x0
 
     goto :goto_17
 
-    .line 367
+    .line 375
     :catch_1a
     move-exception v1
 
@@ -415,12 +417,12 @@
     .prologue
     const/16 v5, 0x22
 
-    .line 130
+    .line 138
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 131
+    .line 139
     if-eqz p0, :cond_93
 
     iget-object v0, p0, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
@@ -439,7 +441,7 @@
 
     move-result-object v0
 
-    .line 132
+    .line 140
     :goto_19
     const/16 v2, 0x40
 
@@ -449,7 +451,7 @@
 
     if-lez v2, :cond_45
 
-    .line 133
+    .line 141
     const-string v2, ",\"ek\":\""
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -484,7 +486,7 @@
 
     invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 135
+    .line 143
     :cond_45
     if-eqz p0, :cond_96
 
@@ -498,7 +500,7 @@
 
     move-result-object v0
 
-    .line 136
+    .line 144
     :goto_51
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -508,7 +510,7 @@
 
     if-le v2, v3, :cond_63
 
-    .line 137
+    .line 145
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -519,7 +521,7 @@
 
     move-result-object v0
 
-    .line 139
+    .line 147
     :cond_63
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -529,7 +531,7 @@
 
     if-lt v2, v3, :cond_8e
 
-    .line 140
+    .line 148
     const-string v2, ",\"pk\":\""
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -564,7 +566,7 @@
 
     invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 142
+    .line 150
     :cond_8e
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -572,13 +574,13 @@
 
     return-object v0
 
-    .line 131
+    .line 139
     :cond_93
     const-string v0, ""
 
     goto :goto_19
 
-    .line 135
+    .line 143
     :cond_96
     const-string v0, ""
 
@@ -589,7 +591,7 @@
     .registers 7
 
     .prologue
-    .line 147
+    .line 155
     :try_start_0
     const-string v0, "SHA-256"
 
@@ -607,14 +609,14 @@
 
     move-result-object v1
 
-    .line 148
+    .line 156
     new-instance v2, Ljava/lang/StringBuilder;
 
     const/16 v0, 0x40
 
     invoke-direct {v2, v0}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 149
+    .line 157
     const/4 v0, 0x0
 
     :goto_18
@@ -622,7 +624,7 @@
 
     if-ge v0, v3, :cond_3b
 
-    .line 150
+    .line 158
     aget-byte v3, v1, v0
 
     shr-int/lit8 v3, v3, 0x4
@@ -651,12 +653,12 @@
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 149
+    .line 157
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_18
 
-    .line 152
+    .line 160
     :cond_3b
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
     :try_end_3e
@@ -664,15 +666,15 @@
 
     move-result-object v0
 
-    .line 154
+    .line 162
     :goto_3f
     return-object v0
 
-    .line 153
+    .line 161
     :catch_40
     move-exception v0
 
-    .line 154
+    .line 162
     const-string v0, ""
 
     goto :goto_3f
@@ -682,7 +684,7 @@
     .registers 16
 
     .prologue
-    .line 46
+    .line 53
     :try_start_0
     new-instance v1, Ljava/io/File;
 
@@ -696,26 +698,26 @@
 
     invoke-direct {v1, v0, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 47
+    .line 54
     invoke-virtual {v1}, Ljava/io/File;->isDirectory()Z
 
     move-result v0
 
     if-nez v0, :cond_16
 
-    .line 48
+    .line 55
     invoke-virtual {v1}, Ljava/io/File;->mkdirs()Z
 
-    .line 50
+    .line 57
     :cond_16
     invoke-virtual {v1}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v2
 
-    .line 51
+    .line 58
     if-eqz v2, :cond_38
 
-    .line 52
+    .line 59
     array-length v3, v2
 
     const/4 v0, 0x0
@@ -725,7 +727,7 @@
 
     aget-object v4, v2, v0
 
-    .line 53
+    .line 60
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
@@ -742,16 +744,16 @@
 
     if-lez v5, :cond_35
 
-    .line 54
+    .line 61
     invoke-virtual {v4}, Ljava/io/File;->delete()Z
 
-    .line 52
+    .line 59
     :cond_35
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1e
 
-    .line 58
+    .line 65
     :cond_38
     const-string v0, "[\\\\/:*?\"<>|]"
 
@@ -761,29 +763,29 @@
 
     move-result-object v0
 
-    .line 59
+    .line 66
     new-instance v2, Ljava/io/File;
 
     invoke-direct {v2, v1, v0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 60
+    .line 67
     new-instance v1, Ljava/io/FileOutputStream;
 
     invoke-direct {v1, v2}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
     :try_end_4a
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_4a} :catch_e6
 
-    .line 62
+    .line 69
     :try_start_4a
     invoke-virtual {v1, p3}, Ljava/io/FileOutputStream;->write([B)V
     :try_end_4d
     .catchall {:try_start_4a .. :try_end_4d} :catchall_e1
 
-    .line 64
+    .line 71
     :try_start_4d
     invoke-virtual {v1}, Ljava/io/FileOutputStream;->close()V
 
-    .line 66
+    .line 73
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -814,22 +816,22 @@
 
     move-result-object v1
 
-    .line 67
+    .line 74
     new-instance v3, Landroid/content/Intent;
 
     const-string v4, "android.intent.action.SEND"
 
     invoke-direct {v3, v4}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 68
+    .line 75
     invoke-virtual {v3, p2}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 69
+    .line 76
     const-string v4, "android.intent.extra.STREAM"
 
     invoke-virtual {v3, v4, v1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Landroid/os/Parcelable;)Landroid/content/Intent;
 
-    .line 70
+    .line 77
     if-eqz p4, :cond_8b
 
     invoke-virtual {p4}, Ljava/lang/String;->length()I
@@ -838,12 +840,12 @@
 
     if-lez v1, :cond_8b
 
-    .line 71
+    .line 78
     const-string v1, "android.intent.extra.SUBJECT"
 
     invoke-virtual {v3, v1, p4}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 73
+    .line 80
     :cond_8b
     if-eqz p5, :cond_98
 
@@ -853,18 +855,18 @@
 
     if-lez v1, :cond_98
 
-    .line 74
+    .line 81
     const-string v1, "android.intent.extra.TEXT"
 
     invoke-virtual {v3, v1, p5}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 76
+    .line 83
     :cond_98
     const/4 v1, 0x1
 
     invoke-virtual {v3, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 77
+    .line 84
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     new-instance v4, Lcom/isaigu/gymapp/wearable/ReportBridge$Start;
@@ -887,7 +889,7 @@
 
     invoke-virtual {v1, v4}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 78
+    .line 85
     const-string v1, "report"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -930,26 +932,26 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 82
+    .line 89
     :goto_e0
     return-void
 
-    .line 64
+    .line 71
     :catchall_e1
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/FileOutputStream;->close()V
 
-    .line 65
+    .line 72
     throw v0
     :try_end_e6
     .catch Ljava/lang/Throwable; {:try_start_4d .. :try_end_e6} :catch_e6
 
-    .line 79
+    .line 86
     :catch_e6
     move-exception v0
 
-    .line 80
+    .line 87
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -977,14 +979,26 @@
 
 
 # virtual methods
+.method public auto()Z
+    .registers 2
+    .annotation runtime Landroid/webkit/JavascriptInterface;
+    .end annotation
+
+    .prologue
+    .line 34
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->auto:Z
+
+    return v0
+.end method
+
 .method cardNow(Ljava/lang/String;)V
     .registers 11
 
     .prologue
-    .line 199
+    .line 207
     const-string v0, ""
 
-    .line 201
+    .line 209
     :try_start_2
     new-instance v1, Lorg/json/JSONObject;
 
@@ -1000,7 +1014,7 @@
 
     move-result-object v0
 
-    .line 204
+    .line 212
     :goto_f
     const-string v1, "\u0422\u0432\u043e\u044f\u0442 XEMS \u043a\u0430\u0440\u0442\u043e\u043d"
 
@@ -1010,14 +1024,14 @@
 
     move-result-object v4
 
-    .line 205
+    .line 213
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
 
     if-lez v1, :cond_cc
 
-    .line 206
+    .line 214
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1072,7 +1086,7 @@
 
     move-object v5, v1
 
-    .line 208
+    .line 216
     :goto_54
     :try_start_54
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
@@ -1087,17 +1101,17 @@
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 209
+    .line 217
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/ReportBridge;->lookupFields(Lcom/isaigu/gymapp/bean/TrainUser;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 208
+    .line 216
     invoke-static {v1, v2, p1, v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->postCard(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 210
+    .line 218
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->cardPrefs()Landroid/content/SharedPreferences;
 
     move-result-object v2
@@ -1134,7 +1148,7 @@
 
     invoke-interface {v2}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 211
+    .line 219
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -1165,7 +1179,7 @@
 
     invoke-virtual {p0, v4, v2}, Lcom/isaigu/gymapp/wearable/ReportBridge;->shareText(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 213
+    .line 221
     const-string v2, "report"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -1188,18 +1202,18 @@
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 214
+    .line 222
     const-string v1, "link"
 
     invoke-direct {p0, v1}, Lcom/isaigu/gymapp/wearable/ReportBridge;->done(Ljava/lang/String;)V
     :try_end_cb
     .catch Ljava/lang/Throwable; {:try_start_54 .. :try_end_cb} :catch_d0
 
-    .line 240
+    .line 248
     :goto_cb
     return-void
 
-    .line 206
+    .line 214
     :cond_cc
     const-string v1, ""
 
@@ -1207,11 +1221,11 @@
 
     goto :goto_54
 
-    .line 216
+    .line 224
     :catch_d0
     move-exception v1
 
-    .line 217
+    .line 225
     const-string v2, "report"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -1240,7 +1254,7 @@
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 220
+    .line 228
     :try_start_ef
     const-string v1, "report/client-card.html"
 
@@ -1248,7 +1262,7 @@
 
     move-result-object v1
 
-    .line 221
+    .line 229
     const-string v2, "\"sex\":\"M\""
 
     invoke-virtual {p1, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -1259,7 +1273,7 @@
 
     const-string v2, "female"
 
-    .line 222
+    .line 230
     :goto_ff
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -1317,12 +1331,12 @@
 
     move-result v6
 
-    .line 223
+    .line 231
     if-ltz v3, :cond_236
 
     if-le v6, v3, :cond_236
 
-    .line 224
+    .line 232
     new-instance v7, Ljava/lang/StringBuilder;
 
     invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
@@ -1381,7 +1395,7 @@
 
     move-object v2, v1
 
-    .line 226
+    .line 234
     :goto_176
     const-string v1, "en"
 
@@ -1393,7 +1407,7 @@
 
     move-result v1
 
-    .line 227
+    .line 235
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -1425,7 +1439,7 @@
 
     const-string v7, "\\u003c"
 
-    .line 229
+    .line 237
     invoke-virtual {p1, v6, v7}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v6
@@ -1448,7 +1462,7 @@
 
     move-result-object v3
 
-    .line 231
+    .line 239
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -1464,7 +1478,7 @@
 
     move-result-object v0
 
-    .line 232
+    .line 240
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1509,7 +1523,7 @@
 
     const-string v6, "Here is your XEMS card \u2014 open the file in a browser."
 
-    .line 233
+    .line 241
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/wearable/WearableUi;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -1524,10 +1538,10 @@
 
     move-object v0, p0
 
-    .line 232
+    .line 240
     invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/ReportBridge;->shareBytes(Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;Ljava/lang/String;)V
 
-    .line 235
+    .line 243
     const-string v0, "file"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->done(Ljava/lang/String;)V
@@ -1536,11 +1550,11 @@
 
     goto/16 :goto_cb
 
-    .line 236
+    .line 244
     :catch_208
     move-exception v0
 
-    .line 237
+    .line 245
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -1563,27 +1577,27 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 238
+    .line 246
     const-string v0, "fail"
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->done(Ljava/lang/String;)V
 
     goto/16 :goto_cb
 
-    .line 221
+    .line 229
     :cond_228
     :try_start_228
     const-string v2, "male"
 
     goto/16 :goto_ff
 
-    .line 227
+    .line 235
     :cond_22c
     const-string v1, "bg"
 
     goto/16 :goto_18f
 
-    .line 231
+    .line 239
     :cond_230
     const-string v0, "client"
     :try_end_232
@@ -1591,7 +1605,7 @@
 
     goto :goto_1bb
 
-    .line 202
+    .line 210
     :catch_233
     move-exception v1
 
@@ -1609,7 +1623,7 @@
     .end annotation
 
     .prologue
-    .line 105
+    .line 112
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->cardPrefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1651,12 +1665,12 @@
     .end annotation
 
     .prologue
-    .line 389
+    .line 397
     new-instance v1, Lorg/json/JSONObject;
 
     invoke-direct {v1}, Lorg/json/JSONObject;-><init>()V
 
-    .line 391
+    .line 399
     :try_start_5
     const-string v0, "id"
 
@@ -1666,7 +1680,7 @@
 
     invoke-virtual {v1, v0, v2, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 392
+    .line 400
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
@@ -1687,7 +1701,7 @@
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
-    .line 393
+    .line 401
     :goto_22
     const-string v2, "name"
 
@@ -1696,22 +1710,22 @@
     :goto_26
     invoke-virtual {v1, v2, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 394
+    .line 402
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiProfile;->of(Lcom/isaigu/gymapp/bean/TrainUser;)Lcom/isaigu/gymapp/ai/AiProfile;
 
     move-result-object v2
 
-    .line 395
+    .line 403
     if-eqz v2, :cond_86
 
-    .line 396
+    .line 404
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AiProfile;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     if-eqz v0, :cond_42
 
-    .line 397
+    .line 405
     const-string v3, "sex"
 
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AiProfile;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
@@ -1725,13 +1739,13 @@
     :goto_3f
     invoke-virtual {v1, v3, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 399
+    .line 407
     :cond_42
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AiProfile;->age:Ljava/lang/Integer;
 
     if-eqz v0, :cond_51
 
-    .line 400
+    .line 408
     const-string v0, "age"
 
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AiProfile;->age:Ljava/lang/Integer;
@@ -1742,13 +1756,13 @@
 
     invoke-virtual {v1, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 402
+    .line 410
     :cond_51
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AiProfile;->weightKg:Ljava/lang/Double;
 
     if-eqz v0, :cond_60
 
-    .line 403
+    .line 411
     const-string v0, "weight"
 
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AiProfile;->weightKg:Ljava/lang/Double;
@@ -1759,13 +1773,13 @@
 
     invoke-virtual {v1, v0, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 405
+    .line 413
     :cond_60
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AiProfile;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     if-eqz v0, :cond_73
 
-    .line 406
+    .line 414
     const-string v0, "goal"
 
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AiProfile;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
@@ -1780,13 +1794,13 @@
 
     invoke-virtual {v1, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 408
+    .line 416
     :cond_73
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AiProfile;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     if-eqz v0, :cond_86
 
-    .line 409
+    .line 417
     const-string v0, "fitness"
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AiProfile;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
@@ -1801,7 +1815,7 @@
 
     invoke-virtual {v1, v0, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 412
+    .line 420
     :cond_86
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
@@ -1809,7 +1823,7 @@
 
     if-lez v0, :cond_95
 
-    .line 413
+    .line 421
     const-string v0, "height"
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -1818,7 +1832,7 @@
 
     invoke-virtual {v1, v0, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 415
+    .line 423
     :cond_95
     const-string v0, "owner"
 
@@ -1834,7 +1848,7 @@
 
     invoke-virtual {v1, v0, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 416
+    .line 424
     const-string v0, "misport"
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
@@ -1851,22 +1865,22 @@
 
     invoke-virtual {v1, v0, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 417
+    .line 425
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableConfig;->getRestHr(Landroid/content/Context;)I
 
     move-result v0
 
-    .line 418
+    .line 426
     if-lez v0, :cond_c1
 
-    .line 419
+    .line 427
     const-string v2, "restHr"
 
     invoke-virtual {v1, v2, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 421
+    .line 429
     :cond_c1
     const-string v0, "avatar"
 
@@ -1882,7 +1896,7 @@
     :try_end_ce
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_ce} :catch_e1
 
-    .line 425
+    .line 433
     :goto_ce
     invoke-virtual {v1}, Lorg/json/JSONObject;->toString()Ljava/lang/String;
 
@@ -1890,7 +1904,7 @@
 
     return-object v0
 
-    .line 392
+    .line 400
     :cond_d3
     :try_start_d3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -1899,13 +1913,13 @@
 
     goto/16 :goto_22
 
-    .line 393
+    .line 401
     :cond_d9
     const-string v0, ""
 
     goto/16 :goto_26
 
-    .line 397
+    .line 405
     :cond_dd
     const-string v0, "M"
     :try_end_df
@@ -1913,11 +1927,11 @@
 
     goto/16 :goto_3f
 
-    .line 422
+    .line 430
     :catch_e1
     move-exception v0
 
-    .line 423
+    .line 431
     const-string v2, "report"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -1949,7 +1963,7 @@
     .end annotation
 
     .prologue
-    .line 460
+    .line 468
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/ReportBridge$Dismiss;
@@ -1960,7 +1974,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 461
+    .line 469
     return-void
 .end method
 
@@ -1970,7 +1984,7 @@
     .end annotation
 
     .prologue
-    .line 453
+    .line 461
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -1982,11 +1996,11 @@
     :try_end_9
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_9} :catch_a
 
-    .line 456
+    .line 464
     :goto_9
     return-void
 
-    .line 454
+    .line 462
     :catch_a
     move-exception v0
 
@@ -1999,7 +2013,7 @@
     .end annotation
 
     .prologue
-    .line 384
+    .line 392
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->focus:J
 
     const-wide/16 v2, 0x0
@@ -2029,7 +2043,7 @@
     .end annotation
 
     .prologue
-    .line 379
+    .line 387
     const-string v0, "bg"
 
     const-string v1, "bg"
@@ -2063,7 +2077,7 @@
     .end annotation
 
     .prologue
-    .line 315
+    .line 323
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;
@@ -2076,7 +2090,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 316
+    .line 324
     return-void
 .end method
 
@@ -2086,7 +2100,7 @@
     .end annotation
 
     .prologue
-    .line 445
+    .line 453
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -2098,11 +2112,11 @@
     :try_end_9
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_9} :catch_a
 
-    .line 448
+    .line 456
     :goto_9
     return-void
 
-    .line 446
+    .line 454
     :catch_a
     move-exception v0
 
@@ -2115,7 +2129,9 @@
     .end annotation
 
     .prologue
-    .line 114
+    .line 122
+    if-eqz p2, :cond_1c
+
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->cardUrl()Ljava/lang/String;
 
     move-result-object v0
@@ -2124,17 +2140,31 @@
 
     move-result v0
 
-    if-eqz v0, :cond_c
+    if-nez v0, :cond_1d
 
-    if-nez p2, :cond_d
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->auto:Z
 
-    .line 123
-    :cond_c
-    :goto_c
+    if-eqz v0, :cond_1c
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->lookupFields(Lcom/isaigu/gymapp/bean/TrainUser;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-gtz v0, :cond_1d
+
+    .line 131
+    :cond_1c
+    :goto_1c
     return-void
 
-    .line 118
-    :cond_d
+    .line 126
+    :cond_1d
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2171,7 +2201,7 @@
 
     move-result-object v0
 
-    .line 119
+    .line 127
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->cardPrefs()Landroid/content/SharedPreferences;
 
     move-result-object v1
@@ -2208,9 +2238,9 @@
 
     move-result v1
 
-    if-nez v1, :cond_c
+    if-nez v1, :cond_1c
 
-    .line 122
+    .line 130
     new-instance v1, Ljava/lang/Thread;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;
@@ -2223,14 +2253,14 @@
 
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
-    goto :goto_c
+    goto :goto_1c
 .end method
 
 .method refreshNow(Ljava/lang/String;Ljava/lang/String;)V
     .registers 9
 
     .prologue
-    .line 189
+    .line 197
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -2244,17 +2274,17 @@
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 190
+    .line 198
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/ReportBridge;->lookupFields(Lcom/isaigu/gymapp/bean/TrainUser;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 189
+    .line 197
     invoke-static {v0, v1, p1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->postCard(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 191
+    .line 199
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/ReportBridge;->cardPrefs()Landroid/content/SharedPreferences;
 
     move-result-object v1
@@ -2317,7 +2347,7 @@
 
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 192
+    .line 200
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2342,15 +2372,15 @@
     :try_end_6d
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_6d} :catch_6e
 
-    .line 196
+    .line 204
     :goto_6d
     return-void
 
-    .line 193
+    .line 201
     :catch_6e
     move-exception v0
 
-    .line 194
+    .line 202
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2384,7 +2414,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 285
+    .line 293
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     invoke-virtual {v1}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
@@ -2399,7 +2429,7 @@
 
     if-eq v1, v0, :cond_20
 
-    .line 287
+    .line 295
     :goto_f
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -2411,7 +2441,7 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 288
+    .line 296
     if-eqz v0, :cond_22
 
     const-string v0, "portrait"
@@ -2419,13 +2449,13 @@
     :goto_1f
     return-object v0
 
-    .line 285
+    .line 293
     :cond_20
     const/4 v0, 0x0
 
     goto :goto_f
 
-    .line 288
+    .line 296
     :cond_22
     const-string v0, "landscape"
 
@@ -2438,7 +2468,7 @@
     .end annotation
 
     .prologue
-    .line 436
+    .line 444
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
@@ -2452,15 +2482,15 @@
 
     move-result-object v0
 
-    .line 438
+    .line 446
     :goto_a
     return-object v0
 
-    .line 437
+    .line 445
     :catch_b
     move-exception v0
 
-    .line 438
+    .line 446
     const-string v0, "null"
 
     goto :goto_a
@@ -2472,7 +2502,7 @@
     .end annotation
 
     .prologue
-    .line 430
+    .line 438
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->user:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -2490,10 +2520,10 @@
     .registers 2
 
     .prologue
-    .line 31
+    .line 38
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->web:Landroid/webkit/WebView;
 
-    .line 32
+    .line 39
     return-void
 .end method
 
@@ -2503,7 +2533,7 @@
     .end annotation
 
     .prologue
-    .line 99
+    .line 106
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/ReportBridge$CardTask;
@@ -2516,7 +2546,7 @@
 
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
-    .line 100
+    .line 107
     return-void
 .end method
 
@@ -2526,7 +2556,7 @@
     .end annotation
 
     .prologue
-    .line 38
+    .line 45
     const/4 v0, 0x0
 
     :try_start_1
@@ -2548,15 +2578,15 @@
     :try_end_d
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_d} :catch_e
 
-    .line 42
+    .line 49
     :goto_d
     return-void
 
-    .line 39
+    .line 46
     :catch_e
     move-exception v0
 
-    .line 40
+    .line 47
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2588,29 +2618,29 @@
     .end annotation
 
     .prologue
-    .line 86
+    .line 93
     new-instance v0, Landroid/content/Intent;
 
     const-string v1, "android.intent.action.SEND"
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 87
+    .line 94
     const-string v1, "text/plain"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 88
+    .line 95
     const-string v1, "android.intent.extra.SUBJECT"
 
     invoke-virtual {v0, v1, p1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 89
+    .line 96
     const-string v1, "android.intent.extra.TEXT"
 
     invoke-virtual {v0, v1, p2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 90
+    .line 97
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge;->a:Landroid/app/Activity;
 
     new-instance v2, Lcom/isaigu/gymapp/wearable/ReportBridge$Start;
@@ -2633,7 +2663,7 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 91
+    .line 98
     return-void
 .end method
 
@@ -2643,7 +2673,7 @@
     .end annotation
 
     .prologue
-    .line 374
+    .line 382
     invoke-static {}, Lcom/isaigu/gymapp/wearable/ReportBridge;->isDark()Z
 
     move-result v0

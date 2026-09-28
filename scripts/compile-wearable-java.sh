@@ -72,6 +72,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/SessionRecorder.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/BandWorkout.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ReportBridge.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/CardPublisher.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ReportScreen.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/Schedule.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NextPlan.java"

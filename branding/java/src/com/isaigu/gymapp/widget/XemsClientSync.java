@@ -33,9 +33,8 @@ import java.util.Set;
  */
 public final class XemsClientSync {
     static final String PREFS = "xems_client_sync";
-    static final long POLL_MS = 20 * 60000L;
-    static final long POKE_MS = 2 * 60000L;
-    static final long TICK_MS = 60000L;
+    /** Two events close together (a tab opened twice) pull once. */
+    static final long POKE_MS = 60000L;
 
     private static final Handler H = new Handler(Looper.getMainLooper());
     private static Context app;
@@ -60,13 +59,22 @@ public final class XemsClientSync {
             return;
         }
         started = true;
-        H.postDelayed(new Tick(), 15000L);
+        // No timer: the profiles come on events only — the app starts (here), the client list or the Plan tab
+        // is opened (XemsNav / PlanScreen → poke), "Синхронизирай" (now).
+        poked = true;
+        H.postDelayed(new Tick0(), 15000L);
     }
 
-    /** The Plan tab was opened or "sync now" pressed: poll soon (at most every 2 min). */
+    /** An event (client list / Plan tab opened): pull the new profiles (once a minute at most). */
     public static void poke() {
         poked = true;
         H.post(new Tick0());
+    }
+
+    /** "Синхронизирай": pull now. */
+    public static void now() {
+        lastPoll = 0;
+        poke();
     }
 
     /** The studio code the PWA needs (from the license server), or "". */
@@ -92,17 +100,6 @@ public final class XemsClientSync {
         return when + " · " + n + XemsLang.tr(" профила общо", " profiles in total");
     }
 
-    static final class Tick implements Runnable {
-        @Override
-        public void run() {
-            try {
-                maybePoll(false);
-            } catch (Throwable ignored) {
-            }
-            H.postDelayed(this, TICK_MS);
-        }
-    }
-
     static final class Tick0 implements Runnable {
         @Override
         public void run() {
@@ -122,10 +119,7 @@ public final class XemsClientSync {
             return;
         }
         long t = System.currentTimeMillis();
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        boolean due = t - lastPoll >= POLL_MS && hour >= 6 && hour < 23;
-        boolean pokedDue = (now || poked) && t - lastPoll >= POKE_MS;
-        if (!due && !pokedDue) {
+        if (!(now || poked) || t - lastPoll < POKE_MS) {
             return;
         }
         poked = false;

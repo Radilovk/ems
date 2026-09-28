@@ -91,6 +91,13 @@ public final class XemsNav {
             if (id >= ID_TAB_FIRST && id < ID_TAB_FIRST + TAB_COUNT) {
                 currentPage = id;
             }
+            if (id == ID_TAB_FIRST + 1) {
+                // the client list: bring in what clients changed in the booking app (event, no timer)
+                try {
+                    Class.forName("com.isaigu.gymapp.widget.XemsClientSync").getMethod("poke").invoke(null);
+                } catch (Throwable ignored) {
+                }
+            }
             if (menu != null && menu.isShowing()) {
                 menu.dismiss();
             }

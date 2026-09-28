@@ -700,7 +700,7 @@ public final class PlanScreen {
         return card;
     }
 
-    /** widget/XemsClientSync (compiled after this package): "poke" or "status". */
+    /** widget/XemsClientSync (compiled after this package): "poke", "now" or "status". */
     static Object sync(String m, Context c) {
         try {
             Class<?> k = Class.forName("com.isaigu.gymapp.widget.XemsClientSync");
@@ -714,7 +714,7 @@ public final class PlanScreen {
         @Override
         public void onClick(View v) {
             XemsUi.haptic(v);
-            sync("poke", null);
+            sync("now", null);
             H.postDelayed(new Runnable0(), 6000L);
         }
     }

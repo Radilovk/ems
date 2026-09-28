@@ -19,12 +19,19 @@ final class ReportBridge {
     private final TrainUser user;
     private final long focus;
     private android.webkit.WebView web;
+    /** Headless run after a training ({@link CardPublisher}): the card goes up even if never shared. */
+    boolean auto;
 
     ReportBridge(Activity a, Dialog dialog, TrainUser user, long focus) {
         this.a = a;
         this.dialog = dialog;
         this.user = user;
         this.focus = focus;
+    }
+
+    @JavascriptInterface
+    public boolean auto() {
+        return auto;
     }
 
     void setWebView(android.webkit.WebView w) {
@@ -111,7 +118,8 @@ final class ReportBridge {
      */
     @JavascriptInterface
     public void refreshCard(String json, String key) {
-        if (cardUrl().length() == 0 || key == null) {
+        // after a training (auto): also the first card, when the client can find it (e-mail / phone)
+        if (key == null || (cardUrl().length() == 0 && !(auto && lookupFields(user).length() > 0))) {
             return;
         }
         // the lookup hashes are part of the key: a new e-mail / phone (or a card from before them) goes up once

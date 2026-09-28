@@ -131,6 +131,33 @@ public final class XemsLocalSection {
         card.addView(row, matchWrap(a, 0));
 
         if (setup) {
+            // The arms channel of this tablet (kept after the setup): reduced impulse or 1:1
+            String arms = XemsLicense.armsMode();
+            TextView armsLabel = text(a, tr("Ръце", "Arms"), 15, true);
+            card.addView(armsLabel, matchWrap(a, 16));
+            TextView armsHint = text(a, "full".equals(arms)
+                    ? tr("1:1 — каналът за ръцете с нормална сила, като другите.", "1:1 — the arms channel at normal strength, like the others.")
+                    : "reduced".equals(arms)
+                    ? tr("Намален импулс — ръцете получават 1/20 от силата (по-меко, за чувствителни клиенти).",
+                            "Reduced impulse — the arms get 1/20 of the strength (softer, for sensitive clients).")
+                    : tr("Не е избрано — след заключване решава ключът. Избери веднъж и остава за таблета.",
+                            "Not chosen — after the lock the key decides. Choose once and it stays for this tablet."), 12, false);
+            armsHint.setTextColor(0xFFB0B0B0);
+            card.addView(armsHint, matchWrap(a, 2));
+            LinearLayout armsRow = new LinearLayout(a);
+            armsRow.setOrientation(LinearLayout.HORIZONTAL);
+            Button reduced = button(a, ("reduced".equals(arms) ? "✓ " : "") + tr("Намален импулс", "Reduced impulse"),
+                    "reduced".equals(arms) ? 0xFF43A047 : 0xFF3A3A3A);
+            reduced.setOnClickListener(new ArmsPick(a, root, "reduced"));
+            armsRow.addView(reduced, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            Button full = button(a, ("full".equals(arms) ? "✓ " : "") + "1:1",
+                    "full".equals(arms) ? 0xFF43A047 : 0xFF3A3A3A);
+            full.setOnClickListener(new ArmsPick(a, root, "full"));
+            LinearLayout.LayoutParams fp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            fp.leftMargin = dp(a, 8);
+            armsRow.addView(full, fp);
+            card.addView(armsRow, matchWrap(a, 8));
+
             Button lock = button(a, tr("Край на настройката", "Finish setup"), 0xFFE53935);
             lock.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -144,6 +171,24 @@ public final class XemsLocalSection {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         cardLp.topMargin = dp(a, 16);
         parent.addView(card, cardLp);
+    }
+
+    static final class ArmsPick implements View.OnClickListener {
+        private final Activity a;
+        private final View root;
+        private final String mode;
+
+        ArmsPick(Activity a, View root, String mode) {
+            this.a = a;
+            this.root = root;
+            this.mode = mode;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsLicense.setArmsMode(mode);
+            build(a, root);
+        }
     }
 
     private static void confirmFinish(final Activity a, final View root) {

@@ -1064,7 +1064,7 @@ $("#demoBtn").onclick=()=>{demoSessions();start(null);};
 let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(sessions.length){drawImap();drawBody();}},150);});
 new MutationObserver(()=>{if(sessions.length){renderStats();renderList(cur);draw();}}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 
-function refreshCard(){try{if(DEMO||!BR||!BR.cardUrl||!BR.cardUrl()||!sessions.length)return;const L=sessions[sessions.length-1];
+function refreshCard(){try{if(DEMO||!BR||!BR.cardUrl||!sessions.length)return;if(!BR.cardUrl()&&!(BR.auto&&BR.auto()))return;const L=sessions[sessions.length-1];
   BR.refreshCard(JSON.stringify(cardData()),sessions.length+":"+L.id);}catch(e){}}
 function start(focusId){
   renderClient();

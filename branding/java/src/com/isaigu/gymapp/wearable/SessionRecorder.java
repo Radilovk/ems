@@ -212,6 +212,7 @@ public final class SessionRecorder {
             if (r.postLeft <= 0 || leaderTaken) {
                 POST.remove(k);
                 save(r, !r.shown);
+                CardPublisher.publish(r.user);      // with the recovery heart rate
             }
         }
     }
@@ -279,8 +280,11 @@ public final class SessionRecorder {
         if (post) {
             r.postLeft = POST_S;
             POST.add(r);
-        } else if (!show) {
-            save(r, true);
+        } else {
+            if (!show) {
+                save(r, true);
+            }
+            CardPublisher.publish(r.user);          // the client's card (booking app) at once
         }
     }
 

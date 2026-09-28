@@ -38,7 +38,7 @@
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
     .line 717
-    const-string v0, "poke"
+    const-string v0, "now"
 
     const/4 v1, 0x0
 

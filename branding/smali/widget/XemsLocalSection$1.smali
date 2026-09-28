@@ -24,7 +24,13 @@
 # direct methods
 .method constructor <init>(Landroid/app/Activity;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
+    .prologue
     .line 102
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$1;->val$a:Landroid/app/Activity;
 
@@ -36,13 +42,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
+    .prologue
     .line 104
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$1;->val$a:Landroid/app/Activity;
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$1;->val$a:Landroid/app/Activity;
 
     # invokes: Lcom/isaigu/gymapp/widget/XemsLocalSection;->startExport(Landroid/app/Activity;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->access$000(Landroid/app/Activity;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->access$000(Landroid/app/Activity;)V
 
     .line 105
     return-void

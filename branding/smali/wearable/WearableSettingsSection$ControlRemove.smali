@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 359
+    .line 374
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 360
+    .line 375
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;->a:Landroid/app/Activity;
 
-    .line 361
+    .line 376
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;->root:Landroid/view/View;
 
-    .line 362
+    .line 377
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 5
 
     .prologue
-    .line 366
+    .line 381
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -56,12 +56,12 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setControlBand(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 367
+    .line 382
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onControlBandChanged(Landroid/content/Context;)V
 
-    .line 368
+    .line 383
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlRemove;->root:Landroid/view/View;
@@ -69,6 +69,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->build(Landroid/app/Activity;Landroid/view/View;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$500(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 369
+    .line 384
     return-void
 .end method

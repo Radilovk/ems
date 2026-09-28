@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 343
+    .line 358
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 344
+    .line 359
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlPick;->a:Landroid/app/Activity;
 
-    .line 345
+    .line 360
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 349
+    .line 364
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->ctlMacView:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$400()Landroid/widget/EditText;
 
@@ -50,7 +50,7 @@
 
     if-eqz v0, :cond_f
 
-    .line 350
+    .line 365
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ControlPick;->a:Landroid/app/Activity;
 
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->ctlMacView:Landroid/widget/EditText;
@@ -60,7 +60,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBandPicker;->showForControl(Landroid/app/Activity;Landroid/widget/EditText;)V
 
-    .line 352
+    .line 367
     :cond_f
     return-void
 .end method

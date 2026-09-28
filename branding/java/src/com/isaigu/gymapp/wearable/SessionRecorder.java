@@ -202,6 +202,7 @@ public final class SessionRecorder {
         for (int k = 0; k < gone.size(); k++) {
             close(gone.get(k), OPEN.get(gone.get(k)), now, false);
         }
+        ManualDefaults.tick(app, items);
         NextClient.tick(app, now, items, OPEN.size());
         // Recovery heart rate after the end.
         for (int k = POST.size() - 1; k >= 0; k--) {

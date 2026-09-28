@@ -118,7 +118,43 @@ public final class XiaomiCloudAccount {
             throw new CloudError("Xiaomi входът не даде serviceToken (стъпка 3).");
         }
 
-        // get_source_list (status=1 → bound wearables with auth_key)
+        return sourceList(ssecurity, cUserId, serviceToken);
+    }
+
+    /**
+     * The reliable path for accounts with e-mail-code / SMS 2FA: the trainer logs in on Xiaomi's own
+     * page in a WebView, and we finish with the session cookies it leaves (passToken + userId + deviceId).
+     * A valid passToken makes serviceLogin return ssecurity directly — no password, no 2FA re-prompt.
+     *
+     * @param webCookies the Cookie header captured from account.xiaomi.com after the WebView login.
+     */
+    public static List<Band> fetchWithCookies(String webCookies) throws CloudError {
+        if (webCookies == null || webCookies.indexOf("passToken") < 0) {
+            throw new CloudError("Входът не завърши. Влез в Xiaomi акаунта докрай и опитай пак.");
+        }
+        Map<String, String> q = new LinkedHashMap<String, String>();
+        q.put("_json", "true");
+        q.put("sid", "miothealth");
+        q.put("_locale", "en_US");
+        Resp r = http("GET", SERVICE_LOGIN + "?" + query(q), null, UA_WEB, webCookies, false);
+        JSONObject j = parseXiaomiJson(r.body);
+        String ssecurity = j.optString("ssecurity", "");
+        String cUserId = j.optString("cUserId", "");
+        String location = j.optString("location", "");
+        if (ssecurity.length() == 0 || location.length() == 0) {
+            throw new CloudError("Xiaomi не потвърди сесията. Влез отново с Xiaomi акаунта.");
+        }
+        Map<String, String> jar = new LinkedHashMap<String, String>();
+        followForCookies(location, jar, 6);
+        String serviceToken = jar.get("serviceToken");
+        if (serviceToken == null || serviceToken.length() == 0) {
+            throw new CloudError("Xiaomi входът не даде serviceToken.");
+        }
+        return sourceList(ssecurity, cUserId, serviceToken);
+    }
+
+    /** get_source_list (status=1 → bound wearables with auth_key) → the bands. */
+    private static List<Band> sourceList(String ssecurity, String cUserId, String serviceToken) throws CloudError {
         String data = "{\"page_size\":50,\"status\":1}";
         String nonceB64 = XiaomiCloudCrypto.generateNonce(0L);
         Map<String, String> params = new LinkedHashMap<String, String>();

@@ -875,82 +875,189 @@ public final class WearableSettingsSection {
         }
     }
 
-    /** Ask for the Xiaomi account, then fetch the band's MAC + key in the background. */
+    /** Open Xiaomi's own login page in a WebView (it handles the e-mail code / 2FA), then finish with cookies. */
     static void showXiaomiLogin(final Activity a, final View root) {
-        int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
-        LinearLayout box = new LinearLayout(a);
-        box.setOrientation(LinearLayout.VERTICAL);
-        int pad = WearableUi.dp(a, 20);
-        box.setPadding(pad, WearableUi.dp(a, 8), pad, 0);
-
-        final EditText email = field(a, textCol);
-        email.setHint(WearableUi.tr("Имейл или телефон", "Email or phone"));
-        email.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 46));
-        box.addView(email, lp);
-
-        final EditText pass = field(a, textCol);
-        pass.setHint(WearableUi.tr("Парола", "Password"));
-        pass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 46));
-        lp2.topMargin = WearableUi.dp(a, 10);
-        box.addView(pass, lp2);
-
-        TextView note = WearableUi.text(a, WearableUi.tr(
-                "Данните за вход не се пазят — ползват се само сега, за да се вземе ключът от Xiaomi.",
-                "The login is not stored — used only now, to fetch the key from Xiaomi."),
-                12f, WearableUi.color(a, "text_secondary", 0xFF9AA0A6), false);
-        note.setPadding(0, WearableUi.dp(a, 12), 0, 0);
-        box.addView(note);
-
-        new android.app.AlertDialog.Builder(a)
-                .setTitle(WearableUi.tr("Вход с Xiaomi акаунт", "Log in with Xiaomi account"))
-                .setView(box)
-                .setPositiveButton(WearableUi.tr("Вземи ключа", "Fetch key"),
-                        new XiaomiLoginConfirm(a, root, email, pass))
-                .setNegativeButton(WearableUi.tr("Отказ", "Cancel"), null)
-                .show();
+        try {
+            new XiaomiWebLogin(a, root).open();
+        } catch (Throwable t) {
+            toast(a, WearableUi.tr("Не мога да отворя входа за Xiaomi.", "Cannot open the Xiaomi login."));
+        }
     }
 
-    static final class XiaomiLoginConfirm implements android.content.DialogInterface.OnClickListener {
+    static final String XIAOMI_LOGIN_URL =
+            "https://account.xiaomi.com/pass/serviceLogin?sid=miothealth&_locale=en_US";
+
+    /** WebView login: the trainer logs into Xiaomi (incl. e-mail code); we watch for the passToken cookie. */
+    static final class XiaomiWebLogin {
         private final Activity a;
         private final View root;
-        private final EditText email;
-        private final EditText pass;
+        private android.app.Dialog dialog;
+        private android.webkit.WebView web;
+        private boolean done;
 
-        XiaomiLoginConfirm(Activity a, View root, EditText email, EditText pass) {
+        XiaomiWebLogin(Activity a, View root) {
             this.a = a;
             this.root = root;
-            this.email = email;
-            this.pass = pass;
+        }
+
+        void open() {
+            int textCol = WearableUi.color(a, "text_primary", 0xFFFFFFFF);
+            int bg = WearableUi.color(a, "bg_screen", 0xFF121212);
+            LinearLayout box = new LinearLayout(a);
+            box.setOrientation(LinearLayout.VERTICAL);
+            box.setBackgroundColor(bg);
+
+            LinearLayout head = new LinearLayout(a);
+            head.setOrientation(LinearLayout.HORIZONTAL);
+            head.setGravity(Gravity.CENTER_VERTICAL);
+            int pad = WearableUi.dp(a, 12);
+            head.setPadding(pad, pad, pad, pad);
+            TextView title = WearableUi.text(a, WearableUi.tr("Вход с Xiaomi акаунт", "Log in with Xiaomi account"),
+                    16f, textCol, true);
+            head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView cancel = WearableUi.button(a, WearableUi.tr("Отказ", "Cancel"),
+                    WearableUi.color(a, "bg_elevated", 0xFF2A2A2A), textCol);
+            cancel.setOnClickListener(new XiaomiWebCancel(this));
+            head.addView(cancel);
+            box.addView(head, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            web = new android.webkit.WebView(a);
+            android.webkit.WebSettings s = web.getSettings();
+            s.setJavaScriptEnabled(true);
+            s.setDomStorageEnabled(true);
+            android.webkit.CookieManager cm = android.webkit.CookieManager.getInstance();
+            cm.setAcceptCookie(true);
+            try {
+                cm.setAcceptThirdPartyCookies(web, true);
+            } catch (Throwable ignored) {
+            }
+            web.setWebViewClient(new XiaomiWebClient(this));
+            box.addView(web, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+            dialog = new android.app.Dialog(a, android.R.style.Theme_Black_NoTitleBar);
+            dialog.setContentView(box);
+            dialog.setOnCancelListener(new XiaomiWebDismiss(this));
+            dialog.show();
+            try {
+                if (dialog.getWindow() != null) {
+                    dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT);
+                }
+            } catch (Throwable ignored) {
+            }
+            web.loadUrl(XIAOMI_LOGIN_URL);
+            handler.postDelayed(new XiaomiWebPoll(this), 1000L);
+        }
+
+        /** True once the account.xiaomi.com cookies carry a passToken (login finished, 2FA passed). */
+        void check() {
+            if (done) {
+                return;
+            }
+            String cookies = null;
+            try {
+                cookies = android.webkit.CookieManager.getInstance().getCookie("https://account.xiaomi.com");
+            } catch (Throwable ignored) {
+            }
+            if (cookies != null && cookies.indexOf("passToken") >= 0) {
+                done = true;
+                close();
+                toast(a, WearableUi.tr("Взимам ключа от Xiaomi…", "Fetching the key from Xiaomi…"));
+                new Thread(new XiaomiLoginTask(a, root, cookies), "xems-xiaomi-login").start();
+            } else {
+                handler.postDelayed(new XiaomiWebPoll(this), 800L);
+            }
+        }
+
+        void cancelled() {
+            if (done) {
+                return;
+            }
+            done = true;
+            close();
+        }
+
+        private void close() {
+            try {
+                if (web != null) {
+                    web.stopLoading();
+                    web.destroy();
+                    web = null;
+                }
+            } catch (Throwable ignored) {
+            }
+            try {
+                if (dialog != null) {
+                    dialog.dismiss();
+                    dialog = null;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    static final class XiaomiWebClient extends android.webkit.WebViewClient {
+        private final XiaomiWebLogin host;
+
+        XiaomiWebClient(XiaomiWebLogin host) {
+            this.host = host;
         }
 
         @Override
-        public void onClick(android.content.DialogInterface d, int which) {
-            String e = email.getText().toString().trim();
-            String p = pass.getText().toString();
-            if (e.length() == 0 || p.length() == 0) {
-                toast(a, WearableUi.tr("Въведи имейл и парола.", "Enter email and password."));
-                return;
-            }
-            toast(a, WearableUi.tr("Свързване с Xiaomi…", "Contacting Xiaomi…"));
-            new Thread(new XiaomiLoginTask(a, root, e, p), "xems-xiaomi-login").start();
+        public void onPageFinished(android.webkit.WebView view, String url) {
+            host.check();
+        }
+    }
+
+    static final class XiaomiWebPoll implements Runnable {
+        private final XiaomiWebLogin host;
+
+        XiaomiWebPoll(XiaomiWebLogin host) {
+            this.host = host;
+        }
+
+        @Override
+        public void run() {
+            host.check();
+        }
+    }
+
+    static final class XiaomiWebCancel implements View.OnClickListener {
+        private final XiaomiWebLogin host;
+
+        XiaomiWebCancel(XiaomiWebLogin host) {
+            this.host = host;
+        }
+
+        @Override
+        public void onClick(View v) {
+            host.cancelled();
+        }
+    }
+
+    static final class XiaomiWebDismiss implements android.content.DialogInterface.OnCancelListener {
+        private final XiaomiWebLogin host;
+
+        XiaomiWebDismiss(XiaomiWebLogin host) {
+            this.host = host;
+        }
+
+        @Override
+        public void onCancel(android.content.DialogInterface d) {
+            host.cancelled();
         }
     }
 
     static final class XiaomiLoginTask implements Runnable {
         private final Activity a;
         private final View root;
-        private final String email;
-        private final String pass;
+        private final String cookies;
 
-        XiaomiLoginTask(Activity a, View root, String email, String pass) {
+        XiaomiLoginTask(Activity a, View root, String cookies) {
             this.a = a;
             this.root = root;
-            this.email = email;
-            this.pass = pass;
+            this.cookies = cookies;
         }
 
         @Override
@@ -958,7 +1065,7 @@ public final class WearableSettingsSection {
             String error;
             java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
             try {
-                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchBands(email, pass);
+                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithCookies(cookies);
                 error = null;
             } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
                 error = ce.getMessage();

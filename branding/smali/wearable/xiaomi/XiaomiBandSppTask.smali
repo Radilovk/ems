@@ -42,18 +42,19 @@
 .method constructor <init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;I)V
     .registers 9
 
-    .line 22
+    .prologue
     const/4 v3, 0x0
 
-    const/4 v4, 0x0
-
-    const/4 v5, 0x0
-
+    .line 22
     move-object v0, p0
 
     move-object v1, p1
 
     move v2, p2
+
+    move-object v4, v3
+
+    move-object v5, v3
 
     invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;-><init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;ILcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;[BLjava/lang/String;)V
 
@@ -64,6 +65,7 @@
 .method constructor <init>(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;ILcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;[BLjava/lang/String;)V
     .registers 6
 
+    .prologue
     .line 26
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -89,89 +91,71 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .registers 6
 
+    .prologue
     .line 37
     :try_start_0
     iget v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->kind:I
 
-    packed-switch v0, :pswitch_data_6a
+    packed-switch v0, :pswitch_data_6c
 
-    goto :goto_4a
+    .line 71
+    :goto_5
+    return-void
 
-    .line 63
+    .line 39
     :pswitch_6
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onStartRealtimeDue()V
-
-    .line 64
-    goto :goto_4a
-
-    .line 60
-    :pswitch_c
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onReconnectTick()V
-
-    .line 61
-    goto :goto_4a
-
-    .line 57
-    :pswitch_12
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onWatchTick()V
-
-    .line 58
-    goto :goto_4a
-
-    .line 54
-    :pswitch_18
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onAuthTimeout()V
-
-    .line 55
-    goto :goto_4a
-
-    .line 51
-    :pswitch_1e
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onVersionTimeout()V
-
-    .line 52
-    goto :goto_4a
-
-    .line 48
-    :pswitch_24
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
-
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->port:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->detail:Ljava/lang/String;
+    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onPortOpened(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;)V
+    :try_end_d
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_d} :catch_e
 
-    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onPortClosed(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;Ljava/lang/String;)V
+    goto :goto_5
 
-    .line 49
-    goto :goto_4a
+    .line 68
+    :catch_e
+    move-exception v0
 
-    .line 45
-    :pswitch_2e
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
+    .line 69
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->port:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;
+    const-string v2, "ERR:spp_task"
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->data:[B
+    new-instance v3, Ljava/lang/StringBuilder;
 
-    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onPortBytes(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;[B)V
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 46
-    goto :goto_4a
+    iget v4, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->kind:I
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v1, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_5
 
     .line 42
-    :pswitch_38
+    :pswitch_30
+    :try_start_30
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->port:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;
@@ -180,69 +164,85 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onPortFailed(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;Ljava/lang/String;)V
 
-    .line 43
-    goto :goto_4a
+    goto :goto_5
 
-    .line 39
-    :pswitch_42
+    .line 45
+    :pswitch_3a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->port:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onPortOpened(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;)V
-    :try_end_49
-    .catchall {:try_start_0 .. :try_end_49} :catchall_4b
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->data:[B
 
-    .line 40
-    nop
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onPortBytes(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;[B)V
 
-    .line 70
-    :goto_4a
-    goto :goto_69
+    goto :goto_5
 
-    .line 68
-    :catchall_4b
-    move-exception v0
+    .line 48
+    :pswitch_44
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
-    .line 69
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->port:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->detail:Ljava/lang/String;
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onPortClosed(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppPort;Ljava/lang/String;)V
 
-    iget v3, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->kind:I
+    goto :goto_5
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    .line 51
+    :pswitch_4e
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
-    const-string v3, " "
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onVersionTimeout()V
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    goto :goto_5
 
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+    .line 54
+    :pswitch_54
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onAuthTimeout()V
 
-    move-result-object v0
+    goto :goto_5
 
-    const-string v2, "ERR:spp_task"
+    .line 57
+    :pswitch_5a
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
 
-    invoke-virtual {v1, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->log(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onWatchTick()V
 
-    .line 71
-    :goto_69
-    return-void
+    goto :goto_5
 
-    :pswitch_data_6a
+    .line 60
+    :pswitch_60
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onReconnectTick()V
+
+    goto :goto_5
+
+    .line 63
+    :pswitch_66
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppTask;->client:Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandSppClient;->onStartRealtimeDue()V
+    :try_end_6b
+    .catch Ljava/lang/Throwable; {:try_start_30 .. :try_end_6b} :catch_e
+
+    goto :goto_5
+
+    .line 37
+    :pswitch_data_6c
     .packed-switch 0x1
-        :pswitch_42
-        :pswitch_38
-        :pswitch_2e
-        :pswitch_24
-        :pswitch_1e
-        :pswitch_18
-        :pswitch_12
-        :pswitch_c
         :pswitch_6
+        :pswitch_30
+        :pswitch_3a
+        :pswitch_44
+        :pswitch_4e
+        :pswitch_54
+        :pswitch_5a
+        :pswitch_60
+        :pswitch_66
     .end packed-switch
 .end method

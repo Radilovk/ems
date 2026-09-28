@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 1175
+    .line 1284
     invoke-direct {p0}, Landroid/webkit/WebViewClient;-><init>()V
 
-    .line 1176
+    .line 1285
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
-    .line 1177
+    .line 1286
     return-void
 .end method
 
@@ -37,7 +37,7 @@
     .registers 3
 
     .prologue
-    .line 1186
+    .line 1295
     :try_start_0
     const-string v0, "(function(){if(window.__xh)return;window.__xh=1;function rep(t){try{if(t&&String(t).indexOf(\'ssecurity\')>=0)XemsX.report(String(t));}catch(e){}}var o=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(){var x=this;x.addEventListener(\'load\',function(){try{rep(x.responseText);}catch(e){}});return o.apply(this,arguments);};if(window.fetch){var f=window.fetch;window.fetch=function(){return f.apply(this,arguments).then(function(r){try{r.clone().text().then(rep);}catch(e){}return r;});};}})()"
 
@@ -47,11 +47,11 @@
     :try_end_6
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_6} :catch_7
 
-    .line 1189
+    .line 1298
     :goto_6
     return-void
 
-    .line 1187
+    .line 1296
     :catch_7
     move-exception v0
 
@@ -64,10 +64,10 @@
     .registers 5
 
     .prologue
-    .line 1193
+    .line 1302
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->injectHook(Landroid/webkit/WebView;)V
 
-    .line 1195
+    .line 1304
     :try_start_3
     const-string v0, "(function(){var t=document.body?document.body.innerText:\'\';if(t.indexOf(\'ssecurity\')>=0)XemsX.report(t);})()"
 
@@ -77,7 +77,7 @@
     :try_end_9
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_9} :catch_1d
 
-    .line 1199
+    .line 1308
     :goto_9
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
@@ -87,16 +87,16 @@
 
     if-eqz v0, :cond_17
 
-    .line 1200
+    .line 1309
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->readProbe()V
 
-    .line 1204
+    .line 1313
     :goto_16
     return-void
 
-    .line 1202
+    .line 1311
     :cond_17
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
@@ -104,7 +104,7 @@
 
     goto :goto_16
 
-    .line 1197
+    .line 1306
     :catch_1d
     move-exception v0
 
@@ -115,9 +115,9 @@
     .registers 4
 
     .prologue
-    .line 1181
+    .line 1290
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->injectHook(Landroid/webkit/WebView;)V
 
-    .line 1182
+    .line 1291
     return-void
 .end method

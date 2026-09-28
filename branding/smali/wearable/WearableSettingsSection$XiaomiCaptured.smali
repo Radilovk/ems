@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 932
+    .line 1041
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 933
+    .line 1042
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiCaptured;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
-    .line 934
+    .line 1043
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiCaptured;->text:Ljava/lang/String;
 
-    .line 935
+    .line 1044
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 3
 
     .prologue
-    .line 939
+    .line 1048
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiCaptured;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiCaptured;->text:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->captured(Ljava/lang/String;)V
 
-    .line 940
+    .line 1049
     return-void
 .end method

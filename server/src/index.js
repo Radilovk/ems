@@ -17,6 +17,7 @@ import {
 import cardTemplate from '../../branding/report/client-card.html';
 import reportTemplate from '../../branding/report/session-report.html';
 import { renderReport } from './report.js';
+import { putClients, pullClients, CLIENT_MAX_BYTES, CLIENTS_PUSH_MAX } from './clients.js';
 import {
   studioCode, isStudioCode, cleanProfile, allowHit,
   PROFILE_MAX_BYTES, INBOX_KEEP_SEC, INBOX_MAX_PER_STUDIO, INBOX_BATCH, INBOX_TOKEN_MAX_AGE_SEC,
@@ -88,6 +89,9 @@ export default {
       if (path === '/v1/profile') {
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
         if (request.method === 'POST') return handleProfile(request, env);
+      }
+      if (path === '/v1/clients' && request.method === 'POST') {
+        return handleClientsPut(request, env);
       }
       if (path === '/v1/inbox' && request.method === 'POST') {
         return handleInbox(request, env);
@@ -551,7 +555,37 @@ async function handleInbox(request, env) {
      WHERE license_id = ? AND updated_at > ? ORDER BY updated_at ASC LIMIT ?`,
   ).bind(licId, Math.max(since, ts - INBOX_KEEP_SEC), INBOX_BATCH).all();
   const items = (results || []).map((r) => ({ k: r.pkey, t: r.updated_at, p: JSON.parse(r.data) }));
-  return json({ ok: true, items, more: items.length === INBOX_BATCH });
+  const out = { ok: true, items, more: items.length === INBOX_BATCH };
+  // the studio's client dossiers changed by other tablets ride on the same request (the tablet sends its cursor)
+  if (body.clients && typeof body.clients === 'object') {
+    const c = await pullClients(env.DB, licId, body.clients.since, body.clients.after);
+    out.clients = c.items;
+    out.clients_next = c.next;
+    out.clients_more = c.more;
+  }
+  return json(out);
+}
+
+/** POST {token, device_id, clients:[…]} — the tablet's changed clients (only on a change). → {ok, ids:[{key, cid}]} */
+async function handleClientsPut(request, env) {
+  const ts = now();
+  const body = await readJsonBody(request, CLIENT_MAX_BYTES * CLIENTS_PUSH_MAX + 4096);
+  const deviceId = normDevice(body?.device_id);
+  const tokenBody = parseTokenBody(body?.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  if (!Array.isArray(body.clients) || body.clients.length === 0) return err('bad_request', 'clients');
+  if (!allowHit(`clients:dev:${deviceId}`, LIMITS.clientsPerMinutePerDevice, 60, ts)) {
+    return json({ ok: false, error: 'rate_limit' }, 429);
+  }
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  const lic = await env.DB.prepare('SELECT status, expires_at FROM licenses WHERE id = ?').bind(licId).first();
+  if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
+  const act = await env.DB.prepare('SELECT status FROM activations WHERE license_id = ? AND device_id = ?')
+    .bind(licId, deviceId).first();
+  if (!act || act.status !== 'active') return err('revoked', 'Device removed');
+  const ids = await putClients(env.DB, licId, body.clients, Date.now());
+  return json({ ok: true, ids });
 }
 
 async function handleUpdate(url, env) {

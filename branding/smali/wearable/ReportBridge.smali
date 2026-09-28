@@ -1095,7 +1095,7 @@
 
     iget-wide v2, v2, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    invoke-static {v2, v3}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsDossier;->keyFor(J)Ljava/lang/String;
 
     move-result-object v2
 
@@ -2268,7 +2268,7 @@
 
     iget-wide v2, v1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    invoke-static {v2, v3}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsDossier;->keyFor(J)Ljava/lang/String;
 
     move-result-object v1
 

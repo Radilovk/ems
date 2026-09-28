@@ -194,7 +194,7 @@ final class ReportBridge {
 
     void refreshNow(String json, String key) {
         try {
-            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json,
+            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, com.isaigu.gymapp.widget.XemsDossier.keyFor(user.id), json,
                     lookupFields(user));
             cardPrefs().edit().putString("url_" + user.id, url).putString("key_" + user.id, key).apply();
             WearableBleDiagLog.log("report", "card refreshed " + url);
@@ -213,7 +213,7 @@ final class ReportBridge {
         String hello = first.length() > 0
                 ? WearableUi.tr("Здравей, " + first + "! ", "Hi " + first + "! ") : "";
         try {
-            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, String.valueOf(user.id), json,
+            String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, com.isaigu.gymapp.widget.XemsDossier.keyFor(user.id), json,
                     lookupFields(user));
             cardPrefs().edit().putString("url_" + user.id, url).apply();
             shareText(subject, hello + WearableUi.tr("Ето твоя XEMS картон — напредъкът ти, обновява се след всяка тренировка: ",

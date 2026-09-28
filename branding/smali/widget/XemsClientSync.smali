@@ -8,7 +8,8 @@
     value = {
         Lcom/isaigu/gymapp/widget/XemsClientSync$Tick0;,
         Lcom/isaigu/gymapp/widget/XemsClientSync$Pull;,
-        Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;
+        Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;,
+        Lcom/isaigu/gymapp/widget/XemsClientSync$Dossiers;
     }
 .end annotation
 
@@ -40,12 +41,12 @@
     .registers 2
 
     .prologue
-    .line 40
+    .line 39
     const-wide/32 v0, 0x927c0
 
     sput-wide v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->gapMs:J
 
-    .line 42
+    .line 41
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -63,7 +64,7 @@
     .registers 1
 
     .prologue
-    .line 49
+    .line 48
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -73,7 +74,7 @@
     .registers 1
 
     .prologue
-    .line 34
+    .line 33
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
 
     return-object v0
@@ -83,7 +84,7 @@
     .registers 1
 
     .prologue
-    .line 34
+    .line 33
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
 
     return-object v0
@@ -93,7 +94,7 @@
     .registers 1
 
     .prologue
-    .line 34
+    .line 33
     sput-boolean p0, Lcom/isaigu/gymapp/widget/XemsClientSync;->busy:Z
 
     return p0
@@ -103,7 +104,7 @@
     .registers 1
 
     .prologue
-    .line 34
+    .line 33
     sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
 
     return v0
@@ -113,7 +114,7 @@
     .registers 2
 
     .prologue
-    .line 34
+    .line 33
     sget-wide v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->gapMs:J
 
     return-wide v0
@@ -123,7 +124,7 @@
     .registers 2
 
     .prologue
-    .line 34
+    .line 33
     sput-wide p0, Lcom/isaigu/gymapp/widget/XemsClientSync;->lastPoll:J
 
     return-wide p0
@@ -133,12 +134,12 @@
     .registers 6
 
     .prologue
-    .line 354
+    .line 376
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 355
+    .line 377
     const/4 v0, 0x0
 
     move v1, v0
@@ -152,7 +153,7 @@
 
     if-ge v1, v0, :cond_39
 
-    .line 356
+    .line 378
     const-string v0, ""
 
     invoke-virtual {p0, v1, v0}, Lorg/json/JSONArray;->optString(ILjava/lang/String;)Ljava/lang/String;
@@ -167,14 +168,14 @@
 
     move-result-object v3
 
-    .line 357
+    .line 379
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v0
 
     if-lez v0, :cond_32
 
-    .line 358
+    .line 380
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -190,7 +191,7 @@
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 355
+    .line 377
     :cond_32
     add-int/lit8 v0, v1, 0x1
 
@@ -198,13 +199,13 @@
 
     goto :goto_7
 
-    .line 358
+    .line 380
     :cond_36
     const-string v0, ""
 
     goto :goto_2b
 
-    .line 361
+    .line 383
     :cond_39
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -214,92 +215,22 @@
 .end method
 
 .method static digits9(Ljava/lang/String;)Ljava/lang/String;
-    .registers 5
+    .registers 2
 
     .prologue
     .line 391
-    if-nez p0, :cond_5
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsClientMatch;->digits9(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 392
-    const-string v0, ""
+    move-result-object v0
 
-    .line 402
-    :cond_4
-    :goto_4
     return-object v0
-
-    .line 394
-    :cond_5
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    .line 395
-    const/4 v0, 0x0
-
-    :goto_b
-    invoke-virtual {p0}, Ljava/lang/String;->length()I
-
-    move-result v2
-
-    if-ge v0, v2, :cond_23
-
-    .line 396
-    invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
-
-    move-result v2
-
-    .line 397
-    const/16 v3, 0x30
-
-    if-lt v2, v3, :cond_20
-
-    const/16 v3, 0x39
-
-    if-gt v2, v3, :cond_20
-
-    .line 398
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
-
-    .line 395
-    :cond_20
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_b
-
-    .line 401
-    :cond_23
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 402
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    const/16 v2, 0x9
-
-    if-le v1, v2, :cond_4
-
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    add-int/lit8 v1, v1, -0x9
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->substring(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    goto :goto_4
 .end method
 
 .method private static empty(Ljava/lang/String;)Z
     .registers 2
 
     .prologue
-    .line 406
+    .line 395
     if-eqz p0, :cond_c
 
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -325,150 +256,22 @@
 .end method
 
 .method static find(Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/bean/TrainUser;
-    .registers 8
+    .registers 3
 
     .prologue
-    const/4 v3, 0x0
-
-    const/4 v2, 0x0
-
-    .line 365
-    invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
+    .line 387
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsClientMatch;->find(Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/bean/TrainUser;
 
     move-result-object v0
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
-
-    .line 366
-    if-nez v0, :cond_c
-
-    move-object v0, v3
-
-    .line 387
-    :cond_b
-    :goto_b
     return-object v0
-
-    .line 369
-    :cond_c
-    new-instance v4, Ljava/util/ArrayList;
-
-    invoke-direct {v4, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
-
-    .line 370
-    invoke-virtual {p0}, Ljava/lang/String;->length()I
-
-    move-result v0
-
-    if-lez v0, :cond_3a
-
-    move v1, v2
-
-    .line 371
-    :goto_18
-    invoke-interface {v4}, Ljava/util/List;->size()I
-
-    move-result v0
-
-    if-ge v1, v0, :cond_3a
-
-    .line 372
-    invoke-interface {v4, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
-
-    .line 373
-    if-eqz v0, :cond_36
-
-    iget-object v5, v0, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
-
-    if-eqz v5, :cond_36
-
-    iget-object v5, v0, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
-
-    invoke-virtual {v5}, Ljava/lang/String;->trim()Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-virtual {p0, v5}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
-
-    move-result v5
-
-    if-nez v5, :cond_b
-
-    .line 371
-    :cond_36
-    add-int/lit8 v0, v1, 0x1
-
-    move v1, v0
-
-    goto :goto_18
-
-    .line 378
-    :cond_3a
-    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsClientSync;->digits9(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    .line 379
-    invoke-virtual {v1}, Ljava/lang/String;->length()I
-
-    move-result v0
-
-    const/4 v5, 0x7
-
-    if-lt v0, v5, :cond_62
-
-    .line 380
-    :goto_45
-    invoke-interface {v4}, Ljava/util/List;->size()I
-
-    move-result v0
-
-    if-ge v2, v0, :cond_62
-
-    .line 381
-    invoke-interface {v4, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
-
-    .line 382
-    if-eqz v0, :cond_5f
-
-    iget-object v5, v0, Lcom/isaigu/gymapp/bean/TrainUser;->phone:Ljava/lang/String;
-
-    invoke-static {v5}, Lcom/isaigu/gymapp/widget/XemsClientSync;->digits9(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-virtual {v1, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v5
-
-    if-nez v5, :cond_b
-
-    .line 380
-    :cond_5f
-    add-int/lit8 v2, v2, 0x1
-
-    goto :goto_45
-
-    :cond_62
-    move-object v0, v3
-
-    .line 387
-    goto :goto_b
 .end method
 
 .method static maybePoll(Z)V
     .registers 9
 
     .prologue
-    .line 127
+    .line 126
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
 
     if-eqz v0, :cond_e
@@ -483,18 +286,18 @@
 
     if-nez v0, :cond_f
 
-    .line 142
+    .line 141
     :cond_e
     :goto_e
     return-void
 
-    .line 130
+    .line 129
     :cond_f
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->token()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 131
+    .line 130
     if-eqz v0, :cond_e
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -503,12 +306,12 @@
 
     if-eqz v1, :cond_e
 
-    .line 134
+    .line 133
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 135
+    .line 134
     if-nez p0, :cond_25
 
     sget-boolean v1, Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
@@ -526,20 +329,20 @@
 
     if-ltz v1, :cond_e
 
-    .line 138
+    .line 137
     const/4 v1, 0x0
 
     sput-boolean v1, Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
 
-    .line 139
+    .line 138
     sput-wide v2, Lcom/isaigu/gymapp/widget/XemsClientSync;->lastPoll:J
 
-    .line 140
+    .line 139
     const/4 v1, 0x1
 
     sput-boolean v1, Lcom/isaigu/gymapp/widget/XemsClientSync;->busy:Z
 
-    .line 141
+    .line 140
     new-instance v1, Ljava/lang/Thread;
 
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsClientSync$Pull;
@@ -559,17 +362,17 @@
     .registers 19
 
     .prologue
-    .line 229
+    .line 251
     if-nez p1, :cond_4
 
-    .line 230
+    .line 252
     const/4 v2, 0x0
 
-    .line 350
+    .line 372
     :goto_3
     return v2
 
-    .line 232
+    .line 254
     :cond_4
     const-string v2, "name"
 
@@ -585,7 +388,7 @@
 
     move-result-object v5
 
-    .line 233
+    .line 255
     const-string v2, "email"
 
     const-string v3, ""
@@ -606,7 +409,7 @@
 
     move-result-object v6
 
-    .line 234
+    .line 256
     const-string v2, "phone"
 
     const-string v3, ""
@@ -621,7 +424,7 @@
 
     move-result-object v7
 
-    .line 235
+    .line 257
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -642,24 +445,24 @@
 
     if-nez v2, :cond_49
 
-    .line 236
+    .line 258
     :cond_47
     const/4 v2, 0x0
 
     goto :goto_3
 
-    .line 238
+    .line 260
     :cond_49
     invoke-static {v6, v7}, Lcom/isaigu/gymapp/widget/XemsClientSync;->find(Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/bean/TrainUser;
 
     move-result-object v3
 
-    .line 239
+    .line 261
     if-nez v3, :cond_1cc
 
     const/4 v2, 0x1
 
-    .line 240
+    .line 262
     :goto_50
     const-string v4, "t"
 
@@ -673,7 +476,7 @@
 
     mul-long/2addr v8, v10
 
-    .line 241
+    .line 263
     const-string v4, "xems_user_profiles"
 
     const/4 v10, 0x0
@@ -684,7 +487,7 @@
 
     move-result-object v12
 
-    .line 242
+    .line 264
     if-nez v2, :cond_85
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -722,22 +525,22 @@
 
     move v11, v4
 
-    .line 243
+    .line 265
     :goto_87
     if-eqz v2, :cond_92
 
-    .line 244
+    .line 266
     new-instance v3, Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-direct {v3}, Lcom/isaigu/gymapp/bean/TrainUser;-><init>()V
 
-    .line 245
+    .line 267
     iput-object v5, v3, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 246
+    .line 268
     iput-object v5, v3, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
-    .line 249
+    .line 271
     :cond_92
     invoke-virtual {v6}, Ljava/lang/String;->length()I
 
@@ -764,13 +567,13 @@
 
     if-nez v4, :cond_3e8
 
-    .line 250
+    .line 272
     iput-object v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->email:Ljava/lang/String;
 
-    .line 251
+    .line 273
     const/4 v4, 0x1
 
-    .line 253
+    .line 275
     :goto_ad
     invoke-virtual {v7}, Ljava/lang/String;->length()I
 
@@ -805,13 +608,13 @@
 
     if-nez v6, :cond_d0
 
-    .line 254
+    .line 276
     iput-object v7, v3, Lcom/isaigu/gymapp/bean/TrainUser;->phone:Ljava/lang/String;
 
-    .line 255
+    .line 277
     const/4 v4, 0x1
 
-    .line 257
+    .line 279
     :cond_d0
     iget-object v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
@@ -821,13 +624,13 @@
 
     if-eqz v6, :cond_db
 
-    .line 258
+    .line 280
     iput-object v5, v3, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 259
+    .line 281
     const/4 v4, 0x1
 
-    .line 261
+    .line 283
     :cond_db
     const-string v5, "sex"
 
@@ -839,7 +642,7 @@
 
     move-result-object v5
 
-    .line 262
+    .line 284
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
     move-result v6
@@ -852,7 +655,7 @@
 
     if-eqz v11, :cond_103
 
-    .line 263
+    .line 285
     :cond_f1
     const-string v6, "F"
 
@@ -864,7 +667,7 @@
 
     sget-object v5, Lcom/isaigu/gymapp/bean/Gender;->Female:Lcom/isaigu/gymapp/bean/Gender;
 
-    .line 264
+    .line 286
     :goto_fb
     iget-object v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
@@ -875,10 +678,10 @@
     :goto_100
     or-int/2addr v4, v6
 
-    .line 265
+    .line 287
     iput-object v5, v3, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
-    .line 267
+    .line 289
     :cond_103
     const-string v5, "by"
 
@@ -890,7 +693,7 @@
 
     move-result v6
 
-    .line 268
+    .line 290
     const/16 v5, 0x76c
 
     if-le v6, v5, :cond_13a
@@ -901,57 +704,57 @@
 
     if-eqz v11, :cond_13a
 
-    .line 269
+    .line 291
     :cond_116
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v7
 
-    .line 270
+    .line 292
     const/4 v5, -0x1
 
-    .line 271
+    .line 293
     iget-object v8, v3, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
     if-eqz v8, :cond_129
 
-    .line 272
+    .line 294
     iget-object v5, v3, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
     invoke-virtual {v7, v5}, Ljava/util/Calendar;->setTime(Ljava/util/Date;)V
 
-    .line 273
+    .line 295
     const/4 v5, 0x1
 
     invoke-virtual {v7, v5}, Ljava/util/Calendar;->get(I)I
 
     move-result v5
 
-    .line 275
+    .line 297
     :cond_129
     if-eq v5, v6, :cond_13a
 
-    .line 276
+    .line 298
     invoke-virtual {v7}, Ljava/util/Calendar;->clear()V
 
-    .line 277
+    .line 299
     const/4 v4, 0x6
 
     const/4 v5, 0x1
 
     invoke-virtual {v7, v6, v4, v5}, Ljava/util/Calendar;->set(III)V
 
-    .line 278
+    .line 300
     invoke-virtual {v7}, Ljava/util/Calendar;->getTime()Ljava/util/Date;
 
     move-result-object v4
 
     iput-object v4, v3, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
-    .line 279
+    .line 301
     const/4 v4, 0x1
 
-    .line 282
+    .line 304
     :cond_13a
     const-string v5, "h"
 
@@ -963,7 +766,7 @@
 
     move-result v5
 
-    .line 283
+    .line 305
     if-lez v5, :cond_152
 
     iget v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
@@ -977,13 +780,13 @@
 
     if-eq v6, v5, :cond_152
 
-    .line 284
+    .line 306
     iput v5, v3, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
 
-    .line 285
+    .line 307
     const/4 v4, 0x1
 
-    .line 287
+    .line 309
     :cond_152
     const-string v5, "w"
 
@@ -995,7 +798,7 @@
 
     move-result v5
 
-    .line 288
+    .line 310
     if-lez v5, :cond_3e5
 
     iget v6, v3, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
@@ -1017,26 +820,26 @@
 
     if-eq v6, v5, :cond_3e5
 
-    .line 289
+    .line 311
     int-to-float v4, v5
 
     iput v4, v3, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
 
-    .line 290
+    .line 312
     const/4 v4, 0x1
 
     move v7, v4
 
-    .line 292
+    .line 314
     :goto_173
     if-eqz v2, :cond_179
 
-    .line 293
+    .line 315
     const/4 v4, 0x0
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUserQuiet(Lcom/isaigu/gymapp/bean/TrainUser;Z)V
 
-    .line 296
+    .line 318
     :cond_179
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -1072,7 +875,7 @@
 
     move-result-object v6
 
-    .line 297
+    .line 319
     array-length v4, v6
 
     if-lez v4, :cond_1da
@@ -1081,7 +884,7 @@
 
     aget-object v4, v6, v4
 
-    .line 298
+    .line 320
     :goto_1a1
     array-length v5, v6
 
@@ -1093,20 +896,20 @@
 
     aget-object v5, v6, v5
 
-    .line 299
+    .line 321
     :goto_1a8
     new-instance v13, Ljava/util/HashSet;
 
     invoke-direct {v13}, Ljava/util/HashSet;-><init>()V
 
-    .line 300
+    .line 322
     array-length v8, v6
 
     const/4 v9, 0x2
 
     if-le v8, v9, :cond_1e0
 
-    .line 301
+    .line 323
     const/4 v8, 0x2
 
     aget-object v6, v6, v8
@@ -1126,29 +929,29 @@
 
     aget-object v10, v8, v6
 
-    .line 302
+    .line 324
     invoke-virtual {v10}, Ljava/lang/String;->length()I
 
     move-result v14
 
     if-lez v14, :cond_1c9
 
-    .line 303
+    .line 325
     invoke-interface {v13, v10}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 301
+    .line 323
     :cond_1c9
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_1bc
 
-    .line 239
+    .line 261
     :cond_1cc
     const/4 v2, 0x0
 
     goto/16 :goto_50
 
-    .line 242
+    .line 264
     :cond_1cf
     const/4 v4, 0x0
 
@@ -1156,31 +959,31 @@
 
     goto/16 :goto_87
 
-    .line 263
+    .line 285
     :cond_1d3
     sget-object v5, Lcom/isaigu/gymapp/bean/Gender;->Male:Lcom/isaigu/gymapp/bean/Gender;
 
     goto/16 :goto_fb
 
-    .line 264
+    .line 286
     :cond_1d7
     const/4 v6, 0x0
 
     goto/16 :goto_100
 
-    .line 297
+    .line 319
     :cond_1da
     const-string v4, ""
 
     goto :goto_1a1
 
-    .line 298
+    .line 320
     :cond_1dd
     const-string v5, ""
 
     goto :goto_1a8
 
-    .line 307
+    .line 329
     :cond_1e0
     const-string v6, "goal"
 
@@ -1192,7 +995,7 @@
 
     move-result-object v6
 
-    .line 308
+    .line 330
     invoke-virtual {v6}, Ljava/lang/String;->length()I
 
     move-result v8
@@ -1214,12 +1017,12 @@
 
     if-nez v8, :cond_200
 
-    .line 310
+    .line 332
     const/4 v7, 0x1
 
     move-object v4, v6
 
-    .line 312
+    .line 334
     :cond_200
     const-string v6, "fit"
 
@@ -1231,7 +1034,7 @@
 
     move-result-object v6
 
-    .line 313
+    .line 335
     invoke-virtual {v6}, Ljava/lang/String;->length()I
 
     move-result v8
@@ -1253,12 +1056,12 @@
 
     if-nez v8, :cond_220
 
-    .line 315
+    .line 337
     const/4 v7, 0x1
 
     move-object v5, v6
 
-    .line 317
+    .line 339
     :cond_220
     const-string v6, "contra"
 
@@ -1268,7 +1071,7 @@
 
     move-result-object v9
 
-    .line 318
+    .line 340
     const/4 v6, 0x0
 
     move v8, v7
@@ -1282,7 +1085,7 @@
 
     if-ge v6, v7, :cond_23e
 
-    .line 319
+    .line 341
     invoke-virtual {v9, v6}, Lorg/json/JSONArray;->optString(I)Ljava/lang/String;
 
     move-result-object v7
@@ -1293,12 +1096,12 @@
 
     or-int/2addr v8, v7
 
-    .line 318
+    .line 340
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_22a
 
-    .line 322
+    .line 344
     :cond_23e
     const-string v6, "focus"
 
@@ -1312,7 +1115,7 @@
 
     move-result-object v10
 
-    .line 323
+    .line 345
     const-string v6, "cond"
 
     move-object/from16 v0, p1
@@ -1325,7 +1128,7 @@
 
     move-result-object v7
 
-    .line 324
+    .line 346
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -1352,7 +1155,7 @@
 
     move-result-object v9
 
-    .line 325
+    .line 347
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -1379,7 +1182,7 @@
 
     move-result-object v6
 
-    .line 326
+    .line 348
     if-nez v11, :cond_294
 
     invoke-virtual {v9}, Ljava/lang/String;->length()I
@@ -1403,13 +1206,13 @@
 
     if-eqz v11, :cond_2a4
 
-    .line 328
+    .line 350
     :cond_2a2
     const/4 v8, 0x1
 
     move-object v9, v10
 
-    .line 330
+    .line 352
     :cond_2a4
     if-nez v11, :cond_2ac
 
@@ -1434,13 +1237,13 @@
 
     if-eqz v11, :cond_2bc
 
-    .line 332
+    .line 354
     :cond_2ba
     const/4 v8, 0x1
 
     move-object v6, v7
 
-    .line 334
+    .line 356
     :cond_2bc
     const-string v7, "note"
 
@@ -1456,7 +1259,7 @@
 
     move-result-object v10
 
-    .line 335
+    .line 357
     if-nez v8, :cond_2f0
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -1491,18 +1294,18 @@
 
     if-eqz v7, :cond_2f0
 
-    .line 336
+    .line 358
     const/4 v2, 0x0
 
     goto/16 :goto_3
 
-    .line 338
+    .line 360
     :cond_2f0
     new-instance v11, Ljava/lang/StringBuilder;
 
     invoke-direct {v11}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 339
+    .line 361
     sget-object v14, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->CONTRA:[Ljava/lang/String;
 
     array-length v15, v14
@@ -1516,7 +1319,7 @@
 
     aget-object v16, v14, v8
 
-    .line 340
+    .line 362
     move-object/from16 v0, v16
 
     invoke-interface {v13, v0}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
@@ -1525,7 +1328,7 @@
 
     if-eqz v7, :cond_317
 
-    .line 341
+    .line 363
     invoke-virtual {v11}, Ljava/lang/StringBuilder;->length()I
 
     move-result v7
@@ -1543,7 +1346,7 @@
 
     invoke-virtual {v7, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 339
+    .line 361
     :cond_317
     add-int/lit8 v7, v8, 0x1
 
@@ -1551,13 +1354,13 @@
 
     goto :goto_2fa
 
-    .line 341
+    .line 363
     :cond_31b
     const-string v7, ""
 
     goto :goto_30e
 
-    .line 344
+    .line 366
     :cond_31e
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
@@ -1565,7 +1368,7 @@
 
     if-lez v7, :cond_3da
 
-    .line 345
+    .line 367
     :goto_324
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
@@ -1573,7 +1376,7 @@
 
     if-lez v7, :cond_3de
 
-    .line 346
+    .line 368
     :goto_32a
     invoke-interface {v12}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
@@ -1679,7 +1482,7 @@
 
     move-result-object v8
 
-    .line 347
+    .line 369
     invoke-interface {v7, v8, v9}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v7
@@ -1710,7 +1513,7 @@
 
     invoke-interface {v7}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 348
+    .line 370
     new-instance v7, Ljava/lang/StringBuilder;
 
     invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
@@ -1737,31 +1540,31 @@
 
     iput-object v4, v3, Lcom/isaigu/gymapp/bean/TrainUser;->remark:Ljava/lang/String;
 
-    .line 349
+    .line 371
     const/4 v4, 0x1
 
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUserQuiet(Lcom/isaigu/gymapp/bean/TrainUser;Z)V
 
-    .line 350
+    .line 372
     if-eqz v2, :cond_3e2
 
     const/4 v2, 0x1
 
     goto/16 :goto_3
 
-    .line 344
+    .line 366
     :cond_3da
     const-string v4, "tone"
 
     goto/16 :goto_324
 
-    .line 345
+    .line 367
     :cond_3de
     const-string v5, "mid"
 
     goto/16 :goto_32a
 
-    .line 350
+    .line 372
     :cond_3e2
     const/4 v2, 0x2
 
@@ -1784,13 +1587,13 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 89
+    .line 88
     sput-wide v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->lastPoll:J
 
-    .line 90
+    .line 89
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsClientSync;->request(J)V
 
-    .line 91
+    .line 90
     return-void
 .end method
 
@@ -1798,12 +1601,12 @@
     .registers 2
 
     .prologue
-    .line 73
+    .line 72
     const-wide/32 v0, 0x927c0
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsClientSync;->request(J)V
 
-    .line 74
+    .line 73
     return-void
 .end method
 
@@ -1811,7 +1614,7 @@
     .registers 3
 
     .prologue
-    .line 52
+    .line 51
     const-string v0, "xems_client_sync"
 
     const/4 v1, 0x0
@@ -1827,7 +1630,7 @@
     .registers 4
 
     .prologue
-    .line 82
+    .line 81
     sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
 
     if-eqz v0, :cond_a
@@ -1841,12 +1644,12 @@
     :cond_a
     sput-wide p0, Lcom/isaigu/gymapp/widget/XemsClientSync;->gapMs:J
 
-    .line 83
+    .line 82
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
 
-    .line 84
+    .line 83
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsClientSync$Tick0;
@@ -1855,7 +1658,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 85
+    .line 84
     return-void
 .end method
 
@@ -1863,12 +1666,12 @@
     .registers 2
 
     .prologue
-    .line 78
+    .line 77
     const-wide/32 v0, 0xea60
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsClientSync;->request(J)V
 
-    .line 79
+    .line 78
     return-void
 .end method
 
@@ -1878,15 +1681,15 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 57
+    .line 56
     if-nez p0, :cond_4
 
-    .line 69
+    .line 68
     :cond_3
     :goto_3
     return-void
 
-    .line 60
+    .line 59
     :cond_4
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
@@ -1894,18 +1697,18 @@
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
 
-    .line 61
+    .line 60
     sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->started:Z
 
     if-nez v0, :cond_3
 
-    .line 64
+    .line 63
     sput-boolean v1, Lcom/isaigu/gymapp/widget/XemsClientSync;->started:Z
 
-    .line 67
+    .line 66
     sput-boolean v1, Lcom/isaigu/gymapp/widget/XemsClientSync;->poked:Z
 
-    .line 68
+    .line 67
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsClientSync;->H:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsClientSync$Tick0;
@@ -1927,35 +1730,35 @@
 
     const-wide/16 v6, 0x0
 
-    .line 100
+    .line 99
     if-nez p0, :cond_9
 
-    .line 101
+    .line 100
     const-string v0, ""
 
-    .line 113
+    .line 112
     :goto_8
     return-object v0
 
-    .line 103
+    .line 102
     :cond_9
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsClientSync;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v1
 
-    .line 104
+    .line 103
     const-string v0, "okAt"
 
     invoke-interface {v1, v0, v6, v7}, Landroid/content/SharedPreferences;->getLong(Ljava/lang/String;J)J
 
     move-result-wide v2
 
-    .line 105
+    .line 104
     cmp-long v0, v2, v6
 
     if-nez v0, :cond_20
 
-    .line 106
+    .line 105
     const-string v0, "\u043e\u0449\u0435 \u043d\u044f\u043c\u0430 \u0441\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0430\u0446\u0438\u044f"
 
     const-string v1, "not synced yet"
@@ -1966,7 +1769,7 @@
 
     goto :goto_8
 
-    .line 108
+    .line 107
     :cond_20
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -1982,7 +1785,7 @@
 
     move-result-wide v2
 
-    .line 109
+    .line 108
     const-wide/16 v4, 0x1
 
     cmp-long v0, v2, v4
@@ -1997,7 +1800,7 @@
 
     move-result-object v0
 
-    .line 112
+    .line 111
     :goto_3c
     const-string v2, "total"
 
@@ -2007,7 +1810,7 @@
 
     move-result v1
 
-    .line 113
+    .line 112
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -2044,7 +1847,7 @@
 
     goto :goto_8
 
-    .line 110
+    .line 109
     :cond_67
     cmp-long v0, v2, v8
 
@@ -2098,7 +1901,7 @@
 
     goto :goto_3c
 
-    .line 111
+    .line 110
     :cond_9c
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -2157,7 +1960,7 @@
     .registers 4
 
     .prologue
-    .line 95
+    .line 94
     if-eqz p0, :cond_f
 
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsClientSync;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;

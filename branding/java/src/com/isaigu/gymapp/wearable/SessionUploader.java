@@ -108,6 +108,11 @@ final class SessionUploader {
                 sent.add(s);
             }
         }
+        // filed under the client's dossier on the server: not there yet (offline) → after the next training
+        String cid = com.isaigu.gymapp.widget.XemsDossier.cidFor(Long.parseLong(uid));
+        if (cid.length() == 0) {
+            return false;
+        }
         JSONArray idx = SessionStore.index(c);
         List<JSONObject> todo = new ArrayList<JSONObject>();
         for (int i = 0; i < idx.length(); i++) {
@@ -124,7 +129,7 @@ final class SessionUploader {
             String data = SessionStore.load(c, id);
             if (data != null && data.startsWith("{")) {
                 try {
-                    com.isaigu.gymapp.widget.XemsLicenseClient.postSession(c, uid, id, todo.get(i).toString(), data);
+                    com.isaigu.gymapp.widget.XemsLicenseClient.postSession(c, cid, id, todo.get(i).toString(), data);
                 } catch (Throwable t) {
                     WearableBleDiagLog.log("report", "session " + id + " not sent: " + t);
                     return false;                      // offline / no license: try again after the next training

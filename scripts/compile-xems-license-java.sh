@@ -14,7 +14,7 @@ D8="${ROOT}/android-sdk/build-tools/30.0.3/d8"
 BAKSMALI="${ROOT}/tools/baksmali.jar"
 
 SOURCES=(
-  XemsLang.java XemsLicense.java XemsLicenseToken.java XemsLicenseClient.java
+  XemsLang.java XemsLicense.java XemsLicenseToken.java XemsLicenseClient.java XemsDossier.java XemsClientMatch.java
 )
 
 mkdir -p "${CLASSES_DIR}" "${SMALI_OUT}" "${BRANDING_SMALI}"
@@ -39,10 +39,11 @@ javac --release 8 -classpath "${ANDROID_JAR}:${JAVA_STUBS}" -d "${CLASSES_DIR}" 
 if (
   cd "${CLASSES_DIR}"
   "${D8}" --min-api 21 --lib "${ANDROID_JAR}" --output "${DEX_DIR}" \
-    com/isaigu/gymapp/widget/XemsLicense*.class
+    com/isaigu/gymapp/widget/XemsLicense*.class com/isaigu/gymapp/widget/XemsDossier*.class \
+    com/isaigu/gymapp/widget/XemsClientMatch*.class
 ); then
   java -jar "${BAKSMALI}" d "${DEX_DIR}/classes.dex" -o "${SMALI_OUT}"
-  for f in XemsLicense XemsLicenseToken XemsLicenseClient; do
+  for f in XemsLicense XemsLicenseToken XemsLicenseClient XemsDossier XemsClientMatch; do
     src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
     [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
     for inner in "${SMALI_OUT}/com/isaigu/gymapp/widget/${f}"\$*.smali; do

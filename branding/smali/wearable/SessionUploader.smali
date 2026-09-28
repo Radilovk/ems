@@ -209,79 +209,101 @@
 
     goto :goto_2d
 
-    .line 111
+    .line 112
     :cond_3d
-    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SessionStore;->index(Landroid/content/Context;)Lorg/json/JSONArray;
+    invoke-static {p1}, Ljava/lang/Long;->parseLong(Ljava/lang/String;)J
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsDossier;->cidFor(J)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 112
+    .line 113
+    invoke-virtual {v1}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-nez v0, :cond_4c
+
+    .line 148
+    :cond_4b
+    :goto_4b
+    return v6
+
+    .line 116
+    :cond_4c
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SessionStore;->index(Landroid/content/Context;)Lorg/json/JSONArray;
+
+    move-result-object v2
+
+    .line 117
     new-instance v11, Ljava/util/ArrayList;
 
     invoke-direct {v11}, Ljava/util/ArrayList;-><init>()V
 
     move v0, v6
 
-    .line 113
-    :goto_47
-    invoke-virtual {v1}, Lorg/json/JSONArray;->length()I
-
-    move-result v2
-
-    if-ge v0, v2, :cond_79
-
-    .line 114
-    invoke-virtual {v1, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
-
-    move-result-object v2
-
-    .line 115
-    if-eqz v2, :cond_76
-
-    const-string v3, "userId"
-
-    invoke-virtual {v2, v3}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
-
-    move-result-wide v4
-
-    invoke-static {v4, v5}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v3, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    .line 118
+    :goto_56
+    invoke-virtual {v2}, Lorg/json/JSONArray;->length()I
 
     move-result v3
 
-    if-eqz v3, :cond_76
+    if-ge v0, v3, :cond_88
 
-    const-string v3, "id"
-
-    .line 116
-    invoke-virtual {v2, v3}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
-
-    move-result-wide v4
-
-    invoke-static {v4, v5}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+    .line 119
+    invoke-virtual {v2, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
-
-    invoke-interface {v10, v3}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
-
-    move-result v3
-
-    if-nez v3, :cond_76
-
-    .line 117
-    invoke-interface {v11, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 113
-    :cond_76
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_47
 
     .line 120
-    :cond_79
+    if-eqz v3, :cond_85
+
+    const-string v4, "userId"
+
+    invoke-virtual {v3, v4}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
+
+    move-result-wide v4
+
+    invoke-static {v4, v5}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v4, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_85
+
+    const-string v4, "id"
+
+    .line 121
+    invoke-virtual {v3, v4}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
+
+    move-result-wide v4
+
+    invoke-static {v4, v5}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-interface {v10, v4}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_85
+
+    .line 122
+    invoke-interface {v11, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 118
+    :cond_85
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_56
+
+    .line 125
+    :cond_88
     new-instance v0, Lcom/isaigu/gymapp/wearable/SessionUploader$NewestFirst;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/SessionUploader$NewestFirst;-><init>()V
@@ -292,38 +314,38 @@
 
     move v8, v6
 
-    .line 122
-    :goto_83
+    .line 127
+    :goto_92
     invoke-interface {v11}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-ge v7, v0, :cond_12e
+    if-ge v7, v0, :cond_13d
 
     const/4 v0, 0x6
 
-    if-ge v8, v0, :cond_12e
+    if-ge v8, v0, :cond_13d
 
-    .line 123
+    .line 128
     invoke-interface {v11, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lorg/json/JSONObject;
 
-    const-string v1, "id"
+    const-string v2, "id"
 
-    invoke-virtual {v0, v1}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
+    invoke-virtual {v0, v2}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
 
     move-result-wide v2
 
-    .line 124
+    .line 129
     invoke-static {p0, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionStore;->load(Landroid/content/Context;J)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 125
-    if-eqz v5, :cond_b5
+    .line 130
+    if-eqz v5, :cond_c3
 
     const-string v0, "{"
 
@@ -331,10 +353,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_b5
+    if-eqz v0, :cond_c3
 
-    .line 127
-    :try_start_a6
+    .line 132
+    :try_start_b5
     invoke-interface {v11, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -347,66 +369,64 @@
 
     move-object v0, p0
 
-    move-object v1, p1
-
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->postSession(Landroid/content/Context;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;)V
-    :try_end_b5
-    .catch Ljava/lang/Throwable; {:try_start_a6 .. :try_end_b5} :catch_e0
+    :try_end_c3
+    .catch Ljava/lang/Throwable; {:try_start_b5 .. :try_end_c3} :catch_ee
 
-    .line 133
-    :cond_b5
+    .line 138
+    :cond_c3
     invoke-static {v2, v3}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
 
     move-result-object v0
 
     invoke-interface {v10, v0}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 134
-    new-instance v1, Ljava/lang/StringBuilder;
+    .line 139
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 135
+    .line 140
     invoke-interface {v10}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
-    move-result-object v2
+    move-result-object v3
 
-    :goto_c5
-    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+    :goto_d3
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_104
+    if-eqz v0, :cond_113
 
-    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/String;
 
-    .line 136
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
+    .line 141
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
-    move-result v3
+    move-result v4
 
-    if-lez v3, :cond_dc
+    if-lez v4, :cond_ea
 
-    .line 137
-    const/16 v3, 0x2c
+    .line 142
+    const/16 v4, 0x2c
 
-    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 139
-    :cond_dc
-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    .line 144
+    :cond_ea
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    goto :goto_c5
+    goto :goto_d3
 
-    .line 128
-    :catch_e0
+    .line 133
+    :catch_ee
     move-exception v0
 
-    .line 129
+    .line 134
     const-string v1, "report"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -439,65 +459,62 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 143
-    :cond_103
-    :goto_103
-    return v6
+    goto/16 :goto_4b
 
-    .line 141
-    :cond_104
+    .line 146
+    :cond_113
     invoke-interface {v9}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    new-instance v3, Ljava/lang/StringBuilder;
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v3, "up_"
+    const-string v4, "up_"
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
 
-    invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
 
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v2
 
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+    invoke-interface {v0, v3, v2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 122
+    .line 127
     add-int/lit8 v0, v7, 0x1
 
-    add-int/lit8 v1, v8, 0x1
+    add-int/lit8 v2, v8, 0x1
 
     move v7, v0
 
-    move v8, v1
+    move v8, v2
 
-    goto/16 :goto_83
+    goto/16 :goto_92
 
-    .line 143
-    :cond_12e
+    .line 148
+    :cond_13d
     invoke-interface {v11}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-le v0, v8, :cond_103
+    if-le v0, v8, :cond_4b
 
     const/4 v6, 0x1
 
-    goto :goto_103
+    goto/16 :goto_4b
 .end method

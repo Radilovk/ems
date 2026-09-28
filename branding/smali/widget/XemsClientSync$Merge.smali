@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 182
+    .line 204
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 183
+    .line 205
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;->items:Lorg/json/JSONArray;
 
-    .line 184
+    .line 206
     iput-boolean p2, p0, Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;->more:Z
 
-    .line 185
+    .line 207
     return-void
 .end method
 
@@ -53,8 +53,8 @@
 
     const/4 v1, 0x0
 
-    .line 189
-    .line 191
+    .line 211
+    .line 213
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$000()Landroid/content/Context;
 
@@ -76,7 +76,7 @@
 
     move v5, v1
 
-    .line 192
+    .line 214
     :goto_15
     iget-object v6, p0, Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;->items:Lorg/json/JSONArray;
 
@@ -86,23 +86,23 @@
 
     if-ge v0, v6, :cond_65
 
-    .line 193
+    .line 215
     iget-object v6, p0, Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;->items:Lorg/json/JSONArray;
 
     invoke-virtual {v6, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v7
 
-    .line 194
+    .line 216
     if-nez v7, :cond_28
 
-    .line 192
+    .line 214
     :goto_25
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_15
 
-    .line 198
+    .line 220
     :cond_28
     :try_start_28
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
@@ -122,13 +122,13 @@
 
     move-result v6
 
-    .line 199
+    .line 221
     if-ne v6, v11, :cond_45
 
-    .line 200
+    .line 222
     add-int/lit8 v5, v5, 0x1
 
-    .line 207
+    .line 229
     :cond_3a
     :goto_3a
     const-string v6, "t"
@@ -143,22 +143,22 @@
 
     goto :goto_25
 
-    .line 201
+    .line 223
     :cond_45
     const/4 v8, 0x2
 
     if-ne v6, v8, :cond_3a
 
-    .line 202
+    .line 224
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_3a
 
-    .line 204
+    .line 226
     :catch_4b
     move-exception v6
 
-    .line 205
+    .line 227
     const-string v8, "xems_sync"
 
     new-instance v9, Ljava/lang/StringBuilder;
@@ -183,7 +183,7 @@
 
     goto :goto_3a
 
-    .line 209
+    .line 231
     :cond_65
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$000()Landroid/content/Context;
@@ -194,7 +194,7 @@
 
     move-result-object v0
 
-    .line 210
+    .line 232
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v6
@@ -223,12 +223,12 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 211
+    .line 233
     add-int v0, v5, v4
 
     if-lez v0, :cond_f5
 
-    .line 213
+    .line 235
     :try_start_8c
     # getter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->app:Landroid/content/Context;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$000()Landroid/content/Context;
@@ -251,7 +251,7 @@
 
     move-result-object v2
 
-    .line 214
+    .line 236
     if-lez v5, :cond_100
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -283,7 +283,7 @@
 
     move-result-object v2
 
-    .line 215
+    .line 237
     if-lez v5, :cond_103
 
     if-lez v4, :cond_103
@@ -295,7 +295,7 @@
 
     move-result-object v2
 
-    .line 216
+    .line 238
     if-lez v4, :cond_106
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -333,48 +333,48 @@
 
     const/4 v2, 0x1
 
-    .line 213
+    .line 235
     invoke-static {v1, v0, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
     move-result-object v0
 
-    .line 216
+    .line 238
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
     :try_end_f5
     .catch Ljava/lang/Throwable; {:try_start_8c .. :try_end_f5} :catch_109
 
-    .line 220
+    .line 242
     :cond_f5
     :goto_f5
     iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsClientSync$Merge;->more:Z
 
     if-eqz v0, :cond_ff
 
-    .line 221
+    .line 243
     # setter for: Lcom/isaigu/gymapp/widget/XemsClientSync;->lastPoll:J
     invoke-static {v12, v13}, Lcom/isaigu/gymapp/widget/XemsClientSync;->access$502(J)J
 
-    .line 222
+    .line 244
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsClientSync;->poke()V
 
-    .line 224
+    .line 246
     :cond_ff
     return-void
 
-    .line 214
+    .line 236
     :cond_100
     :try_start_100
     const-string v0, ""
 
     goto :goto_bc
 
-    .line 215
+    .line 237
     :cond_103
     const-string v0, ""
 
     goto :goto_c6
 
-    .line 216
+    .line 238
     :cond_106
     const-string v0, ""
     :try_end_108
@@ -382,7 +382,7 @@
 
     goto :goto_e5
 
-    .line 217
+    .line 239
     :catch_109
     move-exception v0
 

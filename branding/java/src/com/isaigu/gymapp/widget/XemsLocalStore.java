@@ -96,6 +96,8 @@ public final class XemsLocalStore {
             loadUsers();
             loadPrograms();
             migrateOnce(ctx);
+            XemsDossier.init(ctx, new DossierSink());
+            XemsDossier.changed();                     // clients not on the server yet go up (only what differs)
             XemsClientSync.start(ctx);
             MessageDispatcher.dispatchEventMessage((short) 0x69);
             MessageDispatcher.dispatchEventMessage((short) 0x6a);
@@ -1064,6 +1066,36 @@ public final class XemsLocalStore {
         DataMgr dm = DataMgr.getInstance();
         if (dm.trainUsers != null) {
             FileUtils.saveListData(FILE_USERS, TrainUser.class, dm.trainUsers);
+        }
+        XemsDossier.changed();                          // the server copy follows (only what changed)
+    }
+
+    /** Remove a client without a dialog (removed on another tablet of the studio). */
+    static void removeUserQuiet(long id) {
+        DataMgr dm = DataMgr.getInstance();
+        if (dm.trainUsers == null) {
+            return;
+        }
+        for (int i = dm.trainUsers.size() - 1; i >= 0; i--) {
+            TrainUser u = dm.trainUsers.get(i);
+            if (u != null && u.id == id) {
+                dm.trainUsers.remove(i);
+            }
+        }
+        saveUsers();
+        MessageDispatcher.dispatchEventMessage((short) 0x69);
+    }
+
+    /** How the client dossier (XemsDossier) writes the tablet list. */
+    static final class DossierSink implements XemsDossier.Sink {
+        @Override
+        public void save(TrainUser u, boolean isUpdate) {
+            saveUserQuiet(u, isUpdate);
+        }
+
+        @Override
+        public void remove(long id) {
+            removeUserQuiet(id);
         }
     }
 

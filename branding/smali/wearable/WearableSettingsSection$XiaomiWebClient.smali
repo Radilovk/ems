@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 1003
+    .line 1008
     invoke-direct {p0}, Landroid/webkit/WebViewClient;-><init>()V
 
-    .line 1004
+    .line 1009
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
-    .line 1005
+    .line 1010
     return-void
 .end method
 
@@ -39,11 +39,11 @@
     .registers 4
 
     .prologue
-    .line 1009
+    .line 1014
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebClient;->host:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->check()V
 
-    .line 1010
+    .line 1015
     return-void
 .end method

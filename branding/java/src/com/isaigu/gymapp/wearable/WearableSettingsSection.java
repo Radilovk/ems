@@ -960,11 +960,16 @@ public final class WearableSettingsSection {
                 cookies = android.webkit.CookieManager.getInstance().getCookie("https://account.xiaomi.com");
             } catch (Throwable ignored) {
             }
-            if (cookies != null && cookies.indexOf("passToken") >= 0) {
+            if (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.hasPassToken(cookies)) {
+                String ua = null;
+                try {
+                    ua = web.getSettings().getUserAgentString();
+                } catch (Throwable ignored) {
+                }
                 done = true;
                 close();
                 toast(a, WearableUi.tr("Взимам ключа от Xiaomi…", "Fetching the key from Xiaomi…"));
-                new Thread(new XiaomiLoginTask(a, root, cookies), "xems-xiaomi-login").start();
+                new Thread(new XiaomiLoginTask(a, root, cookies, ua), "xems-xiaomi-login").start();
             } else {
                 handler.postDelayed(new XiaomiWebPoll(this), 800L);
             }
@@ -1053,11 +1058,13 @@ public final class WearableSettingsSection {
         private final Activity a;
         private final View root;
         private final String cookies;
+        private final String ua;
 
-        XiaomiLoginTask(Activity a, View root, String cookies) {
+        XiaomiLoginTask(Activity a, View root, String cookies, String ua) {
             this.a = a;
             this.root = root;
             this.cookies = cookies;
+            this.ua = ua;
         }
 
         @Override
@@ -1065,7 +1072,7 @@ public final class WearableSettingsSection {
             String error;
             java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
             try {
-                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithCookies(cookies);
+                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithCookies(cookies, ua);
                 error = null;
             } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
                 error = ce.getMessage();

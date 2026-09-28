@@ -64,7 +64,7 @@
     .line 25
     if-nez p0, :cond_3
 
-    .line 29
+    .line 30
     :goto_2
     return-void
 
@@ -79,6 +79,9 @@
     const-wide/16 v2, 0x320
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 29
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SessionUploader;->schedule(Lcom/isaigu/gymapp/bean/TrainUser;)V
 
     goto :goto_2
 .end method

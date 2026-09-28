@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 76
+    .line 77
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 77
+    .line 78
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/CardPublisher$Destroy;->w:Landroid/webkit/WebView;
 
-    .line 78
+    .line 79
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 83
+    .line 84
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/CardPublisher$Destroy;->w:Landroid/webkit/WebView;
 
@@ -50,18 +50,18 @@
 
     invoke-virtual {v0, v1}, Landroid/webkit/WebView;->removeJavascriptInterface(Ljava/lang/String;)V
 
-    .line 84
+    .line 85
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/CardPublisher$Destroy;->w:Landroid/webkit/WebView;
 
     invoke-virtual {v0}, Landroid/webkit/WebView;->destroy()V
     :try_end_c
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_c} :catch_d
 
-    .line 87
+    .line 88
     :goto_c
     return-void
 
-    .line 85
+    .line 86
     :catch_d
     move-exception v0
 

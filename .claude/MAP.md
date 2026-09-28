@@ -87,7 +87,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-channel-scale-java.sh` (57L, build:L70[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L101[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (205L, build:L91[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (177L, build:L106[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (178L, build:L106[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (63L, build:L68[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (83L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -191,7 +191,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandPairing.java` (439L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the Mi Fitness log; only if that finds nothing, offer typing th…
 - `BandRemote.java` (1078L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
-- `CardPublisher.java` (90L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
+- `CardPublisher.java` (91L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -211,6 +211,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SessionRec.java` (315L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
 - `SessionRecorder.java` (417L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
+- `SessionUploader.java` (155L, compile:music-sync*,wearable) — Sends the client's full training records (the per-second series kept in files/xems_sessions) to the license server, whi…
 - `WearableBandPicker.java` (215L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
 - `WearableBlePermissions.java` (180L, compile:music-sync*,wearable) — Runtime BLUETOOTH_CONNECT + BLUETOOTH_SCAN (Android 12+) — required for GATT connect/discover.
@@ -262,7 +263,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsIcon.java` (178L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (426L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
-- `XemsLicenseClient.java` (565L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
+- `XemsLicenseClient.java` (587L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
 - `XemsLicenseSection.java` (330L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (288L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
@@ -319,8 +320,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/index.js` (906L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
-- `server/src/limits.js` (25L) — Caps and rate-limit settings — stay safe on Workers free tier.
+- `server/src/history.js` (68L) — A training id is its start time in ms: digits only, else null.
+- `server/src/index.js` (981L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/limits.js` (27L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/utils.js` (83L) — Shared helpers for license server (testable, no Worker bindings).
@@ -329,6 +331,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/crypto-verify.test.js` (24L) — 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
 - `server/test/ems.test.js` (15L) — 
+- `server/test/history.test.js` (59L) — 
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (53L) — 
 - `server/test/utils.test.js` (99L) — 
@@ -547,13 +550,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
   - L28 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
 
-`docs/xems-client-sync.md` (73L)
+`docs/xems-client-sync.md` (74L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
   - L5 ## Кой е собственик на кои данни
-  - L14 ## Сливане на профил на таблета (`widget/XemsClientSync`)
-  - L27 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
-  - L56 ## Разходи (Cloudflare Workers + D1)
-  - L70 ## Кодът на студиото
+  - L15 ## Сливане на профил на таблета (`widget/XemsClientSync`)
+  - L28 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
+  - L57 ## Разходи (Cloudflare Workers + D1)
+  - L71 ## Кодът на студиото
 
 `docs/xems-license-api.md` (179L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
@@ -781,10 +784,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `server/CLAUDE.md` (11L)
   - L1 # server — XEMS license server (Cloudflare Worker + D1)
 
-`server/README.md` (64L)
+`server/README.md` (65L)
   - L1 # XEMS License Server (Cloudflare Worker)
   - L13 ## OTA обновяване (GitHub)
   - L20 ## API
   - L31 ## Тестове
   - L38 ## Deploy
-  - L58 ## Разходи
+  - L59 ## Разходи

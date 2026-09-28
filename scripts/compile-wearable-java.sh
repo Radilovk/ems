@@ -31,6 +31,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBandPicker.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableSettingsSection.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/BandPairing.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/SessionUploader.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrGuardCore.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrGuard.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/NotifyHaForegroundService.java"

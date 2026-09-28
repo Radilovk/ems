@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 34
+    .line 35
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 35
+    .line 36
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/CardPublisher$Run;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 36
+    .line 37
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 67
+    .line 68
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 68
+    .line 69
     if-eqz v1, :cond_2f
 
     const-string v2, "xems_client_cards"
@@ -78,7 +78,7 @@
 
     const-string v3, ""
 
-    .line 69
+    .line 70
     invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -91,7 +91,7 @@
 
     const/4 v0, 0x1
 
-    .line 68
+    .line 69
     :cond_2f
     return v0
 .end method
@@ -102,7 +102,7 @@
     .registers 8
 
     .prologue
-    .line 41
+    .line 42
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/CardPublisher$Run;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
@@ -118,53 +118,53 @@
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/CardPublisher$Run;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 42
+    .line 43
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/CardPublisher$Run;->hasCard(Lcom/isaigu/gymapp/bean/TrainUser;)Z
 
     move-result v0
 
     if-nez v0, :cond_15
 
-    .line 64
+    .line 65
     :cond_14
     :goto_14
     return-void
 
-    .line 45
+    .line 46
     :cond_15
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivityForPermissions()Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 46
+    .line 47
     if-eqz v1, :cond_14
 
-    .line 49
+    .line 50
     new-instance v6, Landroid/webkit/WebView;
 
     invoke-direct {v6, v1}, Landroid/webkit/WebView;-><init>(Landroid/content/Context;)V
 
-    .line 50
+    .line 51
     invoke-virtual {v6}, Landroid/webkit/WebView;->getSettings()Landroid/webkit/WebSettings;
 
     move-result-object v0
 
-    .line 51
+    .line 52
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V
 
-    .line 52
+    .line 53
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/webkit/WebSettings;->setDomStorageEnabled(Z)V
 
-    .line 53
+    .line 54
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/webkit/WebSettings;->setAllowFileAccess(Z)V
 
-    .line 54
+    .line 55
     new-instance v0, Lcom/isaigu/gymapp/wearable/ReportBridge;
 
     const/4 v2, 0x0
@@ -175,25 +175,25 @@
 
     invoke-direct/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/ReportBridge;-><init>(Landroid/app/Activity;Landroid/app/Dialog;Lcom/isaigu/gymapp/bean/TrainUser;J)V
 
-    .line 55
+    .line 56
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/wearable/ReportBridge;->auto:Z
 
-    .line 56
+    .line 57
     invoke-virtual {v0, v6}, Lcom/isaigu/gymapp/wearable/ReportBridge;->setWebView(Landroid/webkit/WebView;)V
 
-    .line 57
+    .line 58
     const-string v1, "XemsReport"
 
     invoke-virtual {v6, v0, v1}, Landroid/webkit/WebView;->addJavascriptInterface(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 58
+    .line 59
     const-string v0, "file:///android_asset/report/session-report.html"
 
     invoke-virtual {v6, v0}, Landroid/webkit/WebView;->loadUrl(Ljava/lang/String;)V
 
-    .line 59
+    .line 60
     # getter for: Lcom/isaigu/gymapp/wearable/CardPublisher;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/CardPublisher;->access$000()Landroid/os/Handler;
 
@@ -207,7 +207,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 60
+    .line 61
     const-string v0, "report"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -238,11 +238,11 @@
 
     goto :goto_14
 
-    .line 61
+    .line 62
     :catch_75
     move-exception v0
 
-    .line 62
+    .line 63
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;

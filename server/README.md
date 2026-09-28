@@ -40,6 +40,7 @@ npm test
 ```bash
 cd server
 npm install
+npx wrangler r2 bucket create xems-session-logs   # веднъж: пълните записи на тренировките (R2, binding LOGS)
 npx wrangler d1 migrations apply xems-license --remote
 npx wrangler deploy
 ```

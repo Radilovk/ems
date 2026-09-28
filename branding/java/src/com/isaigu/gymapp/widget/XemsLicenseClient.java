@@ -445,6 +445,28 @@ public final class XemsLicenseClient {
         throw new Exception("card: " + r.get("error"));
     }
 
+    /**
+     * One full training record to the server (POST /v1/session, kept in R2). {@code sumJson} is the
+     * training's summary, {@code dataJson} the per-second record. Call it off the main thread.
+     */
+    public static void postSession(Context c, String clientKey, long id, String sumJson, String dataJson)
+            throws Exception {
+        String token = XemsLicense.token();
+        if (!serverConfigured() || token == null || token.length() == 0) {
+            throw new IllegalStateException("no license server");
+        }
+        if (sumJson == null || !sumJson.trim().startsWith("{") || dataJson == null || !dataJson.trim().startsWith("{")) {
+            throw new IllegalArgumentException("session data");
+        }
+        String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token)
+                + ",\"client_key\":" + XemsLicenseToken.quote(clientKey)
+                + ",\"id\":" + id + ",\"sum\":" + sumJson + ",\"data\":" + dataJson + "}";
+        Map<String, Object> r = XemsLicenseToken.parseFlat(http("POST", "/v1/session", body));
+        if (!Boolean.TRUE.equals(r.get("ok"))) {
+            throw new Exception("session: " + r.get("error"));
+        }
+    }
+
     // ================================================================ plumbing
 
     /** Fields every request carries (the server's input data). */

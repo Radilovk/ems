@@ -70,38 +70,77 @@
 .end method
 
 .method public static armsDivider(I)F
-    .registers 5
+    .registers 3
 
     .prologue
-    const/high16 v3, 0x40a00000    # 5.0f
+    .line 107
+    const/high16 v0, 0x41200000    # 10.0f
 
+    .line 109
+    :try_start_2
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->armsDivider()F
+    :try_end_5
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_5} :catch_b
+
+    move-result v0
+
+    .line 112
+    :goto_6
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsDivider(IF)F
+
+    move-result v0
+
+    return v0
+
+    .line 110
+    :catch_b
+    move-exception v1
+
+    goto :goto_6
+.end method
+
+.method public static armsDivider(IF)F
+    .registers 6
+
+    .prologue
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 107
-    add-int/lit16 v1, p0, -0x96
+    .line 117
+    const/high16 v1, 0x40a00000    # 5.0f
 
-    int-to-float v1, v1
+    mul-float/2addr v1, p1
 
-    mul-float/2addr v1, v3
-
-    const/high16 v2, 0x437a0000    # 250.0f
+    const/high16 v2, 0x41200000    # 10.0f
 
     div-float/2addr v1, v2
 
-    add-float/2addr v1, v3
+    .line 118
+    add-int/lit16 v2, p0, -0x96
 
-    .line 108
+    int-to-float v2, v2
+
+    sub-float v3, p1, v1
+
+    mul-float/2addr v2, v3
+
+    const/high16 v3, 0x437a0000    # 250.0f
+
+    div-float/2addr v2, v3
+
+    add-float/2addr v1, v2
+
+    .line 119
     cmpg-float v2, v1, v0
 
-    if-gez v2, :cond_11
+    if-gez v2, :cond_17
 
-    :goto_10
+    :goto_16
     return v0
 
-    :cond_11
+    :cond_17
     move v0, v1
 
-    goto :goto_10
+    goto :goto_16
 .end method
 
 .method public static armsFactor()F

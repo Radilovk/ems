@@ -165,17 +165,19 @@ public final class WearableSettingsSection {
         fsp.topMargin = WearableUi.dp(a, 10);
         card.addView(fromSaved, fsp);
 
-        // Automatic: log in to the Xiaomi (Mi Fitness) account and pull the paired band's MAC + key
-        TextView fromXiaomi = WearableUi.button(a, WearableUi.tr("Вход с Xiaomi акаунт", "Log in with Xiaomi account"),
-                0xFFEA6A2B, 0xFFFFFFFF);
-        fromXiaomi.setOnClickListener(new XiaomiLoginClick(a, root));
+        // Automatic: read the band key + MAC from the log Mi Fitness writes (no Xiaomi login)
+        TextView fromLog = WearableUi.button(a, WearableUi.tr("Взимам ключа от лога на Mi Fitness",
+                "Get the key from the Mi Fitness log"), 0xFFEA6A2B, 0xFFFFFFFF);
+        fromLog.setOnClickListener(new LogImportClick(a, root));
         LinearLayout.LayoutParams xsp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, WearableUi.dp(a, 48));
         xsp.topMargin = WearableUi.dp(a, 8);
-        card.addView(fromXiaomi, xsp);
+        card.addView(fromLog, xsp);
         TextView xHint = WearableUi.text(a, WearableUi.tr(
-                "Влизаш веднъж; после бутонът сам обновява MAC и ключа от акаунта, без нов вход.",
-                "Log in once; after that the button refreshes the MAC and key from the account by itself."),
+                "В Mi Fitness: Профил → За приложението → докосвай логото много пъти (записва лог в Download/wearablelog). "
+                        + "После натисни бутона — намира ключа и MAC сам, или те пита за файла. Ключът може да се въведе и ръчно.",
+                "In Mi Fitness: Profile → About → tap the logo many times (writes a log to Download/wearablelog). "
+                        + "Then press the button — it finds the key and MAC itself, or asks for the file. You can also type the key by hand."),
                 12f, mutedCol, false);
         xHint.setPadding(0, WearableUi.dp(a, 6), 0, 0);
         card.addView(xHint);
@@ -857,6 +859,113 @@ public final class WearableSettingsSection {
             macView = null;
             keyView = null;
         }
+    }
+
+    // ================================================================ Mi Fitness log import
+    static final class LogImportClick implements View.OnClickListener {
+        private final Activity a;
+        private final View root;
+
+        LogImportClick(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void onClick(View v) {
+            toast(a, WearableUi.tr("Търся лога на Mi Fitness…", "Looking for the Mi Fitness log…"));
+            new Thread(new LogScanTask(a, root), "xems-mifit-scan").start();
+        }
+    }
+
+    static final class LogScanTask implements Runnable {
+        private final Activity a;
+        private final View root;
+
+        LogScanTask(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void run() {
+            com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f = null;
+            try {
+                f = com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.scanLocal();
+            } catch (Throwable ignored) {
+            }
+            handler.post(new LogScanDone(a, root, f));
+        }
+    }
+
+    static final class LogScanDone implements Runnable {
+        private final Activity a;
+        private final View root;
+        private final com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found found;
+
+        LogScanDone(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found found) {
+            this.a = a;
+            this.root = root;
+            this.found = found;
+        }
+
+        @Override
+        public void run() {
+            if (found != null) {
+                applyLog(a, root, found);
+                return;
+            }
+            toast(a, WearableUi.tr("Автоматично не мога да го прочета — избери файла от лога (Download/wearablelog).",
+                    "Cannot read it automatically — pick the log file (Download/wearablelog)."));
+            com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.pick(a, new LogPicked(a, root));
+        }
+    }
+
+    static final class LogPicked implements com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Done {
+        private final Activity a;
+        private final View root;
+
+        LogPicked(Activity a, View root) {
+            this.a = a;
+            this.root = root;
+        }
+
+        @Override
+        public void onFound(com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f, String problem) {
+            if (f == null) {
+                toast(a, WearableUi.tr("В избраните файлове няма ключ. Провери, че е логът от Mi Fitness (след сдвояване).",
+                        "No key in the chosen files. Make sure it is the Mi Fitness log (after pairing)."));
+                return;
+            }
+            applyLog(a, root, f);
+        }
+    }
+
+    static void applyLog(Activity a, View root, com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport.Found f) {
+        WearableConfig.setAuthKey(a, f.key);
+        if (f.mac.length() > 0) {
+            WearableConfig.setBandMac(a, f.mac);
+            WearableConfig.rememberBand(a, f.mac, f.key, "");
+        }
+        if (macView != null && f.mac.length() > 0) {
+            macView.setText(f.mac);
+        }
+        if (keyView != null) {
+            keyView.setText(f.key);
+            setKeyHidden(true);
+        }
+        colorFields();
+        if (f.mac.length() > 0) {
+            toast(a, WearableUi.tr("Готово — ключът и MAC са попълнени ✓", "Done — key and MAC filled ✓"));
+        } else {
+            toast(a, WearableUi.tr("Ключът е попълнен ✓. MAC не намерих в лога — въведи го (или ползвай „От запазените“).",
+                    "Key filled ✓. No MAC found in the log — enter it (or use “From saved”)."));
+        }
+        if (f.fromToken) {
+            toast(a, WearableUi.tr("Ключът е от поле „token“ — ако гривната не се свърже, провери го.",
+                    "Key comes from a “token” field — if the band does not connect, double-check it."));
+        }
+        handler.post(new Rebuild(a, root));
     }
 
     // ================================================================ Xiaomi account login

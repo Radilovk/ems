@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 1302
+    .line 1411
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1303
+    .line 1412
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;->a:Landroid/app/Activity;
 
-    .line 1304
+    .line 1413
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;->root:Landroid/view/View;
 
-    .line 1305
+    .line 1414
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;->saved:Ljava/lang/String;
 
-    .line 1306
+    .line 1415
     return-void
 .end method
 
@@ -54,8 +54,8 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1310
-    .line 1312
+    .line 1419
+    .line 1421
     :try_start_1
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;->saved:Ljava/lang/String;
 
@@ -65,7 +65,7 @@
 
     move-result-object v0
 
-    .line 1316
+    .line 1425
     :goto_7
     if-eqz v0, :cond_f
 
@@ -75,7 +75,7 @@
 
     if-eqz v2, :cond_2a
 
-    .line 1317
+    .line 1426
     :cond_f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiRefreshTask;->a:Landroid/app/Activity;
 
@@ -83,7 +83,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setXiaomiSession(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 1318
+    .line 1427
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;
 
@@ -99,20 +99,20 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1322
+    .line 1431
     :goto_26
     return-void
 
-    .line 1313
+    .line 1422
     :catch_27
     move-exception v0
 
     move-object v0, v1
 
-    .line 1314
+    .line 1423
     goto :goto_7
 
-    .line 1321
+    .line 1430
     :cond_2a
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$1300()Landroid/os/Handler;

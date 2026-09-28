@@ -38,6 +38,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandCrypto.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandBleClient.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandGattCallback.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/xiaomi/XiaomiBandAuthTimeoutTask.java"

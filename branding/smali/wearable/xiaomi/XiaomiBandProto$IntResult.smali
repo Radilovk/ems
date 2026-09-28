@@ -24,6 +24,7 @@
 .method constructor <init>(II)V
     .registers 3
 
+    .prologue
     .line 143
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 

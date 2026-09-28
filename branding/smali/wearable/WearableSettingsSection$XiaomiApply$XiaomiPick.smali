@@ -46,15 +46,15 @@
     .end annotation
 
     .prologue
-    .line 1561
+    .line 1670
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply$XiaomiPick;->this$0:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1562
+    .line 1671
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply$XiaomiPick;->list:Ljava/util/List;
 
-    .line 1563
+    .line 1672
     return-void
 .end method
 
@@ -64,7 +64,7 @@
     .registers 5
 
     .prologue
-    .line 1567
+    .line 1676
     if-ltz p2, :cond_17
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply$XiaomiPick;->list:Ljava/util/List;
@@ -75,7 +75,7 @@
 
     if-ge p2, v0, :cond_17
 
-    .line 1568
+    .line 1677
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply$XiaomiPick;->this$0:Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply$XiaomiPick;->list:Ljava/util/List;
@@ -88,7 +88,7 @@
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiApply;->apply(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;)V
 
-    .line 1570
+    .line 1679
     :cond_17
     return-void
 .end method

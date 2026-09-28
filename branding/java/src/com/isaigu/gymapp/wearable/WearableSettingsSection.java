@@ -884,6 +884,22 @@ public final class WearableSettingsSection {
         }
     }
 
+    static final String XIAOMI_PROBE_URL =
+            "https://account.xiaomi.com/pass/serviceLogin?_json=true&sid=miothealth&_locale=en_US";
+
+    static final class XiaomiProbeResult implements android.webkit.ValueCallback<String> {
+        private final XiaomiWebLogin host;
+
+        XiaomiProbeResult(XiaomiWebLogin host) {
+            this.host = host;
+        }
+
+        @Override
+        public void onReceiveValue(String value) {
+            host.probeResult(value);
+        }
+    }
+
     static final String XIAOMI_LOGIN_URL =
             "https://account.xiaomi.com/pass/serviceLogin?sid=miothealth&_locale=en_US";
 
@@ -894,6 +910,9 @@ public final class WearableSettingsSection {
         private android.app.Dialog dialog;
         private android.webkit.WebView web;
         private boolean done;
+        private boolean probing;
+        private boolean gaveUp;
+        private int probes;
 
         XiaomiWebLogin(Activity a, View root) {
             this.a = a;
@@ -961,17 +980,70 @@ public final class WearableSettingsSection {
             } catch (Throwable ignored) {
             }
             if (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.hasPassToken(cookies)) {
+                if (!probing && !gaveUp && web != null) {
+                    probing = true;
+                    web.loadUrl(XIAOMI_PROBE_URL);
+                }
+            }
+            if (!gaveUp) {
+                handler.postDelayed(new XiaomiWebPoll(this), 800L);
+            }
+        }
+
+        boolean isProbe(String url) {
+            return url != null && url.indexOf("_json=true") >= 0;
+        }
+
+        /** The probe page (serviceLogin as JSON, loaded in the same WebView) has finished: read its text. */
+        void readProbe() {
+            if (done || web == null) {
+                return;
+            }
+            try {
+                web.evaluateJavascript("(function(){return document.body?document.body.innerText:'';})()",
+                        new XiaomiProbeResult(this));
+            } catch (Throwable t) {
+                probing = false;
+            }
+        }
+
+        void probeResult(String raw) {
+            if (done) {
+                return;
+            }
+            String text = "";
+            try {
+                Object v = new org.json.JSONTokener(raw == null ? "" : raw).nextValue();
+                text = v == null ? "" : String.valueOf(v);
+            } catch (Throwable ignored) {
+            }
+            String[] sess = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.parseSession(text);
+            if (sess[0].length() > 0 && sess[3].length() > 0) {
+                done = true;
                 String ua = null;
                 try {
                     ua = web.getSettings().getUserAgentString();
                 } catch (Throwable ignored) {
                 }
-                done = true;
                 close();
                 toast(a, WearableUi.tr("Взимам ключа от Xiaomi…", "Fetching the key from Xiaomi…"));
-                new Thread(new XiaomiLoginTask(a, root, cookies, ua), "xems-xiaomi-login").start();
+                new Thread(new XiaomiLoginTask(a, root, sess), "xems-xiaomi-login").start();
+                return;
+            }
+            probes++;
+            if (probes < 3) {
+                probing = false;
+                return;
+            }
+            gaveUp = true;
+            if (sess[4].length() > 0 && web != null) {
+                toast(a, WearableUi.tr("Xiaomi иска потвърждение. Завърши го тук и натисни отново „Вход с Xiaomi акаунт“.",
+                        "Xiaomi wants a verification. Finish it here, then tap the Xiaomi login again."));
+                web.loadUrl(sess[4]);
             } else {
-                handler.postDelayed(new XiaomiWebPoll(this), 800L);
+                toast(a, WearableUi.tr("Xiaomi не върна сесия" + (sess[5].length() > 0 ? " (" + sess[5] + ")" : "")
+                        + ". Опитай пак.", "Xiaomi returned no session. Try again."));
+                close();
             }
         }
 
@@ -1011,7 +1083,11 @@ public final class WearableSettingsSection {
 
         @Override
         public void onPageFinished(android.webkit.WebView view, String url) {
-            host.check();
+            if (host.isProbe(url)) {
+                host.readProbe();
+            } else {
+                host.check();
+            }
         }
     }
 
@@ -1057,14 +1133,12 @@ public final class WearableSettingsSection {
     static final class XiaomiLoginTask implements Runnable {
         private final Activity a;
         private final View root;
-        private final String cookies;
-        private final String ua;
+        private final String[] sess;
 
-        XiaomiLoginTask(Activity a, View root, String cookies, String ua) {
+        XiaomiLoginTask(Activity a, View root, String[] sess) {
             this.a = a;
             this.root = root;
-            this.cookies = cookies;
-            this.ua = ua;
+            this.sess = sess;
         }
 
         @Override
@@ -1072,7 +1146,8 @@ public final class WearableSettingsSection {
             String error;
             java.util.List<com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.Band> bands = null;
             try {
-                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithCookies(cookies, ua);
+                bands = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.fetchWithSession(
+                        sess[0], sess[1], sess[2], sess[3]);
                 error = null;
             } catch (com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.CloudError ce) {
                 error = ce.getMessage();

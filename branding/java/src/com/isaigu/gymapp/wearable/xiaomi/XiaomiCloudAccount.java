@@ -181,6 +181,40 @@ public final class XiaomiCloudAccount {
         return sourceList(ssecurity, cUserId, serviceToken);
     }
 
+    /** Parses the JSON that serviceLogin returned inside the WebView: {ssecurity, nonce, cUserId, location, notificationUrl, description}. */
+    public static String[] parseSession(String text) {
+        String[] out = new String[] {"", "", "", "", "", ""};
+        try {
+            JSONObject j = parseXiaomiJson(text);
+            out[0] = j.optString("ssecurity", "");
+            out[1] = j.optString("nonce", "");
+            out[2] = j.optString("cUserId", "");
+            out[3] = j.optString("location", "");
+            out[4] = j.optString("notificationUrl", "");
+            out[5] = j.optString("description", "");
+        } catch (Throwable ignored) {
+        }
+        return out;
+    }
+
+    /** Finish from a session the WebView already confirmed: serviceToken via location, then the band list. */
+    public static List<Band> fetchWithSession(String ssecurity, String nonce, String cUserId, String location)
+            throws CloudError {
+        String loc = location;
+        if (nonce != null && nonce.length() > 0) {
+            String clientSign = XiaomiCloudCrypto.b64encode(
+                    XiaomiCloudCrypto.digest("SHA-1", XiaomiCloudCrypto.utf8("nonce=" + nonce + "&" + ssecurity)));
+            loc = location + (location.indexOf('?') < 0 ? "?" : "&") + "clientSign=" + enc(clientSign);
+        }
+        Map<String, String> jar = new LinkedHashMap<String, String>();
+        followForCookies(loc, jar, 6);
+        String serviceToken = jar.get("serviceToken");
+        if (serviceToken == null || serviceToken.length() == 0) {
+            throw new CloudError("Xiaomi входът не даде serviceToken.");
+        }
+        return sourceList(ssecurity, cUserId, serviceToken);
+    }
+
     /** True only for a non-empty, non-expired passToken (an empty one is set on the login page itself). */
     public static boolean hasPassToken(String cookies) {
         if (cookies == null) {

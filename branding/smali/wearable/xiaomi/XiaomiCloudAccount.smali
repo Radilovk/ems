@@ -40,17 +40,17 @@
     .registers 4
 
     .prologue
-    .line 264
+    .line 298
     if-nez p0, :cond_5
 
-    .line 265
+    .line 299
     const-string v0, ""
 
-    .line 271
+    .line 305
     :goto_4
     return-object v0
 
-    .line 267
+    .line 301
     :cond_5
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -80,7 +80,7 @@
 
     move-result-object v0
 
-    .line 268
+    .line 302
     const-string v1, "0x"
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -97,7 +97,7 @@
 
     if-eqz v1, :cond_36
 
-    .line 269
+    .line 303
     :cond_31
     const/4 v1, 0x2
 
@@ -105,7 +105,7 @@
 
     move-result-object v0
 
-    .line 271
+    .line 305
     :cond_36
     sget-object v1, Ljava/util/Locale;->US:Ljava/util/Locale;
 
@@ -124,18 +124,18 @@
 
     const/16 v4, 0xc
 
-    .line 275
+    .line 309
     if-nez p0, :cond_9
 
-    .line 276
+    .line 310
     const-string v0, ""
 
-    .line 289
+    .line 323
     :cond_8
     :goto_8
     return-object v0
 
-    .line 278
+    .line 312
     :cond_9
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -147,7 +147,7 @@
 
     move-result-object v0
 
-    .line 279
+    .line 313
     invoke-virtual {v0, v5}, Ljava/lang/String;->indexOf(I)I
 
     move-result v1
@@ -160,37 +160,37 @@
 
     if-ne v1, v4, :cond_8
 
-    .line 280
+    .line 314
     new-instance v2, Ljava/lang/StringBuilder;
 
     const/16 v1, 0x11
 
     invoke-direct {v2, v1}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 281
+    .line 315
     const/4 v1, 0x0
 
     :goto_27
     if-ge v1, v4, :cond_36
 
-    .line 282
+    .line 316
     if-lez v1, :cond_2e
 
-    .line 283
+    .line 317
     invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 285
+    .line 319
     :cond_2e
     add-int/lit8 v3, v1, 0x2
 
     invoke-virtual {v2, v0, v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/CharSequence;II)Ljava/lang/StringBuilder;
 
-    .line 281
+    .line 315
     add-int/lit8 v1, v1, 0x2
 
     goto :goto_27
 
-    .line 287
+    .line 321
     :cond_36
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -221,14 +221,14 @@
 
     const/4 v6, 0x0
 
-    .line 249
+    .line 283
     const-string v0, "detail"
 
     invoke-virtual {p0, v0}, Lorg/json/JSONObject;->optJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
 
     move-result-object v1
 
-    .line 250
+    .line 284
     new-array v2, v5, [Ljava/lang/String;
 
     const-string v0, "mac"
@@ -258,19 +258,19 @@
 
     const-string v3, ""
 
-    .line 251
+    .line 285
     invoke-virtual {p0, v0, v3}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     aput-object v0, v2, v8
 
-    .line 250
+    .line 284
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->firstNonEmpty([Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 252
+    .line 286
     new-array v3, v5, [Ljava/lang/String;
 
     const-string v0, "auth_key"
@@ -300,19 +300,19 @@
 
     const-string v4, ""
 
-    .line 253
+    .line 287
     invoke-virtual {p0, v0, v4}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     aput-object v0, v3, v8
 
-    .line 252
+    .line 286
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->firstNonEmpty([Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 254
+    .line 288
     new-array v4, v5, [Ljava/lang/String;
 
     const-string v0, "name"
@@ -342,29 +342,29 @@
 
     const-string v1, ""
 
-    .line 255
+    .line 289
     invoke-virtual {p0, v0, v1}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     aput-object v0, v4, v8
 
-    .line 254
+    .line 288
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->firstNonEmpty([Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 256
+    .line 290
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->cleanKey(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 257
+    .line 291
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->cleanMac(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 258
+    .line 292
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v3
@@ -381,30 +381,30 @@
 
     if-ne v3, v4, :cond_9c
 
-    .line 259
+    .line 293
     new-instance v3, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;
 
     invoke-direct {v3, v2, v1, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
     invoke-interface {p1, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 261
+    .line 295
     :cond_9c
     return-void
 
-    .line 250
+    .line 284
     :cond_9d
     const-string v0, ""
 
     goto :goto_20
 
-    .line 252
+    .line 286
     :cond_a0
     const-string v0, ""
 
     goto :goto_46
 
-    .line 254
+    .line 288
     :cond_a3
     const-string v0, ""
 
@@ -428,16 +428,16 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 361
+    .line 395
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->headers:Ljava/util/Map;
 
     if-nez v0, :cond_6
 
-    .line 381
+    .line 415
     :cond_5
     return-void
 
-    .line 364
+    .line 398
     :cond_6
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->headers:Ljava/util/Map;
 
@@ -462,7 +462,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 365
+    .line 399
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
@@ -485,7 +485,7 @@
 
     move v2, v3
 
-    .line 368
+    .line 402
     :goto_31
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
@@ -499,7 +499,7 @@
 
     if-ge v2, v1, :cond_10
 
-    .line 369
+    .line 403
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v1
@@ -512,24 +512,24 @@
 
     check-cast v1, Ljava/lang/String;
 
-    .line 370
+    .line 404
     const/16 v4, 0x3d
 
     invoke-virtual {v1, v4}, Ljava/lang/String;->indexOf(I)I
 
     move-result v6
 
-    .line 371
+    .line 405
     const/16 v4, 0x3b
 
     invoke-virtual {v1, v4}, Ljava/lang/String;->indexOf(I)I
 
     move-result v4
 
-    .line 372
+    .line 406
     if-lez v6, :cond_80
 
-    .line 373
+    .line 407
     invoke-virtual {v1, v3, v6}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v7
@@ -538,7 +538,7 @@
 
     move-result-object v7
 
-    .line 374
+    .line 408
     add-int/lit8 v6, v6, 0x1
 
     if-gez v4, :cond_67
@@ -556,7 +556,7 @@
 
     move-result-object v1
 
-    .line 375
+    .line 409
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v4
@@ -571,10 +571,10 @@
 
     if-nez v4, :cond_80
 
-    .line 376
+    .line 410
     invoke-interface {p1, v7, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 368
+    .line 402
     :cond_80
     add-int/lit8 v1, v2, 0x1
 
@@ -587,7 +587,7 @@
     .registers 2
 
     .prologue
-    .line 455
+    .line 489
     :try_start_0
     const-string v0, "UTF-8"
 
@@ -597,11 +597,11 @@
 
     move-result-object p0
 
-    .line 457
+    .line 491
     :goto_6
     return-object p0
 
-    .line 456
+    .line 490
     :catch_7
     move-exception v0
 
@@ -1734,11 +1734,186 @@
     goto/16 :goto_7f
 .end method
 
+.method public static fetchWithSession(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;
+    .registers 7
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/lang/String;",
+            "Ljava/lang/String;",
+            "Ljava/lang/String;",
+            "Ljava/lang/String;",
+            ")",
+            "Ljava/util/List",
+            "<",
+            "Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Band;",
+            ">;"
+        }
+    .end annotation
+
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;
+        }
+    .end annotation
+
+    .prologue
+    .line 203
+    .line 204
+    if-eqz p1, :cond_5c
+
+    invoke-virtual {p1}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-lez v0, :cond_5c
+
+    .line 205
+    const-string v0, "SHA-1"
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "nonce="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v2, "&"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 206
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto;->utf8(Ljava/lang/String;)[B
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto;->digest(Ljava/lang/String;[B)[B
+
+    move-result-object v0
+
+    .line 205
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto;->b64encode([B)Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 207
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v0, p3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const/16 v0, 0x3f
+
+    invoke-virtual {p3, v0}, Ljava/lang/String;->indexOf(I)I
+
+    move-result v0
+
+    if-gez v0, :cond_7d
+
+    const-string v0, "?"
+
+    :goto_46
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v2, "clientSign="
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->enc(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p3
+
+    .line 209
+    :cond_5c
+    new-instance v0, Ljava/util/LinkedHashMap;
+
+    invoke-direct {v0}, Ljava/util/LinkedHashMap;-><init>()V
+
+    .line 210
+    const/4 v1, 0x6
+
+    invoke-static {p3, v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->followForCookies(Ljava/lang/String;Ljava/util/Map;I)V
+
+    .line 211
+    const-string v1, "serviceToken"
+
+    invoke-interface {v0, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    .line 212
+    if-eqz v0, :cond_75
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-nez v1, :cond_80
+
+    .line 213
+    :cond_75
+    new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;
+
+    const-string v1, "Xiaomi \u0432\u0445\u043e\u0434\u044a\u0442 \u043d\u0435 \u0434\u0430\u0434\u0435 serviceToken."
+
+    invoke-direct {v0, v1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;-><init>(Ljava/lang/String;)V
+
+    throw v0
+
+    .line 207
+    :cond_7d
+    const-string v0, "&"
+
+    goto :goto_46
+
+    .line 215
+    :cond_80
+    invoke-static {p0, p2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->sourceList(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 .method private static varargs firstNonEmpty([Ljava/lang/String;)Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 430
+    .line 464
     const/4 v0, 0x0
 
     :goto_1
@@ -1746,7 +1921,7 @@
 
     if-ge v0, v1, :cond_1e
 
-    .line 431
+    .line 465
     aget-object v1, p0, v0
 
     if-eqz v1, :cond_1b
@@ -1763,24 +1938,24 @@
 
     if-lez v1, :cond_1b
 
-    .line 432
+    .line 466
     aget-object v0, p0, v0
 
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 435
+    .line 469
     :goto_1a
     return-object v0
 
-    .line 430
+    .line 464
     :cond_1b
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 435
+    .line 469
     :cond_1e
     const-string v0, ""
 
@@ -1812,18 +1987,18 @@
 
     const/4 v5, 0x0
 
-    .line 340
+    .line 374
     const-string v4, ""
 
     move v6, v5
 
     move-object v1, p0
 
-    .line 341
+    .line 375
     :goto_6
     if-ge v6, p2, :cond_21
 
-    .line 342
+    .line 376
     const-string v0, "GET"
 
     const-string v3, "Mozilla/5.0 (Linux; Android 12; Pixel 4 Build/SP1A.210812.016.C1; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/131.0.6778.200 Mobile Safari/537.36"
@@ -1839,10 +2014,10 @@
 
     move-result-object v0
 
-    .line 343
+    .line 377
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->collectCookies(Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;Ljava/util/Map;)V
 
-    .line 344
+    .line 378
     const-string v3, "serviceToken"
 
     invoke-interface {p1, v3}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
@@ -1851,17 +2026,17 @@
 
     if-eqz v3, :cond_24
 
-    .line 358
+    .line 392
     :cond_21
     return-void
 
     :cond_22
     move-object v4, v2
 
-    .line 342
+    .line 376
     goto :goto_12
 
-    .line 347
+    .line 381
     :cond_24
     const-string v3, "Location"
 
@@ -1869,7 +2044,7 @@
 
     move-result-object v0
 
-    .line 348
+    .line 382
     if-eqz v0, :cond_21
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1878,7 +2053,7 @@
 
     if-eqz v3, :cond_21
 
-    .line 351
+    .line 385
     const-string v3, "/"
 
     invoke-virtual {v0, v3}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -1887,7 +2062,7 @@
 
     if-eqz v3, :cond_5f
 
-    .line 352
+    .line 386
     const/16 v3, 0x2f
 
     const-string v4, "://"
@@ -1902,7 +2077,7 @@
 
     move-result v3
 
-    .line 353
+    .line 387
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -1926,13 +2101,13 @@
 
     move-result-object v0
 
-    .line 356
+    .line 390
     :cond_5f
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->jarToHeader(Ljava/util/Map;)Ljava/lang/String;
 
     move-result-object v4
 
-    .line 341
+    .line 375
     add-int/lit8 v3, v6, 0x1
 
     move v6, v3
@@ -1956,7 +2131,7 @@
     .end annotation
 
     .prologue
-    .line 450
+    .line 484
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->query(Ljava/util/Map;)Ljava/lang/String;
 
     move-result-object v0
@@ -1974,15 +2149,15 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 186
+    .line 220
     if-nez p0, :cond_4
 
-    .line 197
+    .line 231
     :cond_3
     :goto_3
     return v1
 
-    .line 189
+    .line 223
     :cond_4
     const-string v0, ";"
 
@@ -1992,20 +2167,20 @@
 
     move v0, v1
 
-    .line 190
+    .line 224
     :goto_b
     array-length v3, v2
 
     if-ge v0, v3, :cond_3
 
-    .line 191
+    .line 225
     aget-object v3, v2, v0
 
     invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v3
 
-    .line 192
+    .line 226
     const-string v4, "passToken="
 
     invoke-virtual {v3, v4}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -2014,7 +2189,7 @@
 
     if-eqz v4, :cond_3c
 
-    .line 193
+    .line 227
     const-string v0, "passToken="
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -2029,7 +2204,7 @@
 
     move-result-object v0
 
-    .line 194
+    .line 228
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -2050,7 +2225,7 @@
 
     goto :goto_3
 
-    .line 190
+    .line 224
     :cond_3c
     add-int/lit8 v0, v0, 0x1
 
@@ -2063,18 +2238,18 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 395
+    .line 429
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->headers:Ljava/util/Map;
 
     if-nez v0, :cond_7
 
     move-object v0, v2
 
-    .line 403
+    .line 437
     :goto_6
     return-object v0
 
-    .line 398
+    .line 432
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->headers:Ljava/util/Map;
 
@@ -2099,7 +2274,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 399
+    .line 433
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
@@ -2130,7 +2305,7 @@
 
     if-nez v1, :cond_11
 
-    .line 400
+    .line 434
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v0
@@ -2150,7 +2325,7 @@
     :cond_49
     move-object v0, v2
 
-    .line 403
+    .line 437
     goto :goto_6
 .end method
 
@@ -2163,10 +2338,10 @@
     .end annotation
 
     .prologue
-    .line 307
+    .line 341
     const/4 v1, 0x0
 
-    .line 309
+    .line 343
     :try_start_1
     new-instance v0, Ljava/net/URL;
 
@@ -2181,77 +2356,77 @@
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_c} :catch_6a
     .catchall {:try_start_1 .. :try_end_c} :catchall_7d
 
-    .line 310
+    .line 344
     :try_start_c
     invoke-virtual {v0, p0}, Ljava/net/HttpURLConnection;->setRequestMethod(Ljava/lang/String;)V
 
-    .line 311
+    .line 345
     invoke-virtual {v0, p5}, Ljava/net/HttpURLConnection;->setInstanceFollowRedirects(Z)V
 
-    .line 312
+    .line 346
     const/16 v1, 0x4e20
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 313
+    .line 347
     const/16 v1, 0x4e20
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 314
+    .line 348
     const-string v1, "User-Agent"
 
     invoke-virtual {v0, v1, p3}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 315
+    .line 349
     const-string v1, "Accept"
 
     const-string v2, "*/*"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 316
+    .line 350
     if-eqz p4, :cond_2f
 
-    .line 317
+    .line 351
     const-string v1, "Cookie"
 
     invoke-virtual {v0, v1, p4}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 319
+    .line 353
     :cond_2f
     if-eqz p2, :cond_46
 
-    .line 320
+    .line 354
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setDoOutput(Z)V
 
-    .line 321
+    .line 355
     const-string v1, "Content-Type"
 
     const-string v2, "application/x-www-form-urlencoded"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 322
+    .line 356
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v1
 
-    .line 323
+    .line 357
     invoke-virtual {v1, p2}, Ljava/io/OutputStream;->write([B)V
 
-    .line 324
+    .line 358
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
 
-    .line 326
+    .line 360
     :cond_46
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v2
 
-    .line 327
+    .line 361
     const/16 v1, 0x190
 
     if-lt v2, v1, :cond_65
@@ -2260,7 +2435,7 @@
 
     move-result-object v1
 
-    .line 328
+    .line 362
     :goto_52
     new-instance v3, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;
 
@@ -2277,17 +2452,17 @@
     .catch Ljava/lang/Throwable; {:try_start_c .. :try_end_5f} :catch_81
     .catchall {:try_start_c .. :try_end_5f} :catchall_74
 
-    .line 332
+    .line 366
     if-eqz v0, :cond_64
 
-    .line 333
+    .line 367
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 328
+    .line 362
     :cond_64
     return-object v3
 
-    .line 327
+    .line 361
     :cond_65
     :try_start_65
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
@@ -2299,13 +2474,13 @@
 
     goto :goto_52
 
-    .line 329
+    .line 363
     :catch_6a
     move-exception v0
 
     move-object v0, v1
 
-    .line 330
+    .line 364
     :goto_6c
     :try_start_6c
     new-instance v1, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;
@@ -2318,7 +2493,7 @@
     :try_end_74
     .catchall {:try_start_6c .. :try_end_74} :catchall_74
 
-    .line 332
+    .line 366
     :catchall_74
     move-exception v1
 
@@ -2329,14 +2504,14 @@
     :goto_77
     if-eqz v3, :cond_7c
 
-    .line 333
+    .line 367
     invoke-virtual {v3}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 335
+    .line 369
     :cond_7c
     throw v2
 
-    .line 332
+    .line 366
     :catchall_7d
     move-exception v0
 
@@ -2346,7 +2521,7 @@
 
     goto :goto_77
 
-    .line 329
+    .line 363
     :catch_81
     move-exception v1
 
@@ -2368,12 +2543,12 @@
     .end annotation
 
     .prologue
-    .line 384
+    .line 418
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 385
+    .line 419
     invoke-interface {p0}, Ljava/util/Map;->entrySet()Ljava/util/Set;
 
     move-result-object v0
@@ -2395,19 +2570,19 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 386
+    .line 420
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v1
 
     if-lez v1, :cond_24
 
-    .line 387
+    .line 421
     const-string v1, "; "
 
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 389
+    .line 423
     :cond_24
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
@@ -2435,7 +2610,7 @@
 
     goto :goto_d
 
-    .line 391
+    .line 425
     :cond_3e
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2450,7 +2625,7 @@
     .prologue
     const/16 v5, 0x10
 
-    .line 421
+    .line 455
     const-string v0, "MD5"
 
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto;->utf8(Ljava/lang/String;)[B
@@ -2461,14 +2636,14 @@
 
     move-result-object v1
 
-    .line 422
+    .line 456
     new-instance v2, Ljava/lang/StringBuilder;
 
     const/16 v0, 0x20
 
     invoke-direct {v2, v0}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 423
+    .line 457
     const/4 v0, 0x0
 
     :goto_14
@@ -2476,7 +2651,7 @@
 
     if-ge v0, v3, :cond_33
 
-    .line 424
+    .line 458
     aget-byte v3, v1, v0
 
     shr-int/lit8 v3, v3, 0x4
@@ -2501,12 +2676,12 @@
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 423
+    .line 457
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_14
 
-    .line 426
+    .line 460
     :cond_33
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2536,52 +2711,52 @@
     .end annotation
 
     .prologue
-    .line 216
+    .line 250
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 218
+    .line 252
     :try_start_5
     new-instance v1, Lorg/json/JSONObject;
 
     invoke-direct {v1, p0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 219
+    .line 253
     const-string v0, "data"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 220
+    .line 254
     const/4 v0, 0x0
 
-    .line 221
+    .line 255
     if-eqz v3, :cond_21
 
-    .line 222
+    .line 256
     const-string v0, "list"
 
     invoke-virtual {v3, v0}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v0
 
-    .line 223
+    .line 257
     if-nez v0, :cond_21
 
-    .line 224
+    .line 258
     const-string v0, "source_list"
 
     invoke-virtual {v3, v0}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v0
 
-    .line 227
+    .line 261
     :cond_21
     if-nez v0, :cond_57
 
-    .line 228
+    .line 262
     const-string v0, "list"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
@@ -2590,11 +2765,11 @@
 
     move-object v1, v0
 
-    .line 230
+    .line 264
     :goto_2a
     if-eqz v1, :cond_48
 
-    .line 231
+    .line 265
     const/4 v0, 0x0
 
     :goto_2d
@@ -2604,30 +2779,30 @@
 
     if-ge v0, v3, :cond_48
 
-    .line 232
+    .line 266
     invoke-virtual {v1, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 233
+    .line 267
     if-eqz v3, :cond_3c
 
-    .line 234
+    .line 268
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->collectBand(Lorg/json/JSONObject;Ljava/util/List;)V
     :try_end_3c
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_3c} :catch_3f
 
-    .line 231
+    .line 265
     :cond_3c
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2d
 
-    .line 238
+    .line 272
     :catch_3f
     move-exception v0
 
-    .line 239
+    .line 273
     new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;
 
     const-string v1, "\u041d\u0435\u043e\u0447\u0430\u043a\u0432\u0430\u043d \u043e\u0442\u0433\u043e\u0432\u043e\u0440 \u043e\u0442 Xiaomi (\u043d\u0435 \u043c\u043e\u0433\u0430 \u0434\u0430 \u0433\u043e \u0440\u0430\u0437\u0447\u0435\u0442\u0430)."
@@ -2636,7 +2811,7 @@
 
     throw v0
 
-    .line 241
+    .line 275
     :cond_48
     invoke-interface {v2}, Ljava/util/List;->isEmpty()Z
 
@@ -2644,7 +2819,7 @@
 
     if-eqz v0, :cond_56
 
-    .line 242
+    .line 276
     new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;
 
     const-string v1, "\u0410\u043a\u0430\u0443\u043d\u0442\u044a\u0442 \u043d\u044f\u043c\u0430 \u0432\u044a\u0440\u0437\u0430\u043d\u0430 \u0433\u0440\u0438\u0432\u043d\u0430 \u0441 \u043a\u043b\u044e\u0447. \u0421\u0434\u0432\u043e\u0438 \u044f \u043f\u044a\u0440\u0432\u043e \u0432 Mi Fitness."
@@ -2653,7 +2828,7 @@
 
     throw v0
 
-    .line 244
+    .line 278
     :cond_56
     return-object v2
 
@@ -2661,6 +2836,148 @@
     move-object v1, v0
 
     goto :goto_2a
+.end method
+
+.method public static parseSession(Ljava/lang/String;)[Ljava/lang/String;
+    .registers 8
+
+    .prologue
+    const/4 v6, 0x4
+
+    const/4 v5, 0x3
+
+    const/4 v4, 0x2
+
+    const/4 v3, 0x1
+
+    const/4 v2, 0x0
+
+    .line 186
+    const/4 v0, 0x6
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const-string v1, ""
+
+    aput-object v1, v0, v2
+
+    const-string v1, ""
+
+    aput-object v1, v0, v3
+
+    const-string v1, ""
+
+    aput-object v1, v0, v4
+
+    const-string v1, ""
+
+    aput-object v1, v0, v5
+
+    const-string v1, ""
+
+    aput-object v1, v0, v6
+
+    const/4 v1, 0x5
+
+    const-string v2, ""
+
+    aput-object v2, v0, v1
+
+    .line 188
+    :try_start_21
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->parseXiaomiJson(Ljava/lang/String;)Lorg/json/JSONObject;
+
+    move-result-object v1
+
+    .line 189
+    const/4 v2, 0x0
+
+    const-string v3, "ssecurity"
+
+    const-string v4, ""
+
+    invoke-virtual {v1, v3, v4}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    aput-object v3, v0, v2
+
+    .line 190
+    const/4 v2, 0x1
+
+    const-string v3, "nonce"
+
+    const-string v4, ""
+
+    invoke-virtual {v1, v3, v4}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    aput-object v3, v0, v2
+
+    .line 191
+    const/4 v2, 0x2
+
+    const-string v3, "cUserId"
+
+    const-string v4, ""
+
+    invoke-virtual {v1, v3, v4}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    aput-object v3, v0, v2
+
+    .line 192
+    const/4 v2, 0x3
+
+    const-string v3, "location"
+
+    const-string v4, ""
+
+    invoke-virtual {v1, v3, v4}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    aput-object v3, v0, v2
+
+    .line 193
+    const/4 v2, 0x4
+
+    const-string v3, "notificationUrl"
+
+    const-string v4, ""
+
+    invoke-virtual {v1, v3, v4}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    aput-object v3, v0, v2
+
+    .line 194
+    const/4 v2, 0x5
+
+    const-string v3, "description"
+
+    const-string v4, ""
+
+    invoke-virtual {v1, v3, v4}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    aput-object v1, v0, v2
+    :try_end_67
+    .catch Ljava/lang/Throwable; {:try_start_21 .. :try_end_67} :catch_68
+
+    .line 197
+    :goto_67
+    return-object v0
+
+    .line 195
+    :catch_68
+    move-exception v1
+
+    goto :goto_67
 .end method
 
 .method private static parseXiaomiJson(Ljava/lang/String;)Lorg/json/JSONObject;
@@ -2672,24 +2989,24 @@
     .end annotation
 
     .prologue
-    .line 409
+    .line 443
     if-nez p0, :cond_1a
 
     :try_start_2
     const-string v0, ""
 
-    .line 410
+    .line 444
     :goto_4
     const-string v1, "&&&START&&&"
 
-    .line 411
+    .line 445
     invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v2
 
     if-eqz v2, :cond_14
 
-    .line 412
+    .line 446
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -2698,7 +3015,7 @@
 
     move-result-object v0
 
-    .line 414
+    .line 448
     :cond_14
     new-instance v1, Lorg/json/JSONObject;
 
@@ -2706,7 +3023,7 @@
 
     return-object v1
 
-    .line 409
+    .line 443
     :cond_1a
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
     :try_end_1d
@@ -2716,11 +3033,11 @@
 
     goto :goto_4
 
-    .line 415
+    .line 449
     :catch_1f
     move-exception v0
 
-    .line 416
+    .line 450
     new-instance v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$CloudError;
 
     const-string v1, "Xiaomi \u0432\u0445\u043e\u0434\u044a\u0442 \u0432\u044a\u0440\u043d\u0430 \u043d\u0435\u0447\u0435\u0442\u0438\u043c \u043e\u0442\u0433\u043e\u0432\u043e\u0440."
@@ -2745,12 +3062,12 @@
     .end annotation
 
     .prologue
-    .line 439
+    .line 473
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 440
+    .line 474
     invoke-interface {p0}, Ljava/util/Map;->entrySet()Ljava/util/Set;
 
     move-result-object v0
@@ -2772,19 +3089,19 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 441
+    .line 475
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v1
 
     if-lez v1, :cond_24
 
-    .line 442
+    .line 476
     const/16 v1, 0x26
 
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 444
+    .line 478
     :cond_24
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
@@ -2820,7 +3137,7 @@
 
     goto :goto_d
 
-    .line 446
+    .line 480
     :cond_46
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2833,29 +3150,29 @@
     .registers 5
 
     .prologue
-    .line 462
+    .line 496
     if-nez p0, :cond_5
 
-    .line 463
+    .line 497
     const-string v0, ""
 
-    .line 475
+    .line 509
     :goto_4
     return-object v0
 
-    .line 466
+    .line 500
     :cond_5
     :try_start_5
     new-instance v1, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v1}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 467
+    .line 501
     const/16 v0, 0x1000
 
     new-array v0, v0, [B
 
-    .line 469
+    .line 503
     :goto_e
     invoke-virtual {p0, v0}, Ljava/io/InputStream;->read([B)I
 
@@ -2863,7 +3180,7 @@
 
     if-lez v2, :cond_1d
 
-    .line 470
+    .line 504
     const/4 v3, 0x0
 
     invoke-virtual {v1, v0, v3, v2}, Ljava/io/ByteArrayOutputStream;->write([BII)V
@@ -2872,21 +3189,21 @@
 
     goto :goto_e
 
-    .line 474
+    .line 508
     :catch_19
     move-exception v0
 
-    .line 475
+    .line 509
     const-string v0, ""
 
     goto :goto_4
 
-    .line 472
+    .line 506
     :cond_1d
     :try_start_1d
     invoke-virtual {p0}, Ljava/io/InputStream;->close()V
 
-    .line 473
+    .line 507
     new-instance v0, Ljava/lang/String;
 
     invoke-virtual {v1}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
@@ -2925,42 +3242,42 @@
     .end annotation
 
     .prologue
-    .line 202
+    .line 236
     const-string v0, "{\"page_size\":50,\"status\":1}"
 
-    .line 203
+    .line 237
     const-wide/16 v2, 0x0
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto;->generateNonce(J)Ljava/lang/String;
 
     move-result-object v6
 
-    .line 204
+    .line 238
     new-instance v1, Ljava/util/LinkedHashMap;
 
     invoke-direct {v1}, Ljava/util/LinkedHashMap;-><init>()V
 
-    .line 205
+    .line 239
     const-string v2, "data"
 
     invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 206
+    .line 240
     const-string v0, "POST"
 
     const-string v2, "/app/v1/source/get_source_list"
 
-    .line 207
+    .line 241
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto;->signingPath(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 206
+    .line 240
     invoke-static {v0, v2, v1, v6, p0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudCrypto;->encryptParams(Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Map;
 
     move-result-object v2
 
-    .line 208
+    .line 242
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2995,7 +3312,7 @@
 
     move-result-object v4
 
-    .line 209
+    .line 243
     const-string v0, "POST"
 
     const-string v1, "https://hlth.io.mi.com/app/v1/source/get_source_list"
@@ -3012,7 +3329,7 @@
 
     move-result-object v0
 
-    .line 210
+    .line 244
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount$Resp;->body:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -3023,7 +3340,7 @@
 
     move-result-object v0
 
-    .line 211
+    .line 245
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->parseBands(Ljava/lang/String;)Ljava/util/List;
 
     move-result-object v0

@@ -1018,7 +1018,7 @@ public final class WearableSettingsSection {
             } catch (Throwable ignored) {
             }
             String[] sess = com.isaigu.gymapp.wearable.xiaomi.XiaomiCloudAccount.parseSession(text);
-            if (sess[0].length() > 0 && sess[3].length() > 0) {
+            if (sess[3].length() > 0) {
                 done = true;
                 String ua = null;
                 try {

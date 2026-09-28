@@ -558,41 +558,39 @@
 .end method
 
 .method probeResult(Ljava/lang/String;)V
-    .registers 9
+    .registers 8
 
     .prologue
-    const/4 v6, 0x5
+    const/4 v5, 0x5
 
-    const/4 v5, 0x4
+    const/4 v4, 0x4
 
-    const/4 v4, 0x3
+    const/4 v3, 0x3
 
-    const/4 v3, 0x1
-
-    const/4 v2, 0x0
+    const/4 v2, 0x1
 
     .line 1011
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
 
-    if-eqz v0, :cond_a
+    if-eqz v0, :cond_9
 
     .line 1048
-    :goto_9
+    :goto_8
     return-void
 
     .line 1014
-    :cond_a
+    :cond_9
     const-string v0, ""
 
     .line 1016
-    :try_start_c
+    :try_start_b
     new-instance v1, Lorg/json/JSONTokener;
 
-    if-nez p1, :cond_12
+    if-nez p1, :cond_11
 
     const-string p1, ""
 
-    :cond_12
+    :cond_11
     invoke-direct {v1, p1}, Lorg/json/JSONTokener;-><init>(Ljava/lang/String;)V
 
     invoke-virtual {v1}, Lorg/json/JSONTokener;->nextValue()Ljava/lang/Object;
@@ -600,40 +598,32 @@
     move-result-object v1
 
     .line 1017
-    if-nez v1, :cond_60
+    if-nez v1, :cond_57
 
     const-string v0, ""
-    :try_end_1d
-    .catch Ljava/lang/Throwable; {:try_start_c .. :try_end_1d} :catch_e8
+    :try_end_1c
+    .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_1c} :catch_e0
 
     .line 1020
-    :goto_1d
+    :goto_1c
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiCloudAccount;->parseSession(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v0
 
     .line 1021
-    aget-object v1, v0, v2
+    aget-object v1, v0, v3
 
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    if-lez v1, :cond_65
-
-    aget-object v1, v0, v4
-
-    invoke-virtual {v1}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    if-lez v1, :cond_65
+    if-lez v1, :cond_5c
 
     .line 1022
-    iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
+    iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->done:Z
 
     .line 1025
-    :try_start_33
+    :try_start_2a
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
 
     invoke-virtual {v1}, Landroid/webkit/WebView;->getSettings()Landroid/webkit/WebSettings;
@@ -641,11 +631,11 @@
     move-result-object v1
 
     invoke-virtual {v1}, Landroid/webkit/WebSettings;->getUserAgentString()Ljava/lang/String;
-    :try_end_3c
-    .catch Ljava/lang/Throwable; {:try_start_33 .. :try_end_3c} :catch_e5
+    :try_end_33
+    .catch Ljava/lang/Throwable; {:try_start_2a .. :try_end_33} :catch_dd
 
     .line 1028
-    :goto_3c
+    :goto_33
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->close()V
 
     .line 1029
@@ -679,21 +669,21 @@
 
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
-    goto :goto_9
+    goto :goto_8
 
     .line 1017
-    :cond_60
-    :try_start_60
+    :cond_57
+    :try_start_57
     invoke-static {v1}, Ljava/lang/String;->valueOf(Ljava/lang/Object;)Ljava/lang/String;
-    :try_end_63
-    .catch Ljava/lang/Throwable; {:try_start_60 .. :try_end_63} :catch_e8
+    :try_end_5a
+    .catch Ljava/lang/Throwable; {:try_start_57 .. :try_end_5a} :catch_e0
 
     move-result-object v0
 
-    goto :goto_1d
+    goto :goto_1c
 
     .line 1033
-    :cond_65
+    :cond_5c
     iget v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->probes:I
 
     add-int/lit8 v1, v1, 0x1
@@ -703,29 +693,31 @@
     .line 1034
     iget v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->probes:I
 
-    if-ge v1, v4, :cond_72
+    if-ge v1, v3, :cond_6a
 
     .line 1035
-    iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->probing:Z
+    const/4 v0, 0x0
 
-    goto :goto_9
+    iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->probing:Z
+
+    goto :goto_8
 
     .line 1038
-    :cond_72
-    iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->gaveUp:Z
+    :cond_6a
+    iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->gaveUp:Z
 
     .line 1039
-    aget-object v1, v0, v5
+    aget-object v1, v0, v4
 
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    if-lez v1, :cond_96
+    if-lez v1, :cond_8e
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
 
-    if-eqz v1, :cond_96
+    if-eqz v1, :cond_8e
 
     .line 1040
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->a:Landroid/app/Activity;
@@ -744,14 +736,14 @@
     .line 1042
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->web:Landroid/webkit/WebView;
 
-    aget-object v0, v0, v5
+    aget-object v0, v0, v4
 
     invoke-virtual {v1, v0}, Landroid/webkit/WebView;->loadUrl(Ljava/lang/String;)V
 
-    goto/16 :goto_9
+    goto/16 :goto_8
 
     .line 1044
-    :cond_96
+    :cond_8e
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->a:Landroid/app/Activity;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -764,13 +756,13 @@
 
     move-result-object v2
 
-    aget-object v3, v0, v6
+    aget-object v3, v0, v5
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v3
 
-    if-lez v3, :cond_e2
+    if-lez v3, :cond_da
 
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -782,7 +774,7 @@
 
     move-result-object v3
 
-    aget-object v0, v0, v6
+    aget-object v0, v0, v5
 
     invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -798,7 +790,7 @@
 
     move-result-object v0
 
-    :goto_c6
+    :goto_be
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -825,25 +817,25 @@
     .line 1046
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$XiaomiWebLogin;->close()V
 
-    goto/16 :goto_9
+    goto/16 :goto_8
 
     .line 1044
-    :cond_e2
+    :cond_da
     const-string v0, ""
 
-    goto :goto_c6
+    goto :goto_be
 
     .line 1026
-    :catch_e5
+    :catch_dd
     move-exception v1
 
-    goto/16 :goto_3c
+    goto/16 :goto_33
 
     .line 1018
-    :catch_e8
+    :catch_e0
     move-exception v1
 
-    goto/16 :goto_1d
+    goto/16 :goto_1c
 .end method
 
 .method readProbe()V

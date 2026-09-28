@@ -201,7 +201,7 @@ public final class XiaomiCloudAccount {
     public static List<Band> fetchWithSession(String ssecurity, String nonce, String cUserId, String location)
             throws CloudError {
         String loc = location;
-        if (nonce != null && nonce.length() > 0) {
+        if (ssecurity != null && ssecurity.length() > 0 && nonce != null && nonce.length() > 0) {
             String clientSign = XiaomiCloudCrypto.b64encode(
                     XiaomiCloudCrypto.digest("SHA-1", XiaomiCloudCrypto.utf8("nonce=" + nonce + "&" + ssecurity)));
             loc = location + (location.indexOf('?') < 0 ? "?" : "&") + "clientSign=" + enc(clientSign);
@@ -212,7 +212,11 @@ public final class XiaomiCloudAccount {
         if (serviceToken == null || serviceToken.length() == 0) {
             throw new CloudError("Xiaomi входът не даде serviceToken.");
         }
-        return sourceList(ssecurity, cUserId, serviceToken);
+        String ss = ssecurity != null && ssecurity.length() > 0 ? ssecurity : jar.get("__ssecurity");
+        if (ss == null || ss.length() == 0) {
+            throw new CloudError("Xiaomi не даде ключ за подпис (ssecurity).");
+        }
+        return sourceList(ss, cUserId, serviceToken);
     }
 
     /** True only for a non-empty, non-expired passToken (an empty one is set on the login page itself). */
@@ -375,6 +379,16 @@ public final class XiaomiCloudAccount {
         for (int hop = 0; hop < max; hop++) {
             Resp r = http("GET", url, null, UA_WEB, cookieHeader.length() > 0 ? cookieHeader : null, false);
             collectCookies(r, jar);
+            String pragma = header(r, "extension-pragma");
+            if (pragma != null && pragma.length() > 0) {
+                try {
+                    String ss = new JSONObject(pragma).optString("ssecurity", "");
+                    if (ss.length() > 0) {
+                        jar.put("__ssecurity", ss);
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
             if (jar.containsKey("serviceToken")) {
                 return;
             }
@@ -417,6 +431,9 @@ public final class XiaomiCloudAccount {
     private static String jarToHeader(Map<String, String> jar) {
         StringBuilder b = new StringBuilder();
         for (Map.Entry<String, String> e : jar.entrySet()) {
+            if (e.getKey().startsWith("__")) {
+                continue;
+            }
             if (b.length() > 0) {
                 b.append("; ");
             }

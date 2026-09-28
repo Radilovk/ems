@@ -11,6 +11,9 @@ describe('studio code', () => {
     for (let i = 0; i < 50; i++) assert.ok(isStudioCode(studioCode()));
     assert.equal(isStudioCode('ABCDEFGH'), false);
     assert.equal(isStudioCode('abc'), false);
+    assert.equal(isStudioCode('xbody'), true);
+    assert.equal(isStudioCode('studio-sofia'), true);
+    assert.equal(isStudioCode('-x'), false);
   });
 });
 

@@ -152,6 +152,8 @@ python3 "${ROOT}/scripts/apply-arms-channel-scale.py"
 python3 "${ROOT}/scripts/verify-arms-channel-scale.py"
 # After the train control routing: + / − and the slider act on the selected muscle groups.
 python3 "${ROOT}/scripts/apply-part-strength.py"
+# After every train row layout patch: name / time / status icons / big + and − (column right of the avatar).
+python3 "${ROOT}/scripts/apply-train-info-column.py"
 # Every app class that smali references must be installed (a missed one = NoClassDefFoundError at run time).
 python3 "${ROOT}/scripts/verify-no-missing-classes.py"
 

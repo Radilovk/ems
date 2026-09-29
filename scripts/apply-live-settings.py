@@ -7,6 +7,8 @@ TrainItem.setTrainProgram used to call reset(): the training stopped, the time s
 - a manual training in progress (running, or paused part-way) goes on with the new parameters: the time done
   stays; a running one gets its countdown restarted from the new remaining time and the new pulse at once.
 AI / automatic sessions and another client's program keep the reset (then the mode is set back).
+ProgramLive.before() runs first: the row's program before ⚙ Master replaced it (stashed by
+apply-program-fit.py), the live strength of a running row, and the hand edits / master base (ProgramFit).
 Runs after apply-active-pause-fixes.py (which adds ActivePauseStorage.apply here).
 """
 from __future__ import annotations
@@ -32,6 +34,10 @@ METHOD = f""".method public setTrainProgram({TP})V
     iget-object v6, p0, {TI}->data:{W}
 
     iget-object v7, v6, {W}->trainProgram:{TP}
+
+    invoke-static {{p0, v7, p1}}, {PL}->before({TI}{TP}{TP}){TP}
+
+    move-result-object v7
 
     invoke-static {{v7, p1}}, {PL}->keepMode({TP}{TP})I
 

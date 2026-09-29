@@ -17,12 +17,68 @@ import java.util.WeakHashMap;
  *       stays, a new length only moves the end.</li>
  * </ul>
  * AI / automatic sessions and loading another client's program keep the vendor reset.
+ * ⚙ Master replaces the row's program before calling here ({@link #stash} keeps the one it had), so a new
+ * length moves the end there too. The row's gear opens while the training runs; its live strength stays.
+ * The hand changes and the master base go to {@link com.isaigu.gymapp.wearable.ProgramFit}.
  */
 public final class ProgramLive {
     /** Plan change (s) per row, for the session recorder (its "back to the planned time" = end test). */
     private static final Map<TrainItem, Integer> PLAN_DELTA = new WeakHashMap<TrainItem, Integer>();
 
+    /** ⚙ Master: the program each row had before OperationUtil.settingAllUser replaced it. */
+    private static final Map<Object, TrainProgram> MASTER = new WeakHashMap<Object, TrainProgram>();
+
     private ProgramLive() {}
+
+    /** Hook: OperationUtil.lambda$settingAllUser$0, right after the row got the master's copy. */
+    public static void stash(Object wrapper, TrainProgram before) {
+        if (wrapper != null && before != null) {
+            synchronized (MASTER) {
+                MASTER.put(wrapper, before);
+            }
+        }
+    }
+
+    /**
+     * Hook: start of TrainItem.setTrainProgram. The program the row had (the master's stash when there is
+     * one); a running row keeps its live strength; hand edits / the master base go to ProgramFit.
+     */
+    public static TrainProgram before(TrainItem it, TrainProgram old, TrainProgram now) {
+        try {
+            TrainProgram was = old;
+            boolean master = false;
+            if (it != null && it.data != null) {
+                synchronized (MASTER) {
+                    TrainProgram s = MASTER.remove(it.data);
+                    if (s != null) {
+                        was = s;
+                        master = true;
+                    }
+                }
+            }
+            if (was == null || now == null || was == now || !sameClient(was, now) || !manual()) {
+                return was;
+            }
+            if (it.data.start) {
+                for (int k = 0; k < 4; k++) {
+                    ProgramDataBean a = bean(was, k);
+                    ProgramDataBean b = bean(now, k);
+                    if (a != null && b != null) {
+                        b.strenth = a.strenth;
+                        b.pauseStrenthPercent = a.pauseStrenthPercent;
+                    }
+                }
+            }
+            if (master) {
+                com.isaigu.gymapp.wearable.ProgramFit.onMaster(it, was, now);
+            } else {
+                com.isaigu.gymapp.wearable.ProgramFit.onEdit(it, was, now);
+            }
+            return was;
+        } catch (Throwable t) {
+            return old;
+        }
+    }
 
     static boolean sameClient(TrainProgram old, TrainProgram now) {
         return old == now || old.userId != null && old.userId.equals(now.userId);
@@ -82,10 +138,14 @@ public final class ProgramLive {
     }
 
     static int total(TrainProgram p, int mode) {
-        ProgramDataBean b = mode == 1 ? p.muscleTrainingProgramDataBean
+        ProgramDataBean b = bean(p, mode);
+        return b != null ? b.workLength : 0;
+    }
+
+    static ProgramDataBean bean(TrainProgram p, int mode) {
+        return mode == 1 ? p.muscleTrainingProgramDataBean
                 : mode == 2 ? p.aerobicTrainingProgramDataBean
                 : mode == 3 ? p.massageModeProgramDataBean : p.programDataBean;
-        return b != null ? b.workLength : 0;
     }
 
     /** Manual training: no AI or automatic session is running. */

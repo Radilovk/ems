@@ -208,6 +208,9 @@ row_controls:
       effect: suit battery
     - id: setting
       handler: TrainViewHolder$1 → EditUserProgramDataDialog
+      effect: |
+        Opens while the training runs too (apply-program-fit.py). Saved values apply live, this client only
+        (ProgramLive: time done stays, a new length moves the end). Top row: "Персонализация" switch (ProgramFit).
       parallel_api: none
 
   impulse_timers:
@@ -235,7 +238,10 @@ row_controls:
       effect: toggle TrainUserProgramDataWrapper.start / pulse loop
       parallel_api: none
     - id: save
-      effect: persist program to storage
+      effect: |
+        Tap: ProgramFit.onSaveClick — straight into the row's saved program (e.g. "Test"), the client's
+        corrections out, hand-set values as they are, ✓ tip; other slots on it recalibrate live.
+        Hold: stock "save as" (OperationUtil.save) with the same values.
       parallel_api: none
 
 # ── PROGRAM DATA (ProgramDataBean) ───────────────────────────────────────────

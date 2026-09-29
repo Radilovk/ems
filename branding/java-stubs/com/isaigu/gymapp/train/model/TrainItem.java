@@ -26,6 +26,9 @@ public class TrainItem {
     public void addAllPartValue(int value, boolean ignoreControl) {}
 
     public void onParamsChange() {}
+
+    /** Added by apply-program-fit.py: onTrainItemChange() (the row redraws). */
+    public void xemsRefresh() {}
     /** Sets data.trainProgram, applies the active-pause setting and resets the slot (stops it). */
     public void setTrainProgram(TrainProgram program) {}
 

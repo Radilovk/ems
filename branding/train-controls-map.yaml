@@ -134,7 +134,8 @@ row_controls:
     description: |
       Взаимно изключващи се index modes; само един active per row. Selection clears 5 s after the last action
       (wearable/TrainIndex.tick). 2nd impulse: on from pause Hz OR pause MA, pause MA = main MA at switch-on
-      (TrainIndex.pauseClick, apply-train-index.py).
+      (TrainIndex.pauseClick, apply-train-index.py). Per mode (Основен / Кардио / Масаж; none in Мускули):
+      the running mode's bean, set in ⚙ by dialog/PauseSetting (apply-double-impulse.py).
     modes:
       - id: ma
         flag: TrainItem.maSelected

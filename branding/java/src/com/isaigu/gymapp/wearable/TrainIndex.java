@@ -14,12 +14,14 @@ import java.util.WeakHashMap;
  *   <li>a selection clears itself 5 s after the last action with it (click, + / −, slider) — then + / − act
  *       on the selected muscle groups again;</li>
  *   <li>the second impulse (active pause) turns on from either of its buttons, Hz or MA, and always starts
- *       at the main impulse's strength.</li>
+ *       at the main impulse's strength. It belongs to the running mode (Основен, Кардио, Масаж each have their
+ *       own, set in ⚙ too); Мускули has none.</li>
  * </ul>
  * Hooks: TrainPause{Hz,Ma}ValueClickListener.onClick (scripts/apply-train-index.py), SessionRecorder tick.
  */
 public final class TrainIndex {
     static final long IDLE_MS = 5000L;
+    static final int MUSCLE = 1;
 
     static final class State {
         long lastAction;
@@ -34,8 +36,13 @@ public final class TrainIndex {
     public static void pauseClick(TrainItem it, boolean hz) {
         try {
             TrainProgram p = it != null ? it.getTrainProgram() : null;
-            ProgramDataBean b = p != null ? p.programDataBean : null;
+            ProgramDataBean b = p != null ? p.matchProgram() : null;
             if (b == null) {
+                return;
+            }
+            if (p.useType == MUSCLE) {
+                b.activePause = false;                     // Мускули: no second impulse
+                clear(it);
                 return;
             }
             boolean selected = hz ? it.isPauseHzSelected() : it.isPauseMaSelected();
@@ -86,7 +93,7 @@ public final class TrainIndex {
     static int[] snapshot(TrainItem it) {
         TrainProgram p = it.getTrainProgram();
         ProgramDataBean b = p != null ? p.matchProgram() : null;
-        ProgramDataBean m = p != null ? p.programDataBean : null;
+        ProgramDataBean m = b;
         return new int[] {
                 it.isMaSelected() ? 1 : 0, it.isHzSelected() ? 1 : 0,
                 it.isPauseMaSelected() ? 1 : 0, it.isPauseHzSelected() ? 1 : 0,
@@ -107,6 +114,15 @@ public final class TrainIndex {
                 continue;
             }
             try {
+                TrainProgram tp = it.getTrainProgram();
+                if (tp.useType == MUSCLE && tp.muscleTrainingProgramDataBean != null
+                        && tp.muscleTrainingProgramDataBean.activePause) {
+                    tp.muscleTrainingProgramDataBean.activePause = false;
+                    it.setPauseHzSelected(false);
+                    it.setPauseMaSelected(false);
+                    it.onParamsChange();
+                    it.xemsRefresh();
+                }
                 int[] cur = snapshot(it);
                 boolean any = cur[0] + cur[1] + cur[2] + cur[3] > 0;
                 State s;

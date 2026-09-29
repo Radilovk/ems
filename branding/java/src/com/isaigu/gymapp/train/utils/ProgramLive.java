@@ -56,6 +56,10 @@ public final class ProgramLive {
                     }
                 }
             }
+            if (now != null && was != now) {
+                // The new program's own 2nd impulse wins over the stored overlay (applied right after).
+                com.isaigu.gymapp.dialog.ActivePauseStorage.save(now);
+            }
             if (was == null || now == null || was == now || !sameClient(was, now) || !manual()) {
                 return was;
             }

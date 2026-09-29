@@ -44,6 +44,7 @@ public final class RampSetting {
             for (int k = 1; k <= 3; k++) {
                 attachMode(in.getRootView(), program, k);
             }
+            PauseSetting.attach(in.getRootView(), program);
         } catch (Throwable t) {
             XemsGuard.report("RampSetting.attach", t);
         }

@@ -67,6 +67,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-startup-permissions.py` (127L, NOT-IN-BUILD) — Batch runtime permissions at app start; skip duplicate prompts later in the app.
 - `scripts/apply-tab-theme.py` (152L, build:L46) — Improve bottom-tab icon contrast in dark mode only.
 - `scripts/apply-theme-toggle.py` (112L, build:L84) — Install theme toggle via ThemeUtils (safe resource lookup, no hardcoded ids).
+- `scripts/apply-train-info-column.py` (243L, build:L156) — Training row, column right of the avatar: name on its own line, time + status icons on one row, battery number readable…
 - `scripts/apply-train-participant-ui.py` (878L, NOT-IN-BUILD) — Train participant UX: initial empty slot, add-user on last row bottom-right, sidebar intact.
 - `scripts/apply-train-swipe-delete-fix.py` (81L, build:L123[BETA_MUSIC]) — Disable swipe-delete on empty train slots; guard delete handler against empty items.
 - `scripts/apply-train-ui-refinements.py` (271L, build:L52) — Factory-style status icons and compact impulse/pause button labels.
@@ -121,7 +122,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-interval-timer-smali.py` (59L, build:L140[BETA_MUSIC]) — Fail the build if interval timer dialog smali is incomplete (NoClassDefFoundError at open).
 - `scripts/verify-login-path.py` (89L) — Fail the build if login -> MainFragment -> NewTrainFragment path looks broken.
 - `scripts/verify-music-sync-smali.py` (183L, build:L126[BETA_MUSIC]) — Music player → MasterStrengthControl.setMasterStrength (no PDU hook).
-- `scripts/verify-no-missing-classes.py` (42L, build:L156) — Fail the build when app smali references a com.isaigu.gymapp class that no smali file defines.
+- `scripts/verify-no-missing-classes.py` (42L, build:L158) — Fail the build when app smali references a com.isaigu.gymapp class that no smali file defines.
 - `scripts/verify-wearable-smali.py` (107L, build:L143[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
 - `scripts/ble-sim/rt/**` — stubbed android.* + sim harnesses (SppHarness, HrPolicyHarness) for the JVM BLE tests
 

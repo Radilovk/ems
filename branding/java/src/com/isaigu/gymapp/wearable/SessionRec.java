@@ -137,6 +137,7 @@ final class SessionRec {
         idle = 0;
         pausedS = 0;
         postLeft = -1;
+        post.clear();                                   // recovery HR is taken again at the real end
         shown = false;
         segPlanS = Math.max(0, item.workLength);
         planS += segPlanS;

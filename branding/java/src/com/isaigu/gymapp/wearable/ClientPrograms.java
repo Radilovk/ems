@@ -79,6 +79,7 @@ public final class ClientPrograms {
             return false;
         }
         TrainProgram own = ProgramFit.own(it);
+        ProgramFit.forget(it);
         for (int k = 0; k < ProgramFit.MODES; k++) {
             ProgramDataBean s = ProgramFit.bean(saved, k);
             ProgramDataBean r = ProgramFit.bean(own, k);
@@ -87,7 +88,9 @@ public final class ClientPrograms {
             }
         }
         try {
-            it.workLength = own.matchProgram() != null ? own.matchProgram().workLength : it.workLength;
+            if (!it.data.start) {
+                it.workLength = own.matchProgram() != null ? own.matchProgram().workLength : it.workLength;
+            }
             it.onParamsChange();
             it.xemsRefresh();
         } catch (Throwable ignored) {

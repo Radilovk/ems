@@ -59,6 +59,7 @@ public final class TrainIndex {
                 select(it, hz);
             }
             touch(it);
+            it.onParamsChange();                           // the suit gets the new impulse pattern now
         } catch (Throwable t) {
             WearableBleDiagLog.log("index", "pause click: " + t);
         }
@@ -115,7 +116,7 @@ public final class TrainIndex {
             }
             try {
                 TrainProgram tp = it.getTrainProgram();
-                if (tp.useType == MUSCLE && tp.muscleTrainingProgramDataBean != null
+                if (!assisted && tp.useType == MUSCLE && tp.muscleTrainingProgramDataBean != null
                         && tp.muscleTrainingProgramDataBean.activePause) {
                     tp.muscleTrainingProgramDataBean.activePause = false;
                     it.setPauseHzSelected(false);

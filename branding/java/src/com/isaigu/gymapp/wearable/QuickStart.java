@@ -39,6 +39,8 @@ import java.util.List;
 public final class QuickStart {
     private static final String TAG = "xems_quick";
     private static final String REFRESH_TAG = "xems_refresh";
+    /** Button → its live-state loop (a recycled row gets a new client: the old loop stops). */
+    private static final java.util.WeakHashMap<View, Go> LOOPS = new java.util.WeakHashMap<View, Go>();
 
     private QuickStart() {}
 
@@ -77,10 +79,14 @@ public final class QuickStart {
                 lp.gravity = Gravity.CENTER_VERTICAL;
                 l.addView(b, lp);
             }
+            Go old = LOOPS.get(b);
+            if (old != null) {
+                b.removeCallbacks(old);
+            }
             Go go = new Go(b, u);
+            LOOPS.put(b, go);
             b.setOnClickListener(go);
             go.paint();
-            b.removeCallbacks(go);
             b.postDelayed(go, 2000L);
         } catch (Throwable t) {
             XemsGuard.report("QuickStart.bindRow", t);

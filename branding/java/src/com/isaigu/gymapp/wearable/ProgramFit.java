@@ -286,6 +286,9 @@ public final class ProgramFit {
         synchronized (FITS) {
             FITS.put(it, f);
         }
+        if (!it.data.start && row.matchProgram() != null) {
+            it.workLength = row.matchProgram().workLength;   // the row shows the client's time at once
+        }
         refresh(it, true);
         WearableBleDiagLog.log("manual", "base '" + row.name + "' for user " + u.id
                 + (prof != null ? " personalised (" + prof.fitness + ", " + prof.age + ", " + prof.goal + ")"
@@ -330,6 +333,13 @@ public final class ProgramFit {
             }
         }
         return null;
+    }
+
+    /** Values were set on the row by the app (the client's saved settings): a new baseline, not a hand change. */
+    static void forget(TrainItem it) {
+        synchronized (FITS) {
+            FITS.remove(it);
+        }
     }
 
     /** The slot's fit for its current client; a blank one (no base) when there is none yet. */
@@ -468,6 +478,7 @@ public final class ProgramFit {
             if (it == null || it.isEmpty() || it.getTrainProgram() == null) {
                 continue;
             }
+            com.isaigu.gymapp.train.utils.ProgramLive.seen(it);
             Fit f = fitFor(it, true);
             if (f == null) {
                 continue;
@@ -617,8 +628,7 @@ public final class ProgramFit {
                 ProgramDataBean o = bean(old, k);
                 ProgramDataBean n = bean(values, k);
                 if (o != null && n != null) {
-                    n.strenth = o.strenth;
-                    n.pauseStrenthPercent = o.pauseStrenthPercent;
+                    n.strenth = o.strenth;                 // the live strength is not a setting
                 }
             }
         }

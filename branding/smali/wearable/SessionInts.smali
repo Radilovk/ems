@@ -79,11 +79,24 @@
     return-void
 .end method
 
+.method clear()V
+    .registers 2
+
+    .prologue
+    .line 19
+    const/4 v0, 0x0
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/SessionInts;->n:I
+
+    .line 20
+    return-void
+.end method
+
 .method get(I)I
     .registers 3
 
     .prologue
-    .line 22
+    .line 27
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionInts;->a:[I
 
     aget v0, v0, p1
@@ -95,12 +108,12 @@
     .registers 4
 
     .prologue
-    .line 26
+    .line 31
     const/16 v0, 0x5b
 
     invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 27
+    .line 32
     const/4 v0, 0x0
 
     :goto_6
@@ -108,15 +121,15 @@
 
     if-ge v0, v1, :cond_1b
 
-    .line 28
+    .line 33
     if-lez v0, :cond_11
 
-    .line 29
+    .line 34
     const/16 v1, 0x2c
 
     invoke-virtual {p1, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 31
+    .line 36
     :cond_11
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SessionInts;->a:[I
 
@@ -124,18 +137,18 @@
 
     invoke-virtual {p1, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 27
+    .line 32
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6
 
-    .line 33
+    .line 38
     :cond_1b
     const/16 v0, 0x5d
 
     invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 34
+    .line 39
     return-void
 .end method
 
@@ -143,7 +156,7 @@
     .registers 2
 
     .prologue
-    .line 18
+    .line 23
     iget v0, p0, Lcom/isaigu/gymapp/wearable/SessionInts;->n:I
 
     return v0

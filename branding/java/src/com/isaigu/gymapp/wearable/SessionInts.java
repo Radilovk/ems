@@ -14,6 +14,11 @@ final class SessionInts {
         a[n++] = v;
     }
 
+    /** Empty again (the recovery heart rate of a training that goes on). */
+    void clear() {
+        n = 0;
+    }
+
     int size() {
         return n;
     }

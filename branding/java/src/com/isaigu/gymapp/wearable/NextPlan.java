@@ -689,7 +689,7 @@ public final class NextPlan {
         if (s.work > 0) {
             b.workLength = s.work;
         }
-        b.activePause = s.ap;
+        b.activePause = s.ap && p.useType != 1;              // Мускули: no second impulse
         if (s.ps > 0) {
             b.pauseStrenthPercent = s.ps;
         }

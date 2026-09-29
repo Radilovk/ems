@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 219
+    .line 225
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 220
+    .line 226
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/QuickStart$Refresh;->owner:Ljava/lang/Object;
 
-    .line 221
+    .line 227
     return-void
 .end method
 
@@ -44,10 +44,10 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 225
+    .line 231
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 226
+    .line 232
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
@@ -66,7 +66,7 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 228
+    .line 234
     :try_start_17
     const-string v0, "com.isaigu.gymapp.widget.XemsClientSync"
 
@@ -94,7 +94,7 @@
     :try_end_2d
     .catch Ljava/lang/Throwable; {:try_start_17 .. :try_end_2d} :catch_65
 
-    .line 232
+    .line 238
     :goto_2d
     const/16 v0, 0x65
 
@@ -103,14 +103,14 @@
     :try_end_32
     .catch Ljava/lang/Throwable; {:try_start_2f .. :try_end_32} :catch_61
 
-    .line 236
+    .line 242
     :goto_32
     :try_start_32
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/QuickStart$Refresh;->owner:Ljava/lang/Object;
 
     if-eqz v0, :cond_4d
 
-    .line 237
+    .line 243
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/QuickStart$Refresh;->owner:Ljava/lang/Object;
 
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
@@ -137,7 +137,7 @@
     :try_end_4d
     .catch Ljava/lang/Throwable; {:try_start_32 .. :try_end_4d} :catch_63
 
-    .line 241
+    .line 247
     :cond_4d
     :goto_4d
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -158,22 +158,22 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 242
+    .line 248
     return-void
 
-    .line 233
+    .line 239
     :catch_61
     move-exception v0
 
     goto :goto_32
 
-    .line 239
+    .line 245
     :catch_63
     move-exception v0
 
     goto :goto_4d
 
-    .line 229
+    .line 235
     :catch_65
     move-exception v0
 

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 829
+    .line 733
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 830
+    .line 734
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Toggle;->c:Landroid/content/Context;
 
-    .line 831
+    .line 735
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 835
+    .line 739
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Toggle;->c:Landroid/content/Context;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->setEnabled(Landroid/content/Context;Z)V
 
-    .line 836
+    .line 740
     return-void
 .end method

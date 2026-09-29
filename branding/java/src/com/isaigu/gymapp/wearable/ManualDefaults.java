@@ -17,7 +17,8 @@ import java.util.Map;
  */
 public final class ManualDefaults {
     /** Slot → the client last seen there (applied once per arrival). */
-    private static final Map<Integer, Long> SEEN = new HashMap<Integer, Long>();
+    /** Slot → "client|program" last seen there (applied once per arrival / program change). */
+    private static final Map<Integer, String> SEEN = new HashMap<Integer, String>();
     private static boolean primed;
 
     private ManualDefaults() {}
@@ -27,22 +28,33 @@ public final class ManualDefaults {
         if (items == null) {
             return;
         }
+        ClientPrograms.init(c);
         try {
             for (int i = 0; i < items.size(); i++) {
                 TrainItem it = items.get(i);
                 boolean has = it != null && !it.isEmpty() && it.data != null && it.data.trainUser != null;
-                Long was = SEEN.get(i);
+                String was = SEEN.get(i);
                 if (!has) {
                     SEEN.remove(i);
                     continue;
                 }
                 TrainUser u = it.data.trainUser;
-                if (was != null && was == u.id) {
+                String name = it.getTrainProgram() != null ? it.getTrainProgram().name : "";
+                String now = u.id + "|" + name;
+                if (now.equals(was)) {
                     continue;
                 }
-                SEEN.put(i, u.id);
+                boolean newClient = was == null || !was.startsWith(u.id + "|");
+                SEEN.put(i, now);
+                if (it.data.start || assisted()) {
+                    continue;
+                }
+                // The client's own settings for this program (diskette / ⚙) come first.
+                if (ClientPrograms.applyTo(it, u)) {
+                    continue;
+                }
                 // The slots already filled when the app starts are the trainer's as they were.
-                if (primed && !it.data.start && !assisted()) {
+                if (primed && newClient) {
                     applyTo(c, it, u);
                 }
             }

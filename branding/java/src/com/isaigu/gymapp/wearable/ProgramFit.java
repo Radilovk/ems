@@ -44,9 +44,9 @@ import java.util.WeakHashMap;
  *       overwritten automatically, the same offset moves that parameter in the client's other tetanic
  *       programs (pulse width, pause, soft rise / fall, work time) and a new impulse time keeps the
  *       impulse : pause ratio (the pause follows unless it was set by hand too).</li>
- *   <li>The diskette writes the row into its saved program at once — without the client's corrections,
- *       hand-set values as they are — and the other slots on that program recalibrate to it live.
- *       Holding it opens the stock "save as" with the same values.</li>
+ *   <li>The diskette and the row's ⚙ save the row's settings into the client's profile
+ *       ({@link ClientPrograms}); they come back whenever the client is on that program again.
+ *       Holding the diskette opens the stock "save as" (a new program, the client's corrections out).</li>
  *   <li>⚙ Master is the base for everyone: saved into the program and personalised per slot.</li>
  *   <li>Off (switch in the parameters dialog): nothing is corrected or recalibrated — all manual.</li>
  * </ul>
@@ -395,6 +395,9 @@ public final class ProgramFit {
                 }
             }
             f.ref = now;
+            if (it.data != null && it.data.trainUser != null) {
+                ClientPrograms.save(it.data.trainUser, now);   // ⚙ saved: the client's own from now on
+            }
         } catch (Throwable t) {
             XemsGuard.report("ProgramFit.onEdit", t);
         }
@@ -604,34 +607,6 @@ public final class ProgramFit {
         return out;
     }
 
-    /** The diskette: straight into the row's saved program, ✓. False → the caller opens "save as". */
-    public static boolean quickSave(BaseActivity a, TrainUserProgramDataWrapper w) {
-        try {
-            if (a == null || w == null || w.trainProgram == null || w.trainProgram.name == null
-                    || stored(w.trainProgram.name) == null) {
-                return false;
-            }
-            TrainProgram out = forSave(w);
-            if (out == null) {
-                return false;
-            }
-            String name = w.trainProgram.name;
-            saveBase(out, name);
-            TrainItem it = itemOf(w);
-            Fit f = it != null ? fitFor(it, false) : null;
-            if (f != null) {
-                rebase(f, out, w.trainProgram);
-            }
-            recalibrateOthers(it, name);
-            a.showTips(XemsLang.tr("✓ Записано в „" + name + "“", "✓ Saved to “" + name + "”"));
-            WearableBleDiagLog.log("manual", "saved '" + name + "' from the slot");
-            return true;
-        } catch (Throwable t) {
-            XemsGuard.report("ProgramFit.quickSave", t);
-            return false;
-        }
-    }
-
     /** Saves the values under the program's name (id kept); the saved live strength stays as it was. */
     static void saveBase(TrainProgram values, String name) {
         TrainProgram old = stored(name);
@@ -660,81 +635,6 @@ public final class ProgramFit {
         try {
             MessageDispatcher.dispatchEventMessage((short) 0x6a);
         } catch (Throwable ignored) {
-        }
-    }
-
-    /** After the slot's own save: its values are the base now (hand-set ones included). */
-    private static void rebase(Fit f, TrainProgram saved, TrainProgram row) {
-        f.hasBase = true;
-        f.ref = row;
-        for (int k = 0; k < MODES; k++) {
-            ProgramDataBean s = bean(saved, k);
-            ProgramDataBean r = bean(row, k);
-            if (s == null || r == null) {
-                continue;
-            }
-            f.base[k] = values(s);
-            f.fit[k] = values(r);
-            for (int p = 0; p <= N; p++) {
-                f.manual[k][p] = false;
-            }
-            f.zoneBase[k] = zones(s);
-            f.zoneFit[k] = zones(r);
-        }
-    }
-
-    /** The saved base changed: the other personalised slots on it follow at once (their hand-set values stay). */
-    static void recalibrateOthers(TrainItem except, String name) {
-        List<TrainItem> list = items;
-        TrainProgram base = stored(name);
-        if (list == null || base == null) {
-            return;
-        }
-        boolean on = enabled(null);
-        for (int i = 0; i < list.size(); i++) {
-            TrainItem it = list.get(i);
-            if (it == null || it == except || it.isEmpty() || it.getTrainProgram() == null
-                    || !name.equals(it.getTrainProgram().name)) {
-                continue;
-            }
-            Fit f = fitFor(it, false);
-            if (f == null || !f.hasBase) {
-                continue;                                  // a returning client keeps their own settings
-            }
-            TrainUser u = it.data.trainUser;
-            AiProfile prof = on && u != null ? AiProfile.of(u) : null;
-            int[][] bv = new int[MODES][];
-            for (int k = 0; k < MODES; k++) {
-                ProgramDataBean b = bean(base, k);
-                bv[k] = b != null ? values(b) : null;
-            }
-            int[][] pv = personalize(bv, prof);
-            boolean moved = false;
-            for (int k = 0; k < MODES; k++) {
-                ProgramDataBean rb = bean(it.getTrainProgram(), k);
-                if (rb == null || bv[k] == null || f.fit[k] == null) {
-                    continue;
-                }
-                for (int p = 0; p < N; p++) {
-                    if (f.manual[k][p] || get(rb, p) != f.fit[k][p] || (p == WORK && it.data.start)) {
-                        continue;
-                    }
-                    if (get(rb, p) != pv[k][p]) {
-                        set(rb, p, pv[k][p]);
-                        moved = true;
-                    }
-                    f.fit[k][p] = get(rb, p);
-                }
-                f.base[k] = bv[k];
-                f.last[k] = values(rb);
-            }
-            if (moved) {
-                if (!it.data.start) {
-                    it.workLength = it.getTrainProgram().matchProgram() != null
-                            ? it.getTrainProgram().matchProgram().workLength : it.workLength;
-                }
-                refresh(it, true);
-            }
         }
     }
 
@@ -798,7 +698,11 @@ public final class ProgramFit {
                 }
                 v = parent;
             }
-            if (content == null || content.findViewWithTag(SWITCH_TAG) != null) {
+            if (content == null) {
+                return;
+            }
+            com.isaigu.gymapp.dialog.ParamDialogUi.style(content);
+            if (content.findViewWithTag(SWITCH_TAG) != null) {
                 return;
             }
             Context c = content.getContext();
@@ -880,13 +784,22 @@ public final class ProgramFit {
         return null;
     }
 
-    /** Hook: the diskette's click (TrainViewHolder$2) — quick save, else the stock "save as". */
+    /** Hook: the diskette's click (TrainViewHolder$2) — the row's settings into its client's profile. */
     public static void onSaveClick(BaseActivity a, TrainUserProgramDataWrapper w) {
-        if (!quickSave(a, w)) {
-            TrainProgram out = forSave(w);
+        try {
+            ClientPrograms.init(a);
+            TrainUser u = w != null ? w.trainUser : null;
+            if (a != null && u != null && w.trainProgram != null && ClientPrograms.save(u, w.trainProgram)) {
+                a.showTips(XemsLang.tr("✓ Записано за " + u.name + " · " + w.trainProgram.name,
+                        "✓ Saved for " + u.name + " · " + w.trainProgram.name));
+                return;
+            }
+            TrainProgram out = forSave(w);                 // no client in the slot: the stock "save as"
             if (a != null && out != null) {
                 com.isaigu.gymapp.train.utils.OperationUtil.save(a, out);
             }
+        } catch (Throwable t) {
+            XemsGuard.report("ProgramFit.onSaveClick", t);
         }
     }
 }

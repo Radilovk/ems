@@ -22,10 +22,13 @@ import java.util.Locale;
  * scripts/remove-ramp.py; this shows it again in seconds: 0 … 3 s in 0.5 s steps.
  * Values are stored in ms in ProgramDataBean.inputRamp / outputRamp and sent to the device by
  * AiRamp (capped so both together fit into the impulse ON time).
+ * Every mode has its own: Основен in the stock column, Мускули / Кардио / Масаж get a row
+ * "Плавно ↑ / ↓" under their work time (their own bean).
  */
 public final class RampSetting {
     private static final int STEP_MS = 500;
     private static final int MAX_MS = 3000;
+    private static final String MODE_ROW = "xems_ramp_mode_row";
 
     private RampSetting() {}
 
@@ -38,6 +41,9 @@ public final class RampSetting {
             showColumn(in);
             bind(in, program, true);
             bind(out, program, false);
+            for (int k = 1; k <= 3; k++) {
+                attachMode(in.getRootView(), program, k);
+            }
         } catch (Throwable t) {
             XemsGuard.report("RampSetting.attach", t);
         }
@@ -48,6 +54,66 @@ public final class RampSetting {
         if (row != null && row.getParent() instanceof View) {
             ((View) row.getParent()).setVisibility(View.VISIBLE);
         }
+    }
+
+    static ProgramDataBean bean(TrainProgram p, int k) {
+        return k == 1 ? p.muscleTrainingProgramDataBean
+                : k == 2 ? p.aerobicTrainingProgramDataBean
+                : k == 3 ? p.massageModeProgramDataBean : p.programDataBean;
+    }
+
+    /** Мускули / Кардио / Масаж: a "Плавно ↑ / ↓" row under the mode's work time (once per dialog). */
+    private static void attachMode(View root, TrainProgram program, int k) {
+        ProgramDataBean b = bean(program, k);
+        if (root == null || b == null) {
+            return;
+        }
+        Context c = root.getContext();
+        int id = c.getResources().getIdentifier("worklength" + k, "id", c.getPackageName());
+        View work = id != 0 ? root.findViewById(id) : null;
+        if (work == null || !(work.getParent() instanceof View)) {
+            return;
+        }
+        View workRow = (View) work.getParent();
+        if (!(workRow.getParent() instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup col = (ViewGroup) workRow.getParent();
+        String tag = MODE_ROW + k;
+        View old = col.findViewWithTag(tag);
+        if (old != null) {
+            col.removeView(old);                           // onStart again: rebind to the current program
+        }
+        XemsUi.init(c);
+        LinearLayout row = XemsUi.horizontal(c);
+        row.setTag(tag);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        int pad = XemsUi.dp(c, 10);
+        row.setPadding(pad, XemsUi.dp(c, 10), pad, 0);
+        TextView label = XemsUi.text(c, XemsLang.tr("Плавно ↑ / ↓", "Soft rise / fall"), 18, XemsUi.TEXT, false);
+        row.addView(label, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(chipFor(c, program, k, true));
+        TextView chip2 = chipFor(c, program, k, false);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.leftMargin = XemsUi.dp(c, 8);
+        row.addView(chip2, lp);
+        col.addView(row, col.indexOfChild(workRow) + 1);
+    }
+
+    private static TextView chipFor(Context c, TrainProgram program, int k, boolean up) {
+        ProgramDataBean b = bean(program, k);
+        int ms = clamp(up ? b.inputRamp : b.outputRamp);
+        if (up) {
+            b.inputRamp = ms;
+        } else {
+            b.outputRamp = ms;
+        }
+        TextView v = XemsUi.chip(c, (up ? "↑ " : "↓ ") + fmt(ms), false, XemsUi.GO_TEXT);
+        v.setMinWidth(XemsUi.dp(c, 84));
+        v.setGravity(android.view.Gravity.CENTER);
+        v.setOnClickListener(new Open(v, program, k, up));
+        return v;
     }
 
     private static void bind(TextView value, TrainProgram program, boolean up) {
@@ -68,7 +134,7 @@ public final class RampSetting {
                 row.getChildAt(i + 1).setVisibility(View.GONE);
             }
         }
-        value.setOnClickListener(new Open(value, program, up));
+        value.setOnClickListener(new Open(value, program, 0, up));
     }
 
     static int clamp(int ms) {
@@ -94,11 +160,13 @@ public final class RampSetting {
     static final class Open implements View.OnClickListener {
         private final TextView value;
         private final TrainProgram program;
+        private final int k;
         private final boolean up;
 
-        Open(TextView value, TrainProgram program, boolean up) {
+        Open(TextView value, TrainProgram program, int k, boolean up) {
             this.value = value;
             this.program = program;
+            this.k = k;
             this.up = up;
         }
 
@@ -115,7 +183,10 @@ public final class RampSetting {
                                 : XemsLang.tr("Плавен спад", "Soft fall"),
                         XemsLang.tr("И двата импулса при двоен импулс", "Both impulses with a double impulse"),
                         520);
-                ProgramDataBean b = program.programDataBean;
+                ProgramDataBean b = bean(program, k);
+                if (b == null) {
+                    return;
+                }
                 int cur = clamp(up ? b.inputRamp : b.outputRamp);
                 LinearLayout grid = XemsUi.vertical(a);
                 LinearLayout row = null;
@@ -128,7 +199,7 @@ public final class RampSetting {
                     TextView chip = XemsUi.chip(a, String.format(Locale.US, "%.1f", ms / 1000f), ms == cur,
                             XemsUi.GO_TEXT);
                     chip.setGravity(android.view.Gravity.CENTER);
-                    chip.setOnClickListener(new Pick(s, value, program, up, ms));
+                    chip.setOnClickListener(new Pick(s, value, program, k, up, ms));
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
                             ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
                     if (i % 7 != 0) {
@@ -148,20 +219,22 @@ public final class RampSetting {
         private final XemsUi.Shell sheet;
         private final TextView value;
         private final TrainProgram program;
+        private final int k;
         private final boolean up;
         private final int ms;
 
-        Pick(XemsUi.Shell sheet, TextView value, TrainProgram program, boolean up, int ms) {
+        Pick(XemsUi.Shell sheet, TextView value, TrainProgram program, int k, boolean up, int ms) {
             this.sheet = sheet;
             this.value = value;
             this.program = program;
+            this.k = k;
             this.up = up;
             this.ms = ms;
         }
 
         @Override
         public void onClick(View v) {
-            ProgramDataBean b = program.programDataBean;
+            ProgramDataBean b = bean(program, k);
             if (b != null) {
                 if (up) {
                     b.inputRamp = ms;
@@ -169,7 +242,7 @@ public final class RampSetting {
                     b.outputRamp = ms;
                 }
             }
-            value.setText(fmt(ms));
+            value.setText(k == 0 ? fmt(ms) : (up ? "↑ " : "↓ ") + fmt(ms));
             XemsUi.haptic(v);
             try {
                 sheet.dialog.dismiss();

@@ -2,15 +2,15 @@
 """Saved program = the base of the manual mode; the diskette saves it, the gear works while training.
 
 wearable/ProgramFit (compile-wearable-java.sh) does the work; this wires it into the vendor smali:
-- TrainViewHolder$2 (the row's diskette): ProgramFit.onSaveClick(activity, wrapper) — straight into the
-  row's saved program (e.g. "Test") without the client's corrections, ✓; the stock "save as" dialog only
-  when the program has no saved copy.
+- TrainViewHolder$2 (the row's diskette): ProgramFit.onSaveClick(activity, wrapper) — the row's settings
+  into the client's profile (ClientPrograms, per program), ✓; the stock "save as" when the slot has no client.
 - TrainViewHolder.bindListener: holding the diskette = the stock "save as" (ProgramFit.bindSaveAs).
 - TrainViewHolder$1 (the row's gear): opens while the training runs too (the vendor returned when
   data.start); ProgramLive applies the new parameters and time live, for this client only.
 - OperationUtil.lambda$settingAllUser$0 (⚙ Master): ProgramLive.stash(wrapper, originalProgram) before the
   rows are refreshed — the vendor had already replaced the program, so a new length never moved the end.
-- EditUserProgramDataDialog.onStart: the "Персонализация" switch on top (ProgramFit.attachSwitch).
+- EditUserProgramDataDialog.onStart: the "Персонализация" switch on top and the XEMS look
+  (ProgramFit.attachSwitch → dialog/ParamDialogUi).
 - TrainItem.xemsRefresh(): public onTrainItemChange() (the row redraws after a recalibration).
 Runs after apply-live-settings.py and apply-ramp-setting.py.
 """

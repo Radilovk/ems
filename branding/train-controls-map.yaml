@@ -131,7 +131,10 @@ row_controls:
     bridge_gap: TrainControlBridge.setChannelStrength(channel, percent)
 
   avatar_index:
-    description: Взаимно изключващи се index modes; само един active per row
+    description: |
+      Взаимно изключващи се index modes; само един active per row. Selection clears 5 s after the last action
+      (wearable/TrainIndex.tick). 2nd impulse: on from pause Hz OR pause MA, pause MA = main MA at switch-on
+      (TrainIndex.pauseClick, apply-train-index.py).
     modes:
       - id: ma
         flag: TrainItem.maSelected
@@ -182,6 +185,7 @@ row_controls:
       pause_ma_mode: { write: pauseStrenthPercent = slider*100/75 }
       pause_hz_mode: { write: pauseHz = slider*120/75 }
     after_change: updateUI + onParamsChange / sendPulse
+    touch: only a gesture that starts on the handle moves it (XemsLocalAvatar.grab, apply-avatar-card.py)
     parallel_api: yes
     entry: MasterStrengthControl (MA mode only)
     blocked_when: MusicSyncBridge.shouldBlockManualControls()
@@ -239,10 +243,13 @@ row_controls:
       parallel_api: none
     - id: save
       effect: |
-        Tap: ProgramFit.onSaveClick — straight into the row's saved program (e.g. "Test"), the client's
-        corrections out, hand-set values as they are, ✓ tip; other slots on it recalibrate live.
-        Hold: stock "save as" (OperationUtil.save) with the same values.
+        Tap: ProgramFit.onSaveClick → ClientPrograms.save — the row's settings for this client in this program
+        (loaded again whenever the client is on that program). Hold: stock "save as" (OperationUtil.save).
       parallel_api: none
+
+  quick_start:
+    where: client list (UserFragment rows) — wearable/QuickStart (apply-quick-start.py)
+    effect: ▶ last program onto a free connected suit, opens the training page; ↻ next to the searches
 
 # ── PROGRAM DATA (ProgramDataBean) ───────────────────────────────────────────
 

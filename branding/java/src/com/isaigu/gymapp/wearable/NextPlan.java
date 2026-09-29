@@ -653,6 +653,13 @@ public final class NextPlan {
         if (base == null) {
             return null;
         }
+        TrainProgram own = ClientPrograms.base(u, base.name);
+        if (own != null) {                              // saved for this client (diskette / ⚙): as saved
+            if (s != null && bean(own, s.type) != null) {
+                own.useType = s.type;
+            }
+            return own;
+        }
         TrainProgram p = (TrainProgram) BeanUtils.cloneObject(base);
         if (p == null || s == null) {
             return p;

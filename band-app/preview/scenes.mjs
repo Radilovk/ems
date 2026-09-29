@@ -52,6 +52,6 @@ export const SCENES = [
   { page: 'pulse', name: 'auto', state: pulse, cur: 'auto' },
   { page: 'pulse', name: 'chart', state: pulse, cur: 'chart' },
   { page: 'summary', name: 'done', state: manual, summary: { kind: 'manual', dur: 1520, kcal: 245, avg: 131, max: 158, zt: [60, 180, 240, 120, 30] } },
-  { page: 'summary', name: 'muscles', state: manual, cur: 'body', summary: { kind: 'manual', dur: 1520, kcal: 245, avg: 131, max: 158, zt: [60, 180, 240, 120, 30], sex: 'F', mus: [78, 85, 100, 67, 52, 61, 81, 57, 95, 90] } },
-  { page: 'summary', name: 'muscles-m', state: manual, cur: 'body', summary: { kind: 'manual', dur: 1520, kcal: 245, avg: 131, max: 158, zt: [60, 180, 240, 120, 30], sex: 'M', mus: [100, 70, 90, 40, 85, 55, 75, 50, 60, 65] } }
+  { page: 'summary', name: 'muscles', state: manual, summary: { kind: 'manual', dur: 1520, kcal: 245, avg: 131, max: 158, zt: [60, 180, 240, 120, 30], sex: 'F', mus: [78, 85, 100, 67, 52, 61, 81, 57, 95, 90] } },
+  { page: 'summary', name: 'muscles-m', state: manual, summary: { kind: 'manual', dur: 1520, kcal: 245, avg: 131, max: 158, zt: [60, 180, 240, 120, 30], sex: 'M', mus: [100, 70, 90, 40, 85, 55, 75, 50, 60, 65] } }
 ]

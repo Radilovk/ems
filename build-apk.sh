@@ -116,6 +116,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-local-mode.py"
   python3 "${ROOT}/scripts/apply-ramp-setting.py"
   python3 "${ROOT}/scripts/apply-program-fit.py"
+  python3 "${ROOT}/scripts/apply-quick-start.py"
   python3 "${ROOT}/scripts/apply-soft-ramp.py"
   python3 "${ROOT}/scripts/apply-avatar-card.py"
   python3 "${ROOT}/scripts/apply-band-app.py"
@@ -153,6 +154,8 @@ python3 "${ROOT}/scripts/apply-arms-channel-scale.py"
 python3 "${ROOT}/scripts/verify-arms-channel-scale.py"
 # After the train control routing: + / − and the slider act on the selected muscle groups.
 python3 "${ROOT}/scripts/apply-part-strength.py"
+# After the active-pause listeners are final: 2nd impulse from Hz or MA, 5 s auto-clear (TrainIndex).
+python3 "${ROOT}/scripts/apply-train-index.py"
 # After every train row layout patch: name / time / status icons / big + and − (column right of the avatar).
 python3 "${ROOT}/scripts/apply-train-info-column.py"
 # Every app class that smali references must be installed (a missed one = NoClassDefFoundError at run time).

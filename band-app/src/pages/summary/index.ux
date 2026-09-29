@@ -1,63 +1,69 @@
 <template>
-  <stack class="root bg-summary" onswipe="onSwipe">
-    <div class="screen {{anim}}" if="{{cur === 'main'}}">
-      <div class="check"></div>
-      <text class="caps">{{kindText}}</text>
-      <text class="dur">{{durText}}</text>
-      <text class="kcal">{{kcal}} kcal</text>
-      <div class="tiles">
-        <div class="tile">
-          <text class="tile-num">{{avg}}</text>
-          <text class="tile-lbl">средно</text>
-        </div>
-        <div class="tile">
-          <text class="tile-num t-max">{{max}}</text>
-          <text class="tile-lbl">връх</text>
-        </div>
-      </div>
-      <div class="zstack">
-        <div for="{{zones}}" class="zpart" style="flex: {{$item.w}}; background-color: {{$item.c}}"></div>
-      </div>
-      <div class="btn done {{pressed ? 'down' : ''}}" ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="close">
-        <text class="done-text">Готово</text>
-      </div>
-    </div>
-
-    <!-- 2 · the muscles this training worked: colour boxes under a stencil of the figure -->
-    <div class="screen body-screen {{anim}}" if="{{cur === 'body'}}">
-      <text class="caps">МУСКУЛИ</text>
-      <div class="figs">
-        <stack class="fig" style="height: {{figH}}px">
-          <div class="boxes">
-            <div for="{{front}}" class="bx" style="left: {{$item.x}}px; top: {{$item.y}}px; width: {{$item.w}}px; height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+  <stack class="root bg-summary">
+    <scroll class="scr" scroll-y="true">
+      <div class="col">
+        <!-- 1 · the muscles this training worked (first when the map is there), a hint to scroll -->
+        <div class="screen body-screen" if="{{hasBody}}">
+          <text class="caps">МУСКУЛИ</text>
+          <div class="figs">
+            <stack class="fig" style="height: {{figH}}px">
+              <div class="boxes">
+                <div for="{{front}}" class="bx" style="left: {{$item.x}}px; top: {{$item.y}}px; width: {{$item.w}}px; height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+              </div>
+              <div class="stencil {{sexK}}-front" style="height: {{figH}}px"></div>
+            </stack>
+            <stack class="fig fig-b" style="height: {{figH}}px">
+              <div class="boxes">
+                <div for="{{back}}" class="bx" style="left: {{$item.x}}px; top: {{$item.y}}px; width: {{$item.w}}px; height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+              </div>
+              <div class="stencil {{sexK}}-back" style="height: {{figH}}px"></div>
+            </stack>
           </div>
-          <div class="stencil {{sexK}}-front" style="height: {{figH}}px"></div>
-        </stack>
-        <stack class="fig fig-b" style="height: {{figH}}px">
-          <div class="boxes">
-            <div for="{{back}}" class="bx" style="left: {{$item.x}}px; top: {{$item.y}}px; width: {{$item.w}}px; height: {{$item.h}}px; background-color: {{$item.c}}"></div>
+          <div class="tops">
+            <div for="{{tops}}" class="top">
+              <div class="tdot" style="background-color: {{$item.c}}"></div>
+              <text class="tname">{{$item.n}}</text>
+              <text class="tpct">{{$item.p}}%</text>
+            </div>
           </div>
-          <div class="stencil {{sexK}}-back" style="height: {{figH}}px"></div>
-        </stack>
-      </div>
-      <div class="tops">
-        <div for="{{tops}}" class="top">
-          <div class="tdot" style="background-color: {{$item.c}}"></div>
-          <text class="tname">{{$item.n}}</text>
-          <text class="tpct">{{$item.p}}%</text>
+          <div class="grow"></div>
+          <div class="hint">
+            <text class="hint-t">още</text>
+            <div class="chev"></div>
+          </div>
+        </div>
+
+        <!-- 2 · time, kcal, heart rate, zones, done -->
+        <div class="screen">
+          <div class="check"></div>
+          <text class="caps">{{kindText}}</text>
+          <text class="dur">{{durText}}</text>
+          <text class="kcal">{{kcal}} kcal</text>
+          <div class="tiles">
+            <div class="tile">
+              <text class="tile-num">{{avg}}</text>
+              <text class="tile-lbl">средно</text>
+            </div>
+            <div class="tile">
+              <text class="tile-num t-max">{{max}}</text>
+              <text class="tile-lbl">връх</text>
+            </div>
+          </div>
+          <div class="zstack">
+            <div for="{{zones}}" class="zpart" style="flex: {{$item.w}}; background-color: {{$item.c}}"></div>
+          </div>
+          <div class="btn done {{pressed ? 'down' : ''}}" ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="close">
+            <text class="done-text">Готово</text>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="dots" if="{{ids.length > 1}}">
-      <div for="{{dots}}" class="pdot {{$item.on ? 'pdot-on' : ''}}"></div>
-    </div>
+    </scroll>
   </stack>
 </template>
 
 <script>
 import router from '@system.router'
-import { ZONE, hms, swipe, dots } from '../../common/ui.js'
+import { ZONE, hms } from '../../common/ui.js'
 import { BODY } from '../../common/body-map.js'
 
 // Muscle load colour: the same scale as the tablet report and the client card.
@@ -89,12 +95,7 @@ function boxes(key, col) {
 
 export default {
   private: {
-    ids: ['main'],
-    idsKey: 'main',
-    idx: 0,
-    cur: 'main',
-    dots: [],
-    anim: '',
+    hasBody: false,
     kindText: 'КРАЙ',
     durText: '0:00',
     kcal: '--',
@@ -113,7 +114,7 @@ export default {
     this.fill()
     this.onApp = () => {
       const s = this.$app.$def.summary || {}
-      if (s.mus && this.ids.length < 2) {
+      if (s.mus && !this.hasBody) {
         this.fill()                                // the muscle map arrived after the page opened
       }
     }
@@ -145,9 +146,8 @@ export default {
       this.back = boxes(this.sexK + '-back', col)
       this.tops = lv.map((v, i) => ({ i, v })).sort((a, b) => b.v - a.v).slice(0, 3)
         .map((t) => ({ n: MUSCLE[t.i], p: Math.round(t.v * 100), c: col[t.i] }))
-      this.ids = ['main', 'body']
+      this.hasBody = true
     }
-    this.dots = dots(0, this.ids.length)
   },
 
   onShow() {
@@ -160,10 +160,6 @@ export default {
     try {
       this.$app.$def.setVisible(false)
     } catch (e) {}
-  },
-
-  onSwipe(e) {
-    swipe(this, e)
   },
 
   press() {
@@ -475,6 +471,51 @@ export default {
   font-size: 19px;
   font-weight: bold;
   color: #ADB3C7;
+}
+.grow {
+  flex-grow: 1;
+}
+/* "още" + a chevron at the bottom of the figure screen: bobs a few times, then rests */
+.hint {
+  flex-shrink: 0;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  flex-direction: column;
+  align-items: center;
+  animation-name: bob;
+  animation-duration: 900ms;
+  animation-iteration-count: 5;
+  animation-timing-function: ease-in-out;
+}
+.hint-t {
+  font-size: 16px;
+  color: #8C93AB;
+}
+.chev {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  border-style: solid;
+  border-top-width: 0px;
+  border-left-width: 0px;
+  border-right-width: 3px;
+  border-bottom-width: 3px;
+  border-color: #ADB3C7;
+  transform: rotate(45deg);
+}
+@keyframes bob {
+  0% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
 }
 .done-text {
   font-size: 28px;

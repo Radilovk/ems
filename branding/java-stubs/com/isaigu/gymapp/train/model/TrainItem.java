@@ -63,5 +63,14 @@ public class TrainItem {
 
     public void start() {}
 
+    /** Vendor: stops, closes the receiver, connected = false, disconnects, drops the train record. */
+    public void close() {}
+
+    /** Added by apply-suit-reconnect.py: paused and marked not connected, the row stays as it is. */
+    public void xemsHold() {}
+
+    /** Added by apply-suit-reconnect.py: the same suit back — new sender/receiver, connected again. */
+    public void xemsRebind(com.clj.fastble.data.BleDevice device) {}
+
     public void stop() {}
 }

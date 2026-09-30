@@ -158,6 +158,7 @@ python3 "${ROOT}/scripts/apply-part-strength.py"
 # After the active-pause listeners are final: 2nd impulse from Hz or MA, 5 s auto-clear (TrainIndex).
 python3 "${ROOT}/scripts/apply-train-index.py"
 python3 "${ROOT}/scripts/apply-double-impulse.py"
+python3 "${ROOT}/scripts/apply-suit-reconnect.py"
 # After every train row layout patch: name / time / status icons / big + and − (column right of the avatar).
 python3 "${ROOT}/scripts/apply-train-info-column.py"
 # Every app class that smali references must be installed (a missed one = NoClassDefFoundError at run time).

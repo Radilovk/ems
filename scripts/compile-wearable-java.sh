@@ -84,6 +84,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ProgramFit.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ClientPrograms.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/TrainIndex.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/SuitReconnect.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/QuickStart.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ClientRow.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/SearchPad.java"

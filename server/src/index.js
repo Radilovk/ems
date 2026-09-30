@@ -8,7 +8,7 @@ import {
 import { adminHtml } from './admin.js';
 import exercisesAdminHtml from './exercises-admin.html';
 import exerciseLibrary from '../../branding/exercises/library.json';
-import { normalizePick, picksPayload } from './exercises.js';
+import { normalizePick, picksPayload, codeMatches } from './exercises.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
@@ -115,6 +115,9 @@ export default {
       }
       if (path === '/admin/exercises/library.json') {
         return json(exerciseLibrary);
+      }
+      if (path === '/admin/api/exercises' || path === '/admin/api/exercises/set') {
+        return exercisesApi(request, env, path);
       }
       if (path.startsWith('/admin/api/')) {
         return adminApi(request, env, path);
@@ -918,12 +921,24 @@ async function adminApi(request, env, path) {
     });
   }
 
-  if (route === 'exercises' && request.method === 'GET') {
+  return json({ ok: false, error: 'not_found' }, 404);
+}
+
+const EXERCISE_IDS = new Set(exerciseLibrary.exercises.map((e) => e.id));
+
+/** The exercise picker's API: the admin login, or the page's own access code (header X-Access-Code). */
+async function exercisesApi(request, env, path) {
+  const ok = checkAdmin(request, env)
+    || await codeMatches(request.headers.get('X-Access-Code'), env.EXERCISES_CODE_SHA256);
+  if (!ok) {
+    await new Promise((r) => setTimeout(r, 400));          // slow down guessing
+    return json({ ok: false, error: 'code' }, 401);        // no Basic prompt: the page asks for the code
+  }
+  if (path === '/admin/api/exercises' && request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT id, on_app, frames, updated_at FROM exercise_picks').all();
     return json({ ok: true, ...picksPayload(rows.results) });
   }
-
-  if (route === 'exercises/set' && request.method === 'POST') {
+  if (path === '/admin/api/exercises/set' && request.method === 'POST') {
     const b = await readJsonBody(request);
     const row = normalizePick(b, EXERCISE_IDS, Date.now());
     if (!row) return err('invalid_exercise', 'Unknown exercise id');
@@ -934,11 +949,8 @@ async function adminApi(request, env, path) {
     await audit(env, 'exercise_pick', '', '', row.id + ' on=' + row.on_app + ' frames=' + row.frames);
     return json({ ok: true });
   }
-
   return json({ ok: false, error: 'not_found' }, 404);
 }
-
-const EXERCISE_IDS = new Set(exerciseLibrary.exercises.map((e) => e.id));
 
 /** The admin's exercise picks for the tablets (public: nothing secret, the library itself ships in the app). */
 async function handleExercises(env) {

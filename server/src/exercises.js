@@ -30,3 +30,15 @@ export function enabledIds(library, picks) {
   }
   return out;
 }
+
+/** The access code of the exercise page (header X-Access-Code) against its SHA-256 (hex); spaces / case ignored. */
+export async function codeMatches(code, sha256Hex) {
+  if (!code || !sha256Hex) return false;
+  const norm = String(code).trim().toUpperCase().replace(/\s+/g, '');
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(norm));
+  const hex = [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  if (hex.length !== sha256Hex.length) return false;
+  let diff = 0;
+  for (let i = 0; i < hex.length; i++) diff |= hex.charCodeAt(i) ^ sha256Hex.toLowerCase().charCodeAt(i);
+  return diff === 0;
+}

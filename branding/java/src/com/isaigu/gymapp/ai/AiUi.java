@@ -914,7 +914,7 @@ final class AiUi {
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         alp.rightMargin = dp(a, 14);
-        tiles.addView(ProgramArt.tile(a, artProg, in.mode == Mode.ACTIVE, in.sex, 132, 100), alp);
+        tiles.addView(ProgramArt.tile(a, artProg, in.mode == Mode.ACTIVE, in.sex, 160, 120), alp);
         String bpmU = " " + AiText.t("уд/мин", "bpm");
         bigTile(a, tiles, AiText.t("Покой", "Rest"), p.hrAvailable ? p.hrRest + "" : "—", p.hrAvailable ? bpmU : "");
         String corridor = p.hrAvailable
@@ -1116,6 +1116,7 @@ final class AiUi {
         final boolean withEx = AiSession.getExercises() != null;
         LinearLayout phaseCard = card(a);
         final ExerciseFigure exFig = new ExerciseFigure(a);
+        exFig.setColor(ExerciseFigure.colorFor(e.getInput().sex));
         final TextView exName = text(a, "", 24, AiViews.TEXT, true);
         final TextView exNext = text(a, "", 14, AiViews.OK, true);
         final TextView phaseName = text(a, "", withEx ? 17 : 30, AiViews.TEXT, true);

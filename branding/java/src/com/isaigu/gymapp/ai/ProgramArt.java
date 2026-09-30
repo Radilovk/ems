@@ -15,8 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The picture of a program by its kind and the client's sex (assets/xems/programs/*.webp, from branding/programs/):
- * neon line art, so it always sits on a dark tile — in the light theme too. docs/xems-exercise-templates.md
+ * The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile —
+ * in the light theme too. Each picture comes in the exact pixel sizes of a 128×96 dp tile at densities 1.5 / 2 /
+ * 2.5 / 3 (assets/xems/programs/key@w.webp, made line-preserving by scripts/gen-program-art.py); the smallest one
+ * ≥ what the tile needs is drawn, scaled by ≤ 1.33 with mipmaps, so the thin lines stay whole.
+ * docs/xems-exercise-templates.md
  */
 public final class ProgramArt {
     private ProgramArt() {}
@@ -26,6 +29,17 @@ public final class ProgramArt {
     static final int TILE = 0xFF12141A;
 
     private static final Map<String, Bitmap> CACHE = new HashMap<String, Bitmap>();
+    /** Pixel widths made by scripts/gen-program-art.py (4:3). */
+    static final int[] WIDTHS = {192, 256, 320, 384};
+
+    static int widthFor(int px) {
+        for (int w : WIDTHS) {
+            if (w >= px) {
+                return w;
+            }
+        }
+        return WIDTHS[WIDTHS.length - 1];
+    }
 
     /** Which picture: an active program by what it trains, a passive one by the client's sex. */
     public static String key(String programId, boolean active, AiModel.Sex sex) {
@@ -68,20 +82,26 @@ public final class ProgramArt {
         return "f-squat";
     }
 
-    static Bitmap bitmap(Context c, String key) {
+    static Bitmap bitmap(Context c, String key, int px) {
+        String name = key + "@" + widthFor(px);
         synchronized (CACHE) {
-            if (CACHE.containsKey(key)) {
-                return CACHE.get(key);
+            if (CACHE.containsKey(name)) {
+                return CACHE.get(name);
             }
             Bitmap b = null;
             try {
-                InputStream in = c.getAssets().open(DIR + key + ".webp");
-                b = BitmapFactory.decodeStream(in);
+                InputStream in = c.getAssets().open(DIR + name + ".webp");
+                BitmapFactory.Options o = new BitmapFactory.Options();
+                o.inScaled = false;
+                b = BitmapFactory.decodeStream(in, null, o);
                 in.close();
+                if (b != null) {
+                    b.setHasMipMap(true);
+                }
             } catch (Throwable t) {
                 android.util.Log.w("xems", "ProgramArt " + key + ": " + t);
             }
-            CACHE.put(key, b);
+            CACHE.put(name, b);
             return b;
         }
     }
@@ -93,12 +113,13 @@ public final class ProgramArt {
         ImageView iv = new ImageView(c);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
         iv.setAdjustViewBounds(false);
-        Bitmap b = bitmap(c, key(programId, active, sex));
+        Bitmap b = bitmap(c, key(programId, active, sex), XemsUi.dp(c, wDp));
         if (b != null) {
-            iv.setImageBitmap(b);
+            android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(c.getResources(), b);
+            d.setFilterBitmap(true);
+            d.setAntiAlias(true);
+            iv.setImageDrawable(d);
         }
-        int pad = XemsUi.dp(c, 5);
-        iv.setPadding(pad, pad, pad, pad);
         f.addView(iv, new FrameLayout.LayoutParams(XemsUi.dp(c, wDp), XemsUi.dp(c, hDp), Gravity.CENTER));
         f.setMinimumWidth(XemsUi.dp(c, wDp));
         f.setMinimumHeight(XemsUi.dp(c, hDp));

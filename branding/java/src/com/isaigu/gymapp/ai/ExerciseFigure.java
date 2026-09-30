@@ -24,8 +24,13 @@ import java.util.Map;
  */
 public final class ExerciseFigure extends View {
     public static final String ASSET = "xems/exercises.json";
-    /** Figure colour (cyan of the design); the glow is the same colour. */
+    /** Figure colour: cyan for men, magenta for women (the design's pair); the glow is the same colour. */
     public static final int COLOR = 0xFF22E3FF;
+    public static final int COLOR_F = 0xFFFF3BD4;
+
+    public static int colorFor(AiModel.Sex sex) {
+        return sex == AiModel.Sex.MALE ? COLOR : COLOR_F;
+    }
 
     static final class Fig {
         float[] vb;
@@ -176,6 +181,15 @@ public final class ExerciseFigure extends View {
             }
         }
         return p;
+    }
+
+    /** The client's colour ({@link #colorFor}). */
+    public void setColor(int color) {
+        if ((fill.getColor() & 0xFFFFFF) != (color & 0xFFFFFF)) {
+            fill.setColor(color);
+            glow.setColor(color);
+            invalidate();
+        }
     }
 
     /** Which exercise (null = none). */

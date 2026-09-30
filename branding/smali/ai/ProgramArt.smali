@@ -20,170 +20,236 @@
 
 .field static final TILE:I = -0xedebe6
 
+.field static final WIDTHS:[I
+
 
 # direct methods
 .method static constructor <clinit>()V
     .registers 1
 
     .prologue
-    .line 28
+    .line 31
     new-instance v0, Ljava/util/HashMap;
 
     invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
 
+    .line 33
+    const/4 v0, 0x4
+
+    new-array v0, v0, [I
+
+    fill-array-data v0, :array_10
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/ProgramArt;->WIDTHS:[I
+
     return-void
+
+    :array_10
+    .array-data 4
+        0xc0
+        0x100
+        0x140
+        0x180
+    .end array-data
 .end method
 
 .method private constructor <init>()V
     .registers 1
 
     .prologue
-    .line 22
+    .line 25
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
 .end method
 
-.method static bitmap(Landroid/content/Context;Ljava/lang/String;)Landroid/graphics/Bitmap;
-    .registers 8
+.method static bitmap(Landroid/content/Context;Ljava/lang/String;I)Landroid/graphics/Bitmap;
+    .registers 10
 
     .prologue
-    .line 72
-    sget-object v2, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
+    const/4 v1, 0x0
 
-    monitor-enter v2
+    .line 86
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    .line 73
-    :try_start_3
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v2, "@"
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {p2}, Lcom/isaigu/gymapp/ai/ProgramArt;->widthFor(I)I
+
+    move-result v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 87
+    sget-object v3, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
+
+    monitor-enter v3
+
+    .line 88
+    :try_start_1f
     sget-object v0, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
 
-    invoke-interface {v0, p1}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
+    invoke-interface {v0, v2}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_15
+    if-eqz v0, :cond_31
 
-    .line 74
+    .line 89
     sget-object v0, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
 
-    invoke-interface {v0, p1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Landroid/graphics/Bitmap;
 
-    monitor-exit v2
-    :try_end_14
-    .catchall {:try_start_3 .. :try_end_14} :catchall_46
+    monitor-exit v3
+    :try_end_30
+    .catchall {:try_start_1f .. :try_end_30} :catchall_70
 
-    .line 85
-    :goto_14
+    .line 105
+    :goto_30
     return-object v0
 
-    .line 76
-    :cond_15
-    const/4 v1, 0x0
-
-    .line 78
-    :try_start_16
+    .line 93
+    :cond_31
+    :try_start_31
     invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
 
     move-result-object v0
-
-    new-instance v3, Ljava/lang/StringBuilder;
-
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v4, "xems/programs/"
-
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {v3, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    const-string v4, ".webp"
-
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v0, v3}, Landroid/content/res/AssetManager;->open(Ljava/lang/String;)Ljava/io/InputStream;
-
-    move-result-object v0
-
-    .line 79
-    invoke-static {v0}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;)Landroid/graphics/Bitmap;
-
-    move-result-object v1
-
-    .line 80
-    invoke-virtual {v0}, Ljava/io/InputStream;->close()V
-    :try_end_3e
-    .catch Ljava/lang/Throwable; {:try_start_16 .. :try_end_3e} :catch_49
-    .catchall {:try_start_16 .. :try_end_3e} :catchall_46
-
-    move-object v0, v1
-
-    .line 84
-    :goto_3f
-    :try_start_3f
-    sget-object v1, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
-
-    invoke-interface {v1, p1, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 85
-    monitor-exit v2
-
-    goto :goto_14
-
-    .line 86
-    :catchall_46
-    move-exception v0
-
-    monitor-exit v2
-    :try_end_48
-    .catchall {:try_start_3f .. :try_end_48} :catchall_46
-
-    throw v0
-
-    .line 81
-    :catch_49
-    move-exception v0
-
-    .line 82
-    :try_start_4a
-    const-string v3, "xems"
 
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v5, "ProgramArt "
+    const-string v5, "xems/programs/"
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    const-string v5, ": "
+    const-string v5, ".webp"
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v0, v4}, Landroid/content/res/AssetManager;->open(Ljava/lang/String;)Ljava/io/InputStream;
+
+    move-result-object v0
+
+    .line 94
+    new-instance v4, Landroid/graphics/BitmapFactory$Options;
+
+    invoke-direct {v4}, Landroid/graphics/BitmapFactory$Options;-><init>()V
+
+    .line 95
+    const/4 v5, 0x0
+
+    iput-boolean v5, v4, Landroid/graphics/BitmapFactory$Options;->inScaled:Z
+
+    .line 96
+    const/4 v5, 0x0
+
+    invoke-static {v0, v5, v4}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;
+
+    move-result-object v1
+
+    .line 97
+    invoke-virtual {v0}, Ljava/io/InputStream;->close()V
+
+    .line 98
+    if-eqz v1, :cond_68
+
+    .line 99
+    const/4 v0, 0x1
+
+    invoke-virtual {v1, v0}, Landroid/graphics/Bitmap;->setHasMipMap(Z)V
+    :try_end_68
+    .catch Ljava/lang/Throwable; {:try_start_31 .. :try_end_68} :catch_73
+    .catchall {:try_start_31 .. :try_end_68} :catchall_70
+
+    :cond_68
+    move-object v0, v1
+
+    .line 104
+    :goto_69
+    :try_start_69
+    sget-object v1, Lcom/isaigu/gymapp/ai/ProgramArt;->CACHE:Ljava/util/Map;
+
+    invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 105
+    monitor-exit v3
+
+    goto :goto_30
+
+    .line 106
+    :catchall_70
+    move-exception v0
+
+    monitor-exit v3
+    :try_end_72
+    .catchall {:try_start_69 .. :try_end_72} :catchall_70
+
+    throw v0
+
+    .line 101
+    :catch_73
+    move-exception v0
+
+    .line 102
+    :try_start_74
+    const-string v4, "xems"
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v6, "ProgramArt "
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v6, ": "
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -191,50 +257,50 @@
 
     move-result-object v0
 
-    invoke-static {v3, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
-    :try_end_6c
-    .catchall {:try_start_4a .. :try_end_6c} :catchall_46
+    invoke-static {v4, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
+    :try_end_96
+    .catchall {:try_start_74 .. :try_end_96} :catchall_70
 
     move-object v0, v1
 
-    goto :goto_3f
+    goto :goto_69
 .end method
 
 .method public static key(Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
     .registers 4
 
     .prologue
-    .line 32
+    .line 46
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->MALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     if-ne p2, v0, :cond_e
 
     const/4 v0, 0x1
 
-    .line 33
+    .line 47
     :goto_5
     if-eqz p1, :cond_9
 
     if-nez p0, :cond_26
 
-    .line 34
+    .line 48
     :cond_9
     if-eqz v0, :cond_10
 
-    .line 35
+    .line 49
     const-string v0, "passive-m"
 
-    .line 68
+    .line 82
     :goto_d
     return-object v0
 
-    .line 32
+    .line 46
     :cond_e
     const/4 v0, 0x0
 
     goto :goto_5
 
-    .line 37
+    .line 51
     :cond_10
     const-string v0, "drain"
 
@@ -252,7 +318,7 @@
 
     if-eqz v0, :cond_23
 
-    .line 38
+    .line 52
     :cond_20
     const-string v0, "passive-f-music"
 
@@ -263,11 +329,11 @@
 
     goto :goto_d
 
-    .line 40
+    .line 54
     :cond_26
     if-eqz v0, :cond_59
 
-    .line 41
+    .line 55
     const-string v0, "glutes"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -284,13 +350,13 @@
 
     if-eqz v0, :cond_3b
 
-    .line 42
+    .line 56
     :cond_38
     const-string v0, "m-lunge"
 
     goto :goto_d
 
-    .line 44
+    .line 58
     :cond_3b
     const-string v0, "core"
 
@@ -310,26 +376,26 @@
 
     const-string v0, "back_active"
 
-    .line 45
+    .line 59
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
     if-eqz v0, :cond_56
 
-    .line 46
+    .line 60
     :cond_53
     const-string v0, "m-pushup"
 
     goto :goto_d
 
-    .line 48
+    .line 62
     :cond_56
     const-string v0, "m-squat"
 
     goto :goto_d
 
-    .line 50
+    .line 64
     :cond_59
     const-string v0, "glutes"
 
@@ -347,13 +413,13 @@
 
     if-eqz v0, :cond_6c
 
-    .line 51
+    .line 65
     :cond_69
     const-string v0, "f-bridge"
 
     goto :goto_d
 
-    .line 53
+    .line 67
     :cond_6c
     const-string v0, "core"
 
@@ -363,12 +429,12 @@
 
     if-eqz v0, :cond_77
 
-    .line 54
+    .line 68
     const-string v0, "f-plank"
 
     goto :goto_d
 
-    .line 56
+    .line 70
     :cond_77
     const-string v0, "power"
 
@@ -378,12 +444,12 @@
 
     if-eqz v0, :cond_82
 
-    .line 57
+    .line 71
     const-string v0, "f-pushup"
 
     goto :goto_d
 
-    .line 59
+    .line 73
     :cond_82
     const-string v0, "cardio"
 
@@ -393,12 +459,12 @@
 
     if-eqz v0, :cond_8d
 
-    .line 60
+    .line 74
     const-string v0, "f-climber"
 
     goto :goto_d
 
-    .line 62
+    .line 76
     :cond_8d
     const-string v0, "back_active"
 
@@ -408,12 +474,12 @@
 
     if-eqz v0, :cond_99
 
-    .line 63
+    .line 77
     const-string v0, "f-lateral"
 
     goto/16 :goto_d
 
-    .line 65
+    .line 79
     :cond_99
     const-string v0, "senior"
 
@@ -423,12 +489,12 @@
 
     if-eqz v0, :cond_a5
 
-    .line 66
+    .line 80
     const-string v0, "f-curl"
 
     goto/16 :goto_d
 
-    .line 68
+    .line 82
     :cond_a5
     const-string v0, "f-squat"
 
@@ -439,14 +505,16 @@
     .registers 12
 
     .prologue
+    const/4 v5, 0x1
+
     const/4 v3, 0x0
 
-    .line 91
+    .line 111
     new-instance v0, Landroid/widget/FrameLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 92
+    .line 112
     const v1, -0xedebe6
 
     const/high16 v2, 0x41600000    # 14.0f
@@ -463,46 +531,57 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 93
+    .line 113
     new-instance v1, Landroid/widget/ImageView;
 
     invoke-direct {v1, p0}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 94
+    .line 114
     sget-object v2, Landroid/widget/ImageView$ScaleType;->FIT_CENTER:Landroid/widget/ImageView$ScaleType;
 
     invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
-    .line 95
+    .line 115
     invoke-virtual {v1, v3}, Landroid/widget/ImageView;->setAdjustViewBounds(Z)V
 
-    .line 96
+    .line 116
     invoke-static {p1, p2, p3}, Lcom/isaigu/gymapp/ai/ProgramArt;->key(Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
 
     move-result-object v2
 
-    invoke-static {p0, v2}, Lcom/isaigu/gymapp/ai/ProgramArt;->bitmap(Landroid/content/Context;Ljava/lang/String;)Landroid/graphics/Bitmap;
+    int-to-float v3, p4
+
+    invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v3
+
+    invoke-static {p0, v2, v3}, Lcom/isaigu/gymapp/ai/ProgramArt;->bitmap(Landroid/content/Context;Ljava/lang/String;I)Landroid/graphics/Bitmap;
 
     move-result-object v2
 
-    .line 97
-    if-eqz v2, :cond_31
+    .line 117
+    if-eqz v2, :cond_46
 
-    .line 98
-    invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
+    .line 118
+    new-instance v3, Landroid/graphics/drawable/BitmapDrawable;
 
-    .line 100
-    :cond_31
-    const/high16 v2, 0x40a00000    # 5.0f
+    invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
-    invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    move-result-object v4
 
-    move-result v2
+    invoke-direct {v3, v4, v2}, Landroid/graphics/drawable/BitmapDrawable;-><init>(Landroid/content/res/Resources;Landroid/graphics/Bitmap;)V
 
-    .line 101
-    invoke-virtual {v1, v2, v2, v2, v2}, Landroid/widget/ImageView;->setPadding(IIII)V
+    .line 119
+    invoke-virtual {v3, v5}, Landroid/graphics/drawable/BitmapDrawable;->setFilterBitmap(Z)V
 
-    .line 102
+    .line 120
+    invoke-virtual {v3, v5}, Landroid/graphics/drawable/BitmapDrawable;->setAntiAlias(Z)V
+
+    .line 121
+    invoke-virtual {v1, v3}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 123
+    :cond_46
     new-instance v2, Landroid/widget/FrameLayout$LayoutParams;
 
     int-to-float v3, p4
@@ -523,7 +602,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 103
+    .line 124
     int-to-float v1, p4
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -532,7 +611,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setMinimumWidth(I)V
 
-    .line 104
+    .line 125
     int-to-float v1, p5
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -541,6 +620,54 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setMinimumHeight(I)V
 
-    .line 105
+    .line 126
     return-object v0
+.end method
+
+.method static widthFor(I)I
+    .registers 5
+
+    .prologue
+    .line 36
+    sget-object v2, Lcom/isaigu/gymapp/ai/ProgramArt;->WIDTHS:[I
+
+    array-length v3, v2
+
+    const/4 v0, 0x0
+
+    move v1, v0
+
+    :goto_5
+    if-ge v1, v3, :cond_10
+
+    aget v0, v2, v1
+
+    .line 37
+    if-lt v0, p0, :cond_c
+
+    .line 41
+    :goto_b
+    return v0
+
+    .line 36
+    :cond_c
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_5
+
+    .line 41
+    :cond_10
+    sget-object v0, Lcom/isaigu/gymapp/ai/ProgramArt;->WIDTHS:[I
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/ProgramArt;->WIDTHS:[I
+
+    array-length v1, v1
+
+    add-int/lit8 v1, v1, -0x1
+
+    aget v0, v0, v1
+
+    goto :goto_b
 .end method

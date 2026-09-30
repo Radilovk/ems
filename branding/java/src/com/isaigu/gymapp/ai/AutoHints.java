@@ -244,6 +244,8 @@ public final class AutoHints {
         }
         exBox.setVisibility(tips && ex != null ? View.VISIBLE : View.GONE);
         if (ex != null) {
+            AutoModel.Input lead = AutoSession.getInput();
+            figure.setColor(ExerciseFigure.colorFor(lead != null ? lead.sex : null));
             figure.setExercise(ex);
             exName.setText(AiText.t("Пример: ", "Example: ") + AutoTemplates.name(ex));
         }

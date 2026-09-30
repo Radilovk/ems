@@ -36,13 +36,13 @@ def main() -> int:
     java_art = (ROOT / "branding" / "java" / "src" / "com" / "isaigu" / "gymapp" / "ai" / "ProgramArt.java").read_text(encoding="utf-8")
     import re
     keys = set(re.findall(r'"((?:f|m|passive)-[a-z-]+)"', java_art))
-    have = {p.stem for p in art.glob("*.webp")}
+    have = {p.stem.split("@")[0] for p in art.glob("*@*.webp")}
     if keys - have:
         raise SystemExit(f"branding/programs: missing {sorted(keys - have)} (ProgramArt uses them)")
     out = DEST.parent / "programs"
     out.mkdir(parents=True, exist_ok=True)
     size = 0
-    for p in sorted(art.glob("*.webp")):
+    for p in sorted(art.glob("*@*.webp")):
         shutil.copy2(p, out / p.name)
         size += p.stat().st_size
     print(f"assets/xems/programs/ ({len(have)} pictures, {size} B)")

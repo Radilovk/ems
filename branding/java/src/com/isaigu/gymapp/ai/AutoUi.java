@@ -411,7 +411,7 @@ public final class AutoUi {
             LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             alp.rightMargin = XemsUi.dp(c, 14);
-            outer.addView(ProgramArt.tile(c, p.id, p.isActive(), in.sex, 96, 72), alp);
+            outer.addView(ProgramArt.tile(c, p.id, p.isActive(), in.sex, 128, 96), alp);
             LinearLayout card = XemsUi.vertical(c);
             outer.addView(card, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             LinearLayout head = XemsUi.horizontal(c);

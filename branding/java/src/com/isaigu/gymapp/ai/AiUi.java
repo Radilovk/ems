@@ -934,6 +934,20 @@ final class AiUi {
         tl.addView(labels);
         col.addView(tl, matchWrap(a, 16));
 
+        // The cardio plan has a cardio-machine station: one tap, remembered for this tablet.
+        String exProg = AutoTemplates.programForAi(in.goal, in.mode, in.age);
+        if (exProg != null && AutoTemplates.usesMachine(exProg)) {
+            LinearLayout mc = card(a);
+            mc.setOrientation(LinearLayout.HORIZONTAL);
+            mc.setGravity(Gravity.CENTER_VERTICAL);
+            mc.addView(text(a, AiText.t("Има ли кардио тренажор в залата?", "Is there a cardio machine in the studio?"),
+                    16, AiViews.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            mc.addView(segmented(a, new String[] {AiText.t("Има", "Yes"), AiText.t("Няма", "No")},
+                    AutoHistory.cardioMachine(a) ? 0 : 1, null, new MachineChoice(a)),
+                    new LinearLayout.LayoutParams(dp(a, 260), ViewGroup.LayoutParams.WRAP_CONTENT));
+            col.addView(mc, matchWrap(a, 14));
+        }
+
         // Only what needs attention: no band, and the profile flags.
         if (!p.hrAvailable) {
             col.addView(banner(a, AiViews.WARN, AiText.t("Без гривна — управлява само планът.",
@@ -955,6 +969,20 @@ final class AiUi {
         }
         body.addView(scroll(a, col));
         setupFooter(a, AiText.t("Калибриране на силата", "Calibrate strength"), true);
+    }
+
+    static final class MachineChoice implements SegmentCallback {
+        private final Context c;
+
+        MachineChoice(Context c) {
+            this.c = c;
+        }
+
+        @Override
+        public void onSelect(int i) {
+            AutoHistory.setCardioMachine(c, i == 0);
+            go(STEP_PLAN);
+        }
     }
 
     // ================================================================ 6 · calibration

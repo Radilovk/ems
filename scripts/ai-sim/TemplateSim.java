@@ -107,6 +107,52 @@ public final class TemplateSim {
             check(m.length == 10 && top == 100, AutoTemplates.idAt(i) + ": a main muscle");
             check(AutoTemplates.index(AutoTemplates.idAt(i)) == i, AutoTemplates.idAt(i) + ": index round trip");
         }
+        // no cardio machine in the studio: the machine station gets a stand-in, the length stays
+        for (AutoCatalog.Program p : AutoCatalog.all()) {
+            if (!p.isActive() || !AutoTemplates.usesMachine(p.id)) {
+                continue;
+            }
+            for (int ses : new int[] {0, 5, 12, 30}) {
+                for (AiModel.Fitness f : AiModel.Fitness.values()) {
+                    for (String cond : new String[] {null, "knees", "joints"}) {
+                        AutoModel.Input in = new AutoModel.Input();
+                        in.kind = p.kind;
+                        in.programId = p.id;
+                        in.fitness = f;
+                        in.sessions = ses;
+                        in.hoursSinceActive = ses == 0 ? -1 : 72;
+                        if (cond != null) {
+                            in.cond.add(cond);
+                        }
+                        AutoModel.Plan plan;
+                        try {
+                            plan = AutoPlanner.build(in, 68);
+                        } catch (RuntimeException ex) {
+                            continue;
+                        }
+                        AutoTemplates.noCardioMachine = false;
+                        AutoTemplates.Script with = AutoTemplates.script(plan, null);
+                        AutoTemplates.noCardioMachine = true;
+                        AutoTemplates.Script without = AutoTemplates.script(plan, null);
+                        AutoTemplates.noCardioMachine = false;
+                        String tag = p.id + " no machine s" + ses + " " + f + " " + cond;
+                        check(with != null && without != null, tag + ": scripts");
+                        if (with == null || without == null) {
+                            continue;
+                        }
+                        for (int i = 0; i < without.phase.length; i++) {
+                            if (without.phase[i] == null) {
+                                continue;
+                            }
+                            check(!Arrays.asList(without.phase[i]).contains(AutoTemplates.MACHINE), tag + ": machine left");
+                            check(without.phase[i].length == with.phase[i].length, tag + ": station count kept");
+                            check(new HashSet<String>(Arrays.asList(without.phase[i])).size() == without.phase[i].length,
+                                    tag + ": no repeats");
+                        }
+                    }
+                }
+            }
+        }
         // passive programs have no exercises
         for (AutoCatalog.Program p : AutoCatalog.all()) {
             if (!p.isActive()) {

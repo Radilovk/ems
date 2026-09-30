@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1381
+    .line 1409
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 2
 
     .prologue
-    .line 1384
+    .line 1412
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->answerCheckpoint(I)V
 
-    .line 1385
+    .line 1413
     return-void
 .end method

@@ -94,6 +94,23 @@ public final class AutoHistory {
 
     static final String TEMPLATE_PREFS = "xems_auto_templates";
 
+    /** The studio has a cardio machine (elliptical / bike / treadmill) — asked once on the AI plan, kept per tablet. */
+    public static boolean cardioMachine(Context c) {
+        try {
+            return c == null || c.getSharedPreferences(TEMPLATE_PREFS, Context.MODE_PRIVATE).getBoolean("machine", true);
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
+    public static void setCardioMachine(Context c, boolean has) {
+        try {
+            c.getSharedPreferences(TEMPLATE_PREFS, Context.MODE_PRIVATE).edit().putBoolean("machine", has).apply();
+        } catch (Throwable ignored) {
+        }
+        AutoTemplates.noCardioMachine = !has;
+    }
+
     /** The last (up to 3) outcomes of this client in this program, oldest first. */
     public static List<AutoTemplates.Outcome> outcomes(Context c, long userId, String programId) {
         List<AutoTemplates.Outcome> out = new java.util.ArrayList<AutoTemplates.Outcome>();

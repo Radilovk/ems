@@ -457,6 +457,7 @@ public final class AiSession {
                 return;
             }
             ExerciseFigure.preload(c);
+            AutoTemplates.noCardioMachine = !AutoHistory.cardioMachine(c);
             TrainItem lead = leader();
             AiProfile p = lead != null ? AiProfile.of(lead) : null;
             exercisesUser = p != null ? p.userId : 0;

@@ -24,6 +24,27 @@ import java.util.Set;
 public final class AutoTemplates {
     private AutoTemplates() {}
 
+    /** The cardio-machine exercise and what stands in for it when the studio has none (the first one allowed). */
+    public static final String MACHINE = "elliptical";
+    private static final String[] NO_MACHINE = {"jumping-jack", "step-down", "lateral-lunge", "bodyweight-squat",
+            "forward-lunge", "dumbbell-sumo-squat", "goblet-squat", "banded-lat-pulldown", "glute-bridge"};
+    /** No cardio machine in the studio (AutoHistory.cardioMachine, set before a script is built). */
+    public static volatile boolean noCardioMachine;
+
+    /** The program's stations use the cardio machine at some level (then the AI plan asks whether there is one). */
+    public static boolean usesMachine(String programId) {
+        int p = prog(programId);
+        if (p < 0) {
+            return false;
+        }
+        for (String[] lv : AutoTemplateData.STATIONS[p]) {
+            if (lv != null && contains(lv, MACHINE)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** How a past automatic session of a program went (stored per client and program). */
     public static final class Outcome {
         public int level;
@@ -197,6 +218,9 @@ public final class AutoTemplates {
     static List<String> stations(String programId, int level, Set<String> states, Set<String> focus, Set<String> bad) {
         String[] base = AutoTemplateData.STATIONS[prog(programId)][level - 1];
         List<String> instead = new ArrayList<String>();
+        if (noCardioMachine) {
+            bad.add(MACHINE);
+        }
         for (int c = 0; c < AutoTemplateData.COND.length; c++) {
             if (states.contains(AutoTemplateData.COND[c])) {
                 for (String x : AutoTemplateData.AVOID[c]) {
@@ -213,7 +237,7 @@ public final class AutoTemplates {
                 out.add(s);
                 continue;
             }
-            for (String r : instead) {
+            for (String r : MACHINE.equals(s) ? NO_MACHINE : instead.toArray(new String[0])) {
                 if (!bad.contains(r) && !out.contains(r) && !contains(base, r)) {
                     out.add(r);
                     break;

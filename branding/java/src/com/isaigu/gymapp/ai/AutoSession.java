@@ -585,6 +585,7 @@ public final class AutoSession {
         script = null;
         ExerciseFigure.preload(c);
         try {
+            AutoTemplates.noCardioMachine = !AutoHistory.cardioMachine(c);
             script = AutoTemplates.script(plan, null);         // the profile's level, no history
             if (script != null) {
                 WearableBleDiagLog.log("auto", "template " + script.programId + " L" + script.level);

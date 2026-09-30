@@ -36,6 +36,10 @@ a group session would force the leader's exercises on everyone.
 - **Focus:** each chosen zone adds one station (max two); breastfeeding drops chest; desk work with no focus → back +
   glutes. Stations are sorted stand → machine → bench → floor (not in power/cardio).
 - **Warm-up:** two light moves not repeated in the main part (jumping jack / forward lunge only from level 2).
+- **Cardio machine:** the AI plan screen asks "Има ли кардио тренажор в залата?" (Има / Няма) only when the
+  program's stations use it (cardio); kept per tablet (`AutoHistory.cardioMachine`, prefs `xems_auto_templates`
+  key `machine`, default yes) and applied to Auto examples too. None → the machine station gets the first allowed
+  stand-in (jumping jack, step-down, lateral lunge, squat, … knee-safe ones last); the station count stays.
 - **Easier (`easier`)**: same main muscle, next lower MET, allowed by the states, same position if possible.
 
 ## Smart Session (`ai/AiExercises`, driven by `AiSession`)
@@ -70,4 +74,4 @@ Sessions on the real AiEngine with a synthetic pulse: exercise never changes mid
 announces the next one, several exercises per session, passive goals have none).
 
 ## Not yet
-Program pictures (passive/active by sex), "cardio machine available" flag, female active pictures.
+Program pictures (passive/active by sex), female active pictures.

@@ -50,22 +50,22 @@
     .end annotation
 
     .prologue
-    .line 61
+    .line 82
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 62
+    .line 83
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->programId:Ljava/lang/String;
 
-    .line 63
+    .line 84
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->level:I
 
-    .line 64
+    .line 85
     iput-object p3, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->phase:[[Ljava/lang/String;
 
-    .line 65
+    .line 86
     iput-object p4, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->avoid:Ljava/util/Set;
 
-    .line 66
+    .line 87
     return-void
 .end method
 
@@ -75,7 +75,7 @@
     .registers 15
 
     .prologue
-    .line 71
+    .line 92
     if-ltz p1, :cond_14
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->phase:[[Ljava/lang/String;
@@ -98,24 +98,24 @@
 
     if-nez v0, :cond_16
 
-    .line 72
+    .line 93
     :cond_14
     const/4 v0, 0x0
 
-    .line 84
+    .line 105
     :goto_15
     return-object v0
 
-    .line 74
+    .line 95
     :cond_16
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->phase:[[Ljava/lang/String;
 
     aget-object v0, v0, p1
 
-    .line 75
+    .line 96
     array-length v2, v0
 
-    .line 76
+    .line 97
     const/4 v1, 0x1
 
     invoke-static {v1, p4}, Ljava/lang/Math;->max(II)I
@@ -128,7 +128,7 @@
 
     div-double/2addr v4, v6
 
-    .line 77
+    .line 98
     const/4 v1, 0x0
 
     add-int/lit8 v3, v2, -0x1
@@ -149,23 +149,23 @@
 
     move-result v3
 
-    .line 78
+    .line 99
     new-instance v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/AutoTemplates$At;-><init>()V
 
-    .line 79
+    .line 100
     aget-object v6, v0, v3
 
     iput-object v6, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->id:Ljava/lang/String;
 
-    .line 80
+    .line 101
     iput v3, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->index:I
 
-    .line 81
+    .line 102
     iput v2, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->count:I
 
-    .line 82
+    .line 103
     const-wide/16 v6, 0x0
 
     add-int/lit8 v8, v3, 0x1
@@ -182,7 +182,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->remainingS:D
 
-    .line 83
+    .line 104
     add-int/lit8 v4, v3, 0x1
 
     if-ge v4, v2, :cond_5b
@@ -196,10 +196,10 @@
 
     move-object v0, v1
 
-    .line 84
+    .line 105
     goto :goto_15
 
-    .line 83
+    .line 104
     :cond_5b
     const/4 v0, 0x0
 

@@ -25,7 +25,7 @@
     .registers 3
 
     .prologue
-    .line 1981
+    .line 2009
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     move-result-object v0
@@ -176,7 +176,7 @@
 
     goto :goto_49
 
-    .line 1981
+    .line 2009
     :catch_66
     move-exception v0
 

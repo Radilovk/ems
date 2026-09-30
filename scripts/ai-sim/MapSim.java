@@ -30,6 +30,35 @@ public final class MapSim {
             run(m, true);
             run(m, false);
         }
+        // what the backend decides without asking: zones, goal, rest length
+        for (Workout m : Workout.presets()) {
+            if (m.isPassive()) {
+                check(m.derivedFocus().isEmpty() && Workout.GOAL_PASSIVE.equals(m.suggestedGoal()), m.id + ": passive");
+                continue;
+            }
+            check(!m.derivedFocus().isEmpty() && m.derivedFocus().size() <= 3, m.id + ": zones " + m.derivedFocus());
+
+        }
+        Workout glutes = null;
+        for (Workout m : Workout.presets()) {
+            if (m.id.equals("preset:glutes")) {
+                glutes = m;
+            }
+        }
+        check(glutes != null && glutes.derivedFocus().get(0).equals("glutes"), "glutes map trains glutes first: "
+                + (glutes != null ? glutes.derivedFocus() : null));
+        Workout jumps = new Workout();
+        jumps.blocks.add(Workout.forExercise("jumping-jack", "cardio", false));
+        jumps.blocks.add(Workout.forExercise("jump-squat", "plyo", false));
+        jumps.blocks.add(Workout.forExercise("goblet-squat", "squat", false));
+        check(Workout.GOAL_FAT.equals(jumps.suggestedGoal()), "mostly jumps → fat loss");
+        Workout strong = new Workout();
+        strong.blocks.add(Workout.forExercise("goblet-squat", "squat", false));
+        strong.blocks.add(Workout.forExercise("glute-bridge", "glute", false));
+        check(Workout.GOAL_TONE.equals(strong.suggestedGoal()), "strength moves → toning");
+        Workout.Block set = Workout.forExercise("bodyweight-squat", "squat", false);
+        int r = Workout.restAfter(set).reps;
+        check(r >= 20 && r <= 60 && r % 5 == 0, "rest after a set " + r + " s for " + set.seconds() + " s");
         System.out.println((fails == 0 ? "OK" : "FAIL") + " — maps: " + maps.size() + " × 2 runs, " + checks + " checks, "
                 + fails + " failures");
         if (fails > 0) {
@@ -50,14 +79,11 @@ public final class MapSim {
             int i = c.getIndex();
             Workout.Block b = c.block();
             if (hook && !b.isRest() && t >= nextCycle) {
-                boolean changed = c.onCycle();
-                if (!changed) {
-                    cyclesIn[i]++;
-                }
-                nextCycle = t + (changed || c.block() == null ? 0 : b.on + Math.max(1, b.off));
-                if (changed) {
-                    nextCycle = t;                           // the new block's first impulse is this cycle
-                    continue;
+                c.onCycle();                                 // this impulse runs with the block the clock is on now
+                Workout.Block now = c.block();
+                if (now != null && !now.isRest()) {
+                    cyclesIn[c.getIndex()]++;
+                    nextCycle = t + now.on + Math.max(1, now.off);
                 }
             }
             if (c.tick(0.25)) {

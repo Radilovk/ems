@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 627
+    .line 622
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 4
 
     .prologue
-    .line 636
+    .line 631
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$200()Lcom/isaigu/gymapp/ai/Workout;
 
@@ -59,7 +59,7 @@
 
     if-nez v0, :cond_27
 
-    .line 637
+    .line 632
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$200()Lcom/isaigu/gymapp/ai/Workout;
 
@@ -71,16 +71,16 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout;->name:Ljava/lang/String;
 
-    .line 638
+    .line 633
     const/4 v0, 0x1
 
     # setter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$102(Z)Z
 
-    .line 639
+    .line 634
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshFooter()V
 
-    .line 641
+    .line 636
     :cond_27
     return-void
 .end method
@@ -89,7 +89,7 @@
     .registers 5
 
     .prologue
-    .line 629
+    .line 624
     return-void
 .end method
 
@@ -97,6 +97,6 @@
     .registers 5
 
     .prologue
-    .line 632
+    .line 627
     return-void
 .end method

@@ -471,9 +471,8 @@ public final class AiSession {
         if (workout != null) {
             input.goal = workout.aiGoal();
             input.mode = AiModel.Mode.ACTIVE;
-            for (String z : workout.focus) {
-                input.focus.add(z);
-            }
+            input.focus.addAll(workout.focus);
+            input.focus.addAll(workout.derivedFocus());           // what its exercises train
         }
     }
 

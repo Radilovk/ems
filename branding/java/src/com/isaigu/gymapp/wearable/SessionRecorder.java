@@ -226,6 +226,10 @@ public final class SessionRecorder {
                         r.auto = true;
                         r.program = autoProgram;
                     }
+                    String mapName = com.isaigu.gymapp.ai.MapRunner.name();
+                    if (mapName != null) {
+                        r.program = mapName;                    // Тренировки → По картата: the map's name in the report
+                    }
                 }
                 if (aiPhase > 0 && r.leader) {
                     r.ai = true;

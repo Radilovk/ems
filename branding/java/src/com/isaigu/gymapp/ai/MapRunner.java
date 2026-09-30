@@ -2,6 +2,7 @@ package com.isaigu.gymapp.ai;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
@@ -44,6 +45,11 @@ public final class MapRunner {
     private static long lastTickMs;
     private static long cycleStartMs;
     private static int lastIndex = -1;
+    /** Seconds the suit has stood still (the map closes itself after IDLE_MAX_S). */
+    private static double idleS;
+    static final double IDLE_MAX_S = 5 * 60;
+    /** Exercises swapped for the leader's client (shown in the card once). */
+    private static int swapped;
     /** Each row's strength at 100 % of a block (trainer's value). */
     private static final Map<TrainItem, Integer> base = new HashMap<TrainItem, Integer>();
     private static final Handler handler = new Handler(Looper.getMainLooper());
@@ -90,7 +96,9 @@ public final class MapRunner {
             return AiText.t("Добави участник и свържи костюма.", "Add a participant and connect the suit.");
         }
         map = w.copy(w.id, w.name);
+        swapForLeader(a);
         clock = new MapClock(map);
+        idleS = 0;
         base.clear();
         for (TrainItem it : rows) {
             ProgramDataBean b = bean(it);
@@ -115,6 +123,51 @@ public final class MapRunner {
         showCard(a);
         WearableBleDiagLog.log("map", "start " + map.id + " blocks " + map.blocks.size() + " " + map.totalSeconds() + " s");
         return null;
+    }
+
+    /**
+     * The leader's client: exercises their states rule out are swapped like the AI does (easier for the same
+     * muscle → nearest allowed); the impulse stays as drawn. One map for the whole group, so the leader decides.
+     */
+    private static void swapForLeader(Context c) {
+        swapped = 0;
+        try {
+            AiProfile p = AiProfile.of(leader());
+            if (p == null) {
+                return;
+            }
+            AutoModel.Input in = new AutoModel.Input();
+            if (p.sex != null) {
+                in.sex = p.sex;
+            }
+            if (p.age != null) {
+                in.age = p.age;
+            }
+            if (p.weightKg != null) {
+                in.weightKg = p.weightKg;
+            }
+            in.heightCm = p.heightCm;
+            in.cond = new java.util.HashSet<String>(p.cond);
+            in.extra.diastasis = p.cond.contains("diastasis");
+            AutoTemplates.noCardioMachine = !AutoHistory.cardioMachine(c);
+            java.util.Set<String> avoid = AutoTemplates.avoidFor(in);
+            for (Workout.Block b : map.blocks) {
+                if (b.hasExercise() && avoid.contains(b.ex)) {
+                    b.ex = AutoTemplates.safer(b.ex, avoid);
+                    swapped++;
+                }
+            }
+            if (swapped > 0) {
+                WearableBleDiagLog.log("map", "swapped " + swapped + " for the client's state");
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("map", "swap: " + t);
+        }
+    }
+
+    /** The map's name while it runs (the session record), else null. */
+    public static String name() {
+        return isRunning() ? map.name : null;
     }
 
     public static void stop() {
@@ -192,6 +245,12 @@ public final class MapRunner {
         boolean running = lead.data != null && lead.data.start;
         if (running && clock.tick(dt)) {
             apply(false);
+        }
+        idleS = running ? 0 : idleS + dt;
+        if (idleS > IDLE_MAX_S) {
+            WearableBleDiagLog.log("map", "idle " + (int) idleS + " s — closed");
+            stop();                                            // stopped on the main screen and left: close the map
+            return;
         }
         if (clock.isDone()) {
             stop();
@@ -359,8 +418,8 @@ public final class MapRunner {
         Workout.Block b = clock.block();
         int idx = clock.getIndex();
         int left = (int) Math.max(0, map.totalSeconds() - clock.position());
-        head.setText(map.name + "  ·  " + AiText.t("блок ", "block ") + (idx + 1) + "/" + map.blocks.size()
-                + "  ·  " + AiText.t("остават ", "left ") + AiText.mmss(left));
+        head.setText(map.name + "  ·  " + AiText.t("остават ", "left ") + AiText.mmss(left)
+                + (swapped > 0 ? AiText.t("  ·  по-щадящи упражнения за клиента", "  ·  gentler exercises for the client") : ""));
         line.setPlayhead((float) clock.position());
         if (b.isRest()) {
             figure.setExercise(null);

@@ -156,7 +156,8 @@ final class AiUi {
             profileOpen = false;
             healthOk = false;
             healthOpen = hasHealthFlag(AiSession.getInput());
-            show(activity, STEP_GOAL);
+            // from Тренировки the goal is the workout's: straight to the client
+            show(activity, AiSession.getWorkout() != null ? STEP_CLIENT : STEP_GOAL);
             return;
         }
         show(activity, stepForStage(st));

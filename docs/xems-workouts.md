@@ -55,6 +55,19 @@ A workout **is** an impulse map: a line of blocks (merged with the exercises for
   to the AI's own rests); rest-pause when the AI's block is shorter; the block's Hz / µs are used only when gentler
   than the AI's plan (`AiSession.gentler`), never stronger; strength, rests and timing stay with the AI.
 
+## Audit 1.1.256 — the backend decides, the screen stays quiet
+- **Counting**: the cycle hook fires as ON begins and the parameters written then drive that impulse, so the impulse
+  that ends a block is the first repetition of the next one (MapClock counted one extra before).
+- **No choices the data already answers**: focus zones are derived from the exercises (muscles × repetitions, ≥ ¼ of
+  the top, ≤ 3) — shown as text, used as the AI's focus, used for the name; the goal follows the exercises (mostly
+  cardio / jumps → fat loss) until picked by hand; a new set's rest is ¾ of the set (20–60 s); an empty name
+  becomes "Седалище и бедра"; the impulse follows the movement and is folded behind "Импулс ▸" (only the length is
+  in front); the AI wizard skips the goal step for a workout.
+- **Safety in map runs**: the leader's states swap forbidden exercises like the AI (`AutoTemplates.avoidFor` +
+  `safer`), the card says so once; a map whose suit stood still for 5 min closes itself; the report names the map.
+- **Touch**: a long press lifts the block (buzz, raised) and only then does it follow the finger; a swipe on the line
+  scrolls the sheet; the edge grip is wider.
+
 ## Tests
 `bash scripts/ai-sim/run-auto.sh`: AiExSim runs every ready map with exercises and a drawn one (library exercise,
 rests, plain blocks) on the real engine: sets in map order, each exactly its repetitions (never more), rests name the

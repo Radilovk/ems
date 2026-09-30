@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 645
+    .line 646
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 648
+    .line 649
     # getter for: Lcom/isaigu/gymapp/ai/AiUi;->healthOk:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$600()Z
 
@@ -50,14 +50,14 @@
     # setter for: Lcom/isaigu/gymapp/ai/AiUi;->healthOk:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$602(Z)Z
 
-    .line 649
+    .line 650
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 650
+    .line 651
     return-void
 
-    .line 648
+    .line 649
     :cond_f
     const/4 v0, 0x0
 

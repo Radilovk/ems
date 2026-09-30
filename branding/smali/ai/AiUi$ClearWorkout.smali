@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1969
+    .line 1970
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,12 +34,12 @@
     .registers 3
 
     .prologue
-    .line 1972
+    .line 1973
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->useWorkout(Lcom/isaigu/gymapp/ai/Workout;)V
 
-    .line 1973
+    .line 1974
     # getter for: Lcom/isaigu/gymapp/ai/AiUi;->step:I
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$1900()I
 
@@ -48,6 +48,6 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 1974
+    .line 1975
     return-void
 .end method

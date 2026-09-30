@@ -65,24 +65,24 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 88
+    .line 96
     iget v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->index:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->index:I
 
-    .line 89
+    .line 97
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
 
-    .line 90
+    .line 98
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->blockS:D
 
-    .line 91
+    .line 99
     iget v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->index:I
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/MapClock;->map:Lcom/isaigu/gymapp/ai/Workout;
@@ -95,10 +95,10 @@
 
     if-lt v0, v1, :cond_28
 
-    .line 92
+    .line 100
     iput-boolean v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->done:Z
 
-    .line 93
+    .line 101
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->map:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -111,7 +111,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->index:I
 
-    .line 95
+    .line 103
     :cond_28
     return v2
 .end method
@@ -199,51 +199,77 @@
 .end method
 
 .method public onCycle()Z
-    .registers 4
+    .registers 5
 
     .prologue
-    const/4 v0, 0x0
+    const/4 v0, 0x1
 
-    .line 62
+    const/4 v1, 0x0
+
+    .line 65
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/MapClock;->block()Lcom/isaigu/gymapp/ai/Workout$Block;
+
+    move-result-object v2
+
+    .line 66
+    if-eqz v2, :cond_e
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_10
+
+    :cond_e
+    move v0, v1
+
+    .line 78
+    :cond_f
+    :goto_f
+    return v0
+
+    .line 69
+    :cond_10
+    iget v3, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
+
+    iget v2, v2, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
+
+    if-lt v3, v2, :cond_28
+
+    .line 70
+    invoke-direct {p0}, Lcom/isaigu/gymapp/ai/MapClock;->next()Z
+
+    .line 71
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/MapClock;->block()Lcom/isaigu/gymapp/ai/Workout$Block;
 
     move-result-object v1
 
-    .line 63
-    if-eqz v1, :cond_d
+    .line 72
+    if-eqz v1, :cond_f
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
-    move-result v2
+    move-result v1
 
-    if-eqz v2, :cond_e
+    if-nez v1, :cond_f
 
-    .line 70
-    :cond_d
-    :goto_d
-    return v0
+    .line 73
+    iput v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
 
-    .line 66
-    :cond_e
-    iget v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
+    goto :goto_f
 
-    add-int/lit8 v2, v2, 0x1
+    .line 77
+    :cond_28
+    iget v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
 
-    iput v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
+    add-int/lit8 v0, v0, 0x1
 
-    .line 67
-    iget v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
+    iput v0, p0, Lcom/isaigu/gymapp/ai/MapClock;->cycles:I
 
-    iget v1, v1, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
+    move v0, v1
 
-    if-le v2, v1, :cond_d
-
-    .line 68
-    invoke-direct {p0}, Lcom/isaigu/gymapp/ai/MapClock;->next()Z
-
-    move-result v0
-
-    goto :goto_d
+    .line 78
+    goto :goto_f
 .end method
 
 .method public position()D
@@ -340,20 +366,20 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 75
+    .line 83
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/MapClock;->block()Lcom/isaigu/gymapp/ai/Workout$Block;
 
     move-result-object v1
 
-    .line 76
+    .line 84
     if-nez v1, :cond_8
 
-    .line 84
+    .line 92
     :cond_7
     :goto_7
     return v0
 
-    .line 79
+    .line 87
     :cond_8
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->blockS:D
 
@@ -361,14 +387,14 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->blockS:D
 
-    .line 80
+    .line 88
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->elapsedS:D
 
     add-double/2addr v2, p1
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->elapsedS:D
 
-    .line 81
+    .line 89
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
     move-result v2
@@ -385,7 +411,7 @@
 
     if-ltz v1, :cond_7
 
-    .line 82
+    .line 90
     :goto_21
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/MapClock;->next()Z
 
@@ -393,7 +419,7 @@
 
     goto :goto_7
 
-    .line 81
+    .line 89
     :cond_26
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/MapClock;->blockS:D
 

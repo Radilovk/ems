@@ -45,7 +45,6 @@ public final class WorkoutsUi {
     static final int A_PICK_DONE = 10;
     static final int A_BACK = 12;
     static final int A_GOAL = 13;
-    static final int A_FOCUS = 14;
     static final int A_ZONE = 15;
     static final int A_DELETE_SURE = 18;
     static final int A_ADD_REST = 19;
@@ -55,6 +54,7 @@ public final class WorkoutsUi {
     static final int A_NO_EX = 23;
     static final int A_PARAM = 24;
     static final int A_NEW_PASSIVE = 25;
+    static final int A_ADVANCED = 26;
 
     // block parameters (A_PARAM arg)
     static final int P_REPS = 0;
@@ -65,7 +65,6 @@ public final class WorkoutsUi {
     static final int P_REL = 5;
 
     static final String[] ZONES = {"all", "abs", "glutes", "legs", "back", "chest", "arms", "shoulders", "cardio", "stretch"};
-    static final String[] FOCUS = {"abs", "glutes", "legs", "arms", "back", "chest"};
     static final String[] GOALS = {Workout.GOAL_TONE, Workout.GOAL_FAT, Workout.GOAL_PASSIVE};
 
     private static XemsUi.Shell shell;
@@ -84,6 +83,11 @@ public final class WorkoutsUi {
     private static LinearLayout pickGrid;
     private static TextView summary;
     private static TextView saveBtn;
+    /** The goal was picked by hand (else it follows the exercises: mostly cardio → fat loss). */
+    private static boolean goalTouched;
+    /** The block panel shows Hz / µs / impulse / pause / strength (else only the length — the impulse is set by
+     *  the movement). */
+    private static boolean advanced;
 
     static String zoneName(String z) {
         if ("abs".equals(z)) return AiText.t("Корем", "Abs");
@@ -153,8 +157,7 @@ public final class WorkoutsUi {
 
     private static void screenList(Context c) {
         shell.title.setText(AiText.t("Тренировки", "Workouts"));
-        shell.subtitle.setText(AiText.t("Импулсни карти: блоковете са сериите на упражненията — докосни, за да видиш или пуснеш.",
-                "Impulse maps: the blocks are the exercise sets — tap to see or start."));
+        shell.subtitle.setText(AiText.t("Докосни карта, за да я видиш или пуснеш.", "Tap a map to see or start it."));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
@@ -253,8 +256,8 @@ public final class WorkoutsUi {
         shell.title.setText(ro ? w.name : (w.name.length() > 0 ? w.name
                 : w.isPassive() ? AiText.t("Нова процедура", "New procedure") : AiText.t("Нова тренировка", "New workout")));
         shell.subtitle.setText(ro ? AiText.t("Готова карта — копирай я, за да я промениш.", "Ready map — copy it to change it.")
-                : AiText.t("Докосни блок · влачи ръба му за дължина · задръж и влачи за място · + клонира · − маха",
-                "Tap a block · drag its edge for length · hold and drag to move · + clones · − removes"));
+                : w.blocks.isEmpty() ? "" : AiText.t("Влачи ръба на блок за дължина · задръж, за да го преместиш",
+                "Drag a block's edge for length · hold it to move"));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
@@ -285,27 +288,6 @@ public final class WorkoutsUi {
             top.addView(XemsUi.badge(c, goalName(w.goal), goalColor(w.goal)));
         }
         body.addView(top, XemsUi.matchWrap(c, 4));
-
-        if (!w.isPassive()) {
-            LinearLayout chips = XemsUi.horizontal(c);
-            for (int i = 0; i < FOCUS.length; i++) {
-                boolean on = w.focus.contains(FOCUS[i]);
-                if (ro && !on) {
-                    continue;
-                }
-                TextView ch = XemsUi.chip(c, zoneName(FOCUS[i]), on, XemsUi.GO_TEXT);
-                if (!ro) {
-                    ch.setOnClickListener(new Act(A_FOCUS, i));
-                }
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-                lp.rightMargin = XemsUi.dp(c, 6);
-                chips.addView(ch, lp);
-            }
-            if (chips.getChildCount() > 0) {
-                body.addView(chips, XemsUi.matchWrap(c, 10));
-            }
-        }
 
         summary = XemsUi.text(c, "", 13.5f, XemsUi.MUTED, false);
         body.addView(summary, XemsUi.matchWrap(c, 10));
@@ -430,13 +412,16 @@ public final class WorkoutsUi {
         if (w.isPassive()) {
             t = w.blocks.size() + AiText.t(" блока · ", " blocks · ") + w.mapMinutes() + AiText.t(" мин", " min");
         } else {
-            t = w.distinctExercises() + AiText.t(" упражнения · ", " exercises · ") + w.exerciseBlocks()
-                    + AiText.t(" серии · по картата ", " sets · by the map ") + w.mapMinutes()
-                    + AiText.t(" мин · с AI ≈ ", " min · with AI ≈ ") + w.aiMinutes() + AiText.t(" мин", " min");
+            StringBuilder z = new StringBuilder();
+            for (String f : w.derivedFocus()) {
+                z.append(z.length() == 0 ? "" : " · ").append(zoneName(f));
+            }
+            t = (z.length() > 0 ? z + "  —  " : "") + w.exerciseBlocks() + AiText.t(" серии · ≈ ", " sets · ≈ ")
+                    + w.aiMinutes() + AiText.t(" мин", " min");
         }
         if (w.longerThanSession()) {
-            t += AiText.t("\nС AI е по-дълга от една сесия (" + w.sessionMinutes() + " мин): минават сериите, които се поберат.",
-                    "\nWith AI it is longer than one session (" + w.sessionMinutes() + " min): the sets that fit are done.");
+            t += AiText.t("  ·  по-дълга от една AI сесия — ще минат сериите, които се поберат",
+                    "  ·  longer than one AI session — the sets that fit are done");
             summary.setTextColor(XemsUi.AMBER);
         } else {
             summary.setTextColor(XemsUi.MUTED);
@@ -508,21 +493,31 @@ public final class WorkoutsUi {
         col.addView(sub);
 
         if (!ro) {
+            // the length first (what the trainer sets); the impulse follows the movement — folded
             LinearLayout row1 = XemsUi.horizontal(c);
+            row1.setGravity(Gravity.CENTER_VERTICAL);
             boolean hold = e != null && e.isHold();
             param(c, row1, b.isRest() ? AiText.t("секунди", "seconds") : hold ? AiText.t("задържания", "holds")
                     : b.hasExercise() ? AiText.t("повторения", "repetitions") : AiText.t("импулса", "impulses"), b.reps, P_REPS);
             if (!b.isRest()) {
-                param(c, row1, "Hz", b.hz, P_HZ);
-                param(c, row1, "µs", b.pw, P_PW);
+                TextView more = XemsUi.button(c, advanced ? AiText.t("Импулс ▾", "Impulse ▾") : AiText.t("Импулс ▸", "Impulse ▸"),
+                        XemsUi.GHOST);
+                more.setOnClickListener(new Act(A_ADVANCED, 0));
+                row1.addView(more, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 46), 1f));
+                row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
+            }
+            col.addView(row1);
+            if (!b.isRest() && advanced) {
                 LinearLayout row2 = XemsUi.horizontal(c);
-                param(c, row2, AiText.t("импулс, с", "impulse, s"), b.on, P_ON);
-                param(c, row2, AiText.t("пауза, с", "pause, s"), b.off, P_OFF);
+                param(c, row2, "Hz", b.hz, P_HZ);
+                param(c, row2, "µs", b.pw, P_PW);
                 param(c, row2, AiText.t("сила, %", "strength, %"), b.rel, P_REL);
-                col.addView(row1);
+                LinearLayout row3 = XemsUi.horizontal(c);
+                param(c, row3, AiText.t("импулс, с", "impulse, s"), b.on, P_ON);
+                param(c, row3, AiText.t("пауза, с", "pause, s"), b.off, P_OFF);
+                row3.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
                 col.addView(row2, XemsUi.matchWrap(c, 8));
-            } else {
-                col.addView(row1);
+                col.addView(row3, XemsUi.matchWrap(c, 8));
             }
         }
         card.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -648,8 +643,7 @@ public final class WorkoutsUi {
         shell.title.setText(replace ? AiText.t("Смени упражнението", "Change the exercise")
                 : AiText.t("Добави упражнения", "Add exercises"));
         shell.subtitle.setText(replace ? AiText.t("Докосни новото — блокът запазва импулса си.", "Tap the new one — the block keeps its impulse.")
-                : AiText.t("Всяко докосване слага серия на линията (почивка преди нея) — отдолу е описанието.",
-                "Each tap puts a set on the line (a rest before it) — the description is below."));
+                : AiText.t("Докосни, за да добавиш серия.", "Tap to add a set."));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
@@ -891,6 +885,7 @@ public final class WorkoutsUi {
                 }
                 editing = w;
                 dirty = true;
+                goalTouched = w.isPassive();
                 confirmDelete = false;
                 preview = null;
                 replaceIndex = -1;
@@ -901,6 +896,7 @@ public final class WorkoutsUi {
                 Workout o = WorkoutStore.own(c).get(v);
                 editing = o.copy(o.id, o.name);
                 dirty = false;
+                goalTouched = true;                            // a saved workout keeps its goal
                 confirmDelete = false;
                 go(EDIT);
                 break;
@@ -937,16 +933,13 @@ public final class WorkoutsUi {
                 break;
             case A_GOAL:
                 editing.goal = GOALS[v];
+                goalTouched = true;
                 dirty = true;
                 go(EDIT);
                 break;
-            case A_FOCUS: {
-                String z = FOCUS[v];
-                if (!editing.focus.remove(z)) {
-                    editing.focus.add(z);
-                }
-                dirty = true;
-                go(EDIT);
+            case A_ADVANCED: {
+                advanced = !advanced;
+                fillPanel(c);
                 break;
             }
             case A_ADD_EX:
@@ -1080,10 +1073,13 @@ public final class WorkoutsUi {
         } else {
             Workout.Block b = Workout.forExercise(a.ex, e != null ? e.pat : Workout.patternOf(a.ex), e != null && e.isHold());
             if (!editing.blocks.isEmpty() && !editing.blocks.get(editing.blocks.size() - 1).isRest()) {
-                editing.blocks.add(Workout.rest());
+                editing.blocks.add(Workout.restAfter(editing.blocks.get(editing.blocks.size() - 1)));
             }
             editing.blocks.add(b);
             preview = a.ex;
+            if (!goalTouched) {
+                editing.goal = editing.suggestedGoal();        // mostly cardio → fat loss, until picked by hand
+            }
         }
         dirty = true;
         int keep = shell.scroll.getScrollY();
@@ -1108,12 +1104,25 @@ public final class WorkoutsUi {
 
     private static void save(Context c) {
         if (editing.name.trim().length() == 0) {
-            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("d.MM", java.util.Locale.ROOT);
-            editing.name = (editing.isPassive() ? AiText.t("Процедура ", "Procedure ") : AiText.t("Тренировка ", "Workout "))
-                    + f.format(new java.util.Date());
+            editing.name = autoName(editing);
         }
         WorkoutStore.save(c, editing);
         dirty = false;
+    }
+
+    /** A name from what the workout trains ("Седалище и бедра"), or the date for a procedure. */
+    static String autoName(Workout w) {
+        List<String> f = w.derivedFocus();
+        if (w.isPassive() || f.isEmpty()) {
+            java.text.SimpleDateFormat d = new java.text.SimpleDateFormat("d.MM", java.util.Locale.ROOT);
+            return (w.isPassive() ? AiText.t("Процедура ", "Procedure ") : AiText.t("Тренировка ", "Workout "))
+                    + d.format(new java.util.Date());
+        }
+        String n = zoneName(f.get(0));
+        if (f.size() > 1) {
+            n += AiText.t(" и ", " and ") + zoneName(f.get(1)).toLowerCase();
+        }
+        return n;
     }
 
     static void close() {

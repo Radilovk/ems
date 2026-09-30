@@ -57,16 +57,24 @@ public final class MapClock {
         return map.startOf(index) + inBlock;
     }
 
-    /** An impulse cycle started. True when the block changed. */
+    /**
+     * An impulse starts (the hook fires as ON begins, and the parameters written now drive this impulse). True when
+     * the block changed: the impulse after the last repetition is the first one of the next block (counted there).
+     */
     public boolean onCycle() {
         Workout.Block b = block();
         if (b == null || b.isRest()) {
             return false;
         }
-        cycles++;
-        if (cycles > b.reps) {                     // the cycle after the last repetition belongs to the next block
-            return next();
+        if (cycles >= b.reps) {
+            next();
+            Workout.Block n = block();
+            if (n != null && !n.isRest()) {
+                cycles = 1;
+            }
+            return true;
         }
+        cycles++;
         return false;
     }
 

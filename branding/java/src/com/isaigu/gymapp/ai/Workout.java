@@ -166,6 +166,79 @@ public final class Workout {
         return new Block(null, 30, 85, 350, 4, 4, 0);
     }
 
+    /** The rest after a set: about ¾ of the set's time (work : rest ≈ 4 : 3), 20–60 s in 5 s steps. */
+    public static Block restAfter(Block set) {
+        Block r = rest();
+        if (set != null && !set.isRest()) {
+            r.reps = clamp(Math.round(set.seconds() * 0.75f / 5f) * 5, 20, 60);
+        }
+        return r;
+    }
+
+    /** Suit channel → the client form's focus zone (chest, abs, legs, calves, arms, shoulders, back, lower back,
+     *  glutes, back thigh). */
+    private static final String[] ZONE_OF_CHANNEL = {"chest", "abs", "legs", "legs", "arms", "arms", "back", "back",
+            "glutes", "legs"};
+
+    /**
+     * What the workout trains, from its exercises (their muscles × repetitions): the zones with at least a quarter
+     * of the top one's work, at most three — used as the AI's focus, the name and the card; nobody picks them.
+     */
+    public List<String> derivedFocus() {
+        java.util.Map<String, Double> load = new java.util.LinkedHashMap<String, Double>();
+        for (Block b : blocks) {
+            int[] m = b.hasExercise() ? AutoTemplates.muscles(AutoTemplates.index(b.ex)) : null;
+            if (m == null) {
+                continue;
+            }
+            for (int ch = 0; ch < m.length && ch < ZONE_OF_CHANNEL.length; ch++) {
+                String z = ZONE_OF_CHANNEL[ch];
+                Double v = load.get(z);
+                load.put(z, (v != null ? v : 0) + m[ch] * (double) b.reps);
+            }
+        }
+        double top = 0;
+        for (double v : load.values()) {
+            top = Math.max(top, v);
+        }
+        List<String> out = new ArrayList<String>();
+        while (out.size() < 3 && top > 0) {
+            String best = null;
+            double bv = 0;
+            for (java.util.Map.Entry<String, Double> e : load.entrySet()) {
+                if (!out.contains(e.getKey()) && e.getValue() > bv) {
+                    best = e.getKey();
+                    bv = e.getValue();
+                }
+            }
+            if (best == null || bv < 0.25 * top) {
+                break;
+            }
+            out.add(best);
+        }
+        return out;
+    }
+
+    /** Mostly cardio / jumps (by repetitions) → fat loss; else toning. Passive stays passive. */
+    public String suggestedGoal() {
+        if (isPassive()) {
+            return GOAL_PASSIVE;
+        }
+        int cardio = 0;
+        int all = 0;
+        for (Block b : blocks) {
+            if (!b.hasExercise()) {
+                continue;
+            }
+            all += b.reps;
+            String p = patternOf(b.ex);
+            if ("cardio".equals(p) || "plyo".equals(p) || b.hz <= 50) {
+                cardio += b.reps;
+            }
+        }
+        return all > 0 && cardio * 2 > all ? GOAL_FAT : GOAL_TONE;
+    }
+
     /** A clean block: active programs — strength impulse; passive — a relaxing low-frequency one. */
     public Block clean() {
         return isPassive() ? new Block(null, 30, 7, 350, 5, 1, 100) : new Block(null, 8, 85, 350, 4, 4, 100);

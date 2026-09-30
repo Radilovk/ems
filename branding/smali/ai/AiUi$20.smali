@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1228
+    .line 1229
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 2
 
     .prologue
-    .line 1231
+    .line 1232
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 
-    .line 1232
+    .line 1233
     return-void
 .end method

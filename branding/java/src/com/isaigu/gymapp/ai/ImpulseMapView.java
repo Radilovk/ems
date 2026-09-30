@@ -60,6 +60,9 @@ public final class ImpulseMapView extends View {
     private final RectF plusBtn = new RectF();
     private final RectF minusBtn = new RectF();
     private final RectF handle = new RectF();
+    private final Runnable lift = new Lift();
+    /** A long press picked the block up (it moves with the finger). */
+    private boolean lifted;
 
     public ImpulseMapView(Context c) {
         super(c);
@@ -202,7 +205,8 @@ public final class ImpulseMapView extends View {
         for (int i = 0; i < map.blocks.size(); i++) {
             Workout.Block b = map.blocks.get(i);
             float h = heightFor(b);
-            RectF r = new RectF(left[i], baseY - h, left[i] + width[i], baseY);
+            float lift = lifted && i == selected ? 8 * d : 0;
+            RectF r = new RectF(left[i], baseY - h - lift, left[i] + width[i], baseY - lift);
             int col = b.isRest() ? 0xFF5A5F6B : colorFor(b.hz);
             boolean sel = i == selected;
             fill.setColor(col);
@@ -317,15 +321,19 @@ public final class ImpulseMapView extends View {
                 downY = y;
                 downAt = e.getEventTime();
                 gesture = NONE;
+                lifted = false;
                 downIndex = indexAt(x);
-                getParent().requestDisallowInterceptTouchEvent(true);
                 if (selected >= 0 && selected < map.blocks.size()) {
-                    RectF grip = new RectF(handle.left - 10 * d, handle.top, handle.right + 10 * d, handle.bottom);
+                    RectF grip = new RectF(handle.left - 12 * d, handle.top - 8 * d, handle.right + 12 * d, handle.bottom + 8 * d);
                     if (grip.contains(x, y)) {
                         gesture = RESIZE;
                         frozen = true;
                         startSeconds = map.blocks.get(selected).seconds();
+                        getParent().requestDisallowInterceptTouchEvent(true);   // the sheet must not scroll now
                     }
+                }
+                if (gesture == NONE && downIndex >= 0) {
+                    postDelayed(lift, ViewConfiguration.getLongPressTimeout());
                 }
                 return true;
             case MotionEvent.ACTION_MOVE: {
@@ -346,11 +354,8 @@ public final class ImpulseMapView extends View {
                     changed();
                     return true;
                 }
-                if (gesture == NONE && downIndex >= 0 && Math.abs(dx) > touchSlop
-                        && e.getEventTime() - downAt > ViewConfiguration.getLongPressTimeout()) {
-                    gesture = MOVE;                                // long press, then drag: move the block
-                    frozen = true;
-                    selected = downIndex;
+                if (gesture == NONE && !lifted && (Math.abs(dx) > touchSlop || Math.abs(y - downY) > touchSlop)) {
+                    removeCallbacks(lift);                         // a swipe, not a hold: the sheet may scroll
                 }
                 if (gesture == MOVE) {
                     int to = indexAt(x);
@@ -368,6 +373,14 @@ public final class ImpulseMapView extends View {
                 return true;
             }
             case MotionEvent.ACTION_UP:
+                removeCallbacks(lift);
+                if (lifted) {
+                    lifted = false;
+                    gesture = NONE;
+                    frozen = false;
+                    invalidate();
+                    return true;
+                }
                 if (gesture == NONE && Math.abs(x - downX) < touchSlop && Math.abs(y - downY) < touchSlop) {
                     if (selected >= 0 && plusBtn.contains(x, y)) {
                         map.blocks.add(selected + 1, map.blocks.get(selected).copy());
@@ -392,12 +405,34 @@ public final class ImpulseMapView extends View {
                 invalidate();
                 return true;
             case MotionEvent.ACTION_CANCEL:
+                removeCallbacks(lift);
+                lifted = false;
                 gesture = NONE;
                 frozen = false;
                 invalidate();
                 return true;
             default:
                 return true;
+        }
+    }
+
+    /** The long press: pick the block up — it follows the finger, the sheet stops scrolling, a short buzz. */
+    final class Lift implements Runnable {
+        @Override
+        public void run() {
+            if (downIndex < 0 || map == null || downIndex >= map.blocks.size()) {
+                return;
+            }
+            lifted = true;
+            gesture = MOVE;
+            frozen = true;
+            selected = downIndex;
+            getParent().requestDisallowInterceptTouchEvent(true);
+            performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+            if (listener != null) {
+                listener.onSelect(selected);
+            }
+            invalidate();
         }
     }
 

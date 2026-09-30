@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 992
+    .line 993
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 993
+    .line 994
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$MachineChoice;->c:Landroid/content/Context;
 
-    .line 994
+    .line 995
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 998
+    .line 999
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$MachineChoice;->c:Landroid/content/Context;
 
     if-nez p1, :cond_d
@@ -52,16 +52,16 @@
     :goto_5
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/AutoHistory;->setCardioMachine(Landroid/content/Context;Z)V
 
-    .line 999
+    .line 1000
     const/4 v0, 0x3
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 1000
+    .line 1001
     return-void
 
-    .line 998
+    .line 999
     :cond_d
     const/4 v0, 0x0
 

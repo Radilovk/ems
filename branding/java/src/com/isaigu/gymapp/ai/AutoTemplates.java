@@ -243,6 +243,23 @@ public final class AutoTemplates {
         return s;
     }
 
+    /** The exercises this client's states rule out (knees, back, diastasis, after birth, joints — 60+, BMI ≥ 30 …). */
+    public static Set<String> avoidFor(AutoModel.Input in) {
+        Set<String> st = states(in);
+        Set<String> bad = new HashSet<String>();
+        for (int c = 0; c < AutoTemplateData.COND.length; c++) {
+            if (st.contains(AutoTemplateData.COND[c])) {
+                for (String x : AutoTemplateData.AVOID[c]) {
+                    bad.add(x);
+                }
+            }
+        }
+        if (noCardioMachine) {
+            bad.add(MACHINE);
+        }
+        return bad;
+    }
+
     /** Level 1–3: profile + the last outcomes of this program (oldest first). */
     public static int level(AutoModel.Input in, String programId, List<Outcome> past) {
         int p = prog(programId);

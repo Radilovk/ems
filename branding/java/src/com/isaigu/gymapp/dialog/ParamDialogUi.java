@@ -9,7 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import android.widget.LinearLayout;
+
 import com.isaigu.gymapp.widget.XemsGuard;
+import com.isaigu.gymapp.widget.XemsLang;
 import com.isaigu.gymapp.widget.XemsUi;
 
 /**
@@ -20,6 +23,8 @@ import com.isaigu.gymapp.widget.XemsUi;
  */
 public final class ParamDialogUi {
     private static final String DONE = "xems_param_ui";
+    public static final String HEADER = "xems_param_header";
+    private static final String MAIN_CARD = "xems_param_main";
     private static final String[] FIELDS = {"worklength", "frequency", "paulseContinue", "paulseStop"};
 
     private ParamDialogUi() {}
@@ -41,12 +46,125 @@ public final class ParamDialogUi {
             }
             walk(c, card);
             button(c, find(root, "save"), XemsUi.PRIMARY);
-            button(c, find(root, "close"), XemsUi.SECONDARY);
             for (int k = 1; k <= 3; k++) {
-                button(c, find(root, "reset" + k), XemsUi.SECONDARY);
+                View r = find(root, "reset" + k);
+                button(c, r, XemsUi.SECONDARY);
+                if (r instanceof TextView) {
+                    ((TextView) r).setSingleLine(true);
+                    ViewGroup.LayoutParams lp = r.getLayoutParams();
+                    lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    r.setLayoutParams(lp);
+                    ((TextView) r).setMinWidth(XemsUi.dp(c, 130));
+                }
             }
+            layout(c, card, find(root, "close"));
         } catch (Throwable t) {
             XemsGuard.report("ParamDialogUi.style", t);
+        }
+    }
+
+    /**
+     * Order in the card: a header (title + the stock ✕ moved in, so it never covers a control), the switch
+     * (ProgramFit), Основен in its own rounded card, then the three modes as cards side by side.
+     */
+    private static void layout(Context c, ViewGroup card, View close) {
+        // 1 · the main (Основен) block: from its title to the old divider line → one surface card
+        int first = -1;
+        int divider = -1;
+        for (int i = 0; i < card.getChildCount(); i++) {
+            View v = card.getChildAt(i);
+            if (first < 0 && v instanceof TextView && v.getTag() == null) {
+                first = i;
+            } else if (first >= 0 && v.getClass() == View.class) {
+                divider = i;
+                break;
+            }
+        }
+        if (first >= 0 && divider > first) {
+            LinearLayout main = XemsUi.vertical(c);
+            main.setTag(MAIN_CARD);
+            main.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(c, 16), XemsUi.STROKE, XemsUi.dp(c, 1)));
+            int pad = XemsUi.dp(c, 10);
+            main.setPadding(pad, pad, pad, pad);
+            java.util.List<View> moved = new java.util.ArrayList<View>();
+            for (int i = first; i < divider; i++) {
+                moved.add(card.getChildAt(i));
+            }
+            for (int i = 0; i < moved.size(); i++) {
+                card.removeView(moved.get(i));
+                main.addView(moved.get(i));
+            }
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(XemsUi.dp(c, 12), XemsUi.dp(c, 6), XemsUi.dp(c, 12), XemsUi.dp(c, 6));
+            card.addView(main, first, lp);
+            sectionTitle(c, moved.get(0));
+            View div = card.getChildAt(first + 1);
+            if (div != null && div.getClass() == View.class) {
+                div.setVisibility(View.GONE);
+            }
+            // "Редакция": the title of the three modes
+            View modesTitle = card.getChildAt(first + 2);
+            if (modesTitle instanceof TextView) {
+                sectionTitle(c, modesTitle);
+                ((TextView) modesTitle).setText(XemsLang.tr("Режими", "Modes"));
+            }
+        }
+        // 2 · each mode column as its own card
+        for (int k = 1; k <= 3; k++) {
+            View w = find(card.getRootView(), "frequencyview" + k);
+            View colView = w;
+            for (int up = 0; up < 3 && colView != null && colView.getParent() instanceof View; up++) {
+                colView = (View) colView.getParent();
+            }
+            if (colView instanceof LinearLayout) {
+                colView.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(c, 16), XemsUi.STROKE, XemsUi.dp(c, 1)));
+                colView.setPadding(XemsUi.dp(c, 6), XemsUi.dp(c, 6), XemsUi.dp(c, 6), XemsUi.dp(c, 12));
+            }
+        }
+        // 3 · header: title + ✕ (the stock close button, its click stays)
+        if (card.findViewWithTag(HEADER) == null) {
+            LinearLayout head = XemsUi.horizontal(c);
+            head.setTag(HEADER);
+            head.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            head.setPadding(XemsUi.dp(c, 16), XemsUi.dp(c, 10), XemsUi.dp(c, 10), XemsUi.dp(c, 2));
+            head.addView(XemsUi.text(c, XemsLang.tr("Параметри на програмата", "Program parameters"), 20,
+                    XemsUi.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            if (close instanceof TextView && close.getParent() instanceof ViewGroup) {
+                ((ViewGroup) close.getParent()).removeView(close);
+                TextView x = (TextView) close;
+                x.setText("✕");
+                x.setTextSize(20);
+                x.setTextColor(XemsUi.TEXT);
+                x.setGravity(android.view.Gravity.CENTER);
+                x.setPadding(0, 0, 0, 0);
+                android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
+                g.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+                g.setColor(XemsUi.SURFACE);
+                g.setStroke(XemsUi.dp(c, 1), XemsUi.STROKE);
+                x.setBackgroundDrawable(g);
+                x.setContentDescription(XemsLang.tr("Затвори", "Close"));
+                head.addView(x, new LinearLayout.LayoutParams(XemsUi.dp(c, 44), XemsUi.dp(c, 44)));
+            }
+            card.addView(head, 0);
+        }
+    }
+
+    private static void sectionTitle(Context c, View v) {
+        if (!(v instanceof TextView)) {
+            return;
+        }
+        TextView t = (TextView) v;
+        t.setTextSize(15);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setTextColor(XemsUi.MUTED);
+        t.setAllCaps(true);
+        t.setLetterSpacing(0.06f);
+        ViewGroup.LayoutParams lp = t.getLayoutParams();
+        if (lp instanceof LinearLayout.LayoutParams) {
+            ((LinearLayout.LayoutParams) lp).gravity = android.view.Gravity.START;
+            ((LinearLayout.LayoutParams) lp).leftMargin = XemsUi.dp(c, 8);
+            t.setLayoutParams(lp);
         }
     }
 

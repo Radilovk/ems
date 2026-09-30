@@ -796,53 +796,98 @@
 .end method
 
 .method public static attach(Landroid/widget/EditText;)V
-    .registers 4
+    .registers 6
 
     .prologue
     .line 125
     if-nez p0, :cond_3
 
-    .line 138
+    .line 146
     :goto_2
     return-void
 
-    .line 128
+    .line 130
     :cond_3
+    :try_start_3
+    const-string v0, "com.isaigu.gymapp.wearable.SearchPad"
+
+    invoke-static {v0}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
+
+    move-result-object v0
+
+    const-string v1, "attach"
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [Ljava/lang/Class;
+
+    const/4 v3, 0x0
+
+    const-class v4, Landroid/widget/EditText;
+
+    aput-object v4, v2, v3
+
+    invoke-virtual {v0, v1, v2}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+
+    move-result-object v0
+
+    const/4 v1, 0x0
+
+    const/4 v2, 0x1
+
+    new-array v2, v2, [Ljava/lang/Object;
+
+    const/4 v3, 0x0
+
+    aput-object p0, v2, v3
+
+    .line 131
+    invoke-virtual {v0, v1, v2}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    :try_end_21
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_21} :catch_22
+
+    goto :goto_2
+
+    .line 133
+    :catch_22
+    move-exception v0
+
+    .line 136
     const/4 v0, 0x1
 
-    :try_start_4
+    :try_start_24
     invoke-virtual {p0, v0}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 129
+    .line 137
     const/16 v0, 0x61
 
     invoke-virtual {p0, v0}, Landroid/widget/EditText;->setInputType(I)V
 
-    .line 130
+    .line 138
     const v0, 0x12000003
 
     invoke-virtual {p0, v0}, Landroid/widget/EditText;->setImeOptions(I)V
 
-    .line 132
+    .line 140
     new-instance v0, Lcom/isaigu/gymapp/widget/XemsSearch$Fold;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/widget/XemsSearch$Fold;-><init>(Landroid/widget/EditText;)V
 
-    .line 133
+    .line 141
     invoke-virtual {p0, v0}, Landroid/widget/EditText;->setOnFocusChangeListener(Landroid/view/View$OnFocusChangeListener;)V
 
-    .line 134
+    .line 142
     invoke-virtual {p0, v0}, Landroid/widget/EditText;->setOnEditorActionListener(Landroid/widget/TextView$OnEditorActionListener;)V
-    :try_end_1d
-    .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_1d} :catch_1e
+    :try_end_3d
+    .catch Ljava/lang/Throwable; {:try_start_24 .. :try_end_3d} :catch_3e
 
     goto :goto_2
 
-    .line 135
-    :catch_1e
+    .line 143
+    :catch_3e
     move-exception v0
 
-    .line 136
+    .line 144
     const-string v1, "xems_search"
 
     const-string v2, "attach"

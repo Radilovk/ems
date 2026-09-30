@@ -4,8 +4,9 @@
 - UserFragment$UserAdapter.onBindViewHolder: QuickStart.bindRow(itemView, user) — a green ▶ at the row's
   end: the client's last program onto a free connected suit, then the training page (active only while
   such a suit exists).
-- UserFragment / the connect dialogs: QuickStart.refreshButton(firstSearchField, this) right after the
-  field's XemsSearch.attach (apply-client-search-fix.py) — ↻ pulls the clients again and redraws.
+- UserFragment's own refresh button (UserFragment$2): QuickStart.refreshClients — pulls the clients again.
+- The connect dialogs (no refresh of their own): QuickStart.refreshButton(firstSearchField, this) right after
+  the field's XemsSearch.attach (apply-client-search-fix.py) — ↻ pulls the clients and scans for suits.
 - The connect dialogs get public xemsRefresh() = their private startScan() (↻ also scans for suits).
 """
 from __future__ import annotations
@@ -18,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 G = ROOT / "build" / "decompiled" / "smali_classes2" / "com" / "isaigu" / "gymapp"
 QS = "Lcom/isaigu/gymapp/wearable/QuickStart;"
 ADAPTER = G / "fragment" / "UserFragment$UserAdapter.smali"
+REFRESH_CLICK = G / "fragment" / "UserFragment$2.smali"      # the list's own refresh button (updateuser)
 SCREENS = (
-    G / "fragment" / "UserFragment.smali",
     G / "dialog" / "NewUserProgramDeviceConnectDialogFragment.smali",
     G / "dialog" / "UserProgramDeviceConnectDialogFragment.smali",
 )
@@ -80,11 +81,27 @@ def patch_screen(path: Path) -> None:
     print(f"{path.name}: ↻ refresh next to the search")
 
 
+def patch_refresh_click() -> None:
+    text = REFRESH_CLICK.read_text(encoding="utf-8")
+    if QS in text:
+        return
+    sig = ".method public onNoDoubleClick(Landroid/view/View;)V"
+    a = text.find(sig)
+    if a < 0 or "updateAdapter" not in text:
+        sys.exit("apply-quick-start: UserFragment$2 is not the refresh button's listener")
+    loc = text.find(".locals", a)
+    eol = text.find("\n", loc) + 1
+    text = text[:eol] + f"\n    invoke-static {{p1}}, {QS}->refreshClients(Landroid/view/View;)V\n" + text[eol:]
+    REFRESH_CLICK.write_text(text, encoding="utf-8")
+    print("UserFragment$2: the list's refresh button pulls the clients again")
+
+
 def main() -> None:
     if not (G / "wearable" / "QuickStart.smali").is_file():
         print("apply-quick-start: QuickStart not installed (BETA_MUSIC=0) — skipped")
         return
     patch_adapter()
+    patch_refresh_click()
     for s in SCREENS:
         patch_screen(s)
 

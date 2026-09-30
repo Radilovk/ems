@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 652
+    .line 657
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 653
+    .line 658
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ChoiceClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 654
+    .line 659
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ChoiceClick;->mac:Ljava/lang/String;
 
-    .line 655
+    .line 660
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ChoiceClick;->key:Ljava/lang/String;
 
-    .line 656
+    .line 661
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ChoiceClick;->name:Ljava/lang/String;
 
-    .line 657
+    .line 662
     return-void
 .end method
 
@@ -57,12 +57,12 @@
     .registers 6
 
     .prologue
-    .line 661
+    .line 666
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 662
+    .line 667
     const/4 v1, 0x3
 
     new-array v1, v1, [Ljava/lang/String;
@@ -87,12 +87,12 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 663
+    .line 668
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$ChoiceClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->showBands(Ljava/util/List;)V
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$1100(Lcom/isaigu/gymapp/wearable/BandPairing;Ljava/util/List;)V
 
-    .line 664
+    .line 669
     return-void
 .end method

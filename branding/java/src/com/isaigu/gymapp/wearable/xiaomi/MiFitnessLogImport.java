@@ -333,23 +333,45 @@ public final class MiFitnessLogImport {
         }
     }
 
-    /** The log folder the trainer granted once (persisted), or null. */
+    /**
+     * The log folder the trainer granted once (persisted), or null. Found also when the saved note of it is
+     * gone or differs in spelling: any kept read grant on a folder named wearablelog counts (and is noted again).
+     */
     public static Uri tree(Context c) {
         try {
             String s = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(K_TREE, "");
-            if (s.length() == 0) {
-                return null;
-            }
-            Uri u = Uri.parse(s);
+            Uri u = s.length() > 0 ? Uri.parse(s) : null;
             List<android.content.UriPermission> perms = c.getContentResolver().getPersistedUriPermissions();
+            Uri any = null;
             for (int i = 0; i < perms.size(); i++) {
-                if (perms.get(i).getUri().equals(u) && perms.get(i).isReadPermission()) {
+                android.content.UriPermission pm = perms.get(i);
+                if (!pm.isReadPermission()) {
+                    continue;
+                }
+                if (u != null && pm.getUri().equals(u)) {
                     return u;
                 }
+                String decoded = Uri.decode(pm.getUri().toString()).toLowerCase(java.util.Locale.ROOT);
+                if (any == null && decoded.indexOf("/tree/") >= 0 && decoded.indexOf("wearablelog") >= 0) {
+                    any = pm.getUri();
+                }
             }
-        } catch (Throwable ignored) {
+            if (any != null) {
+                c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(K_TREE, any.toString()).apply();
+                log("folder grant found again: " + any);
+            }
+            return any;
+        } catch (Throwable t) {
+            log("tree: " + t);
         }
         return null;
+    }
+
+    static void log(String s) {
+        try {
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("pair", s);
+        } catch (Throwable ignored) {
+        }
     }
 
     private static void collect(File dir, List<File> out, int depth) {
@@ -573,8 +595,9 @@ public final class MiFitnessLogImport {
                     try {
                         act.getContentResolver().takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(K_TREE, u.toString()).apply();
+                        log("folder granted and kept: " + u);
                     } catch (Throwable t) {
-                        android.util.Log.w("xems", "MiFitnessLogImport.persist", t);
+                        log("folder grant not kept: " + t);
                     }
                     if (cb != null) {
                         new Thread(new TreeTask(act, cb), "xems-mifit-tree").start();
@@ -621,6 +644,8 @@ public final class MiFitnessLogImport {
         @Override
         public void run() {
             Found f = scanLocal(a);
+            log("after the grant: files " + f.listed + ", read " + f.files + ", zips " + f.zips
+                    + ", bands " + f.devices.size() + (f.error.length() > 0 ? ", " + f.error : ""));
             a.runOnUiThread(new Deliver(cb, f));
         }
     }

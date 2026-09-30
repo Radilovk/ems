@@ -21,9 +21,9 @@ import java.util.Locale;
  *       "Мария" finds "Maria", "Tsvetan" / "Cvetan" / "Цветан" are one name. Both sides go to a coarse
  *       Latin key (Bulgarian transliteration, then ch/ts/tz→c, sh→s, zh→z, ya/ja/ia→a, yu/ju/iu→u, y→i,
  *       w→v, ph→f, double letters once; a Latin j is tried as й and as ж).</li>
- *   <li>{@link #attach}: the keyboard never covers the results in landscape — no full-screen input, and
- *       while the field has focus the block above it folds so the field sits on top and the list shows
- *       right under it, above the keyboard. "Търси" on the keyboard closes it and brings the block back.</li>
+ *   <li>{@link #attach}: our own keyboard (wearable/SearchPad — BG / EN letters, 123, matches with photos on
+ *       the left); the system keyboard never opens. Without it: no full-screen input, and the block above
+ *       the field folds while it has focus so the results stay above the keyboard.</li>
  * </ul>
  * Hooks: the name TextWatchers (apply-client-search-fix.py), before every search field's
  * addTextChangedListener (same script).
@@ -124,6 +124,14 @@ public final class XemsSearch {
         try {
             if (et == null) {
                 return;
+            }
+            try {
+                // Our own keyboard (wearable/SearchPad; compiled apart, so by name): no system keyboard at all.
+                Class.forName("com.isaigu.gymapp.wearable.SearchPad").getMethod("attach", EditText.class)
+                        .invoke(null, et);
+                return;
+            } catch (Throwable noPad) {
+                // no pad in this build: the system keyboard, kept off the results (below)
             }
             et.setSingleLine(true);
             et.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PERSON_NAME);

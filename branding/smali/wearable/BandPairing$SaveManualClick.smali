@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 554
+    .line 559
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 555
+    .line 560
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/BandPairing$SaveManualClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
-    .line 556
+    .line 561
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 3
 
     .prologue
-    .line 560
+    .line 565
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/BandPairing$SaveManualClick;->p:Lcom/isaigu/gymapp/wearable/BandPairing;
 
     # invokes: Lcom/isaigu/gymapp/wearable/BandPairing;->saveManual()V
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/BandPairing;->access$500(Lcom/isaigu/gymapp/wearable/BandPairing;)V
 
-    .line 561
+    .line 566
     return-void
 .end method

@@ -79,6 +79,7 @@ public final class QuickStart {
                 lp.gravity = Gravity.CENTER_VERTICAL;
                 l.addView(b, lp);
             }
+            ClientRow.restyle(l, b, u);                  // name, goal, compact actions (the stock columns go)
             Go old = LOOPS.get(b);
             if (old != null) {
                 b.removeCallbacks(old);
@@ -216,6 +217,13 @@ public final class QuickStart {
             }
         } catch (Throwable t) {
             XemsGuard.report("QuickStart.refreshButton", t);
+        }
+    }
+
+    /** Hook: the client list's own refresh button (UserFragment$2) — the clients are pulled again too. */
+    public static void refreshClients(View v) {
+        if (v != null) {
+            new Refresh(null).onClick(v);
         }
     }
 

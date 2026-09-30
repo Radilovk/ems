@@ -163,6 +163,43 @@ def apply_theme_backgrounds() -> None:
     print("theme backgrounds: title bars and screen backgrounds without the old colours")
 
 
+def _recolor(src: Image.Image, light, dark, lo=80, hi=235) -> Image.Image:
+    """Luminance → a two-colour ramp (bright parts → `light`, dark lines → `dark`), alpha kept."""
+    out = src.convert("RGBA").copy()
+    px = out.load()
+    w, h = out.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            lum = 0.299 * r + 0.587 * g + 0.114 * b
+            k = min(1.0, max(0.0, (lum - lo) / float(hi - lo)))
+            px[x, y] = tuple(int(round(dark[i] + (light[i] - dark[i]) * k)) for i in range(3)) + (a,)
+    return out
+
+
+def apply_night_icons() -> None:
+    """The vendor's white round icons (program, +, device, pencil) for the dark theme: a graphite disc
+    with the symbol in the app's colours — program green, device blue, + a green button, pencil amber."""
+    res = DECOMPILED / "res"
+    graphite = (44, 48, 56)
+    plan = {  # name: (bright parts →, dark parts →, luminance range)
+        "setting.png": (graphite, (120, 200, 150), 80, 235),       # white disc → graphite, lines → green
+        "devicecloth.png": (graphite, (110, 175, 225), 150, 250),  # device: blue lines
+        "add.png": ((46, 158, 91), (255, 255, 255), 80, 235),      # white disc → green, black + → white
+        "editbutton.png": ((214, 158, 62), (214, 158, 62), 0, 255),  # grey disc → amber (the pencil is cut out)
+    }
+    for name, (light, dark, lo, hi) in plan.items():
+        for src in sorted(res.glob("mipmap-*/" + name)):
+            if "night" in src.parent.name:
+                continue
+            out = res / (src.parent.name.replace("mipmap-", "mipmap-night-")) / name
+            out.parent.mkdir(parents=True, exist_ok=True)
+            _recolor(Image.open(src), light, dark, lo, hi).save(out, "PNG")
+    print("night icons: program / + / device / pencil in the app's colours")
+
+
 def apply_logo(icon: Image.Image) -> None:
     # Logo uses the same X icon asset as the app icon.
     logo = icon.resize((200, 200), Image.Resampling.LANCZOS)
@@ -188,6 +225,7 @@ def main() -> None:
     apply_logo(icon)
     apply_default_avatar(avatar)
     apply_theme_backgrounds()
+    apply_night_icons()
     apply_bulgarian_flag()
     print("Branding applied.")
 

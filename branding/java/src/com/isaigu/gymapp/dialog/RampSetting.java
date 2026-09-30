@@ -29,6 +29,12 @@ public final class RampSetting {
     private static final int STEP_MS = 500;
     private static final int MAX_MS = 3000;
     private static final String MODE_ROW = "xems_ramp_mode_row";
+    /** The mode (useType) of the program the dialog opened with: its tab is shown first. */
+    private static int lastMode = -1;
+
+    static int lastMode() {
+        return lastMode;
+    }
 
     private RampSetting() {}
 
@@ -38,6 +44,7 @@ public final class RampSetting {
             if (in == null || out == null || program == null || program.programDataBean == null) {
                 return;
             }
+            lastMode = program.useType;
             showColumn(in);
             bind(in, program, true);
             bind(out, program, false);

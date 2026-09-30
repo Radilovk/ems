@@ -19,13 +19,27 @@
 
 .field private static final STEP_MS:I = 0x1f4
 
+.field private static lastMode:I
+
 
 # direct methods
-.method private constructor <init>()V
+.method static constructor <clinit>()V
     .registers 1
 
     .prologue
     .line 33
+    const/4 v0, -0x1
+
+    sput v0, Lcom/isaigu/gymapp/dialog/RampSetting;->lastMode:I
+
+    return-void
+.end method
+
+.method private constructor <init>()V
+    .registers 1
+
+    .prologue
+    .line 39
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -47,7 +61,7 @@
     .registers 3
 
     .prologue
-    .line 151
+    .line 158
     move-object v0, p0
 
     :goto_1
@@ -55,19 +69,19 @@
 
     if-eqz v1, :cond_13
 
-    .line 152
+    .line 159
     instance-of v1, v0, Landroid/app/Activity;
 
     if-eqz v1, :cond_c
 
-    .line 153
+    .line 160
     check-cast v0, Landroid/app/Activity;
 
-    .line 157
+    .line 164
     :goto_b
     return-object v0
 
-    .line 155
+    .line 162
     :cond_c
     check-cast v0, Landroid/content/ContextWrapper;
 
@@ -77,7 +91,7 @@
 
     goto :goto_1
 
-    .line 157
+    .line 164
     :cond_13
     const/4 v0, 0x0
 
@@ -90,7 +104,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 38
+    .line 44
     if-eqz p0, :cond_b
 
     if-eqz p1, :cond_b
@@ -102,60 +116,65 @@
 
     if-nez v1, :cond_c
 
-    .line 51
+    .line 58
     :cond_b
     :goto_b
     return-void
 
-    .line 41
+    .line 47
     :cond_c
+    iget v1, p2, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
+
+    sput v1, Lcom/isaigu/gymapp/dialog/RampSetting;->lastMode:I
+
+    .line 48
     invoke-static {p0}, Lcom/isaigu/gymapp/dialog/RampSetting;->showColumn(Landroid/widget/TextView;)V
 
-    .line 42
+    .line 49
     const/4 v1, 0x1
 
     invoke-static {p0, p2, v1}, Lcom/isaigu/gymapp/dialog/RampSetting;->bind(Landroid/widget/TextView;Lcom/isaigu/gymapp/bean/TrainProgram;Z)V
 
-    .line 43
+    .line 50
     const/4 v1, 0x0
 
     invoke-static {p1, p2, v1}, Lcom/isaigu/gymapp/dialog/RampSetting;->bind(Landroid/widget/TextView;Lcom/isaigu/gymapp/bean/TrainProgram;Z)V
 
-    .line 44
-    :goto_17
+    .line 51
+    :goto_1b
     const/4 v1, 0x3
 
-    if-gt v0, v1, :cond_24
+    if-gt v0, v1, :cond_28
 
-    .line 45
+    .line 52
     invoke-virtual {p0}, Landroid/widget/TextView;->getRootView()Landroid/view/View;
 
     move-result-object v1
 
     invoke-static {v1, p2, v0}, Lcom/isaigu/gymapp/dialog/RampSetting;->attachMode(Landroid/view/View;Lcom/isaigu/gymapp/bean/TrainProgram;I)V
 
-    .line 44
+    .line 51
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_17
+    goto :goto_1b
 
-    .line 47
-    :cond_24
+    .line 54
+    :cond_28
     invoke-virtual {p0}, Landroid/widget/TextView;->getRootView()Landroid/view/View;
 
     move-result-object v0
 
     invoke-static {v0, p2}, Lcom/isaigu/gymapp/dialog/PauseSetting;->attach(Landroid/view/View;Lcom/isaigu/gymapp/bean/TrainProgram;)V
-    :try_end_2b
-    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_2b} :catch_2c
+    :try_end_2f
+    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_2f} :catch_30
 
     goto :goto_b
 
-    .line 48
-    :catch_2c
+    .line 55
+    :catch_30
     move-exception v0
 
-    .line 49
+    .line 56
     const-string v1, "RampSetting.attach"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -173,28 +192,28 @@
 
     const/4 v7, 0x0
 
-    .line 68
+    .line 75
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/RampSetting;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    .line 69
+    .line 76
     if-eqz p0, :cond_c
 
     if-nez v0, :cond_d
 
-    .line 103
+    .line 110
     :cond_c
     :goto_c
     return-void
 
-    .line 72
+    .line 79
     :cond_d
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
-    .line 73
+    .line 80
     invoke-virtual {v2}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -227,14 +246,14 @@
 
     move-result v0
 
-    .line 74
+    .line 81
     if-eqz v0, :cond_cd
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 75
+    .line 82
     :goto_38
     if-eqz v0, :cond_c
 
@@ -246,14 +265,14 @@
 
     if-eqz v1, :cond_c
 
-    .line 78
+    .line 85
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/View;
 
-    .line 79
+    .line 86
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
@@ -262,14 +281,14 @@
 
     if-eqz v1, :cond_c
 
-    .line 82
+    .line 89
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
 
     check-cast v1, Landroid/view/ViewGroup;
 
-    .line 83
+    .line 90
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -288,47 +307,47 @@
 
     move-result-object v3
 
-    .line 84
+    .line 91
     invoke-virtual {v1, v3}, Landroid/view/ViewGroup;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v4
 
-    .line 85
+    .line 92
     if-eqz v4, :cond_72
 
-    .line 86
+    .line 93
     invoke-virtual {v1, v4}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
 
-    .line 88
+    .line 95
     :cond_72
     invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
 
-    .line 89
+    .line 96
     invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v4
 
-    .line 90
+    .line 97
     invoke-virtual {v4, v3}, Landroid/widget/LinearLayout;->setTag(Ljava/lang/Object;)V
 
-    .line 91
+    .line 98
     const/16 v3, 0x10
 
     invoke-virtual {v4, v3}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 92
+    .line 99
     invoke-static {v2, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v3
 
-    .line 93
+    .line 100
     invoke-static {v2, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
 
     invoke-virtual {v4, v3, v5, v3, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 94
+    .line 101
     const-string v3, "\u041f\u043b\u0430\u0432\u043d\u043e \u2191 / \u2193"
 
     const-string v5, "Soft rise / fall"
@@ -345,7 +364,7 @@
 
     move-result-object v3
 
-    .line 95
+    .line 102
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v6, 0x3f800000    # 1.0f
@@ -354,7 +373,7 @@
 
     invoke-virtual {v4, v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 96
+    .line 103
     const/4 v3, 0x1
 
     invoke-static {v2, p1, p2, v3}, Lcom/isaigu/gymapp/dialog/RampSetting;->chipFor(Landroid/content/Context;Lcom/isaigu/gymapp/bean/TrainProgram;IZ)Landroid/widget/TextView;
@@ -363,17 +382,17 @@
 
     invoke-virtual {v4, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 97
+    .line 104
     invoke-static {v2, p1, p2, v7}, Lcom/isaigu/gymapp/dialog/RampSetting;->chipFor(Landroid/content/Context;Lcom/isaigu/gymapp/bean/TrainProgram;IZ)Landroid/widget/TextView;
 
     move-result-object v3
 
-    .line 98
+    .line 105
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v5, v8, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 100
+    .line 107
     const/high16 v6, 0x41000000    # 8.0f
 
     invoke-static {v2, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -382,10 +401,10 @@
 
     iput v2, v5, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 101
+    .line 108
     invoke-virtual {v4, v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 102
+    .line 109
     invoke-virtual {v1, v0}, Landroid/view/ViewGroup;->indexOfChild(Landroid/view/View;)I
 
     move-result v0
@@ -396,7 +415,7 @@
 
     goto/16 :goto_c
 
-    .line 74
+    .line 81
     :cond_cd
     const/4 v0, 0x0
 
@@ -407,7 +426,7 @@
     .registers 3
 
     .prologue
-    .line 61
+    .line 68
     const/4 v0, 0x1
 
     if-ne p1, v0, :cond_6
@@ -417,7 +436,7 @@
     :goto_5
     return-object v0
 
-    .line 62
+    .line 69
     :cond_6
     const/4 v0, 0x2
 
@@ -427,7 +446,7 @@
 
     goto :goto_5
 
-    .line 63
+    .line 70
     :cond_c
     const/4 v0, 0x3
 
@@ -447,10 +466,10 @@
     .registers 7
 
     .prologue
-    .line 121
+    .line 128
     iget-object v1, p1, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    .line 122
+    .line 129
     if-eqz p2, :cond_5d
 
     iget v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
@@ -460,13 +479,13 @@
 
     move-result v0
 
-    .line 123
+    .line 130
     if-eqz p2, :cond_60
 
-    .line 124
+    .line 131
     iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
 
-    .line 128
+    .line 135
     :goto_e
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/RampSetting;->fmt(I)Ljava/lang/String;
 
@@ -474,7 +493,7 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 129
+    .line 136
     invoke-virtual {p0}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -487,7 +506,7 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setMinWidth(I)V
 
-    .line 131
+    .line 138
     invoke-virtual {p0}, Landroid/widget/TextView;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
@@ -496,19 +515,19 @@
 
     if-eqz v0, :cond_53
 
-    .line 132
+    .line 139
     invoke-virtual {p0}, Landroid/widget/TextView;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 133
+    .line 140
     invoke-virtual {v0, p0}, Landroid/view/ViewGroup;->indexOfChild(Landroid/view/View;)I
 
     move-result v1
 
-    .line 134
+    .line 141
     if-ltz v1, :cond_53
 
     add-int/lit8 v2, v1, 0x1
@@ -529,7 +548,7 @@
 
     if-eqz v2, :cond_53
 
-    .line 135
+    .line 142
     add-int/lit8 v1, v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
@@ -540,7 +559,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 138
+    .line 145
     :cond_53
     new-instance v0, Lcom/isaigu/gymapp/dialog/RampSetting$Open;
 
@@ -550,16 +569,16 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 139
+    .line 146
     return-void
 
-    .line 122
+    .line 129
     :cond_5d
     iget v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
 
     goto :goto_6
 
-    .line 126
+    .line 133
     :cond_60
     iput v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
 
@@ -570,12 +589,12 @@
     .registers 7
 
     .prologue
-    .line 106
+    .line 113
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/dialog/RampSetting;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
-    .line 107
+    .line 114
     if-eqz p3, :cond_47
 
     iget v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
@@ -585,13 +604,13 @@
 
     move-result v2
 
-    .line 108
+    .line 115
     if-eqz p3, :cond_4a
 
-    .line 109
+    .line 116
     iput v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->inputRamp:I
 
-    .line 113
+    .line 120
     :goto_10
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -626,7 +645,7 @@
 
     move-result-object v0
 
-    .line 114
+    .line 121
     const/high16 v1, 0x42a80000    # 84.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -635,34 +654,34 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setMinWidth(I)V
 
-    .line 115
+    .line 122
     const/16 v1, 0x11
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 116
+    .line 123
     new-instance v1, Lcom/isaigu/gymapp/dialog/RampSetting$Open;
 
     invoke-direct {v1, v0, p1, p2, p3}, Lcom/isaigu/gymapp/dialog/RampSetting$Open;-><init>(Landroid/widget/TextView;Lcom/isaigu/gymapp/bean/TrainProgram;IZ)V
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 117
+    .line 124
     return-object v0
 
-    .line 107
+    .line 114
     :cond_47
     iget v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
 
     goto :goto_8
 
-    .line 111
+    .line 118
     :cond_4a
     iput v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->outputRamp:I
 
     goto :goto_10
 
-    .line 113
+    .line 120
     :cond_4d
     const-string v0, "\u2193 "
 
@@ -673,7 +692,7 @@
     .registers 3
 
     .prologue
-    .line 142
+    .line 149
     const/4 v0, 0x0
 
     const/16 v1, 0xbb8
@@ -686,7 +705,7 @@
 
     move-result v0
 
-    .line 143
+    .line 150
     int-to-float v0, v0
 
     const/high16 v1, 0x43fa0000    # 500.0f
@@ -706,7 +725,7 @@
     .registers 8
 
     .prologue
-    .line 147
+    .line 154
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -760,18 +779,28 @@
     return-object v0
 .end method
 
+.method static lastMode()I
+    .registers 1
+
+    .prologue
+    .line 36
+    sget v0, Lcom/isaigu/gymapp/dialog/RampSetting;->lastMode:I
+
+    return v0
+.end method
+
 .method private static showColumn(Landroid/widget/TextView;)V
     .registers 3
 
     .prologue
-    .line 54
+    .line 61
     invoke-virtual {p0}, Landroid/widget/TextView;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/View;
 
-    .line 55
+    .line 62
     if-eqz v0, :cond_1a
 
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
@@ -782,7 +811,7 @@
 
     if-eqz v1, :cond_1a
 
-    .line 56
+    .line 63
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
@@ -793,7 +822,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 58
+    .line 65
     :cond_1a
     return-void
 .end method

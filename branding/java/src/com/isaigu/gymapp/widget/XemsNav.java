@@ -101,9 +101,7 @@ public final class XemsNav {
             if (menu != null && menu.isShowing()) {
                 menu.dismiss();
             }
-            if (menuButton != null) {
-                menuButton.bringToFront();
-            }
+            // the menu button lives in the module bar now: nothing floats over the pages
         } catch (Throwable t) {
             XemsGuard.report("XemsNav.onPage", t);
         }
@@ -149,10 +147,6 @@ public final class XemsNav {
         parent.addView(bar, parent.indexOfChild(tabBar), new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 68)));
 
-        View fl = root.findViewById(ID_FL_FRAGMENT);
-        if (fl instanceof FrameLayout) {
-            addMenuButton((FrameLayout) fl);
-        }
         bar.addOnAttachStateChangeListener(new BarAttach());
         refreshTiles();
     }
@@ -168,6 +162,7 @@ public final class XemsNav {
         bar.setPadding(XemsUi.dp(c, 12), pad, XemsUi.dp(c, 12), pad);
         bar.setElevation(XemsUi.dp(c, 6));
 
+        addMenuTile(bar);
         addTile(bar, M_TIMER, "⏱", tr("Таймер", "Timer"), XemsUi.AMBER);
         addTile(bar, M_MUSIC, "♫", tr("Музика", "Music"), XemsUi.GO);
         addTile(bar, M_PULSE, "♥", tr("Пулс", "Heart rate"), XemsUi.ACCENT);
@@ -245,27 +240,41 @@ public final class XemsNav {
         tiles[module] = t;
     }
 
-    private static void addMenuButton(FrameLayout fl) {
-        Context c = fl.getContext();
-        if (menuButton != null && menuButton.getParent() instanceof ViewGroup) {
-            ((ViewGroup) menuButton.getParent()).removeView(menuButton);
-        }
-        TextView b = XemsUi.text(c, "☰", 20, XemsUi.TEXT, true);
-        b.setGravity(Gravity.CENTER);
-        float r = XemsUi.dp(c, 22);
-        b.setBackground(XemsUi.ripple(XemsUi.rounded(XemsUi.CARD, r, XemsUi.STROKE,
-                XemsUi.dp(c, 1)), XemsUi.TEXT, r));
-        b.setElevation(XemsUi.dp(c, 12));
-        b.setTranslationZ(XemsUi.dp(c, 12));
-        b.setContentDescription(tr("Меню", "Menu"));
-        b.setOnClickListener(new MenuClick());
-        XemsUi.pressable(b);
-        int s = XemsUi.dp(c, 44);
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(s, s, Gravity.TOP | Gravity.LEFT);
-        lp.leftMargin = XemsUi.dp(c, 8);
-        lp.topMargin = XemsUi.dp(c, 6);
-        fl.addView(b, lp);
-        menuButton = b;
+    /**
+     * "☰ Меню" — the first tile of the module bar (every page has the bar): big, labelled, and it never
+     * covers a page's own header the way the old floating corner button did. The page menu opens above it.
+     */
+    private static void addMenuTile(LinearLayout bar) {
+        Context c = bar.getContext();
+        LinearLayout tile = XemsUi.horizontal(c);
+        tile.setGravity(Gravity.CENTER_VERTICAL);
+        tile.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 18), 0);
+        float r = XemsUi.dp(c, 14);
+        tile.setBackground(XemsUi.ripple(XemsUi.rounded(XemsUi.alpha(XemsUi.ACCENT, 0x22), r,
+                XemsUi.alpha(XemsUi.ACCENT, 0x88), XemsUi.dp(c, 1)), XemsUi.TEXT, r));
+        tile.setClickable(true);
+        tile.setOnClickListener(new MenuClick());
+        tile.setContentDescription(tr("Меню", "Menu"));
+        XemsUi.pressable(tile);
+
+        TextView icon = XemsUi.text(c, "☰", 18, 0xFFFFFFFF, true);
+        icon.setGravity(Gravity.CENTER);
+        android.graphics.drawable.GradientDrawable disc = new android.graphics.drawable.GradientDrawable();
+        disc.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        disc.setColor(XemsUi.ACCENT);
+        icon.setBackground(disc);
+        int is = XemsUi.dp(c, 38);
+        tile.addView(icon, new LinearLayout.LayoutParams(is, is));
+        TextView name = XemsUi.text(c, tr("Меню", "Menu"), 16, XemsUi.TEXT, true);
+        name.setPadding(XemsUi.dp(c, 10), 0, 0, 0);
+        tile.addView(name);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        lp.leftMargin = XemsUi.dp(c, 5);
+        lp.rightMargin = XemsUi.dp(c, 5);
+        bar.addView(tile, lp);
+        menuButton = name;
     }
 
     // ================================================================ page menu
@@ -305,7 +314,10 @@ public final class XemsNav {
         w.setOutsideTouchable(true);
         w.setElevation(XemsUi.dp(c, 16));
         menu = w;
-        w.showAsDropDown(anchor, 0, XemsUi.dp(c, 6));
+        // the menu sits above the bar (the bar is at the bottom of every page)
+        box.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        w.showAsDropDown(anchor, 0, -(anchor.getHeight() + box.getMeasuredHeight() + XemsUi.dp(c, 8)));
         XemsUi.enter(box);
     }
 

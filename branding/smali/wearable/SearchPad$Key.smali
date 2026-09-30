@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 252
+    .line 276
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 253
+    .line 277
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Key;->pad:Lcom/isaigu/gymapp/wearable/SearchPad;
 
-    .line 254
+    .line 278
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Key;->value:Ljava/lang/String;
 
-    .line 255
+    .line 279
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 4
 
     .prologue
-    .line 259
+    .line 283
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 260
+    .line 284
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Key;->pad:Lcom/isaigu/gymapp/wearable/SearchPad;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SearchPad$Key;->value:Ljava/lang/String;
@@ -58,6 +58,6 @@
     # invokes: Lcom/isaigu/gymapp/wearable/SearchPad;->press(Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/SearchPad;->access$200(Lcom/isaigu/gymapp/wearable/SearchPad;Ljava/lang/String;)V
 
-    .line 261
+    .line 285
     return-void
 .end method

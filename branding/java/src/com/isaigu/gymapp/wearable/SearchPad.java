@@ -57,7 +57,7 @@ public final class SearchPad {
     private static final String TAG = "xems_search_pad";
     private static final int USERS = 0;
     private static final int PROGRAMS = 1;
-    private static final int NONE = 2;
+    private static final int DEVICES = 2;
     private static boolean english;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
@@ -113,7 +113,7 @@ public final class SearchPad {
                     return;
                 }
                 String name = v.getResources().getResourceEntryName(et.getId());
-                int kind = name.contains("user") ? USERS : name.contains("program") ? PROGRAMS : NONE;
+                int kind = name.contains("user") ? USERS : name.contains("program") ? PROGRAMS : DEVICES;
                 new SearchPad(et, (ViewGroup) root, kind).show();
             } catch (Throwable t) {
                 XemsGuard.report("SearchPad.open", t);
@@ -132,25 +132,43 @@ public final class SearchPad {
         panel.setClickable(true);
         panel.setOnClickListener(new Close(this));
 
+        LinearLayout outer = XemsUi.vertical(c);
+        outer.setClickable(true);
+        int op = XemsUi.dp(c, 14);
+        outer.setPadding(op, XemsUi.dp(c, 10), op, op);
+        outer.setBackgroundDrawable(XemsUi.rounded(XemsUi.CARD, XemsUi.dp(c, 22), XemsUi.STROKE, XemsUi.dp(c, 1)));
+        LinearLayout head = XemsUi.horizontal(c);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        ImageView hg = new ImageView(c);
+        hg.setImageDrawable(new XemsIcon(XemsIcon.SEARCH, XemsUi.GO_TEXT));
+        head.addView(hg, new LinearLayout.LayoutParams(XemsUi.dp(c, 22), XemsUi.dp(c, 22)));
+        TextView title = XemsUi.text(c, kind == USERS ? tr("Търсене на клиент", "Find a client")
+                : kind == PROGRAMS ? tr("Търсене на програма", "Find a program")
+                : tr("Търсене на устройство", "Find a device"), 18, XemsUi.TEXT, true);
+        title.setPadding(XemsUi.dp(c, 10), 0, 0, 0);
+        head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView hide = XemsUi.button(c, tr("Скрий клавиатурата  ⌄", "Hide keyboard  ⌄"), XemsUi.SECONDARY);
+        hide.setTextSize(15);
+        hide.setPadding(XemsUi.dp(c, 18), XemsUi.dp(c, 9), XemsUi.dp(c, 18), XemsUi.dp(c, 9));
+        hide.setOnClickListener(new Close(this));
+        head.addView(hide);
+        outer.addView(head, XemsUi.matchWrap(c, 0));
+
         LinearLayout sheet = XemsUi.horizontal(c);
         sheet.setClickable(true);
-        int p = XemsUi.dp(c, 14);
-        sheet.setPadding(p, p, p, p);
-        sheet.setBackgroundDrawable(XemsUi.rounded(XemsUi.CARD, XemsUi.dp(c, 22), XemsUi.STROKE, XemsUi.dp(c, 1)));
+        sheet.setPadding(0, XemsUi.dp(c, 12), 0, 0);
+        outer.addView(sheet, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         // left: the matches
         LinearLayout left = XemsUi.vertical(c);
         TextView lt = XemsUi.label(c, kind == USERS ? tr("Клиенти", "Clients")
-                : kind == PROGRAMS ? tr("Програми", "Programs") : tr("Търсене", "Search"));
+                : kind == PROGRAMS ? tr("Програми", "Programs") : tr("Устройства", "Devices"));
         left.addView(lt);
         ScrollView sv = new ScrollView(c);
         matches = XemsUi.vertical(c);
         sv.addView(matches);
         left.addView(sv, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        sheet.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, kind == NONE ? 0f : 0.36f));
-        if (kind == NONE) {
-            left.setVisibility(View.GONE);
-        }
+        sheet.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.36f));
 
         // right: the query and the keys
         LinearLayout right = XemsUi.vertical(c);
@@ -171,8 +189,8 @@ public final class SearchPad {
         right.addView(qRow, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 56)));
         keys = XemsUi.vertical(c);
         right.addView(keys, XemsUi.matchWrap(c, 10));
-        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, kind == NONE ? 1f : 0.64f);
-        rp.leftMargin = kind == NONE ? 0 : XemsUi.dp(c, 14);
+        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.64f);
+        rp.leftMargin = XemsUi.dp(c, 14);
         rp.gravity = Gravity.BOTTOM;
         sheet.addView(right, rp);
 
@@ -180,11 +198,17 @@ public final class SearchPad {
                 ViewGroup.LayoutParams.MATCH_PARENT);
         int m = XemsUi.dp(c, 16);
         sp.setMargins(m, m, m, m);
-        panel.addView(sheet, sp);
+        panel.addView(outer, sp);
+        panel.setFocusableInTouchMode(true);
+        panel.setOnKeyListener(new Back(this));
         host.addView(panel, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         panel.setAlpha(0f);
         panel.animate().alpha(1f).setDuration(160).start();
+        panel.requestFocus();
+        if (kind == DEVICES) {
+            numbers = true;                                // device names are mostly digits
+        }
         buildKeys();
         refresh();
     }
@@ -292,9 +316,11 @@ public final class SearchPad {
     private void refresh() {
         String s = et.getText().toString();
         query.setText(s.length() > 0 ? s : "");
-        query.setHint(tr("Име на клиента…", "Client name…"));
+        query.setHint(kind == USERS ? tr("Име на клиента…", "Client name…")
+                : kind == PROGRAMS ? tr("Име на програмата…", "Program name…")
+                : tr("Име или номер на устройството…", "Device name or number…"));
         query.setHintTextColor(XemsUi.HINT);
-        if (kind == NONE || matches == null) {
+        if (matches == null) {
             return;
         }
         Context c = matches.getContext();
@@ -310,6 +336,17 @@ public final class SearchPad {
                     continue;
                 }
                 matches.addView(userRow(c, u, name), XemsUi.matchWrap(c, n == 0 ? 8 : 6));
+                n++;
+            }
+        } else if (kind == DEVICES) {
+            List<com.isaigu.gymapp.bean.DeviceBean> all = DataMgr.getInstance() != null
+                    ? DataMgr.getInstance().deviceBeanList : null;
+            for (int i = 0; all != null && i < all.size() && n < 12; i++) {
+                com.isaigu.gymapp.bean.DeviceBean d = all.get(i);
+                if (d == null || d.name == null || !matches(d.name, s)) {
+                    continue;
+                }
+                matches.addView(textRow(c, d.name), XemsUi.matchWrap(c, n == 0 ? 8 : 6));
                 n++;
             }
         } else {
@@ -435,6 +472,26 @@ public final class SearchPad {
             } catch (Throwable t) {
                 XemsGuard.report("SearchPad.select", t);
             }
+        }
+    }
+
+    /** The system back button closes the keyboard first. */
+    static final class Back implements View.OnKeyListener {
+        private final SearchPad pad;
+
+        Back(SearchPad pad) {
+            this.pad = pad;
+        }
+
+        @Override
+        public boolean onKey(View v, int code, android.view.KeyEvent e) {
+            if (code == android.view.KeyEvent.KEYCODE_BACK) {
+                if (e.getAction() == android.view.KeyEvent.ACTION_UP) {
+                    pad.close();
+                }
+                return true;
+            }
+            return false;
         }
     }
 

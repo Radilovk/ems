@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 235
+    .line 259
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -38,15 +38,15 @@
 
     const v1, 0x3f6b851f    # 0.92f
 
-    .line 238
+    .line 262
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 239
+    .line 263
     if-nez v0, :cond_22
 
-    .line 240
+    .line 264
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
@@ -67,14 +67,14 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 244
+    .line 268
     :cond_20
     :goto_20
     const/4 v0, 0x0
 
     return v0
 
-    .line 241
+    .line 265
     :cond_22
     const/4 v1, 0x1
 
@@ -84,7 +84,7 @@
 
     if-ne v0, v1, :cond_20
 
-    .line 242
+    .line 266
     :cond_28
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 

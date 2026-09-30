@@ -6,6 +6,7 @@ library the tablet reads (assets/xems/library.json, ai/ExerciseLibrary). Adds wh
   mus   work per suit channel 0–100 (target muscle 100, secondary 50; built-ins keep theirs),
   zone  the picker's group (Корем, Седалище, Бедра, Гръб, Гърди, Ръце, Рамене, Кардио, Разтягане),
   b     1 when its frames ship in the APK (exercises.json); the others are downloaded when the admin enables them.
+Top level "fixed" lists the frames redrawn with even lines (branding/exercises/fixed/, scripts/exercise-line-width.py).
 Run after editing library-src.json or exercises.json; commit library.json.
 """
 from __future__ import annotations
@@ -22,6 +23,7 @@ CH = {"гърди": 0, "корем": 1, "предно бедро": 2, "прив�
 MET = {"cardio": 7.0, "plyo": 8.0, "olympic": 6.0, "squat": 5.0, "lunge": 4.5, "hinge": 5.0, "carry": 4.5,
        "push_h": 3.8, "push_v": 3.5, "pull_h": 3.5, "pull_v": 3.8, "dip": 3.8, "glute": 3.2, "core_static": 3.0,
        "core_flex": 3.0, "core_rot": 3.0, "core_hip": 3.0, "back_ext": 2.8, "stretch": 2.3}
+FIXED_URL = "https://cdn.jsdelivr.net/gh/Radilovk/ems@main/branding/exercises/fixed/{id}-{n}.svg"
 FLOOR = {"core_static", "core_flex", "core_rot", "core_hip", "back_ext", "glute", "abductor", "adductor", "stretch"}
 
 
@@ -71,7 +73,9 @@ def main() -> None:
                     "how": e["how"], "howEn": e.get("howEn", ""), "vb": e["vb"], "n": e["n"], "b": 1 if b else 0})
     missing = set(built) - {e["id"] for e in out}
     assert not missing, missing
-    lib = {"source": src["source"], "frames": src["frames"], "exercises": out}
+    # frames redrawn with even lines (scripts/exercise-line-width.py): "<id>/<n>", served from FIXED_URL
+    fixed = sorted(f"{p.stem.rsplit('-', 1)[0]}/{p.stem.rsplit('-', 1)[1]}" for p in (EX / "fixed").glob("*.svg"))
+    lib = {"source": src["source"], "frames": src["frames"], "fixedUrl": FIXED_URL, "fixed": fixed, "exercises": out}
     (EX / "library.json").write_text(json.dumps(lib, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     zones = {}
     for e in out:

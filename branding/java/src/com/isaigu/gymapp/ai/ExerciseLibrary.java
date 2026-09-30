@@ -24,13 +24,16 @@ import java.util.Map;
  * The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position,
  * cost, picker group), which of them the admin enabled (GET /v1/exercises, kept in prefs), and the figures:
  * the 40 built-in ones ship in the APK, every other enabled one is downloaded once from the pinned CDN copy of the
- * source frames, normalized on the tablet ({@link PathNorm}) and kept in files/xems_ex/&lt;id&gt;.json.
+ * source frames, normalized on the tablet ({@link PathNorm}) and kept in files/xems_ex/&lt;id&gt;.json. Frames the
+ * source draws with much bolder lines are replaced by their redrawn copy (assets/xems/frames-fix.json,
+ * scripts/exercise-line-width.py) when read, so already downloaded ones are fixed too.
  * docs/xems-workouts.md
  */
 public final class ExerciseLibrary {
     private ExerciseLibrary() {}
 
     public static final String ASSET = "xems/library.json";
+    static final String FIX_ASSET = "xems/frames-fix.json";
     static final String PREFS = "xems_library";
     static final String DIR = "xems_ex";
     /** Look for new picks at most this often (and each time the Workouts screen opens, if older). */
@@ -76,6 +79,8 @@ public final class ExerciseLibrary {
     private static volatile boolean loaded;
     private static volatile boolean syncing;
     private static String frameUrl = "";
+    /** "&lt;id&gt;/&lt;n&gt;" → the redrawn path of a frame with bolder lines (loaded once). */
+    private static JSONObject fixes;
 
     // ------------------------------------------------------------------ load
 
@@ -283,6 +288,13 @@ public final class ExerciseLibrary {
             }
             JSONObject o = new JSONObject(read(new FileInputStream(f)));
             JSONArray all = o.getJSONArray("paths");
+            JSONObject fx = fixes(c);
+            for (int i = 0; i < all.length(); i++) {
+                String p = fx.optString(id + "/" + (i + 1), null);
+                if (p != null) {
+                    all.put(i, p);
+                }
+            }
             int[] p = picks(c).get(id);
             int want = p != null && p[1] > 0 ? p[1] : all.length();
             JSONArray sel = new JSONArray();
@@ -299,6 +311,17 @@ public final class ExerciseLibrary {
         } catch (Throwable t) {
             return null;
         }
+    }
+
+    private static synchronized JSONObject fixes(Context c) {
+        if (fixes == null) {
+            try {
+                fixes = new JSONObject(read(c.getAssets().open(FIX_ASSET)));
+            } catch (Throwable t) {
+                fixes = new JSONObject();
+            }
+        }
+        return fixes;
     }
 
     private static String fetch(String u) throws Exception {

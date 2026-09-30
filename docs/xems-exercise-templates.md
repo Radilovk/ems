@@ -23,6 +23,13 @@ a group session would force the leader's exercises on everyone.
   (`avoid.<state>.no/yes`), focus-zone stations (`focusEx`), passive program data (not used by the app yet).
 - `scripts/gen-exercises.py` → `ai/AutoTemplateData.java` (generated, commit it). Run after editing either JSON.
 - `scripts/apply-exercise-assets.py` ships the JSON as `assets/xems/exercises.json` and fails if the Java data is stale.
+- Even line weight: ~200 source frames (mostly the middle one) are traced much bolder than the rest.
+  `scripts/exercise-line-width.py` (numpy, scipy, Pillow, potracer) measures every frame; bolder than 4.9 units →
+  skeleton + keep what lies within 2.2 of it (thick strokes down to 4.4, thin ones untouched, so no line breaks;
+  a plain erosion cut the fine strokes) → potrace back to M/L/C/Z. Built-in frames are replaced in `exercises.json`;
+  library frames go to `branding/exercises/fixed/<id>-<n>.svg` (listed in `library.json` `fixed`, packed into
+  `assets/xems/frames-fix.json`, applied by `ExerciseLibrary.cachedFigure`; the admin page loads them from jsDelivr
+  `Radilovk/ems@main`).
 
 ## Logic (`ai/AutoTemplates`, pure Java)
 - **Program (AI):** `programForAi` — fat burning → cardio; 65+ → senior; otherwise general (focus zones add stations).

@@ -1094,9 +1094,9 @@
     move-result-object v17
 
     .line 91
-    if-eqz v17, :cond_c6
+    if-lez v12, :cond_c6
 
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->currentExercise()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->currentExercise()I
 
     move-result v2
 

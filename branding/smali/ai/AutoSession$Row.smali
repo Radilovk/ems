@@ -35,8 +35,6 @@
 
 .field userId:J
 
-.field userMin:D
-
 .field writtenStrength:I
 
 .field writtenZones:[I
@@ -46,12 +44,10 @@
 
 # direct methods
 .method constructor <init>()V
-    .registers 5
+    .registers 4
 
     .prologue
-    const/4 v1, -0x1
-
-    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+    const/4 v2, -0x1
 
     .line 42
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -62,25 +58,24 @@
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->name:Ljava/lang/String;
 
     .line 50
-    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
+    const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
-    .line 52
-    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->userMin:D
+    iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
 
-    .line 53
+    .line 51
     const/16 v0, 0xa
 
     new-array v0, v0, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
 
-    .line 54
-    iput v1, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
+    .line 52
+    iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
+
+    .line 53
+    iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
     .line 55
-    iput v1, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
-
-    .line 57
     const-wide/high16 v0, 0x4014000000000000L    # 5.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D

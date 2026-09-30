@@ -7,8 +7,8 @@ import java.util.Set;
 
 /**
  * The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
- * The automatic mode keeps its own parameters (Hz, µs, strength, pulse); this only says which exercise the client
- * does now: the warm-up and the main part are a row of stations, one exercise for whole cycles, then the next.
+ * The session keeps its own parameters (Hz, µs, strength, pulse); this only says which exercise the client
+ * does: the warm-up and the main part are a row of stations, one exercise for whole cycles, then the next.
  * <ul>
  *   <li>Level 1–3 comes from the profile and from how the last sessions of this program went — the client is never
  *       asked: the first active session is level 1; three good ones in a row (done ≥ 90 %, strength not taken down
@@ -18,7 +18,8 @@ import java.util.Set;
  *       60+ and the senior program count as joints: no impact); each focus zone adds one station (at most two).</li>
  *   <li>The warm-up is two light moves the main part does not repeat.</li>
  * </ul>
- * docs/xems-exercise-templates.md; the review pages were built from the same data.
+ * Used by the Smart Session (AI), which follows the stations cycle by cycle ({@link AiExercises}); the automatic
+ * mode only shows them as an example. docs/xems-exercise-templates.md.
  */
 public final class AutoTemplates {
     private AutoTemplates() {}
@@ -54,11 +55,14 @@ public final class AutoTemplates {
         public final String programId;
         public final int level;
         public final String[][] phase;
+        /** Exercises the client's states rule out (an easier swap never picks one). */
+        public final Set<String> avoid;
 
-        Script(String programId, int level, String[][] phase) {
+        Script(String programId, int level, String[][] phase, Set<String> avoid) {
             this.programId = programId;
             this.level = level;
             this.phase = phase;
+            this.avoid = avoid;
         }
 
         /** The exercise at {@code elapsedS} into phase {@code index}; call it with the elapsed time at the start
@@ -282,13 +286,23 @@ public final class AutoTemplates {
         return out;
     }
 
-    /** The session's exercises for a plan, or null when the program has none (passive programs). */
+    /** The session's exercises for an automatic plan, or null when the program has none (passive programs). */
     public static Script script(AutoModel.Plan plan, List<Outcome> past) {
         if (plan == null || plan.program == null || plan.input == null || !has(plan.program.id)) {
             return null;
         }
-        AutoModel.Input in = plan.input;
-        String id = plan.program.id;
+        String[] ids = new String[plan.phases.size()];
+        for (int i = 0; i < ids.length; i++) {
+            ids[i] = plan.phases.get(i).id;
+        }
+        return scriptFor(plan.program.id, plan.input, ids, past);
+    }
+
+    /** The session's exercises for phases named WARMUP / MAIN / METABOLIC / … (the AI plan uses the same ids). */
+    public static Script scriptFor(String id, AutoModel.Input in, String[] phaseIds, List<Outcome> past) {
+        if (in == null || phaseIds == null || !has(id)) {
+            return null;
+        }
         int lv = level(in, id, past);
         Set<String> st = states(in);
         Set<String> focus = new HashSet<String>();
@@ -305,16 +319,65 @@ public final class AutoTemplates {
         Set<String> bad = new HashSet<String>();
         List<String> main = stations(id, lv, st, focus, bad);
         List<String> warm = warmup(lv, main, bad);
-        String[][] ph = new String[plan.phases.size()][];
+        String[][] ph = new String[phaseIds.length][];
         for (int i = 0; i < ph.length; i++) {
-            String pid = plan.phases.get(i).id;
+            String pid = phaseIds[i];
             if ("WARMUP".equals(pid)) {
                 ph[i] = warm.toArray(new String[0]);
             } else if ("MAIN".equals(pid) || "METABOLIC".equals(pid)) {
                 ph[i] = main.toArray(new String[0]);
             }
         }
-        return new Script(id, lv, ph);
+        return new Script(id, lv, ph, bad);
+    }
+
+    private static int mainChannel(int i) {
+        int[] m = AutoTemplateData.MUS[i];
+        int best = 0;
+        for (int k = 1; k < m.length; k++) {
+            if (m[k] > m[best]) {
+                best = k;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * An easier exercise for the same main muscle: the next lower cost (MET) that the client's states allow and that
+     * keeps the position (no getting down to the floor mid-set) when one exists; the exercise itself when none.
+     */
+    public static String easier(String id, Set<String> avoid) {
+        int i = ex(id);
+        if (i < 0) {
+            return id;
+        }
+        int ch = mainChannel(i);
+        int best = -1;
+        for (int pass = 0; pass < 2 && best < 0; pass++) {
+            for (int k = 0; k < AutoTemplateData.IDS.length; k++) {
+                if (k == i || mainChannel(k) != ch || AutoTemplateData.MET[k] >= AutoTemplateData.MET[i]
+                        || (avoid != null && avoid.contains(AutoTemplateData.IDS[k]))
+                        || (pass == 0 && !AutoTemplateData.POS[k].equals(AutoTemplateData.POS[i]))) {
+                    continue;
+                }
+                if (best < 0 || AutoTemplateData.MET[k] > AutoTemplateData.MET[best]) {
+                    best = k;
+                }
+            }
+        }
+        return best < 0 ? id : AutoTemplateData.IDS[best];
+    }
+
+    /** The AI goal and the client → the template program: fat burning → cardio; 65+ → senior; else general
+     *  (the focus zones add their own stations). Null for passive sessions. */
+    public static String programForAi(AiModel.Goal goal, AiModel.Mode mode, int age) {
+        if (mode != AiModel.Mode.ACTIVE || (goal != AiModel.Goal.TONE && goal != AiModel.Goal.FAT)) {
+            return null;
+        }
+        if (age >= 65) {
+            return AutoCatalog.SENIOR;
+        }
+        return goal == AiModel.Goal.FAT ? AutoCatalog.CARDIO : AutoCatalog.GENERAL;
     }
 
     private static boolean contains(String[] a, String s) {

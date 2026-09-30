@@ -37,8 +37,13 @@ public final class AutoHints {
     private static TextView hint;
     private static TextView next;
     private static TextView notice;
-    /** The exercise now (template programs): moves with the impulse. */
+    /** An example exercise for the program (template programs): its own tempo, not tied to the impulse —
+     *  the Smart Session is the mode that follows exercises. It changes every EXAMPLE_S. */
+    private static LinearLayout exBox;
     private static ExerciseFigure figure;
+    private static TextView exName;
+    private static final long EXAMPLE_S = 12;
+    private static final long EXAMPLE_T0 = System.currentTimeMillis();
     private static int lastPhase = -1;
     private static long phaseStartMs;
     private static int lastTone = -1;
@@ -111,11 +116,20 @@ public final class AutoHints {
 
         mid = XemsUi.horizontal(a);
         mid.setGravity(Gravity.CENTER_VERTICAL);
+        exBox = XemsUi.vertical(a);
+        exBox.setGravity(Gravity.CENTER_HORIZONTAL);
+        exBox.setVisibility(View.GONE);
         figure = new ExerciseFigure(a);
-        figure.setVisibility(View.GONE);
-        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(XemsUi.dp(a, 150), XemsUi.dp(a, 112));
+        figure.setCycle(EXAMPLE_T0, 2, 2);                   // its own calm tempo
+        exBox.addView(figure, new LinearLayout.LayoutParams(XemsUi.dp(a, 120), XemsUi.dp(a, 88)));
+        exName = XemsUi.text(a, "", 12, XemsUi.MUTED, false);
+        exName.setGravity(Gravity.CENTER);
+        exName.setMaxLines(2);
+        exBox.addView(exName, new LinearLayout.LayoutParams(XemsUi.dp(a, 130), ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         flp.rightMargin = XemsUi.dp(a, 12);
-        mid.addView(figure, flp);
+        mid.addView(exBox, flp);
         cue = XemsUi.text(a, "", 26, XemsUi.TEXT, true);
         mid.addView(cue, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         count = XemsUi.text(a, "", 30, XemsUi.TEXT, true);
@@ -220,18 +234,21 @@ public final class AutoHints {
             count.setBackgroundDrawable(disc);
         }
 
-        // the template's station: which exercise now (it changes on a cycle boundary only), and the next one
-        AutoTemplates.At at = AutoSession.currentAt(now);
-        double cycleAgo = cmd != null ? Math.max(0, (now - cmd.startMs) / 1000.0) : 0;
-        figure.setVisibility(tips && at != null ? View.VISIBLE : View.GONE);
-        if (at != null) {
-            figure.setExercise(at.id);
-            figure.setCycle(cmd.startMs, cmd.onS, cmd.offS);
+        // an example exercise of this phase (a suggestion only: own tempo, rotates every EXAMPLE_S)
+        String ex = null;
+        AutoTemplates.Script sc = AutoSession.getScript();
+        int pi = e.getPhaseIndex();
+        if (sc != null && pi >= 0 && pi < sc.phase.length && sc.phase[pi] != null && sc.phase[pi].length > 0) {
+            String[] l = sc.phase[pi];
+            ex = l[(int) (((now - EXAMPLE_T0) / 1000 / EXAMPLE_S) % l.length)];
+        }
+        exBox.setVisibility(tips && ex != null ? View.VISIBLE : View.GONE);
+        if (ex != null) {
+            figure.setExercise(ex);
+            exName.setText(AiText.t("Пример: ", "Example: ") + AutoTemplates.name(ex));
         }
 
-        String h = at != null ? AutoTemplates.name(at.id) : AutoCues.phaseHint(plan, ph);
-        hint.setTextSize(at != null ? 20 : 15);
-        hint.setTextColor(at != null ? XemsUi.TEXT : XemsUi.AMBER);
+        String h = AutoCues.phaseHint(plan, ph);
         boolean mainStart = ph != null && !"WARMUP".equals(ph.id) && !ph.isCooldown() && !ph.wave
                 && now - phaseStartMs < FEELING_MS && e.getPhaseIndex() <= 2;
         if (mainStart) {
@@ -241,9 +258,6 @@ public final class AutoHints {
         hint.setVisibility(tips && h.length() > 0 ? View.VISIBLE : View.GONE);
 
         String n = AutoCues.next(plan, e.getPhaseIndex(), e.phaseRemainingS());
-        if (at != null && at.next != null && at.remainingS - cycleAgo <= AutoCues.NEXT_AHEAD_S) {
-            n = AiText.t("Следва: ", "Next: ") + AutoTemplates.name(at.next);
-        }
         next.setText(n);
         next.setVisibility(tips && n.length() > 0 ? View.VISIBLE : View.GONE);
 

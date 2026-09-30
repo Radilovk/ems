@@ -35,6 +35,8 @@ export const SCENES = [
   { page: 'train', name: 'slider', state: manual, set: { slideOn: true, slideName: 'Гръб', slideVal: '85', slideColor: '#FFFFFF', slideFill: '#FF453A', slideFillH: 355, slideKnobB: 337 } },
   { page: 'ai', name: 'idle', state: idle },
   { page: 'ai', name: 'live', state: aiRun },
+  { page: 'ai', name: 'exercise', state: { ...aiRun, ex: 'Разгъване за трицепс над глава с дъмбел' } },
+  { page: 'ai', name: 'rest-next', state: { ...aiRun, st: 'rest', rl: 42, exn: 'Клек с дъмбел пред гърдите' } },
   { page: 'ai', name: 'rest', state: { ...aiRun, st: 'rest', rl: 48 } },
   { page: 'ai', name: 'power', state: aiRun, cur: 'power' },
   { page: 'ai', name: 'dbl', state: aiRun, cur: 'dbl' },

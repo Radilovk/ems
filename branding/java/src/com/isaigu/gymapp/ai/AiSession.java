@@ -44,6 +44,10 @@ public final class AiSession {
     private static AiEngine engine;
     private static AiEnergy energy;
     private static boolean epocClosed;
+    /** The session's exercises (null for passive goals); their outcome is stored once at the end. */
+    private static AiExercises exercises;
+    private static long exercisesUser;
+    private static boolean exercisesSaved;
 
     private static int calibPercent;
     private static boolean calibStimOn;
@@ -345,6 +349,7 @@ public final class AiSession {
         epocClosed = false;
         long now = System.currentTimeMillis();
         engine.start(now);
+        startExercises(context);
         personalZones();
         setWorkLengthAll(plan.totalS + 1800);
         stage = Stage.RUNNING;
@@ -374,6 +379,7 @@ public final class AiSession {
         stopDevice();
         if (stage == Stage.RUNNING) {
             stage = Stage.REPORT;
+            saveExercises();
         } else if (stage == Stage.CALIB) {
             calibStimOn = false;
         }
@@ -440,6 +446,65 @@ public final class AiSession {
     }
 
     /** Close the whole flow (after report or cancel before start). */
+    /** The leader's exercises for this session: program from the goal, level from the profile and the history. */
+    private static void startExercises(Context c) {
+        exercises = null;
+        exercisesSaved = false;
+        AiEnergy.exerciseMet = 0;
+        try {
+            String prog = AutoTemplates.programForAi(input.goal, input.mode, input.age);
+            if (prog == null) {
+                return;
+            }
+            ExerciseFigure.preload(c);
+            TrainItem lead = leader();
+            AiProfile p = lead != null ? AiProfile.of(lead) : null;
+            exercisesUser = p != null ? p.userId : 0;
+            AutoHistory.Info h = AutoHistory.of(c, exercisesUser);
+            exercises = AiExercises.build(input, p != null ? p.heightCm : 0, plan, h.sessions,
+                    AutoHistory.hoursSince(h.lastActiveMs, System.currentTimeMillis()),
+                    AutoHistory.outcomes(c, exercisesUser, prog));
+            WearableBleDiagLog.log("ai", "exercises " + prog + " level "
+                    + (exercises != null ? exercises.getScript().level : 0));
+        } catch (Throwable t) {
+            exercises = null;
+            WearableBleDiagLog.log("ai", "exercises: " + t);
+        }
+    }
+
+    private static void saveExercises() {
+        AiEnergy.exerciseMet = 0;
+        if (exercises == null || engine == null || exercisesSaved) {
+            return;
+        }
+        exercisesSaved = true;
+        try {
+            Context c = panelRoot != null ? panelRoot.getContext() : null;
+            if (c != null && exercisesUser != 0) {
+                AutoTemplates.Outcome o = exercises.outcome(engine);
+                AutoHistory.remember(c, exercisesUser, exercises.getScript().programId, o);
+                WearableBleDiagLog.log("ai", "exercise outcome lv " + o.level + " done " + Math.round(o.done * 100)
+                        + "% cut " + Math.round(o.cut * 100) + "% hr " + o.hrOver);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "exercise outcome: " + t);
+        }
+    }
+
+    public static AiExercises getExercises() {
+        return exercises;
+    }
+
+    /** Index of the exercise done now (AutoTemplates table), −1 when none — for the record, the kcal, the band. */
+    public static int currentExercise() {
+        try {
+            AiExercises x = exercises;
+            return x != null && stage == Stage.RUNNING ? AutoTemplates.index(x.current(engine)) : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
     public static void close() {
         if (stage == Stage.RUNNING || stage == Stage.CALIB) {
             stop();
@@ -565,6 +630,10 @@ public final class AiSession {
         guardManualChanges(now);
         AiEngine.State before = engine.getState();
         engine.tick(now);
+        if (exercises != null) {
+            exercises.tick(now, engine);
+            AiEnergy.exerciseMet = stage == Stage.RUNNING ? AutoTemplates.met(currentExercise()) : 0;
+        }
         tickEnergy(now);
         AiEngine.State after = engine.getState();
         // Engine fallback clock produced a cycle the device hook did not deliver → send it.
@@ -583,6 +652,7 @@ public final class AiSession {
             zeroOutput();
             stopDevice();
             stage = Stage.REPORT;
+            saveExercises();
             WearableBleDiagLog.log("ai", "run end state=" + after + " log=" + engine.getLog().size());
         }
         if (before != after) {
@@ -714,6 +784,9 @@ public final class AiSession {
     private static void apply(AiEngine.CycleCmd c) {
         if (c == null) {
             return;
+        }
+        if (exercises != null && engine != null && stage == Stage.RUNNING) {
+            exercises.onCycle(System.currentTimeMillis(), engine, c);
         }
         int percent = (int) Math.round(calibPercent * c.frac);
         lastSentFrac = c.frac;

@@ -7,10 +7,11 @@ Big file? `python3 scripts/repo-map.py outline <file>` → symbols with line num
 ## scripts/
 build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] = inside `if` on that env var
 (BETA_MUSIC default 1, DESIGN_PIPELINE default 0, SKIP_JAVA_RECOMPILE default 0). NOT-IN-BUILD = dead/manual patch.
+- `scripts/ai-sim/AiExSim.java` (158L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
 - `scripts/ai-sim/AiSim.java` (369L) — Offline scenarios for the Smart Session engine.
 - `scripts/ai-sim/AutoSim.java` (454L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/TemplateSim.java` (204L) — Offline test of the exercise templates (AutoTemplates) over every active program × profile × history.
-- `scripts/ai-sim/run-auto.sh` (11L) — Offline test of the automatic mode (AutoCatalog / AutoPlanner / AutoLimits / AutoEngine / AutoTemplates) on the JVM.
+- `scripts/ai-sim/run-auto.sh` (15L) — Offline test of the automatic mode (AutoCatalog / AutoPlanner / AutoLimits / AutoEngine / AutoTemplates) on the JVM.
 - `scripts/ai-sim/run.sh` (9L) — Offline test of the Smart Session engine (branding/java/src/com/isaigu/gymapp/ai) on the JVM.
 - `scripts/apply-active-pause-avatar-button.py` (2421L, build:L66) — Active pause avatar button: Hz-style control around the user icon (default mode only).
 - `scripts/apply-active-pause-control-fixes.py` (1464L, build:L153) — Fix active-pause control routing, main-mode button styling, and mode-exit behavior.
@@ -96,7 +97,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-channel-scale-java.sh` (57L, build:L71[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L102[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (211L, build:L92[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (189L, build:L107[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (190L, build:L107[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (64L, build:L69[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (83L, build:L115[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -144,6 +145,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 **ai/** (`branding/java/src/com/isaigu/gymapp/ai/`)
 - `AiEnergy.java` (346L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
 - `AiEngine.java` (1309L, compile:music-sync*,wearable) — XEMS Smart Session runtime (spec §5–§10).
+- `AiExercises.java` (197L, compile:music-sync*,wearable) — The exercises of a Smart Session (pure Java; the stations come from {@link AutoTemplates}).
 - `AiHrFilter.java` (129L, compile:music-sync*,wearable) — §7 — realtime HR validation, EMA smoothing, stimulation-artifact rejection, c_valid.
 - `AiModel.java` (199L, compile:music-sync*,wearable) — XEMS Smart Session data model (docs/xems-smart-session-spec.md §1, §3, §4).
 - `AiPersonal.java` (223L, compile:music-sync*,wearable) — The client's own profile beyond sex / age / weight / fitness / goal: focus zones and state (the client form's "Зони за …
@@ -152,22 +154,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiRamp.java` (107L, compile:music-sync*,wearable) — Ramp bytes for the work-params PDU (device unit: 10 ms per step).
 - `AiRestHr.java` (204L, compile:music-sync*,wearable) — §2 CALIB_REST_HR — resting HR over a 30 s window (median / SD of the whole window), with sample validation, stale handl…
 - `AiScreening.java` (86L, compile:music-sync*,wearable) — §1.1, §1.2, G11 — input validation and pre-session questionnaire.
-- `AiSession.java` (1023L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
+- `AiSession.java` (1096L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
 - `AiText.java` (180L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
-- `AiUi.java` (2041L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 6-step setup (goal · profile · check · resting HR · pla…
+- `AiUi.java` (2074L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 6-step setup (goal · profile · check · resting HR · pla…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoCatalog.java` (655L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
 - `AutoCues.java` (133L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
 - `AutoEngine.java` (604L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
-- `AutoHints.java` (276L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
+- `AutoHints.java` (290L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
 - `AutoHistory.java` (143L, compile:music-sync*,wearable) — How many sessions a client has had and when the last active one was — for the adaptation and recovery limits of the aut…
 - `AutoLimits.java` (173L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
 - `AutoLook.java` (202L, compile:music-sync*,wearable) — The training screen while automatic mode owns the suits (calibration and the run): every train row loses the controls t…
 - `AutoModel.java` (283L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
 - `AutoPlanner.java` (258L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
-- `AutoSession.java` (1528L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
+- `AutoSession.java` (1480L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
 - `AutoTemplateData.java` (102L, compile:music-sync*,wearable) — GENERATED by scripts/gen-exercises.py from branding/exercises/*.json — do not edit.
-- `AutoTemplates.java` (329L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
+- `AutoTemplates.java` (392L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
 - `AutoUi.java` (1211L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with four short steps — program · cli…
 - `ExerciseFigure.java` (250L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 
@@ -210,7 +212,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandLaunch.java` (107L, compile:music-sync*,wearable) — Open the XEMS app on the band from XEMS: the Settings button (and {@link BandRemote} at the start of a workout).
 - `BandMacFinder.java` (191L, compile:music-sync*,wearable) — Finds the band's MAC when the Mi Fitness log gave only the key: the tablet's paired and connected Xiaomi bands first, t…
 - `BandPairing.java` (717L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
-- `BandRemote.java` (1078L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
+- `BandRemote.java` (1091L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (129L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (129L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
@@ -552,36 +554,36 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L170 ## Двоен импулс (активна пауза) — v1.1.68
   - L199 ## Действия по време на сесията (v1.1.68)
 
-`docs/xems-auto-mode-spec.md` (420L)
+`docs/xems-auto-mode-spec.md` (424L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
-  - L20 ## 1. Място в менюто
-  - L28 ## 2. Стъпки (4 + на живо; отчетът е в клиентския картон)
-  - L55 ## 3. Входни данни и формули
-  - L57 ### 3.1 Профил
-  - L68 ### 3.2 Модификатори (прилагат се към всяка програма)
-  - L84 ### 3.3 Сила: какво е „лимит“
-  - L99 ### 3.4 Доза
-  - L105 ## 4. Твърди лимити (проверяват се на всеки тик)
-  - L107 ### 4.1 Абсолютни — за всички програми
-  - L125 ### 4.2 Обвивка във времето E(t) и прозорци на параметрите
-  - L140 ## 5. Зони (10 канала)
-  - L163 ## 6. Програми
-  - L165 ### 6.0 Йерархия на избора
-  - L189 ### 6.1 Общо стягане и оформяне (активна)
-  - L199 ### 6.2 Сила и бързина (активна)
-  - L213 ### 6.3 Седалище и бедра (активна)
-  - L223 ### 6.4 Талия и корем (активна)
-  - L234 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
-  - L245 ### 6.6 Дренаж (пасивна) — вълна по канали
-  - L261 ### 6.7 Антицелулит (пасивна)
-  - L273 ### 6.8 Болки в гърба и кръста (пасивна)
-  - L289 ### 6.9 Следродилно възстановяване (пасивна)
-  - L302 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
-  - L311 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
-  - L321 ## 7. Опции по програма
-  - L343 ## 8. Какво човекът може по време на сесия
-  - L354 ## 9. Реализация
-  - L397 ## 10. Подсказки (1.1.157-ai)
+  - L24 ## 1. Място в менюто
+  - L32 ## 2. Стъпки (4 + на живо; отчетът е в клиентския картон)
+  - L59 ## 3. Входни данни и формули
+  - L61 ### 3.1 Профил
+  - L72 ### 3.2 Модификатори (прилагат се към всяка програма)
+  - L88 ### 3.3 Сила: какво е „лимит“
+  - L103 ### 3.4 Доза
+  - L109 ## 4. Твърди лимити (проверяват се на всеки тик)
+  - L111 ### 4.1 Абсолютни — за всички програми
+  - L129 ### 4.2 Обвивка във времето E(t) и прозорци на параметрите
+  - L144 ## 5. Зони (10 канала)
+  - L167 ## 6. Програми
+  - L169 ### 6.0 Йерархия на избора
+  - L193 ### 6.1 Общо стягане и оформяне (активна)
+  - L203 ### 6.2 Сила и бързина (активна)
+  - L217 ### 6.3 Седалище и бедра (активна)
+  - L227 ### 6.4 Талия и корем (активна)
+  - L238 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
+  - L249 ### 6.6 Дренаж (пасивна) — вълна по канали
+  - L265 ### 6.7 Антицелулит (пасивна)
+  - L277 ### 6.8 Болки в гърба и кръста (пасивна)
+  - L293 ### 6.9 Следродилно възстановяване (пасивна)
+  - L306 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
+  - L315 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
+  - L325 ## 7. Опции по програма
+  - L347 ## 8. Какво човекът може по време на сесия
+  - L358 ## 9. Реализация
+  - L401 ## 10. Подсказки (1.1.157-ai)
 
 `docs/xems-client-data.md` (49L)
   - L1 # XEMS — какви данни къде живеят
@@ -608,14 +610,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L77 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
   - L103 ## Кодът на студиото
 
-`docs/xems-exercise-templates.md` (56L)
-  - L1 # Exercise templates in the automatic mode
-  - L7 ## Data
-  - L17 ## Logic (`ai/AutoTemplates`)
-  - L32 ## UI (`ai/AutoHints`, `ai/ExerciseFigure`)
-  - L36 ## Energy, load and muscle map
-  - L48 ## Tests
-  - L53 ## Not yet
+`docs/xems-exercise-templates.md` (74L)
+  - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them
+  - L3 ## Mode definitions (owner's decision, 1.1.250-ai)
+  - L17 ## Data
+  - L27 ## Logic (`ai/AutoTemplates`, pure Java)
+  - L41 ## Smart Session (`ai/AiExercises`, driven by `AiSession`)
+  - L50 ## Auto (`AutoHints`)
+  - L54 ## Energy, load and muscle map
+  - L66 ## Tests
+  - L72 ## Not yet
 
 `docs/xems-license-api.md` (179L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

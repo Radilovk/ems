@@ -15,6 +15,17 @@
 
 
 # instance fields
+.field public final avoid:Ljava/util/Set;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 .field public final level:I
 
 .field public final phase:[[Ljava/lang/String;
@@ -23,23 +34,38 @@
 
 
 # direct methods
-.method constructor <init>(Ljava/lang/String;I[[Ljava/lang/String;)V
-    .registers 4
+.method constructor <init>(Ljava/lang/String;I[[Ljava/lang/String;Ljava/util/Set;)V
+    .registers 5
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/lang/String;",
+            "I[[",
+            "Ljava/lang/String;",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;)V"
+        }
+    .end annotation
 
     .prologue
-    .line 58
+    .line 61
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 59
+    .line 62
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->programId:Ljava/lang/String;
 
-    .line 60
+    .line 63
     iput p2, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->level:I
 
-    .line 61
+    .line 64
     iput-object p3, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->phase:[[Ljava/lang/String;
 
-    .line 62
+    .line 65
+    iput-object p4, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->avoid:Ljava/util/Set;
+
+    .line 66
     return-void
 .end method
 
@@ -49,7 +75,7 @@
     .registers 15
 
     .prologue
-    .line 67
+    .line 71
     if-ltz p1, :cond_14
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->phase:[[Ljava/lang/String;
@@ -72,24 +98,24 @@
 
     if-nez v0, :cond_16
 
-    .line 68
+    .line 72
     :cond_14
     const/4 v0, 0x0
 
-    .line 80
+    .line 84
     :goto_15
     return-object v0
 
-    .line 70
+    .line 74
     :cond_16
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->phase:[[Ljava/lang/String;
 
     aget-object v0, v0, p1
 
-    .line 71
+    .line 75
     array-length v2, v0
 
-    .line 72
+    .line 76
     const/4 v1, 0x1
 
     invoke-static {v1, p4}, Ljava/lang/Math;->max(II)I
@@ -102,7 +128,7 @@
 
     div-double/2addr v4, v6
 
-    .line 73
+    .line 77
     const/4 v1, 0x0
 
     add-int/lit8 v3, v2, -0x1
@@ -123,23 +149,23 @@
 
     move-result v3
 
-    .line 74
+    .line 78
     new-instance v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/AutoTemplates$At;-><init>()V
 
-    .line 75
+    .line 79
     aget-object v6, v0, v3
 
     iput-object v6, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->id:Ljava/lang/String;
 
-    .line 76
+    .line 80
     iput v3, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->index:I
 
-    .line 77
+    .line 81
     iput v2, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->count:I
 
-    .line 78
+    .line 82
     const-wide/16 v6, 0x0
 
     add-int/lit8 v8, v3, 0x1
@@ -156,7 +182,7 @@
 
     iput-wide v4, v1, Lcom/isaigu/gymapp/ai/AutoTemplates$At;->remainingS:D
 
-    .line 79
+    .line 83
     add-int/lit8 v4, v3, 0x1
 
     if-ge v4, v2, :cond_5b
@@ -170,10 +196,10 @@
 
     move-object v0, v1
 
-    .line 80
+    .line 84
     goto :goto_15
 
-    .line 79
+    .line 83
     :cond_5b
     const/4 v0, 0x0
 

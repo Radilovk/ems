@@ -8,3 +8,7 @@ A="${ROOT}/branding/java/src/com/isaigu/gymapp/ai"
 javac -nowarn -source 8 -target 8 -d "${OUT}" "${A}"/Ai{Model,Screening,Planner,Personal}.java "${D}/stub/com/isaigu/gymapp/ai/AiText.java" "${A}"/Auto{Model,Catalog,Limits,Planner,Engine,Cues,TemplateData,Templates}.java "${D}/AutoSim.java" "${D}/TemplateSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning" || true
 java -Dstdout.encoding=UTF-8 -cp "${OUT}" AutoSim "$@" 2>&1 | grep -v "Picked up"
 java -Dstdout.encoding=UTF-8 -cp "${OUT}" TemplateSim "$@" 2>&1 | grep -v "Picked up"
+# The Smart Session's exercises (AiExercises over the real AiEngine).
+OUT2="$(mktemp -d)"; trap 'rm -rf "${OUT}" "${OUT2}"' EXIT
+javac -nowarn -source 8 -target 8 -d "${OUT2}" "${A}"/Ai{Model,Screening,RestHr,Planner,HrFilter,Engine,Energy,Personal,Exercises}.java "${D}/stub/com/isaigu/gymapp/ai/AiText.java" "${D}/stub/com/isaigu/gymapp/train/utils/ChannelStrengthScale.java" "${A}"/Auto{Model,Catalog,Limits,Planner,Engine,Cues,TemplateData,Templates}.java "${D}/AiExSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning" || true
+java -Dstdout.encoding=UTF-8 -cp "${OUT2}" AiExSim "$@" 2>&1 | grep -v "Picked up"

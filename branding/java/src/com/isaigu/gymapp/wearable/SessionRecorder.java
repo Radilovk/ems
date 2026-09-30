@@ -88,7 +88,7 @@ public final class SessionRecorder {
         int aiPhase = aiPhase();
         boolean assisted = assistActive();
         String autoProgram = autoProgram();
-        int exercise = autoProgram != null ? com.isaigu.gymapp.ai.AutoSession.currentExercise() : -1;
+        int exercise = aiPhase > 0 ? com.isaigu.gymapp.ai.AiSession.currentExercise() : -1;   // Smart Session only
         boolean music = musicOn();
         boolean leaderTaken = false;
         if (items != null) {

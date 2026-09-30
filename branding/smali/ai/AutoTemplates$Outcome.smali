@@ -29,22 +29,22 @@
     .registers 7
 
     .prologue
-    .line 36
+    .line 37
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 37
+    .line 38
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->level:I
 
-    .line 38
+    .line 39
     iput-wide p2, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->done:D
 
-    .line 39
+    .line 40
     iput-wide p4, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->cut:D
 
-    .line 40
+    .line 41
     iput-boolean p6, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->hrOver:Z
 
-    .line 41
+    .line 42
     return-void
 .end method
 
@@ -54,7 +54,7 @@
     .registers 5
 
     .prologue
-    .line 48
+    .line 49
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->done:D
 
     const-wide v2, 0x3fe6666666666666L    # 0.7
@@ -91,7 +91,7 @@
     .registers 5
 
     .prologue
-    .line 44
+    .line 45
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->done:D
 
     const-wide v2, 0x3feccccccccccccdL    # 0.9

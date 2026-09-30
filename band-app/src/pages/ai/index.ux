@@ -13,7 +13,7 @@
         </div>
       </stack>
       <text class="big-time" style="color: {{timeColor}}">{{bigTime}}</text>
-      <text class="sub">{{bigLabel}}</text>
+      <text class="sub sub-ex">{{bigLabel}}</text>
       <stack class="play-box">
         <div class="glow" style="background-color: {{playGlow}}"></div>
         <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{playColor}}"
@@ -213,11 +213,11 @@ export default {
     } else {
       if (this.st === 'rest') {
         this.bigTime = mmss((s.rl || 0) - quiet)
-        this.bigLabel = 'почивка'
+        this.bigLabel = s.exn ? 'след: ' + s.exn : 'почивка'
         this.timeColor = BLUE
       } else {
         this.bigTime = mmss((s.pl || 0) - age)
-        this.bigLabel = s.ph || 'фаза'
+        this.bigLabel = s.ex || s.ph || 'фаза'
       }
       const pd = s.pd || 1
       this.ringPct = Math.min(100, Math.max(0, Math.round((1 - ((s.pl || 0) - age) / pd) * 100)))

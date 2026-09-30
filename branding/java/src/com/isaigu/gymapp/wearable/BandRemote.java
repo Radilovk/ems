@@ -784,6 +784,18 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
                 o.put("pds", pds);
                 o.put("pns", pns);
                 o.put("u", (int) Math.round(e.getUUser() * 100));
+                // the Smart Session's exercise now, and in the rest the next one
+                com.isaigu.gymapp.ai.AiExercises xs = AiSession.getExercises();
+                if (xs != null) {
+                    String cur = xs.current(e);
+                    String nx = xs.next();
+                    if (cur != null) {
+                        o.put("ex", com.isaigu.gymapp.ai.AutoTemplates.name(cur));
+                    }
+                    if (nx != null && st == AiEngine.State.REST) {
+                        o.put("exn", com.isaigu.gymapp.ai.AutoTemplates.name(nx));
+                    }
+                }
                 elapsedS = Math.round(e.getElapsedPlanS());
                 o.put("tot", e.getPlan().totalS);
             } else if ("music".equals(mode)) {
@@ -843,7 +855,8 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
             o.put("ack", lastAck);
 
             // What runs (mode, play / pause, phase, modules, summary): sent at once, screen on or off.
-            String core = mode + "|" + o.optString("st") + "|" + playing + "|" + o.optString("ph")
+            String core = mode + "|" + o.optString("st") + "|" + playing + "|" + o.optString("ph") + "|" + o.optString("ex")
+                    + "|" + o.optString("exn")
                     + "|" + o.opt("can") + "|" + o.optBoolean("dbl") + "|" + lic
                     + "|" + o.optString("lang") + "|" + moduleSig(mods) + "|" + (o.has("sum") ? summary.optInt("n") : 0);
             // Plus what the wearer reads and moves: channels, main strength, pulse, kcal, ack.

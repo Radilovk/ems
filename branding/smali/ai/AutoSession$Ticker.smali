@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 789
+    .line 748
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,15 +31,57 @@
 
 # virtual methods
 .method public run()V
-    .registers 7
+    .registers 5
 
     .prologue
-    .line 793
+    .line 752
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/ai/AutoSession;->tick()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$000()V
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4a
 
-    .line 794
+    .line 756
+    :goto_3
+    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+
+    move-result-object v0
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->IDLE:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+
+    if-eq v0, v1, :cond_1c
+
+    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+
+    move-result-object v0
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+
+    if-eq v0, v1, :cond_1c
+
+    .line 757
+    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->handler:Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$200()Landroid/os/Handler;
+
+    move-result-object v0
+
+    const-wide/16 v2, 0xfa
+
+    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 759
+    :cond_1c
+    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+
+    move-result-object v0
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+
+    if-eq v0, v1, :cond_2c
+
     # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -47,51 +89,50 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
-    if-ne v0, v1, :cond_8a
+    if-ne v0, v1, :cond_64
 
-    .line 795
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$200()Ljava/util/List;
+    :cond_2c
+    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$300()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-result-object v0
 
-    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    if-eqz v0, :cond_64
+
+    .line 760
+    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->panelRoot:Landroid/view/View;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$400()Landroid/view/View;
+
+    move-result-object v0
+
+    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$300()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-result-object v1
 
-    :goto_13
-    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+    iget-object v1, v1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
-    move-result v0
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->name()Ljava/lang/String;
 
-    if-eqz v0, :cond_8a
+    move-result-object v1
 
-    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoLook;->apply(Landroid/view/View;Ljava/lang/String;)V
 
-    move-result-object v0
+    .line 764
+    :goto_43
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->refresh()V
 
-    check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
+    .line 765
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoHints;->refresh()V
 
-    .line 796
-    iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->userMin:D
+    .line 766
+    return-void
 
-    iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
-
-    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->min(DD)D
-
-    move-result-wide v2
-
-    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->userMin:D
-    :try_end_29
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_29} :catch_2a
-
-    goto :goto_13
-
-    .line 801
-    :catch_2a
+    .line 753
+    :catch_4a
     move-exception v0
 
-    .line 802
+    .line 754
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -114,113 +155,11 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 804
-    :goto_43
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+    goto :goto_3
 
-    move-result-object v0
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->IDLE:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    if-eq v0, v1, :cond_5c
-
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    move-result-object v0
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    if-eq v0, v1, :cond_5c
-
-    .line 805
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$300()Landroid/os/Handler;
-
-    move-result-object v0
-
-    const-wide/16 v2, 0xfa
-
-    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    .line 807
-    :cond_5c
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    move-result-object v0
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    if-eq v0, v1, :cond_6c
-
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$100()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    move-result-object v0
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    if-ne v0, v1, :cond_95
-
-    :cond_6c
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$400()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_95
-
-    .line 808
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->panelRoot:Landroid/view/View;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$500()Landroid/view/View;
-
-    move-result-object v0
-
-    # getter for: Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->access$400()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
-
-    move-result-object v1
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
-
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->name()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoLook;->apply(Landroid/view/View;Ljava/lang/String;)V
-
-    .line 812
-    :goto_83
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->refresh()V
-
-    .line 813
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoHints;->refresh()V
-
-    .line 814
-    return-void
-
-    .line 800
-    :cond_8a
-    :try_start_8a
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->currentExercise()I
-
-    move-result v0
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoTemplates;->met(I)D
-
-    move-result-wide v0
-
-    sput-wide v0, Lcom/isaigu/gymapp/ai/AiEnergy;->exerciseMet:D
-    :try_end_94
-    .catch Ljava/lang/Throwable; {:try_start_8a .. :try_end_94} :catch_2a
-
-    goto :goto_43
-
-    .line 810
-    :cond_95
+    .line 762
+    :cond_64
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoLook;->restore()V
 
-    goto :goto_83
+    goto :goto_43
 .end method

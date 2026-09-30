@@ -23,7 +23,7 @@ package com.isaigu.gymapp.ai;
  *       extensor uptake ~300–350, Andersen &amp; Saltin 1985; lower for occluding isometric work).
  *       Active pause adds its own part (pause strength and frequency). Disabled channels count 0;
  *       the arms channel is sent reduced by pulse width (ChannelStrengthScale: ÷5 at 150 µs … ÷10 at 400 µs) and counted so.</li>
- *   <li><b>The exercise done with the impulse</b> (automatic programs with exercises, {@link #exerciseMet}):
+ *   <li><b>The exercise done with the impulse</b> (Smart Session with exercises, {@link #exerciseMet}):
  *       its own cost (MET − 1) · 3.5 ml/kg/min joins the channel branch — full in the impulse, 30 % in the pause
  *       (coming back, holding). [D]</li>
  *   <li><b>Why max, not sum:</b> once the heart rate reflects the load, the evoked work is already in
@@ -98,7 +98,7 @@ public final class AiEnergy {
         public double[] toleratedCharge;
     }
 
-    /** MET of the exercise done now (0 = none); set once a second by the automatic mode. */
+    /** MET of the exercise done now (0 = none); set every tick by the Smart Session (AiSession). */
     public static volatile double exerciseMet;
     /** Share of the exercise's cost in the pause of the cycle. [D] */
     public static final double EXERCISE_PAUSE_SHARE = 0.3;

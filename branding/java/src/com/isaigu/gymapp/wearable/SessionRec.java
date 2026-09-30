@@ -10,7 +10,7 @@ import org.json.JSONObject;
  * One training of one client, one sample per second: what the suit got (main strength, the ten
  * channel shares, Hz, µs, impulse / pause seconds, active pause), whether it ran or was paused, the
  * band heart rate (only for the client in the leading slot — the band is on that person) and the
- * Smart Session phase, the exercise of an automatic program (index + 1, 0 = none). After the end: 60 s of heart rate for the recovery value.
+ * Smart Session phase and exercise (index + 1, 0 = none). After the end: 60 s of heart rate for the recovery value.
  * The report page (assets/report) does all the maths from these columns.
  */
 final class SessionRec {

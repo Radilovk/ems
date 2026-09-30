@@ -48,8 +48,6 @@ public final class AutoSession {
         String block;
         int cal;
         double user = 1.0;
-        /** Lowest own factor during the run: how far the strength was taken down (template level). */
-        double userMin = 1.0;
         final int[] zoneOffset = new int[AutoModel.CHANNELS];
         int lastStrength = -1;
         int writtenStrength = -1;
@@ -565,36 +563,10 @@ public final class AutoSession {
         return false;
     }
 
-    /** The exercises of the running session (null: the program has none). */
+    /** Example exercises for the running program (null: the program has none). Only an example here: no link to
+     *  the cycles, no share in kcal or load, no history — the Smart Session is the mode that follows exercises. */
     static AutoTemplates.Script getScript() {
         return script;
-    }
-
-    /** The template's station now: read at the start of the running cycle, so it changes on a cycle boundary only;
-     *  null outside a running session of a program with exercises. */
-    static AutoTemplates.At currentAt(long now) {
-        AutoEngine e = engine;
-        AutoTemplates.Script sc = script;
-        if (stage != Stage.RUNNING || e == null || sc == null || e.getState() != AutoEngine.State.RUN) {
-            return null;
-        }
-        AutoModel.Phase ph = e.phase();
-        AutoEngine.Cmd cmd = e.getCurrent();
-        if (ph == null || cmd == null) {
-            return null;
-        }
-        double cycleAgo = Math.max(0, (now - cmd.startMs) / 1000.0);
-        return sc.at(e.getPhaseIndex(), Math.max(0, e.phaseElapsed() - cycleAgo), ph.durationS);
-    }
-
-    /** Index of the exercise done now (AutoTemplates table), −1 when none — for the record and the kcal. */
-    public static int currentExercise() {
-        try {
-            AutoTemplates.At a = currentAt(System.currentTimeMillis());
-            return a != null ? AutoTemplates.index(a.id) : -1;
-        } catch (Throwable t) {
-            return -1;
-        }
     }
 
     public static void startRun(Context c) {
@@ -613,14 +585,7 @@ public final class AutoSession {
         script = null;
         ExerciseFigure.preload(c);
         try {
-            long lead = -1;
-            for (Row r : rows) {
-                r.userMin = 1.0;
-                if (lead < 0 && r.block == null) {
-                    lead = r.userId;
-                }
-            }
-            script = AutoTemplates.script(plan, AutoHistory.outcomes(c, lead, plan.program.id));
+            script = AutoTemplates.script(plan, null);         // the profile's level, no history
             if (script != null) {
                 WearableBleDiagLog.log("auto", "template " + script.programId + " L" + script.level);
             }
@@ -763,11 +728,6 @@ public final class AutoSession {
             for (Row r : rows) {
                 if (r.block == null && r.cal > 0) {
                     AutoHistory.record(c, r.userId, plan.program.isActive(), engine.getElapsedS(), now);
-                    if (script != null && plan.totalS > 0) {
-                        AutoHistory.remember(c, r.userId, plan.program.id, new AutoTemplates.Outcome(script.level,
-                                Math.min(1, engine.getElapsedS() / plan.totalS), Math.max(0, 1 - r.userMin),
-                                engine.getCapHits() > 0));
-                    }
                 }
             }
         }
@@ -783,7 +743,6 @@ public final class AutoSession {
 
     private static void stopTicker() {
         handler.removeCallbacks(ticker);
-        AiEnergy.exerciseMet = 0;
     }
 
     static final class Ticker implements Runnable {
@@ -791,13 +750,6 @@ public final class AutoSession {
         public void run() {
             try {
                 tick();
-                if (stage == Stage.RUNNING) {
-                    for (Row r : rows) {
-                        r.userMin = Math.min(r.userMin, r.user);
-                    }
-                }
-                // the movement's own cost joins the live kcal (the pulse branch still wins when it is higher)
-                AiEnergy.exerciseMet = AutoTemplates.met(currentExercise());
             } catch (Throwable t) {
                 WearableBleDiagLog.log("auto", "tick: " + t);
             }

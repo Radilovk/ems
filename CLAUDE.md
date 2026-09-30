@@ -53,6 +53,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 - Commits: `type(scope): summary (band 5.9.N / 1.1.N-ai)` for source, then `Build 1.1.N-ai` for the APK.
 
 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
+**Golden rules: `docs/xems-ux-golden-rules.md` — read it before any UI work and run its checklist.**
 - **Attention priority:** the one thing the user needs now is biggest and first; secondary info smaller or folded;
   rare/edge content (e.g. contraindication lists) behind one question, never a central block.
 - **Intuitive:** one-tap choices over typing and dropdowns; plain, warm, natural Bulgarian (no form-speak);
@@ -63,6 +64,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 ## Deeper context (read only the section you need — headings/lines are in MAP)
 | Topic | File |
 |---|---|
+| UX golden rules (hierarchy, derive-don't-ask, fewest steps, ⓘ, states) — before any UI | `docs/xems-ux-golden-rules.md` |
 | UI bug patterns (seek, overlays, timers, swipe) — read before new UI | `branding/UI-PITFALLS.md` |
 | Screens, train-row columns, `@id`s, controls, BLE path | `branding/ui-map.yaml`, `branding/train-controls-map.yaml` |
 | Dev workflow, adding UI elements | `branding/DEVELOPMENT.md` (+ `branding/CLAUDE.md`) |

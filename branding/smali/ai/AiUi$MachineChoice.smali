@@ -26,44 +26,44 @@
     .registers 2
 
     .prologue
-    .line 993
+    .line 1043
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 994
+    .line 1044
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$MachineChoice;->c:Landroid/content/Context;
 
-    .line 995
+    .line 1045
     return-void
 .end method
 
 
 # virtual methods
 .method public onSelect(I)V
-    .registers 4
+    .registers 5
 
     .prologue
-    .line 999
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$MachineChoice;->c:Landroid/content/Context;
+    const/4 v1, 0x1
+
+    .line 1049
+    iget-object v2, p0, Lcom/isaigu/gymapp/ai/AiUi$MachineChoice;->c:Landroid/content/Context;
 
     if-nez p1, :cond_d
 
-    const/4 v0, 0x1
+    move v0, v1
 
-    :goto_5
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/AutoHistory;->setCardioMachine(Landroid/content/Context;Z)V
+    :goto_6
+    invoke-static {v2, v0}, Lcom/isaigu/gymapp/ai/AutoHistory;->setCardioMachine(Landroid/content/Context;Z)V
 
-    .line 1000
-    const/4 v0, 0x3
-
+    .line 1050
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
+    invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 1001
+    .line 1051
     return-void
 
-    .line 999
+    .line 1049
     :cond_d
     const/4 v0, 0x0
 
-    goto :goto_5
+    goto :goto_6
 .end method

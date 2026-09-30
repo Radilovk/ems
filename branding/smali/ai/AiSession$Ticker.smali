@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 625
+    .line 639
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 625
+    .line 639
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiSession$Ticker;-><init>()V
 
     return-void
@@ -44,15 +44,24 @@
     .registers 5
 
     .prologue
-    .line 629
+    .line 643
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/ai/AiSession;->tick()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$100()V
     :try_end_3
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_42
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4a
 
-    .line 633
+    .line 647
     :goto_3
+    # getter for: Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$200()Lcom/isaigu/gymapp/ai/AiSession$Stage;
+
+    move-result-object v0
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->SETUP:Lcom/isaigu/gymapp/ai/AiSession$Stage;
+
+    if-eq v0, v1, :cond_3d
+
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$200()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -60,7 +69,7 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REST_HR:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    if-eq v0, v1, :cond_35
+    if-eq v0, v1, :cond_3d
 
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$200()Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -69,7 +78,7 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    if-eq v0, v1, :cond_35
+    if-eq v0, v1, :cond_3d
 
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$200()Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -78,9 +87,9 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    if-eq v0, v1, :cond_35
+    if-eq v0, v1, :cond_3d
 
-    .line 634
+    .line 648
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$200()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -88,16 +97,16 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
-    if-ne v0, v1, :cond_3e
+    if-ne v0, v1, :cond_46
 
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$300()Lcom/isaigu/gymapp/ai/AiEngine;
 
     move-result-object v0
 
-    if-eqz v0, :cond_3e
+    if-eqz v0, :cond_46
 
-    .line 635
+    .line 649
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$300()Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -109,10 +118,10 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiEngine$State;->RECOVERY:Lcom/isaigu/gymapp/ai/AiEngine$State;
 
-    if-ne v0, v1, :cond_3e
+    if-ne v0, v1, :cond_46
 
-    .line 636
-    :cond_35
+    .line 650
+    :cond_3d
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$400()Landroid/os/Handler;
 
@@ -122,18 +131,18 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 638
-    :cond_3e
+    .line 652
+    :cond_46
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->refresh()V
 
-    .line 639
+    .line 653
     return-void
 
-    .line 630
-    :catch_42
+    .line 644
+    :catch_4a
     move-exception v0
 
-    .line 631
+    .line 645
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;

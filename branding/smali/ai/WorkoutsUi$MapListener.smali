@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 591
+    .line 618
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,16 +34,16 @@
     .registers 2
 
     .prologue
-    .line 601
+    .line 628
     const/4 v0, 0x1
 
     # setter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$102(Z)Z
 
-    .line 602
+    .line 629
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshFooter()V
 
-    .line 603
+    .line 630
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -51,7 +51,7 @@
 
     if-eqz v0, :cond_1a
 
-    .line 604
+    .line 631
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -65,7 +65,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
-    .line 606
+    .line 633
     :cond_1a
     return-void
 .end method
@@ -74,7 +74,7 @@
     .registers 3
 
     .prologue
-    .line 594
+    .line 621
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -82,7 +82,7 @@
 
     if-eqz v0, :cond_13
 
-    .line 595
+    .line 622
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$000()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -96,7 +96,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
-    .line 597
+    .line 624
     :cond_13
     return-void
 .end method

@@ -24,7 +24,13 @@
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)V
     .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
+    .prologue
     .line 603
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$5;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -36,26 +42,26 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 3
 
+    .prologue
     .line 607
     :try_start_0
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$5;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$5;->val$s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    iget-object p1, p1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
+    iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
-    invoke-virtual {p1}, Landroid/app/Dialog;->dismiss()V
+    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
     :try_end_7
-    .catchall {:try_start_0 .. :try_end_7} :catchall_8
-
-    .line 609
-    goto :goto_9
-
-    .line 608
-    :catchall_8
-    move-exception p1
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
     .line 610
-    :goto_9
+    :goto_7
     return-void
+
+    .line 608
+    :catch_8
+    move-exception v0
+
+    goto :goto_7
 .end method

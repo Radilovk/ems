@@ -640,6 +640,21 @@ public final class XemsUi {
         return s;
     }
 
+    /**
+     * The sheet as a full screen (a page, not a floating dialog): edge to edge, no rounded frame, no dim behind.
+     * For work surfaces (the workout map) where the room matters more than the context behind.
+     */
+    public static void fullScreen(Shell s) {
+        Window w = s.dialog.getWindow();
+        View root = (View) s.body.getParent().getParent();
+        root.setBackgroundColor(CARD);
+        if (w != null) {
+            w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            w.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            w.getDecorView().setPadding(0, 0, 0, 0);
+        }
+    }
+
     /** Cap the dialog height (body scrolls) once content is known. */
     public static void fitHeight(Activity a, Shell s, float screenShare) {
         Window w = s.dialog.getWindow();

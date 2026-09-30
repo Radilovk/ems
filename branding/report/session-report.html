@@ -543,11 +543,14 @@ function blocks(r,T){
   out.forEach(b=>{const m=Math.floor((b.a+b.b)/2);b.hz=r.hz[m];b.us=r.pw[m];b.on=r.on[m];b.off=r.off[m];});
   return out;
 }
+// The exercise's own work on its muscles: a main muscle counts like a channel at EX_LOAD of full current
+// (SessionRec.EXERCISE_LOAD / 100), EX_PAUSE of it in the pause (AiEnergy.EXERCISE_PAUSE_SHARE). Estimates.
+const EX_LOAD=.25,EX_PAUSE=.3;
 function fromRec(r,tol){
   const T=r.run.length,pers=r.person||{};
   const rest=pers.restHr||CLIENT.restHr||65,age=pers.age||CLIENT.age||35,max=Math.round((pers.sex||CLIENT.sex)==="F"?206-.88*age:208-.7*age);
   const hasHr=r.hr.some(v=>v>0);const PHs=blocks(r,T);
-  const s=[];let last=0,hrN=0,act=0,apOn=false;
+  const s=[];let last=0,hrN=0,act=0,apOn=false,hasEx=false;
   for(let t=0;t<T;t++){
     const paused=!r.run[t];const on=r.on[t],off=r.off[t],cyc=Math.max(1,on+off);const pas=!!(r.pv&&r.pv[t]===1);
     const imp=r.imp?r.imp[t]===1:(!paused&&(off===0||t%cyc<on));
@@ -560,11 +563,12 @@ function fromRec(r,tol){
     let hr=r.hr[t]||0;if(hr){last=hr;if(!paused)hrN++;}else if(hasHr)hr=last;
     const C=hasHr&&hr?clamp((hr-rest)/(max-rest),0,1):0;
     const b=PHs.find(x=>t>=x.a&&t<x.b)||PHs[PHs.length-1];
-    s.push({t,ph:b?b.id:"",paused,pas,on:imp,S,C,I:hasHr?.55*S+.45*C:S,hr,hz:r.hz[t],us:r.pw[t],ma:r.st[t],chs});
+    const xi=r.ex?r.ex[t]|0:0,X=xi&&r.exs?r.exs[xi]:null;if(X)hasEx=true;   // the exercise of an automatic program
+    s.push({t,ph:b?b.id:"",paused,pas,on:imp,S,C,I:hasHr?.55*S+.45*C:S,hr,hz:r.hz[t],us:r.pw[t],ma:r.st[t],chs,mx:X?X.met:0,xw:X?X.mus:null});
   }
   const pauses=[];let p0=-1;for(let t=0;t<=T;t++){const pz=t<T&&!r.run[t];if(pz&&p0<0)p0=t;if(!pz&&p0>=0){pauses.push([p0,t]);p0=-1;}}
   let recDrop=null;if(hasHr&&r.post&&r.post.filter(v=>v>0).length>=30){const endHr=last;const post=r.post.filter(v=>v>0);recDrop=Math.round(endHr-post[Math.min(59,post.length-1)]);}
-  return{s,pauses,T,recDrop,PH:PHs,hasHr,rest,max,ap:apOn,music:!!r.music,hrShare:act?hrN/act:0};
+  return{s,pauses,T,recDrop,PH:PHs,hasHr,hasEx,rest,max,ap:apOn,music:!!r.music,hrShare:act?hrN/act:0};
 }
 // Personal context: the same stimulus is a bigger training load for a beginner, a heavier or an older person,
 // so their targets (stimulus zone, dose, heart-rate zone) are lower. k = product of the factors below.
@@ -582,7 +586,17 @@ function persona(p,nBefore){
 function personalGoal(g,k){return{...g,s:[clamp(g.s[0]*k,.05,.9),clamp(g.s[1]*Math.min(1.12,k+.08),.15,.98)],c:[clamp(g.c[0]+(k-1)*.3,0,.8),clamp(g.c[1]+(k-1)*.3,.2,.95)],dose:g.dose*k,k};}
 function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const P0=persona(pers,nBefore);const goal=personalGoal(goal0,P0.k);const female=pers&&pers.sex==="F";
-  const s=sim.s;const act=s.filter(x=>!x.paused&&!x.pas);const T=s.length;const n=Math.max(1,act.length);   // the passive phase is not training
+  const s=sim.s;
+  // Exercises with the impulse: the movement's own oxygen cost (MET − 1)·3.5 ml/kg/min — full in the impulse,
+  // EX_PAUSE of it in the pause — joins the current's. Without a pulse its intensity stands in for the heart
+  // (%VO2R ≈ %HRR), so load and zones see the work too; with a pulse the pulse carries it.
+  // The stand-in heart follows the work with the heart's lag (τ ≈ 30 s), not second by second.
+  if(sim.hasEx){const W0=weight||70,vr0=3.5*W0/1000,vx0=Math.min(60,15.3*sim.max/Math.max(40,sim.rest))*W0/1000-vr0,m0=female?.31/.38:1;
+    let e=0;
+    for(const p of s){const w=!p.paused&&!p.pas;p.vx=w&&p.mx?Math.max(0,p.mx-1)*3.5*W0/1000*(p.on?1:EX_PAUSE):0;
+      if(sim.hasHr)continue;e+=((w?(p.S*1.6*W0/75*m0+p.vx)/Math.max(.1,vx0):0)-e)/30;
+      if(w){p.C=clamp(e,0,1);p.I=Math.max(p.I,.55*p.S+.45*p.C);}}}
+  const act=s.filter(x=>!x.paused&&!x.pas);const T=s.length;const n=Math.max(1,act.length);   // the passive phase is not training
   const inGoal=p=>{const ds=Math.max(0,goal.s[0]-p.S,p.S-goal.s[1]);const dc=sim.hasHr?Math.max(0,goal.c[0]-p.C,p.C-goal.c[1]):0;return clamp(1-Math.hypot(ds,dc)/.15,0,1);};
   let main=act.filter(p=>p.t>=T*.15&&p.t<=T*.9);if(main.length<30)main=act;
   const Tg=main.reduce((a,p)=>a+inGoal(p),0)/Math.max(1,main.length);
@@ -594,7 +608,7 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const eff=Math.round(100*(.40*Tg+.30*D+.15*Q+.15*P));
   const load=Math.round(s.reduce((a,p)=>a+p.I,0)/60*10);
   const Wkg=weight||70,vr=3.5*Wkg/1000,vmax=Math.min(60,15.3*sim.max/Math.max(40,sim.rest))*Wkg/1000,musc=female?.31/.38:1;
-  let kcal=0;for(const p of s){const vh=sim.hasHr?vr+p.C*(vmax-vr):0;const ve=vr+p.S*1.6*Wkg/75*musc;kcal+=Math.max(vh,ve)*(4.7+.35*p.I)/60;}
+  let kcal=0;for(const p of s){const vh=sim.hasHr?vr+p.C*(vmax-vr):0;const ve=vr+p.S*1.6*Wkg/75*musc+(p.vx||0);kcal+=Math.max(vh,ve)*(4.7+.35*p.I)/60;}
   const hrs=s.filter(p=>p.hr>0&&!p.paused).map(p=>p.hr);
   const modes=[
     // r = [EMS load from, to, heart-rate reserve from, to] — a partition: strong current is strength work
@@ -611,7 +625,7 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   for(const m of modes)m.f=p=>{const S=p.S/kS;return S>=m.r[0]&&(S<m.r[1]||m.r[1]===1)&&p.C>=m.r[2]&&p.C<m.r[3];};
   for(const m of modes)m.sec=0;
   for(const p of act){const m=modes.find(m=>m.f(p));(m||modes[0]).sec++;}
-  const chDose=CH.map((c,i)=>act.reduce((a,p)=>a+p.chs[i]*(p.on?1:0),0)*c[1]);
+  const chDose=CH.map((c,i)=>act.reduce((a,p)=>a+p.chs[i]*(p.on?1:0)+(p.xw?p.xw[i]/100*EX_LOAD*(p.on?1:EX_PAUSE):0),0)*c[1]);
   const phases=sim.PH.map(ph=>{const xs=s.slice(ph.a,Math.min(ph.b,T));const a=xs.filter(p=>!p.paused);const hh=a.filter(p=>p.hr>0);
     return{...ph,dur:xs.length,act:a.length,S:a.reduce((q,p)=>q+p.S,0)/Math.max(1,a.length),hr:hh.length?Math.round(hh.reduce((q,p)=>q+p.hr,0)/hh.length):0,hrMax:hh.length?Math.max(...hh.map(p=>p.hr)):0,ma:xs.length?Math.max(...xs.map(p=>p.ma)):0};});
   const met=Wkg>0&&T>0?kcal/(Wkg*T/3600):0;
@@ -1082,9 +1096,9 @@ function start(focusId){
   $("#delBtn").hidden=DEMO;
   renderStats();
   if(!has){$("#list").innerHTML="";return;}
+  setTimeout(refreshCard,1500);   // before drawing: a drawing error must not keep the card from the client
   let i=sessions.length-1;if(focusId){const k=sessions.findIndex(s=>String(s.id)===String(focusId));if(k>=0)i=k;}
   show(i);
-  setTimeout(refreshCard,1500);
 }
 function boot(first){
   if(BR){

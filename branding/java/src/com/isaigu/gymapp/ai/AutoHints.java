@@ -37,6 +37,13 @@ public final class AutoHints {
     private static TextView hint;
     private static TextView next;
     private static TextView notice;
+    /** An example exercise for the program (template programs): its own tempo, not tied to the impulse —
+     *  the Smart Session is the mode that follows exercises. It changes every EXAMPLE_S. */
+    private static LinearLayout exBox;
+    private static ExerciseFigure figure;
+    private static TextView exName;
+    private static final long EXAMPLE_S = 12;
+    private static final long EXAMPLE_T0 = System.currentTimeMillis();
     private static int lastPhase = -1;
     private static long phaseStartMs;
     private static int lastTone = -1;
@@ -108,6 +115,21 @@ public final class AutoHints {
         card.addView(top);
 
         mid = XemsUi.horizontal(a);
+        mid.setGravity(Gravity.CENTER_VERTICAL);
+        exBox = XemsUi.vertical(a);
+        exBox.setGravity(Gravity.CENTER_HORIZONTAL);
+        exBox.setVisibility(View.GONE);
+        figure = new ExerciseFigure(a);
+        figure.setCycle(EXAMPLE_T0, 2, 2);                   // its own calm tempo
+        exBox.addView(figure, new LinearLayout.LayoutParams(XemsUi.dp(a, 120), XemsUi.dp(a, 88)));
+        exName = XemsUi.text(a, "", 12, XemsUi.MUTED, false);
+        exName.setGravity(Gravity.CENTER);
+        exName.setMaxLines(2);
+        exBox.addView(exName, new LinearLayout.LayoutParams(XemsUi.dp(a, 130), ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        flp.rightMargin = XemsUi.dp(a, 12);
+        mid.addView(exBox, flp);
         cue = XemsUi.text(a, "", 26, XemsUi.TEXT, true);
         mid.addView(cue, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         count = XemsUi.text(a, "", 30, XemsUi.TEXT, true);
@@ -212,6 +234,20 @@ public final class AutoHints {
             count.setBackgroundDrawable(disc);
         }
 
+        // an example exercise of this phase (a suggestion only: own tempo, rotates every EXAMPLE_S)
+        String ex = null;
+        AutoTemplates.Script sc = AutoSession.getScript();
+        int pi = e.getPhaseIndex();
+        if (sc != null && pi >= 0 && pi < sc.phase.length && sc.phase[pi] != null && sc.phase[pi].length > 0) {
+            String[] l = sc.phase[pi];
+            ex = l[(int) (((now - EXAMPLE_T0) / 1000 / EXAMPLE_S) % l.length)];
+        }
+        exBox.setVisibility(tips && ex != null ? View.VISIBLE : View.GONE);
+        if (ex != null) {
+            figure.setExercise(ex);
+            exName.setText(AiText.t("Пример: ", "Example: ") + AutoTemplates.name(ex));
+        }
+
         String h = AutoCues.phaseHint(plan, ph);
         boolean mainStart = ph != null && !"WARMUP".equals(ph.id) && !ph.isCooldown() && !ph.wave
                 && now - phaseStartMs < FEELING_MS && e.getPhaseIndex() <= 2;
@@ -227,8 +263,8 @@ public final class AutoHints {
 
         String msg = AutoSession.getLastNotice();
         int kind = Math.max(0, Math.min(2, AutoSession.getLastNoticeKind()));
-        long at = AutoSession.getLastNoticeMs();
-        boolean showNotice = msg != null && msg.length() > 0 && now - at < NOTICE_MS[kind];
+        long noticeMs = AutoSession.getLastNoticeMs();
+        boolean showNotice = msg != null && msg.length() > 0 && now - noticeMs < NOTICE_MS[kind];
         if (showNotice) {
             String icon = kind == AutoSession.SAFETY ? "⛔ " : kind == AutoSession.LIMIT ? "⚠ " : "✓ ";
             int color = kind == AutoSession.SAFETY ? XemsUi.DANGER : kind == AutoSession.LIMIT ? XemsUi.AMBER : XemsUi.GO_TEXT;

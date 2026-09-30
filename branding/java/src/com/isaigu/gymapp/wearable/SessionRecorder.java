@@ -88,6 +88,7 @@ public final class SessionRecorder {
         int aiPhase = aiPhase();
         boolean assisted = assistActive();
         String autoProgram = autoProgram();
+        int exercise = aiPhase > 0 ? com.isaigu.gymapp.ai.AiSession.currentExercise() : -1;   // Smart Session only
         boolean music = musicOn();
         boolean leaderTaken = false;
         if (items != null) {
@@ -232,7 +233,7 @@ public final class SessionRecorder {
                 }
                 BandWorkout.onState(r, running);
                 if (!(r.idle > 0)) {
-                    r.sample(it, r.leader && bpm > 0 ? bpm : 0, r.leader ? aiPhase : 0);
+                    r.sample(it, r.leader && bpm > 0 ? bpm : 0, r.leader ? aiPhase : 0, exercise);
                 }
             }
         }

@@ -84,11 +84,14 @@ describe('card lookup', () => {
     assert.equal(lookupHash('abc'), null);
     assert.equal(lookupHash(null), null);
   });
-  it('needs every hash the card has', () => {
+  it('is found by the e-mail or by the phone', () => {
     assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, h('a'), h('b')), true);
-    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, h('a'), h('c')), false);
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, h('a'), h('c')), true);
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, null, h('b')), true);
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, h('a'), null), true);
     assert.equal(lookupMatches({ email_hash: null, phone_hash: h('b') }, h('x'), h('b')), true);
-    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: null }, h('a'), null), true);
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: h('b') }, h('x'), h('y')), false);
+    assert.equal(lookupMatches({ email_hash: h('a'), phone_hash: null }, null, h('a')), false);
     assert.equal(lookupMatches({ email_hash: null, phone_hash: null }, h('a'), h('b')), false);
   });
 });

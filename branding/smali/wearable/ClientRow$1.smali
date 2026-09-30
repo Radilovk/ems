@@ -25,7 +25,7 @@
     .registers 3
 
     .prologue
-    .line 273
+    .line 317
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->values()[Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     move-result-object v0
@@ -165,7 +165,7 @@
 
     goto :goto_33
 
-    .line 273
+    .line 317
     :catch_5d
     move-exception v0
 

@@ -37,6 +37,13 @@ public final class XemsFullscreen {
         }
     }
 
+    /** A popup's content: the immersive flags on its own window too. */
+    public static void immersive(View v) {
+        if (v != null) {
+            v.setSystemUiVisibility(FLAGS);
+        }
+    }
+
     static void applyTo(Window w) {
         if (w == null) {
             return;

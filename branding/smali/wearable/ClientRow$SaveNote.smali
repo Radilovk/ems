@@ -30,19 +30,19 @@
     .registers 6
 
     .prologue
-    .line 293
+    .line 337
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 294
+    .line 338
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$SaveNote;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 295
+    .line 339
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$SaveNote;->field:Landroid/widget/EditText;
 
-    .line 296
+    .line 340
     iput-wide p3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$SaveNote;->userId:J
 
-    .line 297
+    .line 341
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 6
 
     .prologue
-    .line 301
+    .line 345
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -105,10 +105,10 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 302
+    .line 346
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 303
+    .line 347
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -127,10 +127,10 @@
 
     move-result-object v0
 
-    .line 304
+    .line 348
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 306
+    .line 350
     :try_start_4d
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ClientRow$SaveNote;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -140,11 +140,11 @@
     :try_end_54
     .catch Ljava/lang/Throwable; {:try_start_4d .. :try_end_54} :catch_55
 
-    .line 309
+    .line 353
     :goto_54
     return-void
 
-    .line 307
+    .line 351
     :catch_55
     move-exception v0
 

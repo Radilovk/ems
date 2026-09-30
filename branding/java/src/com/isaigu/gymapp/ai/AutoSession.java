@@ -62,6 +62,8 @@ public final class AutoSession {
     private static AutoModel.Input input = new AutoModel.Input();
     private static AutoModel.Plan plan;
     private static AutoEngine engine;
+    /** The session's exercises (active template programs), null otherwise. */
+    private static AutoTemplates.Script script;
     private static final List<Row> rows = new ArrayList<Row>();
     private static AutoEngine.Cmd written;
     private static AutoEngine.Cmd lastApplied;
@@ -561,6 +563,12 @@ public final class AutoSession {
         return false;
     }
 
+    /** Example exercises for the running program (null: the program has none). Only an example here: no link to
+     *  the cycles, no share in kcal or load, no history — the Smart Session is the mode that follows exercises. */
+    static AutoTemplates.Script getScript() {
+        return script;
+    }
+
     public static void startRun(Context c) {
         if (plan == null || !canStart()) {
             return;
@@ -574,6 +582,17 @@ public final class AutoSession {
         engine = new AutoEngine(plan);
         long now = System.currentTimeMillis();
         engine.start(now);
+        script = null;
+        ExerciseFigure.preload(c);
+        try {
+            AutoTemplates.noCardioMachine = !AutoHistory.cardioMachine(c);
+            script = AutoTemplates.script(plan, null);         // the profile's level, no history
+            if (script != null) {
+                WearableBleDiagLog.log("auto", "template " + script.programId + " L" + script.level);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("auto", "template: " + t);
+        }
         seenCorridorExt = 0;
         seenDoseExt = 0;
         seenRaiseLocked = false;

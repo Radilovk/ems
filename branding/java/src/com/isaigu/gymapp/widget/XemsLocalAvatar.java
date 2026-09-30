@@ -275,10 +275,58 @@ public final class XemsLocalAvatar {
             if (a == android.view.MotionEvent.ACTION_UP || a == android.view.MotionEvent.ACTION_CANCEL) {
                 GRAB.remove(v);
             }
-            return g != null && g.booleanValue();
+            if (g == null || !g.booleanValue()) {
+                return false;
+            }
+            steady(v, e, tx, ty);
+            return true;
         } catch (Throwable t) {
             return true;
         }
+    }
+
+    /** Closer to the centre than this part of the ring's radius, the angle is noise. */
+    private static final float DEAD_CORE = 0.45f;
+    /** One move event never turns the ring more than this (a jump across the gap or the centre). */
+    private static final double MAX_STEP = 50;
+
+    /**
+     * The ring's value follows the finger's direction from the centre, so a finger drifting towards the
+     * centre (or across the ends of the ring) swung it to 0 or max. Such a point is moved onto the thumb:
+     * the ring stays where it is and follows again once the finger is back on a sane line.
+     */
+    static void steady(android.view.View v, android.view.MotionEvent e, float tx, float ty) {
+        float cx = v.getWidth() / 2;
+        float cy = v.getHeight() / 2;
+        float rx = tx - cx;
+        float ry = ty - cy;
+        float ring = (float) Math.sqrt(rx * rx + ry * ry);
+        if (ring < 1) {
+            return;
+        }
+        float fx = e.getX() - cx;
+        float fy = e.getY() - cy;
+        float dist = (float) Math.sqrt(fx * fx + fy * fy);
+        boolean hold = dist < ring * DEAD_CORE;
+        if (!hold) {
+            double step = angle(fx, fy, dist) - angle(rx, ry, ring);
+            while (step > 180) {
+                step -= 360;
+            }
+            while (step < -180) {
+                step += 360;
+            }
+            hold = Math.abs(step) > MAX_STEP;
+        }
+        if (hold) {
+            e.setLocation(tx, ty);
+        }
+    }
+
+    /** CircleSeekBar's angle: 0 at the top, clockwise, degrees. */
+    private static double angle(float dx, float dy, float dist) {
+        double deg = Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, dy / dist))));
+        return dx < 0 ? deg + 180 : 180 - deg;
     }
 
     /**

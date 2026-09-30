@@ -89,4 +89,71 @@ public final class AutoHistory {
         } catch (Throwable ignored) {
         }
     }
+
+    // ------------------------------------------------------------------ how the template sessions went
+
+    static final String TEMPLATE_PREFS = "xems_auto_templates";
+
+    /** The studio has a cardio machine (elliptical / bike / treadmill) — asked once on the AI plan, kept per tablet. */
+    public static boolean cardioMachine(Context c) {
+        try {
+            return c == null || c.getSharedPreferences(TEMPLATE_PREFS, Context.MODE_PRIVATE).getBoolean("machine", true);
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
+    public static void setCardioMachine(Context c, boolean has) {
+        try {
+            c.getSharedPreferences(TEMPLATE_PREFS, Context.MODE_PRIVATE).edit().putBoolean("machine", has).apply();
+        } catch (Throwable ignored) {
+        }
+        AutoTemplates.noCardioMachine = !has;
+    }
+
+    /** The last (up to 3) outcomes of this client in this program, oldest first. */
+    public static List<AutoTemplates.Outcome> outcomes(Context c, long userId, String programId) {
+        List<AutoTemplates.Outcome> out = new java.util.ArrayList<AutoTemplates.Outcome>();
+        if (c == null || programId == null) {
+            return out;
+        }
+        try {
+            String v = c.getSharedPreferences(TEMPLATE_PREFS, Context.MODE_PRIVATE)
+                    .getString("o" + userId + "|" + programId, "");
+            for (String rec : v.split(";")) {
+                String[] f = rec.split(":");
+                if (f.length == 4) {
+                    out.add(new AutoTemplates.Outcome(Integer.parseInt(f[0]), Double.parseDouble(f[1]),
+                            Double.parseDouble(f[2]), "1".equals(f[3])));
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return out;
+    }
+
+    /** A template session ended: level, share of the time done, strength taken down, pulse on the ceiling. */
+    public static void remember(Context c, long userId, String programId, AutoTemplates.Outcome o) {
+        if (c == null || programId == null || o == null) {
+            return;
+        }
+        try {
+            List<AutoTemplates.Outcome> list = outcomes(c, userId, programId);
+            list.add(o);
+            while (list.size() > 3) {
+                list.remove(0);
+            }
+            StringBuilder b = new StringBuilder();
+            for (AutoTemplates.Outcome x : list) {
+                if (b.length() > 0) {
+                    b.append(';');
+                }
+                b.append(x.level).append(':').append(String.format(java.util.Locale.ROOT, "%.2f", x.done)).append(':')
+                        .append(String.format(java.util.Locale.ROOT, "%.2f", x.cut)).append(':').append(x.hrOver ? 1 : 0);
+            }
+            c.getSharedPreferences(TEMPLATE_PREFS, Context.MODE_PRIVATE).edit()
+                    .putString("o" + userId + "|" + programId, b.toString()).apply();
+        } catch (Throwable ignored) {
+        }
+    }
 }

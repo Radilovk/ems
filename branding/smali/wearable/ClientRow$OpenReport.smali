@@ -30,19 +30,19 @@
     .registers 6
 
     .prologue
-    .line 364
+    .line 408
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 365
+    .line 409
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenReport;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 366
+    .line 410
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenReport;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 367
+    .line 411
     iput-wide p3, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenReport;->id:J
 
-    .line 368
+    .line 412
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 6
 
     .prologue
-    .line 372
+    .line 416
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -61,7 +61,7 @@
 
     move-result-object v0
 
-    .line 374
+    .line 418
     :try_start_8
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenReport;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -71,22 +71,22 @@
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_f} :catch_19
 
-    .line 377
+    .line 421
     :goto_f
     if-eqz v0, :cond_18
 
-    .line 378
+    .line 422
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenReport;->u:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/ClientRow$OpenReport;->id:J
 
     invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/wearable/ReportScreen;->open(Landroid/app/Activity;Ljava/lang/Object;J)V
 
-    .line 380
+    .line 424
     :cond_18
     return-void
 
-    .line 375
+    .line 419
     :catch_19
     move-exception v1
 

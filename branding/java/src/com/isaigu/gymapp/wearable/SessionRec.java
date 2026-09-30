@@ -10,7 +10,7 @@ import org.json.JSONObject;
  * One training of one client, one sample per second: what the suit got (main strength, the ten
  * channel shares, Hz, µs, impulse / pause seconds, active pause), whether it ran or was paused, the
  * band heart rate (only for the client in the leading slot — the band is on that person) and the
- * Smart Session phase. After the end: 60 s of heart rate for the recovery value.
+ * Smart Session phase and exercise (index + 1, 0 = none). After the end: 60 s of heart rate for the recovery value.
  * The report page (assets/report) does all the maths from these columns.
  */
 final class SessionRec {
@@ -59,6 +59,10 @@ final class SessionRec {
     final SessionInts phz = new SessionInts();
     final SessionInts dis = new SessionInts();
     final SessionInts ph = new SessionInts();
+    /** The exercise done this second: AutoTemplates index + 1, 0 = none. */
+    final SessionInts ex = new SessionInts();
+    /** Exercises that appeared (their MET and muscles go into the record for the report page). */
+    final boolean[] exUsed = new boolean[64];
     /** 1 while the suit is in the impulse part of the ON/OFF cycle (TrainItem toggles data.inStart). */
     final SessionInts imp = new SessionInts();
     /** 1 = a passive second (massage: phase 2 after a manual training, or a procedure on its own). */
@@ -66,7 +70,8 @@ final class SessionRec {
     final SessionInts[] ch = new SessionInts[CH];
     final SessionInts post = new SessionInts();
     final int[] chPeak = new int[CH];
-    /** Work per channel: Σ (share × main strength) over the impulse seconds — the muscle map's load. */
+    /** Work per channel: Σ (share × main strength) over the impulse seconds — the muscle map's load — plus the
+     *  exercise's own work on its muscles (EXERCISE_LOAD at a main muscle in the impulse, 30 % of it in the pause). */
     final long[] chLoad = new long[CH];
 
     /** Seconds the slot has been paused without a break. */
@@ -150,7 +155,11 @@ final class SessionRec {
         }
     }
 
-    void sample(TrainItem item, int bpm, int aiPhase) {
+    /** A main muscle working in the exercise counts like a channel at this share × strength (0–100 scale). [D]
+     *  The report page uses the same value (EX_LOAD). */
+    static final int EXERCISE_LOAD = 25;
+
+    void sample(TrainItem item, int bpm, int aiPhase, int exercise) {
         ProgramDataBean b = null;
         try {
             b = item.getTrainProgram() != null ? item.getTrainProgram().matchProgram() : null;
@@ -193,6 +202,19 @@ final class SessionRec {
         }
         dis.add(mask);
         ph.add(aiPhase);
+        int[] mus = running && !passive && exercise >= 0 ? com.isaigu.gymapp.ai.AutoTemplates.muscles(exercise) : null;
+        ex.add(mus != null ? exercise + 1 : 0);
+        if (mus != null) {
+            if (exercise < exUsed.length) {
+                exUsed[exercise] = true;
+            }
+            int pct = item.data.inStart ? 100 : 30;
+            for (int i = 0; i < CH && i < mus.length; i++) {
+                if ((mask & (1 << i)) == 0) {
+                    chLoad[i] += mus[i] * EXERCISE_LOAD * pct / 10000;
+                }
+            }
+        }
     }
 
     /** Load per muscle, 0–100 against the most worked one (all 0 when nothing ran). */
@@ -277,6 +299,8 @@ final class SessionRec {
         col(b, "phz", phz);
         col(b, "dis", dis);
         col(b, "ph", ph);
+        col(b, "ex", ex);
+        exercises(b);
         col(b, "imp", imp);
         col(b, "pv", pv);
         col(b, "post", post);
@@ -289,6 +313,32 @@ final class SessionRec {
         }
         b.append("]}");
         return b.toString();
+    }
+
+    /** "exs": index → {id, met, mus} of the exercises that ran (the report page needs no table of its own). */
+    private void exercises(StringBuilder b) {
+        b.append(",\"exs\":{");
+        boolean first = true;
+        for (int i = 0; i < exUsed.length; i++) {
+            int[] mus = exUsed[i] ? com.isaigu.gymapp.ai.AutoTemplates.muscles(i) : null;
+            if (mus == null) {
+                continue;
+            }
+            if (!first) {
+                b.append(',');
+            }
+            first = false;
+            b.append('"').append(i + 1).append("\":{\"id\":\"").append(com.isaigu.gymapp.ai.AutoTemplates.idAt(i))
+                    .append("\",\"met\":").append(com.isaigu.gymapp.ai.AutoTemplates.met(i)).append(",\"mus\":[");
+            for (int k = 0; k < mus.length; k++) {
+                if (k > 0) {
+                    b.append(',');
+                }
+                b.append(mus[k]);
+            }
+            b.append("]}");
+        }
+        b.append('}');
     }
 
     private static void col(StringBuilder b, String name, SessionInts v) {

@@ -110,6 +110,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
   python3 "${ROOT}/scripts/apply-ai-session.py"
+  python3 "${ROOT}/scripts/apply-exercise-assets.py"
   if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
     bash "${ROOT}/scripts/compile-xems-local-java.sh"
   fi
@@ -158,6 +159,7 @@ python3 "${ROOT}/scripts/apply-part-strength.py"
 # After the active-pause listeners are final: 2nd impulse from Hz or MA, 5 s auto-clear (TrainIndex).
 python3 "${ROOT}/scripts/apply-train-index.py"
 python3 "${ROOT}/scripts/apply-double-impulse.py"
+python3 "${ROOT}/scripts/apply-suit-reconnect.py"
 # After every train row layout patch: name / time / status icons / big + and − (column right of the avatar).
 python3 "${ROOT}/scripts/apply-train-info-column.py"
 # Every app class that smali references must be installed (a missed one = NoClassDefFoundError at run time).

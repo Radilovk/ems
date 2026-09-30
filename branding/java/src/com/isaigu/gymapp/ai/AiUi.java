@@ -908,6 +908,13 @@ final class AiUi {
                 + " · " + AiText.mmss(plan.totalS));
         LinearLayout col = vertical(a);
         LinearLayout tiles = horizontal(a);
+        tiles.setGravity(Gravity.CENTER_VERTICAL);
+        // the session's picture: what it trains, for this client's sex
+        String artProg = AutoTemplates.programForAi(in.goal, in.mode, in.age);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        alp.rightMargin = dp(a, 14);
+        tiles.addView(ProgramArt.tile(a, artProg, in.mode == Mode.ACTIVE, in.sex, 132, 100), alp);
         String bpmU = " " + AiText.t("уд/мин", "bpm");
         bigTile(a, tiles, AiText.t("Покой", "Rest"), p.hrAvailable ? p.hrRest + "" : "—", p.hrAvailable ? bpmU : "");
         String corridor = p.hrAvailable
@@ -934,6 +941,20 @@ final class AiUi {
         tl.addView(labels);
         col.addView(tl, matchWrap(a, 16));
 
+        // The cardio plan has a cardio-machine station: one tap, remembered for this tablet.
+        String exProg = AutoTemplates.programForAi(in.goal, in.mode, in.age);
+        if (exProg != null && AutoTemplates.usesMachine(exProg)) {
+            LinearLayout mc = card(a);
+            mc.setOrientation(LinearLayout.HORIZONTAL);
+            mc.setGravity(Gravity.CENTER_VERTICAL);
+            mc.addView(text(a, AiText.t("Има ли кардио тренажор в залата?", "Is there a cardio machine in the studio?"),
+                    16, AiViews.TEXT, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            mc.addView(segmented(a, new String[] {AiText.t("Има", "Yes"), AiText.t("Няма", "No")},
+                    AutoHistory.cardioMachine(a) ? 0 : 1, null, new MachineChoice(a)),
+                    new LinearLayout.LayoutParams(dp(a, 260), ViewGroup.LayoutParams.WRAP_CONTENT));
+            col.addView(mc, matchWrap(a, 14));
+        }
+
         // Only what needs attention: no band, and the profile flags.
         if (!p.hrAvailable) {
             col.addView(banner(a, AiViews.WARN, AiText.t("Без гривна — управлява само планът.",
@@ -955,6 +976,20 @@ final class AiUi {
         }
         body.addView(scroll(a, col));
         setupFooter(a, AiText.t("Калибриране на силата", "Calibrate strength"), true);
+    }
+
+    static final class MachineChoice implements SegmentCallback {
+        private final Context c;
+
+        MachineChoice(Context c) {
+            this.c = c;
+        }
+
+        @Override
+        public void onSelect(int i) {
+            AutoHistory.setCardioMachine(c, i == 0);
+            go(STEP_PLAN);
+        }
     }
 
     // ================================================================ 6 · calibration
@@ -1077,21 +1112,33 @@ final class AiUi {
         LinearLayout col = vertical(a);
         LinearLayout top = horizontal(a);
 
-        // Column 1: phase
+        // Column 1: the exercise now (biggest: it is what the client does), then the phase
+        final boolean withEx = AiSession.getExercises() != null;
         LinearLayout phaseCard = card(a);
-        final TextView phaseName = text(a, "", 30, AiViews.TEXT, true);
+        final ExerciseFigure exFig = new ExerciseFigure(a);
+        final TextView exName = text(a, "", 24, AiViews.TEXT, true);
+        final TextView exNext = text(a, "", 14, AiViews.OK, true);
+        final TextView phaseName = text(a, "", withEx ? 17 : 30, AiViews.TEXT, true);
         final TextView phaseLeft = text(a, "", 16, AiViews.MUTED, false);
         final TextView stateChip = text(a, "", 13, AiViews.ON_ACCENT, true);
         stateChip.setPadding(dp(a, 12), dp(a, 5), dp(a, 12), dp(a, 5));
         phaseCard.addView(stateChip, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        phaseName.setPadding(0, dp(a, 14), 0, dp(a, 2));
+        if (withEx) {
+            LinearLayout.LayoutParams fp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 118));
+            fp.topMargin = dp(a, 8);
+            phaseCard.addView(exFig, fp);
+            exName.setMaxLines(2);
+            phaseCard.addView(exName);
+            phaseCard.addView(exNext);
+        }
+        phaseName.setPadding(0, dp(a, withEx ? 8 : 14), 0, dp(a, 2));
         phaseCard.addView(phaseName);
         phaseCard.addView(phaseLeft);
         final AiViews.Timeline tl = new AiViews.Timeline(a);
         tl.setPlan(plan);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 22));
-        tlp.topMargin = dp(a, 22);
+        tlp.topMargin = dp(a, withEx ? 10 : 22);
         phaseCard.addView(tl, tlp);
         final TextView total = text(a, "", 13, AiViews.MUTED, false);
         total.setPadding(0, dp(a, 10), 0, 0);
@@ -1136,7 +1183,7 @@ final class AiUi {
         LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         mp.leftMargin = dp(a, 14);
         top.addView(meters, mp);
-        col.addView(top, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 320)));
+        col.addView(top, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, withEx ? 400 : 320)));
 
         // Decision ticker
         LinearLayout ticker = card(a);
@@ -1227,6 +1274,27 @@ final class AiUi {
                 int pc = AiViews.phaseColor(ph.id);
                 phaseName.setText(AiText.phase(ph.id));
                 phaseName.setTextColor(pc);
+                AiExercises xs = AiSession.getExercises();
+                if (withEx && xs != null) {
+                    String cur = xs.current(e);
+                    String nx = xs.next();
+                    // In the rest the next exercise is the news; in work, the one now.
+                    String show = cur != null ? cur : nx;
+                    exFig.setVisibility(show != null ? View.VISIBLE : View.INVISIBLE);
+                    exFig.setExercise(show);
+                    if (cur != null) {
+                        exFig.setCycle(xs.getCycleStartMs(), xs.getOnS(), Math.max(1, xs.getOffS()));
+                    } else {
+                        exFig.setCycle(0, 2, 2);                     // the rest: a calm preview
+                    }
+                    exName.setText(cur != null ? AutoTemplates.name(cur)
+                            : nx != null ? AiText.t("Следва: ", "Next: ") + AutoTemplates.name(nx) : "");
+                    exName.setTextColor(cur != null ? AiViews.TEXT : AiViews.OK);
+                    exNext.setText(cur != null && nx != null ? AiText.t("Следва: ", "Next: ") + AutoTemplates.name(nx)
+                            : cur != null && xs.isEasier() ? AiText.t("По-леко — умората е висока", "Easier — fatigue is high") : "");
+                    exNext.setTextColor(cur != null && nx == null && xs.isEasier() ? AiViews.WARN : AiViews.OK);
+                    exNext.setVisibility(exNext.getText().length() > 0 ? View.VISIBLE : View.GONE);
+                }
                 phaseLeft.setText(AiText.t("остават ", "remaining ") + AiText.mmss(ph.durationS - e.getPhaseElapsedS())
                         + (e.isInBlock() ? AiText.t(" · блок ", " · block ") + (e.getBlocks().size() + 1) : ""));
                 stateChip.setText(AiText.state(st, e.getPauseReason()));

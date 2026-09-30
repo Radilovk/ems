@@ -15,7 +15,7 @@ import java.util.WeakHashMap;
  *       on the selected muscle groups again;</li>
  *   <li>the second impulse (active pause) turns on from either of its buttons, Hz or MA, and always starts
  *       at the main impulse's strength. It belongs to the running mode (Основен, Кардио, Масаж each have their
- *       own, set in ⚙ too); Мускули has none.</li>
+ *       own, set in ⚙ too); Мускули has none. A click on the selected (green) Hz or MA turns it off.</li>
  * </ul>
  * Hooks: TrainPause{Hz,Ma}ValueClickListener.onClick (scripts/apply-train-index.py), SessionRecorder tick.
  */
@@ -50,10 +50,8 @@ public final class TrainIndex {
                 b.activePause = true;                      // on from either button, at the main strength
                 b.pauseStrenthPercent = Math.max(0, Math.min(100, b.strenth));
                 select(it, hz);
-            } else if (selected && hz) {
-                b.activePause = false;                     // the selected Hz again: the second impulse off
-                clear(it);
             } else if (selected) {
+                b.activePause = false;                     // the selected (green) Hz or MA again: off
                 clear(it);
             } else {
                 select(it, hz);

@@ -111,6 +111,8 @@ final class SessionUploader {
         // filed under the client's dossier on the server: not there yet (offline) → after the next training
         String cid = com.isaigu.gymapp.widget.XemsDossier.cidFor(Long.parseLong(uid));
         if (cid.length() == 0) {
+            WearableBleDiagLog.log("report", "session upload user " + uid + ": not on the server yet (no cid)");
+            com.isaigu.gymapp.widget.XemsDossier.changed();   // send the client up; the next training carries the records
             return false;
         }
         JSONArray idx = SessionStore.index(c);

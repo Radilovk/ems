@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 350
+    .line 365
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 351
+    .line 366
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;->a:Landroid/app/Activity;
 
-    .line 352
+    .line 367
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;->w:Landroid/webkit/WebView;
 
-    .line 353
+    .line 368
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;->title:Ljava/lang/String;
 
-    .line 354
+    .line 369
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 6
 
     .prologue
-    .line 359
+    .line 374
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;->a:Landroid/app/Activity;
 
@@ -64,14 +64,14 @@
 
     check-cast v0, Landroid/print/PrintManager;
 
-    .line 360
+    .line 375
     if-eqz v0, :cond_2c
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;->w:Landroid/webkit/WebView;
 
     if-eqz v1, :cond_2c
 
-    .line 361
+    .line 376
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;->title:Ljava/lang/String;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/ReportBridge$Print;->w:Landroid/webkit/WebView;
@@ -88,7 +88,7 @@
 
     sget-object v4, Landroid/print/PrintAttributes$MediaSize;->ISO_A4:Landroid/print/PrintAttributes$MediaSize;
 
-    .line 362
+    .line 377
     invoke-virtual {v3, v4}, Landroid/print/PrintAttributes$Builder;->setMediaSize(Landroid/print/PrintAttributes$MediaSize;)Landroid/print/PrintAttributes$Builder;
 
     move-result-object v3
@@ -97,21 +97,21 @@
 
     move-result-object v3
 
-    .line 361
+    .line 376
     invoke-virtual {v0, v1, v2, v3}, Landroid/print/PrintManager;->print(Ljava/lang/String;Landroid/print/PrintDocumentAdapter;Landroid/print/PrintAttributes;)Landroid/print/PrintJob;
     :try_end_2c
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_2c} :catch_2d
 
-    .line 367
+    .line 382
     :cond_2c
     :goto_2c
     return-void
 
-    .line 364
+    .line 379
     :catch_2d
     move-exception v0
 
-    .line 365
+    .line 380
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;

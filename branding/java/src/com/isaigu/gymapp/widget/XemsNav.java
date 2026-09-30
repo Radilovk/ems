@@ -60,6 +60,8 @@ public final class XemsNav {
     private static View mainRoot;
     private static TextView menuButton;
     private static PopupWindow menu;
+    /** When the menu last closed: a tap on "Меню" that closed it (outside touch) must not reopen it. */
+    private static long menuClosedAt;
     private static final Tile[] tiles = new Tile[5];
     private static int currentPage = ID_TAB_FIRST;
     private static boolean ticking;
@@ -287,6 +289,9 @@ public final class XemsNav {
             menu.dismiss();
             return;
         }
+        if (android.os.SystemClock.uptimeMillis() - menuClosedAt < 400) {
+            return;                                        // this tap already closed it
+        }
         Context c = anchor.getContext();
         LinearLayout box = XemsUi.vertical(c);
         int p = XemsUi.dp(c, 8);
@@ -308,10 +313,14 @@ public final class XemsNav {
                     XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
         }
 
+        // Not focusable: a focusable window takes the focus from the activity and Android shows its
+        // navigation bar. Outside touches still close it.
         PopupWindow w = new PopupWindow(box, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                ViewGroup.LayoutParams.WRAP_CONTENT, false);
         w.setBackgroundDrawable(new ColorDrawable(0));
         w.setOutsideTouchable(true);
+        w.setOnDismissListener(new MenuClosed());
+        XemsFullscreen.immersive(box);
         w.setElevation(XemsUi.dp(c, 16));
         menu = w;
         // the menu sits above the bar (the bar is at the bottom of every page)
@@ -774,6 +783,13 @@ public final class XemsNav {
             } catch (Throwable t) {
                 XemsGuard.report("XemsNav.menu", t);
             }
+        }
+    }
+
+    static final class MenuClosed implements PopupWindow.OnDismissListener {
+        @Override
+        public void onDismiss() {
+            menuClosedAt = android.os.SystemClock.uptimeMillis();
         }
     }
 

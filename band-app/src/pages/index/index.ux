@@ -140,7 +140,7 @@ export default {
       if (ai) {
         aiSub = s.st === 'ready' ? 'почивката стига'
           : s.st === 'rest' ? 'почивка ' + mmss((s.rl || 0) - app.silence())
-            : (s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
+            : (s.ex || s.ph || 'сесия') + ' · ' + mmss((s.pl || 0) - age(app, s.st === 'run'))
       }
       out.push({ id: 'ai', title: 'AI', color: ACCENT, active: ai, sub: aiSub })
     }

@@ -23,6 +23,9 @@ package com.isaigu.gymapp.ai;
  *       extensor uptake ~300–350, Andersen &amp; Saltin 1985; lower for occluding isometric work).
  *       Active pause adds its own part (pause strength and frequency). Disabled channels count 0;
  *       the arms channel is sent reduced by pulse width (ChannelStrengthScale: ÷5 at 150 µs … ÷10 at 400 µs) and counted so.</li>
+ *   <li><b>The exercise done with the impulse</b> (Smart Session with exercises, {@link #exerciseMet}):
+ *       its own cost (MET − 1) · 3.5 ml/kg/min joins the channel branch — full in the impulse, 30 % in the pause
+ *       (coming back, holding). [D]</li>
  *   <li><b>Why max, not sum:</b> once the heart rate reflects the load, the evoked work is already in
  *       it; before that (HR lags 20–40 s) or in passive programs (HR hardly moves) the channel model
  *       carries it. Nothing is counted twice.</li>
@@ -93,6 +96,20 @@ public final class AiEnergy {
          * session peak in the pulse module. ≤ 0 → use the current charge (r = R_AT_TOLERATED).
          */
         public double[] toleratedCharge;
+    }
+
+    /** MET of the exercise done now (0 = none); set every tick by the Smart Session (AiSession). */
+    public static volatile double exerciseMet;
+    /** Share of the exercise's cost in the pause of the cycle. [D] */
+    public static final double EXERCISE_PAUSE_SHARE = 0.3;
+
+    /** Oxygen cost of the voluntary movement (L/min) at {@code met}, with impulses for {@code onShare} of the time. */
+    public static double exerciseVo2(double met, double weightKg, double onShare) {
+        if (met <= 1) {
+            return 0;
+        }
+        double s = Math.max(0, Math.min(1, onShare));
+        return (met - 1) * 3.5 * weightKg / 1000.0 * (s + (1 - s) * EXERCISE_PAUSE_SHARE);
     }
 
     private double muscleScale = 1.0;
@@ -210,7 +227,7 @@ public final class AiEnergy {
         hrr = Math.max(0, Math.min(1, hrr));
         double restL = vo2rest * weightKg / 1000.0;
         double hrL = (vo2rest + hrr * (vo2max - vo2rest)) * weightKg / 1000.0;
-        double emsL = stim != null ? evokedVo2(stim, muscleScale) : 0;
+        double emsL = stim != null ? evokedVo2(stim, muscleScale) + exerciseVo2(exerciseMet, weightKg, stim.onShare) : 0;
         double totalL = Math.max(hrL, restL + emsL);
         // RER from the effective intensity (either branch).
         double intensity = Math.max(hrr, (totalL - restL) / Math.max(1e-6, (vo2max - vo2rest) * weightKg / 1000.0));

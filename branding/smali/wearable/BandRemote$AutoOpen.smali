@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 994
+    .line 1007
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 998
+    .line 1011
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->isRunning()Z
 
@@ -53,7 +53,7 @@
     :cond_e
     const/4 v0, 0x1
 
-    .line 999
+    .line 1012
     :goto_f
     if-eqz v0, :cond_1d
 
@@ -71,18 +71,18 @@
 
     if-eqz v0, :cond_20
 
-    .line 1007
+    .line 1020
     :cond_1d
     :goto_1d
     return-void
 
-    .line 998
+    .line 1011
     :cond_1e
     const/4 v0, 0x0
 
     goto :goto_f
 
-    .line 1002
+    .line 1015
     :cond_20
     const-string v0, "remote"
 
@@ -90,7 +90,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1003
+    .line 1016
     const-string v0, ""
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/xiaomi/XiaomiBandAppLink;->launch(Ljava/lang/String;)Z
@@ -99,11 +99,11 @@
 
     goto :goto_1d
 
-    .line 1004
+    .line 1017
     :catch_2d
     move-exception v0
 
-    .line 1005
+    .line 1018
     const-string v1, "BandRemote.autoOpen"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

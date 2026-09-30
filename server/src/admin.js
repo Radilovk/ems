@@ -82,6 +82,7 @@ code{background:#21262d;padding:.1rem .3rem;border-radius:3px;font-size:.78rem;w
   <button data-tab="svc" onclick="tab('svc')">Модули & костюми</button>
   <button data-tab="rel" onclick="tab('rel')">Нова версия (APK)</button>
   <button data-tab="log" onclick="tab('log')">Журнал</button>
+  <button onclick="location.href='/admin/exercises'">Упражнения ↗</button>
 </nav>
 
 <section id="dash" class="panel on">

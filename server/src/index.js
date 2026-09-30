@@ -6,6 +6,9 @@ import {
   approvePairedMacs, collectPairedMacs, resolveEmsForLicense, ensureLegacyEmsMigrated,
 } from './ems.js';
 import { adminHtml } from './admin.js';
+import exercisesAdminHtml from './exercises-admin.html';
+import exerciseLibrary from '../../branding/exercises/library.json';
+import { normalizePick, picksPayload } from './exercises.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
@@ -62,6 +65,9 @@ export default {
       if (path === '/v1/app/update' && request.method === 'GET') {
         return handleUpdate(url, env);
       }
+      if (path === '/v1/exercises' && request.method === 'GET') {
+        return handleExercises(env);
+      }
       if (path === '/v1/catalog' && request.method === 'GET') {
         return json({ ok: true, ...catalogSummary() });
       }
@@ -103,6 +109,12 @@ export default {
 
       if (path === '/admin' || path === '/admin/') {
         return adminPage(env);
+      }
+      if (path === '/admin/exercises' || path === '/admin/exercises/') {
+        return new Response(exercisesAdminHtml, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      }
+      if (path === '/admin/exercises/library.json') {
+        return json(exerciseLibrary);
       }
       if (path.startsWith('/admin/api/')) {
         return adminApi(request, env, path);
@@ -906,7 +918,34 @@ async function adminApi(request, env, path) {
     });
   }
 
+  if (route === 'exercises' && request.method === 'GET') {
+    const rows = await env.DB.prepare('SELECT id, on_app, frames, updated_at FROM exercise_picks').all();
+    return json({ ok: true, ...picksPayload(rows.results) });
+  }
+
+  if (route === 'exercises/set' && request.method === 'POST') {
+    const b = await readJsonBody(request);
+    const row = normalizePick(b, EXERCISE_IDS, Date.now());
+    if (!row) return err('invalid_exercise', 'Unknown exercise id');
+    await env.DB.prepare(
+      'INSERT INTO exercise_picks (id, on_app, frames, updated_at) VALUES (?, ?, ?, ?) '
+      + 'ON CONFLICT(id) DO UPDATE SET on_app = excluded.on_app, frames = excluded.frames, updated_at = excluded.updated_at'
+    ).bind(row.id, row.on_app, row.frames, row.updated_at).run();
+    await audit(env, 'exercise_pick', '', '', row.id + ' on=' + row.on_app + ' frames=' + row.frames);
+    return json({ ok: true });
+  }
+
   return json({ ok: false, error: 'not_found' }, 404);
+}
+
+const EXERCISE_IDS = new Set(exerciseLibrary.exercises.map((e) => e.id));
+
+/** The admin's exercise picks for the tablets (public: nothing secret, the library itself ships in the app). */
+async function handleExercises(env) {
+  const rows = await env.DB.prepare('SELECT id, on_app, frames, updated_at FROM exercise_picks').all();
+  return new Response(JSON.stringify({ ok: true, ...picksPayload(rows.results) }), {
+    headers: { ...JSON_HEADERS, 'Cache-Control': 'public, max-age=300' },
+  });
 }
 
 function adminPage(env) {

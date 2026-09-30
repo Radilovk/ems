@@ -24,8 +24,13 @@ import java.util.Map;
  */
 public final class ExerciseFigure extends View {
     public static final String ASSET = "xems/exercises.json";
-    /** Figure colour (cyan of the design); the glow is the same colour. */
+    /** Figure colour: cyan for men, magenta for women (the design's pair); the glow is the same colour. */
     public static final int COLOR = 0xFF22E3FF;
+    public static final int COLOR_F = 0xFFFF3BD4;
+
+    public static int colorFor(AiModel.Sex sex) {
+        return sex == AiModel.Sex.MALE ? COLOR : COLOR_F;
+    }
 
     static final class Fig {
         float[] vb;
@@ -36,6 +41,8 @@ public final class ExerciseFigure extends View {
     private static final Map<String, Fig> CACHE = new HashMap<String, Fig>();
     private static volatile boolean loading;
     private static volatile boolean loaded;
+    /** For the figures of downloaded library exercises (files/xems_ex, ExerciseLibrary). */
+    private static volatile Context app;
 
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint glow = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -46,6 +53,10 @@ public final class ExerciseFigure extends View {
     private int offS = 4;
     private final float density;
     private float glowScale = -1;
+    /** Lists: the working pose, no animation loop. */
+    private boolean still;
+    /** Lists: no glow, so no software layer (hundreds of cards). */
+    private boolean withGlow = true;
 
     public ExerciseFigure(Context c) {
         super(c);
@@ -61,6 +72,9 @@ public final class ExerciseFigure extends View {
 
     /** Parse the asset once, off the main thread (≈2 MB). */
     public static void preload(Context c) {
+        if (c != null && app == null) {
+            app = c.getApplicationContext();
+        }
         if (loaded || loading || c == null) {
             return;
         }
@@ -109,6 +123,9 @@ public final class ExerciseFigure extends View {
                 return f;
             }
             JSONObject o = RAW.get(id);
+            if (o == null && app != null) {
+                o = ExerciseLibrary.cachedFigure(app, id);     // a library exercise the admin enabled
+            }
             if (o == null) {
                 return null;
             }
@@ -128,6 +145,23 @@ public final class ExerciseFigure extends View {
                 return null;
             }
         }
+    }
+
+    /** The working pose of an exercise fitted into {@code box} (for other views: the impulse map). False while the
+     *  figure is not loaded yet. */
+    public static boolean drawStill(Canvas c, String id, android.graphics.RectF box, Paint paint) {
+        Fig f = id != null ? fig(id) : null;
+        if (f == null || f.frames.length == 0) {
+            return false;
+        }
+        float s = Math.min(box.width() / f.vb[2], box.height() / f.vb[3]);
+        c.save();
+        c.translate(box.left + (box.width() - f.vb[2] * s) / 2f - f.vb[0] * s,
+                box.top + (box.height() - f.vb[3] * s) / 2f - f.vb[1] * s);
+        c.scale(s, s);
+        c.drawPath(f.frames[0], paint);
+        c.restore();
+        return true;
     }
 
     /** Absolute M / L / C / Z with numbers separated by spaces or the next command letter. */
@@ -178,6 +212,28 @@ public final class ExerciseFigure extends View {
         return p;
     }
 
+    /** Draw the working pose only (lists, picker): no animation. */
+    public void setStill(boolean still) {
+        this.still = still;
+        invalidate();
+    }
+
+    /** Without the glow the view needs no software layer — for grids of many figures. */
+    public void setGlow(boolean on) {
+        withGlow = on;
+        setLayerType(on ? LAYER_TYPE_SOFTWARE : LAYER_TYPE_NONE, null);
+        invalidate();
+    }
+
+    /** The client's colour ({@link #colorFor}). */
+    public void setColor(int color) {
+        if ((fill.getColor() & 0xFFFFFF) != (color & 0xFFFFFF)) {
+            fill.setColor(color);
+            glow.setColor(color);
+            invalidate();
+        }
+    }
+
     /** Which exercise (null = none). */
     public void setExercise(String id) {
         if (id == null ? this.id == null : id.equals(this.id)) {
@@ -213,13 +269,13 @@ public final class ExerciseFigure extends View {
         c.save();
         c.translate((w - fig.vb[2] * s) / 2f - fig.vb[0] * s, (h - fig.vb[3] * s) / 2f - fig.vb[1] * s);
         c.scale(s, s);
-        if (s != glowScale) {                          // the blur follows the canvas scale: keep it 3.5 dp on screen
+        if (withGlow && s != glowScale) {                          // the blur follows the canvas scale: keep it 3.5 dp on screen
             glowScale = s;
             glow.setMaskFilter(new BlurMaskFilter(Math.max(0.5f, 3.5f * density / s), BlurMaskFilter.Blur.NORMAL));
         }
         int n = fig.frames.length;
         float pos = 0;
-        if (n > 1) {
+        if (n > 1 && !still) {
             long now = System.currentTimeMillis();
             float cyc = onS + offS;
             float x = ((now - cycleStartMs) / 1000f) % cyc;
@@ -236,13 +292,15 @@ public final class ExerciseFigure extends View {
             if (a <= 0.01f) {
                 continue;
             }
-            glow.setAlpha((int) (110 * a));
-            c.drawPath(fig.frames[k], glow);
+            if (withGlow) {
+                glow.setAlpha((int) (110 * a));
+                c.drawPath(fig.frames[k], glow);
+            }
             fill.setAlpha((int) (255 * a));
             c.drawPath(fig.frames[k], fill);
         }
         c.restore();
-        if (n > 1 && isShown()) {
+        if (n > 1 && !still && isShown()) {
             postInvalidateOnAnimation();
         }
     }

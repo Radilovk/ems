@@ -31,18 +31,24 @@ def main() -> int:
             raise SystemExit(f"AutoTemplateData.java is stale ({e['id']} missing) — run scripts/gen-exercises.py")
     DEST.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SRC, DEST)
+    lib = SRC.parent / "library.json"
+    libd = json.loads(lib.read_text(encoding="utf-8"))
+    if len(libd["exercises"]) < 300 or "{id}" not in libd["frames"]:
+        raise SystemExit("library.json: incomplete — run scripts/gen-exercise-library.py")
+    shutil.copy2(lib, DEST.parent / "library.json")
+    print(f"assets/xems/library.json ({len(libd['exercises'])} exercises)")
     print(f"assets/xems/exercises.json ({len(exs)} exercises, {DEST.stat().st_size} B)")
     art = ROOT / "branding" / "programs"
     java_art = (ROOT / "branding" / "java" / "src" / "com" / "isaigu" / "gymapp" / "ai" / "ProgramArt.java").read_text(encoding="utf-8")
     import re
     keys = set(re.findall(r'"((?:f|m|passive)-[a-z-]+)"', java_art))
-    have = {p.stem for p in art.glob("*.webp")}
+    have = {p.stem.split("@")[0] for p in art.glob("*@*.webp")}
     if keys - have:
         raise SystemExit(f"branding/programs: missing {sorted(keys - have)} (ProgramArt uses them)")
     out = DEST.parent / "programs"
     out.mkdir(parents=True, exist_ok=True)
     size = 0
-    for p in sorted(art.glob("*.webp")):
+    for p in sorted(art.glob("*@*.webp")):
         shutil.copy2(p, out / p.name)
         size += p.stat().st_size
     print(f"assets/xems/programs/ ({len(have)} pictures, {size} B)")

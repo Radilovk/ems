@@ -88,7 +88,9 @@ public final class SessionRecorder {
         int aiPhase = aiPhase();
         boolean assisted = assistActive();
         String autoProgram = autoProgram();
-        int exercise = aiPhase > 0 ? com.isaigu.gymapp.ai.AiSession.currentExercise() : -1;   // Smart Session only
+        // the Smart Session's exercise, or the block of a map run (Тренировки → По картата)
+        int exercise = aiPhase > 0 ? com.isaigu.gymapp.ai.AiSession.currentExercise()
+                : com.isaigu.gymapp.ai.MapRunner.currentExercise();
         boolean music = musicOn();
         boolean leaderTaken = false;
         if (items != null) {
@@ -223,6 +225,10 @@ public final class SessionRecorder {
                     if (autoProgram != null) {
                         r.auto = true;
                         r.program = autoProgram;
+                    }
+                    String mapName = com.isaigu.gymapp.ai.MapRunner.name();
+                    if (mapName != null) {
+                        r.program = mapName;                    // Тренировки → По картата: the map's name in the report
                     }
                 }
                 if (aiPhase > 0 && r.leader) {

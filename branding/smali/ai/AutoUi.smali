@@ -7194,9 +7194,9 @@
 
     iget-object v4, v11, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    const/16 v5, 0x60
+    const/16 v5, 0x80
 
-    const/16 v6, 0x48
+    const/16 v6, 0x60
 
     move-object/from16 v1, p0
 

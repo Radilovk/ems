@@ -115,6 +115,36 @@ public final class AutoTemplates {
         public double remainingS;
     }
 
+    // ---- the library beyond the 40 built-in exercises (ExerciseLibrary registers what the admin enabled) ----
+    /** Library exercises get indexes from here on (the session record stores index + 1). */
+    public static final int LIB_BASE = 1000;
+    private static final List<String> LIB_IDS = new ArrayList<String>();
+    private static final java.util.Map<String, Integer> LIB_INDEX = new java.util.HashMap<String, Integer>();
+    private static final List<String[]> LIB_TEXT = new ArrayList<String[]>();   // bg, en, pos
+    private static final List<Double> LIB_MET = new ArrayList<Double>();
+    private static final List<int[]> LIB_MUS = new ArrayList<int[]>();
+
+    /** A library exercise the tablet knows (name, position, cost, muscles); built-in ids are ignored. */
+    public static synchronized void register(String id, String bg, String en, String pos, double met, int[] mus) {
+        if (id == null || ex(id) >= 0 || LIB_INDEX.containsKey(id) || mus == null || mus.length != 10) {
+            return;
+        }
+        LIB_INDEX.put(id, LIB_IDS.size());
+        LIB_IDS.add(id);
+        LIB_TEXT.add(new String[] {bg, en, pos});
+        LIB_MET.add(met);
+        LIB_MUS.add(mus);
+    }
+
+    public static synchronized boolean known(String id) {
+        return ex(id) >= 0 || LIB_INDEX.containsKey(id);
+    }
+
+    private static synchronized int lib(String id) {
+        Integer k = id != null ? LIB_INDEX.get(id) : null;
+        return k != null ? k : -1;
+    }
+
     static int ex(String id) {
         for (int i = 0; i < AutoTemplateData.IDS.length; i++) {
             if (AutoTemplateData.IDS[i].equals(id)) {
@@ -127,26 +157,57 @@ public final class AutoTemplates {
     /** The exercise's name in the app language. */
     public static String name(String id) {
         int i = ex(id);
-        return i < 0 ? "" : AiText.t(AutoTemplateData.BG[i], AutoTemplateData.EN[i]);
+        if (i >= 0) {
+            return AiText.t(AutoTemplateData.BG[i], AutoTemplateData.EN[i]);
+        }
+        int k = lib(id);
+        return k < 0 ? "" : AiText.t(LIB_TEXT.get(k)[0], LIB_TEXT.get(k)[1]);
     }
 
     /** Index of the exercise in the table (the session record stores index + 1), −1 when unknown. */
     public static int index(String id) {
-        return id == null ? -1 : ex(id);
+        if (id == null) {
+            return -1;
+        }
+        int i = ex(id);
+        if (i >= 0) {
+            return i;
+        }
+        int k = lib(id);
+        return k < 0 ? -1 : LIB_BASE + k;
     }
 
-    public static String idAt(int index) {
+    public static synchronized String idAt(int index) {
+        if (index >= LIB_BASE) {
+            return index - LIB_BASE < LIB_IDS.size() ? LIB_IDS.get(index - LIB_BASE) : null;
+        }
         return index >= 0 && index < AutoTemplateData.IDS.length ? AutoTemplateData.IDS[index] : null;
     }
 
     /** MET of the movement itself (0 when unknown). */
-    public static double met(int index) {
+    public static synchronized double met(int index) {
+        if (index >= LIB_BASE) {
+            return index - LIB_BASE < LIB_MET.size() ? LIB_MET.get(index - LIB_BASE) : 0;
+        }
         return index >= 0 && index < AutoTemplateData.MET.length ? AutoTemplateData.MET[index] : 0;
     }
 
     /** How much the movement works each suit channel, 0–100 (100 = main muscle); null when unknown. */
-    public static int[] muscles(int index) {
+    public static synchronized int[] muscles(int index) {
+        if (index >= LIB_BASE) {
+            return index - LIB_BASE < LIB_MUS.size() ? LIB_MUS.get(index - LIB_BASE) : null;
+        }
         return index >= 0 && index < AutoTemplateData.MUS.length ? AutoTemplateData.MUS[index] : null;
+    }
+
+    /** stand / machine / bench / floor. */
+    public static String position(String id) {
+        int i = ex(id);
+        if (i >= 0) {
+            return AutoTemplateData.POS[i];
+        }
+        int k = lib(id);
+        return k < 0 ? "stand" : LIB_TEXT.get(k)[2];
     }
 
     public static boolean has(String programId) {
@@ -180,6 +241,23 @@ public final class AutoTemplates {
             s.add("joints");                  // no impact
         }
         return s;
+    }
+
+    /** The exercises this client's states rule out (knees, back, diastasis, after birth, joints — 60+, BMI ≥ 30 …). */
+    public static Set<String> avoidFor(AutoModel.Input in) {
+        Set<String> st = states(in);
+        Set<String> bad = new HashSet<String>();
+        for (int c = 0; c < AutoTemplateData.COND.length; c++) {
+            if (st.contains(AutoTemplateData.COND[c])) {
+                for (String x : AutoTemplateData.AVOID[c]) {
+                    bad.add(x);
+                }
+            }
+        }
+        if (noCardioMachine) {
+            bad.add(MACHINE);
+        }
+        return bad;
     }
 
     /** Level 1–3: profile + the last outcomes of this program (oldest first). */
@@ -264,8 +342,7 @@ public final class AutoTemplates {
     }
 
     private static int rank(String id) {
-        int i = ex(id);
-        String p = i < 0 ? "stand" : AutoTemplateData.POS[i];
+        String p = position(id);
         return "stand".equals(p) ? 0 : "machine".equals(p) ? 1 : "bench".equals(p) ? 2 : 3;
     }
 
@@ -355,8 +432,7 @@ public final class AutoTemplates {
         return new Script(id, lv, ph, bad);
     }
 
-    private static int mainChannel(int i) {
-        int[] m = AutoTemplateData.MUS[i];
+    private static int mainChannel(int[] m) {
         int best = 0;
         for (int k = 1; k < m.length; k++) {
             if (m[k] > m[best]) {
@@ -367,21 +443,26 @@ public final class AutoTemplates {
     }
 
     /**
-     * An easier exercise for the same main muscle: the next lower cost (MET) that the client's states allow and that
-     * keeps the position (no getting down to the floor mid-set) when one exists; the exercise itself when none.
+     * An easier exercise for the same main muscle: the next lower cost (MET) among the built-in ones that the
+     * client's states allow and that keeps the position (no getting down to the floor mid-set) when one exists; the
+     * exercise itself when none. Works for library exercises too (their muscles and cost pick the swap).
      */
     public static String easier(String id, Set<String> avoid) {
-        int i = ex(id);
-        if (i < 0) {
+        int ix = index(id);
+        int[] mus = muscles(ix);
+        if (mus == null) {
             return id;
         }
-        int ch = mainChannel(i);
+        int ch = mainChannel(mus);
+        double met = met(ix);
+        String pos = position(id);
         int best = -1;
         for (int pass = 0; pass < 2 && best < 0; pass++) {
             for (int k = 0; k < AutoTemplateData.IDS.length; k++) {
-                if (k == i || mainChannel(k) != ch || AutoTemplateData.MET[k] >= AutoTemplateData.MET[i]
+                if (AutoTemplateData.IDS[k].equals(id) || mainChannel(AutoTemplateData.MUS[k]) != ch
+                        || AutoTemplateData.MET[k] >= met
                         || (avoid != null && avoid.contains(AutoTemplateData.IDS[k]))
-                        || (pass == 0 && !AutoTemplateData.POS[k].equals(AutoTemplateData.POS[i]))) {
+                        || (pass == 0 && !AutoTemplateData.POS[k].equals(pos))) {
                     continue;
                 }
                 if (best < 0 || AutoTemplateData.MET[k] > AutoTemplateData.MET[best]) {
@@ -390,6 +471,34 @@ public final class AutoTemplates {
             }
         }
         return best < 0 ? id : AutoTemplateData.IDS[best];
+    }
+
+    /**
+     * The client's state rules the exercise out: an easier one for the same muscle, else the allowed one closest in
+     * cost for that muscle, else a glute bridge (allowed by every state). The exercise itself when it is allowed.
+     */
+    public static String safer(String id, Set<String> avoid) {
+        if (avoid == null || !avoid.contains(id)) {
+            return id;
+        }
+        String r = easier(id, avoid);
+        if (!avoid.contains(r)) {
+            return r;
+        }
+        int ix = index(id);
+        int[] mus = muscles(ix);
+        double met = met(ix);
+        int ch = mus != null ? mainChannel(mus) : -1;
+        int best = -1;
+        for (int k = 0; k < AutoTemplateData.IDS.length; k++) {
+            if (avoid.contains(AutoTemplateData.IDS[k]) || mainChannel(AutoTemplateData.MUS[k]) != ch) {
+                continue;
+            }
+            if (best < 0 || Math.abs(AutoTemplateData.MET[k] - met) < Math.abs(AutoTemplateData.MET[best] - met)) {
+                best = k;
+            }
+        }
+        return best >= 0 ? AutoTemplateData.IDS[best] : "glute-bridge";
     }
 
     /** The AI goal and the client → the template program: fat burning → cardio; 65+ → senior; else general

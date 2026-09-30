@@ -24,6 +24,8 @@
 
 .field static final MUS:[[I
 
+.field static final PAT:[Ljava/lang/String;
+
 .field static final POS:[Ljava/lang/String;
 
 .field static final PROGRAMS:[Ljava/lang/String;
@@ -994,41 +996,278 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->POS:[Ljava/lang/String;
 
-    .line 14
+    .line 13
+    const/16 v0, 0x28
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const-string v1, "pull_v"
+
+    aput-object v1, v0, v6
+
+    const-string v1, "dip"
+
+    aput-object v1, v0, v7
+
+    const-string v1, "core_rot"
+
+    aput-object v1, v0, v8
+
+    const-string v1, "squat"
+
+    aput-object v1, v0, v9
+
+    const/4 v1, 0x4
+
+    const-string v2, "lunge"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x5
+
+    const-string v2, "cardio"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x6
+
+    const-string v2, "dip"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    const-string v2, "core_flex"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    const-string v2, "lunge"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    const-string v2, "glute"
+
+    aput-object v2, v0, v1
+
+    const-string v1, "lunge"
+
+    aput-object v1, v0, v10
+
+    const/16 v1, 0xb
+
+    const-string v2, "triceps"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xc
+
+    const-string v2, "core_rot"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xd
+
+    const-string v2, "squat"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xe
+
+    const-string v2, "cardio"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xf
+
+    const-string v2, "glute"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x10
+
+    const-string v2, "lunge"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x11
+
+    const-string v2, "glute"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x12
+
+    const-string v2, "squat"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x13
+
+    const-string v2, "push_h"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x14
+
+    const-string v2, "plyo"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x15
+
+    const-string v2, "plyo"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x16
+
+    const-string v2, "hinge"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x17
+
+    const-string v2, "hinge"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x18
+
+    const-string v2, "push_h"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x19
+
+    const-string v2, "lunge"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1a
+
+    const-string v2, "core_hip"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1b
+
+    const-string v2, "pull_h"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1c
+
+    const-string v2, "core_static"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1d
+
+    const-string v2, "core_static"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1e
+
+    const-string v2, "front_raise"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1f
+
+    const-string v2, "core_flex"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x20
+
+    const-string v2, "lunge"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x21
+
+    const-string v2, "abductor"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x22
+
+    const-string v2, "core_static"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x23
+
+    const-string v2, "glute"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x24
+
+    const-string v2, "push_v"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x25
+
+    const-string v2, "squat"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x26
+
+    const-string v2, "back_ext"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x27
+
+    const-string v2, "triceps"
+
+    aput-object v2, v0, v1
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->PAT:[Ljava/lang/String;
+
+    .line 16
     const/16 v0, 0x28
 
     new-array v0, v0, [D
 
-    fill-array-data v0, :array_a82
+    fill-array-data v0, :array_b6a
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->MET:[D
 
-    .line 15
+    .line 17
     const/16 v0, 0x28
 
     new-array v0, v0, [[I
 
     new-array v1, v10, [I
 
-    fill-array-data v1, :array_b26
+    fill-array-data v1, :array_c0e
 
     aput-object v1, v0, v6
 
     new-array v1, v10, [I
 
-    fill-array-data v1, :array_b3e
+    fill-array-data v1, :array_c26
 
     aput-object v1, v0, v7
 
     new-array v1, v10, [I
 
-    fill-array-data v1, :array_b56
+    fill-array-data v1, :array_c3e
 
     aput-object v1, v0, v8
 
     new-array v1, v10, [I
 
-    fill-array-data v1, :array_b6e
+    fill-array-data v1, :array_c56
 
     aput-object v1, v0, v9
 
@@ -1036,7 +1275,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_b86
+    fill-array-data v2, :array_c6e
 
     aput-object v2, v0, v1
 
@@ -1044,7 +1283,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_b9e
+    fill-array-data v2, :array_c86
 
     aput-object v2, v0, v1
 
@@ -1052,7 +1291,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_bb6
+    fill-array-data v2, :array_c9e
 
     aput-object v2, v0, v1
 
@@ -1060,7 +1299,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_bce
+    fill-array-data v2, :array_cb6
 
     aput-object v2, v0, v1
 
@@ -1068,7 +1307,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_be6
+    fill-array-data v2, :array_cce
 
     aput-object v2, v0, v1
 
@@ -1076,13 +1315,13 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_bfe
+    fill-array-data v2, :array_ce6
 
     aput-object v2, v0, v1
 
     new-array v1, v10, [I
 
-    fill-array-data v1, :array_c16
+    fill-array-data v1, :array_cfe
 
     aput-object v1, v0, v10
 
@@ -1090,7 +1329,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_c2e
+    fill-array-data v2, :array_d16
 
     aput-object v2, v0, v1
 
@@ -1098,7 +1337,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_c46
+    fill-array-data v2, :array_d2e
 
     aput-object v2, v0, v1
 
@@ -1106,7 +1345,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_c5e
+    fill-array-data v2, :array_d46
 
     aput-object v2, v0, v1
 
@@ -1114,7 +1353,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_c76
+    fill-array-data v2, :array_d5e
 
     aput-object v2, v0, v1
 
@@ -1122,7 +1361,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_c8e
+    fill-array-data v2, :array_d76
 
     aput-object v2, v0, v1
 
@@ -1130,7 +1369,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_ca6
+    fill-array-data v2, :array_d8e
 
     aput-object v2, v0, v1
 
@@ -1138,7 +1377,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_cbe
+    fill-array-data v2, :array_da6
 
     aput-object v2, v0, v1
 
@@ -1146,7 +1385,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_cd6
+    fill-array-data v2, :array_dbe
 
     aput-object v2, v0, v1
 
@@ -1154,7 +1393,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_cee
+    fill-array-data v2, :array_dd6
 
     aput-object v2, v0, v1
 
@@ -1162,7 +1401,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_d06
+    fill-array-data v2, :array_dee
 
     aput-object v2, v0, v1
 
@@ -1170,7 +1409,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_d1e
+    fill-array-data v2, :array_e06
 
     aput-object v2, v0, v1
 
@@ -1178,7 +1417,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_d36
+    fill-array-data v2, :array_e1e
 
     aput-object v2, v0, v1
 
@@ -1186,7 +1425,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_d4e
+    fill-array-data v2, :array_e36
 
     aput-object v2, v0, v1
 
@@ -1194,7 +1433,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_d66
+    fill-array-data v2, :array_e4e
 
     aput-object v2, v0, v1
 
@@ -1202,7 +1441,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_d7e
+    fill-array-data v2, :array_e66
 
     aput-object v2, v0, v1
 
@@ -1210,7 +1449,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_d96
+    fill-array-data v2, :array_e7e
 
     aput-object v2, v0, v1
 
@@ -1218,7 +1457,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_dae
+    fill-array-data v2, :array_e96
 
     aput-object v2, v0, v1
 
@@ -1226,7 +1465,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_dc6
+    fill-array-data v2, :array_eae
 
     aput-object v2, v0, v1
 
@@ -1234,7 +1473,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_dde
+    fill-array-data v2, :array_ec6
 
     aput-object v2, v0, v1
 
@@ -1242,7 +1481,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_df6
+    fill-array-data v2, :array_ede
 
     aput-object v2, v0, v1
 
@@ -1250,7 +1489,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_e0e
+    fill-array-data v2, :array_ef6
 
     aput-object v2, v0, v1
 
@@ -1258,7 +1497,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_e26
+    fill-array-data v2, :array_f0e
 
     aput-object v2, v0, v1
 
@@ -1266,7 +1505,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_e3e
+    fill-array-data v2, :array_f26
 
     aput-object v2, v0, v1
 
@@ -1274,7 +1513,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_e56
+    fill-array-data v2, :array_f3e
 
     aput-object v2, v0, v1
 
@@ -1282,7 +1521,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_e6e
+    fill-array-data v2, :array_f56
 
     aput-object v2, v0, v1
 
@@ -1290,7 +1529,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_e86
+    fill-array-data v2, :array_f6e
 
     aput-object v2, v0, v1
 
@@ -1298,7 +1537,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_e9e
+    fill-array-data v2, :array_f86
 
     aput-object v2, v0, v1
 
@@ -1306,7 +1545,7 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_eb6
+    fill-array-data v2, :array_f9e
 
     aput-object v2, v0, v1
 
@@ -1314,13 +1553,13 @@
 
     new-array v2, v10, [I
 
-    fill-array-data v2, :array_ece
+    fill-array-data v2, :array_fb6
 
     aput-object v2, v0, v1
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->MUS:[[I
 
-    .line 59
+    .line 61
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -1361,7 +1600,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->PROGRAMS:[Ljava/lang/String;
 
-    .line 60
+    .line 62
     const/4 v0, 0x7
 
     new-array v0, v0, [[[Ljava/lang/String;
@@ -2176,7 +2415,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->STATIONS:[[[Ljava/lang/String;
 
-    .line 71
+    .line 73
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -2217,7 +2456,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->COND:[Ljava/lang/String;
 
-    .line 72
+    .line 74
     const/4 v0, 0x7
 
     new-array v0, v0, [[Ljava/lang/String;
@@ -2506,7 +2745,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->AVOID:[[Ljava/lang/String;
 
-    .line 81
+    .line 83
     const/4 v0, 0x7
 
     new-array v0, v0, [[Ljava/lang/String;
@@ -2715,7 +2954,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->INSTEAD:[[Ljava/lang/String;
 
-    .line 92
+    .line 94
     const/4 v0, 0x6
 
     new-array v0, v0, [Ljava/lang/String;
@@ -2750,7 +2989,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->FOCUS:[Ljava/lang/String;
 
-    .line 93
+    .line 95
     const/4 v0, 0x6
 
     new-array v0, v0, [[Ljava/lang/String;
@@ -2855,10 +3094,10 @@
 
     return-void
 
-    .line 14
+    .line 16
     nop
 
-    :array_a82
+    :array_b6a
     .array-data 8
         0x400c000000000000L    # 3.5
         0x400e666666666666L    # 3.8
@@ -2902,8 +3141,8 @@
         0x4008000000000000L    # 3.0
     .end array-data
 
-    .line 15
-    :array_b26
+    .line 17
+    :array_c0e
     .array-data 4
         0x0
         0x0
@@ -2917,7 +3156,7 @@
         0x0
     .end array-data
 
-    :array_b3e
+    :array_c26
     .array-data 4
         0x32
         0x0
@@ -2931,7 +3170,7 @@
         0x0
     .end array-data
 
-    :array_b56
+    :array_c3e
     .array-data 4
         0x0
         0x64
@@ -2945,7 +3184,7 @@
         0x0
     .end array-data
 
-    :array_b6e
+    :array_c56
     .array-data 4
         0x0
         0x0
@@ -2959,7 +3198,7 @@
         0x28
     .end array-data
 
-    :array_b86
+    :array_c6e
     .array-data 4
         0x0
         0x0
@@ -2973,7 +3212,7 @@
         0x28
     .end array-data
 
-    :array_b9e
+    :array_c86
     .array-data 4
         0x3c
         0x32
@@ -2987,7 +3226,7 @@
         0x0
     .end array-data
 
-    :array_bb6
+    :array_c9e
     .array-data 4
         0x32
         0x0
@@ -3001,7 +3240,7 @@
         0x0
     .end array-data
 
-    :array_bce
+    :array_cb6
     .array-data 4
         0x0
         0x64
@@ -3015,7 +3254,7 @@
         0x0
     .end array-data
 
-    :array_be6
+    :array_cce
     .array-data 4
         0x0
         0x0
@@ -3029,7 +3268,7 @@
         0x1e
     .end array-data
 
-    :array_bfe
+    :array_ce6
     .array-data 4
         0x0
         0x0
@@ -3043,7 +3282,7 @@
         0x32
     .end array-data
 
-    :array_c16
+    :array_cfe
     .array-data 4
         0x0
         0x0
@@ -3057,7 +3296,7 @@
         0x28
     .end array-data
 
-    :array_c2e
+    :array_d16
     .array-data 4
         0x0
         0x0
@@ -3071,7 +3310,7 @@
         0x0
     .end array-data
 
-    :array_c46
+    :array_d2e
     .array-data 4
         0x0
         0x64
@@ -3085,7 +3324,7 @@
         0x0
     .end array-data
 
-    :array_c5e
+    :array_d46
     .array-data 4
         0x0
         0x0
@@ -3099,7 +3338,7 @@
         0x32
     .end array-data
 
-    :array_c76
+    :array_d5e
     .array-data 4
         0x0
         0x0
@@ -3113,7 +3352,7 @@
         0x32
     .end array-data
 
-    :array_c8e
+    :array_d76
     .array-data 4
         0x0
         0x0
@@ -3127,7 +3366,7 @@
         0x0
     .end array-data
 
-    :array_ca6
+    :array_d8e
     .array-data 4
         0x0
         0x0
@@ -3141,7 +3380,7 @@
         0x28
     .end array-data
 
-    :array_cbe
+    :array_da6
     .array-data 4
         0x0
         0x0
@@ -3155,7 +3394,7 @@
         0x3c
     .end array-data
 
-    :array_cd6
+    :array_dbe
     .array-data 4
         0x0
         0x1e
@@ -3169,7 +3408,7 @@
         0x28
     .end array-data
 
-    :array_cee
+    :array_dd6
     .array-data 4
         0x64
         0x1e
@@ -3183,7 +3422,7 @@
         0x0
     .end array-data
 
-    :array_d06
+    :array_dee
     .array-data 4
         0x0
         0x0
@@ -3197,7 +3436,7 @@
         0x28
     .end array-data
 
-    :array_d1e
+    :array_e06
     .array-data 4
         0x0
         0x0
@@ -3211,7 +3450,7 @@
         0x0
     .end array-data
 
-    :array_d36
+    :array_e1e
     .array-data 4
         0x0
         0x0
@@ -3225,7 +3464,7 @@
         0x64
     .end array-data
 
-    :array_d4e
+    :array_e36
     .array-data 4
         0x0
         0x28
@@ -3239,7 +3478,7 @@
         0x5a
     .end array-data
 
-    :array_d66
+    :array_e4e
     .array-data 4
         0x64
         0x0
@@ -3253,7 +3492,7 @@
         0x0
     .end array-data
 
-    :array_d7e
+    :array_e66
     .array-data 4
         0x0
         0x0
@@ -3267,7 +3506,7 @@
         0x28
     .end array-data
 
-    :array_d96
+    :array_e7e
     .array-data 4
         0x0
         0x64
@@ -3281,7 +3520,7 @@
         0x0
     .end array-data
 
-    :array_dae
+    :array_e96
     .array-data 4
         0x0
         0x0
@@ -3295,7 +3534,7 @@
         0x0
     .end array-data
 
-    :array_dc6
+    :array_eae
     .array-data 4
         0x14
         0x64
@@ -3309,7 +3548,7 @@
         0x0
     .end array-data
 
-    :array_dde
+    :array_ec6
     .array-data 4
         0x1e
         0x64
@@ -3323,7 +3562,7 @@
         0x0
     .end array-data
 
-    :array_df6
+    :array_ede
     .array-data 4
         0x0
         0x0
@@ -3337,7 +3576,7 @@
         0x0
     .end array-data
 
-    :array_e0e
+    :array_ef6
     .array-data 4
         0x0
         0x64
@@ -3351,7 +3590,7 @@
         0x0
     .end array-data
 
-    :array_e26
+    :array_f0e
     .array-data 4
         0x0
         0x0
@@ -3365,7 +3604,7 @@
         0x28
     .end array-data
 
-    :array_e3e
+    :array_f26
     .array-data 4
         0x0
         0x0
@@ -3379,7 +3618,7 @@
         0x0
     .end array-data
 
-    :array_e56
+    :array_f3e
     .array-data 4
         0x0
         0x64
@@ -3393,7 +3632,7 @@
         0x0
     .end array-data
 
-    :array_e6e
+    :array_f56
     .array-data 4
         0x0
         0x0
@@ -3407,7 +3646,7 @@
         0x46
     .end array-data
 
-    :array_e86
+    :array_f6e
     .array-data 4
         0x0
         0x14
@@ -3421,7 +3660,7 @@
         0x0
     .end array-data
 
-    :array_e9e
+    :array_f86
     .array-data 4
         0x0
         0x0
@@ -3435,7 +3674,7 @@
         0x0
     .end array-data
 
-    :array_eb6
+    :array_f9e
     .array-data 4
         0x0
         0x0
@@ -3449,7 +3688,7 @@
         0x1e
     .end array-data
 
-    :array_ece
+    :array_fb6
     .array-data 4
         0x0
         0x0

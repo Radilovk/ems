@@ -77,6 +77,7 @@ final class AiText {
             }
         }
         if ("rest".equals(code)) return t("Мускулна умора — почивка", "Muscle fatigue — rest");
+        if ("set_done".equals(code)) return t("Серията е изпълнена — почивка", "Set done — rest");
         if ("rest_timeout".equals(code)) return t("Дълга почивка — следващият блок е по-мек", "Long rest — next block softer");
         if ("rest_ready".equals(code)) return t("Почивката стига — следващият блок е с бутон", "Rest done — start the next block by hand");
         if ("continue".equals(code)) return t("Следващ блок", "Next block");

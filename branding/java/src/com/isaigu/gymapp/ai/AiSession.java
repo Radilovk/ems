@@ -46,6 +46,8 @@ public final class AiSession {
     private static boolean epocClosed;
     /** The session's exercises (null for passive goals); their outcome is stored once at the end. */
     private static AiExercises exercises;
+    /** A workout chosen in "Тренировки" for the next session (null: the AI picks the exercises). */
+    private static Workout workout;
     private static long exercisesUser;
     private static boolean exercisesSaved;
 
@@ -91,6 +93,7 @@ public final class AiSession {
 
     private static void onPulseCycleImpl(TrainItem item) {
         AutoSession.onPulseCycle(item);
+        MapRunner.onPulseCycle(item);
         try {
             if (item == null || item != leader()) {
                 return;
@@ -147,6 +150,10 @@ public final class AiSession {
 
     public static AiModel.Plan getPlan() {
         return plan;
+    }
+
+    static TrainItemManager manager() {
+        return manager;
     }
 
     public static AiEngine getEngine() {
@@ -245,6 +252,9 @@ public final class AiSession {
 
     /** Returns an error text if another automatic mode owns the output, else null. */
     public static String conflict() {
+        if (MapRunner.isRunning()) {
+            return AiText.t("Първо спри картата от Тренировки.", "Stop the Workouts map first.");
+        }
         if (AutoSession.isActive()) {
             return AiText.t("Затвори автоматичната тренировка преди AI.", "Close the automatic session before AI.");
         }
@@ -276,6 +286,7 @@ public final class AiSession {
         if (client != null) {
             client.applyTo(input);
         }
+        applyWorkout();
         stage = Stage.SETUP;
         restHr = null;
         profile = null;
@@ -446,12 +457,33 @@ public final class AiSession {
     }
 
     /** Close the whole flow (after report or cancel before start). */
-    /** The leader's exercises for this session: program from the goal, level from the profile and the history. */
+    /** A workout from "Тренировки" runs with the AI: its goal, active. */
+    public static void useWorkout(Workout w) {
+        workout = w;
+        applyWorkout();
+    }
+
+    public static Workout getWorkout() {
+        return workout;
+    }
+
+    private static void applyWorkout() {
+        if (workout != null) {
+            input.goal = workout.aiGoal();
+            input.mode = AiModel.Mode.ACTIVE;
+            input.focus.addAll(workout.focus);
+            input.focus.addAll(workout.derivedFocus());           // what its exercises train
+        }
+    }
+
+    /** The leader's exercises for this session: the chosen workout, or the template (program from the goal, level
+     *  from the profile and the history). */
     private static void startExercises(Context c) {
         exercises = null;
         exercisesSaved = false;
         AiEnergy.exerciseMet = 0;
         try {
+            ExerciseLibrary.load(c);
             String prog = AutoTemplates.programForAi(input.goal, input.mode, input.age);
             if (prog == null) {
                 return;
@@ -462,8 +494,13 @@ public final class AiSession {
             AiProfile p = lead != null ? AiProfile.of(lead) : null;
             exercisesUser = p != null ? p.userId : 0;
             AutoHistory.Info h = AutoHistory.of(c, exercisesUser);
-            exercises = AiExercises.build(input, p != null ? p.heightCm : 0, plan, h.sessions,
-                    AutoHistory.hoursSince(h.lastActiveMs, System.currentTimeMillis()),
+            double hours = AutoHistory.hoursSince(h.lastActiveMs, System.currentTimeMillis());
+            if (workout != null) {
+                exercises = AiExercises.forWorkout(workout, input, p != null ? p.heightCm : 0, plan, h.sessions, hours);
+                WearableBleDiagLog.log("ai", "workout " + workout.id + " sets " + workout.exerciseBlocks());
+                return;
+            }
+            exercises = AiExercises.build(input, p != null ? p.heightCm : 0, plan, h.sessions, hours,
                     AutoHistory.outcomes(c, exercisesUser, prog));
             WearableBleDiagLog.log("ai", "exercises " + prog + " level "
                     + (exercises != null ? exercises.getScript().level : 0));
@@ -475,7 +512,7 @@ public final class AiSession {
 
     private static void saveExercises() {
         AiEnergy.exerciseMet = 0;
-        if (exercises == null || engine == null || exercisesSaved) {
+        if (exercises == null || engine == null || exercisesSaved || exercises.getWorkout() != null) {
             return;
         }
         exercisesSaved = true;
@@ -510,6 +547,7 @@ public final class AiSession {
         if (stage == Stage.RUNNING || stage == Stage.CALIB) {
             stop();
         }
+        workout = null;
         stopTicker();
         AiRamp.clear();
         stage = Stage.IDLE;
@@ -792,7 +830,27 @@ public final class AiSession {
         int percent = (int) Math.round(calibPercent * c.frac);
         lastSentFrac = c.frac;
         lastAppliedCycle = c;
-        writeAll(c, percent);
+        writeAll(gentler(c), percent);
+    }
+
+    /** A workout's map block may make the impulse gentler (lower Hz, narrower µs), never stronger than the plan. */
+    private static AiEngine.CycleCmd gentler(AiEngine.CycleCmd c) {
+        Workout.Block b = exercises != null && stage == Stage.RUNNING ? exercises.block() : null;
+        if (b == null || c.frac <= 0 || (b.hz >= c.hz && b.pw >= c.pwUs)) {
+            return c;
+        }
+        AiEngine.CycleCmd o = new AiEngine.CycleCmd();
+        o.hz = Math.min(c.hz, b.hz);
+        o.pwUs = Math.min(c.pwUs, b.pw);
+        o.onS = c.onS;
+        o.offS = c.offS;
+        o.frac = c.frac;
+        o.rampUpMs = c.rampUpMs;
+        o.rampDownMs = c.rampDownMs;
+        o.segmentB = c.segmentB;
+        o.pauseHz = c.pauseHz;
+        o.pauseSigma = c.pauseSigma;
+        return o;
     }
 
     private static void forceApplyCurrent() {
@@ -802,7 +860,7 @@ public final class AiSession {
         AiEngine.CycleCmd c = engine.getCurrentCycle();
         double frac = engine.getState() == AiEngine.State.RUN ? engine.getCurrentFrac() : 0;
         lastSentFrac = frac;
-        writeAll(c, (int) Math.round(calibPercent * frac));
+        writeAll(gentler(c), (int) Math.round(calibPercent * frac));
     }
 
     private static void zeroOutput() {

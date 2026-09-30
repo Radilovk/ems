@@ -286,6 +286,9 @@ public final class AutoSession {
 
     /** Text when another automatic mode owns the output, else null. */
     public static String conflict() {
+        if (MapRunner.isRunning()) {
+            return AiText.t("Първо спри картата от Тренировки.", "Stop the Workouts map first.");
+        }
         if (AiSession.getStage() != AiSession.Stage.IDLE) {
             return AiText.t("Затвори AI сесията преди Авто.", "Close the AI session before Auto.");
         }

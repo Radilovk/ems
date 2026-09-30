@@ -148,6 +148,8 @@ public final class AiEngine {
     private long userPauseStartMs = -1L;
     private double reentry = 1.0;
     private boolean endBlockRequested;
+    /** A workout's set reached its repetitions: the block ends at the next cycle (only ever earlier, never longer). */
+    private boolean setDone;
     private int hrEndCycles;
     private double totalIdleS;
     private final List<double[]> restHr = new ArrayList<double[]>();
@@ -214,6 +216,13 @@ public final class AiEngine {
     }
 
     /** G13 — reduce all channels by 0.10, no automatic return. */
+    /** A workout's set is complete (its repetitions were done): rest at the next cycle. Ignored outside a block. */
+    public void endSet() {
+        if (inBlock && state == State.RUN) {
+            setDone = true;
+        }
+    }
+
     public void reduce(long nowMs) {
         uUser = Math.max(0.1, uUser - REDUCE_STEP);
         action("reduce", nowMs);
@@ -427,7 +436,7 @@ public final class AiEngine {
         if (ph.blockMode == BlockMode.FATIGUE_DRIVEN) {
             if (!inBlock) {
                 beginBlock(nowMs);
-            } else if (fatigue >= fMaxEff || endBlockRequested
+            } else if (fatigue >= fMaxEff || endBlockRequested || setDone
                     || (nowMs - blockStartMs) / 1000.0 >= AiPlanner.T_BLOCK_MAX_S) {
                 endBlock(nowMs);
                 return silent(nowMs);
@@ -661,9 +670,11 @@ public final class AiEngine {
         restHr.clear();
         restReady = false;
         restReadyMs = -1L;
+        boolean set = setDone && !b.hrEnded && fatigue < fMaxEff;
         endBlockRequested = false;
+        setDone = false;
         hrEndCycles = 0;
-        action(b.hrEnded ? "hr_block_end" : "rest", nowMs);
+        action(b.hrEnded ? "hr_block_end" : set ? "set_done" : "rest", nowMs);
     }
 
     private void tickRest(long nowMs) {

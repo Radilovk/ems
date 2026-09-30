@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 619
+    .line 735
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,11 +34,11 @@
     .registers 2
 
     .prologue
-    .line 622
+    .line 738
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->startTicking()V
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$500()V
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$600()V
 
-    .line 623
+    .line 739
     return-void
 .end method
 
@@ -46,20 +46,20 @@
     .registers 3
 
     .prologue
-    .line 627
+    .line 743
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->stopTicking()V
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$600()V
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()V
 
-    .line 628
+    .line 744
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$000()Landroid/widget/PopupWindow;
 
     move-result-object v0
 
     if-eqz v0, :cond_1a
 
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$000()Landroid/widget/PopupWindow;
 
     move-result-object v0
 
@@ -69,10 +69,10 @@
 
     if-eqz v0, :cond_1a
 
-    .line 630
+    .line 746
     :try_start_13
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/widget/PopupWindow;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$000()Landroid/widget/PopupWindow;
 
     move-result-object v0
 
@@ -80,12 +80,12 @@
     :try_end_1a
     .catch Ljava/lang/Throwable; {:try_start_13 .. :try_end_1a} :catch_1b
 
-    .line 634
+    .line 750
     :cond_1a
     :goto_1a
     return-void
 
-    .line 631
+    .line 747
     :catch_1b
     move-exception v0
 

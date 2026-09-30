@@ -156,7 +156,8 @@ final class AiUi {
             profileOpen = false;
             healthOk = false;
             healthOpen = hasHealthFlag(AiSession.getInput());
-            show(activity, STEP_GOAL);
+            // from Тренировки the goal is the workout's: straight to the client
+            show(activity, AiSession.getWorkout() != null ? STEP_CLIENT : STEP_GOAL);
             return;
         }
         show(activity, stepForStage(st));
@@ -436,6 +437,10 @@ final class AiUi {
         subtitleView.setText("");
         final AiModel.SessionInput in = AiSession.getInput();
         LinearLayout col = vertical(a);
+        View wb = workoutBanner(a);
+        if (wb != null) {
+            col.addView(wb, matchWrap(a, 0));
+        }
         LinearLayout row = horizontal(a);
         final List<View> cards = new ArrayList<View>();
         for (final Goal g : Goal.values()) {
@@ -914,7 +919,7 @@ final class AiUi {
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         alp.rightMargin = dp(a, 14);
-        tiles.addView(ProgramArt.tile(a, artProg, in.mode == Mode.ACTIVE, in.sex, 132, 100), alp);
+        tiles.addView(ProgramArt.tile(a, artProg, in.mode == Mode.ACTIVE, in.sex, 160, 120), alp);
         String bpmU = " " + AiText.t("уд/мин", "bpm");
         bigTile(a, tiles, AiText.t("Покой", "Rest"), p.hrAvailable ? p.hrRest + "" : "—", p.hrAvailable ? bpmU : "");
         String corridor = p.hrAvailable
@@ -941,6 +946,10 @@ final class AiUi {
         tl.addView(labels);
         col.addView(tl, matchWrap(a, 16));
 
+        View wbp = workoutBanner(a);
+        if (wbp != null) {
+            col.addView(wbp, matchWrap(a, 14));
+        }
         // The cardio plan has a cardio-machine station: one tap, remembered for this tablet.
         String exProg = AutoTemplates.programForAi(in.goal, in.mode, in.age);
         if (exProg != null && AutoTemplates.usesMachine(exProg)) {
@@ -1116,6 +1125,7 @@ final class AiUi {
         final boolean withEx = AiSession.getExercises() != null;
         LinearLayout phaseCard = card(a);
         final ExerciseFigure exFig = new ExerciseFigure(a);
+        exFig.setColor(ExerciseFigure.colorFor(e.getInput().sex));
         final TextView exName = text(a, "", 24, AiViews.TEXT, true);
         final TextView exNext = text(a, "", 14, AiViews.OK, true);
         final TextView phaseName = text(a, "", withEx ? 17 : 30, AiViews.TEXT, true);
@@ -1287,10 +1297,21 @@ final class AiUi {
                     } else {
                         exFig.setCycle(0, 2, 2);                     // the rest: a calm preview
                     }
+                    boolean midSet = xs.getWorkout() != null && !xs.isSetComplete();
                     exName.setText(cur != null ? AutoTemplates.name(cur)
-                            : nx != null ? AiText.t("Следва: ", "Next: ") + AutoTemplates.name(nx) : "");
+                            : nx != null ? (midSet ? AiText.t("Кратка почивка · после пак: ", "Short rest · then again: ")
+                            : AiText.t("Следва: ", "Next: ")) + AutoTemplates.name(nx) : "");
                     exName.setTextColor(cur != null ? AiViews.TEXT : AiViews.OK);
-                    exNext.setText(cur != null && nx != null ? AiText.t("Следва: ", "Next: ") + AutoTemplates.name(nx)
+                    int[] set = xs.set();
+                    String wk = "";
+                    if (set != null && xs.getWorkout() != null) {
+                        Workout.Block it = xs.getWorkout().blocks.get(set[0]);
+                        wk = AiText.t("Серия ", "Set ") + set[1] + "/" + set[2]
+                                + (cur != null ? AiText.t(" · повторение ", " · rep ") + Math.min(xs.getRepsDone(), it.reps)
+                                + "/" + it.reps : "") + (xs.getRound() > 1 ? AiText.t(" · кръг ", " · round ") + xs.getRound() : "");
+                    }
+                    exNext.setText(wk.length() > 0 ? wk + (xs.isEasier() && cur != null ? AiText.t(" · по-леко", " · easier") : "")
+                            : cur != null && nx != null ? AiText.t("Следва: ", "Next: ") + AutoTemplates.name(nx)
                             : cur != null && xs.isEasier() ? AiText.t("По-леко — умората е висока", "Easier — fatigue is high") : "");
                     exNext.setTextColor(cur != null && nx == null && xs.isEasier() ? AiViews.WARN : AiViews.OK);
                     exNext.setVisibility(exNext.getText().length() > 0 ? View.VISIBLE : View.GONE);
@@ -1920,6 +1941,38 @@ final class AiUi {
         t.setPadding(dp(a, 12), dp(a, 7), dp(a, 12), dp(a, 7));
         t.setBackgroundDrawable(rounded((color & 0x00FFFFFF) | 0x22000000, dp(a, 14), 0, 0));
         return t;
+    }
+
+    /** "Workout: name · N exercises · ≈ M min" with a way back to the AI's own choice. */
+    private static View workoutBanner(Context a) {
+        Workout w = AiSession.getWorkout();
+        if (w == null) {
+            return null;
+        }
+        LinearLayout box = horizontal(a);
+        box.setGravity(Gravity.CENTER_VERTICAL);
+        GradientDrawable g = new GradientDrawable();
+        g.setColor((AiViews.CYAN & 0x00FFFFFF) | 0x22000000);
+        g.setStroke(dp(a, 1), (AiViews.CYAN & 0x00FFFFFF) | 0x88000000);
+        g.setCornerRadius(dp(a, 14));
+        box.setBackgroundDrawable(g);
+        box.setPadding(dp(a, 16), dp(a, 10), dp(a, 10), dp(a, 10));
+        TextView t = text(a, AiText.t("Тренировка: ", "Workout: ") + w.name + "  ·  " + w.distinctExercises()
+                + AiText.t(" упр. · ≈ ", " ex. · ≈ ") + w.minutes() + AiText.t(" мин", " min"), 15, AiViews.TEXT, true);
+        box.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView x = text(a, AiText.t("AI избира упражненията", "Let AI pick"), 13, AiViews.MUTED, false);
+        x.setPadding(dp(a, 12), dp(a, 8), dp(a, 12), dp(a, 8));
+        x.setOnClickListener(new ClearWorkout());
+        box.addView(x);
+        return box;
+    }
+
+    static final class ClearWorkout implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            AiSession.useWorkout(null);
+            go(step);
+        }
     }
 
     private static View banner(Context a, int color, String msg) {

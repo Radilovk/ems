@@ -33,6 +33,8 @@ public final class XemsIcon extends Drawable {
     public static final int HISTORY = 14;
     /** A search glass. */
     public static final int SEARCH = 15;
+    /** A dumbbell: the workouts. */
+    public static final int DUMBBELL = 16;
 
     private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -75,6 +77,17 @@ public final class XemsIcon extends Drawable {
         c.scale(s, s);
         stroke.setStrokeWidth(2f);
         switch (type) {
+            case DUMBBELL:
+                r.set(2.5f, 8f, 6.5f, 16f);
+                c.drawRoundRect(r, 1.5f, 1.5f, stroke);
+                r.set(17.5f, 8f, 21.5f, 16f);
+                c.drawRoundRect(r, 1.5f, 1.5f, stroke);
+                r.set(6.5f, 6f, 9f, 18f);
+                c.drawRoundRect(r, 1.2f, 1.2f, stroke);
+                r.set(15f, 6f, 17.5f, 18f);
+                c.drawRoundRect(r, 1.2f, 1.2f, stroke);
+                c.drawLine(9f, 12f, 15f, 12f, stroke);
+                break;
             case BOLT:
                 path.reset();
                 path.moveTo(13.5f, 2.5f);

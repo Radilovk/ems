@@ -68,13 +68,20 @@ so the tablet report, the client's copy (server) and the band use the same data.
   `branding/exercises/exercises.json` (`met`, `mus`) → `AutoTemplateData.MET/MUS`.
 
 ## Program pictures (`ai/ProgramArt`)
-`branding/programs/*.webp` (neon line art, transparent, ≤ 440 px, ~45 KB each) → `assets/xems/programs/` by
-`apply-exercise-assets.py` (fails if a key used in ProgramArt is missing). Always on a dark rounded tile (#12141A),
-both themes. Shown on the Auto program cards (96×72 dp, left) and the AI plan screen (132×100 dp, before the tiles).
+Sources: `branding/programs/src/*.webp` (full resolution, transparent; the women's set cut from the owner's 13-pose
+sheet, black → alpha). `scripts/gen-program-art.py` makes `branding/programs/<key>@<w>.webp` at the exact pixel size of a
+128×96 dp tile for densities 1.5 / 2 / 2.5 / 3 (192 / 256 / 320 / 384 px): tight crop, 90 % fill, linear-light
+premultiplied downscale mixed with a max-pooled copy (line-preserving — thin neon lines keep a bright pixel instead of
+averaging into the dark), light unsharp mask. `--compare out.png` shows plain Lanczos vs this. The app loads the
+smallest width ≥ the tile's px (no density scaling, mipmaps on), always on a dark rounded tile (#12141A), both themes.
+Shown on the Auto program cards (128×96 dp) and the AI plan screen (160×120 dp).
 Key = program × sex: women — general f-squat, glutes/postpartum f-bridge, core f-plank, power f-pushup, cardio
 f-climber, back f-lateral, senior f-curl; men — glutes/cardio m-lunge, core/power/back m-pushup, else m-squat;
-passive — passive-m, or passive-f-music (drain, recovery) / passive-f-line. The women's set was cut from the owner's
-13-pose sheet (black background → alpha).
+passive — passive-m, or passive-f-music (drain, recovery) / passive-f-line. Unused yet: f-lunge, f-bicycle,
+f-legraise, f-twist, f-dip, f-tricep.
+
+## Figure colour
+`ExerciseFigure.colorFor(sex)`: men cyan #22E3FF, women magenta #FF3BD4 (AI: the session's client; Auto: the lead row).
 
 ## Tests
 `bash scripts/ai-sim/run-auto.sh` → `TemplateSim` (every program × states × focus × sessions × fitness × sex × history:

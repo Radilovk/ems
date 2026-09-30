@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 687
+    .line 711
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$15;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,19 +45,19 @@
     .registers 3
 
     .prologue
-    .line 690
+    .line 714
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$15;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->alcoholOrStress48h:Z
+    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->knownArrhythmia:Z
 
-    .line 691
-    const/4 v0, 0x1
+    .line 715
+    const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 692
+    .line 716
     return-void
 .end method

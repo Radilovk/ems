@@ -1,8 +1,9 @@
 # Workouts ("Тренировки") and the exercise library
 
-Main menu → **Тренировки** (`ai/WorkoutsUi`): the ready programs and the studio's own workouts. Build one by tapping
-exercises, set sets × repetitions, drag ≡ to reorder, tie it to a goal (Стягане / Отслабване + focus zones), then
-**▶ Старт с AI** — the Smart Session runs it. Auto mode only shows exercises as an example (docs/xems-exercise-templates.md).
+Main menu → **Тренировки** (`ai/WorkoutsUi`, a full-screen page since 1.1.257): the ready programs and the studio's
+own workouts. Build one by tapping exercises onto the map, then **▶ С AI** or **▶ По картата**. No goal is asked:
+it follows from the exercises (`Workout.suggestedGoal`, mostly cardio → fat loss, else toning; focus zones likewise);
+the name field says what it is for. Changes save by themselves (header "✓ Запазено"; ✕ and Back lose nothing). Auto mode only shows exercises as an example (docs/xems-exercise-templates.md).
 
 ## The library (302 exercises)
 - Source: `branding/exercises/library-src.json` (names BG/EN, steps, target/secondary muscle, equipment, pattern,
@@ -41,7 +42,10 @@ A workout **is** an impulse map: a line of blocks (merged with the exercises for
   10 / 250 / 6+2 at 60 %. Pattern from `library.json` (`pat`) / `AutoTemplateData.PAT`.
 - **Ready maps**: the 7 active template programs (level-2 stations, one set each, 30 s rests, repetitions sized for one
   AI session) and the automatic mode's passive programs converted phase-by-phase (steps → blocks).
-- Goals: Стягане / Отслабване (active) · Процедура (passive: no exercises, runs by the map only).
+- Kinds: a **workout** (exercise blocks; goal derived, never picked) and a **procedure** (passive, no exercises, runs
+  by the map only). They are apart: main menu **Тренировки** lists only workouts, **Процедури** (`WorkoutsUi.openProcedures`,
+  same page) only procedures, each with its own "+ Нова …". An old workout saved as "Процедура" with exercises is turned back
+  into a workout when opened.
 - Store: `files/xems_workouts.json`, `blocks:[{ex,n,hz,pw,on,off,rel}]`; the 1.1.254 `items` (sets × reps) are migrated
   to blocks in rounds with rests.
 

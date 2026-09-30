@@ -17,23 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$e:Lcom/isaigu/gymapp/ai/AiEngine;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
-    .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
     .prologue
-    .line 1253
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
-
+    .line 1312
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -45,26 +34,15 @@
     .registers 3
 
     .prologue
-    .line 1256
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$23;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+    .line 1315
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stop()V
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
+    .line 1316
+    const/4 v0, 0x4
 
-    move-result v0
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    if-nez v0, :cond_d
-
-    const/4 v0, 0x1
-
-    :goto_9
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
-
-    .line 1257
+    .line 1317
     return-void
-
-    .line 1256
-    :cond_d
-    const/4 v0, 0x0
-
-    goto :goto_9
 .end method

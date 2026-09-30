@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 385
+    .line 390
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 386
+    .line 391
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiUi$StepListener;->dir:I
 
-    .line 387
+    .line 392
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 4
 
     .prologue
-    .line 391
+    .line 396
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -52,6 +52,6 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->onStep(Landroid/content/Context;I)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$300(Landroid/content/Context;I)V
 
-    .line 392
+    .line 397
     return-void
 .end method

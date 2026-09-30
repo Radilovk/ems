@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$18;
 
+.field final synthetic val$d:I
+
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$18;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$18;I)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 816
+    .line 1134
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$18$3;->this$0:Lcom/isaigu/gymapp/ai/AiUi$18;
+
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$18$3;->val$d:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,18 +49,11 @@
     .registers 3
 
     .prologue
-    .line 819
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getRestHr()Lcom/isaigu/gymapp/ai/AiRestHr;
+    .line 1137
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AiUi$18$3;->val$d:I
 
-    move-result-object v0
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->adjustCalibration(I)V
 
-    .line 820
-    if-eqz v0, :cond_9
-
-    .line 821
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiRestHr;->acceptUnstable()V
-
-    .line 823
-    :cond_9
+    .line 1138
     return-void
 .end method

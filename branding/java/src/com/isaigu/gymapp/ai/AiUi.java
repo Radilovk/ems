@@ -31,8 +31,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Smart Session UI: sidebar "AI" button → full-screen card with a 6-step setup
- * (goal · profile · check · resting HR · plan · calibration), a live dashboard and a report.
+ * Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup
+ * (goal and client · plan · calibration; the resting HR is measured in the background from the start and shows
+ * only if not ready by the plan), a live dashboard and a report.
  * Built entirely in code; colours in {@link AiViews}.
  */
 final class AiUi {
@@ -40,14 +41,16 @@ final class AiUi {
     private static final int HEART_BTN_ID = 0x7f090297;
     private static final String BTN_TAG = "xems_ai_button";
 
+    /** Goal and client: what today, who, the health confirmation (the primary button). */
     static final int STEP_GOAL = 0;
-    static final int STEP_CLIENT = 1;
-    static final int STEP_REST = 2;
-    static final int STEP_PLAN = 3;
-    static final int STEP_CALIB = 4;
-    static final int STEP_RUN = 5;
-    static final int STEP_REPORT = 6;
-    private static final int SETUP_STEPS = 5;
+    /** The plan; while the resting HR (measured in the background from the start) is not ready, its ring. */
+    static final int STEP_PLAN = 1;
+    static final int STEP_CALIB = 2;
+    static final int STEP_RUN = 3;
+    static final int STEP_REPORT = 4;
+    private static final int SETUP_STEPS = 3;
+    /** "Without band" chosen on the resting-HR wait (trainer only). */
+    private static boolean noBand;
 
     private static Dialog dialog;
     private static int step;
@@ -155,9 +158,13 @@ final class AiUi {
             AiSession.beginSetup(activity);
             profileOpen = false;
             healthOk = false;
+            noBand = false;
             healthOpen = hasHealthFlag(AiSession.getInput());
-            // from Тренировки the goal is the workout's: straight to the client
-            show(activity, AiSession.getWorkout() != null ? STEP_CLIENT : STEP_GOAL);
+            // the band connects now: the resting HR is measured while the goal and client are answered
+            if (AiSession.isBandConfigured(activity) && !AiSession.isBandStreaming()) {
+                AiSession.acquireBand(activity);
+            }
+            show(activity, STEP_GOAL);
             return;
         }
         show(activity, stepForStage(st));
@@ -176,7 +183,7 @@ final class AiUi {
 
     private static int stepForStage(AiSession.Stage st) {
         switch (st) {
-            case REST_HR: return STEP_REST;
+            case REST_HR: return STEP_PLAN;
             case PLAN: return STEP_PLAN;
             case CALIB: return STEP_CALIB;
             default: return STEP_GOAL;
@@ -335,8 +342,6 @@ final class AiUi {
         primaryBtn.setOnClickListener(new StepListener(+1));
         switch (s) {
             case STEP_GOAL: screenGoal(a); break;
-            case STEP_CLIENT: screenClient(a); break;
-            case STEP_REST: screenRest(a); break;
             case STEP_PLAN: screenPlan(a); break;
             case STEP_CALIB: screenCalib(a); break;
             case STEP_RUN: screenRun(a); break;
@@ -398,22 +403,24 @@ final class AiUi {
                 AiSession.stop();
             }
             if (step > STEP_GOAL && step < STEP_RUN) {
-                go(step == STEP_PLAN ? STEP_CLIENT : step - 1);
+                go(step - 1);
             }
             return;
         }
         switch (step) {
-            case STEP_GOAL: go(STEP_CLIENT); break;
-            case STEP_CLIENT:
-                if (!AiScreening.evaluate(AiSession.getInput()).isRejected() && (healthOk || healthOpen)
-                        && AiSession.getInput().age >= 18) {
-                    go(STEP_REST);
+            case STEP_GOAL:
+                if (goalReady()) {
+                    if (!healthOpen) {
+                        healthOk = true;          // the primary button is the confirmation itself
+                    }
+                    go(STEP_PLAN);
                 }
                 break;
-            case STEP_REST: finishRest(a); break;
             case STEP_PLAN:
-                AiSession.beginCalibration();
-                go(STEP_CALIB);
+                if (AiSession.getPlan() != null && AiSession.getStage() == AiSession.Stage.PLAN) {
+                    AiSession.beginCalibration();
+                    go(STEP_CALIB);
+                }
                 break;
             case STEP_CALIB:
                 if (AiSession.isCalibStimOn() && AiSession.getCalibPercent() > 0
@@ -433,13 +440,19 @@ final class AiUi {
     // ================================================================ 1 · goal
 
     private static void screenGoal(Context a) {
-        titleView.setText(AiText.t("Каква е целта днес?", "What is today's goal?"));
-        subtitleView.setText("");
         final AiModel.SessionInput in = AiSession.getInput();
+        String who = AiSession.leaderName();
+        titleView.setText(AiSession.getWorkout() != null ? AiText.t("Тренировка с AI", "Workout with AI")
+                : AiText.t("Каква е целта днес?", "What is today's goal?"));
+        subtitleView.setText(who);
         LinearLayout col = vertical(a);
         View wb = workoutBanner(a);
         if (wb != null) {
+            // from Тренировки the goal, time and impulse are the workout's: only the client is asked
             col.addView(wb, matchWrap(a, 0));
+            clientBlock(a, col);
+            finishGoal(a, col, in);
+            return;
         }
         LinearLayout row = horizontal(a);
         final List<View> cards = new ArrayList<View>();
@@ -482,7 +495,7 @@ final class AiUi {
             row.addView(card, lp);
             cards.add(card);
         }
-        col.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 190)));
+        col.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 150)));
 
         LinearLayout opts = horizontal(a);
         // Mode only when the goal allows both (massage, drainage, cellulite are passive only).
@@ -534,6 +547,12 @@ final class AiUi {
             plp.topMargin = dp(a, 14);
             col.addView(pauseBox, plp);
         }
+        clientBlock(a, col);
+        finishGoal(a, col, in);
+    }
+
+    /** Goal step: the operator line, the scroll and the footer (the primary button confirms the health check). */
+    private static void finishGoal(Context a, LinearLayout col, final AiModel.SessionInput in) {
         // Who operates: remembered between sessions, so only a quiet line.
         TextView op = text(a, AiText.t("Управлява: ", "Operated by: ") + (in.operator == Operator.TRAINER
                 ? AiText.t("треньор · смени", "trainer · change")
@@ -549,7 +568,17 @@ final class AiUi {
         });
         col.addView(op);
         body.addView(scroll(a, col));
-        setupFooter(a, AiText.t("Напред", "Next"), false);
+        setupFooter(a, healthOpen ? AiText.t("Към плана", "To the plan")
+                : "✓  " + AiText.t("Добре е днес · към плана", "Fine today · to the plan"), false);
+        boolean ready = goalReady();
+        primaryBtn.setEnabled(ready);
+        primaryBtn.setAlpha(ready ? 1f : 0.4f);
+    }
+
+    /** Adult, and (the list open) nothing that rules today out. */
+    private static boolean goalReady() {
+        AiModel.SessionInput in = AiSession.getInput();
+        return in.age >= 18 && (!healthOpen || !AiScreening.evaluate(in).isRejected());
     }
 
     // ================================================================ 2 · client (profile + health)
@@ -571,12 +600,10 @@ final class AiUi {
                 || in.screening.hrLoweringMedication;
     }
 
-    private static void screenClient(final Context a) {
+    /** The client on the goal step: one profile line (editors on request), health only when not fine. */
+    private static void clientBlock(final Context a, LinearLayout col) {
         final AiModel.SessionInput in = AiSession.getInput();
-        titleView.setText(AiText.t("Клиент", "Client"));
-        subtitleView.setText("");
-        LinearLayout col = vertical(a);
-
+        col.addView(sectionLabel(a, AiText.t("Клиент", "Client")), matchWrap(a, 22));
         LinearLayout prof = card(a);
         if (!profileOpen && in.age >= 18) {
             LinearLayout line = horizontal(a);
@@ -592,7 +619,7 @@ final class AiUi {
                 @Override
                 public void onClick(View v) {
                     profileOpen = true;
-                    go(STEP_CLIENT);
+                    go(STEP_GOAL);
                 }
             });
             line.addView(edit, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(a, 48)));
@@ -604,7 +631,7 @@ final class AiUi {
                         @Override
                         public void onSelect(int i) {
                             in.sex = i == 0 ? AiModel.Sex.MALE : AiModel.Sex.FEMALE;
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     }), weight(a, 0));
             r1.addView(segmented(a, new String[] {AiText.t("Ниска кондиция", "Low fitness"), AiText.t("Средна", "Mid"),
@@ -612,7 +639,7 @@ final class AiUi {
                         @Override
                         public void onSelect(int i) {
                             in.fitness = AiModel.Fitness.values()[i];
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     }), weight(a, 16));
             prof.addView(r1);
@@ -622,7 +649,7 @@ final class AiUi {
                         @Override
                         public void onDelta(int d) {
                             in.age = Math.max(14, Math.min(90, in.age + d));
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     })), weight(a, 0));
             r2.addView(labeled(a, AiText.t("Тегло", "Weight"), stepper(a, Math.round(in.weightKg) + "", "kg",
@@ -630,7 +657,7 @@ final class AiUi {
                         @Override
                         public void onDelta(int d) {
                             in.weightKg = Math.max(35, Math.min(200, Math.round(in.weightKg) + d));
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     })), weight(a, 16));
             prof.addView(r2, matchWrap(a, 16));
@@ -639,27 +666,16 @@ final class AiUi {
 
         LinearLayout health = card(a);
         if (!healthOpen) {
-            TextView ok = healthOk ? pillButton(a, "✓ " + AiText.t("Без противопоказания, добре е днес",
-                    "No contraindications, feeling fine today"), AiViews.OK)
-                    : pillButton(a, AiText.t("Без противопоказания, добре е днес",
-                    "No contraindications, feeling fine today"), AiViews.MUTED);
-            ok.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    healthOk = !healthOk;
-                    go(STEP_CLIENT);
-                }
-            });
-            health.addView(ok, matchWrap(a, 0));
-            TextView more = text(a, AiText.t("Има нещо…", "Something is not fine…"), 15, AiViews.MUTED, true);
+            TextView more = text(a, AiText.t("Има нещо днес? (противопоказание, болест…)",
+                    "Something today? (contraindication, illness…)"), 15, AiViews.MUTED, true);
             more.setGravity(Gravity.CENTER);
-            more.setPadding(0, dp(a, 14), 0, dp(a, 4));
+            more.setPadding(0, dp(a, 6), 0, dp(a, 6));
             more.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     healthOpen = true;
                     healthOk = false;
-                    go(STEP_CLIENT);
+                    go(STEP_GOAL);
                 }
             });
             health.addView(more, matchWrap(a, 0));
@@ -671,7 +687,7 @@ final class AiUi {
                     @Override
                     public void onToggle(boolean on) {
                         in.screening.contraindications.put(key, on);
-                        go(STEP_CLIENT);
+                        go(STEP_GOAL);
                     }
                 }));
             }
@@ -680,7 +696,7 @@ final class AiUi {
                         @Override
                         public void onToggle(boolean on) {
                             in.screening.feverOrIllness = on;
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     }));
             health.addView(toggleRow(a, AiText.t("Алкохол или силен стрес (48 ч)", "Alcohol or heavy stress (48 h)"),
@@ -688,7 +704,7 @@ final class AiUi {
                         @Override
                         public void onToggle(boolean on) {
                             in.screening.alcoholOrStress48h = on;
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     }));
             health.addView(toggleRow(a, AiText.t("Известна аритмия", "Known arrhythmia"),
@@ -696,7 +712,7 @@ final class AiUi {
                         @Override
                         public void onToggle(boolean on) {
                             in.screening.knownArrhythmia = on;
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     }));
             health.addView(toggleRow(a, AiText.t("Лекарства, понижаващи пулса", "HR-lowering medication"),
@@ -704,14 +720,13 @@ final class AiUi {
                         @Override
                         public void onToggle(boolean on) {
                             in.screening.hrLoweringMedication = on;
-                            go(STEP_CLIENT);
+                            go(STEP_GOAL);
                         }
                     }));
         }
         col.addView(health, matchWrap(a, 14));
 
         AiScreening.Result r = AiScreening.evaluate(in);
-        boolean ready = !r.isRejected() && (healthOk || healthOpen) && in.age >= 18;
         if (in.age < 18) {
             col.addView(banner(a, AiViews.DANGER, AiText.t("AI сесията е само за пълнолетни.",
                     "AI sessions are for adults only.")), matchWrap(a, 14));
@@ -722,18 +737,33 @@ final class AiUi {
             }
             col.addView(banner(a, AiViews.DANGER, sb.toString()), matchWrap(a, 14));
         }
-        body.addView(scroll(a, col));
-        setupFooter(a, AiText.t("Напред", "Next"), true);
-        primaryBtn.setEnabled(ready);
-        primaryBtn.setAlpha(ready ? 1f : 0.4f);
     }
 
-    // ================================================================ 4 · resting HR
+    // ================================================================ 2a · resting HR (only while not ready)
+
+    /**
+     * The plan needs the resting HR: measured in the background since the sheet opened (AiSession.tick), so usually
+     * ready by now. Without a configured band (trainer) or after "Without band" the plan runs without HR.
+     */
+    private static boolean ensurePlan(Context a) {
+        AiModel.SessionInput in = AiSession.getInput();
+        boolean self = in.operator == Operator.SELF;
+        AiRestHr r = AiSession.getRestHr();
+        if (r != null && r.getStatus() == AiRestHr.Status.DONE && !(self && r.getHrRest() >= 100)) {
+            AiSession.buildPlan(r.getHrRest(), r.getSigma(), r.getDtHrMs());
+            return true;
+        }
+        if (!self && (noBand || !AiSession.isBandConfigured(a))) {
+            AiSession.buildPlan(0, 0, 0);
+            return true;
+        }
+        return false;
+    }
 
     private static void screenRest(final Context a) {
         titleView.setText(AiText.t("Пулс в покой", "Resting heart rate"));
-        subtitleView.setText(AiText.t("Седни или легни спокойно, без стимулация",
-                "Sit or lie still, no stimulation"));
+        subtitleView.setText(AiText.t("Седни или легни спокойно, без стимулация · планът идва сам",
+                "Sit or lie still, no stimulation · the plan follows by itself"));
         final boolean self = AiSession.getInput().operator == Operator.SELF;
         LinearLayout row = horizontal(a);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -767,6 +797,8 @@ final class AiUi {
         row.addView(side, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         body.addView(scroll(a, row));
         setupFooter(a, AiText.t("Към плана", "To the plan"), true);
+        primaryBtn.setEnabled(false);
+        primaryBtn.setAlpha(0.4f);
         // The band comes from Settings → Band; no need to start the HR dial first.
         final boolean configured = AiSession.isBandConfigured(a);
         if (configured && !AiSession.isBandStreaming()) {
@@ -802,7 +834,7 @@ final class AiUi {
                             noBand.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    AiSession.buildPlan(0, 0, 0);
+                                    AiUi.noBand = true;
                                     go(STEP_PLAN);
                                 }
                             });
@@ -883,27 +915,38 @@ final class AiUi {
                                 "Breathe calmly. Don't talk or move."));
                     }
                 }
-                primaryBtn.setEnabled(done);
-                primaryBtn.setAlpha(done ? 1f : 0.4f);
+                if (done && step == STEP_PLAN) {
+                    body.post(new ToPlan());              // measured: the plan shows by itself
+                }
             }
         });
     }
 
-    private static void finishRest(Context a) {
-        AiRestHr r = AiSession.getRestHr();
-        if (r == null || r.getStatus() != AiRestHr.Status.DONE) {
-            return;
+    static final class ToPlan implements Runnable {
+        @Override
+        public void run() {
+            if (dialog != null && dialog.isShowing() && step == STEP_PLAN) {
+                go(STEP_PLAN);
+            }
         }
-        if (AiSession.getInput().operator == Operator.SELF && r.getHrRest() >= 100) {
-            return;
-        }
-        AiSession.buildPlan(r.getHrRest(), r.getSigma(), r.getDtHrMs());
-        go(STEP_PLAN);
     }
 
-    // ================================================================ 5 · plan
+    static final class MeasureAgain implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            noBand = false;
+            AiSession.restartRestHr();
+            go(STEP_PLAN);
+        }
+    }
+
+    // ================================================================ 2 · plan
 
     private static void screenPlan(Context a) {
+        if (!ensurePlan(a)) {
+            screenRest(a);
+            return;
+        }
         AiModel.Plan plan = AiSession.getPlan();
         AiModel.Profile p = AiSession.getProfile();
         AiModel.SessionInput in = AiSession.getInput();
@@ -968,6 +1011,13 @@ final class AiUi {
         if (!p.hrAvailable) {
             col.addView(banner(a, AiViews.WARN, AiText.t("Без гривна — управлява само планът.",
                     "No band — the plan alone controls.")), matchWrap(a, 14));
+        }
+        if (AiSession.isBandConfigured(a)) {
+            TextView again = text(a, "↻  " + (p.hrAvailable ? AiText.t("Измери пулса в покой пак", "Measure the resting HR again")
+                    : AiText.t("Измери пулса в покой с гривната", "Measure the resting HR with the band")), 14, AiViews.MUTED, true);
+            again.setPadding(dp(a, 4), dp(a, 12), dp(a, 4), dp(a, 4));
+            again.setOnClickListener(new MeasureAgain());
+            col.addView(again);
         }
         for (String f : p.flags) {
             if (!"NO_BAND".equals(f)) {

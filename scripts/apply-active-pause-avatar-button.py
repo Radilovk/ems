@@ -390,7 +390,9 @@ def bind_pause_ma_value_click_smali(pause_ma_id: int) -> str:
 """.strip()
 
 
-def update_pause_ma_display_smali(pause_ma_id: int) -> str:
+def update_pause_ma_display_smali(pause_ma_id: int, yellow_bg: int) -> str:
+    # Same states as the 2nd-impulse Hz: always clickable (a tap turns the 2nd impulse on —
+    # wearable/TrainIndex.pauseClick), black = off, yellow = on, green = selected.
     return f"""
 .method private updatePauseMaDisplay()V
     .locals 6
@@ -475,11 +477,11 @@ def update_pause_ma_display_smali(pause_ma_id: int) -> str:
 
     iget-boolean v3, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
+    const/4 v4, 0x1
+
+    invoke-virtual {{v0, v4}}, Landroid/widget/TextView;->setClickable(Z)V
+
     if-nez v3, :cond_enabled
-
-    const/4 v2, 0x0
-
-    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setClickable(Z)V
 
     iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -494,10 +496,6 @@ def update_pause_ma_display_smali(pause_ma_id: int) -> str:
     goto :goto_0
 
     :cond_enabled
-    const/4 v2, 0x1
-
-    invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setClickable(Z)V
-
     iget-object v2, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {{v2}}, Lcom/isaigu/gymapp/train/model/TrainItem;->isPauseMaSelected()Z
@@ -506,7 +504,7 @@ def update_pause_ma_display_smali(pause_ma_id: int) -> str:
 
     if-nez v2, :cond_green
 
-    const v2, {BLACK_BG:#x}
+    const v2, {yellow_bg:#x}
 
     invoke-virtual {{v0, v2}}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
@@ -1895,7 +1893,7 @@ def patch_train_item() -> None:
 def patch_train_view_holder(pause_ma_id: int, pause_hz_id: int, yellow_bg: int) -> None:
     text = TRAIN_VIEW_HOLDER.read_text(encoding="utf-8")
     bind_ma = bind_pause_ma_value_click_smali(pause_ma_id)
-    display_ma = update_pause_ma_display_smali(pause_ma_id)
+    display_ma = update_pause_ma_display_smali(pause_ma_id, yellow_bg)
     bind_hz = bind_pause_hz_value_click_smali(pause_hz_id)
     display_hz = update_pause_hz_display_smali(pause_hz_id, yellow_bg)
     pause_methods = bind_ma + "\n\n" + display_ma + "\n\n" + bind_hz + "\n\n" + display_hz

@@ -3,7 +3,7 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1437
+    .line 1506
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,13 +30,13 @@
 
 
 # virtual methods
-.method public onSelect(I)V
+.method public onClick(Landroid/view/View;)V
     .registers 2
 
     .prologue
-    .line 1440
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->answerCheckpoint(I)V
+    .line 1509
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 
-    .line 1441
+    .line 1510
     return-void
 .end method

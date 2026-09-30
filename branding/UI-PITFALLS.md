@@ -60,6 +60,13 @@ Music player layout има `android:rotation="180"` на `@id/musicPlayerSeek`. 
 събитие → събитието се мести върху палеца (стойността стои). Popup-и: **не** focusable (иначе Android
 показва навигационната лента) — `XemsNav.showMenu`, `XemsFullscreen.immersive`.
 
+### 2.5 Бутон, който „не реагира“: `setClickable(false)` в display метод
+
+`updatePauseMaDisplay` правеше MA на 2-рия импулс неактивен (`setClickable(false)`), докато импулсът е изключен —
+listener-ът никога не стигаше до `TrainIndex.pauseClick`, т.е. MA не можеше да го включи, и нямаше жълто
+„включен“ състояние. Правило: бутоните от един вид имат **едни и същи** състояния и реакции (Hz ≡ MA); логиката за
+позволено/забранено е в click handler-а, не в `setClickable` на display метода (1.1.257).
+
 ---
 
 ## 3. Floating overlay (AlertDialog)

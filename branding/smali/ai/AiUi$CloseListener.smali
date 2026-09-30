@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 267
+    .line 274
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,45 +34,45 @@
     .registers 4
 
     .prologue
-    .line 270
+    .line 277
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     move-result-object v0
 
-    .line 271
+    .line 278
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     if-ne v0, v1, :cond_c
 
-    .line 273
+    .line 280
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->dismiss()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$000()V
 
-    .line 283
+    .line 290
     :goto_b
     return-void
 
-    .line 276
+    .line 283
     :cond_c
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     if-ne v0, v1, :cond_14
 
-    .line 277
+    .line 284
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->closeReport()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$100()V
 
     goto :goto_b
 
-    .line 280
+    .line 287
     :cond_14
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->close()V
 
-    .line 281
+    .line 288
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->dismiss()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$000()V
 
-    .line 282
+    .line 289
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->styleSideButton()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$200()V
 

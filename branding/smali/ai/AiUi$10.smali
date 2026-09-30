@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 629
+    .line 656
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .registers 12
 
     .prologue
-    .line 632
+    .line 659
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$10;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     const-wide/16 v2, 0x23
@@ -76,12 +76,12 @@
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    .line 633
-    const/4 v0, 0x1
+    .line 660
+    const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 634
+    .line 661
     return-void
 .end method

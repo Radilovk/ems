@@ -1082,9 +1082,9 @@ function start(focusId){
   $("#delBtn").hidden=DEMO;
   renderStats();
   if(!has){$("#list").innerHTML="";return;}
+  setTimeout(refreshCard,1500);   // before drawing: a drawing error must not keep the card from the client
   let i=sessions.length-1;if(focusId){const k=sessions.findIndex(s=>String(s.id)===String(focusId));if(k>=0)i=k;}
   show(i);
-  setTimeout(refreshCard,1500);
 }
 function boot(first){
   if(BR){

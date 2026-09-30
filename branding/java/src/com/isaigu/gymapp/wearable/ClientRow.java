@@ -215,6 +215,7 @@ public final class ClientRow {
             tile(a, tiles2, tr("Тренировки", "Trainings"), String.valueOf(list.length()), 8);
             tile(a, tiles2, tr("Последна", "Last"), lastMs > 0 ? day(lastMs) : "—", 8);
             body.addView(tiles2, XemsUi.matchWrap(a, 8));
+            appStatus(a, s, u, lastMs);
 
             if (p != null && (!p.focus.isEmpty() || !p.cond.isEmpty())) {
                 StringBuilder b = new StringBuilder();
@@ -254,6 +255,49 @@ public final class ClientRow {
             s.dialog.show();
         } catch (Throwable t) {
             XemsGuard.report("ClientRow.summary", t);
+        }
+    }
+
+    /**
+     * Is the analysis in the client's app? ✓ with the time of the last upload, or what is missing (no e-mail /
+     * phone, not uploaded after the last training) and one tap to send it now.
+     */
+    private static void appStatus(Activity a, XemsUi.Shell s, TrainUser u, long lastMs) {
+        body(s).addView(XemsUi.label(a, tr("Приложението на клиента", "The client's app")), XemsUi.matchWrap(a, 14));
+        String state = CardPublisher.state(a, u, lastMs);
+        int color = state.startsWith("✓") ? XemsUi.GO_TEXT : state.startsWith("✗") ? XemsUi.DANGER : XemsUi.AMBER;
+        body(s).addView(XemsUi.text(a, state, 15, color, true), XemsUi.matchWrap(a, 4));
+        if (lastMs > 0 && ReportBridge.lookupFields(u).length() > 0 && !state.startsWith("✓")) {
+            TextView up = XemsUi.button(a, tr("Качи сега", "Upload now"), XemsUi.PRIMARY);
+            up.setOnClickListener(new Upload(s, u));
+            body(s).addView(up, XemsUi.matchWrap(a, 8));
+        }
+    }
+
+    private static LinearLayout body(XemsUi.Shell s) {
+        return s.body;
+    }
+
+    static final class Upload implements View.OnClickListener {
+        private final XemsUi.Shell s;
+        private final TrainUser u;
+
+        Upload(XemsUi.Shell s, TrainUser u) {
+            this.s = s;
+            this.u = u;
+        }
+
+        @Override
+        public void onClick(View v) {
+            try {
+                CardPublisher.force(v.getContext(), u);
+                if (v instanceof TextView) {
+                    ((TextView) v).setText(tr("Качва се… (≈ 20 s)", "Uploading… (≈ 20 s)"));
+                }
+                v.setEnabled(false);
+            } catch (Throwable t) {
+                XemsGuard.report("ClientRow.upload", t);
+            }
         }
     }
 

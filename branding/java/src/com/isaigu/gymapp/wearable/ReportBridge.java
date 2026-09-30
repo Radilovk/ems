@@ -196,11 +196,25 @@ final class ReportBridge {
         try {
             String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, com.isaigu.gymapp.widget.XemsDossier.keyFor(user.id), json,
                     lookupFields(user));
-            cardPrefs().edit().putString("url_" + user.id, url).putString("key_" + user.id, key).apply();
+            cardPrefs().edit().putString("url_" + user.id, url).putString("key_" + user.id, key)
+                    .putLong("at_" + user.id, System.currentTimeMillis()).remove("err_" + user.id).apply();
             WearableBleDiagLog.log("report", "card refreshed " + url);
         } catch (Throwable t) {
+            cardPrefs().edit().putString("err_" + user.id, reason(t)).apply();
             WearableBleDiagLog.log("report", "card refresh: " + t);     // offline: next opening tries again
         }
+    }
+
+    /** Why an upload failed, in a few words for the trainer. */
+    static String reason(Throwable t) {
+        String m = String.valueOf(t.getMessage()).toLowerCase(java.util.Locale.ROOT);
+        if (t instanceof java.io.IOException || m.contains("unable to resolve") || m.contains("timeout")) {
+            return WearableUi.tr("няма интернет", "no internet");
+        }
+        if (m.contains("token") || m.contains("revoked") || m.contains("expired") || m.contains("license")) {
+            return WearableUi.tr("лицензът не е потвърден", "licence not confirmed");
+        }
+        return WearableUi.tr("сървърът отказа", "the server refused");
     }
 
     void cardNow(String json) {
@@ -215,7 +229,8 @@ final class ReportBridge {
         try {
             String url = com.isaigu.gymapp.widget.XemsLicenseClient.postCard(a, com.isaigu.gymapp.widget.XemsDossier.keyFor(user.id), json,
                     lookupFields(user));
-            cardPrefs().edit().putString("url_" + user.id, url).apply();
+            cardPrefs().edit().putString("url_" + user.id, url)
+                    .putLong("at_" + user.id, System.currentTimeMillis()).remove("err_" + user.id).apply();
             shareText(subject, hello + WearableUi.tr("Ето твоя XEMS картон — напредъкът ти, обновява се след всяка тренировка: ",
                     "Here is your XEMS card — your progress, updated after every training: ") + url);
             WearableBleDiagLog.log("report", "card link " + url);

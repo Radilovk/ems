@@ -26,16 +26,15 @@ export function lookupHash(v) {
 }
 
 /**
- * Does a card belong to the person asking? Every hash the card carries must match what was sent,
- * and the card must carry at least one (a card without any is found only by its link).
+ * Does a card belong to the person asking? The e-mail or the phone the client gave the studio matches the one
+ * on the card. One is enough: the booking app often knows only one of them, or the phone is written another
+ * way than on the tablet — requiring both hid the card from its own client. A card without any hash is found
+ * only by its link.
  */
 export function lookupMatches(card, ek, pk) {
   const e = card?.email_hash || null;
   const p = card?.phone_hash || null;
-  if (!e && !p) return false;
-  if (e && e !== ek) return false;
-  if (p && p !== pk) return false;
-  return true;
+  return Boolean((e && ek && e === ek) || (p && pk && p === pk));
 }
 
 export function normClientKey(v) {

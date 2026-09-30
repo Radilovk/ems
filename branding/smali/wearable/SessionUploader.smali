@@ -224,41 +224,73 @@
 
     move-result v0
 
-    if-nez v0, :cond_4c
+    if-nez v0, :cond_6d
 
-    .line 148
-    :cond_4b
-    :goto_4b
+    .line 114
+    const-string v0, "report"
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "session upload user "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v2, ": not on the server yet (no cid)"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 115
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsDossier;->changed()V
+
+    .line 150
+    :cond_6c
+    :goto_6c
     return v6
 
-    .line 116
-    :cond_4c
+    .line 118
+    :cond_6d
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/SessionStore;->index(Landroid/content/Context;)Lorg/json/JSONArray;
 
     move-result-object v2
 
-    .line 117
+    .line 119
     new-instance v11, Ljava/util/ArrayList;
 
     invoke-direct {v11}, Ljava/util/ArrayList;-><init>()V
 
     move v0, v6
 
-    .line 118
-    :goto_56
+    .line 120
+    :goto_77
     invoke-virtual {v2}, Lorg/json/JSONArray;->length()I
 
     move-result v3
 
-    if-ge v0, v3, :cond_88
+    if-ge v0, v3, :cond_a9
 
-    .line 119
+    .line 121
     invoke-virtual {v2, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 120
-    if-eqz v3, :cond_85
+    .line 122
+    if-eqz v3, :cond_a6
 
     const-string v4, "userId"
 
@@ -274,11 +306,11 @@
 
     move-result v4
 
-    if-eqz v4, :cond_85
+    if-eqz v4, :cond_a6
 
     const-string v4, "id"
 
-    .line 121
+    .line 123
     invoke-virtual {v3, v4}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
 
     move-result-wide v4
@@ -291,19 +323,19 @@
 
     move-result v4
 
-    if-nez v4, :cond_85
+    if-nez v4, :cond_a6
 
-    .line 122
+    .line 124
     invoke-interface {v11, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 118
-    :cond_85
+    .line 120
+    :cond_a6
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_56
+    goto :goto_77
 
-    .line 125
-    :cond_88
+    .line 127
+    :cond_a9
     new-instance v0, Lcom/isaigu/gymapp/wearable/SessionUploader$NewestFirst;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/SessionUploader$NewestFirst;-><init>()V
@@ -314,19 +346,19 @@
 
     move v8, v6
 
-    .line 127
-    :goto_92
+    .line 129
+    :goto_b3
     invoke-interface {v11}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-ge v7, v0, :cond_13d
+    if-ge v7, v0, :cond_15e
 
     const/4 v0, 0x6
 
-    if-ge v8, v0, :cond_13d
+    if-ge v8, v0, :cond_15e
 
-    .line 128
+    .line 130
     invoke-interface {v11, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -339,13 +371,13 @@
 
     move-result-wide v2
 
-    .line 129
+    .line 131
     invoke-static {p0, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionStore;->load(Landroid/content/Context;J)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 130
-    if-eqz v5, :cond_c3
+    .line 132
+    if-eqz v5, :cond_e4
 
     const-string v0, "{"
 
@@ -353,10 +385,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_c3
+    if-eqz v0, :cond_e4
 
-    .line 132
-    :try_start_b5
+    .line 134
+    :try_start_d6
     invoke-interface {v11, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -370,33 +402,33 @@
     move-object v0, p0
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->postSession(Landroid/content/Context;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;)V
-    :try_end_c3
-    .catch Ljava/lang/Throwable; {:try_start_b5 .. :try_end_c3} :catch_ee
+    :try_end_e4
+    .catch Ljava/lang/Throwable; {:try_start_d6 .. :try_end_e4} :catch_10f
 
-    .line 138
-    :cond_c3
+    .line 140
+    :cond_e4
     invoke-static {v2, v3}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
 
     move-result-object v0
 
     invoke-interface {v10, v0}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 139
+    .line 141
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 140
+    .line 142
     invoke-interface {v10}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
 
-    :goto_d3
+    :goto_f4
     invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_113
+    if-eqz v0, :cond_134
 
     invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -404,29 +436,29 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 141
+    .line 143
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v4
 
-    if-lez v4, :cond_ea
+    if-lez v4, :cond_10b
 
-    .line 142
+    .line 144
     const/16 v4, 0x2c
 
     invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 144
-    :cond_ea
+    .line 146
+    :cond_10b
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    goto :goto_d3
+    goto :goto_f4
 
-    .line 133
-    :catch_ee
+    .line 135
+    :catch_10f
     move-exception v0
 
-    .line 134
+    .line 136
     const-string v1, "report"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -459,10 +491,10 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto/16 :goto_4b
+    goto/16 :goto_6c
 
-    .line 146
-    :cond_113
+    .line 148
+    :cond_134
     invoke-interface {v9}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -495,7 +527,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 127
+    .line 129
     add-int/lit8 v0, v7, 0x1
 
     add-int/lit8 v2, v8, 0x1
@@ -504,17 +536,17 @@
 
     move v8, v2
 
-    goto/16 :goto_92
+    goto/16 :goto_b3
 
-    .line 148
-    :cond_13d
+    .line 150
+    :cond_15e
     invoke-interface {v11}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-le v0, v8, :cond_4b
+    if-le v0, v8, :cond_6c
 
     const/4 v6, 0x1
 
-    goto/16 :goto_4b
+    goto/16 :goto_6c
 .end method

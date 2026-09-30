@@ -9,6 +9,51 @@ final class AutoTemplateData {
     static final String[] BG = {"Теглене надолу с ластик", "Кофички на пейка", "Велосипед (коремни преси)", "Клек без тежест", "Български клек", "Бърпи", "Кофички на стол", "Коремни преси", "Реверанс напади", "Ритник назад от колене", "Странични напади с дъмбел", "Разгъване за трицепс над главата с дъмбел", "Странично навеждане с дъмбел", "Сумо клек с дъмбел", "Кардио тренажор", "Отвеждане на коляното встрани (от колене)", "Напади напред", "Глутеус мост", "Гоблет клек (с дъмбел пред гърдите)", "Лицеви опори с ръце на пейка", "Клек с отскок", "Джъмпинг джак", "Румънска тяга с пудовка", "Суинг с пудовка", "Лицеви опори от колене", "Странични напади", "Вдигане на краката от лег", "Гребане с дъмбел с една ръка", "Планк", "Планк с докосване на рамото", "Предно вдигане с диск", "Обратни коремни преси", "Напади назад", "Отвеждане на крака от лег на страна", "Страничен планк", "Глутеус мост на един крак", "Раменна преса с дъмбели (прав)", "Слизане от пейка", "Супермен", "Трицепсов ритник с дъмбел"};
     static final String[] EN = {"Banded Lat Pulldown", "Bench Dip", "Bicycle Crunch", "Bodyweight Squat", "Bulgarian Split Squat", "Burpee", "Chair Dip", "Crunch", "Curtsy Lunge", "Donkey Kick", "Dumbbell Lateral Lunge", "Dumbbell Overhead Tricep Extension", "Dumbbell Side Bend", "Dumbbell Sumo Squat", "Elliptical", "Fire Hydrant", "Forward Lunge", "Glute Bridge", "Goblet Squat", "Incline Push-up", "Jump Squat", "Jumping Jack", "Kettlebell Romanian Deadlift", "Kettlebell Swing", "Knee Push-up", "Lateral Lunge", "Lying Leg Raise", "One-Arm Dumbbell Row", "Plank", "Plank Shoulder Tap", "Plate Front Raise", "Reverse Crunch", "Reverse Lunge", "Side-Lying Hip Abduction", "Side Plank", "Single-Leg Glute Bridge", "Standing Dumbbell Press", "Step-Down", "Superman", "Tricep Kickback"};
     static final String[] POS = {"stand", "bench", "floor", "stand", "bench", "stand", "bench", "floor", "stand", "floor", "stand", "stand", "stand", "stand", "machine", "floor", "stand", "floor", "stand", "bench", "stand", "stand", "stand", "stand", "floor", "stand", "floor", "bench", "floor", "floor", "stand", "floor", "stand", "floor", "floor", "floor", "stand", "bench", "floor", "stand"};
+    /** MET of the movement itself (Compendium-style estimate) and the muscles it works per suit channel
+     *  (0 chest, 1 abs, 2 front thigh, 3 calf, 4 arms, 5 shoulders, 6 back, 7 lower back, 8 glutes, 9 back thigh; 100 = main). */
+    static final double[] MET = {3.5, 3.8, 3.8, 5.0, 5.0, 8.0, 3.8, 2.8, 4.0, 2.8, 4.5, 3.5, 3.0, 5.0, 5.0, 2.8, 4.0, 3.0, 5.0, 3.5, 8.0, 8.0, 5.0, 8.0, 3.5, 4.0, 3.0, 3.5, 3.0, 3.8, 3.0, 3.0, 4.5, 2.5, 3.0, 3.3, 3.5, 4.0, 2.8, 3.0};
+    static final int[][] MUS = {
+            {0, 0, 0, 0, 50, 40, 100, 0, 0, 0},   // banded-lat-pulldown
+            {50, 0, 0, 0, 100, 50, 0, 0, 0, 0},   // bench-dip
+            {0, 100, 30, 0, 0, 0, 0, 0, 0, 0},   // bicycle-crunch
+            {0, 0, 100, 30, 0, 0, 0, 30, 80, 40},   // bodyweight-squat
+            {0, 0, 100, 30, 0, 0, 0, 0, 100, 40},   // bulgarian-split-squat
+            {60, 50, 100, 40, 50, 0, 0, 0, 60, 0},   // burpee
+            {50, 0, 0, 0, 100, 50, 0, 0, 0, 0},   // chair-dip
+            {0, 100, 0, 0, 0, 0, 0, 0, 0, 0},   // crunch
+            {0, 0, 80, 0, 0, 0, 0, 0, 100, 30},   // curtsy-lunge
+            {0, 0, 0, 0, 0, 0, 0, 30, 100, 50},   // donkey-kick
+            {0, 0, 100, 0, 0, 0, 0, 0, 80, 40},   // dumbbell-lateral-lunge
+            {0, 0, 0, 0, 100, 30, 0, 0, 0, 0},   // dumbbell-overhead-tricep-extension
+            {0, 100, 0, 0, 0, 0, 0, 40, 0, 0},   // dumbbell-side-bend
+            {0, 0, 90, 0, 0, 0, 0, 0, 100, 50},   // dumbbell-sumo-squat
+            {0, 0, 100, 50, 30, 0, 0, 0, 70, 50},   // elliptical
+            {0, 0, 0, 0, 0, 0, 0, 0, 100, 0},   // fire-hydrant
+            {0, 0, 100, 30, 0, 0, 0, 0, 80, 40},   // forward-lunge
+            {0, 0, 0, 0, 0, 0, 0, 40, 100, 60},   // glute-bridge
+            {0, 30, 100, 0, 30, 0, 0, 0, 80, 40},   // goblet-squat
+            {100, 30, 0, 0, 60, 40, 0, 0, 0, 0},   // incline-push-up
+            {0, 0, 100, 70, 0, 0, 0, 0, 80, 40},   // jump-squat
+            {0, 0, 60, 100, 0, 40, 0, 0, 40, 0},   // jumping-jack
+            {0, 0, 0, 0, 0, 0, 30, 80, 90, 100},   // kettlebell-romanian-deadlift
+            {0, 40, 0, 0, 0, 40, 0, 70, 100, 90},   // kettlebell-swing
+            {100, 0, 0, 0, 60, 40, 0, 0, 0, 0},   // knee-push-up
+            {0, 0, 100, 0, 0, 0, 0, 0, 80, 40},   // lateral-lunge
+            {0, 100, 30, 0, 0, 0, 0, 0, 0, 0},   // lying-leg-raise
+            {0, 0, 0, 0, 50, 50, 100, 0, 0, 0},   // one-arm-dumbbell-row
+            {20, 100, 0, 0, 0, 30, 0, 30, 0, 0},   // plank
+            {30, 100, 0, 0, 40, 50, 0, 0, 0, 0},   // plank-shoulder-tap
+            {0, 0, 0, 0, 30, 100, 0, 0, 0, 0},   // plate-front-raise
+            {0, 100, 0, 0, 0, 0, 0, 0, 0, 0},   // reverse-crunch
+            {0, 0, 100, 0, 0, 0, 0, 0, 90, 40},   // reverse-lunge
+            {0, 0, 0, 0, 0, 0, 0, 0, 100, 0},   // side-lying-hip-abduction
+            {0, 100, 0, 0, 0, 30, 0, 0, 30, 0},   // side-plank
+            {0, 0, 0, 0, 0, 0, 0, 30, 100, 70},   // single-leg-glute-bridge
+            {0, 20, 0, 0, 70, 100, 0, 0, 0, 0},   // standing-dumbbell-press
+            {0, 0, 100, 30, 0, 0, 0, 0, 70, 0},   // step-down
+            {0, 0, 0, 0, 0, 0, 50, 100, 50, 30},   // superman
+            {0, 0, 0, 0, 100, 0, 30, 0, 0, 0},   // tricep-kickback
+    };
 
     /** Auto-catalog program id → stations per level 1..3 (null = no such level). */
     static final String[] PROGRAMS = {"general", "glutes", "core", "power", "cardio", "back_active", "senior"};

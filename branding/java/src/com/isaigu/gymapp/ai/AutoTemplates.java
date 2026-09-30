@@ -105,6 +105,25 @@ public final class AutoTemplates {
         return i < 0 ? "" : AiText.t(AutoTemplateData.BG[i], AutoTemplateData.EN[i]);
     }
 
+    /** Index of the exercise in the table (the session record stores index + 1), −1 when unknown. */
+    public static int index(String id) {
+        return id == null ? -1 : ex(id);
+    }
+
+    public static String idAt(int index) {
+        return index >= 0 && index < AutoTemplateData.IDS.length ? AutoTemplateData.IDS[index] : null;
+    }
+
+    /** MET of the movement itself (0 when unknown). */
+    public static double met(int index) {
+        return index >= 0 && index < AutoTemplateData.MET.length ? AutoTemplateData.MET[index] : 0;
+    }
+
+    /** How much the movement works each suit channel, 0–100 (100 = main muscle); null when unknown. */
+    public static int[] muscles(int index) {
+        return index >= 0 && index < AutoTemplateData.MUS.length ? AutoTemplateData.MUS[index] : null;
+    }
+
     public static boolean has(String programId) {
         return prog(programId) >= 0;
     }

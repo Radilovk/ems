@@ -33,6 +33,18 @@ as a moving figure and a big name on the hint card, plus "Следва: …" 20 
 Figure 150×112 dp in the hint card's middle row, cyan with a fine glow; ON → working pose, OFF → rest pose
 (smoothstep over 55 % of the phase). Hidden when hints are off or the program has no template (passive).
 
+## Energy, load and muscle map
+The exercise done each second is recorded (`SessionRec.ex` = index + 1, `exs` = {id, met, mus} of those that ran),
+so the tablet report, the client's copy (server) and the band use the same data. Estimates, marked [D] in code:
+- **kcal:** the movement's own oxygen cost (MET − 1) · 3.5 ml/kg/min — full in the impulse, 30 % in the pause —
+  is added to the current's branch; the result is still max(pulse branch, current + movement), so with a pulse the
+  pulse decides whenever it is higher. Live: `AiEnergy.exerciseMet` (set by AutoSession each second). Report: `vx`.
+- **Load and zones without a pulse:** a stand-in heart = (current + movement) / VO2 reserve, smoothed with τ 30 s
+  (the heart's lag); load uses max(old, 0.55·S + 0.45·stand-in). With a pulse the measured pulse is used.
+- **Muscle map:** each exercise's muscles (`mus`, 100 = main) add `EX_LOAD` 0.25 of a full channel in the impulse,
+  30 % of it in the pause (`SessionRec.EXERCISE_LOAD` 25 for the band/card figure). MET/muscles live in
+  `branding/exercises/exercises.json` (`met`, `mus`) → `AutoTemplateData.MET/MUS`.
+
 ## Tests
 `bash scripts/ai-sim/run-auto.sh` → `TemplateSim`: every active program × states × focus × sessions × fitness × sex ×
 history: a script exists, level rules, no forbidden exercise, no repeat within a phase, a station lasts ≥ 3 cycles,

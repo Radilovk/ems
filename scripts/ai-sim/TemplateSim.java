@@ -96,6 +96,17 @@ public final class TemplateSim {
                 }
             }
         }
+        // every exercise has its own cost and a main muscle (kcal and the muscle map use them)
+        for (int i = 0; AutoTemplates.idAt(i) != null; i++) {
+            int[] m = AutoTemplates.muscles(i);
+            int top = 0;
+            for (int v : m) {
+                top = Math.max(top, v);
+            }
+            check(AutoTemplates.met(i) >= 2 && AutoTemplates.met(i) <= 10, AutoTemplates.idAt(i) + ": MET 2–10");
+            check(m.length == 10 && top == 100, AutoTemplates.idAt(i) + ": a main muscle");
+            check(AutoTemplates.index(AutoTemplates.idAt(i)) == i, AutoTemplates.idAt(i) + ": index round trip");
+        }
         // passive programs have no exercises
         for (AutoCatalog.Program p : AutoCatalog.all()) {
             if (!p.isActive()) {

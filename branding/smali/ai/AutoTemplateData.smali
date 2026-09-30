@@ -20,6 +20,10 @@
 
 .field static final INSTEAD:[[Ljava/lang/String;
 
+.field static final MET:[D
+
+.field static final MUS:[[I
+
 .field static final POS:[Ljava/lang/String;
 
 .field static final PROGRAMS:[Ljava/lang/String;
@@ -32,7 +36,7 @@
     .registers 11
 
     .prologue
-    const/4 v10, 0x4
+    const/16 v10, 0xa
 
     const/4 v9, 0x3
 
@@ -63,9 +67,11 @@
 
     aput-object v1, v0, v9
 
-    const-string v1, "bulgarian-split-squat"
+    const/4 v1, 0x4
 
-    aput-object v1, v0, v10
+    const-string v2, "bulgarian-split-squat"
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -97,11 +103,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "dumbbell-lateral-lunge"
 
-    const-string v2, "dumbbell-lateral-lunge"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v10
 
     const/16 v1, 0xb
 
@@ -300,9 +304,11 @@
 
     aput-object v1, v0, v9
 
-    const-string v1, "\u0411\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u043a\u043b\u0435\u043a"
+    const/4 v1, 0x4
 
-    aput-object v1, v0, v10
+    const-string v2, "\u0411\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u043a\u043b\u0435\u043a"
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -334,11 +340,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "\u0421\u0442\u0440\u0430\u043d\u0438\u0447\u043d\u0438 \u043d\u0430\u043f\u0430\u0434\u0438 \u0441 \u0434\u044a\u043c\u0431\u0435\u043b"
 
-    const-string v2, "\u0421\u0442\u0440\u0430\u043d\u0438\u0447\u043d\u0438 \u043d\u0430\u043f\u0430\u0434\u0438 \u0441 \u0434\u044a\u043c\u0431\u0435\u043b"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v10
 
     const/16 v1, 0xb
 
@@ -537,9 +541,11 @@
 
     aput-object v1, v0, v9
 
-    const-string v1, "Bulgarian Split Squat"
+    const/4 v1, 0x4
 
-    aput-object v1, v0, v10
+    const-string v2, "Bulgarian Split Squat"
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -571,11 +577,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "Dumbbell Lateral Lunge"
 
-    const-string v2, "Dumbbell Lateral Lunge"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v10
 
     const/16 v1, 0xb
 
@@ -774,9 +778,11 @@
 
     aput-object v1, v0, v9
 
-    const-string v1, "bench"
+    const/4 v1, 0x4
 
-    aput-object v1, v0, v10
+    const-string v2, "bench"
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -808,11 +814,9 @@
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0xa
+    const-string v1, "stand"
 
-    const-string v2, "stand"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v10
 
     const/16 v1, 0xb
 
@@ -991,6 +995,332 @@
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->POS:[Ljava/lang/String;
 
     .line 14
+    const/16 v0, 0x28
+
+    new-array v0, v0, [D
+
+    fill-array-data v0, :array_a82
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->MET:[D
+
+    .line 15
+    const/16 v0, 0x28
+
+    new-array v0, v0, [[I
+
+    new-array v1, v10, [I
+
+    fill-array-data v1, :array_b26
+
+    aput-object v1, v0, v6
+
+    new-array v1, v10, [I
+
+    fill-array-data v1, :array_b3e
+
+    aput-object v1, v0, v7
+
+    new-array v1, v10, [I
+
+    fill-array-data v1, :array_b56
+
+    aput-object v1, v0, v8
+
+    new-array v1, v10, [I
+
+    fill-array-data v1, :array_b6e
+
+    aput-object v1, v0, v9
+
+    const/4 v1, 0x4
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_b86
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x5
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_b9e
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x6
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_bb6
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_bce
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_be6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_bfe
+
+    aput-object v2, v0, v1
+
+    new-array v1, v10, [I
+
+    fill-array-data v1, :array_c16
+
+    aput-object v1, v0, v10
+
+    const/16 v1, 0xb
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_c2e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xc
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_c46
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xd
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_c5e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xe
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_c76
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xf
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_c8e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x10
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_ca6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x11
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_cbe
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x12
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_cd6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x13
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_cee
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x14
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_d06
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x15
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_d1e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x16
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_d36
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x17
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_d4e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x18
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_d66
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x19
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_d7e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1a
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_d96
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1b
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_dae
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1c
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_dc6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1d
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_dde
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1e
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_df6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1f
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_e0e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x20
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_e26
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x21
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_e3e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x22
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_e56
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x23
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_e6e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x24
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_e86
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x25
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_e9e
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x26
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_eb6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x27
+
+    new-array v2, v10, [I
+
+    fill-array-data v2, :array_ece
+
+    aput-object v2, v0, v1
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->MUS:[[I
+
+    .line 59
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -1011,9 +1341,11 @@
 
     aput-object v1, v0, v9
 
-    const-string v1, "cardio"
+    const/4 v1, 0x4
 
-    aput-object v1, v0, v10
+    const-string v2, "cardio"
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -1029,7 +1361,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->PROGRAMS:[Ljava/lang/String;
 
-    .line 15
+    .line 60
     const/4 v0, 0x7
 
     new-array v0, v0, [[[Ljava/lang/String;
@@ -1056,9 +1388,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "chair-dip"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "chair-dip"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1100,9 +1434,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "one-arm-dumbbell-row"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "one-arm-dumbbell-row"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1150,9 +1486,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "one-arm-dumbbell-row"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "one-arm-dumbbell-row"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1198,9 +1536,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "donkey-kick"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "donkey-kick"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1230,9 +1570,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "single-leg-glute-bridge"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "single-leg-glute-bridge"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1268,9 +1610,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "curtsy-lunge"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "curtsy-lunge"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1310,9 +1654,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "superman"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "superman"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1342,9 +1688,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "side-plank"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "side-plank"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1380,9 +1728,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "side-plank"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "side-plank"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1432,9 +1782,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "jumping-jack"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "jumping-jack"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1464,9 +1816,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "reverse-lunge"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "reverse-lunge"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -1484,105 +1838,113 @@
 
     aput-object v1, v0, v9
 
-    new-array v1, v9, [[Ljava/lang/String;
+    const/4 v1, 0x4
 
-    const/4 v2, 0x5
-
-    new-array v2, v2, [Ljava/lang/String;
-
-    const-string v3, "elliptical"
-
-    aput-object v3, v2, v6
-
-    const-string v3, "bodyweight-squat"
-
-    aput-object v3, v2, v7
-
-    const-string v3, "step-down"
-
-    aput-object v3, v2, v8
-
-    const-string v3, "lateral-lunge"
-
-    aput-object v3, v2, v9
-
-    const-string v3, "glute-bridge"
-
-    aput-object v3, v2, v10
-
-    aput-object v2, v1, v6
-
-    const/4 v2, 0x6
-
-    new-array v2, v2, [Ljava/lang/String;
-
-    const-string v3, "jumping-jack"
-
-    aput-object v3, v2, v6
-
-    const-string v3, "bodyweight-squat"
-
-    aput-object v3, v2, v7
-
-    const-string v3, "forward-lunge"
-
-    aput-object v3, v2, v8
-
-    const-string v3, "plank-shoulder-tap"
-
-    aput-object v3, v2, v9
-
-    const-string v3, "lateral-lunge"
-
-    aput-object v3, v2, v10
+    new-array v2, v9, [[Ljava/lang/String;
 
     const/4 v3, 0x5
+
+    new-array v3, v3, [Ljava/lang/String;
 
     const-string v4, "elliptical"
 
-    aput-object v4, v2, v3
+    aput-object v4, v3, v6
 
-    aput-object v2, v1, v7
+    const-string v4, "bodyweight-squat"
 
-    const/4 v2, 0x7
+    aput-object v4, v3, v7
 
-    new-array v2, v2, [Ljava/lang/String;
+    const-string v4, "step-down"
 
-    const-string v3, "burpee"
+    aput-object v4, v3, v8
+
+    const-string v4, "lateral-lunge"
+
+    aput-object v4, v3, v9
+
+    const/4 v4, 0x4
+
+    const-string v5, "glute-bridge"
+
+    aput-object v5, v3, v4
 
     aput-object v3, v2, v6
 
-    const-string v3, "jump-squat"
+    const/4 v3, 0x6
 
-    aput-object v3, v2, v7
+    new-array v3, v3, [Ljava/lang/String;
 
-    const-string v3, "jumping-jack"
+    const-string v4, "jumping-jack"
 
-    aput-object v3, v2, v8
+    aput-object v4, v3, v6
 
-    const-string v3, "kettlebell-swing"
+    const-string v4, "bodyweight-squat"
 
-    aput-object v3, v2, v9
+    aput-object v4, v3, v7
 
-    const-string v3, "reverse-lunge"
+    const-string v4, "forward-lunge"
 
-    aput-object v3, v2, v10
-
-    const/4 v3, 0x5
+    aput-object v4, v3, v8
 
     const-string v4, "plank-shoulder-tap"
 
-    aput-object v4, v2, v3
+    aput-object v4, v3, v9
 
-    const/4 v3, 0x6
+    const/4 v4, 0x4
 
-    const-string v4, "dumbbell-lateral-lunge"
+    const-string v5, "lateral-lunge"
 
-    aput-object v4, v2, v3
+    aput-object v5, v3, v4
 
-    aput-object v2, v1, v8
+    const/4 v4, 0x5
 
-    aput-object v1, v0, v10
+    const-string v5, "elliptical"
+
+    aput-object v5, v3, v4
+
+    aput-object v3, v2, v7
+
+    const/4 v3, 0x7
+
+    new-array v3, v3, [Ljava/lang/String;
+
+    const-string v4, "burpee"
+
+    aput-object v4, v3, v6
+
+    const-string v4, "jump-squat"
+
+    aput-object v4, v3, v7
+
+    const-string v4, "jumping-jack"
+
+    aput-object v4, v3, v8
+
+    const-string v4, "kettlebell-swing"
+
+    aput-object v4, v3, v9
+
+    const/4 v4, 0x4
+
+    const-string v5, "reverse-lunge"
+
+    aput-object v5, v3, v4
+
+    const/4 v4, 0x5
+
+    const-string v5, "plank-shoulder-tap"
+
+    aput-object v5, v3, v4
+
+    const/4 v4, 0x6
+
+    const-string v5, "dumbbell-lateral-lunge"
+
+    aput-object v5, v3, v4
+
+    aput-object v3, v2, v8
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -1608,9 +1970,11 @@
 
     aput-object v4, v3, v9
 
-    const-string v4, "plank"
+    const/4 v4, 0x4
 
-    aput-object v4, v3, v10
+    const-string v5, "plank"
+
+    aput-object v5, v3, v4
 
     const/4 v4, 0x5
 
@@ -1640,9 +2004,11 @@
 
     aput-object v4, v3, v9
 
-    const-string v4, "plank-shoulder-tap"
+    const/4 v4, 0x4
 
-    aput-object v4, v3, v10
+    const-string v5, "plank-shoulder-tap"
+
+    aput-object v5, v3, v4
 
     const/4 v4, 0x5
 
@@ -1672,9 +2038,11 @@
 
     aput-object v4, v3, v9
 
-    const-string v4, "superman"
+    const/4 v4, 0x4
 
-    aput-object v4, v3, v10
+    const-string v5, "superman"
+
+    aput-object v5, v3, v4
 
     const/4 v4, 0x5
 
@@ -1716,9 +2084,11 @@
 
     aput-object v4, v3, v9
 
-    const-string v4, "glute-bridge"
+    const/4 v4, 0x4
 
-    aput-object v4, v3, v10
+    const-string v5, "glute-bridge"
+
+    aput-object v5, v3, v4
 
     const/4 v4, 0x5
 
@@ -1748,9 +2118,11 @@
 
     aput-object v4, v3, v9
 
-    const-string v4, "one-arm-dumbbell-row"
+    const/4 v4, 0x4
 
-    aput-object v4, v3, v10
+    const-string v5, "one-arm-dumbbell-row"
+
+    aput-object v5, v3, v4
 
     const/4 v4, 0x5
 
@@ -1780,9 +2152,11 @@
 
     aput-object v4, v3, v9
 
-    const-string v4, "tricep-kickback"
+    const/4 v4, 0x4
 
-    aput-object v4, v3, v10
+    const-string v5, "tricep-kickback"
+
+    aput-object v5, v3, v4
 
     const/4 v4, 0x5
 
@@ -1802,7 +2176,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->STATIONS:[[[Ljava/lang/String;
 
-    .line 26
+    .line 71
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -1823,9 +2197,11 @@
 
     aput-object v1, v0, v9
 
-    const-string v1, "postpartum"
+    const/4 v1, 0x4
 
-    aput-object v1, v0, v10
+    const-string v2, "postpartum"
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -1841,14 +2217,12 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->COND:[Ljava/lang/String;
 
-    .line 27
+    .line 72
     const/4 v0, 0x7
 
     new-array v0, v0, [[Ljava/lang/String;
 
-    const/16 v1, 0xa
-
-    new-array v1, v1, [Ljava/lang/String;
+    new-array v1, v10, [Ljava/lang/String;
 
     const-string v2, "jump-squat"
 
@@ -1866,9 +2240,11 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "reverse-lunge"
+    const/4 v2, 0x4
 
-    aput-object v2, v1, v10
+    const-string v3, "reverse-lunge"
+
+    aput-object v3, v1, v2
 
     const/4 v2, 0x5
 
@@ -1922,9 +2298,11 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "jump-squat"
+    const/4 v2, 0x4
 
-    aput-object v2, v1, v10
+    const-string v3, "jump-squat"
+
+    aput-object v3, v1, v2
 
     const/4 v2, 0x5
 
@@ -1960,9 +2338,11 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "plate-front-raise"
+    const/4 v2, 0x4
 
-    aput-object v2, v1, v10
+    const-string v3, "plate-front-raise"
+
+    aput-object v3, v1, v2
 
     aput-object v1, v0, v8
 
@@ -1986,9 +2366,11 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "plank-shoulder-tap"
+    const/4 v2, 0x4
 
-    aput-object v2, v1, v10
+    const-string v3, "plank-shoulder-tap"
+
+    aput-object v3, v1, v2
 
     const/4 v2, 0x5
 
@@ -2004,61 +2386,63 @@
 
     aput-object v1, v0, v9
 
-    const/16 v1, 0xa
+    const/4 v1, 0x4
 
-    new-array v1, v1, [Ljava/lang/String;
+    new-array v2, v10, [Ljava/lang/String;
 
-    const-string v2, "crunch"
+    const-string v3, "crunch"
 
-    aput-object v2, v1, v6
+    aput-object v3, v2, v6
 
-    const-string v2, "bicycle-crunch"
+    const-string v3, "bicycle-crunch"
 
-    aput-object v2, v1, v7
+    aput-object v3, v2, v7
 
-    const-string v2, "reverse-crunch"
+    const-string v3, "reverse-crunch"
 
-    aput-object v2, v1, v8
+    aput-object v3, v2, v8
 
-    const-string v2, "lying-leg-raise"
+    const-string v3, "lying-leg-raise"
 
-    aput-object v2, v1, v9
+    aput-object v3, v2, v9
 
-    const-string v2, "plank-shoulder-tap"
+    const/4 v3, 0x4
 
-    aput-object v2, v1, v10
+    const-string v4, "plank-shoulder-tap"
 
-    const/4 v2, 0x5
+    aput-object v4, v2, v3
 
-    const-string v3, "plank"
+    const/4 v3, 0x5
 
-    aput-object v3, v1, v2
+    const-string v4, "plank"
 
-    const/4 v2, 0x6
+    aput-object v4, v2, v3
 
-    const-string v3, "jump-squat"
+    const/4 v3, 0x6
 
-    aput-object v3, v1, v2
+    const-string v4, "jump-squat"
 
-    const/4 v2, 0x7
+    aput-object v4, v2, v3
 
-    const-string v3, "burpee"
+    const/4 v3, 0x7
 
-    aput-object v3, v1, v2
+    const-string v4, "burpee"
 
-    const/16 v2, 0x8
+    aput-object v4, v2, v3
 
-    const-string v3, "jumping-jack"
+    const/16 v3, 0x8
 
-    aput-object v3, v1, v2
+    const-string v4, "jumping-jack"
 
-    const/16 v2, 0x9
+    aput-object v4, v2, v3
 
-    const-string v3, "kettlebell-swing"
+    const/16 v3, 0x9
 
-    aput-object v3, v1, v2
+    const-string v4, "kettlebell-swing"
 
-    aput-object v1, v0, v10
+    aput-object v4, v2, v3
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -2082,9 +2466,11 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "crunch"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "crunch"
+
+    aput-object v4, v2, v3
 
     const/4 v3, 0x5
 
@@ -2096,7 +2482,9 @@
 
     const/4 v1, 0x6
 
-    new-array v2, v10, [Ljava/lang/String;
+    const/4 v2, 0x4
+
+    new-array v2, v2, [Ljava/lang/String;
 
     const-string v3, "jump-squat"
 
@@ -2118,7 +2506,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->AVOID:[[Ljava/lang/String;
 
-    .line 36
+    .line 81
     const/4 v0, 0x7
 
     new-array v0, v0, [[Ljava/lang/String;
@@ -2143,9 +2531,11 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "fire-hydrant"
+    const/4 v2, 0x4
 
-    aput-object v2, v1, v10
+    const-string v3, "fire-hydrant"
+
+    aput-object v3, v1, v2
 
     const/4 v2, 0x5
 
@@ -2175,13 +2565,17 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "side-lying-hip-abduction"
+    const/4 v2, 0x4
 
-    aput-object v2, v1, v10
+    const-string v3, "side-lying-hip-abduction"
+
+    aput-object v3, v1, v2
 
     aput-object v1, v0, v7
 
-    new-array v1, v10, [Ljava/lang/String;
+    const/4 v1, 0x4
+
+    new-array v1, v1, [Ljava/lang/String;
 
     const-string v2, "reverse-crunch"
 
@@ -2221,43 +2615,49 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "banded-lat-pulldown"
+    const/4 v2, 0x4
 
-    aput-object v2, v1, v10
-
-    aput-object v1, v0, v9
-
-    const/4 v1, 0x6
-
-    new-array v1, v1, [Ljava/lang/String;
-
-    const-string v2, "glute-bridge"
-
-    aput-object v2, v1, v6
-
-    const-string v2, "side-lying-hip-abduction"
-
-    aput-object v2, v1, v7
-
-    const-string v2, "fire-hydrant"
-
-    aput-object v2, v1, v8
-
-    const-string v2, "donkey-kick"
-
-    aput-object v2, v1, v9
-
-    const-string v2, "banded-lat-pulldown"
-
-    aput-object v2, v1, v10
-
-    const/4 v2, 0x5
-
-    const-string v3, "bodyweight-squat"
+    const-string v3, "banded-lat-pulldown"
 
     aput-object v3, v1, v2
 
-    aput-object v1, v0, v10
+    aput-object v1, v0, v9
+
+    const/4 v1, 0x4
+
+    const/4 v2, 0x6
+
+    new-array v2, v2, [Ljava/lang/String;
+
+    const-string v3, "glute-bridge"
+
+    aput-object v3, v2, v6
+
+    const-string v3, "side-lying-hip-abduction"
+
+    aput-object v3, v2, v7
+
+    const-string v3, "fire-hydrant"
+
+    aput-object v3, v2, v8
+
+    const-string v3, "donkey-kick"
+
+    aput-object v3, v2, v9
+
+    const/4 v3, 0x4
+
+    const-string v4, "banded-lat-pulldown"
+
+    aput-object v4, v2, v3
+
+    const/4 v3, 0x5
+
+    const-string v4, "bodyweight-squat"
+
+    aput-object v4, v2, v3
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -2281,15 +2681,19 @@
 
     aput-object v3, v2, v9
 
-    const-string v3, "side-lying-hip-abduction"
+    const/4 v3, 0x4
 
-    aput-object v3, v2, v10
+    const-string v4, "side-lying-hip-abduction"
+
+    aput-object v4, v2, v3
 
     aput-object v2, v0, v1
 
     const/4 v1, 0x6
 
-    new-array v2, v10, [Ljava/lang/String;
+    const/4 v2, 0x4
+
+    new-array v2, v2, [Ljava/lang/String;
 
     const-string v3, "bodyweight-squat"
 
@@ -2311,7 +2715,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->INSTEAD:[[Ljava/lang/String;
 
-    .line 47
+    .line 92
     const/4 v0, 0x6
 
     new-array v0, v0, [Ljava/lang/String;
@@ -2332,9 +2736,11 @@
 
     aput-object v1, v0, v9
 
-    const-string v1, "legs"
+    const/4 v1, 0x4
 
-    aput-object v1, v0, v10
+    const-string v2, "legs"
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -2344,7 +2750,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->FOCUS:[Ljava/lang/String;
 
-    .line 48
+    .line 93
     const/4 v0, 0x6
 
     new-array v0, v0, [[Ljava/lang/String;
@@ -2413,21 +2819,23 @@
 
     aput-object v1, v0, v9
 
-    new-array v1, v9, [Ljava/lang/String;
+    const/4 v1, 0x4
 
-    const-string v2, "goblet-squat"
+    new-array v2, v9, [Ljava/lang/String;
 
-    aput-object v2, v1, v6
+    const-string v3, "goblet-squat"
 
-    const-string v2, "step-down"
+    aput-object v3, v2, v6
 
-    aput-object v2, v1, v7
+    const-string v3, "step-down"
 
-    const-string v2, "lateral-lunge"
+    aput-object v3, v2, v7
 
-    aput-object v2, v1, v8
+    const-string v3, "lateral-lunge"
 
-    aput-object v1, v0, v10
+    aput-object v3, v2, v8
+
+    aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
@@ -2446,6 +2854,614 @@
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoTemplateData;->FOCUS_EX:[[Ljava/lang/String;
 
     return-void
+
+    .line 14
+    nop
+
+    :array_a82
+    .array-data 8
+        0x400c000000000000L    # 3.5
+        0x400e666666666666L    # 3.8
+        0x400e666666666666L    # 3.8
+        0x4014000000000000L    # 5.0
+        0x4014000000000000L    # 5.0
+        0x4020000000000000L    # 8.0
+        0x400e666666666666L    # 3.8
+        0x4006666666666666L    # 2.8
+        0x4010000000000000L    # 4.0
+        0x4006666666666666L    # 2.8
+        0x4012000000000000L    # 4.5
+        0x400c000000000000L    # 3.5
+        0x4008000000000000L    # 3.0
+        0x4014000000000000L    # 5.0
+        0x4014000000000000L    # 5.0
+        0x4006666666666666L    # 2.8
+        0x4010000000000000L    # 4.0
+        0x4008000000000000L    # 3.0
+        0x4014000000000000L    # 5.0
+        0x400c000000000000L    # 3.5
+        0x4020000000000000L    # 8.0
+        0x4020000000000000L    # 8.0
+        0x4014000000000000L    # 5.0
+        0x4020000000000000L    # 8.0
+        0x400c000000000000L    # 3.5
+        0x4010000000000000L    # 4.0
+        0x4008000000000000L    # 3.0
+        0x400c000000000000L    # 3.5
+        0x4008000000000000L    # 3.0
+        0x400e666666666666L    # 3.8
+        0x4008000000000000L    # 3.0
+        0x4008000000000000L    # 3.0
+        0x4012000000000000L    # 4.5
+        0x4004000000000000L    # 2.5
+        0x4008000000000000L    # 3.0
+        0x400a666666666666L    # 3.3
+        0x400c000000000000L    # 3.5
+        0x4010000000000000L    # 4.0
+        0x4006666666666666L    # 2.8
+        0x4008000000000000L    # 3.0
+    .end array-data
+
+    .line 15
+    :array_b26
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x32
+        0x28
+        0x64
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_b3e
+    .array-data 4
+        0x32
+        0x0
+        0x0
+        0x0
+        0x64
+        0x32
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_b56
+    .array-data 4
+        0x0
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_b6e
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x1e
+        0x50
+        0x28
+    .end array-data
+
+    :array_b86
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x0
+        0x64
+        0x28
+    .end array-data
+
+    :array_b9e
+    .array-data 4
+        0x3c
+        0x32
+        0x64
+        0x28
+        0x32
+        0x0
+        0x0
+        0x0
+        0x3c
+        0x0
+    .end array-data
+
+    :array_bb6
+    .array-data 4
+        0x32
+        0x0
+        0x0
+        0x0
+        0x64
+        0x32
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_bce
+    .array-data 4
+        0x0
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_be6
+    .array-data 4
+        0x0
+        0x0
+        0x50
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x64
+        0x1e
+    .end array-data
+
+    :array_bfe
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x1e
+        0x64
+        0x32
+    .end array-data
+
+    :array_c16
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x50
+        0x28
+    .end array-data
+
+    :array_c2e
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_c46
+    .array-data 4
+        0x0
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x28
+        0x0
+        0x0
+    .end array-data
+
+    :array_c5e
+    .array-data 4
+        0x0
+        0x0
+        0x5a
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x64
+        0x32
+    .end array-data
+
+    :array_c76
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x32
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x46
+        0x32
+    .end array-data
+
+    :array_c8e
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x64
+        0x0
+    .end array-data
+
+    :array_ca6
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x0
+        0x50
+        0x28
+    .end array-data
+
+    :array_cbe
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x28
+        0x64
+        0x3c
+    .end array-data
+
+    :array_cd6
+    .array-data 4
+        0x0
+        0x1e
+        0x64
+        0x0
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x50
+        0x28
+    .end array-data
+
+    :array_cee
+    .array-data 4
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x3c
+        0x28
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_d06
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x46
+        0x0
+        0x0
+        0x0
+        0x0
+        0x50
+        0x28
+    .end array-data
+
+    :array_d1e
+    .array-data 4
+        0x0
+        0x0
+        0x3c
+        0x64
+        0x0
+        0x28
+        0x0
+        0x0
+        0x28
+        0x0
+    .end array-data
+
+    :array_d36
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x1e
+        0x50
+        0x5a
+        0x64
+    .end array-data
+
+    :array_d4e
+    .array-data 4
+        0x0
+        0x28
+        0x0
+        0x0
+        0x0
+        0x28
+        0x0
+        0x46
+        0x64
+        0x5a
+    .end array-data
+
+    :array_d66
+    .array-data 4
+        0x64
+        0x0
+        0x0
+        0x0
+        0x3c
+        0x28
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_d7e
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x50
+        0x28
+    .end array-data
+
+    :array_d96
+    .array-data 4
+        0x0
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_dae
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x32
+        0x32
+        0x64
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_dc6
+    .array-data 4
+        0x14
+        0x64
+        0x0
+        0x0
+        0x0
+        0x1e
+        0x0
+        0x1e
+        0x0
+        0x0
+    .end array-data
+
+    :array_dde
+    .array-data 4
+        0x1e
+        0x64
+        0x0
+        0x0
+        0x28
+        0x32
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_df6
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x1e
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_e0e
+    .array-data 4
+        0x0
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_e26
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x5a
+        0x28
+    .end array-data
+
+    :array_e3e
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x64
+        0x0
+    .end array-data
+
+    :array_e56
+    .array-data 4
+        0x0
+        0x64
+        0x0
+        0x0
+        0x0
+        0x1e
+        0x0
+        0x0
+        0x1e
+        0x0
+    .end array-data
+
+    :array_e6e
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x1e
+        0x64
+        0x46
+    .end array-data
+
+    :array_e86
+    .array-data 4
+        0x0
+        0x14
+        0x0
+        0x0
+        0x46
+        0x64
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :array_e9e
+    .array-data 4
+        0x0
+        0x0
+        0x64
+        0x1e
+        0x0
+        0x0
+        0x0
+        0x0
+        0x46
+        0x0
+    .end array-data
+
+    :array_eb6
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x32
+        0x64
+        0x32
+        0x1e
+    .end array-data
+
+    :array_ece
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x64
+        0x0
+        0x1e
+        0x0
+        0x0
+        0x0
+    .end array-data
 .end method
 
 .method private constructor <init>()V

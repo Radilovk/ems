@@ -221,12 +221,8 @@ public final class AutoHints {
         }
 
         // the template's station: which exercise now (it changes on a cycle boundary only), and the next one
-        AutoTemplates.Script sc = AutoSession.getScript();
-        AutoTemplates.At at = null;
+        AutoTemplates.At at = AutoSession.currentAt(now);
         double cycleAgo = cmd != null ? Math.max(0, (now - cmd.startMs) / 1000.0) : 0;
-        if (sc != null && ph != null && cmd != null && st == AutoEngine.State.RUN) {
-            at = sc.at(e.getPhaseIndex(), Math.max(0, e.phaseElapsed() - cycleAgo), ph.durationS);
-        }
         figure.setVisibility(tips && at != null ? View.VISIBLE : View.GONE);
         if (at != null) {
             figure.setExercise(at.id);

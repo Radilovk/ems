@@ -39,6 +39,14 @@ def main() -> None:
     L.append("    static final String[] BG = " + arr([e["bg"] for e in exs]) + ";")
     L.append("    static final String[] EN = " + arr([e["en"] for e in exs]) + ";")
     L.append("    static final String[] POS = " + arr([e["pos"] for e in exs]) + ";")
+    L.append("    /** MET of the movement itself (Compendium-style estimate) and the muscles it works per suit channel")
+    L.append("     *  (0 chest, 1 abs, 2 front thigh, 3 calf, 4 arms, 5 shoulders, 6 back, 7 lower back, 8 glutes, 9 back thigh; 100 = main). */")
+    L.append("    static final double[] MET = {" + ", ".join(str(float(e["met"])) for e in exs) + "};")
+    L.append("    static final int[][] MUS = {")
+    for e in exs:
+        assert len(e["mus"]) == 10, e["id"]
+        L.append("            {" + ", ".join(str(int(v)) for v in e["mus"]) + "},   // " + e["id"])
+    L.append("    };")
     L.append("")
     L.append("    /** Auto-catalog program id → stations per level 1..3 (null = no such level). */")
     L.append("    static final String[] PROGRAMS = " + arr([a["id"] for a in prog["active"]]) + ";")

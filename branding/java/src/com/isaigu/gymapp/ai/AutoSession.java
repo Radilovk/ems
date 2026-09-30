@@ -570,6 +570,33 @@ public final class AutoSession {
         return script;
     }
 
+    /** The template's station now: read at the start of the running cycle, so it changes on a cycle boundary only;
+     *  null outside a running session of a program with exercises. */
+    static AutoTemplates.At currentAt(long now) {
+        AutoEngine e = engine;
+        AutoTemplates.Script sc = script;
+        if (stage != Stage.RUNNING || e == null || sc == null || e.getState() != AutoEngine.State.RUN) {
+            return null;
+        }
+        AutoModel.Phase ph = e.phase();
+        AutoEngine.Cmd cmd = e.getCurrent();
+        if (ph == null || cmd == null) {
+            return null;
+        }
+        double cycleAgo = Math.max(0, (now - cmd.startMs) / 1000.0);
+        return sc.at(e.getPhaseIndex(), Math.max(0, e.phaseElapsed() - cycleAgo), ph.durationS);
+    }
+
+    /** Index of the exercise done now (AutoTemplates table), −1 when none — for the record and the kcal. */
+    public static int currentExercise() {
+        try {
+            AutoTemplates.At a = currentAt(System.currentTimeMillis());
+            return a != null ? AutoTemplates.index(a.id) : -1;
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
     public static void startRun(Context c) {
         if (plan == null || !canStart()) {
             return;
@@ -756,6 +783,7 @@ public final class AutoSession {
 
     private static void stopTicker() {
         handler.removeCallbacks(ticker);
+        AiEnergy.exerciseMet = 0;
     }
 
     static final class Ticker implements Runnable {
@@ -768,6 +796,8 @@ public final class AutoSession {
                         r.userMin = Math.min(r.userMin, r.user);
                     }
                 }
+                // the movement's own cost joins the live kcal (the pulse branch still wins when it is higher)
+                AiEnergy.exerciseMet = AutoTemplates.met(currentExercise());
             } catch (Throwable t) {
                 WearableBleDiagLog.log("auto", "tick: " + t);
             }

@@ -67,6 +67,15 @@ so the tablet report, the client's copy (server) and the band use the same data.
   30 % of it in the pause (`SessionRec.EXERCISE_LOAD` 25 for the band/card figure). MET/muscles live in
   `branding/exercises/exercises.json` (`met`, `mus`) → `AutoTemplateData.MET/MUS`.
 
+## Program pictures (`ai/ProgramArt`)
+`branding/programs/*.webp` (neon line art, transparent, ≤ 440 px, ~45 KB each) → `assets/xems/programs/` by
+`apply-exercise-assets.py` (fails if a key used in ProgramArt is missing). Always on a dark rounded tile (#12141A),
+both themes. Shown on the Auto program cards (96×72 dp, left) and the AI plan screen (132×100 dp, before the tiles).
+Key = program × sex: women — general f-squat, glutes/postpartum f-bridge, core f-plank, power f-pushup, cardio
+f-climber, back f-lateral, senior f-curl; men — glutes/cardio m-lunge, core/power/back m-pushup, else m-squat;
+passive — passive-m, or passive-f-music (drain, recovery) / passive-f-line. The women's set was cut from the owner's
+13-pose sheet (black background → alpha).
+
 ## Tests
 `bash scripts/ai-sim/run-auto.sh` → `TemplateSim` (every program × states × focus × sessions × fitness × sex × history:
 levels, no forbidden exercise, no repeats, stations ≥ 3 cycles, MET/muscle table) and `AiExSim` (288 whole Smart
@@ -74,4 +83,4 @@ Sessions on the real AiEngine with a synthetic pulse: exercise never changes mid
 announces the next one, several exercises per session, passive goals have none).
 
 ## Not yet
-Program pictures (passive/active by sex), female active pictures.
+Pictures on the client card / PWA.

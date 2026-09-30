@@ -908,6 +908,13 @@ final class AiUi {
                 + " · " + AiText.mmss(plan.totalS));
         LinearLayout col = vertical(a);
         LinearLayout tiles = horizontal(a);
+        tiles.setGravity(Gravity.CENTER_VERTICAL);
+        // the session's picture: what it trains, for this client's sex
+        String artProg = AutoTemplates.programForAi(in.goal, in.mode, in.age);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        alp.rightMargin = dp(a, 14);
+        tiles.addView(ProgramArt.tile(a, artProg, in.mode == Mode.ACTIVE, in.sex, 132, 100), alp);
         String bpmU = " " + AiText.t("уд/мин", "bpm");
         bigTile(a, tiles, AiText.t("Покой", "Rest"), p.hrAvailable ? p.hrRest + "" : "—", p.hrAvailable ? bpmU : "");
         String corridor = p.hrAvailable

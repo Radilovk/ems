@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json.
+"""Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program
+pictures: branding/programs/*.webp → assets/xems/programs/ (ai/ProgramArt).
 ai/ExerciseFigure reads it (paths already normalized to absolute M/L/C/Z by scripts/exercise-paths.py);
 ai/AutoTemplateData holds the names and program stations (scripts/gen-exercises.py). docs/xems-exercise-templates.md
 """
@@ -31,6 +32,20 @@ def main() -> int:
     DEST.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SRC, DEST)
     print(f"assets/xems/exercises.json ({len(exs)} exercises, {DEST.stat().st_size} B)")
+    art = ROOT / "branding" / "programs"
+    java_art = (ROOT / "branding" / "java" / "src" / "com" / "isaigu" / "gymapp" / "ai" / "ProgramArt.java").read_text(encoding="utf-8")
+    import re
+    keys = set(re.findall(r'"((?:f|m|passive)-[a-z-]+)"', java_art))
+    have = {p.stem for p in art.glob("*.webp")}
+    if keys - have:
+        raise SystemExit(f"branding/programs: missing {sorted(keys - have)} (ProgramArt uses them)")
+    out = DEST.parent / "programs"
+    out.mkdir(parents=True, exist_ok=True)
+    size = 0
+    for p in sorted(art.glob("*.webp")):
+        shutil.copy2(p, out / p.name)
+        size += p.stat().st_size
+    print(f"assets/xems/programs/ ({len(have)} pictures, {size} B)")
     return 0
 
 

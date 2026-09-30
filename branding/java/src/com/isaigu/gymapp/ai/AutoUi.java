@@ -402,9 +402,18 @@ public final class AutoUi {
                 continue;
             }
             boolean on = p.id.equals(in.programId);
-            LinearLayout card = XemsUi.card(c);
-            card.setBackgroundDrawable(XemsUi.rounded(on ? XemsUi.mix(XemsUi.CARD, goalColor(in.goal), 0.18f) : XemsUi.CARD,
+            LinearLayout outer = XemsUi.card(c);
+            outer.setOrientation(LinearLayout.HORIZONTAL);
+            outer.setGravity(Gravity.CENTER_VERTICAL);
+            outer.setBackgroundDrawable(XemsUi.rounded(on ? XemsUi.mix(XemsUi.CARD, goalColor(in.goal), 0.18f) : XemsUi.CARD,
                     XemsUi.dp(c, 16), on ? goalColor(in.goal) : XemsUi.STROKE, XemsUi.dp(c, on ? 2 : 1)));
+            // the program's picture (by what it trains and the client's sex), then name and line
+            LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            alp.rightMargin = XemsUi.dp(c, 14);
+            outer.addView(ProgramArt.tile(c, p.id, p.isActive(), in.sex, 96, 72), alp);
+            LinearLayout card = XemsUi.vertical(c);
+            outer.addView(card, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             LinearLayout head = XemsUi.horizontal(c);
             head.addView(XemsUi.text(c, p.name(), 17, XemsUi.TEXT, true),
                     new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -417,9 +426,9 @@ public final class AutoUi {
             TextView d = XemsUi.text(c, p.desc(), 13, XemsUi.MUTED, false);
             d.setPadding(0, XemsUi.dp(c, 4), 0, 0);
             card.addView(d);
-            card.setOnClickListener(new Act(A_PROGRAM, i));
-            XemsUi.pressable(card);
-            body.addView(card, XemsUi.matchWrap(c, shown == 0 ? 14 : 10));
+            outer.setOnClickListener(new Act(A_PROGRAM, i));
+            XemsUi.pressable(outer);
+            body.addView(outer, XemsUi.matchWrap(c, shown == 0 ? 14 : 10));
             shown++;
         }
         if (shown == 0) {

@@ -25,7 +25,8 @@ import java.util.List;
  * move, + clones, − removes. Run it "by the map" (MapRunner, exactly as drawn) or "with AI" (the AI keeps strength,
  * rests and timing). Three views in one full-screen page: list → map → exercise picker. A workout has no goal to pick:
  * it follows from the exercises (mostly cardio → fat loss, else toning); a procedure is a separate kind (+ Процедура).
- * Changes save by themselves. docs/xems-workouts.md
+ * Changes save by themselves. Procedures have their own menu row ("Процедури", {@link #openProcedures}): the same
+ * page, only the passive maps. docs/xems-workouts.md
  */
 public final class WorkoutsUi {
     private WorkoutsUi() {}
@@ -68,6 +69,8 @@ public final class WorkoutsUi {
 
     static final String[] ZONES = {"all", "abs", "glutes", "legs", "back", "chest", "arms", "shoulders", "cardio", "stretch"};
 
+    /** The page shows the procedures (passive maps) instead of the workouts. */
+    private static boolean procedures;
     private static XemsUi.Shell shell;
     private static Activity host;
     private static int screen;
@@ -115,6 +118,17 @@ public final class WorkoutsUi {
     // ================================================================ open
 
     public static void open(Activity a) {
+        procedures = false;
+        show(a);
+    }
+
+    /** Main menu → Процедури: the passive maps (ready and own), apart from the workouts. */
+    public static void openProcedures(Activity a) {
+        procedures = true;
+        show(a);
+    }
+
+    private static void show(Activity a) {
         try {
             ExerciseLibrary.load(a);
             ExerciseFigure.preload(a);
@@ -156,47 +170,66 @@ public final class WorkoutsUi {
     // ================================================================ list
 
     private static void screenList(Context c) {
-        shell.title.setText(AiText.t("Тренировки", "Workouts"));
-        shell.subtitle.setText(AiText.t("Докосни карта, за да я видиш или пуснеш.", "Tap a map to see or start it."));
+        shell.title.setText(procedures ? AiText.t("Процедури", "Procedures") : AiText.t("Тренировки", "Workouts"));
+        shell.subtitle.setText(procedures
+                ? AiText.t("Карти в покой — докосни, за да видиш или пуснеш.", "Maps at rest — tap to see or run.")
+                : AiText.t("Докосни карта, за да я видиш или пуснеш.", "Tap a map to see or start it."));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
-        List<Workout> own = WorkoutStore.own(c);
+        List<Workout> own = ownList(c);
         if (!own.isEmpty()) {
             body.addView(XemsUi.label(c, AiText.t("Твоите", "Yours")), XemsUi.matchWrap(c, 6));
             grid(c, body, own, A_OPEN, 0);
         }
-        List<Workout> active = new ArrayList<Workout>();
-        List<Workout> passive = new ArrayList<Workout>();
-        for (Workout w : WorkoutStore.presets()) {
-            (w.isPassive() ? passive : active).add(w);
-        }
-        body.addView(XemsUi.label(c, AiText.t("Готови · с упражнения", "Ready · with exercises")),
-                XemsUi.matchWrap(c, own.isEmpty() ? 6 : 18));
-        grid(c, body, active, A_PRESET, 0);
-        if (!passive.isEmpty()) {
-            body.addView(XemsUi.label(c, AiText.t("Готови · процедури в покой", "Ready · procedures at rest")),
-                    XemsUi.matchWrap(c, 18));
-            grid(c, body, passive, A_PRESET, active.size());
+        List<Workout> ready = presetList();
+        if (!ready.isEmpty()) {
+            body.addView(XemsUi.label(c, AiText.t("Готови", "Ready")), XemsUi.matchWrap(c, own.isEmpty() ? 6 : 18));
+            grid(c, body, ready, A_PRESET, 0);
         }
 
-        int n = ExerciseLibrary.enabled(c).size();
-        int wait = ExerciseLibrary.pending(c);
-        TextView lib = XemsUi.text(c, AiText.t("Упражнения в каталога: ", "Exercises in the catalog: ") + n
-                + (wait > 0 ? AiText.t(" · още " + wait + " се изтеглят", " · " + wait + " more downloading") : ""),
-                12.5f, XemsUi.HINT, false);
-        lib.setPadding(0, XemsUi.dp(c, 14), 0, 0);
-        body.addView(lib);
+        if (!procedures) {
+            int n = ExerciseLibrary.enabled(c).size();
+            int wait = ExerciseLibrary.pending(c);
+            TextView lib = XemsUi.text(c, AiText.t("Упражнения в каталога: ", "Exercises in the catalog: ") + n
+                    + (wait > 0 ? AiText.t(" · още " + wait + " се изтеглят", " · " + wait + " more downloading") : ""),
+                    12.5f, XemsUi.HINT, false);
+            lib.setPadding(0, XemsUi.dp(c, 14), 0, 0);
+            body.addView(lib);
+        }
 
-        TextView proc = XemsUi.button(c, AiText.t("+  Процедура", "+  Procedure"), XemsUi.SECONDARY);
-        proc.setOnClickListener(new Act(A_NEW_PASSIVE, 0));
-        TextView add = XemsUi.button(c, AiText.t("+  Нова тренировка", "+  New workout"), XemsUi.PRIMARY);
-        add.setOnClickListener(new Act(A_NEW, 0));
+        TextView add = XemsUi.button(c, procedures ? AiText.t("+  Нова процедура", "+  New procedure")
+                : AiText.t("+  Нова тренировка", "+  New workout"), XemsUi.PRIMARY);
+        add.setOnClickListener(new Act(procedures ? A_NEW_PASSIVE : A_NEW, 0));
         shell.footer.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
-        shell.footer.addView(proc, new LinearLayout.LayoutParams(XemsUi.dp(c, 220), XemsUi.dp(c, 56)));
-        LinearLayout.LayoutParams ap = new LinearLayout.LayoutParams(XemsUi.dp(c, 300), XemsUi.dp(c, 56));
-        ap.leftMargin = XemsUi.dp(c, 10);
-        shell.footer.addView(add, ap);
+        shell.footer.addView(add, new LinearLayout.LayoutParams(XemsUi.dp(c, 300), XemsUi.dp(c, 56)));
+    }
+
+    /** The studio's own maps of the page's kind. */
+    private static List<Workout> ownList(Context c) {
+        List<Workout> out = new ArrayList<Workout>();
+        for (Workout w : WorkoutStore.own(c)) {
+            if (isProcedure(w) == procedures) {
+                out.add(w);
+            }
+        }
+        return out;
+    }
+
+    /** The ready maps of the page's kind. */
+    private static List<Workout> presetList() {
+        List<Workout> out = new ArrayList<Workout>();
+        for (Workout w : WorkoutStore.presets()) {
+            if (isProcedure(w) == procedures) {
+                out.add(w);
+            }
+        }
+        return out;
+    }
+
+    /** A procedure = passive with no exercises (an old "procedure" with exercises is a workout). */
+    static boolean isProcedure(Workout w) {
+        return w.isPassive() && w.exerciseBlocks() == 0;
     }
 
     /** Workout cards, two per row: the map as a strip, the name, goal and time. */
@@ -229,9 +262,6 @@ public final class WorkoutsUi {
         TextView name = XemsUi.text(c, w.name, 17, XemsUi.TEXT, true);
         name.setMaxLines(1);
         head.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        if (w.isPassive()) {
-            head.addView(XemsUi.badge(c, AiText.t("В покой", "At rest"), goalColor(w.goal)));
-        }
         card.addView(head);
         LinearLayout strip = new LinearLayout(c);
         strip.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(c, 12), 0, 0));
@@ -915,7 +945,7 @@ public final class WorkoutsUi {
                 break;
             }
             case A_OPEN: {
-                Workout o = WorkoutStore.own(c).get(v);
+                Workout o = ownList(c).get(v);
                 editing = o.copy(o.id, o.name);
                 deriveGoal(editing);                           // an old "procedure" with exercises is a workout
                 dirty = false;
@@ -1051,15 +1081,10 @@ public final class WorkoutsUi {
         }
     }
 
-    /** The ready map tapped in one of the two lists (active first, then passive). */
+    /** The ready map tapped in the list. */
     private static Workout presetAt(int v, Act a) {
-        List<Workout> all = WorkoutStore.presets();
-        List<Workout> active = new ArrayList<Workout>();
-        List<Workout> passive = new ArrayList<Workout>();
-        for (Workout w : all) {
-            (w.isPassive() ? passive : active).add(w);
-        }
-        return v < active.size() ? active.get(v) : passive.get(Math.min(passive.size() - 1, v - active.size()));
+        List<Workout> list = presetList();
+        return list.get(Math.max(0, Math.min(list.size() - 1, v)));
     }
 
     /** A tap in the picker: replace the block's exercise, add a set (a rest before it), or take the last set out. */

@@ -184,7 +184,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ProgramArt.java` (129L, compile:music-sync*,wearable) — The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile — in the lig…
 - `Workout.java` (461L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
 - `WorkoutStore.java` (229L, compile:music-sync*,wearable) — The studio's own workouts on this tablet (files/xems_workouts.json) plus the ready programs ({@link Workout#presets}).
-- `WorkoutsUi.java` (1159L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
+- `WorkoutsUi.java` (1184L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
 - `BlockProgramEditor.java` (234L, compile:interval-timer,music-sync*) — Block list editor (opened from the interval timer): one card per block with steppers for cycles, strength, frequency an…
@@ -318,7 +318,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalStore.java` (1141L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (962L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (857L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (873L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (674L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -792,15 +792,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L57 ## 6. Words
   - L62 ## 7. Checklist before shipping a screen
 
-`docs/xems-workouts.md` (84L)
+`docs/xems-workouts.md` (85L)
   - L1 # Workouts ("Тренировки") and the exercise library
   - L8 ## The library (302 exercises)
   - L20 ## Admin (server)
   - L28 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
-  - L49 ## Running a map
-  - L61 ## Audit 1.1.256 — the backend decides, the screen stays quiet
-  - L74 ## Tests
-  - L81 ## Not yet
+  - L50 ## Running a map
+  - L62 ## Audit 1.1.256 — the backend decides, the screen stays quiet
+  - L75 ## Tests
+  - L82 ## Not yet
 
 `docs/xiaomi-band-integration.md` (630L)
   - L1 # Интеграция XEMS ↔ Xiaomi Smart Band 8 / 10

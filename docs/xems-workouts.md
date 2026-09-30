@@ -40,8 +40,9 @@ A workout **is** an impulse map: a line of blocks (merged with the exercises for
   10 / 250 / 6+2 at 60 %. Pattern from `library.json` (`pat`) / `AutoTemplateData.PAT`.
 - **Ready maps**: the 7 active template programs (level-2 stations, one set each, 30 s rests, repetitions sized for one
   AI session) and the automatic mode's passive programs converted phase-by-phase (steps → blocks).
-- Kinds: a **workout** (exercise blocks; goal derived, never picked) and a **procedure** (+ Процедура on the list:
-  passive, no exercises, runs by the map only). An old workout saved as "Процедура" with exercises is turned back
+- Kinds: a **workout** (exercise blocks; goal derived, never picked) and a **procedure** (passive, no exercises, runs
+  by the map only). They are apart: main menu **Тренировки** lists only workouts, **Процедури** (`WorkoutsUi.openProcedures`,
+  same page) only procedures, each with its own "+ Нова …". An old workout saved as "Процедура" with exercises is turned back
   into a workout when opened.
 - Store: `files/xems_workouts.json`, `blocks:[{ex,n,hz,pw,on,off,rel}]`; the 1.1.254 `items` (sets × reps) are migrated
   to blocks in rounds with rests.

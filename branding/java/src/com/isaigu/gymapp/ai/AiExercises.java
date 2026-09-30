@@ -79,7 +79,8 @@ public final class AiExercises {
     /** The exercises of a workout, with the template's warm-up for this client (states rule out the same moves). */
     public static AiExercises forWorkout(Workout w, AiModel.SessionInput in, int heightCm, AiModel.Plan plan,
             int sessions, double hoursSinceActive) {
-        if (w == null || w.items.isEmpty() || in == null || plan == null || in.mode != AiModel.Mode.ACTIVE) {
+        if (w == null || w.exerciseBlocks() == 0 || w.isPassive() || in == null || plan == null
+                || in.mode != AiModel.Mode.ACTIVE) {
             return null;
         }
         AiExercises base = build(in, heightCm, plan, sessions, hoursSinceActive, null);
@@ -87,10 +88,13 @@ public final class AiExercises {
         java.util.Set<String> avoid = t != null ? t.avoid : new java.util.HashSet<String>();
         List<String> main = new java.util.ArrayList<String>();
         Workout run = w.copy(w.id, w.name);
-        for (Workout.Item it : run.items) {
-            it.ex = AutoTemplates.safer(it.ex, avoid);        // the client's state rules it out: a safe swap
-            if (!main.contains(it.ex)) {
-                main.add(it.ex);
+        for (Workout.Block b : run.blocks) {
+            if (!b.hasExercise()) {
+                continue;
+            }
+            b.ex = AutoTemplates.safer(b.ex, avoid);          // the client's state rules it out: a safe swap
+            if (!main.contains(b.ex)) {
+                main.add(b.ex);
             }
         }
         String[][] ph = new String[plan.phases.size()][];
@@ -113,7 +117,13 @@ public final class AiExercises {
         return workout;
     }
 
-    /** Workout: the set now (item index, set number from 1), or null before the main part. */
+    /** The map block of the set now (its Hz / µs cap the AI's), or null. */
+    public Workout.Block block() {
+        int[] s = set();
+        return s != null ? workout.blocks.get(s[0]) : null;
+    }
+
+    /** Workout: the set now {block index, set number of this exercise, its sets in the map}, or null. */
     public int[] set() {
         return workout != null && setIndex >= 0 ? seq[setIndex % seq.length] : null;
     }
@@ -134,7 +144,7 @@ public final class AiExercises {
 
     public int getRepsTarget() {
         int[] s = set();
-        return s != null ? workout.items.get(s[0]).reps : 0;
+        return s != null ? workout.blocks.get(s[0]).reps : 0;
     }
 
     /** 1 for the first pass through the workout, 2 when it runs again. */
@@ -214,7 +224,7 @@ public final class AiExercises {
                 setComplete = false;
             }
             int[] s = seq[setIndex % seq.length];
-            String ex = workout.items.get(s[0]).ex;
+            String ex = workout.blocks.get(s[0]).ex;
             int key = 1_000_000 + setIndex;
             if (key != stationKey) {
                 stationKey = key;
@@ -226,7 +236,7 @@ public final class AiExercises {
             current = easier ? AutoTemplates.easier(ex, script.avoid) : ex;
             if (!setComplete) {
                 repsDone++;                                   // this impulse is one repetition
-                if (repsDone >= workout.items.get(s[0]).reps) {
+                if (repsDone >= workout.blocks.get(s[0]).reps) {
                     setComplete = true;
                     blocksAtComplete = blocksAll(e);
                     e.endSet();                               // the next cycle rests
@@ -275,7 +285,7 @@ public final class AiExercises {
             if (st == AiEngine.State.REST && setIndex >= 0) {
                 // a done set: the next set's exercise; a short rest inside a set: the same one again
                 int k = setComplete ? setIndex + 1 : setIndex;
-                next = workout.items.get(seq[k % seq.length][0]).ex;
+                next = workout.blocks.get(seq[k % seq.length][0]).ex;
             }
         } else if (blocky(ph)) {
             if (st == AiEngine.State.REST) {

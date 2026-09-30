@@ -26,8 +26,6 @@
 
 .field ex:Ljava/lang/String;
 
-.field row:Landroid/view/View;
-
 .field value:Landroid/widget/TextView;
 
 
@@ -36,16 +34,16 @@
     .registers 3
 
     .prologue
-    .line 728
+    .line 845
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 729
+    .line 846
     iput p1, p0, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->code:I
 
-    .line 730
+    .line 847
     iput p2, p0, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->arg:I
 
-    .line 731
+    .line 848
     return-void
 .end method
 
@@ -53,21 +51,21 @@
     .registers 5
 
     .prologue
-    .line 751
+    .line 868
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->act(Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;I)V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 755
+    .line 872
     :goto_3
     return-void
 
-    .line 752
+    .line 869
     :catch_4
     move-exception v0
 
-    .line 753
+    .line 870
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -99,15 +97,15 @@
     .registers 3
 
     .prologue
-    .line 735
+    .line 852
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 736
+    .line 853
     iget v0, p0, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->arg:I
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->run(I)V
 
-    .line 737
+    .line 854
     return-void
 .end method
 
@@ -115,10 +113,10 @@
     .registers 2
 
     .prologue
-    .line 741
+    .line 858
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->run(I)V
 
-    .line 742
+    .line 859
     return-void
 .end method
 
@@ -126,9 +124,9 @@
     .registers 2
 
     .prologue
-    .line 746
+    .line 863
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->run(I)V
 
-    .line 747
+    .line 864
     return-void
 .end method

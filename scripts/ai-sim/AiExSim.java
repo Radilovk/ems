@@ -54,16 +54,51 @@ public final class AiExSim {
         mine.id = "w1";
         mine.name = "mine";
         mine.goal = Workout.GOAL_FAT;
-        mine.items.add(new Workout.Item("jump-squat", 2, 10));
-        mine.items.add(new Workout.Item("wall-sit", 3, 6));
-        mine.items.add(new Workout.Item("knee-push-up", 4, 15));
+        // a drawn map: sets with rests and a plain block between, the second exercise from the library
+        int[][] plan = {{0, 10}, {1, 6}, {2, 15}, {0, 10}, {1, 6}, {2, 15}, {1, 6}, {2, 15}, {2, 15}};
+        String[] exs = {"jump-squat", "wall-sit", "knee-push-up"};
+        for (int k = 0; k < plan.length; k++) {
+            Workout.Block b = Workout.forExercise(exs[plan[k][0]], null, "wall-sit".equals(exs[plan[k][0]]));
+            b.reps = plan[k][1];
+            mine.blocks.add(b);
+            mine.blocks.add(k % 3 == 2 ? mine.clean() : Workout.rest());
+        }
         ws.add(mine);
+        int passive = 0;
         for (Workout w : Workout.presets()) {
             check(!w.longerThanSession(), w.id + ": a ready program fits one session (" + w.minutes() + " of "
                     + w.sessionMinutes() + " min)");
+            check(!w.blocks.isEmpty(), w.id + ": has blocks");
+            if (w.isPassive()) {
+                passive++;
+                check(w.exerciseBlocks() == 0, w.id + ": passive, no exercises");
+                check(w.mapMinutes() >= 5 && w.mapMinutes() <= 60, w.id + ": passive length " + w.mapMinutes());
+                for (Workout.Block b : w.blocks) {
+                    check(b.hz >= 1 && b.hz <= 120 && b.pw >= 100 && b.pw <= 400, w.id + ": block in range");
+                }
+                if (verbose) {
+                    System.out.println(w.id + " passive " + w.blocks.size() + " blocks, " + w.mapMinutes() + " min");
+                }
+            }
         }
+        check(passive >= 3, "passive ready maps: " + passive);
+        // the timeline: blockAt / startOf agree
+        Workout tw = Workout.presets().get(0);
+        for (int i = 0; i < tw.blocks.size(); i++) {
+            check(tw.blockAt(tw.startOf(i)) == i && tw.blockAt(tw.startOf(i) + tw.blocks.get(i).seconds() - 0.01) == i,
+                    "timeline block " + i);
+        }
+        check(tw.blockAt(tw.totalSeconds()) == -1, "timeline end");
         int wsRuns = 0;
         for (Workout w : ws) {
+            if (w.isPassive()) {
+                SessionInput pi = new SessionInput();
+                pi.mode = Mode.ACTIVE;
+                Profile pp = AiPlanner.derive(pi, 68, 1.5, 3000);
+                check(AiExercises.forWorkout(w, pi, 168, AiPlanner.build(pi, pp), 12, 72) == null,
+                        w.id + ": a passive map never runs with the AI");
+                continue;
+            }
             for (String[] c : new String[][] {{}, {"knees"}}) {
                 for (double gain : new double[] {40, 90}) {
                     runWorkout(w, c, gain, verbose && c.length == 0 && gain < 50);
@@ -130,7 +165,7 @@ public final class AiExSim {
                 if (cur != null && ph != null && ph.blockMode == BlockMode.FATIGUE_DRIVEN && cmd.frac > 0) {
                     int k = x.getSetIndex();
                     perSet.put(k, perSet.containsKey(k) ? perSet.get(k) + 1 : 1);
-                    String want = run.items.get(seq[k % seq.length][0]).ex;
+                    String want = run.blocks.get(seq[k % seq.length][0]).ex;
                     check(cur.equals(want) || cur.equals(AutoTemplates.easier(want, x.getScript().avoid)),
                             tag + ": set " + k + " is " + cur + ", want " + want);
                     check(!x.getScript().avoid.contains(cur), tag + ": forbidden " + cur);
@@ -169,7 +204,7 @@ public final class AiExSim {
         int full = 0;
         for (java.util.Map.Entry<Integer, Integer> en : perSet.entrySet()) {
             int k = en.getKey();
-            int target = run.items.get(seq[k % seq.length][0]).reps;
+            int target = run.blocks.get(seq[k % seq.length][0]).reps;
             check(en.getValue() <= target, tag + ": set " + k + " got " + en.getValue() + " > " + target);
             if (k < last) {
                 check(en.getValue() == target, tag + ": set " + k + " stopped at " + en.getValue() + "/" + target);
@@ -184,7 +219,7 @@ public final class AiExSim {
             StringBuilder b = new StringBuilder();
             for (int k = 0; k <= Math.min(last, 8); k++) {
                 int[] s = seq[k % seq.length];
-                b.append(run.items.get(s[0]).ex).append(' ').append(s[1]).append(':').append(perSet.get(k)).append("  ");
+                b.append(run.blocks.get(s[0]).ex).append(' ').append(s[1]).append(':').append(perSet.get(k)).append("  ");
             }
             System.out.println(tag + ": " + (last + 1) + " sets (" + full + " full), rest-pauses " + restsInSet + " — " + b);
         }

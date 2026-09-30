@@ -93,6 +93,7 @@ public final class AiSession {
 
     private static void onPulseCycleImpl(TrainItem item) {
         AutoSession.onPulseCycle(item);
+        MapRunner.onPulseCycle(item);
         try {
             if (item == null || item != leader()) {
                 return;
@@ -149,6 +150,10 @@ public final class AiSession {
 
     public static AiModel.Plan getPlan() {
         return plan;
+    }
+
+    static TrainItemManager manager() {
+        return manager;
     }
 
     public static AiEngine getEngine() {
@@ -247,6 +252,9 @@ public final class AiSession {
 
     /** Returns an error text if another automatic mode owns the output, else null. */
     public static String conflict() {
+        if (MapRunner.isRunning()) {
+            return AiText.t("Първо спри картата от Тренировки.", "Stop the Workouts map first.");
+        }
         if (AutoSession.isActive()) {
             return AiText.t("Затвори автоматичната тренировка преди AI.", "Close the automatic session before AI.");
         }
@@ -490,7 +498,7 @@ public final class AiSession {
             double hours = AutoHistory.hoursSince(h.lastActiveMs, System.currentTimeMillis());
             if (workout != null) {
                 exercises = AiExercises.forWorkout(workout, input, p != null ? p.heightCm : 0, plan, h.sessions, hours);
-                WearableBleDiagLog.log("ai", "workout " + workout.id + " sets " + workout.totalSets());
+                WearableBleDiagLog.log("ai", "workout " + workout.id + " sets " + workout.exerciseBlocks());
                 return;
             }
             exercises = AiExercises.build(input, p != null ? p.heightCm : 0, plan, h.sessions, hours,
@@ -823,7 +831,27 @@ public final class AiSession {
         int percent = (int) Math.round(calibPercent * c.frac);
         lastSentFrac = c.frac;
         lastAppliedCycle = c;
-        writeAll(c, percent);
+        writeAll(gentler(c), percent);
+    }
+
+    /** A workout's map block may make the impulse gentler (lower Hz, narrower µs), never stronger than the plan. */
+    private static AiEngine.CycleCmd gentler(AiEngine.CycleCmd c) {
+        Workout.Block b = exercises != null && stage == Stage.RUNNING ? exercises.block() : null;
+        if (b == null || c.frac <= 0 || (b.hz >= c.hz && b.pw >= c.pwUs)) {
+            return c;
+        }
+        AiEngine.CycleCmd o = new AiEngine.CycleCmd();
+        o.hz = Math.min(c.hz, b.hz);
+        o.pwUs = Math.min(c.pwUs, b.pw);
+        o.onS = c.onS;
+        o.offS = c.offS;
+        o.frac = c.frac;
+        o.rampUpMs = c.rampUpMs;
+        o.rampDownMs = c.rampDownMs;
+        o.segmentB = c.segmentB;
+        o.pauseHz = c.pauseHz;
+        o.pauseSigma = c.pauseSigma;
+        return o;
     }
 
     private static void forceApplyCurrent() {
@@ -833,7 +861,7 @@ public final class AiSession {
         AiEngine.CycleCmd c = engine.getCurrentCycle();
         double frac = engine.getState() == AiEngine.State.RUN ? engine.getCurrentFrac() : 0;
         lastSentFrac = frac;
-        writeAll(c, (int) Math.round(calibPercent * frac));
+        writeAll(gentler(c), (int) Math.round(calibPercent * frac));
     }
 
     private static void zeroOutput() {

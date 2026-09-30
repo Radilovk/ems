@@ -150,15 +150,21 @@ public final class WorkoutStore {
             f.put(z);
         }
         o.put("focus", f);
-        JSONArray it = new JSONArray();
-        for (Workout.Item i : w.items) {
+        JSONArray bl = new JSONArray();
+        for (Workout.Block b : w.blocks) {
             JSONObject x = new JSONObject();
-            x.put("ex", i.ex);
-            x.put("sets", i.sets);
-            x.put("reps", i.reps);
-            it.put(x);
+            if (b.ex != null) {
+                x.put("ex", b.ex);
+            }
+            x.put("n", b.reps);
+            x.put("hz", b.hz);
+            x.put("pw", b.pw);
+            x.put("on", b.on);
+            x.put("off", b.off);
+            x.put("rel", b.rel);
+            bl.put(x);
         }
-        o.put("items", it);
+        o.put("blocks", bl);
         return o;
     }
 
@@ -167,16 +173,52 @@ public final class WorkoutStore {
             Workout w = new Workout();
             w.id = o.getString("id");
             w.name = o.optString("name");
-            w.goal = Workout.GOAL_FAT.equals(o.optString("goal")) ? Workout.GOAL_FAT : Workout.GOAL_TONE;
+            String g = o.optString("goal");
+            w.goal = Workout.GOAL_FAT.equals(g) ? Workout.GOAL_FAT
+                    : Workout.GOAL_PASSIVE.equals(g) ? Workout.GOAL_PASSIVE : Workout.GOAL_TONE;
             w.updatedAt = o.optLong("t");
             JSONArray f = o.optJSONArray("focus");
             for (int i = 0; f != null && i < f.length(); i++) {
                 w.focus.add(f.getString(i));
             }
-            JSONArray it = o.getJSONArray("items");
-            for (int i = 0; i < it.length(); i++) {
-                JSONObject x = it.getJSONObject(i);
-                w.items.add(new Workout.Item(x.getString("ex"), x.optInt("sets", 3), x.optInt("reps", 12)));
+            JSONArray bl = o.optJSONArray("blocks");
+            if (bl != null) {
+                for (int i = 0; i < bl.length(); i++) {
+                    JSONObject x = bl.getJSONObject(i);
+                    Workout.Block b = new Workout.Block();
+                    b.ex = x.has("ex") ? x.getString("ex") : null;
+                    b.reps = x.optInt("n", 8);
+                    b.hz = x.optInt("hz", 85);
+                    b.pw = x.optInt("pw", 350);
+                    b.on = x.optInt("on", 4);
+                    b.off = x.optInt("off", 4);
+                    b.rel = x.optInt("rel", 100);
+                    b.clampAll();
+                    w.blocks.add(b);
+                }
+            } else {
+                // 1.1.254: exercises with sets × repetitions → one block per set, a rest between (in rounds)
+                JSONArray it = o.optJSONArray("items");
+                int rounds = 0;
+                for (int i = 0; it != null && i < it.length(); i++) {
+                    rounds = Math.max(rounds, it.getJSONObject(i).optInt("sets", 1));
+                }
+                for (int r = 1; r <= rounds; r++) {
+                    for (int i = 0; i < it.length(); i++) {
+                        JSONObject x = it.getJSONObject(i);
+                        if (x.optInt("sets", 1) < r) {
+                            continue;
+                        }
+                        String ex = x.getString("ex");
+                        Workout.Block b = Workout.forExercise(ex, Workout.patternOf(ex), false);
+                        b.reps = x.optInt("reps", 8);
+                        b.clampAll();
+                        if (!w.blocks.isEmpty()) {
+                            w.blocks.add(Workout.rest());
+                        }
+                        w.blocks.add(b);
+                    }
+                }
             }
             return w;
         } catch (Throwable t) {

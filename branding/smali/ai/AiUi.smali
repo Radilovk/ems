@@ -12362,9 +12362,7 @@
 
     move-result-object v2
 
-    iget-object v3, v1, Lcom/isaigu/gymapp/ai/Workout;->items:Ljava/util/List;
-
-    invoke-interface {v3}, Ljava/util/List;->size()I
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/Workout;->distinctExercises()I
 
     move-result v3
 

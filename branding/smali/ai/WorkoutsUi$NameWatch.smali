@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 511
+    .line 627
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 4
 
     .prologue
-    .line 520
+    .line 636
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$100()Lcom/isaigu/gymapp/ai/Workout;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$200()Lcom/isaigu/gymapp/ai/Workout;
 
     move-result-object v0
 
@@ -47,7 +47,7 @@
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$100()Lcom/isaigu/gymapp/ai/Workout;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$200()Lcom/isaigu/gymapp/ai/Workout;
 
     move-result-object v1
 
@@ -59,9 +59,9 @@
 
     if-nez v0, :cond_27
 
-    .line 521
+    .line 637
     # getter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$100()Lcom/isaigu/gymapp/ai/Workout;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$200()Lcom/isaigu/gymapp/ai/Workout;
 
     move-result-object v0
 
@@ -71,16 +71,16 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout;->name:Ljava/lang/String;
 
-    .line 522
+    .line 638
     const/4 v0, 0x1
 
     # setter for: Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$202(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->access$102(Z)Z
 
-    .line 523
+    .line 639
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshFooter()V
 
-    .line 525
+    .line 641
     :cond_27
     return-void
 .end method
@@ -89,7 +89,7 @@
     .registers 5
 
     .prologue
-    .line 513
+    .line 629
     return-void
 .end method
 
@@ -97,6 +97,6 @@
     .registers 5
 
     .prologue
-    .line 516
+    .line 632
     return-void
 .end method

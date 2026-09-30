@@ -6,10 +6,8 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -21,9 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * "Тренировки" (main menu): the ready programs and the studio's own workouts; build one by tapping exercises from
- * the library the admin enabled, set sets × repetitions, drag to reorder, tie it to a goal; start it with the
- * Smart Session. Three views in one sheet: list → workout → exercise picker. docs/xems-workouts.md
+ * "Тренировки" (main menu): ready maps and the studio's own. A workout is an impulse map — a line of blocks
+ * (ImpulseMapView): for active workouts a block is one set of an exercise with its own impulse; rests and plain
+ * blocks between; passive procedures are blocks only. Tap a block to set it, drag its edge for length, long-press to
+ * move, + clones, − removes. Run it "by the map" (MapRunner, exactly as drawn) or "with AI" (the AI keeps strength,
+ * rests and timing). Three views in one sheet: list → map → exercise picker. docs/xems-workouts.md
  */
 public final class WorkoutsUi {
     private WorkoutsUi() {}
@@ -37,23 +37,36 @@ public final class WorkoutsUi {
     static final int A_OPEN = 2;
     static final int A_PRESET = 3;
     static final int A_SAVE = 4;
-    static final int A_START = 5;
+    static final int A_START_AI = 5;
     static final int A_DELETE = 6;
     static final int A_COPY = 7;
-    static final int A_ADD = 8;
+    static final int A_ADD_EX = 8;
     static final int A_PICKED = 9;
     static final int A_PICK_DONE = 10;
-    static final int A_REMOVE = 11;
     static final int A_BACK = 12;
     static final int A_GOAL = 13;
     static final int A_FOCUS = 14;
     static final int A_ZONE = 15;
-    static final int A_SETS = 16;
-    static final int A_REPS = 17;
     static final int A_DELETE_SURE = 18;
+    static final int A_ADD_REST = 19;
+    static final int A_ADD_CLEAN = 20;
+    static final int A_START_MAP = 21;
+    static final int A_REPLACE = 22;
+    static final int A_NO_EX = 23;
+    static final int A_PARAM = 24;
+    static final int A_NEW_PASSIVE = 25;
+
+    // block parameters (A_PARAM arg)
+    static final int P_REPS = 0;
+    static final int P_HZ = 1;
+    static final int P_PW = 2;
+    static final int P_ON = 3;
+    static final int P_OFF = 4;
+    static final int P_REL = 5;
 
     static final String[] ZONES = {"all", "abs", "glutes", "legs", "back", "chest", "arms", "shoulders", "cardio", "stretch"};
     static final String[] FOCUS = {"abs", "glutes", "legs", "arms", "back", "chest"};
+    static final String[] GOALS = {Workout.GOAL_TONE, Workout.GOAL_FAT, Workout.GOAL_PASSIVE};
 
     private static XemsUi.Shell shell;
     private static Activity host;
@@ -64,7 +77,10 @@ public final class WorkoutsUi {
     private static String zone = "all";
     private static String query = "";
     private static String preview;
-    private static LinearLayout itemsBox;
+    /** The picker replaces this block's exercise (−1: it adds blocks). */
+    private static int replaceIndex = -1;
+    private static ImpulseMapView mapView;
+    private static LinearLayout panel;
     private static LinearLayout pickGrid;
     private static TextView summary;
     private static TextView saveBtn;
@@ -83,11 +99,15 @@ public final class WorkoutsUi {
     }
 
     static String goalName(String g) {
-        return Workout.GOAL_FAT.equals(g) ? AiText.t("Отслабване", "Fat loss") : AiText.t("Стягане", "Toning");
+        if (Workout.GOAL_FAT.equals(g)) return AiText.t("Отслабване", "Fat loss");
+        if (Workout.GOAL_PASSIVE.equals(g)) return AiText.t("Процедура", "Procedure");
+        return AiText.t("Стягане", "Toning");
     }
 
     static int goalColor(String g) {
-        return Workout.GOAL_FAT.equals(g) ? XemsUi.ORANGE : XemsUi.GO;
+        if (Workout.GOAL_FAT.equals(g)) return XemsUi.ORANGE;
+        if (Workout.GOAL_PASSIVE.equals(g)) return 0xFF3D7BFF;
+        return XemsUi.GO;
     }
 
     // ================================================================ open
@@ -113,7 +133,8 @@ public final class WorkoutsUi {
         Context c = shell.dialog.getContext();
         shell.body.removeAllViews();
         shell.footer.removeAllViews();
-        itemsBox = null;
+        mapView = null;
+        panel = null;
         saveBtn = null;
         pickGrid = null;
         summary = null;
@@ -132,18 +153,29 @@ public final class WorkoutsUi {
 
     private static void screenList(Context c) {
         shell.title.setText(AiText.t("Тренировки", "Workouts"));
-        shell.subtitle.setText(AiText.t("Готовите програми и твоите тренировки — докосни, за да видиш или пуснеш с AI.",
-                "Ready programs and your workouts — tap to see or start with AI."));
+        shell.subtitle.setText(AiText.t("Импулсни карти: блоковете са сериите на упражненията — докосни, за да видиш или пуснеш.",
+                "Impulse maps: the blocks are the exercise sets — tap to see or start."));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
         List<Workout> own = WorkoutStore.own(c);
         if (!own.isEmpty()) {
             body.addView(XemsUi.label(c, AiText.t("Твоите", "Yours")), XemsUi.matchWrap(c, 6));
-            grid(c, body, own, A_OPEN);
+            grid(c, body, own, A_OPEN, 0);
         }
-        body.addView(XemsUi.label(c, AiText.t("Готови програми", "Ready programs")), XemsUi.matchWrap(c, own.isEmpty() ? 6 : 18));
-        grid(c, body, WorkoutStore.presets(), A_PRESET);
+        List<Workout> active = new ArrayList<Workout>();
+        List<Workout> passive = new ArrayList<Workout>();
+        for (Workout w : WorkoutStore.presets()) {
+            (w.isPassive() ? passive : active).add(w);
+        }
+        body.addView(XemsUi.label(c, AiText.t("Готови · с упражнения", "Ready · with exercises")),
+                XemsUi.matchWrap(c, own.isEmpty() ? 6 : 18));
+        grid(c, body, active, A_PRESET, 0);
+        if (!passive.isEmpty()) {
+            body.addView(XemsUi.label(c, AiText.t("Готови · процедури в покой", "Ready · procedures at rest")),
+                    XemsUi.matchWrap(c, 18));
+            grid(c, body, passive, A_PRESET, active.size());
+        }
 
         int n = ExerciseLibrary.enabled(c).size();
         int wait = ExerciseLibrary.pending(c);
@@ -153,14 +185,19 @@ public final class WorkoutsUi {
         lib.setPadding(0, XemsUi.dp(c, 14), 0, 0);
         body.addView(lib);
 
+        TextView proc = XemsUi.button(c, AiText.t("+  Процедура", "+  Procedure"), XemsUi.SECONDARY);
+        proc.setOnClickListener(new Act(A_NEW_PASSIVE, 0));
         TextView add = XemsUi.button(c, AiText.t("+  Нова тренировка", "+  New workout"), XemsUi.PRIMARY);
         add.setOnClickListener(new Act(A_NEW, 0));
         shell.footer.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
-        shell.footer.addView(add, new LinearLayout.LayoutParams(XemsUi.dp(c, 300), XemsUi.dp(c, 56)));
+        shell.footer.addView(proc, new LinearLayout.LayoutParams(XemsUi.dp(c, 220), XemsUi.dp(c, 56)));
+        LinearLayout.LayoutParams ap = new LinearLayout.LayoutParams(XemsUi.dp(c, 300), XemsUi.dp(c, 56));
+        ap.leftMargin = XemsUi.dp(c, 10);
+        shell.footer.addView(add, ap);
     }
 
-    /** Workout cards, two per row. */
-    private static void grid(Context c, LinearLayout body, List<Workout> list, int action) {
+    /** Workout cards, two per row: the map as a strip, the name, goal and time. */
+    private static void grid(Context c, LinearLayout body, List<Workout> list, int action, int offset) {
         LinearLayout row = null;
         for (int i = 0; i < list.size(); i++) {
             if (i % 2 == 0) {
@@ -168,7 +205,7 @@ public final class WorkoutsUi {
                 body.addView(row, XemsUi.matchWrap(c, i == 0 ? 8 : 12));
             }
             View card = workoutCard(c, list.get(i));
-            card.setOnClickListener(new Act(action, i));
+            card.setOnClickListener(new Act(action, offset + i));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
             if (i % 2 == 1) {
                 lp.leftMargin = XemsUi.dp(c, 12);
@@ -184,120 +221,135 @@ public final class WorkoutsUi {
 
     private static View workoutCard(Context c, Workout w) {
         LinearLayout card = XemsUi.card(c);
-        card.setOrientation(LinearLayout.HORIZONTAL);
-        card.setGravity(Gravity.CENTER_VERTICAL);
-        // the first exercises as still figures on the dark tile
-        LinearLayout strip = XemsUi.horizontal(c);
-        strip.setGravity(Gravity.CENTER);
-        strip.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(c, 14), 0, 0));
-        strip.setPadding(XemsUi.dp(c, 6), XemsUi.dp(c, 6), XemsUi.dp(c, 6), XemsUi.dp(c, 6));
-        for (int k = 0; k < Math.min(3, w.items.size()); k++) {
-            ExerciseFigure f = new ExerciseFigure(c);
-            f.setGlow(false);
-            f.setStill(true);
-            f.setColor(goalColor(w.goal) == XemsUi.ORANGE ? ExerciseFigure.COLOR_F : ExerciseFigure.COLOR);
-            f.setExercise(w.items.get(k).ex);
-            strip.addView(f, new LinearLayout.LayoutParams(XemsUi.dp(c, 58), XemsUi.dp(c, 58)));
-        }
-        card.addView(strip, new LinearLayout.LayoutParams(XemsUi.dp(c, 190), XemsUi.dp(c, 72)));
-        LinearLayout text = XemsUi.vertical(c);
-        text.setPadding(XemsUi.dp(c, 14), 0, 0, 0);
+        LinearLayout head = XemsUi.horizontal(c);
+        head.setGravity(Gravity.CENTER_VERTICAL);
         TextView name = XemsUi.text(c, w.name, 17, XemsUi.TEXT, true);
-        name.setMaxLines(2);
-        text.addView(name);
-        LinearLayout meta = XemsUi.horizontal(c);
-        meta.setGravity(Gravity.CENTER_VERTICAL);
-        meta.setPadding(0, XemsUi.dp(c, 6), 0, 0);
-        meta.addView(XemsUi.badge(c, goalName(w.goal), goalColor(w.goal)));
-        TextView m = XemsUi.text(c, "  " + w.items.size() + AiText.t(" упр. · ≈ ", " ex. · ≈ ") + w.minutes()
-                + AiText.t(" мин", " min"), 13, XemsUi.MUTED, false);
-        meta.addView(m);
-        text.addView(meta);
-        card.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        name.setMaxLines(1);
+        head.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        head.addView(XemsUi.badge(c, goalName(w.goal), goalColor(w.goal)));
+        card.addView(head);
+        LinearLayout strip = new LinearLayout(c);
+        strip.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(c, 12), 0, 0));
+        ImpulseMapView mv = new ImpulseMapView(c);
+        mv.setMap(w, false);
+        strip.addView(mv, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 46)));
+        card.addView(strip, XemsUi.matchWrap(c, 8));
+        String meta = w.isPassive()
+                ? w.blocks.size() + AiText.t(" блока · ", " blocks · ") + w.mapMinutes() + AiText.t(" мин", " min")
+                : w.distinctExercises() + AiText.t(" упр. · ", " ex. · ") + w.exerciseBlocks()
+                + AiText.t(" серии · ≈ ", " sets · ≈ ") + w.aiMinutes() + AiText.t(" мин", " min");
+        TextView m = XemsUi.text(c, meta, 13, XemsUi.MUTED, false);
+        m.setPadding(0, XemsUi.dp(c, 6), 0, 0);
+        card.addView(m);
         XemsUi.pressable(card);
         return card;
     }
 
-    // ================================================================ one workout
+    // ================================================================ the map
 
     private static void screenEdit(final Context c) {
         final Workout w = editing;
         boolean ro = w.preset;
-        shell.title.setText(ro ? w.name : (w.name.length() > 0 ? w.name : AiText.t("Нова тренировка", "New workout")));
-        shell.subtitle.setText(ro ? AiText.t("Готова програма — копирай я, за да я промениш.", "Ready program — copy it to change it.")
-                : AiText.t("Докосни упражнение, за да го добавиш; влачи ≡ за подредба.", "Tap exercises to add; drag ≡ to reorder."));
+        shell.title.setText(ro ? w.name : (w.name.length() > 0 ? w.name
+                : w.isPassive() ? AiText.t("Нова процедура", "New procedure") : AiText.t("Нова тренировка", "New workout")));
+        shell.subtitle.setText(ro ? AiText.t("Готова карта — копирай я, за да я промениш.", "Ready map — copy it to change it.")
+                : AiText.t("Докосни блок · влачи ръба му за дължина · задръж и влачи за място · + клонира · − маха",
+                "Tap a block · drag its edge for length · hold and drag to move · + clones · − removes"));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
+        LinearLayout top = XemsUi.horizontal(c);
+        top.setGravity(Gravity.CENTER_VERTICAL);
         if (!ro) {
             EditText name = new EditText(c);
             name.setSingleLine(true);
             name.setText(w.name);
-            name.setHint(AiText.t("Име, напр. „Стегнато седалище“", "Name, e.g. “Strong glutes”"));
-            name.setTextSize(19);
+            name.setHint(w.isPassive() ? AiText.t("Име, напр. „Лек дренаж“", "Name, e.g. “Light drainage”")
+                    : AiText.t("Име, напр. „Стегнато седалище“", "Name, e.g. “Strong glutes”"));
+            name.setTextSize(18);
             name.setTextColor(XemsUi.TEXT);
             name.setHintTextColor(XemsUi.HINT);
             name.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             name.setImeOptions(EditorInfo.IME_ACTION_DONE);
             name.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(c, 14), XemsUi.STROKE, XemsUi.dp(c, 1)));
-            name.setPadding(XemsUi.dp(c, 16), XemsUi.dp(c, 12), XemsUi.dp(c, 16), XemsUi.dp(c, 12));
+            name.setPadding(XemsUi.dp(c, 16), XemsUi.dp(c, 11), XemsUi.dp(c, 16), XemsUi.dp(c, 11));
             name.addTextChangedListener(new NameWatch());
-            body.addView(name, XemsUi.matchWrap(c, 4));
-        }
-
-        // goal + focus in one row: what the workout is for
-        LinearLayout tie = XemsUi.horizontal(c);
-        tie.setGravity(Gravity.CENTER_VERTICAL);
-        if (ro) {
-            tie.addView(XemsUi.badge(c, goalName(w.goal), goalColor(w.goal)));
+            top.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            String[] gl = {goalName(GOALS[0]), goalName(GOALS[1]), goalName(GOALS[2])};
+            int gi = w.isPassive() ? 2 : Workout.GOAL_FAT.equals(w.goal) ? 1 : 0;
+            LinearLayout seg = XemsUi.segmented(c, gl, gi, new Act(A_GOAL, 0));
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(XemsUi.dp(c, 440), ViewGroup.LayoutParams.WRAP_CONTENT);
+            sp.leftMargin = XemsUi.dp(c, 12);
+            top.addView(seg, sp);
         } else {
-            LinearLayout seg = XemsUi.segmented(c, new String[] {goalName(Workout.GOAL_TONE), goalName(Workout.GOAL_FAT)},
-                    Workout.GOAL_FAT.equals(w.goal) ? 1 : 0, new Act(A_GOAL, 0));
-            tie.addView(seg, new LinearLayout.LayoutParams(XemsUi.dp(c, 320), ViewGroup.LayoutParams.WRAP_CONTENT));
+            top.addView(XemsUi.badge(c, goalName(w.goal), goalColor(w.goal)));
         }
-        LinearLayout chips = XemsUi.horizontal(c);
-        chips.setPadding(XemsUi.dp(c, 14), 0, 0, 0);
-        for (int i = 0; i < FOCUS.length; i++) {
-            boolean on = w.focus.contains(FOCUS[i]);
-            if (ro && !on) {
-                continue;
+        body.addView(top, XemsUi.matchWrap(c, 4));
+
+        if (!w.isPassive()) {
+            LinearLayout chips = XemsUi.horizontal(c);
+            for (int i = 0; i < FOCUS.length; i++) {
+                boolean on = w.focus.contains(FOCUS[i]);
+                if (ro && !on) {
+                    continue;
+                }
+                TextView ch = XemsUi.chip(c, zoneName(FOCUS[i]), on, XemsUi.GO_TEXT);
+                if (!ro) {
+                    ch.setOnClickListener(new Act(A_FOCUS, i));
+                }
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                lp.rightMargin = XemsUi.dp(c, 6);
+                chips.addView(ch, lp);
             }
-            TextView ch = XemsUi.chip(c, zoneName(FOCUS[i]), on, XemsUi.GO_TEXT);
-            if (!ro) {
-                ch.setOnClickListener(new Act(A_FOCUS, i));
+            if (chips.getChildCount() > 0) {
+                body.addView(chips, XemsUi.matchWrap(c, 10));
             }
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.rightMargin = XemsUi.dp(c, 6);
-            chips.addView(ch, lp);
         }
-        tie.addView(chips);
-        body.addView(tie, XemsUi.matchWrap(c, 12));
 
         summary = XemsUi.text(c, "", 13.5f, XemsUi.MUTED, false);
-        body.addView(summary, XemsUi.matchWrap(c, 12));
+        body.addView(summary, XemsUi.matchWrap(c, 10));
         refreshSummary();
 
-        itemsBox = XemsUi.vertical(c);
-        body.addView(itemsBox, XemsUi.matchWrap(c, 2));
-        for (int i = 0; i < w.items.size(); i++) {
-            itemsBox.addView(itemRow(c, w, i, ro), XemsUi.matchWrap(c, 8));
-        }
-        if (w.items.isEmpty()) {
-            TextView empty = XemsUi.text(c, AiText.t("Още няма упражнения — добави първото.", "No exercises yet — add the first one."),
+        // the line
+        LinearLayout lineCard = new LinearLayout(c);
+        lineCard.setOrientation(LinearLayout.VERTICAL);
+        lineCard.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(c, 16), 0, 0));
+        lineCard.setPadding(XemsUi.dp(c, 4), XemsUi.dp(c, 6), XemsUi.dp(c, 4), XemsUi.dp(c, 4));
+        mapView = new ImpulseMapView(c);
+        mapView.setMap(w, !ro);
+        mapView.setListener(new MapListener());
+        lineCard.addView(mapView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 250)));
+        lineCard.addView(legend(c), XemsUi.matchWrap(c, 2));
+        body.addView(lineCard, XemsUi.matchWrap(c, 10));
+        if (w.blocks.isEmpty()) {
+            TextView empty = XemsUi.text(c, w.isPassive()
+                    ? AiText.t("Празна карта — сложи първия блок.", "An empty map — place the first block.")
+                    : AiText.t("Празна карта — добави първото упражнение.", "An empty map — add the first exercise."),
                     15, XemsUi.MUTED, false);
             empty.setGravity(Gravity.CENTER);
-            empty.setPadding(0, XemsUi.dp(c, 24), 0, XemsUi.dp(c, 12));
-            itemsBox.addView(empty, XemsUi.matchWrap(c, 0));
-        }
-        if (!ro) {
-            TextView add = XemsUi.button(c, AiText.t("+  Добави упражнения", "+  Add exercises"), XemsUi.SECONDARY);
-            add.setOnClickListener(new Act(A_ADD, 0));
-            body.addView(add, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 54)));
-            ((LinearLayout.LayoutParams) add.getLayoutParams()).topMargin = XemsUi.dp(c, 12);
+            empty.setPadding(0, XemsUi.dp(c, 10), 0, 0);
+            body.addView(empty, XemsUi.matchWrap(c, 0));
         }
 
-        // footer: back · (delete) · save / copy · start
+        if (!ro) {
+            LinearLayout adds = XemsUi.horizontal(c);
+            if (!w.isPassive()) {
+                addButton(c, adds, AiText.t("+  Упражнение", "+  Exercise"), A_ADD_EX, true);
+            }
+            addButton(c, adds, AiText.t("+  Почивка", "+  Rest"), A_ADD_REST, adds.getChildCount() == 0);
+            addButton(c, adds, AiText.t("+  Нов блок", "+  New block"), A_ADD_CLEAN, false);
+            body.addView(adds, XemsUi.matchWrap(c, 10));
+        }
+
+        panel = XemsUi.vertical(c);
+        body.addView(panel, XemsUi.matchWrap(c, 12));
+        if (mapView.getSelected() < 0 && !w.blocks.isEmpty() && !ro) {
+            mapView.select(0);
+        }
+        fillPanel(c);
+
+        // footer: back · (delete) · save / copy · run
         TextView back = XemsUi.button(c, AiText.t("‹  Назад", "‹  Back"), XemsUi.GHOST);
         back.setOnClickListener(new Act(A_BACK, 0));
         shell.footer.addView(back, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, XemsUi.dp(c, 54)));
@@ -312,17 +364,61 @@ public final class WorkoutsUi {
         TextView mid = XemsUi.button(c, ro ? AiText.t("Копирай и промени", "Copy and change")
                 : (dirty ? AiText.t("Запази", "Save") : AiText.t("Запазено ✓", "Saved ✓")), XemsUi.SECONDARY);
         mid.setOnClickListener(new Act(ro ? A_COPY : A_SAVE, 0));
-        saveBtn = ro ? null : mid;
-        mid.setEnabled(ro || (dirty && !w.items.isEmpty()));
+        mid.setEnabled(ro || (dirty && !w.blocks.isEmpty()));
         mid.setAlpha(mid.isEnabled() ? 1f : 0.55f);
-        shell.footer.addView(mid, new LinearLayout.LayoutParams(XemsUi.dp(c, 220), XemsUi.dp(c, 54)));
-        TextView start = XemsUi.button(c, AiText.t("▶  Старт с AI", "▶  Start with AI"), XemsUi.PRIMARY);
-        start.setOnClickListener(new Act(A_START, 0));
-        start.setEnabled(!w.items.isEmpty());
-        start.setAlpha(start.isEnabled() ? 1f : 0.55f);
-        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(XemsUi.dp(c, 240), XemsUi.dp(c, 54));
-        sp.leftMargin = XemsUi.dp(c, 10);
-        shell.footer.addView(start, sp);
+        saveBtn = ro ? null : mid;
+        shell.footer.addView(mid, new LinearLayout.LayoutParams(XemsUi.dp(c, 210), XemsUi.dp(c, 54)));
+        boolean any = !w.blocks.isEmpty();
+        TextView map = XemsUi.button(c, w.isPassive() ? AiText.t("▶  Пусни картата", "▶  Run the map")
+                : AiText.t("▶  По картата", "▶  By the map"), w.isPassive() ? XemsUi.PRIMARY : XemsUi.SECONDARY);
+        map.setOnClickListener(new Act(A_START_MAP, 0));
+        map.setEnabled(any);
+        map.setAlpha(any ? 1f : 0.55f);
+        LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(XemsUi.dp(c, w.isPassive() ? 260 : 210), XemsUi.dp(c, 54));
+        mp.leftMargin = XemsUi.dp(c, 10);
+        shell.footer.addView(map, mp);
+        if (!w.isPassive()) {
+            boolean ex = w.exerciseBlocks() > 0;
+            TextView ai = XemsUi.button(c, AiText.t("▶  С AI", "▶  With AI"), XemsUi.PRIMARY);
+            ai.setOnClickListener(new Act(A_START_AI, 0));
+            ai.setEnabled(ex);
+            ai.setAlpha(ex ? 1f : 0.55f);
+            LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(XemsUi.dp(c, 200), XemsUi.dp(c, 54));
+            ip.leftMargin = XemsUi.dp(c, 10);
+            shell.footer.addView(ai, ip);
+        }
+    }
+
+    private static void addButton(Context c, LinearLayout row, String label, int code, boolean first) {
+        TextView b = XemsUi.button(c, label, XemsUi.SECONDARY);
+        b.setOnClickListener(new Act(code, 0));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 50), 1f);
+        if (!first) {
+            lp.leftMargin = XemsUi.dp(c, 10);
+        }
+        row.addView(b, lp);
+    }
+
+    /** The colour scale (Hz) and what the height means. */
+    private static View legend(Context c) {
+        LinearLayout row = XemsUi.horizontal(c);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(XemsUi.dp(c, 10), XemsUi.dp(c, 2), XemsUi.dp(c, 10), XemsUi.dp(c, 4));
+        int[] hz = {5, 20, 45, 85, 110};
+        String[] name = {AiText.t("дренаж", "drainage"), AiText.t("масаж", "massage"), AiText.t("издръжливост", "endurance"),
+                AiText.t("сила", "strength"), AiText.t("мощност", "power")};
+        for (int i = 0; i < hz.length; i++) {
+            View dot = new View(c);
+            dot.setBackgroundDrawable(XemsUi.rounded(ImpulseMapView.colorFor(hz[i]), XemsUi.dp(c, 5), 0, 0));
+            LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(XemsUi.dp(c, 10), XemsUi.dp(c, 10));
+            dp.leftMargin = XemsUi.dp(c, i == 0 ? 0 : 12);
+            row.addView(dot, dp);
+            TextView t = XemsUi.text(c, " " + name[i], 11.5f, XemsUi.HINT, false);
+            row.addView(t);
+        }
+        row.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
+        row.addView(XemsUi.text(c, AiText.t("височина = дълбочина (µs)", "height = depth (µs)"), 11.5f, XemsUi.HINT, false));
+        return row;
     }
 
     static void refreshSummary() {
@@ -330,14 +426,17 @@ public final class WorkoutsUi {
             return;
         }
         Workout w = editing;
-        String t = w.items.size() + AiText.t(" упражнения · ", " exercises · ") + w.totalSets()
-                + AiText.t(" серии в кръгове · ≈ ", " sets in rounds · ≈ ") + w.minutes()
-                + AiText.t(" мин с AI", " min with AI");
+        String t;
+        if (w.isPassive()) {
+            t = w.blocks.size() + AiText.t(" блока · ", " blocks · ") + w.mapMinutes() + AiText.t(" мин", " min");
+        } else {
+            t = w.distinctExercises() + AiText.t(" упражнения · ", " exercises · ") + w.exerciseBlocks()
+                    + AiText.t(" серии · по картата ", " sets · by the map ") + w.mapMinutes()
+                    + AiText.t(" мин · с AI ≈ ", " min · with AI ≈ ") + w.aiMinutes() + AiText.t(" мин", " min");
+        }
         if (w.longerThanSession()) {
-            t += AiText.t("\nПо-дълга от една AI сесия (" + w.sessionMinutes() + " мин): ще минат кръговете, които се"
-                    + " поберат — всяко упражнение поне веднъж, ако първият кръг се побира.",
-                    "\nLonger than one AI session (" + w.sessionMinutes() + " min): the rounds that fit are done — every"
-                    + " exercise at least once if the first round fits.");
+            t += AiText.t("\nС AI е по-дълга от една сесия (" + w.sessionMinutes() + " мин): минават сериите, които се поберат.",
+                    "\nWith AI it is longer than one session (" + w.sessionMinutes() + " min): the sets that fit are done.");
             summary.setTextColor(XemsUi.AMBER);
         } else {
             summary.setTextColor(XemsUi.MUTED);
@@ -345,62 +444,93 @@ public final class WorkoutsUi {
         summary.setText(t);
     }
 
-    /** One exercise: ≡ drag handle, still figure, name, sets and repetitions, remove. */
-    private static View itemRow(Context c, Workout w, int i, boolean ro) {
-        Workout.Item it = w.items.get(i);
-        ExerciseLibrary.Entry e = ExerciseLibrary.get(c, it.ex);
-        LinearLayout row = XemsUi.card(c);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 8), XemsUi.dp(c, 12), XemsUi.dp(c, 8));
-        row.setTag(it);
-        if (!ro) {
-            TextView handle = XemsUi.text(c, "≡", 26, XemsUi.HINT, true);
-            handle.setGravity(Gravity.CENTER);
-            handle.setOnTouchListener(new Drag(row));
-            row.addView(handle, new LinearLayout.LayoutParams(XemsUi.dp(c, 44), XemsUi.dp(c, 64)));
+    /** The selected block: its figure and exercise, and every impulse value with − / +. */
+    static void fillPanel(Context c) {
+        if (panel == null || mapView == null || editing == null) {
+            return;
         }
+        panel.removeAllViews();
+        int i = mapView.getSelected();
+        if (i < 0 || i >= editing.blocks.size()) {
+            return;
+        }
+        boolean ro = editing.preset;
+        Workout.Block b = editing.blocks.get(i);
+        LinearLayout card = XemsUi.card(c);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+
         LinearLayout tile = new LinearLayout(c);
+        tile.setGravity(Gravity.CENTER);
         tile.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(c, 12), 0, 0));
-        ExerciseFigure f = new ExerciseFigure(c);
-        f.setGlow(false);
-        f.setStill(true);
-        f.setExercise(it.ex);
-        tile.addView(f, new LinearLayout.LayoutParams(XemsUi.dp(c, 92), XemsUi.dp(c, 68)));
-        row.addView(tile);
-        LinearLayout text = XemsUi.vertical(c);
-        text.setPadding(XemsUi.dp(c, 14), 0, XemsUi.dp(c, 8), 0);
-        TextView name = XemsUi.text(c, e != null ? e.name() : AutoTemplates.name(it.ex), 16, XemsUi.TEXT, true);
-        name.setMaxLines(2);
-        text.addView(name);
-        TextView sub = XemsUi.text(c, e != null ? zoneName(e.zone) + " · " + e.eq : "", 12.5f, XemsUi.MUTED, false);
-        text.addView(sub);
-        row.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        boolean hold = e != null && e.isHold();
-        if (ro) {
-            row.addView(XemsUi.text(c, it.sets + " × " + it.reps + (hold ? AiText.t(" задърж.", " holds")
-                    : AiText.t(" повт.", " reps")), 17, XemsUi.TEXT, true));
+        if (b.hasExercise()) {
+            ExerciseFigure f = new ExerciseFigure(c);
+            f.setCycle(0, Math.max(1, b.on), Math.max(1, b.off));
+            f.setExercise(b.ex);
+            tile.addView(f, new LinearLayout.LayoutParams(XemsUi.dp(c, 150), XemsUi.dp(c, 112)));
         } else {
-            row.addView(mini(c, AiText.t("серии", "sets"), it.sets, new Act(A_SETS, 0), row));
-            View reps = mini(c, hold ? AiText.t("задържания", "holds") : AiText.t("повторения", "reps"), it.reps,
-                    new Act(A_REPS, 0), row);
-            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            rp.leftMargin = XemsUi.dp(c, 10);
-            row.addView(reps, rp);
-            TextView x = XemsUi.iconButton(c, "✕", XemsUi.SURFACE, XemsUi.MUTED, 36);
-            Act rm = new Act(A_REMOVE, 0);
-            rm.row = row;
-            x.setOnClickListener(rm);
-            LinearLayout.LayoutParams xp = new LinearLayout.LayoutParams(XemsUi.dp(c, 36), XemsUi.dp(c, 36));
-            xp.leftMargin = XemsUi.dp(c, 12);
-            row.addView(x, xp);
+            View sw = new View(c);
+            sw.setBackgroundDrawable(XemsUi.rounded(b.isRest() ? 0xFF5A5F6B : ImpulseMapView.colorFor(b.hz),
+                    XemsUi.dp(c, 10), 0, 0));
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(XemsUi.dp(c, 110), XemsUi.dp(c, b.isRest() ? 14 : 70));
+            tile.addView(sw, sp);
+            tile.setMinimumWidth(XemsUi.dp(c, 150));
+            tile.setMinimumHeight(XemsUi.dp(c, 112));
         }
-        return row;
+        card.addView(tile);
+
+        LinearLayout col = XemsUi.vertical(c);
+        col.setPadding(XemsUi.dp(c, 16), 0, 0, 0);
+        ExerciseLibrary.Entry e = b.ex != null ? ExerciseLibrary.get(c, b.ex) : null;
+        String title = b.isRest() ? AiText.t("Почивка", "Rest")
+                : e != null ? e.name() : b.ex != null ? AutoTemplates.name(b.ex) : AiText.t("Импулс без упражнение", "Impulse, no exercise");
+        LinearLayout head = XemsUi.horizontal(c);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.addView(XemsUi.text(c, (i + 1) + ".  " + title, 18, XemsUi.TEXT, true),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (!ro && !b.isRest() && !editing.isPassive()) {
+            TextView ch = XemsUi.button(c, b.hasExercise() ? AiText.t("Смени упражнението", "Change exercise")
+                    : AiText.t("Сложи упражнение", "Set an exercise"), XemsUi.GHOST);
+            ch.setOnClickListener(new Act(A_REPLACE, 0));
+            head.addView(ch);
+            if (b.hasExercise()) {
+                TextView no = XemsUi.button(c, AiText.t("Без", "None"), XemsUi.GHOST);
+                no.setOnClickListener(new Act(A_NO_EX, 0));
+                head.addView(no);
+            }
+        }
+        col.addView(head);
+        TextView sub = XemsUi.text(c, b.isRest()
+                ? AiText.t("Без ток. Дължината е времето за почивка.", "No current. Its length is the rest time.")
+                : b.seconds() + AiText.t(" с · ", " s · ") + b.hz + " Hz · " + b.pw + " µs · " + b.on + "+" + b.off
+                + AiText.t(" с · сила ", " s · strength ") + b.rel + "%", 13, XemsUi.MUTED, false);
+        sub.setPadding(0, XemsUi.dp(c, 2), 0, XemsUi.dp(c, 8));
+        col.addView(sub);
+
+        if (!ro) {
+            LinearLayout row1 = XemsUi.horizontal(c);
+            boolean hold = e != null && e.isHold();
+            param(c, row1, b.isRest() ? AiText.t("секунди", "seconds") : hold ? AiText.t("задържания", "holds")
+                    : b.hasExercise() ? AiText.t("повторения", "repetitions") : AiText.t("импулса", "impulses"), b.reps, P_REPS);
+            if (!b.isRest()) {
+                param(c, row1, "Hz", b.hz, P_HZ);
+                param(c, row1, "µs", b.pw, P_PW);
+                LinearLayout row2 = XemsUi.horizontal(c);
+                param(c, row2, AiText.t("импулс, с", "impulse, s"), b.on, P_ON);
+                param(c, row2, AiText.t("пауза, с", "pause, s"), b.off, P_OFF);
+                param(c, row2, AiText.t("сила, %", "strength, %"), b.rel, P_REL);
+                col.addView(row1);
+                col.addView(row2, XemsUi.matchWrap(c, 8));
+            } else {
+                col.addView(row1);
+            }
+        }
+        card.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        panel.addView(card, XemsUi.matchWrap(c, 0));
     }
 
-    /** Compact − value + with a caption; holding repeats. */
-    private static View mini(Context c, String caption, int value, Act act, View row) {
+    /** A compact − value + with its caption; holding repeats. */
+    private static void param(Context c, LinearLayout row, String caption, int value, int which) {
         LinearLayout col = XemsUi.vertical(c);
         col.setGravity(Gravity.CENTER_HORIZONTAL);
         LinearLayout box = XemsUi.horizontal(c);
@@ -409,100 +539,86 @@ public final class WorkoutsUi {
         box.setPadding(XemsUi.dp(c, 3), XemsUi.dp(c, 3), XemsUi.dp(c, 3), XemsUi.dp(c, 3));
         TextView minus = XemsUi.iconButton(c, "−", XemsUi.CARD, XemsUi.TEXT, 38);
         TextView plus = XemsUi.iconButton(c, "+", XemsUi.CARD, XemsUi.TEXT, 38);
-        TextView v = XemsUi.text(c, String.valueOf(value), 19, XemsUi.TEXT, true);
+        TextView v = XemsUi.text(c, String.valueOf(value), 18, XemsUi.TEXT, true);
         v.setGravity(Gravity.CENTER);
-        act.row = row;
+        Act act = new Act(A_PARAM, which);
         act.value = v;
         XemsUi.repeatOnHold(minus, act, -1);
         XemsUi.repeatOnHold(plus, act, +1);
         box.addView(minus);
-        box.addView(v, new LinearLayout.LayoutParams(XemsUi.dp(c, 44), ViewGroup.LayoutParams.WRAP_CONTENT));
+        box.addView(v, new LinearLayout.LayoutParams(XemsUi.dp(c, 52), ViewGroup.LayoutParams.WRAP_CONTENT));
         box.addView(plus);
         col.addView(box);
         TextView cap = XemsUi.text(c, caption, 11, XemsUi.HINT, false);
         cap.setPadding(0, XemsUi.dp(c, 3), 0, 0);
         col.addView(cap);
-        return col;
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        lp.rightMargin = XemsUi.dp(c, 8);
+        row.addView(col, lp);
     }
 
-    /** Drag by the ≡ handle: the row follows the finger; neighbours step aside as it passes their middle. */
-    static final class Drag implements View.OnTouchListener {
-        private final View row;
-        private float downY;
+    /** One step of a block value (Hz: 1 below 20, else 5; µs: 25; strength: 5). */
+    static void step(Workout.Block b, int which, int dir) {
+        switch (which) {
+            case P_REPS:
+                b.reps += dir * (b.isRest() ? 5 : 1);
+                break;
+            case P_HZ:
+                b.hz += dir * (b.hz + (dir > 0 ? 0 : -1) < 20 ? 1 : 5);
+                break;
+            case P_PW:
+                b.pw += dir * 25;
+                break;
+            case P_ON:
+                b.on += dir;
+                break;
+            case P_OFF:
+                b.off += dir;
+                break;
+            default:
+                b.rel += dir * 5;
+                break;
+        }
+        b.clampAll();
+    }
 
-        Drag(View row) {
-            this.row = row;
+    static int valueOf(Workout.Block b, int which) {
+        switch (which) {
+            case P_REPS: return b.reps;
+            case P_HZ: return b.hz;
+            case P_PW: return b.pw;
+            case P_ON: return b.on;
+            case P_OFF: return b.off;
+            default: return b.rel;
+        }
+    }
+
+    static final class MapListener implements ImpulseMapView.Listener {
+        @Override
+        public void onSelect(int index) {
+            if (shell != null) {
+                fillPanel(shell.dialog.getContext());
+            }
         }
 
         @Override
-        public boolean onTouch(View v, MotionEvent e) {
-            LinearLayout box = itemsBox;
-            if (box == null || editing == null) {
-                return false;
-            }
-            Context c = v.getContext();
-            int gap = XemsUi.dp(c, 8);
-            switch (e.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    downY = e.getRawY();
-                    for (ViewParent p = v.getParent(); p != null; p = p.getParent()) {
-                        p.requestDisallowInterceptTouchEvent(true);
-                    }
-                    row.setElevation(XemsUi.dp(c, 10));
-                    row.animate().scaleX(1.015f).scaleY(1.015f).setDuration(120).start();
-                    XemsUi.haptic(v);
-                    return true;
-                case MotionEvent.ACTION_MOVE: {
-                    float dy = e.getRawY() - downY;
-                    int idx = box.indexOfChild(row);
-                    if (dy > 0 && idx < box.getChildCount() - 1) {
-                        View next = box.getChildAt(idx + 1);
-                        int step = next.getHeight() + gap;
-                        if (dy > step / 2f) {
-                            box.removeView(next);                   // the neighbour moves up, the dragged row stays attached
-                            box.addView(next, idx, XemsUi.matchWrap(c, 8));
-                            editing.move(idx, idx + 1);
-                            downY += step;
-                            dy -= step;
-                            dirty = true;
-                        }
-                    } else if (dy < 0 && idx > 0) {
-                        View prev = box.getChildAt(idx - 1);
-                        int step = prev.getHeight() + gap;
-                        if (-dy > step / 2f) {
-                            box.removeView(prev);
-                            box.addView(prev, idx, XemsUi.matchWrap(c, 8));
-                            editing.move(idx, idx - 1);
-                            downY -= step;
-                            dy += step;
-                            dirty = true;
-                        }
-                    }
-                    row.setTranslationY(dy);
-                    return true;
-                }
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    row.animate().translationY(0).scaleX(1f).scaleY(1f).setDuration(160).start();
-                    row.setElevation(0);
-                    if (dirty) {
-                        refreshFooter();
-                    }
-                    return true;
-                default:
-                    return true;
+        public void onChanged() {
+            dirty = true;
+            refreshFooter();
+            if (shell != null) {
+                fillPanel(shell.dialog.getContext());
             }
         }
     }
 
-    /** Save turns active after a change (without rebuilding the list mid-edit). */
+    /** Save turns active after a change (without rebuilding the map mid-edit). */
     static void refreshFooter() {
         if (shell == null || screen != EDIT) {
             return;
         }
         if (saveBtn != null) {
             saveBtn.setText(AiText.t("Запази", "Save"));
-            saveBtn.setEnabled(!editing.items.isEmpty());
+            saveBtn.setEnabled(!editing.blocks.isEmpty());
             saveBtn.setAlpha(saveBtn.isEnabled() ? 1f : 0.55f);
         }
         refreshSummary();
@@ -528,9 +644,12 @@ public final class WorkoutsUi {
     // ================================================================ picker
 
     private static void screenPick(Context c) {
-        shell.title.setText(AiText.t("Добави упражнения", "Add exercises"));
-        shell.subtitle.setText(AiText.t("Докосни, за да добавиш — отдолу е описанието на последното.",
-                "Tap to add — the last one's description is below."));
+        boolean replace = replaceIndex >= 0;
+        shell.title.setText(replace ? AiText.t("Смени упражнението", "Change the exercise")
+                : AiText.t("Добави упражнения", "Add exercises"));
+        shell.subtitle.setText(replace ? AiText.t("Докосни новото — блокът запазва импулса си.", "Tap the new one — the block keeps its impulse.")
+                : AiText.t("Всяко докосване слага серия на линията (почивка преди нея) — отдолу е описанието.",
+                "Each tap puts a set on the line (a rest before it) — the description is below."));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
@@ -563,8 +682,8 @@ public final class WorkoutsUi {
         body.addView(pickGrid, XemsUi.matchWrap(c, 12));
         fillGrid(c);
 
-        TextView done = XemsUi.button(c, AiText.t("Готово · ", "Done · ") + editing.items.size()
-                + AiText.t(" упражнения", " exercises"), XemsUi.PRIMARY);
+        TextView done = XemsUi.button(c, replace ? AiText.t("Назад към картата", "Back to the map")
+                : AiText.t("Готово · ", "Done · ") + editing.exerciseBlocks() + AiText.t(" серии", " sets"), XemsUi.PRIMARY);
         done.setOnClickListener(new Act(A_PICK_DONE, 0));
         shell.footer.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
         shell.footer.addView(done, new LinearLayout.LayoutParams(XemsUi.dp(c, 300), XemsUi.dp(c, 56)));
@@ -633,8 +752,8 @@ public final class WorkoutsUi {
 
     private static int countIn(String ex) {
         int n = 0;
-        for (Workout.Item it : editing.items) {
-            if (it.ex.equals(ex)) {
+        for (Workout.Block b : editing.blocks) {
+            if (ex.equals(b.ex) && !b.isRest()) {
                 n++;
             }
         }
@@ -667,8 +786,7 @@ public final class WorkoutsUi {
         name.setMaxLines(2);
         name.setPadding(0, XemsUi.dp(c, 8), 0, 0);
         cell.addView(name);
-        TextView eq = XemsUi.text(c, e.eq, 11.5f, XemsUi.MUTED, false);
-        cell.addView(eq);
+        cell.addView(XemsUi.text(c, e.eq, 11.5f, XemsUi.MUTED, false));
         XemsUi.pressable(cell);
         return cell;
     }
@@ -691,7 +809,7 @@ public final class WorkoutsUi {
         TextView how = XemsUi.text(c, e != null ? e.howText() : "", 13.5f, XemsUi.MUTED, false);
         how.setPadding(0, XemsUi.dp(c, 6), 0, XemsUi.dp(c, 8));
         text.addView(how);
-        TextView undo = XemsUi.button(c, AiText.t("Махни последното", "Remove the last one"), XemsUi.GHOST);
+        TextView undo = XemsUi.button(c, AiText.t("Махни последната серия", "Remove the last set"), XemsUi.GHOST);
         Act a = new Act(A_PICKED, -1);
         a.ex = id;
         undo.setOnClickListener(a);
@@ -722,7 +840,6 @@ public final class WorkoutsUi {
         final int code;
         final int arg;
         String ex;
-        View row;
         TextView value;
 
         Act(int code, int arg) {
@@ -746,48 +863,61 @@ public final class WorkoutsUi {
             run(direction);
         }
 
-        private void run(int value) {
+        private void run(int v) {
             try {
-                act(this, value);
+                act(this, v);
             } catch (Throwable t) {
                 com.isaigu.gymapp.widget.XemsGuard.report("WorkoutsUi.act " + code, t);
             }
         }
     }
 
+    /** Where a new block goes: after the selected one, or at the end. */
+    private static int insertAt() {
+        int s = mapView != null ? mapView.getSelected() : -1;
+        return s >= 0 ? s + 1 : editing.blocks.size();
+    }
+
     static void act(Act a, int v) {
         Context c = shell.dialog.getContext();
         switch (a.code) {
-            case A_NEW: {
+            case A_NEW:
+            case A_NEW_PASSIVE: {
                 Workout w = new Workout();
                 w.id = WorkoutStore.newId();
+                w.goal = a.code == A_NEW_PASSIVE ? Workout.GOAL_PASSIVE : Workout.GOAL_TONE;
+                if (w.isPassive()) {
+                    w.blocks.add(w.clean());
+                }
                 editing = w;
                 dirty = true;
                 confirmDelete = false;
                 preview = null;
-                go(PICK);
+                replaceIndex = -1;
+                go(w.isPassive() ? EDIT : PICK);
                 break;
             }
-            case A_OPEN:
-                editing = WorkoutStore.own(c).get(v).copy(WorkoutStore.own(c).get(v).id, WorkoutStore.own(c).get(v).name);
+            case A_OPEN: {
+                Workout o = WorkoutStore.own(c).get(v);
+                editing = o.copy(o.id, o.name);
                 dirty = false;
                 confirmDelete = false;
                 go(EDIT);
                 break;
+            }
             case A_PRESET:
-                editing = WorkoutStore.presets().get(v);
+                editing = presetAt(v, a);
                 dirty = false;
                 go(EDIT);
                 break;
             case A_COPY: {
-                Workout w = editing.copy(WorkoutStore.newId(), editing.name + AiText.t(" (моя)", " (mine)"));
-                editing = w;
+                editing = editing.copy(WorkoutStore.newId(), editing.name + AiText.t(" (моя)", " (mine)"));
                 dirty = true;
                 go(EDIT);
                 break;
             }
             case A_BACK:
-                if (screen == EDIT && dirty && !editing.preset && !editing.items.isEmpty()) {
+                if (screen == EDIT && dirty && !editing.preset && !editing.blocks.isEmpty()) {
                     save(c);                                   // nothing is lost by going back
                 }
                 go(LIST);
@@ -806,7 +936,7 @@ public final class WorkoutsUi {
                 go(LIST);
                 break;
             case A_GOAL:
-                editing.goal = v == 1 ? Workout.GOAL_FAT : Workout.GOAL_TONE;
+                editing.goal = GOALS[v];
                 dirty = true;
                 go(EDIT);
                 break;
@@ -819,60 +949,69 @@ public final class WorkoutsUi {
                 go(EDIT);
                 break;
             }
-            case A_ADD:
+            case A_ADD_EX:
                 preview = null;
+                replaceIndex = -1;
                 go(PICK);
                 break;
+            case A_REPLACE:
+                preview = null;
+                replaceIndex = mapView != null ? mapView.getSelected() : -1;
+                go(PICK);
+                break;
+            case A_NO_EX: {
+                int s = mapView.getSelected();
+                if (s >= 0) {
+                    editing.blocks.get(s).ex = null;
+                    dirty = true;
+                    go(EDIT);
+                    mapView.select(s);
+                    fillPanel(c);
+                }
+                break;
+            }
+            case A_ADD_REST:
+            case A_ADD_CLEAN: {
+                int at = insertAt();
+                editing.blocks.add(at, a.code == A_ADD_REST ? Workout.rest() : editing.clean());
+                dirty = true;
+                go(EDIT);
+                mapView.select(at);
+                fillPanel(c);
+                break;
+            }
             case A_ZONE:
                 zone = ZONES[v];
                 go(PICK);
                 break;
             case A_PICKED:
-                if (a.arg < 0) {
-                    for (int i = editing.items.size() - 1; i >= 0; i--) {
-                        if (editing.items.get(i).ex.equals(a.ex)) {
-                            editing.items.remove(i);
-                            break;
-                        }
-                    }
-                    preview = countIn(a.ex) > 0 ? a.ex : null;
-                } else {
-                    ExerciseLibrary.Entry e = ExerciseLibrary.get(c, a.ex);
-                    boolean hold = e != null && e.isHold();
-                    editing.items.add(new Workout.Item(a.ex, 2, hold ? 5 : 8));
-                    preview = a.ex;
+                picked(c, a);
+                break;
+            case A_PICK_DONE: {
+                int sel = replaceIndex;
+                replaceIndex = -1;
+                go(EDIT);
+                if (sel >= 0) {
+                    mapView.select(sel);
+                    fillPanel(c);
                 }
-                dirty = true;
-                int keep = shell.scroll.getScrollY();
-                go(PICK);
-                shell.scroll.post(new ScrollTo(keep));
-                break;
-            case A_PICK_DONE:
-                go(EDIT);
-                break;
-            case A_REMOVE: {
-                Object tag = a.row != null ? a.row.getTag() : null;
-                editing.items.remove(tag);
-                dirty = true;
-                go(EDIT);
                 break;
             }
-            case A_SETS:
-            case A_REPS: {
-                Workout.Item it = (Workout.Item) a.row.getTag();
-                if (a.code == A_SETS) {
-                    it.sets = Workout.clamp(it.sets + v, Workout.SETS_MIN, Workout.SETS_MAX);
-                    a.value.setText(String.valueOf(it.sets));
-                } else {
-                    it.reps = Workout.clamp(it.reps + v, Workout.REPS_MIN, Workout.REPS_MAX);
-                    a.value.setText(String.valueOf(it.reps));
+            case A_PARAM: {
+                int s = mapView != null ? mapView.getSelected() : -1;
+                if (s < 0 || editing.preset) {
+                    break;
                 }
+                Workout.Block b = editing.blocks.get(s);
+                step(b, a.arg, v);
+                a.value.setText(String.valueOf(valueOf(b, a.arg)));
                 dirty = true;
+                mapView.invalidate();
                 refreshFooter();
                 break;
             }
-            case A_START:
-                if (!editing.preset && dirty && !editing.items.isEmpty()) {
+            case A_START_AI:
+                if (!editing.preset && dirty && !editing.blocks.isEmpty()) {
                     save(c);
                 }
                 AiSession.useWorkout(editing);
@@ -880,9 +1019,76 @@ public final class WorkoutsUi {
                 close();
                 AiUi.open(act);
                 break;
+            case A_START_MAP: {
+                if (!editing.preset && dirty && !editing.blocks.isEmpty()) {
+                    save(c);
+                }
+                String why = MapRunner.start(host, editing);
+                if (why != null) {
+                    android.widget.Toast.makeText(c, why, android.widget.Toast.LENGTH_LONG).show();
+                } else {
+                    close();
+                }
+                break;
+            }
             default:
                 break;
         }
+    }
+
+    /** The ready map tapped in one of the two lists (active first, then passive). */
+    private static Workout presetAt(int v, Act a) {
+        List<Workout> all = WorkoutStore.presets();
+        List<Workout> active = new ArrayList<Workout>();
+        List<Workout> passive = new ArrayList<Workout>();
+        for (Workout w : all) {
+            (w.isPassive() ? passive : active).add(w);
+        }
+        return v < active.size() ? active.get(v) : passive.get(Math.min(passive.size() - 1, v - active.size()));
+    }
+
+    /** A tap in the picker: replace the block's exercise, add a set (a rest before it), or take the last set out. */
+    private static void picked(Context c, Act a) {
+        ExerciseLibrary.Entry e = ExerciseLibrary.get(c, a.ex);
+        if (replaceIndex >= 0 && replaceIndex < editing.blocks.size() && a.arg >= 0) {
+            Workout.Block b = editing.blocks.get(replaceIndex);
+            b.ex = a.ex;
+            if (b.isRest()) {
+                b.rel = 100;
+                b.clampAll();
+            }
+            dirty = true;
+            int sel = replaceIndex;
+            replaceIndex = -1;
+            go(EDIT);
+            mapView.select(sel);
+            fillPanel(c);
+            return;
+        }
+        if (a.arg < 0) {
+            for (int i = editing.blocks.size() - 1; i >= 0; i--) {
+                Workout.Block b = editing.blocks.get(i);
+                if (a.ex.equals(b.ex) && !b.isRest()) {
+                    editing.blocks.remove(i);
+                    if (i > 0 && i - 1 < editing.blocks.size() && editing.blocks.get(i - 1).isRest()) {
+                        editing.blocks.remove(i - 1);         // its rest goes with it
+                    }
+                    break;
+                }
+            }
+            preview = countIn(a.ex) > 0 ? a.ex : null;
+        } else {
+            Workout.Block b = Workout.forExercise(a.ex, e != null ? e.pat : Workout.patternOf(a.ex), e != null && e.isHold());
+            if (!editing.blocks.isEmpty() && !editing.blocks.get(editing.blocks.size() - 1).isRest()) {
+                editing.blocks.add(Workout.rest());
+            }
+            editing.blocks.add(b);
+            preview = a.ex;
+        }
+        dirty = true;
+        int keep = shell.scroll.getScrollY();
+        go(PICK);
+        shell.scroll.post(new ScrollTo(keep));
     }
 
     static final class ScrollTo implements Runnable {
@@ -903,7 +1109,8 @@ public final class WorkoutsUi {
     private static void save(Context c) {
         if (editing.name.trim().length() == 0) {
             java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("d.MM", java.util.Locale.ROOT);
-            editing.name = AiText.t("Тренировка ", "Workout ") + f.format(new java.util.Date());
+            editing.name = (editing.isPassive() ? AiText.t("Процедура ", "Procedure ") : AiText.t("Тренировка ", "Workout "))
+                    + f.format(new java.util.Date());
         }
         WorkoutStore.save(c, editing);
         dirty = false;

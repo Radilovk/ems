@@ -24,29 +24,43 @@ exercises, set sets × repetitions, drag ≡ to reorder, tie it to a goal (Ст�
   `POST /admin/api/exercises/set` (Basic auth). Helpers `server/src/exercises.js` (+ tests).
 - **Deploy needed**: `npm run db:migrate` + `wrangler deploy` (not done by the agent).
 
-## Workout model (`ai/Workout`, `ai/WorkoutStore`)
-`{id, name, goal tone|fat, focus[], items:[{ex, sets 1–8, reps 3–30}]}` in `files/xems_workouts.json` (whole-file
-write via temp). Ready programs = the 7 template programs (level-2 stations), one round, repetitions sized to fit one
-AI session; read-only, "Копирай и промени" makes an own copy.
+## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
+A workout **is** an impulse map: a line of blocks (merged with the exercises for active workouts — owner's choice).
+- **Block** `{ex?, reps, hz, pw, on, off, rel%}`: an exercise block = one set (reps = impulse cycles, one impulse =
+  one repetition); a rest block = `rel 0`, length in seconds; a block without an exercise = plain stimulation
+  (passive procedures are only those). Length on the line = `reps × (on + max(off,1))` (the device pauses ≥ 1 s).
+- **Line**: width = time (minimum width so short blocks stay tappable), colour = Hz (blue 1 → cyan 10 → green 30 →
+  amber 60 → magenta 85 → red 120), height = pulse width 100–400 µs, opacity = strength share, the exercise's still
+  figure above its block, minute marks, legend. Touch: tap = select (panel below with − / + for every value), drag
+  the right edge = length (repetitions / rest seconds in 5 s steps), long-press + drag = move, round **+** above =
+  clone, **−** = remove. Buttons: + Упражнение (picker; a 30 s rest is put before a new set), + Почивка, + Нов блок.
+- **Starting impulse by movement** (`Workout.forExercise`, design values): big-muscle strength 85 Hz / 350 µs / 4+4;
+  small muscles and core flexion 85 / 300; holds 70 / 300 / 6+4; cardio & jumps 40 / 300 / 3+3 at 85 %; stretching
+  10 / 250 / 6+2 at 60 %. Pattern from `library.json` (`pat`) / `AutoTemplateData.PAT`.
+- **Ready maps**: the 7 active template programs (level-2 stations, one set each, 30 s rests, repetitions sized for one
+  AI session) and the automatic mode's passive programs converted phase-by-phase (steps → blocks).
+- Goals: Стягане / Отслабване (active) · Процедура (passive: no exercises, runs by the map only).
+- Store: `files/xems_workouts.json`, `blocks:[{ex,n,hz,pw,on,off,rel}]`; the 1.1.254 `items` (sets × reps) are migrated
+  to blocks in rounds with rests.
 
-## How the AI runs it (`AiExercises.forWorkout`, `AiEngine.endSet`)
-- One impulse = one repetition. The AI's fatigue model keeps a work block to ~4–6 impulses (spec §6.3–6.4, unchanged),
-  so a longer set is a **rest-pause set**: short rest, same exercise, until the set's repetitions are done; then
-  `endSet()` makes the engine rest at the next cycle and the next set follows. Fatigue and the pulse still decide
-  every rest; a set can only end a block earlier.
-- Order = **rounds** (circuit): round 1 = set 1 of every exercise, round 2 = set 2 …; after the last set it starts again.
-- Warm-up = the template's light moves for this client; exercises the client's states rule out are swapped
-  (`AutoTemplates.safer`: easier for the same muscle → nearest allowed → glute bridge). Tired → the easier one.
-- Time estimate ≈ 24 s per repetition (measured in `AiExSim`) + 6 min; longer than one AI session (tone 20 / fat 30
-  min) → amber note in the editor. Workout sessions do not change the template level history.
-- UI: AI goal and plan screens show "Тренировка: … · AI избира упражненията" (clears it); the run card shows the
-  exercise, "Серия 2/3 · повторение 5/8 (· кръг 2)", and in rests "Следва: …" or "Кратка почивка · после пак: …".
-  Band: the exercise name (`ex` / `exn`).
+## Running a map
+- **▶ По картата** (`ai/MapRunner` + pure `ai/MapClock`): every block exactly as drawn to all rows; the strength stays
+  each client's — `rel` scales it, rests set 0, the trainer's + / − are read back at each block change as the new
+  100 %; impulse blocks advance by counted impulse cycles (AiSession.onPulseCycle → leader), rests by time, a time
+  fallback (length + 3 s) if the cycle hook is silent; time counts only while the suit runs. Card at the top: line
+  with playhead, figure (client's colour), "повторение 3/8 · Hz · µs", "Следва: …", ■ Стоп. Refused together with
+  AI, Auto, music sync, the timer's block program (and they refuse while a map runs). Recorded exercise → kcal /
+  muscle map like the Smart Session.
+- **▶ С AI** (`AiExercises.forWorkout`): the exercise blocks in map order are the sets (rest and plain blocks are left
+  to the AI's own rests); rest-pause when the AI's block is shorter; the block's Hz / µs are used only when gentler
+  than the AI's plan (`AiSession.gentler`), never stronger; strength, rests and timing stay with the AI.
 
 ## Tests
-`bash scripts/ai-sim/run-auto.sh`: AiExSim runs every ready program and a custom workout (with a library exercise)
-on the real engine: sets in order, each exactly its repetitions (never more), rests name the next exercise, no
-forbidden exercise, ready programs fit one session; PathNorm vs Python. `cd server && npm test` (exercises helpers).
+`bash scripts/ai-sim/run-auto.sh`: AiExSim runs every ready map with exercises and a drawn one (library exercise,
+rests, plain blocks) on the real engine: sets in map order, each exactly its repetitions (never more), rests name the
+next exercise, no forbidden exercise, ready maps fit one session, passive maps never run with AI, timeline math;
+MapSim runs MapClock over every map with and without the cycle hook (exact impulses per block, rest seconds, fallback);
+PathNorm vs Python. `cd server && npm test` (exercises helpers).
 
 ## Not yet
 Workouts sync between tablets / to the server; picking a workout from the AI goal screen (today: from Тренировки);

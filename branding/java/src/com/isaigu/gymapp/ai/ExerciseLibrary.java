@@ -46,6 +46,8 @@ public final class ExerciseLibrary {
         public String zone;
         public String pos;
         public String type;
+        /** Movement pattern (squat, hinge, core_static, cardio, stretch…): the block's starting impulse. */
+        public String pat;
         public int diff;
         public double met;
         public int[] mus;
@@ -96,6 +98,7 @@ public final class ExerciseLibrary {
                 e.zone = x.optString("zone", "legs");
                 e.pos = x.optString("pos", "stand");
                 e.type = x.optString("type");
+                e.pat = x.optString("pat");
                 e.diff = x.optInt("diff", 1);
                 e.met = x.optDouble("met", 3.0);
                 JSONArray m = x.getJSONArray("mus");

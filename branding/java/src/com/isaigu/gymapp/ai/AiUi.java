@@ -1304,8 +1304,8 @@ final class AiUi {
                     int[] set = xs.set();
                     String wk = "";
                     if (set != null && xs.getWorkout() != null) {
-                        Workout.Item it = xs.getWorkout().items.get(set[0]);
-                        wk = AiText.t("Серия ", "Set ") + set[1] + "/" + it.sets
+                        Workout.Block it = xs.getWorkout().blocks.get(set[0]);
+                        wk = AiText.t("Серия ", "Set ") + set[1] + "/" + set[2]
                                 + (cur != null ? AiText.t(" · повторение ", " · rep ") + Math.min(xs.getRepsDone(), it.reps)
                                 + "/" + it.reps : "") + (xs.getRound() > 1 ? AiText.t(" · кръг ", " · round ") + xs.getRound() : "");
                     }
@@ -1956,7 +1956,7 @@ final class AiUi {
         g.setCornerRadius(dp(a, 14));
         box.setBackgroundDrawable(g);
         box.setPadding(dp(a, 16), dp(a, 10), dp(a, 10), dp(a, 10));
-        TextView t = text(a, AiText.t("Тренировка: ", "Workout: ") + w.name + "  ·  " + w.items.size()
+        TextView t = text(a, AiText.t("Тренировка: ", "Workout: ") + w.name + "  ·  " + w.distinctExercises()
                 + AiText.t(" упр. · ≈ ", " ex. · ≈ ") + w.minutes() + AiText.t(" мин", " min"), 15, AiViews.TEXT, true);
         box.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView x = text(a, AiText.t("AI избира упражненията", "Let AI pick"), 13, AiViews.MUTED, false);

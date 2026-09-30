@@ -67,7 +67,7 @@ def main() -> None:
                 met += 0.5
             p = pos(e)
         out.append({"id": e["id"], "bg": e["bg"], "en": e["en"], "eq": e["eq"], "tg": e["tg"], "sec": e.get("sec", []),
-                    "type": e["type"], "diff": e["diff"], "zone": zone(e), "pos": p, "met": met, "mus": mus,
+                    "type": e["type"], "diff": e["diff"], "pat": e["pat"], "cat": e["cat"], "zone": zone(e), "pos": p, "met": met, "mus": mus,
                     "how": e["how"], "howEn": e.get("howEn", ""), "vb": e["vb"], "n": e["n"], "b": 1 if b else 0})
     missing = set(built) - {e["id"] for e in out}
     assert not missing, missing

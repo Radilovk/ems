@@ -147,6 +147,23 @@ public final class ExerciseFigure extends View {
         }
     }
 
+    /** The working pose of an exercise fitted into {@code box} (for other views: the impulse map). False while the
+     *  figure is not loaded yet. */
+    public static boolean drawStill(Canvas c, String id, android.graphics.RectF box, Paint paint) {
+        Fig f = id != null ? fig(id) : null;
+        if (f == null || f.frames.length == 0) {
+            return false;
+        }
+        float s = Math.min(box.width() / f.vb[2], box.height() / f.vb[3]);
+        c.save();
+        c.translate(box.left + (box.width() - f.vb[2] * s) / 2f - f.vb[0] * s,
+                box.top + (box.height() - f.vb[3] * s) / 2f - f.vb[1] * s);
+        c.scale(s, s);
+        c.drawPath(f.frames[0], paint);
+        c.restore();
+        return true;
+    }
+
     /** Absolute M / L / C / Z with numbers separated by spaces or the next command letter. */
     static Path parse(String d) {
         Path p = new Path();

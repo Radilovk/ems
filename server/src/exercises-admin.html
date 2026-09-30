@@ -72,14 +72,15 @@ input[type=search]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;pad
 <script>
 const ZONES={all:'Всички',abs:'Корем',glutes:'Седалище',legs:'Бедра',back:'Гръб',chest:'Гърди',arms:'Ръце',shoulders:'Рамене',cardio:'Кардио',stretch:'Разтягане'};
 const STATES={all:'Всички',on:'В приложението',off:'Изключени',b:'Вградени'};
-let LIB=null,PICKS={},zone='all',state='all',q='';
+let LIB=null,PICKS={},FIXED=new Set(),zone='all',state='all',q='';
 const $=s=>document.querySelector(s);
 let CODE='';try{CODE=localStorage.getItem('xems_ex_code')||'';}catch(e){}
 function H(extra){return Object.assign({'X-Access-Code':CODE},extra||{});}
 function err(m){const e=$('#err');e.textContent=m;e.style.display=m?'block':'none';}
 function isOn(e){const p=PICKS[e.id];return p?!!p.on:!!e.b;}
 function framesOf(e){const p=PICKS[e.id];return p&&p.frames?p.frames:e.n;}
-function url(e,n){return LIB.frames.replace('{id}',e.id).replace('{n}',n);}
+// frames the source draws much bolder come redrawn (branding/exercises/fixed, scripts/exercise-line-width.py)
+function url(e,n){if(FIXED.has(e.id+'/'+n))return LIB.fixedUrl.replace('{id}',e.id).replace('{n}',n);return LIB.frames.replace('{id}',e.id).replace('{n}',n);}
 function frameList(e){const f=framesOf(e);if(f>=3&&e.n>=3)return[1,2,3];if(f===1)return[1];return[1,e.n];}
 function chips(el,map,cur,set){el.innerHTML='';for(const k in map){const c=document.createElement('span');c.className='chip'+(k===cur?' on':'');c.textContent=map[k];c.onclick=()=>{set(k);render();};el.appendChild(c);}}
 function fig(e){const d=document.createElement('div');d.className='fig';const fl=frameList(e);
@@ -135,7 +136,7 @@ async function start(){
   try{const [l,p]=await Promise.all([fetch('/admin/exercises/library.json').then(r=>r.json()),
       fetch('/admin/api/exercises',{headers:H()}).then(r=>{if(r.status===401)throw new Error('code');return r.json();})]);
     gate(false);
-    LIB=l;for(const x of p.picks||[])PICKS[x.id]=x;render();}
+    LIB=l;FIXED=new Set(l.fixed||[]);for(const x of p.picks||[])PICKS[x.id]=x;render();}
   catch(x){if(x.message==='code'){gate(true,CODE?'Грешен код — опитай пак.':'');return;}err('Не се зареди: '+x.message);}
 }
 start();

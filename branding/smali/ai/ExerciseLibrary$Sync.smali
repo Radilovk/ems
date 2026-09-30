@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 207
+    .line 212
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 208
+    .line 213
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Sync;->c:Landroid/content/Context;
 
-    .line 209
+    .line 214
     return-void
 .end method
 
@@ -44,13 +44,13 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 214
+    .line 219
     :try_start_1
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Sync;->c:Landroid/content/Context;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->load(Landroid/content/Context;)V
 
-    .line 215
+    .line 220
     new-instance v1, Lorg/json/JSONObject;
 
     const-string v0, "/v1/exercises"
@@ -61,7 +61,7 @@
 
     invoke-direct {v1, v0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 216
+    .line 221
     const-string v0, "ok"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;)Z
@@ -70,7 +70,7 @@
 
     if-eqz v0, :cond_54
 
-    .line 217
+    .line 222
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Sync;->c:Landroid/content/Context;
 
     # invokes: Lcom/isaigu/gymapp/ai/ExerciseLibrary;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -92,7 +92,7 @@
 
     if-eqz v0, :cond_b4
 
-    .line 218
+    .line 223
     const-string v0, "picks"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
@@ -103,7 +103,7 @@
 
     move-result-object v0
 
-    .line 217
+    .line 222
     :goto_37
     invoke-interface {v3, v4, v0}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
@@ -113,7 +113,7 @@
 
     const-string v4, "v"
 
-    .line 219
+    .line 224
     invoke-virtual {v1, v4}, Lorg/json/JSONObject;->optLong(Ljava/lang/String;)J
 
     move-result-wide v4
@@ -134,7 +134,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 221
+    .line 226
     :cond_54
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Sync;->c:Landroid/content/Context;
 
@@ -142,12 +142,12 @@
 
     move-result-object v3
 
-    .line 222
+    .line 227
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 223
+    .line 228
     const-class v1, Lcom/isaigu/gymapp/ai/ExerciseLibrary;
 
     monitor-enter v1
@@ -155,7 +155,7 @@
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_62} :catch_97
     .catchall {:try_start_1 .. :try_end_62} :catchall_10d
 
-    .line 224
+    .line 229
     :try_start_62
     # getter for: Lcom/isaigu/gymapp/ai/ExerciseLibrary;->ALL:Ljava/util/List;
     invoke-static {}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->access$100()Ljava/util/List;
@@ -180,7 +180,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
-    .line 225
+    .line 230
     iget-boolean v6, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->builtIn:Z
 
     if-nez v6, :cond_6a
@@ -207,12 +207,12 @@
 
     if-nez v6, :cond_6a
 
-    .line 226
+    .line 231
     invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_6a
 
-    .line 229
+    .line 234
     :catchall_94
     move-exception v0
 
@@ -226,11 +226,11 @@
     .catch Ljava/lang/Throwable; {:try_start_96 .. :try_end_97} :catch_97
     .catchall {:try_start_96 .. :try_end_97} :catchall_10d
 
-    .line 237
+    .line 242
     :catch_97
     move-exception v0
 
-    .line 238
+    .line 243
     :try_start_98
     const-string v1, "library"
 
@@ -256,15 +256,15 @@
     :try_end_b0
     .catchall {:try_start_98 .. :try_end_b0} :catchall_10d
 
-    .line 240
+    .line 245
     # setter for: Lcom/isaigu/gymapp/ai/ExerciseLibrary;->syncing:Z
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->access$202(Z)Z
 
-    .line 242
+    .line 247
     :goto_b3
     return-void
 
-    .line 218
+    .line 223
     :cond_b4
     :try_start_b4
     const-string v0, "[]"
@@ -274,14 +274,14 @@
 
     goto :goto_37
 
-    .line 229
+    .line 234
     :cond_b7
     :try_start_b7
     monitor-exit v1
     :try_end_b8
     .catchall {:try_start_b7 .. :try_end_b8} :catchall_94
 
-    .line 231
+    .line 236
     :try_start_b8
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -302,7 +302,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
-    .line 232
+    .line 237
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Sync;->c:Landroid/content/Context;
 
     invoke-static {v6, v0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->download(Landroid/content/Context;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)Z
@@ -311,16 +311,16 @@
 
     if-eqz v0, :cond_112
 
-    .line 233
+    .line 238
     add-int/lit8 v0, v1, 0x1
 
     :goto_d3
     move v1, v0
 
-    .line 235
+    .line 240
     goto :goto_bd
 
-    .line 236
+    .line 241
     :cond_d5
     const-string v0, "library"
 
@@ -375,7 +375,7 @@
     .catch Ljava/lang/Throwable; {:try_start_b8 .. :try_end_109} :catch_97
     .catchall {:try_start_b8 .. :try_end_109} :catchall_10d
 
-    .line 240
+    .line 245
     # setter for: Lcom/isaigu/gymapp/ai/ExerciseLibrary;->syncing:Z
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->access$202(Z)Z
 
@@ -387,7 +387,7 @@
     # setter for: Lcom/isaigu/gymapp/ai/ExerciseLibrary;->syncing:Z
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->access$202(Z)Z
 
-    .line 241
+    .line 246
     throw v0
 
     :cond_112

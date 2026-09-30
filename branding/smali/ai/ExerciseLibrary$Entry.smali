@@ -55,7 +55,7 @@
     .registers 1
 
     .prologue
-    .line 40
+    .line 43
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -67,7 +67,7 @@
     .registers 3
 
     .prologue
-    .line 65
+    .line 68
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->how:Ljava/lang/String;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->howEn:Ljava/lang/String;
@@ -101,7 +101,7 @@
     .registers 3
 
     .prologue
-    .line 70
+    .line 73
     const-string v0, "duration"
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->type:Ljava/lang/String;
@@ -117,7 +117,7 @@
     .registers 3
 
     .prologue
-    .line 61
+    .line 64
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->bg:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->en:Ljava/lang/String;

@@ -8,6 +8,7 @@ ai/AutoTemplateData holds the names and program stations (scripts/gen-exercises.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -36,11 +37,19 @@ def main() -> int:
     if len(libd["exercises"]) < 300 or "{id}" not in libd["frames"]:
         raise SystemExit("library.json: incomplete — run scripts/gen-exercise-library.py")
     shutil.copy2(lib, DEST.parent / "library.json")
+    fixes = {}                                    # redrawn bolder frames (scripts/exercise-line-width.py)
+    for f in sorted((SRC.parent / "fixed").glob("*.svg")):
+        d = re.search(r' d="([^"]+)"', f.read_text(encoding="utf-8")).group(1)
+        i, n = f.stem.rsplit("-", 1)
+        fixes[f"{i}/{n}"] = d
+    if sorted(fixes) != sorted(libd.get("fixed", [])):
+        raise SystemExit("library.json 'fixed' is stale — run scripts/gen-exercise-library.py")
+    (DEST.parent / "frames-fix.json").write_text(json.dumps(fixes, separators=(",", ":")), encoding="utf-8")
+    print(f"assets/xems/frames-fix.json ({len(fixes)} frames)")
     print(f"assets/xems/library.json ({len(libd['exercises'])} exercises)")
     print(f"assets/xems/exercises.json ({len(exs)} exercises, {DEST.stat().st_size} B)")
     art = ROOT / "branding" / "programs"
     java_art = (ROOT / "branding" / "java" / "src" / "com" / "isaigu" / "gymapp" / "ai" / "ProgramArt.java").read_text(encoding="utf-8")
-    import re
     keys = set(re.findall(r'"((?:f|m|passive)-[a-z-]+)"', java_art))
     have = {p.stem.split("@")[0] for p in art.glob("*@*.webp")}
     if keys - have:

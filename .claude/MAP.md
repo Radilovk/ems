@@ -40,7 +40,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-diag-logging.py` (83L, build:L129[BETA_MUSIC]) — Install MusicDiagLog smali and hook crash handler + application init.
 - `scripts/apply-double-impulse.py` (77L, build:L161) — The double impulse (2nd impulse / active pause) per mode: Основен, Кардио, Масаж — not Мускули.
 - `scripts/apply-edit-parameter-scroll.py` (68L, build:L82) — Make the impulse/parameter settings dialog scrollable on smaller tablet viewports.
-- `scripts/apply-exercise-assets.py` (60L, build:L113[BETA_MUSIC]) — Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program pictures: br…
+- `scripts/apply-exercise-assets.py` (69L, build:L113[BETA_MUSIC]) — Ship the exercise figures: branding/exercises/exercises.json → assets/xems/exercises.json, and the program pictures: br…
 - `scripts/apply-form-theme.py` (96L, build:L48) — Fix dark-theme form fields: LineEditText underline + add-user layout text colors.
 - `scripts/apply-guide-tab.py` (283L, build:L87) — Replace the Video tab with a comprehensive styled EMS training and app guide.
 - `scripts/apply-hz-controls.py` (1119L, build:L52) — Hz indicator + shared slider/master controls for frequency during training.
@@ -104,12 +104,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-xems-local-java.sh` (83L, build:L115[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
 - `scripts/design_config_schema.py` (116L) — Safe bounds and validation for branding/design-config.yaml.
+- `scripts/exercise-line-width.py` (208L) — Even line weight for the exercise figures. Some frames of the source drawings (mostly the middle one) are traced with m…
 - `scripts/exercise-paths.py` (166L) — SVG path data → absolute M / L / C / Z only, so the app draws it with android.graphics.Path and no SVG library.
 - `scripts/fit-sim/FitSim.java` (144L) — Offline checks of ProgramFit: corrections on the saved base, hand changes as reference, save without corrections.
 - `scripts/fit-sim/SearchSim.java` (30L) — Offline check of the client search: Cyrillic ↔ Latin phonetic matches (XemsSearch.matches).
 - `scripts/fit-sim/run.sh` (15L) — Offline test of wearable/ProgramFit (saved program = base, hand changes as reference) and the
 - `scripts/gen-card-art.py` (244L) — Client card figures from the illustrated art in branding/report/figures/.
-- `scripts/gen-exercise-library.py` (84L) — branding/exercises/library-src.json (all 302 exercises: names, steps, muscles, pattern) → library.json, the library the…
+- `scripts/gen-exercise-library.py` (88L) — branding/exercises/library-src.json (all 302 exercises: names, steps, muscles, pattern) → library.json, the library the…
 - `scripts/gen-exercises.py` (97L) — branding/exercises/{programs,exercises}.json → ai/AutoTemplateData.java (the template data as plain Java, so the logic …
 - `scripts/gen-program-art.py` (126L) — Program pictures for the tablet (ai/ProgramArt): branding/programs/src/*.webp (full resolution, transparent) → branding…
 - `scripts/install_interval_timer_smali.py` (77L) — Install interval timer stack smali (helper, presets, block program) into decompiled APK.
@@ -176,7 +177,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AutoTemplates.java` (525L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
 - `AutoUi.java` (1237L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
-- `ExerciseLibrary.java` (327L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
+- `ExerciseLibrary.java` (350L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `ImpulseMapView.java` (450L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (106L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
 - `MapRunner.java` (454L, compile:music-sync*,wearable) — Runs an impulse map exactly as drawn (Тренировки → "По картата"): every block's Hz, µs, impulse / pause go to all rows;…
@@ -627,18 +628,18 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L77 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
   - L103 ## Кодът на студиото
 
-`docs/xems-exercise-templates.md` (94L)
+`docs/xems-exercise-templates.md` (101L)
   - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them
   - L3 ## Mode definitions (owner's decision, 1.1.250-ai)
   - L17 ## Data
-  - L27 ## Logic (`ai/AutoTemplates`, pure Java)
-  - L45 ## Smart Session (`ai/AiExercises`, driven by `AiSession`)
-  - L54 ## Auto (`AutoHints`)
-  - L58 ## Energy, load and muscle map
-  - L70 ## Program pictures (`ai/ProgramArt`)
-  - L83 ## Figure colour
-  - L86 ## Tests
-  - L92 ## Not yet
+  - L34 ## Logic (`ai/AutoTemplates`, pure Java)
+  - L52 ## Smart Session (`ai/AiExercises`, driven by `AiSession`)
+  - L61 ## Auto (`AutoHints`)
+  - L65 ## Energy, load and muscle map
+  - L77 ## Program pictures (`ai/ProgramArt`)
+  - L90 ## Figure colour
+  - L93 ## Tests
+  - L99 ## Not yet
 
 `docs/xems-license-api.md` (179L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

@@ -230,7 +230,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SessionRecorder.java` (445L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
 - `SessionUploader.java` (160L, compile:music-sync*,wearable) — Sends what the client's training analysis needs (the summary + the per-second record from files/xems_sessions, gzip-com…
-- `TrainIndex.java` (157L, compile:music-sync*,wearable) — The index buttons around the avatar (MA, Hz, 2nd-impulse MA, 2nd-impulse Hz): <ul> <li>a selection clears itself 5 s af…
+- `TrainIndex.java` (155L, compile:music-sync*,wearable) — The index buttons around the avatar (MA, Hz, 2nd-impulse MA, 2nd-impulse Hz): <ul> <li>a selection clears itself 5 s af…
 - `WearableBandPicker.java` (215L, compile:music-sync*,wearable) — Pick the band from the phone's paired (bonded) Bluetooth devices — no scan, no location permission.
 - `WearableBleDiagLog.java` (191L, compile:music-sync*,wearable) — Ring-buffer + file log for direct BLE HR (pull via adb: externalFilesDir/diag-logs/wearable-ble.log).
 - `WearableBlePermissions.java` (180L, compile:music-sync*,wearable) — Runtime BLUETOOTH_CONNECT + BLUETOOTH_SCAN (Android 12+) — required for GATT connect/discover.
@@ -279,7 +279,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsClientMatch.java` (55L, compile:music-sync*,xems-license) — Finding a client on the tablet list by e-mail, else by the phone's last 9 digits (profiles and dossiers).
 - `XemsClientSync.java` (398L, compile:music-sync,xems-local) — The clients' own profiles (filled in the studio's booking PWA) → the tablet's client list.
 - `XemsDossier.java` (437L, compile:music-sync*,xems-license) — The client dossier on the server (stage 1): the studio's client list is kept on the licence server, one record per pers…
-- `XemsFullscreen.java` (102L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
+- `XemsFullscreen.java` (109L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
 - `XemsIcon.java` (220L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
@@ -288,13 +288,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLicenseSection.java` (330L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (288L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here instead of xemsp…
-- `XemsLocalAvatar.java` (689L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
+- `XemsLocalAvatar.java` (737L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (248L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (360L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
 - `XemsLocalStore.java` (1141L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (962L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (797L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (813L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (659L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -461,31 +461,32 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L229 ## Agent checklist
   - L243 ## Локални инструменти
 
-`branding/UI-PITFALLS.md` (241L)
+`branding/UI-PITFALLS.md` (248L)
   - L1 # UI и функции — чести грешки и правилен подход
   - L12 ## 1. Промяната не се вижда в APK
   - L28 ## 2. CircleSeekBar (кръгов слайдер)
   - L32 ### 2.1 Ръчен seek не стига до края на песента
   - L43 ### 2.2 Различно поведение train vs player
   - L52 ### 2.3 Rotation на seek bar
-  - L58 ## 3. Floating overlay (AlertDialog)
-  - L62 ### 3.1 Crash при показване / Activate
-  - L69 ### 3.2 Бутони не реагират („безотговорни“)
-  - L77 ### 3.3 Бутони около циферблата (timer)
-  - L88 ### 3.4 Hide vs Close vs File picker
-  - L98 ## 4. Music player — sync и state
-  - L100 ### 4.1 Play → Pause → Play без импулси; MA ceiling пада
-  - L109 ### 4.2 Hide player — настройки остават
-  - L115 ### 4.3 Master ♫ двойно натискане
-  - L121 ## 5. Interval timer — логика
-  - L134 ## 6. Train list — swipe delete
-  - L147 ## 7. Resource IDs (@id)
-  - L163 ## 8. Координация music ↔ training ↔ timer
-  - L175 ## 9. Smali patch — добри практики
-  - L186 ## 10. Design pipeline vs factory UI
-  - L198 ## 11. Шаблон за нова UI функция
-  - L214 ## 12. Бърз указател по симптом
-  - L230 ## Референции в кода
+  - L56 ### 2.4 Скок при разклащане на пръста (кръгът около аватара)
+  - L65 ## 3. Floating overlay (AlertDialog)
+  - L69 ### 3.1 Crash при показване / Activate
+  - L76 ### 3.2 Бутони не реагират („безотговорни“)
+  - L84 ### 3.3 Бутони около циферблата (timer)
+  - L95 ### 3.4 Hide vs Close vs File picker
+  - L105 ## 4. Music player — sync и state
+  - L107 ### 4.1 Play → Pause → Play без импулси; MA ceiling пада
+  - L116 ### 4.2 Hide player — настройки остават
+  - L122 ### 4.3 Master ♫ двойно натискане
+  - L128 ## 5. Interval timer — логика
+  - L141 ## 6. Train list — swipe delete
+  - L154 ## 7. Resource IDs (@id)
+  - L170 ## 8. Координация music ↔ training ↔ timer
+  - L182 ## 9. Smali patch — добри практики
+  - L193 ## 10. Design pipeline vs factory UI
+  - L205 ## 11. Шаблон за нова UI функция
+  - L221 ## 12. Бърз указател по симптом
+  - L237 ## Референции в кода
 
 `diag-logs/README.md` (42L)
   - L1 # Diagnostic logs (music player)
@@ -628,16 +629,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L49 ## Изглед (приоритет на вниманието)
   - L57 ## Статус в таба
 
-`docs/xems-program-fit.md` (76L)
+`docs/xems-program-fit.md` (77L)
   - L1 # Записана програма, персонализация, запис с дискетата (1.1.238-ai, 1.1.239-ai)
   - L6 ## База = записаната програма
   - L13 ## Ръчна промяна = отправна точка
   - L21 ## Дискетата и ⚙ на реда → профилът на клиента (1.1.239-ai)
   - L31 ## Диалогът с параметрите
   - L44 ## Двоен импулс по режими (1.1.240-ai)
-  - L54 ## Одит 1.1.241-ai (поправено)
-  - L65 ## ⚙ на реда и ⚙ Master
-  - L72 ## Превключвател „Персонализация“
+  - L55 ## Одит 1.1.241-ai (поправено)
+  - L66 ## ⚙ на реда и ⚙ Master
+  - L73 ## Превключвател „Персонализация“
 
 `docs/xems-pulse-control.md` (163L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59)

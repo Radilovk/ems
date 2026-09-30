@@ -1,0 +1,2313 @@
+{
+ "levels": {
+  "1": "Начинаещ",
+  "2": "Среден",
+  "3": "Напреднал"
+ },
+ "active": [
+  {
+   "id": "general",
+   "name": "Общо стягане и оформяне",
+   "goals": [
+    "tone",
+    "fat"
+   ],
+   "ai": [
+    "TONE",
+    "FAT"
+   ],
+   "img": "squat",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz · 350 µs",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "6–7",
+   "lv": {
+    "1": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "forward-lunge",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "incline-push-up",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "chair-dip",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "crunch",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "plank",
+       "sec": 110,
+       "cycles": 11
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 90
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 4,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "goblet-squat",
+       "sec": 104,
+       "cycles": 13
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 104,
+       "cycles": 13
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 104,
+       "cycles": 13
+      },
+      {
+       "ex": "dumbbell-overhead-tricep-extension",
+       "sec": 104,
+       "cycles": 13
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 96,
+       "cycles": 12
+      },
+      {
+       "ex": "knee-push-up",
+       "sec": 96,
+       "cycles": 12
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 96,
+       "cycles": 12
+      },
+      {
+       "ex": "bicycle-crunch",
+       "sec": 96,
+       "cycles": 12
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 96,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 5,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "kettlebell-romanian-deadlift",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "dumbbell-lateral-lunge",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "bulgarian-split-squat",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 108,
+       "cycles": 12
+      },
+      {
+       "ex": "bench-dip",
+       "sec": 108,
+       "cycles": 12
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 108,
+       "cycles": 12
+      },
+      {
+       "ex": "lying-leg-raise",
+       "sec": 108,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "glutes",
+   "name": "Седалище и бедра",
+   "goals": [
+    "tone",
+    "fat"
+   ],
+   "ai": [
+    "TONE",
+    "FAT"
+   ],
+   "img": "lunge",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz · 350 µs",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "6–7",
+   "lv": {
+    "1": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "step-down",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "side-lying-hip-abduction",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "donkey-kick",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "fire-hydrant",
+       "sec": 150,
+       "cycles": 15
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 90
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 5,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "dumbbell-sumo-squat",
+       "sec": 135,
+       "cycles": 15
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 135,
+       "cycles": 15
+      },
+      {
+       "ex": "curtsy-lunge",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "single-leg-glute-bridge",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "donkey-kick",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "fire-hydrant",
+       "sec": 126,
+       "cycles": 14
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 6,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "kettlebell-romanian-deadlift",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "dumbbell-lateral-lunge",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "kettlebell-swing",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "jump-squat",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "curtsy-lunge",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "bulgarian-split-squat",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "single-leg-glute-bridge",
+       "sec": 120,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "core",
+   "name": "Талия и корем",
+   "goals": [
+    "tone",
+    "fat"
+   ],
+   "ai": [
+    "TONE",
+    "FAT"
+   ],
+   "img": "pushup",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz · 350 µs",
+   "cool": "4 Hz · 250 µs",
+   "cr10": "6",
+   "lv": {
+    "1": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "crunch",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "reverse-crunch",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "plank",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "side-plank",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "superman",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 150,
+       "cycles": 15
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 90
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 4,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "dumbbell-side-bend",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "bicycle-crunch",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "lying-leg-raise",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "side-plank",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "superman",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "reverse-crunch",
+       "sec": 128,
+       "cycles": 16
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 5,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "dumbbell-side-bend",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "lying-leg-raise",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "bicycle-crunch",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 117,
+       "cycles": 13
+      },
+      {
+       "ex": "side-plank",
+       "sec": 108,
+       "cycles": 12
+      },
+      {
+       "ex": "reverse-crunch",
+       "sec": 108,
+       "cycles": 12
+      },
+      {
+       "ex": "plank",
+       "sec": 108,
+       "cycles": 12
+      },
+      {
+       "ex": "superman",
+       "sec": 108,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "power",
+   "name": "Сила и бързина",
+   "goals": [
+    "tone",
+    "fat"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "squat",
+   "T": 18,
+   "share": [
+    20,
+    70,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "100 Hz · 300 µs",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "7",
+   "note": "Няма ниво 1: програмата се скрива при кондиция „ниска“, при по-малко от 4 тренировки и 60+.",
+   "lv": {
+    "2": {
+     "T": 18,
+     "warm_s": 216,
+     "main_s": 756,
+     "cool_s": 108,
+     "on": 3,
+     "off": 9,
+     "stations": [
+      {
+       "ex": "jump-squat",
+       "sec": 132,
+       "cycles": 11
+      },
+      {
+       "ex": "knee-push-up",
+       "sec": 132,
+       "cycles": 11
+      },
+      {
+       "ex": "kettlebell-swing",
+       "sec": 132,
+       "cycles": 11
+      },
+      {
+       "ex": "forward-lunge",
+       "sec": 120,
+       "cycles": 10
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 120,
+       "cycles": 10
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 120,
+       "cycles": 10
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 108
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 108
+      }
+     ]
+    },
+    "3": {
+     "T": 18,
+     "warm_s": 216,
+     "main_s": 756,
+     "cool_s": 108,
+     "on": 4,
+     "off": 8,
+     "stations": [
+      {
+       "ex": "jump-squat",
+       "sec": 108,
+       "cycles": 9
+      },
+      {
+       "ex": "burpee",
+       "sec": 108,
+       "cycles": 9
+      },
+      {
+       "ex": "kettlebell-swing",
+       "sec": 108,
+       "cycles": 9
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 108,
+       "cycles": 9
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 108,
+       "cycles": 9
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 108,
+       "cycles": 9
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 108,
+       "cycles": 9
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 108
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 108
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "cardio",
+   "name": "Кардио-метаболитна",
+   "goals": [
+    "fat"
+   ],
+   "ai": [
+    "FAT"
+   ],
+   "img": "lunge",
+   "T": 25,
+   "share": [
+    10,
+    80,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz ↔ 7 Hz · 350 µs · 4 s ↔ 4 s",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "5–6",
+   "metabolic": true,
+   "note": "Пулсът води: над коридора 0.40–0.59 HRR паузата се удължава с 1 s. Препоръчва се гривна.",
+   "lv": {
+    "1": {
+     "T": 25,
+     "warm_s": 150,
+     "main_s": 1200,
+     "cool_s": 150,
+     "on": 4,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "elliptical",
+       "sec": 240,
+       "cycles": 30
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 240,
+       "cycles": 30
+      },
+      {
+       "ex": "step-down",
+       "sec": 240,
+       "cycles": 30
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 240,
+       "cycles": 30
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 240,
+       "cycles": 30
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 75
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 75
+      }
+     ]
+    },
+    "2": {
+     "T": 25,
+     "warm_s": 150,
+     "main_s": 1200,
+     "cool_s": 150,
+     "on": 4,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "jumping-jack",
+       "sec": 200,
+       "cycles": 25
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 200,
+       "cycles": 25
+      },
+      {
+       "ex": "forward-lunge",
+       "sec": 200,
+       "cycles": 25
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 200,
+       "cycles": 25
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 200,
+       "cycles": 25
+      },
+      {
+       "ex": "elliptical",
+       "sec": 200,
+       "cycles": 25
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 75
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 75
+      }
+     ]
+    },
+    "3": {
+     "T": 25,
+     "warm_s": 150,
+     "main_s": 1200,
+     "cool_s": 150,
+     "on": 4,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "burpee",
+       "sec": 176,
+       "cycles": 22
+      },
+      {
+       "ex": "jump-squat",
+       "sec": 176,
+       "cycles": 22
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 176,
+       "cycles": 22
+      },
+      {
+       "ex": "kettlebell-swing",
+       "sec": 168,
+       "cycles": 21
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 168,
+       "cycles": 21
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 168,
+       "cycles": 21
+      },
+      {
+       "ex": "dumbbell-lateral-lunge",
+       "sec": 168,
+       "cycles": 21
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 75
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 75
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "back_active",
+   "name": "Здрав гръб и стойка",
+   "goals": [
+    "health"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "pushup",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz · 350 µs",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "5–6",
+   "note": "Същата анкета като „Болки в гърба“: остър случай → пасивната програма или лекар.",
+   "lv": {
+    "1": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 891,
+     "cool_s": 129,
+     "on": 5,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 154,
+       "cycles": 14
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 154,
+       "cycles": 14
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 154,
+       "cycles": 14
+      },
+      {
+       "ex": "superman",
+       "sec": 143,
+       "cycles": 13
+      },
+      {
+       "ex": "plank",
+       "sec": 143,
+       "cycles": 13
+      },
+      {
+       "ex": "side-plank",
+       "sec": 143,
+       "cycles": 13
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 90
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 6,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "single-leg-glute-bridge",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "superman",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "side-plank",
+       "sec": 150,
+       "cycles": 15
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 6,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "kettlebell-romanian-deadlift",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "goblet-squat",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "superman",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "side-plank",
+       "sec": 130,
+       "cycles": 13
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 120,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "senior",
+   "name": "Здрави мускули 50+",
+   "goals": [
+    "health"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "squat",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz · 350 µs",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "5",
+   "note": "Първите 3 тренировки: 15 мин. Бавни функционални движения, пулс таван −0.05.",
+   "lv": {
+    "1": {
+     "T": 15,
+     "warm_s": 135,
+     "main_s": 670,
+     "cool_s": 95,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "incline-push-up",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "step-down",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 110,
+       "cycles": 11
+      },
+      {
+       "ex": "side-lying-hip-abduction",
+       "sec": 110,
+       "cycles": 11
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 68
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 67
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "goblet-squat",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "forward-lunge",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "incline-push-up",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 150,
+       "cycles": 15
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 150,
+       "cycles": 15
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 4,
+     "off": 5,
+     "stations": [
+      {
+       "ex": "goblet-squat",
+       "sec": 135,
+       "cycles": 15
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 135,
+       "cycles": 15
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "plate-front-raise",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "tricep-kickback",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 126,
+       "cycles": 14
+      },
+      {
+       "ex": "knee-push-up",
+       "sec": 126,
+       "cycles": 14
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "passive": [
+  {
+   "id": "cellulite",
+   "name": "Антицелулит",
+   "goals": [
+    "tone",
+    "fat"
+   ],
+   "ai": [
+    "CELLULITE"
+   ],
+   "img": "line",
+   "pos": "Полулегнал, краката изпънати",
+   "T": [
+    20,
+    25,
+    25
+   ],
+   "e": [
+    "0.7",
+    "0.8",
+    "0.9"
+   ],
+   "cr10": "5",
+   "phases": "Загряване 5 Hz · тонус 85 Hz 4:6 (долна част) · дренажна вълна „крака“ · 3 Hz"
+  },
+  {
+   "id": "postpartum",
+   "name": "Следродилно възстановяване",
+   "goals": [
+    "tone",
+    "health"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "line",
+   "pos": "Полулегнала, дишане и свиване на тазовото дъно с импулса",
+   "T": [
+    15,
+    20,
+    20
+   ],
+   "e": [
+    "0.6",
+    "0.75",
+    "0.9"
+   ],
+   "cr10": "4",
+   "female": true,
+   "phases": "5 Hz · 40 Hz 5:10 (от 6-та тренировка 50 Hz 5:8) · 3 Hz"
+  },
+  {
+   "id": "drain",
+   "name": "Дренаж",
+   "goals": [
+    "fat",
+    "health"
+   ],
+   "ai": [
+    "DRAIN"
+   ],
+   "img": "music",
+   "pos": "Легнал, краката леко повдигнати",
+   "T": [
+    15,
+    20,
+    25
+   ],
+   "e": [
+    "0.7",
+    "0.8",
+    "0.9"
+   ],
+   "cr10": "3–4",
+   "phases": "Отваряне корем+кръст → крака (вълна) → ръце → 3 Hz; стъпка 35 Hz 3:1"
+  },
+  {
+   "id": "passive_metabolic",
+   "name": "Пасивен метаболизъм",
+   "goals": [
+    "fat"
+   ],
+   "ai": [
+    "FAT"
+   ],
+   "img": "music",
+   "pos": "Полулегнал, спокойно дишане",
+   "T": [
+    20,
+    25,
+    30
+   ],
+   "e": [
+    "0.6",
+    "0.7",
+    "0.8"
+   ],
+   "cr10": "4–5",
+   "phases": "6 Hz 10:2 + 2 блока × 3 мин 85 Hz 4:6; пулс 0.25–0.45 HRR"
+  },
+  {
+   "id": "back_pain",
+   "name": "Болки в гърба и кръста",
+   "goals": [
+    "health"
+   ],
+   "ai": [
+    "MASSAGE"
+   ],
+   "img": "line",
+   "pos": "Легнал по корем или полуседнал",
+   "T": [
+    15,
+    20,
+    20
+   ],
+   "e": [
+    "0.8",
+    "0.9",
+    "1.0"
+   ],
+   "cr10": "3–4",
+   "phases": "4 Hz отпускане · 80 Hz 4:8 стабилизация · 2 Hz обезболяване"
+  },
+  {
+   "id": "recovery",
+   "name": "Регенерация и релакс",
+   "goals": [
+    "health"
+   ],
+   "ai": [
+    "MASSAGE"
+   ],
+   "img": "music",
+   "pos": "Полулегнал, с музика",
+   "T": [
+    15,
+    20,
+    25
+   ],
+   "e": [
+    "0.6",
+    "0.7",
+    "0.8"
+   ],
+   "cr10": "3",
+   "phases": "Редуване 3 Hz ↔ 8 Hz 10:2; 24–48 ч след активна"
+  }
+ ],
+ "cond": {
+  "knees": "Колене",
+  "back": "Кръст / гръб",
+  "neck": "Врат",
+  "diastasis": "Диастаза",
+  "postpartum": "След раждане",
+  "osteo": "Остеопороза",
+  "joints": "Стави",
+  "varicose": "Разширени вени",
+  "sensitive": "Чувствителен",
+  "stress": "Стрес",
+  "sleep": "Лош сън",
+  "desk": "Седяща работа",
+  "injury": "Стара травма",
+  "senior": "50+",
+  "water": "Задържа вода"
+ },
+ "focus": {
+  "glutes": "седалище",
+  "abs": "корем",
+  "arms": "ръце",
+  "back": "гръб",
+  "legs": "бедра",
+  "chest": "гърди"
+ },
+ "focusEx": {
+  "glutes": [
+   "glute-bridge",
+   "donkey-kick",
+   "single-leg-glute-bridge"
+  ],
+  "abs": [
+   "reverse-crunch",
+   "side-plank",
+   "plank"
+  ],
+  "arms": [
+   "tricep-kickback",
+   "bench-dip",
+   "chair-dip"
+  ],
+  "back": [
+   "banded-lat-pulldown",
+   "one-arm-dumbbell-row",
+   "superman"
+  ],
+  "legs": [
+   "goblet-squat",
+   "step-down",
+   "lateral-lunge"
+  ],
+  "chest": [
+   "incline-push-up",
+   "knee-push-up"
+  ]
+ },
+ "avoid": {
+  "knees": {
+   "no": [
+    "jump-squat",
+    "burpee",
+    "bulgarian-split-squat",
+    "forward-lunge",
+    "reverse-lunge",
+    "curtsy-lunge",
+    "lateral-lunge",
+    "dumbbell-lateral-lunge",
+    "jumping-jack",
+    "step-down"
+   ],
+   "yes": [
+    "glute-bridge",
+    "single-leg-glute-bridge",
+    "side-lying-hip-abduction",
+    "donkey-kick",
+    "fire-hydrant",
+    "bodyweight-squat"
+   ]
+  },
+  "back": {
+   "no": [
+    "kettlebell-swing",
+    "kettlebell-romanian-deadlift",
+    "lying-leg-raise",
+    "burpee",
+    "jump-squat",
+    "bicycle-crunch",
+    "crunch"
+   ],
+   "yes": [
+    "glute-bridge",
+    "side-plank",
+    "plank",
+    "banded-lat-pulldown",
+    "side-lying-hip-abduction"
+   ]
+  },
+  "neck": {
+   "no": [
+    "standing-dumbbell-press",
+    "dumbbell-overhead-tricep-extension",
+    "crunch",
+    "bicycle-crunch",
+    "plate-front-raise"
+   ],
+   "yes": [
+    "reverse-crunch",
+    "tricep-kickback",
+    "banded-lat-pulldown",
+    "glute-bridge"
+   ]
+  },
+  "diastasis": {
+   "no": [
+    "crunch",
+    "bicycle-crunch",
+    "reverse-crunch",
+    "lying-leg-raise",
+    "plank-shoulder-tap",
+    "plank",
+    "burpee"
+   ],
+   "yes": [
+    "glute-bridge",
+    "side-lying-hip-abduction",
+    "fire-hydrant",
+    "donkey-kick",
+    "banded-lat-pulldown"
+   ]
+  },
+  "postpartum": {
+   "no": [
+    "crunch",
+    "bicycle-crunch",
+    "reverse-crunch",
+    "lying-leg-raise",
+    "plank-shoulder-tap",
+    "plank",
+    "jump-squat",
+    "burpee",
+    "jumping-jack",
+    "kettlebell-swing"
+   ],
+   "yes": [
+    "glute-bridge",
+    "side-lying-hip-abduction",
+    "fire-hydrant",
+    "donkey-kick",
+    "banded-lat-pulldown",
+    "bodyweight-squat"
+   ]
+  },
+  "osteo": {
+   "no": [
+    "jump-squat",
+    "burpee",
+    "jumping-jack",
+    "kettlebell-swing",
+    "crunch",
+    "bicycle-crunch"
+   ],
+   "yes": [
+    "bodyweight-squat",
+    "glute-bridge",
+    "step-down",
+    "banded-lat-pulldown",
+    "side-lying-hip-abduction"
+   ]
+  },
+  "joints": {
+   "no": [
+    "jump-squat",
+    "burpee",
+    "jumping-jack",
+    "kettlebell-swing"
+   ],
+   "yes": [
+    "bodyweight-squat",
+    "glute-bridge",
+    "step-down",
+    "side-lying-hip-abduction"
+   ]
+  }
+ },
+ "ex": {
+  "banded-lat-pulldown": {
+   "bg": "Теглене надолу с ластик",
+   "tg": "широк гръбен",
+   "eq": "ластик",
+   "how": "Закачи ластика високо и хвани краищата. Издърпай надолу към гърдите, лактите към тялото. Задръж за миг. Върни бавно.",
+   "c": 0,
+   "vb": [
+    -108.9,
+    -20.6,
+    739.5,
+    554.6
+   ],
+   "id": "wg-banded-lat-pulldown",
+   "pos": "stand",
+   "gear": [
+    "ластик"
+   ],
+   "frames": 2
+  },
+  "bench-dip": {
+   "bg": "Кофички на пейка",
+   "tg": "трицепс",
+   "eq": "собствено тегло",
+   "how": "Опри ръцете на ръба на пейка зад теб, краката са напред. Спусни таза, като сгъваш лактите до около 90°. Гърбът остава близо до пейката. Избутай се обратно нагоре.",
+   "c": 0,
+   "vb": [
+    -7.6,
+    77.2,
+    499.6,
+    374.7
+   ],
+   "id": "wg-bench-dip",
+   "pos": "bench",
+   "gear": [
+    "пейка"
+   ],
+   "frames": 2
+  },
+  "bicycle-crunch": {
+   "bg": "Велосипед (коремни преси)",
+   "tg": "корем",
+   "eq": "собствено тегло",
+   "how": "Легни по гръб с ръце до главата, краката във въздуха. Приближи лакътя към срещуположното коляно, докато другият крак се изпъва. Редувай страните. Движи се бавно и контролирано.",
+   "c": 0,
+   "vb": [
+    -18.4,
+    -28.7,
+    549.0,
+    411.8
+   ],
+   "id": "wg-bicycle-crunch",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "bodyweight-squat": {
+   "bg": "Клек без тежест",
+   "tg": "предно бедро",
+   "eq": "собствено тегло",
+   "how": "Застани с крака на ширината на раменете, пръстите леко навън. Спусни таза назад и надолу, ръцете напред за баланс. Коленете следват пръстите, петите остават на пода. Изправи се.",
+   "c": 0,
+   "vb": [
+    -97.2,
+    -24.1,
+    738.3,
+    553.7
+   ],
+   "id": "wg-bodyweight-squat",
+   "pos": "stand",
+   "gear": [],
+   "frames": 2
+  },
+  "bulgarian-split-squat": {
+   "bg": "Български клек",
+   "tg": "предно бедро",
+   "eq": "дъмбели",
+   "how": "Застани с гръб към пейка и постави горната част на задното стъпало върху нея. Предният крак е на голяма крачка напред. Спусни се, докато предното бедро е около хоризонтала. Избутай нагоре с предния крак.",
+   "c": 0,
+   "vb": [
+    -117.6,
+    -25.3,
+    721.9,
+    541.4
+   ],
+   "id": "wg-bulgarian-split-squat",
+   "pos": "bench",
+   "gear": [
+    "дъмбели",
+    "пейка"
+   ],
+   "frames": 2
+  },
+  "burpee": {
+   "bg": "Бърпи",
+   "tg": "предно бедро",
+   "eq": "собствено тегло",
+   "how": "Клекни и постави ръцете на пода. Скочи с краката назад в лицева опора. Върни краката напред. Отскочи нагоре с ръце над главата.",
+   "c": 0,
+   "vb": [
+    -99.0,
+    -22.0,
+    724.0,
+    543.0
+   ],
+   "id": "wg-burpee",
+   "pos": "stand",
+   "gear": [],
+   "frames": 3
+  },
+  "chair-dip": {
+   "bg": "Кофички на стол",
+   "tg": "трицепс",
+   "eq": "собствено тегло",
+   "how": "Опри ръцете на ръба на стабилен стол зад теб. Спусни таза, като сгъваш лактите до около 90°. Гърбът остава близо до стола. Избутай се нагоре.",
+   "c": 0,
+   "vb": [
+    -104.7,
+    -20.9,
+    707.2,
+    530.4
+   ],
+   "id": "wg-chair-dip",
+   "pos": "bench",
+   "gear": [
+    "стол"
+   ],
+   "frames": 2
+  },
+  "crunch": {
+   "bg": "Коремни преси",
+   "tg": "корем",
+   "eq": "собствено тегло",
+   "how": "Легни по гръб със свити колене, ръцете до слепоочията. Повдигни раменете от пода, като сгъваш торса. Не дърпай врата. Спусни бавно.",
+   "c": 0,
+   "vb": [
+    -12.0,
+    -30.1,
+    545.2,
+    408.9
+   ],
+   "id": "wg-crunch",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "curtsy-lunge": {
+   "bg": "Реверанс напади",
+   "tg": "седалищни",
+   "eq": "собствено тегло",
+   "how": "Застани изправено. Направи крачка назад по диагонал зад опорния крак. Спусни задното коляно. Върни се и смени страната.",
+   "c": 0,
+   "vb": [
+    -111.1,
+    -22.7,
+    726.4,
+    544.8
+   ],
+   "id": "wg-curtsy-lunge",
+   "pos": "stand",
+   "gear": [],
+   "frames": 3
+  },
+  "donkey-kick": {
+   "bg": "Ритник назад от колене",
+   "tg": "седалищни",
+   "eq": "собствено тегло",
+   "how": "Застани на четири крака. Повдигни единия крак нагоре, коляното свито на 90°. Стегни седалището горе, без да извиваш кръста. Спусни и повтори.",
+   "c": 0,
+   "vb": [
+    -32.1,
+    37.6,
+    576.2,
+    432.2
+   ],
+   "id": "wg-donkey-kick",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "dumbbell-lateral-lunge": {
+   "bg": "Странични напади с дъмбел",
+   "tg": "предно бедро",
+   "eq": "дъмбели",
+   "how": "Застани с дъмбел пред гърдите. Направи широка крачка встрани и седни в таза на този крак. Другият крак е изпънат. Избутай се обратно в изходна позиция.",
+   "c": 0,
+   "vb": [
+    -102.3,
+    -17.7,
+    716.4,
+    537.3
+   ],
+   "id": "wg-dumbbell-lateral-lunge",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  },
+  "dumbbell-overhead-tricep-extension": {
+   "bg": "Разгъване за трицепс над главата с дъмбел",
+   "tg": "трицепс",
+   "eq": "дъмбели",
+   "how": "Хвани един дъмбел с две ръце над главата. Сгъни лактите и спусни дъмбела зад главата. Лактите сочат напред. Изпъни ръцете обратно.",
+   "c": 0,
+   "vb": [
+    32.8,
+    82.8,
+    480.3,
+    360.2
+   ],
+   "id": "wg-dumbbell-overhead-tricep-extension",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  },
+  "dumbbell-side-bend": {
+   "bg": "Странично навеждане с дъмбел",
+   "tg": "корем",
+   "eq": "дъмбели",
+   "how": "Застани с дъмбел в едната ръка. Наклони се встрани към дъмбела. Изправи се с косите коремни мускули на другата страна. Не се навеждай напред.",
+   "c": 0,
+   "vb": [
+    -92.7,
+    -9.7,
+    689.9,
+    517.4
+   ],
+   "id": "wg-dumbbell-side-bend",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  },
+  "dumbbell-sumo-squat": {
+   "bg": "Сумо клек с дъмбел",
+   "tg": "седалищни",
+   "eq": "дъмбели",
+   "how": "Застани широко с пръсти навън, дъмбел виси между краката. Клекни, като коленете вървят навън. Торсът е изправен. Изправи се, като стегнеш седалището.",
+   "c": 0,
+   "vb": [
+    -98.8,
+    -21.1,
+    709.9,
+    532.4
+   ],
+   "id": "wg-dumbbell-sumo-squat",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  },
+  "elliptical": {
+   "bg": "Кардио тренажор",
+   "tg": "предно бедро",
+   "eq": "кардио тренажор",
+   "how": "Стъпи на педалите и хвани дръжките. Движи се равномерно с изправен торс. Използвай и ръцете. Поддържай темпо според зоната.",
+   "c": 0,
+   "vb": [
+    -105.9,
+    -9.3,
+    711.6,
+    533.7
+   ],
+   "id": "wg-elliptical",
+   "pos": "machine",
+   "gear": [
+    "кардио тренажор"
+   ],
+   "frames": 1
+  },
+  "fire-hydrant": {
+   "bg": "Отвеждане на коляното встрани (от колене)",
+   "tg": "седалищни",
+   "eq": "собствено тегло",
+   "how": "Застани на четири крака. Повдигни свитото коляно встрани. Тазът и гърбът остават неподвижни. Спусни бавно.",
+   "c": 0,
+   "vb": [
+    -10.3,
+    33.1,
+    530.8,
+    398.1
+   ],
+   "id": "wg-fire-hydrant",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "forward-lunge": {
+   "bg": "Напади напред",
+   "tg": "предно бедро",
+   "eq": "собствено тегло",
+   "how": "Застани изправено. Направи голяма крачка напред и спусни задното коляно към пода. Предното коляно е над стъпалото. Избутай се обратно в изходна позиция.",
+   "c": 0,
+   "vb": [
+    -107.1,
+    -19.6,
+    720.1,
+    540.1
+   ],
+   "id": "wg-forward-lunge",
+   "pos": "stand",
+   "gear": [],
+   "frames": 2
+  },
+  "glute-bridge": {
+   "bg": "Глутеус мост",
+   "tg": "седалищни",
+   "eq": "собствено тегло",
+   "how": "Легни по гръб със свити колене, стъпалата на пода. Стегни корема и седалището. Повдигни таза, докато тялото е права линия от раменете до коленете. Задръж за секунда и спусни бавно.",
+   "c": 0,
+   "vb": [
+    -2.7,
+    50.2,
+    485.4,
+    364.1
+   ],
+   "id": "wg-glute-bridge",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "goblet-squat": {
+   "bg": "Гоблет клек (с дъмбел пред гърдите)",
+   "tg": "предно бедро",
+   "eq": "дъмбели",
+   "how": "Дръж дъмбел или пудовка пред гърдите. Стъпалата са малко по-широко от раменете. Клекни дълбоко с изправен торс, лактите между коленете. Изправи се през петите.",
+   "c": 0,
+   "vb": [
+    -109.3,
+    -19.9,
+    732.5,
+    549.4
+   ],
+   "id": "wg-goblet-squat",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  },
+  "incline-push-up": {
+   "bg": "Лицеви опори с ръце на пейка",
+   "tg": "гърди",
+   "eq": "собствено тегло",
+   "how": "Опри ръцете на пейка или маса, тялото е права линия. Спусни гърдите към опората. Лактите са под около 45°. Избутай се обратно.",
+   "c": 0,
+   "vb": [
+    -7.7,
+    49.4,
+    536.8,
+    402.6
+   ],
+   "id": "wg-incline-push-up",
+   "pos": "bench",
+   "gear": [
+    "пейка"
+   ],
+   "frames": 2
+  },
+  "jump-squat": {
+   "bg": "Клек с отскок",
+   "tg": "предно бедро",
+   "eq": "собствено тегло",
+   "how": "Застани с крака на ширината на раменете. Клекни и отскочи взривно нагоре. Приземи се меко на свити колене. Веднага премини в следващото повторение.",
+   "c": 0,
+   "vb": [
+    -89.8,
+    -16.7,
+    691.3,
+    518.4
+   ],
+   "id": "wg-jump-squat",
+   "pos": "stand",
+   "gear": [],
+   "frames": 2
+  },
+  "jumping-jack": {
+   "bg": "Джъмпинг джак",
+   "tg": "предно бедро",
+   "eq": "собствено тегло",
+   "how": "Застани изправено. Отскочи, разтваряйки краката и вдигайки ръцете над главата. Отскочи обратно в изходна позиция. Приземявай се меко.",
+   "c": 0,
+   "vb": [
+    -100.4,
+    -13.7,
+    713.8,
+    535.4
+   ],
+   "id": "wg-jumping-jack",
+   "pos": "stand",
+   "gear": [],
+   "frames": 3
+  },
+  "kettlebell-romanian-deadlift": {
+   "bg": "Румънска тяга с пудовка",
+   "tg": "задно бедро",
+   "eq": "пудовка",
+   "how": "Хвани пудовката с две ръце пред бедрата. Избутай таза назад с прав гръб. Спусни до опъване в задното бедро. Изправи се, като стегнеш седалището.",
+   "c": 1,
+   "vb": [
+    -95.8,
+    -16.4,
+    707.8,
+    530.9
+   ],
+   "id": "wg-kettlebell-romanian-deadlift",
+   "pos": "stand",
+   "gear": [
+    "пудовка"
+   ],
+   "frames": 2
+  },
+  "kettlebell-swing": {
+   "bg": "Суинг с пудовка",
+   "tg": "седалищни",
+   "eq": "пудовка",
+   "how": "Застани с крака малко по-широко от раменете, пудовката е пред теб. Изтегли я назад между краката с прав гръб. Изправи се взривно с таза, пудовката се издига до нивото на гърдите. Остави я да падне и повтори.",
+   "c": 1,
+   "vb": [
+    -85.0,
+    -15.5,
+    715.0,
+    536.3
+   ],
+   "id": "wg-kettlebell-swing",
+   "pos": "stand",
+   "gear": [
+    "пудовка"
+   ],
+   "frames": 3
+  },
+  "knee-push-up": {
+   "bg": "Лицеви опори от колене",
+   "tg": "гърди",
+   "eq": "собствено тегло",
+   "how": "Застани в лицева опора с коленете на пода. Тялото е права линия от главата до коленете. Спусни гърдите към пода. Избутай се нагоре.",
+   "c": 1,
+   "vb": [
+    -16.6,
+    32.1,
+    552.7,
+    414.5
+   ],
+   "id": "wg-knee-push-up",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "lateral-lunge": {
+   "bg": "Странични напади",
+   "tg": "предно бедро",
+   "eq": "собствено тегло",
+   "how": "Застани изправено. Направи широка крачка встрани и седни в таза на този крак. Другият крак е изпънат. Избутай се обратно.",
+   "c": 1,
+   "vb": [
+    -62.4,
+    17.6,
+    636.8,
+    477.6
+   ],
+   "id": "wg-lateral-lunge",
+   "pos": "stand",
+   "gear": [],
+   "frames": 2
+  },
+  "lying-leg-raise": {
+   "bg": "Вдигане на краката от лег",
+   "tg": "корем",
+   "eq": "собствено тегло",
+   "how": "Легни по гръб, ръцете до тялото. Повдигни изпънатите крака до вертикала. Спусни бавно, без кръстът да се отлепя. Спри преди краката да докоснат пода.",
+   "c": 1,
+   "vb": [
+    -46.9,
+    -2.5,
+    626.6,
+    469.9
+   ],
+   "id": "wg-lying-leg-raise",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "one-arm-dumbbell-row": {
+   "bg": "Гребане с дъмбел с една ръка",
+   "tg": "широк гръбен",
+   "eq": "дъмбели",
+   "how": "Опри едно коляно и ръка на пейката, гърбът е хоризонтален. Хвани дъмбела със свободната ръка. Издърпай го към таза, лакътят близо до тялото. Спусни бавно до изпъната ръка.",
+   "c": 1,
+   "vb": [
+    -27.8,
+    36.0,
+    581.7,
+    436.2
+   ],
+   "id": "wg-one-arm-dumbbell-row",
+   "pos": "bench",
+   "gear": [
+    "дъмбели",
+    "пейка"
+   ],
+   "frames": 2
+  },
+  "plank": {
+   "bg": "Планк",
+   "tg": "корем",
+   "eq": "собствено тегло",
+   "how": "Опри предмишниците под раменете и изпъни краката назад. Тялото е права линия от главата до петите. Стегни корема и седалището, дишай равномерно. Задръж, без кръстът да пропада.",
+   "c": 1,
+   "vb": [
+    -4.8,
+    -16.1,
+    524.9,
+    393.7
+   ],
+   "id": "wg-plank",
+   "pos": "floor",
+   "gear": [],
+   "frames": 1
+  },
+  "plank-shoulder-tap": {
+   "bg": "Планк с докосване на рамото",
+   "tg": "корем",
+   "eq": "собствено тегло",
+   "how": "Заеми висока позиция за лицева опора. Докосни рамото с срещуположната ръка. Тазът не се люлее. Смени ръцете.",
+   "c": 1,
+   "vb": [
+    -72.4,
+    13.7,
+    654.7,
+    491.1
+   ],
+   "id": "wg-plank-shoulder-tap",
+   "pos": "floor",
+   "gear": [],
+   "frames": 3
+  },
+  "plate-front-raise": {
+   "bg": "Предно вдигане с диск",
+   "tg": "рамене",
+   "eq": "тежест (диск)",
+   "how": "Хвани диск с две ръце пред бедрата. Повдигни го напред до нивото на очите с леко свити лакти. Не се накланяй назад. Спусни бавно.",
+   "c": 1,
+   "vb": [
+    -68.1,
+    6.2,
+    669.0,
+    501.8
+   ],
+   "id": "wg-plate-front-raise",
+   "pos": "stand",
+   "gear": [
+    "диск"
+   ],
+   "frames": 3
+  },
+  "reverse-crunch": {
+   "bg": "Обратни коремни преси",
+   "tg": "корем",
+   "eq": "собствено тегло",
+   "how": "Легни по гръб с краката свити нагоре. Повдигни таза от пода, като придърпваш коленете към гърдите. Използвай корема, не засилка. Спусни бавно.",
+   "c": 1,
+   "vb": [
+    42.0,
+    98.3,
+    460.1,
+    345.1
+   ],
+   "id": "wg-reverse-crunch",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "reverse-lunge": {
+   "bg": "Напади назад",
+   "tg": "предно бедро",
+   "eq": "дъмбели",
+   "how": "Застани изправено с дъмбели. Направи крачка назад и спусни задното коляно към пода. Предното коляно остава над стъпалото. Върни се, като избуташ с предния крак.",
+   "c": 1,
+   "vb": [
+    -78.0,
+    1.1,
+    673.0,
+    504.8
+   ],
+   "id": "wg-reverse-lunge",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  },
+  "side-lying-hip-abduction": {
+   "bg": "Отвеждане на крака от лег на страна",
+   "tg": "седалищни",
+   "eq": "собствено тегло",
+   "how": "Легни на една страна с изпънати крака. Повдигни горния крак нагоре. Пръстите сочат напред. Спусни бавно.",
+   "c": 1,
+   "vb": [
+    -14.5,
+    -13.8,
+    541.5,
+    406.1
+   ],
+   "id": "wg-side-lying-hip-abduction",
+   "pos": "floor",
+   "gear": [],
+   "frames": 3
+  },
+  "side-plank": {
+   "bg": "Страничен планк",
+   "tg": "корем",
+   "eq": "собствено тегло",
+   "how": "Легни на една страна и опри предмишницата под рамото. Повдигни таза, тялото е права линия. Стегни корема и седалището. Задръж и смени страната.",
+   "c": 1,
+   "vb": [
+    6.5,
+    20.8,
+    498.2,
+    373.6
+   ],
+   "id": "wg-side-plank",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "single-leg-glute-bridge": {
+   "bg": "Глутеус мост на един крак",
+   "tg": "седалищни",
+   "eq": "собствено тегло",
+   "how": "Легни по гръб, единият крак е свит, другият е изпънат. Повдигни таза с опорния крак. Тазът остава хоризонтален. Спусни бавно.",
+   "c": 1,
+   "vb": [
+    -17.1,
+    26.4,
+    546.3,
+    409.8
+   ],
+   "id": "wg-single-leg-glute-bridge",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "standing-dumbbell-press": {
+   "bg": "Раменна преса с дъмбели (прав)",
+   "tg": "рамене",
+   "eq": "дъмбели",
+   "how": "Застани с дъмбели до раменете, коремът и седалището стегнати. Избутай дъмбелите нагоре над главата. Не извивай кръста. Спусни контролирано до раменете.",
+   "c": 1,
+   "vb": [
+    -99.8,
+    -10.2,
+    712.2,
+    534.1
+   ],
+   "id": "wg-standing-dumbbell-press",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  },
+  "step-down": {
+   "bg": "Слизане от пейка",
+   "tg": "предно бедро",
+   "eq": "собствено тегло",
+   "how": "Застани на степ на един крак. Спусни бавно другия крак към пода, докосни леко с петата. Коляното на опорния крак следва пръстите. Изправи се обратно.",
+   "c": 1,
+   "vb": [
+    -106.8,
+    -20.6,
+    737.6,
+    553.2
+   ],
+   "id": "wg-step-down",
+   "pos": "bench",
+   "gear": [
+    "степ / пейка"
+   ],
+   "frames": 3
+  },
+  "superman": {
+   "bg": "Супермен",
+   "tg": "гръбнак",
+   "eq": "собствено тегло",
+   "how": "Легни по корем с изпънати ръце и крака. Повдигни едновременно ръцете, гърдите и краката. Задръж за миг. Спусни бавно.",
+   "c": 1,
+   "vb": [
+    -13.1,
+    -29.2,
+    545.3,
+    409.0
+   ],
+   "id": "wg-superman",
+   "pos": "floor",
+   "gear": [],
+   "frames": 2
+  },
+  "tricep-kickback": {
+   "bg": "Трицепсов ритник с дъмбел",
+   "tg": "трицепс",
+   "eq": "дъмбели",
+   "how": "Наклони се напред с дъмбел, горната част на ръката е успоредна на пода. Изпъни ръката назад. Задръж за миг. Върни бавно.",
+   "c": 1,
+   "vb": [
+    -55.5,
+    27.2,
+    660.9,
+    495.7
+   ],
+   "id": "wg-tricep-kickback",
+   "pos": "stand",
+   "gear": [
+    "дъмбели"
+   ],
+   "frames": 2
+  }
+ }
+}

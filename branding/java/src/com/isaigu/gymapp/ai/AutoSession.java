@@ -48,6 +48,8 @@ public final class AutoSession {
         String block;
         int cal;
         double user = 1.0;
+        /** Lowest own factor during the run: how far the strength was taken down (template level). */
+        double userMin = 1.0;
         final int[] zoneOffset = new int[AutoModel.CHANNELS];
         int lastStrength = -1;
         int writtenStrength = -1;
@@ -62,6 +64,8 @@ public final class AutoSession {
     private static AutoModel.Input input = new AutoModel.Input();
     private static AutoModel.Plan plan;
     private static AutoEngine engine;
+    /** The session's exercises (active template programs), null otherwise. */
+    private static AutoTemplates.Script script;
     private static final List<Row> rows = new ArrayList<Row>();
     private static AutoEngine.Cmd written;
     private static AutoEngine.Cmd lastApplied;
@@ -561,6 +565,11 @@ public final class AutoSession {
         return false;
     }
 
+    /** The exercises of the running session (null: the program has none). */
+    static AutoTemplates.Script getScript() {
+        return script;
+    }
+
     public static void startRun(Context c) {
         if (plan == null || !canStart()) {
             return;
@@ -574,6 +583,23 @@ public final class AutoSession {
         engine = new AutoEngine(plan);
         long now = System.currentTimeMillis();
         engine.start(now);
+        script = null;
+        ExerciseFigure.preload(c);
+        try {
+            long lead = -1;
+            for (Row r : rows) {
+                r.userMin = 1.0;
+                if (lead < 0 && r.block == null) {
+                    lead = r.userId;
+                }
+            }
+            script = AutoTemplates.script(plan, AutoHistory.outcomes(c, lead, plan.program.id));
+            if (script != null) {
+                WearableBleDiagLog.log("auto", "template " + script.programId + " L" + script.level);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("auto", "template: " + t);
+        }
         seenCorridorExt = 0;
         seenDoseExt = 0;
         seenRaiseLocked = false;
@@ -710,6 +736,11 @@ public final class AutoSession {
             for (Row r : rows) {
                 if (r.block == null && r.cal > 0) {
                     AutoHistory.record(c, r.userId, plan.program.isActive(), engine.getElapsedS(), now);
+                    if (script != null && plan.totalS > 0) {
+                        AutoHistory.remember(c, r.userId, plan.program.id, new AutoTemplates.Outcome(script.level,
+                                Math.min(1, engine.getElapsedS() / plan.totalS), Math.max(0, 1 - r.userMin),
+                                engine.getCapHits() > 0));
+                    }
                 }
             }
         }
@@ -732,6 +763,11 @@ public final class AutoSession {
         public void run() {
             try {
                 tick();
+                if (stage == Stage.RUNNING) {
+                    for (Row r : rows) {
+                        r.userMin = Math.min(r.userMin, r.user);
+                    }
+                }
             } catch (Throwable t) {
                 WearableBleDiagLog.log("auto", "tick: " + t);
             }

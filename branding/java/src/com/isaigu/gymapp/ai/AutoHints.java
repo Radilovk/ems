@@ -37,6 +37,8 @@ public final class AutoHints {
     private static TextView hint;
     private static TextView next;
     private static TextView notice;
+    /** The exercise now (template programs): moves with the impulse. */
+    private static ExerciseFigure figure;
     private static int lastPhase = -1;
     private static long phaseStartMs;
     private static int lastTone = -1;
@@ -108,6 +110,12 @@ public final class AutoHints {
         card.addView(top);
 
         mid = XemsUi.horizontal(a);
+        mid.setGravity(Gravity.CENTER_VERTICAL);
+        figure = new ExerciseFigure(a);
+        figure.setVisibility(View.GONE);
+        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(XemsUi.dp(a, 150), XemsUi.dp(a, 112));
+        flp.rightMargin = XemsUi.dp(a, 12);
+        mid.addView(figure, flp);
         cue = XemsUi.text(a, "", 26, XemsUi.TEXT, true);
         mid.addView(cue, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         count = XemsUi.text(a, "", 30, XemsUi.TEXT, true);
@@ -212,7 +220,22 @@ public final class AutoHints {
             count.setBackgroundDrawable(disc);
         }
 
-        String h = AutoCues.phaseHint(plan, ph);
+        // the template's station: which exercise now (it changes on a cycle boundary only), and the next one
+        AutoTemplates.Script sc = AutoSession.getScript();
+        AutoTemplates.At at = null;
+        double cycleAgo = cmd != null ? Math.max(0, (now - cmd.startMs) / 1000.0) : 0;
+        if (sc != null && ph != null && cmd != null && st == AutoEngine.State.RUN) {
+            at = sc.at(e.getPhaseIndex(), Math.max(0, e.phaseElapsed() - cycleAgo), ph.durationS);
+        }
+        figure.setVisibility(tips && at != null ? View.VISIBLE : View.GONE);
+        if (at != null) {
+            figure.setExercise(at.id);
+            figure.setCycle(cmd.startMs, cmd.onS, cmd.offS);
+        }
+
+        String h = at != null ? AutoTemplates.name(at.id) : AutoCues.phaseHint(plan, ph);
+        hint.setTextSize(at != null ? 20 : 15);
+        hint.setTextColor(at != null ? XemsUi.TEXT : XemsUi.AMBER);
         boolean mainStart = ph != null && !"WARMUP".equals(ph.id) && !ph.isCooldown() && !ph.wave
                 && now - phaseStartMs < FEELING_MS && e.getPhaseIndex() <= 2;
         if (mainStart) {
@@ -222,13 +245,16 @@ public final class AutoHints {
         hint.setVisibility(tips && h.length() > 0 ? View.VISIBLE : View.GONE);
 
         String n = AutoCues.next(plan, e.getPhaseIndex(), e.phaseRemainingS());
+        if (at != null && at.next != null && at.remainingS - cycleAgo <= AutoCues.NEXT_AHEAD_S) {
+            n = AiText.t("Следва: ", "Next: ") + AutoTemplates.name(at.next);
+        }
         next.setText(n);
         next.setVisibility(tips && n.length() > 0 ? View.VISIBLE : View.GONE);
 
         String msg = AutoSession.getLastNotice();
         int kind = Math.max(0, Math.min(2, AutoSession.getLastNoticeKind()));
-        long at = AutoSession.getLastNoticeMs();
-        boolean showNotice = msg != null && msg.length() > 0 && now - at < NOTICE_MS[kind];
+        long noticeMs = AutoSession.getLastNoticeMs();
+        boolean showNotice = msg != null && msg.length() > 0 && now - noticeMs < NOTICE_MS[kind];
         if (showNotice) {
             String icon = kind == AutoSession.SAFETY ? "⛔ " : kind == AutoSession.LIMIT ? "⚠ " : "✓ ";
             int color = kind == AutoSession.SAFETY ? XemsUi.DANGER : kind == AutoSession.LIMIT ? XemsUi.AMBER : XemsUi.GO_TEXT;

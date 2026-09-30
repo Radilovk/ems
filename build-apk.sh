@@ -110,6 +110,7 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
   python3 "${ROOT}/scripts/apply-block-program.py"
   python3 "${ROOT}/scripts/apply-ai-session.py"
+  python3 "${ROOT}/scripts/apply-exercise-assets.py"
   if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
     bash "${ROOT}/scripts/compile-xems-local-java.sh"
   fi

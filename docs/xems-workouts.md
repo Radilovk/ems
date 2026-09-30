@@ -23,7 +23,9 @@ the name field says what it is for. Changes save by themselves (header "✓ За
 - D1 `exercise_picks(id, on_app, frames, updated_at)` (migration 0010) stores only changes: built-ins are on by
   default, the rest off. `GET /v1/exercises` (public, 5 min cache) → `{v, picks:[{id,on,frames}]}`.
   `POST /admin/api/exercises/set` (Basic auth). Helpers `server/src/exercises.js` (+ tests).
-- **Deploy needed**: `npm run db:migrate` + `wrangler deploy` (not done by the agent).
+- Access: the admin login, or the page's own **access code** (asked by the page, sent as `X-Access-Code`; only its
+  SHA-256 is in `wrangler.toml` `EXERCISES_CODE_SHA256`; a wrong code waits 400 ms). New code = new hash there.
+- Deploy: GitHub Actions `server-deploy` (push to main, or Run workflow on a branch) applies D1 migrations and deploys.
 
 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
 A workout **is** an impulse map: a line of blocks (merged with the exercises for active workouts — owner's choice).

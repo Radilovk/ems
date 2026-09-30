@@ -13,6 +13,8 @@ fallthrough = true
 PUBLIC_URL = "https://license.biocode-bg.com"
 # New tablets (no key) join this license with its modules until the admin locks them (Таблети → премахни).
 OWNER_LICENSE = "L-2026-792848"
+# The exercise picker page (/admin/exercises) also opens with an access code; only its SHA-256 is kept here.
+EXERCISES_CODE_SHA256 = "84fb8d2f313130144c5484ae581adf85c1f9395aa882768a18c9b2fa7d32d835"
 
 [[d1_databases]]
 binding = "DB"

@@ -367,9 +367,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/clients.js` (106L) — One pushed record: {key (tablet id), cid?, ek?, pk?, t, deleted?, data?}; null when unusable.
 - `server/src/crypto.js` (146L) — ECDSA P-256 token signing compatible with Android XemsLicenseToken (DER signatures).
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
-- `server/src/exercises.js` (33L) — A pick from the admin page → a row, or null when invalid.
+- `server/src/exercises.js` (45L) — A pick from the admin page → a row, or null when invalid.
 - `server/src/history.js` (75L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1086L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1098L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (28L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (83L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
@@ -381,7 +381,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/crypto-verify.test.js` (24L) — 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
 - `server/test/ems.test.js` (15L) — 
-- `server/test/exercises.test.js` (28L) — 
+- `server/test/exercises.test.js` (40L) — 
 - `server/test/history.test.js` (95L) — D1-shaped wrapper over node:sqlite with the real migration.
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (53L) — 
@@ -792,15 +792,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L57 ## 6. Words
   - L62 ## 7. Checklist before shipping a screen
 
-`docs/xems-workouts.md` (85L)
+`docs/xems-workouts.md` (87L)
   - L1 # Workouts ("Тренировки") and the exercise library
   - L8 ## The library (302 exercises)
   - L20 ## Admin (server)
-  - L28 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
-  - L50 ## Running a map
-  - L62 ## Audit 1.1.256 — the backend decides, the screen stays quiet
-  - L75 ## Tests
-  - L82 ## Not yet
+  - L30 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
+  - L52 ## Running a map
+  - L64 ## Audit 1.1.256 — the backend decides, the screen stays quiet
+  - L77 ## Tests
+  - L84 ## Not yet
 
 `docs/xiaomi-band-integration.md` (630L)
   - L1 # Интеграция XEMS ↔ Xiaomi Smart Band 8 / 10

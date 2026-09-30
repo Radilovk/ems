@@ -17,8 +17,8 @@
     <div class="screen {{anim}}" if="{{cur === 'auto'}}">
       <text class="caps">КОНТРОЛ</text>
       <div class="mid">
-        <text class="state" style="color: {{en ? '#FF2E63' : '#8C93AB'}}">{{en ? 'ВКЛ' : 'ИЗКЛ'}}</text>
-        <div class="switch {{en ? 'switch-on' : ''}} {{ai ? 'off' : ''}} {{pressed ? 'down' : ''}}" style="background-color: {{en ? '#FF2E63' : '#2D3142'}}"
+        <text class="state" style="color: {{en ? '#FF453A' : '#8E8E93'}}">{{en ? 'ВКЛ' : 'ИЗКЛ'}}</text>
+        <div class="switch {{en ? 'switch-on' : ''}} {{ai ? 'off' : ''}} {{pressed ? 'down' : ''}}" style="background-color: {{en ? '#FF453A' : '#3A3A3C'}}"
              ontouchstart="press" ontouchend="release" ontouchcancel="release" onclick="toggle">
           <div class="knob"></div>
         </div>
@@ -73,7 +73,7 @@ export default {
     en: false,
     ai: false,
     stateText: '',
-    stateColor: '#8C93AB',
+    stateColor: '#8E8E93',
     sf: 100,
     factorColor: GREEN,
     bars: [],
@@ -116,7 +116,7 @@ export default {
     this.zoneColor = s.hr > 0 ? ZONE[z] : '#FFFFFF'
     const zb = []
     for (let i = 1; i <= 5; i++) {
-      zb.push({ c: i <= z ? ZONE[i] : '#222532', on: i === z })
+      zb.push({ c: i <= z ? ZONE[i] : '#2C2C2E', on: i === z })
     }
     putList(this, 'zoneBars', zb)
     this.limit = String(lim)
@@ -129,7 +129,7 @@ export default {
       this.stateColor = '#FFEA00'
     } else if (!hg.en) {
       this.stateText = 'пулсът не пипа силата'
-      this.stateColor = '#8C93AB'
+      this.stateColor = '#8E8E93'
     } else if (hg.hold) {
       this.stateText = 'задържа силата'
       this.stateColor = AMBER
@@ -138,7 +138,7 @@ export default {
       this.stateColor = GREEN
     }
     this.sf = hg.sf || 100
-    this.factorColor = this.sf >= 100 ? GREEN : this.sf >= 85 ? AMBER : '#FF2E63'
+    this.factorColor = this.sf >= 100 ? GREEN : this.sf >= 85 ? AMBER : '#FF453A'
 
     const hh = s.hh || []
     let lo = 999
@@ -153,7 +153,7 @@ export default {
     hi = Math.max(hi, lo + 20)
     putList(this, 'bars', hh.map((v) => ({
       h: v > 0 ? Math.round(8 + ((v - lo) / (hi - lo)) * 150) : 4,
-      c: v > 0 ? ZONE[zoneOf(v, lim)] : '#222532'
+      c: v > 0 ? ZONE[zoneOf(v, lim)] : '#2C2C2E'
     })))
     this.avgText = s.avg > 0 ? String(s.avg) : '--'
     this.maxText = s.max > 0 ? String(s.max) : '--'
@@ -233,7 +233,7 @@ export default {
   margin-top: 3px;
   margin-bottom: 3px;
   border-radius: 3px;
-  background-color: #3A3F55;
+  background-color: #48484A;
 }
 .pdot-on {
   height: 18px;
@@ -244,14 +244,14 @@ export default {
   height: 30px;
   font-size: 22px;
   font-weight: bold;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
-  color: #ADB3C7;
+  color: #AEAEB2;
 }
 .down {
   transform: scale(0.92);
@@ -277,7 +277,7 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: #2D3142;
+  background-color: #3A3A3C;
   transition-property: transform;
   transition-duration: 120ms;
 }
@@ -311,8 +311,8 @@ export default {
   margin-right: 4px;
   border-radius: 22px;
   border-width: 1px;
-  border-color: #222532;
-  background-color: #15171F;
+  border-color: #2C2C2E;
+  background-color: #1C1C1E;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -326,10 +326,10 @@ export default {
 .tile-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .t-max {
-  color: #FF2E63;
+  color: #FF453A;
 }
 .t-kcal {
   color: #FF8A1F;
@@ -342,7 +342,7 @@ export default {
   margin-top: 16px;
   border-radius: 7px;
   flex-direction: row;
-  background-color: #15171F;
+  background-color: #1C1C1E;
 }
 .zpart {
   height: 14px;
@@ -373,7 +373,7 @@ export default {
   background-size: cover;
 }
 .pulse-caps {
-  color: #FF2E63;
+  color: #FF453A;
 }
 .heart {
   width: 40px;

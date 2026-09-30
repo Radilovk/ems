@@ -62,7 +62,7 @@
 
         <div class="stop-item">
           <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
-            <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF2E63"></progress>
+            <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
             <div class="stop-core">
               <div class="stop-mark"></div>
             </div>
@@ -100,9 +100,9 @@ const SLIDE_TRACK_TOP = 72
 const NAMES = ['Гърди', 'Корем', 'Предно бедро', 'Прасец', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Глутеус', 'Задно бедро']
 const ORDER = [3, 2, 9, 8, 1, 7, 6, 5, 0, 4]
 const FILL_W = 192
-const FILL_DIM = ['#063D2C', '#5A2A08', '#5C0C24']
+const FILL_DIM = ['#063D2C', '#5A2A08', '#5C1A16']
 /** Fill while running: the tier colour a step deeper, so white text on it stays readable. */
-const FILL_LIVE = ['#00C27A', '#E06A00', '#D81B4F']
+const FILL_LIVE = ['#00C27A', '#E06A00', '#D93B30']
 const COL_CTL = 212
 const PLAY_GAP = 16
 const PLAY_SIZE = 152
@@ -135,7 +135,7 @@ function channelPalette(pct) {
     fillDim: FILL_DIM[t],
     fillLive: FILL_LIVE[t],
     valColorDim: accent,
-    signColorDim: '#ADB3C7'
+    signColorDim: '#AEAEB2'
   }
 }
 
@@ -173,7 +173,7 @@ export default {
   private: {
     run: false,
     elapsed: '0:00',
-    zoneColor: '#ADB3C7',
+    zoneColor: '#AEAEB2',
     pressed: '',
     holdPct: 0,
     msText: '--',
@@ -288,7 +288,7 @@ export default {
       }
     }
     this.msText = ms >= 0 ? String(ms) : '--'
-    this.zoneColor = s.hr > 0 ? zoneColor(z) : '#ADB3C7'
+    this.zoneColor = s.hr > 0 ? zoneColor(z) : '#AEAEB2'
     this.slideDim = this.slideOn && !run
     if (this.slideOn) {
       return
@@ -726,7 +726,7 @@ export default {
   margin-top: 3px;
   margin-bottom: 3px;
   border-radius: 3px;
-  background-color: #3A3F55;
+  background-color: #48484A;
 }
 .pdot-on {
   height: 18px;
@@ -737,14 +737,14 @@ export default {
   height: 30px;
   font-size: 22px;
   font-weight: bold;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
-  color: #ADB3C7;
+  color: #AEAEB2;
 }
 .down {
   transform: scale(0.92);
@@ -770,7 +770,7 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: #2D3142;
+  background-color: #3A3A3C;
   transition-property: transform;
   transition-duration: 120ms;
 }
@@ -804,8 +804,8 @@ export default {
   margin-right: 4px;
   border-radius: 22px;
   border-width: 1px;
-  border-color: #222532;
-  background-color: #15171F;
+  border-color: #2C2C2E;
+  background-color: #1C1C1E;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -819,10 +819,10 @@ export default {
 .tile-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .t-max {
-  color: #FF2E63;
+  color: #FF453A;
 }
 .t-kcal {
   color: #FF8A1F;
@@ -835,7 +835,7 @@ export default {
   margin-top: 16px;
   border-radius: 7px;
   flex-direction: row;
-  background-color: #15171F;
+  background-color: #1C1C1E;
 }
 .zpart {
   height: 14px;
@@ -949,7 +949,7 @@ export default {
   height: 92px;
   margin-top: 10px;
   border-radius: 22px;
-  background-color: #131520;
+  background-color: #17181C;
 }
 .cbox-main {
   margin-top: 16px;
@@ -970,11 +970,11 @@ export default {
   align-items: center;
   justify-content: center;
   border-width: 2px;
-  border-color: #2D3142;
+  border-color: #3A3A3C;
   border-radius: 22px;
 }
 .cface-live {
-  border-color: #5A6078;
+  border-color: #636366;
 }
 .cname {
   flex-shrink: 0;
@@ -1050,9 +1050,9 @@ export default {
   margin-left: 4px;
   margin-right: 4px;
   border-radius: 20px;
-  background-color: #15171F;
+  background-color: #1C1C1E;
   border-width: 1px;
-  border-color: #222532;
+  border-color: #2C2C2E;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -1063,7 +1063,7 @@ export default {
   height: 2px;
   margin-top: 10px;
   border-radius: 1px;
-  background-color: #222532;
+  background-color: #2C2C2E;
 }
 .kpi-num {
   flex-shrink: 0;
@@ -1074,7 +1074,7 @@ export default {
 .kpi-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .ctouch {
   flex-shrink: 0;
@@ -1106,7 +1106,7 @@ export default {
   width: 190px;
   height: 190px;
   stroke-width: 14px;
-  background-color: #3A0A1C;
+  background-color: #3A0F0D;
   start-angle: 0deg;
   total-angle: 360deg;
   center-x: 95px;
@@ -1120,7 +1120,7 @@ export default {
   width: 140px;
   height: 140px;
   border-radius: 70px;
-  background-color: #E0194F;
+  background-color: #C62828;
   justify-content: center;
   align-items: center;
 }
@@ -1171,7 +1171,7 @@ export default {
   margin-top: 2px;
   font-size: 22px;
   font-weight: bold;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .slide-track {
   flex-shrink: 0;
@@ -1188,9 +1188,9 @@ export default {
   width: 56px;
   height: 418px;
   border-radius: 28px;
-  background-color: #15171F;
+  background-color: #1C1C1E;
   border-width: 2px;
-  border-color: #3A3F55;
+  border-color: #48484A;
 }
 .slide-fill {
   position: absolute;
@@ -1207,6 +1207,6 @@ export default {
   border-radius: 20px;
   background-color: #ffffff;
   border-width: 3px;
-  border-color: #3A3F55;
+  border-color: #48484A;
 }
 </style>

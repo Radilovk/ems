@@ -44,8 +44,8 @@
     <div class="screen {{anim}}" if="{{cur === 'dbl'}}">
       <text class="caps">ДВОЕН</text>
       <div class="mid">
-        <text class="state" style="color: {{dbl ? '#00F59B' : '#8C93AB'}}">{{dbl ? 'ВКЛ' : 'ИЗКЛ'}}</text>
-        <div class="switch {{dbl ? 'switch-on' : ''}} {{pressed === 'dbl' ? 'down' : ''}}" style="background-color: {{dbl ? '#00F59B' : '#2D3142'}}"
+        <text class="state" style="color: {{dbl ? '#00F59B' : '#8E8E93'}}">{{dbl ? 'ВКЛ' : 'ИЗКЛ'}}</text>
+        <div class="switch {{dbl ? 'switch-on' : ''}} {{pressed === 'dbl' ? 'down' : ''}}" style="background-color: {{dbl ? '#00F59B' : '#3A3A3C'}}"
              ontouchstart="press('dbl')" ontouchend="release" ontouchcancel="release" onclick="double">
           <div class="knob"></div>
         </div>
@@ -58,7 +58,7 @@
       <text class="caps">КРАЙ</text>
       <div class="mid">
         <stack class="stop-box" ontouchstart="holdStart" ontouchend="holdEnd" ontouchcancel="holdEnd">
-          <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF2E63"></progress>
+          <progress class="stop-ring" type="arc" percent="{{holdPct}}" style="color: #FF453A"></progress>
           <div class="stop-core">
             <div class="stop-mark"></div>
           </div>
@@ -119,7 +119,7 @@ export default {
     anim: '',
     st: 'idle',
     stateText: '',
-    stateColor: '#8C93AB',
+    stateColor: '#8E8E93',
     ringPct: 0,
     hrPct: 0,
     hrText: '--',
@@ -196,9 +196,9 @@ export default {
     this.hrPct = s.hr > 0 ? Math.min(100, Math.round((s.hr / lim) * 100)) : 0
 
     const labels = { run: 'AI · АКТИВЕН', pause: 'AI · ПАУЗА', rest: 'AI · ПОЧИВКА', ready: 'AI · ГОТОВО', idle: 'AI · НЕ ТЕЧЕ' }
-    const colors = { run: GREEN, pause: AMBER, rest: BLUE, ready: GREEN, idle: '#8C93AB' }
+    const colors = { run: GREEN, pause: AMBER, rest: BLUE, ready: GREEN, idle: '#8E8E93' }
     this.stateText = labels[this.st] || 'AI'
-    this.stateColor = colors[this.st] || '#8C93AB'
+    this.stateColor = colors[this.st] || '#8E8E93'
 
     this.timeColor = '#FFFFFF'
     if (!ai) {
@@ -224,7 +224,7 @@ export default {
     }
     if (this.st === 'run') {
       this.playIcon = '/common/icons/pause.png'
-      this.playColor = '#222532'
+      this.playColor = '#2C2C2E'
       this.playGlow = 'rgba(0,0,0,0)'
     } else {
       this.playIcon = '/common/icons/play.png'
@@ -361,7 +361,7 @@ export default {
   margin-top: 3px;
   margin-bottom: 3px;
   border-radius: 3px;
-  background-color: #3A3F55;
+  background-color: #48484A;
 }
 .pdot-on {
   height: 18px;
@@ -372,14 +372,14 @@ export default {
   height: 30px;
   font-size: 22px;
   font-weight: bold;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
-  color: #ADB3C7;
+  color: #AEAEB2;
 }
 .down {
   transform: scale(0.92);
@@ -405,7 +405,7 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: #2D3142;
+  background-color: #3A3A3C;
   transition-property: transform;
   transition-duration: 120ms;
 }
@@ -439,8 +439,8 @@ export default {
   margin-right: 4px;
   border-radius: 22px;
   border-width: 1px;
-  border-color: #222532;
-  background-color: #15171F;
+  border-color: #2C2C2E;
+  background-color: #1C1C1E;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -454,10 +454,10 @@ export default {
 .tile-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .t-max {
-  color: #FF2E63;
+  color: #FF453A;
 }
 .t-kcal {
   color: #FF8A1F;
@@ -470,7 +470,7 @@ export default {
   margin-top: 16px;
   border-radius: 7px;
   flex-direction: row;
-  background-color: #15171F;
+  background-color: #1C1C1E;
 }
 .zpart {
   height: 14px;
@@ -509,7 +509,7 @@ export default {
   width: 172px;
   height: 172px;
   stroke-width: 14px;
-  background-color: #15171F;
+  background-color: #1C1C1E;
   start-angle: 220deg;
   total-angle: 280deg;
   center-x: 86px;
@@ -591,10 +591,10 @@ export default {
   height: 110px;
   margin-top: 14px;
   border-radius: 55px;
-  background-color: #222532;
+  background-color: #2C2C2E;
 }
 .plus {
-  background-color: #4A0E30;
+  background-color: #4A1A26;
   margin-top: 22px;
 }
 .pill-img {
@@ -614,7 +614,7 @@ export default {
   width: 190px;
   height: 190px;
   stroke-width: 14px;
-  background-color: #3A0A1C;
+  background-color: #3A0F0D;
   start-angle: 0deg;
   total-angle: 360deg;
   center-x: 95px;
@@ -628,7 +628,7 @@ export default {
   width: 140px;
   height: 140px;
   border-radius: 70px;
-  background-color: #E0194F;
+  background-color: #C62828;
   justify-content: center;
   align-items: center;
 }

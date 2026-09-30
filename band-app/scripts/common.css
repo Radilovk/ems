@@ -52,7 +52,7 @@
   margin-top: 3px;
   margin-bottom: 3px;
   border-radius: 3px;
-  background-color: #3A3F55;
+  background-color: #48484A;
 }
 .pdot-on {
   height: 18px;
@@ -63,14 +63,14 @@
   height: 30px;
   font-size: 22px;
   font-weight: bold;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
-  color: #ADB3C7;
+  color: #AEAEB2;
 }
 .down {
   transform: scale(0.92);
@@ -96,7 +96,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: #2D3142;
+  background-color: #3A3A3C;
   transition-property: transform;
   transition-duration: 120ms;
 }
@@ -130,8 +130,8 @@
   margin-right: 4px;
   border-radius: 22px;
   border-width: 1px;
-  border-color: #222532;
-  background-color: #15171F;
+  border-color: #2C2C2E;
+  background-color: #1C1C1E;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -145,10 +145,10 @@
 .tile-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .t-max {
-  color: #FF2E63;
+  color: #FF453A;
 }
 .t-kcal {
   color: #FF8A1F;
@@ -161,7 +161,7 @@
   margin-top: 16px;
   border-radius: 7px;
   flex-direction: row;
-  background-color: #15171F;
+  background-color: #1C1C1E;
 }
 .zpart {
   height: 14px;

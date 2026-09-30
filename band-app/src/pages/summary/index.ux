@@ -70,7 +70,7 @@ import { BODY } from '../../common/body-map.js'
 // One gamut per figure (warm magenta for a woman, cool cyan for a man), as the tablet report.
 const STOPS_F = [[0, [196, 120, 255]], [0.5, [226, 64, 251]], [1, [255, 45, 149]]]
 const STOPS_M = [[0, [125, 150, 255]], [0.5, [61, 165, 255]], [1, [0, 229, 255]]]
-const BODY_GREY = [66, 71, 88]      // the figure's graphite: a lightly loaded muscle leans toward it
+const BODY_GREY = [66, 66, 70]      // the figure's graphite: a lightly loaded muscle leans toward it
 const MUSCLE = ['Гърди', 'Корем', 'Предно бедро', 'Прасци', 'Ръце', 'Трапец', 'Гръб', 'Кръст', 'Седалище', 'Задно бедро']
 // both sexes listed so the image budget check sees them
 const STENCILS = ['/common/body/f-front.png', '/common/body/f-back.png', '/common/body/m-front.png', '/common/body/m-back.png']
@@ -232,7 +232,7 @@ export default {
   margin-top: 3px;
   margin-bottom: 3px;
   border-radius: 3px;
-  background-color: #3A3F55;
+  background-color: #48484A;
 }
 .pdot-on {
   height: 18px;
@@ -243,14 +243,14 @@ export default {
   height: 30px;
   font-size: 22px;
   font-weight: bold;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
-  color: #ADB3C7;
+  color: #AEAEB2;
 }
 .down {
   transform: scale(0.92);
@@ -276,7 +276,7 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: #2D3142;
+  background-color: #3A3A3C;
   transition-property: transform;
   transition-duration: 120ms;
 }
@@ -310,8 +310,8 @@ export default {
   margin-right: 4px;
   border-radius: 22px;
   border-width: 1px;
-  border-color: #222532;
-  background-color: #15171F;
+  border-color: #2C2C2E;
+  background-color: #1C1C1E;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -325,10 +325,10 @@ export default {
 .tile-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .t-max {
-  color: #FF2E63;
+  color: #FF453A;
 }
 .t-kcal {
   color: #FF8A1F;
@@ -341,7 +341,7 @@ export default {
   margin-top: 16px;
   border-radius: 7px;
   flex-direction: row;
-  background-color: #15171F;
+  background-color: #1C1C1E;
 }
 .zpart {
   height: 14px;
@@ -405,7 +405,7 @@ export default {
   height: 70px;
   margin-top: 18px;
   border-radius: 35px;
-  background-color: #222532;
+  background-color: #2C2C2E;
 }
 .body-screen {
   justify-content: flex-start;
@@ -470,7 +470,7 @@ export default {
   margin-left: 8px;
   font-size: 19px;
   font-weight: bold;
-  color: #ADB3C7;
+  color: #AEAEB2;
 }
 .grow {
   flex-grow: 1;
@@ -489,7 +489,7 @@ export default {
 }
 .hint-t {
   font-size: 16px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .chev {
   width: 14px;
@@ -500,7 +500,7 @@ export default {
   border-left-width: 0px;
   border-right-width: 3px;
   border-bottom-width: 3px;
-  border-color: #ADB3C7;
+  border-color: #AEAEB2;
   transform: rotate(45deg);
 }
 @keyframes bob {

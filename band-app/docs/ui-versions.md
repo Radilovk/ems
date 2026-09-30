@@ -79,3 +79,9 @@ AI, Таймер, Музика, Пулс, Резюме. Train (v2/v3) и home м
 - `background-size: contain` за слоевете (точен размер — нищо не се изрязва)
 - Памет: Старт 327 KB (беше 445), Музика 317 (394), AI 233 (266), Таймер 220 (269)
 - Начало: „ръчен режим“ вместо „ръчна тренировка“ (не се събираше на гривната)
+
+## Colours: natural (5.9.45)
+The neon palette (5.9.39, `scripts/neon.py`) read as a pink / violet filter on every screen. `scripts/natural.py`
+undoes that part: neutral greys are plain greys again (not blue-violet), the brand and reds are the natural XEMS
+red / red (not hot pink). Screen glows: 0.60 / 0.40 as before 5.9.39 and one hue (the shifted second tone turned
+red into magenta); the summary glows mint (the ✓). Module accents stay neon (mint, cyan, yellow, orange, violet).

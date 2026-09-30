@@ -100,7 +100,7 @@
     .registers 3
 
     .prologue
-    .line 788
+    .line 789
     move-object v0, p0
 
     :goto_1
@@ -108,19 +108,19 @@
 
     if-eqz v1, :cond_13
 
-    .line 789
+    .line 790
     instance-of v1, v0, Landroid/app/Activity;
 
     if-eqz v1, :cond_c
 
-    .line 790
+    .line 791
     check-cast v0, Landroid/app/Activity;
 
-    .line 794
+    .line 795
     :goto_b
     return-object v0
 
-    .line 792
+    .line 793
     :cond_c
     check-cast v0, Landroid/content/ContextWrapper;
 
@@ -130,7 +130,7 @@
 
     goto :goto_1
 
-    .line 794
+    .line 795
     :cond_13
     const/4 v0, 0x0
 
@@ -693,7 +693,7 @@
     .line 698
     if-nez p0, :cond_3
 
-    .line 731
+    .line 732
     :cond_2
     :goto_2
     return-void
@@ -713,7 +713,7 @@
 
     instance-of v1, v1, Landroid/view/View;
 
-    if-eqz v1, :cond_7b
+    if-eqz v1, :cond_86
 
     .line 704
     invoke-virtual {v2}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
@@ -725,11 +725,11 @@
     .line 705
     instance-of v4, v1, Landroid/widget/ScrollView;
 
-    if-eqz v4, :cond_79
+    if-eqz v4, :cond_82
 
     instance-of v4, v2, Landroid/view/ViewGroup;
 
-    if-eqz v4, :cond_79
+    if-eqz v4, :cond_82
 
     .line 706
     move-object v0, v2
@@ -738,32 +738,34 @@
 
     move-object v1, v0
 
+    move-object v2, v1
+
     .line 711
-    :goto_1f
-    if-eqz v1, :cond_2
+    :goto_20
+    if-eqz v2, :cond_2
 
     .line 714
-    invoke-static {v1}, Lcom/isaigu/gymapp/dialog/ParamDialogUi;->style(Landroid/view/ViewGroup;)V
+    invoke-static {v2}, Lcom/isaigu/gymapp/dialog/ParamDialogUi;->style(Landroid/view/ViewGroup;)V
 
     .line 715
-    const-string v2, "xems_program_fit_switch"
+    const-string v1, "xems_program_fit_switch"
 
-    invoke-virtual {v1, v2}, Landroid/view/ViewGroup;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+    invoke-virtual {v2, v1}, Landroid/view/ViewGroup;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
-    move-result-object v2
+    move-result-object v1
 
-    if-nez v2, :cond_2
+    if-nez v1, :cond_2
 
     .line 718
-    invoke-virtual {v1}, Landroid/view/ViewGroup;->getContext()Landroid/content/Context;
+    invoke-virtual {v2}, Landroid/view/ViewGroup;->getContext()Landroid/content/Context;
 
-    move-result-object v2
+    move-result-object v1
 
     .line 719
-    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
+    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
 
     .line 720
-    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/ProgramFit;->enabled(Landroid/content/Context;)Z
+    invoke-static {v1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->enabled(Landroid/content/Context;)Z
 
     move-result v3
 
@@ -783,10 +785,10 @@
 
     new-instance v6, Lcom/isaigu/gymapp/wearable/ProgramFit$Toggle;
 
-    invoke-direct {v6, v2}, Lcom/isaigu/gymapp/wearable/ProgramFit$Toggle;-><init>(Landroid/content/Context;)V
+    invoke-direct {v6, v1}, Lcom/isaigu/gymapp/wearable/ProgramFit$Toggle;-><init>(Landroid/content/Context;)V
 
     .line 721
-    invoke-static {v2, v4, v5, v3, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
+    invoke-static {v1, v4, v5, v3, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/widget/XemsUi$OnToggle;)Landroid/widget/LinearLayout;
 
     move-result-object v3
 
@@ -798,28 +800,38 @@
     .line 724
     const/high16 v4, 0x41800000    # 16.0f
 
-    invoke-static {v2, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     .line 725
     const/high16 v5, 0x41000000    # 8.0f
 
-    invoke-static {v2, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v1, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
 
     const/high16 v6, 0x41000000    # 8.0f
 
-    invoke-static {v2, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v1, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    move-result v2
+    move-result v1
 
-    invoke-virtual {v3, v4, v5, v4, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    invoke-virtual {v3, v4, v5, v4, v1}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
     .line 726
-    const/4 v2, 0x0
+    const-string v1, "xems_param_header"
 
+    invoke-virtual {v2, v1}, Landroid/view/ViewGroup;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_84
+
+    const/4 v1, 0x1
+
+    .line 727
+    :goto_70
     new-instance v4, Landroid/view/ViewGroup$LayoutParams;
 
     const/4 v5, -0x1
@@ -828,33 +840,39 @@
 
     invoke-direct {v4, v5, v6}, Landroid/view/ViewGroup$LayoutParams;-><init>(II)V
 
-    invoke-virtual {v1, v3, v2, v4}, Landroid/view/ViewGroup;->addView(Landroid/view/View;ILandroid/view/ViewGroup$LayoutParams;)V
-    :try_end_71
-    .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_71} :catch_72
+    invoke-virtual {v2, v3, v1, v4}, Landroid/view/ViewGroup;->addView(Landroid/view/View;ILandroid/view/ViewGroup$LayoutParams;)V
+    :try_end_7a
+    .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_7a} :catch_7b
 
     goto :goto_2
 
-    .line 728
-    :catch_72
+    .line 729
+    :catch_7b
     move-exception v1
 
-    .line 729
+    .line 730
     const-string v2, "ProgramFit.attachSwitch"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_2
 
-    :cond_79
+    :cond_82
     move-object v2, v1
 
     .line 710
     goto :goto_5
 
-    :cond_7b
-    move-object v1, v3
+    .line 726
+    :cond_84
+    const/4 v1, 0x0
 
-    goto :goto_1f
+    goto :goto_70
+
+    :cond_86
+    move-object v2, v3
+
+    goto :goto_20
 .end method
 
 .method static bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
@@ -910,17 +928,17 @@
     .registers 3
 
     .prologue
-    .line 757
+    .line 758
     if-eqz p0, :cond_a
 
-    .line 758
+    .line 759
     new-instance v0, Lcom/isaigu/gymapp/wearable/ProgramFit$SaveAs;
 
     invoke-direct {v0, p1}, Lcom/isaigu/gymapp/wearable/ProgramFit$SaveAs;-><init>(Ljava/lang/Object;)V
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnLongClickListener(Landroid/view/View$OnLongClickListener;)V
 
-    .line 760
+    .line 761
     :cond_a
     return-void
 .end method
@@ -1653,7 +1671,7 @@
     .registers 3
 
     .prologue
-    .line 734
+    .line 735
     if-eqz p0, :cond_b
 
     const-string v0, "\u0412\u0441\u0435\u043a\u0438 \u043a\u043b\u0438\u0435\u043d\u0442 \u043f\u043e\u043b\u0443\u0447\u0430\u0432\u0430 \u0437\u0430\u043f\u0438\u0441\u0430\u043d\u0430\u0442\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430, \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d\u0430 \u0437\u0430 \u043d\u0435\u0433\u043e"
@@ -1667,7 +1685,7 @@
     :goto_a
     return-object v0
 
-    .line 736
+    .line 737
     :cond_b
     const-string v0, "\u0418\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0430 \u2014 \u0432\u0441\u0438\u0447\u043a\u043e \u0435 \u0440\u044a\u0447\u043d\u043e, \u0442\u043e\u0447\u043d\u043e \u043a\u0430\u043a\u0442\u043e \u0433\u043e \u0437\u0430\u0434\u0430\u0434\u0435\u0448"
 
@@ -2248,16 +2266,16 @@
     .registers 6
 
     .prologue
-    .line 800
+    .line 801
     :try_start_0
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/ClientPrograms;->init(Landroid/content/Context;)V
 
-    .line 801
+    .line 802
     if-eqz p1, :cond_65
 
     iget-object v0, p1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 802
+    .line 803
     :goto_7
     if-eqz p0, :cond_67
 
@@ -2275,7 +2293,7 @@
 
     if-eqz v1, :cond_67
 
-    .line 803
+    .line 804
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2350,40 +2368,40 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/BaseActivity;->showTips(Ljava/lang/String;)V
 
-    .line 814
+    .line 815
     :cond_64
     :goto_64
     return-void
 
-    .line 801
+    .line 802
     :cond_65
     const/4 v0, 0x0
 
     goto :goto_7
 
-    .line 807
+    .line 808
     :cond_67
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->forSave(Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;)Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    .line 808
+    .line 809
     if-eqz p0, :cond_64
 
     if-eqz v0, :cond_64
 
-    .line 809
+    .line 810
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/OperationUtil;->save(Lcom/isaigu/gymapp/BaseActivity;Lcom/isaigu/gymapp/bean/TrainProgram;)V
     :try_end_72
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_72} :catch_73
 
     goto :goto_64
 
-    .line 811
+    .line 812
     :catch_73
     move-exception v0
 
-    .line 812
+    .line 813
     const-string v1, "ProgramFit.onSaveClick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

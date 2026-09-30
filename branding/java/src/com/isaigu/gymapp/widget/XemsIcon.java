@@ -25,6 +25,14 @@ public final class XemsIcon extends Drawable {
     public static final int PLUS = 9;
     public static final int MINUS = 10;
     public static final int SLIDERS = 11;
+    /** Rising line over a baseline: the client's progress report. */
+    public static final int CHART = 12;
+    /** A card with lines: the client's summary. */
+    public static final int CARD = 13;
+    /** A clock with a back arrow: the last trainings. */
+    public static final int HISTORY = 14;
+    /** A search glass. */
+    public static final int SEARCH = 15;
 
     private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -151,6 +159,40 @@ public final class XemsIcon extends Drawable {
                 c.drawCircle(15f, 7f, 2.2f, fill);
                 c.drawCircle(9f, 12f, 2.2f, fill);
                 c.drawCircle(13f, 17f, 2.2f, fill);
+                break;
+            case CHART:
+                c.drawLine(4f, 20f, 20f, 20f, stroke);
+                path.reset();
+                path.moveTo(4.5f, 16f);
+                path.lineTo(9.5f, 11f);
+                path.lineTo(13f, 14f);
+                path.lineTo(19.5f, 6.5f);
+                c.drawPath(path, stroke);
+                c.drawCircle(19.5f, 6.5f, 1.6f, fill);
+                break;
+            case CARD:
+                r.set(3.5f, 5f, 20.5f, 19f);
+                c.drawRoundRect(r, 3f, 3f, stroke);
+                c.drawCircle(8.5f, 10.5f, 2f, stroke);
+                c.drawLine(6f, 15.5f, 11f, 15.5f, stroke);
+                c.drawLine(13.5f, 9.5f, 18f, 9.5f, stroke);
+                c.drawLine(13.5f, 13f, 18f, 13f, stroke);
+                c.drawLine(13.5f, 16.3f, 16.5f, 16.3f, stroke);
+                break;
+            case HISTORY:
+                r.set(4f, 4f, 20f, 20f);
+                c.drawArc(r, 200f, 290f, false, stroke);
+                path.reset();
+                path.moveTo(3.2f, 6.8f);
+                path.lineTo(4.6f, 10.6f);
+                path.lineTo(8.4f, 9.4f);
+                c.drawPath(path, stroke);
+                c.drawLine(12f, 8f, 12f, 12.5f, stroke);
+                c.drawLine(12f, 12.5f, 15f, 14.5f, stroke);
+                break;
+            case SEARCH:
+                c.drawCircle(10.5f, 10.5f, 6f, stroke);
+                c.drawLine(15f, 15f, 20f, 20f, stroke);
                 break;
             default:
                 break;

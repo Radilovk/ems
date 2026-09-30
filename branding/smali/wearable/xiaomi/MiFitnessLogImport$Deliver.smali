@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 661
+    .line 686
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 662
+    .line 687
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->cb:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
-    .line 663
+    .line 688
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
 
-    .line 664
+    .line 689
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 4
 
     .prologue
-    .line 668
+    .line 693
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->cb:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Deliver;->f:Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;
@@ -70,10 +70,10 @@
     :goto_12
     invoke-interface {v1, v2, v0}, Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Done;->onFound(Lcom/isaigu/gymapp/wearable/xiaomi/MiFitnessLogImport$Found;Ljava/lang/String;)V
 
-    .line 669
+    .line 694
     return-void
 
-    .line 668
+    .line 693
     :cond_16
     const/4 v0, 0x0
 

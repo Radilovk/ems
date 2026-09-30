@@ -72,6 +72,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Automatic mode (ready programs) | `docs/xems-auto-mode-spec.md` |
 | "План" tab, calendar, next client | `docs/xems-plan.md` |
 | Saved program as base, personalisation, diskette | `docs/xems-program-fit.md` |
+| Client list rows, search keyboard, quick start | `docs/xems-client-list.md` |
 | Client ↔ tablet ↔ server sync, CF costs | `docs/xems-client-sync.md` |
 | Pulse / strength control | `docs/xems-pulse-control.md`, `docs/xems-part-strength.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |

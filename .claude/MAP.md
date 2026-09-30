@@ -26,7 +26,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-ble-scan-lifecycle.py` (151L, build:L88) — Stop background BleDeviceManager scan outside the device-connect flow.
 - `scripts/apply-block-program.py` (102L, build:L110[BETA_MUSIC]) — Block program pulse hook (global runner; UI lives in IntervalTimerHelper).
 - `scripts/apply-branding-train-layouts.py` (97L, build:L58[DESIGN_PIPELINE]) — Apply canonical train-screen layouts from branding/design/ at end of build.
-- `scripts/apply-branding.py` (118L, build:L39) — Apply branding images to decompiled APK resources.
+- `scripts/apply-branding.py` (197L, build:L39) — Apply branding images to decompiled APK resources.
 - `scripts/apply-bt-latency.py` (99L, build:L87) — Minimize Bluetooth command queue latency — write immediately after each ACK.
 - `scripts/apply-client-search-fix.py` (91L, build:L45) — Make client-name search case-insensitive.
 - `scripts/apply-dark-polish.py` (720L, build:L43) — Dark-theme-only UI polish: muscle bar, user list icons, device serial hide.
@@ -57,7 +57,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-part-strength.py` (134L, build:L156) — Selected muscle groups: + / − and the avatar slider change only their impulse strength.
 - `scripts/apply-plan-tab.py` (68L, build:L124[BETA_MUSIC]) — The "План" tab shows wearable/PlanScreen (appointments from the tablet's calendar, next client) instead of the vendor's…
 - `scripts/apply-program-fit.py` (166L, build:L118[BETA_MUSIC]) — Saved program = the base of the manual mode; the diskette saves it, the gear works while training.
-- `scripts/apply-quick-start.py` (94L, build:L119[BETA_MUSIC]) — Client list: ▶ quick start in every row, ↻ refresh next to the search (wearable/QuickStart).
+- `scripts/apply-quick-start.py` (111L, build:L119[BETA_MUSIC]) — Client list: ▶ quick start in every row, ↻ refresh next to the search (wearable/QuickStart).
 - `scripts/apply-ramp-limits.py` (418L, NOT-IN-BUILD) — Input/output ramp in milliseconds (0-3000 ms); device encoding (ms+9)/10.
 - `scripts/apply-ramp-setting.py` (77L, build:L117[BETA_MUSIC]) — Soft rise / fall (ramp) back in the program parameters dialog, in seconds (0.0–2.0 s).
 - `scripts/apply-security-hardening.py` (124L, NOT-IN-BUILD) — Harden APK manifest and network config to reduce install / Play Protect warnings.
@@ -92,7 +92,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-channel-scale-java.sh` (57L, build:L70[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (112L, build:L101[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (211L, build:L91[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
-- `scripts/compile-wearable-java.sh` (183L, build:L106[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (185L, build:L106[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (64L, build:L68[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (83L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -173,7 +173,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MusicPlaylistEntry.java` (22L, compile:music-sync*) — 
 - `MusicPlaylistStorage.java` (74L, compile:music-sync*) — Persists playlist URIs between sessions.
 - `MusicTrackLabel.java` (114L, compile:music-sync*) — Resolve a human-readable track title from metadata tags or file name.
-- `ParamDialogUi.java` (114L, compile:music-sync*) — The program parameters dialog (row ⚙ and ⚙ Master) in the look of the other XEMS menus: a rounded card, the four mode h…
+- `ParamDialogUi.java` (232L, compile:music-sync*) — The program parameters dialog (row ⚙ and ⚙ Master) in the look of the other XEMS menus: a rounded card, the four mode h…
 - `PauseSetting.java` (161L, compile:music-sync*) — "Двоен импулс" in the program parameters dialog, per mode: Основен (under the pulse width), Кардио and Масаж (under the…
 - `ProgramSegment.java` (69L, compile:interval-timer,music-sync*) — One block: X impulse cycles at MA / Hz / width (ON/OFF stay from the program).
 - `RampSetting.java` (255L, compile:music-sync*) — Soft rise / fall of the impulses in the program parameters dialog (per user and from the master settings — both use Edi…
@@ -200,11 +200,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BandAppInstall.java` (303L, compile:music-sync*,wearable) — The XEMS app on the band (Band 9 / 10) installs and updates itself: once the band is connected over the classic link an…
 - `BandLaunch.java` (107L, compile:music-sync*,wearable) — Open the XEMS app on the band from XEMS: the Settings button (and {@link BandRemote} at the start of a workout).
 - `BandMacFinder.java` (191L, compile:music-sync*,wearable) — Finds the band's MAC when the Mi Fitness log gave only the key: the tablet's paired and connected Xiaomi bands first, t…
-- `BandPairing.java` (704L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
+- `BandPairing.java` (717L, compile:music-sync*,wearable) — The one place a band is paired: read the key + MAC from the newest Mi Fitness log (a key without a MAC → the band is fo…
 - `BandRemote.java` (1078L, compile:music-sync*,wearable) — XEMS on the wrist without installing anything: the band's own music screen becomes the training remote.
 - `BandWorkout.java` (114L, compile:music-sync*,wearable) — The band owner's training also runs as a native workout on the band: XEMS starts, pauses, resumes and finishes it, the …
 - `CardPublisher.java` (91L, compile:music-sync*,wearable) — The client's card goes up the moment a training is saved — no timer, no opened report needed.
 - `ClientPrograms.java` (129L, compile:music-sync*,wearable) — The client's own settings per program ("Иван · Test"): written by the row's diskette and by the row's ⚙ save, loaded wh…
+- `ClientRow.java` (391L, compile:music-sync*,wearable) — One row of the client list (Потребители), made for the trainer's glance: photo, the two names, the goal, then compact i…
 - `EmsBleCoexist.java` (39L, compile:music-sync*,wearable) — Pause EMS suit BLE scan while the band HR session is active (same radio).
 - `HrChartView.java` (298L, compile:music-sync*,wearable) — Live HR chart: faint zone bands, the HR line in zone colours with a soft fill, the rest / limit / ceiling lines, a puls…
 - `HrDemandPolicy.java` (65L, compile:music-sync*,wearable) — When the band should measure heart rate (realtime 8/45).
@@ -217,11 +218,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `NotifyHaForegroundService.java` (123L, compile:music-sync*,wearable) — Keeps direct BLE HR alive while the dial is connected (Huawei battery saver).
 - `NotifyWearableBridge.java` (738L, compile:music-sync*,wearable) — Wearable HR bridge — direct BLE only (auth key + MAC).
 - `PlanScreen.java` (1013L, compile:music-sync*,wearable) — The "План" tab: today's (or the week's) appointments from the tablet's calendar, each with its client, held ✓ / missed …
-- `ProgramFit.java` (816L, compile:music-sync*,wearable) — Personalisation of the manual mode against the SAVED program ("Test" or any other): <ul> <li>The saved program is the b…
-- `QuickStart.java` (251L, compile:music-sync*,wearable) — Client list (Потребители): <ul> <li>▶ at the end of every row: the client's last program (their saved one, else the las…
+- `ProgramFit.java` (817L, compile:music-sync*,wearable) — Personalisation of the manual mode against the SAVED program ("Test" or any other): <ul> <li>The saved program is the b…
+- `QuickStart.java` (259L, compile:music-sync*,wearable) — Client list (Потребители): <ul> <li>▶ at the end of every row: the client's last program (their saved one, else the las…
 - `ReportBridge.java` (516L, compile:music-sync*,wearable) — window.XemsReport in the report page.
 - `ReportScreen.java` (86L, compile:music-sync*,wearable) — Client history and training reports: a full-screen page (assets/report/session-report.html) drawn from the recorded ses…
 - `Schedule.java` (516L, compile:music-sync*,wearable) — The studio's appointments from the tablet's own calendar (Acuity → Google Calendar sync, or any calendar the tablet sho…
+- `SearchPad.java` (523L, compile:music-sync*,wearable) — Our own search keyboard for the client searches (Потребители, the client / program / device picker), made for a tablet …
 - `SessionInts.java` (41L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
 - `SessionRec.java` (335L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
 - `SessionRecorder.java` (445L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
@@ -239,7 +241,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `WearableUi.java` (238L, compile:music-sync*,wearable) — Shared text, colors and small view builders for the band UI (no new resource IDs).
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
-- `MiFitnessLogImport.java` (672L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
+- `MiFitnessLogImport.java` (697L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
 - `XiaomiBand.java` (183L, compile:music-sync*,wearable) — Picks the link for the configured band.
 - `XiaomiBandAckTimeoutTask.java` (16L, compile:music-sync*,wearable) — Band never ACKed a command (separate file for d8 compatibility).
 - `XiaomiBandAppLink.java` (258L, compile:music-sync*,wearable) — Messages between the XEMS app on the band (quick app, system.interconnect) and XEMS here.
@@ -278,7 +280,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsDossier.java` (437L, compile:music-sync*,xems-license) — The client dossier on the server (stage 1): the studio's client list is kept on the licence server, one record per pers…
 - `XemsFullscreen.java` (102L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
-- `XemsIcon.java` (178L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
+- `XemsIcon.java` (220L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (44L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (441L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
 - `XemsLicenseClient.java` (593L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
@@ -293,7 +295,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsModuleInfo.java` (453L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (785L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (320L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
-- `XemsSearch.java` (217L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
+- `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (659L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
 
 ## band-app (Xiaomi Vela quick app, Band 10)
@@ -384,14 +386,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (82L)
+`CLAUDE.md` (83L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L42 ## Invariants (breaking one = broken release)
   - L55 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L63 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L79 ## Keeping the map true
+  - L80 ## Keeping the map true
 
 `band-app/CLAUDE.md` (27L)
   - L1 # band-app — Xiaomi Vela quick app (Band 10, 212×520)
@@ -575,6 +577,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L6 ## 1. Само на таблета
   - L17 ## 2. Споделяне (треньорът изпраща файл; след това файлът е при получателя)
   - L28 ## 3. Уеб — клиентският картон (`/c/<id>` на сървъра)
+
+`docs/xems-client-list.md` (28L)
+  - L1 # Списък с клиенти, търсене, избор (1.1.243-ai)
+  - L6 ## Редът на клиента
+  - L15 ## Обновяване
+  - L19 ## Търсене — наша клавиатура (`SearchPad`)
+  - L25 ## Тъмна тема и фонове
 
 `docs/xems-client-sync.md` (97L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)

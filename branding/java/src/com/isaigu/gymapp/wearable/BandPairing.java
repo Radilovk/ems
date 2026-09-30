@@ -26,6 +26,8 @@ import com.isaigu.gymapp.wearable.xiaomi.MiFitnessLogImport;
 final class BandPairing {
 
     private static final Handler handler = new Handler(Looper.getMainLooper());
+    /** Last time the screen was reopened after the folder grant (never twice in a row). */
+    private static long reopened;
 
     private final Activity a;
     private final Runnable onDone;
@@ -202,6 +204,9 @@ final class BandPairing {
         if (closed) {
             return;
         }
+        WearableBleDiagLog.log("pair", "search: files " + (f != null ? f.listed : -1) + ", zips "
+                + (f != null ? f.zips : -1) + ", bands " + (f != null ? f.devices.size() : -1)
+                + ", folder " + (MiFitnessLogImport.tree(a) != null ? "granted" : "not granted"));
         if (f != null && f.hasAny()) {
             found(f);
             return;
@@ -690,7 +695,15 @@ final class BandPairing {
 
         @Override
         public void onFound(MiFitnessLogImport.Found f, String problem) {
-            if (p.closed) {
+            if (p.closed || p.dialog == null || !p.dialog.isShowing()) {
+                // The pairing screen went away while Android asked for the folder (closed, or the screen was
+                // rebuilt): open it again — the folder is granted now, so its search shows the bands at once.
+                android.app.Activity now = WearableSyncHelper.resolveActivityForPermissions();
+                long ms = System.currentTimeMillis();
+                if (!"cancelled".equals(problem) && now != null && ms - reopened > 30000L) {
+                    reopened = ms;
+                    BandPairing.show(now, p.onDone);
+                }
                 return;
             }
             if (f != null && f.hasAny()) {

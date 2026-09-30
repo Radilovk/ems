@@ -723,7 +723,8 @@ public final class ProgramFit {
             row.setTag(SWITCH_TAG);
             int pad = XemsUi.dp(c, 16);
             row.setPadding(pad, XemsUi.dp(c, 8), pad, XemsUi.dp(c, 8));
-            content.addView(row, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+            int at = content.findViewWithTag(com.isaigu.gymapp.dialog.ParamDialogUi.HEADER) != null ? 1 : 0;
+            content.addView(row, at, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
         } catch (Throwable t) {
             XemsGuard.report("ProgramFit.attachSwitch", t);

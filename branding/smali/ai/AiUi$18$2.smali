@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 802
+    .line 1120
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$18$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$18;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,24 +37,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 8
+    .registers 2
 
     .prologue
-    .line 805
-    const/4 v0, 0x0
+    .line 1123
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopSoloRamp()V
 
-    const-wide/16 v2, 0x0
-
-    const-wide/16 v4, 0x0
-
-    invoke-static {v0, v2, v3, v4, v5}, Lcom/isaigu/gymapp/ai/AiSession;->buildPlan(IDJ)V
-
-    .line 806
-    const/4 v0, 0x3
-
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
-
-    .line 807
+    .line 1124
     return-void
 .end method

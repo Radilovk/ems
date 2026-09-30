@@ -29,8 +29,14 @@
 
 # direct methods
 .method constructor <init>(Lcom/isaigu/gymapp/widget/XemsUi$OnStep;I)V
-    .registers 3
+    .registers 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
+    .prologue
     .line 424
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnStep;
 
@@ -39,27 +45,29 @@
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 426
-    new-instance p1, Lcom/isaigu/gymapp/widget/XemsUi$2$1;
+    new-instance v0, Lcom/isaigu/gymapp/widget/XemsUi$2$1;
 
-    invoke-direct {p1, p0}, Lcom/isaigu/gymapp/widget/XemsUi$2$1;-><init>(Lcom/isaigu/gymapp/widget/XemsUi$2;)V
+    invoke-direct {v0, p0}, Lcom/isaigu/gymapp/widget/XemsUi$2$1;-><init>(Lcom/isaigu/gymapp/widget/XemsUi$2;)V
 
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->repeat:Ljava/lang/Runnable;
+    iput-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->repeat:Ljava/lang/Runnable;
 
     return-void
 .end method
 
 .method static synthetic access$000(Lcom/isaigu/gymapp/widget/XemsUi$2;)I
-    .registers 1
+    .registers 2
 
+    .prologue
     .line 424
-    iget p0, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->count:I
+    iget v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->count:I
 
-    return p0
+    return v0
 .end method
 
 .method static synthetic access$008(Lcom/isaigu/gymapp/widget/XemsUi$2;)I
     .registers 3
 
+    .prologue
     .line 424
     iget v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->count:I
 
@@ -73,120 +81,126 @@
 
 # virtual methods
 .method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .registers 7
+    .registers 8
+
+    .prologue
+    const/4 v3, 0x0
+
+    const/high16 v2, 0x3f800000    # 1.0f
+
+    const v1, 0x3f666666    # 0.9f
+
+    const/4 v4, 0x1
 
     .line 437
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
-    move-result p2
+    move-result v0
 
-    const/4 v0, 0x0
-
-    const/4 v1, 0x1
-
-    if-eqz p2, :cond_32
-
-    if-eq p2, v1, :cond_e
-
-    const/4 v2, 0x3
-
-    if-eq p2, v2, :cond_e
+    packed-switch v0, :pswitch_data_62
 
     .line 453
-    return v1
-
-    .line 448
-    :cond_e
-    invoke-virtual {p1, v0}, Landroid/view/View;->setPressed(Z)V
-
-    .line 449
-    invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
-
-    move-result-object p1
-
-    const/high16 p2, 0x3f800000    # 1.0f
-
-    invoke-virtual {p1, p2}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object p1
-
-    invoke-virtual {p1, p2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object p1
-
-    const-wide/16 v2, 0x78
-
-    invoke-virtual {p1, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object p1
-
-    invoke-virtual {p1}, Landroid/view/ViewPropertyAnimator;->start()V
-
-    .line 450
-    # getter for: Lcom/isaigu/gymapp/widget/XemsUi;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsUi;->access$100()Landroid/os/Handler;
-
-    move-result-object p1
-
-    iget-object p2, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->repeat:Ljava/lang/Runnable;
-
-    invoke-virtual {p1, p2}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
-
-    .line 451
-    return v1
+    :goto_e
+    :pswitch_e
+    return v4
 
     .line 439
-    :cond_32
-    iput v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->count:I
+    :pswitch_f
+    iput v3, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->count:I
 
     .line 440
-    invoke-virtual {p1, v1}, Landroid/view/View;->setPressed(Z)V
+    invoke-virtual {p1, v4}, Landroid/view/View;->setPressed(Z)V
 
     .line 441
     invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
-    move-result-object p2
+    move-result-object v0
 
-    const v0, 0x3f666666    # 0.9f
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
 
-    invoke-virtual {p2, v0}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
+    move-result-object v0
 
-    move-result-object p2
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
 
-    invoke-virtual {p2, v0}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object p2
+    move-result-object v0
 
     const-wide/16 v2, 0x46
 
-    invoke-virtual {p2, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
+    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
 
-    move-result-object p2
+    move-result-object v0
 
-    invoke-virtual {p2}, Landroid/view/ViewPropertyAnimator;->start()V
+    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
     .line 442
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
     .line 443
-    iget-object p1, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnStep;
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->val$cb:Lcom/isaigu/gymapp/widget/XemsUi$OnStep;
 
-    iget p2, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->val$dir:I
+    iget v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->val$dir:I
 
-    invoke-interface {p1, p2}, Lcom/isaigu/gymapp/widget/XemsUi$OnStep;->onStep(I)V
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi$OnStep;->onStep(I)V
 
     .line 444
     # getter for: Lcom/isaigu/gymapp/widget/XemsUi;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsUi;->access$100()Landroid/os/Handler;
 
-    move-result-object p1
+    move-result-object v0
 
-    iget-object p2, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->repeat:Ljava/lang/Runnable;
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->repeat:Ljava/lang/Runnable;
 
     const-wide/16 v2, 0x1a4
 
-    invoke-virtual {p1, p2, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 445
-    return v1
+    goto :goto_e
+
+    .line 448
+    :pswitch_3f
+    invoke-virtual {p1, v3}, Landroid/view/View;->setPressed(Z)V
+
+    .line 449
+    invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    const-wide/16 v2, 0x78
+
+    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
+
+    .line 450
+    # getter for: Lcom/isaigu/gymapp/widget/XemsUi;->handler:Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsUi;->access$100()Landroid/os/Handler;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsUi$2;->repeat:Ljava/lang/Runnable;
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
+
+    goto :goto_e
+
+    .line 437
+    nop
+
+    :pswitch_data_62
+    .packed-switch 0x0
+        :pswitch_f
+        :pswitch_3f
+        :pswitch_e
+        :pswitch_3f
+    .end packed-switch
 .end method

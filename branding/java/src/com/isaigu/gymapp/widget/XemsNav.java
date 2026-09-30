@@ -316,6 +316,9 @@ public final class XemsNav {
         // our own section: the workouts (exercise library → built workouts → start with AI)
         box.addView(extraRow(c, XemsIcon.DUMBBELL, tr("Тренировки", "Workouts"), 0xFF22E3FF, new WorkoutsClick()),
                 new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
+        // the procedures (passive maps) apart from the workouts
+        box.addView(extraRow(c, XemsIcon.SLIDERS, tr("Процедури", "Procedures"), 0xFF3D7BFF, new ProceduresClick()),
+                new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
 
         // Not focusable: a focusable window takes the focus from the activity and Android shows its
         // navigation bar. Outside touches still close it.
@@ -425,6 +428,19 @@ public final class XemsNav {
             Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
             if (a != null) {
                 com.isaigu.gymapp.ai.WorkoutsUi.open(a);
+            }
+        }
+    }
+
+    static final class ProceduresClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (menu != null) {
+                menu.dismiss();
+            }
+            Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
+            if (a != null) {
+                com.isaigu.gymapp.ai.WorkoutsUi.openProcedures(a);
             }
         }
     }

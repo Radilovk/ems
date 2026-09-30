@@ -123,7 +123,7 @@ public final class AiSession {
         long now = System.currentTimeMillis();
         lastBandHr = bpm;
         lastBandHrMs = now;
-        if (stage == Stage.REST_HR && restHr != null) {
+        if ((stage == Stage.REST_HR || stage == Stage.SETUP) && restHr != null) {
             restHr.onSample(now, bpm);
         } else if (engine != null && (stage == Stage.RUNNING || stage == Stage.REPORT)) {
             engine.onHr(now, bpm);
@@ -292,11 +292,25 @@ public final class AiSession {
         profile = null;
         plan = null;
         engine = null;
+        // The resting HR is measured in the background from now on (the client sits while the trainer answers):
+        // by the plan step it is usually done and the wait never shows.
+        startTicker();
     }
 
     public static void beginRestHr() {
-        restHr = new AiRestHr(input.screening.restedLast10min);
+        if (restHr == null) {
+            restHr = new AiRestHr(input.screening.restedLast10min);
+        }
         stage = Stage.REST_HR;
+        startTicker();
+    }
+
+    /** Measure the resting HR again (from the plan step's "measure again"). */
+    public static void restartRestHr() {
+        restHr = null;
+        stage = Stage.SETUP;
+        profile = null;
+        plan = null;
         startTicker();
     }
 
@@ -630,7 +644,7 @@ public final class AiSession {
             } catch (Throwable t) {
                 WearableBleDiagLog.log("ai", "tick: " + t);
             }
-            if (stage == Stage.REST_HR || stage == Stage.CALIB || stage == Stage.RUNNING
+            if (stage == Stage.SETUP || stage == Stage.REST_HR || stage == Stage.CALIB || stage == Stage.RUNNING
                     || (stage == Stage.REPORT && engine != null
                     && engine.getState() == AiEngine.State.RECOVERY)) {
                 handler.postDelayed(this, TICK_MS);
@@ -643,8 +657,13 @@ public final class AiSession {
         long now = System.currentTimeMillis();
         double dtS = (now - lastTickMs) / 1000.0;
         lastTickMs = now;
-        if (stage == Stage.REST_HR && restHr != null) {
-            restHr.tick(now);
+        if (stage == Stage.SETUP || stage == Stage.REST_HR) {
+            if (restHr == null && isBandStreaming()) {
+                restHr = new AiRestHr(input.screening.restedLast10min);   // the band is up: start measuring
+            }
+            if (restHr != null) {
+                restHr.tick(now);
+            }
             return;
         }
         if (stage == Stage.CALIB && calibStimOn) {
@@ -776,6 +795,20 @@ public final class AiSession {
     }
 
     // ================================================================ device driver
+
+    /** The name of the leading slot's client ("" when none). */
+    public static String leaderName() {
+        try {
+            TrainItem it = leader();
+            com.isaigu.gymapp.bean.TrainUser u = it != null && it.data != null ? it.data.trainUser : null;
+            if (u == null) {
+                return "";
+            }
+            return u.nickName != null && u.nickName.length() > 0 ? u.nickName : u.name != null ? u.name : "";
+        } catch (Throwable t) {
+            return "";
+        }
+    }
 
     private static TrainItem leader() {
         if (manager == null) {

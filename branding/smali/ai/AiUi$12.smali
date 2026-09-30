@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,12 +17,27 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+
+.field final synthetic val$key:Ljava/lang/String;
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;Ljava/lang/String;)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 657
+    .line 686
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$12;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$12;->val$key:Ljava/lang/String;
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,26 +45,31 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 4
+.method public onToggle(Z)V
+    .registers 5
 
     .prologue
-    const/4 v1, 0x1
+    .line 689
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$12;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    .line 660
-    # setter for: Lcom/isaigu/gymapp/ai/AiUi;->healthOpen:Z
-    invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$702(Z)Z
+    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    .line 661
+    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->contraindications:Ljava/util/Map;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$12;->val$key:Ljava/lang/String;
+
+    invoke-static {p1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v2
+
+    invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 690
     const/4 v0, 0x0
 
-    # setter for: Lcom/isaigu/gymapp/ai/AiUi;->healthOk:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$602(Z)Z
-
-    .line 662
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 663
+    .line 691
     return-void
 .end method

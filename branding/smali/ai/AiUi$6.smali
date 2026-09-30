@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenClient(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 591
+    .line 618
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,16 +34,18 @@
     .registers 3
 
     .prologue
+    .line 621
     const/4 v0, 0x1
 
-    .line 594
     # setter for: Lcom/isaigu/gymapp/ai/AiUi;->profileOpen:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$502(Z)Z
 
-    .line 595
+    .line 622
+    const/4 v0, 0x0
+
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 596
+    .line 623
     return-void
 .end method

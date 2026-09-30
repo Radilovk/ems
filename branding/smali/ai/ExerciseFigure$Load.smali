@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 79
+    .line 88
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 80
+    .line 89
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Load;->c:Landroid/content/Context;
 
-    .line 81
+    .line 90
     return-void
 .end method
 
@@ -44,7 +44,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 86
+    .line 95
     :try_start_1
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Load;->c:Landroid/content/Context;
 
@@ -58,17 +58,17 @@
 
     move-result-object v0
 
-    .line 87
+    .line 96
     new-instance v2, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v2}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 88
+    .line 97
     const/16 v3, 0x4000
 
     new-array v3, v3, [B
 
-    .line 90
+    .line 99
     :goto_16
     invoke-virtual {v0, v3}, Ljava/io/InputStream;->read([B)I
 
@@ -76,7 +76,7 @@
 
     if-lez v4, :cond_2d
 
-    .line 91
+    .line 100
     const/4 v5, 0x0
 
     invoke-virtual {v2, v3, v5, v4}, Ljava/io/ByteArrayOutputStream;->write([BII)V
@@ -86,11 +86,11 @@
 
     goto :goto_16
 
-    .line 102
+    .line 111
     :catch_21
     move-exception v0
 
-    .line 103
+    .line 112
     :try_start_22
     const-string v2, "xems"
 
@@ -100,20 +100,20 @@
     :try_end_29
     .catchall {:try_start_22 .. :try_end_29} :catchall_6d
 
-    .line 105
+    .line 114
     # setter for: Lcom/isaigu/gymapp/ai/ExerciseFigure;->loading:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->access$202(Z)Z
 
-    .line 107
+    .line 116
     :goto_2c
     return-void
 
-    .line 93
+    .line 102
     :cond_2d
     :try_start_2d
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 94
+    .line 103
     new-instance v0, Lorg/json/JSONObject;
 
     const-string v3, "UTF-8"
@@ -130,7 +130,7 @@
 
     move-result-object v2
 
-    .line 95
+    .line 104
     # getter for: Lcom/isaigu/gymapp/ai/ExerciseFigure;->RAW:Ljava/util/Map;
     invoke-static {}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->access$000()Ljava/util/Map;
 
@@ -143,7 +143,7 @@
 
     move v0, v1
 
-    .line 96
+    .line 105
     :goto_47
     :try_start_47
     invoke-virtual {v2}, Lorg/json/JSONArray;->length()I
@@ -152,12 +152,12 @@
 
     if-ge v0, v4, :cond_61
 
-    .line 97
+    .line 106
     invoke-virtual {v2, v0}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v4
 
-    .line 98
+    .line 107
     # getter for: Lcom/isaigu/gymapp/ai/ExerciseFigure;->RAW:Ljava/util/Map;
     invoke-static {}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->access$000()Ljava/util/Map;
 
@@ -171,18 +171,18 @@
 
     invoke-interface {v5, v6, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 96
+    .line 105
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_47
 
-    .line 100
+    .line 109
     :cond_61
     monitor-exit v3
     :try_end_62
     .catchall {:try_start_47 .. :try_end_62} :catchall_6a
 
-    .line 101
+    .line 110
     const/4 v0, 0x1
 
     :try_start_63
@@ -192,13 +192,13 @@
     .catch Ljava/lang/Throwable; {:try_start_63 .. :try_end_66} :catch_21
     .catchall {:try_start_63 .. :try_end_66} :catchall_6d
 
-    .line 105
+    .line 114
     # setter for: Lcom/isaigu/gymapp/ai/ExerciseFigure;->loading:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->access$202(Z)Z
 
     goto :goto_2c
 
-    .line 100
+    .line 109
     :catchall_6a
     move-exception v0
 
@@ -213,13 +213,13 @@
     .catch Ljava/lang/Throwable; {:try_start_6c .. :try_end_6d} :catch_21
     .catchall {:try_start_6c .. :try_end_6d} :catchall_6d
 
-    .line 105
+    .line 114
     :catchall_6d
     move-exception v0
 
     # setter for: Lcom/isaigu/gymapp/ai/ExerciseFigure;->loading:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->access$202(Z)Z
 
-    .line 106
+    .line 115
     throw v0
 .end method

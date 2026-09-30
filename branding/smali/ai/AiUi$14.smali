@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 674
+    .line 678
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$14;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,19 +45,19 @@
     .registers 3
 
     .prologue
-    .line 677
+    .line 681
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$14;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
     iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->feverOrIllness:Z
 
-    .line 678
+    .line 682
     const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 679
+    .line 683
     return-void
 .end method

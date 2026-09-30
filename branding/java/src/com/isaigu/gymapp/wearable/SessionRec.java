@@ -62,7 +62,7 @@ final class SessionRec {
     /** The exercise done this second: AutoTemplates index + 1, 0 = none. */
     final SessionInts ex = new SessionInts();
     /** Exercises that appeared (their MET and muscles go into the record for the report page). */
-    final boolean[] exUsed = new boolean[64];
+    final java.util.TreeSet<Integer> exUsed = new java.util.TreeSet<Integer>();
     /** 1 while the suit is in the impulse part of the ON/OFF cycle (TrainItem toggles data.inStart). */
     final SessionInts imp = new SessionInts();
     /** 1 = a passive second (massage: phase 2 after a manual training, or a procedure on its own). */
@@ -205,9 +205,7 @@ final class SessionRec {
         int[] mus = running && !passive && exercise >= 0 ? com.isaigu.gymapp.ai.AutoTemplates.muscles(exercise) : null;
         ex.add(mus != null ? exercise + 1 : 0);
         if (mus != null) {
-            if (exercise < exUsed.length) {
-                exUsed[exercise] = true;
-            }
+            exUsed.add(exercise);
             int pct = item.data.inStart ? 100 : 30;
             for (int i = 0; i < CH && i < mus.length; i++) {
                 if ((mask & (1 << i)) == 0) {
@@ -319,8 +317,8 @@ final class SessionRec {
     private void exercises(StringBuilder b) {
         b.append(",\"exs\":{");
         boolean first = true;
-        for (int i = 0; i < exUsed.length; i++) {
-            int[] mus = exUsed[i] ? com.isaigu.gymapp.ai.AutoTemplates.muscles(i) : null;
+        for (int i : exUsed) {
+            int[] mus = com.isaigu.gymapp.ai.AutoTemplates.muscles(i);
             if (mus == null) {
                 continue;
             }

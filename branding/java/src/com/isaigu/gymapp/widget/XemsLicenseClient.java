@@ -507,6 +507,11 @@ public final class XemsLicenseClient {
         return b.append(']').toString();
     }
 
+    /** A GET to the XEMS server (the same base as the licence), body as text. */
+    public static String get(String path) throws Exception {
+        return http("GET", path, null);
+    }
+
     static String http(String method, String path, String body) throws Exception {
         String base = XemsLicense.server();
         while (base.endsWith("/")) {

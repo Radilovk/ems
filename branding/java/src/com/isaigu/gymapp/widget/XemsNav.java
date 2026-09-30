@@ -1,5 +1,6 @@
 package com.isaigu.gymapp.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -312,6 +313,9 @@ public final class XemsNav {
             box.addView(menuRow(c, (ViewGroup) tab, id), new LinearLayout.LayoutParams(
                     XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
         }
+        // our own section: the workouts (exercise library → built workouts → start with AI)
+        box.addView(extraRow(c, XemsIcon.DUMBBELL, tr("Тренировки", "Workouts"), 0xFF22E3FF, new WorkoutsClick()),
+                new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
 
         // Not focusable: a focusable window takes the focus from the activity and Android shows its
         // navigation bar. Outside touches still close it.
@@ -383,6 +387,46 @@ public final class XemsNav {
         tp.leftMargin = XemsUi.dp(c, 14);
         row.addView(t, tp);
         return row;
+    }
+
+    /** A menu row for a section of ours (not a vendor tab): same look as the page rows. */
+    private static View extraRow(Context c, int glyphType, String label, int tint, View.OnClickListener click) {
+        LinearLayout row = XemsUi.horizontal(c);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
+        float r = XemsUi.dp(c, 12);
+        row.setBackground(XemsUi.ripple(XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
+        row.setClickable(true);
+        row.setOnClickListener(click);
+        View icon = new View(c);
+        GradientDrawable disc = new GradientDrawable();
+        disc.setShape(GradientDrawable.OVAL);
+        disc.setColor(XemsUi.alpha(tint, 0x2E));
+        XemsIcon glyph = new XemsIcon(glyphType, tint);
+        android.graphics.drawable.LayerDrawable layers = new android.graphics.drawable.LayerDrawable(
+                new Drawable[] {disc, glyph});
+        int inset = XemsUi.dp(c, 8);
+        layers.setLayerInset(1, inset, inset, inset, inset);
+        icon.setBackground(layers);
+        row.addView(icon, new LinearLayout.LayoutParams(XemsUi.dp(c, 36), XemsUi.dp(c, 36)));
+        TextView t = XemsUi.text(c, label, 15, XemsUi.MUTED, false);
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        tp.leftMargin = XemsUi.dp(c, 14);
+        row.addView(t, tp);
+        return row;
+    }
+
+    static final class WorkoutsClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (menu != null) {
+                menu.dismiss();
+            }
+            Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
+            if (a != null) {
+                com.isaigu.gymapp.ai.WorkoutsUi.open(a);
+            }
+        }
     }
 
     /** Opens the training page (client list → quick start). */

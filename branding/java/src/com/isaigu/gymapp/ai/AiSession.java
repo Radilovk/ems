@@ -46,6 +46,8 @@ public final class AiSession {
     private static boolean epocClosed;
     /** The session's exercises (null for passive goals); their outcome is stored once at the end. */
     private static AiExercises exercises;
+    /** A workout chosen in "Тренировки" for the next session (null: the AI picks the exercises). */
+    private static Workout workout;
     private static long exercisesUser;
     private static boolean exercisesSaved;
 
@@ -276,6 +278,7 @@ public final class AiSession {
         if (client != null) {
             client.applyTo(input);
         }
+        applyWorkout();
         stage = Stage.SETUP;
         restHr = null;
         profile = null;
@@ -446,12 +449,34 @@ public final class AiSession {
     }
 
     /** Close the whole flow (after report or cancel before start). */
-    /** The leader's exercises for this session: program from the goal, level from the profile and the history. */
+    /** A workout from "Тренировки" runs with the AI: its goal, active. */
+    public static void useWorkout(Workout w) {
+        workout = w;
+        applyWorkout();
+    }
+
+    public static Workout getWorkout() {
+        return workout;
+    }
+
+    private static void applyWorkout() {
+        if (workout != null) {
+            input.goal = workout.aiGoal();
+            input.mode = AiModel.Mode.ACTIVE;
+            for (String z : workout.focus) {
+                input.focus.add(z);
+            }
+        }
+    }
+
+    /** The leader's exercises for this session: the chosen workout, or the template (program from the goal, level
+     *  from the profile and the history). */
     private static void startExercises(Context c) {
         exercises = null;
         exercisesSaved = false;
         AiEnergy.exerciseMet = 0;
         try {
+            ExerciseLibrary.load(c);
             String prog = AutoTemplates.programForAi(input.goal, input.mode, input.age);
             if (prog == null) {
                 return;
@@ -462,8 +487,13 @@ public final class AiSession {
             AiProfile p = lead != null ? AiProfile.of(lead) : null;
             exercisesUser = p != null ? p.userId : 0;
             AutoHistory.Info h = AutoHistory.of(c, exercisesUser);
-            exercises = AiExercises.build(input, p != null ? p.heightCm : 0, plan, h.sessions,
-                    AutoHistory.hoursSince(h.lastActiveMs, System.currentTimeMillis()),
+            double hours = AutoHistory.hoursSince(h.lastActiveMs, System.currentTimeMillis());
+            if (workout != null) {
+                exercises = AiExercises.forWorkout(workout, input, p != null ? p.heightCm : 0, plan, h.sessions, hours);
+                WearableBleDiagLog.log("ai", "workout " + workout.id + " sets " + workout.totalSets());
+                return;
+            }
+            exercises = AiExercises.build(input, p != null ? p.heightCm : 0, plan, h.sessions, hours,
                     AutoHistory.outcomes(c, exercisesUser, prog));
             WearableBleDiagLog.log("ai", "exercises " + prog + " level "
                     + (exercises != null ? exercises.getScript().level : 0));
@@ -475,7 +505,7 @@ public final class AiSession {
 
     private static void saveExercises() {
         AiEnergy.exerciseMet = 0;
-        if (exercises == null || engine == null || exercisesSaved) {
+        if (exercises == null || engine == null || exercisesSaved || exercises.getWorkout() != null) {
             return;
         }
         exercisesSaved = true;
@@ -510,6 +540,7 @@ public final class AiSession {
         if (stage == Stage.RUNNING || stage == Stage.CALIB) {
             stop();
         }
+        workout = null;
         stopTicker();
         AiRamp.clear();
         stage = Stage.IDLE;

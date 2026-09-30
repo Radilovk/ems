@@ -31,6 +31,12 @@ def main() -> int:
             raise SystemExit(f"AutoTemplateData.java is stale ({e['id']} missing) — run scripts/gen-exercises.py")
     DEST.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SRC, DEST)
+    lib = SRC.parent / "library.json"
+    libd = json.loads(lib.read_text(encoding="utf-8"))
+    if len(libd["exercises"]) < 300 or "{id}" not in libd["frames"]:
+        raise SystemExit("library.json: incomplete — run scripts/gen-exercise-library.py")
+    shutil.copy2(lib, DEST.parent / "library.json")
+    print(f"assets/xems/library.json ({len(libd['exercises'])} exercises)")
     print(f"assets/xems/exercises.json ({len(exs)} exercises, {DEST.stat().st_size} B)")
     art = ROOT / "branding" / "programs"
     java_art = (ROOT / "branding" / "java" / "src" / "com" / "isaigu" / "gymapp" / "ai" / "ProgramArt.java").read_text(encoding="utf-8")

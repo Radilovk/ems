@@ -43,6 +43,8 @@
     .end annotation
 .end field
 
+.field private static volatile app:Landroid/content/Context;
+
 .field private static volatile loaded:Z
 
 .field private static volatile loading:Z
@@ -66,6 +68,10 @@
 .field private offS:I
 
 .field private onS:I
+
+.field private still:Z
+
+.field private withGlow:Z
 
 
 # direct methods
@@ -100,40 +106,43 @@
 
     const/4 v1, 0x1
 
-    .line 56
+    .line 62
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 45
+    .line 47
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fill:Landroid/graphics/Paint;
 
-    .line 46
+    .line 48
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glow:Landroid/graphics/Paint;
 
-    .line 50
+    .line 52
     iput v2, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->onS:I
 
-    .line 51
+    .line 53
     iput v2, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->offS:I
 
-    .line 53
+    .line 55
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glowScale:F
 
-    .line 57
+    .line 59
+    iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->withGlow:Z
+
+    .line 63
     const/4 v0, 0x0
 
     invoke-virtual {p0, v1, v0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->setLayerType(ILandroid/graphics/Paint;)V
 
-    .line 58
+    .line 64
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -144,37 +153,37 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 59
+    .line 65
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fill:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 60
+    .line 66
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 61
+    .line 67
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glow:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 62
+    .line 68
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glow:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 63
+    .line 69
     iput v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->density:F
 
-    .line 64
+    .line 70
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->preload(Landroid/content/Context;)V
 
-    .line 65
+    .line 71
     return-void
 .end method
 
@@ -234,14 +243,14 @@
     .prologue
     const/4 v1, 0x0
 
-    const/4 v3, 0x0
+    const/4 v2, 0x0
 
-    .line 111
+    .line 120
     sget-object v4, Lcom/isaigu/gymapp/ai/ExerciseFigure;->RAW:Ljava/util/Map;
 
     monitor-enter v4
 
-    .line 112
+    .line 121
     :try_start_5
     sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->CACHE:Ljava/util/Map;
 
@@ -251,17 +260,17 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
-    .line 113
+    .line 122
     if-eqz v0, :cond_11
 
-    .line 114
+    .line 123
     monitor-exit v4
 
-    .line 133
+    .line 145
     :goto_10
     return-object v0
 
-    .line 116
+    .line 125
     :cond_11
     sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->RAW:Ljava/util/Map;
 
@@ -271,33 +280,50 @@
 
     check-cast v0, Lorg/json/JSONObject;
 
-    .line 117
-    if-nez v0, :cond_1e
+    .line 126
+    if-nez v0, :cond_90
 
-    .line 118
+    sget-object v3, Lcom/isaigu/gymapp/ai/ExerciseFigure;->app:Landroid/content/Context;
+
+    if-eqz v3, :cond_90
+
+    .line 127
+    sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->app:Landroid/content/Context;
+
+    invoke-static {v0, p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->cachedFigure(Landroid/content/Context;Ljava/lang/String;)Lorg/json/JSONObject;
+
+    move-result-object v0
+
+    move-object v3, v0
+
+    .line 129
+    :goto_26
+    if-nez v3, :cond_2b
+
+    .line 130
     monitor-exit v4
-    :try_end_1c
-    .catchall {:try_start_5 .. :try_end_1c} :catchall_82
+    :try_end_29
+    .catchall {:try_start_5 .. :try_end_29} :catchall_89
 
     move-object v0, v1
 
     goto :goto_10
 
-    .line 121
-    :cond_1e
-    :try_start_1e
-    new-instance v2, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
+    .line 133
+    :cond_2b
+    :try_start_2b
+    new-instance v0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
-    invoke-direct {v2}, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;-><init>()V
+    invoke-direct {v0}, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;-><init>()V
 
-    .line 122
+    .line 134
     const-string v5, "vb"
 
-    invoke-virtual {v0, v5}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
+    invoke-virtual {v3, v5}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v5
 
-    .line 123
+    .line 135
     const/4 v6, 0x4
 
     new-array v6, v6, [F
@@ -342,7 +368,7 @@
 
     const/4 v8, 0x3
 
-    .line 124
+    .line 136
     invoke-virtual {v5, v8}, Lorg/json/JSONArray;->getDouble(I)D
 
     move-result-wide v8
@@ -351,38 +377,36 @@
 
     aput v5, v6, v7
 
-    iput-object v6, v2, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->vb:[F
+    iput-object v6, v0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->vb:[F
 
-    .line 125
+    .line 137
     const-string v5, "paths"
 
-    invoke-virtual {v0, v5}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
+    invoke-virtual {v3, v5}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
-    move-result-object v5
+    move-result-object v3
 
-    .line 126
-    invoke-virtual {v5}, Lorg/json/JSONArray;->length()I
+    .line 138
+    invoke-virtual {v3}, Lorg/json/JSONArray;->length()I
 
-    move-result v0
+    move-result v5
 
-    new-array v0, v0, [Landroid/graphics/Path;
+    new-array v5, v5, [Landroid/graphics/Path;
 
-    iput-object v0, v2, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->frames:[Landroid/graphics/Path;
+    iput-object v5, v0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->frames:[Landroid/graphics/Path;
 
-    move v0, v3
+    .line 139
+    :goto_6d
+    invoke-virtual {v3}, Lorg/json/JSONArray;->length()I
 
-    .line 127
-    :goto_61
-    invoke-virtual {v5}, Lorg/json/JSONArray;->length()I
+    move-result v5
 
-    move-result v3
+    if-ge v2, v5, :cond_82
 
-    if-ge v0, v3, :cond_76
+    .line 140
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->frames:[Landroid/graphics/Path;
 
-    .line 128
-    iget-object v3, v2, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->frames:[Landroid/graphics/Path;
-
-    invoke-virtual {v5, v0}, Lorg/json/JSONArray;->getString(I)Ljava/lang/String;
+    invoke-virtual {v3, v2}, Lorg/json/JSONArray;->getString(I)Ljava/lang/String;
 
     move-result-object v6
 
@@ -390,92 +414,98 @@
 
     move-result-object v6
 
-    aput-object v6, v3, v0
+    aput-object v6, v5, v2
 
-    .line 127
-    add-int/lit8 v0, v0, 0x1
+    .line 139
+    add-int/lit8 v2, v2, 0x1
 
-    goto :goto_61
+    goto :goto_6d
 
-    .line 130
-    :cond_76
-    sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->CACHE:Ljava/util/Map;
+    .line 142
+    :cond_82
+    sget-object v2, Lcom/isaigu/gymapp/ai/ExerciseFigure;->CACHE:Ljava/util/Map;
 
-    invoke-interface {v0, p0, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-    :try_end_7b
-    .catch Ljava/lang/Throwable; {:try_start_1e .. :try_end_7b} :catch_7e
-    .catchall {:try_start_1e .. :try_end_7b} :catchall_82
+    invoke-interface {v2, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    :try_end_87
+    .catch Ljava/lang/Throwable; {:try_start_2b .. :try_end_87} :catch_8c
+    .catchall {:try_start_2b .. :try_end_87} :catchall_89
 
-    .line 131
-    :try_start_7b
+    .line 143
+    :try_start_87
     monitor-exit v4
-
-    move-object v0, v2
 
     goto :goto_10
 
-    .line 132
-    :catch_7e
+    .line 147
+    :catchall_89
     move-exception v0
 
-    .line 133
     monitor-exit v4
+    :try_end_8b
+    .catchall {:try_start_87 .. :try_end_8b} :catchall_89
+
+    throw v0
+
+    .line 144
+    :catch_8c
+    move-exception v0
+
+    .line 145
+    :try_start_8d
+    monitor-exit v4
+    :try_end_8e
+    .catchall {:try_start_8d .. :try_end_8e} :catchall_89
 
     move-object v0, v1
 
     goto :goto_10
 
-    .line 135
-    :catchall_82
-    move-exception v0
+    :cond_90
+    move-object v3, v0
 
-    monitor-exit v4
-    :try_end_84
-    .catchall {:try_start_7b .. :try_end_84} :catchall_82
-
-    throw v0
+    goto :goto_26
 .end method
 
 .method static parse(Ljava/lang/String;)Landroid/graphics/Path;
     .registers 12
 
     .prologue
-    .line 140
+    .line 152
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
-    .line 141
+    .line 153
     sget-object v1, Landroid/graphics/Path$FillType;->EVEN_ODD:Landroid/graphics/Path$FillType;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Path;->setFillType(Landroid/graphics/Path$FillType;)V
 
-    .line 142
+    .line 154
     const/4 v8, 0x0
 
-    .line 143
+    .line 155
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v9
 
-    .line 144
+    .line 156
     const/16 v7, 0x4d
 
-    .line 145
+    .line 157
     const/4 v1, 0x6
 
     new-array v10, v1, [F
 
-    .line 146
+    .line 158
     :goto_14
     if-ge v8, v9, :cond_cd
 
-    .line 147
+    .line 159
     invoke-virtual {p0, v8}, Ljava/lang/String;->charAt(I)C
 
     move-result v1
 
-    .line 148
+    .line 160
     const/16 v2, 0x20
 
     if-eq v1, v2, :cond_22
@@ -484,14 +514,14 @@
 
     if-ne v1, v2, :cond_25
 
-    .line 149
+    .line 161
     :cond_22
     add-int/lit8 v8, v8, 0x1
 
-    .line 150
+    .line 162
     goto :goto_14
 
-    .line 152
+    .line 164
     :cond_25
     invoke-static {v1}, Ljava/lang/Character;->isLetter(C)Z
 
@@ -499,22 +529,22 @@
 
     if-eqz v2, :cond_36
 
-    .line 154
+    .line 166
     add-int/lit8 v8, v8, 0x1
 
-    .line 155
+    .line 167
     const/16 v2, 0x5a
 
     if-ne v1, v2, :cond_d0
 
-    .line 156
+    .line 168
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
     move v7, v1
 
     goto :goto_14
 
-    .line 160
+    .line 172
     :cond_36
     const/16 v1, 0x43
 
@@ -522,7 +552,7 @@
 
     const/4 v1, 0x6
 
-    .line 161
+    .line 173
     :goto_3b
     const/4 v2, 0x0
 
@@ -533,7 +563,7 @@
 
     move v3, v8
 
-    .line 162
+    .line 174
     :goto_40
     if-ge v3, v9, :cond_57
 
@@ -553,19 +583,19 @@
 
     if-ne v2, v5, :cond_57
 
-    .line 163
+    .line 175
     :cond_52
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_40
 
-    .line 160
+    .line 172
     :cond_55
     const/4 v1, 0x2
 
     goto :goto_3b
 
-    .line 166
+    .line 178
     :cond_57
     if-ge v3, v9, :cond_ce
 
@@ -585,11 +615,11 @@
 
     if-ne v2, v5, :cond_ce
 
-    .line 167
+    .line 179
     :cond_69
     add-int/lit8 v2, v3, 0x1
 
-    .line 169
+    .line 181
     :goto_6b
     if-ge v2, v9, :cond_82
 
@@ -611,13 +641,13 @@
 
     if-ne v5, v6, :cond_82
 
-    .line 170
+    .line 182
     :cond_7f
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_6b
 
-    .line 172
+    .line 184
     :cond_82
     invoke-virtual {p0, v3, v2}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
@@ -629,7 +659,7 @@
 
     aput v3, v10, v4
 
-    .line 161
+    .line 173
     add-int/lit8 v3, v4, 0x1
 
     move v4, v3
@@ -638,13 +668,13 @@
 
     goto :goto_3d
 
-    .line 174
+    .line 186
     :cond_91
     const/16 v1, 0x4d
 
     if-ne v7, v1, :cond_a3
 
-    .line 175
+    .line 187
     const/4 v1, 0x0
 
     aget v1, v10, v1
@@ -655,22 +685,22 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 176
+    .line 188
     const/16 v1, 0x4c
 
     :goto_a0
     move v7, v1
 
-    .line 182
+    .line 194
     goto/16 :goto_14
 
-    .line 177
+    .line 189
     :cond_a3
     const/16 v1, 0x4c
 
     if-ne v7, v1, :cond_b2
 
-    .line 178
+    .line 190
     const/4 v1, 0x0
 
     aget v1, v10, v1
@@ -685,13 +715,13 @@
 
     goto :goto_a0
 
-    .line 179
+    .line 191
     :cond_b2
     const/16 v1, 0x43
 
     if-ne v7, v1, :cond_cb
 
-    .line 180
+    .line 192
     const/4 v1, 0x0
 
     aget v1, v10, v1
@@ -723,7 +753,7 @@
 
     goto :goto_a0
 
-    .line 183
+    .line 195
     :cond_cd
     return-object v0
 
@@ -742,29 +772,44 @@
     .registers 4
 
     .prologue
-    .line 69
+    .line 75
+    if-eqz p0, :cond_c
+
+    sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->app:Landroid/content/Context;
+
+    if-nez v0, :cond_c
+
+    .line 76
+    invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->app:Landroid/content/Context;
+
+    .line 78
+    :cond_c
     sget-boolean v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->loaded:Z
 
-    if-nez v0, :cond_a
+    if-nez v0, :cond_16
 
     sget-boolean v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->loading:Z
 
-    if-nez v0, :cond_a
+    if-nez v0, :cond_16
 
-    if-nez p0, :cond_b
+    if-nez p0, :cond_17
 
-    .line 74
-    :cond_a
-    :goto_a
+    .line 83
+    :cond_16
+    :goto_16
     return-void
 
-    .line 72
-    :cond_b
+    .line 81
+    :cond_17
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->loading:Z
 
-    .line 73
+    .line 82
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v1, Lcom/isaigu/gymapp/ai/ExerciseFigure$Load;
@@ -781,7 +826,7 @@
 
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
-    goto :goto_a
+    goto :goto_16
 .end method
 
 
@@ -800,23 +845,23 @@
 
     const/high16 v3, 0x3f800000    # 1.0f
 
-    .line 214
+    .line 239
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->id:Ljava/lang/String;
 
     if-nez v0, :cond_c
 
-    .line 262
+    .line 289
     :cond_b
     :goto_b
     return-void
 
-    .line 217
+    .line 242
     :cond_c
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
     if-nez v0, :cond_22
 
-    .line 218
+    .line 243
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->id:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
@@ -825,19 +870,19 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
-    .line 219
+    .line 244
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
     if-nez v0, :cond_22
 
-    .line 220
+    .line 245
     const-wide/16 v0, 0xc8
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->postInvalidateDelayed(J)V
 
     goto :goto_b
 
-    .line 224
+    .line 249
     :cond_22
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->getWidth()I
 
@@ -845,14 +890,14 @@
 
     int-to-float v0, v0
 
-    .line 225
+    .line 250
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->getHeight()I
 
     move-result v4
 
     int-to-float v4, v4
 
-    .line 226
+    .line 251
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
     iget-object v6, v6, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->vb:[F
@@ -877,10 +922,10 @@
 
     move-result v6
 
-    .line 227
+    .line 252
     invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
 
-    .line 228
+    .line 253
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
     iget-object v7, v7, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->vb:[F
@@ -931,20 +976,24 @@
 
     invoke-virtual {p1, v0, v4}, Landroid/graphics/Canvas;->translate(FF)V
 
-    .line 229
+    .line 254
     invoke-virtual {p1, v6, v6}, Landroid/graphics/Canvas;->scale(FF)V
 
-    .line 230
+    .line 255
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->withGlow:Z
+
+    if-eqz v0, :cond_94
+
     iget v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glowScale:F
 
     cmpl-float v0, v6, v0
 
-    if-eqz v0, :cond_90
+    if-eqz v0, :cond_94
 
-    .line 231
+    .line 256
     iput v6, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glowScale:F
 
-    .line 232
+    .line 257
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glow:Landroid/graphics/Paint;
 
     new-instance v4, Landroid/graphics/BlurMaskFilter;
@@ -969,23 +1018,27 @@
 
     invoke-virtual {v0, v4}, Landroid/graphics/Paint;->setMaskFilter(Landroid/graphics/MaskFilter;)Landroid/graphics/MaskFilter;
 
-    .line 234
-    :cond_90
+    .line 259
+    :cond_94
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->frames:[Landroid/graphics/Path;
 
     array-length v6, v0
 
-    .line 236
-    if-le v6, v5, :cond_144
+    .line 261
+    if-le v6, v5, :cond_154
 
-    .line 237
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->still:Z
+
+    if-nez v0, :cond_154
+
+    .line 262
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v8
 
-    .line 238
+    .line 263
     iget v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->onS:I
 
     iget v4, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->offS:I
@@ -994,7 +1047,7 @@
 
     int-to-float v4, v0
 
-    .line 239
+    .line 264
     iget-wide v10, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->cycleStartMs:J
 
     sub-long/2addr v8, v10
@@ -1007,29 +1060,29 @@
 
     rem-float/2addr v0, v4
 
-    .line 240
+    .line 265
     cmpg-float v7, v0, v1
 
-    if-gez v7, :cond_ae
+    if-gez v7, :cond_b6
 
-    .line 241
+    .line 266
     add-float/2addr v0, v4
 
-    .line 243
-    :cond_ae
+    .line 268
+    :cond_b6
     iget v4, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->onS:I
 
     int-to-float v4, v4
 
     cmpg-float v4, v0, v4
 
-    if-gez v4, :cond_e5
+    if-gez v4, :cond_ed
 
     move v4, v5
 
-    .line 244
-    :goto_b6
-    if-eqz v4, :cond_e7
+    .line 269
+    :goto_be
+    if-eqz v4, :cond_ef
 
     iget v7, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->onS:I
 
@@ -1045,8 +1098,8 @@
 
     move-result v0
 
-    .line 245
-    :goto_c4
+    .line 270
+    :goto_cc
     mul-float v7, v0, v0
 
     const/high16 v8, 0x40400000    # 3.0f
@@ -1057,8 +1110,8 @@
 
     mul-float/2addr v0, v7
 
-    .line 246
-    if-eqz v4, :cond_f8
+    .line 271
+    if-eqz v4, :cond_100
 
     sub-float v0, v3, v0
 
@@ -1068,42 +1121,42 @@
 
     mul-float/2addr v0, v4
 
-    :goto_d4
+    :goto_dc
     move v4, v2
 
-    .line 248
-    :goto_d5
-    if-ge v4, v6, :cond_134
+    .line 273
+    :goto_dd
+    if-ge v4, v6, :cond_140
 
-    .line 249
-    if-ne v6, v5, :cond_fd
+    .line 274
+    if-ne v6, v5, :cond_105
 
     move v2, v3
 
-    .line 250
-    :goto_da
+    .line 275
+    :goto_e2
     const v7, 0x3c23d70a    # 0.01f
 
     cmpg-float v7, v2, v7
 
-    if-gtz v7, :cond_10b
+    if-gtz v7, :cond_113
 
-    .line 248
-    :goto_e1
+    .line 273
+    :goto_e9
     add-int/lit8 v2, v4, 0x1
 
     move v4, v2
 
-    goto :goto_d5
+    goto :goto_dd
 
-    :cond_e5
+    :cond_ed
     move v4, v2
 
-    .line 243
-    goto :goto_b6
+    .line 268
+    goto :goto_be
 
-    .line 244
-    :cond_e7
+    .line 269
+    :cond_ef
     iget v7, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->onS:I
 
     int-to-float v7, v7
@@ -1124,20 +1177,20 @@
 
     move-result v0
 
-    goto :goto_c4
+    goto :goto_cc
 
-    .line 246
-    :cond_f8
+    .line 271
+    :cond_100
     add-int/lit8 v4, v6, -0x1
 
     int-to-float v4, v4
 
     mul-float/2addr v0, v4
 
-    goto :goto_d4
+    goto :goto_dc
 
-    .line 249
-    :cond_fd
+    .line 274
+    :cond_105
     int-to-float v2, v4
 
     sub-float v2, v0, v2
@@ -1152,10 +1205,15 @@
 
     move-result v2
 
-    goto :goto_da
+    goto :goto_e2
 
-    .line 253
-    :cond_10b
+    .line 278
+    :cond_113
+    iget-boolean v7, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->withGlow:Z
+
+    if-eqz v7, :cond_12b
+
+    .line 279
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glow:Landroid/graphics/Paint;
 
     const/high16 v8, 0x42dc0000    # 110.0f
@@ -1166,7 +1224,7 @@
 
     invoke-virtual {v7, v8}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 254
+    .line 280
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
     iget-object v7, v7, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->frames:[Landroid/graphics/Path;
@@ -1177,7 +1235,8 @@
 
     invoke-virtual {p1, v7, v8}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 255
+    .line 282
+    :cond_12b
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fill:Landroid/graphics/Paint;
 
     const/high16 v8, 0x437f0000    # 255.0f
@@ -1188,7 +1247,7 @@
 
     invoke-virtual {v7, v2}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 256
+    .line 283
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;->frames:[Landroid/graphics/Path;
@@ -1199,14 +1258,18 @@
 
     invoke-virtual {p1, v2, v7}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    goto :goto_e1
+    goto :goto_e9
 
-    .line 258
-    :cond_134
+    .line 285
+    :cond_140
     invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
 
-    .line 259
+    .line 286
     if-le v6, v5, :cond_b
+
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->still:Z
+
+    if-nez v0, :cond_b
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->isShown()Z
 
@@ -1214,15 +1277,15 @@
 
     if-eqz v0, :cond_b
 
-    .line 260
+    .line 287
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->postInvalidateOnAnimation()V
 
     goto/16 :goto_b
 
-    :cond_144
+    :cond_154
     move v0, v1
 
-    goto :goto_d4
+    goto :goto_dc
 .end method
 
 .method public setColor(I)V
@@ -1231,7 +1294,7 @@
     .prologue
     const v1, 0xffffff
 
-    .line 188
+    .line 213
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v0}, Landroid/graphics/Paint;->getColor()I
@@ -1244,20 +1307,20 @@
 
     if-eq v0, v1, :cond_1a
 
-    .line 189
+    .line 214
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fill:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 190
+    .line 215
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->glow:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 191
+    .line 216
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->invalidate()V
 
-    .line 193
+    .line 218
     :cond_1a
     return-void
 .end method
@@ -1268,24 +1331,24 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 207
+    .line 232
     iput-wide p1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->cycleStartMs:J
 
-    .line 208
+    .line 233
     invoke-static {v1, p3}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->onS:I
 
-    .line 209
+    .line 234
     invoke-static {v1, p4}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->offS:I
 
-    .line 210
+    .line 235
     return-void
 .end method
 
@@ -1293,19 +1356,19 @@
     .registers 3
 
     .prologue
-    .line 197
+    .line 222
     if-nez p1, :cond_7
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->id:Ljava/lang/String;
 
     if-nez v0, :cond_f
 
-    .line 203
+    .line 228
     :cond_6
     :goto_6
     return-void
 
-    .line 197
+    .line 222
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->id:Ljava/lang/String;
 
@@ -1315,17 +1378,61 @@
 
     if-nez v0, :cond_6
 
-    .line 200
+    .line 225
     :cond_f
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->id:Ljava/lang/String;
 
-    .line 201
+    .line 226
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->fig:Lcom/isaigu/gymapp/ai/ExerciseFigure$Fig;
 
-    .line 202
+    .line 227
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->invalidate()V
 
     goto :goto_6
+.end method
+
+.method public setGlow(Z)V
+    .registers 4
+
+    .prologue
+    .line 206
+    iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->withGlow:Z
+
+    .line 207
+    if-eqz p1, :cond_d
+
+    const/4 v0, 0x1
+
+    :goto_5
+    const/4 v1, 0x0
+
+    invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->setLayerType(ILandroid/graphics/Paint;)V
+
+    .line 208
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->invalidate()V
+
+    .line 209
+    return-void
+
+    .line 207
+    :cond_d
+    const/4 v0, 0x0
+
+    goto :goto_5
+.end method
+
+.method public setStill(Z)V
+    .registers 2
+
+    .prologue
+    .line 200
+    iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/ExerciseFigure;->still:Z
+
+    .line 201
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->invalidate()V
+
+    .line 202
+    return-void
 .end method

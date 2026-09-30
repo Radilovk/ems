@@ -71,6 +71,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Smart Session (AI) | `docs/xems-smart-session-spec.md`, `docs/xems-ai-session-implementation.md` |
 | Automatic mode (ready programs) | `docs/xems-auto-mode-spec.md` |
 | Exercises: Auto = example only, AI = synced (modes defined there) | `docs/xems-exercise-templates.md` |
+| Workouts screen, exercise library (302, admin picks), sets/reps with AI | `docs/xems-workouts.md` |
 | "План" tab, calendar, next client | `docs/xems-plan.md` |
 | Saved program as base, personalisation, diskette | `docs/xems-program-fit.md` |
 | Client list rows, search keyboard, quick start | `docs/xems-client-list.md` |

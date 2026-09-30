@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 851
+    .line 765
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 852
+    .line 766
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$SaveAs;->holder:Ljava/lang/Object;
 
-    .line 853
+    .line 767
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 6
 
     .prologue
-    .line 858
+    .line 772
     :try_start_0
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
@@ -52,7 +52,7 @@
 
     move-result-object v2
 
-    .line 859
+    .line 773
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$SaveAs;->holder:Ljava/lang/Object;
 
     check-cast v1, Lcom/isaigu/gymapp/train/TrainViewHolder;
@@ -61,22 +61,22 @@
 
     move-result-object v1
 
-    .line 860
+    .line 774
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/ProgramFit;->forSave(Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;)Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v3
 
-    .line 861
+    .line 775
     instance-of v1, v2, Lcom/isaigu/gymapp/BaseActivity;
 
     if-eqz v1, :cond_2c
 
     if-eqz v3, :cond_2c
 
-    .line 862
+    .line 776
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 863
+    .line 777
     move-object v0, v2
 
     check-cast v0, Lcom/isaigu/gymapp/BaseActivity;
@@ -87,23 +87,23 @@
     :try_end_24
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_24} :catch_26
 
-    .line 864
+    .line 778
     const/4 v1, 0x1
 
-    .line 869
+    .line 783
     :goto_25
     return v1
 
-    .line 866
+    .line 780
     :catch_26
     move-exception v1
 
-    .line 867
+    .line 781
     const-string v2, "ProgramFit.saveAs"
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 869
+    .line 783
     :cond_2c
     const/4 v1, 0x0
 

@@ -7,6 +7,11 @@ name stored capitalised never matches a lower-case query (and vice-versa) — se
 through widget/XemsSearch.matches (trim + lower-case, Cyrillic-safe).
 
 Targets the four user-name filters (live watcher + the search button + both connect dialogs).
+The matching is phonetic across Cyrillic / Latin too (Ivan = Иван).
+
+Every search field of those screens also gets XemsSearch.attach (before its addTextChangedListener):
+no full-screen keyboard in landscape, and the block above the field folds while it has focus, so the
+results show under it, above the keyboard.
 """
 
 import re
@@ -30,6 +35,34 @@ REPLACEMENT = (
     r"(Ljava/lang/String;Ljava/lang/String;)Z"
 )
 MATCHES_REF = "Lcom/isaigu/gymapp/widget/XemsSearch;->matches"
+ATTACH_REF = "Lcom/isaigu/gymapp/widget/XemsSearch;->attach"
+WATCH = re.compile(
+    r"(    invoke-virtual \{(v\d+), v\d+\}, Landroid/widget/EditText;->addTextChangedListener"
+    r"\(Landroid/text/TextWatcher;\)V\n)"
+)
+FIELD_SCREENS = (
+    "fragment/UserFragment.smali",
+    "dialog/NewUserProgramDeviceConnectDialogFragment.smali",
+    "dialog/UserProgramDeviceConnectDialogFragment.smali",
+)
+
+
+def patch_fields() -> None:
+    for rel in FIELD_SCREENS:
+        path = SMALI / rel
+        if not path.exists():
+            print(f"{rel}: not found — skipped")
+            continue
+        text = path.read_text(encoding="utf-8")
+        if ATTACH_REF in text:
+            continue
+        text, n = WATCH.subn(
+            lambda m: f"    invoke-static {{{m.group(2)}}}, {ATTACH_REF}(Landroid/widget/EditText;)V\n\n"
+            + m.group(1), text)
+        if n == 0:
+            raise SystemExit(f"{rel}: no search field watcher found")
+        path.write_text(text, encoding="utf-8")
+        print(f"{rel}: {n} search field(s) keep their results above the keyboard")
 
 
 def main() -> None:
@@ -50,6 +83,7 @@ def main() -> None:
             raise SystemExit(f"{rel}: expected exactly one name filter, changed {n}")
         path.write_text(text, encoding="utf-8")
         print(f"{rel}: name search -> XemsSearch.matches (case-insensitive)")
+    patch_fields()
 
 
 if __name__ == "__main__":

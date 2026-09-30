@@ -25,6 +25,8 @@ public final class ProgramLive {
     /** Plan change (s) per row, for the session recorder (its "back to the planned time" = end test). */
     private static final Map<TrainItem, Integer> PLAN_DELTA = new WeakHashMap<TrainItem, Integer>();
 
+    /** Slot → the client (TrainUser.id) of the last program set / seen there. */
+    private static final Map<TrainItem, Long> CLIENT = new WeakHashMap<TrainItem, Long>();
     /** ⚙ Master: the program each row had before OperationUtil.settingAllUser replaced it. */
     private static final Map<Object, TrainProgram> MASTER = new WeakHashMap<Object, TrainProgram>();
 
@@ -45,6 +47,19 @@ public final class ProgramLive {
      */
     public static TrainProgram before(TrainItem it, TrainProgram old, TrainProgram now) {
         try {
+            if (clientChanged(it)) {
+                // Another client in the slot (next client, ▶ quick start): a clean start, never an "edit"
+                // (TrainProgram.userId is the trainer's, so the programs alone cannot tell).
+                synchronized (MASTER) {
+                    if (it != null && it.data != null) {
+                        MASTER.remove(it.data);
+                    }
+                }
+                if (now != null && now != old) {
+                    com.isaigu.gymapp.dialog.ActivePauseStorage.save(now);
+                }
+                return null;                            // keepMode → the new program's, liveRemaining → reset
+            }
             TrainProgram was = old;
             boolean master = false;
             if (it != null && it.data != null) {
@@ -56,6 +71,10 @@ public final class ProgramLive {
                     }
                 }
             }
+            if (now != null && was != now) {
+                // The new program's own 2nd impulse wins over the stored overlay (applied right after).
+                com.isaigu.gymapp.dialog.ActivePauseStorage.save(now);
+            }
             if (was == null || now == null || was == now || !sameClient(was, now) || !manual()) {
                 return was;
             }
@@ -64,8 +83,7 @@ public final class ProgramLive {
                     ProgramDataBean a = bean(was, k);
                     ProgramDataBean b = bean(now, k);
                     if (a != null && b != null) {
-                        b.strenth = a.strenth;
-                        b.pauseStrenthPercent = a.pauseStrenthPercent;
+                        b.strenth = a.strenth;          // the live strength stays; the 2nd impulse is a setting
                     }
                 }
             }
@@ -77,6 +95,30 @@ public final class ProgramLive {
             return was;
         } catch (Throwable t) {
             return old;
+        }
+    }
+
+    /** Remembers the slot's client; true when it is another one than last time (unknown before = false). */
+    static boolean clientChanged(TrainItem it) {
+        if (it == null || it.data == null || it.data.trainUser == null) {
+            return false;
+        }
+        Long now = Long.valueOf(it.data.trainUser.id);
+        synchronized (CLIENT) {
+            Long was = CLIENT.put(it, now);
+            return was != null && !was.equals(now);
+        }
+    }
+
+    /**
+     * Every second (ProgramFit.tick): the slot's client as it is now. A load (next client, ▶) sets the
+     * client and then the program in one go on the main thread, so before() still sees the previous one.
+     */
+    public static void seen(TrainItem it) {
+        if (it != null && it.data != null && it.data.trainUser != null) {
+            synchronized (CLIENT) {
+                CLIENT.put(it, Long.valueOf(it.data.trainUser.id));
+            }
         }
     }
 

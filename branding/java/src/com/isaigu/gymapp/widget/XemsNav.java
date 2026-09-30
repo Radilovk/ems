@@ -364,6 +364,15 @@ public final class XemsNav {
         return row;
     }
 
+    /** Opens the training page (client list → quick start). */
+    public static void goTraining() {
+        try {
+            goPage(ID_TAB_FIRST);
+        } catch (Throwable t) {
+            XemsGuard.report("XemsNav.goTraining", t);
+        }
+    }
+
     private static void goPage(int id) {
         if (menu != null) {
             menu.dismiss();

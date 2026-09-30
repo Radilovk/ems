@@ -778,7 +778,7 @@ public final class AiSession {
             if (b.hz != written.hz || b.pulseWidth != written.pwUs
                     || b.pulseContinue != Math.max(1, written.onS)
                     || b.pulsePause != Math.max(1, written.offS)
-                    || b.activePause != (written.pauseHz > 0 && writtenPercent > 0)
+                    || b.activePause != (written.pauseHz > 0 && writtenPercent > 0 && pauseAllowed(item))
                     || (b.activePause && b.pauseHz != Math.max(1, Math.min(120, written.pauseHz)))) {
                 params = true;
             }
@@ -901,7 +901,7 @@ public final class AiSession {
             bean.strenth = percent;
             // Active pause (impulse ↔ impulse): strength is absolute, so it follows the work
             // strength (reduce / HR control lower both together).
-            boolean activePause = c.pauseHz > 0 && percent > 0;
+            boolean activePause = c.pauseHz > 0 && percent > 0 && pauseAllowed(item);
             bean.activePause = activePause;
             if (activePause) {
                 bean.pauseHz = Math.max(1, Math.min(120, c.pauseHz));
@@ -1009,5 +1009,14 @@ public final class AiSession {
 
     static View getPanelRoot() {
         return panelRoot;
+    }
+
+    /** The 2nd impulse follows the running mode: Основен, Кардио, Масаж — never Мускули (useType 1). */
+    public static boolean pauseAllowed(TrainItem item) {
+        try {
+            return item == null || item.getTrainProgram() == null || item.getTrainProgram().useType != 1;
+        } catch (Throwable t) {
+            return true;
+        }
     }
 }

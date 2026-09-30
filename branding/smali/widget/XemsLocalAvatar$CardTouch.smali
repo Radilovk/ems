@@ -30,16 +30,16 @@
     .registers 3
 
     .prologue
-    .line 285
+    .line 325
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 286
+    .line 326
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 287
+    .line 327
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->wrapper:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    .line 288
+    .line 328
     return-void
 .end method
 
@@ -47,14 +47,14 @@
     .registers 5
 
     .prologue
-    .line 317
+    .line 357
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->wrapper:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     if-eqz v0, :cond_1e
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->wrapper:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    .line 318
+    .line 358
     :goto_6
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
@@ -65,7 +65,7 @@
 
     move-result-object v1
 
-    .line 319
+    .line 359
     if-eqz v0, :cond_1d
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
@@ -74,18 +74,18 @@
 
     if-eqz v1, :cond_1d
 
-    .line 320
+    .line 360
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainProgram:Lcom/isaigu/gymapp/bean/TrainProgram;
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->showCard(Landroid/app/Activity;Lcom/isaigu/gymapp/bean/TrainUser;Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
-    .line 322
+    .line 362
     :cond_1d
     return-void
 
-    .line 317
+    .line 357
     :cond_1e
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -113,16 +113,16 @@
 
     const/4 v0, 0x0
 
-    .line 293
+    .line 333
     :try_start_2
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v2
 
-    .line 294
+    .line 334
     if-nez v2, :cond_19
 
-    .line 295
+    .line 335
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getX()F
 
     move-result v1
@@ -137,29 +137,29 @@
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->down:Z
 
-    .line 296
+    .line 336
     iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->down:Z
 
-    .line 312
+    .line 352
     :cond_18
     :goto_18
     return v0
 
-    .line 298
+    .line 338
     :cond_19
     iget-boolean v3, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->down:Z
 
     if-eqz v3, :cond_18
 
-    .line 301
+    .line 341
     if-ne v2, v1, :cond_35
 
-    .line 302
+    .line 342
     const/4 v2, 0x0
 
     iput-boolean v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->down:Z
 
-    .line 303
+    .line 343
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getX()F
 
     move-result v2
@@ -174,23 +174,23 @@
 
     if-eqz v2, :cond_33
 
-    .line 304
+    .line 344
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->open(Landroid/view/View;)V
 
     :cond_33
     :goto_33
     move v0, v1
 
-    .line 309
+    .line 349
     goto :goto_18
 
-    .line 306
+    .line 346
     :cond_35
     const/4 v3, 0x3
 
     if-ne v2, v3, :cond_33
 
-    .line 307
+    .line 347
     const/4 v2, 0x0
 
     iput-boolean v2, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->down:Z
@@ -199,11 +199,11 @@
 
     goto :goto_33
 
-    .line 310
+    .line 350
     :catch_3c
     move-exception v1
 
-    .line 311
+    .line 351
     iput-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalAvatar$CardTouch;->down:Z
 
     goto :goto_18

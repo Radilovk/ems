@@ -26,6 +26,11 @@ import java.util.Map;
  * ({@link #finishAssisted}). The report opens on the screen after the end. Another client in the slot,
  * or a pause / wait longer than {@link #MAX_PAUSE_S}, also closes the training (saved, not shown).
  * Trainings with less than a minute of work are dropped.
+ * <p>
+ * One client, one analysis: while the same client stays in the slot, anything started after an end (another
+ * work mode, another massage, another program) continues the same record — the report and the client's card
+ * are saved again under the same id and shown again at the next end, analysing the whole log. Another client
+ * in the slot starts a new one.
  * The client in the first running slot wears the band: only that one gets heart rate, the native
  * band workout ({@link BandWorkout}) and 60 s of recovery heart rate after the end.
  */
@@ -39,6 +44,8 @@ public final class SessionRecorder {
 
     private static final Handler H = new Handler(Looper.getMainLooper());
     private static final Map<Integer, SessionRec> OPEN = new HashMap<Integer, SessionRec>();
+    /** Slot → its last saved training, continued while the same client stays there. */
+    private static final Map<Integer, SessionRec> LAST = new HashMap<Integer, SessionRec>();
     private static final List<SessionRec> POST = new ArrayList<SessionRec>();
     /** Assisted trainings saved while their own report (AI) was still up: shown by finishAssisted. */
     private static final List<SessionRec> PENDING = new ArrayList<SessionRec>();
@@ -88,6 +95,10 @@ public final class SessionRecorder {
                 TrainItem it = items.get(i);
                 SessionRec r = OPEN.get(i);
                 boolean hasUser = it != null && !it.isEmpty() && it.data != null && it.data.trainUser != null;
+                SessionRec last = LAST.get(i);
+                if (last != null && (!hasUser || it.data.trainUser.id != last.userId)) {
+                    LAST.remove(i);                         // the next client: a new analysis
+                }
                 if (r != null && (!hasUser || it.data.trainUser.id != r.userId)) {
                     close(i, r, now, false);
                     r = null;
@@ -109,7 +120,22 @@ public final class SessionRecorder {
                     leaderTaken = true;
                     lead = true;
                 }
-                if (r == null) {
+                SessionRec cont = r == null ? LAST.remove(i) : null;
+                if (cont != null && cont.userId == it.data.trainUser.id) {
+                    r = cont;                               // the same client again: the same analysis goes on
+                    POST.remove(r);
+                    r.resume(it);
+                    r.leader = lead;
+                    OPEN.put(i, r);
+                    int hz0 = 0;
+                    try {
+                        hz0 = it.getTrainProgram().matchProgram().hz;
+                    } catch (Throwable ignored) {
+                    }
+                    BandWorkout.onStart(r, hz0);
+                    WearableBleDiagLog.log("report", "session continues slot " + i + " user " + r.userId
+                            + " plan +" + r.segPlanS + " s");
+                } else if (r == null) {
                     r = new SessionRec(it, now);
                     r.leader = lead;
                     OPEN.put(i, r);
@@ -223,6 +249,7 @@ public final class SessionRecorder {
             close(gone.get(k), OPEN.get(gone.get(k)), now, false);
         }
         ManualDefaults.tick(app, items);
+        TrainIndex.tick(items);
         NextClient.tick(app, now, items, OPEN.size());
         // Recovery heart rate after the end.
         for (int k = POST.size() - 1; k >= 0; k--) {
@@ -285,6 +312,7 @@ public final class SessionRecorder {
             return;
         }
         NextPlan.remember(app, r);
+        LAST.put(slot, r);                          // the same client may go on: one analysis
         WearableBleDiagLog.log("report", "session end user " + r.userId + " modes=" + r.modes
                 + " assist=" + r.assist + " show=" + show);
         boolean post = r.leader && freshHr(now) > 0;

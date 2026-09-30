@@ -6,6 +6,8 @@
 - TrainViewHolder.bind (the training screen): a tap on userIcon opens the client card
   (XemsLocalAvatar.bindCard(View, TrainItem));
 - TrainFragment$UserTrainAdapter.onBindViewHolder (old list): same card.
+- CircleSeekBar.onTouchEvent: the training ring moves only when the gesture starts on its handle
+  (XemsLocalAvatar.grab); a tap anywhere else on the track does nothing.
 """
 from __future__ import annotations
 
@@ -92,8 +94,47 @@ def patch_holder() -> None:
     HOLDER.write_text(text[:a] + body.replace(call, hook) + text[b:], encoding="utf-8")
 
 
+GRAB = """
+    iget v3, p0, Lcom/isaigu/gymapp/widget/CircleSeekBar;->mWheelCurX:F
+
+    iget v4, p0, Lcom/isaigu/gymapp/widget/CircleSeekBar;->mWheelCurY:F
+
+    iget v5, p0, Lcom/isaigu/gymapp/widget/CircleSeekBar;->mPointerRadius:F
+
+    move-object/from16 v6, p1
+
+    invoke-static {v0, v6, v3, v4, v5}, Lcom/isaigu/gymapp/widget/XemsLocalAvatar;->grab(Landroid/view/View;Landroid/view/MotionEvent;FFF)Z
+
+    move-result v3
+
+    if-nez v3, :cond_xems_grab
+
+    const/4 v3, 0x0
+
+    return v3
+
+    :cond_xems_grab
+"""
+
+
+def patch_grab() -> None:
+    text = SEEK.read_text(encoding="utf-8")
+    if AV + "->grab" in text:
+        return
+    a = text.find(".method public onTouchEvent(Landroid/view/MotionEvent;)Z")
+    if a < 0:
+        sys.exit("apply-avatar-card: CircleSeekBar.onTouchEvent not found")
+    anchor = "    move-object v0, p0\n"
+    k = text.find(anchor, a)
+    if k < 0 or k > text.find(".end method", a):
+        sys.exit("apply-avatar-card: onTouchEvent anchor not found")
+    k += len(anchor)
+    SEEK.write_text(text[:k] + GRAB + text[k:], encoding="utf-8")
+
+
 def main() -> None:
     patch_seek()
+    patch_grab()
     patch_holder()
     patch_adapter()
     print("apply-avatar-card: slider ring only, photo opens the client card")

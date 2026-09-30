@@ -893,7 +893,7 @@ public final class AutoSession {
             b.pulseContinue = Math.max(1, c.onS);
             b.pulsePause = Math.max(1, c.offS);
             b.strenth = strength;
-            boolean pause = c.pauseHz > 0 && strength > 0;
+            boolean pause = c.pauseHz > 0 && strength > 0 && AiSession.pauseAllowed(r.item);
             b.activePause = pause;
             if (pause) {
                 b.pauseHz = c.pauseHz;
@@ -982,7 +982,8 @@ public final class AutoSession {
             }
             boolean params = b.hz != written.hz || b.pulseWidth != written.pwUs
                     || b.pulseContinue != Math.max(1, written.onS) || b.pulsePause != Math.max(1, written.offS);
-            boolean pause = b.activePause != (written.pauseHz > 0 && r.writtenStrength > 0)
+            boolean pause = b.activePause != (written.pauseHz > 0 && r.writtenStrength > 0
+                    && AiSession.pauseAllowed(r.item))
                     || (b.activePause && b.pauseHz != written.pauseHz);
             if (!params && !pause) {
                 continue;

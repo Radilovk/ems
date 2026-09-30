@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 766
+    .line 676
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 767
+    .line 677
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Refresh;->it:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 768
+    .line 678
     iput-boolean p2, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Refresh;->send:Z
 
-    .line 769
+    .line 679
     return-void
 .end method
 
@@ -47,18 +47,18 @@
     .registers 2
 
     .prologue
-    .line 774
+    .line 684
     :try_start_0
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Refresh;->send:Z
 
     if-eqz v0, :cond_9
 
-    .line 775
+    .line 685
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Refresh;->it:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->onParamsChange()V
 
-    .line 777
+    .line 687
     :cond_9
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/ProgramFit$Refresh;->it:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -66,11 +66,11 @@
     :try_end_e
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_e} :catch_f
 
-    .line 780
+    .line 690
     :goto_e
     return-void
 
-    .line 778
+    .line 688
     :catch_f
     move-exception v0
 

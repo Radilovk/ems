@@ -653,6 +653,13 @@ public final class NextPlan {
         if (base == null) {
             return null;
         }
+        TrainProgram own = ClientPrograms.base(u, base.name);
+        if (own != null) {                              // saved for this client (diskette / ⚙): as saved
+            if (s != null && bean(own, s.type) != null) {
+                own.useType = s.type;
+            }
+            return own;
+        }
         TrainProgram p = (TrainProgram) BeanUtils.cloneObject(base);
         if (p == null || s == null) {
             return p;
@@ -682,7 +689,7 @@ public final class NextPlan {
         if (s.work > 0) {
             b.workLength = s.work;
         }
-        b.activePause = s.ap;
+        b.activePause = s.ap && p.useType != 1;              // Мускули: no second impulse
         if (s.ps > 0) {
             b.pauseStrenthPercent = s.ps;
         }

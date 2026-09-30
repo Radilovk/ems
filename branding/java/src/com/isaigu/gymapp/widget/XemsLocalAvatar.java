@@ -241,6 +241,46 @@ public final class XemsLocalAvatar {
         }
     }
 
+    private static final java.util.WeakHashMap<android.view.View, Boolean> GRAB =
+            new java.util.WeakHashMap<android.view.View, Boolean>();
+    private static int ringId;
+
+    /**
+     * Hook: start of CircleSeekBar.onTouchEvent (thumb centre and radius in view coordinates). The ring
+     * around the avatar moves only when the gesture starts on its handle; a tap or drag anywhere else on
+     * the track is ignored (and left to the row). Other CircleSeekBars (music seek) are untouched.
+     */
+    public static boolean grab(android.view.View v, android.view.MotionEvent e, float tx, float ty, float pr) {
+        try {
+            if (ringId == 0) {
+                ringId = v.getResources().getIdentifier("circleSeekBar", "id", v.getContext().getPackageName());
+            }
+            if (v.getId() != ringId) {
+                return true;
+            }
+            int a = e.getActionMasked();
+            if (a == android.view.MotionEvent.ACTION_DOWN) {
+                float d = v.getResources().getDisplayMetrics().density;
+                float r = Math.max(pr * 1.8f, 30 * d);
+                float dx = e.getX() - tx;
+                float dy = e.getY() - ty;
+                boolean ok = dx * dx + dy * dy <= r * r;
+                GRAB.put(v, ok ? Boolean.TRUE : Boolean.FALSE);
+                if (ok && v.getParent() != null) {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                }
+                return ok;
+            }
+            Boolean g = GRAB.get(v);
+            if (a == android.view.MotionEvent.ACTION_UP || a == android.view.MotionEvent.ACTION_CANCEL) {
+                GRAB.remove(v);
+            }
+            return g != null && g.booleanValue();
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
     /**
      * Hook: TrainViewHolder.bind (the training screen) — a tap on the client's photo opens the
      * client card. The client is read at tap time (the slot may get another client later).

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Screen backgrounds for the band app (212 × 520): near-black with a neon glow of the module's
-colour at the top (with a second, shifted tone for depth) and a faint one at the bottom. Images, not CSS gradients: Vela draws PNGs
+"""Screen backgrounds for the band app (212 × 520): near-black with a soft glow of the module's
+colour at the top (a second, weaker one of the same colour upper right) and a faint one at the bottom.
+Same hue only (5.9.45): the shifted second tone turned red / pink into magenta — a violet cast. Images, not CSS gradients: Vela draws PNGs
 reliably, gradients / layered glows poorly. 256-colour palette + dithering: smooth, still small."""
 from pathlib import Path
 import math
@@ -11,13 +12,13 @@ OUT = Path(__file__).resolve().parent.parent / "src" / "common" / "bg"
 W, H = 106, 260  # half size: 4× less memory; the band stretches it (background-size: cover)
 
 THEMES = {
-    "home": (255, 46, 136),     # XEMS red
+    "home": (255, 59, 92),     # XEMS red
     "start": (0, 245, 155),    # green
     "ai": (255, 214, 0),       # gold: pure yellow turns olive on black
     "timer": (255, 138, 31),
     "music": (180, 77, 255),
-    "pulse": (255, 46, 99),
-    "summary": (139, 92, 255),   # violet: matches the muscle colours
+    "pulse": (255, 69, 58),
+    "summary": (0, 245, 155),    # mint: the ✓ of a finished training
 }
 BASE_TOP = (9, 10, 14)
 BASE_BOTTOM = (4, 4, 6)
@@ -37,7 +38,7 @@ def shift(c, k):
 def make(color):
     im = Image.new("RGB", (W, H))
     px = im.load()
-    alt = shift(color, 0.35)
+    alt = color
     for y in range(H):
         v = y / (H - 1)
         base = tuple(BASE_TOP[i] + (BASE_BOTTOM[i] - BASE_TOP[i]) * v for i in range(3))
@@ -48,8 +49,8 @@ def make(color):
             vign = 1.0 - 0.35 * (abs(x - W / 2) / (W / 2)) ** 3       # darker side edges
             rgb = []
             for i in range(3):
-                c = base[i] + (color[i] - base[i]) * main_g * 0.85
-                c += (alt[i] - base[i]) * side_g * 0.60
+                c = base[i] + (color[i] - base[i]) * main_g * 0.60
+                c += (alt[i] - base[i]) * side_g * 0.40
                 c += (color[i] - base[i]) * low_g * 0.40
                 rgb.append(max(0, min(255, int(round(c * vign)))))
             px[x, y] = tuple(rgb)

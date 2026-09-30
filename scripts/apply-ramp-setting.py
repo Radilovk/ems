@@ -34,7 +34,7 @@ HOOK = f"""    iget-object v0, p0, {CLS}->inputramp:Landroid/widget/TextView;
 
 
 def main() -> int:
-    files = sorted(SRC.glob("RampSetting*.smali"))
+    files = sorted(SRC.glob("RampSetting*.smali")) + sorted(SRC.glob("ParamDialogUi*.smali")) + sorted(SRC.glob("PauseSetting*.smali"))
     if not files:
         raise SystemExit("Missing branding/smali/RampSetting.smali")
     for f in files:

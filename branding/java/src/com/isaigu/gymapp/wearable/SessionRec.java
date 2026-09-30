@@ -130,6 +130,26 @@ final class SessionRec {
         return o;
     }
 
+    /** The same client starts again after an end: the record goes on (SessionRecorder). */
+    void resume(TrainItem item) {
+        between = false;
+        betweenS = 0;
+        idle = 0;
+        pausedS = 0;
+        postLeft = -1;
+        post.clear();                                   // recovery HR is taken again at the real end
+        shown = false;
+        segPlanS = Math.max(0, item.workLength);
+        planS += segPlanS;
+        try {
+            if (item.getTrainProgram() != null && item.getTrainProgram().name != null
+                    && (program == null || !program.contains(item.getTrainProgram().name))) {
+                program = program == null ? item.getTrainProgram().name : program + " + " + item.getTrainProgram().name;
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
     void sample(TrainItem item, int bpm, int aiPhase) {
         ProgramDataBean b = null;
         try {

@@ -45,6 +45,14 @@ public class TrainItem {
         return false;
     }
 
+    public boolean isHzSelected() {
+        return false;
+    }
+
+    public boolean isPauseHzSelected() {
+        return false;
+    }
+
     public void setMaSelected(boolean selected) {}
 
     public void setHzSelected(boolean selected) {}

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 64
+    .line 71
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,13 +34,13 @@
     .registers 5
 
     .prologue
-    .line 68
+    .line 75
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/SessionRecorder;->tick()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_d
 
-    .line 72
+    .line 79
     :goto_3
     # getter for: Lcom/isaigu/gymapp/wearable/SessionRecorder;->H:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/SessionRecorder;->access$000()Landroid/os/Handler;
@@ -51,14 +51,14 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 73
+    .line 80
     return-void
 
-    .line 69
+    .line 76
     :catch_d
     move-exception v0
 
-    .line 70
+    .line 77
     const-string v1, "report"
 
     new-instance v2, Ljava/lang/StringBuilder;

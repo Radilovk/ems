@@ -9,7 +9,7 @@
           <image class="halo" if="{{play}}" src="/common/art/glow-music.png"></image>
           <progress class="ring" type="arc" percent="{{pct}}" style="color: #B44DFF"></progress>
           <div class="center">
-            <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#222532' : '#B44DFF'}}"
+            <div class="btn play {{pressed === 'play' ? 'down' : ''}}" style="background-color: {{play ? '#2C2C2E' : '#B44DFF'}}"
                  ontouchstart="press('play')" ontouchend="release" ontouchcancel="release" onclick="toggle">
               <image class="play-img" src="{{play ? '/common/icons/pause.png' : '/common/icons/play.png'}}"></image>
             </div>
@@ -74,7 +74,7 @@ export default {
     dots: [],
     anim: '',
     caps: 'МУЗИКА',
-    capsColor: '#8C93AB',
+    capsColor: '#8E8E93',
     title: '—',
     pct: 0,
     play: false,
@@ -115,7 +115,7 @@ export default {
     setPages(this, mu.on ? ['main', 'skip', 'ceil'] : ['main', 'skip'])
     this.play = !!mu.play
     this.caps = mu.on && !mu.play ? 'ПАУЗА' : 'МУЗИКА'
-    this.capsColor = mu.play ? PURPLE : '#8C93AB'
+    this.capsColor = mu.play ? PURPLE : '#8E8E93'
     this.title = mu.title || (mu.on ? 'музика' : 'пусни от таблета')
     const pos = (mu.pos || 0) + (mu.play ? app.silence() : 0)
     this.pct = mu.dur > 0 ? Math.min(100, Math.round((pos / mu.dur) * 100)) : 0
@@ -212,7 +212,7 @@ export default {
   margin-top: 3px;
   margin-bottom: 3px;
   border-radius: 3px;
-  background-color: #3A3F55;
+  background-color: #48484A;
 }
 .pdot-on {
   height: 18px;
@@ -223,14 +223,14 @@ export default {
   height: 30px;
   font-size: 22px;
   font-weight: bold;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .sub {
   flex-shrink: 0;
   width: 196px;
   text-align: center;
   font-size: 24px;
-  color: #ADB3C7;
+  color: #AEAEB2;
 }
 .down {
   transform: scale(0.92);
@@ -256,7 +256,7 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  background-color: #2D3142;
+  background-color: #3A3A3C;
   transition-property: transform;
   transition-duration: 120ms;
 }
@@ -290,8 +290,8 @@ export default {
   margin-right: 4px;
   border-radius: 22px;
   border-width: 1px;
-  border-color: #222532;
-  background-color: #15171F;
+  border-color: #2C2C2E;
+  background-color: #1C1C1E;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -305,10 +305,10 @@ export default {
 .tile-lbl {
   flex-shrink: 0;
   font-size: 18px;
-  color: #8C93AB;
+  color: #8E8E93;
 }
 .t-max {
-  color: #FF2E63;
+  color: #FF453A;
 }
 .t-kcal {
   color: #FF8A1F;
@@ -321,7 +321,7 @@ export default {
   margin-top: 16px;
   border-radius: 7px;
   flex-direction: row;
-  background-color: #15171F;
+  background-color: #1C1C1E;
 }
 .zpart {
   height: 14px;
@@ -367,7 +367,7 @@ export default {
   width: 196px;
   height: 196px;
   stroke-width: 12px;
-  background-color: #15171F;
+  background-color: #1C1C1E;
   start-angle: 0deg;
   total-angle: 360deg;
   center-x: 98px;
@@ -404,7 +404,7 @@ export default {
   height: 120px;
   margin-bottom: 14px;
   border-radius: 65px;
-  background-color: #222532;
+  background-color: #2C2C2E;
 }
 .pill-img {
   width: 56px;
@@ -419,7 +419,7 @@ export default {
   width: 180px;
   height: 12px;
   border-radius: 6px;
-  background-color: #222532;
+  background-color: #2C2C2E;
 }
 .lvl-fill {
   height: 12px;
@@ -438,7 +438,7 @@ export default {
   margin-left: 4px;
   margin-right: 4px;
   border-radius: 49px;
-  background-color: #222532;
+  background-color: #2C2C2E;
 }
 .round-plus {
   background-color: #361457;

@@ -7,4 +7,5 @@ public class JSON {
     public static Object toJSON(Object javaObject) { return null; }
     public static <T> List<T> parseArray(String text, Class<T> clazz) { return null; }
     public static JSONObject parseObject(String text) { return null; }
+    public static <T> T parseObject(String text, Class<T> clazz) { return null; }
 }

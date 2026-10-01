@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenReport(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->cr10Scale(Landroid/content/Context;IILcom/isaigu/gymapp/ai/AiUi$SegmentCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,12 +18,14 @@
 
 
 # instance fields
-.field final synthetic val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+.field final synthetic val$v:I
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;I)V
+    .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1632
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$28;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+    .line 1907
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$28;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$28;->val$v:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,16 +49,13 @@
     .registers 4
 
     .prologue
-    .line 1635
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
+    .line 1910
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$28;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    move-result-object v0
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$28;->val$v:I
 
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$28;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
 
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->shareReport(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$1600(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AiEngine;)V
-
-    .line 1636
+    .line 1911
     return-void
 .end method

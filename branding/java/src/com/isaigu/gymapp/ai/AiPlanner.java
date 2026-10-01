@@ -210,7 +210,7 @@ public final class AiPlanner {
         }
 
         // The client's state: a lower ceiling, longer pauses in tetanic work (AiPersonal).
-        plan.personal = AiPersonal.of(in.focus, in.cond);
+        plan.personal = AiPersonal.of(in.focus, in.cond, in.today);
         if (plan.personal.phi < 1.0) {
             plan.phiMax *= plan.personal.phi;
             for (Phase ph : plan.phases) {

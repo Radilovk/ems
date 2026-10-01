@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/widget/CompoundButton$OnCheckedChangeListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->buildRestCard(Landroid/content/Context;Landroid/widget/FrameLayout;Lcom/isaigu/gymapp/ai/AiEngine;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->toggleRow(Landroid/content/Context;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/AiUi$ToggleCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,12 +17,23 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;)V
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 1568
+    .line 1877
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,13 +41,15 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 2
+.method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
+    .registers 4
 
     .prologue
-    .line 1571
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->continueBlock()V
+    .line 1880
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$27;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
 
-    .line 1572
+    invoke-interface {v0, p2}, Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;->onToggle(Z)V
+
+    .line 1881
     return-void
 .end method

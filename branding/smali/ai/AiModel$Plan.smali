@@ -60,17 +60,17 @@
     .registers 3
 
     .prologue
-    .line 174
+    .line 176
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 175
+    .line 177
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phases:Ljava/util/List;
 
-    .line 180
+    .line 182
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phiMax:D

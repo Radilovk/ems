@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->renderOverlay(Landroid/content/Context;Landroid/widget/FrameLayout;Lcom/isaigu/gymapp/ai/AiEngine;J)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->stepper(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,12 +17,23 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;)V
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 1499
+    .line 1832
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$25;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,13 +41,17 @@
 
 
 # virtual methods
-.method public onSelect(I)V
-    .registers 2
+.method public onClick(Landroid/view/View;)V
+    .registers 4
 
     .prologue
-    .line 1502
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->answerCheckpoint(I)V
+    .line 1835
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$25;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
-    .line 1503
+    const/4 v1, -0x1
+
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;->onDelta(I)V
+
+    .line 1836
     return-void
 .end method

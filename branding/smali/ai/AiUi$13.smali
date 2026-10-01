@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenRun(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,23 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
-    .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
     .prologue
-    .line 707
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$13;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
+    .line 1269
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,23 +30,13 @@
 
 
 # virtual methods
-.method public onToggle(Z)V
-    .registers 3
+.method public onClick(Landroid/view/View;)V
+    .registers 2
 
     .prologue
-    .line 710
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$13;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .line 1272
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
-
-    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->feverOrIllness:Z
-
-    .line 711
-    const/4 v0, 0x0
-
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
-
-    .line 712
+    .line 1273
     return-void
 .end method

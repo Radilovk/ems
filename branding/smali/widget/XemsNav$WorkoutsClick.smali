@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 900
+    .line 951
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,35 +34,35 @@
     .registers 3
 
     .prologue
-    .line 903
-    # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$100()Landroid/widget/PopupWindow;
+    .line 954
+    # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Lcom/isaigu/gymapp/widget/XemsNav$MenuLayer;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$300()Lcom/isaigu/gymapp/widget/XemsNav$MenuLayer;
 
     move-result-object v0
 
     if-eqz v0, :cond_d
 
-    .line 904
-    # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Landroid/widget/PopupWindow;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$100()Landroid/widget/PopupWindow;
+    .line 955
+    # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->menu:Lcom/isaigu/gymapp/widget/XemsNav$MenuLayer;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$300()Lcom/isaigu/gymapp/widget/XemsNav$MenuLayer;
 
     move-result-object v0
 
-    invoke-virtual {v0}, Landroid/widget/PopupWindow;->dismiss()V
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsNav$MenuLayer;->dismiss()V
 
-    .line 906
+    .line 957
     :cond_d
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
-    .line 907
+    .line 958
     if-eqz v0, :cond_16
 
-    .line 908
+    .line 959
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->open(Landroid/app/Activity;)V
 
-    .line 910
+    .line 961
     :cond_16
     return-void
 .end method

@@ -18,36 +18,75 @@
 
 .field private static final LEGS_GLUTES:[I
 
+.field public static final TODAY:[Ljava/lang/String;
+
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 1
+    .registers 5
 
     .prologue
+    const/4 v4, 0x4
+
+    const/4 v3, 0x3
+
     .line 20
-    const/4 v0, 0x4
+    new-array v0, v4, [I
 
-    new-array v0, v0, [I
-
-    fill-array-data v0, :array_12
+    fill-array-data v0, :array_32
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiPersonal;->BIG:[I
 
     .line 21
-    const/4 v0, 0x3
+    new-array v0, v3, [I
 
-    new-array v0, v0, [I
-
-    fill-array-data v0, :array_1e
+    fill-array-data v0, :array_3e
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiPersonal;->LEGS_GLUTES:[I
+
+    .line 76
+    const/4 v0, 0x6
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const/4 v1, 0x0
+
+    const-string v2, "t_sleep"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x1
+
+    const-string v2, "t_food"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x2
+
+    const-string v2, "t_active"
+
+    aput-object v2, v0, v1
+
+    const-string v1, "t_stress"
+
+    aput-object v1, v0, v3
+
+    const-string v1, "t_sore"
+
+    aput-object v1, v0, v4
+
+    const/4 v1, 0x5
+
+    const-string v2, "t_period"
+
+    aput-object v2, v0, v1
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiPersonal;->TODAY:[Ljava/lang/String;
 
     return-void
 
     .line 20
-    nop
-
-    :array_12
+    :array_32
     .array-data 4
         0x2
         0x9
@@ -56,7 +95,7 @@
     .end array-data
 
     .line 21
-    :array_1e
+    :array_3e
     .array-data 4
         0x2
         0x9
@@ -78,7 +117,7 @@
     .registers 2
 
     .prologue
-    .line 198
+    .line 267
     const-string v0, "abs"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -89,11 +128,11 @@
 
     const-string v0, "\u043a\u043e\u0440\u0435\u043c"
 
-    .line 203
+    .line 272
     :goto_a
     return-object v0
 
-    .line 199
+    .line 268
     :cond_b
     const-string v0, "glutes"
 
@@ -107,7 +146,7 @@
 
     goto :goto_a
 
-    .line 200
+    .line 269
     :cond_16
     const-string v0, "legs"
 
@@ -121,7 +160,7 @@
 
     goto :goto_a
 
-    .line 201
+    .line 270
     :cond_21
     const-string v0, "arms"
 
@@ -135,7 +174,7 @@
 
     goto :goto_a
 
-    .line 202
+    .line 271
     :cond_2c
     const-string v0, "back"
 
@@ -149,7 +188,7 @@
 
     goto :goto_a
 
-    .line 203
+    .line 272
     :cond_37
     const-string v0, "\u0433\u044a\u0440\u0434\u0438"
 
@@ -164,7 +203,7 @@
 
     const/4 v2, 0x0
 
-    .line 188
+    .line 257
     const-string v0, "abs"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -177,11 +216,11 @@
 
     aput v1, v0, v2
 
-    .line 194
+    .line 263
     :goto_e
     return-object v0
 
-    .line 189
+    .line 258
     :cond_f
     const-string v0, "glutes"
 
@@ -199,7 +238,7 @@
 
     goto :goto_e
 
-    .line 190
+    .line 259
     :cond_1e
     const-string v0, "legs"
 
@@ -217,7 +256,7 @@
 
     goto :goto_e
 
-    .line 191
+    .line 260
     :cond_2d
     const-string v0, "arms"
 
@@ -235,7 +274,7 @@
 
     goto :goto_e
 
-    .line 192
+    .line 261
     :cond_3b
     const-string v0, "back"
 
@@ -253,7 +292,7 @@
 
     goto :goto_e
 
-    .line 193
+    .line 262
     :cond_49
     const-string v0, "chest"
 
@@ -269,13 +308,13 @@
 
     goto :goto_e
 
-    .line 194
+    .line 263
     :cond_56
     new-array v0, v2, [I
 
     goto :goto_e
 
-    .line 190
+    .line 259
     nop
 
     :array_5a
@@ -289,7 +328,7 @@
     .registers 2
 
     .prologue
-    .line 207
+    .line 276
     const-string v0, "abs"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -300,11 +339,11 @@
 
     const-string v0, "abs"
 
-    .line 212
+    .line 281
     :goto_a
     return-object v0
 
-    .line 208
+    .line 277
     :cond_b
     const-string v0, "glutes"
 
@@ -318,7 +357,7 @@
 
     goto :goto_a
 
-    .line 209
+    .line 278
     :cond_16
     const-string v0, "legs"
 
@@ -332,7 +371,7 @@
 
     goto :goto_a
 
-    .line 210
+    .line 279
     :cond_21
     const-string v0, "arms"
 
@@ -346,7 +385,7 @@
 
     goto :goto_a
 
-    .line 211
+    .line 280
     :cond_2c
     const-string v0, "back"
 
@@ -360,7 +399,7 @@
 
     goto :goto_a
 
-    .line 212
+    .line 281
     :cond_37
     const-string v0, "chest"
 
@@ -381,12 +420,12 @@
     .end annotation
 
     .prologue
-    .line 216
+    .line 285
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 217
+    .line 286
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
@@ -404,7 +443,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 218
+    .line 287
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v1
@@ -427,7 +466,7 @@
 
     goto :goto_1d
 
-    .line 220
+    .line 289
     :cond_28
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -437,6 +476,328 @@
 .end method
 
 .method public static of(Ljava/util/Set;Ljava/util/Set;)Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;)",
+            "Lcom/isaigu/gymapp/ai/AiPersonal$Effect;"
+        }
+    .end annotation
+
+    .prologue
+    .line 94
+    const/4 v0, 0x0
+
+    invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/ai/AiPersonal;->of(Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;)Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static of(Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;)Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
+    .registers 15
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;)",
+            "Lcom/isaigu/gymapp/ai/AiPersonal$Effect;"
+        }
+    .end annotation
+
+    .prologue
+    const/4 v9, 0x0
+
+    const-wide v10, 0x3fee666666666666L    # 0.95
+
+    const/4 v8, 0x1
+
+    const-wide v6, 0x3feccccccccccccdL    # 0.9
+
+    .line 102
+    invoke-static {p0, p1}, Lcom/isaigu/gymapp/ai/AiPersonal;->ofProfile(Ljava/util/Set;Ljava/util/Set;)Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
+
+    move-result-object v0
+
+    .line 103
+    if-eqz p2, :cond_18
+
+    invoke-interface {p2}, Ljava/util/Set;->isEmpty()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_19
+
+    .line 141
+    :cond_18
+    :goto_18
+    return-object v0
+
+    .line 106
+    :cond_19
+    const-string v1, "t_sleep"
+
+    invoke-interface {p2, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_33
+
+    .line 107
+    iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    mul-double/2addr v2, v6
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    .line 108
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    .line 109
+    const-string v1, "\u0414\u043d\u0435\u0441: \u043d\u0435\u0434\u043e\u0441\u043f\u0438\u0432\u0430\u043d\u0435 \u2014 \u221210 %, +1 s \u043f\u0430\u0443\u0437\u0430"
+
+    const-string v2, "Today: short on sleep \u2014 \u221210 %, +1 s pause"
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 111
+    :cond_33
+    const-string v1, "t_food"
+
+    invoke-interface {p2, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_52
+
+    .line 112
+    iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    const-wide v4, 0x3fed70a3d70a3d71L    # 0.92
+
+    mul-double/2addr v2, v4
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    .line 113
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    .line 114
+    const-string v1, "\u0414\u043d\u0435\u0441: \u043c\u0430\u043b\u043a\u043e \u0445\u0440\u0430\u043d\u0430 \u2014 \u22128 %, +1 s \u043f\u0430\u0443\u0437\u0430"
+
+    const-string v2, "Today: little food \u2014 \u22128 %, +1 s pause"
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 116
+    :cond_52
+    const-string v1, "t_active"
+
+    invoke-interface {p2, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_6c
+
+    .line 117
+    iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    mul-double/2addr v2, v6
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    .line 118
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    add-int/lit16 v1, v1, 0xc8
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    .line 119
+    const-string v1, "\u0414\u043d\u0435\u0441: \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0435\u043d \u0434\u0435\u043d \u2014 \u221210 %, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u043d\u0435"
+
+    const-string v2, "Today: heavy day \u2014 \u221210 %, softer onset"
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 121
+    :cond_6c
+    const-string v1, "t_stress"
+
+    invoke-interface {p2, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_8c
+
+    .line 122
+    iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    mul-double/2addr v2, v10
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    .line 123
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    .line 124
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    add-int/lit16 v1, v1, 0xc8
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    .line 125
+    const-string v1, "\u0414\u043d\u0435\u0441: \u0441\u0442\u0440\u0435\u0441 \u2014 \u22125 %, +1 s \u043f\u0430\u0443\u0437\u0430, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e"
+
+    const-string v2, "Today: stress \u2014 \u22125 %, +1 s pause, softer"
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 127
+    :cond_8c
+    const-string v1, "t_sore"
+
+    invoke-interface {p2, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_a6
+
+    .line 128
+    iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    mul-double/2addr v2, v6
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    .line 129
+    iget v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    add-int/lit16 v1, v1, 0x12c
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    .line 130
+    const-string v1, "\u0414\u043d\u0435\u0441: \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0430 \u0442\u0440\u0435\u0441\u043a\u0430 \u2014 \u221210 %, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u043d\u0435"
+
+    const-string v2, "Today: sore muscles \u2014 \u221210 %, softer onset"
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 132
+    :cond_a6
+    const-string v1, "t_period"
+
+    invoke-interface {p2, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_cd
+
+    .line 133
+    new-array v1, v8, [I
+
+    aput v8, v1, v9
+
+    const/16 v2, -0x1e
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
+
+    .line 134
+    new-array v1, v8, [I
+
+    const/4 v2, 0x7
+
+    aput v2, v1, v9
+
+    const/16 v2, -0xa
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
+
+    .line 135
+    iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    mul-double/2addr v2, v10
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    .line 136
+    const-string v1, "\u0414\u043d\u0435\u0441: \u0446\u0438\u043a\u044a\u043b \u2014 \u043a\u043e\u0440\u0435\u043c \u221230 %, \u043a\u0440\u044a\u0441\u0442 \u221210 %, \u22125 %"
+
+    const-string v2, "Today: period \u2014 abs \u221230 %, lower back \u221210 %, \u22125 %"
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 138
+    :cond_cd
+    const-wide/high16 v2, 0x3fe8000000000000L    # 0.75
+
+    iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D
+
+    move-result-wide v2
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
+
+    .line 139
+    const/4 v1, 0x2
+
+    iget v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
+
+    .line 140
+    const/16 v1, 0x190
+
+    iget v2, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
+
+    goto/16 :goto_18
+.end method
+
+.method private static ofProfile(Ljava/util/Set;Ljava/util/Set;)Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
     .registers 14
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -464,12 +825,12 @@
 
     const/4 v6, 0x1
 
-    .line 76
+    .line 145
     new-instance v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;-><init>()V
 
-    .line 77
+    .line 146
     if-eqz p0, :cond_8a
 
     invoke-interface {p0}, Ljava/util/Set;->isEmpty()Z
@@ -478,12 +839,12 @@
 
     if-nez v0, :cond_8a
 
-    .line 78
+    .line 147
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 79
+    .line 148
     invoke-interface {p0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
@@ -502,22 +863,22 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 80
+    .line 149
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiPersonal;->focusChannels(Ljava/lang/String;)[I
 
     move-result-object v4
 
-    .line 81
+    .line 150
     array-length v5, v4
 
     if-lez v5, :cond_1f
 
-    .line 82
+    .line 151
     const/16 v5, 0xa
 
     invoke-virtual {v1, v4, v5}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 83
+    .line 152
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiPersonal;->focusBg(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -534,7 +895,7 @@
 
     goto :goto_1f
 
-    .line 86
+    .line 155
     :cond_47
     invoke-interface {v2}, Ljava/util/List;->isEmpty()Z
 
@@ -542,7 +903,7 @@
 
     if-nez v0, :cond_8a
 
-    .line 87
+    .line 156
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -601,7 +962,7 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 90
+    .line 159
     :cond_8a
     if-eqz p1, :cond_92
 
@@ -614,11 +975,11 @@
     :cond_92
     move-object v0, v1
 
-    .line 184
+    .line 253
     :goto_93
     return-object v0
 
-    .line 94
+    .line 163
     :cond_94
     const-string v0, "prediabetes"
 
@@ -628,21 +989,21 @@
 
     if-eqz v0, :cond_276
 
-    .line 95
+    .line 164
     sget-object v0, Lcom/isaigu/gymapp/ai/AiPersonal;->LEGS_GLUTES:[I
 
     const/16 v2, 0xa
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 96
+    .line 165
     const-string v0, "\u041f\u0440\u0435\u0434\u0434\u0438\u0430\u0431\u0435\u0442: \u0431\u0435\u0434\u0440\u0430 \u0438 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435 +10 % (\u043d\u0430\u0439-\u0433\u043e\u043b\u044f\u043c\u043e \u0443\u0441\u0432\u043e\u044f\u0432\u0430\u043d\u0435 \u043d\u0430 \u0433\u043b\u044e\u043a\u043e\u0437\u0430)"
 
     const-string v2, "Prediabetes: thighs and glutes +10 % (most glucose uptake)"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 102
+    .line 171
     :cond_aa
     :goto_aa
     const-string v0, "menopause"
@@ -653,19 +1014,19 @@
 
     if-eqz v0, :cond_be
 
-    .line 103
+    .line 172
     sget-object v0, Lcom/isaigu/gymapp/ai/AiPersonal;->BIG:[I
 
     invoke-virtual {v1, v0, v10}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 104
+    .line 173
     const-string v0, "\u041c\u0435\u043d\u043e\u043f\u0430\u0443\u0437\u0430: \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 +5 % (\u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u0438 \u043a\u043e\u0441\u0442\u0438)"
 
     const-string v2, "Menopause: big muscles +5 % (muscle and bone)"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 106
+    .line 175
     :cond_be
     const-string v0, "thyroid"
 
@@ -675,21 +1036,21 @@
 
     if-eqz v0, :cond_d2
 
-    .line 107
+    .line 176
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     mul-double/2addr v2, v8
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 108
+    .line 177
     const-string v0, "\u0429\u0438\u0442\u043e\u0432\u0438\u0434\u043d\u0430 \u0436\u043b\u0435\u0437\u0430: \u22125 % \u0441\u0438\u043b\u0430"
 
     const-string v2, "Thyroid: \u22125 % strength"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 110
+    .line 179
     :cond_d2
     const-string v0, "water"
 
@@ -699,7 +1060,7 @@
 
     if-eqz v0, :cond_eb
 
-    .line 111
+    .line 180
     new-array v0, v6, [I
 
     const/4 v2, 0x3
@@ -710,14 +1071,14 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 112
+    .line 181
     const-string v0, "\u0417\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0435 \u043d\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442\u0438: \u043f\u0440\u0430\u0441\u0446\u0438 \u221210 %"
 
     const-string v2, "Water retention: calves \u221210 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 114
+    .line 183
     :cond_eb
     const-string v0, "postpartum"
 
@@ -727,7 +1088,7 @@
 
     if-eqz v0, :cond_103
 
-    .line 115
+    .line 184
     new-array v0, v6, [I
 
     aput v6, v0, v7
@@ -736,14 +1097,14 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 116
+    .line 185
     const-string v0, "\u0421\u043b\u0435\u0434 \u0431\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0441\u0442: \u043a\u043e\u0440\u0435\u043c \u221215 %"
 
     const-string v2, "After pregnancy: abs \u221215 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 119
+    .line 188
     :cond_103
     const-string v0, "diastasis"
 
@@ -753,21 +1114,21 @@
 
     if-eqz v0, :cond_118
 
-    .line 120
+    .line 189
     iget-object v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->zoneMax:[I
 
     const/16 v2, 0x28
 
     aput v2, v0, v6
 
-    .line 121
+    .line 190
     const-string v0, "\u0414\u0438\u0430\u0441\u0442\u0430\u0437\u0430: \u043a\u043e\u0440\u0435\u043c\u044a\u0442 \u0434\u043e 40 %"
 
     const-string v2, "Diastasis: abs up to 40 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 123
+    .line 192
     :cond_118
     const-string v0, "back"
 
@@ -777,7 +1138,7 @@
 
     if-eqz v0, :cond_131
 
-    .line 124
+    .line 193
     new-array v0, v6, [I
 
     const/4 v2, 0x7
@@ -788,14 +1149,14 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 125
+    .line 194
     const-string v0, "\u041a\u0440\u044a\u0441\u0442: \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u221215 %"
 
     const-string v2, "Lower back: lower back \u221215 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 127
+    .line 196
     :cond_131
     const-string v0, "neck"
 
@@ -805,7 +1166,7 @@
 
     if-eqz v0, :cond_149
 
-    .line 128
+    .line 197
     new-array v0, v6, [I
 
     aput v10, v0, v7
@@ -814,14 +1175,14 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 129
+    .line 198
     const-string v0, "\u0412\u0440\u0430\u0442 / \u0440\u0430\u043c\u0435\u043d\u0435: \u0442\u0440\u0430\u043f\u0435\u0446 \u221215 %"
 
     const-string v2, "Neck / shoulders: traps \u221215 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 131
+    .line 200
     :cond_149
     const-string v0, "knees"
 
@@ -831,7 +1192,7 @@
 
     if-eqz v0, :cond_161
 
-    .line 132
+    .line 201
     new-array v0, v6, [I
 
     aput v11, v0, v7
@@ -840,14 +1201,14 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 133
+    .line 202
     const-string v0, "\u041a\u043e\u043b\u0435\u043d\u0435: \u043f\u0440\u0435\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e \u221210 %"
 
     const-string v2, "Knees: front thigh \u221210 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 135
+    .line 204
     :cond_161
     const-string v0, "varicose"
 
@@ -857,7 +1218,7 @@
 
     if-eqz v0, :cond_17a
 
-    .line 136
+    .line 205
     new-array v0, v11, [I
 
     fill-array-data v0, :array_28c
@@ -866,14 +1227,14 @@
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 137
+    .line 206
     const-string v0, "\u0420\u0430\u0437\u0448\u0438\u0440\u0435\u043d\u0438 \u0432\u0435\u043d\u0438: \u043f\u0440\u0430\u0441\u0446\u0438 \u0438 \u0437\u0430\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e \u221210 %"
 
     const-string v2, "Varicose veins: calves and back thigh \u221210 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 139
+    .line 208
     :cond_17a
     const-string v0, "joints"
 
@@ -883,28 +1244,28 @@
 
     if-eqz v0, :cond_194
 
-    .line 140
+    .line 209
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     mul-double/2addr v2, v8
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 141
+    .line 210
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
     add-int/lit16 v0, v0, 0xc8
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
-    .line 142
+    .line 211
     const-string v0, "\u0421\u0442\u0430\u0432\u0438: \u22125 %, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u043d\u0435"
 
     const-string v2, "Joints: \u22125 %, softer onset"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 144
+    .line 213
     :cond_194
     const-string v0, "osteo"
 
@@ -914,35 +1275,35 @@
 
     if-eqz v0, :cond_1b4
 
-    .line 145
+    .line 214
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     mul-double/2addr v2, v8
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 146
+    .line 215
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
     add-int/lit16 v0, v0, 0x12c
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
-    .line 147
+    .line 216
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
-    .line 148
+    .line 217
     const-string v0, "\u041e\u0441\u0442\u0435\u043e\u043f\u043e\u0440\u043e\u0437\u0430: \u22125 %, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e, +1 s \u043f\u0430\u0443\u0437\u0430"
 
     const-string v2, "Osteoporosis: \u22125 %, softer, +1 s pause"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 151
+    .line 220
     :cond_1b4
     const-string v0, "desk"
 
@@ -952,21 +1313,21 @@
 
     if-eqz v0, :cond_1cb
 
-    .line 152
+    .line 221
     new-array v0, v11, [I
 
     fill-array-data v0, :array_294
 
     invoke-virtual {v1, v0, v10}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 153
+    .line 222
     const-string v0, "\u0421\u0435\u0434\u044f\u0449\u0430 \u0440\u0430\u0431\u043e\u0442\u0430: \u0433\u0440\u044a\u0431 \u0438 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435 +5 %"
 
     const-string v2, "Desk job: back and glutes +5 %"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 155
+    .line 224
     :cond_1cb
     const-string v0, "senior"
 
@@ -976,40 +1337,40 @@
 
     if-eqz v0, :cond_1f0
 
-    .line 156
+    .line 225
     sget-object v0, Lcom/isaigu/gymapp/ai/AiPersonal;->BIG:[I
 
     invoke-virtual {v1, v0, v10}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 157
+    .line 226
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     mul-double/2addr v2, v8
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 158
+    .line 227
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
     add-int/lit16 v0, v0, 0xc8
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
-    .line 159
+    .line 228
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
-    .line 160
+    .line 229
     const-string v0, "60+ / \u0441\u043b\u0430\u0431\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0438: \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 +5 %, \u22125 % \u0441\u0438\u043b\u0430, +1 s \u043f\u0430\u0443\u0437\u0430"
 
     const-string v2, "60+ / low muscle: big muscles +5 %, \u22125 % strength, +1 s pause"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 163
+    .line 232
     :cond_1f0
     const-string v0, "stress"
 
@@ -1019,28 +1380,28 @@
 
     if-eqz v0, :cond_20a
 
-    .line 164
+    .line 233
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     mul-double/2addr v2, v8
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 165
+    .line 234
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
-    .line 166
+    .line 235
     const-string v0, "\u041d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435 \u0438 \u0441\u0442\u0440\u0435\u0441: \u22125 %, +1 s \u043f\u0430\u0443\u0437\u0430"
 
     const-string v2, "Tension and stress: \u22125 %, +1 s pause"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 168
+    .line 237
     :cond_20a
     const-string v0, "sleep"
 
@@ -1050,7 +1411,7 @@
 
     if-eqz v0, :cond_229
 
-    .line 169
+    .line 238
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     const-wide v4, 0x3feccccccccccccdL    # 0.9
@@ -1059,21 +1420,21 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 170
+    .line 239
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
-    .line 171
+    .line 240
     const-string v0, "\u041b\u043e\u0448 \u0441\u044a\u043d / \u0443\u043c\u043e\u0440\u0430: \u221210 %, +1 s \u043f\u0430\u0443\u0437\u0430"
 
     const-string v2, "Poor sleep / fatigue: \u221210 %, +1 s pause"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 173
+    .line 242
     :cond_229
     const-string v0, "sensitive"
 
@@ -1083,7 +1444,7 @@
 
     if-eqz v0, :cond_248
 
-    .line 174
+    .line 243
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
     const-wide v4, 0x3feccccccccccccdL    # 0.9
@@ -1092,21 +1453,21 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 175
+    .line 244
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
     add-int/lit16 v0, v0, 0x12c
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
 
-    .line 176
+    .line 245
     const-string v0, "\u0427\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u0435\u043d \u043a\u044a\u043c \u0442\u043e\u043a\u0430: \u221210 %, \u043f\u043e-\u043f\u043b\u0430\u0432\u043d\u043e \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u043d\u0435"
 
     const-string v2, "Sensitive to current: \u221210 %, softer onset"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 178
+    .line 247
     :cond_248
     const-string v0, "injury"
 
@@ -1116,14 +1477,14 @@
 
     if-eqz v0, :cond_257
 
-    .line 179
+    .line 248
     const-string v0, "\u0421\u0442\u0430\u0440\u0430 \u0442\u0440\u0430\u0432\u043c\u0430: \u043f\u043e\u043f\u0438\u0442\u0430\u0439 \u043a\u044a\u0434\u0435, \u043f\u0440\u0435\u0434\u0438 \u0441\u0442\u0430\u0440\u0442\u0430"
 
     const-string v2, "Old injury: ask where before the start"
 
     invoke-virtual {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->note(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 181
+    .line 250
     :cond_257
     const-wide/high16 v2, 0x3fe8000000000000L    # 0.75
 
@@ -1135,7 +1496,7 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->phi:D
 
-    .line 182
+    .line 251
     iget v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
     invoke-static {v11, v0}, Ljava/lang/Math;->min(II)I
@@ -1144,7 +1505,7 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->offS:I
 
-    .line 183
+    .line 252
     const/16 v0, 0x190
 
     iget v2, v1, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->rampUpMs:I
@@ -1157,10 +1518,10 @@
 
     move-object v0, v1
 
-    .line 184
+    .line 253
     goto/16 :goto_93
 
-    .line 98
+    .line 167
     :cond_276
     const-string v0, "pcos"
 
@@ -1170,12 +1531,12 @@
 
     if-eqz v0, :cond_aa
 
-    .line 99
+    .line 168
     sget-object v0, Lcom/isaigu/gymapp/ai/AiPersonal;->LEGS_GLUTES:[I
 
     invoke-virtual {v1, v0, v10}, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->add([II)V
 
-    .line 100
+    .line 169
     const-string v0, "\u041f\u041a\u041e\u0421: \u0431\u0435\u0434\u0440\u0430 \u0438 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435 +5 %"
 
     const-string v2, "PCOS: thighs and glutes +5 %"
@@ -1184,17 +1545,194 @@
 
     goto/16 :goto_aa
 
-    .line 136
+    .line 205
     :array_28c
     .array-data 4
         0x3
         0x9
     .end array-data
 
-    .line 152
+    .line 221
     :array_294
     .array-data 4
         0x6
         0x8
     .end array-data
+.end method
+
+.method public static periodApplies(Lcom/isaigu/gymapp/ai/AiModel$Sex;ILjava/util/Set;)Z
+    .registers 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Lcom/isaigu/gymapp/ai/AiModel$Sex;",
+            "I",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;)Z"
+        }
+    .end annotation
+
+    .prologue
+    .line 90
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    if-ne p0, v0, :cond_18
+
+    const/16 v0, 0xc
+
+    if-lt p1, v0, :cond_18
+
+    const/16 v0, 0x37
+
+    if-gt p1, v0, :cond_18
+
+    if-eqz p2, :cond_16
+
+    const-string v0, "menopause"
+
+    invoke-interface {p2, v0}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_18
+
+    :cond_16
+    const/4 v0, 0x1
+
+    :goto_17
+    return v0
+
+    :cond_18
+    const/4 v0, 0x0
+
+    goto :goto_17
+.end method
+
+.method public static todayName(Ljava/lang/String;)Ljava/lang/String;
+    .registers 3
+
+    .prologue
+    .line 79
+    const-string v0, "t_sleep"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_11
+
+    const-string v0, "\u041d\u0435\u0434\u043e\u0441\u043f\u0430\u043b(\u0430)"
+
+    const-string v1, "Short on sleep"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 85
+    :cond_10
+    :goto_10
+    return-object p0
+
+    .line 80
+    :cond_11
+    const-string v0, "t_food"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_22
+
+    const-string v0, "\u0425\u0430\u043f\u043d\u0430\u043b(\u0430) \u043c\u0430\u043b\u043a\u043e"
+
+    const-string v1, "Ate little"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 81
+    :cond_22
+    const-string v0, "t_active"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_33
+
+    const-string v0, "\u041d\u0430\u0442\u043e\u0432\u0430\u0440\u0435\u043d \u0434\u0435\u043d"
+
+    const-string v1, "Heavy day"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 82
+    :cond_33
+    const-string v0, "t_stress"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_44
+
+    const-string v0, "\u0421\u0442\u0440\u0435\u0441 / \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435"
+
+    const-string v1, "Stress / tension"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 83
+    :cond_44
+    const-string v0, "t_sore"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_55
+
+    const-string v0, "\u041c\u0443\u0441\u043a\u0443\u043b\u043d\u0430 \u0442\u0440\u0435\u0441\u043a\u0430"
+
+    const-string v1, "Sore muscles"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
+
+    .line 84
+    :cond_55
+    const-string v0, "t_period"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_10
+
+    const-string v0, "\u041c\u0435\u0441\u0435\u0447\u0435\u043d \u0446\u0438\u043a\u044a\u043b"
+
+    const-string v1, "Period"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    goto :goto_10
 .end method

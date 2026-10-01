@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->screenRun(Landroid/content/Context;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,11 @@
 
 
 # instance fields
-.field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+.field final synthetic val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
     .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -31,8 +31,8 @@
     .end annotation
 
     .prologue
-    .line 731
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .line 1293
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,23 +41,30 @@
 
 
 # virtual methods
-.method public onToggle(Z)V
+.method public onClick(Landroid/view/View;)V
     .registers 3
 
     .prologue
-    .line 734
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .line 1296
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
 
-    iput-boolean p1, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->hrLoweringMedication:Z
+    move-result v0
 
-    .line 735
+    if-nez v0, :cond_d
+
+    const/4 v0, 0x1
+
+    :goto_9
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
+
+    .line 1297
+    return-void
+
+    .line 1296
+    :cond_d
     const/4 v0, 0x0
 
-    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
-
-    .line 736
-    return-void
+    goto :goto_9
 .end method

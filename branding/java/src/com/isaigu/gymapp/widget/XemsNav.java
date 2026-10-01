@@ -3,7 +3,6 @@ package com.isaigu.gymapp.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
@@ -16,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.isaigu.gymapp.ai.AiSession;
@@ -62,7 +60,8 @@ public final class XemsNav {
 
     private static View mainRoot;
     private static TextView menuButton;
-    private static PopupWindow menu;
+    /** The open menu: a layer in the activity's own window (not a popup), so a drag goes both ways with the bar. */
+    private static MenuLayer menu;
     /** When the menu last closed: a tap on "Меню" that closed it (outside touch) must not reopen it. */
     private static long menuClosedAt;
     private static final Tile[] tiles = new Tile[5];
@@ -372,12 +371,8 @@ public final class XemsNav {
         Context c = box.getContext();
         box.removeAllViews();
         TextView head = XemsUi.label(c, "XEMS");
-        head.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 4), 0, XemsUi.dp(c, 2));
+        head.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 4), 0, XemsUi.dp(c, 6));
         box.addView(head);
-        TextView hint = XemsUi.text(c, tr("Задръж и влачи — подреди или премести в лентата долу",
-                "Hold and drag — reorder, or move to the bar below"), 11, XemsUi.HINT, false);
-        hint.setPadding(XemsUi.dp(c, 12), 0, XemsUi.dp(c, 12), XemsUi.dp(c, 6));
-        box.addView(hint, new LinearLayout.LayoutParams(XemsUi.dp(c, 250), ViewGroup.LayoutParams.WRAP_CONTENT));
         for (String k : menuKeys(c)) {
             View row = null;
             if (k.startsWith("page:")) {
@@ -749,19 +744,75 @@ public final class XemsNav {
         int h = Math.min(box.getMeasuredHeight(), room);
         frame.addView(scroll, new android.widget.FrameLayout.LayoutParams(box.getMeasuredWidth(), h));
 
-        // Not focusable: a focusable window takes the focus from the activity and Android shows its
-        // navigation bar. Outside touches still close it.
-        PopupWindow w = new PopupWindow(frame, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, false);
-        w.setBackgroundDrawable(new ColorDrawable(0));
-        w.setOutsideTouchable(true);
-        w.setOnDismissListener(new MenuClosed());
-        XemsFullscreen.immersive(frame);
-        w.setElevation(XemsUi.dp(c, 16));
-        menu = w;
-        // the menu sits above the bar (the bar is at the bottom of every page)
-        w.showAsDropDown(anchor, 0, -(anchor.getHeight() + h + XemsUi.dp(c, 8)));
+        // A layer in the activity's window, above the pages but not over the bar: a tap above closes it, the bar
+        // stays live — a bar item dragged onto the open menu goes back into it (one window, one drag).
+        ViewGroup host = anchor.getRootView().findViewById(android.R.id.content) instanceof ViewGroup
+                ? (ViewGroup) anchor.getRootView().findViewById(android.R.id.content) : null;
+        if (host == null) {
+            return;
+        }
+        int[] hostAt = new int[2];
+        host.getLocationInWindow(hostAt);
+        int barTop = (barView != null ? locY(barView) : at[1]) - hostAt[1];
+        android.widget.FrameLayout layer = new android.widget.FrameLayout(c);
+        View backdrop = new View(c);
+        backdrop.setClickable(true);
+        backdrop.setOnClickListener(new CloseMenu());
+        layer.addView(backdrop, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                Math.max(0, barTop)));
+        frame.setElevation(XemsUi.dp(c, 16));
+        android.widget.FrameLayout.LayoutParams fp = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.LEFT);
+        fp.leftMargin = Math.max(XemsUi.dp(c, 8), at[0] - hostAt[0]);
+        fp.topMargin = Math.max(XemsUi.dp(c, 8), barTop - h - XemsUi.dp(c, 8));
+        layer.addView(frame, fp);
+        host.addView(layer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.max(0, barTop)));
+        menu = new MenuLayer(host, layer);
         XemsUi.enter(frame);
+    }
+
+    private static int locY(View v) {
+        int[] p = new int[2];
+        v.getLocationInWindow(p);
+        return p[1];
+    }
+
+    /** The open menu as a layer of the activity: shown until a tap above, a choice or "Меню" again. */
+    static final class MenuLayer {
+        private final ViewGroup host;
+        private final View layer;
+        private boolean showing = true;
+
+        MenuLayer(ViewGroup host, View layer) {
+            this.host = host;
+            this.layer = layer;
+        }
+
+        boolean isShowing() {
+            return showing && layer.getParent() != null;
+        }
+
+        void dismiss() {
+            if (!showing) {
+                return;
+            }
+            showing = false;
+            try {
+                host.removeView(layer);
+            } catch (Throwable ignored) {
+            }
+            menuBox = null;
+            menuClosedAt = android.os.SystemClock.uptimeMillis();
+        }
+    }
+
+    static final class CloseMenu implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (menu != null) {
+                menu.dismiss();
+            }
+        }
     }
 
     private static final int[] PAGE_ICONS = {XemsIcon.BOLT, XemsIcon.PERSON, XemsIcon.GEAR, XemsIcon.GUIDE,
@@ -1314,14 +1365,6 @@ public final class XemsNav {
             } catch (Throwable t) {
                 XemsGuard.report("XemsNav.menu", t);
             }
-        }
-    }
-
-    static final class MenuClosed implements PopupWindow.OnDismissListener {
-        @Override
-        public void onDismiss() {
-            menuBox = null;
-            menuClosedAt = android.os.SystemClock.uptimeMillis();
         }
     }
 

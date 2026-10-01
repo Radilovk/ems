@@ -26,9 +26,18 @@ public final class XemsExercisePage {
 
     public static void open(Activity a) {
         try {
-            openImpl(a);
+            openPage(a, XemsLang.tr("Каталог с упражнения", "Exercise catalog"), url());
         } catch (Throwable t) {
             XemsGuard.report("XemsExercisePage.open", t);
+        }
+    }
+
+    /** Any page of ours full screen inside the app (the client's card and reports, …). */
+    public static void openUrl(Activity a, String title, String url) {
+        try {
+            openPage(a, title, url);
+        } catch (Throwable t) {
+            XemsGuard.report("XemsExercisePage.openUrl", t);
         }
     }
 
@@ -49,7 +58,7 @@ public final class XemsExercisePage {
         return url;
     }
 
-    private static void openImpl(Activity a) throws Exception {
+    private static void openPage(Activity a, String titleText, String pageUrl) throws Exception {
         XemsUi.init(a);
         Dialog d = new Dialog(a, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -60,7 +69,7 @@ public final class XemsExercisePage {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setPadding(XemsUi.dp(a, 18), XemsUi.dp(a, 6), XemsUi.dp(a, 8), XemsUi.dp(a, 6));
         bar.setBackgroundColor(0xFF161B22);
-        TextView title = XemsUi.text(a, XemsLang.tr("Каталог с упражнения", "Exercise catalog"), 18, 0xFFE6EDF3, true);
+        TextView title = XemsUi.text(a, titleText, 18, 0xFFE6EDF3, true);
         bar.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView close = XemsUi.iconButton(a, "✕", 0xFF21262D, 0xFFE6EDF3, 48);
         close.setOnClickListener(new Close(d));
@@ -77,7 +86,7 @@ public final class XemsExercisePage {
         web.setBackgroundColor(0xFF0D1117);
         web.setWebViewClient(new WebViewClient());              // links stay inside
         root.addView(web, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        web.loadUrl(url());
+        web.loadUrl(pageUrl);
 
         d.setContentView(root);
         d.setOnDismissListener(new Gone(web));

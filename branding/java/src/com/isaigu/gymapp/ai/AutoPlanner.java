@@ -101,7 +101,7 @@ public final class AutoPlanner {
             phiMax = Math.min(phiMax, 0.9);
         }
         // The client's focus zones and state (AiPersonal): ceiling, pauses, onset, zones.
-        AiPersonal.Effect pe = AiPersonal.of(in.focus, in.cond);
+        AiPersonal.Effect pe = AiPersonal.of(in.focus, in.cond, in.today);
         phiMax *= pe.phi;
         plan.phiMax = Math.max(0.4, Math.min(1.0, phiMax));
 

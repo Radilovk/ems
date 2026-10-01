@@ -272,6 +272,112 @@ public final class ClientRow {
             up.setOnClickListener(new Upload(s, u));
             body(s).addView(up, XemsUi.matchWrap(a, 8));
         }
+        // the card and every report on the server — also those made on another tablet
+        if (ReportBridge.lookupFields(u).length() > 0) {
+            TextView open = XemsUi.button(a, tr("Картон и всички отчети  ↗", "Card and all reports  ↗"), XemsUi.SECONDARY);
+            open.setOnClickListener(new OpenCard(a, u));
+            body(s).addView(open, XemsUi.matchWrap(a, 8));
+        }
+    }
+
+    /** Finds the client's card on the server by e-mail / phone (as the client's app does) and opens it here. */
+    static final class OpenCard implements View.OnClickListener {
+        private final Activity a;
+        private final TrainUser u;
+
+        OpenCard(Activity a, TrainUser u) {
+            this.a = a;
+            this.u = u;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            if (v instanceof TextView) {
+                ((TextView) v).setText(tr("Търси се…", "Looking…"));
+            }
+            new Thread(new FindCard(a, u, v), "xems-card-find").start();
+        }
+    }
+
+    static final class FindCard implements Runnable {
+        private final Activity a;
+        private final TrainUser u;
+        private final View button;
+
+        FindCard(Activity a, TrainUser u, View button) {
+            this.a = a;
+            this.u = u;
+            this.button = button;
+        }
+
+        @Override
+        public void run() {
+            String url = null;
+            try {
+                String base = com.isaigu.gymapp.widget.XemsLicense.server();
+                while (base.endsWith("/")) {
+                    base = base.substring(0, base.length() - 1);
+                }
+                java.net.HttpURLConnection con = (java.net.HttpURLConnection) new java.net.URL(base + "/v1/card/find")
+                        .openConnection();
+                con.setConnectTimeout(12000);
+                con.setReadTimeout(15000);
+                con.setRequestMethod("POST");
+                con.setDoOutput(true);
+                con.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                con.setRequestProperty("User-Agent", "XEMS-Android");
+                String body = "{" + ReportBridge.lookupFields(u).substring(1) + "}";
+                java.io.OutputStream out = con.getOutputStream();
+                out.write(body.getBytes("UTF-8"));
+                out.close();
+                if (con.getResponseCode() == 200) {
+                    java.io.InputStream in = con.getInputStream();
+                    java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();
+                    byte[] b = new byte[4096];
+                    int n;
+                    while ((n = in.read(b)) > 0) {
+                        buf.write(b, 0, n);
+                    }
+                    in.close();
+                    org.json.JSONObject o = new org.json.JSONObject(buf.toString("UTF-8"));
+                    String found = o.optString("url", "");
+                    if (o.optBoolean("ok") && found.startsWith("https://")) {
+                        url = found;
+                    }
+                }
+            } catch (Throwable t) {
+                XemsGuard.report("ClientRow.findCard", t);
+            }
+            a.runOnUiThread(new Opened(a, u, url, button));
+        }
+    }
+
+    static final class Opened implements Runnable {
+        private final Activity a;
+        private final TrainUser u;
+        private final String url;
+        private final View button;
+
+        Opened(Activity a, TrainUser u, String url, View button) {
+            this.a = a;
+            this.u = u;
+            this.url = url;
+            this.button = button;
+        }
+
+        @Override
+        public void run() {
+            if (button instanceof TextView) {
+                ((TextView) button).setText(tr("Картон и всички отчети  ↗", "Card and all reports  ↗"));
+            }
+            if (url == null) {
+                android.widget.Toast.makeText(a, tr("На сървъра няма картон за този имейл / телефон (или няма връзка).",
+                        "No card on the server for this e-mail / phone (or no connection)."), android.widget.Toast.LENGTH_LONG).show();
+                return;
+            }
+            com.isaigu.gymapp.widget.XemsExercisePage.openUrl(a, u.name != null ? u.name : tr("Картон", "Card"), url);
+        }
     }
 
     private static LinearLayout body(XemsUi.Shell s) {

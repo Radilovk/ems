@@ -159,7 +159,8 @@ final class AiUi {
             profileOpen = false;
             healthOk = false;
             noBand = false;
-            healthOpen = hasHealthFlag(AiSession.getInput());
+            healthOpen = false;                        // contraindications belong to the registration, not here
+            AiSession.getInput().today.clear();        // how the client is today: asked fresh each time
             // the band connects now: the resting HR is measured while the goal and client are answered
             if (AiSession.isBandConfigured(activity) && !AiSession.isBandStreaming()) {
                 AiSession.acquireBand(activity);
@@ -580,17 +581,15 @@ final class AiUi {
         });
         col.addView(op);
         body.addView(scroll(a, col));
-        setupFooter(a, healthOpen ? AiText.t("Към плана", "To the plan")
-                : "✓  " + AiText.t("Добре е днес · към плана", "Fine today · to the plan"), false);
+        setupFooter(a, AiText.t("Към плана  ›", "To the plan  ›"), false);
         boolean ready = goalReady();
         primaryBtn.setEnabled(ready);
         primaryBtn.setAlpha(ready ? 1f : 0.4f);
     }
 
-    /** Adult, and (the list open) nothing that rules today out. */
+    /** Adult (the health questions are the registration's; today's state only shapes the plan). */
     private static boolean goalReady() {
-        AiModel.SessionInput in = AiSession.getInput();
-        return in.age >= 18 && (!healthOpen || !AiScreening.evaluate(in).isRejected());
+        return AiSession.getInput().age >= 18;
     }
 
     // ================================================================ 2 · client (profile + health)
@@ -676,78 +675,57 @@ final class AiUi {
         }
         col.addView(prof);
 
-        LinearLayout health = card(a);
-        if (!healthOpen) {
-            TextView more = text(a, AiText.t("Има нещо днес? (противопоказание, болест…)",
-                    "Something today? (contraindication, illness…)"), 15, AiViews.MUTED, true);
-            more.setGravity(Gravity.CENTER);
-            more.setPadding(0, dp(a, 6), 0, dp(a, 6));
-            more.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    healthOpen = true;
-                    healthOk = false;
-                    go(STEP_GOAL);
-                }
-            });
-            health.addView(more, matchWrap(a, 0));
-        } else {
-            health.addView(sectionLabel(a, AiText.t("Отбележи какво важи", "Mark what applies")));
-            for (final String key : AiScreening.CONTRAINDICATIONS) {
-                Boolean v = in.screening.contraindications.get(key);
-                health.addView(toggleRow(a, AiText.contraindication(key), v != null && v, new ToggleCallback() {
-                    @Override
-                    public void onToggle(boolean on) {
-                        in.screening.contraindications.put(key, on);
-                        go(STEP_GOAL);
-                    }
-                }));
-            }
-            health.addView(toggleRow(a, AiText.t("Температура или заболяване", "Fever or illness"),
-                    in.screening.feverOrIllness, new ToggleCallback() {
-                        @Override
-                        public void onToggle(boolean on) {
-                            in.screening.feverOrIllness = on;
-                            go(STEP_GOAL);
-                        }
-                    }));
-            health.addView(toggleRow(a, AiText.t("Алкохол или силен стрес (48 ч)", "Alcohol or heavy stress (48 h)"),
-                    in.screening.alcoholOrStress48h, new ToggleCallback() {
-                        @Override
-                        public void onToggle(boolean on) {
-                            in.screening.alcoholOrStress48h = on;
-                            go(STEP_GOAL);
-                        }
-                    }));
-            health.addView(toggleRow(a, AiText.t("Известна аритмия", "Known arrhythmia"),
-                    in.screening.knownArrhythmia, new ToggleCallback() {
-                        @Override
-                        public void onToggle(boolean on) {
-                            in.screening.knownArrhythmia = on;
-                            go(STEP_GOAL);
-                        }
-                    }));
-            health.addView(toggleRow(a, AiText.t("Лекарства, понижаващи пулса", "HR-lowering medication"),
-                    in.screening.hrLoweringMedication, new ToggleCallback() {
-                        @Override
-                        public void onToggle(boolean on) {
-                            in.screening.hrLoweringMedication = on;
-                            go(STEP_GOAL);
-                        }
-                    }));
-        }
-        col.addView(health, matchWrap(a, 14));
-
-        AiScreening.Result r = AiScreening.evaluate(in);
+        // How the client is today: one tap each, never stops the session — the plan quietly adapts (AiPersonal)
+        col.addView(todayRow(a, in.today, in.sex, in.age, in.cond), matchWrap(a, 14));
         if (in.age < 18) {
             col.addView(banner(a, AiViews.DANGER, AiText.t("AI сесията е само за пълнолетни.",
                     "AI sessions are for adults only.")), matchWrap(a, 14));
-        } else if (r.isRejected() && healthOpen) {
-            StringBuilder sb = new StringBuilder(AiText.t("Не може днес: ", "Not today: "));
-            for (int i = 0; i < r.rejects.size(); i++) {
-                sb.append(i > 0 ? " · " : "").append(AiText.screeningCode(r.rejects.get(i)));
+        }
+    }
+
+    /** "Днес:" and the momentary states as chips (the period only where it applies). */
+    static View todayRow(Context a, java.util.Set<String> today, AiModel.Sex sex, int age, java.util.Set<String> cond) {
+        LinearLayout row = horizontal(a);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView cap = text(a, AiText.t("Днес", "Today"), 15, AiViews.MUTED, true);
+        cap.setPadding(dp(a, 4), 0, dp(a, 12), 0);
+        row.addView(cap);
+        for (String k : AiPersonal.TODAY) {
+            if ("t_period".equals(k) && !AiPersonal.periodApplies(sex, age, cond)) {
+                today.remove(k);
+                continue;
             }
-            col.addView(banner(a, AiViews.DANGER, sb.toString()), matchWrap(a, 14));
+            boolean on = today.contains(k);
+            TextView chip = com.isaigu.gymapp.widget.XemsUi.chip(a, (on ? "✓ " : "") + AiPersonal.todayName(k), on,
+                    com.isaigu.gymapp.widget.XemsUi.AMBER);
+            chip.setOnClickListener(new TodayToggle(today, k));
+            com.isaigu.gymapp.widget.XemsUi.pressable(chip);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = dp(a, 8);
+            row.addView(chip, lp);
+        }
+        android.widget.HorizontalScrollView h = new android.widget.HorizontalScrollView(a);
+        h.setHorizontalScrollBarEnabled(false);
+        h.addView(row);
+        return h;
+    }
+
+    static final class TodayToggle implements View.OnClickListener {
+        private final java.util.Set<String> today;
+        private final String key;
+
+        TodayToggle(java.util.Set<String> today, String key) {
+            this.today = today;
+            this.key = key;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (!today.remove(key)) {
+                today.add(key);
+            }
+            go(STEP_GOAL);
         }
     }
 

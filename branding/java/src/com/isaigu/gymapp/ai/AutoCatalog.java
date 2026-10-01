@@ -387,7 +387,7 @@ public final class AutoCatalog {
                 w.envEnd = 1.0;
                 w.hintBg = "Клек, ходене на място";
                 w.hintEn = "Squat, marching";
-                w.steps.add(pause(tet(85, 300, 4, 4), 6, slim ? 0.45 : 0.40));
+                w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
                 Phase m = phase(out, "MAIN", "Сила", "Strength", slim ? 0.45 : 0.75, total, 1.0, 1.0);
                 m.envEnd = ENV_MAX;
                 m.window = Window.main();
@@ -410,7 +410,7 @@ public final class AutoCatalog {
                 Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.20, total, 0.6, 0.9);
                 w.envStart = 0.6;
                 w.envEnd = 0.9;
-                w.steps.add(tet(85, 300, 4, 4));
+                w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
                 Phase m = phase(out, "MAIN", "Взривна сила", "Explosive power", 0.70, total, 1.0, 1.0);
                 m.envEnd = ENV_MAX;
                 m.window = Window.main();
@@ -418,8 +418,8 @@ public final class AutoCatalog {
                 m.window.onPlus = 1;
                 m.window.offMinus = 1;
                 m.window.offPlus = 3;
-                m.hintBg = "Взривен клек / скок / хвърляне на всеки импулс";
-                m.hintEn = "Explosive squat / jump / throw on every pulse";
+                m.hintBg = "Взривен клек / скок / хвърляне в свое темпо";
+                m.hintEn = "Explosive squat / jump / throw at your own pace";
                 m.steps.add(tet(100, 300, 3, 9));
                 cooldown(out, total, 0.10, 5);
                 break;
@@ -428,7 +428,7 @@ public final class AutoCatalog {
                 Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.10, total, 0.6, 0.9);
                 w.envStart = 0.6;
                 w.envEnd = 0.9;
-                w.steps.add(pause(tet(85, 300, 4, 4), 6, 0.45));
+                w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
                 Phase mt = phase(out, "METABOLIC", "Изгаряне", "Burn", 0.80, total, 0.9, 0.9);
                 mt.envStart = 1.0;
                 mt.envEnd = ENV_MAX;
@@ -444,7 +444,7 @@ public final class AutoCatalog {
                 Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.15, total, 0.6, 0.9);
                 w.envStart = 0.6;
                 w.envEnd = 0.9;
-                w.steps.add(tet(85, 300, 4, 4));
+                w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
                 Phase m = phase(out, "MAIN", "Стабилност", "Stability", 0.75, total, 0.9, 0.9);
                 m.envEnd = ENV_MAX;
                 m.window = Window.main();
@@ -462,7 +462,7 @@ public final class AutoCatalog {
                 Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.20, total, 0.6, 1.0);
                 w.envStart = 0.6;
                 w.envEnd = 1.0;
-                w.steps.add(tet(85, 300, 4, 6));
+                w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
                 Phase m = phase(out, "MAIN", "Сила", "Strength", 0.70, total, 1.0, 1.0);
                 m.window = Window.main();
                 m.hintBg = "Ставане от стол, повдигане на пръсти, гребане с ластик";
@@ -537,8 +537,8 @@ public final class AutoCatalog {
                 Phase m = phase(out, "MAIN", "Тазово дъно", "Pelvic floor", 0.70, total, 0.6, phiEnd);
                 m.envStart = 0.6;
                 m.envEnd = phiEnd;
-                m.hintBg = "Издишай и стегни тазовото дъно с всеки импулс";
-                m.hintEn = "Breathe out and lift the pelvic floor with each pulse";
+                m.hintBg = "Стягай тазовото дъно в свое темпо";
+                m.hintEn = "Lift the pelvic floor at your own pace";
                 m.steps.add(pause(tet(hz, 250, 4, 8), 6, 0.35));
                 cooldown(out, total, 0.15, 3);
                 break;
@@ -609,6 +609,9 @@ public final class AutoCatalog {
         s.rampDownMs = 300;
         return s;
     }
+
+    /** Warm-up of the active programs: 7 Hz single twitches, almost continuous (blood flow, warmth, next to no fatigue). */
+    static final int WARMUP_HZ = 7;
 
     static Step twitch(int hz, int pw, int on, int off, double sigma) {
         Step s = new Step(hz, pw, on, off);

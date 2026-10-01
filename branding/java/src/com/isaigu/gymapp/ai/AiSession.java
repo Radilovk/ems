@@ -557,9 +557,32 @@ public final class AiSession {
         }
     }
 
+    /** AI owns the impulse: the row controls it decides (Hz, 2nd impulse…) are veiled as in Auto — the AI rewrites
+     *  them every cycle, and the 2nd-impulse buttons around the avatar blinked on / off between work and rest. */
+    private static boolean looked;
+
+    private static void look() {
+        try {
+            boolean want = (stage == Stage.RUNNING || stage == Stage.CALIB) && panelRoot != null;
+            if (want) {
+                AutoLook.apply(panelRoot, "AI", input != null && input.goal != null ? AiText.goal(input.goal) : "");
+                looked = true;
+            } else if (looked) {
+                AutoLook.restore();
+                looked = false;
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("ai", "look: " + t);
+        }
+    }
+
     public static void close() {
         if (stage == Stage.RUNNING || stage == Stage.CALIB) {
             stop();
+        }
+        if (looked) {
+            AutoLook.restore();
+            looked = false;
         }
         workout = null;
         stopTicker();
@@ -657,6 +680,7 @@ public final class AiSession {
         long now = System.currentTimeMillis();
         double dtS = (now - lastTickMs) / 1000.0;
         lastTickMs = now;
+        look();
         if (stage == Stage.SETUP || stage == Stage.REST_HR) {
             if (restHr == null && isBandStreaming()) {
                 restHr = new AiRestHr(input.screening.restedLast10min);   // the band is up: start measuring

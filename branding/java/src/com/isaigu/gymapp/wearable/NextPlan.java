@@ -269,12 +269,20 @@ public final class NextPlan {
         Snap n = last.copy();
         double k = 1.0;
         double days = lastMs > 0 ? (now - lastMs) / (double) DAY : 99;
-        // 1. rest since the last training
-        if (days < 1.75) {
-            k *= 0.85;
+        // 1. rest since the last training. WB-EMS works the same motor units every impulse, so the muscle damage
+        //    (CK) of a hard session peaks on day 2–4; the WB-EMS guidelines ask ≥ 4 days between sessions
+        //    (docs/xems-ems-physiology.md §6).
+        if (days < 2) {
+            k *= 0.7;
             n.work = shorter(n.work, 0.8);
-            rec.why.add(tr(String.format("Само %d ч от последната — по-леко и по-кратко (−15 %%).", Math.round(days * 24)),
-                           String.format("Only %d h since the last one — lighter and shorter (−15%%).", Math.round(days * 24))));
+            rec.why.add(tr(String.format("Само %d ч от последната — мускулите не са възстановени (след EMS това трае 2–4 дни): −30 %%, по-кратко.",
+                                   Math.round(days * 24)),
+                           String.format("Only %d h since the last one — the muscles have not recovered (after EMS that takes 2–4 days): −30%%, shorter.",
+                                   Math.round(days * 24))));
+        } else if (days < 4) {
+            k *= 0.85;
+            rec.why.add(tr(String.format("%d дни почивка — под препоръчаните 4 дни между EMS тренировки: −15 %%.", (int) Math.floor(days)),
+                           String.format("%d days of rest — under the recommended 4 days between EMS sessions: −15%%.", (int) Math.floor(days))));
         } else if (days > 21) {
             k *= 0.8;
             n.work = shorter(n.work, 0.8);
@@ -291,10 +299,10 @@ public final class NextPlan {
         // 2. the next appointment
         if (nextApptMs > 0 && apptMs > 0) {
             double gap = (nextApptMs - apptMs) / (double) DAY;
-            if (gap < 1.75) {
+            if (gap < 4) {
                 k *= 0.95;
-                rec.why.add(tr("Следващият час е до 2 дни — умерено (−5 %).",
-                               "The next appointment is within 2 days — moderate (−5%)."));
+                rec.why.add(tr("Следващият час е след по-малко от 4 дни — умерено, за да се възстановят (−5 %).",
+                               "The next appointment is within 4 days — moderate, so they recover (−5%)."));
             }
         }
         // 3. the muscles: the 30-day load per zone against the average

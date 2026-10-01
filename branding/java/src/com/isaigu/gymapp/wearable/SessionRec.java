@@ -72,7 +72,7 @@ final class SessionRec {
     final int[] chPeak = new int[CH];
     /** Work per channel: Σ (share × main strength) over the impulse seconds — the muscle map's load — plus the
      *  exercise's own work on its muscles (EXERCISE_LOAD at a main muscle in the impulse, 30 % of it in the pause). */
-    final long[] chLoad = new long[CH];
+    final double[] chLoad = new double[CH];
 
     /** Seconds the slot has been paused without a break. */
     int pausedS;
@@ -196,7 +196,9 @@ final class SessionRec {
                     chPeak[i] = real;
                 }
                 if (item.data.inStart && !passive) {
-                    chLoad[i] += real;                 // muscle work: the passive phase does not count
+                    // muscle work: strength × the contraction its frequency gives (7 Hz twitches ≈ 13 % of 85 Hz;
+                    // docs/xems-ems-physiology.md); the passive phase does not count
+                    chLoad[i] += real * com.isaigu.gymapp.ai.AiPlanner.forceWeight(b != null ? b.hz : 85);
                 }
             }
         }
@@ -209,7 +211,7 @@ final class SessionRec {
             int pct = item.data.inStart ? 100 : 30;
             for (int i = 0; i < CH && i < mus.length; i++) {
                 if ((mask & (1 << i)) == 0) {
-                    chLoad[i] += mus[i] * EXERCISE_LOAD * pct / 10000;
+                    chLoad[i] += mus[i] * EXERCISE_LOAD * pct / 10000.0;
                 }
             }
         }
@@ -217,8 +219,8 @@ final class SessionRec {
 
     /** Load per muscle, 0–100 against the most worked one (all 0 when nothing ran). */
     int[] muscleLevels() {
-        long mx = 0;
-        for (long v : chLoad) {
+        double mx = 0;
+        for (double v : chLoad) {
             mx = Math.max(mx, v);
         }
         int[] out = new int[CH];

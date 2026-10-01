@@ -44,6 +44,8 @@
 
 .field public qBudget:D
 
+.field public qCool:D
+
 .field public qPlan:D
 
 .field public qPlanPauseOff:D

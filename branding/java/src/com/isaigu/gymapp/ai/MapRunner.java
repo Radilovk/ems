@@ -61,6 +61,7 @@ public final class MapRunner {
     private static Dialog dialog;
     private static ImpulseMapView line;
     private static ExerciseFigure figure;
+    private static final long FIGURE_T0 = System.currentTimeMillis();
     private static TextView head;
     private static TextView name;
     private static TextView detail;
@@ -381,6 +382,7 @@ public final class MapRunner {
             LinearLayout tile = new LinearLayout(a);
             tile.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(a, 12), 0, 0));
             figure = new ExerciseFigure(a);
+            figure.setCycle(FIGURE_T0, 2, 2);                 // own calm tempo: the client moves as they like
             AiProfile who = AiProfile.of(leader());
             figure.setColor(ExerciseFigure.colorFor(who != null ? who.sex : null));
             tile.addView(figure, new LinearLayout.LayoutParams(XemsUi.dp(a, 132), XemsUi.dp(a, 98)));
@@ -404,9 +406,12 @@ public final class MapRunner {
             strip.addView(line, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(a, 40)));
             card.addView(strip, XemsUi.matchWrap(a, 8));
 
+            android.util.DisplayMetrics dm0 = a.getResources().getDisplayMetrics();
+            FloatCard frame = new FloatCard(a, card, "map_card",
+                    Math.min(XemsUi.dp(a, 640), (int) (dm0.widthPixels * 0.7f)));
             dialog = new Dialog(a);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.setContentView(card);
+            dialog.setContentView(frame);
             dialog.setCancelable(false);
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
@@ -423,6 +428,7 @@ public final class MapRunner {
                         | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL) & ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
                 w.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                 w.setAttributes(lp);
+                frame.attach(w);
             }
             updateCard(System.currentTimeMillis());
         } catch (Throwable t) {
@@ -458,11 +464,10 @@ public final class MapRunner {
             name.setText(AiText.t("Почивка ", "Rest ") + AiText.mmss(Math.max(0, b.reps - clock.getBlockS())));
             detail.setText("");
         } else {
+            // the exercise only — no impulse sync, no counting: the client does it at their own pace
             figure.setExercise(b.hasExercise() ? b.ex : null);
-            figure.setCycle(cycleStartMs > 0 ? cycleStartMs : now, b.on, Math.max(1, b.off));
             name.setText(b.hasExercise() ? AutoTemplates.name(b.ex) : AiText.t("Импулс", "Impulse"));
-            detail.setText(AiText.t("повторение ", "rep ") + Math.min(b.reps, Math.max(0, clock.getCycles())) + "/" + b.reps
-                    + "  ·  " + b.hz + " Hz · " + b.pw + " µs");
+            detail.setText(b.hz + " Hz · " + b.pw + " µs");
         }
         String n = "";
         for (int k = idx + 1; k < map.blocks.size(); k++) {

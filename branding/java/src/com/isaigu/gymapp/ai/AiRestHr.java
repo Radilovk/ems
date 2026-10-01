@@ -5,18 +5,33 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * §2 CALIB_REST_HR — resting HR over a 30 s window (median / SD of the whole window),
- * with sample validation, stale handling and up to two 15 s extensions.
+ * §2 CALIB_REST_HR — resting HR, measured as long as its reliability needs: 10–45 s (median of the last stretch).
+ * <ul>
+ *   <li>noise: the median of n samples with spread σ is good to ±1 bpm when n ≥ (1.25·σ)² — so a calm, dense
+ *       signal is done in 10 s, a noisy or sparse one needs longer;</li>
+ *   <li>trend: HR still falling (or rising) faster than 3 bpm per 30 s means the body has not settled (just walked
+ *       in, talking) — the window grows until the trend is flat;</li>
+ *   <li>not rested in the last 10 minutes → at least 20 s.</li>
+ * </ul>
+ * At 45 s the best estimate is taken if it is fair (σ ≤ 4.5, trend ≤ 6 bpm / 30 s), else UNSTABLE (trainer accepts).
+ * Samples are validated (30–220, ≤ 5 bpm/s jumps); a silent band (10 s) pauses the clock.
  */
 public final class AiRestHr {
+    public static final long MIN_MS = 10000L;
+    public static final long MIN_NOT_RESTED_MS = 20000L;
+    public static final long MAX_MS = 45000L;
+    /** Window the result is taken from (the settled end of the measurement). */
     public static final long WINDOW_MS = 30000L;
-    public static final long EXTEND_MS = 15000L;
-    public static final int MAX_EXTENSIONS = 2;
     public static final long STALE_MS = 10000L;
     public static final double SIGMA_MAX = 3.0;
+    /** bpm / s: 3 bpm in 30 s. */
+    public static final double DRIFT_MAX = 0.1;
     public static final double SLOPE_MAX_BPM_PER_S = 5.0;
 
     public enum Status { WAITING, MEASURING, STALE, DONE, UNSTABLE }
+
+    /** Why it still measures (for the screen). */
+    public enum Reason { NONE, FEW, NOISY, DRIFT }
 
     private final List<long[]> samples = new ArrayList<long[]>();
     private long lastSampleMs = -1L;
@@ -24,9 +39,10 @@ public final class AiRestHr {
     /** Effective measuring time (stale gaps excluded). */
     private long measuredMs;
     private long lastTickMs = -1L;
+    private final long minMs;
     private long targetMs;
-    private int extensions;
     private Status status = Status.WAITING;
+    private Reason reason = Reason.FEW;
     private int rejected;
 
     private int hrRest;
@@ -34,8 +50,12 @@ public final class AiRestHr {
     private long dtHrMs;
 
     public AiRestHr(boolean restedLast10min) {
-        // Not rested → start with one extension already applied (§1.2 restedLast10min).
-        targetMs = WINDOW_MS + (restedLast10min ? 0L : EXTEND_MS);
+        minMs = restedLast10min ? MIN_MS : MIN_NOT_RESTED_MS;
+        targetMs = MAX_MS;                                   // until the first samples say more
+    }
+
+    public Reason getReason() {
+        return reason;
     }
 
     public Status getStatus() {
@@ -101,7 +121,7 @@ public final class AiRestHr {
         }
     }
 
-    /** Advance the window clock; call ~1 Hz. */
+    /** Advance the clock; call ~1 Hz. */
     public void tick(long nowMs) {
         if (status == Status.DONE || status == Status.UNSTABLE) {
             return;
@@ -121,29 +141,97 @@ public final class AiRestHr {
         }
         status = Status.MEASURING;
         measuredMs += dt;
-        if (measuredMs >= targetMs) {
-            finish(nowMs);
+        assess();
+    }
+
+    /** Reliability now → the time this measurement needs, and DONE / UNSTABLE when it is there. */
+    private void assess() {
+        List<long[]> w = recent(Math.max(minMs, Math.min(WINDOW_MS, measuredMs)));
+        int n = w.size();
+        long step = Math.max(500L, medianInterval());
+        if (n < 4) {
+            reason = Reason.FEW;
+            targetMs = Math.min(MAX_MS, Math.max(minMs, measuredMs + (4 - n) * step));
+            if (measuredMs >= MAX_MS) {
+                status = Status.UNSTABLE;
+            }
+            return;
+        }
+        double sd = sdOf(w);
+        double slope = Math.abs(slope(w));
+        long need = (long) Math.ceil(Math.max(4, 1.5625 * sd * sd)) * step;   // n ≥ (1.25·σ)²
+        long target = Math.max(minMs, need);
+        boolean noisy = sd > SIGMA_MAX;
+        boolean drift = slope > DRIFT_MAX;
+        if (noisy || drift) {
+            target = Math.max(target, measuredMs + 5000L);   // not settled: keep going
+        }
+        targetMs = Math.min(MAX_MS, target);
+        reason = drift ? Reason.DRIFT : noisy ? Reason.NOISY : n * step < need ? Reason.FEW : Reason.NONE;
+        if (measuredMs >= targetMs && !noisy && !drift) {
+            take(w, sd);
+            status = Status.DONE;
+        } else if (measuredMs >= MAX_MS) {
+            take(w, sd);
+            status = sd <= 1.5 * SIGMA_MAX && slope <= 2 * DRIFT_MAX ? Status.DONE : Status.UNSTABLE;
         }
     }
 
-    private void finish(long nowMs) {
-        List<Integer> w = lastWindow(WINDOW_MS);
-        if (w.size() < 3) {
-            return;
+    private void take(List<long[]> w, double sd) {
+        List<Integer> v = new ArrayList<Integer>();
+        for (int i = 0; i < w.size(); i++) {
+            v.add((int) w.get(i)[1]);
         }
-        hrRest = median(w);
-        sigma = sd(w);
+        hrRest = median(v);
+        sigma = sd;
         dtHrMs = medianInterval();
-        if (sigma <= SIGMA_MAX) {
-            status = Status.DONE;
-            return;
+    }
+
+    /** Samples of the last spanMs. */
+    private List<long[]> recent(long spanMs) {
+        List<long[]> out = new ArrayList<long[]>();
+        if (samples.isEmpty()) {
+            return out;
         }
-        if (extensions < MAX_EXTENSIONS) {
-            extensions++;
-            targetMs += EXTEND_MS;
-            return;
+        long end = samples.get(samples.size() - 1)[0];
+        for (int i = 0; i < samples.size(); i++) {
+            if (samples.get(i)[0] >= end - spanMs) {
+                out.add(samples.get(i));
+            }
         }
-        status = Status.UNSTABLE;
+        return out;
+    }
+
+    private static double sdOf(List<long[]> w) {
+        List<Integer> v = new ArrayList<Integer>();
+        for (int i = 0; i < w.size(); i++) {
+            v.add((int) w.get(i)[1]);
+        }
+        return sd(v);
+    }
+
+    /** Least-squares trend, bpm per second. */
+    static double slope(List<long[]> w) {
+        int n = w.size();
+        if (n < 2) {
+            return 0;
+        }
+        double mt = 0;
+        double mb = 0;
+        for (int i = 0; i < n; i++) {
+            mt += w.get(i)[0] / 1000.0;
+            mb += w.get(i)[1];
+        }
+        mt /= n;
+        mb /= n;
+        double num = 0;
+        double den = 0;
+        for (int i = 0; i < n; i++) {
+            double dt = w.get(i)[0] / 1000.0 - mt;
+            num += dt * (w.get(i)[1] - mb);
+            den += dt * dt;
+        }
+        return den > 1e-9 ? num / den : 0;
     }
 
     /** Operator accepts an unstable result (WARN_UNSTABLE). */

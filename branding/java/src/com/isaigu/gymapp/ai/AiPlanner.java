@@ -22,6 +22,8 @@ public final class AiPlanner {
     public static final double T_BLOCK_MAX_S = 180.0;
     public static final double T_REST_MIN_S = 20.0;
     public static final double T_REST_MAX_S = 120.0;
+    /** Warm-up frequency of the strength goals (TONE, FAT). */
+    public static final int WARMUP_HZ = 7;
 
     private AiPlanner() {}
 
@@ -140,8 +142,10 @@ public final class AiPlanner {
 
         switch (in.goal) {
             case TONE:
-                addPhase(plan, PhaseId.WARMUP, 0.15, total, 0.6, 1.0, BlockMode.CONTINUOUS,
-                        new CycleSpec(85, 350, 4, 4, 1.0), null);
+                // Warm-up: 7 Hz single twitches, almost continuous — blood flow and warmth, next to no fatigue
+                // (the WB-EMS warm-up); the strength part starts with fresh muscles. [D]
+                addPhase(plan, PhaseId.WARMUP, 0.15, total, 0.6, 0.9, BlockMode.CONTINUOUS,
+                        new CycleSpec(WARMUP_HZ, 350, 10, 0, 1.0), null);
                 addPhase(plan, PhaseId.MAIN, 0.75, total, 1.0, 1.0, BlockMode.FATIGUE_DRIVEN,
                         new CycleSpec(85, 350, 6, 4, 1.0), null);
                 addPhase(plan, PhaseId.COOLDOWN, 0.10, total, 0.5, 0.5, BlockMode.CONTINUOUS,
@@ -151,7 +155,7 @@ public final class AiPlanner {
                 break;
             case FAT:
                 addPhase(plan, PhaseId.WARMUP, 0.10, total, 0.6, 0.9, BlockMode.CONTINUOUS,
-                        new CycleSpec(85, 350, 4, 4, 1.0), null);
+                        new CycleSpec(WARMUP_HZ, 350, 10, 0, 1.0), null);
                 addPhase(plan, PhaseId.MAIN, 0.40, total, 0.9, 0.9, BlockMode.FATIGUE_DRIVEN,
                         new CycleSpec(85, 350, 4, 4, 1.0), null);
                 addPhase(plan, PhaseId.METABOLIC, 0.40, total, 0.8, 0.8, BlockMode.FATIGUE_DRIVEN,
@@ -238,6 +242,7 @@ public final class AiPlanner {
         plan.qPlanPauseOn = simulateDose(plan, true);
         plan.qPlanPauseOff = simulateDose(plan, false);
         plan.qPlan = plan.pauseOn ? plan.qPlanPauseOn : plan.qPlanPauseOff;
+        plan.qCool = simulateDose(plan, false, PhaseId.COOLDOWN);
         plan.qBudget = plan.qPlan * (1.0 + (self ? 0.0 : BUDGET_BETA));
         return plan;
     }
@@ -311,9 +316,9 @@ public final class AiPlanner {
     private static boolean autoActive(Goal goal, Phase ph, CycleSpec c) {
         switch (goal) {
             case TONE:
-                return ph.id == PhaseId.WARMUP;
+                return false;                       // 7 Hz warm-up has no pause; the strength part keeps full rest
             case FAT:
-                return ph.id == PhaseId.WARMUP || ph.id == PhaseId.MAIN;
+                return ph.id == PhaseId.MAIN;
             case CELLULITE:
                 return c.isTetanic();
             case MASSAGE:
@@ -359,18 +364,77 @@ public final class AiPlanner {
 
     /** §6.3 by fitness: {F_max, F_rec, τ_r}. [D] */
     public static double[] fatigueParams(Fitness f) {
-        if (f == Fitness.LOW) {
-            return new double[] {12, 4, 40};
-        }
-        if (f == Fitness.HIGH) {
-            return new double[] {18, 6, 22};
-        }
-        return new double[] {15, 5, 30};
+        // τ_r from the phosphocreatine recovery half-time (untrained ~35 s, trained ~21 s): τ = t½ / ln 2.
+        // The muscle recovers all the time, in the impulse too, so F settles: the classic WB-EMS 4 s / 4 s at
+        // 85 Hz and the calibrated strength peaks at τ / (1 + e^(−4/τ)). F_max is that peak × the tolerance
+        // of the fitness level: MID holds 4 / 4 just at the edge (20 min, the standard session), LOW needs rests
+        // already there, HIGH holds a bit more (6 / 4 with long blocks). F_rec = F_max / 3. [D]
+        double tau = f == Fitness.LOW ? 50 : f == Fitness.HIGH ? 30 : 40;
+        double k = f == Fitness.LOW ? 0.8 : f == Fitness.HIGH ? 1.15 : 1.0;
+        double fMax = k * tau / (1 + Math.exp(-4.0 / tau));
+        return new double[] {fMax, fMax / 3, tau};
     }
 
-    /** w(f) = (f/85)^0.5 (§6.3). */
+    /** Force–frequency curve: half of the tetanic force at F50_HZ, slope FF_N (human quadriceps, NMES). [E:R4,R5] */
+    static final double F50_HZ = 15.0;
+    static final double FF_N = 2.5;
+
+    static double forceShare(int hz) {
+        double x = Math.pow(Math.max(0, hz), FF_N);
+        return x / (x + Math.pow(F50_HZ, FF_N));
+    }
+
+    /**
+     * w(f) — how fast the impulse tires the muscle at full calibrated strength, 1.0 at 85 Hz (§6.3).
+     * The force the frequency produces (the force–frequency curve: single twitches below ~10 Hz, the muscle relaxes
+     * between them; a fused contraction from ~20–30 Hz) times an extra share for high frequencies (synchronous
+     * firing of the same motor units, conduction failure). 7 Hz ≈ 0.10, 20 Hz ≈ 0.53, 50 Hz ≈ 0.86. [D]
+     */
+    /**
+     * Contraction strength the frequency gives, against 85 Hz (the force–frequency curve): 1 Hz ≈ 0, 7 Hz ≈ 0.13,
+     * 20 Hz ≈ 0.68, 50 Hz ≈ 0.97. What "muscle work" means in the session record and the report. [E:R4,R5]
+     */
+    public static double forceWeight(int hz) {
+        return forceShare(hz) / forceShare(85);
+    }
+
     public static double fatigueWeight(int hz) {
-        return Math.sqrt(Math.max(0, hz) / 85.0);
+        return forceShare(hz) * (0.7 + 0.3 * Math.max(0, hz) / 85.0) / forceShare(85);
+    }
+
+    /** Continuous phases (warm-up, cool-down, massage, drainage) keep their fatigue peak below this share of F_max. */
+    public static final double CONT_F_SHARE = 0.75;
+    /** …but never go below this output just for that (a warm-up still has to be felt). [D] */
+    public static final double CONT_FLOOR = 0.3;
+
+    /** Fatigue at the end of an impulse of onS seconds at output rho, starting from f (§6.3). */
+    public static double afterOn(double f, CycleSpec c, double rho, double tauR) {
+        double e = Math.exp(-c.onS / tauR);
+        return f * e + fatigueWeight(c.hz) * rho * tauR * (1 - e);
+    }
+
+    /** Fatigue at the end of the pause (offS s; the active pause keeps a light load on). */
+    public static double afterOff(double f, CycleSpec c, double rho, int offS, boolean pause, double tauR) {
+        double e = Math.exp(-offS / tauR);
+        double g = pause && c.hasActivePause() ? fatigueWeight(c.pauseHz) * rho * c.pauseSigma * tauR : 0;
+        return f * e + g * (1 - e);
+    }
+
+    /**
+     * Highest output of a continuous phase's cycle whose steady-state fatigue peak stays at CONT_F_SHARE · F_max.
+     * A continuous phase has no blocks and no rests, so only the output can keep it below the block limit.
+     * Steady state of one cycle (all terms linear in ρ): f0 = (G·(1−E1)·E2 + P·(1−E2)) / (1 − E1·E2),
+     * peak = f0·E1 + G·(1−E1), with G = w·ρ·τ, P = w_p·ρ·σ_p·τ, E1 = e^(−on/τ), E2 = e^(−off/τ).
+     */
+    public static double continuousCap(double fMax, double tauR, CycleSpec c, int offS, boolean pause) {
+        double e1 = Math.exp(-c.onS / tauR);
+        double e2 = Math.exp(-Math.max(1, offS) / tauR);
+        double g = fatigueWeight(c.hz) * tauR;
+        double p = pause && c.hasActivePause() ? fatigueWeight(c.pauseHz) * c.pauseSigma * tauR : 0;
+        double f0 = (g * (1 - e1) * e2 + p * (1 - e2)) / Math.max(1e-9, 1 - e1 * e2);
+        double peak = Math.max(f0 * e1 + g * (1 - e1), f0);
+        double cap = peak > 1e-9 ? CONT_F_SHARE * fMax / peak : 1.0;
+        return Math.max(CONT_FLOOR, cap);
     }
 
     /** Relative dose of one ON period: ρ·pw·f·t, ×2 for biphasic (§6.2). */
@@ -391,8 +455,16 @@ public final class AiPlanner {
     }
 
     public static double simulateDose(Plan plan, boolean pauseOn) {
+        return simulateDose(plan, pauseOn, null);
+    }
+
+    /** @param only just this phase (each phase starts fresh, so phases add up), or null for all */
+    public static double simulateDose(Plan plan, boolean pauseOn, PhaseId only) {
         double q = 0;
         for (Phase ph : plan.phases) {
+            if (only != null && ph.id != only) {
+                continue;
+            }
             double t = 0;
             double f = 0;
             boolean useB = false;
@@ -412,13 +484,21 @@ public final class AiPlanner {
                 }
                 CycleSpec c = (ph.b != null && useB) ? ph.b : ph.a;
                 double rho = ph.phiAt(t / Math.max(1.0, ph.durationS)) * c.sigma;
-                q += cycleDose(c, rho);
-                f += fatigueWeight(c.hz) * rho * c.onS;
                 int off = deviceOffS(c.offS);
-                f *= Math.exp(-off / plan.tauR);
+                if (ph.blockMode == BlockMode.CONTINUOUS) {
+                    rho = Math.min(rho, continuousCap(plan.fMax, plan.tauR, c, off, pauseOn));
+                }
+                double peak = afterOn(f, c, rho, plan.tauR);
+                double end = afterOff(peak, c, rho, off, pauseOn, plan.tauR);
+                if (ph.blockMode == BlockMode.FATIGUE_DRIVEN && blockT > 0 && Math.max(peak, end) > plan.fMax) {
+                    rest = true;                                  // the engine ends a block before crossing F_max
+                    restT = 0;
+                    continue;
+                }
+                q += cycleDose(c, rho);
+                f = end;
                 if (pauseOn && c.hasActivePause()) {
                     q += pauseDose(c, rho, off);
-                    f += fatigueWeight(c.pauseHz) * rho * c.pauseSigma * off;
                 }
                 double dur = c.onS + off;
                 t += dur;

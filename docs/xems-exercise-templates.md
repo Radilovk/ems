@@ -57,11 +57,16 @@ a group session would force the leader's exercises on everyone.
   corridor, or the client took strength down → easier exercise for this station, sticky until the next station.
 - Outcome at the end → `AutoHistory.remember` (prefs `xems_auto_templates`, key `o<userId>|<program>`, last 3).
 - UI: `AiUi.screenRun` column 1 — figure + exercise name first (24 sp), then the phase; in the rest the next one.
+- **Not synced to the impulse (owner, 1.1.269):** the client does the exercise at their own pace. Every figure (AI
+  screen, Auto hint card, map card) runs its own calm 2 s / 2 s tempo; no impulse / pause cue ("стегни", "дишай"),
+  no countdown, no repetition counter on screen (sets and blocks still advance inside the engine). The Auto and map
+  cards float: one finger moves them, two fingers size them 60–180 % (`ai/FloatCard`, kept per card).
 - Band: `BandRemote` state `ex` (now) / `exn` (next, in the rest) → `pages/ai` label under the time, home card.
 
 ## Auto (`AutoHints`)
-Example figure 120×88 dp + "Пример: …" 12 sp in the hint card, own 2 s / 2 s tempo, rotates through the phase's list
-every 12 s; the amber phase hint stays the main text. No record, no kcal, no history.
+Example figure 140×104 dp beside the exercise name (21 sp) in the hint card, "пример · <phase hint>" under it, own
+2 s / 2 s tempo, rotates through the phase's list every 12 s; without an example the phase hint is the headline.
+No record, no kcal, no history.
 
 ## Energy, load and muscle map
 Smart Session only. The exercise done each second is recorded (`SessionRec.ex` = index + 1, `exs` = {id, met, mus}),

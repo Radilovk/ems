@@ -436,7 +436,7 @@ public final class AiEngine {
         if (ph.blockMode == BlockMode.FATIGUE_DRIVEN) {
             if (!inBlock) {
                 beginBlock(nowMs);
-            } else if (fatigue >= fMaxEff || endBlockRequested || setDone
+            } else if ((blockQ > 0 ? nextPeak(ph) : fatigue) > fMaxEff || endBlockRequested || setDone
                     || (nowMs - blockStartMs) / 1000.0 >= AiPlanner.T_BLOCK_MAX_S) {
                 endBlock(nowMs);
                 return silent(nowMs);
@@ -471,12 +471,16 @@ public final class AiEngine {
             c.pauseHz = spec.pauseHz;
             c.pauseSigma = spec.pauseSigma;
         }
+        if (ph.blockMode == BlockMode.CONTINUOUS && c.frac > 0) {
+            // no blocks, no rests: the output itself keeps the fatigue below the block limit
+            c.frac = Math.min(c.frac, AiPlanner.continuousCap(fMaxEff, plan.tauR, spec, c.offS, c.pauseHz > 0));
+        }
         applyRamps(c, spec);
 
         // G6 dose budget: never start a cycle that would exceed it; go to cool-down instead.
         double dose = AiPlanner.cycleDose(spec, c.frac)
                 + (c.pauseHz > 0 ? AiPlanner.pauseDose(spec, c.frac, c.offS) : 0);
-        if (ph.id != PhaseId.COOLDOWN && qUsed + dose > qBudget) {
+        if (ph.id != PhaseId.COOLDOWN && qUsed + dose + plan.qCool > qBudget) {
             flags.add("BUDGET");
             action("budget_cooldown", nowMs);
             jumpToCooldown(nowMs);
@@ -547,28 +551,29 @@ public final class AiEngine {
     }
 
     private void integrate(long nowMs, double dtS) {
+        // §6.3: dF/dt = w(f)·ρ − F/τ_r — the muscle recovers all the time, in the impulse too.
+        double e = Math.exp(-dtS / plan.tauR);
+        double load = 0;
         boolean on = state == State.RUN && isStimOnAt(nowMs) && currentSpec != null;
         if (on) {
             double rho = current.frac;
-            fatigue += AiPlanner.fatigueWeight(currentSpec.hz) * rho * dtS;
+            load = AiPlanner.fatigueWeight(currentSpec.hz) * rho;
             double dq = 2.0 * rho * currentSpec.pwUs * currentSpec.hz * dtS;
             qUsed += dq;
             if (inBlock) {
                 blockQ += dq;
             }
-        } else {
-            fatigue *= Math.exp(-dtS / plan.tauR);
-            if (state == State.RUN && isActivePauseAt(nowMs)) {
-                // Active pause: the muscle keeps working lightly — less recovery, more dose.
-                double rhoP = current.frac * current.pauseSigma;
-                fatigue += AiPlanner.fatigueWeight(current.pauseHz) * rhoP * dtS;
-                double dq = 2.0 * rhoP * currentSpec.pwUs * current.pauseHz * dtS;
-                qUsed += dq;
-                if (inBlock) {
-                    blockQ += dq;
-                }
+        } else if (state == State.RUN && isActivePauseAt(nowMs)) {
+            // Active pause: the muscle keeps working lightly — less recovery, more dose.
+            double rhoP = current.frac * current.pauseSigma;
+            load = AiPlanner.fatigueWeight(current.pauseHz) * rhoP;
+            double dq = 2.0 * rhoP * currentSpec.pwUs * current.pauseHz * dtS;
+            qUsed += dq;
+            if (inBlock) {
+                blockQ += dq;
             }
         }
+        fatigue = fatigue * e + load * plan.tauR * (1 - e);
     }
 
     private void guards(long nowMs, double dtS) {
@@ -624,6 +629,19 @@ public final class AiEngine {
     }
 
     // ================================================================= rest / blocks
+
+    /**
+     * Highest fatigue the next cycle reaches (its impulse, plus the active pause). A block ends before the cycle that
+     * would cross F_max, not after it: the limit was checked only at a cycle start, so a 6 s impulse took
+     * the block 30–50 % over its own limit.
+     */
+    private double nextPeak(Phase ph) {
+        CycleSpec spec = (ph.b != null && useB) ? ph.b : ph.a;
+        double rho = current != null && current.frac > 0 ? current.frac : Math.min(ph.phiStart, plan.phiMax);
+        double peak = AiPlanner.afterOn(fatigue, spec, rho, plan.tauR);
+        double end = AiPlanner.afterOff(peak, spec, rho, AiPlanner.deviceOffS(spec.offS), pauseOn, plan.tauR);
+        return Math.max(peak, end);
+    }
 
     private void beginBlock(long nowMs) {
         inBlock = true;
@@ -781,8 +799,9 @@ public final class AiEngine {
     }
 
     private void blockLevelControl(BlockStat b, long nowMs) {
-        // NON_RESPONDER (§8.4) after the first two MAIN blocks.
-        if (mainBlocks == 2 && prof.hrAvailable && !prof.safetyOnly
+        // NON_RESPONDER (§8.4) from the second MAIN block on, once a quarter of the dose is in
+        // (the warm-up no longer brings most of it, so block 2 can come before that).
+        if (mainBlocks >= 2 && cResp > 0 && !flags.contains("NON_RESPONDER") && prof.hrAvailable && !prof.safetyOnly
                 && sessionMaxX < 0.10 && qUsed >= 0.25 * plan.qPlan) {
             cResp = 0;
             flags.add("NON_RESPONDER");

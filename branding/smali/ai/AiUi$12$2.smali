@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 1110
+    .line 1088
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$12$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$12;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,9 +40,9 @@
     .registers 2
 
     .prologue
-    .line 1113
+    .line 1091
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopSoloRamp()V
 
-    .line 1114
+    .line 1092
     return-void
 .end method

@@ -14,7 +14,7 @@ import java.util.List;
  *   <li>The outcome (worked share, strength taken down, pulse ceiling) sets the next session's level.</li>
  * </ul>
  * With a workout (the "Тренировки" screen) the main part follows it instead, set by set, one impulse = one
- * repetition. The AI's fatigue model keeps a work block to ~4–6 impulses, so a longer set is a rest-pause set: when
+ * repetition. The AI's fatigue model (docs/xems-ems-physiology.md §3) keeps a work block to a few impulses, so a longer set is a rest-pause set: when
  * the block ends before the repetitions are done, the short rest is followed by the same exercise until they are;
  * then the engine is told to rest ({@link AiEngine#endSet}) and the next set comes. Fatigue and the pulse still
  * decide every rest — a set never makes a block longer. After the last set the list starts again (round 2).

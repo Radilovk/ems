@@ -33,6 +33,7 @@ public final class AutoLook {
     private static int[] modeIds;
     private static int[] hideIds;
     private static boolean on;
+    private static String signLabel = "";
 
     private AutoLook() {}
 
@@ -42,6 +43,11 @@ public final class AutoLook {
 
     /** @param any any view of the training screen; @param program the program name under the sign */
     static void apply(View any, String program) {
+        apply(any, AiText.t("АВТО", "AUTO"), program);
+    }
+
+    /** @param label the sign's first line (АВТО, AI) */
+    static void apply(View any, String label, String program) {
         if (any == null) {
             return;
         }
@@ -52,6 +58,7 @@ public final class AutoLook {
                 hideIds = ids(root.getContext(), HIDE_IDS);
             }
             on = true;
+            signLabel = label;
             walk(root, program != null ? program : "");
         } catch (Throwable t) {
             com.isaigu.gymapp.wearable.WearableBleDiagLog.log("auto", "look: " + t);
@@ -65,8 +72,16 @@ public final class AutoLook {
         on = false;
         try {
             for (Map.Entry<View, Integer> e : SAVED.entrySet()) {
-                if (e.getKey() != null) {
-                    e.getKey().setVisibility(e.getValue());
+                View v = e.getKey();
+                if (v == null) {
+                    continue;
+                }
+                Float alpha = VEILED.get(v);
+                if (alpha != null) {
+                    v.setAlpha(alpha);
+                    v.setOnTouchListener(null);
+                } else {
+                    v.setVisibility(e.getValue());
                 }
             }
             List<ViewGroup> cols = new ArrayList<ViewGroup>(SIGNS.keySet());
@@ -81,6 +96,7 @@ public final class AutoLook {
             com.isaigu.gymapp.wearable.WearableBleDiagLog.log("auto", "look restore: " + t);
         }
         SAVED.clear();
+        VEILED.clear();
         SIGNS.clear();
     }
 
@@ -152,7 +168,7 @@ public final class AutoLook {
 
     private static void hideIn(View v) {
         if (in(v.getId(), hideIds)) {
-            hide(v, View.INVISIBLE);
+            veil(v);
             return;
         }
         if (v instanceof ViewGroup) {
@@ -162,6 +178,33 @@ public final class AutoLook {
             }
         }
     }
+
+    /**
+     * The row controls the program decides (Hz, 2nd impulse, impulse / pause seconds…) are veiled, not hidden:
+     * the row's own refresh sets them VISIBLE on every parameter change, and a GONE / INVISIBLE toggled back on
+     * each tick made the index buttons around the avatar blink. Transparent + no touch survives the refresh.
+     */
+    private static void veil(View v) {
+        if (!SAVED.containsKey(v)) {
+            SAVED.put(v, v.getVisibility());
+            VEILED.put(v, v.getAlpha());
+        }
+        if (v.getAlpha() != 0f) {
+            v.setAlpha(0f);
+        }
+        v.setOnTouchListener(BLOCK);
+    }
+
+    static final class Block implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View v, android.view.MotionEvent e) {
+            return true;
+        }
+    }
+
+    private static final Block BLOCK = new Block();
+    /** Veiled views → their alpha before. */
+    private static final Map<View, Float> VEILED = new WeakHashMap<View, Float>();
 
     private static void hide(View v, int visibility) {
         if (!SAVED.containsKey(v)) {
@@ -174,7 +217,7 @@ public final class AutoLook {
 
     private static void sign(LinearLayout col, String program) {
         TextView t = SIGNS.get(col);
-        String text = AiText.t("АВТО", "AUTO") + (program.length() > 0 ? "\n" + program : "");
+        String text = signLabel + (program.length() > 0 ? "\n" + program : "");
         if (t == null) {
             Context c = col.getContext();
             t = XemsUi.text(c, text, 13, XemsUi.GO_TEXT, true);

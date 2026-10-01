@@ -181,7 +181,10 @@ public class AiSim {
             }
             check(!pp.pauseOn, g + " switched off → no double impulse");
             check(pa.pauseOn == pa.pauseAvailable && au.pauseOn == au.pauseAvailable, g + " switched on → used where programmed");
-            if (g != Goal.DRAIN) {
+            if (g == Goal.TONE) {
+                // TONE: 7 Hz continuous warm-up (no pause to fill), strength part keeps the passive pause
+                check(active == 0 && !pa.pauseAvailable, "TONE: no double impulse");
+            } else if (g != Goal.DRAIN) {
                 check(active > 0, g + " ACTIVE must fill some pauses");
                 // Fatigue-driven blocks rest earlier when the pause works too, so the session
                 // dose stays close to the passive one instead of piling up.
@@ -199,7 +202,8 @@ public class AiSim {
         Plan tone = plan(Goal.TONE, Mode.ACTIVE, PauseMode.AUTO);
         for (Phase ph : tone.phases) {
             if (ph.id == PhaseId.MAIN) check(!ph.a.hasActivePause(), "TONE auto: strength part keeps the passive pause");
-            if (ph.id == PhaseId.WARMUP) check(ph.a.hasActivePause(), "TONE auto: warm-up gets the active pause");
+            if (ph.id == PhaseId.WARMUP) check(!ph.a.isTetanic() && ph.a.hz == AiPlanner.WARMUP_HZ && !ph.a.hasActivePause(),
+                    "TONE: warm-up is 7 Hz twitch, nothing to fill");
         }
         // Engine: commands carry the pause and the dose counts it.
         double[] q = new double[2];
@@ -209,7 +213,7 @@ public class AiSim {
             Profile prof = AiPlanner.derive(in, 68, 1.5, 3000);
             AiEngine e = new AiEngine(in, prof, AiPlanner.build(in, prof));
             long t = 1_000_000L; e.start(t); long next = t; boolean sawPause = false;
-            for (int i = 0; i < 4 * 240; i++) {
+            for (int i = 0; i < 4 * 600; i++) {                // past the 7 Hz warm-up into MAIN
                 t += 250;
                 if (t >= next) {
                     AiEngine.CycleCmd c = e.onCycle(t);
@@ -218,11 +222,14 @@ public class AiSim {
                 }
                 if (t % 3000 == 0) e.onHr(t, 90);
                 e.tick(t);
+                if (e.isRestReady()) e.continueBlock(t);
+                if (e.getState() == AiEngine.State.CHECKPOINT) e.answerCheckpoint(6, t);
             }
             q[k] = e.getQUsed();
             if (k == 1) check(sawPause, "FAT active: engine sends the active pause");
         }
-        check(q[1] > q[0], "engine dose with active pause " + q[1] + " > passive " + q[0]);
+        // The pause adds dose per cycle but also fatigue, so blocks end sooner: over a window the two stay close.
+        check(q[1] >= 0.85 * q[0] && q[1] <= 1.35 * q[0], "engine dose with active pause " + q[1] + " vs passive " + q[0]);
         // Live controls: + only gives back a reduce; the double impulse switches live.
         {
             SessionInput in = new SessionInput();
@@ -299,6 +306,24 @@ public class AiSim {
         return e.getKcalEmsModel();
     }
 
+    /** Rest HR with samples every dtMs, a falling trend (bpm/s, for the first 30 s) and noise; seconds to DONE (99 = never). */
+    static long restHr(String name, boolean rested, long dtMs, double fall, double noise, int base) {
+        AiRestHr r = new AiRestHr(rested);
+        Random rnd = new Random(7);
+        long t;
+        for (t = 0; t <= 60000; t += 250) {
+            if (t % dtMs == 0) {
+                double drift = fall * Math.max(0, 30 - t / 1000.0);
+                r.onSample(t, (int) Math.round(base + drift + noise * rnd.nextGaussian()));
+            }
+            if (t % 1000 == 0) r.tick(t);
+            if (r.getStatus() == AiRestHr.Status.DONE || r.getStatus() == AiRestHr.Status.UNSTABLE) break;
+        }
+        long s = r.getStatus() == AiRestHr.Status.DONE ? t / 1000 : 99;
+        System.out.printf("REST_HR %-22s status=%s hr=%d sd=%.1f at %d s%n", name, r.getStatus(), r.getHrRest(), r.getSigma(), t / 1000);
+        return s;
+    }
+
     public static void main(String[] a) {
         boolean v = a.length > 0;
         AiEngine e;
@@ -333,15 +358,17 @@ public class AiSim {
         check(minReentry <= 0.6 + 1e-9, "5 min pause → re-entry 0.6");
         pauseAtS = -1;
         // §2 resting HR: 30 s window.
-        AiRestHr r = new AiRestHr(true);
-        long t0 = 0; int n = 0;
-        for (long t = 0; t <= 60000 && r.getStatus() != AiRestHr.Status.DONE; t += 1000) {
-            if (t % 3000 == 0) r.onSample(t, 64 + (n++ % 3));
-            r.tick(t);
-            t0 = t;
-        }
-        System.out.printf("REST_HR 30 s             status=%s hr=%d sd=%.1f at %d s%n", r.getStatus(), r.getHrRest(), r.getSigma(), t0 / 1000);
-        check(r.getStatus() == AiRestHr.Status.DONE && t0 <= 32000, "rest HR done in ~30 s");
+        // Adaptive rest HR: calm and dense → 10 s; noisy → longer; still falling after activity → waits for the trend.
+        long calm = restHr("calm 1 s", true, 1000, 0, 0.6, 64);
+        check(calm >= 10 && calm <= 12, "calm rested rest HR in ~10 s, got " + calm);
+        long calm3 = restHr("calm 3 s", true, 3000, 0, 0.8, 64);
+        check(calm3 >= 10 && calm3 <= 15, "calm sparse rest HR ≤ 15 s, got " + calm3);
+        long notRested = restHr("calm not rested", false, 1000, 0, 0.6, 64);
+        check(notRested >= 20 && notRested <= 22, "not rested → at least 20 s, got " + notRested);
+        long noisy = restHr("noisy σ 2.5", true, 1000, 0, 2.5, 64);
+        check(noisy > calm && noisy <= 45, "noisy takes longer, got " + noisy);
+        long falling = restHr("falling 0.4 bpm/s 30 s", true, 1000, 0.4, 0.6, 64);
+        check(falling >= 32 && falling <= 45, "falling HR waits for the trend, got " + falling);
         guard("PULSE normal", 40, 0, false, v);
         guard("PULSE high", 110, 0, false, v);
         guard("PULSE extreme", 200, 0, false, v);

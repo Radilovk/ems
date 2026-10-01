@@ -32,7 +32,7 @@
 
 .field final ch:[Lcom/isaigu/gymapp/wearable/SessionInts;
 
-.field final chLoad:[J
+.field final chLoad:[D
 
 .field final chPeak:[I
 
@@ -270,9 +270,9 @@
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chPeak:[I
 
     .line 75
-    new-array v0, v6, [J
+    new-array v0, v6, [D
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[J
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[D
 
     .line 82
     iput v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->postLeft:I
@@ -401,7 +401,7 @@
     .registers 5
 
     .prologue
-    .line 343
+    .line 345
     const-string v0, ",\""
 
     invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -416,10 +416,10 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 344
+    .line 346
     invoke-virtual {p2, p0}, Lcom/isaigu/gymapp/wearable/SessionInts;->json(Ljava/lang/StringBuilder;)V
 
-    .line 345
+    .line 347
     return-void
 .end method
 
@@ -431,15 +431,15 @@
 
     const/4 v2, 0x0
 
-    .line 318
+    .line 320
     const-string v0, ",\"exs\":{"
 
     invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 319
+    .line 321
     const/4 v0, 0x1
 
-    .line 320
+    .line 322
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->exUsed:Ljava/util/TreeSet;
 
     invoke-virtual {v1}, Ljava/util/TreeSet;->iterator()Ljava/util/Iterator;
@@ -466,21 +466,21 @@
 
     move-result v0
 
-    .line 321
+    .line 323
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoTemplates;->muscles(I)[I
 
     move-result-object v4
 
-    .line 322
+    .line 324
     if-eqz v4, :cond_10
 
-    .line 325
+    .line 327
     if-nez v1, :cond_2b
 
-    .line 326
+    .line 328
     invoke-virtual {p1, v8}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 329
+    .line 331
     :cond_2b
     const/16 v1, 0x22
 
@@ -510,7 +510,7 @@
 
     const-string v5, "\",\"met\":"
 
-    .line 330
+    .line 332
     invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -529,30 +529,30 @@
 
     move v0, v2
 
-    .line 331
+    .line 333
     :goto_59
     array-length v1, v4
 
     if-ge v0, v1, :cond_69
 
-    .line 332
+    .line 334
     if-lez v0, :cond_61
 
-    .line 333
+    .line 335
     invoke-virtual {p1, v8}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 335
+    .line 337
     :cond_61
     aget v1, v4, v0
 
     invoke-virtual {p1, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    .line 331
+    .line 333
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_59
 
-    .line 337
+    .line 339
     :cond_69
     const-string v0, "]}"
 
@@ -560,16 +560,16 @@
 
     move v1, v2
 
-    .line 338
+    .line 340
     goto :goto_10
 
-    .line 339
+    .line 341
     :cond_70
     const/16 v0, 0x7d
 
     invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 340
+    .line 342
     return-void
 .end method
 
@@ -727,12 +727,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 242
+    .line 244
     move v0, v1
 
     move v2, v1
 
-    .line 243
+    .line 245
     :goto_3
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->run:Lcom/isaigu/gymapp/wearable/SessionInts;
 
@@ -742,7 +742,7 @@
 
     if-ge v0, v1, :cond_16
 
-    .line 244
+    .line 246
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->run:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/SessionInts;->get(I)I
@@ -751,14 +751,14 @@
 
     add-int/2addr v1, v2
 
-    .line 243
+    .line 245
     add-int/lit8 v0, v0, 0x1
 
     move v2, v1
 
     goto :goto_3
 
-    .line 246
+    .line 248
     :cond_16
     return v2
 .end method
@@ -769,14 +769,14 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 259
+    .line 261
     const-wide/16 v4, 0x0
 
     move v0, v1
 
     move v2, v1
 
-    .line 261
+    .line 263
     :goto_5
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->hr:Lcom/isaigu/gymapp/wearable/SessionInts;
 
@@ -786,7 +786,7 @@
 
     if-ge v0, v3, :cond_2b
 
-    .line 262
+    .line 264
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->hr:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-virtual {v3, v0}, Lcom/isaigu/gymapp/wearable/SessionInts;->get(I)I
@@ -805,7 +805,7 @@
 
     if-ne v3, v6, :cond_28
 
-    .line 263
+    .line 265
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->hr:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-virtual {v3, v0}, Lcom/isaigu/gymapp/wearable/SessionInts;->get(I)I
@@ -816,16 +816,16 @@
 
     add-long/2addr v4, v6
 
-    .line 264
+    .line 266
     add-int/lit8 v2, v2, 0x1
 
-    .line 261
+    .line 263
     :cond_28
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_5
 
-    .line 267
+    .line 269
     :cond_2b
     if-lez v2, :cond_31
 
@@ -843,15 +843,15 @@
     .registers 14
 
     .prologue
-    const-wide/16 v6, 0x0
-
     const/16 v12, 0xa
+
+    const-wide/16 v6, 0x0
 
     const/4 v1, 0x0
 
-    .line 220
-    .line 221
-    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[J
+    .line 222
+    .line 223
+    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[D
 
     array-length v9, v8
 
@@ -864,46 +864,42 @@
 
     aget-wide v2, v8, v0
 
-    .line 222
-    invoke-static {v4, v5, v2, v3}, Ljava/lang/Math;->max(JJ)J
+    .line 224
+    invoke-static {v4, v5, v2, v3}, Ljava/lang/Math;->max(DD)D
 
     move-result-wide v2
 
-    .line 221
+    .line 223
     add-int/lit8 v0, v0, 0x1
 
     move-wide v4, v2
 
     goto :goto_a
 
-    .line 224
+    .line 226
     :cond_16
     new-array v3, v12, [I
 
     move v2, v1
 
-    .line 225
+    .line 227
     :goto_19
-    if-ge v2, v12, :cond_36
+    if-ge v2, v12, :cond_34
 
-    .line 226
-    cmp-long v0, v4, v6
+    .line 228
+    cmpl-double v0, v4, v6
 
-    if-lez v0, :cond_34
+    if-lez v0, :cond_32
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[J
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[D
 
     aget-wide v8, v0, v2
-
-    long-to-double v8, v8
 
     const-wide/high16 v10, 0x4059000000000000L    # 100.0
 
     mul-double/2addr v8, v10
 
-    long-to-double v10, v4
-
-    div-double/2addr v8, v10
+    div-double/2addr v8, v4
 
     invoke-static {v8, v9}, Ljava/lang/Math;->round(D)J
 
@@ -911,24 +907,24 @@
 
     long-to-int v0, v8
 
-    :goto_2e
+    :goto_2c
     aput v0, v3, v2
 
-    .line 225
+    .line 227
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
     goto :goto_19
 
-    :cond_34
+    :cond_32
     move v0, v1
 
-    .line 226
-    goto :goto_2e
-
     .line 228
-    :cond_36
+    goto :goto_2c
+
+    .line 230
+    :cond_34
     return-object v3
 .end method
 
@@ -938,12 +934,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 251
+    .line 253
     move v0, v1
 
     move v2, v1
 
-    .line 252
+    .line 254
     :goto_3
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->pv:Lcom/isaigu/gymapp/wearable/SessionInts;
 
@@ -953,7 +949,7 @@
 
     if-ge v0, v1, :cond_16
 
-    .line 253
+    .line 255
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->pv:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/SessionInts;->get(I)I
@@ -962,14 +958,14 @@
 
     add-int/2addr v1, v2
 
-    .line 252
+    .line 254
     add-int/lit8 v0, v0, 0x1
 
     move v2, v1
 
     goto :goto_3
 
-    .line 255
+    .line 257
     :cond_16
     return v2
 .end method
@@ -1122,7 +1118,7 @@
 .end method
 
 .method sample(Lcom/isaigu/gymapp/train/model/TrainItem;III)V
-    .registers 21
+    .registers 23
 
     .prologue
     .line 163
@@ -1134,7 +1130,7 @@
 
     move-result-object v3
 
-    if-eqz v3, :cond_117
+    if-eqz v3, :cond_121
 
     invoke-virtual/range {p1 .. p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
@@ -1142,7 +1138,7 @@
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
     :try_end_e
-    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_e} :catch_1a7
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_e} :catch_1b9
 
     move-result-object v2
 
@@ -1152,14 +1148,14 @@
 
     iget-object v3, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    iget-boolean v8, v3, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
+    iget-boolean v9, v3, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
 
     .line 169
     invoke-virtual/range {p1 .. p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v3
 
-    if-eqz v3, :cond_11a
+    if-eqz v3, :cond_124
 
     invoke-virtual/range {p1 .. p1}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
@@ -1169,7 +1165,7 @@
 
     const/4 v4, 0x3
 
-    if-ne v3, v4, :cond_11a
+    if-ne v3, v4, :cond_124
 
     const/4 v3, 0x1
 
@@ -1177,16 +1173,16 @@
     :goto_25
     move-object/from16 v0, p0
 
-    iput-boolean v8, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->lastRun:Z
+    iput-boolean v9, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->lastRun:Z
 
     .line 171
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->pv:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v8, :cond_11d
+    if-eqz v9, :cond_127
 
-    if-eqz v3, :cond_11d
+    if-eqz v3, :cond_127
 
     const/4 v4, 0x1
 
@@ -1198,7 +1194,7 @@
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->run:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v8, :cond_120
+    if-eqz v9, :cond_12a
 
     const/4 v4, 0x1
 
@@ -1210,7 +1206,7 @@
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->imp:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v8, :cond_123
+    if-eqz v9, :cond_12d
 
     move-object/from16 v0, p1
 
@@ -1218,7 +1214,7 @@
 
     iget-boolean v4, v4, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
 
-    if-eqz v4, :cond_123
+    if-eqz v4, :cond_12d
 
     const/4 v4, 0x1
 
@@ -1235,7 +1231,7 @@
     invoke-virtual {v4, v0}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
 
     .line 175
-    if-eqz v2, :cond_126
+    if-eqz v2, :cond_130
 
     iget v4, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
@@ -1252,7 +1248,7 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->hz:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_129
+    if-eqz v2, :cond_133
 
     iget v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
@@ -1264,7 +1260,7 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->pw:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_12c
+    if-eqz v2, :cond_136
 
     iget v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
@@ -1276,7 +1272,7 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->on:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_12f
+    if-eqz v2, :cond_139
 
     iget v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
@@ -1288,7 +1284,7 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->off:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_132
+    if-eqz v2, :cond_13c
 
     iget v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
@@ -1300,11 +1296,11 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->ap:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_135
+    if-eqz v2, :cond_13f
 
     iget-boolean v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v5, :cond_135
+    if-eqz v5, :cond_13f
 
     const/4 v5, 0x1
 
@@ -1316,7 +1312,7 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->ps:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_138
+    if-eqz v2, :cond_142
 
     iget v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
@@ -1328,7 +1324,7 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->phz:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_13b
+    if-eqz v2, :cond_145
 
     iget v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
@@ -1336,239 +1332,256 @@
     invoke-virtual {v6, v5}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
 
     .line 184
-    const/4 v5, 0x0
+    const/4 v6, 0x0
 
     .line 185
     move-object/from16 v0, p1
 
-    iget-object v9, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
+    iget-object v10, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
 
     .line 186
-    if-eqz v2, :cond_13e
+    if-eqz v2, :cond_148
 
-    iget-object v6, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    if-eqz v6, :cond_13e
+    if-eqz v5, :cond_148
 
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v5, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    iget-object v2, v2, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
+    iget-object v5, v5, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
     .line 187
     :goto_c4
-    const/4 v6, 0x0
+    const/4 v7, 0x0
+
+    move v8, v7
+
+    :goto_c6
+    const/16 v7, 0xa
+
+    if-ge v8, v7, :cond_150
+
+    .line 188
+    if-eqz v10, :cond_1bc
+
+    array-length v7, v10
+
+    if-ge v8, v7, :cond_1bc
+
+    aget-boolean v7, v10, v8
+
+    if-eqz v7, :cond_1bc
+
+    .line 189
+    const/4 v7, 0x1
+
+    shl-int/2addr v7, v8
+
+    or-int/2addr v6, v7
 
     move v7, v6
 
-    :goto_c6
-    const/16 v6, 0xa
-
-    if-ge v7, v6, :cond_142
-
-    .line 188
-    if-eqz v9, :cond_1aa
-
-    array-length v6, v9
-
-    if-ge v7, v6, :cond_1aa
-
-    aget-boolean v6, v9, v7
-
-    if-eqz v6, :cond_1aa
-
-    .line 189
-    const/4 v6, 0x1
-
-    shl-int/2addr v6, v7
-
-    or-int/2addr v5, v6
-
-    move v6, v5
-
     .line 191
     :goto_d7
-    if-eqz v2, :cond_140
+    if-eqz v5, :cond_14b
 
-    array-length v5, v2
+    array-length v6, v5
 
-    if-ge v7, v5, :cond_140
+    if-ge v8, v6, :cond_14b
 
-    aget v5, v2, v7
+    aget v6, v5, v8
 
     .line 192
     :goto_de
     move-object/from16 v0, p0
 
-    iget-object v10, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->ch:[Lcom/isaigu/gymapp/wearable/SessionInts;
+    iget-object v11, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->ch:[Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    aget-object v10, v10, v7
+    aget-object v11, v11, v8
 
-    invoke-virtual {v10, v5}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
+    invoke-virtual {v11, v6}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
 
     .line 193
-    if-eqz v8, :cond_113
+    if-eqz v9, :cond_11d
 
-    const/4 v10, 0x1
+    const/4 v11, 0x1
 
-    shl-int/2addr v10, v7
+    shl-int/2addr v11, v8
 
-    and-int/2addr v10, v6
+    and-int/2addr v11, v7
 
-    if-nez v10, :cond_113
+    if-nez v11, :cond_11d
 
     .line 194
-    mul-int/2addr v5, v4
+    mul-int/2addr v6, v4
 
-    div-int/lit8 v5, v5, 0x64
+    div-int/lit8 v6, v6, 0x64
 
     .line 195
     move-object/from16 v0, p0
 
-    iget-object v10, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chPeak:[I
+    iget-object v11, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chPeak:[I
 
-    aget v10, v10, v7
+    aget v11, v11, v8
 
-    if-le v5, v10, :cond_ff
+    if-le v6, v11, :cond_ff
 
     .line 196
     move-object/from16 v0, p0
 
-    iget-object v10, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chPeak:[I
+    iget-object v11, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chPeak:[I
 
-    aput v5, v10, v7
+    aput v6, v11, v8
 
     .line 198
     :cond_ff
     move-object/from16 v0, p1
 
-    iget-object v10, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+    iget-object v11, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
-    iget-boolean v10, v10, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
+    iget-boolean v11, v11, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
 
-    if-eqz v10, :cond_113
+    if-eqz v11, :cond_11d
 
-    if-nez v3, :cond_113
+    if-nez v3, :cond_11d
 
-    .line 199
+    .line 201
     move-object/from16 v0, p0
 
-    iget-object v10, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[J
+    iget-object v11, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[D
 
-    aget-wide v12, v10, v7
+    aget-wide v12, v11, v8
 
-    int-to-long v14, v5
+    int-to-double v14, v6
 
-    add-long/2addr v12, v14
+    if-eqz v2, :cond_14d
 
-    aput-wide v12, v10, v7
+    iget v6, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
+
+    :goto_114
+    invoke-static {v6}, Lcom/isaigu/gymapp/ai/AiPlanner;->forceWeight(I)D
+
+    move-result-wide v16
+
+    mul-double v14, v14, v16
+
+    add-double/2addr v12, v14
+
+    aput-wide v12, v11, v8
 
     .line 187
-    :cond_113
-    add-int/lit8 v7, v7, 0x1
+    :cond_11d
+    add-int/lit8 v8, v8, 0x1
 
-    move v5, v6
+    move v6, v7
 
     goto :goto_c6
 
     .line 165
-    :cond_117
+    :cond_121
     const/4 v2, 0x0
 
     goto/16 :goto_f
 
     .line 169
-    :cond_11a
+    :cond_124
     const/4 v3, 0x0
 
     goto/16 :goto_25
 
     .line 171
-    :cond_11d
+    :cond_127
     const/4 v4, 0x0
 
     goto/16 :goto_32
 
     .line 172
-    :cond_120
+    :cond_12a
     const/4 v4, 0x0
 
     goto/16 :goto_3c
 
     .line 173
-    :cond_123
+    :cond_12d
     const/4 v4, 0x0
 
     goto/16 :goto_4e
 
     .line 175
-    :cond_126
+    :cond_130
     const/4 v4, 0x0
 
     goto/16 :goto_5e
 
     .line 177
-    :cond_129
+    :cond_133
     const/4 v5, 0x0
 
     goto/16 :goto_6d
 
     .line 178
-    :cond_12c
+    :cond_136
     const/4 v5, 0x0
 
     goto/16 :goto_78
 
     .line 179
-    :cond_12f
+    :cond_139
     const/4 v5, 0x0
 
     goto/16 :goto_83
 
     .line 180
-    :cond_132
+    :cond_13c
     const/4 v5, 0x0
 
     goto/16 :goto_8e
 
     .line 181
-    :cond_135
+    :cond_13f
     const/4 v5, 0x0
 
     goto/16 :goto_9c
 
     .line 182
-    :cond_138
+    :cond_142
     const/4 v5, 0x0
 
     goto/16 :goto_a7
 
     .line 183
-    :cond_13b
+    :cond_145
     const/4 v5, 0x0
 
     goto/16 :goto_b2
 
     .line 186
-    :cond_13e
-    const/4 v2, 0x0
+    :cond_148
+    const/4 v5, 0x0
 
-    goto :goto_c4
+    goto/16 :goto_c4
 
     .line 191
-    :cond_140
-    const/4 v5, 0x0
+    :cond_14b
+    const/4 v6, 0x0
 
     goto :goto_de
 
-    .line 203
-    :cond_142
+    .line 201
+    :cond_14d
+    const/16 v6, 0x55
+
+    goto :goto_114
+
+    .line 205
+    :cond_150
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->dis:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    invoke-virtual {v2, v5}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
+    invoke-virtual {v2, v6}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
 
-    .line 204
+    .line 206
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->ph:Lcom/isaigu/gymapp/wearable/SessionInts;
@@ -1577,34 +1590,34 @@
 
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
 
-    .line 205
-    if-eqz v8, :cond_19f
+    .line 207
+    if-eqz v9, :cond_1b1
 
-    if-nez v3, :cond_19f
+    if-nez v3, :cond_1b1
 
-    if-ltz p4, :cond_19f
+    if-ltz p4, :cond_1b1
 
     invoke-static/range {p4 .. p4}, Lcom/isaigu/gymapp/ai/AutoTemplates;->muscles(I)[I
 
     move-result-object v2
 
-    .line 206
-    :goto_15c
+    .line 208
+    :goto_16a
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->ex:Lcom/isaigu/gymapp/wearable/SessionInts;
 
-    if-eqz v2, :cond_1a1
+    if-eqz v2, :cond_1b3
 
     add-int/lit8 v3, p4, 0x1
 
-    :goto_164
+    :goto_172
     invoke-virtual {v4, v3}, Lcom/isaigu/gymapp/wearable/SessionInts;->add(I)V
 
-    .line 207
-    if-eqz v2, :cond_1a6
+    .line 209
+    if-eqz v2, :cond_1b8
 
-    .line 208
+    .line 210
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->exUsed:Ljava/util/TreeSet;
@@ -1615,45 +1628,45 @@
 
     invoke-virtual {v3, v4}, Ljava/util/TreeSet;->add(Ljava/lang/Object;)Z
 
-    .line 209
+    .line 211
     move-object/from16 v0, p1
 
     iget-object v3, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-boolean v3, v3, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
 
-    if-eqz v3, :cond_1a3
+    if-eqz v3, :cond_1b5
 
     const/16 v3, 0x64
 
-    .line 210
-    :goto_17e
+    .line 212
+    :goto_18c
     const/4 v4, 0x0
 
-    :goto_17f
-    const/16 v6, 0xa
+    :goto_18d
+    const/16 v5, 0xa
 
-    if-ge v4, v6, :cond_1a6
+    if-ge v4, v5, :cond_1b8
 
-    array-length v6, v2
+    array-length v5, v2
 
-    if-ge v4, v6, :cond_1a6
+    if-ge v4, v5, :cond_1b8
 
-    .line 211
-    const/4 v6, 0x1
+    .line 213
+    const/4 v5, 0x1
 
-    shl-int/2addr v6, v4
+    shl-int/2addr v5, v4
 
-    and-int/2addr v6, v5
+    and-int/2addr v5, v6
 
-    if-nez v6, :cond_19c
+    if-nez v5, :cond_1ae
 
-    .line 212
+    .line 214
     move-object/from16 v0, p0
 
-    iget-object v6, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[J
+    iget-object v5, v0, Lcom/isaigu/gymapp/wearable/SessionRec;->chLoad:[D
 
-    aget-wide v8, v6, v4
+    aget-wide v8, v5, v4
 
     aget v7, v2, v4
 
@@ -1661,50 +1674,52 @@
 
     mul-int/2addr v7, v3
 
-    div-int/lit16 v7, v7, 0x2710
+    int-to-double v10, v7
 
-    int-to-long v10, v7
+    const-wide v12, 0x40c3880000000000L    # 10000.0
 
-    add-long/2addr v8, v10
+    div-double/2addr v10, v12
 
-    aput-wide v8, v6, v4
+    add-double/2addr v8, v10
 
-    .line 210
-    :cond_19c
+    aput-wide v8, v5, v4
+
+    .line 212
+    :cond_1ae
     add-int/lit8 v4, v4, 0x1
 
-    goto :goto_17f
+    goto :goto_18d
 
-    .line 205
-    :cond_19f
+    .line 207
+    :cond_1b1
     const/4 v2, 0x0
 
-    goto :goto_15c
+    goto :goto_16a
 
-    .line 206
-    :cond_1a1
+    .line 208
+    :cond_1b3
     const/4 v3, 0x0
 
-    goto :goto_164
+    goto :goto_172
 
-    .line 209
-    :cond_1a3
+    .line 211
+    :cond_1b5
     const/16 v3, 0x1e
 
-    goto :goto_17e
+    goto :goto_18c
 
-    .line 216
-    :cond_1a6
+    .line 218
+    :cond_1b8
     return-void
 
     .line 166
-    :catch_1a7
+    :catch_1b9
     move-exception v3
 
     goto/16 :goto_f
 
-    :cond_1aa
-    move v6, v5
+    :cond_1bc
+    move v7, v6
 
     goto/16 :goto_d7
 .end method
@@ -1713,7 +1728,7 @@
     .registers 3
 
     .prologue
-    .line 234
+    .line 236
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->user:Lcom/isaigu/gymapp/bean/TrainUser;
 
@@ -1721,7 +1736,7 @@
 
     move-result-object v0
 
-    .line 235
+    .line 237
     if-eqz v0, :cond_11
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiProfile;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
@@ -1732,11 +1747,11 @@
 
     const-string v0, "M"
 
-    .line 237
+    .line 239
     :goto_10
     return-object v0
 
-    .line 235
+    .line 237
     :cond_11
     const-string v0, "F"
     :try_end_13
@@ -1744,11 +1759,11 @@
 
     goto :goto_10
 
-    .line 236
+    .line 238
     :catch_14
     move-exception v0
 
-    .line 237
+    .line 239
     const-string v0, "F"
 
     goto :goto_10
@@ -1767,26 +1782,26 @@
 
     const/4 v1, 0x0
 
-    .line 348
+    .line 350
     new-instance v2, Lorg/json/JSONObject;
 
     invoke-direct {v2}, Lorg/json/JSONObject;-><init>()V
 
-    .line 349
+    .line 351
     const-string v0, "id"
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->start:J
 
     invoke-virtual {v2, v0, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 350
+    .line 352
     const-string v0, "userId"
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->userId:J
 
     invoke-virtual {v2, v0, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 351
+    .line 353
     const-string v3, "name"
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->userName:Ljava/lang/String;
@@ -1798,21 +1813,21 @@
     :goto_1e
     invoke-virtual {v2, v3, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 352
+    .line 354
     const-string v0, "start"
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->start:J
 
     invoke-virtual {v2, v0, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 353
+    .line 355
     const-string v0, "end"
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->end:J
 
     invoke-virtual {v2, v0, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
 
-    .line 354
+    .line 356
     const-string v0, "durS"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->run:Lcom/isaigu/gymapp/wearable/SessionInts;
@@ -1823,7 +1838,7 @@
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 355
+    .line 357
     const-string v0, "activeS"
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SessionRec;->activeS()I
@@ -1832,7 +1847,7 @@
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 356
+    .line 358
     const-string v0, "passiveS"
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SessionRec;->passiveS()I
@@ -1841,7 +1856,7 @@
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 357
+    .line 359
     const-string v0, "type"
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SessionRec;->type()Ljava/lang/String;
@@ -1850,7 +1865,7 @@
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 358
+    .line 360
     const-string v3, "program"
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->program:Ljava/lang/String;
@@ -1862,28 +1877,28 @@
     :goto_5d
     invoke-virtual {v2, v3, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 359
+    .line 361
     const-string v0, "music"
 
     iget-boolean v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->music:Z
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 360
+    .line 362
     const-string v0, "planS"
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->planS:I
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 361
+    .line 363
     const-string v0, "modes"
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->modes:I
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 362
+    .line 364
     const-string v3, "hasHr"
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SessionRec;->hrAvg()I
@@ -1897,7 +1912,7 @@
     :goto_7e
     invoke-virtual {v2, v3, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 363
+    .line 365
     const-string v0, "hrAvg"
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SessionRec;->hrAvg()I
@@ -1906,36 +1921,36 @@
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 364
+    .line 366
     new-instance v3, Lorg/json/JSONArray;
 
     invoke-direct {v3}, Lorg/json/JSONArray;-><init>()V
 
     move v0, v1
 
-    .line 365
+    .line 367
     :goto_90
     if-ge v0, v6, :cond_a4
 
-    .line 366
+    .line 368
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->chPeak:[I
 
     aget v4, v4, v0
 
     invoke-virtual {v3, v4}, Lorg/json/JSONArray;->put(I)Lorg/json/JSONArray;
 
-    .line 365
+    .line 367
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_90
 
-    .line 351
+    .line 353
     :cond_9c
     const-string v0, ""
 
     goto :goto_1e
 
-    .line 358
+    .line 360
     :cond_9f
     const-string v0, ""
 
@@ -1944,77 +1959,77 @@
     :cond_a2
     move v0, v1
 
-    .line 362
+    .line 364
     goto :goto_7e
 
-    .line 368
+    .line 370
     :cond_a4
     const-string v0, "chPeak"
 
     invoke-virtual {v2, v0, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 369
+    .line 371
     new-instance v0, Lorg/json/JSONArray;
 
     invoke-direct {v0}, Lorg/json/JSONArray;-><init>()V
 
-    .line 370
+    .line 372
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SessionRec;->muscleLevels()[I
 
     move-result-object v3
 
-    .line 371
+    .line 373
     :goto_b2
     if-ge v1, v6, :cond_bc
 
-    .line 372
+    .line 374
     aget v4, v3, v1
 
     invoke-virtual {v0, v4}, Lorg/json/JSONArray;->put(I)Lorg/json/JSONArray;
 
-    .line 371
+    .line 373
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_b2
 
-    .line 374
+    .line 376
     :cond_bc
     const-string v1, "mus"
 
     invoke-virtual {v2, v1, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 375
+    .line 377
     new-instance v0, Lorg/json/JSONObject;
 
     invoke-direct {v0}, Lorg/json/JSONObject;-><init>()V
 
-    .line 376
+    .line 378
     const-string v1, "owner"
 
     iget-boolean v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandOwner:Z
 
     invoke-virtual {v0, v1, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 377
+    .line 379
     const-string v1, "sent"
 
     iget-boolean v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSent:Z
 
     invoke-virtual {v0, v1, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
-    .line 378
+    .line 380
     const-string v1, "sport"
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->bandSport:I
 
     invoke-virtual {v0, v1, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 379
+    .line 381
     const-string v1, "band"
 
     invoke-virtual {v2, v1, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 380
+    .line 382
     return-object v2
 .end method
 
@@ -2024,7 +2039,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 275
+    .line 277
     new-instance v1, Ljava/lang/StringBuilder;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->run:Lcom/isaigu/gymapp/wearable/SessionInts;
@@ -2039,13 +2054,13 @@
 
     invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 277
+    .line 279
     :try_start_10
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/SessionRec;->summary()Lorg/json/JSONObject;
 
     move-result-object v2
 
-    .line 278
+    .line 280
     new-instance v3, Lorg/json/JSONObject;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->person:Lorg/json/JSONObject;
@@ -2056,30 +2071,30 @@
 
     invoke-direct {v3, v4}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 279
+    .line 281
     if-lez p1, :cond_2a
 
     iget-boolean v4, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->leader:Z
 
     if-eqz v4, :cond_2a
 
-    .line 280
+    .line 282
     const-string v4, "restHr"
 
     invoke-virtual {v3, v4, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;I)Lorg/json/JSONObject;
 
-    .line 282
+    .line 284
     :cond_2a
     const-string v4, "person"
 
     invoke-virtual {v2, v4, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 283
+    .line 285
     invoke-virtual {v2}, Lorg/json/JSONObject;->toString()Ljava/lang/String;
 
     move-result-object v2
 
-    .line 284
+    .line 286
     const/4 v3, 0x0
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
@@ -2092,7 +2107,7 @@
     :try_end_3d
     .catch Ljava/lang/Throwable; {:try_start_10 .. :try_end_3d} :catch_ca
 
-    .line 288
+    .line 290
     :goto_3d
     const-string v2, "run"
 
@@ -2100,134 +2115,134 @@
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 289
+    .line 291
     const-string v2, "hr"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->hr:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 290
+    .line 292
     const-string v2, "st"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->st:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 291
+    .line 293
     const-string v2, "hz"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->hz:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 292
+    .line 294
     const-string v2, "pw"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->pw:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 293
+    .line 295
     const-string v2, "on"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->on:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 294
+    .line 296
     const-string v2, "off"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->off:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 295
+    .line 297
     const-string v2, "ap"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->ap:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 296
+    .line 298
     const-string v2, "ps"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->ps:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 297
+    .line 299
     const-string v2, "phz"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->phz:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 298
+    .line 300
     const-string v2, "dis"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->dis:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 299
+    .line 301
     const-string v2, "ph"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->ph:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 300
+    .line 302
     const-string v2, "ex"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->ex:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 301
+    .line 303
     invoke-direct {p0, v1}, Lcom/isaigu/gymapp/wearable/SessionRec;->exercises(Ljava/lang/StringBuilder;)V
 
-    .line 302
+    .line 304
     const-string v2, "imp"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->imp:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 303
+    .line 305
     const-string v2, "pv"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->pv:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 304
+    .line 306
     const-string v2, "post"
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->post:Lcom/isaigu/gymapp/wearable/SessionInts;
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/SessionRec;->col(Ljava/lang/StringBuilder;Ljava/lang/String;Lcom/isaigu/gymapp/wearable/SessionInts;)V
 
-    .line 305
+    .line 307
     const-string v2, ",\"ch\":["
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 306
+    .line 308
     :goto_b5
     const/16 v2, 0xa
 
     if-ge v0, v2, :cond_d8
 
-    .line 307
+    .line 309
     if-lez v0, :cond_c0
 
-    .line 308
+    .line 310
     const/16 v2, 0x2c
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 310
+    .line 312
     :cond_c0
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->ch:[Lcom/isaigu/gymapp/wearable/SessionInts;
 
@@ -2235,16 +2250,16 @@
 
     invoke-virtual {v2, v1}, Lcom/isaigu/gymapp/wearable/SessionInts;->json(Ljava/lang/StringBuilder;)V
 
-    .line 306
+    .line 308
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_b5
 
-    .line 285
+    .line 287
     :catch_ca
     move-exception v2
 
-    .line 286
+    .line 288
     const-string v2, "{\"id\":"
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -2257,13 +2272,13 @@
 
     goto/16 :goto_3d
 
-    .line 312
+    .line 314
     :cond_d8
     const-string v0, "]}"
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 313
+    .line 315
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -2275,7 +2290,7 @@
     .registers 2
 
     .prologue
-    .line 271
+    .line 273
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/SessionRec;->auto:Z
 
     if-eqz v0, :cond_7

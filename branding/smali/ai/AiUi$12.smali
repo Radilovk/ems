@@ -135,9 +135,9 @@
 
     if-eqz v5, :cond_9c
 
-    const-string v0, "\u0438\u043c\u043f\u0443\u043b\u0441\u0438 \u00b7 85 Hz \u00b7 4/4 s"
+    const-string v0, "\u0438\u043c\u043f\u0443\u043b\u0441\u0438\u0442\u0435 \u0432\u044a\u0440\u0432\u044f\u0442"
 
-    const-string v3, "pulses \u00b7 85 Hz \u00b7 4/4 s"
+    const-string v3, "pulses on"
 
     invoke-static {v0, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

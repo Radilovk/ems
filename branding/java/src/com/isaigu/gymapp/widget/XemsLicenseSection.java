@@ -77,9 +77,6 @@ public final class XemsLicenseSection {
             TextView chip = XemsUi.chip(a, tr("✓ Ръце 1:1", "✓ Arms 1:1"), true, XemsUi.AMBER);
             chips.addView(chip);
         }
-        TextView chipsHint = XemsUi.text(a, tr("Докосни модул — какво дава и как се работи с него.",
-                "Tap a module — what it gives and how to use it."), 12, XemsUi.HINT, false);
-        card.addView(chipsHint, XemsUi.matchWrap(a, 12));
         android.widget.HorizontalScrollView scroll = new android.widget.HorizontalScrollView(a);
         scroll.setHorizontalScrollBarEnabled(false);
         scroll.addView(chips);
@@ -171,8 +168,6 @@ public final class XemsLicenseSection {
         exRow.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout exText = XemsUi.vertical(a);
         exText.addView(XemsUi.text(a, tr("Каталог с упражнения", "Exercise catalog"), 15, XemsUi.TEXT, true));
-        exText.addView(XemsUi.text(a, tr("Кои упражнения влизат в програмите — без код, с лиценза на таблета.",
-                "Which exercises go into the programs — no code, with this tablet's license."), 12, XemsUi.HINT, false));
         exRow.addView(exText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView exBtn = XemsUi.button(a, tr("Отвори  ↗", "Open  ↗"), XemsUi.SECONDARY);
         exBtn.setOnClickListener(new OpenExercises(a));

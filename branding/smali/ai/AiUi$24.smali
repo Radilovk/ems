@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 1814
+    .line 1813
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$24;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$24;->val$idx:I
@@ -49,13 +49,13 @@
     .registers 4
 
     .prologue
-    .line 1817
+    .line 1816
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$24;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$24;->val$idx:I
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
 
-    .line 1818
+    .line 1817
     return-void
 .end method

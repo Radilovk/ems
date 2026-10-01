@@ -30,6 +30,8 @@ public final class ImpulseMapView extends View {
     private Workout map;
     private Listener listener;
     private boolean editable;
+    /** Values inside the blocks, blocks as tall as their values (the editor and a ready program's preview). */
+    private boolean detailed;
     private int selected = -1;
     /** Seconds from the start (the run card), < 0 = none. */
     private float playhead = -1;
@@ -95,26 +97,59 @@ public final class ImpulseMapView extends View {
     static final float MIN_REST_DP = 92;
 
     private float minWidth(Workout.Block b) {
-        return editable ? (b.isRest() ? MIN_REST_DP : MIN_W_DP) * d : 6 * d;
+        return detailed ? (b.isRest() ? MIN_REST_DP : MIN_W_DP) * d : 6 * d;
+    }
+
+    // detailed block heights (dp): the four value rows with even padding; deeper impulses stand a little taller,
+    // the selected block grows by the − / + row
+    static final float VALUES_DP = 86;
+    static final float DEPTH_DP = 26;
+    static final float REST_DP = 38;
+    static final float TOOLS_DP = 34;
+    static final float AXIS_DP = 20;
+
+    private boolean figures() {
+        if (map != null) {
+            for (Workout.Block b : map.blocks) {
+                if (b.hasExercise()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private float topRoom() {
+        return figures() ? 62 * d : 10 * d;                 // the figures stand above the blocks
     }
 
     /** In the editor a long map is as wide as its blocks need (the parent scrolls); else the given width. */
     @Override
     protected void onMeasure(int ws, int hs) {
         int w = MeasureSpec.getSize(ws);
-        if (editable && map != null) {
+        if (detailed && map != null) {
             float need = 16 * d;
             for (Workout.Block b : map.blocks) {
                 need += minWidth(b) + 3 * d;
             }
             w = Math.max(w, (int) Math.ceil(need));
+            // as tall as the blocks need: figures, the tallest block (+ the − / + row when editing), the minutes
+            int h = (int) Math.ceil(topRoom() + (VALUES_DP + DEPTH_DP + (editable ? TOOLS_DP + 8 : 0) + AXIS_DP) * d);
+            setMeasuredDimension(w, h);
+            return;
         }
         setMeasuredDimension(w, getDefaultSize(getSuggestedMinimumHeight(), hs));
     }
 
     public void setMap(Workout w, boolean editable) {
+        setMap(w, editable, editable);
+    }
+
+    /** detailed: values inside every block and blocks sized to them, also when the map is read-only. */
+    public void setMap(Workout w, boolean editable, boolean detailed) {
         this.map = w;
         this.editable = editable;
+        this.detailed = detailed || editable;
         if (w == null || selected >= w.blocks.size()) {
             selected = -1;
         }
@@ -171,12 +206,13 @@ public final class ImpulseMapView extends View {
                 | (int) (ab + (bb - ab) * t);
     }
 
-    private float heightFor(Workout.Block b) {
+    private float heightFor(Workout.Block b, boolean sel) {
+        float tools = sel && editable ? TOOLS_DP * d : 0;
         if (b.isRest()) {
-            return editable ? 58 * d : 8 * d;
+            return detailed ? REST_DP * d + tools : 8 * d;
         }
         float k = Math.max(0, Math.min(1, (b.pw - Workout.PW_MIN) / (float) (Workout.PW_MAX - Workout.PW_MIN)));
-        return editable ? maxH * (0.55f + 0.45f * k) : maxH * (0.35f + 0.65f * k);
+        return detailed ? (VALUES_DP + DEPTH_DP * k) * d + tools : maxH * (0.35f + 0.65f * k);
     }
 
     /** The ramp's lean (px) for a side: 1 s of ramp leans it 24 dp, at most a third of the block. */
@@ -184,7 +220,7 @@ public final class ImpulseMapView extends View {
         if (rampMs <= 0) {
             return 0;
         }
-        return Math.min(Math.min(w * 0.3f, h * 0.9f), rampMs / 1000f * (editable ? 24 : 6) * d);
+        return Math.min(Math.min(w * 0.3f, h * 0.9f), rampMs / 1000f * (detailed ? 24 : 6) * d);
     }
 
     /** The theme's ink for symbols inside blocks: white on dark, black on light. */
@@ -232,8 +268,8 @@ public final class ImpulseMapView extends View {
             left[i] = x;
             x += width[i] + 3 * d;
         }
-        float top = editable ? 62 * d : 4 * d;             // room for the figures above the blocks
-        baseY = getHeight() - (editable ? 20 * d : 4 * d);
+        float top = detailed ? topRoom() : 4 * d;          // room for the figures above the blocks
+        baseY = getHeight() - (detailed ? AXIS_DP * d : 4 * d);
         maxH = Math.max(10 * d, baseY - top);
     }
 
@@ -255,7 +291,7 @@ public final class ImpulseMapView extends View {
         minusBtn.setEmpty();
         for (int i = 0; i < map.blocks.size(); i++) {
             Workout.Block b = map.blocks.get(i);
-            float h = heightFor(b);
+            float h = heightFor(b, i == selected);
             float lift = lifted && i == selected ? 8 * d : 0;
             RectF r = new RectF(left[i], baseY - h - lift, left[i] + width[i], baseY - lift);
             int col = b.isRest() ? restColor() : colorFor(b.hz);
@@ -277,11 +313,11 @@ public final class ImpulseMapView extends View {
                 stroke.setStrokeWidth(2.5f * d);
                 c.drawPath(shape, stroke);
             }
-            if (editable) {
-                waiting |= drawInside(c, i, b, r, li, sel, col);
+            if (detailed) {
+                waiting |= drawInside(c, i, b, r, li, lo, sel && editable, col);
             }
         }
-        if (editable) {
+        if (detailed) {
             // minute marks under the line
             int total = map.totalSeconds();
             axis.setColor(0x55FFFFFF);
@@ -314,41 +350,42 @@ public final class ImpulseMapView extends View {
         }
     }
 
-    /** Inside a block (editor): the values with their symbols, the figure above, and on the selected one the
-     *  resize grip and the − / + as bare symbols. True while a figure is still loading. */
-    private boolean drawInside(Canvas c, int i, Workout.Block b, RectF r, float lean, boolean sel, int col) {
+    /** Inside a block: the values with their symbols, centred in the block, the figure above, and on the selected
+     *  one (editor) the resize grip and the − / + as bare symbols. True while a figure is still loading. */
+    private boolean drawInside(Canvas c, int i, Workout.Block b, RectF r, float li, float lo, boolean sel, int col) {
         boolean waiting = false;
         int k = ink();
         ink.setColor(k);
         text.setColor(k);
         float row = 18 * d;
         float gs = 12 * d;
-        float x = r.left + Math.max(8 * d, lean * 0.5f + 6 * d);
-        float bottomRoom = sel ? 34 * d : 6 * d;           // the − / + live at the bottom of the selected block
+        float gap = 5 * d;
+        float bottom = r.bottom - (sel ? TOOLS_DP * d : 0);  // the − / + live at the bottom of the selected block
+        float cx = r.centerX() + (li - lo) / 4;                // the middle of a leaning block
+        String[] v;
+        int[] g;
         if (b.isRest()) {
-            String t = b.reps + AiText.t(" сек", " s");
-            text.setTextSize(12 * d);
-            float tw = gs + 4 * d + text.measureText(t);
-            float tx = r.centerX() - tw / 2;
-            float ty = sel ? r.top + 8 * d : r.centerY() - gs / 2;
-            ImpulseGlyph.draw(c, ImpulseGlyph.TIME, tx, ty, gs, ink);
-            c.drawText(t, tx + gs + 4 * d, ty + gs - 1.5f * d, text);
+            v = new String[] {b.reps + AiText.t(" сек", " s")};
+            g = new int[] {ImpulseGlyph.TIME};
         } else {
-            String[] v = {b.hz + " Hz", b.seconds() + AiText.t(" сек", " s"),
+            v = new String[] {b.hz + " Hz", b.seconds() + AiText.t(" сек", " s"),
                     b.dbl ? b.on + "/" + b.off2() + " · " + b.hz2 + " Hz" : b.on + ":" + Math.max(1, b.off) + AiText.t(" сек", " s"),
                     b.pw + " µs"};
-            int[] g = {ImpulseGlyph.HZ, ImpulseGlyph.TIME, b.dbl ? ImpulseGlyph.DOUBLE : ImpulseGlyph.PULSE_PAUSE,
+            g = new int[] {ImpulseGlyph.HZ, ImpulseGlyph.TIME, b.dbl ? ImpulseGlyph.DOUBLE : ImpulseGlyph.PULSE_PAUSE,
                     ImpulseGlyph.DEPTH};
-            text.setTextSize(11.5f * d);
-            float y = r.top + 9 * d;
-            for (int n = 0; n < v.length; n++) {
-                if (y + gs > r.bottom - bottomRoom) {
-                    break;                                     // a shallow block shows what fits
-                }
-                ImpulseGlyph.draw(c, g[n], x, y, gs, ink);
-                c.drawText(v[n], x + gs + 5 * d, y + gs - 1.5f * d, text);
-                y += row;
-            }
+        }
+        text.setTextSize(11.5f * d);
+        float tw = 0;
+        for (String t : v) {
+            tw = Math.max(tw, text.measureText(t));
+        }
+        float x = Math.max(r.left + li * 0.5f + 4 * d, cx - (gs + gap + tw) / 2);   // one column, centred
+        float rows = (v.length - 1) * row + gs;
+        float y = (r.top + bottom) / 2 - rows / 2;
+        for (int n = 0; n < v.length; n++) {
+            ImpulseGlyph.draw(c, g[n], x, y, gs, ink);
+            c.drawText(v[n], x + gs + gap, y + gs - 1.5f * d, text);
+            y += row;
         }
         if (b.hasExercise()) {
             float fs = Math.min(56 * d, Math.max(22 * d, width[i] - 4 * d));
@@ -371,7 +408,7 @@ public final class ImpulseMapView extends View {
             float cy = r.bottom - 17 * d;
             float arm = 7 * d;
             ink.setStrokeWidth(2.6f * d);
-            float mx = r.left + Math.max(18 * d, lean + 12 * d);
+            float mx = r.left + Math.max(18 * d, li + 12 * d);
             float px = r.right - 22 * d;
             c.drawLine(mx - arm, cy, mx + arm, cy, ink);
             c.drawLine(px - arm, cy, px + arm, cy, ink);

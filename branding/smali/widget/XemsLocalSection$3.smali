@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 120
+    .line 116
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$3;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,12 +45,12 @@
     .registers 5
 
     .prologue
-    .line 122
+    .line 118
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$3;->val$a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->refreshNow(Landroid/content/Context;)V
 
-    .line 123
+    .line 119
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$3;->val$a:Landroid/app/Activity;
 
     const-string v1, "\u041f\u0440\u043e\u0432\u0435\u0440\u044f\u0432\u0430\u043c \u0441\u044a\u0440\u0432\u044a\u0440\u0430\u2026 \u043e\u0442\u0432\u043e\u0440\u0438 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u043f\u0430\u043a \u0441\u043b\u0435\u0434 \u043c\u0430\u043b\u043a\u043e."
@@ -68,9 +68,9 @@
 
     move-result-object v0
 
-    .line 124
+    .line 120
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 125
+    .line 121
     return-void
 .end method

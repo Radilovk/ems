@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 247
+    .line 243
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 248
+    .line 244
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsPick;->a:Landroid/app/Activity;
 
-    .line 249
+    .line 245
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsPick;->root:Landroid/view/View;
 
-    .line 250
+    .line 246
     iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsPick;->mode:Ljava/lang/String;
 
-    .line 251
+    .line 247
     return-void
 .end method
 
@@ -52,12 +52,12 @@
     .registers 4
 
     .prologue
-    .line 255
+    .line 251
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsPick;->mode:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->setArmsMode(Ljava/lang/String;)V
 
-    .line 256
+    .line 252
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsPick;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsPick;->root:Landroid/view/View;
@@ -65,6 +65,6 @@
     # invokes: Lcom/isaigu/gymapp/widget/XemsLocalSection;->build(Landroid/app/Activity;Landroid/view/View;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->access$400(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 257
+    .line 253
     return-void
 .end method

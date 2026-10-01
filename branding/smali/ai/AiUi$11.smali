@@ -473,9 +473,9 @@
     if-eqz v0, :cond_169
 
     .line 866
-    const-string v0, "\u0421\u0430\u043c\u043e\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u043d\u0430\u0442\u0430 \u0441\u0435\u0441\u0438\u044f \u0438\u0437\u0438\u0441\u043a\u0432\u0430 \u0433\u0440\u0438\u0432\u043d\u0430. \u041f\u044a\u0440\u0432\u0438\u044f\u0442 \u043f\u0443\u043b\u0441 \u0438\u0434\u0432\u0430 \u0434\u043e ~15 s."
+    const-string v0, "\u0411\u0435\u0437 \u0433\u0440\u0438\u0432\u043d\u0430 \u0442\u0430\u0437\u0438 \u0441\u0435\u0441\u0438\u044f \u043d\u0435 \u0442\u0440\u044a\u0433\u0432\u0430."
 
-    const-string v4, "A self session requires the band. First HR within ~15 s."
+    const-string v4, "This session needs the band."
 
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -501,9 +501,9 @@
 
     .line 868
     :cond_169
-    const-string v0, "\u041f\u044a\u0440\u0432\u0438\u044f\u0442 \u043f\u0443\u043b\u0441 \u0438\u0434\u0432\u0430 \u0434\u043e ~15 s. \u0418\u043b\u0438 \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0438 \u0431\u0435\u0437 \u043f\u0443\u043b\u0441 \u2014 \u0443\u043f\u0440\u0430\u0432\u043b\u044f\u0432\u0430 \u0441\u0430\u043c\u043e \u043f\u043b\u0430\u043d\u044a\u0442."
+    const-string v0, "\u0418\u043b\u0438 \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0438 \u0431\u0435\u0437 \u043f\u0443\u043b\u0441."
 
-    const-string v4, "First HR within ~15 s. Or continue without HR \u2014 then only the plan controls."
+    const-string v4, "Or continue without HR."
 
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

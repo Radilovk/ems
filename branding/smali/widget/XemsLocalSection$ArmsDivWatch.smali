@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 217
+    .line 213
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 218
+    .line 214
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsDivWatch;->hint:Landroid/widget/TextView;
 
-    .line 219
+    .line 215
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 5
 
     .prologue
-    .line 232
+    .line 228
     :try_start_0
     invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
@@ -64,7 +64,7 @@
 
     move-result v0
 
-    .line 233
+    .line 229
     const/high16 v1, 0x3f800000    # 1.0f
 
     cmpl-float v1, v0, v1
@@ -77,10 +77,10 @@
 
     if-gtz v1, :cond_2c
 
-    .line 234
+    .line 230
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->setArmsDivider(F)V
 
-    .line 235
+    .line 231
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$ArmsDivWatch;->hint:Landroid/widget/TextView;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->armsReducedText(F)Ljava/lang/String;
@@ -91,12 +91,12 @@
     :try_end_2c
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_2c} :catch_2d
 
-    .line 239
+    .line 235
     :cond_2c
     :goto_2c
     return-void
 
-    .line 237
+    .line 233
     :catch_2d
     move-exception v0
 
@@ -107,7 +107,7 @@
     .registers 5
 
     .prologue
-    .line 223
+    .line 219
     return-void
 .end method
 
@@ -115,6 +115,6 @@
     .registers 5
 
     .prologue
-    .line 227
+    .line 223
     return-void
 .end method

@@ -621,16 +621,21 @@ public final class WorkoutsUi {
         if (!ro) {
             // the length first (what the trainer sets); the impulse follows the movement — folded
             LinearLayout row1 = XemsUi.horizontal(c);
-            row1.setGravity(Gravity.CENTER_VERTICAL);
+            row1.setGravity(Gravity.TOP);                      // tops line up: the pill and the button
             boolean hold = e != null && e.isHold();
             param(c, row1, b.isRest() ? AiText.t("секунди", "seconds") : hold ? AiText.t("задържания", "holds")
                     : b.hasExercise() ? AiText.t("повторения", "repetitions") : AiText.t("импулса", "impulses"), b.reps, P_REPS);
             if (!b.isRest()) {
+                // the same four columns as the impulse rows below: the values line up
                 TextView more = XemsUi.button(c, advanced ? AiText.t("Импулс ▾", "Impulse ▾") : AiText.t("Импулс ▸", "Impulse ▸"),
-                        XemsUi.GHOST);
+                        XemsUi.SECONDARY);
                 more.setOnClickListener(new Act(A_ADVANCED, 0));
-                row1.addView(more, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 46), 1f));
-                row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
+                LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 44), 1f);
+                mp.rightMargin = XemsUi.dp(c, 8);
+                row1.addView(more, mp);
+                row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 2f));
+            } else {
+                row1.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 3f));
             }
             col.addView(row1);
             if (!b.isRest() && advanced) {
@@ -697,16 +702,20 @@ public final class WorkoutsUi {
         TextView plus = XemsUi.iconButton(c, "+", XemsUi.CARD, XemsUi.TEXT, 38);
         TextView v = XemsUi.text(c, valueText(which, value), 18, XemsUi.TEXT, true);
         v.setGravity(Gravity.CENTER);
+        v.setSingleLine(true);
         Act act = new Act(A_PARAM, which);
         act.value = v;
         XemsUi.repeatOnHold(minus, act, -1);
         XemsUi.repeatOnHold(plus, act, +1);
+        // − at one end, + at the other, the value in the middle: the pill is filled, no empty tail
         box.addView(minus);
-        box.addView(v, new LinearLayout.LayoutParams(XemsUi.dp(c, 52), ViewGroup.LayoutParams.WRAP_CONTENT));
+        box.addView(v, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         box.addView(plus);
-        col.addView(box);
+        col.addView(box, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView cap = XemsUi.text(c, caption, 11, XemsUi.HINT, false);
         cap.setPadding(0, XemsUi.dp(c, 3), 0, 0);
+        cap.setGravity(Gravity.CENTER);
         if (glyph >= 0) {
             ImpulseGlyph gd = new ImpulseGlyph(glyph, XemsUi.MUTED, XemsUi.dp(c, 1.4f));
             int gs = XemsUi.dp(c, 13);

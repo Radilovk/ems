@@ -34,6 +34,17 @@ the name field says what it is for. Changes save by themselves (header "✓ За
   (`ExerciseLibrary.zones`). `gen-exercise-library.py` fixes the source's wrong targets / positions (`ZONE_FIX`,
   `POS_FIX`, `FUNCTIONAL`).
   `POST /admin/api/exercises/set` (Basic auth). Helpers `server/src/exercises.js` (+ tests).
+- **From the tablet** (1.1.264): Settings → "Достъп и лиценз" → **Каталог с упражнения · Отвори ↗** opens the page
+  in-app (`widget/XemsExercisePage`, WebView) with no code: the tablet's signed license token + device id ride in the
+  URL fragment, the page sends them as `X-Tablet-Token` / `X-Device-Id`, the server (`tabletAllowed`) checks the
+  signature, the license and this activation. An unknown tablet falls back to the code prompt.
+- **Default selection** = the owner's 40 built-ins (library.json `d`); the 8 built-ins added for the men's programs
+  (`"extra"` in exercises.json) ship their frames but stay off until switched on.
+- **KA fitness** (aidiet/fitness) uses the same page: switch **XEMS таблет | KA fitness** on top; KA has its own
+  selection (`exercise_picks_ka`, migration 0012; everything on until switched off). Public
+  `GET /v1/exercises/selection?app=ka` (CORS, 5 min) → `{v, items:[{id, zone, frames:[url…]}]}` (frames by the
+  3/2/1 choice, redrawn ones where they exist; `selectionPayload`). KA's worker uses only those for new plans and
+  draws them the XEMS way (cyan / magenta by the client, glow, 1–3 frames).
 - Access: the admin login, or the page's own **access code** (asked by the page, sent as `X-Access-Code`; only its
   SHA-256 is in `wrangler.toml` `EXERCISES_CODE_SHA256`; a wrong code waits 400 ms). New code = new hash there.
 - Deploy: GitHub Actions `server-deploy` (push to main, or Run workflow on a branch) applies D1 migrations and deploys.

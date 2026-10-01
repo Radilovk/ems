@@ -24,6 +24,8 @@ import com.isaigu.gymapp.dialog.IntervalTimerHelper;
 import com.isaigu.gymapp.train.utils.MusicSync;
 import com.isaigu.gymapp.wearable.NotifyWearableBridge;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -166,13 +168,437 @@ public final class XemsNav {
         bar.setPadding(XemsUi.dp(c, 12), pad, XemsUi.dp(c, 12), pad);
         bar.setElevation(XemsUi.dp(c, 6));
 
-        addMenuTile(bar);
-        addTile(bar, M_TIMER, "⏱", tr("Таймер", "Timer"), XemsUi.AMBER);
-        addTile(bar, M_MUSIC, "♫", tr("Музика", "Music"), XemsUi.GO);
-        addTile(bar, M_PULSE, "♥", tr("Пулс", "Heart rate"), XemsUi.ACCENT);
-        addTile(bar, M_AUTO, "A", tr("Авто", "Auto"), 0xFF26A69A);
-        addTile(bar, M_AI, "AI", tr("AI тренировка", "AI session"), XemsUi.ORANGE);
+        barView = bar;
+        bar.setOnDragListener(new DropZone(true));
+        fillBar(bar);
         return bar;
+    }
+
+    // ================================================================ order (menu ↔ bar, drag like phone icons)
+
+    private static LinearLayout barView;
+    private static LinearLayout menuBox;
+    static final String K_PROGRAMS = "programs";
+    private static final String PREFS = "xems_nav";
+    private static final int BAR_MAX = 7;
+    private static final int[] MOD_ORDER = {M_TIMER, M_MUSIC, M_PULSE, M_AUTO, M_AI};
+
+    static String modGlyph(int m) {
+        switch (m) {
+            case M_TIMER: return "⏱";
+            case M_MUSIC: return "♫";
+            case M_PULSE: return "♥";
+            case M_AUTO: return "A";
+            default: return "AI";
+        }
+    }
+
+    static String modLabel(int m) {
+        switch (m) {
+            case M_TIMER: return tr("Таймер", "Timer");
+            case M_MUSIC: return tr("Музика", "Music");
+            case M_PULSE: return tr("Пулс", "Heart rate");
+            case M_AUTO: return tr("Авто", "Auto");
+            default: return tr("AI тренировка", "AI session");
+        }
+    }
+
+    static int modTint(int m) {
+        switch (m) {
+            case M_TIMER: return XemsUi.AMBER;
+            case M_MUSIC: return XemsUi.GO;
+            case M_PULSE: return XemsUi.ACCENT;
+            case M_AUTO: return 0xFF26A69A;
+            default: return XemsUi.ORANGE;
+        }
+    }
+
+    /** Every item once: the pages, "Програми", the modes. */
+    static List<String> allKeys() {
+        List<String> out = new ArrayList<String>();
+        for (int i = 0; i < TAB_COUNT; i++) {
+            out.add("page:" + i);
+        }
+        out.add(K_PROGRAMS);
+        for (int m : MOD_ORDER) {
+            out.add("mod:" + m);
+        }
+        return out;
+    }
+
+    private static android.content.SharedPreferences prefs(Context c) {
+        return c.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    }
+
+    private static List<String> read(Context c, String name, String def) {
+        List<String> out = new ArrayList<String>();
+        List<String> all = allKeys();
+        for (String k : prefs(c).getString(name, def).split(",")) {
+            if (all.contains(k) && !out.contains(k)) {
+                out.add(k);
+            }
+        }
+        return out;
+    }
+
+    /** The bar's items in order (the modes by default). */
+    static List<String> barKeys(Context c) {
+        StringBuilder def = new StringBuilder();
+        for (int m : MOD_ORDER) {
+            def.append(def.length() > 0 ? "," : "").append("mod:").append(m);
+        }
+        return read(c, "bar", def.toString());
+    }
+
+    /** The menu's items in order: everything not on the bar (new items at the end). */
+    static List<String> menuKeys(Context c) {
+        List<String> bar = barKeys(c);
+        List<String> out = new ArrayList<String>();
+        for (String k : read(c, "menu", "")) {
+            if (!bar.contains(k)) {
+                out.add(k);
+            }
+        }
+        for (String k : allKeys()) {
+            if (!bar.contains(k) && !out.contains(k)) {
+                out.add(k);
+            }
+        }
+        return out;
+    }
+
+    private static void save(Context c, List<String> bar, List<String> menu) {
+        prefs(c).edit().putString("bar", join(bar)).putString("menu", join(menu)).apply();
+    }
+
+    private static String join(List<String> l) {
+        StringBuilder b = new StringBuilder();
+        for (String k : l) {
+            b.append(b.length() > 0 ? "," : "").append(k);
+        }
+        return b.toString();
+    }
+
+    private static void fillBar(LinearLayout bar) {
+        Context c = bar.getContext();
+        bar.removeAllViews();
+        java.util.Arrays.fill(tiles, null);
+        addMenuTile(bar);
+        for (String k : barKeys(c)) {
+            if (k.startsWith("mod:")) {
+                int m = Integer.parseInt(k.substring(4));
+                addTile(bar, m, modGlyph(m), modLabel(m), modTint(m));
+                tiles[m].root.setTag(k);
+                tiles[m].root.setOnLongClickListener(new Lift(k));
+            } else {
+                View v = linkTile(c, k);
+                if (v != null) {
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                    lp.leftMargin = XemsUi.dp(c, 5);
+                    lp.rightMargin = XemsUi.dp(c, 5);
+                    bar.addView(v, lp);
+                }
+            }
+        }
+    }
+
+    /** A page or "Програми" on the bar: its glyph in a tinted disc and its name; a tap opens it. */
+    private static View linkTile(Context c, String k) {
+        int glyph;
+        String label;
+        int tint;
+        View.OnClickListener click;
+        if (K_PROGRAMS.equals(k)) {
+            glyph = XemsIcon.DUMBBELL;
+            label = tr("Програми", "Programs");
+            tint = 0xFF22E3FF;
+            click = new WorkoutsClick();
+        } else {
+            int i = Integer.parseInt(k.substring(5));
+            View tab = mainRoot != null ? mainRoot.findViewById(ID_TAB_FIRST + i) : null;
+            if (!(tab instanceof ViewGroup)) {
+                return null;
+            }
+            glyph = PAGE_ICONS[i];
+            label = String.valueOf(tabLabel((ViewGroup) tab));
+            tint = pageTint(i);
+            click = new PageClick(ID_TAB_FIRST + i);
+        }
+        LinearLayout tile = XemsUi.horizontal(c);
+        tile.setGravity(Gravity.CENTER_VERTICAL);
+        tile.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
+        tile.setClickable(true);
+        tile.setOnClickListener(click);
+        tile.setOnLongClickListener(new Lift(k));
+        tile.setTag(k);
+        XemsUi.pressable(tile);
+        tile.addView(glyphDisc(c, glyph, tint, false), new LinearLayout.LayoutParams(XemsUi.dp(c, 38), XemsUi.dp(c, 38)));
+        TextView name = XemsUi.text(c, label, 14, XemsUi.TEXT, true);
+        name.setSingleLine(true);
+        name.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        np.leftMargin = XemsUi.dp(c, 10);
+        tile.addView(name, np);
+        return tile;
+    }
+
+    private static View glyphDisc(Context c, int glyphType, int tint, boolean solid) {
+        View icon = new View(c);
+        GradientDrawable disc = new GradientDrawable();
+        disc.setShape(GradientDrawable.OVAL);
+        disc.setColor(solid ? tint : XemsUi.alpha(tint, 0x2E));
+        XemsIcon glyph = new XemsIcon(glyphType, solid ? XemsUi.ON_ACCENT : tint);
+        android.graphics.drawable.LayerDrawable layers = new android.graphics.drawable.LayerDrawable(
+                new Drawable[] {disc, glyph});
+        int inset = XemsUi.dp(c, 8);
+        layers.setLayerInset(1, inset, inset, inset, inset);
+        icon.setBackground(layers);
+        return icon;
+    }
+
+    private static CharSequence tabLabel(ViewGroup tab) {
+        CharSequence label = "";
+        for (int i = 0; i < tab.getChildCount(); i++) {
+            View ch = tab.getChildAt(i);
+            if (ch instanceof TextView && !(ch instanceof android.widget.Button)) {
+                label = ((TextView) ch).getText();
+            }
+        }
+        return label;
+    }
+
+    /** The menu's rows in the saved order, each one draggable. */
+    private static void fillMenu(LinearLayout box) {
+        Context c = box.getContext();
+        box.removeAllViews();
+        TextView head = XemsUi.label(c, "XEMS");
+        head.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 4), 0, XemsUi.dp(c, 2));
+        box.addView(head);
+        TextView hint = XemsUi.text(c, tr("Задръж и влачи — подреди или премести в лентата долу",
+                "Hold and drag — reorder, or move to the bar below"), 11, XemsUi.HINT, false);
+        hint.setPadding(XemsUi.dp(c, 12), 0, XemsUi.dp(c, 12), XemsUi.dp(c, 6));
+        box.addView(hint, new LinearLayout.LayoutParams(XemsUi.dp(c, 250), ViewGroup.LayoutParams.WRAP_CONTENT));
+        for (String k : menuKeys(c)) {
+            View row = null;
+            if (k.startsWith("page:")) {
+                int i = Integer.parseInt(k.substring(5));
+                View tab = mainRoot.findViewById(ID_TAB_FIRST + i);
+                if (tab instanceof ViewGroup) {
+                    row = menuRow(c, (ViewGroup) tab, ID_TAB_FIRST + i);
+                }
+            } else if (K_PROGRAMS.equals(k)) {
+                row = extraRow(c, XemsIcon.DUMBBELL, tr("Програми", "Programs"), 0xFF22E3FF, new WorkoutsClick());
+            } else {
+                row = moduleRow(c, Integer.parseInt(k.substring(4)));
+            }
+            if (row == null) {
+                continue;
+            }
+            row.setTag(k);
+            row.setOnLongClickListener(new Lift(k));
+            box.addView(row, new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
+        }
+        if (menuKeys(c).isEmpty()) {
+            TextView empty = XemsUi.text(c, tr("Всичко е в лентата — пусни тук, за да върнеш.",
+                    "Everything is on the bar — drop here to bring it back."), 13, XemsUi.HINT, false);
+            empty.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 12), XemsUi.dp(c, 12), XemsUi.dp(c, 12));
+            box.addView(empty, new LinearLayout.LayoutParams(XemsUi.dp(c, 250), ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+    }
+
+    /** A long press lifts an item: it follows the finger (Android drag and drop, across the menu and the bar). */
+    static final class Lift implements View.OnLongClickListener {
+        private final String key;
+
+        Lift(String key) {
+            this.key = key;
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public boolean onLongClick(View v) {
+            try {
+                v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+                android.content.ClipData data = android.content.ClipData.newPlainText("xems_nav", key);
+                View.DragShadowBuilder shadow = new View.DragShadowBuilder(v);
+                boolean ok = android.os.Build.VERSION.SDK_INT >= 24
+                        ? v.startDragAndDrop(data, shadow, key, 0) : v.startDrag(data, shadow, key, 0);
+                if (ok) {
+                    v.setAlpha(0.3f);
+                }
+                return ok;
+            } catch (Throwable t) {
+                XemsGuard.report("XemsNav.lift", t);
+                return false;
+            }
+        }
+    }
+
+    /** The bar or the menu as a drop target: a line shows where the item lands; on drop the order is saved. */
+    static final class DropZone implements View.OnDragListener {
+        private final boolean bar;
+        private View marker;
+
+        DropZone(boolean bar) {
+            this.bar = bar;
+        }
+
+        @Override
+        public boolean onDrag(View v, android.view.DragEvent e) {
+            Object st = e.getLocalState();
+            if (!(st instanceof String) || !(v instanceof LinearLayout)) {
+                return false;
+            }
+            String key = (String) st;
+            LinearLayout box = (LinearLayout) v;
+            switch (e.getAction()) {
+                case android.view.DragEvent.ACTION_DRAG_STARTED:
+                    return true;
+                case android.view.DragEvent.ACTION_DRAG_ENTERED:
+                case android.view.DragEvent.ACTION_DRAG_LOCATION:
+                    showMarker(box, slot(box, e.getX(), e.getY()));
+                    return true;
+                case android.view.DragEvent.ACTION_DRAG_EXITED:
+                    hideMarker();
+                    return true;
+                case android.view.DragEvent.ACTION_DROP: {
+                    int at = slot(box, e.getX(), e.getY());
+                    hideMarker();
+                    return drop(box.getContext(), key, bar, at);
+                }
+                case android.view.DragEvent.ACTION_DRAG_ENDED:
+                    hideMarker();
+                    restoreAlpha();
+                    return true;
+                default:
+                    return true;
+            }
+        }
+
+        /** Where among the items (tagged children) the point falls. */
+        private int slot(LinearLayout box, float x, float y) {
+            int n = 0;
+            for (int i = 0; i < box.getChildCount(); i++) {
+                View ch = box.getChildAt(i);
+                if (!(ch.getTag() instanceof String) || ch == marker) {
+                    continue;
+                }
+                float mid = bar ? ch.getLeft() + ch.getWidth() / 2f : ch.getTop() + ch.getHeight() / 2f;
+                if ((bar ? x : y) < mid) {
+                    return n;
+                }
+                n++;
+            }
+            return n;
+        }
+
+        private void showMarker(LinearLayout box, int slot) {
+            Context c = box.getContext();
+            if (marker == null) {
+                marker = new View(c);
+                marker.setBackground(XemsUi.rounded(XemsUi.GO, XemsUi.dp(c, 2), 0, 0));
+            }
+            if (marker.getParent() != null) {
+                ((ViewGroup) marker.getParent()).removeView(marker);
+            }
+            int idx = box.getChildCount();
+            int n = 0;
+            for (int i = 0; i < box.getChildCount(); i++) {
+                if (box.getChildAt(i).getTag() instanceof String) {
+                    if (n == slot) {
+                        idx = i;
+                        break;
+                    }
+                    n++;
+                }
+            }
+            LinearLayout.LayoutParams lp = bar
+                    ? new LinearLayout.LayoutParams(XemsUi.dp(c, 4), XemsUi.dp(c, 44))
+                    : new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 4));
+            box.addView(marker, idx, lp);
+        }
+
+        private void hideMarker() {
+            if (marker != null && marker.getParent() != null) {
+                ((ViewGroup) marker.getParent()).removeView(marker);
+            }
+        }
+    }
+
+    /** "Меню" as a drop target: lights up under a dragged bar item; the drop puts it back at the menu's end. */
+    static final class MenuDrop implements View.OnDragListener {
+        @Override
+        public boolean onDrag(View v, android.view.DragEvent e) {
+            Object st = e.getLocalState();
+            if (!(st instanceof String)) {
+                return false;
+            }
+            switch (e.getAction()) {
+                case android.view.DragEvent.ACTION_DRAG_STARTED:
+                    return barKeys(v.getContext()).contains((String) st);
+                case android.view.DragEvent.ACTION_DRAG_ENTERED:
+                    v.setScaleX(1.08f);
+                    v.setScaleY(1.08f);
+                    return true;
+                case android.view.DragEvent.ACTION_DRAG_EXITED:
+                case android.view.DragEvent.ACTION_DRAG_ENDED:
+                    v.setScaleX(1f);
+                    v.setScaleY(1f);
+                    if (e.getAction() == android.view.DragEvent.ACTION_DRAG_ENDED) {
+                        restoreAlpha();
+                    }
+                    return true;
+                case android.view.DragEvent.ACTION_DROP:
+                    v.setScaleX(1f);
+                    v.setScaleY(1f);
+                    return drop(v.getContext(), (String) st, false, Integer.MAX_VALUE);
+                default:
+                    return true;
+            }
+        }
+    }
+
+    private static void restoreAlpha() {
+        restoreAlpha(barView);
+        restoreAlpha(menuBox);
+    }
+
+    private static void restoreAlpha(ViewGroup g) {
+        if (g == null) {
+            return;
+        }
+        for (int i = 0; i < g.getChildCount(); i++) {
+            g.getChildAt(i).setAlpha(1f);
+        }
+    }
+
+    /** Move an item into the bar or the menu at a place; the bar holds at most BAR_MAX. */
+    static boolean drop(Context c, String key, boolean toBar, int at) {
+        List<String> bar = barKeys(c);
+        List<String> menu = menuKeys(c);
+        boolean fromBar = bar.contains(key);
+        if (toBar && !fromBar && bar.size() >= BAR_MAX) {
+            android.widget.Toast.makeText(c, tr("Лентата е пълна — първо махни нещо от нея.",
+                    "The bar is full — take something off first."), android.widget.Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        List<String> target = toBar ? bar : menu;
+        int old = target.indexOf(key);
+        bar.remove(key);
+        menu.remove(key);
+        if (old >= 0 && old < at) {
+            at--;                                      // the item left a gap before its new place
+        }
+        target.add(Math.max(0, Math.min(target.size(), at)), key);
+        save(c, bar, menu);
+        if (barView != null) {
+            fillBar(barView);
+            refreshTiles();
+        }
+        if (menuBox != null) {
+            fillMenu(menuBox);
+        }
+        return true;
     }
 
     private static void addTile(LinearLayout bar, int module, String glyph, String label, int tint) {
@@ -259,6 +685,7 @@ public final class XemsNav {
                 XemsUi.alpha(XemsUi.ACCENT, 0x88), XemsUi.dp(c, 1)), XemsUi.TEXT, r));
         tile.setClickable(true);
         tile.setOnClickListener(new MenuClick());
+        tile.setOnDragListener(new MenuDrop());        // a bar item dropped on "Меню" goes back to the menu
         tile.setContentDescription(tr("Меню", "Menu"));
         XemsUi.pressable(tile);
 
@@ -300,35 +727,9 @@ public final class XemsNav {
         int p = XemsUi.dp(c, 8);
         box.setPadding(p, p, p, p);
 
-        TextView head = XemsUi.label(c, "XEMS");
-        head.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 4), 0, XemsUi.dp(c, 6));
-        box.addView(head);
-
-        // every page, even one the vendor hid (the owner wants all of them here)
-        for (int i = 0; i < TAB_COUNT; i++) {
-            int id = ID_TAB_FIRST + i;
-            View tab = mainRoot.findViewById(id);
-            if (!(tab instanceof ViewGroup)) {
-                continue;
-            }
-            box.addView(menuRow(c, (ViewGroup) tab, id), new LinearLayout.LayoutParams(
-                    XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
-        }
-        // our own section: workouts and procedures on one page
-        box.addView(extraRow(c, XemsIcon.DUMBBELL, tr("Програми", "Programs"), 0xFF22E3FF, new WorkoutsClick()),
-                new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
-        // the modes of the bar too (on a small screen their tiles are squeezed)
-        TextView modes = XemsUi.label(c, tr("Режими", "Modes"));
-        modes.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 10), 0, XemsUi.dp(c, 4));
-        box.addView(modes);
-        int[] mods = {M_AI, M_AUTO, M_TIMER, M_MUSIC, M_PULSE};
-        for (int m : mods) {
-            Tile t = tiles[m];
-            if (t == null) {
-                continue;
-            }
-            box.addView(moduleRow(c, m, t), new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 48)));
-        }
+        menuBox = box;
+        box.setOnDragListener(new DropZone(false));
+        fillMenu(box);
 
         // Scrolls when the screen is short: the list keeps its order, the card its frame.
         android.widget.ScrollView scroll = new android.widget.ScrollView(c);
@@ -446,7 +847,8 @@ public final class XemsNav {
     }
 
     /** A mode of the bar as a menu row: its glyph in a tinted disc, its name, its live status. */
-    private static View moduleRow(Context c, int module, Tile t) {
+    private static View moduleRow(Context c, int module) {
+        Tile t = tiles[module];
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
@@ -454,18 +856,19 @@ public final class XemsNav {
         row.setBackground(XemsUi.ripple(XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
         row.setClickable(true);
         row.setOnClickListener(new ModuleClick(module));
-        TextView icon = XemsUi.text(c, String.valueOf(t.icon.getText()), 13, t.tint, true);
+        int tint = modTint(module);
+        TextView icon = XemsUi.text(c, modGlyph(module), 13, tint, true);
         icon.setGravity(Gravity.CENTER);
         GradientDrawable disc = new GradientDrawable();
         disc.setShape(GradientDrawable.OVAL);
-        disc.setColor(XemsUi.alpha(t.tint, 0x2E));
+        disc.setColor(XemsUi.alpha(tint, 0x2E));
         icon.setBackground(disc);
-        row.addView(icon, new LinearLayout.LayoutParams(XemsUi.dp(c, 32), XemsUi.dp(c, 32)));
+        row.addView(icon, new LinearLayout.LayoutParams(XemsUi.dp(c, 36), XemsUi.dp(c, 36)));
         LinearLayout texts = XemsUi.vertical(c);
-        TextView name = XemsUi.text(c, t.label, 14, XemsUi.MUTED, false);
+        TextView name = XemsUi.text(c, modLabel(module), 15, XemsUi.MUTED, false);
         name.setSingleLine(true);
         texts.addView(name);
-        CharSequence st = t.status.getText();
+        CharSequence st = t != null ? t.status.getText() : null;
         if (st != null && st.length() > 0) {
             TextView s2 = XemsUi.text(c, String.valueOf(st), 11, XemsUi.HINT, false);
             s2.setSingleLine(true);
@@ -878,8 +1281,9 @@ public final class XemsNav {
         @Override
         public void run() {
             Tile t = tiles[module];
-            if (t != null) {
-                openModule(t.root, module);
+            View from = t != null ? t.root : mainRoot;    // the mode may live in the menu, not on the bar
+            if (from != null) {
+                openModule(from, module);
             }
         }
     }
@@ -916,6 +1320,7 @@ public final class XemsNav {
     static final class MenuClosed implements PopupWindow.OnDismissListener {
         @Override
         public void onDismiss() {
+            menuBox = null;
             menuClosedAt = android.os.SystemClock.uptimeMillis();
         }
     }

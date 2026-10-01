@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 940
+    .line 946
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,21 +34,21 @@
     .registers 3
 
     .prologue
-    .line 943
+    .line 949
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/AiUi;->noBand:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$902(Z)Z
 
-    .line 944
+    .line 950
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->restartRestHr()V
 
-    .line 945
+    .line 951
     const/4 v0, 0x1
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 946
+    .line 952
     return-void
 .end method

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 692
+    .line 698
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$12;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$12;->val$key:Ljava/lang/String;
@@ -49,7 +49,7 @@
     .registers 5
 
     .prologue
-    .line 695
+    .line 701
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$12;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
@@ -64,12 +64,12 @@
 
     invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 696
+    .line 702
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 697
+    .line 703
     return-void
 .end method

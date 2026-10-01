@@ -19,6 +19,8 @@
 
 .field public builtIn:Z
 
+.field public defaultOn:Z
+
 .field public diff:I
 
 .field public en:Ljava/lang/String;
@@ -69,7 +71,7 @@
     .registers 3
 
     .prologue
-    .line 71
+    .line 73
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->how:Ljava/lang/String;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->howEn:Ljava/lang/String;
@@ -103,7 +105,7 @@
     .registers 3
 
     .prologue
-    .line 76
+    .line 78
     const-string v0, "duration"
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->type:Ljava/lang/String;
@@ -119,7 +121,7 @@
     .registers 3
 
     .prologue
-    .line 67
+    .line 69
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->bg:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->en:Ljava/lang/String;

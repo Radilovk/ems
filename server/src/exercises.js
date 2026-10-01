@@ -27,15 +27,23 @@ export function picksPayload(rows) {
   return { v, picks };
 }
 
-/** Which exercises a tablet offers: built-ins unless switched off, others only when switched on. */
-export function enabledIds(library, picks) {
+/** Which exercises a tablet offers: the owner's selection (library "d"; older libraries: built-ins) unless switched
+ *  off, the others only when switched on. */
+export function enabledIds(library, picks, allByDefault = false) {
   const byId = new Map((picks || []).map((p) => [p.id, p]));
   const out = [];
   for (const e of library.exercises) {
     const p = byId.get(e.id);
-    if (p ? p.on : e.b) out.push(e.id);
+    if (p ? p.on : (allByDefault || (e.d ?? e.b))) out.push(e.id);
   }
   return out;
+}
+
+/** The selections the page keeps: the XEMS tablets' and KA fitness's (its own table; all on by default). */
+export const APPS = { xems: { table: 'exercise_picks', allByDefault: false }, ka: { table: 'exercise_picks_ka', allByDefault: true } };
+
+export function appOf(name) {
+  return APPS[name] ? name : 'xems';
 }
 
 /** The access code of the exercise page (header X-Access-Code) against its SHA-256 (hex); spaces / case ignored. */
@@ -48,4 +56,33 @@ export async function codeMatches(code, sha256Hex) {
   let diff = 0;
   for (let i = 0; i < hex.length; i++) diff |= hex.charCodeAt(i) ^ sha256Hex.toLowerCase().charCodeAt(i);
   return diff === 0;
+}
+
+/** The frames an exercise shows by the admin's choice (0 = its own count): 3 all, 2 first + last, 1 the first. */
+export function frameNumbers(n, want) {
+  const w = want || n;
+  if (w >= 3 && n >= 3) return [1, 2, 3];
+  if (w === 1 || n === 1) return [1];
+  return [1, n];
+}
+
+/**
+ * The selection for other apps (KA fitness): every exercise the admin has on, with the frames to show (the redrawn
+ * even-line copy where there is one) and its group. Ids as in the library (bryllim/workout-guide).
+ */
+export function selectionPayload(library, rows, allByDefault = false) {
+  const p = picksPayload(rows);
+  const byId = new Map(p.picks.map((x) => [x.id, x]));
+  const on = new Set(enabledIds(library, p.picks, allByDefault));
+  const fixed = new Set(library.fixed || []);
+  const items = [];
+  for (const e of library.exercises) {
+    if (!on.has(e.id)) continue;
+    const pick = byId.get(e.id) || {};
+    const n = Number(e.n) || 1;
+    const frames = frameNumbers(n, pick.frames).map((k) => (fixed.has(e.id + '/' + k) && library.fixedUrl
+      ? library.fixedUrl : library.frames).replace('{id}', e.id).replace('{n}', String(k)));
+    items.push({ id: e.id, zone: pick.zone || e.zone, frames });
+  }
+  return { v: p.v, items };
 }

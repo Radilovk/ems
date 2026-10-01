@@ -7,6 +7,8 @@ library the tablet reads (assets/xems/library.json, ai/ExerciseLibrary). Adds wh
   zone  the picker's group (Корем, Седалище, Бедра, Гръб, Гърди, Ръце, Рамене, Кардио, Функционални — whole-body
         moves with no one target —, Разтягане); the admin can change it per exercise (server picks, zone),
   b     1 when its frames ship in the APK (exercises.json); the others are downloaded when the admin enables them.
+  d     1 = on by default (the owner's own 40 built-ins); "extra" built-ins (shipped for the men's programs) are off
+        until the admin switches them on.
 Top level "fixed" lists the frames redrawn with even lines (branding/exercises/fixed/, scripts/exercise-line-width.py).
 Run after editing library-src.json or exercises.json; commit library.json.
 """
@@ -96,7 +98,8 @@ def main() -> None:
             p = pos(e)
         out.append({"id": e["id"], "bg": e["bg"], "en": e["en"], "eq": e["eq"], "tg": e["tg"], "sec": e.get("sec", []),
                     "type": e["type"], "diff": e["diff"], "pat": e["pat"], "cat": e["cat"], "zone": zone(e), "pos": p, "met": met, "mus": mus,
-                    "how": e["how"], "howEn": e.get("howEn", ""), "vb": e["vb"], "n": e["n"], "b": 1 if b else 0})
+                    "how": e["how"], "howEn": e.get("howEn", ""), "vb": e["vb"], "n": e["n"], "b": 1 if b else 0,
+                    "d": 1 if b and not b.get("extra") else 0})
     missing = set(built) - {e["id"] for e in out}
     assert not missing, missing
     # frames redrawn with even lines (scripts/exercise-line-width.py): "<id>/<n>", served from FIXED_URL

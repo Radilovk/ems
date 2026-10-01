@@ -62,6 +62,8 @@ public final class ExerciseLibrary {
         public float[] vb;
         public int frames;
         public boolean builtIn;
+        /** On by default: the owner's own selection (a built-in shipped only for a program is not). */
+        public boolean defaultOn;
 
         public String name() {
             return AiText.t(bg, en);
@@ -122,6 +124,7 @@ public final class ExerciseLibrary {
                         (float) vb.getDouble(3)};
                 e.frames = x.optInt("n", 1);
                 e.builtIn = x.optInt("b", 0) == 1;
+                e.defaultOn = x.optInt("d", e.builtIn ? 1 : 0) == 1;
                 ALL.add(e);
                 BY_ID.put(e.id, e);
                 AutoTemplates.register(e.id, e.bg, e.en, e.pos, e.met, e.mus);
@@ -176,10 +179,10 @@ public final class ExerciseLibrary {
         return out;
     }
 
-    /** Built-in unless the admin switched it off; any other only when switched on. */
+    /** The owner's selection unless the admin switched it off; any other only when switched on. */
     public static boolean isEnabled(Context c, Entry e, Map<String, int[]> picks) {
         int[] p = picks.get(e.id);
-        return p != null ? p[0] == 1 : e.builtIn;
+        return p != null ? p[0] == 1 : e.defaultOn;
     }
 
     /** The exercises offered for building workouts, figure ready (built in, or downloaded), library order. */

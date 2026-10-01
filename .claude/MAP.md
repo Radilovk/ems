@@ -386,7 +386,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/crypto-verify.test.js` (24L) — 
 - `server/test/crypto.test.js` (68L) — Generate a test P-256 key pair in PEM format compatible with importPrivateKey
 - `server/test/ems.test.js` (15L) — 
-- `server/test/exercises.test.js` (49L) — 
+- `server/test/exercises.test.js` (48L) — 
 - `server/test/history.test.js` (95L) — D1-shaped wrapper over node:sqlite with the real migration.
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (53L) — 
@@ -798,15 +798,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-workouts.md` (114L)
+`docs/xems-workouts.md` (113L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library
   - L12 ## The library (302 exercises)
   - L26 ## Admin (server)
-  - L42 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
-  - L79 ## Running a map
-  - L91 ## Audit 1.1.256 — the backend decides, the screen stays quiet
-  - L104 ## Tests
-  - L111 ## Not yet
+  - L41 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
+  - L78 ## Running a map
+  - L90 ## Audit 1.1.256 — the backend decides, the screen stays quiet
+  - L103 ## Tests
+  - L110 ## Not yet
 
 `docs/xiaomi-band-integration.md` (630L)
   - L1 # Интеграция XEMS ↔ Xiaomi Smart Band 8 / 10

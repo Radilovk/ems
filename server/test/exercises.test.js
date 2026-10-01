@@ -28,11 +28,10 @@ test('payload: version is the last change, picks sorted', () => {
   assert.deepEqual(picksPayload([]), { v: 0, picks: [] });
 });
 
-test('enabled: only what the admin switched on, built-in or not', () => {
+test('enabled: built-ins by default, the admin switches either way', () => {
   const lib = { exercises: [{ id: 'squat', b: 1 }, { id: 'plank', b: 1 }, { id: 'row', b: 0 }] };
-  assert.deepEqual(enabledIds(lib, []), []);
-  assert.deepEqual(enabledIds(lib, [{ id: 'plank', on: 0 }, { id: 'row', on: 1 }, { id: 'squat', on: 1 }]),
-    ['squat', 'row']);
+  assert.deepEqual(enabledIds(lib, []), ['squat', 'plank']);
+  assert.deepEqual(enabledIds(lib, [{ id: 'plank', on: 0 }, { id: 'row', on: 1 }]), ['squat', 'row']);
 });
 
 test('access code: matches its SHA-256, trims and ignores case; nothing else passes', async () => {

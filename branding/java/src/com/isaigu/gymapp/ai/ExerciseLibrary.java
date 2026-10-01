@@ -176,10 +176,10 @@ public final class ExerciseLibrary {
         return out;
     }
 
-    /** Only when the admin switched it on (built-in or not). */
+    /** Built-in unless the admin switched it off; any other only when switched on. */
     public static boolean isEnabled(Context c, Entry e, Map<String, int[]> picks) {
         int[] p = picks.get(e.id);
-        return p != null && p[0] == 1;                 // only what the admin switched on (none by default)
+        return p != null ? p[0] == 1 : e.builtIn;
     }
 
     /** The exercises offered for building workouts, figure ready (built in, or downloaded), library order. */

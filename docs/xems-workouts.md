@@ -26,9 +26,8 @@ the name field says what it is for. Changes save by themselves (header "✓ За
 ## Admin (server)
 - `/admin/exercises` (button "Упражнения ↗" in the admin panel): the 302 exercises with moving figures, search, zone
   and state filters; per exercise **В приложението** on/off and **кадри** 3 / 2 (first + last) / 1 (still).
-- D1 `exercise_picks(id, on_app, frames, zone, updated_at)` (migrations 0010, 0011). **Nothing is on by default**
-  (1.1.260, owner: what the admin did not switch on is not seen on a tablet — built-ins included; the ready programs
-  still use their own exercises). `GET /v1/exercises` (public, 5 min cache) → `{v, picks:[{id,on,frames,zone?}]}`.
+- D1 `exercise_picks(id, on_app, frames, zone, updated_at)` (migrations 0010, 0011). Built-ins are on by default,
+  the rest off; the admin switches either way. `GET /v1/exercises` (public, 5 min cache) → `{v, picks:[{id,on,frames,zone?}]}`.
 - **Group** (picker zone): the blue tag ▾ on each card → one tap opens the groups, one tap saves (green = the admin's
   own, overriding the library's). Groups: Корем, Седалище, Бедра, Гръб, Гърди, Ръце, Рамене, **Функционални**
   (whole-body moves with no one target: burpee, swing, deadlift, carry…), Кардио, Разтягане. The tablet applies it

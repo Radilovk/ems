@@ -156,6 +156,7 @@ public final class WorkoutsUi {
         shell.body.removeAllViews();
         shell.footer.removeAllViews();
         mapView = null;
+        legendBox = null;
         panel = null;
         pickGrid = null;
         shell.badge.setVisibility(View.GONE);
@@ -179,15 +180,20 @@ public final class WorkoutsUi {
         LinearLayout body = shell.body;
         body.addView(XemsUi.segmented(c, new String[] {AiText.t("Тренировки", "Workouts"),
                 AiText.t("Процедури", "Procedures")}, procedures ? 1 : 0, new Act(A_KIND, 0)), XemsUi.matchWrap(c, 0));
-        body.addView(legend(c), XemsUi.matchWrap(c, 8));      // what the strips' colours and heights mean
-
         List<Workout> own = ownList(c);
+        List<Workout> ready = presetList();
+        List<Workout> shown = new ArrayList<Workout>(own);
+        shown.addAll(ready);
+        View key = legend(c, shown, false);                  // only the colours these strips use
+        if (key != null) {
+            body.addView(key, XemsUi.matchWrap(c, 8));
+        }
+
         if (!own.isEmpty()) {
             body.addView(XemsUi.label(c, AiText.t("Твоите", "Yours")), XemsUi.matchWrap(c, 16));
             grid(c, body, own, A_OPEN, 0);
         }
         // the ready ones by who they are for: everyone, women, men (presetList keeps that order)
-        List<Workout> ready = presetList();
         int from = 0;
         while (from < ready.size()) {
             String sex = ready.get(from).sex;
@@ -203,13 +209,13 @@ public final class WorkoutsUi {
         }
 
         if (!procedures) {
-            int n = ExerciseLibrary.enabled(c).size();
-            int wait = ExerciseLibrary.pending(c);
-            TextView lib = XemsUi.text(c, AiText.t("Упражнения в каталога: ", "Exercises in the catalog: ") + n
-                    + (wait > 0 ? AiText.t(" · още " + wait + " се изтеглят", " · " + wait + " more downloading") : ""),
-                    12.5f, XemsUi.HINT, false);
-            lib.setPadding(0, XemsUi.dp(c, 14), 0, 0);
-            body.addView(lib);
+            int wait = ExerciseLibrary.pending(c);           // only while figures are still on their way
+            if (wait > 0) {
+                TextView lib = XemsUi.text(c, AiText.t("Изтеглят се още " + wait + " упражнения",
+                        wait + " more exercises downloading"), 12.5f, XemsUi.HINT, false);
+                lib.setPadding(0, XemsUi.dp(c, 14), 0, 0);
+                body.addView(lib);
+            }
         }
 
         TextView add = XemsUi.button(c, procedures ? AiText.t("+  Нова процедура", "+  New procedure")
@@ -388,7 +394,9 @@ public final class WorkoutsUi {
         mapScroll.addView(mapView, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 XemsUi.dp(c, 300)));
         lineCard.addView(mapScroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 300)));
-        lineCard.addView(legend(c), XemsUi.matchWrap(c, 2));
+        legendBox = XemsUi.vertical(c);
+        lineCard.addView(legendBox, XemsUi.matchWrap(c, 2));
+        refreshLegend();
         body.addView(lineCard, XemsUi.matchWrap(c, 10));
         if (w.blocks.isEmpty()) {
             TextView empty = XemsUi.text(c, w.isPassive()
@@ -467,40 +475,113 @@ public final class WorkoutsUi {
     }
 
     /** The colour scale (Hz) and what the height means. */
+    /** The editor's legend: rebuilt when the map changes, so it lists only what this map shows. */
+    private static LinearLayout legendBox;
+
+    static void refreshLegend() {
+        if (legendBox == null || editing == null) {
+            return;
+        }
+        legendBox.removeAllViews();
+        List<Workout> one = new ArrayList<Workout>();
+        one.add(editing);
+        View v = legend(legendBox.getContext(), one, true);
+        if (v != null) {
+            legendBox.addView(v);
+        }
+    }
+
+    private static final int[] BAND_TOP = {9, 29, 59, 99, Integer.MAX_VALUE};
+
+    private static int band(int hz) {
+        int i = 0;
+        while (hz > BAND_TOP[i]) {
+            i++;
+        }
+        return i;
+    }
+
     /**
-     * What the map's colours, heights, slopes and symbols mean — on every screen that shows maps (the catalog of ready
-     * programs and the editor): the frequency colours with their Hz, then the symbols used inside the blocks.
+     * What these maps' colours and symbols mean — only what they actually show: the frequency bands their blocks use,
+     * and (inside, for the editor's map, where the blocks carry values) the symbols drawn in them. Null when nothing
+     * needs explaining.
      */
-    private static View legend(Context c) {
+    private static View legend(Context c, List<Workout> maps, boolean inside) {
+        boolean[] bands = new boolean[BAND_TOP.length];
+        boolean work = false;
+        boolean rest = false;
+        boolean dbl = false;
+        boolean single = false;
+        boolean ramp = false;
+        for (Workout w : maps) {
+            for (Workout.Block b : w.blocks) {
+                if (b.isRest()) {
+                    rest = true;
+                    continue;
+                }
+                work = true;
+                bands[band(b.hz)] = true;
+                if (b.dbl) {
+                    dbl = true;
+                } else {
+                    single = true;
+                }
+                if (b.rampIn > 0 || b.rampOut > 0) {
+                    ramp = true;
+                }
+            }
+        }
+        if (!work && !(inside && rest)) {
+            return null;
+        }
         LinearLayout box = XemsUi.vertical(c);
         box.setPadding(XemsUi.dp(c, 10), XemsUi.dp(c, 4), XemsUi.dp(c, 10), XemsUi.dp(c, 6));
-        LinearLayout row = XemsUi.horizontal(c);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        int[] hz = {5, 20, 45, 85, 110};
-        String[] name = {AiText.t("дренаж", "drainage"), AiText.t("масаж", "massage"), AiText.t("издръжливост", "endurance"),
-                AiText.t("сила", "strength"), AiText.t("мощност", "power")};
-        String[] band = {"1–9", "10–29", "30–59", "60–99", "100–120"};
-        row.addView(XemsUi.text(c, AiText.t("Цвят = честота:", "Colour = frequency:"), 11.5f, XemsUi.MUTED, true));
-        for (int i = 0; i < hz.length; i++) {
-            View dot = new View(c);
-            dot.setBackgroundDrawable(XemsUi.rounded(ImpulseMapView.colorFor(hz[i]), XemsUi.dp(c, 3), 0, 0));
-            LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(XemsUi.dp(c, 18), XemsUi.dp(c, 10));
-            dp.leftMargin = XemsUi.dp(c, 12);
-            row.addView(dot, dp);
-            row.addView(XemsUi.text(c, " " + name[i] + " " + band[i] + " Hz", 11.5f, XemsUi.HINT, false));
+        if (work) {
+            LinearLayout row = XemsUi.horizontal(c);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            int[] hz = {5, 20, 45, 85, 110};
+            String[] name = {AiText.t("дренаж", "drainage"), AiText.t("масаж", "massage"),
+                    AiText.t("издръжливост", "endurance"), AiText.t("сила", "strength"), AiText.t("мощност", "power")};
+            String[] range = {"1–9", "10–29", "30–59", "60–99", "100–120"};
+            row.addView(XemsUi.text(c, AiText.t("Цвят = честота:", "Colour = frequency:"), 11.5f, XemsUi.MUTED, true));
+            for (int i = 0; i < hz.length; i++) {
+                if (!bands[i]) {
+                    continue;
+                }
+                View dot = new View(c);
+                dot.setBackgroundDrawable(XemsUi.rounded(ImpulseMapView.colorFor(hz[i]), XemsUi.dp(c, 3), 0, 0));
+                LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(XemsUi.dp(c, 18), XemsUi.dp(c, 10));
+                dp.leftMargin = XemsUi.dp(c, 12);
+                row.addView(dot, dp);
+                row.addView(XemsUi.text(c, " " + name[i] + " " + range[i] + " Hz", 11.5f, XemsUi.HINT, false));
+            }
+            box.addView(scrollRow(c, row));
         }
-        box.addView(scrollRow(c, row));
-        LinearLayout sym = XemsUi.horizontal(c);
-        sym.setGravity(Gravity.CENTER_VERTICAL);
-        sym.setPadding(0, XemsUi.dp(c, 6), 0, 0);
-        sym.addView(XemsUi.text(c, AiText.t("Блок:", "Block:"), 11.5f, XemsUi.MUTED, true));
-        legendItem(c, sym, ImpulseGlyph.HZ, AiText.t("честота, Hz", "frequency, Hz"));
-        legendItem(c, sym, ImpulseGlyph.TIME, AiText.t("време, сек", "time, s"));
-        legendItem(c, sym, ImpulseGlyph.PULSE_PAUSE, AiText.t("импулс : пауза", "impulse : pause"));
-        legendItem(c, sym, ImpulseGlyph.DOUBLE, AiText.t("двоен импулс", "double impulse"));
-        legendItem(c, sym, ImpulseGlyph.DEPTH, AiText.t("дълбочина, µs = височина", "depth, µs = height"));
-        legendItem(c, sym, ImpulseGlyph.RAMP, AiText.t("рампа = наклонена страна", "ramp = sloped side"));
-        box.addView(scrollRow(c, sym));
+        if (inside) {
+            LinearLayout sym = XemsUi.horizontal(c);
+            sym.setGravity(Gravity.CENTER_VERTICAL);
+            if (work) {
+                sym.setPadding(0, XemsUi.dp(c, 6), 0, 0);
+            }
+            sym.addView(XemsUi.text(c, AiText.t("Блок:", "Block:"), 11.5f, XemsUi.MUTED, true));
+            if (work) {
+                legendItem(c, sym, ImpulseGlyph.HZ, AiText.t("честота, Hz", "frequency, Hz"));
+            }
+            legendItem(c, sym, ImpulseGlyph.TIME, AiText.t("време, сек", "time, s"));
+            if (single) {
+                legendItem(c, sym, ImpulseGlyph.PULSE_PAUSE, AiText.t("импулс : пауза", "impulse : pause"));
+            }
+            if (dbl) {
+                legendItem(c, sym, ImpulseGlyph.DOUBLE, AiText.t("двоен импулс", "double impulse"));
+            }
+            if (work) {
+                legendItem(c, sym, ImpulseGlyph.DEPTH, AiText.t("дълбочина, µs = височина", "depth, µs = height"));
+            }
+            if (ramp) {
+                legendItem(c, sym, ImpulseGlyph.RAMP, AiText.t("рампа = наклонена страна", "ramp = sloped side"));
+            }
+            box.addView(scrollRow(c, sym));
+        }
         return box;
     }
 
@@ -802,6 +883,7 @@ public final class WorkoutsUi {
         public void onChanged() {
             dirty = true;
             refreshFooter();
+            refreshLegend();
             if (shell != null) {
                 fillPanel(shell.dialog.getContext());
             }
@@ -1269,6 +1351,7 @@ public final class WorkoutsUi {
                     mapView.invalidate();
                     fillPanel(c);
                     refreshFooter();
+                    refreshLegend();
                     autosave(c);
                 }
                 break;
@@ -1334,6 +1417,7 @@ public final class WorkoutsUi {
                 dirty = true;
                 mapView.invalidate();
                 refreshFooter();
+                refreshLegend();
                 break;
             }
             case A_START_AI:

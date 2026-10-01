@@ -6081,7 +6081,7 @@
 
     array-length v1, v1
 
-    if-ge v0, v1, :cond_488
+    if-ge v0, v1, :cond_48a
 
     .line 546
     sget-object v1, Lcom/isaigu/gymapp/ai/AiPersonal;->TODAY:[Ljava/lang/String;
@@ -6438,7 +6438,7 @@
 
     invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-eqz v7, :cond_485
+    if-eqz v7, :cond_487
 
     const-string v1, "\u2713 "
 
@@ -6447,7 +6447,9 @@
 
     move-result-object v1
 
-    invoke-static {v6}, Lcom/isaigu/gymapp/ai/AiPersonal;->todayName(Ljava/lang/String;)Ljava/lang/String;
+    iget-object v8, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    invoke-static {v6, v8}, Lcom/isaigu/gymapp/ai/AiPersonal;->todayName(Ljava/lang/String;Lcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
 
     move-result-object v6
 
@@ -6501,13 +6503,13 @@
     goto/16 :goto_32a
 
     .line 552
-    :cond_485
+    :cond_487
     const-string v1, ""
 
     goto :goto_44e
 
     .line 560
-    :cond_488
+    :cond_48a
     new-instance v0, Landroid/widget/HorizontalScrollView;
 
     invoke-direct {v0, p0}, Landroid/widget/HorizontalScrollView;-><init>(Landroid/content/Context;)V
@@ -6530,12 +6532,12 @@
     invoke-virtual {v4, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 565
-    if-nez v5, :cond_4b0
+    if-nez v5, :cond_4b2
 
     const/4 v0, 0x1
 
     .line 566
-    :goto_4a0
+    :goto_4a2
     const-string v1, "\u041a\u044a\u043c \u0441\u0438\u043b\u0430\u0442\u0430  \u203a"
 
     const-string v2, "To strength  \u203a"
@@ -6555,10 +6557,10 @@
     return-void
 
     .line 565
-    :cond_4b0
+    :cond_4b2
     const/4 v0, 0x0
 
-    goto :goto_4a0
+    goto :goto_4a2
 .end method
 
 .method private static screenProgram(Landroid/content/Context;)V

@@ -154,7 +154,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiExercises.java` (335L, compile:music-sync*,wearable) — The exercises of a Smart Session (pure Java; the stations come from {@link AutoTemplates}).
 - `AiHrFilter.java` (129L, compile:music-sync*,wearable) — §7 — realtime HR validation, EMA smoothing, stimulation-artifact rejection, c_valid.
 - `AiModel.java` (201L, compile:music-sync*,wearable) — XEMS Smart Session data model (docs/xems-smart-session-spec.md §1, §3, §4).
-- `AiPersonal.java` (292L, compile:music-sync*,wearable) — The client's own profile beyond sex / age / weight / fitness / goal: focus zones and state (the client form's "Зони за …
+- `AiPersonal.java` (294L, compile:music-sync*,wearable) — The client's own profile beyond sex / age / weight / fitness / goal: focus zones and state (the client form's "Зони за …
 - `AiPlanner.java` (439L, compile:music-sync*,wearable) — §2.1, §3 (DERIVE) and §4, §6 (PLAN): deterministic plan from the session input.
 - `AiProfile.java` (202L, compile:music-sync*,wearable) — The client of a training slot as the AI session and the pulse module see them: sex, age and weight from the client reco…
 - `AiRamp.java` (107L, compile:music-sync*,wearable) — Ramp bytes for the work-params PDU (device unit: 10 ms per step).
@@ -627,7 +627,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Тъмна тема и фонове
   - L46 ## Програмите на началния екран (1.1.263-ai)
 
-`docs/xems-client-sync.md` (120L)
+`docs/xems-client-sync.md` (121L)
   - L1 # XEMS — синхрон клиент ↔ таблет ↔ сървър (1.1.202-ai)
   - L5 ## Досие на клиента на сървъра (етап 1)
   - L16 ## Кой е собственик на кои данни
@@ -635,9 +635,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L35 ## Опростено (1.1.265-ai)
   - L42 ## Сливане на профил на таблета (`widget/XemsClientSync`)
   - L55 ## Днес — моментно състояние (1.1.265-ai, `AiPersonal.TODAY`)
-  - L62 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
-  - L91 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
-  - L117 ## Кодът на студиото
+  - L63 ## Състояние → тренировката (`ai/AiPersonal`, `wearable/NextPlan.condition`)
+  - L92 ## Разходи (Cloudflare Workers + D1 + KV) — принципи
+  - L118 ## Кодът на студиото
 
 `docs/xems-exercise-templates.md` (102L)
   - L1 # Exercise templates — Auto shows an example, the Smart Session (AI) follows them

@@ -696,7 +696,7 @@ final class AiUi {
                 continue;
             }
             boolean on = today.contains(k);
-            TextView chip = com.isaigu.gymapp.widget.XemsUi.chip(a, (on ? "✓ " : "") + AiPersonal.todayName(k), on,
+            TextView chip = com.isaigu.gymapp.widget.XemsUi.chip(a, (on ? "✓ " : "") + AiPersonal.todayName(k, sex), on,
                     com.isaigu.gymapp.widget.XemsUi.AMBER);
             chip.setOnClickListener(new TodayToggle(today, k));
             com.isaigu.gymapp.widget.XemsUi.pressable(chip);

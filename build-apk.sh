@@ -178,6 +178,18 @@ fi
 cp "${SIGNED_APK}" "${OUT_APK}"
 echo "Copied ${SIGNED_APK} -> ${OUT_APK}"
 
+# Every release must carry the same signing key, or Android refuses the update over an installed copy
+# ("App not installed" / package conflict). uber-apk-signer prefers ~/.android/debug.keystore when one exists —
+# a different machine would silently sign with another key. Pinned: the key all releases so far carry.
+SIGN_SHA256="1E:08:A9:03:AE:F9:C3:A7:21:51:0B:64:EC:76:4D:01:D3:D0:94:EB:95:41:61:B6:25:44:EA:8F:18:7B:59:53"
+GOT_SHA256="$(unzip -p "${OUT_APK}" 'META-INF/*.RSA' | keytool -printcert 2>/dev/null | grep -m1 'SHA256:' | sed 's/.*SHA256: *//')"
+if [[ "${GOT_SHA256}" != "${SIGN_SHA256}" ]]; then
+  echo "ERROR: ${OUT_APK} is signed with another key (${GOT_SHA256:-none}); updates over installed copies would fail."
+  echo "  Move ~/.android/debug.keystore aside (uber-apk-signer then uses its embedded debug key) and rebuild."
+  exit 1
+fi
+echo "Signing key OK (same as every release)."
+
 # Broken builds (missing BETA music stack) were ~8.76MB; healthy builds ~8.78MB+.
 MIN_APK_BYTES="${MIN_APK_BYTES:-8765000}"
 APK_BYTES="$(wc -c < "${OUT_APK}")"

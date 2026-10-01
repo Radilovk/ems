@@ -12,21 +12,32 @@ permissions:
 
 jobs:
   unpack:
-    if: ${{ hashFiles('bodytech/bodytech.zip') != '' && hashFiles('bodytech/EMSFIT#U2014online_5.1_APKPure_clone/classes.dex') == '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check archive
+        id: archive
+        shell: bash
+        run: |
+          if [ -f bodytech/bodytech.zip ] && [ ! -f 'bodytech/EMSFIT#U2014online_5.1_APKPure_clone/classes.dex' ]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Unpack bodytech.zip
+        if: steps.archive.outputs.needed == 'true'
         run: |
           unzip -q bodytech/bodytech.zip -d bodytech
-          test -f bodytech/EMSFIT#U2014online_5.1_APKPure_clone/classes.dex
+          test -f 'bodytech/EMSFIT#U2014online_5.1_APKPure_clone/classes.dex'
 
       - name: Commit extracted project
+        if: steps.archive.outputs.needed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add bodytech
-          git commit -m "Unpack bodytech EMSFIT project" || exit 0
+          git commit -m "Unpack bodytech EMSFIT project"
           git push

@@ -8,7 +8,7 @@ import {
 import { adminHtml } from './admin.js';
 import exercisesAdminHtml from './exercises-admin.html';
 import exerciseLibrary from '../../branding/exercises/library.json';
-import { normalizePick, picksPayload, codeMatches } from './exercises.js';
+import { normalizePick, picksPayload, codeMatches, selectionPayload, APPS, appOf } from './exercises.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
@@ -64,6 +64,9 @@ export default {
       }
       if (path === '/v1/app/update' && request.method === 'GET') {
         return handleUpdate(url, env);
+      }
+      if (path === '/v1/exercises/selection' && (request.method === 'GET' || request.method === 'OPTIONS')) {
+        return handleSelection(request, env);
       }
       if (path === '/v1/exercises' && request.method === 'GET') {
         return handleExercises(env);
@@ -954,24 +957,39 @@ async function exercisesApi(request, env, path) {
     await new Promise((r) => setTimeout(r, 400));          // slow down guessing
     return json({ ok: false, error: 'code' }, 401);        // no Basic prompt: the page asks for the code
   }
+  // ?app=ka → KA fitness's own selection (the same page, a switch on top)
+  const app = appOf(new URL(request.url).searchParams.get('app'));
+  const table = APPS[app].table;
   if (path === '/admin/api/exercises' && request.method === 'GET') {
-    const rows = await env.DB.prepare('SELECT id, on_app, frames, zone, updated_at FROM exercise_picks').all();
-    return json({ ok: true, ...picksPayload(rows.results) });
+    const rows = await env.DB.prepare(`SELECT id, on_app, frames, zone, updated_at FROM ${table}`).all();
+    return json({ ok: true, app, allByDefault: APPS[app].allByDefault, ...picksPayload(rows.results) });
   }
   if (path === '/admin/api/exercises/set' && request.method === 'POST') {
     const b = await readJsonBody(request);
     const row = normalizePick(b, EXERCISE_IDS, Date.now());
     if (!row) return err('invalid_exercise', 'Unknown exercise id');
     await env.DB.prepare(
-      'INSERT INTO exercise_picks (id, on_app, frames, zone, updated_at) VALUES (?, ?, ?, ?, ?) '
+      `INSERT INTO ${table} (id, on_app, frames, zone, updated_at) VALUES (?, ?, ?, ?, ?) `
       + 'ON CONFLICT(id) DO UPDATE SET on_app = excluded.on_app, frames = excluded.frames, zone = excluded.zone, '
       + 'updated_at = excluded.updated_at'
     ).bind(row.id, row.on_app, row.frames, row.zone, row.updated_at).run();
-    await audit(env, 'exercise_pick', '', '', row.id + ' on=' + row.on_app + ' frames=' + row.frames
+    await audit(env, 'exercise_pick', '', '', app + ':' + row.id + ' on=' + row.on_app + ' frames=' + row.frames
       + (row.zone ? ' zone=' + row.zone : ''));
     return json({ ok: true });
   }
   return json({ ok: false, error: 'not_found' }, 404);
+}
+
+/** A selection for other apps (?app=ka, the default: KA fitness; ?app=xems: the tablets'): public, CORS, 5 min. */
+async function handleSelection(request, env) {
+  const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS' };
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
+  const app = appOf(new URL(request.url).searchParams.get('app') || 'ka');
+  const rows = await env.DB.prepare(`SELECT id, on_app, frames, zone, updated_at FROM ${APPS[app].table}`).all();
+  return new Response(JSON.stringify({ ok: true, app,
+    ...selectionPayload(exerciseLibrary, rows.results, APPS[app].allByDefault) }), {
+    headers: { ...JSON_HEADERS, ...cors, 'Cache-Control': 'public, max-age=300' },
+  });
 }
 
 /** The admin's exercise picks for the tablets (public: nothing secret, the library itself ships in the app). */

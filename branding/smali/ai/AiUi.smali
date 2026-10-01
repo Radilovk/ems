@@ -11726,7 +11726,7 @@
 
     move-result-object v0
 
-    invoke-static {v6}, Lcom/isaigu/gymapp/ai/AiPersonal;->todayName(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v6, p2}, Lcom/isaigu/gymapp/ai/AiPersonal;->todayName(Ljava/lang/String;Lcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
 
     move-result-object v8
 

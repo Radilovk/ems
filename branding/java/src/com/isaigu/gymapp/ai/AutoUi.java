@@ -549,7 +549,7 @@ public final class AutoUi {
                 continue;
             }
             boolean on = in.today.contains(k);
-            TextView chip = XemsUi.chip(c, (on ? "✓ " : "") + AiPersonal.todayName(k), on, XemsUi.AMBER);
+            TextView chip = XemsUi.chip(c, (on ? "✓ " : "") + AiPersonal.todayName(k, in.sex), on, XemsUi.AMBER);
             chip.setOnClickListener(new Act(A_STATE, i));
             XemsUi.pressable(chip);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,

@@ -75,9 +75,11 @@ public final class AiPersonal {
     /** How the client is today: one tap each on the client step of the AI and the automatic mode. */
     public static final String[] TODAY = {"t_sleep", "t_food", "t_active", "t_stress", "t_sore", "t_period"};
 
-    public static String todayName(String k) {
-        if ("t_sleep".equals(k)) return AiText.t("Недоспал(а)", "Short on sleep");
-        if ("t_food".equals(k)) return AiText.t("Хапнал(а) малко", "Ate little");
+    /** The chip's words in the client's gender ("Недоспала" / "Недоспал"). */
+    public static String todayName(String k, AiModel.Sex sex) {
+        boolean f = sex == AiModel.Sex.FEMALE;
+        if ("t_sleep".equals(k)) return AiText.t(f ? "Недоспала" : "Недоспал", "Short on sleep");
+        if ("t_food".equals(k)) return AiText.t(f ? "Хапнала малко" : "Хапнал малко", "Ate little");
         if ("t_active".equals(k)) return AiText.t("Натоварен ден", "Heavy day");
         if ("t_stress".equals(k)) return AiText.t("Стрес / напрежение", "Stress / tension");
         if ("t_sore".equals(k)) return AiText.t("Мускулна треска", "Sore muscles");

@@ -17,13 +17,14 @@ import com.isaigu.gymapp.widget.XemsUi;
 
 /**
  * Hint card on the training screen during an automatic session: a small floating card at the
- * top (not modal — the screen under it stays usable) with the cue for the pulse / pause and its
- * countdown, the exercise of the phase, what comes next, and the latest limit notice.
+ * top (not modal — the screen under it stays usable) with an example exercise of the phase at its own calm tempo
+ * (not tied to the impulse: the client moves as they like, nothing is counted), the phase's hint, what comes next,
+ * and the latest limit notice. One finger moves it, two fingers size it ({@link FloatCard}).
  * Hidden while the Auto board is open. Tap = open the board. Floating window as in the interval
  * timer overlay (branding/UI-PITFALLS.md §3): transparent, NOT_FOCUSABLE | NOT_TOUCH_MODAL.
  */
 public final class AutoHints {
-    private static final int WIDTH_DP = 640;
+    private static final int WIDTH_DP = 560;
     /** How long a hint stays: a taken change, a limit, a safety event. */
     private static final long[] NOTICE_MS = {4000L, 6000L, 9000L};
     private static final long FEELING_MS = 25000L;
@@ -32,8 +33,7 @@ public final class AutoHints {
     private static LinearLayout card;
     private static TextView head;
     private static LinearLayout mid;
-    private static TextView cue;
-    private static TextView count;
+    private static TextView status;
     private static TextView hint;
     private static TextView next;
     private static TextView notice;
@@ -46,7 +46,6 @@ public final class AutoHints {
     private static final long EXAMPLE_T0 = System.currentTimeMillis();
     private static int lastPhase = -1;
     private static long phaseStartMs;
-    private static int lastTone = -1;
 
     private AutoHints() {}
 
@@ -96,59 +95,63 @@ public final class AutoHints {
         dialog = null;
         card = null;
         lastPhase = -1;
-        lastTone = -1;
     }
 
     private static boolean build(Activity a) {
         XemsUi.init(a);
 
         card = XemsUi.vertical(a);
-        card.setPadding(XemsUi.dp(a, 18), XemsUi.dp(a, 12), XemsUi.dp(a, 18), XemsUi.dp(a, 12));
+        card.setPadding(XemsUi.dp(a, 16), XemsUi.dp(a, 12), XemsUi.dp(a, 16), XemsUi.dp(a, 12));
+        card.setBackgroundDrawable(XemsUi.rounded(XemsUi.CARD, XemsUi.dp(a, 18), XemsUi.STROKE, XemsUi.dp(a, 1)));
         card.setClickable(true);
         card.setOnClickListener(new Open());
 
         LinearLayout top = XemsUi.horizontal(a);
+        top.setGravity(Gravity.CENTER_VERTICAL);
         head = XemsUi.text(a, "", 13, XemsUi.MUTED, true);
+        head.setMaxLines(1);
         top.addView(head, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView open = XemsUi.text(a, AiText.t("Авто ›", "Auto ›"), 13, XemsUi.GO_TEXT, true);
         top.addView(open);
         card.addView(top);
 
+        // picture | text, side by side (landscape): the exercise is the one thing to look at
         mid = XemsUi.horizontal(a);
         mid.setGravity(Gravity.CENTER_VERTICAL);
-        exBox = XemsUi.vertical(a);
-        exBox.setGravity(Gravity.CENTER_HORIZONTAL);
+        exBox = new LinearLayout(a);
+        exBox.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(a, 12), 0, 0));
         exBox.setVisibility(View.GONE);
         figure = new ExerciseFigure(a);
-        figure.setCycle(EXAMPLE_T0, 2, 2);                   // its own calm tempo
-        exBox.addView(figure, new LinearLayout.LayoutParams(XemsUi.dp(a, 120), XemsUi.dp(a, 88)));
-        exName = XemsUi.text(a, "", 12, XemsUi.MUTED, false);
-        exName.setGravity(Gravity.CENTER);
-        exName.setMaxLines(2);
-        exBox.addView(exName, new LinearLayout.LayoutParams(XemsUi.dp(a, 130), ViewGroup.LayoutParams.WRAP_CONTENT));
+        figure.setCycle(EXAMPLE_T0, 2, 2);                   // its own calm tempo, not the impulse
+        exBox.addView(figure, new LinearLayout.LayoutParams(XemsUi.dp(a, 140), XemsUi.dp(a, 104)));
         LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        flp.rightMargin = XemsUi.dp(a, 12);
+        flp.rightMargin = XemsUi.dp(a, 14);
         mid.addView(exBox, flp);
-        cue = XemsUi.text(a, "", 26, XemsUi.TEXT, true);
-        mid.addView(cue, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        count = XemsUi.text(a, "", 30, XemsUi.TEXT, true);
-        count.setGravity(Gravity.CENTER);
-        mid.addView(count, new LinearLayout.LayoutParams(XemsUi.dp(a, 64), XemsUi.dp(a, 64)));
-        card.addView(mid, XemsUi.matchWrap(a, 4));
+        LinearLayout col = XemsUi.vertical(a);
+        exName = XemsUi.text(a, "", 21, XemsUi.TEXT, true);
+        exName.setMaxLines(2);
+        col.addView(exName);
+        status = XemsUi.text(a, "", 15, XemsUi.AMBER, true);
+        col.addView(status, XemsUi.matchWrap(a, 4));
+        hint = XemsUi.text(a, "", 14.5f, XemsUi.MUTED, false);
+        col.addView(hint, XemsUi.matchWrap(a, 4));
+        next = XemsUi.text(a, "", 13, XemsUi.GO_TEXT, false);
+        col.addView(next, XemsUi.matchWrap(a, 4));
+        mid.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        card.addView(mid, XemsUi.matchWrap(a, 8));
 
-        hint = XemsUi.text(a, "", 15, XemsUi.AMBER, true);
-        card.addView(hint, XemsUi.matchWrap(a, 4));
-        next = XemsUi.text(a, "", 13.5f, XemsUi.GO_TEXT, false);
-        card.addView(next, XemsUi.matchWrap(a, 4));
         notice = XemsUi.text(a, "", 14, XemsUi.DANGER, true);
         notice.setPadding(XemsUi.dp(a, 10), XemsUi.dp(a, 6), XemsUi.dp(a, 10), XemsUi.dp(a, 6));
-        card.addView(notice, XemsUi.matchWrap(a, 4));
+        card.addView(notice, XemsUi.matchWrap(a, 6));
 
         try {
+            android.util.DisplayMetrics dm0 = a.getResources().getDisplayMetrics();
+            FloatCard frame = new FloatCard(a, card, "auto_hints",
+                    Math.min(XemsUi.dp(a, WIDTH_DP), (int) (dm0.widthPixels * 0.7f)));
             dialog = new Dialog(a);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.setContentView(card);
+            dialog.setContentView(frame);
             dialog.setCancelable(false);
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
@@ -170,6 +173,7 @@ public final class AutoHints {
                     & ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
             w.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             w.setAttributes(lp);
+            frame.attach(w);
             return true;
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoHints.build", t);
@@ -190,49 +194,20 @@ public final class AutoHints {
         head.setText(plan.program.name() + " · " + (ph != null ? AiText.t(ph.nameBg, ph.nameEn) : "")
                 + " · " + AiText.mmss(e.phaseRemainingS()) + AiText.t(" · общо ", " · total ") + AiText.mmss(e.getRemainingS()));
 
-        int tone;                     // 0 pulse, 1 pause, 2 stopped
-        String cueText;
-        int left = 0;
-        AutoEngine.State st = e.getState();
-        if (st == AutoEngine.State.HR_PAUSE) {
-            tone = 2;
-            cueText = e.isResumeWaiting()
+        // the state only when the session waits (no impulse / pause cue: the client moves at their own pace)
+        String st = "";
+        AutoEngine.State state = e.getState();
+        if (state == AutoEngine.State.HR_PAUSE) {
+            st = e.isResumeWaiting()
                     ? AiText.t("Пулсът спадна — „Продължи“ в Авто", "HR is down — Resume in Auto")
-                    : AiText.t("Пауза: пулсът е висок — дишай спокойно", "Paused: HR high — breathe calmly");
-        } else if (st == AutoEngine.State.USER_PAUSE) {
-            tone = 2;
-            cueText = AiText.t("Пауза — „Продължи“ в Авто", "Paused — Resume in Auto");
-        } else if (cmd != null) {
-            long inCycle = now - cmd.startMs;
-            long onMs = cmd.onS * 1000L;
-            if (inCycle < onMs) {
-                tone = cmd.frac > 0 ? 0 : 1;
-                cueText = AutoCues.onCue(plan, ph, cmd);
-                left = (int) Math.ceil((onMs - inCycle) / 1000.0);
-            } else {
-                tone = 1;
-                cueText = AutoCues.offCue(plan, ph, cmd);
-                left = (int) Math.ceil((cmd.durationMs() - inCycle) / 1000.0);
-            }
-        } else {
-            tone = 1;
-            cueText = "";
+                    : AiText.t("Пауза: пулсът е висок — почини", "Paused: HR high — rest");
+        } else if (state == AutoEngine.State.USER_PAUSE) {
+            st = AiText.t("Пауза — „Продължи“ в Авто", "Paused — Resume in Auto");
         }
         boolean tips = AutoSession.tipsOn();
-        mid.setVisibility(tips ? View.VISIBLE : View.GONE);
-        cue.setText(cueText);
-        count.setText(left > 0 ? "" + left : "");
-        if (tone != lastTone) {
-            lastTone = tone;
-            int accent = tone == 0 ? XemsUi.GO : tone == 1 ? 0xFF42A5F5 : XemsUi.AMBER;
-            card.setBackgroundDrawable(XemsUi.rounded(XemsUi.mix(XemsUi.CARD, accent, 0.14f),
-                    XemsUi.dp(c, 18), accent, XemsUi.dp(c, 2)));
-            cue.setTextColor(tone == 0 ? XemsUi.GO_TEXT : XemsUi.TEXT);
-            android.graphics.drawable.GradientDrawable disc = new android.graphics.drawable.GradientDrawable();
-            disc.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-            disc.setColor(XemsUi.alpha(accent, 0x44));
-            count.setBackgroundDrawable(disc);
-        }
+        mid.setVisibility(tips || st.length() > 0 ? View.VISIBLE : View.GONE);
+        status.setText(st);
+        status.setVisibility(st.length() > 0 ? View.VISIBLE : View.GONE);
 
         // an example exercise of this phase (a suggestion only: own tempo, rotates every EXAMPLE_S)
         String ex = null;
@@ -247,7 +222,6 @@ public final class AutoHints {
             AutoModel.Input lead = AutoSession.getInput();
             figure.setColor(ExerciseFigure.colorFor(lead != null ? lead.sex : null));
             figure.setExercise(ex);
-            exName.setText(AiText.t("Пример: ", "Example: ") + AutoTemplates.name(ex));
         }
 
         String h = AutoCues.phaseHint(plan, ph);
@@ -256,8 +230,16 @@ public final class AutoHints {
         if (mainStart) {
             h = h + "\n" + AutoCues.feeling(plan);
         }
-        hint.setText(h);
-        hint.setVisibility(tips && h.length() > 0 ? View.VISIBLE : View.GONE);
+        // with an example the exercise is the headline and the phase's hint goes under it; without one the hint leads
+        if (tips && ex != null) {
+            exName.setText(AutoTemplates.name(ex));
+            hint.setText(AiText.t("пример · ", "example · ") + h);
+        } else {
+            exName.setText(tips ? h : "");
+            hint.setText("");
+        }
+        exName.setVisibility(exName.getText().length() > 0 ? View.VISIBLE : View.GONE);
+        hint.setVisibility(hint.getText().length() > 0 ? View.VISIBLE : View.GONE);
 
         String n = AutoCues.next(plan, e.getPhaseIndex(), e.phaseRemainingS());
         next.setText(n);

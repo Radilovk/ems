@@ -83,6 +83,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Client ↔ tablet ↔ server sync, CF costs | `docs/xems-client-sync.md` |
 | Suit BT drop → row waits and reconnects | `docs/xems-suit-reconnect.md` |
 | Pulse / strength control | `docs/xems-pulse-control.md`, `docs/xems-part-strength.md` |
+| EMS physiology (frequency, fatigue model, recovery, energy, rest between sessions) — before touching any of it | `docs/xems-ems-physiology.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |
 
 ## Keeping the map true

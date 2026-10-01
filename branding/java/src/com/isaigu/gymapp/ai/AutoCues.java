@@ -25,15 +25,15 @@ public final class AutoCues {
         String id = plan.program.id;
         if (ph.isCooldown()) {
             return active ? AiText.t("Бавно ходене, разтягане, спокойно дишане", "Slow walking, stretching, calm breathing")
-                    : AiText.t("Остани легнал, дишай бавно", "Stay lying down, breathe slowly");
+                    : AiText.t("Остани легнал, спокойно", "Stay lying down, calm");
         }
         if (ph.wave) {
             return AiText.t("Легнал, краката леко повдигнати — само се отпусни", "Lying, legs slightly raised — just relax");
         }
         if (AutoCatalog.BACK_PAIN.equals(id)) {
             if ("MAIN".equals(ph.id)) {
-                return AiText.t("Легнал по гръб, коленете свити — леко стегни корема с импулса",
-                        "On your back, knees bent — gently brace the abs with the pulse");
+                return AiText.t("Легнал по гръб, коленете свити — леко стягай корема в свое темпо",
+                        "On your back, knees bent — gently brace the abs at your own pace");
             }
             if ("RELIEF".equals(ph.id)) {
                 return AiText.t("Отпусни се напълно — обезболяващата част", "Relax fully — the pain-relief part");
@@ -41,8 +41,8 @@ public final class AutoCues {
             return AiText.t("Легни по корем, отпусни гърба", "Lie on your stomach, let the back relax");
         }
         if (active) {
-            return "WARMUP".equals(ph.id) ? AiText.t("Леко движение с всеки импулс", "Light movement with each pulse")
-                    : AiText.t("Движи се с импулса, почивай в паузата", "Move with the pulse, rest in the pause");
+            return "WARMUP".equals(ph.id) ? AiText.t("Леко раздвижване в свое темпо", "Light movement at your own pace")
+                    : AiText.t("Прави упражненията в свое темпо", "Do the exercises at your own pace");
         }
         return AiText.t("Легни удобно, не се движи — мускулите работят сами", "Lie comfortably, do not move — the muscles work by themselves");
     }

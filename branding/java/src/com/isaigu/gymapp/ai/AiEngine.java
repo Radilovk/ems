@@ -436,7 +436,7 @@ public final class AiEngine {
         if (ph.blockMode == BlockMode.FATIGUE_DRIVEN) {
             if (!inBlock) {
                 beginBlock(nowMs);
-            } else if (fatigue + (blockQ > 0 ? nextGain(ph) : 0) > fMaxEff || endBlockRequested || setDone
+            } else if ((blockQ > 0 ? nextPeak(ph) : fatigue) > fMaxEff || endBlockRequested || setDone
                     || (nowMs - blockStartMs) / 1000.0 >= AiPlanner.T_BLOCK_MAX_S) {
                 endBlock(nowMs);
                 return silent(nowMs);
@@ -551,28 +551,29 @@ public final class AiEngine {
     }
 
     private void integrate(long nowMs, double dtS) {
+        // §6.3: dF/dt = w(f)·ρ − F/τ_r — the muscle recovers all the time, in the impulse too.
+        double e = Math.exp(-dtS / plan.tauR);
+        double load = 0;
         boolean on = state == State.RUN && isStimOnAt(nowMs) && currentSpec != null;
         if (on) {
             double rho = current.frac;
-            fatigue += AiPlanner.fatigueWeight(currentSpec.hz) * rho * dtS;
+            load = AiPlanner.fatigueWeight(currentSpec.hz) * rho;
             double dq = 2.0 * rho * currentSpec.pwUs * currentSpec.hz * dtS;
             qUsed += dq;
             if (inBlock) {
                 blockQ += dq;
             }
-        } else {
-            fatigue *= Math.exp(-dtS / plan.tauR);
-            if (state == State.RUN && isActivePauseAt(nowMs)) {
-                // Active pause: the muscle keeps working lightly — less recovery, more dose.
-                double rhoP = current.frac * current.pauseSigma;
-                fatigue += AiPlanner.fatigueWeight(current.pauseHz) * rhoP * dtS;
-                double dq = 2.0 * rhoP * currentSpec.pwUs * current.pauseHz * dtS;
-                qUsed += dq;
-                if (inBlock) {
-                    blockQ += dq;
-                }
+        } else if (state == State.RUN && isActivePauseAt(nowMs)) {
+            // Active pause: the muscle keeps working lightly — less recovery, more dose.
+            double rhoP = current.frac * current.pauseSigma;
+            load = AiPlanner.fatigueWeight(current.pauseHz) * rhoP;
+            double dq = 2.0 * rhoP * currentSpec.pwUs * current.pauseHz * dtS;
+            qUsed += dq;
+            if (inBlock) {
+                blockQ += dq;
             }
         }
+        fatigue = fatigue * e + load * plan.tauR * (1 - e);
     }
 
     private void guards(long nowMs, double dtS) {
@@ -630,18 +631,16 @@ public final class AiEngine {
     // ================================================================= rest / blocks
 
     /**
-     * Fatigue the next cycle adds (its impulse, plus the active pause). A block ends before the cycle that
+     * Highest fatigue the next cycle reaches (its impulse, plus the active pause). A block ends before the cycle that
      * would cross F_max, not after it: the limit was checked only at a cycle start, so a 6 s impulse took
      * the block 30–50 % over its own limit.
      */
-    private double nextGain(Phase ph) {
+    private double nextPeak(Phase ph) {
         CycleSpec spec = (ph.b != null && useB) ? ph.b : ph.a;
         double rho = current != null && current.frac > 0 ? current.frac : Math.min(ph.phiStart, plan.phiMax);
-        double g = AiPlanner.fatigueWeight(spec.hz) * rho * spec.onS;
-        if (pauseOn && spec.hasActivePause()) {
-            g += AiPlanner.fatigueWeight(spec.pauseHz) * rho * spec.pauseSigma * AiPlanner.deviceOffS(spec.offS);
-        }
-        return g;
+        double peak = AiPlanner.afterOn(fatigue, spec, rho, plan.tauR);
+        double end = AiPlanner.afterOff(peak, spec, rho, AiPlanner.deviceOffS(spec.offS), pauseOn, plan.tauR);
+        return Math.max(peak, end);
     }
 
     private void beginBlock(long nowMs) {

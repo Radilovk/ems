@@ -3,7 +3,17 @@
 .source "AutoLook.java"
 
 
+# annotations
+.annotation system Ldalvik/annotation/MemberClasses;
+    value = {
+        Lcom/isaigu/gymapp/ai/AutoLook$Block;
+    }
+.end annotation
+
+
 # static fields
+.field private static final BLOCK:Lcom/isaigu/gymapp/ai/AutoLook$Block;
+
 .field private static final HIDE_IDS:[Ljava/lang/String;
 
 .field private static final MODE_IDS:[Ljava/lang/String;
@@ -32,11 +42,25 @@
     .end annotation
 .end field
 
+.field private static final VEILED:Ljava/util/Map;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Map",
+            "<",
+            "Landroid/view/View;",
+            "Ljava/lang/Float;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 .field private static hideIds:[I
 
 .field private static modeIds:[I
 
 .field private static on:Z
+
+.field private static signLabel:Ljava/lang/String;
 
 
 # direct methods
@@ -140,6 +164,25 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
+    .line 36
+    const-string v0, ""
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->signLabel:Ljava/lang/String;
+
+    .line 205
+    new-instance v0, Lcom/isaigu/gymapp/ai/AutoLook$Block;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AutoLook$Block;-><init>()V
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->BLOCK:Lcom/isaigu/gymapp/ai/AutoLook$Block;
+
+    .line 207
+    new-instance v0, Ljava/util/WeakHashMap;
+
+    invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->VEILED:Ljava/util/Map;
+
     return-void
 .end method
 
@@ -147,36 +190,55 @@
     .registers 1
 
     .prologue
-    .line 37
+    .line 38
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
 .end method
 
 .method static apply(Landroid/view/View;Ljava/lang/String;)V
-    .registers 6
+    .registers 4
 
     .prologue
-    .line 45
+    .line 46
+    const-string v0, "\u0410\u0412\u0422\u041e"
+
+    const-string v1, "AUTO"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {p0, v0, p1}, Lcom/isaigu/gymapp/ai/AutoLook;->apply(Landroid/view/View;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 47
+    return-void
+.end method
+
+.method static apply(Landroid/view/View;Ljava/lang/String;Ljava/lang/String;)V
+    .registers 7
+
+    .prologue
+    .line 51
     if-nez p0, :cond_3
 
-    .line 59
+    .line 66
     :goto_2
     return-void
 
-    .line 49
+    .line 55
     :cond_3
     :try_start_3
     invoke-virtual {p0}, Landroid/view/View;->getRootView()Landroid/view/View;
 
     move-result-object v0
 
-    .line 50
+    .line 56
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoLook;->modeIds:[I
 
     if-nez v1, :cond_23
 
-    .line 51
+    .line 57
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -189,7 +251,7 @@
 
     sput-object v1, Lcom/isaigu/gymapp/ai/AutoLook;->modeIds:[I
 
-    .line 52
+    .line 58
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -202,27 +264,30 @@
 
     sput-object v1, Lcom/isaigu/gymapp/ai/AutoLook;->hideIds:[I
 
-    .line 54
+    .line 60
     :cond_23
     const/4 v1, 0x1
 
     sput-boolean v1, Lcom/isaigu/gymapp/ai/AutoLook;->on:Z
 
-    .line 55
-    if-eqz p1, :cond_46
+    .line 61
+    sput-object p1, Lcom/isaigu/gymapp/ai/AutoLook;->signLabel:Ljava/lang/String;
 
-    :goto_28
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/ai/AutoLook;->walk(Landroid/view/View;Ljava/lang/String;)V
-    :try_end_2b
-    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_2b} :catch_2c
+    .line 62
+    if-eqz p2, :cond_48
+
+    :goto_2a
+    invoke-static {v0, p2}, Lcom/isaigu/gymapp/ai/AutoLook;->walk(Landroid/view/View;Ljava/lang/String;)V
+    :try_end_2d
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_2d} :catch_2e
 
     goto :goto_2
 
-    .line 56
-    :catch_2c
+    .line 63
+    :catch_2e
     move-exception v0
 
-    .line 57
+    .line 64
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -247,21 +312,21 @@
 
     goto :goto_2
 
-    .line 55
-    :cond_46
-    :try_start_46
-    const-string p1, ""
-    :try_end_48
-    .catch Ljava/lang/Throwable; {:try_start_46 .. :try_end_48} :catch_2c
+    .line 62
+    :cond_48
+    :try_start_48
+    const-string p2, ""
+    :try_end_4a
+    .catch Ljava/lang/Throwable; {:try_start_48 .. :try_end_4a} :catch_2e
 
-    goto :goto_28
+    goto :goto_2a
 .end method
 
 .method private static hide(Landroid/view/View;I)V
     .registers 4
 
     .prologue
-    .line 167
+    .line 210
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SAVED:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
@@ -270,7 +335,7 @@
 
     if-nez v0, :cond_15
 
-    .line 168
+    .line 211
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SAVED:Ljava/util/Map;
 
     invoke-virtual {p0}, Landroid/view/View;->getVisibility()I
@@ -283,7 +348,7 @@
 
     invoke-interface {v0, p0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 170
+    .line 213
     :cond_15
     invoke-virtual {p0}, Landroid/view/View;->getVisibility()I
 
@@ -291,10 +356,10 @@
 
     if-eq v0, p1, :cond_1e
 
-    .line 171
+    .line 214
     invoke-virtual {p0, p1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 173
+    .line 216
     :cond_1e
     return-void
 .end method
@@ -303,7 +368,7 @@
     .registers 3
 
     .prologue
-    .line 154
+    .line 170
     invoke-virtual {p0}, Landroid/view/View;->getId()I
 
     move-result v0
@@ -314,59 +379,57 @@
 
     move-result v0
 
-    if-eqz v0, :cond_11
-
-    .line 155
-    const/4 v0, 0x4
-
-    invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoLook;->hide(Landroid/view/View;I)V
-
-    .line 164
-    :cond_10
-    return-void
-
-    .line 158
-    :cond_11
-    instance-of v0, p0, Landroid/view/ViewGroup;
-
     if-eqz v0, :cond_10
 
-    .line 159
+    .line 171
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AutoLook;->veil(Landroid/view/View;)V
+
+    .line 180
+    :cond_f
+    return-void
+
+    .line 174
+    :cond_10
+    instance-of v0, p0, Landroid/view/ViewGroup;
+
+    if-eqz v0, :cond_f
+
+    .line 175
     check-cast p0, Landroid/view/ViewGroup;
 
-    .line 160
+    .line 176
     const/4 v0, 0x0
 
-    :goto_18
+    :goto_17
     invoke-virtual {p0}, Landroid/view/ViewGroup;->getChildCount()I
 
     move-result v1
 
-    if-ge v0, v1, :cond_10
+    if-ge v0, v1, :cond_f
 
-    .line 161
+    .line 177
     invoke-virtual {p0, v0}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AutoLook;->hideIn(Landroid/view/View;)V
 
-    .line 160
+    .line 176
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_18
+    goto :goto_17
 .end method
 
 .method private static ids(Landroid/content/Context;[Ljava/lang/String;)[I
     .registers 8
 
     .prologue
-    .line 88
+    .line 104
     array-length v0, p1
 
     new-array v1, v0, [I
 
-    .line 89
+    .line 105
     const/4 v0, 0x0
 
     :goto_4
@@ -374,7 +437,7 @@
 
     if-ge v0, v2, :cond_1c
 
-    .line 90
+    .line 106
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
@@ -393,12 +456,12 @@
 
     aput v2, v1, v0
 
-    .line 89
+    .line 105
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_4
 
-    .line 92
+    .line 108
     :cond_1c
     return-object v1
 .end method
@@ -409,14 +472,14 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 96
+    .line 112
     const/4 v0, -0x1
 
     if-eq p0, v0, :cond_6
 
     if-nez p0, :cond_7
 
-    .line 104
+    .line 120
     :cond_6
     :goto_6
     return v1
@@ -424,23 +487,23 @@
     :cond_7
     move v0, v1
 
-    .line 99
+    .line 115
     :goto_8
     array-length v2, p1
 
     if-ge v0, v2, :cond_6
 
-    .line 100
+    .line 116
     aget v2, p1, v0
 
     if-ne v2, p0, :cond_11
 
-    .line 101
+    .line 117
     const/4 v1, 0x1
 
     goto :goto_6
 
-    .line 99
+    .line 115
     :cond_11
     add-int/lit8 v0, v0, 0x1
 
@@ -451,32 +514,32 @@
     .registers 1
 
     .prologue
-    .line 40
+    .line 41
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AutoLook;->on:Z
 
     return v0
 .end method
 
 .method static restore()V
-    .registers 4
+    .registers 5
 
     .prologue
-    const/4 v2, 0x0
+    const/4 v3, 0x0
 
-    .line 62
+    .line 69
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AutoLook;->on:Z
 
     if-nez v0, :cond_6
 
-    .line 85
+    .line 101
     :goto_5
     return-void
 
-    .line 65
+    .line 72
     :cond_6
-    sput-boolean v2, Lcom/isaigu/gymapp/ai/AutoLook;->on:Z
+    sput-boolean v3, Lcom/isaigu/gymapp/ai/AutoLook;->on:Z
 
-    .line 67
+    .line 74
     :try_start_8
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SAVED:Ljava/util/Map;
 
@@ -486,57 +549,65 @@
 
     invoke-interface {v0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
-    move-result-object v3
+    move-result-object v4
 
     :cond_12
     :goto_12
-    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+    invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_5c
+    if-eqz v0, :cond_73
 
-    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 68
-    invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_12
-
-    .line 69
+    .line 75
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Landroid/view/View;
 
-    invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+    .line 76
+    if-eqz v1, :cond_12
 
-    move-result-object v0
+    .line 79
+    sget-object v2, Lcom/isaigu/gymapp/ai/AutoLook;->VEILED:Ljava/util/Map;
 
-    check-cast v0, Ljava/lang/Integer;
+    invoke-interface {v2, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
-    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
+    move-result-object v2
+
+    check-cast v2, Ljava/lang/Float;
+
+    .line 80
+    if-eqz v2, :cond_65
+
+    .line 81
+    invoke-virtual {v2}, Ljava/lang/Float;->floatValue()F
 
     move-result v0
 
-    invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
-    :try_end_37
-    .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_37} :catch_38
+    invoke-virtual {v1, v0}, Landroid/view/View;->setAlpha(F)V
+
+    .line 82
+    const/4 v0, 0x0
+
+    invoke-virtual {v1, v0}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
+    :try_end_3b
+    .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_3b} :catch_3c
 
     goto :goto_12
 
-    .line 80
-    :catch_38
+    .line 95
+    :catch_3c
     move-exception v0
 
-    .line 81
+    .line 96
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -559,23 +630,44 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 83
-    :cond_51
+    .line 98
+    :cond_55
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SAVED:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->clear()V
 
-    .line 84
+    .line 99
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->VEILED:Ljava/util/Map;
+
+    invoke-interface {v0}, Ljava/util/Map;->clear()V
+
+    .line 100
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->clear()V
 
     goto :goto_5
 
-    .line 72
-    :cond_5c
-    :try_start_5c
-    new-instance v3, Ljava/util/ArrayList;
+    .line 84
+    :cond_65
+    :try_start_65
+    invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/Integer;
+
+    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
+
+    move-result v0
+
+    invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
+
+    goto :goto_12
+
+    .line 87
+    :cond_73
+    new-instance v4, Ljava/util/ArrayList;
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
@@ -583,24 +675,26 @@
 
     move-result-object v0
 
-    invoke-direct {v3, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
+    invoke-direct {v4, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
 
-    .line 73
-    :goto_67
-    invoke-interface {v3}, Ljava/util/List;->size()I
+    move v2, v3
+
+    .line 88
+    :goto_7f
+    invoke-interface {v4}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-ge v2, v0, :cond_51
+    if-ge v2, v0, :cond_55
 
-    .line 74
-    invoke-interface {v3, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    .line 89
+    invoke-interface {v4, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 75
+    .line 90
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
     invoke-interface {v1, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -609,23 +703,23 @@
 
     check-cast v1, Landroid/widget/TextView;
 
-    .line 76
-    if-eqz v0, :cond_82
+    .line 91
+    if-eqz v0, :cond_9a
 
-    if-eqz v1, :cond_82
+    if-eqz v1, :cond_9a
 
-    .line 77
+    .line 92
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
-    :try_end_82
-    .catch Ljava/lang/Throwable; {:try_start_5c .. :try_end_82} :catch_38
+    :try_end_9a
+    .catch Ljava/lang/Throwable; {:try_start_65 .. :try_end_9a} :catch_3c
 
-    .line 73
-    :cond_82
+    .line 88
+    :cond_9a
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
-    goto :goto_67
+    goto :goto_7f
 .end method
 
 .method private static rowOf(Landroid/view/View;)Landroid/view/View;
@@ -634,8 +728,8 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 138
-    .line 139
+    .line 154
+    .line 155
     const/4 v0, 0x0
 
     move v3, v0
@@ -649,29 +743,29 @@
 
     if-eqz v2, :cond_30
 
-    .line 140
+    .line 156
     invoke-virtual {v2}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
-    .line 141
+    .line 157
     instance-of v4, v0, Landroid/view/ViewGroup;
 
     if-nez v4, :cond_14
 
     move-object v0, v1
 
-    .line 150
+    .line 166
     :goto_13
     return-object v0
 
-    .line 144
+    .line 160
     :cond_14
     instance-of v4, v0, Landroid/widget/AbsListView;
 
     if-nez v4, :cond_28
 
-    .line 145
+    .line 161
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v4
@@ -691,14 +785,14 @@
     :cond_28
     move-object v0, v2
 
-    .line 146
+    .line 162
     goto :goto_13
 
-    .line 148
+    .line 164
     :cond_2a
     check-cast v0, Landroid/view/View;
 
-    .line 139
+    .line 155
     add-int/lit8 v3, v3, 0x1
 
     move-object v2, v0
@@ -708,7 +802,7 @@
     :cond_30
     move-object v0, v1
 
-    .line 150
+    .line 166
     goto :goto_13
 .end method
 
@@ -716,7 +810,7 @@
     .registers 8
 
     .prologue
-    .line 176
+    .line 219
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -725,18 +819,12 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 177
+    .line 220
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v2, "\u0410\u0412\u0422\u041e"
-
-    const-string v3, "AUTO"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
+    sget-object v2, Lcom/isaigu/gymapp/ai/AutoLook;->signLabel:Ljava/lang/String;
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -746,7 +834,7 @@
 
     move-result v1
 
-    if-lez v1, :cond_a1
+    if-lez v1, :cond_9b
 
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -766,7 +854,7 @@
 
     move-result-object v1
 
-    :goto_32
+    :goto_2c
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -775,15 +863,15 @@
 
     move-result-object v1
 
-    .line 178
-    if-nez v0, :cond_a4
+    .line 221
+    if-nez v0, :cond_9e
 
-    .line 179
+    .line 222
     invoke-virtual {p0}, Landroid/widget/LinearLayout;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
-    .line 180
+    .line 223
     const/high16 v0, 0x41500000    # 13.0f
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
@@ -794,27 +882,27 @@
 
     move-result-object v0
 
-    .line 181
+    .line 224
     const/16 v1, 0x11
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 182
+    .line 225
     const/4 v1, 0x4
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setMaxLines(I)V
 
-    .line 183
+    .line 226
     const/high16 v1, 0x41000000    # 8.0f
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 184
+    .line 227
     invoke-virtual {v0, v1, v1, v1, v1}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 185
+    .line 228
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     const/16 v3, 0x26
@@ -835,7 +923,7 @@
 
     const/16 v5, 0x99
 
-    .line 186
+    .line 229
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
     move-result v4
@@ -846,14 +934,14 @@
 
     move-result v5
 
-    .line 185
+    .line 228
     invoke-static {v1, v3, v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 187
+    .line 230
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x1
@@ -862,48 +950,48 @@
 
     invoke-direct {v1, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 189
+    .line 232
     const/high16 v3, 0x40800000    # 4.0f
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 190
+    .line 233
     invoke-virtual {v1, v2, v2, v2, v2}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 191
+    .line 234
     invoke-virtual {p0, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 192
+    .line 235
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
     invoke-interface {v1, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 197
-    :cond_97
-    :goto_97
+    .line 240
+    :cond_91
+    :goto_91
     invoke-virtual {v0}, Landroid/widget/TextView;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
 
-    if-nez v1, :cond_a0
+    if-nez v1, :cond_9a
 
-    .line 198
+    .line 241
     invoke-virtual {p0, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 200
-    :cond_a0
+    .line 243
+    :cond_9a
     return-void
 
-    .line 177
-    :cond_a1
+    .line 220
+    :cond_9b
     const-string v1, ""
 
-    goto :goto_32
+    goto :goto_2c
 
-    .line 193
-    :cond_a4
+    .line 236
+    :cond_9e
     invoke-virtual {v0}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
 
     move-result-object v2
@@ -912,12 +1000,76 @@
 
     move-result v2
 
-    if-nez v2, :cond_97
+    if-nez v2, :cond_91
 
-    .line 194
+    .line 237
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    goto :goto_97
+    goto :goto_91
+.end method
+
+.method private static veil(Landroid/view/View;)V
+    .registers 4
+
+    .prologue
+    const/4 v2, 0x0
+
+    .line 188
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SAVED:Ljava/util/Map;
+
+    invoke-interface {v0, p0}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_23
+
+    .line 189
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SAVED:Ljava/util/Map;
+
+    invoke-virtual {p0}, Landroid/view/View;->getVisibility()I
+
+    move-result v1
+
+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-interface {v0, p0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 190
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->VEILED:Ljava/util/Map;
+
+    invoke-virtual {p0}, Landroid/view/View;->getAlpha()F
+
+    move-result v1
+
+    invoke-static {v1}, Ljava/lang/Float;->valueOf(F)Ljava/lang/Float;
+
+    move-result-object v1
+
+    invoke-interface {v0, p0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 192
+    :cond_23
+    invoke-virtual {p0}, Landroid/view/View;->getAlpha()F
+
+    move-result v0
+
+    cmpl-float v0, v0, v2
+
+    if-eqz v0, :cond_2e
+
+    .line 193
+    invoke-virtual {p0, v2}, Landroid/view/View;->setAlpha(F)V
+
+    .line 195
+    :cond_2e
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->BLOCK:Lcom/isaigu/gymapp/ai/AutoLook$Block;
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
+
+    .line 196
+    return-void
 .end method
 
 .method private static walk(Landroid/view/View;Ljava/lang/String;)V
@@ -926,17 +1078,17 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 109
+    .line 125
     instance-of v0, p0, Landroid/view/ViewGroup;
 
     if-nez v0, :cond_6
 
-    .line 134
+    .line 150
     :cond_5
     :goto_5
     return-void
 
-    .line 112
+    .line 128
     :cond_6
     check-cast p0, Landroid/view/ViewGroup;
 
@@ -944,7 +1096,7 @@
 
     move v2, v1
 
-    .line 114
+    .line 130
     :goto_a
     invoke-virtual {p0}, Landroid/view/ViewGroup;->getChildCount()I
 
@@ -952,12 +1104,12 @@
 
     if-ge v0, v3, :cond_29
 
-    .line 115
+    .line 131
     invoke-virtual {p0, v0}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v3
 
-    .line 116
+    .line 132
     invoke-virtual {v3}, Landroid/view/View;->getId()I
 
     move-result v4
@@ -970,51 +1122,51 @@
 
     if-eqz v4, :cond_26
 
-    .line 117
+    .line 133
     const/16 v2, 0x8
 
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/ai/AutoLook;->hide(Landroid/view/View;I)V
 
-    .line 118
+    .line 134
     const/4 v2, 0x1
 
-    .line 114
+    .line 130
     :cond_26
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_a
 
-    .line 121
+    .line 137
     :cond_29
     if-eqz v2, :cond_3f
 
-    .line 122
+    .line 138
     instance-of v0, p0, Landroid/widget/LinearLayout;
 
     if-eqz v0, :cond_35
 
     move-object v0, p0
 
-    .line 123
+    .line 139
     check-cast v0, Landroid/widget/LinearLayout;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/ai/AutoLook;->sign(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    .line 125
+    .line 141
     :cond_35
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AutoLook;->rowOf(Landroid/view/View;)Landroid/view/View;
 
     move-result-object v0
 
-    .line 126
+    .line 142
     if-eqz v0, :cond_5
 
-    .line 127
+    .line 143
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoLook;->hideIn(Landroid/view/View;)V
 
     goto :goto_5
 
-    .line 131
+    .line 147
     :cond_3f
     :goto_3f
     invoke-virtual {p0}, Landroid/view/ViewGroup;->getChildCount()I
@@ -1023,14 +1175,14 @@
 
     if-ge v1, v0, :cond_5
 
-    .line 132
+    .line 148
     invoke-virtual {p0, v1}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/ai/AutoLook;->walk(Landroid/view/View;Ljava/lang/String;)V
 
-    .line 131
+    .line 147
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_3f

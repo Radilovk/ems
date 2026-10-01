@@ -50,7 +50,6 @@ final class AiUi {
     static final int STEP_REPORT = 4;
     private static final int SETUP_STEPS = 3;
     /** "Without band" chosen on the resting-HR wait (trainer only). */
-    private static boolean noBand;
 
     private static Dialog dialog;
     private static int step;
@@ -158,7 +157,6 @@ final class AiUi {
             AiSession.beginSetup(activity);
             profileOpen = false;
             healthOk = false;
-            noBand = false;
             healthOpen = false;                        // contraindications belong to the registration, not here
             AiSession.getInput().today.clear();        // how the client is today: asked fresh each time
             // the band connects now: the resting HR is measured while the goal and client are answered
@@ -418,7 +416,9 @@ final class AiUi {
                 }
                 break;
             case STEP_PLAN:
-                if (AiSession.getPlan() != null && AiSession.getStage() == AiSession.Stage.PLAN) {
+                // AI never starts without the band's pulse (the resting HR is in the profile)
+                if (AiSession.getPlan() != null && AiSession.getStage() == AiSession.Stage.PLAN
+                        && AiSession.getProfile() != null && AiSession.getProfile().hrAvailable) {
                     AiSession.beginCalibration();
                     go(STEP_CALIB);
                 }
@@ -732,8 +732,9 @@ final class AiUi {
     // ================================================================ 2a · resting HR (only while not ready)
 
     /**
-     * The plan needs the resting HR: measured in the background since the sheet opened (AiSession.tick), so usually
-     * ready by now. Without a configured band (trainer) or after "Without band" the plan runs without HR.
+     * The plan needs the resting HR: measured in the background since the sheet opened (AiSession.tick, 10–45 s by
+     * its reliability — AiRestHr), so usually ready by now and never seen. AI runs only with the band and its pulse:
+     * the pulse is what confirms the work and steers the session. Not ready → the rest screen (a warning + the wait).
      */
     private static boolean ensurePlan(Context a) {
         AiModel.SessionInput in = AiSession.getInput();
@@ -743,17 +744,13 @@ final class AiUi {
             AiSession.buildPlan(r.getHrRest(), r.getSigma(), r.getDtHrMs());
             return true;
         }
-        if (!self && (noBand || !AiSession.isBandConfigured(a))) {
-            AiSession.buildPlan(0, 0, 0);
-            return true;
-        }
         return false;
     }
 
     private static void screenRest(final Context a) {
-        titleView.setText(AiText.t("Пулс в покой", "Resting heart rate"));
-        subtitleView.setText(AiText.t("Седни или легни спокойно, без стимулация",
-                "Sit or lie still, no stimulation"));
+        titleView.setText(AiText.t("Пулсът в покой още не е измерен", "Resting HR not measured yet"));
+        subtitleView.setText(AiText.t("AI тръгва само с пулса от гривната · седни или легни спокойно, без стимулация",
+                "AI starts only with the band's pulse · sit or lie still, no stimulation"));
         final boolean self = AiSession.getInput().operator == Operator.SELF;
         LinearLayout row = horizontal(a);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -819,20 +816,6 @@ final class AiUi {
                             });
                             actions.addView(connect);
                         }
-                        if (!self) {
-                            TextView noBand = pillButton(a, AiText.t("Без гривна", "Without band"), AiViews.MUTED);
-                            noBand.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    AiUi.noBand = true;
-                                    go(STEP_PLAN);
-                                }
-                            });
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            lp.leftMargin = configured ? dp(a, 12) : 0;
-                            actions.addView(noBand, lp);
-                        }
                     } else if (r.getStatus() == AiRestHr.Status.UNSTABLE) {
                         TextView accept = pillButton(a, AiText.t("Приеми", "Accept"), AiViews.WARN);
                         accept.setOnClickListener(new View.OnClickListener() {
@@ -853,20 +836,15 @@ final class AiUi {
                 if (r == null) {
                     ring.setValue(0);
                     if (!configured) {
-                        status.setText(AiText.t("Гривната не е настроена", "Band not set up"));
-                        detail.setText(AiText.t("Въведи MAC и ключа веднъж в Настройки → Гривна.",
-                                "Enter the MAC and key once in Settings → Band.")
-                                + (self ? "" : AiText.t(" Или продължи без пулс — управлява само планът.",
-                                " Or continue without HR — then only the plan controls.")));
+                        status.setText(AiText.t("Гривната не е сдвоена", "Band not paired"));
+                        detail.setText(AiText.t("AI не тръгва без пулс. Въведи MAC и ключа веднъж в Настройки → Гривна.",
+                                "AI does not start without a pulse. Enter the MAC and key once in Settings → Band."));
                     } else {
                         status.setText(AiSession.isBandLinkUp()
                                 ? AiText.t("Свързване с гривната…", "Connecting to the band…")
                                 : AiText.t("Чакам пулс от гривната", "Waiting for band HR"));
-                        detail.setText(self
-                                ? AiText.t("Без гривна тази сесия не тръгва.",
-                                "This session needs the band.")
-                                : AiText.t("Или продължи без пулс.",
-                                "Or continue without HR."));
+                        detail.setText(AiText.t("Сложи гривната на ръката. Без пулс AI не тръгва.",
+                                "Put the band on the wrist. AI does not start without a pulse."));
                     }
                     timeLeft.setText("");
                 } else {
@@ -900,9 +878,14 @@ final class AiUi {
                         status.setText(AiText.t("Гривната замлъкна", "Band went quiet"));
                         detail.setText(AiText.t("Таймерът е спрян, докато пулсът се върне.", "Timer paused until HR returns."));
                     } else {
-                        status.setText(AiText.t("Измервам…", "Measuring…"));
-                        detail.setText(AiText.t("Дишай спокойно. Не говори и не се движи.",
-                                "Breathe calmly. Don't talk or move."));
+                        AiRestHr.Reason why = r.getReason();
+                        status.setText(why == AiRestHr.Reason.DRIFT
+                                ? AiText.t("Пулсът още спада — остани в покой", "HR still settling — stay at rest")
+                                : why == AiRestHr.Reason.NOISY
+                                ? AiText.t("Неспокоен сигнал — още малко", "Noisy signal — a little longer")
+                                : AiText.t("Измервам пулса в покой…", "Measuring the resting HR…"));
+                        detail.setText(AiText.t("Без говорене и движение. Времето (10–45 с) зависи от това колко стабилен е пулсът.",
+                                "No talking or moving. The time (10–45 s) depends on how steady the pulse is."));
                     }
                 }
                 if (done && step == STEP_PLAN) {
@@ -924,7 +907,6 @@ final class AiUi {
     static final class MeasureAgain implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            noBand = false;
             AiSession.restartRestHr();
             go(STEP_PLAN);
         }
@@ -997,14 +979,10 @@ final class AiUi {
             col.addView(mc, matchWrap(a, 14));
         }
 
-        // Only what needs attention: no band, and the profile flags.
-        if (!p.hrAvailable) {
-            col.addView(banner(a, AiViews.WARN, AiText.t("Без гривна — управлява само планът.",
-                    "No band — the plan alone controls.")), matchWrap(a, 14));
-        }
+        // Only what needs attention: the profile flags.
         if (AiSession.isBandConfigured(a)) {
-            TextView again = text(a, "↻  " + (p.hrAvailable ? AiText.t("Измери пулса в покой пак", "Measure the resting HR again")
-                    : AiText.t("Измери пулса в покой с гривната", "Measure the resting HR with the band")), 14, AiViews.MUTED, true);
+            TextView again = text(a, "↻  " + AiText.t("Измери пулса в покой пак", "Measure the resting HR again"),
+                    14, AiViews.MUTED, true);
             again.setPadding(dp(a, 4), dp(a, 12), dp(a, 4), dp(a, 4));
             again.setOnClickListener(new MeasureAgain());
             col.addView(again);
@@ -1331,11 +1309,7 @@ final class AiUi {
                     String show = cur != null ? cur : nx;
                     exFig.setVisibility(show != null ? View.VISIBLE : View.INVISIBLE);
                     exFig.setExercise(show);
-                    if (cur != null) {
-                        exFig.setCycle(xs.getCycleStartMs(), xs.getOnS(), Math.max(1, xs.getOffS()));
-                    } else {
-                        exFig.setCycle(0, 2, 2);                     // the rest: a calm preview
-                    }
+                    exFig.setCycle(0, 2, 2);                         // own calm tempo, not the impulse
                     boolean midSet = xs.getWorkout() != null && !xs.isSetComplete();
                     exName.setText(cur != null ? AutoTemplates.name(cur)
                             : nx != null ? (midSet ? AiText.t("Кратка почивка · после пак: ", "Short rest · then again: ")
@@ -1344,10 +1318,8 @@ final class AiUi {
                     int[] set = xs.set();
                     String wk = "";
                     if (set != null && xs.getWorkout() != null) {
-                        Workout.Block it = xs.getWorkout().blocks.get(set[0]);
                         wk = AiText.t("Серия ", "Set ") + set[1] + "/" + set[2]
-                                + (cur != null ? AiText.t(" · повторение ", " · rep ") + Math.min(xs.getRepsDone(), it.reps)
-                                + "/" + it.reps : "") + (xs.getRound() > 1 ? AiText.t(" · кръг ", " · round ") + xs.getRound() : "");
+                                + (xs.getRound() > 1 ? AiText.t(" · кръг ", " · round ") + xs.getRound() : "");
                     }
                     exNext.setText(wk.length() > 0 ? wk + (xs.isEasier() && cur != null ? AiText.t(" · по-леко", " · easier") : "")
                             : cur != null && nx != null ? AiText.t("Следва: ", "Next: ") + AutoTemplates.name(nx)

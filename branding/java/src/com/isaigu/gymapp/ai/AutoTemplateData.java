@@ -5,18 +5,19 @@ final class AutoTemplateData {
     private AutoTemplateData() {}
 
     /** Exercise ids (branding/exercises/exercises.json order), Bulgarian and English names, position. */
-    static final String[] IDS = {"banded-lat-pulldown", "bench-dip", "bicycle-crunch", "bodyweight-squat", "bulgarian-split-squat", "burpee", "chair-dip", "crunch", "curtsy-lunge", "donkey-kick", "dumbbell-lateral-lunge", "dumbbell-overhead-tricep-extension", "dumbbell-side-bend", "dumbbell-sumo-squat", "elliptical", "fire-hydrant", "forward-lunge", "glute-bridge", "goblet-squat", "incline-push-up", "jump-squat", "jumping-jack", "kettlebell-romanian-deadlift", "kettlebell-swing", "knee-push-up", "lateral-lunge", "lying-leg-raise", "one-arm-dumbbell-row", "plank", "plank-shoulder-tap", "plate-front-raise", "reverse-crunch", "reverse-lunge", "side-lying-hip-abduction", "side-plank", "single-leg-glute-bridge", "standing-dumbbell-press", "step-down", "superman", "tricep-kickback"};
-    static final String[] BG = {"Теглене надолу с ластик", "Кофички на пейка", "Велосипед (коремни преси)", "Клек без тежест", "Български клек", "Бърпи", "Кофички на стол", "Коремни преси", "Реверанс напади", "Ритник назад от колене", "Странични напади с дъмбел", "Разгъване за трицепс над главата с дъмбел", "Странично навеждане с дъмбел", "Сумо клек с дъмбел", "Кардио тренажор", "Отвеждане на коляното встрани (от колене)", "Напади напред", "Глутеус мост", "Гоблет клек (с дъмбел пред гърдите)", "Лицеви опори с ръце на пейка", "Клек с отскок", "Джъмпинг джак", "Румънска тяга с пудовка", "Суинг с пудовка", "Лицеви опори от колене", "Странични напади", "Вдигане на краката от лег", "Гребане с дъмбел с една ръка", "Планк", "Планк с докосване на рамото", "Предно вдигане с диск", "Обратни коремни преси", "Напади назад", "Отвеждане на крака от лег на страна", "Страничен планк", "Глутеус мост на един крак", "Раменна преса с дъмбели (прав)", "Слизане от пейка", "Супермен", "Трицепсов ритник с дъмбел"};
-    static final String[] EN = {"Banded Lat Pulldown", "Bench Dip", "Bicycle Crunch", "Bodyweight Squat", "Bulgarian Split Squat", "Burpee", "Chair Dip", "Crunch", "Curtsy Lunge", "Donkey Kick", "Dumbbell Lateral Lunge", "Dumbbell Overhead Tricep Extension", "Dumbbell Side Bend", "Dumbbell Sumo Squat", "Elliptical", "Fire Hydrant", "Forward Lunge", "Glute Bridge", "Goblet Squat", "Incline Push-up", "Jump Squat", "Jumping Jack", "Kettlebell Romanian Deadlift", "Kettlebell Swing", "Knee Push-up", "Lateral Lunge", "Lying Leg Raise", "One-Arm Dumbbell Row", "Plank", "Plank Shoulder Tap", "Plate Front Raise", "Reverse Crunch", "Reverse Lunge", "Side-Lying Hip Abduction", "Side Plank", "Single-Leg Glute Bridge", "Standing Dumbbell Press", "Step-Down", "Superman", "Tricep Kickback"};
-    static final String[] POS = {"stand", "bench", "floor", "stand", "bench", "stand", "bench", "floor", "stand", "floor", "stand", "stand", "stand", "stand", "machine", "floor", "stand", "floor", "stand", "bench", "stand", "stand", "stand", "stand", "floor", "stand", "floor", "bench", "floor", "floor", "stand", "floor", "stand", "floor", "floor", "floor", "stand", "bench", "floor", "stand"};
+    static final String[] IDS = {"banded-lat-pulldown", "bench-dip", "bicep-curl", "bicycle-crunch", "bodyweight-squat", "bulgarian-split-squat", "burpee", "chair-dip", "crunch", "curtsy-lunge", "diamond-push-up", "donkey-kick", "dumbbell-bench-press", "dumbbell-bent-over-row", "dumbbell-fly", "dumbbell-lateral-lunge", "dumbbell-overhead-tricep-extension", "dumbbell-side-bend", "dumbbell-sumo-squat", "elliptical", "fire-hydrant", "forward-lunge", "glute-bridge", "goblet-squat", "hammer-curl", "incline-push-up", "jump-squat", "jumping-jack", "kettlebell-romanian-deadlift", "kettlebell-swing", "knee-push-up", "lateral-lunge", "lateral-raise", "lying-leg-raise", "one-arm-dumbbell-row", "plank", "plank-shoulder-tap", "plate-front-raise", "push-up", "reverse-crunch", "reverse-lunge", "side-lying-hip-abduction", "side-plank", "single-leg-glute-bridge", "standing-dumbbell-press", "step-down", "superman", "tricep-kickback"};
+    static final String[] BG = {"Теглене надолу с ластик", "Кофички на пейка", "Бицепсово сгъване с дъмбели", "Велосипед (коремни преси)", "Клек без тежест", "Български клек", "Бърпи", "Кофички на стол", "Коремни преси", "Реверанс напади", "Лицеви опори „диамант“", "Ритник назад от колене", "Лежанка с дъмбели", "Гребане с дъмбели в наклон", "Разтваряне с дъмбели от лег", "Странични напади с дъмбел", "Разгъване за трицепс над главата с дъмбел", "Странично навеждане с дъмбел", "Сумо клек с дъмбел", "Кардио тренажор", "Отвеждане на коляното встрани (от колене)", "Напади напред", "Глутеус мост", "Гоблет клек (с дъмбел пред гърдите)", "Сгъване „чук“ с дъмбели", "Лицеви опори с ръце на пейка", "Клек с отскок", "Джъмпинг джак", "Румънска тяга с пудовка", "Суинг с пудовка", "Лицеви опори от колене", "Странични напади", "Странично разтваряне с дъмбели", "Вдигане на краката от лег", "Гребане с дъмбел с една ръка", "Планк", "Планк с докосване на рамото", "Предно вдигане с диск", "Лицеви опори", "Обратни коремни преси", "Напади назад", "Отвеждане на крака от лег на страна", "Страничен планк", "Глутеус мост на един крак", "Раменна преса с дъмбели (прав)", "Слизане от пейка", "Супермен", "Трицепсов ритник с дъмбел"};
+    static final String[] EN = {"Banded Lat Pulldown", "Bench Dip", "Bicep Curl", "Bicycle Crunch", "Bodyweight Squat", "Bulgarian Split Squat", "Burpee", "Chair Dip", "Crunch", "Curtsy Lunge", "Diamond Push-up", "Donkey Kick", "Dumbbell Bench Press", "Dumbbell Bent Over Row", "Dumbbell Fly", "Dumbbell Lateral Lunge", "Dumbbell Overhead Tricep Extension", "Dumbbell Side Bend", "Dumbbell Sumo Squat", "Elliptical", "Fire Hydrant", "Forward Lunge", "Glute Bridge", "Goblet Squat", "Hammer Curl", "Incline Push-up", "Jump Squat", "Jumping Jack", "Kettlebell Romanian Deadlift", "Kettlebell Swing", "Knee Push-up", "Lateral Lunge", "Lateral Raise", "Lying Leg Raise", "One-Arm Dumbbell Row", "Plank", "Plank Shoulder Tap", "Plate Front Raise", "Push-up", "Reverse Crunch", "Reverse Lunge", "Side-Lying Hip Abduction", "Side Plank", "Single-Leg Glute Bridge", "Standing Dumbbell Press", "Step-Down", "Superman", "Tricep Kickback"};
+    static final String[] POS = {"stand", "bench", "stand", "floor", "stand", "bench", "stand", "bench", "floor", "stand", "floor", "floor", "bench", "stand", "bench", "stand", "stand", "stand", "stand", "machine", "floor", "stand", "floor", "stand", "stand", "bench", "stand", "stand", "stand", "stand", "floor", "stand", "stand", "floor", "bench", "floor", "floor", "stand", "floor", "floor", "stand", "floor", "floor", "floor", "stand", "bench", "floor", "stand"};
     /** Movement pattern (library-src.json): the impulse block's starting parameters (Workout.defaults). */
-    static final String[] PAT = {"pull_v", "dip", "core_rot", "squat", "lunge", "cardio", "dip", "core_flex", "lunge", "glute", "lunge", "triceps", "core_rot", "squat", "cardio", "glute", "lunge", "glute", "squat", "push_h", "plyo", "plyo", "hinge", "hinge", "push_h", "lunge", "core_hip", "pull_h", "core_static", "core_static", "front_raise", "core_flex", "lunge", "abductor", "core_static", "glute", "push_v", "squat", "back_ext", "triceps"};
+    static final String[] PAT = {"pull_v", "dip", "biceps", "core_rot", "squat", "lunge", "cardio", "dip", "core_flex", "lunge", "push_h", "glute", "push_h", "pull_h", "fly", "lunge", "triceps", "core_rot", "squat", "cardio", "glute", "lunge", "glute", "squat", "biceps", "push_h", "plyo", "plyo", "hinge", "hinge", "push_h", "lunge", "lat_raise", "core_hip", "pull_h", "core_static", "core_static", "front_raise", "push_h", "core_flex", "lunge", "abductor", "core_static", "glute", "push_v", "squat", "back_ext", "triceps"};
     /** MET of the movement itself (Compendium-style estimate) and the muscles it works per suit channel
      *  (0 chest, 1 abs, 2 front thigh, 3 calf, 4 arms, 5 shoulders, 6 back, 7 lower back, 8 glutes, 9 back thigh; 100 = main). */
-    static final double[] MET = {3.5, 3.8, 3.8, 5.0, 5.0, 8.0, 3.8, 2.8, 4.0, 2.8, 4.5, 3.5, 3.0, 5.0, 5.0, 2.8, 4.0, 3.0, 5.0, 3.5, 8.0, 8.0, 5.0, 8.0, 3.5, 4.0, 3.0, 3.5, 3.0, 3.8, 3.0, 3.0, 4.5, 2.5, 3.0, 3.3, 3.5, 4.0, 2.8, 3.0};
+    static final double[] MET = {3.5, 3.8, 3.0, 3.8, 5.0, 5.0, 8.0, 3.8, 2.8, 4.0, 3.8, 2.8, 3.8, 3.5, 3.0, 4.5, 3.5, 3.0, 5.0, 5.0, 2.8, 4.0, 3.0, 5.0, 3.0, 3.5, 8.0, 8.0, 5.0, 8.0, 3.5, 4.0, 3.0, 3.0, 3.5, 3.0, 3.8, 3.0, 3.8, 3.0, 4.5, 2.5, 3.0, 3.3, 3.5, 4.0, 2.8, 3.0};
     static final int[][] MUS = {
             {0, 0, 0, 0, 50, 40, 100, 0, 0, 0},   // banded-lat-pulldown
             {50, 0, 0, 0, 100, 50, 0, 0, 0, 0},   // bench-dip
+            {0, 0, 0, 0, 100, 0, 0, 0, 0, 0},   // bicep-curl
             {0, 100, 30, 0, 0, 0, 0, 0, 0, 0},   // bicycle-crunch
             {0, 0, 100, 30, 0, 0, 0, 30, 80, 40},   // bodyweight-squat
             {0, 0, 100, 30, 0, 0, 0, 0, 100, 40},   // bulgarian-split-squat
@@ -24,7 +25,11 @@ final class AutoTemplateData {
             {50, 0, 0, 0, 100, 50, 0, 0, 0, 0},   // chair-dip
             {0, 100, 0, 0, 0, 0, 0, 0, 0, 0},   // crunch
             {0, 0, 80, 0, 0, 0, 0, 0, 100, 30},   // curtsy-lunge
+            {50, 50, 0, 0, 100, 50, 0, 0, 0, 0},   // diamond-push-up
             {0, 0, 0, 0, 0, 0, 0, 30, 100, 50},   // donkey-kick
+            {100, 0, 0, 0, 50, 50, 0, 0, 0, 0},   // dumbbell-bench-press
+            {0, 0, 0, 0, 50, 50, 100, 0, 0, 0},   // dumbbell-bent-over-row
+            {100, 0, 0, 0, 0, 50, 0, 0, 0, 0},   // dumbbell-fly
             {0, 0, 100, 0, 0, 0, 0, 0, 80, 40},   // dumbbell-lateral-lunge
             {0, 0, 0, 0, 100, 30, 0, 0, 0, 0},   // dumbbell-overhead-tricep-extension
             {0, 100, 0, 0, 0, 0, 0, 40, 0, 0},   // dumbbell-side-bend
@@ -34,6 +39,7 @@ final class AutoTemplateData {
             {0, 0, 100, 30, 0, 0, 0, 0, 80, 40},   // forward-lunge
             {0, 0, 0, 0, 0, 0, 0, 40, 100, 60},   // glute-bridge
             {0, 30, 100, 0, 30, 0, 0, 0, 80, 40},   // goblet-squat
+            {0, 0, 0, 0, 100, 0, 0, 0, 0, 0},   // hammer-curl
             {100, 30, 0, 0, 60, 40, 0, 0, 0, 0},   // incline-push-up
             {0, 0, 100, 70, 0, 0, 0, 0, 80, 40},   // jump-squat
             {0, 0, 60, 100, 0, 40, 0, 0, 40, 0},   // jumping-jack
@@ -41,11 +47,13 @@ final class AutoTemplateData {
             {0, 40, 0, 0, 0, 40, 0, 70, 100, 90},   // kettlebell-swing
             {100, 0, 0, 0, 60, 40, 0, 0, 0, 0},   // knee-push-up
             {0, 0, 100, 0, 0, 0, 0, 0, 80, 40},   // lateral-lunge
+            {0, 0, 0, 0, 0, 100, 0, 0, 0, 0},   // lateral-raise
             {0, 100, 30, 0, 0, 0, 0, 0, 0, 0},   // lying-leg-raise
             {0, 0, 0, 0, 50, 50, 100, 0, 0, 0},   // one-arm-dumbbell-row
             {20, 100, 0, 0, 0, 30, 0, 30, 0, 0},   // plank
             {30, 100, 0, 0, 40, 50, 0, 0, 0, 0},   // plank-shoulder-tap
             {0, 0, 0, 0, 30, 100, 0, 0, 0, 0},   // plate-front-raise
+            {100, 50, 0, 0, 50, 0, 0, 0, 0, 0},   // push-up
             {0, 100, 0, 0, 0, 0, 0, 0, 0, 0},   // reverse-crunch
             {0, 0, 100, 0, 0, 0, 0, 0, 90, 40},   // reverse-lunge
             {0, 0, 0, 0, 0, 0, 0, 0, 100, 0},   // side-lying-hip-abduction
@@ -58,7 +66,7 @@ final class AutoTemplateData {
     };
 
     /** Auto-catalog program id → stations per level 1..3 (null = no such level). */
-    static final String[] PROGRAMS = {"general", "glutes", "core", "power", "cardio", "back_active", "senior"};
+    static final String[] PROGRAMS = {"general", "glutes", "core", "power", "cardio", "back_active", "senior", "mass", "upper"};
     static final String[][][] STATIONS = {
             {{"bodyweight-squat", "banded-lat-pulldown", "forward-lunge", "incline-push-up", "chair-dip", "glute-bridge", "crunch", "plank"}, {"goblet-squat", "reverse-lunge", "standing-dumbbell-press", "dumbbell-overhead-tricep-extension", "one-arm-dumbbell-row", "knee-push-up", "glute-bridge", "bicycle-crunch", "plank-shoulder-tap"}, {"kettlebell-romanian-deadlift", "standing-dumbbell-press", "dumbbell-lateral-lunge", "bulgarian-split-squat", "one-arm-dumbbell-row", "bench-dip", "plank-shoulder-tap", "lying-leg-raise"}},   // general
             {{"bodyweight-squat", "step-down", "glute-bridge", "side-lying-hip-abduction", "donkey-kick", "fire-hydrant"}, {"dumbbell-sumo-squat", "reverse-lunge", "curtsy-lunge", "lateral-lunge", "single-leg-glute-bridge", "donkey-kick", "fire-hydrant"}, {"kettlebell-romanian-deadlift", "dumbbell-lateral-lunge", "kettlebell-swing", "jump-squat", "curtsy-lunge", "bulgarian-split-squat", "single-leg-glute-bridge"}},   // glutes
@@ -67,18 +75,20 @@ final class AutoTemplateData {
             {{"elliptical", "bodyweight-squat", "step-down", "lateral-lunge", "glute-bridge"}, {"jumping-jack", "bodyweight-squat", "forward-lunge", "plank-shoulder-tap", "lateral-lunge", "elliptical"}, {"burpee", "jump-squat", "jumping-jack", "kettlebell-swing", "reverse-lunge", "plank-shoulder-tap", "dumbbell-lateral-lunge"}},   // cardio
             {{"banded-lat-pulldown", "bodyweight-squat", "glute-bridge", "superman", "plank", "side-plank"}, {"banded-lat-pulldown", "one-arm-dumbbell-row", "single-leg-glute-bridge", "superman", "plank-shoulder-tap", "side-plank"}, {"kettlebell-romanian-deadlift", "goblet-squat", "banded-lat-pulldown", "one-arm-dumbbell-row", "superman", "side-plank", "plank-shoulder-tap"}},   // back_active
             {{"bodyweight-squat", "banded-lat-pulldown", "incline-push-up", "step-down", "glute-bridge", "side-lying-hip-abduction"}, {"goblet-squat", "standing-dumbbell-press", "forward-lunge", "incline-push-up", "one-arm-dumbbell-row", "glute-bridge"}, {"goblet-squat", "standing-dumbbell-press", "reverse-lunge", "plate-front-raise", "tricep-kickback", "one-arm-dumbbell-row", "knee-push-up"}},   // senior
+            {{"bodyweight-squat", "push-up", "dumbbell-bent-over-row", "forward-lunge", "standing-dumbbell-press", "bicep-curl", "bench-dip", "plank"}, {"goblet-squat", "dumbbell-bench-press", "dumbbell-bent-over-row", "reverse-lunge", "standing-dumbbell-press", "hammer-curl", "dumbbell-overhead-tricep-extension", "plank-shoulder-tap"}, {"kettlebell-romanian-deadlift", "dumbbell-bench-press", "one-arm-dumbbell-row", "bulgarian-split-squat", "standing-dumbbell-press", "diamond-push-up", "bicep-curl", "lying-leg-raise"}},   // mass
+            {{"incline-push-up", "banded-lat-pulldown", "standing-dumbbell-press", "bicep-curl", "chair-dip", "lateral-raise", "plank"}, {"push-up", "dumbbell-bent-over-row", "dumbbell-fly", "lateral-raise", "hammer-curl", "dumbbell-overhead-tricep-extension", "plank-shoulder-tap"}, {"dumbbell-bench-press", "one-arm-dumbbell-row", "standing-dumbbell-press", "diamond-push-up", "bicep-curl", "lateral-raise", "tricep-kickback", "plank-shoulder-tap"}},   // upper
     };
 
     /** Client state (the form's keys) → exercises it rules out, and what may replace them (in order). */
     static final String[] COND = {"knees", "back", "neck", "diastasis", "postpartum", "osteo", "joints"};
     static final String[][] AVOID = {
             {"jump-squat", "burpee", "bulgarian-split-squat", "forward-lunge", "reverse-lunge", "curtsy-lunge", "lateral-lunge", "dumbbell-lateral-lunge", "jumping-jack", "step-down"},
-            {"kettlebell-swing", "kettlebell-romanian-deadlift", "lying-leg-raise", "burpee", "jump-squat", "bicycle-crunch", "crunch"},
-            {"standing-dumbbell-press", "dumbbell-overhead-tricep-extension", "crunch", "bicycle-crunch", "plate-front-raise"},
-            {"crunch", "bicycle-crunch", "reverse-crunch", "lying-leg-raise", "plank-shoulder-tap", "plank", "burpee"},
-            {"crunch", "bicycle-crunch", "reverse-crunch", "lying-leg-raise", "plank-shoulder-tap", "plank", "jump-squat", "burpee", "jumping-jack", "kettlebell-swing"},
+            {"kettlebell-swing", "kettlebell-romanian-deadlift", "lying-leg-raise", "burpee", "jump-squat", "bicycle-crunch", "crunch", "dumbbell-bent-over-row"},
+            {"standing-dumbbell-press", "dumbbell-overhead-tricep-extension", "crunch", "bicycle-crunch", "plate-front-raise", "dumbbell-bench-press", "lateral-raise"},
+            {"crunch", "bicycle-crunch", "reverse-crunch", "lying-leg-raise", "plank-shoulder-tap", "plank", "burpee", "push-up", "diamond-push-up"},
+            {"crunch", "bicycle-crunch", "reverse-crunch", "lying-leg-raise", "plank-shoulder-tap", "plank", "jump-squat", "burpee", "jumping-jack", "kettlebell-swing", "push-up", "diamond-push-up"},
             {"jump-squat", "burpee", "jumping-jack", "kettlebell-swing", "crunch", "bicycle-crunch"},
-            {"jump-squat", "burpee", "jumping-jack", "kettlebell-swing"},
+            {"jump-squat", "burpee", "jumping-jack", "kettlebell-swing", "diamond-push-up"},
     };
     static final String[][] INSTEAD = {
             {"glute-bridge", "single-leg-glute-bridge", "side-lying-hip-abduction", "donkey-kick", "fire-hydrant", "bodyweight-squat"},

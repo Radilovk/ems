@@ -4,7 +4,8 @@ library the tablet reads (assets/xems/library.json, ai/ExerciseLibrary). Adds wh
   pos   stand / machine / bench / floor (the order of a workout: not up and down),
   met   the movement's own cost (Compendium-style estimate by pattern; the 40 built-in ones keep their hand values),
   mus   work per suit channel 0–100 (target muscle 100, secondary 50; built-ins keep theirs),
-  zone  the picker's group (Корем, Седалище, Бедра, Гръб, Гърди, Ръце, Рамене, Кардио, Разтягане),
+  zone  the picker's group (Корем, Седалище, Бедра, Гръб, Гърди, Ръце, Рамене, Кардио, Функционални — whole-body
+        moves with no one target —, Разтягане); the admin can change it per exercise (server picks, zone),
   b     1 when its frames ship in the APK (exercises.json); the others are downloaded when the admin enables them.
 Top level "fixed" lists the frames redrawn with even lines (branding/exercises/fixed/, scripts/exercise-line-width.py).
 Run after editing library-src.json or exercises.json; commit library.json.
@@ -27,7 +28,30 @@ FIXED_URL = "https://cdn.jsdelivr.net/gh/Radilovk/ems@main/branding/exercises/fi
 FLOOR = {"core_static", "core_flex", "core_rot", "core_hip", "back_ext", "glute", "abductor", "adductor", "stretch"}
 
 
+# Whole-body moves with no one target group (the owner's "functional" exercises): their own picker group.
+FUNCTIONAL = {"burpee", "half-burpee", "squat-thrust", "sprawl", "bear-crawl", "crab-walk", "kettlebell-swing",
+              "farmer-carry", "wall-walk", "push-press", "deadlift", "trap-bar-deadlift"}
+# The source's target muscle is wrong or too narrow for these (by the movement's main mover).
+ZONE_FIX = {"chin-up": "back", "assisted-chin-up": "back", "weighted-chin-up": "back", "copenhagen-plank": "legs",
+            "face-pull": "shoulders", "band-pull-apart": "shoulders", "sumo-deadlift": "legs",
+            "dumbbell-sumo-deadlift": "legs", "rack-pull": "back"}
+# The source's position is wrong (prone / supine moves on the floor, standing stretches, bench work).
+POS_FIX = {"dumbbell-fly": "bench", "seated-dumbbell-press": "bench", "skull-crusher": "bench",
+           "dumbbell-skull-crusher": "bench", "single-dumbbell-skullcrusher": "bench", "spider-curl": "bench",
+           "hanging-leg-raise": "stand", "hanging-knee-raise": "stand", "banded-lateral-walk": "stand",
+           "banded-monster-walk": "stand", "banded-standing-hip-abduction": "stand", "hip-airplane": "stand",
+           "stability-ball-hamstring-curl": "floor", "towel-hamstring-curl": "floor", "nordic-hamstring-curl": "floor",
+           "mountain-climber": "floor", "bear-crawl": "floor", "crab-walk": "floor", "prone-y-raise": "floor",
+           "prone-t-raise": "floor", "reverse-snow-angel": "floor", "standing-quad-stretch": "stand",
+           "arm-circles": "stand", "leg-swings-stretch": "stand", "torso-twist-stretch": "stand",
+           "doorway-chest-stretch": "stand", "cross-body-shoulder-stretch": "stand", "wall-calf-stretch": "stand"}
+
+
 def zone(e: dict) -> str:
+    if e["id"] in FUNCTIONAL:
+        return "functional"
+    if e["id"] in ZONE_FIX:
+        return ZONE_FIX[e["id"]]
     if e["cat"] == "mobility" or e["pat"] == "stretch":
         return "stretch"
     if e["cat"] in ("cardio", "plyometric"):
@@ -39,6 +63,8 @@ def zone(e: dict) -> str:
 
 
 def pos(e: dict) -> str:
+    if e["id"] in POS_FIX:
+        return POS_FIX[e["id"]]
     if e["eq"] in ("силова машина", "кабел", "кардио тренажор"):
         return "machine"
     name = (e["bg"] + " " + e["en"]).lower()

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Request BLUETOOTH_CONNECT + BLUETOOTH_SCAN at MainActivity startup (Huawei needs both)."""
+"""At MainActivity startup ask for every permission at once (wearable/XemsAccess: runtime batch + settings pages),
+and open the app by itself after an update (wearable/XemsAutoStart, a MY_PACKAGE_REPLACED receiver in the manifest)."""
 
 from __future__ import annotations
 
@@ -9,6 +10,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DECOMPILED = ROOT / "build" / "decompiled"
 MAIN_ACTIVITY = DECOMPILED / "smali_classes2/com/isaigu/gymapp/MainActivity.smali"
+MANIFEST = DECOMPILED / "AndroidManifest.xml"
+RECEIVER = (
+    '<receiver android:exported="false" android:name="com.isaigu.gymapp.wearable.XemsAutoStart">'
+    '<intent-filter><action android:name="android.intent.action.MY_PACKAGE_REPLACED"/></intent-filter></receiver>'
+)
+
+
+def patch_manifest(text: str) -> str:
+    if "XemsAutoStart" in text:
+        print("AndroidManifest: auto-start receiver already there")
+        return text
+    if "</application>" not in text:
+        raise RuntimeError("AndroidManifest: </application> not found")
+    print("AndroidManifest: auto-start after update (MY_PACKAGE_REPLACED → XemsAutoStart)")
+    return text.replace("</application>", RECEIVER + "</application>", 1)
 
 STARTUP_HOOK = (
     "    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/WearableBlePermissions;"
@@ -35,6 +51,7 @@ def main() -> int:
     if not MAIN_ACTIVITY.is_file():
         print("MainActivity.smali missing", file=sys.stderr)
         return 1
+    MANIFEST.write_text(patch_manifest(MANIFEST.read_text(encoding="utf-8")), encoding="utf-8")
     MAIN_ACTIVITY.write_text(
         patch_main_activity(MAIN_ACTIVITY.read_text(encoding="utf-8")),
         encoding="utf-8",

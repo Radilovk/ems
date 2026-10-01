@@ -25,7 +25,7 @@
     .registers 3
 
     .prologue
-    .line 236
+    .line 251
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     move-result-object v0
@@ -83,7 +83,7 @@
     :try_end_2a
     .catch Ljava/lang/NoSuchFieldError; {:try_start_1f .. :try_end_2a} :catch_4e
 
-    .line 189
+    .line 204
     :goto_2a
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -139,7 +139,7 @@
 
     goto :goto_3e
 
-    .line 236
+    .line 251
     :catch_4e
     move-exception v0
 

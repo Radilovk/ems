@@ -8,9 +8,17 @@ test('a pick needs a known id; frames 0–3, anything else → 0', () => {
   assert.equal(normalizePick({ id: 'nope', on: true }, known, 5), null);
   assert.equal(normalizePick(null, known, 5), null);
   assert.deepEqual(normalizePick({ id: 'squat', on: true, frames: 2 }, known, 5),
-    { id: 'squat', on_app: 1, frames: 2, updated_at: 5 });
+    { id: 'squat', on_app: 1, frames: 2, zone: '', updated_at: 5 });
   assert.equal(normalizePick({ id: 'squat', on: 0, frames: 7 }, known, 5).frames, 0);
   assert.equal(normalizePick({ id: 'squat', on: 0, frames: 1.5 }, known, 5).on_app, 0);
+});
+
+test('the admin\'s group: one of the known ones, else the library\'s; sent only when set', () => {
+  assert.equal(normalizePick({ id: 'row', on: 1, zone: 'functional' }, known, 5).zone, 'functional');
+  assert.equal(normalizePick({ id: 'row', on: 1, zone: 'nonsense' }, known, 5).zone, '');
+  const p = picksPayload([{ id: 'row', on_app: 1, frames: 0, zone: 'back', updated_at: 1 },
+    { id: 'plank', on_app: 1, frames: 0, zone: '', updated_at: 1 }]);
+  assert.deepEqual(p.picks, [{ id: 'plank', on: 1, frames: 0 }, { id: 'row', on: 1, frames: 0, zone: 'back' }]);
 });
 
 test('payload: version is the last change, picks sorted', () => {
@@ -20,10 +28,11 @@ test('payload: version is the last change, picks sorted', () => {
   assert.deepEqual(picksPayload([]), { v: 0, picks: [] });
 });
 
-test('enabled: built-ins by default, the admin switches either way', () => {
+test('enabled: only what the admin switched on, built-in or not', () => {
   const lib = { exercises: [{ id: 'squat', b: 1 }, { id: 'plank', b: 1 }, { id: 'row', b: 0 }] };
-  assert.deepEqual(enabledIds(lib, []), ['squat', 'plank']);
-  assert.deepEqual(enabledIds(lib, [{ id: 'plank', on: 0 }, { id: 'row', on: 1 }]), ['squat', 'row']);
+  assert.deepEqual(enabledIds(lib, []), []);
+  assert.deepEqual(enabledIds(lib, [{ id: 'plank', on: 0 }, { id: 'row', on: 1 }, { id: 'squat', on: 1 }]),
+    ['squat', 'row']);
 });
 
 test('access code: matches its SHA-256, trims and ignores case; nothing else passes', async () => {

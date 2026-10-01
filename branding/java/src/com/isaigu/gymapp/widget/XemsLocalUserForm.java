@@ -410,12 +410,17 @@ public final class XemsLocalUserForm {
                 public void run() {
                     sex = Gender.Male;
                     renderSex();
+                    if ("cellulite".equals(goal)) {
+                        goal = "tone";                 // anti-cellulite is a women's goal
+                    }
+                    renderGoal();
                 }
             });
             addChoice(row, tr("Жена", "Female"), sex == Gender.Female, new Runnable() {
                 public void run() {
                     sex = Gender.Female;
                     renderSex();
+                    renderGoal();
                 }
             });
         }
@@ -474,8 +479,14 @@ public final class XemsLocalUserForm {
 
         void renderGoal() {
             LinearLayout row = goalRow[0];
+            if (row == null) {
+                return;                                // the goal card is on another page, not built yet
+            }
             row.removeAllViews();
             for (final String g : GOALS) {
+                if ("cellulite".equals(g) && sex == Gender.Male) {
+                    continue;                          // a women's goal
+                }
                 addChoice(row, goalName(g), g.equals(goal), new Runnable() {
                     public void run() {
                         goal = g;

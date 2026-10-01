@@ -25,8 +25,9 @@ import java.util.List;
  * move, + clones, − removes. Run it "by the map" (MapRunner, exactly as drawn) or "with AI" (the AI keeps strength,
  * rests and timing). Three views in one full-screen page: list → map → exercise picker. A workout has no goal to pick:
  * it follows from the exercises (mostly cardio → fat loss, else toning); a procedure is a separate kind (+ Процедура).
- * Changes save by themselves. Procedures have their own menu row ("Процедури", {@link #openProcedures}): the same
- * page, only the passive maps. docs/xems-workouts.md
+ * Changes save by themselves. Main menu → "Програми": workouts and procedures on one page, a two-way switch on top
+ * (Тренировки | Процедури); the ready ones are grouped by who they are for (everyone, women, men). They run only in
+ * the AI or the automatic mode (exercise programs are not shown anywhere else). docs/xems-workouts.md
  */
 public final class WorkoutsUi {
     private WorkoutsUi() {}
@@ -58,6 +59,7 @@ public final class WorkoutsUi {
     static final int A_PARAM = 24;
     static final int A_NEW_PASSIVE = 25;
     static final int A_ADVANCED = 26;
+    static final int A_KIND = 27;
 
     // block parameters (A_PARAM arg)
     static final int P_REPS = 0;
@@ -67,7 +69,8 @@ public final class WorkoutsUi {
     static final int P_OFF = 4;
     static final int P_REL = 5;
 
-    static final String[] ZONES = {"all", "abs", "glutes", "legs", "back", "chest", "arms", "shoulders", "cardio", "stretch"};
+    static final String[] ZONES = {"all", "abs", "glutes", "legs", "back", "chest", "arms", "shoulders", "functional",
+            "cardio", "stretch"};
 
     /** The page shows the procedures (passive maps) instead of the workouts. */
     private static boolean procedures;
@@ -99,6 +102,7 @@ public final class WorkoutsUi {
         if ("arms".equals(z)) return AiText.t("Ръце", "Arms");
         if ("shoulders".equals(z)) return AiText.t("Рамене", "Shoulders");
         if ("cardio".equals(z)) return AiText.t("Кардио", "Cardio");
+        if ("functional".equals(z)) return AiText.t("Функционални", "Functional");
         if ("stretch".equals(z)) return AiText.t("Разтягане", "Stretching");
         return AiText.t("Всички", "All");
     }
@@ -119,12 +123,6 @@ public final class WorkoutsUi {
 
     public static void open(Activity a) {
         procedures = false;
-        show(a);
-    }
-
-    /** Main menu → Процедури: the passive maps (ready and own), apart from the workouts. */
-    public static void openProcedures(Activity a) {
-        procedures = true;
         show(a);
     }
 
@@ -170,22 +168,31 @@ public final class WorkoutsUi {
     // ================================================================ list
 
     private static void screenList(Context c) {
-        shell.title.setText(procedures ? AiText.t("Процедури", "Procedures") : AiText.t("Тренировки", "Workouts"));
-        shell.subtitle.setText(procedures
-                ? AiText.t("Карти в покой — докосни, за да видиш или пуснеш.", "Maps at rest — tap to see or run.")
-                : AiText.t("Докосни карта, за да я видиш или пуснеш.", "Tap a map to see or start it."));
-        shell.subtitle.setVisibility(View.VISIBLE);
+        shell.title.setText(AiText.t("Програми", "Programs"));
+        shell.subtitle.setVisibility(View.GONE);
         LinearLayout body = shell.body;
+        body.addView(XemsUi.segmented(c, new String[] {AiText.t("Тренировки", "Workouts"),
+                AiText.t("Процедури", "Procedures")}, procedures ? 1 : 0, new Act(A_KIND, 0)), XemsUi.matchWrap(c, 0));
 
         List<Workout> own = ownList(c);
         if (!own.isEmpty()) {
-            body.addView(XemsUi.label(c, AiText.t("Твоите", "Yours")), XemsUi.matchWrap(c, 6));
+            body.addView(XemsUi.label(c, AiText.t("Твоите", "Yours")), XemsUi.matchWrap(c, 16));
             grid(c, body, own, A_OPEN, 0);
         }
+        // the ready ones by who they are for: everyone, women, men (presetList keeps that order)
         List<Workout> ready = presetList();
-        if (!ready.isEmpty()) {
-            body.addView(XemsUi.label(c, AiText.t("Готови", "Ready")), XemsUi.matchWrap(c, own.isEmpty() ? 6 : 18));
-            grid(c, body, ready, A_PRESET, 0);
+        int from = 0;
+        while (from < ready.size()) {
+            String sex = ready.get(from).sex;
+            int to = from;
+            while (to < ready.size() && same(sex, ready.get(to).sex)) {
+                to++;
+            }
+            String head = "m".equals(sex) ? AiText.t("Готови · за мъже", "Ready · for men")
+                    : "f".equals(sex) ? AiText.t("Готови · за жени", "Ready · for women") : AiText.t("Готови", "Ready");
+            body.addView(XemsUi.label(c, head), XemsUi.matchWrap(c, own.isEmpty() && from == 0 ? 16 : 22));
+            grid(c, body, ready.subList(from, to), A_PRESET, from);
+            from = to;
         }
 
         if (!procedures) {
@@ -216,15 +223,22 @@ public final class WorkoutsUi {
         return out;
     }
 
-    /** The ready maps of the page's kind. */
+    /** The ready maps of the page's kind: for everyone first, then women's, then men's. */
     private static List<Workout> presetList() {
         List<Workout> out = new ArrayList<Workout>();
-        for (Workout w : WorkoutStore.presets()) {
-            if (isProcedure(w) == procedures) {
-                out.add(w);
+        String[] order = {null, "f", "m"};
+        for (String sex : order) {
+            for (Workout w : WorkoutStore.presets()) {
+                if (isProcedure(w) == procedures && same(sex, w.sex)) {
+                    out.add(w);
+                }
             }
         }
         return out;
+    }
+
+    private static boolean same(String a, String b) {
+        return a == null ? b == null : a.equals(b);
     }
 
     /** A procedure = passive with no exercises (an old "procedure" with exercises is a workout). */
@@ -408,8 +422,9 @@ public final class WorkoutsUi {
             shell.footer.addView(copy, new LinearLayout.LayoutParams(XemsUi.dp(c, 230), XemsUi.dp(c, 54)));
         }
         boolean any = !w.blocks.isEmpty();
+        // an exercise program runs only in the two modes: Авто (exactly as drawn) or AI (it leads)
         TextView map = XemsUi.button(c, w.isPassive() ? AiText.t("▶  Пусни картата", "▶  Run the map")
-                : AiText.t("▶  По картата", "▶  By the map"), w.isPassive() ? XemsUi.PRIMARY : XemsUi.SECONDARY);
+                : AiText.t("▶  Авто", "▶  Auto"), w.isPassive() ? XemsUi.PRIMARY : XemsUi.SECONDARY);
         map.setOnClickListener(new Act(A_START_MAP, 0));
         map.setEnabled(any);
         map.setAlpha(any ? 1f : 0.55f);
@@ -418,7 +433,7 @@ public final class WorkoutsUi {
         shell.footer.addView(map, mp);
         if (!w.isPassive()) {
             boolean ex = w.exerciseBlocks() > 0;
-            TextView ai = XemsUi.button(c, AiText.t("▶  С AI", "▶  With AI"), XemsUi.PRIMARY);
+            TextView ai = XemsUi.button(c, AiText.t("▶  AI", "▶  AI"), XemsUi.PRIMARY);
             ai.setOnClickListener(new Act(A_START_AI, 0));
             ai.setEnabled(ex);
             ai.setAlpha(ex ? 1f : 0.55f);
@@ -765,7 +780,14 @@ public final class WorkoutsUi {
         pickGrid.removeAllViews();
         List<ExerciseLibrary.Entry> list = filtered(c);
         if (list.isEmpty()) {
-            TextView none = XemsUi.text(c, AiText.t("Нищо не съвпада.", "Nothing matches."), 15, XemsUi.MUTED, false);
+            boolean noneOn = ExerciseLibrary.enabled(c).isEmpty();
+            // nothing switched on yet: say where the fix is (the admin's exercise page), not "nothing matches"
+            TextView none = XemsUi.text(c, noneOn
+                    ? (ExerciseLibrary.pending(c) > 0
+                            ? AiText.t("Упражненията се изтеглят — след малко са тук.", "The exercises are downloading — here in a moment.")
+                            : AiText.t("Още няма включени упражнения — админът ги избира от страницата „Упражнения“ на сървъра.",
+                                    "No exercises switched on yet — the admin picks them on the server's Exercises page."))
+                    : AiText.t("Нищо не съвпада.", "Nothing matches."), 15, XemsUi.MUTED, false);
             none.setGravity(Gravity.CENTER);
             none.setPadding(0, XemsUi.dp(c, 24), 0, XemsUi.dp(c, 24));
             pickGrid.addView(none, XemsUi.matchWrap(c, 0));
@@ -928,6 +950,12 @@ public final class WorkoutsUi {
     static void act(Act a, int v) {
         Context c = shell.dialog.getContext();
         switch (a.code) {
+            case A_KIND:
+                if ((v == 1) != procedures) {
+                    procedures = v == 1;
+                    go(LIST);
+                }
+                return;
             case A_NEW:
             case A_NEW_PASSIVE: {
                 Workout w = new Workout();

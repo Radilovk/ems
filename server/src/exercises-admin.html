@@ -45,6 +45,10 @@ input[type=search]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;pad
 .saved{font-size:.72rem;color:#3fb950;min-width:14px}
 .how{display:none;font-size:.8rem;color:#c9d1d9;line-height:1.45;border-top:1px solid #21262d;padding-top:.45rem}
 .card.open .how{display:block}
+.tag.zone{cursor:pointer;background:#1f6feb33;color:#9ecbff;border:1px solid #1f6feb88}
+.tag.zone.own{background:#23863633;color:#7ee787;border-color:#2386368f}
+.zn{display:none;flex-wrap:wrap;gap:.3rem;margin:.1rem 0 .2rem}.zn.open{display:flex}
+.zn .chip{padding:.25rem .55rem;font-size:.74rem}
 .empty{color:#8b949e;padding:2rem;text-align:center}
 .err{background:#da363333;color:#f85149;padding:.6rem .8rem;border-radius:8px;margin-bottom:1rem;display:none}
 .gate{display:none;max-width:360px;margin:12vh auto;background:#161b22;border:1px solid #30363d;border-radius:16px;padding:1.4rem;text-align:center}
@@ -56,9 +60,9 @@ input[type=search]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;pad
 </head>
 <body>
 <h1><a href="/admin">← Админ</a> Упражнения</h1>
-<p class="sub">Каталогът за тренировките на таблетите. Включи упражненията, които искаш да се ползват в „Тренировки“ —
-таблетите ги изтеглят сами. <b>Кадри</b>: 3 — пълно движение, 2 — само крайните пози, 1 — неподвижно (планк, тренажор).
-Клик върху фигурата — описание.</p>
+<p class="sub">Каталогът за програмите на таблетите. На таблета се вижда само това, което включиш тук — таблетите го
+изтеглят сами. <b>Група</b> (синият етикет) — докосни, за да я смениш. <b>Кадри</b>: 3 — пълно движение, 2 — крайните
+пози, 1 — неподвижно. Клик върху фигурата — описание.</p>
 <div class="gate" id="gate"><h2>Код за достъп</h2><p>Въведи кода за каталога с упражнения.</p>
 <input id="code" autocomplete="off" placeholder="XXXX-XXXX-XXXX"><button id="go">Влез</button><div class="bad" id="bad"></div></div>
 <div id="err" class="err"></div>
@@ -70,14 +74,16 @@ input[type=search]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;pad
 </div>
 <div class="grid" id="grid"></div>
 <script>
-const ZONES={all:'Всички',abs:'Корем',glutes:'Седалище',legs:'Бедра',back:'Гръб',chest:'Гърди',arms:'Ръце',shoulders:'Рамене',cardio:'Кардио',stretch:'Разтягане'};
+const ZONES={all:'Всички',abs:'Корем',glutes:'Седалище',legs:'Бедра',back:'Гръб',chest:'Гърди',arms:'Ръце',shoulders:'Рамене',functional:'Функционални',cardio:'Кардио',stretch:'Разтягане'};
 const STATES={all:'Всички',on:'В приложението',off:'Изключени',b:'Вградени'};
 let LIB=null,PICKS={},FIXED=new Set(),zone='all',state='all',q='';
 const $=s=>document.querySelector(s);
 let CODE='';try{CODE=localStorage.getItem('xems_ex_code')||'';}catch(e){}
 function H(extra){return Object.assign({'X-Access-Code':CODE},extra||{});}
 function err(m){const e=$('#err');e.textContent=m;e.style.display=m?'block':'none';}
-function isOn(e){const p=PICKS[e.id];return p?!!p.on:!!e.b;}
+function isOn(e){const p=PICKS[e.id];return !!(p&&p.on);}
+// the admin's own group wins over the library's guess
+function zoneOf(e){const p=PICKS[e.id];return p&&p.zone?p.zone:e.zone;}
 function framesOf(e){const p=PICKS[e.id];return p&&p.frames?p.frames:e.n;}
 // frames the source draws much bolder come redrawn (branding/exercises/fixed, scripts/exercise-line-width.py)
 function url(e,n){if(FIXED.has(e.id+'/'+n))return LIB.fixedUrl.replace('{id}',e.id).replace('{n}',n);return LIB.frames.replace('{id}',e.id).replace('{n}',n);}
@@ -91,10 +97,10 @@ function fig(e){const d=document.createElement('div');d.className='fig';const fl
 // one clock for all figures: the next frame every 0.9 s (only the ones on screen change)
 let tick=0;setInterval(()=>{tick++;document.querySelectorAll('.fig.run').forEach(d=>{const r=d.getBoundingClientRect();
   if(r.bottom<0||r.top>innerHeight)return;const ims=d.querySelectorAll('img');ims.forEach((im,i)=>im.classList.toggle('f0',i===tick%ims.length));});},900);
-async function save(e,patch,mark){const p=Object.assign({id:e.id,on:isOn(e),frames:(PICKS[e.id]||{}).frames||0},patch);
+async function save(e,patch,mark){const o=PICKS[e.id]||{};const p=Object.assign({id:e.id,on:isOn(e),frames:o.frames||0,zone:o.zone||''},patch);
   mark.textContent='…';
   try{const r=await fetch('/admin/api/exercises/set',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify(p)});
-    const j=await r.json();if(!j.ok)throw new Error(j.error||r.status);PICKS[e.id]={on:p.on?1:0,frames:p.frames};mark.textContent='✓';err('');
+    const j=await r.json();if(!j.ok)throw new Error(j.error||r.status);PICKS[e.id]={on:p.on?1:0,frames:p.frames,zone:p.zone};mark.textContent='✓';err('');
     setTimeout(()=>{mark.textContent='';},1200);counts();}
   catch(x){mark.textContent='';err('Не се записа: '+x.message);}}
 function card(e){const c=document.createElement('div');c.className='card'+(isOn(e)?' on':'');
@@ -102,7 +108,18 @@ function card(e){const c=document.createElement('div');c.className='card'+(isOn(
   const b=document.createElement('div');b.className='body';
   b.innerHTML=`<div class="name"></div><div class="en"></div><div class="meta"></div>`;
   b.querySelector('.name').textContent=e.bg;b.querySelector('.en').textContent=e.en;
-  const m=b.querySelector('.meta');[ZONES[e.zone],(e.tg.toLowerCase()!==ZONES[e.zone].toLowerCase()?e.tg:''),e.eq,'ниво '+e.diff].filter(Boolean).forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;m.appendChild(s);});
+  const m=b.querySelector('.meta');
+  // the group: one tap opens the choice, one tap saves it (green = the admin's own)
+  const zt=document.createElement('span');const zn=document.createElement('div');zn.className='zn';
+  const showZone=()=>{const z=zoneOf(e);zt.className='tag zone'+(z!==e.zone?' own':'');zt.textContent=ZONES[z]+' ▾';
+    zn.innerHTML='';Object.keys(ZONES).filter(k=>k!=='all').forEach(k=>{const ch=document.createElement('span');
+      ch.className='chip'+(k===z?' on':'');ch.textContent=ZONES[k];
+      ch.onclick=ev=>{ev.stopPropagation();save(e,{zone:k===e.zone?'':k},mark).then(()=>{showZone();zn.classList.remove('open');});};
+      zn.appendChild(ch);});};
+  zt.title='Целева група — смени';zt.onclick=ev=>{ev.stopPropagation();zn.classList.toggle('open');};
+  m.appendChild(zt);
+  [(e.tg.toLowerCase()!==ZONES[zoneOf(e)].toLowerCase()&&zoneOf(e)!=='functional'?e.tg:''),e.eq,'ниво '+e.diff].filter(Boolean).forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;m.appendChild(s);});
+  b.appendChild(zn);
   const how=document.createElement('div');how.className='how';how.textContent=e.how;b.appendChild(how);
   const row=document.createElement('div');row.className='row';
   const sw=document.createElement('div');sw.className='sw'+(isOn(e)?' on':'');sw.title='В приложението';
@@ -117,8 +134,8 @@ function card(e){const c=document.createElement('div');c.className='card'+(isOn(
       save(e,{frames:n},mark).then(()=>{const g=fig(e);g.onclick=f.onclick;g.appendChild(fr);c.replaceChild(g,c.firstChild);});};
     fr.appendChild(s);});
   row.appendChild(sw);row.appendChild(lbl);row.appendChild(mark);b.appendChild(row);f.appendChild(fr);fr.onclick=ev=>ev.stopPropagation();
-  c.appendChild(b);return c;}
-function match(e){if(zone!=='all'&&e.zone!==zone)return false;
+  showZone();c.appendChild(b);return c;}
+function match(e){if(zone!=='all'&&zoneOf(e)!==zone)return false;
   if(state==='on'&&!isOn(e))return false;if(state==='off'&&isOn(e))return false;if(state==='b'&&!e.b)return false;
   if(q){const s=(e.bg+' '+e.en+' '+e.tg+' '+e.eq).toLowerCase();return q.split(/\s+/).every(w=>s.includes(w));}
   return true;}

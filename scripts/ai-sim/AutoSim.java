@@ -39,6 +39,7 @@ public final class AutoSim {
             }
         }
         System.out.println("full runs: " + runs);
+        bySex();
         blocks();
         zones();
         windows();
@@ -438,6 +439,41 @@ public final class AutoSim {
             String n = AutoCues.next(plan, 0, 10);
             check(plan.phases.size() < 2 || n.contains(plan.phases.get(1).nameBg), p.id + ": next names phase 2 (" + n + ")");
             check(AutoCues.next(plan, 0, 60).length() == 0, p.id + ": next is quiet 60 s before");
+        }
+    }
+
+    /** Men never get the women's programs (cellulite, glutes & thighs, postpartum), women never the men's; every
+     *  goal × kind still has a program for both. */
+    static void bySex() {
+        for (AutoModel.Goal g : AutoModel.Goal.values()) {
+            for (AutoModel.Kind k : AutoModel.Kind.values()) {
+                for (AiModel.Sex sex : AiModel.Sex.values()) {
+                    AutoModel.Input in = new AutoModel.Input();
+                    in.sex = sex;
+                    in.age = 35;
+                    in.sessions = 10;
+                    in.goal = g;
+                    in.kind = k;
+                    int shown = 0;
+                    for (AutoCatalog.Program p : AutoCatalog.menu(g, k)) {
+                        if (AutoCatalog.blockReason(p, g, in, false) != null) {
+                            continue;
+                        }
+                        shown++;
+                        boolean women = AutoCatalog.CELLULITE.equals(p.id) || AutoCatalog.GLUTES_LEGS.equals(p.id)
+                                || AutoCatalog.POSTPARTUM.equals(p.id);
+                        boolean men = AutoCatalog.MASS.equals(p.id) || AutoCatalog.UPPER.equals(p.id);
+                        check(!(sex == AiModel.Sex.MALE && women), "man offered " + p.id);
+                        check(!(sex == AiModel.Sex.FEMALE && men), "woman offered " + p.id);
+                    }
+                    if (!AutoCatalog.menu(g, k).isEmpty()) {
+                        check(shown > 0, sex + " has no program for " + g + "/" + k);
+                    }
+                    AutoCatalog.Program rec = AutoCatalog.recommended(g, k, in);
+                    check(AutoCatalog.blockReason(rec, g, in, false) == null || shown == 0,
+                            sex + " recommended a blocked " + rec.id);
+                }
+            }
         }
     }
 

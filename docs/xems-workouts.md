@@ -1,7 +1,11 @@
-# Workouts ("Тренировки") and the exercise library
+# Programs ("Програми": workouts and procedures) and the exercise library
 
-Main menu → **Тренировки** (`ai/WorkoutsUi`, a full-screen page since 1.1.257): the ready programs and the studio's
-own workouts. Build one by tapping exercises onto the map, then **▶ С AI** or **▶ По картата**. No goal is asked:
+Main menu → **Програми** (`ai/WorkoutsUi`, full-screen; 1.1.260 merged the separate "Тренировки" and "Процедури" rows):
+a two-way switch on top **Тренировки | Процедури**, then the studio's own and the ready ones grouped by who they are for
+(**Готови** for everyone, **· за жени**, **· за мъже** — `Workout.sex` from `AutoCatalog` femaleOnly / maleOnly).
+Build one by tapping exercises onto the map, then **▶ AI** or **▶ Авто**. Exercise programs run **only in the AI or the
+automatic mode** (owner, 1.1.260): "Авто" = exactly by the map (MapRunner; needs the Auto licence, shows on the Auto
+tile and the run card as "Авто · …"), "AI" = the Smart Session leads. No goal is asked:
 it follows from the exercises (`Workout.suggestedGoal`, mostly cardio → fat loss, else toning; focus zones likewise);
 the name field says what it is for. Changes save by themselves (header "✓ Запазено"; ✕ and Back lose nothing). Auto mode only shows exercises as an example (docs/xems-exercise-templates.md).
 
@@ -9,7 +13,9 @@ the name field says what it is for. Changes save by themselves (header "✓ За
 - Source: `branding/exercises/library-src.json` (names BG/EN, steps, target/secondary muscle, equipment, pattern,
   viewBox, frame count; from bryllim/workout-guide, CC BY-SA). `scripts/gen-exercise-library.py` → `library.json`
   (+ position, MET estimate by pattern, suit-channel weights, picker zone, built-in flag) → `assets/xems/library.json`.
-- The 40 built-in exercises ship their frames (`exercises.json`); the others are **downloaded when the admin enables
+- The 48 built-in exercises ship their frames (`exercises.json`; 1.1.260 added push-up, dumbbell bench press, biceps /
+  hammer curl, lateral raise, bent-over row, fly, diamond push-up for the men's programs —
+  `scripts/add-builtin-exercise.py <id>…`, first + last frame); the others are **downloaded when the admin enables
   them**: frames from the pinned jsDelivr copy, normalized on the tablet by `ai/PathNorm` (Java port of
   `scripts/exercise-paths.py`, checked by `scripts/ai-sim/PathNormSim.java`), kept in `files/xems_ex/<id>.json`.
 - `ai/ExerciseLibrary`: loads the library, registers every exercise in `AutoTemplates` (name, position, MET, muscles;
@@ -20,8 +26,14 @@ the name field says what it is for. Changes save by themselves (header "✓ За
 ## Admin (server)
 - `/admin/exercises` (button "Упражнения ↗" in the admin panel): the 302 exercises with moving figures, search, zone
   and state filters; per exercise **В приложението** on/off and **кадри** 3 / 2 (first + last) / 1 (still).
-- D1 `exercise_picks(id, on_app, frames, updated_at)` (migration 0010) stores only changes: built-ins are on by
-  default, the rest off. `GET /v1/exercises` (public, 5 min cache) → `{v, picks:[{id,on,frames}]}`.
+- D1 `exercise_picks(id, on_app, frames, zone, updated_at)` (migrations 0010, 0011). **Nothing is on by default**
+  (1.1.260, owner: what the admin did not switch on is not seen on a tablet — built-ins included; the ready programs
+  still use their own exercises). `GET /v1/exercises` (public, 5 min cache) → `{v, picks:[{id,on,frames,zone?}]}`.
+- **Group** (picker zone): the blue tag ▾ on each card → one tap opens the groups, one tap saves (green = the admin's
+  own, overriding the library's). Groups: Корем, Седалище, Бедра, Гръб, Гърди, Ръце, Рамене, **Функционални**
+  (whole-body moves with no one target: burpee, swing, deadlift, carry…), Кардио, Разтягане. The tablet applies it
+  (`ExerciseLibrary.zones`). `gen-exercise-library.py` fixes the source's wrong targets / positions (`ZONE_FIX`,
+  `POS_FIX`, `FUNCTIONAL`).
   `POST /admin/api/exercises/set` (Basic auth). Helpers `server/src/exercises.js` (+ tests).
 - Access: the admin login, or the page's own **access code** (asked by the page, sent as `X-Access-Code`; only its
   SHA-256 is in `wrangler.toml` `EXERCISES_CODE_SHA256`; a wrong code waits 400 ms). New code = new hash there.
@@ -43,21 +55,20 @@ A workout **is** an impulse map: a line of blocks (merged with the exercises for
 - **Ready maps**: the 7 active template programs (level-2 stations, one set each, 30 s rests, repetitions sized for one
   AI session) and the automatic mode's passive programs converted phase-by-phase (steps → blocks).
 - Kinds: a **workout** (exercise blocks; goal derived, never picked) and a **procedure** (passive, no exercises, runs
-  by the map only). They are apart: main menu **Тренировки** lists only workouts, **Процедури** (`WorkoutsUi.openProcedures`,
-  same page) only procedures, each with its own "+ Нова …". An old workout saved as "Процедура" with exercises is turned back
+  by the map only). One page, the switch on top shows one kind at a time, each with its own "+ Нова …". An old workout saved as "Процедура" with exercises is turned back
   into a workout when opened.
 - Store: `files/xems_workouts.json`, `blocks:[{ex,n,hz,pw,on,off,rel}]`; the 1.1.254 `items` (sets × reps) are migrated
   to blocks in rounds with rests.
 
 ## Running a map
-- **▶ По картата** (`ai/MapRunner` + pure `ai/MapClock`): every block exactly as drawn to all rows; the strength stays
+- **▶ Авто** (`ai/MapRunner` + pure `ai/MapClock`; a procedure: **▶ Пусни картата**): every block exactly as drawn to all rows; the strength stays
   each client's — `rel` scales it, rests set 0, the trainer's + / − are read back at each block change as the new
   100 %; impulse blocks advance by counted impulse cycles (AiSession.onPulseCycle → leader), rests by time, a time
   fallback (length + 3 s) if the cycle hook is silent; time counts only while the suit runs. Card at the top: line
   with playhead, figure (client's colour), "повторение 3/8 · Hz · µs", "Следва: …", ■ Стоп. Refused together with
   AI, Auto, music sync, the timer's block program (and they refuse while a map runs). Recorded exercise → kcal /
   muscle map like the Smart Session.
-- **▶ С AI** (`AiExercises.forWorkout`): the exercise blocks in map order are the sets (rest and plain blocks are left
+- **▶ AI** (`AiExercises.forWorkout`): the exercise blocks in map order are the sets (rest and plain blocks are left
   to the AI's own rests); rest-pause when the AI's block is shorter; the block's Hz / µs are used only when gentler
   than the AI's plan (`AiSession.gentler`), never stronger; strength, rests and timing stay with the AI.
 

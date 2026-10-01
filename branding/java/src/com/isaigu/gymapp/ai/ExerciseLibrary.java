@@ -46,7 +46,10 @@ public final class ExerciseLibrary {
         public String en;
         public String eq;
         public String tg;
+        /** The picker group: the admin's own (server picks) or the library's. */
         public String zone;
+        /** The library's group (library.json). */
+        String libZone;
         public String pos;
         public String type;
         /** Movement pattern (squat, hinge, core_static, cardio, stretch…): the block's starting impulse. */
@@ -101,6 +104,7 @@ public final class ExerciseLibrary {
                 e.eq = x.optString("eq");
                 e.tg = x.optString("tg");
                 e.zone = x.optString("zone", "legs");
+                e.libZone = e.zone;
                 e.pos = x.optString("pos", "stand");
                 e.type = x.optString("type");
                 e.pat = x.optString("pat");
@@ -155,19 +159,39 @@ public final class ExerciseLibrary {
         return out;
     }
 
-    /** Built-in unless the admin switched it off; any other only when switched on. */
+    /** The admin's own picker groups (server picks "zone"; the library's otherwise). */
+    static Map<String, String> zones(Context c) {
+        Map<String, String> out = new HashMap<String, String>();
+        try {
+            JSONArray a = new JSONArray(prefs(c).getString("picks", "[]"));
+            for (int i = 0; i < a.length(); i++) {
+                JSONObject p = a.getJSONObject(i);
+                String z = p.optString("zone", "");
+                if (z.length() > 0) {
+                    out.put(p.getString("id"), z);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return out;
+    }
+
+    /** Only when the admin switched it on (built-in or not). */
     public static boolean isEnabled(Context c, Entry e, Map<String, int[]> picks) {
         int[] p = picks.get(e.id);
-        return p != null ? p[0] == 1 : e.builtIn;
+        return p != null && p[0] == 1;                 // only what the admin switched on (none by default)
     }
 
     /** The exercises offered for building workouts, figure ready (built in, or downloaded), library order. */
     public static List<Entry> enabled(Context c) {
         load(c);
         Map<String, int[]> picks = picks(c);
+        Map<String, String> zones = zones(c);
         List<Entry> out = new ArrayList<Entry>();
         synchronized (ExerciseLibrary.class) {
             for (Entry e : ALL) {
+                String z = zones.get(e.id);
+                e.zone = z != null ? z : e.libZone;
                 if (isEnabled(c, e, picks) && (e.builtIn || cacheFile(c, e.id).exists())) {
                     out.add(e);
                 }

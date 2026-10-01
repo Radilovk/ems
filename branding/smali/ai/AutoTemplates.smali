@@ -348,7 +348,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 517
+    .line 520
     array-length v2, p0
 
     move v1, v0
@@ -358,21 +358,21 @@
 
     aget-object v3, p0, v1
 
-    .line 518
+    .line 521
     invoke-virtual {v3, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
     if-eqz v3, :cond_f
 
-    .line 519
+    .line 522
     const/4 v0, 0x1
 
-    .line 522
+    .line 525
     :cond_e
     return v0
 
-    .line 517
+    .line 520
     :cond_f
     add-int/lit8 v1, v1, 0x1
 
@@ -1484,8 +1484,8 @@
     goto :goto_10
 .end method
 
-.method public static programForAi(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$Mode;I)Ljava/lang/String;
-    .registers 4
+.method public static programForAi(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$Mode;ILcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
+    .registers 5
 
     .prologue
     .line 507
@@ -1505,7 +1505,7 @@
     :cond_c
     const/4 v0, 0x0
 
-    .line 513
+    .line 516
     :goto_d
     return-object v0
 
@@ -1526,11 +1526,26 @@
 
     if-ne p0, v0, :cond_1c
 
+    .line 514
     const-string v0, "cardio"
 
     goto :goto_d
 
+    .line 516
     :cond_1c
+    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->MALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    if-ne p3, v0, :cond_27
+
+    const/16 v0, 0x32
+
+    if-ge p2, v0, :cond_27
+
+    const-string v0, "mass"
+
+    goto :goto_d
+
+    :cond_27
     const-string v0, "general"
 
     goto :goto_d

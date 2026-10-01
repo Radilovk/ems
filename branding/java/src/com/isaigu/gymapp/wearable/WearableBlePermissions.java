@@ -52,7 +52,8 @@ public final class WearableBlePermissions {
         return hasAllBlePermissions(context);
     }
 
-    /** Ask once at MainActivity startup so connect does not hit SecurityException mid-GATT. */
+    /** At MainActivity startup: all the app's permissions at once ({@link XemsAccess}), so connect does not hit a
+     *  SecurityException mid-GATT and no feature asks later. */
     public static void requestAtStartup(Activity activity) {
         try {
             requestAtStartupImpl(activity);
@@ -62,13 +63,8 @@ public final class WearableBlePermissions {
     }
 
     private static void requestAtStartupImpl(Activity activity) {
-        if (activity == null || Build.VERSION.SDK_INT < 31) {
-            return;
-        }
-        if (hasAllBlePermissions(activity)) {
-            return;
-        }
-        requestBlePermissions(activity, null);
+        // every permission at once (Bluetooth included), not only these two
+        XemsAccess.start(activity);
     }
 
     public static void ensureConnectPermission(Activity activity, Runnable onGranted) {

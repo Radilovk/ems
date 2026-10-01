@@ -33,6 +33,8 @@
 
 .field public id:Ljava/lang/String;
 
+.field libZone:Ljava/lang/String;
+
 .field public met:D
 
 .field public mus:[I
@@ -67,7 +69,7 @@
     .registers 3
 
     .prologue
-    .line 68
+    .line 71
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->how:Ljava/lang/String;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->howEn:Ljava/lang/String;
@@ -101,7 +103,7 @@
     .registers 3
 
     .prologue
-    .line 73
+    .line 76
     const-string v0, "duration"
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->type:Ljava/lang/String;
@@ -117,7 +119,7 @@
     .registers 3
 
     .prologue
-    .line 64
+    .line 67
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->bg:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->en:Ljava/lang/String;

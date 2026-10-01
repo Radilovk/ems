@@ -258,7 +258,9 @@
 
     iget v3, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    invoke-static {v0, v1, v3}, Lcom/isaigu/gymapp/ai/AutoTemplates;->programForAi(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$Mode;I)Ljava/lang/String;
+    iget-object v4, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    invoke-static {v0, v1, v3, v4}, Lcom/isaigu/gymapp/ai/AutoTemplates;->programForAi(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$Mode;ILcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
 
     move-result-object v3
 
@@ -347,10 +349,10 @@
 
     move v1, v0
 
-    :goto_57
+    :goto_59
     array-length v0, v5
 
-    if-ge v1, v0, :cond_6e
+    if-ge v1, v0, :cond_70
 
     .line 73
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/AiModel$Plan;->phases:Ljava/util/List;
@@ -374,30 +376,30 @@
 
     move v1, v0
 
-    goto :goto_57
+    goto :goto_59
 
     .line 75
-    :cond_6e
+    :cond_70
     invoke-static {v3, v4, v5, p6}, Lcom/isaigu/gymapp/ai/AutoTemplates;->scriptFor(Ljava/lang/String;Lcom/isaigu/gymapp/ai/AutoModel$Input;[Ljava/lang/String;Ljava/util/List;)Lcom/isaigu/gymapp/ai/AutoTemplates$Script;
 
     move-result-object v1
 
     .line 76
-    if-eqz v1, :cond_7b
+    if-eqz v1, :cond_7d
 
     new-instance v0, Lcom/isaigu/gymapp/ai/AiExercises;
 
     invoke-direct {v0, v1}, Lcom/isaigu/gymapp/ai/AiExercises;-><init>(Lcom/isaigu/gymapp/ai/AutoTemplates$Script;)V
 
-    :goto_79
+    :goto_7b
     move-object v2, v0
 
     goto :goto_5
 
-    :cond_7b
+    :cond_7d
     move-object v0, v2
 
-    goto :goto_79
+    goto :goto_7b
 .end method
 
 .method public static forWorkout(Lcom/isaigu/gymapp/ai/Workout;Lcom/isaigu/gymapp/ai/AiModel$SessionInput;ILcom/isaigu/gymapp/ai/AiModel$Plan;ID)Lcom/isaigu/gymapp/ai/AiExercises;

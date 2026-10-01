@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 1134
+    .line 1140
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$18$3;->this$0:Lcom/isaigu/gymapp/ai/AiUi$18;
 
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$18$3;->val$d:I
@@ -49,11 +49,11 @@
     .registers 3
 
     .prologue
-    .line 1137
+    .line 1143
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiUi$18$3;->val$d:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->adjustCalibration(I)V
 
-    .line 1138
+    .line 1144
     return-void
 .end method

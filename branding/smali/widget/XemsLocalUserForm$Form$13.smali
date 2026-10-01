@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 550
+    .line 561
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,25 +40,25 @@
     .registers 3
 
     .prologue
-    .line 552
+    .line 563
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     const/4 v1, 0x0
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->medical:Z
 
-    .line 553
+    .line 564
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->contra:Ljava/util/Set;
 
     invoke-interface {v0}, Ljava/util/Set;->clear()V
 
-    .line 554
+    .line 565
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$13;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderMedical()V
 
-    .line 555
+    .line 566
     return-void
 .end method

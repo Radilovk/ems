@@ -456,7 +456,13 @@ final class AiUi {
         }
         LinearLayout row = horizontal(a);
         final List<View> cards = new ArrayList<View>();
+        if (in.goal == Goal.CELLULITE && in.sex == AiModel.Sex.MALE) {
+            in.goal = Goal.TONE;                       // anti-cellulite is a women's goal
+        }
         for (final Goal g : Goal.values()) {
+            if (g == Goal.CELLULITE && in.sex == AiModel.Sex.MALE) {
+                continue;
+            }
             LinearLayout card = vertical(a);
             card.setPadding(dp(a, 18), dp(a, 18), dp(a, 18), dp(a, 18));
             View accent = new View(a);
@@ -958,7 +964,7 @@ final class AiUi {
         LinearLayout tiles = horizontal(a);
         tiles.setGravity(Gravity.CENTER_VERTICAL);
         // the session's picture: what it trains, for this client's sex
-        String artProg = AutoTemplates.programForAi(in.goal, in.mode, in.age);
+        String artProg = AutoTemplates.programForAi(in.goal, in.mode, in.age, in.sex);
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         alp.rightMargin = dp(a, 14);
@@ -994,7 +1000,7 @@ final class AiUi {
             col.addView(wbp, matchWrap(a, 14));
         }
         // The cardio plan has a cardio-machine station: one tap, remembered for this tablet.
-        String exProg = AutoTemplates.programForAi(in.goal, in.mode, in.age);
+        String exProg = AutoTemplates.programForAi(in.goal, in.mode, in.age, in.sex);
         if (exProg != null && AutoTemplates.usesMachine(exProg)) {
             LinearLayout mc = card(a);
             mc.setOrientation(LinearLayout.HORIZONTAL);

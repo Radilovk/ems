@@ -331,7 +331,7 @@
 
     .line 54
     :cond_26
-    if-eqz v0, :cond_59
+    if-eqz v0, :cond_61
 
     .line 55
     const-string v0, "glutes"
@@ -364,7 +364,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_53
+    if-nez v0, :cond_5b
 
     const-string v0, "power"
 
@@ -372,7 +372,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_53
+    if-nez v0, :cond_5b
 
     const-string v0, "back_active"
 
@@ -381,29 +381,37 @@
 
     move-result v0
 
-    if-eqz v0, :cond_56
+    if-nez v0, :cond_5b
+
+    const-string v0, "upper"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_5e
 
     .line 60
-    :cond_53
+    :cond_5b
     const-string v0, "m-pushup"
 
     goto :goto_d
 
     .line 62
-    :cond_56
+    :cond_5e
     const-string v0, "m-squat"
 
     goto :goto_d
 
     .line 64
-    :cond_59
+    :cond_61
     const-string v0, "glutes"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_69
+    if-nez v0, :cond_71
 
     const-string v0, "postpartum"
 
@@ -411,23 +419,23 @@
 
     move-result v0
 
-    if-eqz v0, :cond_6c
+    if-eqz v0, :cond_74
 
     .line 65
-    :cond_69
+    :cond_71
     const-string v0, "f-bridge"
 
     goto :goto_d
 
     .line 67
-    :cond_6c
+    :cond_74
     const-string v0, "core"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_77
+    if-eqz v0, :cond_7f
 
     .line 68
     const-string v0, "f-plank"
@@ -435,14 +443,14 @@
     goto :goto_d
 
     .line 70
-    :cond_77
+    :cond_7f
     const-string v0, "power"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_82
+    if-eqz v0, :cond_8a
 
     .line 71
     const-string v0, "f-pushup"
@@ -450,29 +458,29 @@
     goto :goto_d
 
     .line 73
-    :cond_82
+    :cond_8a
     const-string v0, "cardio"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_8d
+    if-eqz v0, :cond_96
 
     .line 74
     const-string v0, "f-climber"
 
-    goto :goto_d
+    goto/16 :goto_d
 
     .line 76
-    :cond_8d
+    :cond_96
     const-string v0, "back_active"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_99
+    if-eqz v0, :cond_a2
 
     .line 77
     const-string v0, "f-lateral"
@@ -480,14 +488,14 @@
     goto/16 :goto_d
 
     .line 79
-    :cond_99
+    :cond_a2
     const-string v0, "senior"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_a5
+    if-eqz v0, :cond_ae
 
     .line 80
     const-string v0, "f-curl"
@@ -495,7 +503,7 @@
     goto/16 :goto_d
 
     .line 82
-    :cond_a5
+    :cond_ae
     const-string v0, "f-squat"
 
     goto/16 :goto_d

@@ -147,10 +147,25 @@ def patch_app_name() -> None:
             print(f"patched app_name in {rel}")
 
 
+def patch_home_tab() -> None:
+    """The first page (client list → quick start) is the home screen: "Начало" / "Home" (values-bg comes from
+    translations/)."""
+    for rel, name in (("values/strings.xml", "Home"), ("values-en/strings.xml", "Home")):
+        path = DECOMPILED / "res" / rel
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        updated, count = re.subn(r'(<string name="train">)[^<]*(</string>)', rf"\1{name}\2", text, count=1)
+        if count:
+            path.write_text(updated, encoding="utf-8")
+            print(f"patched train → {name} in {rel}")
+
+
 def main() -> None:
     patch_get_locale()
     patch_common_utils()
     patch_app_name()
+    patch_home_tab()
 
     for rel in (
         "bean/UserData.smali",

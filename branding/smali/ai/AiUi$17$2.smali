@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 834
+    .line 840
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$17$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$17;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,14 +42,14 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 837
+    .line 843
     # setter for: Lcom/isaigu/gymapp/ai/AiUi;->noBand:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$902(Z)Z
 
-    .line 838
+    .line 844
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 839
+    .line 845
     return-void
 .end method

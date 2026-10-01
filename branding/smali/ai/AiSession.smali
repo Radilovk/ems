@@ -4392,19 +4392,23 @@
 
     iget v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/ai/AutoTemplates;->programForAi(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$Mode;I)Ljava/lang/String;
+    sget-object v4, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+
+    iget-object v4, v4, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+
+    invoke-static {v1, v2, v3, v4}, Lcom/isaigu/gymapp/ai/AutoTemplates;->programForAi(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$Mode;ILcom/isaigu/gymapp/ai/AiModel$Sex;)Ljava/lang/String;
 
     move-result-object v10
 
     .line 502
-    if-nez v10, :cond_20
+    if-nez v10, :cond_24
 
     .line 525
-    :goto_1f
+    :goto_23
     return-void
 
     .line 505
-    :cond_20
+    :cond_24
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->preload(Landroid/content/Context;)V
 
     .line 506
@@ -4412,11 +4416,11 @@
 
     move-result v1
 
-    if-nez v1, :cond_ad
+    if-nez v1, :cond_b1
 
     const/4 v1, 0x1
 
-    :goto_2a
+    :goto_2e
     sput-boolean v1, Lcom/isaigu/gymapp/ai/AutoTemplates;->noCardioMachine:Z
 
     .line 507
@@ -4425,7 +4429,7 @@
     move-result-object v1
 
     .line 508
-    if-eqz v1, :cond_b0
+    if-eqz v1, :cond_b4
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiProfile;->of(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/ai/AiProfile;
 
@@ -4434,12 +4438,12 @@
     move-object v4, v1
 
     .line 509
-    :goto_37
-    if-eqz v4, :cond_b2
+    :goto_3b
+    if-eqz v4, :cond_b6
 
     iget-wide v2, v4, Lcom/isaigu/gymapp/ai/AiProfile;->userId:J
 
-    :goto_3b
+    :goto_3f
     sput-wide v2, Lcom/isaigu/gymapp/ai/AiSession;->exercisesUser:J
 
     .line 510
@@ -4463,18 +4467,18 @@
     .line 512
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->workout:Lcom/isaigu/gymapp/ai/Workout;
 
-    if-eqz v1, :cond_b7
+    if-eqz v1, :cond_bb
 
     .line 513
     sget-object v1, Lcom/isaigu/gymapp/ai/AiSession;->workout:Lcom/isaigu/gymapp/ai/Workout;
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    if-eqz v4, :cond_b5
+    if-eqz v4, :cond_b9
 
     iget v3, v4, Lcom/isaigu/gymapp/ai/AiProfile;->heightCm:I
 
-    :goto_59
+    :goto_5d
     sget-object v4, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
     iget v5, v5, Lcom/isaigu/gymapp/ai/AutoHistory$Info;->sessions:I
@@ -4527,13 +4531,13 @@
     move-result-object v1
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_8f
-    .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_8f} :catch_90
+    :try_end_93
+    .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_93} :catch_94
 
-    goto :goto_1f
+    goto :goto_23
 
     .line 521
-    :catch_90
+    :catch_94
     move-exception v0
 
     .line 522
@@ -4562,42 +4566,42 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto/16 :goto_1f
+    goto/16 :goto_23
 
-    :cond_ad
+    :cond_b1
     move v1, v0
 
     .line 506
-    goto/16 :goto_2a
+    goto/16 :goto_2e
 
-    :cond_b0
+    :cond_b4
     move-object v4, v9
 
     .line 508
-    goto :goto_37
-
-    .line 509
-    :cond_b2
-    const-wide/16 v2, 0x0
-
     goto :goto_3b
 
-    :cond_b5
+    .line 509
+    :cond_b6
+    const-wide/16 v2, 0x0
+
+    goto :goto_3f
+
+    :cond_b9
     move v3, v0
 
     .line 513
-    goto :goto_59
+    goto :goto_5d
 
     .line 517
-    :cond_b7
-    :try_start_b7
+    :cond_bb
+    :try_start_bb
     sget-object v2, Lcom/isaigu/gymapp/ai/AiSession;->input:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    if-eqz v4, :cond_fd
+    if-eqz v4, :cond_101
 
     iget v3, v4, Lcom/isaigu/gymapp/ai/AiProfile;->heightCm:I
 
-    :goto_bd
+    :goto_c1
     sget-object v4, Lcom/isaigu/gymapp/ai/AiSession;->plan:Lcom/isaigu/gymapp/ai/AiModel$Plan;
 
     iget v5, v5, Lcom/isaigu/gymapp/ai/AutoHistory$Info;->sessions:I
@@ -4642,7 +4646,7 @@
     .line 520
     sget-object v3, Lcom/isaigu/gymapp/ai/AiSession;->exercises:Lcom/isaigu/gymapp/ai/AiExercises;
 
-    if-eqz v3, :cond_f0
+    if-eqz v3, :cond_f4
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession;->exercises:Lcom/isaigu/gymapp/ai/AiExercises;
 
@@ -4652,7 +4656,7 @@
 
     iget v0, v0, Lcom/isaigu/gymapp/ai/AutoTemplates$Script;->level:I
 
-    :cond_f0
+    :cond_f4
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -4663,16 +4667,16 @@
 
     .line 519
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_fb
-    .catch Ljava/lang/Throwable; {:try_start_b7 .. :try_end_fb} :catch_90
+    :try_end_ff
+    .catch Ljava/lang/Throwable; {:try_start_bb .. :try_end_ff} :catch_94
 
-    goto/16 :goto_1f
+    goto/16 :goto_23
 
-    :cond_fd
+    :cond_101
     move v3, v0
 
     .line 517
-    goto :goto_bd
+    goto :goto_c1
 .end method
 
 .method public static startRun(Landroid/content/Context;)V

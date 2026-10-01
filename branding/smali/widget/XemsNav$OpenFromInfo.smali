@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 698
+    .line 874
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 699
+    .line 875
     iput p1, p0, Lcom/isaigu/gymapp/widget/XemsNav$OpenFromInfo;->module:I
 
-    .line 700
+    .line 876
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 704
+    .line 880
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->tiles:[Lcom/isaigu/gymapp/widget/XemsNav$Tile;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$900()[Lcom/isaigu/gymapp/widget/XemsNav$Tile;
 
@@ -52,18 +52,18 @@
 
     aget-object v0, v0, v1
 
-    .line 705
+    .line 881
     if-eqz v0, :cond_11
 
-    .line 706
+    .line 882
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsNav$Tile;->root:Landroid/widget/LinearLayout;
 
     iget v1, p0, Lcom/isaigu/gymapp/widget/XemsNav$OpenFromInfo;->module:I
 
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->openModule(Landroid/view/View;I)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsNav;->access$800(Landroid/view/View;I)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsNav;->access$100(Landroid/view/View;I)V
 
-    .line 708
+    .line 884
     :cond_11
     return-void
 .end method

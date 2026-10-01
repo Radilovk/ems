@@ -18,6 +18,8 @@
 
 .field static final FILE_DEVICES:Ljava/lang/String; = "file_name_device_data"
 
+.field static final FILE_HIDDEN_PROGRAMS:Ljava/lang/String; = "xems_hidden_programs"
+
 .field static final FILE_OFFLINE_USERS:Ljava/lang/String; = "file_name_offline_user_data"
 
 .field static final FILE_PROGRAMS:Ljava/lang/String; = "file_name_train_data"
@@ -29,6 +31,10 @@
 .field private static final FIRST_USER_ID:J = 0x186a0L
 
 .field private static final KEY_DELETED_PROGRAMS:Ljava/lang/String; = "deleted_program_ids"
+
+.field private static final KEY_HIDDEN_PROGRAM_NAMES:Ljava/lang/String; = "hidden_program_names"
+
+.field private static final KEY_HID_CLOUD_PROGRAMS:Ljava/lang/String; = "hid_cloud_programs_v1"
 
 .field private static final KEY_MIGRATED:Ljava/lang/String; = "migrated_v1"
 
@@ -64,7 +70,7 @@
     .registers 2
 
     .prologue
-    .line 390
+    .line 396
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -75,7 +81,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalStore;->MAIN:Landroid/os/Handler;
 
-    .line 393
+    .line 399
     new-instance v0, Ljava/util/concurrent/ConcurrentHashMap;
 
     invoke-direct {v0}, Ljava/util/concurrent/ConcurrentHashMap;-><init>()V
@@ -89,7 +95,7 @@
     .registers 1
 
     .prologue
-    .line 65
+    .line 69
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -119,41 +125,41 @@
     .registers 7
 
     .prologue
-    .line 587
+    .line 593
     if-nez p0, :cond_3
 
-    .line 604
+    .line 610
     :cond_2
     :goto_2
     return-void
 
-    .line 590
+    .line 596
     :cond_3
     :try_start_3
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v1
 
-    .line 591
+    .line 597
     const-string v0, "programDatas"
 
     invoke-virtual {v1, v0}, Ljava/lang/Class;->getDeclaredField(Ljava/lang/String;)Ljava/lang/reflect/Field;
 
     move-result-object v0
 
-    .line 592
+    .line 598
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 593
+    .line 599
     invoke-virtual {v0, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/util/List;
 
-    .line 594
+    .line 600
     if-eqz v0, :cond_2
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -162,7 +168,7 @@
 
     if-nez v2, :cond_2
 
-    .line 597
+    .line 603
     const/4 v2, 0x0
 
     invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -171,7 +177,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 598
+    .line 604
     const-string v2, "updateSelectedProgram"
 
     const/4 v3, 0x1
@@ -188,12 +194,12 @@
 
     move-result-object v1
 
-    .line 599
+    .line 605
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Ljava/lang/reflect/Method;->setAccessible(Z)V
 
-    .line 600
+    .line 606
     const/4 v2, 0x1
 
     new-array v2, v2, [Ljava/lang/Object;
@@ -208,11 +214,11 @@
 
     goto :goto_2
 
-    .line 601
+    .line 607
     :catch_42
     move-exception v0
 
-    .line 602
+    .line 608
     const-string v1, "xems_local"
 
     const-string v2, "autoSelectFirstProgram"
@@ -226,7 +232,7 @@
     .registers 4
 
     .prologue
-    .line 92
+    .line 96
     if-eqz p0, :cond_49
 
     :try_start_2
@@ -236,51 +242,51 @@
 
     if-eqz v0, :cond_49
 
-    .line 93
+    .line 97
     invoke-virtual {p0}, Lcom/isaigu/gymapp/fragment/MainFragment;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
     move-result-object v0
 
-    .line 94
+    .line 98
     :goto_c
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadDevices(Landroid/content/Context;)V
 
-    .line 95
+    .line 99
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadProtocol()V
 
-    .line 96
+    .line 100
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadUsers()V
 
-    .line 97
+    .line 101
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadPrograms()V
 
-    .line 98
+    .line 102
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->migrateOnce(Landroid/content/Context;)V
 
-    .line 99
+    .line 103
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalStore$DossierSink;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore$DossierSink;-><init>()V
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsDossier;->init(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsDossier$Sink;)V
 
-    .line 100
+    .line 104
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsDossier;->changed()V
 
-    .line 101
+    .line 105
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsClientSync;->start(Landroid/content/Context;)V
 
-    .line 102
+    .line 106
     const/16 v0, 0x69
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    .line 103
+    .line 107
     const/16 v0, 0x6a
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    .line 104
+    .line 108
     if-eqz p0, :cond_48
 
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
@@ -289,25 +295,25 @@
 
     if-eqz v0, :cond_48
 
-    .line 107
+    .line 111
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->requestCloudSync()V
 
-    .line 108
+    .line 112
     const-string v0, "initUsers"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->callPrivate(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 109
+    .line 113
     const-string v0, "initTrainPrograms"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->callPrivate(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 114
+    .line 118
     :cond_48
     :goto_48
     return-void
 
-    .line 93
+    .line 97
     :cond_49
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
     :try_end_4c
@@ -317,11 +323,11 @@
 
     goto :goto_c
 
-    .line 111
+    .line 115
     :catch_4e
     move-exception v0
 
-    .line 112
+    .line 116
     const-string v1, "xems_local"
 
     const-string v2, "bootstrapOnline"
@@ -335,7 +341,7 @@
     .registers 3
 
     .prologue
-    .line 1030
+    .line 1096
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -346,7 +352,7 @@
 
     const-string v1, "next_user_id"
 
-    .line 1031
+    .line 1097
     invoke-interface {v0, v1}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -363,19 +369,19 @@
 
     move-result-object v0
 
-    .line 1032
+    .line 1098
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1034
+    .line 1100
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextUserId()J
 
-    .line 1035
+    .line 1101
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextProgramId()J
 
-    .line 1036
+    .line 1102
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextDeviceId()J
 
-    .line 1037
+    .line 1103
     return-void
 .end method
 
@@ -383,7 +389,7 @@
     .registers 4
 
     .prologue
-    .line 118
+    .line 122
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -397,12 +403,12 @@
 
     move-result-object v0
 
-    .line 119
+    .line 123
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/lang/reflect/Method;->setAccessible(Z)V
 
-    .line 120
+    .line 124
     const/4 v1, 0x0
 
     new-array v1, v1, [Ljava/lang/Object;
@@ -411,15 +417,15 @@
     :try_end_15
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_15} :catch_16
 
-    .line 124
+    .line 128
     :goto_15
     return-void
 
-    .line 121
+    .line 125
     :catch_16
     move-exception v0
 
-    .line 122
+    .line 126
     const-string v1, "xems_local"
 
     invoke-static {v1, p1, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
@@ -440,24 +446,24 @@
     .end annotation
 
     .prologue
-    .line 188
+    .line 192
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
 
-    .line 189
+    .line 193
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 190
+    .line 194
     if-nez v1, :cond_c
 
-    .line 198
+    .line 202
     :cond_b
     return-object v0
 
-    .line 193
+    .line 197
     :cond_c
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -486,7 +492,7 @@
 
     aget-object v4, v2, v1
 
-    .line 194
+    .line 198
     invoke-virtual {v4}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v5
@@ -497,14 +503,14 @@
 
     if-lez v5, :cond_35
 
-    .line 195
+    .line 199
     invoke-virtual {v4}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v4
 
     invoke-interface {v0, v4}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 193
+    .line 197
     :cond_35
     add-int/lit8 v1, v1, 0x1
 
@@ -515,34 +521,34 @@
     .registers 5
 
     .prologue
-    .line 289
+    .line 294
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 290
+    .line 295
     if-nez v0, :cond_7
 
-    .line 306
+    .line 311
     :cond_6
     :goto_6
     return-void
 
-    .line 293
+    .line 298
     :cond_7
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 294
+    .line 299
     iget-wide v2, p0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
     invoke-static {v2, v3}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 295
+    .line 300
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -573,7 +579,7 @@
 
     if-gtz v2, :cond_6
 
-    .line 298
+    .line 303
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -646,19 +652,19 @@
 
     const-string v2, "desk,stress"
 
-    .line 299
+    .line 304
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 300
+    .line 305
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
 
-    .line 301
+    .line 306
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -681,7 +687,7 @@
 
     const-string v3, ""
 
-    .line 302
+    .line 307
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm;->extras(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -700,11 +706,11 @@
 
     goto/16 :goto_6
 
-    .line 303
+    .line 308
     :catch_ae
     move-exception v0
 
-    .line 304
+    .line 309
     const-string v1, "xems_local"
 
     const-string v2, "demo profile"
@@ -718,7 +724,7 @@
     .registers 3
 
     .prologue
-    .line 422
+    .line 428
     if-eqz p0, :cond_18
 
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLocalStore;->SEEN_NAMES:Ljava/util/Map;
@@ -733,7 +739,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 423
+    .line 429
     :goto_e
     if-eqz v0, :cond_17
 
@@ -748,7 +754,7 @@
     :cond_17
     return-object p0
 
-    .line 422
+    .line 428
     :cond_18
     const/4 v0, 0x0
 
@@ -771,12 +777,12 @@
     .end annotation
 
     .prologue
-    .line 1126
+    .line 1192
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readList(Ljava/lang/String;Ljava/lang/Class;)Ljava/util/List;
 
     move-result-object v0
 
-    .line 1127
+    .line 1193
     if-eqz v0, :cond_7
 
     :goto_6
@@ -794,52 +800,52 @@
     .registers 5
 
     .prologue
-    .line 908
+    .line 974
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->knownDevice(Ljava/lang/String;)Lcom/isaigu/gymapp/bean/DeviceBean;
 
     move-result-object v0
 
     if-eqz v0, :cond_7
 
-    .line 921
+    .line 987
     :goto_6
     return-void
 
-    .line 911
+    .line 977
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 912
+    .line 978
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
     if-nez v1, :cond_16
 
-    .line 913
+    .line 979
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
-    .line 915
+    .line 981
     :cond_16
     new-instance v1, Lcom/isaigu/gymapp/bean/DeviceBean;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/bean/DeviceBean;-><init>()V
 
-    .line 916
+    .line 982
     iput-object p0, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
 
-    .line 917
+    .line 983
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->displayName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
     iput-object v2, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
 
-    .line 918
+    .line 984
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextDeviceId()J
 
     move-result-wide v2
@@ -850,12 +856,12 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->id:Ljava/lang/Long;
 
-    .line 919
+    .line 985
     iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 920
+    .line 986
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveDevices()V
 
     goto :goto_6
@@ -878,12 +884,12 @@
 
     const/4 v2, 0x0
 
-    .line 255
+    .line 260
     const/4 v3, 0x0
 
     move v1, v2
 
-    .line 256
+    .line 261
     :goto_5
     invoke-interface {p0}, Ljava/util/List;->size()I
 
@@ -891,14 +897,14 @@
 
     if-ge v1, v0, :cond_95
 
-    .line 257
+    .line 262
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 258
+    .line 263
     if-eqz v0, :cond_90
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
@@ -907,63 +913,63 @@
 
     if-nez v4, :cond_90
 
-    .line 263
+    .line 268
     :goto_19
     if-nez v0, :cond_48
 
-    .line 264
+    .line 269
     new-instance v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/bean/TrainUser;-><init>()V
 
-    .line 265
+    .line 270
     iput-wide v6, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    .line 266
+    .line 271
     sget-object v1, Lcom/isaigu/gymapp/bean/Gender;->Female:Lcom/isaigu/gymapp/bean/Gender;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->gender:Lcom/isaigu/gymapp/bean/Gender;
 
-    .line 267
+    .line 272
     const/16 v1, 0xa8
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->height:I
 
-    .line 268
+    .line 273
     const/high16 v1, 0x42800000    # 64.0f
 
     iput v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->weight:F
 
-    .line 269
+    .line 274
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v1
 
-    .line 270
+    .line 275
     const/4 v3, 0x1
 
     const/16 v4, -0x26
 
     invoke-virtual {v1, v3, v4}, Ljava/util/Calendar;->add(II)V
 
-    .line 271
+    .line 276
     invoke-virtual {v1}, Ljava/util/Calendar;->getTime()Ljava/util/Date;
 
     move-result-object v1
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->birtyday:Ljava/util/Date;
 
-    .line 272
+    .line 277
     new-instance v1, Ljava/util/Date;
 
     invoke-direct {v1}, Ljava/util/Date;-><init>()V
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->createTime:Ljava/util/Date;
 
-    .line 273
+    .line 278
     invoke-interface {p0, v2, v0}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 275
+    .line 280
     :cond_48
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
@@ -989,18 +995,18 @@
 
     if-eqz v1, :cond_68
 
-    .line 276
+    .line 281
     :cond_60
     const-string v1, "Demo"
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 277
+    .line 282
     const-string v1, "Demo"
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
-    .line 279
+    .line 284
     :cond_68
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
 
@@ -1018,7 +1024,7 @@
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
 
-    .line 280
+    .line 285
     invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
@@ -1035,20 +1041,20 @@
 
     if-eqz v1, :cond_8c
 
-    .line 281
+    .line 286
     :cond_88
     const-string v1, "Test"
 
     iput-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
 
-    .line 283
+    .line 288
     :cond_8c
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->demoProfile(Lcom/isaigu/gymapp/bean/TrainUser;)V
 
-    .line 284
+    .line 289
     return-void
 
-    .line 256
+    .line 261
     :cond_90
     add-int/lit8 v0, v1, 0x1
 
@@ -1070,24 +1076,24 @@
 
     const/4 v1, 0x1
 
-    .line 705
+    .line 711
     if-eqz p0, :cond_6
 
     if-nez p1, :cond_7
 
-    .line 730
+    .line 736
     :cond_6
     :goto_6
     return v0
 
-    .line 709
+    .line 715
     :cond_7
     :try_start_7
     new-instance v2, Lcom/alibaba/fastjson/JSONObject;
 
     invoke-direct {v2}, Lcom/alibaba/fastjson/JSONObject;-><init>()V
 
-    .line 710
+    .line 716
     const-string v3, "version"
 
     const/4 v4, 0x1
@@ -1098,7 +1104,7 @@
 
     invoke-virtual {v2, v3, v4}, Lcom/alibaba/fastjson/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)V
 
-    .line 711
+    .line 717
     const-string v3, "exportedAt"
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -1111,7 +1117,7 @@
 
     invoke-virtual {v2, v3, v4}, Lcom/alibaba/fastjson/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)V
 
-    .line 712
+    .line 718
     const-string v3, "users"
 
     const-string v4, "file_name_user_data"
@@ -1128,7 +1134,7 @@
 
     invoke-virtual {v2, v3, v4}, Lcom/alibaba/fastjson/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)V
 
-    .line 713
+    .line 719
     const-string v3, "programs"
 
     const-string v4, "file_name_train_data"
@@ -1145,7 +1151,7 @@
 
     invoke-virtual {v2, v3, v4}, Lcom/alibaba/fastjson/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)V
 
-    .line 714
+    .line 720
     const-string v3, "devices"
 
     const-string v4, "file_name_device_data"
@@ -1162,7 +1168,7 @@
 
     invoke-virtual {v2, v3, v4}, Lcom/alibaba/fastjson/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)V
 
-    .line 715
+    .line 721
     const-string v3, "records"
 
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->allRecords()Ljava/util/List;
@@ -1175,7 +1181,7 @@
 
     invoke-virtual {v2, v3, v4}, Lcom/alibaba/fastjson/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)V
 
-    .line 716
+    .line 722
     const-string v3, "pairedMacs"
 
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getPairedMacs(Landroid/content/Context;)Ljava/util/Set;
@@ -1188,12 +1194,12 @@
 
     invoke-virtual {v2, v3, v4}, Lcom/alibaba/fastjson/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)V
 
-    .line 717
+    .line 723
     invoke-virtual {v2}, Lcom/alibaba/fastjson/JSONObject;->toJSONString()Ljava/lang/String;
 
     move-result-object v2
 
-    .line 718
+    .line 724
     invoke-virtual {p0}, Landroid/app/Activity;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object v3
@@ -1202,10 +1208,10 @@
 
     move-result-object v3
 
-    .line 719
+    .line 725
     if-eqz v3, :cond_6
 
-    .line 722
+    .line 728
     const-string v4, "UTF-8"
 
     invoke-virtual {v2, v4}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
@@ -1214,13 +1220,13 @@
 
     invoke-virtual {v3, v2}, Ljava/io/OutputStream;->write([B)V
 
-    .line 723
+    .line 729
     invoke-virtual {v3}, Ljava/io/OutputStream;->flush()V
 
-    .line 724
+    .line 730
     invoke-virtual {v3}, Ljava/io/OutputStream;->close()V
 
-    .line 725
+    .line 731
     const-string v2, "\u0414\u0430\u043d\u043d\u0438\u0442\u0435 \u0441\u0430 \u0435\u043a\u0441\u043f\u043e\u0440\u0442\u0438\u0440\u0430\u043d\u0438"
 
     const-string v3, "Data exported"
@@ -1241,21 +1247,21 @@
 
     move v0, v1
 
-    .line 726
+    .line 732
     goto/16 :goto_6
 
-    .line 727
+    .line 733
     :catch_a0
     move-exception v2
 
-    .line 728
+    .line 734
     const-string v3, "xems_local"
 
     const-string v4, "exportBackup"
 
     invoke-static {v3, v4, v2}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 729
+    .line 735
     const-string v2, "\u0415\u043a\u0441\u043f\u043e\u0440\u0442\u044a\u0442 \u043d\u0435 \u0443\u0441\u043f\u044f"
 
     const-string v3, "Export failed"
@@ -1291,7 +1297,7 @@
     .end annotation
 
     .prologue
-    .line 387
+    .line 393
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -1303,10 +1309,10 @@
     .registers 0
 
     .prologue
-    .line 84
+    .line 88
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->finishSetup()V
 
-    .line 85
+    .line 89
     return-void
 .end method
 
@@ -1314,31 +1320,146 @@
     .registers 3
 
     .prologue
-    .line 647
+    .line 653
     if-nez p0, :cond_3
 
-    .line 654
+    .line 660
     :cond_2
     :goto_2
     return-void
 
-    .line 650
+    .line 656
     :cond_3
     invoke-virtual {p0}, Lcom/isaigu/gymapp/dialog/EditUserPersonalDataDialog;->getParentActivity()Lcom/isaigu/gymapp/BaseActivity;
 
     move-result-object v0
 
-    .line 651
+    .line 657
     if-eqz v0, :cond_2
 
     instance-of v1, p0, Lcom/isaigu/gymapp/BaseDialogFragment;
 
     if-eqz v1, :cond_2
 
-    .line 652
+    .line 658
     invoke-virtual {v0, p0}, Lcom/isaigu/gymapp/BaseActivity;->closeDialogFragment(Lcom/isaigu/gymapp/BaseDialogFragment;)V
 
     goto :goto_2
+.end method
+
+.method private static followHiddenPrograms(Ljava/util/List;)V
+    .registers 5
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/List",
+            "<",
+            "Lcom/isaigu/gymapp/bean/TrainUser;",
+            ">;)V"
+        }
+    .end annotation
+
+    .prologue
+    .line 872
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    .line 873
+    if-nez v0, :cond_f
+
+    const-string v0, ""
+
+    .line 874
+    :goto_8
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-nez v1, :cond_1c
+
+    .line 884
+    :cond_e
+    return-void
+
+    .line 873
+    :cond_f
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "hidden_program_names"
+
+    const-string v2, ""
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_8
+
+    .line 877
+    :cond_1c
+    new-instance v2, Ljava/util/HashSet;
+
+    const-string v1, "\n"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Ljava/util/Arrays;->asList([Ljava/lang/Object;)Ljava/util/List;
+
+    move-result-object v0
+
+    invoke-direct {v2, v0}, Ljava/util/HashSet;-><init>(Ljava/util/Collection;)V
+
+    .line 878
+    const/4 v0, 0x0
+
+    move v1, v0
+
+    :goto_2d
+    invoke-interface {p0}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_e
+
+    .line 879
+    invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
+
+    .line 880
+    if-eqz v0, :cond_4b
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
+
+    if-eqz v3, :cond_4b
+
+    iget-object v3, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
+
+    invoke-interface {v2, v3}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_4b
+
+    .line 881
+    const-string v3, "Test"
+
+    iput-object v3, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
+
+    .line 878
+    :cond_4b
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_2d
 .end method
 
 .method static getAppContext()Landroid/content/Context;
@@ -1347,7 +1468,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 883
+    .line 949
     :try_start_1
     const-string v0, "android.app.ActivityThread"
 
@@ -1355,7 +1476,7 @@
 
     move-result-object v0
 
-    .line 884
+    .line 950
     const-string v2, "currentApplication"
 
     const/4 v3, 0x0
@@ -1366,7 +1487,7 @@
 
     move-result-object v0
 
-    .line 885
+    .line 951
     const/4 v2, 0x0
 
     const/4 v3, 0x0
@@ -1381,17 +1502,17 @@
     :try_end_1a
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1a} :catch_1b
 
-    .line 887
+    .line 953
     :goto_1a
     return-object v0
 
-    .line 886
+    .line 952
     :catch_1b
     move-exception v0
 
     move-object v0, v1
 
-    .line 887
+    .line 953
     goto :goto_1a
 .end method
 
@@ -1410,21 +1531,21 @@
     .end annotation
 
     .prologue
-    .line 924
+    .line 990
     new-instance v1, Ljava/util/HashSet;
 
     invoke-direct {v1}, Ljava/util/HashSet;-><init>()V
 
-    .line 925
+    .line 991
     if-nez p0, :cond_9
 
     move-object v0, v1
 
-    .line 939
+    .line 1005
     :goto_8
     return-object v0
 
-    .line 928
+    .line 994
     :cond_9
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -1438,7 +1559,7 @@
 
     move-result-object v0
 
-    .line 929
+    .line 995
     invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v2
@@ -1447,10 +1568,10 @@
 
     move-object v0, v1
 
-    .line 930
+    .line 996
     goto :goto_8
 
-    .line 932
+    .line 998
     :cond_1d
     const-string v2, ","
 
@@ -1458,7 +1579,7 @@
 
     move-result-object v2
 
-    .line 933
+    .line 999
     const/4 v0, 0x0
 
     :goto_24
@@ -1466,24 +1587,24 @@
 
     if-ge v0, v3, :cond_39
 
-    .line 934
+    .line 1000
     aget-object v3, v2, v0
 
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 935
+    .line 1001
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v4
 
     if-lez v4, :cond_36
 
-    .line 936
+    .line 1002
     invoke-interface {v1, v3}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 933
+    .line 999
     :cond_36
     add-int/lit8 v0, v0, 0x1
 
@@ -1492,8 +1613,286 @@
     :cond_39
     move-object v0, v1
 
-    .line 939
+    .line 1005
     goto :goto_8
+.end method
+
+.method private static hideCloudProgramsOnce(Lcom/isaigu/gymapp/mgr/DataMgr;)V
+    .registers 8
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 833
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
+
+    move-result-object v2
+
+    .line 834
+    if-eqz v2, :cond_17
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v1
+
+    const-string v3, "hid_cloud_programs_v1"
+
+    invoke-interface {v1, v3, v0}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v1
+
+    if-nez v1, :cond_17
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    if-nez v1, :cond_18
+
+    .line 868
+    :cond_17
+    :goto_17
+    return-void
+
+    .line 837
+    :cond_18
+    new-instance v3, Ljava/util/ArrayList;
+
+    invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
+
+    .line 838
+    new-instance v4, Ljava/util/ArrayList;
+
+    invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
+
+    move v1, v0
+
+    .line 839
+    :goto_23
+    iget-object v0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    invoke-interface {v0}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_4b
+
+    .line 840
+    iget-object v0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    .line 841
+    if-nez v0, :cond_39
+
+    .line 839
+    :goto_35
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_23
+
+    .line 844
+    :cond_39
+    const-string v5, "Test"
+
+    iget-object v6, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
+
+    invoke-virtual {v5, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_47
+
+    .line 845
+    invoke-interface {v3, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_35
+
+    .line 847
+    :cond_47
+    invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_35
+
+    .line 850
+    :cond_4b
+    invoke-interface {v4}, Ljava/util/List;->isEmpty()Z
+
+    move-result v0
+
+    if-nez v0, :cond_b9
+
+    .line 851
+    const-string v0, "xems_hidden_programs"
+
+    const-class v1, Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readList(Ljava/lang/String;Ljava/lang/Class;)Ljava/util/List;
+
+    move-result-object v0
+
+    .line 852
+    if-nez v0, :cond_60
+
+    .line 853
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    .line 855
+    :cond_60
+    invoke-interface {v0, v4}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z
+
+    .line 856
+    const-string v1, "xems_hidden_programs"
+
+    const-class v5, Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    invoke-static {v1, v5, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+
+    .line 857
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "hidden_program_names"
+
+    const-string v6, ""
+
+    invoke-interface {v0, v1, v6}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-direct {v5, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    .line 858
+    invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v6
+
+    :cond_7f
+    :goto_7f
+    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_a4
+
+    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    .line 859
+    iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
+
+    if-eqz v1, :cond_7f
+
+    .line 860
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->length()I
+
+    move-result v1
+
+    if-lez v1, :cond_a1
+
+    const-string v1, "\n"
+
+    :goto_97
+    invoke-virtual {v5, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    goto :goto_7f
+
+    :cond_a1
+    const-string v1, ""
+
+    goto :goto_97
+
+    .line 863
+    :cond_a4
+    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "hidden_program_names"
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-interface {v0, v1, v5}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 865
+    :cond_b9
+    iput-object v3, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
+
+    .line 866
+    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "hid_cloud_programs_v1"
+
+    const/4 v2, 0x1
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 867
+    const-string v0, "xems_local"
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "cloud programs put aside: "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-interface {v4}, Ljava/util/List;->size()I
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    goto/16 :goto_17
 .end method
 
 .method public static importBackup(Landroid/app/Activity;Landroid/net/Uri;)Z
@@ -1504,7 +1903,7 @@
 
     const/4 v1, 0x0
 
-    .line 736
+    .line 742
     if-eqz p0, :cond_6
 
     if-nez p1, :cond_8
@@ -1512,11 +1911,11 @@
     :cond_6
     move v0, v1
 
-    .line 798
+    .line 804
     :goto_7
     return v0
 
-    .line 739
+    .line 745
     :cond_8
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
 
@@ -1524,7 +1923,7 @@
 
     if-nez v0, :cond_1f
 
-    .line 740
+    .line 746
     const-string v0, "\u0418\u043c\u043f\u043e\u0440\u0442 \u0438\u043c\u0430 \u0441\u0430\u043c\u043e \u043f\u0440\u0438 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430"
 
     const-string v3, "Import is only available in the tablet setup"
@@ -1537,15 +1936,15 @@
 
     move-result-object v0
 
-    .line 741
+    .line 747
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
     move v0, v1
 
-    .line 742
+    .line 748
     goto :goto_7
 
-    .line 745
+    .line 751
     :cond_1f
     :try_start_1f
     invoke-virtual {p0}, Landroid/app/Activity;->getContentResolver()Landroid/content/ContentResolver;
@@ -1556,15 +1955,15 @@
 
     move-result-object v0
 
-    .line 746
+    .line 752
     if-nez v0, :cond_2b
 
     move v0, v1
 
-    .line 747
+    .line 753
     goto :goto_7
 
-    .line 749
+    .line 755
     :cond_2b
     new-instance v3, Ljava/io/BufferedReader;
 
@@ -1576,12 +1975,12 @@
 
     invoke-direct {v3, v4}, Ljava/io/BufferedReader;-><init>(Ljava/io/Reader;)V
 
-    .line 750
+    .line 756
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 752
+    .line 758
     :goto_3c
     invoke-virtual {v3}, Ljava/io/BufferedReader;->readLine()Ljava/lang/String;
 
@@ -1589,7 +1988,7 @@
 
     if-eqz v4, :cond_65
 
-    .line 753
+    .line 759
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -1602,18 +2001,18 @@
 
     goto :goto_3c
 
-    .line 795
+    .line 801
     :catch_4c
     move-exception v0
 
-    .line 796
+    .line 802
     const-string v3, "xems_local"
 
     const-string v4, "importBackup"
 
     invoke-static {v3, v4, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 797
+    .line 803
     const-string v0, "\u0418\u043c\u043f\u043e\u0440\u0442\u044a\u0442 \u043d\u0435 \u0443\u0441\u043f\u044f"
 
     const-string v3, "Import failed"
@@ -1630,15 +2029,15 @@
 
     move v0, v1
 
-    .line 798
+    .line 804
     goto :goto_7
 
-    .line 755
+    .line 761
     :cond_65
     :try_start_65
     invoke-virtual {v3}, Ljava/io/BufferedReader;->close()V
 
-    .line 756
+    .line 762
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -1647,15 +2046,15 @@
 
     move-result-object v0
 
-    .line 757
+    .line 763
     if-nez v0, :cond_74
 
     move v0, v1
 
-    .line 758
+    .line 764
     goto :goto_7
 
-    .line 760
+    .line 766
     :cond_74
     const-string v3, "users"
 
@@ -1669,7 +2068,7 @@
 
     move-result-object v3
 
-    .line 761
+    .line 767
     const-string v4, "programs"
 
     invoke-virtual {v0, v4}, Lcom/alibaba/fastjson/JSONObject;->getJSONArray(Ljava/lang/String;)Lcom/alibaba/fastjson/JSONArray;
@@ -1682,7 +2081,7 @@
 
     move-result-object v4
 
-    .line 762
+    .line 768
     const-string v5, "devices"
 
     invoke-virtual {v0, v5}, Lcom/alibaba/fastjson/JSONObject;->getJSONArray(Ljava/lang/String;)Lcom/alibaba/fastjson/JSONArray;
@@ -1695,63 +2094,63 @@
 
     move-result-object v5
 
-    .line 763
+    .line 769
     if-eqz v3, :cond_a7
 
-    .line 764
+    .line 770
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v6
 
     iput-object v3, v6, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
-    .line 765
+    .line 771
     const-string v6, "file_name_user_data"
 
     const-class v7, Lcom/isaigu/gymapp/bean/TrainUser;
 
     invoke-static {v6, v7, v3}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 767
+    .line 773
     :cond_a7
     if-eqz v4, :cond_b9
 
-    .line 768
+    .line 774
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v3
 
     iput-object v4, v3, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
-    .line 769
+    .line 775
     invoke-static {v4}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList(Ljava/util/List;)V
 
-    .line 770
+    .line 776
     const-string v3, "file_name_train_data"
 
     const-class v6, Lcom/isaigu/gymapp/bean/TrainProgram;
 
     invoke-static {v3, v6, v4}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 772
+    .line 778
     :cond_b9
     if-eqz v5, :cond_c8
 
-    .line 773
+    .line 779
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v3
 
     iput-object v5, v3, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
-    .line 774
+    .line 780
     const-string v3, "file_name_device_data"
 
     const-class v4, Lcom/isaigu/gymapp/bean/DeviceBean;
 
     invoke-static {v3, v4, v5}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 776
+    .line 782
     :cond_c8
     const-string v3, "records"
 
@@ -1761,7 +2160,7 @@
 
     if-eqz v3, :cond_d9
 
-    .line 777
+    .line 783
     const-string v3, "records"
 
     invoke-virtual {v0, v3}, Lcom/alibaba/fastjson/JSONObject;->getJSONArray(Ljava/lang/String;)Lcom/alibaba/fastjson/JSONArray;
@@ -1770,7 +2169,7 @@
 
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->replaceRecords(Lcom/alibaba/fastjson/JSONArray;)V
 
-    .line 779
+    .line 785
     :cond_d9
     const-string v3, "pairedMacs"
 
@@ -1780,12 +2179,12 @@
 
     if-eqz v3, :cond_113
 
-    .line 780
+    .line 786
     new-instance v4, Ljava/util/HashSet;
 
     invoke-direct {v4}, Ljava/util/HashSet;-><init>()V
 
-    .line 781
+    .line 787
     const-string v3, "pairedMacs"
 
     invoke-virtual {v0, v3}, Lcom/alibaba/fastjson/JSONObject;->getJSONArray(Ljava/lang/String;)Lcom/alibaba/fastjson/JSONArray;
@@ -1802,12 +2201,12 @@
 
     move-result-object v5
 
-    .line 782
+    .line 788
     if-eqz v5, :cond_110
 
     move v3, v1
 
-    .line 783
+    .line 789
     :goto_f9
     invoke-interface {v5}, Ljava/util/List;->size()I
 
@@ -1815,7 +2214,7 @@
 
     if-ge v3, v0, :cond_110
 
-    .line 784
+    .line 790
     invoke-interface {v5, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -1828,32 +2227,32 @@
 
     invoke-interface {v4, v0}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 783
+    .line 789
     add-int/lit8 v0, v3, 0x1
 
     move v3, v0
 
     goto :goto_f9
 
-    .line 787
+    .line 793
     :cond_110
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->savePairedMacs(Landroid/content/Context;Ljava/util/Set;)V
 
-    .line 790
+    .line 796
     :cond_113
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->bumpCounters(Landroid/content/Context;)V
 
-    .line 791
+    .line 797
     const/16 v0, 0x69
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    .line 792
+    .line 798
     const/16 v0, 0x6a
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    .line 793
+    .line 799
     const-string v0, "\u0414\u0430\u043d\u043d\u0438\u0442\u0435 \u0441\u0430 \u0438\u043c\u043f\u043e\u0440\u0442\u0438\u0440\u0430\u043d\u0438"
 
     const-string v3, "Data imported"
@@ -1874,7 +2273,7 @@
 
     move v0, v2
 
-    .line 794
+    .line 800
     goto/16 :goto_7
 .end method
 
@@ -1882,18 +2281,18 @@
     .registers 1
 
     .prologue
-    .line 71
+    .line 75
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 72
+    .line 76
     if-eqz v0, :cond_9
 
-    .line 73
+    .line 77
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->init(Landroid/content/Context;)V
 
-    .line 75
+    .line 79
     :cond_9
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isSetupMode()Z
 
@@ -1910,7 +2309,7 @@
 
     const/4 v1, 0x0
 
-    .line 366
+    .line 372
     invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -1919,17 +2318,17 @@
 
     move v0, v1
 
-    .line 379
+    .line 385
     :goto_9
     return v0
 
-    .line 369
+    .line 375
     :cond_a
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 370
+    .line 376
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getPairedMacs(Landroid/content/Context;)Ljava/util/Set;
 
     move-result-object v0
@@ -1942,10 +2341,10 @@
 
     move v0, v2
 
-    .line 371
+    .line 377
     goto :goto_9
 
-    .line 373
+    .line 379
     :cond_1a
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->allowedEms()Ljava/util/Set;
 
@@ -1955,7 +2354,7 @@
 
     move-result-object v4
 
-    .line 374
+    .line 380
     :cond_22
     invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
 
@@ -1963,7 +2362,7 @@
 
     if-eqz v0, :cond_3a
 
-    .line 375
+    .line 381
     invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
@@ -1982,13 +2381,13 @@
 
     move v0, v2
 
-    .line 376
+    .line 382
     goto :goto_9
 
     :cond_3a
     move v0, v1
 
-    .line 379
+    .line 385
     goto :goto_9
 .end method
 
@@ -1998,7 +2397,7 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 404
+    .line 410
     :try_start_1
     const-string v0, "address"
 
@@ -2008,7 +2407,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 405
+    .line 411
     const-string v1, "name"
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readField(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
@@ -2017,20 +2416,20 @@
 
     check-cast v1, Ljava/lang/String;
 
-    .line 406
+    .line 412
     if-nez v1, :cond_57
 
     const-string v1, ""
 
     move-object v3, v1
 
-    .line 407
+    .line 413
     :goto_16
     invoke-virtual {v3}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 408
+    .line 414
     const-string v4, "EMS"
 
     invoke-virtual {v1, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -2056,7 +2455,7 @@
     :cond_2f
     if-eqz v0, :cond_5d
 
-    .line 410
+    .line 416
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->knownDevice(Ljava/lang/String;)Lcom/isaigu/gymapp/bean/DeviceBean;
 
     move-result-object v1
@@ -2076,7 +2475,7 @@
     :cond_41
     move v1, v2
 
-    .line 411
+    .line 417
     :goto_42
     if-eqz v1, :cond_55
 
@@ -2088,7 +2487,7 @@
 
     if-lez v4, :cond_55
 
-    .line 412
+    .line 418
     sget-object v4, Lcom/isaigu/gymapp/widget/XemsLocalStore;->SEEN_NAMES:Ljava/util/Map;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
@@ -2100,11 +2499,11 @@
     :cond_55
     move v0, v1
 
-    .line 416
+    .line 422
     :goto_56
     return v0
 
-    .line 406
+    .line 412
     :cond_57
     invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
     :try_end_5a
@@ -2116,19 +2515,19 @@
 
     goto :goto_16
 
-    .line 410
+    .line 416
     :cond_5d
     const/4 v1, 0x0
 
     goto :goto_42
 
-    .line 415
+    .line 421
     :catch_5f
     move-exception v0
 
     move v0, v2
 
-    .line 416
+    .line 422
     goto :goto_56
 .end method
 
@@ -2136,7 +2535,7 @@
     .registers 1
 
     .prologue
-    .line 79
+    .line 83
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
 
     move-result v0
@@ -2158,19 +2557,19 @@
     .registers 6
 
     .prologue
-    .line 896
+    .line 962
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
-    .line 897
+    .line 963
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 898
+    .line 964
     const/4 v0, 0x0
 
     move v1, v0
@@ -2184,14 +2583,14 @@
 
     if-ge v1, v0, :cond_2d
 
-    .line 899
+    .line 965
     invoke-interface {v2, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/DeviceBean;
 
-    .line 900
+    .line 966
     if-eqz v0, :cond_29
 
     iget-object v4, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
@@ -2206,11 +2605,11 @@
 
     if-eqz v4, :cond_29
 
-    .line 904
+    .line 970
     :goto_28
     return-object v0
 
-    .line 898
+    .line 964
     :cond_29
     add-int/lit8 v0, v1, 0x1
 
@@ -2218,7 +2617,7 @@
 
     goto :goto_c
 
-    .line 904
+    .line 970
     :cond_2d
     const/4 v0, 0x0
 
@@ -2229,12 +2628,12 @@
     .registers 4
 
     .prologue
-    .line 325
+    .line 331
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v1
 
-    .line 326
+    .line 332
     const-string v0, "file_name_device_data"
 
     const-class v2, Lcom/isaigu/gymapp/bean/DeviceBean;
@@ -2243,19 +2642,19 @@
 
     move-result-object v0
 
-    .line 327
+    .line 333
     if-nez v0, :cond_13
 
-    .line 328
+    .line 334
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 330
+    .line 336
     :cond_13
     iput-object v0, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
-    .line 331
+    .line 337
     return-void
 .end method
 
@@ -2263,12 +2662,12 @@
     .registers 4
 
     .prologue
-    .line 309
+    .line 314
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v3
 
-    .line 310
+    .line 315
     const-string v0, "file_name_train_data"
 
     const-class v1, Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -2277,17 +2676,17 @@
 
     move-result-object v0
 
-    .line 311
-    if-nez v0, :cond_3a
+    .line 316
+    if-nez v0, :cond_3d
 
-    .line 312
+    .line 317
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     move-object v1, v0
 
-    .line 314
+    .line 319
     :goto_14
     const/4 v0, 0x0
 
@@ -2300,7 +2699,7 @@
 
     if-ge v2, v0, :cond_29
 
-    .line 315
+    .line 320
     invoke-interface {v1, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -2309,35 +2708,38 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->repairSeededProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)Z
 
-    .line 314
+    .line 319
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
     goto :goto_16
 
-    .line 317
+    .line 322
     :cond_29
     iput-object v1, v3, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
-    .line 318
+    .line 323
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->renameSeededProgram(Lcom/isaigu/gymapp/mgr/DataMgr;)V
 
-    .line 319
+    .line 324
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->hideCloudProgramsOnce(Lcom/isaigu/gymapp/mgr/DataMgr;)V
+
+    .line 325
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->seedDefaultProgramIfNeeded()V
 
-    .line 320
+    .line 326
     iget-object v0, v3, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList(Ljava/util/List;)V
 
-    .line 321
+    .line 327
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->savePrograms()V
 
-    .line 322
+    .line 328
     return-void
 
-    :cond_3a
+    :cond_3d
     move-object v1, v0
 
     goto :goto_14
@@ -2347,7 +2749,7 @@
     .registers 2
 
     .prologue
-    .line 334
+    .line 340
     const-string v0, "file_name_register_protocol_data"
 
     const-class v1, Lcom/isaigu/gymapp/bean/vo/RegisterProtocolVO;
@@ -2358,17 +2760,17 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/vo/RegisterProtocolVO;
 
-    .line 335
+    .line 341
     if-eqz v0, :cond_12
 
-    .line 336
+    .line 342
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v1
 
     iput-object v0, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->registerProtocolVO:Lcom/isaigu/gymapp/bean/vo/RegisterProtocolVO;
 
-    .line 338
+    .line 344
     :cond_12
     return-void
 .end method
@@ -2377,12 +2779,12 @@
     .registers 8
 
     .prologue
-    .line 220
+    .line 224
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v2
 
-    .line 221
+    .line 225
     const-string v0, "file_name_user_data"
 
     const-class v1, Lcom/isaigu/gymapp/bean/TrainUser;
@@ -2391,17 +2793,17 @@
 
     move-result-object v0
 
-    .line 222
-    if-nez v0, :cond_5e
+    .line 226
+    if-nez v0, :cond_61
 
-    .line 223
+    .line 227
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     move-object v1, v0
 
-    .line 226
+    .line 230
     :goto_14
     const-string v0, "file_name_offline_user_data"
 
@@ -2411,7 +2813,7 @@
 
     move-result-object v0
 
-    .line 227
+    .line 231
     if-eqz v0, :cond_33
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -2420,10 +2822,10 @@
 
     if-nez v3, :cond_33
 
-    .line 228
+    .line 232
     invoke-interface {v1, v0}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z
 
-    .line 229
+    .line 233
     const-string v0, "file_name_offline_user_data"
 
     const-class v3, Lcom/isaigu/gymapp/bean/TrainUser;
@@ -2434,34 +2836,37 @@
 
     invoke-static {v0, v3, v4}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 231
+    .line 235
     :cond_33
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->ensureSampleUser(Ljava/util/List;)V
 
-    .line 232
+    .line 236
+    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->followHiddenPrograms(Ljava/util/List;)V
+
+    .line 237
     iput-object v1, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
-    .line 234
+    .line 239
     const/4 v0, 0x0
 
     move v2, v0
 
-    :goto_3a
+    :goto_3d
     invoke-interface {v1}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-ge v2, v0, :cond_5a
+    if-ge v2, v0, :cond_5d
 
-    .line 235
+    .line 240
     invoke-interface {v1, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 236
-    if-eqz v0, :cond_56
+    .line 241
+    if-eqz v0, :cond_59
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
@@ -2469,31 +2874,31 @@
 
     cmp-long v3, v4, v6
 
-    if-nez v3, :cond_56
+    if-nez v3, :cond_59
 
-    .line 237
+    .line 242
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextUserId()J
 
     move-result-wide v4
 
     iput-wide v4, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    .line 234
-    :cond_56
+    .line 239
+    :cond_59
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
-    goto :goto_3a
+    goto :goto_3d
 
-    .line 240
-    :cond_5a
+    .line 245
+    :cond_5d
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUsers()V
 
-    .line 241
+    .line 246
     return-void
 
-    :cond_5e
+    :cond_61
     move-object v1, v0
 
     goto :goto_14
@@ -2505,23 +2910,23 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 959
+    .line 1025
     if-nez p0, :cond_6
 
-    .line 960
+    .line 1026
     const-string v0, ""
 
-    .line 975
+    .line 1041
     :goto_5
     return-object v0
 
-    .line 962
+    .line 1028
     :cond_6
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 963
+    .line 1029
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
@@ -2534,7 +2939,7 @@
 
     move v2, v1
 
-    .line 965
+    .line 1031
     :goto_15
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
@@ -2542,12 +2947,12 @@
 
     if-ge v0, v1, :cond_44
 
-    .line 966
+    .line 1032
     invoke-virtual {v4, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v1
 
-    .line 967
+    .line 1033
     const/16 v5, 0x30
 
     if-lt v1, v5, :cond_27
@@ -2565,7 +2970,7 @@
 
     if-gt v1, v5, :cond_49
 
-    .line 968
+    .line 1034
     :cond_2f
     if-lez v2, :cond_3a
 
@@ -2573,21 +2978,21 @@
 
     if-nez v5, :cond_3a
 
-    .line 969
+    .line 1035
     const/16 v5, 0x3a
 
     invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 971
+    .line 1037
     :cond_3a
     invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 972
+    .line 1038
     add-int/lit8 v2, v2, 0x1
 
     move v1, v2
 
-    .line 965
+    .line 1031
     :goto_40
     add-int/lit8 v0, v0, 0x1
 
@@ -2595,7 +3000,7 @@
 
     goto :goto_15
 
-    .line 975
+    .line 1041
     :cond_44
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2622,37 +3027,37 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 156
+    .line 160
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v6
 
-    .line 157
+    .line 161
     iget-object v0, v6, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     if-nez v0, :cond_10
 
-    .line 158
+    .line 162
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, v6, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
-    .line 160
+    .line 164
     :cond_10
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->deletedPrograms()Ljava/util/Set;
 
     move-result-object v7
 
-    .line 161
+    .line 165
     new-instance v8, Ljava/util/ArrayList;
 
     invoke-direct {v8}, Ljava/util/ArrayList;-><init>()V
 
     move v2, v3
 
-    .line 162
+    .line 166
     :goto_1a
     invoke-interface {p0}, Ljava/util/List;->size()I
 
@@ -2660,17 +3065,17 @@
 
     if-ge v2, v0, :cond_6b
 
-    .line 163
+    .line 167
     invoke-interface {p0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 164
+    .line 168
     instance-of v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
     if-nez v1, :cond_2c
 
-    .line 162
+    .line 166
     :cond_28
     :goto_28
     add-int/lit8 v0, v2, 0x1
@@ -2679,11 +3084,11 @@
 
     goto :goto_1a
 
-    .line 167
+    .line 171
     :cond_2c
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 168
+    .line 172
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
 
     if-eqz v1, :cond_28
@@ -2704,7 +3109,7 @@
 
     move v5, v3
 
-    .line 172
+    .line 176
     :goto_40
     iget-object v1, v6, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
@@ -2716,7 +3121,7 @@
 
     if-nez v5, :cond_65
 
-    .line 173
+    .line 177
     iget-object v1, v6, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     invoke-interface {v1, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -2725,7 +3130,7 @@
 
     check-cast v1, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 174
+    .line 178
     if-eqz v1, :cond_63
 
     iget-object v5, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
@@ -2740,7 +3145,7 @@
 
     const/4 v5, 0x1
 
-    .line 172
+    .line 176
     :goto_5f
     add-int/lit8 v1, v4, 0x1
 
@@ -2751,19 +3156,19 @@
     :cond_63
     move v5, v3
 
-    .line 174
+    .line 178
     goto :goto_5f
 
-    .line 176
+    .line 180
     :cond_65
     if-nez v5, :cond_28
 
-    .line 177
+    .line 181
     invoke-interface {v8, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_28
 
-    .line 180
+    .line 184
     :cond_6b
     invoke-interface {v8}, Ljava/util/List;->isEmpty()Z
 
@@ -2771,18 +3176,18 @@
 
     if-nez v0, :cond_7c
 
-    .line 181
+    .line 185
     invoke-static {v8}, Lcom/isaigu/gymapp/dialog/ActivePauseStorage;->mergeList(Ljava/util/List;)V
 
-    .line 182
+    .line 186
     iget-object v0, v6, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     invoke-interface {v0, v8}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z
 
-    .line 183
+    .line 187
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->savePrograms()V
 
-    .line 185
+    .line 189
     :cond_7c
     return-void
 .end method
@@ -2802,17 +3207,17 @@
 
     const/4 v3, 0x0
 
-    .line 128
+    .line 132
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v8
 
-    .line 129
+    .line 133
     iget-object v0, v8, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     if-nez v0, :cond_11
 
-    .line 130
+    .line 134
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -2824,7 +3229,7 @@
 
     move v4, v3
 
-    .line 133
+    .line 137
     :goto_13
     invoke-interface {p0}, Ljava/util/List;->size()I
 
@@ -2832,19 +3237,19 @@
 
     if-ge v2, v0, :cond_57
 
-    .line 134
+    .line 138
     invoke-interface {p0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 135
+    .line 139
     instance-of v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
     if-nez v1, :cond_27
 
     move v1, v4
 
-    .line 133
+    .line 137
     :goto_22
     add-int/lit8 v0, v2, 0x1
 
@@ -2854,7 +3259,7 @@
 
     goto :goto_13
 
-    .line 138
+    .line 142
     :cond_27
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
@@ -2862,7 +3267,7 @@
 
     move v6, v3
 
-    .line 140
+    .line 144
     :goto_2b
     iget-object v1, v8, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
@@ -2874,7 +3279,7 @@
 
     if-nez v6, :cond_4e
 
-    .line 141
+    .line 145
     iget-object v1, v8, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     invoke-interface {v1, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -2883,7 +3288,7 @@
 
     check-cast v1, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 142
+    .line 146
     if-eqz v1, :cond_4c
 
     iget-wide v10, v1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
@@ -2896,7 +3301,7 @@
 
     move v6, v7
 
-    .line 140
+    .line 144
     :goto_48
     add-int/lit8 v1, v5, 0x1
 
@@ -2907,31 +3312,31 @@
     :cond_4c
     move v6, v3
 
-    .line 142
+    .line 146
     goto :goto_48
 
-    .line 144
+    .line 148
     :cond_4e
     if-nez v6, :cond_5d
 
-    .line 145
+    .line 149
     iget-object v1, v8, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     move v1, v7
 
-    .line 146
+    .line 150
     goto :goto_22
 
-    .line 149
+    .line 153
     :cond_57
     if-eqz v4, :cond_5c
 
-    .line 150
+    .line 154
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUsers()V
 
-    .line 152
+    .line 156
     :cond_5c
     return-void
 
@@ -2947,7 +3352,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 345
+    .line 351
     if-eqz p0, :cond_f
 
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -2962,12 +3367,12 @@
 
     if-eqz v1, :cond_10
 
-    .line 360
+    .line 366
     :cond_f
     :goto_f
     return-void
 
-    .line 348
+    .line 354
     :cond_10
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
 
@@ -2985,21 +3390,21 @@
 
     if-eqz v1, :cond_54
 
-    .line 349
+    .line 355
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v1
 
     iget-object v2, v1, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
-    .line 350
+    .line 356
     new-instance v3, Ljava/util/HashSet;
 
     invoke-direct {v3}, Ljava/util/HashSet;-><init>()V
 
     move v1, v0
 
-    .line 351
+    .line 357
     :goto_2c
     if-eqz v2, :cond_51
 
@@ -3009,14 +3414,14 @@
 
     if-ge v1, v0, :cond_51
 
-    .line 352
+    .line 358
     invoke-interface {v2, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/DeviceBean;
 
-    .line 353
+    .line 359
     if-eqz v0, :cond_4d
 
     iget-object v4, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
@@ -3027,7 +3432,7 @@
 
     if-nez v4, :cond_4d
 
-    .line 354
+    .line 360
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
@@ -3036,7 +3441,7 @@
 
     invoke-interface {v3, v0}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 351
+    .line 357
     :cond_4d
     add-int/lit8 v0, v1, 0x1
 
@@ -3044,11 +3449,11 @@
 
     goto :goto_2c
 
-    .line 357
+    .line 363
     :cond_51
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->savePairedMacs(Landroid/content/Context;Ljava/util/Set;)V
 
-    .line 359
+    .line 365
     :cond_54
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -3077,17 +3482,17 @@
     .prologue
     const-wide/16 v2, 0x1
 
-    .line 1013
+    .line 1079
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v7
 
-    .line 1014
+    .line 1080
     if-nez v7, :cond_3a
 
     move-wide v0, v2
 
-    .line 1015
+    .line 1081
     :goto_9
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
@@ -3095,7 +3500,7 @@
 
     iget-object v8, v4, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
-    .line 1016
+    .line 1082
     const/4 v6, 0x0
 
     move-wide v4, v0
@@ -3109,14 +3514,14 @@
 
     if-ge v6, v0, :cond_45
 
-    .line 1017
+    .line 1083
     invoke-interface {v8, v6}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/DeviceBean;
 
-    .line 1018
+    .line 1084
     if-eqz v0, :cond_5a
 
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->id:Ljava/lang/Long;
@@ -3133,7 +3538,7 @@
 
     if-ltz v1, :cond_5a
 
-    .line 1019
+    .line 1085
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/DeviceBean;->id:Ljava/lang/Long;
 
     invoke-virtual {v0}, Ljava/lang/Long;->longValue()J
@@ -3142,7 +3547,7 @@
 
     add-long/2addr v0, v2
 
-    .line 1016
+    .line 1082
     :goto_36
     add-int/lit8 v6, v6, 0x1
 
@@ -3150,7 +3555,7 @@
 
     goto :goto_11
 
-    .line 1014
+    .line 1080
     :cond_3a
     invoke-static {v7}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -3164,11 +3569,11 @@
 
     goto :goto_9
 
-    .line 1022
+    .line 1088
     :cond_45
     if-eqz v7, :cond_59
 
-    .line 1023
+    .line 1089
     invoke-static {v7}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -3187,7 +3592,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1025
+    .line 1091
     :cond_59
     return-wide v4
 
@@ -3203,17 +3608,17 @@
     .prologue
     const-wide/16 v2, 0x1
 
-    .line 997
+    .line 1063
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v7
 
-    .line 998
+    .line 1064
     if-nez v7, :cond_3a
 
     move-wide v0, v2
 
-    .line 999
+    .line 1065
     :goto_9
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
@@ -3221,7 +3626,7 @@
 
     iget-object v8, v4, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
-    .line 1000
+    .line 1066
     const/4 v6, 0x0
 
     move-wide v4, v0
@@ -3235,14 +3640,14 @@
 
     if-ge v6, v0, :cond_45
 
-    .line 1001
+    .line 1067
     invoke-interface {v8, v6}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 1002
+    .line 1068
     if-eqz v0, :cond_5a
 
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
@@ -3259,7 +3664,7 @@
 
     if-ltz v1, :cond_5a
 
-    .line 1003
+    .line 1069
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
 
     invoke-virtual {v0}, Ljava/lang/Long;->longValue()J
@@ -3268,7 +3673,7 @@
 
     add-long/2addr v0, v2
 
-    .line 1000
+    .line 1066
     :goto_36
     add-int/lit8 v6, v6, 0x1
 
@@ -3276,7 +3681,7 @@
 
     goto :goto_11
 
-    .line 998
+    .line 1064
     :cond_3a
     invoke-static {v7}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -3290,11 +3695,11 @@
 
     goto :goto_9
 
-    .line 1006
+    .line 1072
     :cond_45
     if-eqz v7, :cond_59
 
-    .line 1007
+    .line 1073
     invoke-static {v7}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -3313,7 +3718,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 1009
+    .line 1075
     :cond_59
     return-wide v4
 
@@ -3331,15 +3736,15 @@
 
     const-wide/16 v10, 0x1
 
-    .line 980
+    .line 1046
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v5
 
-    .line 981
+    .line 1047
     if-nez v5, :cond_32
 
-    .line 982
+    .line 1048
     :goto_b
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
@@ -3347,7 +3752,7 @@
 
     iget-object v6, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
-    .line 983
+    .line 1049
     const/4 v4, 0x0
 
     move-wide v2, v0
@@ -3361,14 +3766,14 @@
 
     if-ge v4, v0, :cond_3d
 
-    .line 984
+    .line 1050
     invoke-interface {v6, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 985
+    .line 1051
     if-eqz v0, :cond_54
 
     iget-wide v8, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
@@ -3379,14 +3784,14 @@
 
     if-ltz v1, :cond_54
 
-    .line 986
+    .line 1052
     iget-wide v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
     neg-long v0, v0
 
     add-long/2addr v0, v10
 
-    .line 983
+    .line 1049
     :goto_2e
     add-int/lit8 v4, v4, 0x1
 
@@ -3394,7 +3799,7 @@
 
     goto :goto_13
 
-    .line 981
+    .line 1047
     :cond_32
     invoke-static {v5}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -3408,11 +3813,11 @@
 
     goto :goto_b
 
-    .line 989
+    .line 1055
     :cond_3d
     if-eqz v5, :cond_52
 
-    .line 990
+    .line 1056
     invoke-static {v5}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -3431,7 +3836,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 992
+    .line 1058
     :cond_52
     neg-long v0, v2
 
@@ -3447,13 +3852,13 @@
     .registers 4
 
     .prologue
-    .line 563
+    .line 569
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 564
+    .line 570
     if-eqz v0, :cond_c
 
     invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
@@ -3462,12 +3867,12 @@
 
     if-eqz v1, :cond_d
 
-    .line 579
+    .line 585
     :cond_c
     :goto_c
     return-void
 
-    .line 567
+    .line 573
     :cond_d
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
 
@@ -3475,12 +3880,12 @@
 
     if-eqz v1, :cond_31
 
-    .line 568
+    .line 574
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getPairedMacs(Landroid/content/Context;)Ljava/util/Set;
 
     move-result-object v1
 
-    .line 569
+    .line 575
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -3491,10 +3896,10 @@
 
     if-eqz v2, :cond_24
 
-    .line 570
+    .line 576
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->savePairedMacs(Landroid/content/Context;Ljava/util/Set;)V
 
-    .line 575
+    .line 581
     :cond_24
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->ensureDeviceRecord(Ljava/lang/String;)V
     :try_end_27
@@ -3502,11 +3907,11 @@
 
     goto :goto_c
 
-    .line 576
+    .line 582
     :catch_28
     move-exception v0
 
-    .line 577
+    .line 583
     const-string v1, "xems_local"
 
     const-string v2, "onDeviceConnected"
@@ -3515,7 +3920,7 @@
 
     goto :goto_c
 
-    .line 572
+    .line 578
     :cond_31
     :try_start_31
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAllowed(Landroid/content/Context;Ljava/lang/String;)Z
@@ -3533,7 +3938,7 @@
     .registers 6
 
     .prologue
-    .line 440
+    .line 446
     if-eqz p0, :cond_e
 
     :try_start_2
@@ -3549,12 +3954,12 @@
 
     if-eqz v0, :cond_f
 
-    .line 455
+    .line 461
     :cond_e
     :goto_e
     return-void
 
-    .line 443
+    .line 449
     :cond_f
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
 
@@ -3572,7 +3977,7 @@
 
     if-eqz v0, :cond_e
 
-    .line 446
+    .line 452
     :cond_1f
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLocalStore;->MAIN:Landroid/os/Handler;
 
@@ -3586,11 +3991,11 @@
 
     goto :goto_e
 
-    .line 452
+    .line 458
     :catch_2a
     move-exception v0
 
-    .line 453
+    .line 459
     const-string v1, "xems_local"
 
     const-string v2, "onDiscovered"
@@ -3604,7 +4009,7 @@
     .registers 4
 
     .prologue
-    .line 459
+    .line 465
     if-eqz p0, :cond_8
 
     invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
@@ -3613,12 +4018,12 @@
 
     if-eqz v0, :cond_9
 
-    .line 468
+    .line 474
     :cond_8
     :goto_8
     return-void
 
-    .line 462
+    .line 468
     :cond_9
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLocalStore;->MAIN:Landroid/os/Handler;
 
@@ -3635,7 +4040,7 @@
     .registers 2
 
     .prologue
-    .line 582
+    .line 588
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getPairedMacs(Landroid/content/Context;)Ljava/util/Set;
 
     move-result-object v0
@@ -3663,13 +4068,13 @@
     .end annotation
 
     .prologue
-    .line 1131
+    .line 1197
     if-nez p0, :cond_4
 
-    .line 1132
+    .line 1198
     const/4 v0, 0x0
 
-    .line 1134
+    .line 1200
     :goto_3
     return-object v0
 
@@ -3689,7 +4094,7 @@
     .registers 4
 
     .prologue
-    .line 892
+    .line 958
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -3714,7 +4119,7 @@
     .end annotation
 
     .prologue
-    .line 427
+    .line 433
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v0
@@ -3723,7 +4128,7 @@
 
     move-result-object v0
 
-    .line 428
+    .line 434
     invoke-virtual {v0, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
@@ -3747,20 +4152,20 @@
     .end annotation
 
     .prologue
-    .line 1118
+    .line 1184
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/utils/FileUtils;->getDataList(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 1119
+    .line 1185
     instance-of v1, v0, Ljava/util/List;
 
     if-eqz v1, :cond_b
 
-    .line 1120
+    .line 1186
     check-cast v0, Ljava/util/List;
 
-    .line 1122
+    .line 1188
     :goto_a
     return-object v0
 
@@ -3774,26 +4179,26 @@
     .registers 8
 
     .prologue
-    .line 202
+    .line 206
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->getAppContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 203
+    .line 207
     if-nez v1, :cond_7
 
-    .line 217
+    .line 221
     :cond_6
     :goto_6
     return-void
 
-    .line 206
+    .line 210
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->deletedPrograms()Ljava/util/Set;
 
     move-result-object v0
 
-    .line 207
+    .line 211
     invoke-static {p0, p1}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
 
     move-result-object v2
@@ -3804,12 +4209,12 @@
 
     if-eqz v2, :cond_6
 
-    .line 208
+    .line 212
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 209
+    .line 213
     invoke-interface {v0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
@@ -3827,25 +4232,25 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 210
+    .line 214
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v4
 
     if-lez v4, :cond_35
 
-    .line 211
+    .line 215
     const/16 v4, 0x2c
 
     invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 213
+    .line 217
     :cond_35
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     goto :goto_1e
 
-    .line 215
+    .line 219
     :cond_39
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -3874,7 +4279,7 @@
     .registers 6
 
     .prologue
-    .line 473
+    .line 479
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -3886,37 +4291,37 @@
 
     move-result-object v0
 
-    .line 474
+    .line 480
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 475
+    .line 481
     invoke-virtual {v0, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/util/List;
 
-    .line 476
+    .line 482
     if-nez v0, :cond_17
 
-    .line 504
+    .line 510
     :goto_16
     return-void
 
-    .line 479
+    .line 485
     :cond_17
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 480
+    .line 486
     monitor-enter v0
     :try_end_1c
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_1c} :catch_70
 
-    .line 481
+    .line 487
     :try_start_1c
     invoke-interface {v0}, Ljava/util/List;->size()I
 
@@ -3929,14 +4334,14 @@
     :goto_23
     if-ltz v2, :cond_5b
 
-    .line 482
+    .line 488
     invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Lcom/isaigu/gymapp/bean/DeviceBean;
 
-    .line 483
+    .line 489
     if-eqz v1, :cond_79
 
     iget-object v1, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
@@ -3951,12 +4356,12 @@
 
     if-eqz v1, :cond_79
 
-    .line 484
+    .line 490
     invoke-interface {v0, v2}, Ljava/util/List;->remove(I)Ljava/lang/Object;
     :try_end_3c
     .catchall {:try_start_1c .. :try_end_3c} :catchall_7d
 
-    .line 487
+    .line 493
     :try_start_3c
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -3968,19 +4373,19 @@
 
     move-result-object v1
 
-    .line 488
+    .line 494
     const/4 v3, 0x1
 
     invoke-virtual {v1, v3}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 489
+    .line 495
     invoke-virtual {v1, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Ljava/util/List;
 
-    .line 490
+    .line 496
     if-eqz v1, :cond_5b
 
     invoke-interface {v1}, Ljava/util/List;->size()I
@@ -3989,13 +4394,13 @@
 
     if-ge v2, v3, :cond_5b
 
-    .line 491
+    .line 497
     invoke-interface {v1, v2}, Ljava/util/List;->remove(I)Ljava/lang/Object;
     :try_end_5b
     .catch Ljava/lang/NoSuchFieldException; {:try_start_3c .. :try_end_5b} :catch_80
     .catchall {:try_start_3c .. :try_end_5b} :catchall_7d
 
-    .line 499
+    .line 505
     :cond_5b
     :goto_5b
     :try_start_5b
@@ -4003,7 +4408,7 @@
     :try_end_5c
     .catchall {:try_start_5b .. :try_end_5c} :catchall_7d
 
-    .line 500
+    .line 506
     :try_start_5c
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -4029,11 +4434,11 @@
 
     goto :goto_16
 
-    .line 501
+    .line 507
     :catch_70
     move-exception v0
 
-    .line 502
+    .line 508
     const-string v1, "xems_local"
 
     const-string v2, "onScanLost"
@@ -4042,7 +4447,7 @@
 
     goto :goto_16
 
-    .line 481
+    .line 487
     :cond_79
     add-int/lit8 v1, v2, -0x1
 
@@ -4050,7 +4455,7 @@
 
     goto :goto_23
 
-    .line 499
+    .line 505
     :catchall_7d
     move-exception v1
 
@@ -4064,7 +4469,7 @@
     :try_end_80
     .catch Ljava/lang/Throwable; {:try_start_7f .. :try_end_80} :catch_70
 
-    .line 493
+    .line 499
     :catch_80
     move-exception v1
 
@@ -4075,24 +4480,24 @@
     .registers 8
 
     .prologue
-    .line 688
+    .line 694
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->rememberDeletedProgram(J)V
 
-    .line 689
+    .line 695
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v2
 
-    .line 690
+    .line 696
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     if-nez v0, :cond_c
 
-    .line 700
+    .line 706
     :goto_b
     return-void
 
-    .line 693
+    .line 699
     :cond_c
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
@@ -4107,7 +4512,7 @@
     :goto_15
     if-ltz v1, :cond_38
 
-    .line 694
+    .line 700
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -4116,7 +4521,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 695
+    .line 701
     if-eqz v0, :cond_34
 
     iget-object v3, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
@@ -4133,12 +4538,12 @@
 
     if-nez v0, :cond_34
 
-    .line 696
+    .line 702
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 693
+    .line 699
     :cond_34
     add-int/lit8 v0, v1, -0x1
 
@@ -4146,7 +4551,7 @@
 
     goto :goto_15
 
-    .line 699
+    .line 705
     :cond_38
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->savePrograms()V
 
@@ -4157,21 +4562,21 @@
     .registers 8
 
     .prologue
-    .line 1075
+    .line 1141
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v2
 
-    .line 1076
+    .line 1142
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     if-nez v0, :cond_9
 
-    .line 1087
+    .line 1153
     :goto_8
     return-void
 
-    .line 1079
+    .line 1145
     :cond_9
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
@@ -4186,7 +4591,7 @@
     :goto_12
     if-ltz v1, :cond_2d
 
-    .line 1080
+    .line 1146
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -4195,7 +4600,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 1081
+    .line 1147
     if-eqz v0, :cond_29
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
@@ -4204,12 +4609,12 @@
 
     if-nez v0, :cond_29
 
-    .line 1082
+    .line 1148
     iget-object v0, v2, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 1079
+    .line 1145
     :cond_29
     add-int/lit8 v0, v1, -0x1
 
@@ -4217,11 +4622,11 @@
 
     goto :goto_12
 
-    .line 1085
+    .line 1151
     :cond_2d
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUsers()V
 
-    .line 1086
+    .line 1152
     const/16 v0, 0x69
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
@@ -4235,12 +4640,12 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 825
+    .line 891
     const/4 v1, 0x0
 
     move v2, v3
 
-    .line 826
+    .line 892
     :goto_3
     iget-object v0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
@@ -4250,7 +4655,7 @@
 
     if-ge v2, v0, :cond_3d
 
-    .line 827
+    .line 893
     iget-object v0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -4259,12 +4664,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainProgram;
 
-    .line 828
+    .line 894
     if-nez v0, :cond_1a
 
     move-object v0, v1
 
-    .line 826
+    .line 892
     :cond_16
     :goto_16
     add-int/lit8 v2, v2, 0x1
@@ -4273,7 +4678,7 @@
 
     goto :goto_3
 
-    .line 831
+    .line 897
     :cond_1a
     const-string v4, "Test"
 
@@ -4285,12 +4690,12 @@
 
     if-eqz v4, :cond_25
 
-    .line 856
+    .line 922
     :cond_24
     :goto_24
     return-void
 
-    .line 834
+    .line 900
     :cond_25
     if-nez v1, :cond_3b
 
@@ -4319,19 +4724,19 @@
 
     goto :goto_16
 
-    .line 838
+    .line 904
     :cond_3d
     if-eqz v1, :cond_24
 
-    .line 841
+    .line 907
     iget-object v4, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
-    .line 842
+    .line 908
     const-string v0, "Test"
 
     iput-object v0, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
-    .line 844
+    .line 910
     iget-object v0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     if-eqz v0, :cond_70
@@ -4340,7 +4745,7 @@
 
     move v2, v3
 
-    .line 845
+    .line 911
     :goto_4b
     iget-object v0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
@@ -4350,7 +4755,7 @@
 
     if-ge v1, v0, :cond_71
 
-    .line 846
+    .line 912
     iget-object v0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -4359,7 +4764,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 847
+    .line 913
     if-eqz v0, :cond_77
 
     iget-object v3, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
@@ -4370,17 +4775,17 @@
 
     if-eqz v3, :cond_77
 
-    .line 848
+    .line 914
     const-string v2, "Test"
 
     iput-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->trainName:Ljava/lang/String;
 
-    .line 849
+    .line 915
     const/4 v2, 0x1
 
     move v0, v2
 
-    .line 845
+    .line 911
     :goto_6b
     add-int/lit8 v3, v1, 0x1
 
@@ -4393,11 +4798,11 @@
     :cond_70
     move v2, v3
 
-    .line 853
+    .line 919
     :cond_71
     if-eqz v2, :cond_24
 
-    .line 854
+    .line 920
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUsers()V
 
     goto :goto_24
@@ -4416,7 +4821,7 @@
 
     const/4 v0, 0x0
 
-    .line 863
+    .line 929
     if-eqz p0, :cond_20
 
     iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
@@ -4431,7 +4836,7 @@
 
     iget-object v2, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
-    .line 864
+    .line 930
     invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
@@ -4448,12 +4853,12 @@
 
     if-nez v1, :cond_21
 
-    .line 878
+    .line 944
     :cond_20
     :goto_20
     return v0
 
-    .line 867
+    .line 933
     :cond_21
     iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
@@ -4491,37 +4896,37 @@
 
     if-ne v1, v2, :cond_20
 
-    .line 872
+    .line 938
     invoke-static {}, Lcom/isaigu/gymapp/bean/TrainProgram;->getTrainProgramTemplate1()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    .line 873
+    .line 939
     iget v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
 
     iput v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
 
-    .line 874
+    .line 940
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iput-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->programDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    .line 875
+    .line 941
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iput-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->muscleTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    .line 876
+    .line 942
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iput-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->aerobicTrainingProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    .line 877
+    .line 943
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    .line 878
+    .line 944
     const/4 v0, 0x1
 
     goto :goto_20
@@ -4540,14 +4945,14 @@
     .end annotation
 
     .prologue
-    .line 1044
+    .line 1110
     if-nez p0, :cond_3
 
-    .line 1062
+    .line 1128
     :cond_2
     return-void
 
-    .line 1047
+    .line 1113
     :cond_3
     const/4 v0, 0x0
 
@@ -4560,17 +4965,17 @@
 
     if-ge v1, v0, :cond_2
 
-    .line 1048
+    .line 1114
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 1049
+    .line 1115
     if-nez v0, :cond_17
 
-    .line 1047
+    .line 1113
     :cond_13
     :goto_13
     add-int/lit8 v0, v1, 0x1
@@ -4579,7 +4984,7 @@
 
     goto :goto_5
 
-    .line 1052
+    .line 1118
     :cond_17
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->inputId:Ljava/lang/String;
 
@@ -4593,7 +4998,7 @@
 
     if-nez v2, :cond_2f
 
-    .line 1053
+    .line 1119
     :cond_23
     iget-wide v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
@@ -4607,24 +5012,24 @@
 
     iput-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->inputId:Ljava/lang/String;
 
-    .line 1055
+    .line 1121
     :cond_2f
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
     if-nez v2, :cond_37
 
-    .line 1056
+    .line 1122
     const-string v2, ""
 
     iput-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
-    .line 1058
+    .line 1124
     :cond_37
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
     if-nez v2, :cond_13
 
-    .line 1059
+    .line 1125
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
     iput-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
@@ -4636,17 +5041,17 @@
     .registers 3
 
     .prologue
-    .line 1110
+    .line 1176
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 1111
+    .line 1177
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
     if-eqz v1, :cond_11
 
-    .line 1112
+    .line 1178
     const-string v1, "file_name_device_data"
 
     const-class v2, Lcom/isaigu/gymapp/bean/DeviceBean;
@@ -4655,7 +5060,7 @@
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 1114
+    .line 1180
     :cond_11
     return-void
 .end method
@@ -4674,25 +5079,25 @@
     .end annotation
 
     .prologue
-    .line 943
+    .line 1009
     if-nez p0, :cond_3
 
-    .line 955
+    .line 1021
     :goto_2
     return-void
 
-    .line 946
+    .line 1012
     :cond_3
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 947
+    .line 1013
     invoke-interface {p1}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
 
-    .line 948
+    .line 1014
     :goto_c
     invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
 
@@ -4700,19 +5105,19 @@
 
     if-eqz v0, :cond_27
 
-    .line 949
+    .line 1015
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
 
     if-lez v0, :cond_1d
 
-    .line 950
+    .line 1016
     const/16 v0, 0x2c
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 952
+    .line 1018
     :cond_1d
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -4724,7 +5129,7 @@
 
     goto :goto_c
 
-    .line 954
+    .line 1020
     :cond_27
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -4753,7 +5158,7 @@
     .registers 7
 
     .prologue
-    .line 659
+    .line 665
     if-eqz p0, :cond_c
 
     if-eqz p1, :cond_c
@@ -4766,25 +5171,25 @@
 
     if-eqz v0, :cond_d
 
-    .line 672
+    .line 678
     :cond_c
     :goto_c
     return-void
 
-    .line 663
+    .line 669
     :cond_d
     :try_start_d
     iput-object p3, p2, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
-    .line 664
+    .line 670
     invoke-static {p2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->storeProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
-    .line 665
+    .line 671
     const/16 v0, 0x6a
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    .line 666
+    .line 672
     const-string v0, "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430 \u0435 \u0437\u0430\u043f\u0430\u0437\u0435\u043d\u0430 \u043b\u043e\u043a\u0430\u043b\u043d\u043e"
 
     const-string v1, "Program saved locally"
@@ -4795,25 +5200,25 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/BaseActivity;->showTips(Ljava/lang/String;)V
 
-    .line 667
+    .line 673
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/BaseActivity;->closeDialogFragment(Lcom/isaigu/gymapp/BaseDialogFragment;)V
     :try_end_25
     .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_25} :catch_26
 
     goto :goto_c
 
-    .line 668
+    .line 674
     :catch_26
     move-exception v0
 
-    .line 669
+    .line 675
     const-string v1, "xems_local"
 
     const-string v2, "saveProgram"
 
     invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 670
+    .line 676
     const-string v0, "\u0413\u0440\u0435\u0448\u043a\u0430 \u043f\u0440\u0438 \u0437\u0430\u043f\u0430\u0437\u0432\u0430\u043d\u0435"
 
     const-string v1, "Save failed"
@@ -4831,17 +5236,17 @@
     .registers 3
 
     .prologue
-    .line 1103
+    .line 1169
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 1104
+    .line 1170
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     if-eqz v1, :cond_11
 
-    .line 1105
+    .line 1171
     const-string v1, "file_name_train_data"
 
     const-class v2, Lcom/isaigu/gymapp/bean/TrainProgram;
@@ -4850,7 +5255,7 @@
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 1107
+    .line 1173
     :cond_11
     return-void
 .end method
@@ -4859,67 +5264,67 @@
     .registers 7
 
     .prologue
-    .line 610
+    .line 616
     if-eqz p0, :cond_4
 
     if-nez p1, :cond_5
 
-    .line 627
+    .line 633
     :cond_4
     :goto_4
     return-void
 
-    .line 613
+    .line 619
     :cond_5
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 614
+    .line 620
     if-nez p2, :cond_3c
 
-    .line 615
+    .line 621
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextUserId()J
 
     move-result-wide v2
 
     iput-wide v2, p1, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    .line 616
+    .line 622
     new-instance v1, Ljava/util/Date;
 
     invoke-direct {v1}, Ljava/util/Date;-><init>()V
 
     iput-object v1, p1, Lcom/isaigu/gymapp/bean/TrainUser;->createTime:Ljava/util/Date;
 
-    .line 617
+    .line 623
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     if-nez v1, :cond_23
 
-    .line 618
+    .line 624
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
-    .line 620
+    .line 626
     :cond_23
     iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     invoke-interface {v0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 624
+    .line 630
     :goto_28
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUsers()V
 
-    .line 625
+    .line 631
     const/16 v0, 0x69
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    .line 626
+    .line 632
     const-string v0, "\u041f\u043e\u0442\u0440\u0435\u0431\u0438\u0442\u0435\u043b\u044f\u0442 \u0435 \u0437\u0430\u043f\u0430\u0437\u0435\u043d \u043b\u043e\u043a\u0430\u043b\u043d\u043e"
 
     const-string v1, "User saved locally"
@@ -4932,7 +5337,7 @@
 
     goto :goto_4
 
-    .line 622
+    .line 628
     :cond_3c
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/mgr/DataMgr;->addOrUpdateTrainUser(Lcom/isaigu/gymapp/bean/TrainUser;)V
 
@@ -4943,59 +5348,59 @@
     .registers 6
 
     .prologue
-    .line 631
+    .line 637
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 632
+    .line 638
     if-nez p1, :cond_2c
 
-    .line 633
+    .line 639
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextUserId()J
 
     move-result-wide v2
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/bean/TrainUser;->id:J
 
-    .line 634
+    .line 640
     new-instance v1, Ljava/util/Date;
 
     invoke-direct {v1}, Ljava/util/Date;-><init>()V
 
     iput-object v1, p0, Lcom/isaigu/gymapp/bean/TrainUser;->createTime:Ljava/util/Date;
 
-    .line 635
+    .line 641
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     if-nez v1, :cond_1e
 
-    .line 636
+    .line 642
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
-    .line 638
+    .line 644
     :cond_1e
     iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     invoke-interface {v0, p0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 642
+    .line 648
     :goto_23
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->saveUsers()V
 
-    .line 643
+    .line 649
     const/16 v0, 0x69
 
     invoke-static {v0}, Lcom/isaigu/gymapp/message/MessageDispatcher;->dispatchEventMessage(S)V
 
-    .line 644
+    .line 650
     return-void
 
-    .line 640
+    .line 646
     :cond_2c
     invoke-virtual {v0, p0}, Lcom/isaigu/gymapp/mgr/DataMgr;->addOrUpdateTrainUser(Lcom/isaigu/gymapp/bean/TrainUser;)V
 
@@ -5006,7 +5411,7 @@
     .registers 3
 
     .prologue
-    .line 1065
+    .line 1131
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
@@ -5015,17 +5420,17 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->repairUsers(Ljava/util/List;)V
 
-    .line 1066
+    .line 1132
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 1067
+    .line 1133
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainUsers:Ljava/util/List;
 
     if-eqz v1, :cond_1a
 
-    .line 1068
+    .line 1134
     const-string v1, "file_name_user_data"
 
     const-class v2, Lcom/isaigu/gymapp/bean/TrainUser;
@@ -5034,11 +5439,11 @@
 
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 1070
+    .line 1136
     :cond_1a
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsDossier;->changed()V
 
-    .line 1071
+    .line 1137
     return-void
 .end method
 
@@ -5046,12 +5451,12 @@
     .registers 4
 
     .prologue
-    .line 809
+    .line 815
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 810
+    .line 816
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     if-eqz v1, :cond_11
@@ -5064,17 +5469,17 @@
 
     if-nez v1, :cond_11
 
-    .line 818
+    .line 824
     :goto_10
     return-void
 
-    .line 813
+    .line 819
     :cond_11
     invoke-static {}, Lcom/isaigu/gymapp/bean/TrainProgram;->getTrainProgramTemplate1()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
 
-    .line 814
+    .line 820
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextProgramId()J
 
     move-result-wide v2
@@ -5085,19 +5490,19 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
 
-    .line 815
+    .line 821
     const-string v2, "Test"
 
     iput-object v2, v1, Lcom/isaigu/gymapp/bean/TrainProgram;->name:Ljava/lang/String;
 
-    .line 816
+    .line 822
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v2, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
-    .line 817
+    .line 823
     iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
@@ -5111,7 +5516,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 508
+    .line 514
     :try_start_1
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -5123,39 +5528,39 @@
 
     move-result-object v0
 
-    .line 509
+    .line 515
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 510
+    .line 516
     invoke-virtual {v0, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/util/List;
 
-    .line 511
+    .line 517
     if-nez v0, :cond_18
 
-    .line 555
+    .line 561
     :goto_17
     return-void
 
-    .line 514
+    .line 520
     :cond_18
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->macKey(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 515
+    .line 521
     monitor-enter v0
     :try_end_1d
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1d} :catch_3d
 
     move v2, v1
 
-    .line 516
+    .line 522
     :goto_1e
     :try_start_1e
     invoke-interface {v0}, Ljava/util/List;->size()I
@@ -5164,14 +5569,14 @@
 
     if-ge v2, v1, :cond_4a
 
-    .line 517
+    .line 523
     invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Lcom/isaigu/gymapp/bean/DeviceBean;
 
-    .line 518
+    .line 524
     if-eqz v1, :cond_46
 
     iget-object v1, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
@@ -5186,12 +5591,12 @@
 
     if-eqz v1, :cond_46
 
-    .line 519
+    .line 525
     monitor-exit v0
 
     goto :goto_17
 
-    .line 547
+    .line 553
     :catchall_3a
     move-exception v1
 
@@ -5204,11 +5609,11 @@
     :try_end_3d
     .catch Ljava/lang/Throwable; {:try_start_3c .. :try_end_3d} :catch_3d
 
-    .line 552
+    .line 558
     :catch_3d
     move-exception v0
 
-    .line 553
+    .line 559
     const-string v1, "xems_local"
 
     const-string v2, "showDiscovered"
@@ -5217,7 +5622,7 @@
 
     goto :goto_17
 
-    .line 516
+    .line 522
     :cond_46
     add-int/lit8 v1, v2, 0x1
 
@@ -5225,32 +5630,32 @@
 
     goto :goto_1e
 
-    .line 522
+    .line 528
     :cond_4a
     :try_start_4a
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->knownDevice(Ljava/lang/String;)Lcom/isaigu/gymapp/bean/DeviceBean;
 
     move-result-object v1
 
-    .line 523
+    .line 529
     if-nez v1, :cond_c8
 
-    .line 524
+    .line 530
     new-instance v1, Lcom/isaigu/gymapp/bean/DeviceBean;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/bean/DeviceBean;-><init>()V
 
-    .line 525
+    .line 531
     iput-object p1, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->macAddress:Ljava/lang/String;
 
-    .line 526
+    .line 532
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->displayName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
     iput-object v2, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
 
-    .line 527
+    .line 533
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextDeviceId()J
 
     move-result-wide v2
@@ -5261,17 +5666,17 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->id:Ljava/lang/Long;
 
-    .line 531
+    .line 537
     :cond_67
     :goto_67
     iput-object p2, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->connectedSign:Ljava/lang/String;
 
-    .line 532
+    .line 538
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
     :try_end_6c
     .catchall {:try_start_4a .. :try_end_6c} :catchall_3a
 
-    .line 536
+    .line 542
     :try_start_6c
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -5283,22 +5688,22 @@
 
     move-result-object v1
 
-    .line 537
+    .line 543
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 538
+    .line 544
     invoke-virtual {v1, p0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Ljava/util/List;
 
-    .line 539
+    .line 545
     if-eqz v1, :cond_93
 
-    .line 540
+    .line 546
     :goto_82
     invoke-interface {v1}, Ljava/util/List;->size()I
 
@@ -5310,7 +5715,7 @@
 
     if-ge v2, v3, :cond_93
 
-    .line 541
+    .line 547
     sget-object v2, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;
 
     invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
@@ -5320,18 +5725,18 @@
 
     goto :goto_82
 
-    .line 544
+    .line 550
     :catch_92
     move-exception v1
 
-    .line 547
+    .line 553
     :cond_93
     :try_start_93
     monitor-exit v0
     :try_end_94
     .catchall {:try_start_93 .. :try_end_94} :catchall_3a
 
-    .line 548
+    .line 554
     :try_start_94
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -5353,7 +5758,7 @@
 
     invoke-virtual {v0, p0, v1}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 549
+    .line 555
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v0
@@ -5374,12 +5779,12 @@
 
     move-result-object v0
 
-    .line 550
+    .line 556
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/lang/reflect/Method;->setAccessible(Z)V
 
-    .line 551
+    .line 557
     const/4 v1, 0x1
 
     new-array v1, v1, [Ljava/lang/Object;
@@ -5394,7 +5799,7 @@
 
     goto/16 :goto_17
 
-    .line 528
+    .line 534
     :cond_c8
     :try_start_c8
     iget-object v2, v1, Lcom/isaigu/gymapp/bean/DeviceBean;->name:Ljava/lang/String;
@@ -5411,7 +5816,7 @@
 
     if-eqz v2, :cond_67
 
-    .line 529
+    .line 535
     :cond_d6
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->displayName(Ljava/lang/String;)Ljava/lang/String;
 
@@ -5428,24 +5833,24 @@
     .registers 7
 
     .prologue
-    .line 676
+    .line 682
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
-    .line 677
+    .line 683
     iget-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
     if-nez v1, :cond_f
 
-    .line 678
+    .line 684
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v1, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
-    .line 680
+    .line 686
     :cond_f
     iget-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
 
@@ -5463,7 +5868,7 @@
 
     if-gtz v1, :cond_29
 
-    .line 681
+    .line 687
     :cond_1f
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->nextProgramId()J
 
@@ -5475,14 +5880,14 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/bean/TrainProgram;->id:Ljava/lang/Long;
 
-    .line 683
+    .line 689
     :cond_29
     invoke-virtual {v0, p0}, Lcom/isaigu/gymapp/mgr/DataMgr;->addOrUpdateTrainProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
-    .line 684
+    .line 690
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->savePrograms()V
 
-    .line 685
+    .line 691
     return-void
 .end method
 
@@ -5490,7 +5895,7 @@
     .registers 3
 
     .prologue
-    .line 1138
+    .line 1204
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLang;->isBg()Z
 
     move-result v0

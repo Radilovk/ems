@@ -58,6 +58,10 @@ public final class XemsLocalStore {
     static final String FILE_OFFLINE_USERS = "file_name_offline_user_data";
     static final String FILE_DEVICES = "file_name_device_data";
     static final String FILE_PROGRAMS = "file_name_train_data";
+    /** The programs that came from the vendor's cloud, put aside (owner, 1.1.263): kept, not shown. */
+    static final String FILE_HIDDEN_PROGRAMS = "xems_hidden_programs";
+    private static final String KEY_HID_CLOUD_PROGRAMS = "hid_cloud_programs_v1";
+    private static final String KEY_HIDDEN_PROGRAM_NAMES = "hidden_program_names";
     private static final String FILE_PROTOCOL = "file_name_register_protocol_data";
 
     private static final long FIRST_USER_ID = 100000L;
@@ -229,6 +233,7 @@ public final class XemsLocalStore {
             FileUtils.saveListData(FILE_OFFLINE_USERS, TrainUser.class, new ArrayList<TrainUser>());
         }
         ensureSampleUser(users);
+        followHiddenPrograms(users);
         dm.trainUsers = users;
         // Offline users of the old app all had id 0: give each its own id.
         for (int i = 0; i < users.size(); i++) {
@@ -316,6 +321,7 @@ public final class XemsLocalStore {
         }
         dm.trainData = programs;
         renameSeededProgram(dm);
+        hideCloudProgramsOnce(dm);
         seedDefaultProgramIfNeeded();
         ActivePauseStorage.mergeList(dm.trainData);
         savePrograms();
@@ -815,6 +821,66 @@ public final class XemsLocalStore {
         p.name = DEMO_PROGRAM;
         dm.trainData = new ArrayList<>();
         dm.trainData.add(p);
+    }
+
+    /**
+     * Once (owner, 1.1.263): the home screen's program list keeps only the demo ("Test"); the vendor's programs
+     * that came from its cloud (fitness, drainage, cardio, definition, resistance…) are put aside in
+     * {@link #FILE_HIDDEN_PROGRAMS} — not deleted — and the cloud adds no more (XemsLocalApi). Programs made on the
+     * tablet after this stay on the list.
+     */
+    private static void hideCloudProgramsOnce(DataMgr dm) {
+        Context ctx = getAppContext();
+        if (ctx == null || prefs(ctx).getBoolean(KEY_HID_CLOUD_PROGRAMS, false) || dm.trainData == null) {
+            return;
+        }
+        List<TrainProgram> keep = new ArrayList<>();
+        List<TrainProgram> hide = new ArrayList<>();
+        for (int i = 0; i < dm.trainData.size(); i++) {
+            TrainProgram p = dm.trainData.get(i);
+            if (p == null) {
+                continue;
+            }
+            if (DEMO_PROGRAM.equals(p.name)) {
+                keep.add(p);
+            } else {
+                hide.add(p);
+            }
+        }
+        if (!hide.isEmpty()) {
+            List<TrainProgram> aside = readList(FILE_HIDDEN_PROGRAMS, TrainProgram.class);
+            if (aside == null) {
+                aside = new ArrayList<>();
+            }
+            aside.addAll(hide);
+            FileUtils.saveListData(FILE_HIDDEN_PROGRAMS, TrainProgram.class, aside);
+            StringBuilder names = new StringBuilder(prefs(ctx).getString(KEY_HIDDEN_PROGRAM_NAMES, ""));
+            for (TrainProgram p : hide) {
+                if (p.name != null) {
+                    names.append(names.length() > 0 ? "\n" : "").append(p.name);
+                }
+            }
+            prefs(ctx).edit().putString(KEY_HIDDEN_PROGRAM_NAMES, names.toString()).apply();
+        }
+        dm.trainData = keep;
+        prefs(ctx).edit().putBoolean(KEY_HID_CLOUD_PROGRAMS, true).apply();
+        android.util.Log.i("xems_local", "cloud programs put aside: " + hide.size());
+    }
+
+    /** A client whose program was put aside trains with the demo program (not with a name that is gone). */
+    private static void followHiddenPrograms(List<TrainUser> users) {
+        Context ctx = getAppContext();
+        String all = ctx == null ? "" : prefs(ctx).getString(KEY_HIDDEN_PROGRAM_NAMES, "");
+        if (all.length() == 0) {
+            return;
+        }
+        Set<String> hidden = new HashSet<>(java.util.Arrays.asList(all.split("\n")));
+        for (int i = 0; i < users.size(); i++) {
+            TrainUser u = users.get(i);
+            if (u != null && u.trainName != null && hidden.contains(u.trainName)) {
+                u.trainName = DEMO_PROGRAM;
+            }
+        }
     }
 
     /**

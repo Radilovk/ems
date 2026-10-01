@@ -27,6 +27,7 @@
 .method static constructor <clinit>()V
     .registers 2
 
+    .prologue
     .line 34
     new-instance v0, Landroid/os/Handler;
 
@@ -44,6 +45,7 @@
 .method private constructor <init>()V
     .registers 1
 
+    .prologue
     .line 45
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -53,68 +55,71 @@
 .method public static addProgramTrainData(Lcom/isaigu/gymapp/bean/TrainProgram;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
     .registers 2
 
-    .line 99
+    .prologue
+    .line 94
     if-eqz p0, :cond_5
 
-    .line 100
+    .line 95
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->storeProgram(Lcom/isaigu/gymapp/bean/TrainProgram;)V
 
-    .line 102
+    .line 97
     :cond_5
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
 
-    .line 103
+    .line 98
     return-void
 .end method
 
 .method public static addTrainRecord(Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-    .registers 4
+    .registers 5
 
-    .line 117
+    .prologue
+    .line 112
     if-eqz p0, :cond_14
 
-    .line 118
+    .line 113
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->allRecords()Ljava/util/List;
 
     move-result-object v0
 
-    .line 119
+    .line 114
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->toVo(Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;Ljava/util/List;)Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    move-result-object p0
+    move-result-object v1
 
-    invoke-interface {v0, p0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 120
-    const-class p0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
-
+    .line 115
     const-string v1, "xems_local_train_records"
 
-    invoke-static {v1, p0, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+    const-class v2, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    .line 122
+    invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+
+    .line 117
     :cond_14
-    const/4 p0, 0x0
+    const/4 v0, 0x0
 
-    invoke-static {p1, p0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
 
-    .line 123
+    .line 118
     return-void
 .end method
 
 .method public static addTrainRecordList(Ljava/util/List;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-    .registers 5
+    .registers 6
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
-            "Ljava/util/List<",
-            "*>;",
+            "Ljava/util/List",
+            "<*>;",
             "Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;",
             ")V"
         }
     .end annotation
 
-    .line 126
+    .prologue
+    .line 121
     if-eqz p0, :cond_2f
 
     invoke-interface {p0}, Ljava/util/List;->isEmpty()Z
@@ -123,244 +128,264 @@
 
     if-nez v0, :cond_2f
 
-    .line 127
+    .line 122
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->allRecords()Ljava/util/List;
+
+    move-result-object v1
+
+    .line 123
+    invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v2
+
+    :cond_10
+    :goto_10
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_28
+
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 128
-    invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    .line 124
+    instance-of v3, v0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
 
-    move-result-object p0
+    if-eqz v3, :cond_10
 
-    :goto_10
-    invoke-interface {p0}, Ljava/util/Iterator;->hasNext()Z
+    .line 125
+    check-cast v0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
 
-    move-result v1
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->toVo(Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;Ljava/util/List;)Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    if-eqz v1, :cond_28
+    move-result-object v0
 
-    invoke-interface {p0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    move-result-object v1
-
-    .line 129
-    instance-of v2, v1, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
-
-    if-eqz v2, :cond_27
-
-    .line 130
-    check-cast v1, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
-
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->toVo(Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;Ljava/util/List;)Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
-
-    move-result-object v1
-
-    invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 132
-    :cond_27
     goto :goto_10
 
-    .line 133
+    .line 128
     :cond_28
-    const-class p0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
+    const-string v0, "xems_local_train_records"
 
-    const-string v1, "xems_local_train_records"
+    const-class v2, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    invoke-static {v1, p0, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+    invoke-static {v0, v2, v1}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 135
+    .line 130
     :cond_2f
-    const/4 p0, 0x0
+    const/4 v0, 0x0
 
-    invoke-static {p1, p0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
+    invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
 
-    .line 136
+    .line 131
     return-void
 .end method
 
 .method static allRecords()Ljava/util/List;
-    .registers 6
+    .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()",
-            "Ljava/util/List<",
+            "Ljava/util/List",
+            "<",
             "Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;",
             ">;"
         }
     .end annotation
 
-    .line 153
-    const-class v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
+    .prologue
+    .line 148
+    const-string v0, "xems_local_train_records"
 
-    const-string v1, "xems_local_train_records"
+    const-class v1, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readList(Ljava/lang/String;Ljava/lang/Class;)Ljava/util/List;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readList(Ljava/lang/String;Ljava/lang/Class;)Ljava/util/List;
 
     move-result-object v0
 
-    .line 154
-    if-nez v0, :cond_f
+    .line 149
+    if-nez v0, :cond_53
 
-    .line 155
+    .line 150
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 157
-    :cond_f
+    move-object v1, v0
+
+    .line 152
+    :goto_10
+    const-string v0, "file_name_offline_train_record_data"
+
     const-class v2, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
 
-    const-string v3, "file_name_offline_train_record_data"
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readList(Ljava/lang/String;Ljava/lang/Class;)Ljava/util/List;
 
-    invoke-static {v3, v2}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->readList(Ljava/lang/String;Ljava/lang/Class;)Ljava/util/List;
+    move-result-object v3
 
-    move-result-object v2
+    .line 153
+    if-eqz v3, :cond_52
 
-    .line 158
-    if-eqz v2, :cond_4b
+    invoke-interface {v3}, Ljava/util/List;->isEmpty()Z
 
-    invoke-interface {v2}, Ljava/util/List;->isEmpty()Z
+    move-result v0
 
-    move-result v4
+    if-nez v0, :cond_52
 
-    if-nez v4, :cond_4b
+    .line 154
+    const/4 v0, 0x0
+
+    move v2, v0
+
+    :goto_22
+    invoke-interface {v3}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    if-ge v2, v0, :cond_3f
+
+    .line 155
+    invoke-interface {v3, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_3b
+
+    .line 156
+    invoke-interface {v3, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->toVo(Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;Ljava/util/List;)Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
+
+    move-result-object v0
+
+    invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 154
+    :cond_3b
+    add-int/lit8 v0, v2, 0x1
+
+    move v2, v0
+
+    goto :goto_22
 
     .line 159
-    const/4 v4, 0x0
+    :cond_3f
+    const-string v0, "xems_local_train_records"
 
-    :goto_20
-    invoke-interface {v2}, Ljava/util/List;->size()I
-
-    move-result v5
-
-    if-ge v4, v5, :cond_3c
-
-    .line 160
-    invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v5
-
-    if-eqz v5, :cond_39
-
-    .line 161
-    invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v5
-
-    check-cast v5, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
-
-    invoke-static {v5, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->toVo(Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;Ljava/util/List;)Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
-
-    move-result-object v5
-
-    invoke-interface {v0, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 159
-    :cond_39
-    add-int/lit8 v4, v4, 0x1
-
-    goto :goto_20
-
-    .line 164
-    :cond_3c
     const-class v2, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+    invoke-static {v0, v2, v1}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
 
-    .line 165
-    const-class v1, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
+    .line 160
+    const-string v0, "file_name_offline_train_record_data"
 
-    new-instance v2, Ljava/util/ArrayList;
+    const-class v2, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;
 
-    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+    new-instance v3, Ljava/util/ArrayList;
 
-    invoke-static {v3, v1, v2}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+    invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 167
-    :cond_4b
-    return-object v0
+    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+
+    .line 162
+    :cond_52
+    return-object v1
+
+    :cond_53
+    move-object v1, v0
+
+    goto :goto_10
 .end method
 
 .method private static answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
-    .registers 4
+    .registers 5
 
-    .line 269
+    .prologue
+    .line 264
     if-nez p0, :cond_3
 
-    .line 270
+    .line 281
+    :goto_2
     return-void
 
-    .line 272
+    .line 267
     :cond_3
     new-instance v0, Lcom/isaigu/gymapp/bean/vo/ResponseData;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/bean/vo/ResponseData;-><init>()V
 
-    .line 273
+    .line 268
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/bean/vo/ResponseData;->setCode(I)V
 
-    .line 274
+    .line 269
     const-string v1, ""
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/bean/vo/ResponseData;->setMessage(Ljava/lang/String;)V
 
-    .line 275
+    .line 270
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/bean/vo/ResponseData;->setData(Ljava/lang/Object;)V
 
-    .line 276
-    sget-object p1, Lcom/isaigu/gymapp/widget/XemsLocalApi;->MAIN:Landroid/os/Handler;
+    .line 271
+    sget-object v1, Lcom/isaigu/gymapp/widget/XemsLocalApi;->MAIN:Landroid/os/Handler;
 
-    new-instance v1, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;
+    new-instance v2, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;
 
-    invoke-direct {v1, p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;-><init>(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Lcom/isaigu/gymapp/bean/vo/ResponseData;)V
+    invoke-direct {v2, p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi$1;-><init>(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Lcom/isaigu/gymapp/bean/vo/ResponseData;)V
 
-    invoke-virtual {p1, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+    invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 286
-    return-void
+    goto :goto_2
 .end method
 
 .method static answerPrograms(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
     .registers 3
 
-    .line 93
+    .prologue
+    .line 88
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadPrograms()V
 
-    .line 94
+    .line 89
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
     move-result-object v0
 
     iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->trainData:Ljava/util/List;
 
-    .line 95
+    .line 90
     new-instance v1, Ljava/util/ArrayList;
 
-    if-eqz v0, :cond_e
+    if-eqz v0, :cond_14
 
-    goto :goto_13
-
-    :cond_e
-    new-instance v0, Ljava/util/ArrayList;
-
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    :goto_13
+    :goto_d
     invoke-direct {v1, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
 
-    .line 96
+    .line 91
     return-void
+
+    .line 90
+    :cond_14
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    goto :goto_d
 .end method
 
 .method static answerUsers(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
     .registers 3
 
+    .prologue
     .line 67
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->loadUsers()V
 
@@ -374,261 +399,249 @@
     .line 69
     new-instance v1, Ljava/util/ArrayList;
 
-    if-eqz v0, :cond_e
+    if-eqz v0, :cond_14
 
-    goto :goto_13
-
-    :cond_e
-    new-instance v0, Ljava/util/ArrayList;
-
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    :goto_13
+    :goto_d
     invoke-direct {v1, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
 
     .line 70
     return-void
-.end method
 
-.method public static deleteProgramTrainData(JJLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-    .registers 5
-
-    .line 110
-    invoke-static {p2, p3}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->removeProgram(J)V
-
-    .line 111
-    const/4 p0, 0x0
-
-    invoke-static {p4, p0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
-
-    .line 112
-    return-void
-.end method
-
-.method public static getTrainRecordList(JLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-    .registers 10
-
-    .line 140
+    .line 69
+    :cond_14
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 141
+    goto :goto_d
+.end method
+
+.method public static deleteProgramTrainData(JJLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
+    .registers 7
+
+    .prologue
+    .line 105
+    invoke-static {p2, p3}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->removeProgram(J)V
+
+    .line 106
+    const/4 v0, 0x0
+
+    invoke-static {p4, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
+
+    .line 107
+    return-void
+.end method
+
+.method public static getTrainRecordList(JLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
+    .registers 9
+
+    .prologue
+    .line 135
+    new-instance v2, Ljava/util/ArrayList;
+
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+
+    .line 136
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->allRecords()Ljava/util/List;
-
-    move-result-object v1
-
-    .line 142
-    invoke-interface {v1}, Ljava/util/List;->size()I
-
-    move-result v2
-
-    add-int/lit8 v2, v2, -0x1
-
-    :goto_f
-    if-ltz v2, :cond_2d
-
-    .line 143
-    invoke-interface {v1, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v3
 
-    check-cast v3, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
+    .line 137
+    invoke-interface {v3}, Ljava/util/List;->size()I
 
-    .line 144
-    if-eqz v3, :cond_2a
+    move-result v0
 
-    iget-object v4, v3, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->userId:Ljava/lang/Long;
+    add-int/lit8 v0, v0, -0x1
 
-    if-eqz v4, :cond_2a
+    move v1, v0
 
-    iget-object v4, v3, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->userId:Ljava/lang/Long;
+    :goto_10
+    if-ltz v1, :cond_2f
+
+    .line 138
+    invoke-interface {v3, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
+
+    .line 139
+    if-eqz v0, :cond_2b
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->userId:Ljava/lang/Long;
+
+    if-eqz v4, :cond_2b
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->userId:Ljava/lang/Long;
 
     invoke-virtual {v4}, Ljava/lang/Long;->longValue()J
 
     move-result-wide v4
 
-    cmp-long v6, v4, p0
+    cmp-long v4, v4, p0
 
-    if-nez v6, :cond_2a
+    if-nez v4, :cond_2b
 
-    .line 145
-    invoke-interface {v0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    .line 140
+    invoke-interface {v2, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 142
-    :cond_2a
-    add-int/lit8 v2, v2, -0x1
+    .line 137
+    :cond_2b
+    add-int/lit8 v0, v1, -0x1
 
-    goto :goto_f
+    move v1, v0
 
-    .line 148
-    :cond_2d
-    invoke-static {p2, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
+    goto :goto_10
 
-    .line 149
+    .line 143
+    :cond_2f
+    invoke-static {p2, v2}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
+
+    .line 144
     return-void
 .end method
 
 .method public static getUserBindMachine(JLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
-    .registers 3
+    .registers 5
 
+    .prologue
     .line 73
     invoke-static {}, Lcom/isaigu/gymapp/mgr/DataMgr;->getInstance()Lcom/isaigu/gymapp/mgr/DataMgr;
 
-    move-result-object p0
+    move-result-object v0
 
-    iget-object p0, p0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
+    iget-object v0, v0, Lcom/isaigu/gymapp/mgr/DataMgr;->deviceBeanList:Ljava/util/List;
 
     .line 74
-    new-instance p1, Ljava/util/ArrayList;
+    new-instance v1, Ljava/util/ArrayList;
 
-    if-eqz p0, :cond_b
+    if-eqz v0, :cond_11
 
-    goto :goto_10
+    :goto_a
+    invoke-direct {v1, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
 
-    :cond_b
-    new-instance p0, Ljava/util/ArrayList;
-
-    invoke-direct {p0}, Ljava/util/ArrayList;-><init>()V
-
-    :goto_10
-    invoke-direct {p1, p0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
-
-    invoke-static {p2, p1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
+    invoke-static {p2, v1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answer(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;Ljava/lang/Object;)V
 
     .line 75
     return-void
+
+    .line 74
+    :cond_11
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    goto :goto_a
 .end method
 
 .method public static getUserCustomers(JLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
-    .registers 3
+    .registers 4
 
+    .prologue
     .line 55
-    sget-boolean p0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncUsers:Z
+    sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncUsers:Z
 
-    if-eqz p0, :cond_17
+    if-eqz v0, :cond_17
 
     if-eqz p2, :cond_17
 
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
 
-    move-result p0
+    move-result v0
 
-    if-eqz p0, :cond_17
+    if-eqz v0, :cond_17
 
     .line 56
-    const/4 p0, 0x0
+    const/4 v0, 0x0
 
-    sput-boolean p0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncUsers:Z
+    sput-boolean v0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncUsers:Z
 
     .line 57
-    const/4 p0, 0x1
+    const/4 v0, 0x1
 
-    invoke-static {p2, p0}, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->wrap(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;I)Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
+    invoke-static {p2, v0}, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->wrap(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;I)Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
 
-    move-result-object p0
+    move-result-object v0
 
     .line 58
-    if-eqz p0, :cond_17
+    if-eqz v0, :cond_17
 
-    .line 59
-    return-object p0
+    .line 63
+    :goto_16
+    return-object v0
 
     .line 62
     :cond_17
     invoke-static {p2}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answerUsers(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
 
     .line 63
-    const/4 p0, 0x0
+    const/4 v0, 0x0
 
-    return-object p0
+    goto :goto_16
 .end method
 
 .method public static getUserProgramTrainDataList(JLcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
-    .registers 3
+    .registers 4
 
-    .line 81
-    sget-boolean p0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncPrograms:Z
-
-    if-eqz p0, :cond_17
-
-    if-eqz p2, :cond_17
-
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->isAdminSession()Z
-
-    move-result p0
-
-    if-eqz p0, :cond_17
-
+    .prologue
     .line 82
-    const/4 p0, 0x0
+    const/4 v0, 0x0
 
-    sput-boolean p0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncPrograms:Z
+    sput-boolean v0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncPrograms:Z
 
     .line 83
-    const/4 p0, 0x2
-
-    invoke-static {p2, p0}, Lcom/isaigu/gymapp/widget/XemsLocalApi$CloudMerge;->wrap(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;I)Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;
-
-    move-result-object p0
-
-    .line 84
-    if-eqz p0, :cond_17
-
-    .line 85
-    return-object p0
-
-    .line 88
-    :cond_17
     invoke-static {p2}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->answerPrograms(Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
 
-    .line 89
-    const/4 p0, 0x0
+    .line 84
+    const/4 v0, 0x0
 
-    return-object p0
+    return-object v0
 .end method
 
 .method static replaceRecords(Lcom/alibaba/fastjson/JSONArray;)V
-    .registers 3
+    .registers 4
 
-    .line 172
+    .prologue
+    .line 167
     const-class v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->parseList(Lcom/alibaba/fastjson/JSONArray;Ljava/lang/Class;)Ljava/util/List;
 
-    move-result-object p0
+    move-result-object v0
 
-    .line 173
-    const-class v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
-
-    .line 174
-    if-eqz p0, :cond_b
-
-    goto :goto_10
-
-    :cond_b
-    new-instance p0, Ljava/util/ArrayList;
-
-    invoke-direct {p0}, Ljava/util/ArrayList;-><init>()V
-
-    .line 173
-    :goto_10
+    .line 168
     const-string v1, "xems_local_train_records"
 
-    invoke-static {v1, v0, p0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+    const-class v2, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    .line 175
+    .line 169
+    if-eqz v0, :cond_10
+
+    .line 168
+    :goto_c
+    invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/utils/FileUtils;->saveListData(Ljava/lang/String;Ljava/lang/Class;Ljava/util/List;)V
+
+    .line 170
     return-void
+
+    .line 169
+    :cond_10
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    goto :goto_c
 .end method
 
 .method static requestCloudSync()V
     .registers 1
 
-    .line 41
+    .prologue
     const/4 v0, 0x1
 
+    .line 41
     sput-boolean v0, Lcom/isaigu/gymapp/widget/XemsLocalApi;->syncUsers:Z
 
     .line 42
@@ -644,164 +657,168 @@
         value = {
             "(",
             "Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;",
-            "Ljava/util/List<",
+            "Ljava/util/List",
+            "<",
             "Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;",
             ">;)",
             "Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;"
         }
     .end annotation
 
-    .line 180
-    new-instance v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
+    .prologue
+    const-wide/16 v4, 0x1
 
-    invoke-direct {v0}, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;-><init>()V
+    .line 175
+    new-instance v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    .line 181
-    nop
+    invoke-direct {v6}, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;-><init>()V
 
-    .line 182
-    const-wide/16 v1, 0x1
+    .line 177
+    const/4 v0, 0x0
 
-    const/4 v3, 0x0
+    move v1, v0
 
-    move-wide v4, v1
+    move-wide v2, v4
 
     :goto_a
     invoke-interface {p1}, Ljava/util/List;->size()I
 
-    move-result v6
+    move-result v0
 
-    if-ge v3, v6, :cond_30
+    if-ge v1, v0, :cond_31
 
-    .line 183
-    invoke-interface {p1, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    .line 178
+    invoke-interface {p1, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    move-result-object v6
+    move-result-object v0
 
-    check-cast v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
+    check-cast v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;
 
-    .line 184
-    if-eqz v6, :cond_2d
+    .line 179
+    if-eqz v0, :cond_2d
 
-    iget-object v7, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
+    iget-object v7, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
 
     if-eqz v7, :cond_2d
 
-    iget-object v7, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
+    iget-object v7, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
 
     invoke-virtual {v7}, Ljava/lang/Long;->longValue()J
 
-    move-result-wide v7
+    move-result-wide v8
 
-    cmp-long v9, v7, v4
+    cmp-long v7, v8, v2
 
-    if-ltz v9, :cond_2d
+    if-ltz v7, :cond_2d
 
-    .line 185
-    iget-object v4, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
+    .line 180
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
 
-    invoke-virtual {v4}, Ljava/lang/Long;->longValue()J
+    invoke-virtual {v0}, Ljava/lang/Long;->longValue()J
 
-    move-result-wide v4
+    move-result-wide v2
 
-    add-long/2addr v4, v1
+    add-long/2addr v2, v4
 
-    .line 182
+    .line 177
     :cond_2d
-    add-int/lit8 v3, v3, 0x1
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
 
     goto :goto_a
 
+    .line 183
+    :cond_31
+    invoke-static {v2, v3}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v0
+
+    iput-object v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
+
+    .line 184
+    new-instance v0, Ljava/util/Date;
+
+    invoke-direct {v0}, Ljava/util/Date;-><init>()V
+
+    iput-object v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->createTime:Ljava/util/Date;
+
+    .line 185
+    iget-object v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->userId:Ljava/lang/Long;
+
+    iput-object v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->userId:Ljava/lang/Long;
+
+    .line 186
+    iget-object v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->trainName:Ljava/lang/String;
+
+    iput-object v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->trainName:Ljava/lang/String;
+
+    .line 187
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->useType:I
+
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->useType:I
+
     .line 188
-    :cond_30
-    invoke-static {v4, v5}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->hz:I
 
-    move-result-object p1
-
-    iput-object p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->id:Ljava/lang/Long;
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->hz:I
 
     .line 189
-    new-instance p1, Ljava/util/Date;
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->strenth:I
 
-    invoke-direct {p1}, Ljava/util/Date;-><init>()V
-
-    iput-object p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->createTime:Ljava/util/Date;
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->strenth:I
 
     .line 190
-    iget-object p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->userId:Ljava/lang/Long;
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->maxBodyStrenth:I
 
-    iput-object p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->userId:Ljava/lang/Long;
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->maxBodyStrenth:I
 
     .line 191
-    iget-object p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->trainName:Ljava/lang/String;
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->minBodyStrenth:I
 
-    iput-object p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->trainName:Ljava/lang/String;
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->minBodyStrenth:I
 
     .line 192
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->useType:I
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->pulseContinue:I
 
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->useType:I
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->pulseContinue:I
 
     .line 193
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->hz:I
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->pulsePause:I
 
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->hz:I
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->pulsePause:I
 
     .line 194
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->strenth:I
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->pulseWidth:I
 
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->strenth:I
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->pulseWidth:I
 
     .line 195
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->maxBodyStrenth:I
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->inputRamp:I
 
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->maxBodyStrenth:I
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->inputRamp:I
 
     .line 196
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->minBodyStrenth:I
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->outputRamp:I
 
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->minBodyStrenth:I
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->outputRamp:I
 
     .line 197
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->pulseContinue:I
+    iget v0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->workLength:I
 
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->pulseContinue:I
+    iput v0, v6, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->workLength:I
 
     .line 198
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->pulsePause:I
-
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->pulsePause:I
-
-    .line 199
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->pulseWidth:I
-
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->pulseWidth:I
-
-    .line 200
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->inputRamp:I
-
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->inputRamp:I
-
-    .line 201
-    iget p1, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->outputRamp:I
-
-    iput p1, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->outputRamp:I
-
-    .line 202
-    iget p0, p0, Lcom/isaigu/gymapp/bean/dto/TrainRecordDTO;->workLength:I
-
-    iput p0, v0, Lcom/isaigu/gymapp/bean/vo/TrainRecordVO;->workLength:I
-
-    .line 203
-    return-object v0
+    return-object v6
 .end method
 
 .method public static updateProgramTrainData(Lcom/isaigu/gymapp/bean/TrainProgram;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
     .registers 2
 
-    .line 106
+    .prologue
+    .line 101
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLocalApi;->addProgramTrainData(Lcom/isaigu/gymapp/bean/TrainProgram;Lcom/isaigu/gymapp/utils/OKHttpUtils$HttpResponseCallback;)V
 
-    .line 107
+    .line 102
     return-void
 .end method

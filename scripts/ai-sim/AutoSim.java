@@ -40,6 +40,7 @@ public final class AutoSim {
         }
         System.out.println("full runs: " + runs);
         bySex();
+        todayStates();
         blocks();
         zones();
         windows();
@@ -475,6 +476,43 @@ public final class AutoSim {
                 }
             }
         }
+    }
+
+    /** How the client is today: each state softens the plan (lower ceiling or longer pause), never blocks it. */
+    static void todayStates() {
+        AutoModel.Input base = new AutoModel.Input();
+        base.sex = AiModel.Sex.FEMALE;
+        base.age = 35;
+        base.heightCm = 168;
+        base.weightKg = 64;
+        base.sessions = 10;
+        base.goal = AutoModel.Goal.TONE;
+        base.kind = AutoModel.Kind.ACTIVE;
+        base.programId = AutoCatalog.GENERAL;
+        AutoModel.Plan p0 = AutoPlanner.build(base, 70);
+        for (String k : com.isaigu.gymapp.ai.AiPersonal.TODAY) {
+            AutoModel.Input in = new AutoModel.Input();
+            in.sex = base.sex;
+            in.age = base.age;
+            in.heightCm = base.heightCm;
+            in.weightKg = base.weightKg;
+            in.sessions = base.sessions;
+            in.goal = base.goal;
+            in.kind = base.kind;
+            in.programId = base.programId;
+            in.today.add(k);
+            AutoModel.Plan p = AutoPlanner.build(in, 70);
+            check(p != null && p.program != null, "today " + k + " still plans");
+            check(p != null && p.phiMax <= p0.phiMax + 1e-9, "today " + k + " never raises the ceiling");
+            check(p != null && p.phiMax < p0.phiMax - 1e-9, "today " + k + " lowers the ceiling");
+        }
+        check(com.isaigu.gymapp.ai.AiPersonal.periodApplies(AiModel.Sex.FEMALE, 30, new java.util.HashSet<String>()),
+                "period offered to a woman of 30");
+        check(!com.isaigu.gymapp.ai.AiPersonal.periodApplies(AiModel.Sex.MALE, 30, null), "no period for a man");
+        java.util.Set<String> meno = new java.util.HashSet<String>();
+        meno.add("menopause");
+        check(!com.isaigu.gymapp.ai.AiPersonal.periodApplies(AiModel.Sex.FEMALE, 50, meno), "no period after menopause");
+        check(!com.isaigu.gymapp.ai.AiPersonal.periodApplies(AiModel.Sex.FEMALE, 62, null), "no period at 62");
     }
 
     static void check(boolean ok, String what) {

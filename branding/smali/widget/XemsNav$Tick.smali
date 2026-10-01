@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1202
+    .line 1253
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,27 +34,27 @@
     .registers 5
 
     .prologue
-    .line 1205
+    .line 1256
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->ticking:Z
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$300()Z
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$500()Z
 
     move-result v0
 
     if-nez v0, :cond_7
 
-    .line 1218
+    .line 1269
     :goto_6
     return-void
 
-    .line 1209
+    .line 1260
     :cond_7
     :try_start_7
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->refreshTiles()V
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$400()V
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$600()V
 
-    .line 1210
+    .line 1261
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->currentPage:I
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$500()I
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()I
 
     move-result v0
 
@@ -62,22 +62,22 @@
 
     if-ne v0, v1, :cond_1a
 
-    .line 1211
+    .line 1262
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/widget/XemsNav;->hideSidebarModules(Landroid/view/View;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsNav;->access$600(Landroid/view/View;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsNav;->access$800(Landroid/view/View;)V
 
-    .line 1212
+    .line 1263
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsPanel;->refresh()V
     :try_end_1a
     .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_1a} :catch_24
 
-    .line 1217
+    .line 1268
     :cond_1a
     :goto_1a
     # getter for: Lcom/isaigu/gymapp/widget/XemsNav;->handler:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$700()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsNav;->access$900()Landroid/os/Handler;
 
     move-result-object v0
 
@@ -87,11 +87,11 @@
 
     goto :goto_6
 
-    .line 1214
+    .line 1265
     :catch_24
     move-exception v0
 
-    .line 1215
+    .line 1266
     const-string v1, "XemsNav.tick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

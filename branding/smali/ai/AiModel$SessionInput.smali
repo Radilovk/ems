@@ -55,6 +55,17 @@
 
 .field public sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
+.field public today:Ljava/util/Set;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 .field public totalSeconds:Ljava/lang/Integer;
 
 .field public weightKg:D
@@ -129,6 +140,13 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->cond:Ljava/util/Set;
 
+    .line 74
+    new-instance v0, Ljava/util/HashSet;
+
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->today:Ljava/util/Set;
+
     return-void
 .end method
 
@@ -138,7 +156,7 @@
     .registers 3
 
     .prologue
-    .line 75
+    .line 77
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;

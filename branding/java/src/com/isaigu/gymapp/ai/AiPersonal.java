@@ -72,7 +72,76 @@ public final class AiPersonal {
 
     private AiPersonal() {}
 
+    /** How the client is today: one tap each on the client step of the AI and the automatic mode. */
+    public static final String[] TODAY = {"t_sleep", "t_food", "t_active", "t_stress", "t_sore", "t_period"};
+
+    public static String todayName(String k) {
+        if ("t_sleep".equals(k)) return AiText.t("Недоспал(а)", "Short on sleep");
+        if ("t_food".equals(k)) return AiText.t("Хапнал(а) малко", "Ate little");
+        if ("t_active".equals(k)) return AiText.t("Натоварен ден", "Heavy day");
+        if ("t_stress".equals(k)) return AiText.t("Стрес / напрежение", "Stress / tension");
+        if ("t_sore".equals(k)) return AiText.t("Мускулна треска", "Sore muscles");
+        if ("t_period".equals(k)) return AiText.t("Месечен цикъл", "Period");
+        return k;
+    }
+
+    /** The period is offered to a woman of an age with a cycle who has not marked menopause. */
+    public static boolean periodApplies(AiModel.Sex sex, int age, Set<String> cond) {
+        return sex == AiModel.Sex.FEMALE && age >= 12 && age <= 55 && (cond == null || !cond.contains("menopause"));
+    }
+
     public static Effect of(Set<String> focus, Set<String> cond) {
+        return of(focus, cond, null);
+    }
+
+    /**
+     * The profile plus how the client is today. Today's state never stops the session — it is folded in quietly:
+     * lower ceiling, longer pauses, softer onset, lower belly during the period.
+     */
+    public static Effect of(Set<String> focus, Set<String> cond, Set<String> today) {
+        Effect e = ofProfile(focus, cond);
+        if (today == null || today.isEmpty()) {
+            return e;
+        }
+        if (today.contains("t_sleep")) {
+            e.phi *= 0.9;
+            e.offS += 1;
+            e.note("Днес: недоспиване — −10 %, +1 s пауза", "Today: short on sleep — −10 %, +1 s pause");
+        }
+        if (today.contains("t_food")) {
+            e.phi *= 0.92;
+            e.offS += 1;
+            e.note("Днес: малко храна — −8 %, +1 s пауза", "Today: little food — −8 %, +1 s pause");
+        }
+        if (today.contains("t_active")) {
+            e.phi *= 0.9;
+            e.rampUpMs += 200;
+            e.note("Днес: натоварен ден — −10 %, по-плавно включване", "Today: heavy day — −10 %, softer onset");
+        }
+        if (today.contains("t_stress")) {
+            e.phi *= 0.95;
+            e.offS += 1;
+            e.rampUpMs += 200;
+            e.note("Днес: стрес — −5 %, +1 s пауза, по-плавно", "Today: stress — −5 %, +1 s pause, softer");
+        }
+        if (today.contains("t_sore")) {
+            e.phi *= 0.9;
+            e.rampUpMs += 300;
+            e.note("Днес: мускулна треска — −10 %, по-плавно включване", "Today: sore muscles — −10 %, softer onset");
+        }
+        if (today.contains("t_period")) {
+            e.add(new int[] {1}, -30);
+            e.add(new int[] {7}, -10);
+            e.phi *= 0.95;
+            e.note("Днес: цикъл — корем −30 %, кръст −10 %, −5 %", "Today: period — abs −30 %, lower back −10 %, −5 %");
+        }
+        e.phi = Math.max(0.75, e.phi);
+        e.offS = Math.min(2, e.offS);
+        e.rampUpMs = Math.min(400, e.rampUpMs);
+        return e;
+    }
+
+    private static Effect ofProfile(Set<String> focus, Set<String> cond) {
         Effect e = new Effect();
         if (focus != null && !focus.isEmpty()) {
             List<String> names = new ArrayList<String>();

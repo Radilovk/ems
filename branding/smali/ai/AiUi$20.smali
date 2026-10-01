@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenRun(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->renderOverlay(Landroid/content/Context;Landroid/widget/FrameLayout;Lcom/isaigu/gymapp/ai/AiEngine;J)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1299
+    .line 1496
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 2
 
     .prologue
-    .line 1302
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->reduce()V
+    .line 1499
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 
-    .line 1303
+    .line 1500
     return-void
 .end method

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 937
+    .line 915
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,16 +36,16 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 940
+    .line 918
     # getter for: Lcom/isaigu/gymapp/ai/AiUi;->dialog:Landroid/app/Dialog;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$1200()Landroid/app/Dialog;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000()Landroid/app/Dialog;
 
     move-result-object v0
 
     if-eqz v0, :cond_1a
 
     # getter for: Lcom/isaigu/gymapp/ai/AiUi;->dialog:Landroid/app/Dialog;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$1200()Landroid/app/Dialog;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000()Landroid/app/Dialog;
 
     move-result-object v0
 
@@ -56,17 +56,17 @@
     if-eqz v0, :cond_1a
 
     # getter for: Lcom/isaigu/gymapp/ai/AiUi;->step:I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$1000()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$800()I
 
     move-result v0
 
     if-ne v0, v1, :cond_1a
 
-    .line 941
+    .line 919
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 943
+    .line 921
     :cond_1a
     return-void
 .end method

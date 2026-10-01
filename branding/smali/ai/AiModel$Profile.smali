@@ -60,20 +60,20 @@
     .registers 3
 
     .prologue
-    .line 88
+    .line 90
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 95
+    .line 97
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->xLo:D
 
-    .line 102
+    .line 104
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->cMed:D
 
-    .line 105
+    .line 107
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -89,7 +89,7 @@
     .registers 8
 
     .prologue
-    .line 108
+    .line 110
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
 
     int-to-double v0, v0
@@ -115,7 +115,7 @@
     .registers 8
 
     .prologue
-    .line 112
+    .line 114
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrr:I
 
     if-lez v0, :cond_e

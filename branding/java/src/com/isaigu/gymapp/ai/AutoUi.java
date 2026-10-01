@@ -68,6 +68,7 @@ public final class AutoUi {
     private static final int A_HIDE = 33;
     private static final int A_TIPS = 36;
     private static final int A_INFO = 37;
+    private static final int A_STATE = 38;
 
     private static XemsUi.Shell shell;
     private static Activity host;
@@ -118,8 +119,9 @@ public final class AutoUi {
             heightTouched = in.heightCm > 0;
             calibStarted = false;
             profileOpen = in.heightCm <= 0;
-            healthOk = false;
-            healthOpen = hasHealthFlag(in);
+            healthOk = true;                          // contraindications belong to the registration, not here
+            healthOpen = false;
+            in.today.clear();                         // how the client is today: asked fresh each time
             details = false;
             show(a, STEP_PROGRAM);
             return;
@@ -268,11 +270,11 @@ public final class AutoUi {
                         "Only the programs allowed for this client are shown. \u201cRecommended\u201d follows the profile.");
             case STEP_CLIENT:
                 return AiText.t("Профилът е от клиентския запис, планът се смята от него. Може да скъсиш времето и да смениш "
-                        + "интензитета, не и да минеш лимитите. Долният бутон потвърждава, че клиентът няма противопоказания "
-                        + "и е добре днес; ако нещо не е наред — „Има нещо днес?“.",
+                        + "интензитета, не и да минеш лимитите. „Днес“ — как е клиентът сега (недоспал, стрес, цикъл…): "
+                        + "не спира тренировката, планът се нагласява сам.",
                         "The profile comes from the client record and the plan from the profile. You may shorten the time and "
-                        + "change the intensity, not pass the limits. The button below confirms no contraindications and "
-                        + "feeling fine today; if not — \u201cSomething today?\u201d.");
+                        + "change the intensity, not pass the limits. \u201cToday\u201d — how the client is now (short on sleep, "
+                        + "stress, period…): it never stops the session, the plan adapts by itself.");
             case STEP_CALIB:
                 return AiText.t("Качи силата на всеки клиент до целевото усещане. „Старт“ започва от загрявката с 60 % от нея.",
                         "Raise each client's strength to the target feeling. Start begins with the warm-up at 60 % of it.");
@@ -534,36 +536,34 @@ public final class AutoUi {
             body.addView(banner(c, in.heightCm <= 0 ? XemsUi.AMBER : XemsUi.DANGER, pb), XemsUi.matchWrap(c, 14));
         }
 
-        // Health: the primary button confirms it; the list only when something is not fine.
-        if (!healthOpen) {
-            TextView more = XemsUi.button(c, AiText.t("Има нещо днес? (противопоказание, болест…)",
-                    "Something today? (contraindication, illness…)"), XemsUi.GHOST);
-            more.setOnClickListener(new Act(A_HEALTH_OPEN, 0));
-            body.addView(more, XemsUi.matchWrap(c, 10));
-        } else {
-            LinearLayout sc = XemsUi.card(c);
-            sc.addView(XemsUi.label(c, AiText.t("Отбележи какво важи", "Mark what applies")));
-            for (int i = 0; i < AiScreening.CONTRAINDICATIONS.length; i++) {
-                String k = AiScreening.CONTRAINDICATIONS[i];
-                Boolean v = in.screening.contraindications.get(k);
-                sc.addView(XemsUi.toggleRow(c, AiText.contraindication(k), null, v != null && v, new Act(A_CONTRA, i)));
+        // How the client is today: one tap each; never blocks, the plan adapts quietly (AiPersonal)
+        LinearLayout todayRow = XemsUi.horizontal(c);
+        todayRow.setGravity(Gravity.CENTER_VERTICAL);
+        TextView cap = XemsUi.text(c, AiText.t("Днес", "Today"), 15, XemsUi.MUTED, true);
+        cap.setPadding(XemsUi.dp(c, 4), 0, XemsUi.dp(c, 12), 0);
+        todayRow.addView(cap);
+        for (int i = 0; i < AiPersonal.TODAY.length; i++) {
+            String k = AiPersonal.TODAY[i];
+            if ("t_period".equals(k) && !AiPersonal.periodApplies(in.sex, in.age, in.cond)) {
+                in.today.remove(k);
+                continue;
             }
-            sc.addView(XemsUi.toggleRow(c, AiText.t("Температура или болест", "Fever or illness"), null,
-                    in.screening.feverOrIllness, new Act(A_TODAY, 0)));
-            sc.addView(XemsUi.toggleRow(c, AiText.t("Алкохол или силен стрес (48 ч)", "Alcohol or heavy stress (48 h)"), null,
-                    in.screening.alcoholOrStress48h, new Act(A_TODAY, 1)));
-            sc.addView(XemsUi.toggleRow(c, AiText.t("Известна аритмия", "Known arrhythmia"), null,
-                    in.screening.knownArrhythmia, new Act(A_TODAY, 2)));
-            body.addView(sc, XemsUi.matchWrap(c, 12));
-            String blocker = pb == null ? clientBlocker() : null;
-            if (blocker != null) {
-                body.addView(banner(c, XemsUi.DANGER, blocker), XemsUi.matchWrap(c, 12));
-            }
+            boolean on = in.today.contains(k);
+            TextView chip = XemsUi.chip(c, (on ? "✓ " : "") + AiPersonal.todayName(k), on, XemsUi.AMBER);
+            chip.setOnClickListener(new Act(A_STATE, i));
+            XemsUi.pressable(chip);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = XemsUi.dp(c, 8);
+            todayRow.addView(chip, lp);
         }
+        android.widget.HorizontalScrollView todayScroll = new android.widget.HorizontalScrollView(c);
+        todayScroll.setHorizontalScrollBarEnabled(false);
+        todayScroll.addView(todayRow);
+        body.addView(todayScroll, XemsUi.matchWrap(c, 12));
 
-        boolean ready = pb == null && (!healthOpen || clientBlocker() == null);
-        footer(c, healthOpen ? AiText.t("Към силата", "To strength")
-                : "✓  " + AiText.t("Добре е днес · към силата", "Fine today · to strength"), true);
+        boolean ready = pb == null;
+        footer(c, AiText.t("Към силата  ›", "To strength  ›"), true);
         enable(ready);
     }
 
@@ -686,20 +686,7 @@ public final class AutoUi {
         if (pb != null) {
             return pb;
         }
-        if (!healthOk && !healthOpen) {
-            return AiText.t("Потвърди здравето.", "Confirm the health check.");
-        }
-        AiScreening.Result r = AiScreening.evaluate(AutoSession.screeningInput(in));
-        if (r.isRejected()) {
-            StringBuilder sb = new StringBuilder(AiText.t("Не може днес: ", "Not today: "));
-            for (int i = 0; i < r.rejects.size(); i++) {
-                String code = r.rejects.get(i);
-                sb.append(i > 0 ? ", " : "").append(code.startsWith("contra:")
-                        ? AiText.contraindication(code.substring(7)) : AiText.screeningCode(code));
-            }
-            return sb.toString();
-        }
-        return null;
+        return null;                                  // contraindications: the registration's, not the session's
     }
 
     private static View zoneBars(Context c, AutoModel.Plan plan) {
@@ -1013,6 +1000,13 @@ public final class AutoUi {
             case A_CONTRA:
                 in.screening.contraindications.put(AiScreening.CONTRAINDICATIONS[arg], value == 1);
                 break;
+            case A_STATE: {
+                String k = AiPersonal.TODAY[Math.max(0, Math.min(AiPersonal.TODAY.length - 1, arg))];
+                if (!in.today.remove(k)) {
+                    in.today.add(k);
+                }
+                break;
+            }
             case A_TODAY:
                 boolean on = value == 1;
                 switch (arg) {

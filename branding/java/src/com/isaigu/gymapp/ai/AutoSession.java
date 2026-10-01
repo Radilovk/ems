@@ -451,9 +451,7 @@ public final class AutoSession {
             if (r.block == null && r.input.heightCm <= 0 && r != rows.get(0)) {
                 r.block = AiText.t("Няма ръст в профила", "No height in the client record");
             }
-            if (r.block == null && AiScreening.evaluate(screeningInput(r.input)).isRejected()) {
-                r.block = AiText.t("Противопоказание в профила", "Contraindication in the client record");
-            }
+            // contraindications are settled at registration (owner): a session no longer blocks on them
             if (r.block == null && p != null) {
                 cap = Math.min(cap, AutoPlanner.maxSeconds(p, input.goal, r.input));
             }

@@ -70,6 +70,8 @@ public final class AiModel {
         /** Focus zones and state from the client form (AiPersonal). */
         public java.util.Set<String> focus = new java.util.HashSet<String>();
         public java.util.Set<String> cond = new java.util.HashSet<String>();
+        /** How the client is today (AiPersonal.TODAY): never blocks, quietly softens the session. */
+        public java.util.Set<String> today = new java.util.HashSet<String>();
 
         public boolean isTraining() {
             return mode == Mode.ACTIVE;

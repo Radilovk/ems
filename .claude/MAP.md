@@ -564,7 +564,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L52 ## Languages (1.1.160-ai)
   - L58 ## One training, shown at the end (1.1.162-ai)
 
-`docs/xems-ai-session-implementation.md` (221L)
+`docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai
   - L6 ## 1. Архитектура
   - L22 ### Връзки с приложението
@@ -578,6 +578,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L165 ## 9. Сглобяване
   - L172 ## Двоен импулс (активна пауза) — v1.1.68
   - L201 ## Действия по време на сесията (v1.1.68)
+  - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
 `docs/xems-auto-mode-spec.md` (430L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)

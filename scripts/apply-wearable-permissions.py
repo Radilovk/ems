@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""At MainActivity startup ask for every permission at once (wearable/XemsAccess: runtime batch + settings pages),
-and open the app by itself after an update (wearable/XemsAutoStart, a MY_PACKAGE_REPLACED receiver in the manifest)."""
+"""At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own
+storage check at start (HiPermission, its own activity; on Android 13+ it is refused without a dialog and nags) is
+removed — and open the app by itself after an update (wearable/XemsAutoStart, a MY_PACKAGE_REPLACED receiver in the manifest)."""
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -32,7 +34,30 @@ STARTUP_HOOK = (
 )
 
 
+HIPERMISSION = re.compile(
+    r"\n    invoke-static \{p0\}, Lme/weyye/hipermission/HiPermission;->create\(Landroid/content/Context;\)"
+    r"Lme/weyye/hipermission/HiPermission;\n.*?"
+    r"invoke-virtual \{v1, v3, v2\}, Lme/weyye/hipermission/HiPermission;->checkSinglePermission"
+    r"\(Ljava/lang/String;Lme/weyye/hipermission/PermissionCallback;\)V\n",
+    re.DOTALL,
+)
+
+
+def drop_vendor_storage_check(text: str) -> str:
+    m = HIPERMISSION.search(text)
+    if not m:
+        if "HiPermission;->checkSinglePermission" in text:
+            raise RuntimeError("MainActivity: HiPermission start check changed shape")
+        print("MainActivity.onCreate: vendor storage check already removed")
+        return text
+    if "WRITE_EXTERNAL_STORAGE" not in m.group(0) or m.group(0).count("invoke-") > 4:
+        raise RuntimeError("MainActivity: HiPermission match is not the storage check")
+    print("MainActivity.onCreate: vendor storage check at start removed")
+    return text[:m.start()] + "\n" + text[m.end():]
+
+
 def patch_main_activity(text: str) -> str:
+    text = drop_vendor_storage_check(text)
     if "WearableBlePermissions;->requestAtStartup" in text:
         print("MainActivity.onCreate: wearable BLE permissions hook already applied")
         return text

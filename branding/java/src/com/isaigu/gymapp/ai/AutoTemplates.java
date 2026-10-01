@@ -501,16 +501,19 @@ public final class AutoTemplates {
         return best >= 0 ? AutoTemplateData.IDS[best] : "glute-bridge";
     }
 
-    /** The AI goal and the client → the template program: fat burning → cardio; 65+ → senior; else general
-     *  (the focus zones add their own stations). Null for passive sessions. */
-    public static String programForAi(AiModel.Goal goal, AiModel.Mode mode, int age) {
+    /** The AI goal and the client → the template program: fat burning → cardio; 65+ → senior; a man under 50
+     *  toning → muscle mass; else general (the focus zones add their own stations). Null for passive sessions. */
+    public static String programForAi(AiModel.Goal goal, AiModel.Mode mode, int age, AiModel.Sex sex) {
         if (mode != AiModel.Mode.ACTIVE || (goal != AiModel.Goal.TONE && goal != AiModel.Goal.FAT)) {
             return null;
         }
         if (age >= 65) {
             return AutoCatalog.SENIOR;
         }
-        return goal == AiModel.Goal.FAT ? AutoCatalog.CARDIO : AutoCatalog.GENERAL;
+        if (goal == AiModel.Goal.FAT) {
+            return AutoCatalog.CARDIO;
+        }
+        return sex == AiModel.Sex.MALE && age < 50 ? AutoCatalog.MASS : AutoCatalog.GENERAL;   // men tone = muscle
     }
 
     private static boolean contains(String[] a, String s) {

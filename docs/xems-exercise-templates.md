@@ -15,7 +15,8 @@ Why: in AI the pulse is required, so it confirms the movement is really done; in
 a group session would force the leader's exercises on everyone.
 
 ## Data
-- `branding/exercises/exercises.json` — 40 exercises picked by the owner (source: bryllim/workout-guide, CC BY-SA):
+- `branding/exercises/exercises.json` — 48 built-in exercises (40 picked by the owner + 8 upper-body ones for the men's
+  programs, 1.1.260) (source: bryllim/workout-guide, CC BY-SA):
   id, bg/en name, muscle, equipment, how-to, position (stand / machine / bench / floor), viewBox and 1–3 frames.
   Frame 0 = working pose, last frame = rest pose; plank and cardio machine have one frame (static).
   Paths are normalized to absolute M/L/C/Z by `scripts/exercise-paths.py` (drawn by `android.graphics.Path`).

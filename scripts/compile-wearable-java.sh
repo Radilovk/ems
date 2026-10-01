@@ -20,6 +20,8 @@ LICENSE_CLASSES="${ROOT}/build/xems-license-java/classes"
 
 WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBlePermissions.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/XemsAccess.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/XemsAutoStart.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableBleDiagLog.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/WearableConfig.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/HrDemandPolicy.java"

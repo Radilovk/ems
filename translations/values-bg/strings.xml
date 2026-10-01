@@ -237,7 +237,7 @@
     <string name="tips_not_wifi_confirm">Продължи</string>
     <string name="tizhishuju">Телесни данни</string>
     <string name="today">Днес</string>
-    <string name="train">Тренировка</string>
+    <string name="train">Начало</string>
     <string name="trainValue">%1$d мин – %2$d/%3$d сек – %4$d Hz</string>
     <string name="train_plan">План</string>
     <string name="train_program">Програми</string>

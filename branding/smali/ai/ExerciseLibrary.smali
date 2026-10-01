@@ -60,21 +60,21 @@
     .registers 1
 
     .prologue
-    .line 77
+    .line 80
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->ALL:Ljava/util/List;
 
-    .line 78
+    .line 81
     new-instance v0, Ljava/util/HashMap;
 
     invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->BY_ID:Ljava/util/Map;
 
-    .line 81
+    .line 84
     const-string v0, ""
 
     sput-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->frameUrl:Ljava/lang/String;
@@ -128,7 +128,7 @@
     .registers 6
 
     .prologue
-    .line 251
+    .line 275
     new-instance v0, Ljava/io/File;
 
     new-instance v1, Ljava/io/File;
@@ -176,13 +176,13 @@
 
     const/4 v7, 0x1
 
-    .line 285
+    .line 309
     :try_start_4
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->cacheFile(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
 
     move-result-object v3
 
-    .line 286
+    .line 310
     invoke-virtual {v3}, Ljava/io/File;->exists()Z
 
     move-result v2
@@ -191,11 +191,11 @@
 
     move-object v0, v1
 
-    .line 312
+    .line 336
     :goto_f
     return-object v0
 
-    .line 289
+    .line 313
     :cond_10
     new-instance v2, Lorg/json/JSONObject;
 
@@ -209,19 +209,19 @@
 
     invoke-direct {v2, v3}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 290
+    .line 314
     const-string v3, "paths"
 
     invoke-virtual {v2, v3}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v3
 
-    .line 291
+    .line 315
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->fixes(Landroid/content/Context;)Lorg/json/JSONObject;
 
     move-result-object v4
 
-    .line 292
+    .line 316
     :goto_28
     invoke-virtual {v3}, Lorg/json/JSONArray;->length()I
 
@@ -229,7 +229,7 @@
 
     if-ge v0, v5, :cond_54
 
-    .line 293
+    .line 317
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -260,19 +260,19 @@
 
     move-result-object v5
 
-    .line 294
+    .line 318
     if-eqz v5, :cond_51
 
-    .line 295
+    .line 319
     invoke-virtual {v3, v0, v5}, Lorg/json/JSONArray;->put(ILjava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 292
+    .line 316
     :cond_51
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_28
 
-    .line 298
+    .line 322
     :cond_54
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->picks(Landroid/content/Context;)Ljava/util/Map;
 
@@ -284,7 +284,7 @@
 
     check-cast v0, [I
 
-    .line 299
+    .line 323
     if-eqz v0, :cond_85
 
     const/4 v4, 0x1
@@ -299,13 +299,13 @@
 
     move v4, v0
 
-    .line 300
+    .line 324
     :goto_69
     new-instance v0, Lorg/json/JSONArray;
 
     invoke-direct {v0}, Lorg/json/JSONArray;-><init>()V
 
-    .line 301
+    .line 325
     if-le v4, v7, :cond_76
 
     invoke-virtual {v3}, Lorg/json/JSONArray;->length()I
@@ -314,7 +314,7 @@
 
     if-ne v5, v7, :cond_8b
 
-    .line 302
+    .line 326
     :cond_76
     const/4 v4, 0x0
 
@@ -324,7 +324,7 @@
 
     invoke-virtual {v0, v3}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 309
+    .line 333
     :goto_7e
     const-string v3, "paths"
 
@@ -332,10 +332,10 @@
 
     move-object v0, v2
 
-    .line 310
+    .line 334
     goto :goto_f
 
-    .line 299
+    .line 323
     :cond_85
     invoke-virtual {v3}, Lorg/json/JSONArray;->length()I
 
@@ -345,7 +345,7 @@
 
     goto :goto_69
 
-    .line 303
+    .line 327
     :cond_8b
     if-eq v4, v8, :cond_93
 
@@ -355,7 +355,7 @@
 
     if-ne v4, v8, :cond_ad
 
-    .line 304
+    .line 328
     :cond_93
     const/4 v4, 0x0
 
@@ -365,7 +365,7 @@
 
     invoke-virtual {v0, v4}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 305
+    .line 329
     invoke-virtual {v3}, Lorg/json/JSONArray;->length()I
 
     move-result v4
@@ -382,19 +382,19 @@
 
     goto :goto_7e
 
-    .line 311
+    .line 335
     :catch_a9
     move-exception v0
 
     move-object v0, v1
 
-    .line 312
+    .line 336
     goto/16 :goto_f
 
     :cond_ad
     move-object v0, v3
 
-    .line 307
+    .line 331
     goto :goto_7e
 .end method
 
@@ -404,13 +404,13 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 257
+    .line 281
     :try_start_1
     new-instance v2, Lorg/json/JSONArray;
 
     invoke-direct {v2}, Lorg/json/JSONArray;-><init>()V
 
-    .line 258
+    .line 282
     const/4 v1, 0x1
 
     :goto_7
@@ -418,7 +418,7 @@
 
     if-gt v1, v3, :cond_31
 
-    .line 259
+    .line 283
     sget-object v3, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->frameUrl:Ljava/lang/String;
 
     const-string v4, "{id}"
@@ -439,7 +439,7 @@
 
     move-result-object v3
 
-    .line 260
+    .line 284
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->fetch(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -454,23 +454,23 @@
 
     invoke-virtual {v2, v3}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 258
+    .line 282
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_7
 
-    .line 262
+    .line 286
     :cond_31
     new-instance v3, Lorg/json/JSONObject;
 
     invoke-direct {v3}, Lorg/json/JSONObject;-><init>()V
 
-    .line 263
+    .line 287
     new-instance v4, Lorg/json/JSONArray;
 
     invoke-direct {v4}, Lorg/json/JSONArray;-><init>()V
 
-    .line 264
+    .line 288
     iget-object v5, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->vb:[F
 
     array-length v6, v5
@@ -482,42 +482,42 @@
 
     aget v7, v5, v1
 
-    .line 265
+    .line 289
     float-to-double v8, v7
 
     invoke-virtual {v4, v8, v9}, Lorg/json/JSONArray;->put(D)Lorg/json/JSONArray;
 
-    .line 264
+    .line 288
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_3f
 
-    .line 267
+    .line 291
     :cond_4a
     const-string v1, "vb"
 
     invoke-virtual {v3, v1, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 268
+    .line 292
     const-string v1, "paths"
 
     invoke-virtual {v3, v1, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 269
+    .line 293
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->cacheFile(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
 
     move-result-object v1
 
-    .line 270
+    .line 294
     invoke-virtual {v1}, Ljava/io/File;->getParentFile()Ljava/io/File;
 
     move-result-object v2
 
     invoke-virtual {v2}, Ljava/io/File;->mkdirs()Z
 
-    .line 271
+    .line 295
     new-instance v2, Ljava/io/File;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -544,12 +544,12 @@
 
     invoke-direct {v2, v4}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 272
+    .line 296
     new-instance v4, Ljava/io/FileOutputStream;
 
     invoke-direct {v4, v2}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
 
-    .line 273
+    .line 297
     invoke-virtual {v3}, Lorg/json/JSONObject;->toString()Ljava/lang/String;
 
     move-result-object v3
@@ -562,25 +562,25 @@
 
     invoke-virtual {v4, v3}, Ljava/io/FileOutputStream;->write([B)V
 
-    .line 274
+    .line 298
     invoke-virtual {v4}, Ljava/io/FileOutputStream;->close()V
 
-    .line 275
+    .line 299
     invoke-virtual {v2, v1}, Ljava/io/File;->renameTo(Ljava/io/File;)Z
     :try_end_95
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_95} :catch_97
 
     move-result v0
 
-    .line 278
+    .line 302
     :goto_96
     return v0
 
-    .line 276
+    .line 300
     :catch_97
     move-exception v1
 
-    .line 277
+    .line 301
     const-string v2, "library"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -619,7 +619,7 @@
 .end method
 
 .method public static enabled(Landroid/content/Context;)Ljava/util/List;
-    .registers 7
+    .registers 8
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -633,93 +633,120 @@
     .end annotation
 
     .prologue
-    .line 166
+    .line 187
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->load(Landroid/content/Context;)V
 
-    .line 167
+    .line 188
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->picks(Landroid/content/Context;)Ljava/util/Map;
 
-    move-result-object v1
+    move-result-object v2
 
-    .line 168
-    new-instance v2, Ljava/util/ArrayList;
+    .line 189
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->zones(Landroid/content/Context;)Ljava/util/Map;
 
-    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+    move-result-object v3
 
-    .line 169
-    const-class v3, Lcom/isaigu/gymapp/ai/ExerciseLibrary;
+    .line 190
+    new-instance v4, Ljava/util/ArrayList;
 
-    monitor-enter v3
+    invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 170
-    :try_start_f
+    .line 191
+    const-class v5, Lcom/isaigu/gymapp/ai/ExerciseLibrary;
+
+    monitor-enter v5
+
+    .line 192
+    :try_start_13
     sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->ALL:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    move-result-object v4
+    move-result-object v6
 
-    :cond_15
-    :goto_15
-    invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
+    :cond_19
+    :goto_19
+    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_3e
+    if-eqz v0, :cond_51
 
-    invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
-    .line 171
-    invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->isEnabled(Landroid/content/Context;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;Ljava/util/Map;)Z
+    .line 193
+    iget-object v1, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
-    move-result v5
+    invoke-interface {v3, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
-    if-eqz v5, :cond_15
+    move-result-object v1
 
-    iget-boolean v5, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->builtIn:Z
+    check-cast v1, Ljava/lang/String;
 
-    if-nez v5, :cond_37
+    .line 194
+    if-eqz v1, :cond_4e
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
+    :goto_2f
+    iput-object v1, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->zone:Ljava/lang/String;
 
-    invoke-static {p0, v5}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->cacheFile(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
+    .line 195
+    invoke-static {p0, v0, v2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->isEnabled(Landroid/content/Context;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;Ljava/util/Map;)Z
 
-    move-result-object v5
+    move-result v1
 
-    invoke-virtual {v5}, Ljava/io/File;->exists()Z
+    if-eqz v1, :cond_19
 
-    move-result v5
+    iget-boolean v1, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->builtIn:Z
 
-    if-eqz v5, :cond_15
+    if-nez v1, :cond_47
 
-    .line 172
-    :cond_37
-    invoke-interface {v2, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    iget-object v1, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
-    goto :goto_15
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->cacheFile(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
 
-    .line 175
-    :catchall_3b
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/io/File;->exists()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_19
+
+    .line 196
+    :cond_47
+    invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_19
+
+    .line 199
+    :catchall_4b
     move-exception v0
 
-    monitor-exit v3
-    :try_end_3d
-    .catchall {:try_start_f .. :try_end_3d} :catchall_3b
+    monitor-exit v5
+    :try_end_4d
+    .catchall {:try_start_13 .. :try_end_4d} :catchall_4b
 
     throw v0
 
-    :cond_3e
-    :try_start_3e
-    monitor-exit v3
-    :try_end_3f
-    .catchall {:try_start_3e .. :try_end_3f} :catchall_3b
+    .line 194
+    :cond_4e
+    :try_start_4e
+    iget-object v1, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->libZone:Ljava/lang/String;
 
-    .line 176
-    return-object v2
+    goto :goto_2f
+
+    .line 199
+    :cond_51
+    monitor-exit v5
+    :try_end_52
+    .catchall {:try_start_4e .. :try_end_52} :catchall_4b
+
+    .line 200
+    return-object v4
 .end method
 
 .method private static fetch(Ljava/lang/String;)Ljava/lang/String;
@@ -731,7 +758,7 @@
     .end annotation
 
     .prologue
-    .line 328
+    .line 352
     new-instance v0, Ljava/net/URL;
 
     invoke-direct {v0, p0}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
@@ -742,34 +769,34 @@
 
     check-cast v0, Ljava/net/HttpURLConnection;
 
-    .line 329
+    .line 353
     const/16 v1, 0x3a98
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 330
+    .line 354
     const/16 v1, 0x4e20
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 331
+    .line 355
     const-string v1, "User-Agent"
 
     const-string v2, "XEMS-Android"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 332
+    .line 356
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v1
 
-    .line 333
+    .line 357
     const/16 v2, 0xc8
 
     if-eq v1, v2, :cond_3d
 
-    .line 334
+    .line 358
     new-instance v0, Ljava/lang/Exception;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -794,7 +821,7 @@
 
     throw v0
 
-    .line 336
+    .line 360
     :cond_3d
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
@@ -811,7 +838,7 @@
     .registers 5
 
     .prologue
-    .line 317
+    .line 341
     const-class v1, Lcom/isaigu/gymapp/ai/ExerciseLibrary;
 
     monitor-enter v1
@@ -823,7 +850,7 @@
 
     if-nez v0, :cond_1c
 
-    .line 319
+    .line 343
     :try_start_7
     new-instance v0, Lorg/json/JSONObject;
 
@@ -848,7 +875,7 @@
     .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_1c} :catch_20
     .catchall {:try_start_7 .. :try_end_1c} :catchall_29
 
-    .line 324
+    .line 348
     :cond_1c
     :goto_1c
     :try_start_1c
@@ -860,11 +887,11 @@
 
     return-object v0
 
-    .line 320
+    .line 344
     :catch_20
     move-exception v0
 
-    .line 321
+    .line 345
     :try_start_21
     new-instance v0, Lorg/json/JSONObject;
 
@@ -876,7 +903,7 @@
 
     goto :goto_1c
 
-    .line 317
+    .line 341
     :catchall_29
     move-exception v0
 
@@ -889,15 +916,15 @@
     .registers 4
 
     .prologue
-    .line 132
+    .line 136
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->load(Landroid/content/Context;)V
 
-    .line 133
+    .line 137
     const-class v1, Lcom/isaigu/gymapp/ai/ExerciseLibrary;
 
     monitor-enter v1
 
-    .line 134
+    .line 138
     :try_start_6
     sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->BY_ID:Ljava/util/Map;
 
@@ -911,7 +938,7 @@
 
     return-object v0
 
-    .line 135
+    .line 139
     :catchall_10
     move-exception v0
 
@@ -941,7 +968,7 @@
 
     const/4 v2, 0x0
 
-    .line 160
+    .line 181
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     invoke-interface {p2, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -950,8 +977,8 @@
 
     check-cast v0, [I
 
-    .line 161
-    if-eqz v0, :cond_14
+    .line 182
+    if-eqz v0, :cond_12
 
     aget v0, v0, v2
 
@@ -966,11 +993,6 @@
     move v0, v2
 
     goto :goto_11
-
-    :cond_14
-    iget-boolean v0, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->builtIn:Z
-
-    goto :goto_11
 .end method
 
 .method public static declared-synchronized load(Landroid/content/Context;)V
@@ -983,7 +1005,7 @@
 
     const/4 v7, 0x1
 
-    .line 88
+    .line 91
     const-class v10, Lcom/isaigu/gymapp/ai/ExerciseLibrary;
 
     monitor-enter v10
@@ -991,20 +1013,20 @@
     :try_start_7
     sget-boolean v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->loaded:Z
     :try_end_9
-    .catchall {:try_start_7 .. :try_end_9} :catchall_157
+    .catchall {:try_start_7 .. :try_end_9} :catchall_15b
 
     if-nez v0, :cond_d
 
     if-nez p0, :cond_f
 
-    .line 129
+    .line 133
     :cond_d
     :goto_d
     monitor-exit v10
 
     return-void
 
-    .line 92
+    .line 95
     :cond_f
     :try_start_f
     new-instance v0, Lorg/json/JSONObject;
@@ -1025,7 +1047,7 @@
 
     invoke-direct {v0, v1}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 93
+    .line 96
     const-string v1, "frames"
 
     const-string v2, ""
@@ -1036,7 +1058,7 @@
 
     sput-object v1, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->frameUrl:Ljava/lang/String;
 
-    .line 94
+    .line 97
     const-string v1, "exercises"
 
     invoke-virtual {v0, v1}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
@@ -1045,25 +1067,25 @@
 
     move v9, v8
 
-    .line 95
+    .line 98
     :goto_33
     invoke-virtual {v11}, Lorg/json/JSONArray;->length()I
 
     move-result v0
 
-    if-ge v9, v0, :cond_137
+    if-ge v9, v0, :cond_13b
 
-    .line 96
+    .line 99
     invoke-virtual {v11, v9}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v1
 
-    .line 97
+    .line 100
     new-instance v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
     invoke-direct {v6}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;-><init>()V
 
-    .line 98
+    .line 101
     const-string v0, "id"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
@@ -1072,7 +1094,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
-    .line 99
+    .line 102
     const-string v0, "bg"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1081,7 +1103,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->bg:Ljava/lang/String;
 
-    .line 100
+    .line 103
     const-string v0, "en"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1090,7 +1112,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->en:Ljava/lang/String;
 
-    .line 101
+    .line 104
     const-string v0, "eq"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1099,7 +1121,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->eq:Ljava/lang/String;
 
-    .line 102
+    .line 105
     const-string v0, "tg"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1108,7 +1130,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->tg:Ljava/lang/String;
 
-    .line 103
+    .line 106
     const-string v0, "zone"
 
     const-string v2, "legs"
@@ -1119,7 +1141,12 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->zone:Ljava/lang/String;
 
-    .line 104
+    .line 107
+    iget-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->zone:Ljava/lang/String;
+
+    iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->libZone:Ljava/lang/String;
+
+    .line 108
     const-string v0, "pos"
 
     const-string v2, "stand"
@@ -1130,7 +1157,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->pos:Ljava/lang/String;
 
-    .line 105
+    .line 109
     const-string v0, "type"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1139,7 +1166,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->type:Ljava/lang/String;
 
-    .line 106
+    .line 110
     const-string v0, "pat"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1148,7 +1175,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->pat:Ljava/lang/String;
 
-    .line 107
+    .line 111
     const-string v0, "diff"
 
     const/4 v2, 0x1
@@ -1159,7 +1186,7 @@
 
     iput v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->diff:I
 
-    .line 108
+    .line 112
     const-string v0, "met"
 
     const-wide/high16 v2, 0x4008000000000000L    # 3.0
@@ -1170,14 +1197,14 @@
 
     iput-wide v2, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->met:D
 
-    .line 109
+    .line 113
     const-string v0, "mus"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v2
 
-    .line 110
+    .line 114
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -1186,17 +1213,17 @@
 
     move v0, v8
 
-    .line 111
-    :goto_ae
-    if-ge v0, v12, :cond_c1
+    .line 115
+    :goto_b2
+    if-ge v0, v12, :cond_c5
 
     invoke-virtual {v2}, Lorg/json/JSONArray;->length()I
 
     move-result v3
 
-    if-ge v0, v3, :cond_c1
+    if-ge v0, v3, :cond_c5
 
-    .line 112
+    .line 116
     iget-object v3, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->mus:[I
 
     invoke-virtual {v2, v0}, Lorg/json/JSONArray;->getInt(I)I
@@ -1205,13 +1232,13 @@
 
     aput v4, v3, v0
 
-    .line 111
+    .line 115
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_ae
+    goto :goto_b2
 
-    .line 114
-    :cond_c1
+    .line 118
+    :cond_c5
     const-string v0, "how"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1220,7 +1247,7 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->how:Ljava/lang/String;
 
-    .line 115
+    .line 119
     const-string v0, "howEn"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -1229,14 +1256,14 @@
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->howEn:Ljava/lang/String;
 
-    .line 116
+    .line 120
     const-string v0, "vb"
 
     invoke-virtual {v1, v0}, Lorg/json/JSONObject;->getJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v0
 
-    .line 117
+    .line 121
     const/4 v2, 0x4
 
     new-array v2, v2, [F
@@ -1281,7 +1308,7 @@
 
     const/4 v4, 0x3
 
-    .line 118
+    .line 122
     invoke-virtual {v0, v4}, Lorg/json/JSONArray;->getDouble(I)D
 
     move-result-wide v4
@@ -1292,7 +1319,7 @@
 
     iput-object v2, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->vb:[F
 
-    .line 119
+    .line 123
     const-string v0, "n"
 
     const/4 v2, 0x1
@@ -1303,7 +1330,7 @@
 
     iput v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->frames:I
 
-    .line 120
+    .line 124
     const-string v0, "b"
 
     const/4 v2, 0x0
@@ -1312,26 +1339,26 @@
 
     move-result v0
 
-    if-ne v0, v7, :cond_135
+    if-ne v0, v7, :cond_139
 
     move v0, v7
 
-    :goto_113
+    :goto_117
     iput-boolean v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->builtIn:Z
 
-    .line 121
+    .line 125
     sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->ALL:Ljava/util/List;
 
     invoke-interface {v0, v6}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 122
+    .line 126
     sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->BY_ID:Ljava/util/Map;
 
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     invoke-interface {v0, v1, v6}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 123
+    .line 127
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->bg:Ljava/lang/String;
@@ -1346,36 +1373,36 @@
 
     invoke-static/range {v0 .. v6}, Lcom/isaigu/gymapp/ai/AutoTemplates;->register(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;D[I)V
 
-    .line 95
+    .line 98
     add-int/lit8 v0, v9, 0x1
 
     move v9, v0
 
     goto/16 :goto_33
 
-    :cond_135
+    :cond_139
     move v0, v8
 
-    .line 120
-    goto :goto_113
+    .line 124
+    goto :goto_117
 
-    .line 125
-    :cond_137
+    .line 129
+    :cond_13b
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->loaded:Z
-    :try_end_13a
-    .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_13a} :catch_13c
-    .catchall {:try_start_f .. :try_end_13a} :catchall_157
+    :try_end_13e
+    .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_13e} :catch_140
+    .catchall {:try_start_f .. :try_end_13e} :catchall_15b
 
     goto/16 :goto_d
 
-    .line 126
-    :catch_13c
+    .line 130
+    :catch_140
     move-exception v0
 
-    .line 127
-    :try_start_13d
+    .line 131
+    :try_start_141
     const-string v1, "library"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -1397,13 +1424,13 @@
     move-result-object v0
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_155
-    .catchall {:try_start_13d .. :try_end_155} :catchall_157
+    :try_end_159
+    .catchall {:try_start_141 .. :try_end_159} :catchall_15b
 
     goto/16 :goto_d
 
-    .line 88
-    :catchall_157
+    .line 91
+    :catchall_15b
     move-exception v0
 
     monitor-exit v10
@@ -1415,23 +1442,23 @@
     .registers 7
 
     .prologue
-    .line 181
+    .line 205
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->load(Landroid/content/Context;)V
 
-    .line 182
+    .line 206
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->picks(Landroid/content/Context;)Ljava/util/Map;
 
     move-result-object v2
 
-    .line 183
+    .line 207
     const/4 v1, 0x0
 
-    .line 184
+    .line 208
     const-class v3, Lcom/isaigu/gymapp/ai/ExerciseLibrary;
 
     monitor-enter v3
 
-    .line 185
+    .line 209
     :try_start_b
     sget-object v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->ALL:Ljava/util/List;
 
@@ -1452,7 +1479,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
-    .line 186
+    .line 210
     invoke-static {p0, v0, v2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->isEnabled(Landroid/content/Context;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;Ljava/util/Map;)Z
 
     move-result v5
@@ -1475,23 +1502,23 @@
 
     if-nez v0, :cond_3c
 
-    .line 187
+    .line 211
     add-int/lit8 v0, v1, 0x1
 
     :goto_35
     move v1, v0
 
-    .line 189
+    .line 213
     goto :goto_11
 
-    .line 190
+    .line 214
     :cond_37
     monitor-exit v3
 
-    .line 191
+    .line 215
     return v1
 
-    .line 190
+    .line 214
     :catchall_39
     move-exception v0
 
@@ -1524,12 +1551,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 146
+    .line 150
     new-instance v1, Ljava/util/HashMap;
 
     invoke-direct {v1}, Ljava/util/HashMap;-><init>()V
 
-    .line 148
+    .line 152
     :try_start_6
     new-instance v2, Lorg/json/JSONArray;
 
@@ -1547,7 +1574,7 @@
 
     invoke-direct {v2, v3}, Lorg/json/JSONArray;-><init>(Ljava/lang/String;)V
 
-    .line 149
+    .line 153
     :goto_17
     invoke-virtual {v2}, Lorg/json/JSONArray;->length()I
 
@@ -1555,12 +1582,12 @@
 
     if-ge v0, v3, :cond_43
 
-    .line 150
+    .line 154
     invoke-virtual {v2, v0}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 151
+    .line 155
     const-string v4, "id"
 
     invoke-virtual {v3, v4}, Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
@@ -1595,16 +1622,16 @@
     :try_end_3f
     .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_3f} :catch_42
 
-    .line 149
+    .line 153
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_17
 
-    .line 153
+    .line 157
     :catch_42
     move-exception v0
 
-    .line 155
+    .line 159
     :cond_43
     return-object v1
 .end method
@@ -1613,7 +1640,7 @@
     .registers 3
 
     .prologue
-    .line 141
+    .line 145
     const-string v0, "xems_library"
 
     const/4 v1, 0x0
@@ -1634,17 +1661,17 @@
     .end annotation
 
     .prologue
-    .line 340
+    .line 364
     new-instance v0, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v0}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 341
+    .line 365
     const/16 v1, 0x4000
 
     new-array v1, v1, [B
 
-    .line 343
+    .line 367
     :goto_9
     invoke-virtual {p0, v1}, Ljava/io/InputStream;->read([B)I
 
@@ -1652,18 +1679,18 @@
 
     if-lez v2, :cond_14
 
-    .line 344
+    .line 368
     const/4 v3, 0x0
 
     invoke-virtual {v0, v1, v3, v2}, Ljava/io/ByteArrayOutputStream;->write([BII)V
 
     goto :goto_9
 
-    .line 346
+    .line 370
     :cond_14
     invoke-virtual {p0}, Ljava/io/InputStream;->close()V
 
-    .line 347
+    .line 371
     const-string v1, "UTF-8"
 
     invoke-virtual {v0, v1}, Ljava/io/ByteArrayOutputStream;->toString(Ljava/lang/String;)Ljava/lang/String;
@@ -1677,19 +1704,19 @@
     .registers 6
 
     .prologue
-    .line 198
+    .line 222
     if-eqz p0, :cond_6
 
     sget-boolean v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->syncing:Z
 
     if-eqz v0, :cond_7
 
-    .line 207
+    .line 231
     :cond_6
     :goto_6
     return-void
 
-    .line 201
+    .line 225
     :cond_7
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -1703,7 +1730,7 @@
 
     move-result-wide v0
 
-    .line 202
+    .line 226
     if-nez p1, :cond_22
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -1718,13 +1745,13 @@
 
     if-ltz v0, :cond_6
 
-    .line 205
+    .line 229
     :cond_22
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->syncing:Z
 
-    .line 206
+    .line 230
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Sync;
@@ -1742,4 +1769,100 @@
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
     goto :goto_6
+.end method
+
+.method static zones(Landroid/content/Context;)Ljava/util/Map;
+    .registers 7
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Landroid/content/Context;",
+            ")",
+            "Ljava/util/Map",
+            "<",
+            "Ljava/lang/String;",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    .prologue
+    .line 164
+    new-instance v1, Ljava/util/HashMap;
+
+    invoke-direct {v1}, Ljava/util/HashMap;-><init>()V
+
+    .line 166
+    :try_start_5
+    new-instance v2, Lorg/json/JSONArray;
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v3, "picks"
+
+    const-string v4, "[]"
+
+    invoke-interface {v0, v3, v4}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-direct {v2, v0}, Lorg/json/JSONArray;-><init>(Ljava/lang/String;)V
+
+    .line 167
+    const/4 v0, 0x0
+
+    :goto_17
+    invoke-virtual {v2}, Lorg/json/JSONArray;->length()I
+
+    move-result v3
+
+    if-ge v0, v3, :cond_3c
+
+    .line 168
+    invoke-virtual {v2, v0}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
+
+    move-result-object v3
+
+    .line 169
+    const-string v4, "zone"
+
+    const-string v5, ""
+
+    invoke-virtual {v3, v4, v5}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 170
+    invoke-virtual {v4}, Ljava/lang/String;->length()I
+
+    move-result v5
+
+    if-lez v5, :cond_38
+
+    .line 171
+    const-string v5, "id"
+
+    invoke-virtual {v3, v5}, Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v1, v3, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    :try_end_38
+    .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_38} :catch_3b
+
+    .line 167
+    :cond_38
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_17
+
+    .line 174
+    :catch_3b
+    move-exception v0
+
+    .line 176
+    :cond_3c
+    return-object v1
 .end method

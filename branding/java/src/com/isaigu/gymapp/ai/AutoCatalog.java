@@ -44,6 +44,9 @@ public final class AutoCatalog {
     public static final String PASSIVE_METABOLIC = "passive_metabolic";
     public static final String BACK_PAIN = "back_pain";
     public static final String RECOVERY = "recovery";
+    /** Men's goals (owner's decision): muscle mass, and chest · shoulders · arms. */
+    public static final String MASS = "mass";
+    public static final String UPPER = "upper";
 
     /** Marker for {@link Phase#envEnd}: the planner puts the plan's envelope ceiling there. */
     static final double ENV_MAX = -1;
@@ -63,6 +66,8 @@ public final class AutoCatalog {
         public double envMax = 1.0;
         public boolean doublePulse;
         public boolean femaleOnly;
+        /** Men's programs: a woman's menu does not show them. */
+        public boolean maleOnly;
         public boolean asksBack;
         public boolean asksPostpartum;
         /** Variants shown as a choice on the plan step (DRAIN: standard / sensitive). */
@@ -105,7 +110,17 @@ public final class AutoCatalog {
         p = add(new Program(GLUTES_LEGS, "Седалище и бедра", "Glutes & thighs",
                 "Акцент върху седалището и задното бедро", "Focus on glutes and hamstrings",
                 Kind.ACTIVE, AutoModel.zones(60, 85, 95, 100, 70, 75, 60, 40, 40, 40)));
-        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true;
+        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.femaleOnly = true;
+
+        p = add(new Program(MASS, "Мускулна маса", "Muscle mass",
+                "Цялото тяло, тежки бавни повторения — обем и сила", "Whole body, heavy slow reps — size and strength",
+                Kind.ACTIVE, AutoModel.zones(60, 85, 80, 80, 80, 75, 100, 90, 100, 100)));
+        p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.3; p.maleOnly = true;
+
+        p = add(new Program(UPPER, "Гърди, рамене и ръце", "Chest, shoulders & arms",
+                "Горната част: гърди, гръб, рамене и ръце", "Upper body: chest, back, shoulders and arms",
+                Kind.ACTIVE, AutoModel.zones(40, 60, 55, 60, 80, 70, 100, 100, 100, 100)));
+        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.maleOnly = true;
 
         p = add(new Program(CORE, "Талия и корем", "Waist & core",
                 "Корем с кръста в баланс — пази гръбнака", "Abs balanced with the lower back",
@@ -135,7 +150,7 @@ public final class AutoCatalog {
         p = add(new Program(CELLULITE, "Антицелулит", "Anti-cellulite",
                 "Тонус на долната част + дренажна вълна", "Lower-body tone + drainage wave",
                 Kind.PASSIVE, AutoModel.zones(70, 100, 100, 100, 75, 60, 0, 0, 0, 50)));
-        p.cr10Lo = 5; p.cr10Hi = 5; p.xCap = 0.60; p.doublePulse = true;
+        p.cr10Lo = 5; p.cr10Hi = 5; p.xCap = 0.60; p.doublePulse = true; p.femaleOnly = true;
 
         p = add(new Program(POSTPARTUM, "Следродилно възстановяване", "Postpartum recovery",
                 "Тазово дъно, седалище и кръст; коремът — внимателно", "Pelvic floor, glutes, lower back; abs gently",
@@ -189,8 +204,8 @@ public final class AutoCatalog {
         switch (goal) {
             case TONE:
                 ids = kind == Kind.ACTIVE
-                        ? new String[] {GENERAL, GLUTES_LEGS, CORE, POWER}
-                        : new String[] {CELLULITE, POSTPARTUM};
+                        ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER}
+                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC};
                 break;
             case SLIM:
                 ids = kind == Kind.ACTIVE
@@ -261,6 +276,9 @@ public final class AutoCatalog {
         if (p.femaleOnly && in.sex != AiModel.Sex.FEMALE) {
             return AiText.t("Само за жени", "Women only");
         }
+        if (p.maleOnly && in.sex == AiModel.Sex.FEMALE) {
+            return AiText.t("Мъжка програма", "Men's program");
+        }
         if (p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 24) {
             return AiText.t("Под 24 ч от последната активна — само пасивна",
                     "Under 24 h since the last active one — passive only");
@@ -309,6 +327,8 @@ public final class AutoCatalog {
             case GENERAL:
             case GLUTES_LEGS:
             case CORE:
+            case MASS:
+            case UPPER:
                 return slim ? 1500 : 1200;
             case POWER:
                 return 1080;
@@ -339,11 +359,20 @@ public final class AutoCatalog {
         switch (p.id) {
             case GENERAL:
             case GLUTES_LEGS:
+            case MASS:
+            case UPPER:
             case CORE: {
-                int[] oo = GLUTES_LEGS.equals(p.id) ? onOff(in, 5, 4) : onOff(in, 4, 4);
+                int[] oo = GLUTES_LEGS.equals(p.id) || MASS.equals(p.id) || UPPER.equals(p.id)
+                        ? onOff(in, 5, 4) : onOff(in, 4, 4);
                 String hBg;
                 String hEn;
-                if (GLUTES_LEGS.equals(p.id)) {
+                if (MASS.equals(p.id)) {
+                    hBg = "Клек, лицеви опори, гребане, преса — бавно и тежко";
+                    hEn = "Squat, push-ups, rows, press — slow and heavy";
+                } else if (UPPER.equals(p.id)) {
+                    hBg = "Лицеви опори, гребане, преса, бицепс, трицепс";
+                    hEn = "Push-ups, rows, press, biceps, triceps";
+                } else if (GLUTES_LEGS.equals(p.id)) {
                     hBg = "Клек, напад, глутеус мост, абдукция";
                     hEn = "Squat, lunge, glute bridge, abduction";
                 } else if (CORE.equals(p.id)) {

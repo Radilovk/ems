@@ -76,6 +76,11 @@ public final class MapRunner {
         if (isRunning()) {
             return AiText.t("Една карта вече върви.", "A map is already running.");
         }
+        if (!w.isPassive() && !com.isaigu.gymapp.widget.XemsLicense.has(com.isaigu.gymapp.widget.XemsLicense.AUTO)) {
+            // an exercise program is the automatic mode's (or the AI's): not without it
+            return AiText.t("Програмите с упражнения вървят в Авто или AI — Авто не е отключен.",
+                    "Exercise programs run in Auto or AI — Auto is not unlocked.");
+        }
         try {
             if (AiSession.ownsOutput() || AiSession.getStage() == AiSession.Stage.RUNNING) {
                 return AiText.t("Първо спри AI сесията.", "Stop the AI session first.");
@@ -418,7 +423,7 @@ public final class MapRunner {
         Workout.Block b = clock.block();
         int idx = clock.getIndex();
         int left = (int) Math.max(0, map.totalSeconds() - clock.position());
-        head.setText(map.name + "  ·  " + AiText.t("остават ", "left ") + AiText.mmss(left)
+        head.setText((map.isPassive() ? "" : AiText.t("Авто · ", "Auto · ")) + map.name + "  ·  " + AiText.t("остават ", "left ") + AiText.mmss(left)
                 + (swapped > 0 ? AiText.t("  ·  по-щадящи упражнения за клиента", "  ·  gentler exercises for the client") : ""));
         line.setPlayhead((float) clock.position());
         if (b.isRest()) {

@@ -398,7 +398,8 @@
       }
      ]
     }
-   }
+   },
+   "sex": "f"
   },
   {
    "id": "core",
@@ -1252,6 +1253,406 @@
      ]
     }
    }
+  },
+  {
+   "id": "mass",
+   "name": "Мускулна маса",
+   "goals": [
+    "tone"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "press",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz · 350 µs",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "7",
+   "sex": "m",
+   "note": "Мъже: хипертрофия на цялото тяло, тежки бавни повторения в импулса",
+   "lv": {
+    "1": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "push-up",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "dumbbell-bent-over-row",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "forward-lunge",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "bicep-curl",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "bench-dip",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "plank",
+       "sec": 112,
+       "cycles": 11
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 5,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "goblet-squat",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "dumbbell-bench-press",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "dumbbell-bent-over-row",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "hammer-curl",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "dumbbell-overhead-tricep-extension",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 112,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 5,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "kettlebell-romanian-deadlift",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "dumbbell-bench-press",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "bulgarian-split-squat",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "diamond-push-up",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "bicep-curl",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "lying-leg-raise",
+       "sec": 112,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "upper",
+   "name": "Гърди, рамене и ръце",
+   "goals": [
+    "tone"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "press",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "85 Hz · 300 µs · 4:4",
+   "main": "85 Hz · 350 µs",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "6–7",
+   "sex": "m",
+   "note": "Мъже: горната част — гърди, гръб, рамене и ръце; краката държат",
+   "lv": {
+    "1": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "incline-push-up",
+       "sec": 128,
+       "cycles": 12
+      },
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 128,
+       "cycles": 12
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 128,
+       "cycles": 12
+      },
+      {
+       "ex": "bicep-curl",
+       "sec": 128,
+       "cycles": 12
+      },
+      {
+       "ex": "chair-dip",
+       "sec": 128,
+       "cycles": 12
+      },
+      {
+       "ex": "lateral-raise",
+       "sec": 128,
+       "cycles": 12
+      },
+      {
+       "ex": "plank",
+       "sec": 128,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 5,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "push-up",
+       "sec": 128,
+       "cycles": 14
+      },
+      {
+       "ex": "dumbbell-bent-over-row",
+       "sec": 128,
+       "cycles": 14
+      },
+      {
+       "ex": "dumbbell-fly",
+       "sec": 128,
+       "cycles": 14
+      },
+      {
+       "ex": "lateral-raise",
+       "sec": 128,
+       "cycles": 14
+      },
+      {
+       "ex": "hammer-curl",
+       "sec": 128,
+       "cycles": 14
+      },
+      {
+       "ex": "dumbbell-overhead-tricep-extension",
+       "sec": 128,
+       "cycles": 14
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 128,
+       "cycles": 14
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 896,
+     "cool_s": 124,
+     "on": 5,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "dumbbell-bench-press",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "diamond-push-up",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "bicep-curl",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "lateral-raise",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "tricep-kickback",
+       "sec": 112,
+       "cycles": 12
+      },
+      {
+       "ex": "plank-shoulder-tap",
+       "sec": 112,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "jumping-jack",
+       "sec": 90
+      },
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      }
+     ]
+    }
+   }
   }
  ],
  "passive": [
@@ -1491,7 +1892,8 @@
     "burpee",
     "jump-squat",
     "bicycle-crunch",
-    "crunch"
+    "crunch",
+    "dumbbell-bent-over-row"
    ],
    "yes": [
     "glute-bridge",
@@ -1507,7 +1909,9 @@
     "dumbbell-overhead-tricep-extension",
     "crunch",
     "bicycle-crunch",
-    "plate-front-raise"
+    "plate-front-raise",
+    "dumbbell-bench-press",
+    "lateral-raise"
    ],
    "yes": [
     "reverse-crunch",
@@ -1524,7 +1928,9 @@
     "lying-leg-raise",
     "plank-shoulder-tap",
     "plank",
-    "burpee"
+    "burpee",
+    "push-up",
+    "diamond-push-up"
    ],
    "yes": [
     "glute-bridge",
@@ -1545,7 +1951,9 @@
     "jump-squat",
     "burpee",
     "jumping-jack",
-    "kettlebell-swing"
+    "kettlebell-swing",
+    "push-up",
+    "diamond-push-up"
    ],
    "yes": [
     "glute-bridge",
@@ -1578,7 +1986,8 @@
     "jump-squat",
     "burpee",
     "jumping-jack",
-    "kettlebell-swing"
+    "kettlebell-swing",
+    "diamond-push-up"
    ],
    "yes": [
     "bodyweight-squat",

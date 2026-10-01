@@ -52,7 +52,7 @@ public final class AiExercises {
         if (in == null || plan == null) {
             return null;
         }
-        String prog = AutoTemplates.programForAi(in.goal, in.mode, in.age);
+        String prog = AutoTemplates.programForAi(in.goal, in.mode, in.age, in.sex);
         if (prog == null) {
             return null;
         }

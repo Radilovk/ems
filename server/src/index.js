@@ -935,7 +935,7 @@ async function exercisesApi(request, env, path) {
     return json({ ok: false, error: 'code' }, 401);        // no Basic prompt: the page asks for the code
   }
   if (path === '/admin/api/exercises' && request.method === 'GET') {
-    const rows = await env.DB.prepare('SELECT id, on_app, frames, updated_at FROM exercise_picks').all();
+    const rows = await env.DB.prepare('SELECT id, on_app, frames, zone, updated_at FROM exercise_picks').all();
     return json({ ok: true, ...picksPayload(rows.results) });
   }
   if (path === '/admin/api/exercises/set' && request.method === 'POST') {
@@ -943,10 +943,12 @@ async function exercisesApi(request, env, path) {
     const row = normalizePick(b, EXERCISE_IDS, Date.now());
     if (!row) return err('invalid_exercise', 'Unknown exercise id');
     await env.DB.prepare(
-      'INSERT INTO exercise_picks (id, on_app, frames, updated_at) VALUES (?, ?, ?, ?) '
-      + 'ON CONFLICT(id) DO UPDATE SET on_app = excluded.on_app, frames = excluded.frames, updated_at = excluded.updated_at'
-    ).bind(row.id, row.on_app, row.frames, row.updated_at).run();
-    await audit(env, 'exercise_pick', '', '', row.id + ' on=' + row.on_app + ' frames=' + row.frames);
+      'INSERT INTO exercise_picks (id, on_app, frames, zone, updated_at) VALUES (?, ?, ?, ?, ?) '
+      + 'ON CONFLICT(id) DO UPDATE SET on_app = excluded.on_app, frames = excluded.frames, zone = excluded.zone, '
+      + 'updated_at = excluded.updated_at'
+    ).bind(row.id, row.on_app, row.frames, row.zone, row.updated_at).run();
+    await audit(env, 'exercise_pick', '', '', row.id + ' on=' + row.on_app + ' frames=' + row.frames
+      + (row.zone ? ' zone=' + row.zone : ''));
     return json({ ok: true });
   }
   return json({ ok: false, error: 'not_found' }, 404);
@@ -954,7 +956,7 @@ async function exercisesApi(request, env, path) {
 
 /** The admin's exercise picks for the tablets (public: nothing secret, the library itself ships in the app). */
 async function handleExercises(env) {
-  const rows = await env.DB.prepare('SELECT id, on_app, frames, updated_at FROM exercise_picks').all();
+  const rows = await env.DB.prepare('SELECT id, on_app, frames, zone, updated_at FROM exercise_picks').all();
   return new Response(JSON.stringify({ ok: true, ...picksPayload(rows.results) }), {
     headers: { ...JSON_HEADERS, 'Cache-Control': 'public, max-age=300' },
   });

@@ -56,7 +56,7 @@ public final class ProgramArt {
                 return "m-lunge";
             }
             if (AutoCatalog.CORE.equals(programId) || AutoCatalog.POWER.equals(programId)
-                    || AutoCatalog.BACK_ACTIVE.equals(programId)) {
+                    || AutoCatalog.BACK_ACTIVE.equals(programId) || AutoCatalog.UPPER.equals(programId)) {
                 return "m-pushup";
             }
             return "m-squat";

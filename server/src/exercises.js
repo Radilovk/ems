@@ -1,11 +1,16 @@
 // The exercise library the admin curates (branding/exercises/library.json) and what the tablets read.
 // Pure helpers; index.js does the D1 work. docs/xems-workouts.md
 
-/** A pick from the admin page → a row, or null when invalid. frames: 0 = the exercise's own count, 1–3. */
+/** The picker groups the admin may give an exercise ('' = the library's own). */
+export const ZONES = ['abs', 'glutes', 'legs', 'back', 'chest', 'arms', 'shoulders', 'functional', 'cardio', 'stretch'];
+
+/** A pick from the admin page → a row, or null when invalid. frames: 0 = the exercise's own count, 1–3;
+ *  zone: one of ZONES or '' (anything else → ''). */
 export function normalizePick(body, knownIds, now) {
   if (!body || typeof body.id !== 'string' || !knownIds.has(body.id)) return null;
   const frames = Number.isInteger(body.frames) && body.frames >= 0 && body.frames <= 3 ? body.frames : 0;
-  return { id: body.id, on_app: body.on ? 1 : 0, frames, updated_at: now };
+  const zone = ZONES.includes(body.zone) ? body.zone : '';
+  return { id: body.id, on_app: body.on ? 1 : 0, frames, zone, updated_at: now };
 }
 
 /** Rows → what a tablet needs: a version (the last change) and the admin's picks. */
@@ -14,19 +19,21 @@ export function picksPayload(rows) {
   const picks = [];
   for (const r of rows || []) {
     v = Math.max(v, r.updated_at || 0);
-    picks.push({ id: r.id, on: r.on_app ? 1 : 0, frames: r.frames || 0 });
+    const p = { id: r.id, on: r.on_app ? 1 : 0, frames: r.frames || 0 };
+    if (r.zone) p.zone = r.zone;
+    picks.push(p);
   }
   picks.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   return { v, picks };
 }
 
-/** Which exercises a tablet offers: built-ins unless switched off, others only when switched on. */
+/** Which exercises a tablet offers: only the ones the admin switched on (nothing is on by default — the owner). */
 export function enabledIds(library, picks) {
   const byId = new Map((picks || []).map((p) => [p.id, p]));
   const out = [];
   for (const e of library.exercises) {
     const p = byId.get(e.id);
-    if (p ? p.on : e.b) out.push(e.id);
+    if (p && p.on) out.push(e.id);
   }
   return out;
 }

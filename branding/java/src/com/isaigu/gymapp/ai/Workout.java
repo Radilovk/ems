@@ -106,6 +106,8 @@ public final class Workout {
     public final List<Block> blocks = new ArrayList<Block>();
     /** A ready program: shown in the list, not editable, copied to change. */
     public boolean preset;
+    /** Who a ready program is for: "m" men, "f" women, null everyone (AutoCatalog maleOnly / femaleOnly). */
+    public String sex;
     public long updatedAt;
 
     static int clamp(int v, int lo, int hi) {
@@ -379,6 +381,10 @@ public final class Workout {
      * 30 s rest between, repetitions sized so the round fits one AI session. Passive: the automatic passive plans
      * for a standard client, phase by phase, their steps as blocks.
      */
+    static String audience(AutoCatalog.Program p) {
+        return p == null ? null : p.maleOnly ? "m" : p.femaleOnly ? "f" : null;
+    }
+
     public static List<Workout> presets() {
         List<Workout> out = new ArrayList<Workout>();
         for (int p = 0; p < AutoTemplateData.PROGRAMS.length; p++) {
@@ -393,12 +399,16 @@ public final class Workout {
             AutoCatalog.Program prog = AutoCatalog.get(id);
             w.name = prog != null ? prog.name() : id;
             w.goal = AutoCatalog.CARDIO.equals(id) ? GOAL_FAT : GOAL_TONE;
+            w.sex = audience(prog);
             if (AutoCatalog.GLUTES_LEGS.equals(id)) {
                 w.focus.add("glutes");
             } else if (AutoCatalog.CORE.equals(id)) {
                 w.focus.add("abs");
             } else if (AutoCatalog.BACK_ACTIVE.equals(id)) {
                 w.focus.add("back");
+            } else if (AutoCatalog.UPPER.equals(id)) {
+                w.focus.add("chest");
+                w.focus.add("arms");
             }
             int budget = (w.sessionMinutes() * 60 - FRAME_S) / REP_S;          // repetitions one session holds
             int reps = clamp(budget / st.length, REPS_MIN, 8);
@@ -421,6 +431,7 @@ public final class Workout {
             }
             try {
                 AutoModel.Input in = new AutoModel.Input();
+                in.sex = prog.femaleOnly ? AiModel.Sex.FEMALE : in.sex;
                 in.kind = prog.kind;
                 in.programId = prog.id;
                 in.goal = AutoModel.Goal.values()[0];
@@ -438,6 +449,7 @@ public final class Workout {
                 w.id = "preset:" + prog.id;
                 w.name = prog.name();
                 w.goal = GOAL_PASSIVE;
+                w.sex = audience(prog);
                 for (AutoModel.Phase ph : plan.phases) {
                     int n = Math.max(1, ph.steps.size());
                     for (AutoModel.Step s : ph.steps) {

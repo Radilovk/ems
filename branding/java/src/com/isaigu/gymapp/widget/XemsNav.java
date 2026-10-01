@@ -72,6 +72,7 @@ public final class XemsNav {
     static final class Tile {
         int module;
         int tint;
+        String label;
         LinearLayout root;
         TextView icon;
         TextView status;
@@ -179,6 +180,7 @@ public final class XemsNav {
         Tile t = new Tile();
         t.module = module;
         t.tint = tint;
+        t.label = label;
 
         LinearLayout tile = XemsUi.horizontal(c);
         tile.setGravity(Gravity.CENTER_VERTICAL);
@@ -297,44 +299,68 @@ public final class XemsNav {
         LinearLayout box = XemsUi.vertical(c);
         int p = XemsUi.dp(c, 8);
         box.setPadding(p, p, p, p);
-        box.setBackground(XemsUi.rounded(XemsUi.CARD, XemsUi.dp(c, 18), XemsUi.STROKE,
-                XemsUi.dp(c, 1)));
 
         TextView head = XemsUi.label(c, "XEMS");
         head.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 4), 0, XemsUi.dp(c, 6));
         box.addView(head);
 
+        // every page, even one the vendor hid (the owner wants all of them here)
         for (int i = 0; i < TAB_COUNT; i++) {
             int id = ID_TAB_FIRST + i;
             View tab = mainRoot.findViewById(id);
-            if (!(tab instanceof ViewGroup) || tab.getVisibility() != View.VISIBLE) {
+            if (!(tab instanceof ViewGroup)) {
                 continue;
             }
             box.addView(menuRow(c, (ViewGroup) tab, id), new LinearLayout.LayoutParams(
                     XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
         }
-        // our own section: the workouts (exercise library → built workouts → start with AI)
-        box.addView(extraRow(c, XemsIcon.DUMBBELL, tr("Тренировки", "Workouts"), 0xFF22E3FF, new WorkoutsClick()),
+        // our own section: workouts and procedures on one page
+        box.addView(extraRow(c, XemsIcon.DUMBBELL, tr("Програми", "Programs"), 0xFF22E3FF, new WorkoutsClick()),
                 new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
-        // the procedures (passive maps) apart from the workouts
-        box.addView(extraRow(c, XemsIcon.SLIDERS, tr("Процедури", "Procedures"), 0xFF3D7BFF, new ProceduresClick()),
-                new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 52)));
+        // the modes of the bar too (on a small screen their tiles are squeezed)
+        TextView modes = XemsUi.label(c, tr("Режими", "Modes"));
+        modes.setPadding(XemsUi.dp(c, 12), XemsUi.dp(c, 10), 0, XemsUi.dp(c, 4));
+        box.addView(modes);
+        int[] mods = {M_AI, M_AUTO, M_TIMER, M_MUSIC, M_PULSE};
+        for (int m : mods) {
+            Tile t = tiles[m];
+            if (t == null) {
+                continue;
+            }
+            box.addView(moduleRow(c, m, t), new LinearLayout.LayoutParams(XemsUi.dp(c, 250), XemsUi.dp(c, 48)));
+        }
+
+        // Scrolls when the screen is short: the list keeps its order, the card its frame.
+        android.widget.ScrollView scroll = new android.widget.ScrollView(c);
+        scroll.setVerticalScrollBarEnabled(true);
+        scroll.setFillViewport(false);
+        scroll.addView(box);
+        android.widget.FrameLayout frame = new android.widget.FrameLayout(c);
+        frame.setBackground(XemsUi.rounded(XemsUi.CARD, XemsUi.dp(c, 18), XemsUi.STROKE, XemsUi.dp(c, 1)));
+        frame.setClipToOutline(true);
+        box.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        android.graphics.Rect vis = new android.graphics.Rect();
+        anchor.getWindowVisibleDisplayFrame(vis);
+        int[] at = new int[2];
+        anchor.getLocationInWindow(at);
+        int room = Math.max(XemsUi.dp(c, 160), at[1] - vis.top - XemsUi.dp(c, 16));
+        int h = Math.min(box.getMeasuredHeight(), room);
+        frame.addView(scroll, new android.widget.FrameLayout.LayoutParams(box.getMeasuredWidth(), h));
 
         // Not focusable: a focusable window takes the focus from the activity and Android shows its
         // navigation bar. Outside touches still close it.
-        PopupWindow w = new PopupWindow(box, ViewGroup.LayoutParams.WRAP_CONTENT,
+        PopupWindow w = new PopupWindow(frame, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, false);
         w.setBackgroundDrawable(new ColorDrawable(0));
         w.setOutsideTouchable(true);
         w.setOnDismissListener(new MenuClosed());
-        XemsFullscreen.immersive(box);
+        XemsFullscreen.immersive(frame);
         w.setElevation(XemsUi.dp(c, 16));
         menu = w;
         // the menu sits above the bar (the bar is at the bottom of every page)
-        box.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        w.showAsDropDown(anchor, 0, -(anchor.getHeight() + box.getMeasuredHeight() + XemsUi.dp(c, 8)));
-        XemsUi.enter(box);
+        w.showAsDropDown(anchor, 0, -(anchor.getHeight() + h + XemsUi.dp(c, 8)));
+        XemsUi.enter(frame);
     }
 
     private static final int[] PAGE_ICONS = {XemsIcon.BOLT, XemsIcon.PERSON, XemsIcon.GEAR, XemsIcon.GUIDE,
@@ -419,6 +445,55 @@ public final class XemsNav {
         return row;
     }
 
+    /** A mode of the bar as a menu row: its glyph in a tinted disc, its name, its live status. */
+    private static View moduleRow(Context c, int module, Tile t) {
+        LinearLayout row = XemsUi.horizontal(c);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 12), 0);
+        float r = XemsUi.dp(c, 12);
+        row.setBackground(XemsUi.ripple(XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
+        row.setClickable(true);
+        row.setOnClickListener(new ModuleClick(module));
+        TextView icon = XemsUi.text(c, String.valueOf(t.icon.getText()), 13, t.tint, true);
+        icon.setGravity(Gravity.CENTER);
+        GradientDrawable disc = new GradientDrawable();
+        disc.setShape(GradientDrawable.OVAL);
+        disc.setColor(XemsUi.alpha(t.tint, 0x2E));
+        icon.setBackground(disc);
+        row.addView(icon, new LinearLayout.LayoutParams(XemsUi.dp(c, 32), XemsUi.dp(c, 32)));
+        LinearLayout texts = XemsUi.vertical(c);
+        TextView name = XemsUi.text(c, t.label, 14, XemsUi.MUTED, false);
+        name.setSingleLine(true);
+        texts.addView(name);
+        CharSequence st = t.status.getText();
+        if (st != null && st.length() > 0) {
+            TextView s2 = XemsUi.text(c, String.valueOf(st), 11, XemsUi.HINT, false);
+            s2.setSingleLine(true);
+            s2.setEllipsize(TextUtils.TruncateAt.END);
+            texts.addView(s2);
+        }
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        tp.leftMargin = XemsUi.dp(c, 14);
+        row.addView(texts, tp);
+        return row;
+    }
+
+    static final class ModuleClick implements View.OnClickListener {
+        private final int module;
+
+        ModuleClick(int module) {
+            this.module = module;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (menu != null) {
+                menu.dismiss();
+            }
+            openModule(v, module);
+        }
+    }
+
     static final class WorkoutsClick implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -428,19 +503,6 @@ public final class XemsNav {
             Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
             if (a != null) {
                 com.isaigu.gymapp.ai.WorkoutsUi.open(a);
-            }
-        }
-    }
-
-    static final class ProceduresClick implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            if (menu != null) {
-                menu.dismiss();
-            }
-            Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
-            if (a != null) {
-                com.isaigu.gymapp.ai.WorkoutsUi.openProcedures(a);
             }
         }
     }
@@ -657,6 +719,11 @@ public final class XemsNav {
                 }
                 break;
             case M_AUTO:
+                if (com.isaigu.gymapp.ai.MapRunner.isRunning()) {
+                    state = 1;                         // a program from "Програми" runs in the automatic mode
+                    text = com.isaigu.gymapp.ai.MapRunner.name();
+                    break;
+                }
                 com.isaigu.gymapp.ai.AutoSession.Stage as = com.isaigu.gymapp.ai.AutoSession.getStage();
                 state = as == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING ? 1
                         : as == com.isaigu.gymapp.ai.AutoSession.Stage.IDLE ? 0 : 2;

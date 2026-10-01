@@ -498,7 +498,7 @@ public final class AiSession {
         AiEnergy.exerciseMet = 0;
         try {
             ExerciseLibrary.load(c);
-            String prog = AutoTemplates.programForAi(input.goal, input.mode, input.age);
+            String prog = AutoTemplates.programForAi(input.goal, input.mode, input.age, input.sex);
             if (prog == null) {
                 return;
             }

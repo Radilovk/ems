@@ -74,10 +74,8 @@ public final class XemsLocalSection {
         card.addView(text(a, tr("Таблет и данни", "Tablet and data"), 20, true), matchWrap(a, 8));
 
         TextView mode = text(a, setup
-                ? tr("Режим: НАСТРОЙКА (админ). Всичко е отключено; всеки открит костюм се сдвоява при свързване.",
-                     "Mode: SETUP (admin). Everything is unlocked; any suit found is paired when it connects.")
-                : tr("Режим: потребител. Виждат се само позволените костюми.",
-                     "Mode: user. Only the allowed suits are shown."), 14, true);
+                ? tr("Режим: НАСТРОЙКА (админ)", "Mode: SETUP (admin)")
+                : tr("Режим: потребител", "Mode: user"), 14, true);
         mode.setTextColor(setup ? 0xFFFFB74D : 0xFF81C784);
         card.addView(mode, matchWrap(a, 4));
 
@@ -90,9 +88,7 @@ public final class XemsLocalSection {
                 : tr("Профил: ключ …", "Profile: key …") + key.substring(Math.max(0, key.length() - 4));
         TextView info = text(a, profile + "\n"
                 + tr("Костюми: ", "Suits: ") + paired + tr(" сдвоени на таблета, ", " paired on this tablet, ")
-                + server + tr(" от сървъра.", " from the server.")
-                + "\n" + tr("Потребители, програми и история се пазят само на таблета.",
-                        "Users, programs and history stay on this tablet only."), 13, false);
+                + server + tr(" от сървъра.", " from the server."), 13, false);
         info.setTextColor(0xFFB0B0B0);
         card.addView(info, matchWrap(a, 8));
 

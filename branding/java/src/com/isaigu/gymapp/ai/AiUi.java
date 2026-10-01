@@ -752,8 +752,8 @@ final class AiUi {
 
     private static void screenRest(final Context a) {
         titleView.setText(AiText.t("Пулс в покой", "Resting heart rate"));
-        subtitleView.setText(AiText.t("Седни или легни спокойно, без стимулация · планът идва сам",
-                "Sit or lie still, no stimulation · the plan follows by itself"));
+        subtitleView.setText(AiText.t("Седни или легни спокойно, без стимулация",
+                "Sit or lie still, no stimulation"));
         final boolean self = AiSession.getInput().operator == Operator.SELF;
         LinearLayout row = horizontal(a);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -863,10 +863,10 @@ final class AiUi {
                                 ? AiText.t("Свързване с гривната…", "Connecting to the band…")
                                 : AiText.t("Чакам пулс от гривната", "Waiting for band HR"));
                         detail.setText(self
-                                ? AiText.t("Самостоятелната сесия изисква гривна. Първият пулс идва до ~15 s.",
-                                "A self session requires the band. First HR within ~15 s.")
-                                : AiText.t("Първият пулс идва до ~15 s. Или продължи без пулс — управлява само планът.",
-                                "First HR within ~15 s. Or continue without HR — then only the plan controls."));
+                                ? AiText.t("Без гривна тази сесия не тръгва.",
+                                "This session needs the band.")
+                                : AiText.t("Или продължи без пулс.",
+                                "Or continue without HR."));
                     }
                     timeLeft.setText("");
                 } else {
@@ -1068,10 +1068,10 @@ final class AiUi {
         LinearLayout side = vertical(a);
         side.setPadding(dp(a, 30), 0, 0, 0);
         side.addView(text(a, self
-                ? AiText.t("Силата расте плавно сама. Натисни „Достатъчно“, когато усещането стигне целта.",
-                "Strength rises smoothly by itself. Tap “Enough” when the sensation reaches the target.")
-                : AiText.t("Настрой мускулите с плъзгачите както обикновено, после вдигай общата сила до целевото усещане.",
-                "Set the muscles with the sliders as usual, then raise overall strength to the target sensation."),
+                ? AiText.t("Натисни „Достатъчно“ при целевото усещане.",
+                "Tap “Enough” at the target sensation.")
+                : AiText.t("Вдигай силата до целевото усещане.",
+                "Raise strength to the target sensation."),
                 15, AiViews.TEXT, false));
         side.addView(cr10Scale(a, plan.cr10Lo, plan.cr10Hi, null), matchWrap(a, 18));
         final LinearLayout ctrls = horizontal(a);
@@ -1089,7 +1089,7 @@ final class AiUi {
                 ring.setValue(c / 100f);
                 ring.setCap((float) plan.phiMax);
                 boolean on = AiSession.isCalibStimOn();
-                sub.setText(on ? AiText.t("импулси · 85 Hz · 4/4 s", "pulses · 85 Hz · 4/4 s")
+                sub.setText(on ? AiText.t("импулсите вървят", "pulses on")
                         : AiText.t("стимулацията е спряна", "stimulation off"));
                 String mode = !on ? "off" : AiSession.isSoloRamping() ? "ramp" : "on";
                 if (!mode.equals(ctrls.getTag())) {
@@ -1154,8 +1154,7 @@ final class AiUi {
         final AiModel.Plan plan = e.getPlan();
         final AiModel.Profile p = e.getProfile();
         titleView.setText(AiText.goal(e.getInput().goal) + " · " + AiText.t("на живо", "live"));
-        subtitleView.setText(AiText.t("AI управлява силата, паузите и почивките. Стопът е винаги наличен.",
-                "AI manages strength, pauses and rests. Stop is always available."));
+        subtitleView.setText("");
 
         FrameLayout stack = new FrameLayout(a);
         LinearLayout col = vertical(a);
@@ -1485,10 +1484,10 @@ final class AiUi {
             box.addView(centered(text(a, AiText.t("Пулсът достигна тавана", "Heart rate reached the ceiling"), 26,
                     AiViews.DANGER, true)));
             box.addView(centered(text(a, can
-                    ? AiText.t("Пулсът е под зоната за възстановяване повече от 30 s. Можеш да продължиш.",
-                    "HR has been below the recovery level for over 30 s. You may continue.")
-                    : AiText.t("Стимулацията е спряна. Продължаването се отключва, когато пулсът падне под ",
-                    "Stimulation is off. Continue unlocks when HR stays below ")
+                    ? AiText.t("Пулсът се възстанови. Можеш да продължиш.",
+                    "HR has recovered. You may continue.")
+                    : AiText.t("Продължаване при пулс под ",
+                    "Continue when HR stays below ")
                     + e.getProfile().hrAt(e.getProfile().xRec) + AiText.t(" за 30 s.", " for 30 s."), 15, AiViews.MUTED, false)));
             TextView resume = primaryButton(a, AiText.t("Продължи", "Continue"));
             resume.setEnabled(can);
@@ -1570,8 +1569,8 @@ final class AiUi {
             restRing.setValue(1f);
             restTime.setText("+" + AiText.mmss(over));
             restNote.setText(over >= AiEngine.LONG_PAUSE_S
-                    ? AiText.t("Дълга пауза — AI ще започне по-меко и ще вдигне силата за няколко импулса. Времето на плана стои.",
-                    "Long pause — AI starts softer and ramps back over a few pulses. The plan clock is on hold.")
+                    ? AiText.t("Дълга пауза — следващият блок започва по-меко.",
+                    "Long pause — the next block starts softer.")
                     : AiText.t("Мускулите и пулсът са възстановени. Натисни, когато си в позиция.",
                     "Muscles and HR have recovered. Tap when in position."));
             return;
@@ -1585,7 +1584,7 @@ final class AiUi {
             note += AiText.t(" · чакам пулсът да падне под ", " · waiting for HR below ")
                     + e.getProfile().hrAt(e.getProfile().xRec);
         }
-        restNote.setText(note + AiText.t(". Следващият блок се пуска само ръчно.", ". The next block starts only by hand."));
+        restNote.setText(note);
     }
 
     // ================================================================ 8 · report

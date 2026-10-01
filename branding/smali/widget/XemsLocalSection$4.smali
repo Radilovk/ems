@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 179
+    .line 175
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$4;->val$a:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$4;->val$root:Landroid/view/View;
@@ -49,7 +49,7 @@
     .registers 4
 
     .prologue
-    .line 181
+    .line 177
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$4;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$4;->val$root:Landroid/view/View;
@@ -57,6 +57,6 @@
     # invokes: Lcom/isaigu/gymapp/widget/XemsLocalSection;->confirmFinish(Landroid/app/Activity;Landroid/view/View;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->access$300(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 182
+    .line 178
     return-void
 .end method

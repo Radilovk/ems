@@ -741,13 +741,9 @@ public final class AutoUi {
                 + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "") + AiText.t(" от 10 · ", " of 10 · ") + cr10Text(plan.cr10Hi));
         LinearLayout body = shell.body;
         if (!calibStarted) {
-            body.addView(hint(c, AiText.t("Костюмът е облечен и свързан? Импулсите тръгват с бутона долу.",
-                    "Suit on and connected? The pulses start with the button below.")), XemsUi.matchWrap(c, 4));
             footer(c, AiText.t("▶ Пусни импулсите", "▶ Start the pulses"), true);
             return;
         }
-        body.addView(hint(c, AiText.t("Качвай силата тук или с + / − на основния екран.",
-                "Raise the strength here or with + / − on the main screen.")), XemsUi.matchWrap(c, 4));
         List<AutoSession.Row> rows = AutoSession.getRows();
         for (int i = 0; i < rows.size(); i++) {
             AutoSession.Row r = rows.get(i);

@@ -72,11 +72,8 @@ public final class WearableSettingsSection {
 
         card.addView(WearableUi.text(a, WearableUi.tr("Гривни · Xiaomi Smart Band", "Bands · Xiaomi Smart Band"),
                 22f, textCol, true));
-        TextView hint = WearableUi.text(a, WearableUi.tr(
-                "Сдвои гривната веднъж, после избери за какво я ползваш.",
-                "Pair the band once, then choose what it is used for."), 13f, mutedCol, false);
-        hint.setPadding(0, WearableUi.dp(a, 4), 0, WearableUi.dp(a, 12));
-        card.addView(hint);
+        View gapTop = new View(a);                              // each row says its band's job: no intro
+        card.addView(gapTop, new LinearLayout.LayoutParams(1, WearableUi.dp(a, 12)));
 
         // ---- paired bands, each with its own job
         java.util.List<String[]> bands = knownBands(a);
@@ -96,14 +93,6 @@ public final class WearableSettingsSection {
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             rp.bottomMargin = WearableUi.dp(a, 10);
             card.addView(bandRow(a, root, b, bandApp, textCol, mutedCol), rp);
-        }
-        if (bands.size() > 1 && bandApp) {
-            TextView two = WearableUi.text(a, WearableUi.tr(
-                    "С две гривни: едната е Пулс (на клиента), другата Управление (на треньора).",
-                    "With two bands: one is Pulse (on the client), the other Control (the trainer's)."),
-                    12f, mutedCol, false);
-            two.setPadding(0, 0, 0, WearableUi.dp(a, 8));
-            card.addView(two);
         }
         TextView pair = WearableUi.button(a, bands.isEmpty()
                 ? WearableUi.tr("Сдвои гривна", "Pair a band")
@@ -249,12 +238,6 @@ public final class WearableSettingsSection {
                 || (WearableConfig.getBandTransport(a) == 0
                 && com.isaigu.gymapp.wearable.xiaomi.XiaomiBand.usesClassic(bandName));
         if (classic && bandApp) {
-            TextView openHint = WearableUi.text(a,
-                    WearableUi.tr("XEMS се отваря на гривната сам при старт на тренировка (настройка по-горе). Ръчно: бутонът по-долу, или на гривната — вдигни китката, плъзни нагоре, превърти до XEMS.",
-                            "XEMS opens on the band by itself when a workout starts (setting above). By hand: the button below, or on the band — raise the wrist, swipe up, scroll to XEMS."),
-                    13f, mutedCol, false);
-            openHint.setPadding(0, WearableUi.dp(a, 12), 0, 0);
-            card.addView(openHint);
             LinearLayout appRow = row(a);
             appRow.setPadding(0, WearableUi.dp(a, 12), 0, 0);
             final TextView appStatus = WearableUi.text(a, BandAppInstall.statusText(a), 13f, mutedCol, false);

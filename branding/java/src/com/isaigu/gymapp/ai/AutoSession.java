@@ -1098,8 +1098,7 @@ public final class AutoSession {
                             msgKey = "zone";
                             msg = who(r) + AutoCues.zoneNames()[moved] + " " + z[moved]
                                     + AiText.t(" %. Зоните се местят ±", " %. Zones move ±") + rp.zoneDelta
-                                    + AiText.t(" от програмата; балансът корем/кръст, бедра и гърди/гръб се пази.",
-                                    " from the program; abs/low back, thigh and chest/back balance is kept.");
+                                    + AiText.t(" от програмата.", " from the program.");
                         }
                     }
                     rewrite = true;

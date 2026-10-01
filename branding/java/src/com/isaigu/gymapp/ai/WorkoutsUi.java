@@ -350,8 +350,8 @@ public final class WorkoutsUi {
         shell.title.setText(ro ? w.name : (w.name.length() > 0 ? w.name
                 : w.isPassive() ? AiText.t("Нова процедура", "New procedure") : AiText.t("Нова тренировка", "New workout")));
         shell.subtitle.setText(ro ? AiText.t("Готова карта — копирай я, за да я промениш.", "Ready map — copy it to change it.")
-                : w.blocks.isEmpty() ? "" : AiText.t("Влачи ръба на блок за дължина · задръж, за да го преместиш",
-                "Drag a block's edge for length · hold it to move"));
+                : w.blocks.isEmpty() ? "" : AiText.t("Ръбът — дължина · задръж — премести",
+                "Edge — length · hold — move"));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 
@@ -385,15 +385,15 @@ public final class WorkoutsUi {
         lineCard.setBackgroundDrawable(XemsUi.rounded(ProgramArt.TILE, XemsUi.dp(c, 16), 0, 0));
         lineCard.setPadding(XemsUi.dp(c, 4), XemsUi.dp(c, 6), XemsUi.dp(c, 4), XemsUi.dp(c, 4));
         mapView = new ImpulseMapView(c);
-        mapView.setMap(w, !ro);
+        mapView.setMap(w, !ro, true);                         // a ready one shows its values too
         mapView.setListener(new MapListener());
         // a long map is wider than the screen: it scrolls sideways (blocks keep room for their values and − / +)
         android.widget.HorizontalScrollView mapScroll = new android.widget.HorizontalScrollView(c);
         mapScroll.setFillViewport(true);
         mapScroll.setHorizontalScrollBarEnabled(true);
         mapScroll.addView(mapView, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                XemsUi.dp(c, 300)));
-        lineCard.addView(mapScroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 300)));
+                ViewGroup.LayoutParams.WRAP_CONTENT));             // as tall as the blocks' values need
+        lineCard.addView(mapScroll, XemsUi.matchWrap(c, 0));
         legendBox = XemsUi.vertical(c);
         lineCard.addView(legendBox, XemsUi.matchWrap(c, 2));
         refreshLegend();
@@ -923,8 +923,8 @@ public final class WorkoutsUi {
         shell.title.setText(replace ? AiText.t("Смени упражнението", "Change the exercise")
                 : AiText.t("Добави упражнения", "Add exercises"));
         shell.subtitle.setText(replace ? AiText.t("Докосни новото — блокът запазва импулса си.", "Tap the new one — the block keeps its impulse.")
-                : AiText.t("Докосни, за да избереш · + / − серии · докосни избраната, за да я махнеш. Номерът е редът в програмата.",
-                        "Tap to pick · + / − sets · tap a picked one to take it out. The number is its place in the program."));
+                : AiText.t("+ / − серии · номерът е редът в програмата",
+                        "+ / − sets · the number is the order in the program"));
         shell.subtitle.setVisibility(View.VISIBLE);
         LinearLayout body = shell.body;
 

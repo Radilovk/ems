@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 509
+    .line 546
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,7 +42,7 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 512
+    .line 549
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     # getter for: Lcom/isaigu/gymapp/ai/ImpulseMapView;->downIndex:I
@@ -83,19 +83,19 @@
 
     if-lt v0, v1, :cond_26
 
-    .line 525
+    .line 562
     :cond_25
     :goto_25
     return-void
 
-    .line 515
+    .line 552
     :cond_26
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     # setter for: Lcom/isaigu/gymapp/ai/ImpulseMapView;->lifted:Z
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->access$202(Lcom/isaigu/gymapp/ai/ImpulseMapView;Z)Z
 
-    .line 516
+    .line 553
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     const/4 v1, 0x2
@@ -103,13 +103,13 @@
     # setter for: Lcom/isaigu/gymapp/ai/ImpulseMapView;->gesture:I
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->access$302(Lcom/isaigu/gymapp/ai/ImpulseMapView;I)I
 
-    .line 517
+    .line 554
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     # setter for: Lcom/isaigu/gymapp/ai/ImpulseMapView;->frozen:Z
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->access$402(Lcom/isaigu/gymapp/ai/ImpulseMapView;Z)Z
 
-    .line 518
+    .line 555
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
@@ -122,7 +122,7 @@
     # setter for: Lcom/isaigu/gymapp/ai/ImpulseMapView;->selected:I
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->access$502(Lcom/isaigu/gymapp/ai/ImpulseMapView;I)I
 
-    .line 519
+    .line 556
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->getParent()Landroid/view/ViewParent;
@@ -131,14 +131,14 @@
 
     invoke-interface {v0, v2}, Landroid/view/ViewParent;->requestDisallowInterceptTouchEvent(Z)V
 
-    .line 520
+    .line 557
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->performHapticFeedback(I)Z
 
-    .line 521
+    .line 558
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     # getter for: Lcom/isaigu/gymapp/ai/ImpulseMapView;->listener:Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;
@@ -148,7 +148,7 @@
 
     if-eqz v0, :cond_67
 
-    .line 522
+    .line 559
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     # getter for: Lcom/isaigu/gymapp/ai/ImpulseMapView;->listener:Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;
@@ -165,7 +165,7 @@
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/ImpulseMapView$Listener;->onSelect(I)V
 
-    .line 524
+    .line 561
     :cond_67
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView$Lift;->this$0:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 593
+    .line 576
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 594
+    .line 577
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$AutoOpenToggle;->a:Landroid/app/Activity;
 
-    .line 595
+    .line 578
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 599
+    .line 582
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$AutoOpenToggle;->a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->setBandAutoOpen(Landroid/content/Context;Z)V
 
-    .line 600
+    .line 583
     return-void
 .end method
